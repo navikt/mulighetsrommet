@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDto
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.plugins.getPid
 import no.nav.mulighetsrommet.api.services.ArrangorService
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
@@ -30,16 +31,17 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-fun Route.refusjonRoutes() {
+fun Route.arrangorflateRoutes() {
     VeraGreenfieldFoundryProvider.initialise()
     PDFGenCore.init(
         Environment(),
     )
-    val service: RefusjonService by inject()
+    val refusjonService: RefusjonService by inject()
+    val tilsagnService: TilsagnService by inject()
     val altinnRettigheterService: AltinnRettigheterService by inject()
     val arrangorService: ArrangorService by inject()
 
-    route("/api/v1/intern/refusjon") {
+    route("/refusjon") {
         get("/krav") {
             val rettigheter = altinnRettigheterService.getRettigheter(getPid())
             if (rettigheter.isEmpty()) {
@@ -53,7 +55,7 @@ fun Route.refusjonRoutes() {
                     }
             }
 
-            val krav = service.getByArrangorIds(arrangorer.map { it.id })
+            val krav = refusjonService.getByArrangorIds(arrangorer.map { it.id })
                 .map {
                     // TODO egen listemodell som er generell på tvers av beregningstype?
                     toRefusjonKravOppsummering(it)
@@ -65,7 +67,7 @@ fun Route.refusjonRoutes() {
         get("/krav/{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
 
-            val krav = service.getById(id) ?: throw NotFoundException("Fant ikke refusjonskra med id=$id")
+            val krav = refusjonService.getById(id) ?: throw NotFoundException("Fant ikke refusjonskra med id=$id")
 
             val oppsummering = toRefusjonKravOppsummering(krav)
 
@@ -75,7 +77,7 @@ fun Route.refusjonRoutes() {
         post("/krav/{id}/godkjenn-refusjon") {
             val id = call.parameters.getOrFail<UUID>("id")
 
-            service.godkjennRefusjon(id)
+            refusjonService.godkjennRefusjon(id)
 
             call.respond(HttpStatusCode.OK)
         }
@@ -90,6 +92,37 @@ fun Route.refusjonRoutes() {
                 "attachment; filename=\"kvittering.pdf\"",
             )
             call.respondBytes(pdfBytes, contentType = ContentType.Application.Pdf)
+        }
+
+        route("/tilsagn") {
+            get {
+                val rettigheter = altinnRettigheterService.getRettigheter(getPid())
+                if (rettigheter.isEmpty()) {
+                    return@get call.respond(HttpStatusCode.Forbidden)
+                }
+                val arrangorer = rettigheter.map {
+                    arrangorService.getOrSyncArrangorFromBrreg(it.organisasjonsnummer.value)
+                        .getOrElse {
+                            throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
+                        }
+                }
+
+                val tilsagn = tilsagnService.getAllArrangorflateTilsagn(arrangorer.map { it.id })
+                call.respond(tilsagn)
+            }
+
+            get("/{id}") {
+                val rettigheter = altinnRettigheterService.getRettigheter(getPid())
+                if (rettigheter.isEmpty()) {
+                    return@get call.respond(HttpStatusCode.Forbidden)
+                }
+                val id = call.parameters.getOrFail<UUID>("id")
+
+                val tilsagn = tilsagnService.getArrangorflateTilsagn(id)
+                    ?: throw NotFoundException("Fant ikke tilsagn")
+
+                call.respond(tilsagn)
+            }
         }
     }
 }

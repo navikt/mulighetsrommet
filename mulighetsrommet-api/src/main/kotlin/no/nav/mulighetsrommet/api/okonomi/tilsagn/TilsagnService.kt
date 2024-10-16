@@ -100,6 +100,12 @@ class TilsagnService(
         }.right()
     }
 
+    fun getAllArrangorflateTilsagn(arrangorIds: List<UUID>): List<ArrangorflateTilsagn> =
+        tilsagnRepository.getAllArrangorflateTilsagn(arrangorIds)
+
+    fun getArrangorflateTilsagn(id: UUID): ArrangorflateTilsagn? =
+        tilsagnRepository.getArrangorflateTilsagn(id)
+
     fun getByGjennomforingId(gjennomforingId: UUID): List<TilsagnDto> =
         tilsagnRepository.getByGjennomforingId(gjennomforingId)
 

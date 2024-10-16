@@ -1781,11 +1781,41 @@ paths:
                 items:
                   $ref: "#/components/schemas/AFTSats"
 
+  /api/v1/intern/refusjon/tilsagn:
+    get:
+      tags:
+        - Arrangorflate
+      operationId: getAllArrangorflateTilsagn
+      responses:
+        200:
+          description: Hent tilsagn til arrangør
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArrangorflateTilsagn"
+
+  /api/v1/intern/refusjon/tilsagn/{id}:
+    get:
+      tags:
+        - Arrangorflate
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      operationId: getArrangorflateTilsagn
+      responses:
+        200:
+          description: Hent tilsagn by id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrangorflateTilsagn"
+
   /api/v1/intern/refusjon/krav:
     get:
       tags:
-        - Refusjonskrav
-      operationId: getRefusjonskrav
+        - Arrangorflate
+      operationId: getAllRefusjonKrav
       responses:
         200:
           description: Hent refusjonskrav til arrangør
@@ -1801,7 +1831,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/ID"
       tags:
-        - Refusjonskrav
+        - Arrangorflate
       operationId: getRefusjonkrav
       responses:
         200:
@@ -1816,7 +1846,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/ID"
       tags:
-        - Refusjonskrav
+        - Arrangorflate
       operationId: godkjennRefusjonskrav
       responses:
         200:
@@ -1827,7 +1857,7 @@ paths:
       - $ref: "#/components/parameters/ID"
     get:
       tags:
-        - Refusjonskrav
+        - Arrangorflate
       operationId: getRefusjonkravKvittering
       responses:
         200:
@@ -5031,12 +5061,54 @@ components:
         - programlopStart
         - nusKoder
 
-    GetRefusjonskravRequest:
+    ArrangorflateTilsagn:
       type: object
       properties:
-        orgnr:
-          type: array
-          items:
-            type: string
+        id:
+          type: string
+          format: uuid
+        gjennomforing:
+          type: object
+          properties:
+            navn:
+              type: string
+          required:
+            - navn
+        tiltakstype:
+          type: object
+          properties:
+            navn:
+              type: string
+          required:
+            - navn
+        periodeStart:
+          type: string
+          format: date
+        periodeSlutt:
+          type: string
+          format: date
+        arrangor:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            organisasjonsnummer:
+              type: string
+            navn:
+              type: string
+          required:
+            - id
+            - organisasjonsnummer
+            - navn
+        beregning:
+          $ref: "#/components/schemas/TilsagnBeregning"
       required:
-        - orgnr
+        - periodeStart
+        - periodeSlutt
+        - gjennomforing
+        - tiltakstype
+        - arrangor
+        - beregning
+        - id
+
