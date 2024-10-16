@@ -2,6 +2,8 @@ import { RefusjonKravAft, RefusjonskravStatus } from "@mr/api-client";
 import { Tag } from "@navikt/ds-react";
 import { Link } from "@remix-run/react";
 import { ReactNode } from "react";
+import { formaterDato } from "~/utils";
+import { formaterTall } from "@mr/frontend-common/utils/utils";
 
 interface Props {
   krav: RefusjonKravAft[];
@@ -36,11 +38,11 @@ export function RefusjonskravTable({ krav }: Props) {
               >
                 <div className={"col-span-12 bg-[#122B4414] p-1"}>{gjennomforing.navn}</div>
                 <div className={"grid grid-cols-12 col-span-12 p-2"}>
-                  <div
-                    className={"col-span-3"}
-                  >{`${beregning.periodeStart} - ${beregning.periodeSlutt}`}</div>
+                  <div className={"col-span-3"}>
+                    {`${formaterDato(beregning.periodeStart)} - ${formaterDato(beregning.periodeSlutt)}`}
+                  </div>
                   <div className="col-span-2">{beregning.antallManedsverk}</div>
-                  <div className="col-span-2">{beregning.belop} NOK</div>
+                  <div className="col-span-2">{formaterTall(beregning.belop)} NOK</div>
                   <div className="col-span-2">Frist for godkjenning</div>
                   <div className="col-span-2">{statusTilTag(status)}</div>
                   <div className="col-span-1">
