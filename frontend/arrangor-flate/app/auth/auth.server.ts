@@ -49,7 +49,8 @@ export async function setupOpenApi(request: Request) {
 }
 
 export async function checkValidToken(request: Request) {
-  const token = hentMiljø() === Miljø.Lokalt
+  const token =
+    hentMiljø() === Miljø.Lokalt
       ? process.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN
       : getToken(request);
 
