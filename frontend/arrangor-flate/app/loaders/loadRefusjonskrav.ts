@@ -1,5 +1,6 @@
 import { RefusjonskravService } from "@mr/api-client";
 import { Refusjonskrav } from "~/domene/domene";
+import { formaterDato } from "~/utils";
 
 export async function loadRefusjonskrav(id: string): Promise<Refusjonskrav> {
   const krav = await RefusjonskravService.getRefusjonkrav({ id });
@@ -11,7 +12,7 @@ export async function loadRefusjonskrav(id: string): Promise<Refusjonskrav> {
     detaljer: {
       tiltaksnavn: krav.gjennomforing.navn,
       tiltakstype: krav.tiltakstype.navn,
-      refusjonskravperiode: `${beregning.periodeStart} - ${beregning.periodeSlutt}`,
+      refusjonskravperiode: `${formaterDato(beregning.periodeStart)} - ${formaterDato(beregning.periodeSlutt)}`,
     },
     beregning,
     deltakere: krav.deltakelser.map((d) => {

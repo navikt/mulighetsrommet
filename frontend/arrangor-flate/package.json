@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@mr/api-client": "workspace:*",
+    "@mr/frontend-common": "workspace:*",
     "@navikt/aksel-icons": "^7.2.1",
     "@navikt/bedriftsmeny": "^6.13.1",
     "@navikt/ds-css": "^7.2.1",

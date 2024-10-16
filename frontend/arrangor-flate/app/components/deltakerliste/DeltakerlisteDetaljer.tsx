@@ -7,6 +7,7 @@ interface Props {
 
 export function DeltakerlisteDetaljer({ krav }: Props) {
   const { tiltaksnavn, tiltakstype, refusjonskravperiode } = krav.detaljer;
+
   return (
     <Definisjonsliste
       title="Generelt"

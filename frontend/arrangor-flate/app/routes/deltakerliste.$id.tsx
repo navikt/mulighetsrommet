@@ -9,6 +9,7 @@ import { RefusjonKravDeltakelse } from "@mr/api-client";
 import { useState } from "react";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
+import { formaterDato } from "~/utils";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Refusjon" }, { name: "description", content: "Refusjonsdetaljer" }];
@@ -95,7 +96,7 @@ export default function RefusjonDeltakerlister() {
               <Table.ColumnHeader scope="col" sortable sortKey="endDatePeriod">
                 Sluttdato i perioden
               </Table.ColumnHeader>
-              <Table.HeaderCell scope="col">Stillingsprosent</Table.HeaderCell>
+              <Table.HeaderCell scope="col">Stillings-prosent</Table.HeaderCell>
               <Table.HeaderCell scope="col">Månedsverk i perioden</Table.HeaderCell>
               <Table.ColumnHeader scope="col" sortable sortKey="veileder">
                 Veileder
@@ -110,8 +111,12 @@ export default function RefusjonDeltakerlister() {
                   <Table.HeaderCell>{deltaker.navn}</Table.HeaderCell>
                   <Table.DataCell>{deltaker.norskIdent}</Table.DataCell>
                   <Table.DataCell>{deltaker.startDatoTiltaket}</Table.DataCell>
-                  <Table.DataCell>{deltaker.startDatoPerioden}</Table.DataCell>
-                  <Table.DataCell>{deltaker.sluttDatoPerioden}</Table.DataCell>
+                  <Table.DataCell>
+                    {deltaker.startDatoPerioden && formaterDato(deltaker.startDatoPerioden)}
+                  </Table.DataCell>
+                  <Table.DataCell>
+                    {deltaker.sluttDatoPerioden && formaterDato(deltaker.sluttDatoPerioden)}
+                  </Table.DataCell>
                   <Table.DataCell>{deltaker.stillingsprosent}</Table.DataCell>
                   <Table.DataCell>{deltaker.maanedsverk}</Table.DataCell>
                   <Table.DataCell>{deltaker.veileder}</Table.DataCell>

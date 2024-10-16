@@ -1,4 +1,4 @@
-import { RefusjonKravAft, RefusjonskravService } from "@mr/api-client";
+import { RefusjonKravAft, RefusjonskravService, RefusjonskravStatus } from "@mr/api-client";
 import { Tabs } from "@navikt/ds-react";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -24,8 +24,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function Refusjon() {
   const { krav } = useLoaderData<typeof loader>();
-  const historiske: RefusjonKravAft[] = [];
-  const aktive = krav;
+  const historiske: RefusjonKravAft[] = krav.filter(
+    (k) => k.status === RefusjonskravStatus.GODKJENT_AV_ARRANGOR,
+  );
+  const aktive = krav.filter((k) => k.status !== RefusjonskravStatus.GODKJENT_AV_ARRANGOR);
 
   return (
     <>

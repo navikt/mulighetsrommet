@@ -29,6 +29,10 @@ class RefusjonService(
         return refusjonskravRepository.get(id)
     }
 
+    fun godkjennRefusjon(id: UUID) {
+        refusjonskravRepository.setStatus(id, RefusjonskravStatus.GODKJENT_AV_ARRANGOR)
+    }
+
     fun genererRefusjonskravForMonth(dayInMonth: LocalDate) {
         val periodeStart = dayInMonth.with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay()
         val periodeSlutt = periodeStart.with(TemporalAdjusters.lastDayOfMonth()).plusDays(1)

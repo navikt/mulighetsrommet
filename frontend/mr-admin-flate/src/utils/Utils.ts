@@ -59,10 +59,6 @@ export function formaterDatoSomYYYYMMDD(dato?: Date | null, fallback = ""): stri
   // https://stackoverflow.com/questions/23593052/format-javascript-date-as-yyyy-mm-dd
 }
 
-export function formaterTall(tall: number) {
-  return Intl.NumberFormat("no-nb").format(tall);
-}
-
 export function kalkulerStatusBasertPaaFraOgTilDato(
   datoer: {
     fraDato: string;

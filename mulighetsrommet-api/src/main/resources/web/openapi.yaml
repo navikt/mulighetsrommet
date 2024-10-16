@@ -1811,6 +1811,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/RefusjonKravAft"
 
+  /api/v1/intern/refusjon/krav/{id}/godkjenn-refusjon:
+    post:
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      tags:
+        - Refusjonskrav
+      operationId: godkjennRefusjonskrav
+      responses:
+        200:
+          description: Godkjenn et refusjonskrav
+
   /api/v1/intern/refusjon/kvittering/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
