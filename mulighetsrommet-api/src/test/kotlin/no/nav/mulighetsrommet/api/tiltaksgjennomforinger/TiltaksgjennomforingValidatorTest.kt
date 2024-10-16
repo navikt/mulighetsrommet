@@ -280,7 +280,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         val gruppeFagYrke = TiltaksgjennomforingFixtures.GruppeFagYrke1.copy(utdanningslop = null)
 
         validator.validate(gruppeFagYrke, null).shouldBeLeft(
-            listOf(ValidationError("utdanningslop", "Du må velge utdanningsprogram og lærefag")),
+            listOf(ValidationError("utdanningslop", "Du må velge utdanningsprogram og lærefag på avtalen")),
         )
     }
 

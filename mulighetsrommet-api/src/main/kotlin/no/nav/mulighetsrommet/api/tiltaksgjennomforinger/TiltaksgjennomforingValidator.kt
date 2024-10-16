@@ -149,7 +149,7 @@ class TiltaksgjennomforingValidator(
                         add(
                             ValidationError.of(
                                 TiltaksgjennomforingDbo::utdanningslop,
-                                "Du må velge utdanningsprogram og lærefag",
+                                "Du må velge utdanningsprogram og lærefag på avtalen",
                             ),
                         )
                     } else if (utdanningslop.utdanninger.isEmpty()) {
