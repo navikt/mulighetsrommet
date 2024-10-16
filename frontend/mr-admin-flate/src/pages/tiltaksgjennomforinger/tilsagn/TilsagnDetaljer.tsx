@@ -42,15 +42,15 @@ export function TilsagnDetaljer() {
       : { tittel: "Tiltaksgjennomføringer", lenke: "/tiltaksgjennomforinger" },
     avtaleId
       ? {
-        tittel: "Avtaledetaljer",
-        lenke: `/avtaler/${avtaleId}`,
-      }
+          tittel: "Avtaledetaljer",
+          lenke: `/avtaler/${avtaleId}`,
+        }
       : undefined,
     erPaaGjennomforingerForAvtale
       ? {
-        tittel: "Avtalens gjennomføringer",
-        lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
-      }
+          tittel: "Avtalens gjennomføringer",
+          lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
+        }
       : undefined,
     {
       tittel: "Tiltaksgjennomføring",

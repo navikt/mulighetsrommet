@@ -109,7 +109,7 @@ export function Tilsagnstabell({ tilsagn }: Props) {
               </Table.DataCell>
               <Table.DataCell>
                 {tilsagn?.opprettetAv === ansatt?.navIdent &&
-                  besluttelse?.utfall === TilsagnBesluttelse.AVVIST ? (
+                besluttelse?.utfall === TilsagnBesluttelse.AVVIST ? (
                   <Button
                     type="button"
                     variant="primary"
