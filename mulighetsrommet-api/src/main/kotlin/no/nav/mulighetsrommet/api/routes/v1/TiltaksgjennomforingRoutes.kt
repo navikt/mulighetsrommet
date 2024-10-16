@@ -276,7 +276,7 @@ data class TiltaksgjennomforingRequest(
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
-    val utdanningslop: UtdanningslopDbo?,
+    val utdanningslop: UtdanningslopDbo? = null,
 ) {
     fun toDbo() = TiltaksgjennomforingDbo(
         id = id,
