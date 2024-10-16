@@ -152,11 +152,11 @@ class AvtaleValidator(
                         add(
                             ValidationError.of(
                                 AvtaleDbo::utdanningslop,
-                                "Du må velge et utdanningsprogram og ett eller flere lærefag",
+                                "Du må velge et utdanningsprogram og minst ett lærefag",
                             ),
                         )
                     } else if (utdanninger.utdanninger.isEmpty()) {
-                        add(ValidationError.of(AvtaleDbo::utdanningslop, "Du må velge minst én sluttkompetanse"))
+                        add(ValidationError.of(AvtaleDbo::utdanningslop, "Du må velge minst ett lærefag"))
                     }
                 }
             }
