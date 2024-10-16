@@ -13,6 +13,9 @@ const createCommonConfig = (dataset: "production" | "test", basePath: string) =>
   projectId: PROJECT_ID,
   dataset,
   basePath,
+  scheduledPublishing: {
+    enabled: true,
+  },
   document: {
     unstable_comments: {
       // Comments enabled https://www.sanity.io/blog/introducing-comments
