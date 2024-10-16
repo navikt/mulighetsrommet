@@ -100,7 +100,8 @@ class TilsagnRepositoryTest : FunSpec({
 
         test("get by arrangor_ids") {
             repository.upsert(tilsagn)
-            repository.getByArrangorIds(listOf(tilsagn.arrangorId)) shouldBe listOf(
+            repository.setBesluttelse(tilsagn.id, TilsagnBesluttelse.GODKJENT, NavIdent("Z123456"), LocalDateTime.now())
+            repository.getAllArrangorflateTilsagn(listOf(tilsagn.arrangorId)) shouldBe listOf(
                 ArrangorflateTilsagn(
                     id = tilsagn.id,
                     gjennomforing = ArrangorflateTilsagn.Gjennomforing(
@@ -119,6 +120,7 @@ class TilsagnRepositoryTest : FunSpec({
                     beregning = Prismodell.TilsagnBeregning.Fri(123),
                 ),
             )
+            repository.getArrangorflateTilsagn(tilsagn.id)?.id shouldBe tilsagn.id
         }
     }
 })
