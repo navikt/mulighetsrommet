@@ -156,7 +156,7 @@ class TiltaksgjennomforingValidator(
                         add(
                             ValidationError.of(
                                 TiltaksgjennomforingDbo::utdanningslop,
-                                "Du må velge minst ett lærefag for gjennomføringen",
+                                "Du må velge minst ett lærefag",
                             ),
                         )
                     } else if (utdanningslop.utdanningsprogram != avtale.utdanningslop?.utdanningsprogram?.id) {

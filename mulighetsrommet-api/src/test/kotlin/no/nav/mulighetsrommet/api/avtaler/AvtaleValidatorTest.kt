@@ -467,7 +467,7 @@ class AvtaleValidatorTest : FunSpec({
 
         validator.validate(avtaleMedEndringer, null).shouldBeLeft(
             listOf(
-                ValidationError("utdanningslop", "Du må velge et utdanningsprogram og ett eller flere lærefag"),
+                ValidationError("utdanningslop", "Du må velge et utdanningsprogram og minst ett lærefag"),
             ),
         )
     }
@@ -485,7 +485,7 @@ class AvtaleValidatorTest : FunSpec({
 
         validator.validate(avtaleMedEndringer, null).shouldBeLeft(
             listOf(
-                ValidationError("utdanningslop", "Du må velge minst én sluttkompetanse"),
+                ValidationError("utdanningslop", "Du må velge minst ett lærefag"),
             ),
         )
     }
