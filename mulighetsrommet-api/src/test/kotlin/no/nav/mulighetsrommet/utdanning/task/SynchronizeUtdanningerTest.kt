@@ -5,14 +5,12 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.client.UtdanningNoProgramomraade
 import no.nav.mulighetsrommet.utdanning.db.UtdanningRepository
-import org.intellij.lang.annotations.Language
 
 class SynchronizeUtdanningerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -75,16 +73,6 @@ class SynchronizeUtdanningerTest : FunSpec({
 
             synchronizeUtdanninger.syncUtdanninger()
 
-            // TODO: hardkode i service i stedet
-            // Mocker å hardkode nus-kode slik utvikler gjør det i dev og prod for programområdene
-            @Language("PostgreSQL")
-            val updateNusKoder = """
-            update utdanningsprogram set nus_koder = ARRAY['3571'] where programomradekode = 'BABAT1----';
-            """.trimIndent()
-            queryOf(
-                updateNusKoder,
-            ).asExecute.let { database.db.run(it) }
-
             val programomraderMedUtdanninger = utdanningRepository.getUtdanningsprogrammer()
 
             programomraderMedUtdanninger should {
@@ -128,15 +116,6 @@ class SynchronizeUtdanningerTest : FunSpec({
             )
 
             synchronizeUtdanninger.syncUtdanninger()
-
-            // Mocker å hardkode nus-kode slik utvikler gjør det i dev og prod for programområdene
-            @Language("PostgreSQL")
-            val updateNusKoder = """
-                update utdanningsprogram set nus_koder = ARRAY['3571'] where programomradekode = 'BABAT1----';
-            """.trimIndent()
-            queryOf(
-                updateNusKoder,
-            ).asExecute.let { database.db.run(it) }
 
             val programomraderMedUtdanninger = utdanningRepository.getUtdanningsprogrammer()
 

@@ -67,17 +67,19 @@ class UtdanningRepository(private val db: Database) {
     fun upsertPrograomomrade(session: TransactionalSession, utdanningsprogram: Utdanningsprogram) {
         @Language("PostgreSQL")
         val query = """
-            insert into utdanningsprogram (navn, programomradekode, utdanningsprogram_type)
-            values (:navn, :programomradekode, :utdanningsprogram_type::utdanningsprogram_type)
+            insert into utdanningsprogram (navn, programomradekode, utdanningsprogram_type, nus_koder)
+            values (:navn, :programomradekode, :utdanningsprogram_type::utdanningsprogram_type, :nus_koder)
             on conflict (programomradekode) do update set
                 navn = excluded.navn,
-                utdanningsprogram_type = excluded.utdanningsprogram_type
+                utdanningsprogram_type = excluded.utdanningsprogram_type,
+                nus_koder = excluded.nus_koder
         """.trimIndent()
 
         val params = mapOf(
             "navn" to utdanningsprogram.navn,
             "programomradekode" to utdanningsprogram.programomradekode,
             "utdanningsprogram_type" to utdanningsprogram.type?.name,
+            "nus_koder" to session.createArrayOf("text", utdanningsprogram.nusKoder),
         )
 
         queryOf(query, params).asExecute.runWithSession(session)

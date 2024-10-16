@@ -81,7 +81,9 @@ private fun resolveRelevantUtdanninger(utdanninger: List<UtdanningNoProgramomraa
     return utdanninger
         .partition { it.sluttkompetanse == null && it.utdanningId == null && it.utdanningslop.size == 1 }
         .let { (programomrader, utdanninger) ->
-            val utdanningssprogrammer = programomrader.map { toUtdanningsprogram(it) }
+            val utdanningssprogrammer = programomrader
+                .filter { it.utdanningsprogram == UtdanningNoProgramomraade.Utdanningsprogram.YRKESFAGLIG }
+                .map { toUtdanningsprogram(it) }
 
             val relevanteUtdanninger = utdanninger
                 .filter { it.nusKodeverk.isNotEmpty() }
@@ -95,10 +97,40 @@ private fun toUtdanningsprogram(utdanning: UtdanningNoProgramomraade): Utdanning
     val navn = utdanning.navn.replace("^Vg1 ".toRegex(), "")
     val utdanningsprogram = when (utdanning.utdanningsprogram) {
         UtdanningNoProgramomraade.Utdanningsprogram.YRKESFAGLIG -> UtdanningsprogramType.YRKESFAGLIG
-        UtdanningNoProgramomraade.Utdanningsprogram.STUDIEFORBEREDENDE -> UtdanningsprogramType.STUDIEFORBEREDENDE
-        null -> null
+        else -> throw IllegalArgumentException("Utdanningsprogram må være yrkesfaglig, '${utdanning.utdanningsprogram}' ble mottatt")
     }
-    return Utdanningsprogram(navn, emptyList(), utdanning.programomradekode, utdanningsprogram)
+
+    val nusKoder = utledNusKoder(utdanning.programomradekode)
+
+    return Utdanningsprogram(
+        navn = navn,
+        nusKoder = nusKoder,
+        programomradekode = utdanning.programomradekode,
+        type = utdanningsprogram,
+    )
+}
+
+/**
+ * Nus-kodene har blitt bestemt av datavarehuset.
+ * Fag/DVH må være involvert hvis/når det oppstår nye programområder som skal støtes.
+ */
+private fun utledNusKoder(programomradekode: String): List<String> {
+    val nusKoderMapping = mapOf(
+        "BABAT1----" to listOf("3571"),
+        "ELELE1----" to listOf("3551"),
+        "FDFBI1----" to listOf("3165"),
+        "HSHSF1----" to listOf("3699"),
+        "DTDTH1----" to listOf("3169"),
+        "IMIKM1----" to listOf("3541"),
+        "NANAB1----" to listOf("3799"),
+        "RMRMF1----" to listOf("3581"),
+        "SRSSR1----" to listOf("3429"),
+        "TPTIP1----" to listOf("3559"),
+    )
+
+    return requireNotNull(nusKoderMapping[programomradekode]) {
+        "Mangler nuskoder for programområde $programomradekode"
+    }
 }
 
 private fun sanitizeUtdanning(utdanning: UtdanningNoProgramomraade): Utdanning {

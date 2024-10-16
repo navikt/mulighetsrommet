@@ -18,5 +18,8 @@ alter table utdanning_programomrade
 alter table utdanningsprogram
     rename column utdanningsprogram to utdanningsprogram_type;
 
+alter table utdanningsprogram
+    alter column nus_koder set not null;
+
 alter table utdanning
     drop column utdanningsprogram;
