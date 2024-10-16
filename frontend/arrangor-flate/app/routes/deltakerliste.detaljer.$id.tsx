@@ -48,7 +48,7 @@ export const action: ActionFunction = async ({ request }) => {
     return json({ error: "Mangler refusjonskravId" }, { status: 400 });
   }
 
-  RefusjonskravService.godkjennRefusjonskrav({
+  await RefusjonskravService.godkjennRefusjonskrav({
     id: refusjonskravId as string,
   });
 
