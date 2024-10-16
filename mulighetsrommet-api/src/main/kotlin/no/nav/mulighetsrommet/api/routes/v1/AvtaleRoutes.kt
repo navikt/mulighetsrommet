@@ -56,7 +56,7 @@ data class AvtaleRequest(
     val personvernBekreftet: Boolean,
     val opsjonsmodellData: OpsjonsmodellData?,
     val amoKategorisering: AmoKategorisering?,
-    val utdanningslop: UtdanningslopDbo?,
+    val utdanningslop: UtdanningslopDbo? = null,
 )
 
 @Serializable
