@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.clients.utdanning
+package no.nav.mulighetsrommet.utdanning.client
 
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -11,27 +11,19 @@ import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 
 class UtdanningClient(engine: HttpClientEngine = CIO.create(), val config: Config) {
     data class Config(
-        val baseurl: String,
+        val baseUrl: String,
     )
 
     private val client: HttpClient = httpJsonClient(engine)
 
-    suspend fun getUtdanninger(): List<Utdanning> {
-        val response = client.get("${config.baseurl}/nav_export/programomraader")
-        return response.body<List<Utdanning>>()
+    suspend fun getUtdanninger(): List<UtdanningNoProgramomraade> {
+        val response = client.get("${config.baseUrl}/nav_export/programomraader")
+        return response.body()
     }
 }
 
 @Serializable
-data class Programomrade(
-    val navn: String,
-    val nus_koder: List<String>,
-    val programomradekode: String,
-    val utdanningsprogram: Utdanning.Utdanningsprogram?,
-)
-
-@Serializable
-data class Utdanning(
+data class UtdanningNoProgramomraade(
     @SerialName("programomradekode10")
     val programomradekode: String,
     @SerialName("utdanningsbeskrivelse_uno_id")
@@ -43,19 +35,14 @@ data class Utdanning(
     val sluttkompetanse: Sluttkompetanse? = null,
     val aktiv: Boolean,
     @SerialName("calculated_status")
-    val utdanningstatus: Utdanningstatus,
+    val utdanningstatus: Status,
     @SerialName("canonical_path")
     val utdanningslop: List<String>,
     @SerialName("nus")
-    val nusKodeverk: List<Nuskodeverk>,
+    val nusKodeverk: List<NusKodeverk>,
 ) {
-
-    fun toProgramomrade(): Programomrade {
-        return Programomrade(navn, emptyList(), programomradekode, utdanningsprogram)
-    }
-
     @Serializable
-    data class Nuskodeverk(
+    data class NusKodeverk(
         @SerialName("nus_navn_nb")
         val navn: String,
         @SerialName("nus_kode")
@@ -80,7 +67,7 @@ data class Utdanning(
     }
 
     @Serializable
-    enum class Utdanningstatus {
+    enum class Status {
         GYLDIG,
         KOMMENDE,
         UTGAAENDE,

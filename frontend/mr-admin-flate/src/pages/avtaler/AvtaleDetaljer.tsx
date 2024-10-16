@@ -18,9 +18,9 @@ import { Avtaletype, NavEnhet } from "@mr/api-client";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { Fragment } from "react";
 import { Link } from "react-router-dom";
-import { opsjonsmodellTilTekst } from "../../components/avtaler/opsjoner/opsjonsmodeller";
+import { opsjonsmodellTilTekst } from "@/components/avtaler/opsjoner/opsjonsmodeller";
 import styles from "./AvtaleDetaljer.module.scss";
-import { ProgramomradeOgUtdanningerDetaljer } from "../../components/utdanning/ProgramomradeOgUtdanningerDetaljer";
+import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
@@ -50,7 +50,7 @@ export function AvtaleDetaljer() {
     arenaAnsvarligEnhet,
     arrangor,
     amoKategorisering,
-    programomradeMedUtdanninger,
+    utdanningslop,
   } = avtale;
 
   return (
@@ -86,11 +86,7 @@ export function AvtaleDetaljer() {
           </>
         )}
 
-        {programomradeMedUtdanninger ? (
-          <ProgramomradeOgUtdanningerDetaljer
-            programomradeMedUtdanninger={programomradeMedUtdanninger}
-          />
-        ) : null}
+        {utdanningslop ? <UtdanningslopDetaljer utdanningslop={utdanningslop} /> : null}
 
         <Heading size="small" as="h3">
           Avtalens varighet

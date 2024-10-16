@@ -46,7 +46,7 @@ import { VertikalSeparator } from "@/components/skjema/VertikalSeparator";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { TiltaksgjennomforingUtdanningskategorierSkjema } from "../utdanning/TiltaksgjennomforingUtdanningskategorierSkjema";
+import { TiltaksgjennomforingUtdanningslopSkjema } from "../utdanning/TiltaksgjennomforingUtdanningslopSkjema";
 
 interface Props {
   tiltaksgjennomforing?: TiltaksgjennomforingDto;
@@ -207,7 +207,7 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
             ) : null}
             {enableUtdanningskategorier &&
             avtale.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING ? (
-              <TiltaksgjennomforingUtdanningskategorierSkjema avtale={avtale} />
+              <TiltaksgjennomforingUtdanningslopSkjema avtale={avtale} />
             ) : null}
           </FormGroup>
 

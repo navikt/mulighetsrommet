@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.routes.v1.*
 import no.nav.mulighetsrommet.api.routes.v1.arbeidsmarkedstiltakRoutes
 import no.nav.mulighetsrommet.api.routes.v1.brukerRoutes
 import no.nav.mulighetsrommet.api.routes.v1.delMedBrukerRoutes
+import no.nav.mulighetsrommet.utdanning.api.utdanningRoutes
 
 fun Route.apiRoutes(config: AppConfig) {
     authenticate(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET) {

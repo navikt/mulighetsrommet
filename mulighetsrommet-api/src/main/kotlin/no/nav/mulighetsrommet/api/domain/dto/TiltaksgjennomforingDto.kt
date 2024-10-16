@@ -5,7 +5,6 @@ import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
-import no.nav.mulighetsrommet.api.repositories.ProgramomradeMedUtdanninger
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
@@ -52,7 +51,7 @@ data class TiltaksgjennomforingDto(
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
-    val programomradeMedUtdanninger: ProgramomradeMedUtdanninger?,
+    val utdanningslop: UtdanningslopDto?,
 ) {
     fun isAktiv(): Boolean = status.status in listOf(
         TiltaksgjennomforingStatus.PLANLAGT,
@@ -138,6 +137,6 @@ data class TiltaksgjennomforingDto(
             estimertVentetidEnhet = estimertVentetid?.enhet,
             tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
             amoKategorisering = amoKategorisering,
-            programomradeOgUtdanningerRequest = programomradeMedUtdanninger?.toRequest(),
+            utdanningslop = utdanningslop?.toDbo(),
         )
 }

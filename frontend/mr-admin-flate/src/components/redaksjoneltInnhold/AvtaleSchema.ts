@@ -2,8 +2,8 @@ import {
   Avtaletype,
   OpsjonsmodellKey,
   Personopplysning,
-  ProgramomradeMedUtdanningerRequest,
   Tiltakskode,
+  UtdanningslopDbo,
 } from "@mr/api-client";
 import z from "zod";
 import { AmoKategoriseringSchema } from "./AmoKategoriseringSchema";
@@ -71,7 +71,7 @@ export const AvtaleSchema = z
     personvernBekreftet: z.boolean({ required_error: "Du må ta stilling til personvern" }),
     personopplysninger: z.nativeEnum(Personopplysning).array(),
     amoKategorisering: AmoKategoriseringSchema.nullish(),
-    programomradeOgUtdanninger: z.custom<ProgramomradeMedUtdanningerRequest>().nullable(),
+    utdanningslop: z.custom<UtdanningslopDbo>().nullable(),
   })
   .superRefine((data, ctx) => {
     if (

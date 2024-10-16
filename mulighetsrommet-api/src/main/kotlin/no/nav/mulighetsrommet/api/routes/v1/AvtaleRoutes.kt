@@ -7,9 +7,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.dbo.UtdanningslopDbo
 import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
 import no.nav.mulighetsrommet.api.domain.dto.OpsjonLoggEntry
-import no.nav.mulighetsrommet.api.domain.dto.ProgramomradeMedUtdanningerRequestDto
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
@@ -54,9 +54,9 @@ data class AvtaleRequest(
     val faneinnhold: Faneinnhold?,
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
-    val amoKategorisering: AmoKategorisering?,
     val opsjonsmodellData: OpsjonsmodellData?,
-    val programomradeMedUtdanningerRequest: ProgramomradeMedUtdanningerRequestDto?,
+    val amoKategorisering: AmoKategorisering?,
+    val utdanningslop: UtdanningslopDbo?,
 )
 
 @Serializable

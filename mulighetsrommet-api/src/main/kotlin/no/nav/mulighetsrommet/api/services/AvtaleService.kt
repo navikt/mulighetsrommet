@@ -74,7 +74,7 @@ class AvtaleService(
                         amoKategorisering = amoKategorisering,
                         opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
                         customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
-                        programomradeOgUtdanningerRequest = programomradeMedUtdanningerRequest,
+                        utdanningslop = utdanningslop,
                     )
                 }
                 validator.validate(dbo, previous)
