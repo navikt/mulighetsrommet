@@ -99,6 +99,9 @@ importers:
       '@mr/api-client':
         specifier: workspace:*
         version: link:../api-client
+      '@mr/frontend-common':
+        specifier: workspace:*
+        version: link:../frontend-common
       '@navikt/aksel-icons':
         specifier: ^7.2.1
         version: 7.2.1
@@ -2524,6 +2527,9 @@ packages:
       react: 17 || 18
       react-dom: 17 || 18
       react-router-dom: '6'
+    peerDependenciesMeta:
+      react-router-dom:
+        optional: true
 
   '@navikt/ds-css@7.2.1':
     resolution: {integrity: sha512-0SRFwm2Iyuz4noxL98h5LObklJ9oaxiLsCSECOY2LohMy+XcfOoQQ/6eeGhTURqmLSnJYsdTFs2peV0ZX+Ukig==, tarball: https://npm.pkg.github.com/download/@navikt/ds-css/7.2.1/4201a8c184239da9b0c546a94a25ee985c89fc3c}
@@ -2533,12 +2539,18 @@ packages:
     peerDependencies:
       '@types/react': ^17.0.30 || ^18.0.0
       react: ^17.0.0 || ^18.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@navikt/ds-react@7.2.1':
     resolution: {integrity: sha512-zVewWWjBCiHd1TchuzBlQVYBYjBJ0v5vbnvXvDaP0I4zbG4b+Fb71F+Oxn7HyaboXEkXk0TlZjerylEdtc28zg==, tarball: https://npm.pkg.github.com/download/@navikt/ds-react/7.2.1/d8283fca0fea8efb9281f54dc08e424d4f4e0078}
     peerDependencies:
       '@types/react': ^17.0.30 || ^18.0.0
       react: ^17.0.0 || ^18.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@navikt/ds-tailwind@7.2.1':
     resolution: {integrity: sha512-7bqcrrXi2rjxNKi5WJU4qrFL2dCMkOH351vPvLh9I0bAlI3fW82UAHETBqzcCawau/bEzPbiwyYu6oghF8P1Gg==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.2.1/7638ffa8beb7bef0d8cf7989cb2bf610e21b652e}
@@ -2554,6 +2566,9 @@ packages:
       html-react-parser: '>=5.x'
       jsdom: '>=16.x'
       react: '>=17.x'
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@navikt/oasis@3.4.0':
     resolution: {integrity: sha512-le+J+gE/OeLfqyZFQWDqp/pY6f7lzMpP1ynXnDOWBalmkav9tmWor4g/pqb+Xorm6C6bNCdScmCKDHvNVf+CoQ==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/3.4.0/7a21e6e8c8e6eca00d7e6a5c06f7e8315c0cc71a}
@@ -10639,6 +10654,7 @@ snapshots:
       history: 4.10.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
       react-router-dom: 6.27.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
       - prop-types
@@ -10647,8 +10663,9 @@ snapshots:
 
   '@navikt/ds-icons@3.4.3(@types/react@18.3.11)(react@18.3.1)':
     dependencies:
-      '@types/react': 18.3.11
       react: 18.3.1
+    optionalDependencies:
+      '@types/react': 18.3.11
 
   '@navikt/ds-react@7.2.1(@types/react@18.3.11)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -10656,11 +10673,12 @@ snapshots:
       '@floating-ui/react-dom': 2.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@navikt/aksel-icons': 7.2.1
       '@navikt/ds-tokens': 7.2.1
-      '@types/react': 18.3.11
       clsx: 2.1.1
       date-fns: 3.6.0
       react: 18.3.1
       react-day-picker: 8.10.0(date-fns@3.6.0)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.3.11
     transitivePeerDependencies:
       - react-dom
 
@@ -10673,6 +10691,7 @@ snapshots:
       csp-header: 5.2.1
       html-react-parser: 5.1.18(@types/react@18.3.11)(react@18.3.1)
       jsdom: 25.0.1
+    optionalDependencies:
       react: 18.3.1
 
   '@navikt/oasis@3.4.0':
@@ -10796,7 +10815,7 @@ snapshots:
 
   '@popperjs/core@2.11.8': {}
 
-  '@portabletext/editor@1.1.4(@sanity/block-tools@3.60.0)(@sanity/schema@3.60.0)(@sanity/types@3.60.0(debug@4.3.7))(@sanity/util@3.60.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.1)(styled-components@6.1.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
+  '@portabletext/editor@1.1.4(@sanity/block-tools@3.60.0(debug@4.3.7))(@sanity/schema@3.60.0(debug@4.3.7))(@sanity/types@3.60.0(debug@4.3.7))(@sanity/util@3.60.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.1)(styled-components@6.1.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
     dependencies:
       '@portabletext/patches': 1.1.0
       '@sanity/block-tools': 3.60.0(debug@4.3.7)
@@ -16514,7 +16533,7 @@ snapshots:
       '@dnd-kit/sortable': 7.0.2(@dnd-kit/core@6.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       '@dnd-kit/utilities': 3.2.2(react@18.3.1)
       '@juggle/resize-observer': 3.4.0
-      '@portabletext/editor': 1.1.4(@sanity/block-tools@3.60.0)(@sanity/schema@3.60.0)(@sanity/types@3.60.0(debug@4.3.7))(@sanity/util@3.60.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.1)(styled-components@6.1.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+      '@portabletext/editor': 1.1.4(@sanity/block-tools@3.60.0(debug@4.3.7))(@sanity/schema@3.60.0(debug@4.3.7))(@sanity/types@3.60.0(debug@4.3.7))(@sanity/util@3.60.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.1)(styled-components@6.1.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@portabletext/react': 3.1.0(react@18.3.1)
       '@rexxars/react-json-inspector': 8.0.1(react@18.3.1)
       '@sanity/asset-utils': 2.0.6
