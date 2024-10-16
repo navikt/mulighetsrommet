@@ -94,6 +94,62 @@ class TilsagnRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun getAllArrangorflateTilsagn(arrangorIds: List<UUID>): List<ArrangorflateTilsagn> {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                tilsagn.id,
+                tiltaksgjennomforing.navn as gjennomforing_navn,
+                tiltakstype.navn as tiltakstype_navn,
+                tilsagn.periode_start,
+                tilsagn.periode_slutt,
+                tilsagn.beregning,
+                arrangor.id                         as arrangor_id,
+                arrangor.organisasjonsnummer        as arrangor_organisasjonsnummer,
+                arrangor.navn                       as arrangor_navn
+            from tilsagn
+                inner join tiltaksgjennomforing on tiltaksgjennomforing.id = tilsagn.tiltaksgjennomforing_id
+                inner join tiltakstype on tiltakstype.id = tiltaksgjennomforing.tiltakstype_id
+                inner join arrangor on arrangor.id = tilsagn.arrangor_id
+            where tilsagn.arrangor_id = any (?)
+            and tilsagn.annullert_tidspunkt is null
+            and tilsagn.besluttet_tidspunkt is not null
+        """.trimIndent()
+
+        return queryOf(query, db.createUuidArray(arrangorIds))
+            .map { it.toArrangorflateTilsagn() }
+            .asList
+            .let { db.run(it) }
+    }
+
+    fun getArrangorflateTilsagn(id: UUID): ArrangorflateTilsagn? {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                tilsagn.id,
+                tiltaksgjennomforing.navn as gjennomforing_navn,
+                tiltakstype.navn as tiltakstype_navn,
+                tilsagn.periode_start,
+                tilsagn.periode_slutt,
+                tilsagn.beregning,
+                arrangor.id                         as arrangor_id,
+                arrangor.organisasjonsnummer        as arrangor_organisasjonsnummer,
+                arrangor.navn                       as arrangor_navn
+            from tilsagn
+                inner join tiltaksgjennomforing on tiltaksgjennomforing.id = tilsagn.tiltaksgjennomforing_id
+                inner join tiltakstype on tiltakstype.id = tiltaksgjennomforing.tiltakstype_id
+                inner join arrangor on arrangor.id = tilsagn.arrangor_id
+            where tilsagn.id = ?::uuid
+            and tilsagn.annullert_tidspunkt is null
+            and tilsagn.besluttet_tidspunkt is not null
+        """.trimIndent()
+
+        return queryOf(query, id)
+            .map { it.toArrangorflateTilsagn() }
+            .asSingle
+            .let { db.run(it) }
+    }
+
     fun setAnnullertTidspunkt(id: UUID, tidspunkt: LocalDateTime, tx: Session): Int {
         @Language("PostgreSQL")
         val query = """
@@ -190,6 +246,26 @@ class TilsagnRepository(private val db: Database) {
                 organisasjonsnummer = string("arrangor_organisasjonsnummer"),
                 navn = string("arrangor_navn"),
                 slettet = boolean("arrangor_slettet"),
+            ),
+            beregning = Json.decodeFromString<Prismodell.TilsagnBeregning>(string("beregning")),
+        )
+    }
+
+    private fun Row.toArrangorflateTilsagn(): ArrangorflateTilsagn {
+        return ArrangorflateTilsagn(
+            id = uuid("id"),
+            gjennomforing = ArrangorflateTilsagn.Gjennomforing(
+                navn = string("gjennomforing_navn"),
+            ),
+            tiltakstype = ArrangorflateTilsagn.Tiltakstype(
+                navn = string("tiltakstype_navn"),
+            ),
+            periodeSlutt = localDate("periode_slutt"),
+            periodeStart = localDate("periode_start"),
+            arrangor = ArrangorflateTilsagn.Arrangor(
+                id = uuid("arrangor_id"),
+                organisasjonsnummer = string("arrangor_organisasjonsnummer"),
+                navn = string("arrangor_navn"),
             ),
             beregning = Json.decodeFromString<Prismodell.TilsagnBeregning>(string("beregning")),
         )

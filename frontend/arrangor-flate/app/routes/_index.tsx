@@ -1,4 +1,4 @@
-import { RefusjonKravAft, RefusjonskravService, RefusjonskravStatus } from "@mr/api-client";
+import { ArrangorflateService, RefusjonKravAft, RefusjonskravStatus } from "@mr/api-client";
 import { Tabs } from "@navikt/ds-react";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -6,6 +6,7 @@ import { useLoaderData } from "@remix-run/react";
 import { RefusjonskravTable } from "~/components/refusjonskrav/RefusjonskravTable";
 import { checkValidToken, setupOpenApi } from "../auth/auth.server";
 import { PageHeader } from "../components/PageHeader";
+import { TilsagnTable } from "~/components/tilsagn/TilsagnTable";
 
 export const meta: MetaFunction = () => {
   return [
@@ -17,13 +18,14 @@ export const meta: MetaFunction = () => {
 export async function loader({ request }: LoaderFunctionArgs) {
   await checkValidToken(request);
   await setupOpenApi(request);
-  const krav = await RefusjonskravService.getRefusjonskrav();
+  const krav = await ArrangorflateService.getAllRefusjonKrav();
+  const tilsagn = await ArrangorflateService.getAllArrangorflateTilsagn();
 
-  return json({ krav });
+  return json({ krav, tilsagn });
 }
 
-export default function Refusjon() {
-  const { krav } = useLoaderData<typeof loader>();
+export default function TilsagnDetaljer() {
+  const { krav, tilsagn } = useLoaderData<typeof loader>();
   const historiske: RefusjonKravAft[] = krav.filter(
     (k) => k.status === RefusjonskravStatus.GODKJENT_AV_ARRANGOR,
   );
@@ -44,8 +46,8 @@ export default function Refusjon() {
         <Tabs.Panel value="historiske" className="w-full">
           <RefusjonskravTable krav={historiske} />
         </Tabs.Panel>
-        <Tabs.Panel value="tilsagnsoversikt" className="h-24 w-full bg-gray-50 p-4">
-          Tilsagnsoversikt
+        <Tabs.Panel value="tilsagnsoversikt" className="w-full">
+          <TilsagnTable tilsagn={tilsagn} />
         </Tabs.Panel>
       </Tabs>
     </>

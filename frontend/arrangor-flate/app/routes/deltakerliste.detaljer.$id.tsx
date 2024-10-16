@@ -9,7 +9,7 @@ import { RefusjonTilsagnsDetaljer } from "~/components/refusjonskrav/TilsagnsDet
 import { RefusjonDetaljer } from "~/components/refusjonskrav/RefusjonDetaljer";
 import { Separator } from "~/components/Separator";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
-import { RefusjonskravService } from "@mr/api-client";
+import { ArrangorflateService } from "@mr/api-client";
 
 type LoaderData = {
   krav: Refusjonskrav;
@@ -48,7 +48,7 @@ export const action: ActionFunction = async ({ request }) => {
     return json({ error: "Mangler refusjonskravId" }, { status: 400 });
   }
 
-  await RefusjonskravService.godkjennRefusjonskrav({
+  await ArrangorflateService.godkjennRefusjonskrav({
     id: refusjonskravId as string,
   });
 
