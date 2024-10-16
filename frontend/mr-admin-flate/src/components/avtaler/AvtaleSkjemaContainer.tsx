@@ -95,13 +95,9 @@ export function AvtaleSkjemaContainer({
         opsjonsmodell: data?.opsjonsmodellData?.opsjonsmodell || null,
         customOpsjonsmodellNavn: data?.opsjonsmodellData?.customOpsjonsmodellNavn || null,
       },
-      programomradeMedUtdanningerRequest:
-        data.programomradeOgUtdanninger?.programomradeId &&
+      utdanningslop:
         data.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING
-          ? {
-              programomradeId: data.programomradeOgUtdanninger?.programomradeId,
-              utdanningsIder: data.programomradeOgUtdanninger?.utdanningsIder || [],
-            }
+          ? data.utdanningslop
           : null,
     };
 
@@ -124,8 +120,7 @@ export function AvtaleSkjemaContainer({
           opsjonMaksVarighet: "opsjonsmodellData.opsjonMaksVarighet",
           customOpsjonsmodellNavn: "opsjonsmodellData.customOpsjonsmodellNavn",
           tiltakstypeId: "tiltakstype",
-          programomrade: "programomradeOgUtdanninger.programomradeId",
-          utdanninger: "programomradeOgUtdanninger.utdanningsIder",
+          utdanningslop: "utdanningslop.utdanninger",
         };
         return (mapping[name] ?? name) as keyof InferredAvtaleSchema;
       }

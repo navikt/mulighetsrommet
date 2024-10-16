@@ -1,18 +1,16 @@
-package no.nav.mulighetsrommet.api.tasks
+package no.nav.mulighetsrommet.utdanning.task
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.clients.utdanning.Utdanning
-import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.repositories.UtdanningRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
-import org.intellij.lang.annotations.Language
+import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
+import no.nav.mulighetsrommet.utdanning.client.UtdanningNoProgramomraade
+import no.nav.mulighetsrommet.utdanning.db.UtdanningRepository
 
 class SynchronizeUtdanningerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -22,35 +20,35 @@ class SynchronizeUtdanningerTest : FunSpec({
         database.db.truncateAll()
     }
 
-    val utdanningBanemontorfaget = Utdanning(
+    val utdanningBanemontorfaget = UtdanningNoProgramomraade(
         programomradekode = "BABAN3----",
         utdanningId = "u_banemontorfag",
         navn = "Banemontørfaget (opplæring i bedrift)",
-        utdanningsprogram = Utdanning.Utdanningsprogram.YRKESFAGLIG,
-        sluttkompetanse = Utdanning.Sluttkompetanse.Fagbrev,
+        utdanningsprogram = UtdanningNoProgramomraade.Utdanningsprogram.YRKESFAGLIG,
+        sluttkompetanse = UtdanningNoProgramomraade.Sluttkompetanse.Fagbrev,
         aktiv = true,
-        utdanningstatus = Utdanning.Utdanningstatus.GYLDIG,
+        utdanningstatus = UtdanningNoProgramomraade.Status.GYLDIG,
         utdanningslop = listOf(
             "BABAT1----",
             "BAANL2----",
             "BABAN3----",
         ),
         nusKodeverk = listOf(
-            Utdanning.Nuskodeverk(
+            UtdanningNoProgramomraade.NusKodeverk(
                 navn = "Banemontørfaget, Vg3",
                 kode = "457103",
             ),
         ),
     )
 
-    val programomradeByggOgAnleggsteknikk = Utdanning(
+    val programomradeByggOgAnleggsteknikk = UtdanningNoProgramomraade(
         programomradekode = "BABAT1----",
         utdanningId = null,
         navn = "Vg1 Bygg- og anleggsteknikk",
-        utdanningsprogram = Utdanning.Utdanningsprogram.YRKESFAGLIG,
+        utdanningsprogram = UtdanningNoProgramomraade.Utdanningsprogram.YRKESFAGLIG,
         sluttkompetanse = null,
         aktiv = true,
-        utdanningstatus = Utdanning.Utdanningstatus.GYLDIG,
+        utdanningstatus = UtdanningNoProgramomraade.Status.GYLDIG,
         utdanningslop = listOf(
             "BABAT1----",
         ),
@@ -58,10 +56,9 @@ class SynchronizeUtdanningerTest : FunSpec({
     )
 
     context("Synchronize utdanninger") {
+        val utdanningRepository = UtdanningRepository(database.db)
+
         test("Skal synkronisere programområder og utdanninger") {
-
-            val utdanningRepository = UtdanningRepository(database.db)
-
             val synchronizeUtdanninger = SynchronizeUtdanninger(
                 db = database.db,
                 utdanningClient = utdanningClient,
@@ -70,37 +67,26 @@ class SynchronizeUtdanningerTest : FunSpec({
             )
 
             coEvery { utdanningClient.getUtdanninger() } returns listOf(
-
                 utdanningBanemontorfaget,
                 programomradeByggOgAnleggsteknikk,
             )
 
             synchronizeUtdanninger.syncUtdanninger()
 
-            // Mocker å hardkode nus-kode slik utvikler gjør det i dev og prod for programområdene
-            @Language("PostgreSQL")
-            val updateNusKoder = """
-            update utdanning_programomrade set nus_koder = ARRAY['3571'] where programomradekode = 'BABAT1----';
-            """.trimIndent()
-            queryOf(
-                updateNusKoder,
-            ).asExecute.let { database.db.run(it) }
-
-            val programomraderMedUtdanninger = utdanningRepository.getUtdanningerMedProgramomrader()
+            val programomraderMedUtdanninger = utdanningRepository.getUtdanningsprogrammer()
 
             programomraderMedUtdanninger should {
                 it.size shouldBe 1
-                it[0].programomrade.navn shouldBe "Vg1 Bygg- og anleggsteknikk"
-                it[0].programomrade.nusKoder shouldBe listOf("3571")
+                it[0].utdanningsprogram.navn shouldBe "Bygg- og anleggsteknikk"
+                it[0].utdanningsprogram.nusKoder shouldBe listOf("3571")
                 it[0].utdanninger.size shouldBe 1
-                it[0].utdanninger[0].navn shouldBe "Banemontørfaget (opplæring i bedrift)"
+                it[0].utdanninger[0].navn shouldBe "Banemontørfaget"
                 it[0].utdanninger[0].nusKoder shouldBe listOf("457103")
-                it[0].utdanninger[0].programlopStart shouldBe it[0].programomrade.id
+                it[0].utdanninger[0].programlopStart shouldBe it[0].utdanningsprogram.id
             }
         }
-        test("Skal bare synkronisere programområder fra vg1") {
-            val utdanningRepository = UtdanningRepository(database.db)
 
+        test("Skal bare synkronisere programområder fra vg1") {
             val synchronizeUtdanninger = SynchronizeUtdanninger(
                 db = database.db,
                 utdanningClient = utdanningClient,
@@ -108,14 +94,14 @@ class SynchronizeUtdanningerTest : FunSpec({
                 slack = mockk(relaxed = true),
             )
 
-            val programomradeBetongOgMurVg2 = Utdanning(
+            val programomradeBetongOgMurVg2 = UtdanningNoProgramomraade(
                 programomradekode = "BABMO2----",
                 utdanningId = null,
                 navn = "Vg2 Betong og mur",
-                utdanningsprogram = Utdanning.Utdanningsprogram.YRKESFAGLIG,
+                utdanningsprogram = UtdanningNoProgramomraade.Utdanningsprogram.YRKESFAGLIG,
                 sluttkompetanse = null,
                 aktiv = true,
-                utdanningstatus = Utdanning.Utdanningstatus.GYLDIG,
+                utdanningstatus = UtdanningNoProgramomraade.Status.GYLDIG,
                 utdanningslop = listOf(
                     "BABAT1----",
                     "BABMO2----",
@@ -131,25 +117,16 @@ class SynchronizeUtdanningerTest : FunSpec({
 
             synchronizeUtdanninger.syncUtdanninger()
 
-            // Mocker å hardkode nus-kode slik utvikler gjør det i dev og prod for programområdene
-            @Language("PostgreSQL")
-            val updateNusKoder = """
-                update utdanning_programomrade set nus_koder = ARRAY['3571'] where programomradekode = 'BABAT1----';
-            """.trimIndent()
-            queryOf(
-                updateNusKoder,
-            ).asExecute.let { database.db.run(it) }
-
-            val programomraderMedUtdanninger = utdanningRepository.getUtdanningerMedProgramomrader()
+            val programomraderMedUtdanninger = utdanningRepository.getUtdanningsprogrammer()
 
             programomraderMedUtdanninger should {
                 it.size shouldBe 1
-                it[0].programomrade.navn shouldBe "Vg1 Bygg- og anleggsteknikk"
-                it[0].programomrade.nusKoder shouldBe listOf("3571")
+                it[0].utdanningsprogram.navn shouldBe "Bygg- og anleggsteknikk"
+                it[0].utdanningsprogram.nusKoder shouldBe listOf("3571")
                 it[0].utdanninger.size shouldBe 1
-                it[0].utdanninger[0].navn shouldBe "Banemontørfaget (opplæring i bedrift)"
+                it[0].utdanninger[0].navn shouldBe "Banemontørfaget"
                 it[0].utdanninger[0].nusKoder shouldBe listOf("457103")
-                it[0].utdanninger[0].programlopStart shouldBe it[0].programomrade.id
+                it[0].utdanninger[0].programlopStart shouldBe it[0].utdanningsprogram.id
             }
         }
     }

@@ -83,8 +83,7 @@ export function TiltaksgjennomforingSkjemaContainer({
           startDato: "startOgSluttDato.startDato",
           sluttDato: "startOgSluttDato.sluttDato",
           arrangorOrganisasjonsnummer: "tiltaksArrangorUnderenhetOrganisasjonsnummer",
-          programomrade: "programomradeOgUtdanninger.programomradeId",
-          utdanninger: "programomradeOgUtdanninger.utdanningsIder",
+          utdanningslop: "utdanningslop.utdanninger",
         };
         return (mapping[name] ?? name) as keyof InferredTiltaksgjennomforingSchema;
       }
@@ -127,13 +126,9 @@ export function TiltaksgjennomforingSkjemaContainer({
       estimertVentetid: data.estimertVentetid ?? null,
       tilgjengeligForArrangorFraOgMedDato: data.tilgjengeligForArrangorFraOgMedDato ?? null,
       amoKategorisering: data.amoKategorisering ?? null,
-      programomradeMedUtdanningerRequest:
-        avtale.programomradeMedUtdanninger?.programomrade?.id &&
+      utdanningslop:
         avtale.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING
-          ? {
-              programomradeId: avtale.programomradeMedUtdanninger?.programomrade?.id,
-              utdanningsIder: data.programomradeOgUtdanninger?.utdanningsIder || [],
-            }
+          ? (data.utdanningslop ?? null)
           : null,
     };
 

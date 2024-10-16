@@ -4,6 +4,8 @@ import {
   NavAnsatt,
   NavEnhet,
   NavEnhetType,
+  Utdanningslop,
+  UtdanningslopDbo,
 } from "@mr/api-client";
 import { DeepPartial } from "react-hook-form";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
@@ -64,13 +66,13 @@ export function defaultAvtaleData(
       opsjonsmodell: avtale?.opsjonsmodellData?.opsjonsmodell ?? undefined,
       customOpsjonsmodellNavn: avtale?.opsjonsmodellData?.customOpsjonsmodellNavn ?? undefined,
     },
-    programomradeOgUtdanninger: avtale?.programomradeMedUtdanninger
-      ? {
-          programomradeId: avtale.programomradeMedUtdanninger.programomrade.id,
-          utdanningsIder: avtale.programomradeMedUtdanninger.utdanninger.map(
-            (utdanning) => utdanning.id,
-          ),
-        }
-      : undefined,
+    utdanningslop: avtale?.utdanningslop ? toUtdanningslopDbo(avtale.utdanningslop) : undefined,
+  };
+}
+
+function toUtdanningslopDbo(data: Utdanningslop): UtdanningslopDbo {
+  return {
+    utdanningsprogram: data.utdanningsprogram.id,
+    utdanninger: data.utdanninger.map((utdanning) => utdanning.id),
   };
 }

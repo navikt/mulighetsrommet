@@ -27,7 +27,6 @@ import no.nav.mulighetsrommet.api.clients.pamOntologi.PamOntologiClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
-import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.okonomi.refusjon.RefusjonService
 import no.nav.mulighetsrommet.api.okonomi.refusjon.RefusjonskravRepository
@@ -36,7 +35,6 @@ import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnValidator
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
-import no.nav.mulighetsrommet.api.services.VeilederflateService
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
@@ -64,6 +62,9 @@ import no.nav.mulighetsrommet.tokenprovider.createMaskinportenM2mTokenClient
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
 import no.nav.mulighetsrommet.unleash.strategies.ByNavIdentStrategy
+import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
+import no.nav.mulighetsrommet.utdanning.db.UtdanningRepository
+import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -366,7 +367,7 @@ private fun tasks(config: TaskConfig) = module {
     single { InitialLoadTiltaksgjennomforinger(get(), get(), get(), get()) }
     single { InitialLoadTiltakstyper(get(), get(), get(), get()) }
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get()) }
-    single { SynchronizeUtdanninger(get(), get(), config.synchronizeUtdanninger, get()) }
+    single { SynchronizeUtdanninger(config.synchronizeUtdanninger, get(), get(), get()) }
     single { GenerateRefusjonskrav(config.generateRefusjonskrav, get(), get()) }
     single {
         val updateTiltaksgjennomforingStatus = UpdateTiltaksgjennomforingStatus(

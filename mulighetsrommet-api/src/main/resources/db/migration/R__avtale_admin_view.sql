@@ -42,7 +42,7 @@ select avtale.id,
        arrangor.slettet_dato is not null                as arrangor_hovedenhet_slettet,
        arrangor_underenheter_json,
        arrangor_kontaktpersoner_json,
-       programomrade_og_utdanninger_json
+       utdanningslop_json
 from avtale
          join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
          join arrangor on arrangor.id = avtale.arrangor_hovedenhet_id
@@ -130,28 +130,14 @@ from avtale
                                              arrangor_kontaktperson.id
                             where avtale_id = avtale.id) on true
          left join lateral (select jsonb_build_object(
-                                           'programomrade', json_build_object(
-                                                'id', up.id,
-                                                'navn', up.navn,
-                                                'nusKoder', up.nus_koder
-                                           ),
-                                           'utdanninger', jsonb_agg(
-                                                   jsonb_build_object(
-                                                           'id', u.id,
-                                                           'navn', u.navn,
-                                                           'programlopStart', u.programlop_start,
-                                                           'nusKoder', (
-                                                               select jsonb_agg(unki.nus_kode)
-                                                               from utdanning_nus_kode unk
-                                                                        join utdanning_nus_kode_innhold unki on unk.nus_kode = unki.nus_kode
-                                                               where unk.utdanning_id = u.utdanning_id
-                                                           )
-                                                   )
-                                              )
-                                   ) programomrade_og_utdanninger_json
+                                           'utdanningsprogram',
+                                           json_build_object('id', up.id, 'navn', up.navn),
+                                           'utdanninger',
+                                           jsonb_agg(jsonb_build_object('id', u.id, 'navn', u.navn))
+                                   ) utdanningslop_json
                             from avtale a
-                                     join utdanning_programomrade_avtale upa on a.id = upa.avtale_id
-                                     join utdanning_programomrade up on upa.programomrade_id = up.id
-                                     join utdanning u on u.id = upa.utdanning_id
+                                     join avtale_utdanningsprogram upa on a.id = upa.avtale_id
+                                     join utdanningsprogram up on upa.utdanningsprogram_id = up.id
+                                     join utdanning u on upa.utdanning_id = u.id
                             where avtale_id = avtale.id
                             group by up.id) on true;

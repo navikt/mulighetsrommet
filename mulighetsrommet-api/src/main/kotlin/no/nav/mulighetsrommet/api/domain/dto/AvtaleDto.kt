@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.domain.dto
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
-import no.nav.mulighetsrommet.api.repositories.ProgramomradeMedUtdanninger
 import no.nav.mulighetsrommet.api.routes.v1.OpsjonLoggRequest
 import no.nav.mulighetsrommet.api.routes.v1.OpsjonsmodellData
 import no.nav.mulighetsrommet.domain.Tiltakskode
@@ -48,7 +47,7 @@ data class AvtaleDto(
     val amoKategorisering: AmoKategorisering?,
     val opsjonsmodellData: OpsjonsmodellData? = null,
     val opsjonerRegistrert: List<OpsjonLoggRegistrert>?,
-    val programomradeMedUtdanninger: ProgramomradeMedUtdanninger? = null,
+    val utdanningslop: UtdanningslopDto?,
 ) {
     @Serializable
     data class Tiltakstype(
@@ -125,7 +124,7 @@ data class AvtaleDto(
             opsjonMaksVarighet = opsjonsmodellData?.opsjonMaksVarighet,
             opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
             customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
-            programomradeOgUtdanningerRequest = programomradeMedUtdanninger?.toRequest(),
+            utdanningslop = utdanningslop?.toDbo(),
         )
 
     fun toArenaAvtaleDbo() =

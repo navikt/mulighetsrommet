@@ -104,7 +104,7 @@ app:
 
   tiltakshistorikk:
     # url: http://0.0.0.0:8070 # Mot tiltakshistorikk lokalt
-    url: http://0.0.0.0:8090  # Wiremock
+    url: http://0.0.0.0:8090 # Wiremock
     scope: mr-tiltakshistorikk
 
   veilarbvedtaksstotteConfig:
@@ -189,7 +189,7 @@ app:
   unleash:
     appName: mulighetsrommet-api
     url: http://localhost:8090/unleash
-    token: ''
+    token: ""
     instanceId: mulighetsrommet-api
     environment: local
 
