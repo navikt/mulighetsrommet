@@ -41,57 +41,77 @@ fun Route.arrangorflateRoutes() {
     val altinnRettigheterService: AltinnRettigheterService by inject()
     val arrangorService: ArrangorService by inject()
 
-    route("/refusjon") {
-        get("/krav") {
-            val rettigheter = altinnRettigheterService.getRettigheter(getPid())
-            if (rettigheter.isEmpty()) {
-                return@get call.respond(HttpStatusCode.Forbidden)
-            }
-
-            val arrangorer = rettigheter.map {
-                arrangorService.getOrSyncArrangorFromBrreg(it.organisasjonsnummer.value)
-                    .getOrElse {
-                        throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
-                    }
-            }
-
-            val krav = refusjonService.getByArrangorIds(arrangorer.map { it.id })
-                .map {
-                    // TODO egen listemodell som er generell på tvers av beregningstype?
-                    toRefusjonKravOppsummering(it)
+    route("/arrangorflate") {
+        route("/refusjonskrav") {
+            get {
+                val rettigheter = altinnRettigheterService.getRettigheter(getPid())
+                if (rettigheter.isEmpty()) {
+                    return@get call.respond(HttpStatusCode.Forbidden)
                 }
 
-            call.respond(krav)
-        }
+                val arrangorer = rettigheter.map {
+                    arrangorService.getOrSyncArrangorFromBrreg(it.organisasjonsnummer.value)
+                        .getOrElse {
+                            throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
+                        }
+                }
 
-        get("/krav/{id}") {
-            val id = call.parameters.getOrFail<UUID>("id")
+                val krav = refusjonService.getByArrangorIds(arrangorer.map { it.id })
+                    .map {
+                        // TODO egen listemodell som er generell på tvers av beregningstype?
+                        toRefusjonKravOppsummering(it)
+                    }
 
-            val krav = refusjonService.getById(id) ?: throw NotFoundException("Fant ikke refusjonskra med id=$id")
+                call.respond(krav)
+            }
 
-            val oppsummering = toRefusjonKravOppsummering(krav)
+            get("/{id}") {
+                val id = call.parameters.getOrFail<UUID>("id")
 
-            call.respond(oppsummering)
-        }
+                val krav = refusjonService.getById(id) ?: throw NotFoundException("Fant ikke refusjonskra med id=$id")
 
-        post("/krav/{id}/godkjenn-refusjon") {
-            val id = call.parameters.getOrFail<UUID>("id")
+                val oppsummering = toRefusjonKravOppsummering(krav)
 
-            refusjonService.godkjennRefusjon(id)
+                call.respond(oppsummering)
+            }
 
-            call.respond(HttpStatusCode.OK)
-        }
+            post("/{id}/godkjenn-refusjon") {
+                val id = call.parameters.getOrFail<UUID>("id")
 
-        get("/kvittering/{id}") {
-            val id = call.parameters.getOrFail<UUID>("id")
-            val html = createHtmlFromTemplateData("refusjon-kvittering", "refusjon").toString()
-            val pdfBytes: ByteArray = createPDFA(html)
+                refusjonService.godkjennRefusjon(id)
 
-            call.response.headers.append(
-                "Content-Disposition",
-                "attachment; filename=\"kvittering.pdf\"",
-            )
-            call.respondBytes(pdfBytes, contentType = ContentType.Application.Pdf)
+                call.respond(HttpStatusCode.OK)
+            }
+
+            get("/{id}/kvittering") {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val html = createHtmlFromTemplateData("refusjon-kvittering", "refusjon").toString()
+                val pdfBytes: ByteArray = createPDFA(html)
+
+                call.response.headers.append(
+                    "Content-Disposition",
+                    "attachment; filename=\"kvittering.pdf\"",
+                )
+                call.respondBytes(pdfBytes, contentType = ContentType.Application.Pdf)
+            }
+
+            get("/{id}/tilsagn") {
+                val id = call.parameters.getOrFail<UUID>("id")
+
+                val krav = refusjonService.getById(id)
+                    ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+
+                when (krav.beregning) {
+                    is RefusjonKravBeregningAft -> {
+                        val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
+                            gjennomforingId = krav.gjennomforing.id,
+                            periodeStart = krav.beregning.input.periodeStart.toLocalDate(),
+                            periodeSlutt = krav.beregning.input.periodeSlutt.toLocalDate(),
+                        )
+                        call.respond(tilsagn)
+                    }
+                }
+            }
         }
 
         route("/tilsagn") {
@@ -103,7 +123,10 @@ fun Route.arrangorflateRoutes() {
                 val arrangorer = rettigheter.map {
                     arrangorService.getOrSyncArrangorFromBrreg(it.organisasjonsnummer.value)
                         .getOrElse {
-                            throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
+                            throw StatusException(
+                                HttpStatusCode.InternalServerError,
+                                "Feil ved henting av arrangor_id",
+                            )
                         }
                 }
 

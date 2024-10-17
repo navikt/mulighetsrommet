@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.intellij.lang.annotations.Language
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -97,23 +98,8 @@ class TilsagnRepository(private val db: Database) {
     fun getAllArrangorflateTilsagn(arrangorIds: List<UUID>): List<ArrangorflateTilsagn> {
         @Language("PostgreSQL")
         val query = """
-            select
-                tilsagn.id,
-                tiltaksgjennomforing.navn as gjennomforing_navn,
-                tiltakstype.navn as tiltakstype_navn,
-                tilsagn.periode_start,
-                tilsagn.periode_slutt,
-                tilsagn.beregning,
-                arrangor.id                         as arrangor_id,
-                arrangor.organisasjonsnummer        as arrangor_organisasjonsnummer,
-                arrangor.navn                       as arrangor_navn
-            from tilsagn
-                inner join tiltaksgjennomforing on tiltaksgjennomforing.id = tilsagn.tiltaksgjennomforing_id
-                inner join tiltakstype on tiltakstype.id = tiltaksgjennomforing.tiltakstype_id
-                inner join arrangor on arrangor.id = tilsagn.arrangor_id
-            where tilsagn.arrangor_id = any (?)
-            and tilsagn.annullert_tidspunkt is null
-            and tilsagn.besluttet_tidspunkt is not null
+            select * from tilsagn_arrangorflate_view
+            where arrangor_id = any (?)
         """.trimIndent()
 
         return queryOf(query, db.createUuidArray(arrangorIds))
@@ -122,26 +108,37 @@ class TilsagnRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun getArrangorflateTilsagnTilRefusjon(
+        gjennomforingId: UUID,
+        periodeStart: LocalDate,
+        periodeSlutt: LocalDate,
+    ): List<ArrangorflateTilsagn> {
+        @Language("PostgreSQL")
+        val query = """
+            select * from tilsagn_arrangorflate_view
+            where tiltaksgjennomforing_id = :gjennomforing_id
+            and (:periode_slutt is null or periode_start <= :periode_slutt)
+            and (:periode_start is null or periode_slutt >= :periode_start)
+        """.trimIndent()
+
+        return queryOf(
+            query,
+            mapOf(
+                "gjennomforing_id" to gjennomforingId,
+                "periode_start" to periodeStart,
+                "periode_slutt" to periodeSlutt,
+            ),
+        )
+            .map { it.toArrangorflateTilsagn() }
+            .asList
+            .let { db.run(it) }
+    }
+
     fun getArrangorflateTilsagn(id: UUID): ArrangorflateTilsagn? {
         @Language("PostgreSQL")
         val query = """
-            select
-                tilsagn.id,
-                tiltaksgjennomforing.navn as gjennomforing_navn,
-                tiltakstype.navn as tiltakstype_navn,
-                tilsagn.periode_start,
-                tilsagn.periode_slutt,
-                tilsagn.beregning,
-                arrangor.id                         as arrangor_id,
-                arrangor.organisasjonsnummer        as arrangor_organisasjonsnummer,
-                arrangor.navn                       as arrangor_navn
-            from tilsagn
-                inner join tiltaksgjennomforing on tiltaksgjennomforing.id = tilsagn.tiltaksgjennomforing_id
-                inner join tiltakstype on tiltakstype.id = tiltaksgjennomforing.tiltakstype_id
-                inner join arrangor on arrangor.id = tilsagn.arrangor_id
-            where tilsagn.id = ?::uuid
-            and tilsagn.annullert_tidspunkt is null
-            and tilsagn.besluttet_tidspunkt is not null
+            select * from tilsagn_arrangorflate_view
+            where id = ?::uuid
         """.trimIndent()
 
         return queryOf(query, id)

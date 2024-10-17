@@ -3,17 +3,17 @@ import { ActionFunction, json, LoaderFunction, redirect } from "@remix-run/node"
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { DeltakerlisteDetaljer } from "../components/deltakerliste/DeltakerlisteDetaljer";
 import { PageHeader } from "../components/PageHeader";
-import { Refusjonskrav, type TilsagnDetaljer } from "../domene/domene";
+import { Refusjonskrav } from "../domene/domene";
 import { checkValidToken } from "../auth/auth.server";
-import { RefusjonTilsagnsDetaljer } from "~/components/refusjonskrav/TilsagnsDetaljer";
 import { RefusjonDetaljer } from "~/components/refusjonskrav/RefusjonDetaljer";
 import { Separator } from "~/components/Separator";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
-import { ArrangorflateService } from "@mr/api-client";
+import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
+import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 
 type LoaderData = {
   krav: Refusjonskrav;
-  tilsagnsDetaljer: TilsagnDetaljer;
+  tilsagn: ArrangorflateTilsagn[];
 };
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
@@ -22,16 +22,11 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   if (params.id === undefined) throw Error("Mangler id");
 
   const krav = await loadRefusjonskrav(params.id);
+  const tilsagn = await ArrangorflateService.getArrangorflateTilsagnTilRefusjon({ id: krav.id });
 
   return {
     krav,
-    tilsagnsDetaljer: {
-      antallPlasser: 20,
-      prisPerPlass: 20205,
-      tilsagnsBelop: 1308530,
-      tilsagnsPeriode: "01.06.2024 - 30.06.2024",
-      sum: 1308530,
-    },
+    tilsagn,
   };
 };
 
@@ -56,7 +51,7 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function RefusjonskravDetaljer() {
-  const { tilsagnsDetaljer, krav } = useLoaderData<LoaderData>();
+  const { tilsagn, krav } = useLoaderData<LoaderData>();
   const data = useActionData<typeof action>();
 
   return (
@@ -71,7 +66,9 @@ export default function RefusjonskravDetaljer() {
       <VStack gap="5">
         <DeltakerlisteDetaljer krav={krav} />
         <Separator />
-        <RefusjonTilsagnsDetaljer tilsagnsDetaljer={tilsagnsDetaljer} />
+        { tilsagn.map(t => 
+          <TilsagnDetaljer tilsagn={t} />
+        )}
         <Separator />
         <RefusjonDetaljer krav={krav} />
 

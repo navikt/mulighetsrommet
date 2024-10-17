@@ -1,9 +1,10 @@
-import { VStack } from "@navikt/ds-react";
 import { LoaderFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { PageHeader } from "../components/PageHeader";
 import { checkValidToken } from "../auth/auth.server";
 import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
+import { Definisjonsliste } from "~/components/Definisjonsliste";
+import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 
 type LoaderData = {
   tilsagn: ArrangorflateTilsagn;
@@ -18,7 +19,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   return { tilsagn };
 };
 
-export default function TilsagnDetaljer() {
+export default function TilsagnDetaljerPage() {
   const { tilsagn } = useLoaderData<LoaderData>();
 
   return (
@@ -30,9 +31,14 @@ export default function TilsagnDetaljer() {
           url: `/`,
         }}
       />
-      <VStack gap="5">
-        <div>{tilsagn.id}</div>
-      </VStack>
+      <Definisjonsliste
+        className="mt-4"
+        definitions={[
+          { key: "Tiltakstype", value: tilsagn.tiltakstype.navn },
+          { key: "Tiltaksnavn", value: tilsagn.gjennomforing.navn },
+        ]}
+      />
+      <TilsagnDetaljer tilsagn={tilsagn} />
     </>
   );
 }
