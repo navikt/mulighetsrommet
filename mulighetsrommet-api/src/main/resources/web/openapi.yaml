@@ -1781,7 +1781,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/AFTSats"
 
-  /api/v1/intern/refusjon/tilsagn:
+  /api/v1/intern/arrangorflate/tilsagn:
     get:
       tags:
         - Arrangorflate
@@ -1796,7 +1796,24 @@ paths:
                 items:
                   $ref: "#/components/schemas/ArrangorflateTilsagn"
 
-  /api/v1/intern/refusjon/tilsagn/{id}:
+  /api/v1/intern/arrangorflate/refusjonskrav/{id}/tilsagn:
+    get:
+      tags:
+        - Arrangorflate
+      operationId: getArrangorflateTilsagnTilRefusjon
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        200:
+          description: Hent tilsagn til refusjonskrav
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArrangorflateTilsagn"
+
+  /api/v1/intern/arrangorflate/tilsagn/{id}:
     get:
       tags:
         - Arrangorflate
@@ -1811,7 +1828,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ArrangorflateTilsagn"
 
-  /api/v1/intern/refusjon/krav:
+  /api/v1/intern/arrangorflate/refusjonskrav:
     get:
       tags:
         - Arrangorflate
@@ -1826,7 +1843,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/RefusjonKravAft"
 
-  /api/v1/intern/refusjon/krav/{id}:
+  /api/v1/intern/arrangorflate/refusjonskrav/{id}:
     get:
       parameters:
         - $ref: "#/components/parameters/ID"
@@ -1841,7 +1858,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/RefusjonKravAft"
 
-  /api/v1/intern/refusjon/krav/{id}/godkjenn-refusjon:
+  /api/v1/intern/arrangorflate/refusjonskrav/{id}/godkjenn-refusjon:
     post:
       parameters:
         - $ref: "#/components/parameters/ID"
@@ -1852,7 +1869,7 @@ paths:
         200:
           description: Godkjenn et refusjonskrav
 
-  /api/v1/intern/refusjon/kvittering/{id}:
+  /api/v1/intern/arrangorflate/refusjonskrav/{id}/kvittering:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
