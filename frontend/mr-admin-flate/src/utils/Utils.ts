@@ -221,8 +221,15 @@ export function createQueryParamsForExcelDownloadForTiltaksgjennomforing(
     queryParams.set("visMineTiltaksgjennomforinger", "true");
   }
 
+  const publisertStatus = getPublisertStatus(filter.publisert);
+
   queryParams.set("size", filter.pageSize.toString());
   queryParams.set("sort", filter.sortering.sortString);
+
+  if (publisertStatus !== null) {
+    queryParams.set("publisert", publisertStatus ? "true" : "false");
+  }
+
   return queryParams;
 }
 
@@ -348,4 +355,14 @@ export function innholdElementToString(innholdElement: InnholdElement): string {
     case InnholdElement.NORSKOPPLAERING:
       return "Norskopplæring";
   }
+}
+
+export function getPublisertStatus(statuser: string[] = []): boolean | null {
+  if (statuser.length === 0) return null;
+
+  if (statuser.every((status) => status === "publisert")) return true;
+
+  if (statuser.every((status) => status === "ikke-publisert")) return false;
+
+  return null;
 }
