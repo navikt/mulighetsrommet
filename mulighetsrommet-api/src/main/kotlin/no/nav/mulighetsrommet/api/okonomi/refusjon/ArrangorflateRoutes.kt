@@ -33,13 +33,12 @@ import java.util.*
 
 fun Route.arrangorflateRoutes() {
     VeraGreenfieldFoundryProvider.initialise()
-    PDFGenCore.init(
-        Environment(),
-    )
-    val refusjonService: RefusjonService by inject()
+    PDFGenCore.init(Environment())
+
     val tilsagnService: TilsagnService by inject()
     val altinnRettigheterService: AltinnRettigheterService by inject()
     val arrangorService: ArrangorService by inject()
+    val refusjonskrav: RefusjonskravRepository by inject()
 
     route("/arrangorflate") {
         route("/refusjonskrav") {
@@ -56,7 +55,7 @@ fun Route.arrangorflateRoutes() {
                         }
                 }
 
-                val krav = refusjonService.getByArrangorIds(arrangorer.map { it.id })
+                val krav = refusjonskrav.getByArrangorIds(arrangorer.map { it.id })
                     .map {
                         // TODO egen listemodell som er generell på tvers av beregningstype?
                         toRefusjonKravOppsummering(it)
@@ -68,7 +67,7 @@ fun Route.arrangorflateRoutes() {
             get("/{id}") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val krav = refusjonService.getById(id) ?: throw NotFoundException("Fant ikke refusjonskra med id=$id")
+                val krav = refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskra med id=$id")
 
                 val oppsummering = toRefusjonKravOppsummering(krav)
 
@@ -78,7 +77,7 @@ fun Route.arrangorflateRoutes() {
             post("/{id}/godkjenn-refusjon") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                refusjonService.godkjennRefusjon(id)
+                refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now())
 
                 call.respond(HttpStatusCode.OK)
             }
@@ -98,7 +97,7 @@ fun Route.arrangorflateRoutes() {
             get("/{id}/tilsagn") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val krav = refusjonService.getById(id)
+                val krav = refusjonskrav.get(id)
                     ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
 
                 when (krav.beregning) {

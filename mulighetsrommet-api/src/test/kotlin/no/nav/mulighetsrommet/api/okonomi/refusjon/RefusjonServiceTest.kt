@@ -48,9 +48,7 @@ class RefusjonServiceTest : FunSpec({
 
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
-            val allKrav = service.getByArrangorIds(
-                listOf(ArrangorFixtures.underenhet1.id),
-            )
+            val allKrav = refusjonskravRepository.getByArrangorIds(listOf(ArrangorFixtures.underenhet1.id))
             allKrav.size shouldBe 1
 
             val krav = allKrav.first()
@@ -108,9 +106,7 @@ class RefusjonServiceTest : FunSpec({
 
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
-            val krav = service
-                .getByArrangorIds(listOf(ArrangorFixtures.underenhet1.id))
-                .first()
+            val krav = refusjonskravRepository.getByArrangorIds(listOf(ArrangorFixtures.underenhet1.id)).first()
 
             krav.beregning.input.shouldBeTypeOf<RefusjonKravBeregningAft.Input>().should {
                 it.deltakelser shouldBe setOf(
@@ -165,9 +161,7 @@ class RefusjonServiceTest : FunSpec({
 
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
-            val krav = service
-                .getByArrangorIds(listOf(ArrangorFixtures.underenhet1.id))
-                .first()
+            val krav = refusjonskravRepository.getByArrangorIds(listOf(ArrangorFixtures.underenhet1.id)).first()
 
             krav.beregning.output.shouldBeTypeOf<RefusjonKravBeregningAft.Output>().should {
                 it.belop shouldBe 20205
@@ -203,9 +197,7 @@ class RefusjonServiceTest : FunSpec({
             domain.initialize(database.db)
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
-            val krav = service
-                .getByArrangorIds(listOf(ArrangorFixtures.underenhet1.id))
-                .first()
+            val krav = refusjonskravRepository.getByArrangorIds(listOf(ArrangorFixtures.underenhet1.id)).first()
 
             krav.beregning.input.shouldBeTypeOf<RefusjonKravBeregningAft.Input>().should {
                 it.deltakelser shouldHaveSize 1

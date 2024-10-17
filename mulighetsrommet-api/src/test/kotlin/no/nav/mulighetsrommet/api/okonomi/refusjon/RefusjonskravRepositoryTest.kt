@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.okonomi.refusjon
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
@@ -85,7 +86,6 @@ class RefusjonskravRepositoryTest : FunSpec({
         test("upsert and get") {
             val krav = RefusjonskravDbo(
                 id = UUID.randomUUID(),
-                status = RefusjonskravStatus.KLAR_FOR_GODKJENNING,
                 gjennomforingId = AFT1.id,
                 beregning = beregning,
             )
@@ -112,6 +112,22 @@ class RefusjonskravRepositoryTest : FunSpec({
             )
         }
 
+        test("godkjenn refusjonskrav") {
+            val krav = RefusjonskravDbo(
+                id = UUID.randomUUID(),
+                gjennomforingId = AFT1.id,
+                beregning = beregning,
+            )
+
+            repository.upsert(krav)
+
+            repository.get(krav.id).shouldNotBeNull().status shouldBe RefusjonskravStatus.KLAR_FOR_GODKJENNING
+
+            repository.setGodkjentAvArrangor(krav.id, LocalDateTime.now())
+
+            repository.get(krav.id).shouldNotBeNull().status shouldBe RefusjonskravStatus.GODKJENT_AV_ARRANGOR
+        }
+
         test("tillater ikke lagring av overlappende perioder") {
             val periode = DeltakelsePeriode(
                 start = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
@@ -124,7 +140,6 @@ class RefusjonskravRepositoryTest : FunSpec({
             )
             val krav = RefusjonskravDbo(
                 id = UUID.randomUUID(),
-                status = RefusjonskravStatus.KLAR_FOR_GODKJENNING,
                 gjennomforingId = AFT1.id,
                 beregning = RefusjonKravBeregningAft(
                     input = RefusjonKravBeregningAft.Input(
