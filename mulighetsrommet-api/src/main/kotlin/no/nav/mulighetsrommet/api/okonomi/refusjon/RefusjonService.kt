@@ -52,6 +52,7 @@ class RefusjonService(
         periodeSlutt: LocalDateTime,
     ): RefusjonskravDbo {
         val refusjonskravId = UUID.randomUUID()
+        val frist = periodeSlutt.plusMonths(2)
 
         val deltakere = getDeltakelser(
             gjennomforingId,
@@ -72,6 +73,7 @@ class RefusjonService(
 
         return RefusjonskravDbo(
             id = refusjonskravId,
+            fristForGodkjenning = frist,
             gjennomforingId = gjennomforingId,
             beregning = beregning,
         )

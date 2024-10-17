@@ -4869,6 +4869,9 @@ components:
           format: uuid
         status:
           $ref: "#/components/schemas/RefusjonskravStatus"
+        fristForGodkjenning:
+          type: string
+          format: date-time
         tiltakstype:
           $ref: "#/components/schemas/RefusjonKravTiltakstype"
         gjennomforing:
@@ -4885,6 +4888,7 @@ components:
         - type
         - id
         - status
+        - fristForGodkjenning
         - tiltakstype
         - gjennomforing
         - arrangor
@@ -5110,4 +5114,3 @@ components:
         - arrangor
         - beregning
         - id
-

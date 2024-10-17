@@ -7,6 +7,7 @@ const mockKrav: RefusjonKravAft[] = [
     type: "AFT",
     id: uuid(),
     status: RefusjonskravStatus.KLAR_FOR_GODKJENNING,
+    fristForGodkjenning: "2024-08-01T00:00:00",
     tiltakstype: {
       navn: "Arbeidsforbredene trening",
     },
@@ -32,6 +33,7 @@ const mockKrav: RefusjonKravAft[] = [
     type: "AFT",
     id: uuid(),
     status: RefusjonskravStatus.KLAR_FOR_GODKJENNING,
+    fristForGodkjenning: "2024-08-01T00:00:00",
     tiltakstype: {
       navn: "Arbeidsforbredene trening",
     },
@@ -57,6 +59,7 @@ const mockKrav: RefusjonKravAft[] = [
     type: "AFT",
     id: uuid(),
     status: RefusjonskravStatus.KLAR_FOR_GODKJENNING,
+    fristForGodkjenning: "2024-08-01T00:00:00",
     tiltakstype: {
       navn: "Arbeidsforbredene trening",
     },

@@ -150,6 +150,7 @@ private fun toRefusjonKravOppsummering(krav: RefusjonskravDto) = when (val bereg
         RefusjonKravAft(
             id = krav.id,
             status = krav.status,
+            fristForGodkjenning = krav.fristForGodkjenning,
             tiltakstype = krav.tiltakstype,
             gjennomforing = krav.gjennomforing,
             arrangor = krav.arrangor,
@@ -170,6 +171,8 @@ data class RefusjonKravAft(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val status: RefusjonskravStatus,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val fristForGodkjenning: LocalDateTime,
     val tiltakstype: RefusjonskravDto.Tiltakstype,
     val gjennomforing: RefusjonskravDto.Gjennomforing,
     val arrangor: RefusjonskravDto.Arrangor,

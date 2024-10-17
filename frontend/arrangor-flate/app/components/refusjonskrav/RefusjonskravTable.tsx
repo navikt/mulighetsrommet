@@ -22,13 +22,13 @@ export function RefusjonskravTable({ krav }: Props) {
             <TableTitle className={"col-span-3"}>Periode</TableTitle>
             <TableTitle className={"col-span-2"}>Månedsverk</TableTitle>
             <TableTitle className={"col-span-2"}>Beløp</TableTitle>
-            <TableTitle className={"col-span-2"}>Innsendingsfrist</TableTitle>
+            <TableTitle className={"col-span-2"}>Frist for godkjenning</TableTitle>
             <TableTitle>Status</TableTitle>
             <div></div>
           </div>
         </div>
         <div>
-          {krav.map(({ id, status, beregning, gjennomforing }) => {
+          {krav.map(({ id, status, fristForGodkjenning, beregning, gjennomforing }) => {
             return (
               <div
                 className={
@@ -43,7 +43,7 @@ export function RefusjonskravTable({ krav }: Props) {
                   </div>
                   <div className="col-span-2">{beregning.antallManedsverk}</div>
                   <div className="col-span-2">{formaterTall(beregning.belop)} NOK</div>
-                  <div className="col-span-2">Frist for godkjenning</div>
+                  <div className="col-span-2">{formaterDato(fristForGodkjenning)}</div>
                   <div className="col-span-2">{statusTilTag(status)}</div>
                   <div className="col-span-1">
                     <Link

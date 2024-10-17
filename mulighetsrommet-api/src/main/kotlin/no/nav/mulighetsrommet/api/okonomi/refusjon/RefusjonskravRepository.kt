@@ -19,15 +19,17 @@ class RefusjonskravRepository(private val db: Database) {
     fun upsert(dbo: RefusjonskravDbo, tx: Session) {
         @Language("PostgreSQL")
         val refusjonskravQuery = """
-            insert into refusjonskrav (id, gjennomforing_id)
-            values (:id::uuid, :gjennomforing_id::uuid)
+            insert into refusjonskrav (id, gjennomforing_id, frist_for_godkjenning)
+            values (:id::uuid, :gjennomforing_id::uuid, :frist_for_godkjenning)
             on conflict (id) do update set
-                gjennomforing_id = excluded.gjennomforing_id
+                gjennomforing_id = excluded.gjennomforing_id,
+                frist_for_godkjenning = excluded.frist_for_godkjenning
         """.trimIndent()
 
         val params = mapOf(
             "id" to dbo.id,
             "gjennomforing_id" to dbo.gjennomforingId,
+            "frist_for_godkjenning" to dbo.fristForGodkjenning,
         )
 
         queryOf(refusjonskravQuery, params).asExecute.runWithSession(tx)
@@ -194,6 +196,7 @@ class RefusjonskravRepository(private val db: Database) {
         return RefusjonskravDto(
             id = uuid("id"),
             status = RefusjonskravStatus.valueOf(string("status")),
+            fristForGodkjenning = localDateTime("frist_for_godkjenning"),
             gjennomforing = RefusjonskravDto.Gjennomforing(
                 id = uuid("gjennomforing_id"),
                 navn = string("gjennomforing_navn"),
