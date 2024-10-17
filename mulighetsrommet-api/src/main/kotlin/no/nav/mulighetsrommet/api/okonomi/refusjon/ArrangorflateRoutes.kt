@@ -33,9 +33,8 @@ import java.util.*
 
 fun Route.arrangorflateRoutes() {
     VeraGreenfieldFoundryProvider.initialise()
-    PDFGenCore.init(
-        Environment(),
-    )
+    PDFGenCore.init(Environment())
+
     val refusjonService: RefusjonService by inject()
     val tilsagnService: TilsagnService by inject()
     val altinnRettigheterService: AltinnRettigheterService by inject()
