@@ -116,9 +116,9 @@ class TilsagnRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             select * from tilsagn_arrangorflate_view
-            where tiltaksgjennomforing_id = :gjennomforing_id
-            and (:periode_slutt is null or periode_start <= :periode_slutt)
-            and (:periode_start is null or periode_slutt >= :periode_start)
+            where gjennomforing_id = :gjennomforing_id::uuid
+            and (:periode_slutt::date is null or periode_start <= :periode_slutt::date)
+            and (:periode_start::date is null or periode_slutt >= :periode_start::date)
         """.trimIndent()
 
         return queryOf(

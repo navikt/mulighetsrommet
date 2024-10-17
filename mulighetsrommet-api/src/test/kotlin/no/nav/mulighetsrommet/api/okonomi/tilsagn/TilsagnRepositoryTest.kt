@@ -122,5 +122,33 @@ class TilsagnRepositoryTest : FunSpec({
             )
             repository.getArrangorflateTilsagn(tilsagn.id)?.id shouldBe tilsagn.id
         }
+
+        test("get til refusjon") {
+            repository.upsert(tilsagn)
+            repository.setBesluttelse(tilsagn.id, TilsagnBesluttelse.GODKJENT, NavIdent("Z123456"), LocalDateTime.now())
+            repository.getArrangorflateTilsagnTilRefusjon(
+                tilsagn.tiltaksgjennomforingId,
+                LocalDate.of(2023, 1, 14),
+                LocalDate.of(2023, 1, 15),
+            ) shouldBe listOf(
+                ArrangorflateTilsagn(
+                    id = tilsagn.id,
+                    gjennomforing = ArrangorflateTilsagn.Gjennomforing(
+                        navn = AFT1.navn,
+                    ),
+                    tiltakstype = ArrangorflateTilsagn.Tiltakstype(
+                        navn = TiltakstypeFixtures.AFT.navn,
+                    ),
+                    periodeStart = LocalDate.of(2023, 1, 1),
+                    periodeSlutt = LocalDate.of(2023, 2, 1),
+                    arrangor = ArrangorflateTilsagn.Arrangor(
+                        navn = ArrangorFixtures.underenhet1.navn,
+                        id = ArrangorFixtures.underenhet1.id,
+                        organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+                    ),
+                    beregning = Prismodell.TilsagnBeregning.Fri(123),
+                ),
+            )
+        }
     }
 })

@@ -4,6 +4,7 @@ create view tilsagn_arrangorflate_view as
 select
     tilsagn.id,
     tiltaksgjennomforing.navn as gjennomforing_navn,
+    tiltaksgjennomforing.id as gjennomforing_id,
     tiltakstype.navn as tiltakstype_navn,
     tilsagn.periode_start,
     tilsagn.periode_slutt,
