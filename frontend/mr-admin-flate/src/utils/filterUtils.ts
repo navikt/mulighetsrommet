@@ -94,13 +94,3 @@ export function arrangorOptions(arrangorer: Arrangor[]) {
     value: arrangor.id,
   }));
 }
-
-export function getPublisertStatus(statuser: string[] = []): boolean | null {
-  if (statuser.length === 0) return null;
-
-  if (statuser.every((status) => status === "publisert")) return true;
-
-  if (statuser.every((status) => status === "ikke-publisert")) return false;
-
-  return null;
-}

@@ -9,7 +9,6 @@ import {
   Kurstype,
 } from "@mr/api-client";
 import { AvtaleFilter, TiltaksgjennomforingFilter } from "@/api/atoms";
-import { getPublisertStatus } from "./filterUtils";
 
 export function capitalize(text?: string): string {
   return text ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase() : "";
@@ -356,4 +355,14 @@ export function innholdElementToString(innholdElement: InnholdElement): string {
     case InnholdElement.NORSKOPPLAERING:
       return "Norskopplæring";
   }
+}
+
+export function getPublisertStatus(statuser: string[] = []): boolean | null {
+  if (statuser.length === 0) return null;
+
+  if (statuser.every((status) => status === "publisert")) return true;
+
+  if (statuser.every((status) => status === "ikke-publisert")) return false;
+
+  return null;
 }

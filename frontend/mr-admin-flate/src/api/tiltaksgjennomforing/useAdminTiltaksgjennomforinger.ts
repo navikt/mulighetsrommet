@@ -3,7 +3,7 @@ import { useDebounce } from "@mr/frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
 import { TiltaksgjennomforingFilter } from "../atoms";
 import { type GetTiltaksgjennomforingerData, TiltaksgjennomforingerService } from "@mr/api-client";
-import { getPublisertStatus } from "../../utils/filterUtils";
+import { getPublisertStatus } from "../../utils/Utils";
 
 export function useAdminTiltaksgjennomforinger(filter: Partial<TiltaksgjennomforingFilter>) {
   const debouncedSok = useDebounce(filter.search?.trim(), 300);
