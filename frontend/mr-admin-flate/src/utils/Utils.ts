@@ -9,6 +9,7 @@ import {
   Kurstype,
 } from "@mr/api-client";
 import { AvtaleFilter, TiltaksgjennomforingFilter } from "@/api/atoms";
+import { getPublisertStatus } from "./filterUtils";
 
 export function capitalize(text?: string): string {
   return text ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase() : "";
@@ -221,8 +222,15 @@ export function createQueryParamsForExcelDownloadForTiltaksgjennomforing(
     queryParams.set("visMineTiltaksgjennomforinger", "true");
   }
 
+  const publisertStatus = getPublisertStatus(filter.publisert);
+
   queryParams.set("size", filter.pageSize.toString());
   queryParams.set("sort", filter.sortering.sortString);
+
+  if (publisertStatus !== null) {
+    queryParams.set("publisert", publisertStatus ? "true" : "false");
+  }
+
   return queryParams;
 }
 

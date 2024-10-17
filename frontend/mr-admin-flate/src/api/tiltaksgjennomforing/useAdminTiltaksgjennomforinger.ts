@@ -3,16 +3,7 @@ import { useDebounce } from "@mr/frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
 import { TiltaksgjennomforingFilter } from "../atoms";
 import { type GetTiltaksgjennomforingerData, TiltaksgjennomforingerService } from "@mr/api-client";
-
-function getPublisertStatus(statuser: string[] = []): boolean | null {
-  if (statuser.length === 0) return null;
-
-  if (statuser.every((status) => status === "publisert")) return true;
-
-  if (statuser.every((status) => status === "ikke-publisert")) return false;
-
-  return null;
-}
+import { getPublisertStatus } from "../../utils/filterUtils";
 
 export function useAdminTiltaksgjennomforinger(filter: Partial<TiltaksgjennomforingFilter>) {
   const debouncedSok = useDebounce(filter.search?.trim(), 300);
