@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.okonomi.refusjon
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePerioder
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDto
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -21,13 +20,6 @@ class RefusjonService(
     private val refusjonskravRepository: RefusjonskravRepository,
     private val db: Database,
 ) {
-    fun getByArrangorIds(ids: List<UUID>): List<RefusjonskravDto> {
-        return refusjonskravRepository.getByArrangorIds(ids)
-    }
-
-    fun getById(id: UUID): RefusjonskravDto? {
-        return refusjonskravRepository.get(id)
-    }
 
     fun godkjennRefusjon(id: UUID) {
         refusjonskravRepository.setStatus(id, RefusjonskravStatus.GODKJENT_AV_ARRANGOR)

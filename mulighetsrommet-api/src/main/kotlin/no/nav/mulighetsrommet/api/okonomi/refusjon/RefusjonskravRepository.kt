@@ -144,7 +144,7 @@ class RefusjonskravRepository(private val db: Database) {
             .runWithSession(tx)
     }
 
-    fun getByArrangorIds(ids: List<UUID>) = db.transaction { getByArrangorIds(ids, it) }
+    fun getByArrangorIds(ids: List<UUID>): List<RefusjonskravDto> = db.transaction { getByArrangorIds(ids, it) }
 
     fun getByArrangorIds(ids: List<UUID>, tx: Session): List<RefusjonskravDto> {
         @Language("PostgreSQL")

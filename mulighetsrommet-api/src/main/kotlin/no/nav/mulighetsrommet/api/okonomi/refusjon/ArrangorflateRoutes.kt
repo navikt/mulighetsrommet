@@ -40,6 +40,7 @@ fun Route.arrangorflateRoutes() {
     val tilsagnService: TilsagnService by inject()
     val altinnRettigheterService: AltinnRettigheterService by inject()
     val arrangorService: ArrangorService by inject()
+    val refusjonskrav: RefusjonskravRepository by inject()
 
     route("/refusjon") {
         get("/krav") {
@@ -55,7 +56,7 @@ fun Route.arrangorflateRoutes() {
                     }
             }
 
-            val krav = refusjonService.getByArrangorIds(arrangorer.map { it.id })
+            val krav = refusjonskrav.getByArrangorIds(arrangorer.map { it.id })
                 .map {
                     // TODO egen listemodell som er generell på tvers av beregningstype?
                     toRefusjonKravOppsummering(it)
@@ -67,7 +68,8 @@ fun Route.arrangorflateRoutes() {
         get("/krav/{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
 
-            val krav = refusjonService.getById(id) ?: throw NotFoundException("Fant ikke refusjonskra med id=$id")
+            val krav = refusjonskrav.get(id)
+                ?: throw NotFoundException("Fant ikke refusjonskra med id=$id")
 
             val oppsummering = toRefusjonKravOppsummering(krav)
 
