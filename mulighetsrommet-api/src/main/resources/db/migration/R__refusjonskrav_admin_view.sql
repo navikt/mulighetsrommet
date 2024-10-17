@@ -1,9 +1,9 @@
-drop view if exists refusjonskrav_aft_view;
-drop view if exists refusjonskrav_admin_dto_view;
-
-create view refusjonskrav_admin_dto_view as
+create or replace view refusjonskrav_admin_dto_view as
 select refusjonskrav.id,
-       refusjonskrav.status,
+       case
+           when godkjent_av_arrangor_tidspunkt is not null then 'GODKJENT_AV_ARRANGOR'
+           else 'KLAR_FOR_GODKJENNING'
+           end::refusjonskrav_status     as status,
        gjennomforing.id                  as gjennomforing_id,
        gjennomforing.navn                as gjennomforing_navn,
        arrangor.id                       as arrangor_id,
@@ -16,7 +16,7 @@ from refusjonskrav
          inner join arrangor on gjennomforing.arrangor_id = arrangor.id
          inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id;
 
-create view refusjonskrav_aft_view as
+create or replace view refusjonskrav_aft_view as
 with deltakelse_perioder as (select refusjonskrav_id,
                                     deltakelse_id,
                                     jsonb_agg(jsonb_build_object(

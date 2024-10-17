@@ -35,7 +35,6 @@ fun Route.arrangorflateRoutes() {
     VeraGreenfieldFoundryProvider.initialise()
     PDFGenCore.init(Environment())
 
-    val refusjonService: RefusjonService by inject()
     val tilsagnService: TilsagnService by inject()
     val altinnRettigheterService: AltinnRettigheterService by inject()
     val arrangorService: ArrangorService by inject()
@@ -78,7 +77,7 @@ fun Route.arrangorflateRoutes() {
         post("/krav/{id}/godkjenn-refusjon") {
             val id = call.parameters.getOrFail<UUID>("id")
 
-            refusjonService.godkjennRefusjon(id)
+            refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now())
 
             call.respond(HttpStatusCode.OK)
         }

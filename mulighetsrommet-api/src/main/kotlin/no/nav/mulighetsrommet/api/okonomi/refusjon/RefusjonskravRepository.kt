@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDto
 import no.nav.mulighetsrommet.database.Database
 import org.intellij.lang.annotations.Language
+import java.time.LocalDateTime
 import java.util.*
 
 class RefusjonskravRepository(private val db: Database) {
@@ -18,16 +19,14 @@ class RefusjonskravRepository(private val db: Database) {
     fun upsert(dbo: RefusjonskravDbo, tx: Session) {
         @Language("PostgreSQL")
         val refusjonskravQuery = """
-            insert into refusjonskrav (id, status, gjennomforing_id)
-            values (:id::uuid, :status::refusjonskrav_status, :gjennomforing_id::uuid)
+            insert into refusjonskrav (id, gjennomforing_id)
+            values (:id::uuid, :gjennomforing_id::uuid)
             on conflict (id) do update set
-                status = excluded.status,
                 gjennomforing_id = excluded.gjennomforing_id
         """.trimIndent()
 
         val params = mapOf(
             "id" to dbo.id,
-            "status" to dbo.status.name,
             "gjennomforing_id" to dbo.gjennomforingId,
         )
 
@@ -115,15 +114,15 @@ class RefusjonskravRepository(private val db: Database) {
         tx.batchPreparedNamedStatement(insertManedsverkQuery, manedsverk)
     }
 
-    fun setStatus(id: UUID, status: RefusjonskravStatus) {
+    fun setGodkjentAvArrangor(id: UUID, tidspunkt: LocalDateTime) {
         @Language("PostgreSQL")
         val query = """
             update refusjonskrav
-            set status = :status::refusjonskrav_status
+            set godkjent_av_arrangor_tidspunkt = :tidspunkt
             where id = :id::uuid
         """.trimIndent()
 
-        queryOf(query, mapOf("id" to id, "status" to status.name))
+        queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt))
             .asUpdate
             .let { db.run(it) }
     }

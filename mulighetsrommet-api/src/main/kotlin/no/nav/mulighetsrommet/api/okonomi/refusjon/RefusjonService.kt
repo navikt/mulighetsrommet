@@ -21,10 +21,6 @@ class RefusjonService(
     private val db: Database,
 ) {
 
-    fun godkjennRefusjon(id: UUID) {
-        refusjonskravRepository.setStatus(id, RefusjonskravStatus.GODKJENT_AV_ARRANGOR)
-    }
-
     fun genererRefusjonskravForMonth(dayInMonth: LocalDate) {
         val periodeStart = dayInMonth.with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay()
         val periodeSlutt = periodeStart.with(TemporalAdjusters.lastDayOfMonth()).plusDays(1)
@@ -76,7 +72,6 @@ class RefusjonService(
 
         return RefusjonskravDbo(
             id = refusjonskravId,
-            status = RefusjonskravStatus.KLAR_FOR_GODKJENNING,
             gjennomforingId = gjennomforingId,
             beregning = beregning,
         )
