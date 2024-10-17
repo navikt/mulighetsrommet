@@ -84,9 +84,11 @@ class RefusjonskravRepositoryTest : FunSpec({
         )
 
         test("upsert and get") {
+            val frist = LocalDate.of(2024, 10, 1).atStartOfDay()
             val krav = RefusjonskravDbo(
                 id = UUID.randomUUID(),
                 gjennomforingId = AFT1.id,
+                fristForGodkjenning = frist,
                 beregning = beregning,
             )
 
@@ -95,6 +97,10 @@ class RefusjonskravRepositoryTest : FunSpec({
             repository.get(krav.id) shouldBe RefusjonskravDto(
                 id = krav.id,
                 status = RefusjonskravStatus.KLAR_FOR_GODKJENNING,
+                fristForGodkjenning = frist,
+                tiltakstype = RefusjonskravDto.Tiltakstype(
+                    navn = TiltakstypeFixtures.AFT.navn,
+                ),
                 gjennomforing = RefusjonskravDto.Gjennomforing(
                     id = AFT1.id,
                     navn = AFT1.navn,
@@ -106,9 +112,6 @@ class RefusjonskravRepositoryTest : FunSpec({
                     slettet = ArrangorFixtures.underenhet1.slettetDato != null,
                 ),
                 beregning = beregning,
-                tiltakstype = RefusjonskravDto.Tiltakstype(
-                    navn = TiltakstypeFixtures.AFT.navn,
-                ),
             )
         }
 
@@ -116,6 +119,7 @@ class RefusjonskravRepositoryTest : FunSpec({
             val krav = RefusjonskravDbo(
                 id = UUID.randomUUID(),
                 gjennomforingId = AFT1.id,
+                fristForGodkjenning = LocalDate.of(2024, 10, 1).atStartOfDay(),
                 beregning = beregning,
             )
 
@@ -141,6 +145,7 @@ class RefusjonskravRepositoryTest : FunSpec({
             val krav = RefusjonskravDbo(
                 id = UUID.randomUUID(),
                 gjennomforingId = AFT1.id,
+                fristForGodkjenning = LocalDate.of(2024, 10, 1).atStartOfDay(),
                 beregning = RefusjonKravBeregningAft(
                     input = RefusjonKravBeregningAft.Input(
                         periodeStart = LocalDate.of(2023, 1, 1).atStartOfDay(),

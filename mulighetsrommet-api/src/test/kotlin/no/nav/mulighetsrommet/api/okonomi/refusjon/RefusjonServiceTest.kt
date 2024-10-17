@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class RefusjonServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -40,7 +41,7 @@ class RefusjonServiceTest : FunSpec({
             db = database.db,
         )
 
-        test("genererer et refusjonskrav med riktig periode og sats som input") {
+        test("genererer et refusjonskrav med riktig periode, frist og sats som input") {
             val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
             )
@@ -53,6 +54,7 @@ class RefusjonServiceTest : FunSpec({
 
             val krav = allKrav.first()
             krav.gjennomforing.id shouldBe AFT1.id
+            krav.fristForGodkjenning shouldBe LocalDateTime.of(2024, 4, 1, 0, 0, 0)
             krav.beregning.input shouldBe RefusjonKravBeregningAft.Input(
                 periodeStart = LocalDate.of(2024, 1, 1).atStartOfDay(),
                 periodeSlutt = LocalDate.of(2024, 2, 1).atStartOfDay(),
