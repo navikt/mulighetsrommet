@@ -39,7 +39,7 @@ fun Route.apiRoutes(config: AppConfig) {
             adminflateRoutes()
         }
 
-        authenticate(AuthProvider.TOKEN_X) {
+        authenticate(AuthProvider.TOKEN_X_ARRANGOR_FLATE) {
             arrangorflateRoutes()
         }
     }

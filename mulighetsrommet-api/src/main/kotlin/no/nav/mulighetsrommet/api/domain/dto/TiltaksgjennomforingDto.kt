@@ -76,7 +76,7 @@ data class TiltaksgjennomforingDto(
     data class ArrangorUnderenhet(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
-        val organisasjonsnummer: String,
+        val organisasjonsnummer: Organisasjonsnummer,
         val navn: String,
         val kontaktpersoner: List<ArrangorKontaktperson>,
         val slettet: Boolean,
@@ -101,7 +101,7 @@ data class TiltaksgjennomforingDto(
             startDato = startDato,
             sluttDato = sluttDato,
             status = status.status,
-            virksomhetsnummer = arrangor.organisasjonsnummer,
+            virksomhetsnummer = arrangor.organisasjonsnummer.value,
             oppstart = oppstart,
             tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
         )

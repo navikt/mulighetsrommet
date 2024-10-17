@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -240,7 +241,7 @@ class TilsagnRepository(private val db: Database) {
             ),
             arrangor = TilsagnDto.Arrangor(
                 id = uuid("arrangor_id"),
-                organisasjonsnummer = string("arrangor_organisasjonsnummer"),
+                organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
                 navn = string("arrangor_navn"),
                 slettet = boolean("arrangor_slettet"),
             ),
@@ -261,7 +262,7 @@ class TilsagnRepository(private val db: Database) {
             periodeStart = localDate("periode_start"),
             arrangor = ArrangorflateTilsagn.Arrangor(
                 id = uuid("arrangor_id"),
-                organisasjonsnummer = string("arrangor_organisasjonsnummer"),
+                organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
                 navn = string("arrangor_navn"),
             ),
             beregning = Json.decodeFromString<Prismodell.TilsagnBeregning>(string("beregning")),

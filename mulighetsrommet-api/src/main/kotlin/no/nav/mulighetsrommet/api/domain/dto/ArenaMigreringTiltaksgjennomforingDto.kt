@@ -60,7 +60,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
                 opprettetTidspunkt = tiltaksgjennomforing.createdAt,
                 endretTidspunkt = endretTidspunkt,
                 navn = tiltaksgjennomforing.navn,
-                orgnummer = tiltaksgjennomforing.arrangor.organisasjonsnummer,
+                orgnummer = tiltaksgjennomforing.arrangor.organisasjonsnummer.value,
                 antallPlasser = tiltaksgjennomforing.antallPlasser,
                 status = status,
                 arenaId = arenaId,

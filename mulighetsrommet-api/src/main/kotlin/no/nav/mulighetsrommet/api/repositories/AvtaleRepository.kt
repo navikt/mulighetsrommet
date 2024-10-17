@@ -612,7 +612,7 @@ class AvtaleRepository(private val db: Database) {
             kontorstruktur = kontorstruktur,
             arrangor = AvtaleDto.ArrangorHovedenhet(
                 id = uuid("arrangor_hovedenhet_id"),
-                organisasjonsnummer = string("arrangor_hovedenhet_organisasjonsnummer"),
+                organisasjonsnummer = Organisasjonsnummer(string("arrangor_hovedenhet_organisasjonsnummer")),
                 navn = string("arrangor_hovedenhet_navn"),
                 slettet = boolean("arrangor_hovedenhet_slettet"),
                 underenheter = underenheter,

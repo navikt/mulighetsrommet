@@ -38,7 +38,7 @@ object ExcelService {
                 row.createCell(1).setCellValue(avtale.tiltakstype.navn)
                 row.createCell(2).setCellValue(avtale.avtalenummer ?: "")
                 row.createCell(3).setCellValue(avtale.arrangor.navn)
-                row.createCell(4).setCellValue(avtale.arrangor.organisasjonsnummer)
+                row.createCell(4).setCellValue(avtale.arrangor.organisasjonsnummer.value)
                 row.createCell(5).setCellValue(avtale.startDato.formaterDatoTilEuropeiskDatoformat())
                 row.createCell(6).setCellValue(avtale.sluttDato?.formaterDatoTilEuropeiskDatoformat() ?: "")
             }
@@ -63,7 +63,7 @@ object ExcelService {
                 row.createCell(1).setCellValue(tiltak.tiltakstype.navn)
                 row.createCell(2).setCellValue(tiltak.tiltaksnummer ?: "")
                 row.createCell(3).setCellValue(tiltak.arrangor.navn)
-                row.createCell(4).setCellValue(tiltak.arrangor.organisasjonsnummer)
+                row.createCell(4).setCellValue(tiltak.arrangor.organisasjonsnummer.value)
                 row.createCell(5)
                     .setCellValue(tiltak.startDato.formaterDatoTilEuropeiskDatoformat())
                 row.createCell(6)

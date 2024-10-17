@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.notifications.NotificationStatus
 import no.nav.mulighetsrommet.utils.toUUID
 import java.util.*
@@ -25,7 +26,7 @@ data class AvtaleFilter(
 )
 
 data class EksternTiltaksgjennomforingFilter(
-    val arrangorOrgnr: List<String> = emptyList(),
+    val arrangorOrgnr: List<Organisasjonsnummer> = emptyList(),
 )
 
 data class EnhetFilter(

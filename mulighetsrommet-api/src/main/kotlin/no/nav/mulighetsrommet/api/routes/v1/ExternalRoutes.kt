@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.EksternTiltaksgjennomforingFilter
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingArenaDataDto
 import org.koin.ktor.ext.inject
 import java.util.*
@@ -19,7 +20,7 @@ fun Route.externalRoutes() {
 
     route("/api/v1/tiltaksgjennomforinger") {
         get {
-            val orgnr = call.request.queryParameters.getOrFail("orgnr")
+            val orgnr = call.request.queryParameters.getOrFail<Organisasjonsnummer>("orgnr")
 
             val filter = EksternTiltaksgjennomforingFilter(arrangorOrgnr = listOf(orgnr))
             val pagination = getPaginationParams()

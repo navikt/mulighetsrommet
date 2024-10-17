@@ -3,20 +3,23 @@ package no.nav.mulighetsrommet.api.okonomi.refusjon
 import arrow.core.getOrElse
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.plugins.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import io.ktor.util.pipeline.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDto
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.plugins.getPid
+import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.services.ArrangorService
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -36,26 +39,35 @@ fun Route.arrangorflateRoutes() {
     PDFGenCore.init(Environment())
 
     val tilsagnService: TilsagnService by inject()
-    val altinnRettigheterService: AltinnRettigheterService by inject()
     val arrangorService: ArrangorService by inject()
     val refusjonskrav: RefusjonskravRepository by inject()
+
+    suspend fun <T : Any> PipelineContext<T, ApplicationCall>.arrangorerMedTilgang(): List<UUID> {
+        return call.principal<ArrangorflatePrincipal>()
+            ?.organisasjonsnummer
+            ?.map {
+                arrangorService.getOrSyncArrangorFromBrreg(it)
+                    .getOrElse {
+                        throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
+                    }
+                    .id
+            }
+            ?: throw StatusException(HttpStatusCode.Unauthorized)
+    }
+
+    fun <T : Any> PipelineContext<T, ApplicationCall>.requireTilgangHosArrangor(organisasjonsnummer: Organisasjonsnummer) {
+        call.principal<ArrangorflatePrincipal>()
+            ?.organisasjonsnummer
+            ?.find { it == organisasjonsnummer }
+            ?: throw StatusException(HttpStatusCode.Forbidden, "Ikke tilgang til bedrift")
+    }
 
     route("/arrangorflate") {
         route("/refusjonskrav") {
             get {
-                val rettigheter = altinnRettigheterService.getRettigheter(getPid())
-                if (rettigheter.isEmpty()) {
-                    return@get call.respond(HttpStatusCode.Forbidden)
-                }
+                val arrangorIds = arrangorerMedTilgang()
 
-                val arrangorer = rettigheter.map {
-                    arrangorService.getOrSyncArrangorFromBrreg(it.organisasjonsnummer.value)
-                        .getOrElse {
-                            throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
-                        }
-                }
-
-                val krav = refusjonskrav.getByArrangorIds(arrangorer.map { it.id })
+                val krav = refusjonskrav.getByArrangorIds(arrangorIds)
                     .map {
                         // TODO egen listemodell som er generell på tvers av beregningstype?
                         toRefusjonKravOppsummering(it)
@@ -67,7 +79,9 @@ fun Route.arrangorflateRoutes() {
             get("/{id}") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val krav = refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskra med id=$id")
+                val krav = refusjonskrav.get(id)
+                    ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
                 val oppsummering = toRefusjonKravOppsummering(krav)
 
@@ -76,6 +90,10 @@ fun Route.arrangorflateRoutes() {
 
             post("/{id}/godkjenn-refusjon") {
                 val id = call.parameters.getOrFail<UUID>("id")
+
+                val krav = refusjonskrav.get(id)
+                    ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
                 refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now())
 
@@ -99,6 +117,7 @@ fun Route.arrangorflateRoutes() {
 
                 val krav = refusjonskrav.get(id)
                     ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
                 when (krav.beregning) {
                     is RefusjonKravBeregningAft -> {
@@ -115,33 +134,15 @@ fun Route.arrangorflateRoutes() {
 
         route("/tilsagn") {
             get {
-                val rettigheter = altinnRettigheterService.getRettigheter(getPid())
-                if (rettigheter.isEmpty()) {
-                    return@get call.respond(HttpStatusCode.Forbidden)
-                }
-                val arrangorer = rettigheter.map {
-                    arrangorService.getOrSyncArrangorFromBrreg(it.organisasjonsnummer.value)
-                        .getOrElse {
-                            throw StatusException(
-                                HttpStatusCode.InternalServerError,
-                                "Feil ved henting av arrangor_id",
-                            )
-                        }
-                }
-
-                val tilsagn = tilsagnService.getAllArrangorflateTilsagn(arrangorer.map { it.id })
-                call.respond(tilsagn)
+                call.respond(tilsagnService.getAllArrangorflateTilsagn(arrangorerMedTilgang()))
             }
 
             get("/{id}") {
-                val rettigheter = altinnRettigheterService.getRettigheter(getPid())
-                if (rettigheter.isEmpty()) {
-                    return@get call.respond(HttpStatusCode.Forbidden)
-                }
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 val tilsagn = tilsagnService.getArrangorflateTilsagn(id)
                     ?: throw NotFoundException("Fant ikke tilsagn")
+                requireTilgangHosArrangor(tilsagn.arrangor.organisasjonsnummer)
 
                 call.respond(tilsagn)
             }
