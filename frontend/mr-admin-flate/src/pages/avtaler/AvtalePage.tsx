@@ -60,7 +60,7 @@ export function AvtalePage() {
     if (pathname.includes("tiltaksgjennomforinger")) {
       return "tiltaksgjennomforinger";
     } else {
-      return "info";
+      return "avtale";
     }
   };
 
@@ -83,8 +83,8 @@ export function AvtalePage() {
       <Tabs value={currentTab()}>
         <Tabs.List className={commonStyles.list}>
           <Tabs.Tab
-            value="info"
-            label="Avtaleinfo"
+            value="avtale"
+            label="Avtale"
             onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}`)}
             aria-controls="panel"
           />
