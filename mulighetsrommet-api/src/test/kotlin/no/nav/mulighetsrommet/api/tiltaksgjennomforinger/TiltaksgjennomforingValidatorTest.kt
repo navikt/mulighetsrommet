@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.unleash.UnleashService
 import java.time.LocalDate
@@ -245,7 +246,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             sluttDato = null,
             avtaleId = AvtaleFixtures.oppfolgingMedAvtale.id,
         )
-        val offentligOffentlig = TiltaksgjennomforingFixtures.GruppeAmo1.copy(sluttDato = null)
+        val offentligOffentlig = TiltaksgjennomforingFixtures.GruppeAmo1.copy(sluttDato = null, amoKategorisering = AmoKategorisering.Studiespesialisering)
 
         validator.validate(forhaandsgodkjent, null).shouldBeRight()
         validator.validate(rammeAvtale, null).shouldBeLeft(
@@ -262,7 +263,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     test("kurstittel er påkrevd hvis kurstiltak") {
         val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
         val jobbklubb = TiltaksgjennomforingFixtures.Jobbklubb1.copy(faneinnhold = null)
-        val gruppeAmo = TiltaksgjennomforingFixtures.GruppeAmo1.copy(faneinnhold = null)
+        val gruppeAmo = TiltaksgjennomforingFixtures.GruppeAmo1.copy(faneinnhold = null, amoKategorisering = AmoKategorisering.Studiespesialisering)
         val oppfolging = TiltaksgjennomforingFixtures.Oppfolging1
 
         validator.validate(jobbklubb, null).shouldBeLeft(
@@ -272,6 +273,37 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             listOf(ValidationError("faneinnhold.kurstittel", "Du må skrive en kurstittel")),
         )
         validator.validate(oppfolging, null).shouldBeRight()
+    }
+
+    test("amoKategorisering er påkrevd for avtale og gjennomføring når tiltakstype er Gruppe AMO") {
+        val avtaleUtenAmokategorisering = AvtaleFixtures.gruppeAmo.copy(tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id, amoKategorisering = null)
+        avtaler.upsert(avtaleUtenAmokategorisering)
+
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
+
+        val gruppeAmo = TiltaksgjennomforingFixtures.GruppeAmo1.copy(amoKategorisering = null, avtaleId = avtaleUtenAmokategorisering.id)
+
+        validator.validate(gruppeAmo, null).shouldBeLeft(
+            listOf(
+                ValidationError("amoKategorisering", "Du må velge en kurstype for avtalen"),
+                ValidationError("amoKategorisering", "Du må velge et kurselement på gjennomføringen"),
+            ),
+        )
+    }
+
+    test("Kurselement må velges for gjennomføring når tiltakstype er Gruppe AMO") {
+        val avtaleMedAmokategorisering = AvtaleFixtures.gruppeAmo.copy(tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id, amoKategorisering = AmoKategorisering.Studiespesialisering)
+        avtaler.upsert(avtaleMedAmokategorisering)
+
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
+
+        val gruppeAmo = TiltaksgjennomforingFixtures.GruppeAmo1.copy(amoKategorisering = null, avtaleId = avtaleMedAmokategorisering.id)
+
+        validator.validate(gruppeAmo, null).shouldBeLeft(
+            listOf(
+                ValidationError("amoKategorisering", "Du må velge et kurselement på gjennomføringen"),
+            ),
+        )
     }
 
     test("utdanningsprogram og lærefag er påkrevd når tiltakstypen er Gruppe Fag- og yrkesopplæring") {

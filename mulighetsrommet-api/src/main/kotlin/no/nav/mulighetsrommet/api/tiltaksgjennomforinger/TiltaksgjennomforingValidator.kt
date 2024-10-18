@@ -142,6 +142,26 @@ class TiltaksgjennomforingValidator(
                 add(ValidationError.ofCustomLocation("faneinnhold.kurstittel", "Du må skrive en kurstittel"))
             }
 
+            if (avtale.tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING) {
+                if (avtale.amoKategorisering == null) {
+                    add(
+                        ValidationError.of(
+                            AvtaleDto::amoKategorisering,
+                            "Du må velge en kurstype for avtalen",
+                        ),
+                    )
+                }
+
+                if (next.amoKategorisering == null) {
+                    add(
+                        ValidationError.of(
+                            TiltaksgjennomforingDbo::amoKategorisering,
+                            "Du må velge et kurselement på gjennomføringen",
+                        ),
+                    )
+                }
+            }
+
             if (unleashService.isEnabled("mulighetsrommet.admin-flate.enable-utdanningskategorier")) {
                 if (avtale.tiltakstype.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
                     val utdanningslop = next.utdanningslop
