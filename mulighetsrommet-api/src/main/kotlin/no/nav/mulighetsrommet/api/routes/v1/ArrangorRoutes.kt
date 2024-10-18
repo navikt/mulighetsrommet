@@ -26,7 +26,7 @@ fun Route.arrangorRoutes() {
 
     route("arrangorer") {
         post("{orgnr}") {
-            val orgnr = call.parameters.getOrFail<Organisasjonsnummer>("orgnr")
+            val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
 
             if (isUtenlandskOrgnr(orgnr)) {
                 val virksomhet = arrangorRepository.get(orgnr)

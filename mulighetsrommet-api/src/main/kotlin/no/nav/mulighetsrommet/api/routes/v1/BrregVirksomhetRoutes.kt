@@ -41,7 +41,7 @@ fun Route.brregVirksomhetRoutes() {
         }
 
         get("{orgnr}/underenheter") {
-            val orgnr = call.parameters.getOrFail<Organisasjonsnummer>("orgnr")
+            val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
 
             val response = brregClient.getUnderenheterForOverordnetEnhet(orgnr)
                 .map { underenheter ->
