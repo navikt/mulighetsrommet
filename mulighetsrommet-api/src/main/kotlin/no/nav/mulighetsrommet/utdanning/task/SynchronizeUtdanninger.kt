@@ -94,7 +94,7 @@ private fun resolveRelevantUtdanninger(utdanninger: List<UtdanningNoProgramomraa
 }
 
 private fun toUtdanningsprogram(utdanning: UtdanningNoProgramomraade): Utdanningsprogram {
-    val navn = utdanning.navn.replace("^Vg1 ".toRegex(), "")
+    val navn = utdanning.navn.replace("^Vg\\d ".toRegex(), "")
     val utdanningsprogram = when (utdanning.utdanningsprogram) {
         UtdanningNoProgramomraade.Utdanningsprogram.YRKESFAGLIG -> UtdanningsprogramType.YRKESFAGLIG
         else -> throw IllegalArgumentException("Utdanningsprogram må være yrkesfaglig, '${utdanning.utdanningsprogram}' ble mottatt")
