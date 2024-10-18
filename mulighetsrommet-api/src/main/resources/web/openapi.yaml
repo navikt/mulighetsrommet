@@ -1036,6 +1036,28 @@ paths:
               schema:
                 type: string
 
+  /api/v1/intern/ansatt/sok:
+    get:
+      tags:
+        - Ansatt
+      operationId: sokAnsatt
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema:
+            type: string
+          description: search query
+      responses:
+        200:
+          description: Information about employee
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NavAnsatt"
+
   /api/v1/intern/del-med-bruker:
     post:
       tags:

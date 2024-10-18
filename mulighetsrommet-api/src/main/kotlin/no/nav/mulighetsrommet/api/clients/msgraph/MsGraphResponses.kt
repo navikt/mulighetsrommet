@@ -11,3 +11,8 @@ internal data class GetGroupMembersResponse(
 internal data class GetMemberGroupsResponse(
     val value: List<MsGraphGroup>,
 )
+
+@Serializable
+internal data class GetUserSearchResponse(
+    val value: List<MsGraphUserDto>,
+)
