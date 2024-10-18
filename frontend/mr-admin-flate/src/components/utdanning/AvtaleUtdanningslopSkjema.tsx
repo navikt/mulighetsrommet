@@ -52,7 +52,7 @@ function SelectAvtaleUtdanning() {
     <>
       <Select
         size="small"
-        label={avtaletekster.utdanning.utdanningsprogram.velg}
+        label={avtaletekster.utdanning.utdanningsprogram.label}
         {...register("utdanningslop.utdanningsprogram")}
         onChange={(e) => {
           if (e.currentTarget.value !== utdanningsprogram) {
