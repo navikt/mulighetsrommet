@@ -66,7 +66,7 @@ class MicrosoftGraphClient(
     suspend fun getNavAnsattByNavIdent(navIdent: NavIdent, accessType: AccessType): AzureAdNavAnsatt? {
         val response = client.get("$baseUrl/v1.0/users") {
             bearerAuth(tokenProvider.exchange(accessType))
-            parameter("\$search", "\"onPremisesSamAccountName:$navIdent\"")
+            parameter("\$search", "\"onPremisesSamAccountName:${navIdent.value}\"")
             parameter("\$select", azureAdNavAnsattFields)
             header("ConsistencyLevel", "eventual")
         }
