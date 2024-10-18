@@ -3,8 +3,10 @@ package no.nav.mulighetsrommet.api.repositories
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.api.domain.dto.DeltakerDto
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import org.intellij.lang.annotations.Language
 import java.util.*
 
@@ -60,11 +62,54 @@ class DeltakerRepository(private val db: Database) {
         queryOf(query, params).asExecute.runWithSession(session)
     }
 
-    fun getAll(tiltaksgjennomforingId: UUID? = null): List<DeltakerDbo> = db.useSession { session ->
+    fun setNorskIdent(deltakerId: UUID, norskIdent: NorskIdent) = db.useSession { session ->
+        @Language("PostgreSQL")
+        val query = """
+            update deltaker
+            set norsk_ident = :norsk_ident
+            where id = :deltaker_id::uuid
+        """.trimIndent()
+
+        val params = mapOf(
+            "deltaker_id" to deltakerId,
+            "norsk_ident" to norskIdent.value,
+        )
+
+        queryOf(query, params).asExecute.runWithSession(session)
+    }
+
+    fun get(id: UUID): DeltakerDto? = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
             select id,
                    gjennomforing_id,
+                   norsk_ident,
+                   start_dato,
+                   slutt_dato,
+                   registrert_tidspunkt,
+                   endret_tidspunkt,
+                   stillingsprosent,
+                   status_type,
+                   status_aarsak,
+                   status_opprettet_tidspunkt
+            from deltaker
+            where id = :id::uuid
+        """.trimIndent()
+
+        val params = mapOf("id" to id)
+
+        queryOf(query, params)
+            .map { it.toDeltakerDto() }
+            .asSingle
+            .runWithSession(session)
+    }
+
+    fun getAll(tiltaksgjennomforingId: UUID? = null): List<DeltakerDto> = db.useSession { session ->
+        @Language("PostgreSQL")
+        val query = """
+            select id,
+                   gjennomforing_id,
+                   norsk_ident,
                    start_dato,
                    slutt_dato,
                    registrert_tidspunkt,
@@ -80,7 +125,7 @@ class DeltakerRepository(private val db: Database) {
         val params = mapOf("gjennomforing_id" to tiltaksgjennomforingId)
 
         queryOf(query, params)
-            .map { it.toDeltakerDbo() }
+            .map { it.toDeltakerDto() }
             .asList
             .runWithSession(session)
     }
@@ -97,9 +142,10 @@ class DeltakerRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    private fun Row.toDeltakerDbo() = DeltakerDbo(
+    private fun Row.toDeltakerDto() = DeltakerDto(
         id = uuid("id"),
         gjennomforingId = uuid("gjennomforing_id"),
+        norskIdent = stringOrNull("norsk_ident")?.let { NorskIdent(it) },
         startDato = localDateOrNull("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
         registrertTidspunkt = localDateTime("registrert_tidspunkt"),
@@ -110,6 +156,5 @@ class DeltakerRepository(private val db: Database) {
             aarsak = stringOrNull("status_aarsak")?.let { DeltakerStatus.Aarsak.valueOf(it) },
             opprettetDato = localDateTime("status_opprettet_tidspunkt"),
         ),
-
     )
 }

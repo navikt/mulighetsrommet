@@ -8,15 +8,20 @@ import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
+import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
+import java.time.Period
 import java.util.*
 
 class AmtDeltakerV1KafkaConsumer(
     config: Config,
+    private val relevantDeltakerSluttDatoPeriod: Period = Period.ofMonths(3),
     private val tiltakstyper: TiltakstypeService,
     private val deltakere: DeltakerRepository,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
@@ -33,21 +38,52 @@ class AmtDeltakerV1KafkaConsumer(
 
         when {
             amtDeltaker == null -> {
-                logger.info("Mottok tombstone for deltaker med id=$key, sletter deltakeren")
+                logger.info("Mottok tombstone for deltaker deltakerId=$key, sletter deltakeren")
                 deltakere.delete(key)
             }
 
             amtDeltaker.status.type == DeltakerStatus.Type.FEILREGISTRERT -> {
-                logger.info("Sletter deltaker med id=$key fordi den var feilregistrert")
+                logger.info("Sletter deltaker deltakerId=$key fordi den var feilregistrert")
                 deltakere.delete(key)
             }
 
             else -> {
-                logger.info("Lagrer deltaker med id=$key")
-                val deltaker = amtDeltaker.toDeltakerDbo()
-                deltakere.upsert(deltaker)
+                logger.info("Lagrer deltaker deltakerId=$key")
+                deltakere.upsert(amtDeltaker.toDeltakerDbo())
+
+                if (isRelevantForRefusjonskrav(amtDeltaker)) {
+                    logger.info("Lagrer norsk ident for deltaker som er relevant for refusjonskrav deltakerId=$key")
+                    val norskIdent = NorskIdent(amtDeltaker.personIdent)
+                    deltakere.setNorskIdent(amtDeltaker.id, norskIdent)
+                }
             }
         }
+    }
+
+    private fun isRelevantForRefusjonskrav(deltaker: AmtDeltakerV1Dto): Boolean {
+        if (NaisEnv.current().isProdGCP()) {
+            return false
+        }
+
+        val tiltakstype = tiltakstyper.getByGjennomforingId(deltaker.gjennomforingId)
+        if (tiltakstype.tiltakskode !in setOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING)) {
+            return false
+        }
+
+        if (
+            deltaker.status.type !in setOf(
+                DeltakerStatus.Type.AVBRUTT,
+                DeltakerStatus.Type.DELTAR,
+                DeltakerStatus.Type.HAR_SLUTTET,
+                DeltakerStatus.Type.FULLFORT,
+            )
+        ) {
+            return false
+        }
+
+        val relevantDeltakerSluttDato = LocalDate.now().minus(relevantDeltakerSluttDatoPeriod)
+        val sluttDato = deltaker.sluttDato
+        return sluttDato == null || !relevantDeltakerSluttDato.isAfter(sluttDato)
     }
 
     private fun AmtDeltakerV1Dto.toDeltakerDbo(): DeltakerDbo {

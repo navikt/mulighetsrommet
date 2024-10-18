@@ -148,7 +148,11 @@ private fun kafka(appConfig: AppConfig) = module {
                 arenaMigreringTiltaksgjennomforingProducer = get(),
                 tiltaksgjennomforingRepository = get(),
             ),
-            AmtDeltakerV1KafkaConsumer(config = config.consumers.amtDeltakerV1, tiltakstyper = get(), deltakere = get()),
+            AmtDeltakerV1KafkaConsumer(
+                config = config.consumers.amtDeltakerV1,
+                tiltakstyper = get(),
+                deltakere = get(),
+            ),
             AmtVirksomheterV1KafkaConsumer(
                 config = config.consumers.amtVirksomheterV1,
                 arrangorRepository = get(),
