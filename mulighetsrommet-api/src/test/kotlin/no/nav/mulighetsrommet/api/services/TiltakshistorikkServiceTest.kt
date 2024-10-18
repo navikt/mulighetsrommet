@@ -46,7 +46,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
         startDato = LocalDate.of(2018, 12, 3),
         sluttDato = LocalDate.of(2019, 12, 3),
-        arrangor = Arrangor(Organisasjonsnummer(ArrangorFixtures.underenhet1.organisasjonsnummer)),
+        arrangor = Arrangor(ArrangorFixtures.underenhet1.organisasjonsnummer),
     )
 
     val tiltakshistorikkAvklaring = Tiltakshistorikk.ArenaDeltakelse(
@@ -67,7 +67,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         avtaleId = UUID.randomUUID(),
         tiltakstype = Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING,
         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
-        arbeidsgiver = Tiltakshistorikk.Arbeidsgiver(Organisasjonsnummer(ArrangorFixtures.underenhet2.organisasjonsnummer)),
+        arbeidsgiver = Tiltakshistorikk.Arbeidsgiver(ArrangorFixtures.underenhet2.organisasjonsnummer),
     )
 
     val deltakelseOppfolgingFraKomet = DeltakelseFraKomet(

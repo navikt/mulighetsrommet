@@ -9,14 +9,18 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.plugins.AppRoles
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import org.intellij.lang.annotations.Language
 import java.util.*
 
 class AuthenticationTest : FunSpec({
+    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     val oauth = MockOAuth2Server()
 
@@ -46,8 +50,8 @@ class AuthenticationTest : FunSpec({
                 get("AZURE_AD_TILTAKSGJENNOMFORING_APP") { call.respond(HttpStatusCode.OK) }
             }
 
-            authenticate(AuthProvider.TOKEN_X) {
-                get("TOKEN_X") { call.respond(HttpStatusCode.OK) }
+            authenticate(AuthProvider.TOKEN_X_ARRANGOR_FLATE) {
+                get("TOKEN_X_ARRANGOR_FLATE") { call.respond(HttpStatusCode.OK) }
             }
         }
     }
@@ -210,7 +214,16 @@ class AuthenticationTest : FunSpec({
         }
     }
 
-    test("verify provider TOKEN_X") {
+    test("verify provider TOKEN_X_ARRANGOR_FLATE") {
+        val personMedRettighet = "11830348931"
+
+        @Language("PostgreSQL")
+        val query = """
+            insert into altinn_person_rettighet (norsk_ident, organisasjonsnummer, rettighet, expiry)
+            values('$personMedRettighet', '123456789', 'TILTAK_ARRANGOR_REFUSJON', '3000-01-01') on conflict do nothing;
+        """.trimIndent()
+        database.db.run(queryOf(query).asExecute)
+
         val requestWithoutBearerToken = { _: HttpRequestBuilder -> }
         val requestWithWrongAudience = { request: HttpRequestBuilder ->
             request.bearerAuth(oauth.issueToken(audience = "skatteetaten").serialize())
@@ -221,8 +234,11 @@ class AuthenticationTest : FunSpec({
         val requestWithoutPid = { request: HttpRequestBuilder ->
             request.bearerAuth(oauth.issueToken().serialize())
         }
-        val requestWithPid = { request: HttpRequestBuilder ->
-            request.bearerAuth(oauth.issueToken(claims = mapOf(Pair("pid", "11830348931"))).serialize())
+        val requestWithPidWithoutRettighet = { request: HttpRequestBuilder ->
+            request.bearerAuth(oauth.issueToken(claims = mapOf(Pair("pid", "21830348931"))).serialize())
+        }
+        val requestWithPidWithRettighet = { request: HttpRequestBuilder ->
+            request.bearerAuth(oauth.issueToken(claims = mapOf(Pair("pid", personMedRettighet))).serialize())
         }
 
         val config = createTestApplicationConfig().copy(
@@ -234,9 +250,10 @@ class AuthenticationTest : FunSpec({
                 row(requestWithWrongAudience, HttpStatusCode.Unauthorized),
                 row(requestWithWrongIssuer, HttpStatusCode.Unauthorized),
                 row(requestWithoutPid, HttpStatusCode.Unauthorized),
-                row(requestWithPid, HttpStatusCode.OK),
+                row(requestWithPidWithoutRettighet, HttpStatusCode.Unauthorized),
+                row(requestWithPidWithRettighet, HttpStatusCode.OK),
             ) { buildRequest, responseStatusCode ->
-                val response = client.get("/TOKEN_X") { buildRequest(this) }
+                val response = client.get("/TOKEN_X_ARRANGOR_FLATE") { buildRequest(this) }
 
                 response.status shouldBe responseStatusCode
             }

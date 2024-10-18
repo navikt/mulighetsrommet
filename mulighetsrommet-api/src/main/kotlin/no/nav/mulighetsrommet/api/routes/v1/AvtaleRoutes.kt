@@ -34,8 +34,8 @@ data class AvtaleRequest(
     val navn: String,
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
-    val arrangorOrganisasjonsnummer: String,
-    val arrangorUnderenheter: List<String>,
+    val arrangorOrganisasjonsnummer: Organisasjonsnummer,
+    val arrangorUnderenheter: List<Organisasjonsnummer>,
     val arrangorKontaktpersoner: List<
         @Serializable(with = UUIDSerializer::class)
         UUID,

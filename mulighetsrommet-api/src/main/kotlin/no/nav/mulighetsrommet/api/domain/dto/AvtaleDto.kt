@@ -61,7 +61,7 @@ data class AvtaleDto(
     data class ArrangorHovedenhet(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
-        val organisasjonsnummer: String,
+        val organisasjonsnummer: Organisasjonsnummer,
         val navn: String,
         val slettet: Boolean,
         val underenheter: List<ArrangorUnderenhet>,
@@ -72,7 +72,7 @@ data class AvtaleDto(
     data class ArrangorUnderenhet(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
-        val organisasjonsnummer: String,
+        val organisasjonsnummer: Organisasjonsnummer,
         val navn: String,
         val slettet: Boolean,
         // TODO: denne er hardkodet til emptyList() enn så lenge slik at modell matcher [TiltaksgjennomforingAdminDto.ArrangorUnderenhet] samt modell i openapi.yaml
@@ -133,7 +133,7 @@ data class AvtaleDto(
             navn = navn,
             tiltakstypeId = tiltakstype.id,
             avtalenummer = avtalenummer,
-            arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer,
+            arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer.value,
             startDato = startDato,
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,

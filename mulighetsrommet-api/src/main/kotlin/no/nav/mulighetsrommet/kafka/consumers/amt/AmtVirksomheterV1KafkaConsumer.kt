@@ -5,6 +5,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
@@ -50,6 +51,6 @@ class AmtVirksomheterV1KafkaConsumer(
     }
 
     private fun shouldIgnoreMessage(key: String): Boolean {
-        return arrangorRepository.get(key) == null
+        return arrangorRepository.get(Organisasjonsnummer(key)) == null
     }
 }

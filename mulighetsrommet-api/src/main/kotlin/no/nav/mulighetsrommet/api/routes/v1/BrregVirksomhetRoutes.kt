@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.NotFound
 import no.nav.mulighetsrommet.api.responses.ServerError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import org.koin.ktor.ext.inject
 
 fun Route.brregVirksomhetRoutes() {
@@ -40,7 +41,7 @@ fun Route.brregVirksomhetRoutes() {
         }
 
         get("{orgnr}/underenheter") {
-            val orgnr = call.parameters.getOrFail("orgnr").also { validateOrgnr(it) }
+            val orgnr = call.parameters.getOrFail<Organisasjonsnummer>("orgnr")
 
             val response = brregClient.getUnderenheterForOverordnetEnhet(orgnr)
                 .map { underenheter ->
@@ -55,14 +56,8 @@ fun Route.brregVirksomhetRoutes() {
     }
 }
 
-fun validateOrgnr(orgnr: String) {
-    if (!orgnr.matches("^[0-9]{9}\$".toRegex())) {
-        throw BadRequestException("Verdi sendt inn er ikke et organisasjonsnummer. Organisasjonsnummer er 9 siffer og bare tall.")
-    }
-}
-
-fun isUtenlandskOrgnr(orgnr: String): Boolean {
-    return orgnr.matches("^[1-7][0-9]{8}\$".toRegex())
+fun isUtenlandskOrgnr(orgnr: Organisasjonsnummer): Boolean {
+    return orgnr.value.matches("^[1-7][0-9]{8}\$".toRegex())
 }
 
 fun toStatusResponseError(it: BrregError) = when (it) {

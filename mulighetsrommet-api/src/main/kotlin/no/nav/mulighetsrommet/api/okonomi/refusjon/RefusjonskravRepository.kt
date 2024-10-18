@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregning
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDto
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*
@@ -203,7 +204,7 @@ class RefusjonskravRepository(private val db: Database) {
             ),
             arrangor = RefusjonskravDto.Arrangor(
                 id = uuid("arrangor_id"),
-                organisasjonsnummer = string("arrangor_organisasjonsnummer"),
+                organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
                 navn = string("arrangor_navn"),
                 slettet = boolean("arrangor_slettet"),
             ),

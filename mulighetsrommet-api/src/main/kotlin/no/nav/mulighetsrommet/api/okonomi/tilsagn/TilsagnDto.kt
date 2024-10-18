@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -34,7 +35,7 @@ data class TilsagnDto(
     data class Arrangor(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
-        val organisasjonsnummer: String,
+        val organisasjonsnummer: Organisasjonsnummer,
         val navn: String,
         val slettet: Boolean,
     )

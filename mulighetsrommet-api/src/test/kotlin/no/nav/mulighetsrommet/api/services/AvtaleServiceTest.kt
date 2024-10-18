@@ -25,10 +25,12 @@ import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.NotFound
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
@@ -47,6 +49,10 @@ class AvtaleServiceTest : FunSpec({
         every { validator.validate(any(), any()) } answers {
             firstArg<AvtaleDbo>().right()
         }
+    }
+
+    afterEach {
+        database.db.truncateAll()
     }
 
     val bertilNavIdent = NavIdent("B123456")
@@ -81,11 +87,11 @@ class AvtaleServiceTest : FunSpec({
 
         test("får ikke opprette avtale dersom virksomhet ikke finnes i Brreg") {
             val request = AvtaleFixtures.avtaleRequest.copy(
-                arrangorOrganisasjonsnummer = "404",
+                arrangorOrganisasjonsnummer = Organisasjonsnummer("888777435"),
                 arrangorUnderenheter = listOf(),
             )
 
-            coEvery { brregClient.getBrregVirksomhet("404") } returns BrregError.NotFound.left()
+            coEvery { brregClient.getBrregVirksomhet(Organisasjonsnummer("888777435")) } returns BrregError.NotFound.left()
 
             avtaleService.upsert(request, bertilNavIdent).shouldBeLeft(
                 listOf(

@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures.underenhet1
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures.underenhet2
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import java.time.LocalDateTime
 import java.util.*
 
@@ -21,7 +20,7 @@ class AltinnRettigheterRepositoryTest : FunSpec({
         norskIdent = norskIdent1,
         bedriftRettigheter = listOf(
             BedriftRettigheter(
-                organisasjonsnummer = Organisasjonsnummer(underenhet1.organisasjonsnummer),
+                organisasjonsnummer = underenhet1.organisasjonsnummer,
                 rettigheter = listOf(AltinnRessurs.TILTAK_ARRANGOR_REFUSJON),
             ),
         ),
@@ -33,7 +32,7 @@ class AltinnRettigheterRepositoryTest : FunSpec({
         norskIdent = norskIdent2,
         bedriftRettigheter = listOf(
             BedriftRettigheter(
-                organisasjonsnummer = Organisasjonsnummer(underenhet2.organisasjonsnummer),
+                organisasjonsnummer = underenhet2.organisasjonsnummer,
                 rettigheter = listOf(AltinnRessurs.TILTAK_ARRANGOR_REFUSJON),
             ),
         ),

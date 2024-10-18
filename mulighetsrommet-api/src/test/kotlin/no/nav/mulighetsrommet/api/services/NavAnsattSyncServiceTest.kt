@@ -27,6 +27,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -175,7 +176,7 @@ class NavAnsattSyncServiceTest : FunSpec({
             },
             arrangor = AvtaleDto.ArrangorHovedenhet(
                 id = UUID.randomUUID(),
-                organisasjonsnummer = "123",
+                organisasjonsnummer = Organisasjonsnummer("123456789"),
                 navn = "navn",
                 slettet = false,
                 underenheter = emptyList(),

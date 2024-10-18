@@ -88,7 +88,7 @@ class AvtaleRepositoryTest : FunSpec({
                 it.navn shouldBe arenaAvtale.navn
                 it.avtalenummer shouldBe arenaAvtale.avtalenummer
                 it.arrangor.id shouldBe ArrangorFixtures.hovedenhet.id
-                it.arrangor.organisasjonsnummer shouldBe arenaAvtale.arrangorOrganisasjonsnummer
+                it.arrangor.organisasjonsnummer.value shouldBe arenaAvtale.arrangorOrganisasjonsnummer
                 it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = null, enhetsnummer = "9999")
                 it.startDato shouldBe arenaAvtale.startDato
                 it.sluttDato shouldBe arenaAvtale.sluttDato
@@ -619,7 +619,7 @@ class AvtaleRepositoryTest : FunSpec({
             val annenArrangor = ArrangorFixtures.underenhet1.copy(
                 id = UUID.randomUUID(),
                 navn = "Annen Arrangør AS",
-                organisasjonsnummer = "667543265",
+                organisasjonsnummer = Organisasjonsnummer("667543265"),
             )
             arrangorer.upsert(ArrangorFixtures.hovedenhet.copy(navn = "Hovedenhet AS"))
             arrangorer.upsert(annenArrangor)
@@ -679,21 +679,21 @@ class AvtaleRepositoryTest : FunSpec({
         val arrangorA = ArrangorDto(
             id = UUID.randomUUID(),
             navn = "alvdal",
-            organisasjonsnummer = "987654321",
+            organisasjonsnummer = Organisasjonsnummer("987654321"),
             postnummer = null,
             poststed = null,
         )
         val arrangorB = ArrangorDto(
             id = UUID.randomUUID(),
             navn = "bjarne",
-            organisasjonsnummer = "123456789",
+            organisasjonsnummer = Organisasjonsnummer("123456789"),
             postnummer = null,
             poststed = null,
         )
         val arrangorC = ArrangorDto(
             id = UUID.randomUUID(),
             navn = "chris",
-            organisasjonsnummer = "999888777",
+            organisasjonsnummer = Organisasjonsnummer("999888777"),
             postnummer = null,
             poststed = null,
         )
@@ -771,7 +771,7 @@ class AvtaleRepositoryTest : FunSpec({
         test("Sortering på arrangør sorterer korrekt") {
             val alvdal = AvtaleDto.ArrangorHovedenhet(
                 id = arrangorA.id,
-                organisasjonsnummer = "987654321",
+                organisasjonsnummer = Organisasjonsnummer("987654321"),
                 navn = "alvdal",
                 slettet = false,
                 underenheter = listOf(),
@@ -779,7 +779,7 @@ class AvtaleRepositoryTest : FunSpec({
             )
             val bjarne = AvtaleDto.ArrangorHovedenhet(
                 id = arrangorB.id,
-                organisasjonsnummer = "123456789",
+                organisasjonsnummer = Organisasjonsnummer("123456789"),
                 navn = "bjarne",
                 slettet = false,
                 underenheter = listOf(),
@@ -787,7 +787,7 @@ class AvtaleRepositoryTest : FunSpec({
             )
             val chris = AvtaleDto.ArrangorHovedenhet(
                 id = arrangorC.id,
-                organisasjonsnummer = "999888777",
+                organisasjonsnummer = Organisasjonsnummer("999888777"),
                 navn = "chris",
                 slettet = false,
                 underenheter = listOf(),

@@ -46,7 +46,7 @@ class UpdateTiltaksgjennomforingStatusTest :
                     )
                 },
                 navn = navn,
-                virksomhetsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+                virksomhetsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer.value,
                 startDato = startDato,
                 sluttDato = sluttDato,
                 status = status,

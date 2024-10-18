@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
@@ -38,9 +39,9 @@ class ArrangorRepository(private val db: Database) {
         val parameters = arrangor.run {
             mapOf(
                 "id" to id,
-                "organisasjonsnummer" to organisasjonsnummer,
+                "organisasjonsnummer" to organisasjonsnummer.value,
                 "navn" to navn,
-                "overordnet_enhet" to overordnetEnhet,
+                "overordnet_enhet" to overordnetEnhet?.value,
                 "slettet_dato" to slettetDato,
                 "postnummer" to postnummer,
                 "poststed" to poststed,
@@ -75,7 +76,7 @@ class ArrangorRepository(private val db: Database) {
     fun getAll(
         til: ArrangorTil? = null,
         sok: String? = null,
-        overordnetEnhetOrgnr: String? = null,
+        overordnetEnhetOrgnr: Organisasjonsnummer? = null,
         slettet: Boolean? = null,
         utenlandsk: Boolean? = null,
         pagination: Pagination = Pagination.all(),
@@ -123,7 +124,7 @@ class ArrangorRepository(private val db: Database) {
 
         val params = mapOf(
             "sok" to sok?.let { "%$it%" },
-            "overordnet_enhet" to overordnetEnhetOrgnr,
+            "overordnet_enhet" to overordnetEnhetOrgnr?.value,
             "slettet" to slettet,
             "utenlandsk" to utenlandsk,
         )
@@ -135,7 +136,7 @@ class ArrangorRepository(private val db: Database) {
         }
     }
 
-    fun get(orgnr: String): ArrangorDto? {
+    fun get(orgnr: Organisasjonsnummer): ArrangorDto? {
         @Language("PostgreSQL")
         val selectHovedenhet = """
             select
@@ -164,13 +165,13 @@ class ArrangorRepository(private val db: Database) {
             where overordnet_enhet = ?
         """.trimIndent()
 
-        val arrangor = queryOf(selectHovedenhet, orgnr)
+        val arrangor = queryOf(selectHovedenhet, orgnr.value)
             .map { it.toVirksomhetDto() }
             .asSingle
             .let { db.run(it) }
 
         return if (arrangor != null) {
-            val underenheter = queryOf(selectUnderenheter, orgnr)
+            val underenheter = queryOf(selectUnderenheter, orgnr.value)
                 .map { it.toVirksomhetDto() }
                 .asList
                 .let { db.run(it) }
@@ -336,9 +337,9 @@ class ArrangorRepository(private val db: Database) {
 
     private fun Row.toVirksomhetDto() = ArrangorDto(
         id = uuid("id"),
-        organisasjonsnummer = string("organisasjonsnummer"),
+        organisasjonsnummer = Organisasjonsnummer(string("organisasjonsnummer")),
         navn = string("navn"),
-        overordnetEnhet = stringOrNull("overordnet_enhet"),
+        overordnetEnhet = stringOrNull("overordnet_enhet")?.let { Organisasjonsnummer(it) },
         slettetDato = localDateOrNull("slettet_dato"),
         postnummer = stringOrNull("postnummer"),
         poststed = stringOrNull("poststed"),
@@ -356,9 +357,9 @@ class ArrangorRepository(private val db: Database) {
     )
 
     private fun BrregVirksomhetDto.toSqlParameters() = mapOf(
-        "organisasjonsnummer" to organisasjonsnummer,
+        "organisasjonsnummer" to organisasjonsnummer.value,
         "navn" to navn,
-        "overordnet_enhet" to overordnetEnhet,
+        "overordnet_enhet" to overordnetEnhet?.value,
         "slettet_dato" to slettetDato,
         "postnummer" to postnummer,
         "poststed" to poststed,

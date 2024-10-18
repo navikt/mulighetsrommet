@@ -219,16 +219,16 @@ class TiltakshistorikkService(
     }
 
     private suspend fun getArrangorHovedenhetNavn(orgnr: Organisasjonsnummer): String? {
-        return arrangorService.getOrSyncArrangorFromBrreg(orgnr.value).fold({ error ->
+        return arrangorService.getOrSyncArrangorFromBrreg(orgnr).fold({ error ->
             log.warn("Klarte ikke hente arrangørs hovedenhet. BrregError: $error")
             null
         }, { virksomhet ->
-            virksomhet.overordnetEnhet?.let { getArrangorHovedenhetNavn(Organisasjonsnummer(it)) } ?: virksomhet.navn
+            virksomhet.overordnetEnhet?.let { getArrangorHovedenhetNavn(it) } ?: virksomhet.navn
         })
     }
 
     private suspend fun getArrangorNavn(orgnr: Organisasjonsnummer): String? {
-        return arrangorService.getOrSyncArrangorFromBrreg(orgnr.value).fold({ error ->
+        return arrangorService.getOrSyncArrangorFromBrreg(orgnr).fold({ error ->
             log.warn("Klarte ikke hente hente arrangør. BrregError: $error")
             null
         }, { virksomhet ->

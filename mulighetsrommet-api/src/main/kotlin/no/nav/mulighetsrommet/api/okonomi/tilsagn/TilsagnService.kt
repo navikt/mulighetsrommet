@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -134,7 +133,7 @@ class TilsagnService(
                 okonomiId = lagOkonomiId(tilsagn),
                 periodeStart = tilsagn.periodeStart,
                 periodeSlutt = tilsagn.periodeSlutt,
-                organisasjonsnummer = Organisasjonsnummer(gjennomforing.arrangor.organisasjonsnummer),
+                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
                 kostnadSted = tilsagn.kostnadssted,
                 belop = tilsagn.beregning.belop,
             ),

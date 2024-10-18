@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.kafka.producers.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationService
@@ -51,7 +52,7 @@ class ArenaAdapterService(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleDto {
-        syncArrangorFromBrreg(avtale.arrangorOrganisasjonsnummer)
+        syncArrangorFromBrreg(Organisasjonsnummer(avtale.arrangorOrganisasjonsnummer))
 
         val dto = db.transaction { tx ->
             val previous = avtaler.get(avtale.id)
@@ -86,7 +87,7 @@ class ArenaAdapterService(
         val tiltakstype = tiltakstyper.get(arenaGjennomforing.tiltakstypeId)
             ?: throw IllegalStateException("Ukjent tiltakstype id=${arenaGjennomforing.tiltakstypeId}")
 
-        syncArrangorFromBrreg(arenaGjennomforing.arrangorOrganisasjonsnummer)
+        syncArrangorFromBrreg(Organisasjonsnummer(arenaGjennomforing.arrangorOrganisasjonsnummer))
 
         return if (Tiltakskoder.isEgenRegiTiltak(tiltakstype.arenaKode)) {
             upsertEgenRegiTiltak(tiltakstype, arenaGjennomforing)
@@ -167,7 +168,7 @@ class ArenaAdapterService(
         }
     }
 
-    private suspend fun syncArrangorFromBrreg(orgnr: String) {
+    private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer) {
         arrangorService.getOrSyncArrangorFromBrreg(orgnr).onLeft { error ->
             if (error == BrregError.NotFound) {
                 logger.warn("Virksomhet mer orgnr=$orgnr finnes ikke i brreg. Er dette en utenlandsk arrangør?")
@@ -208,7 +209,7 @@ class ArenaAdapterService(
                 avtaleId = current.avtaleId ?: tiltaksgjennomforing.avtaleId,
                 navn = current.navn,
                 tiltakstypeId = current.tiltakstype.id,
-                arrangorOrganisasjonsnummer = current.arrangor.organisasjonsnummer,
+                arrangorOrganisasjonsnummer = current.arrangor.organisasjonsnummer.value,
                 startDato = current.startDato,
                 sluttDato = current.sluttDato,
                 apentForInnsok = current.apentForInnsok,
@@ -239,7 +240,7 @@ class ArenaAdapterService(
             navn = current.navn,
             tiltakstypeId = current.tiltakstype.id,
             tiltaksnummer = current.tiltaksnummer ?: "",
-            arrangorOrganisasjonsnummer = current.arrangor.organisasjonsnummer,
+            arrangorOrganisasjonsnummer = current.arrangor.organisasjonsnummer.value,
             startDato = current.startDato,
             sluttDato = current.sluttDato,
             arenaAnsvarligEnhet = current.arenaAnsvarligEnhet?.enhetsnummer,
