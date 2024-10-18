@@ -1,6 +1,6 @@
 import { bransjeToString, kurstypeToString } from "@/utils/Utils";
 import { AvtaleDto, Kurstype } from "@mr/api-client";
-import { HGrid, Select } from "@navikt/ds-react";
+import { HGrid, Select, Alert } from "@navikt/ds-react";
 import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 import { ForerkortSkjema } from "./ForerkortSkjema";
 import { InnholdElementerSkjema } from "./InnholdElementerSkjema";
@@ -15,7 +15,7 @@ export function TiltaksgjennomforingAmoKategoriseringSkjema(props: Props) {
   const { avtale } = props;
 
   if (!avtale.amoKategorisering) {
-    return null;
+    return <Alert variant="warning">{tiltaktekster.amoKategoriseringMangler}</Alert>;
   }
 
   const avtaleAmo = avtale.amoKategorisering;

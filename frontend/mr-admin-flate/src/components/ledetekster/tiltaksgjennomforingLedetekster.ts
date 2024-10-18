@@ -33,4 +33,5 @@ export const tiltaktekster = {
   sertifiseringerLabel: "Sertifiseringer",
   norskproveLabel: "Norskprøve",
   innholdElementerLabel: "Elementer i kurset",
+  amoKategoriseringMangler: "Du må velge kurstype for avtalen",
 } as const;

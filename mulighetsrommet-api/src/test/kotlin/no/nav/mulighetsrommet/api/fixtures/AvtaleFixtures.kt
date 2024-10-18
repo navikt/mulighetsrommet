@@ -83,7 +83,7 @@ object AvtaleFixtures {
         faneinnhold = Faneinnhold(kurstittel = "Min kurstittel"),
         personopplysninger = emptyList(),
         personvernBekreftet = false,
-        amoKategorisering = null,
+        amoKategorisering = AmoKategorisering.Studiespesialisering,
         opsjonMaksVarighet = LocalDate.now().plusYears(3),
         opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
