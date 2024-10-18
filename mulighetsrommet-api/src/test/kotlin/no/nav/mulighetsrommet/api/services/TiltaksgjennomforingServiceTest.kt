@@ -30,6 +30,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.kafka.producers.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationRepository
@@ -118,7 +119,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     lopenummer = 1,
                     arrangor = Arrangor(
                         id = UUID.randomUUID(),
-                        organisasjonsnummer = "123456789",
+                        organisasjonsnummer = Organisasjonsnummer("123456789"),
                         navn = "navn",
                         slettet = false,
                     ),

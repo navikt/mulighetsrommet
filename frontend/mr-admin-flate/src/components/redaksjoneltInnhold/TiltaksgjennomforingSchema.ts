@@ -1,11 +1,7 @@
-import {
-  Opphav,
-  ProgramomradeMedUtdanningerRequest,
-  TiltaksgjennomforingOppstartstype,
-} from "@mr/api-client";
+import { Opphav, TiltaksgjennomforingOppstartstype, UtdanningslopDbo } from "@mr/api-client";
 import z from "zod";
 import { FaneinnholdSchema } from "./FaneinnholdSchema";
-import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "../../constants";
+import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "@/constants";
 import { AmoKategoriseringSchema } from "./AmoKategoriseringSchema";
 
 export const TiltaksgjennomforingSchema = z
@@ -94,7 +90,7 @@ export const TiltaksgjennomforingSchema = z
       .nullable(),
     tilgjengeligForArrangorFraOgMedDato: z.string().nullable().optional(),
     amoKategorisering: AmoKategoriseringSchema.nullish(),
-    programomradeOgUtdanninger: z.custom<ProgramomradeMedUtdanningerRequest>().nullable(),
+    utdanningslop: z.custom<UtdanningslopDbo>().nullable(),
   })
   .superRefine((data, ctx) => {
     data.kontaktpersoner?.forEach((kontaktperson, index) => {

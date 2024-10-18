@@ -5,7 +5,6 @@ import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
-import no.nav.mulighetsrommet.api.repositories.ProgramomradeMedUtdanninger
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
@@ -52,7 +51,7 @@ data class TiltaksgjennomforingDto(
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
-    val programomradeMedUtdanninger: ProgramomradeMedUtdanninger?,
+    val utdanningslop: UtdanningslopDto?,
 ) {
     fun isAktiv(): Boolean = status.status in listOf(
         TiltaksgjennomforingStatus.PLANLAGT,
@@ -77,7 +76,7 @@ data class TiltaksgjennomforingDto(
     data class ArrangorUnderenhet(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
-        val organisasjonsnummer: String,
+        val organisasjonsnummer: Organisasjonsnummer,
         val navn: String,
         val kontaktpersoner: List<ArrangorKontaktperson>,
         val slettet: Boolean,
@@ -102,7 +101,7 @@ data class TiltaksgjennomforingDto(
             startDato = startDato,
             sluttDato = sluttDato,
             status = status.status,
-            virksomhetsnummer = arrangor.organisasjonsnummer,
+            virksomhetsnummer = arrangor.organisasjonsnummer.value,
             oppstart = oppstart,
             tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
         )
@@ -138,6 +137,6 @@ data class TiltaksgjennomforingDto(
             estimertVentetidEnhet = estimertVentetid?.enhet,
             tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
             amoKategorisering = amoKategorisering,
-            programomradeOgUtdanningerRequest = programomradeMedUtdanninger?.toRequest(),
+            utdanningslop = utdanningslop?.toDbo(),
         )
 }

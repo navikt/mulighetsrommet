@@ -5,11 +5,11 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
-import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
+import no.nav.mulighetsrommet.domain.dto.ArenaDeltakerStatus
+import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk
-import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
@@ -230,10 +230,10 @@ private fun Row.toGruppetiltakDeltakelse() = Tiltakshistorikk.GruppetiltakDeltak
     id = uuid("id"),
     startDato = localDateOrNull("start_dato"),
     sluttDato = localDateOrNull("slutt_dato"),
-    status = AmtDeltakerStatus(
-        type = AmtDeltakerStatus.Type.valueOf(string("status_type")),
+    status = DeltakerStatus(
+        type = DeltakerStatus.Type.valueOf(string("status_type")),
         aarsak = stringOrNull("status_aarsak")?.let { aarsak ->
-            AmtDeltakerStatus.Aarsak.valueOf(aarsak)
+            DeltakerStatus.Aarsak.valueOf(aarsak)
         },
         opprettetDato = localDateTime("status_opprettet_dato"),
     ),

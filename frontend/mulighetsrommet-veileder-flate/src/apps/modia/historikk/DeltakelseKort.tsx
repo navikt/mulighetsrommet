@@ -55,7 +55,7 @@ function DeltakelseInnhold({ deltakelse }: Props) {
       </HGrid>
     );
   } else if (deltakelse.eierskap === "TEAM_TILTAK") {
-    const link = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL}/tiltaksgjennomforing/avtale/${deltakelse.id}`;
+    const link = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL}/tiltaksgjennomforing/avtale/${deltakelse.id}?part=VEILEDER`;
     return (
       <HGrid columns="1fr 20%" align="center">
         <Innhold deltakelse={deltakelse} />

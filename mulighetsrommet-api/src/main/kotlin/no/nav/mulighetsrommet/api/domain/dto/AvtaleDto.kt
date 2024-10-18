@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.domain.dto
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
-import no.nav.mulighetsrommet.api.repositories.ProgramomradeMedUtdanninger
 import no.nav.mulighetsrommet.api.routes.v1.OpsjonLoggRequest
 import no.nav.mulighetsrommet.api.routes.v1.OpsjonsmodellData
 import no.nav.mulighetsrommet.domain.Tiltakskode
@@ -48,7 +47,7 @@ data class AvtaleDto(
     val amoKategorisering: AmoKategorisering?,
     val opsjonsmodellData: OpsjonsmodellData? = null,
     val opsjonerRegistrert: List<OpsjonLoggRegistrert>?,
-    val programomradeMedUtdanninger: ProgramomradeMedUtdanninger? = null,
+    val utdanningslop: UtdanningslopDto?,
 ) {
     @Serializable
     data class Tiltakstype(
@@ -62,7 +61,7 @@ data class AvtaleDto(
     data class ArrangorHovedenhet(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
-        val organisasjonsnummer: String,
+        val organisasjonsnummer: Organisasjonsnummer,
         val navn: String,
         val slettet: Boolean,
         val underenheter: List<ArrangorUnderenhet>,
@@ -73,7 +72,7 @@ data class AvtaleDto(
     data class ArrangorUnderenhet(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
-        val organisasjonsnummer: String,
+        val organisasjonsnummer: Organisasjonsnummer,
         val navn: String,
         val slettet: Boolean,
         // TODO: denne er hardkodet til emptyList() enn så lenge slik at modell matcher [TiltaksgjennomforingAdminDto.ArrangorUnderenhet] samt modell i openapi.yaml
@@ -125,7 +124,7 @@ data class AvtaleDto(
             opsjonMaksVarighet = opsjonsmodellData?.opsjonMaksVarighet,
             opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
             customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
-            programomradeOgUtdanningerRequest = programomradeMedUtdanninger?.toRequest(),
+            utdanningslop = utdanningslop?.toDbo(),
         )
 
     fun toArenaAvtaleDbo() =
@@ -134,7 +133,7 @@ data class AvtaleDto(
             navn = navn,
             tiltakstypeId = tiltakstype.id,
             avtalenummer = avtalenummer,
-            arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer,
+            arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer.value,
             startDato = startDato,
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,

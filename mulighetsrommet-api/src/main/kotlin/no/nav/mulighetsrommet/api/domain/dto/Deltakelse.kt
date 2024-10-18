@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
-import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk
-import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
+import no.nav.mulighetsrommet.domain.dto.ArbeidsgiverAvtaleStatus
+import no.nav.mulighetsrommet.domain.dto.ArenaDeltakerStatus
+import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -46,10 +46,10 @@ sealed class Deltakelse {
         @Serializable(with = LocalDateSerializer::class)
         override val sistEndretDato: LocalDate?,
         override val periode: Periode,
-        val status: DeltakerStatus,
+        val status: Status,
     ) : Deltakelse() {
         @Serializable
-        data class DeltakerStatus(
+        data class Status(
             val type: ArenaDeltakerStatus,
             val visningstekst: String,
         )
@@ -67,13 +67,13 @@ sealed class Deltakelse {
         @Serializable(with = LocalDateSerializer::class)
         override val sistEndretDato: LocalDate?,
         override val periode: Periode,
-        val status: DeltakerStatus,
+        val status: Status,
         @Serializable(with = UUIDSerializer::class)
         val gjennomforingId: UUID,
     ) : Deltakelse() {
         @Serializable
-        data class DeltakerStatus(
-            val type: AmtDeltakerStatus.Type,
+        data class Status(
+            val type: DeltakerStatus.Type,
             val visningstekst: String,
             val aarsak: String?,
         )
@@ -91,11 +91,11 @@ sealed class Deltakelse {
         @Serializable(with = LocalDateSerializer::class)
         override val sistEndretDato: LocalDate?,
         override val periode: Periode,
-        val status: DeltakerStatus,
+        val status: Status,
     ) : Deltakelse() {
         @Serializable
-        data class DeltakerStatus(
-            val type: Tiltakshistorikk.ArbeidsgiverAvtale.Status,
+        data class Status(
+            val type: ArbeidsgiverAvtaleStatus,
             val visningstekst: String,
         )
     }

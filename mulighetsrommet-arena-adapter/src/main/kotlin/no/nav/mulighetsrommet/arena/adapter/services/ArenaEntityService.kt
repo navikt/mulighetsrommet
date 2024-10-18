@@ -14,7 +14,6 @@ class ArenaEntityService(
     private val tiltakstyper: TiltakstypeRepository,
     private val saker: SakRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
-    private val deltakere: DeltakerRepository,
     private val avtaler: AvtaleRepository,
 ) {
     fun getOrCreateMapping(event: ArenaEvent): ArenaEntityMapping {
@@ -105,10 +104,6 @@ class ArenaEntityService(
     fun isIgnored(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, Boolean> {
         return getMapping(arenaTable, arenaId)
             .map { it.status == ArenaEntityMapping.Status.Ignored }
-    }
-
-    fun getDeltakereByTiltaksgjennomforingId(id: Int): List<Deltaker> {
-        return deltakere.getByTiltaksgjennomforingId(id)
     }
 
     fun upsertAvtale(avtale: Avtale): Either<ProcessingError, Avtale> {

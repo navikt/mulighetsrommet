@@ -13,6 +13,7 @@ import {
   NavEnhet,
   Tiltakskode,
   TiltakstypeDto,
+  UtdanningslopDbo,
   ValidationErrorResponse,
 } from "@mr/api-client";
 import React, { useCallback } from "react";
@@ -95,14 +96,7 @@ export function AvtaleSkjemaContainer({
         opsjonsmodell: data?.opsjonsmodellData?.opsjonsmodell || null,
         customOpsjonsmodellNavn: data?.opsjonsmodellData?.customOpsjonsmodellNavn || null,
       },
-      programomradeMedUtdanningerRequest:
-        data.programomradeOgUtdanninger?.programomradeId &&
-        data.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING
-          ? {
-              programomradeId: data.programomradeOgUtdanninger?.programomradeId,
-              utdanningsIder: data.programomradeOgUtdanninger?.utdanningsIder || [],
-            }
-          : null,
+      utdanningslop: getUtdanningslop(data),
     };
 
     mutation.mutate(requestBody);
@@ -124,8 +118,7 @@ export function AvtaleSkjemaContainer({
           opsjonMaksVarighet: "opsjonsmodellData.opsjonMaksVarighet",
           customOpsjonsmodellNavn: "opsjonsmodellData.customOpsjonsmodellNavn",
           tiltakstypeId: "tiltakstype",
-          programomrade: "programomradeOgUtdanninger.programomradeId",
-          utdanninger: "programomradeOgUtdanninger.utdanningsIder",
+          utdanningslop: "utdanningslop.utdanninger",
         };
         return (mapping[name] ?? name) as keyof InferredAvtaleSchema;
       }
@@ -194,4 +187,19 @@ export function AvtaleSkjemaContainer({
       </form>
     </FormProvider>
   );
+}
+
+/**
+ * Så lenge det mangler validering av utdanningsløp i frontend så trenger vi litt ekstra sanitering av data
+ */
+function getUtdanningslop(data: InferredAvtaleSchema): UtdanningslopDbo | null {
+  if (data.tiltakstype.tiltakskode !== Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
+    return null;
+  }
+
+  if (!data.utdanningslop?.utdanningsprogram || !data.utdanningslop?.utdanninger) {
+    return null;
+  }
+
+  return data.utdanningslop;
 }

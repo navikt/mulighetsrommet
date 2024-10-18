@@ -803,21 +803,6 @@ paths:
                 items:
                   type: string
 
-  /api/v1/intern/tiltakstyper/pameldingKommerSnartIModia:
-    get:
-      tags:
-        - Tiltakstyper
-      operationId: getTiltakstyperSomSnartHarPameldingIModia
-      responses:
-        200:
-          description: Liste over tiltak som snart støtter påmelding i Modia
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: string
-
   /api/v1/intern/veileder/innsatsgrupper:
     get:
       tags:
@@ -1818,16 +1803,58 @@ paths:
                 items:
                   $ref: "#/components/schemas/AFTSats"
 
-  /api/v1/intern/refusjon/krav:
-    post:
+  /api/v1/intern/arrangorflate/tilsagn:
+    get:
       tags:
-        - Refusjonskrav
-      operationId: getRefusjonskrav
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/GetRefusjonskravRequest"
+        - Arrangorflate
+      operationId: getAllArrangorflateTilsagn
+      responses:
+        200:
+          description: Hent tilsagn til arrangør
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArrangorflateTilsagn"
+
+  /api/v1/intern/arrangorflate/refusjonskrav/{id}/tilsagn:
+    get:
+      tags:
+        - Arrangorflate
+      operationId: getArrangorflateTilsagnTilRefusjon
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        200:
+          description: Hent tilsagn til refusjonskrav
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArrangorflateTilsagn"
+
+  /api/v1/intern/arrangorflate/tilsagn/{id}:
+    get:
+      tags:
+        - Arrangorflate
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      operationId: getArrangorflateTilsagn
+      responses:
+        200:
+          description: Hent tilsagn by id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrangorflateTilsagn"
+
+  /api/v1/intern/arrangorflate/refusjonskrav:
+    get:
+      tags:
+        - Arrangorflate
+      operationId: getAllRefusjonKrav
       responses:
         200:
           description: Hent refusjonskrav til arrangør
@@ -1836,14 +1863,14 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/RefusjonskravDto"
+                  $ref: "#/components/schemas/RefusjonKravAft"
 
-  /api/v1/intern/refusjon/krav/{id}:
+  /api/v1/intern/arrangorflate/refusjonskrav/{id}:
     get:
       parameters:
         - $ref: "#/components/parameters/ID"
       tags:
-        - Refusjonskrav
+        - Arrangorflate
       operationId: getRefusjonkrav
       responses:
         200:
@@ -1851,14 +1878,26 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RefusjonskravDto"
+                $ref: "#/components/schemas/RefusjonKravAft"
 
-  /api/v1/intern/refusjon/kvittering/{id}:
+  /api/v1/intern/arrangorflate/refusjonskrav/{id}/godkjenn-refusjon:
+    post:
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      tags:
+        - Arrangorflate
+      operationId: godkjennRefusjonskrav
+      responses:
+        200:
+          description: Godkjenn et refusjonskrav
+
+  /api/v1/intern/arrangorflate/refusjonskrav/{id}/kvittering:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
       tags:
-        - Refusjonskrav
+        - Arrangorflate
+      operationId: getRefusjonkravKvittering
       responses:
         200:
           description: Generer PDF kvittering for refusjonskrav
@@ -1872,16 +1911,16 @@ paths:
     get:
       tags:
         - Utdanninger
-      operationId: getUtdanninger
+      operationId: getUtdanningsprogrammer
       responses:
         200:
-          description: Returns a list of programområder and the corresponding utdanninger
+          description: Alle utdanningsprogram med utdanninger
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ProgramomradeMedUtdanninger"
+                  $ref: "#/components/schemas/UtdanningsprogramMedUtdanninger"
 
 components:
   securitySchemes:
@@ -2251,8 +2290,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/OpsjonLoggRegistrert"
-        programomradeMedUtdanninger:
-            $ref: "#/components/schemas/ProgramomradeMedUtdanninger"
+        utdanningslop:
+          $ref: "#/components/schemas/Utdanningslop"
       required:
         - id
         - tiltakstype
@@ -2337,8 +2376,8 @@ components:
         opsjonsmodellData:
           $ref: "#/components/schemas/OpsjonsmodellData"
           nullable: true
-        programomradeMedUtdanningerRequest:
-          $ref: "#/components/schemas/ProgramomradeMedUtdanningerRequest"
+        utdanningslop:
+          $ref: "#/components/schemas/UtdanningslopDbo"
           nullable: true
       required:
         - id
@@ -2360,7 +2399,7 @@ components:
         - personvernBekreftet
         - amoKategorisering
         - opsjonsmodellData
-        - programomradeMedUtdanningerRequest
+        - utdanningslop
 
     EmbeddedTiltakstype:
       type: object
@@ -2553,8 +2592,8 @@ components:
         amoKategorisering:
           $ref: "#/components/schemas/AmoKategorisering"
           nullable: true
-        programomradeMedUtdanninger:
-          $ref: "#/components/schemas/ProgramomradeMedUtdanninger"
+        utdanningslop:
+          $ref: "#/components/schemas/Utdanningslop"
       required:
         - id
         - tiltakstype
@@ -2658,8 +2697,8 @@ components:
         amoKategorisering:
           $ref: "#/components/schemas/AmoKategorisering"
           nullable: true
-        programomradeMedUtdanningerRequest:
-          $ref: "#/components/schemas/ProgramomradeMedUtdanningerRequest"
+        utdanningslop:
+          $ref: "#/components/schemas/UtdanningslopDbo"
           nullable: true
       required:
         - id
@@ -2684,7 +2723,7 @@ components:
         - estimertVentetid
         - tilgjengeligForArrangorFraOgMedDato
         - amoKategorisering
-        - programomradeMedUtdanningerRequest
+        - utdanningslop
 
     TiltaksgjennomforingStatusDto:
       type: object
@@ -3942,23 +3981,21 @@ components:
       properties:
         antallDeltakere:
           type: number
-        antallAktiveDeltakere:
-          type: number
-        antallDeltakereSomVenter:
-          type: number
-        antallAvsluttedeDeltakere:
-          type: number
-        antallIkkeAktuelleDeltakere:
-          type: number
-        pabegyntRegistrering:
-          type: number
+        deltakereByStatus:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+              count:
+                type: integer
+            required:
+              - status
+              - count
       required:
         - antallDeltakere
-        - antallAktiveDeltakere
-        - antallDeltakereSomVenter
-        - antallAvsluttedeDeltakere
-        - antallIkkeAktuelleDeltakere
-        - pabegyntRegistrering
+        - deltakereByStatus
 
     TiltaksgjennomforingKontaktperson:
       type: object
@@ -4229,6 +4266,8 @@ components:
         - SOSIALE_FORHOLD
         - HELSEOPPLYSNINGER
         - RELIGION
+        - NASJONALITET
+        - ADRESSESPERRE
 
     Kurstype:
       type: string
@@ -4852,94 +4891,58 @@ components:
         - startDato
         - belop
 
-    RefusjonskravDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        tiltaksgjennomforing:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-            navn:
-              type: string
-          required:
-            - id
-            - navn
-        periodeStart:
-          type: string
-          format: date
-        periodeSlutt:
-          type: string
-          format: date
-        beregning:
-          $ref: "#/components/schemas/RefusjonskravBeregning"
-      required:
-        - id
-        - tiltaksgjennomforing
-        - periodeStart
-        - periodeSlutt
-        - beregning
-
     RefusjonskravStatus:
       type: string
       enum:
-        - ATTESTERT
-        - KLAR_FOR_INNSENDING
         - NARMER_SEG_FRIST
+        - KLAR_FOR_GODKJENNING
+        - GODKJENT_AV_ARRANGOR
 
-    RefusjonskravBeregning:
-      oneOf:
-        - $ref: "#/components/schemas/RefusjonskravBeregningAFT"
-
-    RefusjonskravBeregningAFT:
+    RefusjonKravAft:
       type: object
       properties:
         type:
-          type: string
-          enum:
-            - AFT
-        sats:
-          type: integer
-        belop:
-          type: integer
-      required:
-        - type
-        - sats
-        - belop
-
-    ProgramomradeMedUtdanningerRequest:
-      type: object
-      properties:
-        programomradeId:
+          const: AFT
+        id:
           type: string
           format: uuid
-        utdanningsIder:
+        status:
+          $ref: "#/components/schemas/RefusjonskravStatus"
+        fristForGodkjenning:
+          type: string
+          format: date-time
+        tiltakstype:
+          $ref: "#/components/schemas/RefusjonKravTiltakstype"
+        gjennomforing:
+          $ref: "#/components/schemas/RefusjonKravGjennomforing"
+        arrangor:
+          $ref: "#/components/schemas/RefusjonKravArrangor"
+        deltakelser:
           type: array
           items:
-            type: string
-            format: uuid
+            $ref: "#/components/schemas/RefusjonKravDeltakelse"
+        beregning:
+          $ref: "#/components/schemas/RefusjonKravAftBeregning"
       required:
-        - programomradeId
-        - utdanningsIder
+        - type
+        - id
+        - status
+        - fristForGodkjenning
+        - tiltakstype
+        - gjennomforing
+        - arrangor
+        - deltakelser
+        - beregning
 
-    ProgramomradeMedUtdanninger:
+    RefusjonKravTiltakstype:
       type: object
       properties:
-        programomrade:
-          $ref: "#/components/schemas/Programomrade"
-        utdanninger:
-          type: array
-          items:
-            $ref: "#/components/schemas/Utdanning"
+        navn:
+          type: string
       required:
-        - programomrade
-        - utdanninger
+        - navn
 
-    Programomrade:
+    RefusjonKravGjennomforing:
       type: object
       properties:
         id:
@@ -4947,14 +4950,146 @@ components:
           format: uuid
         navn:
           type: string
-        nusKoder:
-          type: array
-          items:
-            type: string
       required:
         - id
         - navn
-        - nusKoder
+
+    RefusjonKravArrangor:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+        slettet:
+          type: boolean
+      required:
+        - id
+        - organisasjonsnummer
+        - navn
+        - slettet
+
+    RefusjonKravAftBeregning:
+      type: object
+      properties:
+        periodeStart:
+          type: string
+          format: date-time
+        periodeSlutt:
+          type: string
+          format: date-time
+        antallManedsverk:
+          type: number
+        belop:
+          type: integer
+      required:
+        - periodeStart
+        - periodeSlutt
+        - antallManedsverk
+        - belop
+
+    RefusjonKravDeltakelse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        norskIdent:
+          type: string
+        navn:
+          type: string
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type: string
+          format: date
+        perioder:
+          type: array
+          items:
+            $ref: "#/components/schemas/RefusjonKravDeltakelsePeriode"
+        manedsverk:
+          type: number
+        veileder:
+          type: string
+      required:
+        - id
+        - norskIdent
+        - navn
+        - perioder
+        - manedsverk
+
+    RefusjonKravDeltakelsePeriode:
+      type: object
+      properties:
+        start:
+          type: string
+          format: date-time
+        slutt:
+          type: string
+          format: date-time
+        stillingsprosent:
+          type: number
+      required:
+        - start
+        - slutt
+        - stillingsprosent
+
+    UtdanningslopDbo:
+      type: object
+      properties:
+        utdanningsprogram:
+          type: string
+          format: uuid
+        utdanninger:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+        - utdanningsprogram
+        - utdanninger
+
+    Utdanningslop:
+      type: object
+      properties:
+        utdanningsprogram:
+          $ref: "#/components/schemas/Utdanningsprogram"
+        utdanninger:
+          type: array
+          items:
+            $ref: "#/components/schemas/Utdanning"
+      required:
+        - utdanningsprogram
+        - utdanninger
+
+    UtdanningsprogramMedUtdanninger:
+      type: object
+      properties:
+        utdanningsprogram:
+          $ref: "#/components/schemas/Utdanningsprogram"
+        utdanninger:
+          type: array
+          items:
+            $ref: "#/components/schemas/Utdanning"
+      required:
+        - utdanningsprogram
+        - utdanninger
+
+    Utdanningsprogram:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+      required:
+        - id
+        - navn
 
     Utdanning:
       type: object
@@ -4964,25 +5099,57 @@ components:
           format: uuid
         navn:
           type: string
-        programlopStart:
-          type: string
-          format: uuid
-        nusKoder:
-          type: array
-          items:
-            type: string
       required:
         - id
         - navn
-        - programlopStart
-        - nusKoder
 
-    GetRefusjonskravRequest:
+    ArrangorflateTilsagn:
       type: object
       properties:
-        orgnr:
-          type: array
-          items:
-            type: string
+        id:
+          type: string
+          format: uuid
+        gjennomforing:
+          type: object
+          properties:
+            navn:
+              type: string
+          required:
+            - navn
+        tiltakstype:
+          type: object
+          properties:
+            navn:
+              type: string
+          required:
+            - navn
+        periodeStart:
+          type: string
+          format: date
+        periodeSlutt:
+          type: string
+          format: date
+        arrangor:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            organisasjonsnummer:
+              type: string
+            navn:
+              type: string
+          required:
+            - id
+            - organisasjonsnummer
+            - navn
+        beregning:
+          $ref: "#/components/schemas/TilsagnBeregning"
       required:
-        - orgnr
+        - periodeStart
+        - periodeSlutt
+        - gjennomforing
+        - tiltakstype
+        - arrangor
+        - beregning
+        - id

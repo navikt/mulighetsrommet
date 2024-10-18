@@ -2,7 +2,7 @@ import { TiltaksgjennomforingStatus, Tiltakskode, TiltakskodeArena } from "@mr/a
 import { shallowEquals } from "./shallow-equals";
 
 export function addOrRemove<T>(array: T[], item: T): T[] {
-  const exists = array.some(a => shallowEquals(a, item));
+  const exists = array.some((a) => shallowEquals(a, item));
 
   if (exists) {
     return array.filter((c) => {
@@ -15,9 +15,7 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
   }
 }
 
-export function gjennomforingIsAktiv(
-  status: TiltaksgjennomforingStatus,
-): boolean {
+export function gjennomforingIsAktiv(status: TiltaksgjennomforingStatus): boolean {
   switch (status) {
     case TiltaksgjennomforingStatus.PLANLAGT:
     case TiltaksgjennomforingStatus.GJENNOMFORES:
@@ -27,6 +25,10 @@ export function gjennomforingIsAktiv(
     case TiltaksgjennomforingStatus.AVSLUTTET:
       return false;
   }
+}
+
+export function formaterTall(tall: number) {
+  return Intl.NumberFormat("no-nb").format(tall);
 }
 
 export function isKursTiltak(tiltakskode?: Tiltakskode, arenaKode?: TiltakskodeArena): boolean {

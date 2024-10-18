@@ -137,6 +137,8 @@ Eksempel:
 $ curl localhost:8080/api/v1/innsatsgrupper -H 'Authorization: Bearer <access_token>'
 ```
 
+For arrangor-flate kreves det token generert fra [mock-oauth2-server sin tokenx side for debugging av tokens](http://localhost:8081/tokenx/debugger). Les mer i readme til arrangor-flate.
+
 ### Feature toggles
 
 Vi administrerer en del feature toggles via [NAIS og Unleash](https://doc.nais.io/addons/unleash/).

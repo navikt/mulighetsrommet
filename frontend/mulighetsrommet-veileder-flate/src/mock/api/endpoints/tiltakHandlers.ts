@@ -14,11 +14,6 @@ export const tiltakHandlers = [
     return HttpResponse.json(Object.values(mockTiltakstyper));
   }),
 
-  http.get("*/api/v1/intern/tiltakstyper/pameldingKommerSnartIModia", async () => {
-    const tiltakstyperMedPamelding = ["ARBEIDSFORBEREDENDE_TRENING"];
-    return HttpResponse.json(tiltakstyperMedPamelding);
-  }),
-
   http.get("*/api/v1/intern/tiltakstyper/stotterPameldingIModia", async () => {
     const tiltakstyperMedPamelding = [
       "AVKLARING",

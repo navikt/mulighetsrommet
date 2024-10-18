@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomhetV1Dto
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomheterV1KafkaConsumer
@@ -27,13 +28,13 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
     context("consume virksomheter") {
         val amtVirksomhet = AmtVirksomhetV1Dto(
             navn = "REMA 1000 AS",
-            organisasjonsnummer = "982254604",
+            organisasjonsnummer = Organisasjonsnummer("982254604"),
             overordnetEnhetOrganisasjonsnummer = null,
         )
 
         val amtUnderenhet = AmtVirksomhetV1Dto(
             navn = "REMA 1000 underenhet",
-            organisasjonsnummer = "9923354699",
+            organisasjonsnummer = Organisasjonsnummer("992335469"),
             overordnetEnhetOrganisasjonsnummer = amtVirksomhet.organisasjonsnummer,
         )
 
@@ -67,8 +68,8 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
         )
 
         test("ignorer virksomheter når de ikke allerede er lagret i databasen") {
-            virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer, Json.encodeToJsonElement(amtVirksomhet))
-            virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, Json.encodeToJsonElement(amtUnderenhet))
+            virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer.value, Json.encodeToJsonElement(amtVirksomhet))
+            virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer.value, Json.encodeToJsonElement(amtUnderenhet))
 
             arrangorRepository.getAll().items.shouldBeEmpty()
         }
@@ -76,8 +77,8 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
         test("oppdaterer bare virksomheter som er lagret i databasen") {
             arrangorRepository.upsert(virksomhetDto.copy(navn = "Kiwi", postnummer = "9999", poststed = "Gåseby"))
 
-            virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer, Json.encodeToJsonElement(amtVirksomhet))
-            virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, Json.encodeToJsonElement(amtUnderenhet))
+            virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer.value, Json.encodeToJsonElement(amtVirksomhet))
+            virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer.value, Json.encodeToJsonElement(amtUnderenhet))
 
             arrangorRepository.getAll().should {
                 it.items.shouldHaveSize(1)
@@ -92,7 +93,7 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
 
             arrangorRepository.get(underenhetDto.organisasjonsnummer).shouldNotBeNull()
 
-            virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, JsonNull)
+            virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer.value, JsonNull)
 
             arrangorRepository.get(underenhetDto.organisasjonsnummer) shouldBe null
         }

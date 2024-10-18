@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.api.services.ArrangorService
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.*
@@ -25,7 +26,7 @@ fun Route.arrangorRoutes() {
 
     route("arrangorer") {
         post("{orgnr}") {
-            val orgnr = call.parameters.getOrFail("orgnr").also { validateOrgnr(it) }
+            val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
 
             if (isUtenlandskOrgnr(orgnr)) {
                 val virksomhet = arrangorRepository.get(orgnr)

@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.dto.Websaknummer
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -34,7 +35,7 @@ class OpsjonLoggValidatorTest : FunSpec({
         websaknummer = Websaknummer("24/1234"),
         arrangor = AvtaleDto.ArrangorHovedenhet(
             id = UUID.randomUUID(),
-            organisasjonsnummer = "12345678910",
+            organisasjonsnummer = Organisasjonsnummer("123456789"),
             navn = "Fretex AS",
             slettet = false,
             underenheter = emptyList(),
@@ -64,6 +65,7 @@ class OpsjonLoggValidatorTest : FunSpec({
             customOpsjonsmodellNavn = null,
         ),
         opsjonerRegistrert = emptyList(),
+        utdanningslop = null,
     )
 
     test("Skal kaste en feil hvis opsjonsmodell ikke finnes") {

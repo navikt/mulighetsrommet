@@ -19,9 +19,7 @@ app:
     - OPPFOLGING
     - VARIG_TILRETTELAGT_ARBEID_SKJERMET
 
-  pameldingIModia: []
-
-  pameldingKommerSnartIModia:
+  pameldingIModia:
     - ARBEIDSFORBEREDENDE_TRENING
 
   kafka:
@@ -76,6 +74,16 @@ app:
       # 0000-GA-TILTAK-okonomi_beslutter
       - adGruppeId: 6a1f1984-0fe3-4a0e-ac6e-19225b604a52
         rolle: OKONOMI_BESLUTTER
+    tokenx:
+      issuer: ${TOKEN_X_ISSUER}
+      jwksUri: ${TOKEN_X_JWKS_URI}
+      audience: ${TOKEN_X_CLIENT_ID}
+      tokenEndpointUrl: ${TOKEN_X_WELL_KNOWN_URL}
+    maskinporten:
+      issuer: ${MASKINPORTEN_ISSUER}
+      jwksUri: ${MASKINPORTEN_JWKS_URI}
+      audience: ${MASKINPORTEN_CLIENT_ID}
+      tokenEndpointUrl: ${MASKINPORTEN_TOKEN_ENDPOINT}
 
   sanity:
     dataset: ${SANITY_DATASET}
@@ -131,6 +139,11 @@ app:
 
   brreg:
     baseUrl: https://data.brreg.no/enhetsregisteret/api
+
+  altinn:
+    url: dummy
+    apiKey: dummy
+    scope: dummy
 
   tasks:
     synchronizeNorgEnheter:

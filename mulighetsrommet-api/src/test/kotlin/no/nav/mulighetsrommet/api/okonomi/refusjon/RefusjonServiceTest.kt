@@ -1,46 +1,38 @@
 package no.nav.mulighetsrommet.api.okonomi.refusjon
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.mockk.every
-import io.mockk.mockk
+import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
+import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.okonomi.models.DeltakelseManedsverk
+import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePerioder
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
-import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
-import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
-import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
 
 class RefusjonServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
-
-    val domain = MulighetsrommetTestDomain(
-        gjennomforinger = listOf(
-            AFT1,
-        ),
-    )
-
-    beforeEach {
-        domain.initialize(database.db)
-    }
 
     afterEach {
         database.db.truncateAll()
     }
 
-    context("Generering av refusjonskrav") {
+    context("Generering av refusjonskrav for AFT") {
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val refusjonskravRepository = RefusjonskravRepository(database.db)
-        val deltakerRepository: DeltakerRepository = mockk()
+        val deltakerRepository = DeltakerRepository(database.db)
 
         val service = RefusjonService(
             tiltaksgjennomforingRepository = tiltaksgjennomforingRepository,
@@ -49,40 +41,169 @@ class RefusjonServiceTest : FunSpec({
             db = database.db,
         )
 
-        test("generer et refusjonskrav") {
-            tiltaksgjennomforingRepository.upsert(AFT1)
-            every { deltakerRepository.getAll(AFT1.id) } returns emptyList()
+        test("genererer et refusjonskrav med riktig periode, frist og sats som input") {
+            val domain = MulighetsrommetTestDomain(
+                gjennomforinger = listOf(AFT1),
+            )
+            domain.initialize(database.db)
 
-            service.genererRefusjonskravForMonth(LocalDate.of(2023, 1, 1))
+            service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
-            val krav = service.getByOrgnr(listOf(Organisasjonsnummer(ArrangorFixtures.underenhet1.organisasjonsnummer)))
-            krav.size shouldBe 1
-            krav[0].tiltaksgjennomforing.id shouldBe AFT1.id
-            krav[0].periodeStart shouldBe LocalDate.of(2023, 1, 1)
+            val allKrav = refusjonskravRepository.getByArrangorIds(listOf(ArrangorFixtures.underenhet1.id))
+            allKrav.size shouldBe 1
+
+            val krav = allKrav.first()
+            krav.gjennomforing.id shouldBe AFT1.id
+            krav.fristForGodkjenning shouldBe LocalDateTime.of(2024, 4, 1, 0, 0, 0)
+            krav.beregning.input shouldBe RefusjonKravBeregningAft.Input(
+                periodeStart = LocalDate.of(2024, 1, 1).atStartOfDay(),
+                periodeSlutt = LocalDate.of(2024, 2, 1).atStartOfDay(),
+                sats = 20205,
+                deltakelser = setOf(),
+            )
         }
 
-        test("beregning av AFT én full deltaker") {
-            every { deltakerRepository.getAll(AFT1.id) } returns listOf(
-                DeltakerDbo(
-                    id = UUID.randomUUID(),
-                    tiltaksgjennomforingId = AFT1.id,
-                    status = Deltakerstatus.DELTAR,
-                    startDato = LocalDate.of(2023, 1, 1),
-                    sluttDato = LocalDate.of(2024, 1, 1),
-                    registrertDato = LocalDateTime.now(),
-                    opphav = Deltakeropphav.AMT,
+        test("genererer et refusjonskrav med relevante deltakelser som input") {
+            val domain = MulighetsrommetTestDomain(
+                gjennomforinger = listOf(AFT1),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltaker(
+                        AFT1.id,
+                        startDato = LocalDate.of(2024, 1, 1),
+                        sluttDato = LocalDate.of(2024, 1, 31),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                        stillingsprosent = 100.0,
+                    ),
+                    DeltakerFixtures.createDeltaker(
+                        AFT1.id,
+                        startDato = LocalDate.of(2024, 1, 1),
+                        sluttDato = LocalDate.of(2024, 1, 15),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                        stillingsprosent = 40.0,
+                    ),
+                    DeltakerFixtures.createDeltaker(
+                        AFT1.id,
+                        startDato = LocalDate.of(2023, 1, 1),
+                        sluttDato = LocalDate.of(2024, 12, 31),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                        stillingsprosent = 50.0,
+                    ),
+                    DeltakerFixtures.createDeltaker(
+                        AFT1.id,
+                        startDato = LocalDate.of(2023, 1, 1),
+                        sluttDato = LocalDate.of(2023, 12, 31),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                        stillingsprosent = 100.0,
+                    ),
+                    DeltakerFixtures.createDeltaker(
+                        AFT1.id,
+                        startDato = LocalDate.of(2024, 1, 1),
+                        sluttDato = LocalDate.of(2024, 1, 31),
+                        statusType = DeltakerStatus.Type.IKKE_AKTUELL,
+                        stillingsprosent = 100.0,
+                    ),
                 ),
             )
+            domain.initialize(database.db)
 
-            val beregning = service.aftRefusjonBeregning(
-                tiltaksgjennomforingId = AFT1.id,
-                periodeStart = LocalDate.of(2023, 1, 1),
-                periodeSlutt = LocalDate.of(2023, 1, 31),
+            service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
+
+            val krav = refusjonskravRepository.getByArrangorIds(listOf(ArrangorFixtures.underenhet1.id)).first()
+
+            krav.beregning.input.shouldBeTypeOf<RefusjonKravBeregningAft.Input>().should {
+                it.deltakelser shouldBe setOf(
+                    DeltakelsePerioder(
+                        deltakelseId = domain.deltakere[0].id,
+                        perioder = listOf(
+                            DeltakelsePeriode(
+                                start = LocalDate.of(2024, 1, 1).atStartOfDay(),
+                                slutt = LocalDate.of(2024, 2, 1).atStartOfDay(),
+                                stillingsprosent = 100.0,
+                            ),
+                        ),
+                    ),
+                    DeltakelsePerioder(
+                        deltakelseId = domain.deltakere[1].id,
+                        perioder = listOf(
+                            DeltakelsePeriode(
+                                start = LocalDate.of(2024, 1, 1).atStartOfDay(),
+                                slutt = LocalDate.of(2024, 1, 16).atStartOfDay(),
+                                stillingsprosent = 40.0,
+                            ),
+                        ),
+                    ),
+                    DeltakelsePerioder(
+                        deltakelseId = domain.deltakere[2].id,
+                        perioder = listOf(
+                            DeltakelsePeriode(
+                                start = LocalDate.of(2024, 1, 1).atStartOfDay(),
+                                slutt = LocalDate.of(2024, 2, 1).atStartOfDay(),
+                                stillingsprosent = 50.0,
+                            ),
+                        ),
+                    ),
+                )
+            }
+        }
+
+        test("genererer et refusjonskrav med beregnet belop basert på input") {
+            val domain = MulighetsrommetTestDomain(
+                gjennomforinger = listOf(AFT1),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltaker(
+                        AFT1.id,
+                        startDato = LocalDate.of(2024, 1, 1),
+                        sluttDato = LocalDate.of(2024, 1, 31),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                        stillingsprosent = 100.0,
+                    ),
+                ),
             )
+            domain.initialize(database.db)
 
-            beregning.belop shouldBe 19500 // 1 x sats
-            beregning.sats shouldBe 19500
-            beregning.periodeStart shouldBe LocalDate.of(2023, 1, 1)
+            service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
+
+            val krav = refusjonskravRepository.getByArrangorIds(listOf(ArrangorFixtures.underenhet1.id)).first()
+
+            krav.beregning.output.shouldBeTypeOf<RefusjonKravBeregningAft.Output>().should {
+                it.belop shouldBe 20205
+                it.deltakelser shouldBe setOf(
+                    DeltakelseManedsverk(
+                        deltakelseId = domain.deltakere[0].id,
+                        manedsverk = 1.0,
+                    ),
+                )
+            }
+        }
+
+        test("deltaker med startDato lik periodeSlutt blir ikke med i kravet") {
+            val domain = MulighetsrommetTestDomain(
+                gjennomforinger = listOf(AFT1),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltaker(
+                        AFT1.id,
+                        startDato = LocalDate.of(2024, 2, 1),
+                        sluttDato = LocalDate.of(2024, 6, 1),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                        stillingsprosent = 100.0,
+                    ),
+                    DeltakerFixtures.createDeltaker(
+                        AFT1.id,
+                        startDato = LocalDate.of(2023, 1, 1),
+                        sluttDato = LocalDate.of(2024, 2, 1),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                        stillingsprosent = 100.0,
+                    ),
+                ),
+            )
+            domain.initialize(database.db)
+            service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
+
+            val krav = refusjonskravRepository.getByArrangorIds(listOf(ArrangorFixtures.underenhet1.id)).first()
+
+            krav.beregning.input.shouldBeTypeOf<RefusjonKravBeregningAft.Input>().should {
+                it.deltakelser shouldHaveSize 1
+            }
         }
     }
 })

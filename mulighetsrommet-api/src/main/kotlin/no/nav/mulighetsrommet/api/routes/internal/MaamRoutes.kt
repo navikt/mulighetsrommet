@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
+import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.*

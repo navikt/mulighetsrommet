@@ -137,8 +137,16 @@ spec:
         - host: team-mulighetsrommet-unleash-api.nav.cloud.nais.io
         - host: axsys.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
-        - host: public-staging.api.utdanning.no
-
+        - host: api.utdanning.no
+        - host: platform.tt02.altinn.no
+        - host: test.maskinporten.no
   envFrom:
     - secret: mulighetsrommet-api
     - secret: mr-admin-flate-unleash-api-token
+    - secret: altinn-api-key
+  maskinporten:
+    enabled: true
+    scopes:
+      consumes:
+        - name: "altinn:authorization/authorize"
+        - name: "altinn:accessmanagement/authorizedparties.resourceowner"

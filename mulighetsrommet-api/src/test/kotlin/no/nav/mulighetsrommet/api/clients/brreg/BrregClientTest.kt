@@ -5,20 +5,21 @@ import io.kotest.core.spec.style.FunSpec
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 
 class BrregClientTest : FunSpec({
 
     val hovedenhet = BrregEnhet(
-        organisasjonsnummer = "123456789",
+        organisasjonsnummer = Organisasjonsnummer("123456789"),
         navn = "NAV Hovedenhet",
         beliggenhetsadresse = Adresse(poststed = "Oslo", postnummer = "1234"),
     )
     val underenhet = BrregEnhet(
-        organisasjonsnummer = "123456780",
+        organisasjonsnummer = Organisasjonsnummer("123456780"),
         navn = "NAV Underenhet",
-        overordnetEnhet = "123456789",
+        overordnetEnhet = Organisasjonsnummer("123456789"),
         beliggenhetsadresse = Adresse(poststed = "Oslo", postnummer = "1234"),
     )
 
@@ -35,7 +36,7 @@ class BrregClientTest : FunSpec({
 
             brregClient.sokOverordnetEnhet("Nav") shouldBeRight listOf(
                 BrregVirksomhetDto(
-                    organisasjonsnummer = "123456789",
+                    organisasjonsnummer = Organisasjonsnummer("123456789"),
                     navn = "NAV Hovedenhet",
                     postnummer = "1234",
                     poststed = "Oslo",
@@ -68,11 +69,11 @@ class BrregClientTest : FunSpec({
                 ),
             )
 
-            brregClient.getUnderenheterForOverordnetEnhet("123456789") shouldBeRight listOf(
+            brregClient.getUnderenheterForOverordnetEnhet(Organisasjonsnummer("123456789")) shouldBeRight listOf(
                 BrregVirksomhetDto(
-                    organisasjonsnummer = "123456780",
+                    organisasjonsnummer = Organisasjonsnummer("123456780"),
                     navn = "NAV Underenhet",
-                    overordnetEnhet = "123456789",
+                    overordnetEnhet = Organisasjonsnummer("123456789"),
                     postnummer = "1234",
                     poststed = "Oslo",
                 ),
@@ -89,7 +90,7 @@ class BrregClientTest : FunSpec({
                 ),
             )
 
-            brregClient.getUnderenheterForOverordnetEnhet("123456789") shouldBeRight emptyList()
+            brregClient.getUnderenheterForOverordnetEnhet(Organisasjonsnummer("123456789")) shouldBeRight emptyList()
         }
     }
 
@@ -107,8 +108,8 @@ class BrregClientTest : FunSpec({
                 ),
             )
 
-            brregClient.getHovedenhet("123456789") shouldBeRight BrregVirksomhetDto(
-                organisasjonsnummer = "123456789",
+            brregClient.getHovedenhet(Organisasjonsnummer("123456789")) shouldBeRight BrregVirksomhetDto(
+                organisasjonsnummer = Organisasjonsnummer("123456789"),
                 navn = "NAV Hovedenhet",
                 underenheter = emptyList(),
                 postnummer = "1234",
@@ -129,14 +130,14 @@ class BrregClientTest : FunSpec({
                 ),
             )
 
-            brregClient.getHovedenhet("123456789") shouldBeRight BrregVirksomhetDto(
-                organisasjonsnummer = "123456789",
+            brregClient.getHovedenhet(Organisasjonsnummer("123456789")) shouldBeRight BrregVirksomhetDto(
+                organisasjonsnummer = Organisasjonsnummer("123456789"),
                 navn = "NAV Hovedenhet",
                 underenheter = listOf(
                     BrregVirksomhetDto(
-                        organisasjonsnummer = "123456780",
+                        organisasjonsnummer = Organisasjonsnummer("123456780"),
                         navn = "NAV Underenhet",
-                        overordnetEnhet = "123456789",
+                        overordnetEnhet = Organisasjonsnummer("123456789"),
                         postnummer = "1234",
                         poststed = "Oslo",
                     ),
@@ -156,10 +157,10 @@ class BrregClientTest : FunSpec({
                 ),
             )
 
-            brregClient.getUnderenhet("123456780") shouldBeRight BrregVirksomhetDto(
-                organisasjonsnummer = "123456780",
+            brregClient.getUnderenhet(Organisasjonsnummer("123456780")) shouldBeRight BrregVirksomhetDto(
+                organisasjonsnummer = Organisasjonsnummer("123456780"),
                 navn = "NAV Underenhet",
-                overordnetEnhet = "123456789",
+                overordnetEnhet = Organisasjonsnummer("123456789"),
                 postnummer = "1234",
                 poststed = "Oslo",
             )
@@ -180,14 +181,14 @@ class BrregClientTest : FunSpec({
                 ),
             )
 
-            brregClient.getBrregVirksomhet("123456789") shouldBeRight BrregVirksomhetDto(
-                organisasjonsnummer = "123456789",
+            brregClient.getBrregVirksomhet(Organisasjonsnummer("123456789")) shouldBeRight BrregVirksomhetDto(
+                organisasjonsnummer = Organisasjonsnummer("123456789"),
                 navn = "NAV Hovedenhet",
                 underenheter = listOf(
                     BrregVirksomhetDto(
-                        organisasjonsnummer = "123456780",
+                        organisasjonsnummer = Organisasjonsnummer("123456780"),
                         navn = "NAV Underenhet",
-                        overordnetEnhet = "123456789",
+                        overordnetEnhet = Organisasjonsnummer("123456789"),
                         postnummer = "1234",
                         poststed = "Oslo",
                     ),
@@ -210,10 +211,10 @@ class BrregClientTest : FunSpec({
                 ),
             )
 
-            brregClient.getBrregVirksomhet("123456780") shouldBeRight BrregVirksomhetDto(
-                organisasjonsnummer = "123456780",
+            brregClient.getBrregVirksomhet(Organisasjonsnummer("123456780")) shouldBeRight BrregVirksomhetDto(
+                organisasjonsnummer = Organisasjonsnummer("123456780"),
                 navn = "NAV Underenhet",
-                overordnetEnhet = "123456789",
+                overordnetEnhet = Organisasjonsnummer("123456789"),
                 postnummer = "1234",
                 poststed = "Oslo",
             )

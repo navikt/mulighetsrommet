@@ -1,6 +1,6 @@
 import { AnnetEnum } from "@/api/annetEnum";
 import { useAvbrytTiltaksgjennomforing } from "@/api/tiltaksgjennomforing/useAvbrytTiltaksgjennomforing";
-import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
+import { useSuspenseGjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
 import { Laster } from "@/components/laster/Laster";
 import { AvbrytModalAarsaker } from "@/components/modal/AvbrytModalAarsaker";
 import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
@@ -49,7 +49,9 @@ const initialState: State = {
 export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Props) => {
   const mutation = useAvbrytTiltaksgjennomforing();
   const navigate = useNavigate();
-  const { data: deltakerSummary } = useTiltaksgjennomforingDeltakerSummary(tiltaksgjennomforing.id);
+  const { data: deltakerSummary } = useSuspenseGjennomforingDeltakerSummary(
+    tiltaksgjennomforing.id,
+  );
   const [state, setState] = useState<State>(initialState);
 
   const onClose = () => {
@@ -127,7 +129,7 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
       }
       body={
         <>
-          {deltakerSummary && deltakerSummary.antallDeltakere > 0 && (
+          {deltakerSummary.antallDeltakere > 0 && (
             <Alert variant="warning">
               {`Det finnes ${deltakerSummary.antallDeltakere} deltaker${deltakerSummary.antallDeltakere > 1 ? "e" : ""} på gjennomføringen. Ved å
            avbryte denne vil det føre til statusendring på alle deltakere som har en aktiv status.`}

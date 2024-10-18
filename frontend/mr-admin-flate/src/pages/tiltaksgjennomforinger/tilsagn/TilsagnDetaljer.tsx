@@ -9,7 +9,8 @@ import { TiltaksgjennomforingIkon } from "@/components/ikoner/Tiltaksgjennomfori
 import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
-import { formaterDato, formaterTall } from "@/utils/Utils";
+import { formaterDato } from "@/utils/Utils";
+import { formaterTall } from "@mr/frontend-common/utils/utils";
 import { DetaljerContainer } from "@/pages/DetaljerContainer";
 import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
 import { useGetTilsagnById } from "./useGetTilsagnById";

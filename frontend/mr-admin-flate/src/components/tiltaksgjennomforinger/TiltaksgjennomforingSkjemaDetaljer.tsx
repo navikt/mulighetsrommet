@@ -1,6 +1,6 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useTiltaksgjennomforingAdministratorer } from "@/api/ansatt/useTiltaksgjennomforingAdministratorer";
-import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
+import { useGjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
 import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { addYear, formaterDato } from "@/utils/Utils";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
@@ -44,9 +44,9 @@ import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
 import { VertikalSeparator } from "@/components/skjema/VertikalSeparator";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 import { isKursTiltak } from "@mr/frontend-common/utils/utils";
-import { useFeatureToggle } from "../../api/features/useFeatureToggle";
-import { TiltaksgjennomforingUtdanningskategorierSkjema } from "../utdanning/TiltaksgjennomforingUtdanningskategorierSkjema";
 import { useSokNavAnsatt } from "@/api/ansatt/useSokNavAnsatt";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { TiltaksgjennomforingUtdanningslopSkjema } from "../utdanning/TiltaksgjennomforingUtdanningslopSkjema";
 
 interface Props {
   tiltaksgjennomforing?: TiltaksgjennomforingDto;
@@ -68,9 +68,7 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
   const [kontaktpersonerQuery, setKontaktpersonerQuery] = useState<string>("");
   const { data: kontaktpersoner } = useSokNavAnsatt(kontaktpersonerQuery);
   const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
-  const { data: deltakerSummary } = useTiltaksgjennomforingDeltakerSummary(
-    tiltaksgjennomforing?.id,
-  );
+  const { data: deltakerSummary } = useGjennomforingDeltakerSummary(tiltaksgjennomforing?.id);
   const { data: enableUtdanningskategorier } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_UTDANNINGSKATEGORIER,
   );
@@ -210,7 +208,7 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
             ) : null}
             {enableUtdanningskategorier &&
             avtale.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING ? (
-              <TiltaksgjennomforingUtdanningskategorierSkjema avtale={avtale} />
+              <TiltaksgjennomforingUtdanningslopSkjema avtale={avtale} />
             ) : null}
           </FormGroup>
 

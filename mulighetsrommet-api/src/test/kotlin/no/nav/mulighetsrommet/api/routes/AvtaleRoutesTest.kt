@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.dto.allowedAvtaletypes
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
@@ -101,7 +102,7 @@ class AvtaleRoutesTest : FunSpec({
     test("Skal gi korrekt statuskode basert på om vi har tatt eierskap til tiltakstype eller ikke") {
         val engine = createMockEngine(
             "/brreg/enheter/${AvtaleFixtures.avtaleRequest.arrangorOrganisasjonsnummer}" to {
-                respondJson(BrregEnhet(organisasjonsnummer = "123456789", navn = "Testvirksomhet"))
+                respondJson(BrregEnhet(organisasjonsnummer = Organisasjonsnummer("123456789"), navn = "Testvirksomhet"))
             },
             "/brreg/underenheter" to {
                 respondJson(BrregEmbeddedUnderenheter(_embedded = BrregUnderenheter(underenheter = emptyList())))

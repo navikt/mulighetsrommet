@@ -13,6 +13,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import org.slf4j.LoggerFactory
@@ -39,7 +40,7 @@ class BrregClient(
         val baseUrl: String,
     )
 
-    suspend fun getBrregVirksomhet(orgnr: String): Either<BrregError, BrregVirksomhetDto> {
+    suspend fun getBrregVirksomhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregVirksomhetDto> {
         // Sjekker først hovedenhet
         return getHovedenhet(orgnr).fold(
             { error ->
@@ -68,7 +69,7 @@ class BrregClient(
             parameter(sokEllerOppslag, orgnr)
         }
 
-        return parseResponse<BrregEmbeddedHovedenheter>(response, orgnr)
+        return parseResponse<BrregEmbeddedHovedenheter>(response)
             .map { data ->
                 data._embedded?.enheter?.map {
                     BrregVirksomhetDto(
@@ -81,13 +82,13 @@ class BrregClient(
             }
     }
 
-    suspend fun getUnderenheterForOverordnetEnhet(orgnr: String): Either<BrregError, List<BrregVirksomhetDto>> {
+    suspend fun getUnderenheterForOverordnetEnhet(orgnr: Organisasjonsnummer): Either<BrregError, List<BrregVirksomhetDto>> {
         val underenheterResponse = client.get("$baseUrl/underenheter") {
             parameter("size", 1000)
-            parameter("overordnetEnhet", orgnr)
+            parameter("overordnetEnhet", orgnr.value)
         }
 
-        return parseResponse<BrregEmbeddedUnderenheter>(underenheterResponse, orgnr)
+        return parseResponse<BrregEmbeddedUnderenheter>(underenheterResponse)
             .map { data ->
                 data._embedded?.underenheter?.map { underenhet ->
                     BrregVirksomhetDto(
@@ -102,9 +103,9 @@ class BrregClient(
             }
     }
 
-    suspend fun getHovedenhet(orgnr: String): Either<BrregError, BrregVirksomhetDto> {
-        val response = client.get("$baseUrl/enheter/$orgnr")
-        return parseResponse<BrregEnhet>(response, orgnr)
+    suspend fun getHovedenhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregVirksomhetDto> {
+        val response = client.get("$baseUrl/enheter/${orgnr.value}")
+        return parseResponse<BrregEnhet>(response)
             .flatMap { enhet ->
                 val underenheterResult = if (enhet.slettedato == null) {
                     getUnderenheterForOverordnetEnhet(orgnr)
@@ -127,9 +128,9 @@ class BrregClient(
             }
     }
 
-    suspend fun getUnderenhet(orgnr: String): Either<BrregError, BrregVirksomhetDto> {
-        val response = client.get("$baseUrl/underenheter/$orgnr")
-        return parseResponse<BrregEnhet>(response, orgnr)
+    suspend fun getUnderenhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregVirksomhetDto> {
+        val response = client.get("$baseUrl/underenheter/${orgnr.value}")
+        return parseResponse<BrregEnhet>(response)
             .map { enhet ->
                 val hovedenhet = if (enhet.slettedato == null) {
                     enhet.overordnetEnhet
@@ -150,13 +151,13 @@ class BrregClient(
             }
     }
 
-    private suspend inline fun <reified T> parseResponse(response: HttpResponse, orgnr: String): Either<BrregError, T> {
+    private suspend inline fun <reified T> parseResponse(response: HttpResponse): Either<BrregError, T> {
         return when (response.status) {
             HttpStatusCode.OK -> response.body<T>().right()
 
             HttpStatusCode.BadRequest -> {
                 val bodyAsText = response.bodyAsText()
-                log.warn("BadRequest: orgnr=$orgnr response=$bodyAsText")
+                log.warn("BadRequest: response=$bodyAsText")
                 BrregError.BadRequest.left()
             }
 
@@ -166,7 +167,7 @@ class BrregClient(
 
             else -> {
                 val bodyAsText = response.bodyAsText()
-                log.error("Error: orgnr=$orgnr response=$bodyAsText")
+                log.error("Error: response=$bodyAsText")
                 BrregError.Error.left()
             }
         }
@@ -181,9 +182,9 @@ enum class BrregError {
 
 @Serializable
 internal data class BrregEnhet(
-    val organisasjonsnummer: String,
+    val organisasjonsnummer: Organisasjonsnummer,
     val navn: String,
-    val overordnetEnhet: String? = null,
+    val overordnetEnhet: Organisasjonsnummer? = null,
     val beliggenhetsadresse: Adresse? = null,
     @Serializable(with = LocalDateSerializer::class)
     val slettedato: LocalDate? = null,

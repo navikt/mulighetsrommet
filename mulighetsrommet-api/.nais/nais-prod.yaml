@@ -85,9 +85,12 @@ spec:
         extra:
           - NAVident
           - azp_name
+  tokenx:
+    enabled: true
   accessPolicy:
     inbound:
       rules:
+        - application: arrangor-flate
         - application: mulighetsrommet-arena-adapter
         - application: mulighetsrommet-arena-adapter-manager
         - application: mr-admin-flate
@@ -174,6 +177,12 @@ spec:
   envFrom:
     - secret: mulighetsrommet-api
     - secret: mr-admin-flate-unleash-api-token
+  maskinporten:
+    enabled: true
+    scopes:
+      consumes:
+        - name: "altinn:authorization/authorize"
+        - name: "altinn:accessmanagement/authorizedparties.resourceowner"
   env:
     - name: OTEL_JAVAAGENT_EXCLUDE_CLASSES
       value: "no.nav.mulighetsrommet.api.clients.dialog.*,no.nav.mulighetsrommet.api.services.BrukerService"

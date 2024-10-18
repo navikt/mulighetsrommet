@@ -71,7 +71,7 @@ export function TiltaksgjennomforingPage() {
     } else if (pathname.includes("deltakere")) {
       return "poc";
     } else {
-      return "info";
+      return "gjennomforing";
     }
   };
 
@@ -121,8 +121,8 @@ export function TiltaksgjennomforingPage() {
       <Tabs value={currentTab()}>
         <Tabs.List className={commonStyles.list}>
           <Tabs.Tab
-            value="info"
-            label="Info"
+            value="gjennomforing"
+            label="Gjennomføring"
             onClick={() =>
               navigateAndReplaceUrl(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`)
             }

@@ -10,10 +10,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
-import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotificationDto
-import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
+import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.responses.StatusResponseError
 import no.nav.mulighetsrommet.api.routes.v1.Opsjonsmodell
 import no.nav.mulighetsrommet.api.routes.v1.OpsjonsmodellData
@@ -167,19 +164,19 @@ class AvtaleRepository(private val db: Database) {
         """.trimIndent()
 
         @Language("PostgreSQL")
-        val deleteProgramomradeAndUtdanninger = """
-            delete from utdanning_programomrade_avtale
+        val deleteUtdanningslop = """
+            delete from avtale_utdanningsprogram
             where avtale_id = ?::uuid
         """.trimIndent()
 
         @Language("PostgreSQL")
-        val upsertProgramomradeAndUtdanninger = """
-            insert into utdanning_programomrade_avtale(
+        val insertUtdanningslop = """
+            insert into avtale_utdanningsprogram(
                 avtale_id,
                 utdanning_id,
-                programomrade_id
+                utdanningsprogram_id
             )
-            values(:avtale_id::uuid, :utdanning_id::uuid, :programomrade_id::uuid)
+            values(:avtale_id::uuid, :utdanning_id::uuid, :utdanningsprogram_id::uuid)
         """.trimIndent()
 
         tx.run(queryOf(query, avtale.toSqlParameters()).asExecute)
@@ -264,16 +261,15 @@ class AvtaleRepository(private val db: Database) {
 
         AmoKategoriseringRepository.upsert(avtale, tx)
 
-        tx.run(queryOf(deleteProgramomradeAndUtdanninger, avtale.id).asExecute)
-        avtale.programomradeOgUtdanningerRequest?.let { programomradeOgUtdanninger ->
-            val programomradeId = programomradeOgUtdanninger.programomradeId
-            programomradeOgUtdanninger.utdanningsIder.forEach {
+        tx.run(queryOf(deleteUtdanningslop, avtale.id).asExecute)
+        avtale.utdanningslop?.let { utdanningslop ->
+            utdanningslop.utdanninger.forEach {
                 tx.run(
                     queryOf(
-                        upsertProgramomradeAndUtdanninger,
+                        insertUtdanningslop,
                         mapOf(
                             "avtale_id" to avtale.id,
-                            "programomrade_id" to programomradeId,
+                            "utdanningsprogram_id" to utdanningslop.utdanningsprogram,
                             "utdanning_id" to it,
                         ),
                     ).asExecute,
@@ -595,8 +591,8 @@ class AvtaleRepository(private val db: Database) {
         val amoKategorisering = stringOrNull("amo_kategorisering_json")
             ?.let { JsonIgnoreUnknownKeys.decodeFromString<AmoKategorisering>(it) }
 
-        val programomradeMedUtdanninger = stringOrNull("programomrade_og_utdanninger_json")
-            ?.let { JsonIgnoreUnknownKeys.decodeFromString<ProgramomradeMedUtdanninger>(it) }
+        val utdanningslop = stringOrNull("utdanningslop_json")
+            ?.let { Json.decodeFromString<UtdanningslopDto>(it) }
 
         return AvtaleDto(
             id = uuid("id"),
@@ -616,7 +612,7 @@ class AvtaleRepository(private val db: Database) {
             kontorstruktur = kontorstruktur,
             arrangor = AvtaleDto.ArrangorHovedenhet(
                 id = uuid("arrangor_hovedenhet_id"),
-                organisasjonsnummer = string("arrangor_hovedenhet_organisasjonsnummer"),
+                organisasjonsnummer = Organisasjonsnummer(string("arrangor_hovedenhet_organisasjonsnummer")),
                 navn = string("arrangor_hovedenhet_navn"),
                 slettet = boolean("arrangor_hovedenhet_slettet"),
                 underenheter = underenheter,
@@ -638,7 +634,7 @@ class AvtaleRepository(private val db: Database) {
             opsjonsmodellData = opsjonsmodellData,
             opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.aktivertDato },
             amoKategorisering = amoKategorisering,
-            programomradeMedUtdanninger = programomradeMedUtdanninger,
+            utdanningslop = utdanningslop,
         )
     }
 

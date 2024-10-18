@@ -7,10 +7,10 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
-import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
-import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
+import no.nav.mulighetsrommet.domain.dto.ArenaDeltakerStatus
+import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.GruppetiltakRepository
@@ -43,8 +43,8 @@ class DeltakerRepositoryTest : FunSpec({
         personIdent = "10101010100",
         startDato = null,
         sluttDato = null,
-        status = AmtDeltakerStatus(
-            type = AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
+        status = DeltakerStatus(
+            type = DeltakerStatus.Type.VENTER_PA_OPPSTART,
             aarsak = null,
             opprettetDato = LocalDateTime.of(2022, 1, 1, 0, 0),
         ),
@@ -140,8 +140,8 @@ class DeltakerRepositoryTest : FunSpec({
                 norskIdent = NorskIdent("10101010100"),
                 startDato = null,
                 sluttDato = null,
-                status = AmtDeltakerStatus(
-                    type = AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
+                status = DeltakerStatus(
+                    type = DeltakerStatus.Type.VENTER_PA_OPPSTART,
                     aarsak = null,
                     opprettetDato = LocalDateTime.of(2022, 1, 1, 0, 0),
                 ),
@@ -167,8 +167,8 @@ class DeltakerRepositoryTest : FunSpec({
             personIdent = "10101010100",
             startDato = null,
             sluttDato = null,
-            status = AmtDeltakerStatus(
-                type = AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
+            status = DeltakerStatus(
+                type = DeltakerStatus.Type.VENTER_PA_OPPSTART,
                 aarsak = null,
                 opprettetDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
             ),
@@ -183,8 +183,8 @@ class DeltakerRepositoryTest : FunSpec({
             personIdent = "10101010100",
             startDato = null,
             sluttDato = LocalDate.of(2024, 1, 1),
-            status = AmtDeltakerStatus(
-                type = AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
+            status = DeltakerStatus(
+                type = DeltakerStatus.Type.VENTER_PA_OPPSTART,
                 aarsak = null,
                 opprettetDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
             ),

@@ -48,12 +48,13 @@ export async function setupOpenApi(request: Request) {
   setOpenApiHeaders(token);
 }
 
-export async function requirePersonIdent(request: Request) {
-  if (process.env.NODE_ENV !== "production") return "12345678910"; // TODO Finne ut hvordan vi vil løse det uten auth ved lokal utvikling
-
+export async function checkValidToken(request: Request) {
+  if (hentMiljø() === Miljø.Lokalt) return;
   const token = getToken(request);
 
   if (!token) {
+    // eslint-disable-next-line no-console
+    console.error("No token present");
     throw redirectDocument(loginUrl);
   }
 
@@ -72,13 +73,6 @@ export async function requirePersonIdent(request: Request) {
     console.log("Could not parse token for idPorten: ", parsed);
     throw redirectDocument(loginUrl);
   }
-
-  const personident = parsed.pid;
-  if (!/^\d{11}$/.test(personident)) {
-    throw redirectDocument(loginUrl);
-  }
-
-  return personident;
 }
 
 function setOpenApiHeaders(token: string) {

@@ -505,4 +505,34 @@ describe("slate <-> PortableText - konvertering", () => {
     expect(slateToPortableText(slate)).toEqual(pt);
     expect(portableTextToSlate(pt)).toEqual(slate);
   });
+
+  test("list-item is converted to paragraph", () => {
+    const slate = [
+      {
+        type: "list-item",
+        children: [{ text: "This is editable" }],
+      },
+    ];
+    const slate_paragraph = [
+      {
+        type: "paragraph",
+        children: [{ text: "This is editable" }],
+      },
+    ];
+    const pt = [
+      {
+        _type: "block",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            text: "This is editable",
+          },
+        ],
+      },
+    ];
+
+    expect(slateToPortableText(slate)).toEqual(pt);
+    expect(portableTextToSlate(pt)).toEqual(slate_paragraph);
+  });
 });

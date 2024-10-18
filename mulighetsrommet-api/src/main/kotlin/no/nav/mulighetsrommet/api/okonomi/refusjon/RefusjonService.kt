@@ -1,14 +1,16 @@
 package no.nav.mulighetsrommet.api.okonomi.refusjon
 
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePerioder
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.temporal.TemporalAdjusters
 import java.util.*
 
@@ -18,24 +20,17 @@ class RefusjonService(
     private val refusjonskravRepository: RefusjonskravRepository,
     private val db: Database,
 ) {
-    fun getByOrgnr(orgnr: List<Organisasjonsnummer>): List<RefusjonskravDto> {
-        return refusjonskravRepository.getByOrgnr(orgnr)
-    }
-
-    fun getById(id: UUID): RefusjonskravDto? {
-        return refusjonskravRepository.get(id)
-    }
 
     fun genererRefusjonskravForMonth(dayInMonth: LocalDate) {
-        val periodeStart = dayInMonth.with(TemporalAdjusters.firstDayOfMonth())
-        val periodeSlutt = periodeStart.with(TemporalAdjusters.lastDayOfMonth())
+        val periodeStart = dayInMonth.with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay()
+        val periodeSlutt = periodeStart.with(TemporalAdjusters.lastDayOfMonth()).plusDays(1)
 
         val krav = tiltaksgjennomforingRepository
             .getGjennomforesInPeriodeUtenRefusjonskrav(periodeStart, periodeSlutt)
             .mapNotNull {
                 when (it.tiltakstype.tiltakskode) {
-                    Tiltakskode.ARBEIDSFORBEREDENDE_TRENING -> lagAFTRefusjonskrav(
-                        it,
+                    Tiltakskode.ARBEIDSFORBEREDENDE_TRENING -> createRefusjonskravAft(
+                        gjennomforingId = it.id,
                         periodeStart = periodeStart,
                         periodeSlutt = periodeSlutt,
                     )
@@ -44,114 +39,87 @@ class RefusjonService(
                 }
             }
 
-        db.transaction { tx ->
-            krav.forEach {
+        krav.forEach {
+            db.transaction { tx ->
                 refusjonskravRepository.upsert(it, tx)
             }
         }
     }
 
-    fun lagAFTRefusjonskrav(
-        tiltaksgjennomforing: TiltaksgjennomforingDto,
-        periodeStart: LocalDate,
-        periodeSlutt: LocalDate,
+    fun createRefusjonskravAft(
+        gjennomforingId: UUID,
+        periodeStart: LocalDateTime,
+        periodeSlutt: LocalDateTime,
     ): RefusjonskravDbo {
-        val beregning = aftRefusjonBeregning(
-            tiltaksgjennomforing.id,
-            periodeStart,
-            periodeSlutt,
-        )
-        return RefusjonskravDbo(
-            id = UUID.randomUUID(),
-            tiltaksgjennomforingId = tiltaksgjennomforing.id,
-            arrangorId = tiltaksgjennomforing.arrangor.id,
+        val refusjonskravId = UUID.randomUUID()
+        val frist = periodeSlutt.plusMonths(2)
+
+        val deltakere = getDeltakelser(
+            gjennomforingId,
             periodeStart = periodeStart,
             periodeSlutt = periodeSlutt,
+        )
+
+        val input = RefusjonKravBeregningAft.Input(
+            periodeStart = periodeStart,
+            periodeSlutt = periodeSlutt,
+            sats = Prismodell.AFT.findSats(periodeStart.toLocalDate()),
+            deltakelser = deltakere,
+        )
+
+        val output = Prismodell.AFT.beregnRefusjonBelop(input)
+
+        val beregning = RefusjonKravBeregningAft(input, output)
+
+        return RefusjonskravDbo(
+            id = refusjonskravId,
+            fristForGodkjenning = frist,
+            gjennomforingId = gjennomforingId,
             beregning = beregning,
         )
     }
 
-    fun aftRefusjonBeregning(
-        tiltaksgjennomforingId: UUID,
-        periodeStart: LocalDate,
-        periodeSlutt: LocalDate,
-    ): Prismodell.RefusjonskravBeregning.AFT {
-        val deltakere = deltakereIPeriode(
-            // TODO: Her må vi nok hente data fra komet i stedet
-            deltakerRepository.getAll(tiltaksgjennomforingId),
-            periodeStart = periodeStart,
-            periodeSlutt = periodeSlutt,
-        )
-        val sats = Prismodell.AFT.findSats(periodeStart)
-        requireNotNull(sats) { "fant ikke sats" }
+    private fun getDeltakelser(
+        gjennomforingId: UUID,
+        periodeStart: LocalDateTime,
+        periodeSlutt: LocalDateTime,
+    ): Set<DeltakelsePerioder> {
+        val deltakelser = deltakerRepository.getAll(gjennomforingId)
 
-        return Prismodell.RefusjonskravBeregning.AFT(
-            belop = Prismodell.AFT.beregnRefusjonBelop(
-                sats = sats,
-                deltakere = deltakere,
-                periodeStart = periodeStart,
-            ),
-            deltakere = deltakere,
-            sats = sats,
-            periodeStart = periodeStart,
-        )
+        return deltakelser
+            .asSequence()
+            .filter {
+                it.status.type in listOf(
+                    DeltakerStatus.Type.AVBRUTT,
+                    DeltakerStatus.Type.DELTAR,
+                    DeltakerStatus.Type.HAR_SLUTTET,
+                    DeltakerStatus.Type.FULLFORT,
+                )
+            }
+            .filter { it.stillingsprosent != null }
+            .filter {
+                it.startDato != null && !it.startDato.atStartOfDay().isAfter(periodeSlutt)
+            }
+            .filter {
+                it.sluttDato == null || it.sluttDato.plusDays(1).atStartOfDay().isAfter(periodeStart)
+            }
+            .map { deltakelse ->
+                val start = maxOf(requireNotNull(deltakelse.startDato).atStartOfDay(), periodeStart)
+                val slutt = minOf(deltakelse.sluttDato?.plusDays(1)?.atStartOfDay() ?: periodeSlutt, periodeSlutt)
+                val stillingsprosent = requireNotNull(deltakelse.stillingsprosent) {
+                    "stillingsprosent mangler for deltakelse id=${deltakelse.id}"
+                }
+
+                // TODO: periodisering av prosent - fra Komet
+                val perioder = listOf(DeltakelsePeriode(start, slutt, stillingsprosent))
+                    .filter { it.start.isBefore(it.slutt) }
+
+                DeltakelsePerioder(
+                    deltakelseId = deltakelse.id,
+                    perioder = perioder,
+                )
+            }
+            .filter { it.perioder.isNotEmpty() }
+            .toSet()
     }
-}
-
-// TODO: Disse må endres etterhvert
-fun deltakereIPeriode(
-    deltakere: List<DeltakerDbo>,
-    periodeStart: LocalDate,
-    periodeSlutt: LocalDate,
-): List<Prismodell.RefusjonskravBeregning.AFT.Deltaker> {
-    return deltakere
-        .filter {
-            it.startDato != null &&
-                it.sluttDato != null &&
-                it.sluttDato?.isBefore(periodeStart) != true &&
-                it.startDato?.isAfter(periodeSlutt) != true
-        }
-        .map {
-            it.toDeltakerIPeriode(periodeStart, periodeSlutt)
-        }
-}
-
-// TODO: Denne må endres etterhvert. Her mangler vi periodisering av prosent, faktisk prosent i det hele tatt.
-fun DeltakerDbo.toDeltakerIPeriode(
-    periodeStart: LocalDate,
-    periodeSlutt: LocalDate,
-): Prismodell.RefusjonskravBeregning.AFT.Deltaker {
-    requireNotNull(this.startDato)
-    requireNotNull(this.sluttDato)
-
-    val startDato = if (this.startDato!! >= periodeStart) {
-        this.startDato!!
-    } else {
-        periodeStart
-    }
-    val sluttDato = if (this.sluttDato!! >= periodeSlutt) {
-        periodeSlutt
-    } else {
-        this.sluttDato!!
-    }
-
-    return Prismodell.RefusjonskravBeregning.AFT.Deltaker(
-        startDato = startDato,
-        sluttDato = sluttDato,
-        prosentPerioder = listOf(
-            Prismodell.RefusjonskravBeregning.AFT.Deltaker.ProsentPeriode(
-                startDato = startDato,
-                sluttDato = sluttDato,
-                prosent = 1.0,
-            ),
-        ),
-    )
-}
-
-sealed class RefusjonBeregningInput {
-    data class AFT(
-        val periodeStart: LocalDate,
-        val deltakere: List<Prismodell.RefusjonskravBeregning.AFT.Deltaker>,
-        val sats: Int,
-    ) : RefusjonBeregningInput()
 }

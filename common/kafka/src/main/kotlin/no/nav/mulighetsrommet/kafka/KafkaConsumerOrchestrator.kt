@@ -54,8 +54,6 @@ class KafkaConsumerOrchestrator(
             .withConsumerConfigs(findConsumerConfigsWithStoreOnFailure(consumerTopicsConfig))
             .build()
 
-        updateClientRunningState()
-
         topicPoller = Poller(config.topicStatePollDelay) {
             updateClientRunningState()
         }

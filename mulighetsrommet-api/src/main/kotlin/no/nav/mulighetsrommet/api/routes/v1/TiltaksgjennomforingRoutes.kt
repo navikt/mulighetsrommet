@@ -10,8 +10,8 @@ import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.api.domain.dbo.UtdanningslopDbo
 import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
-import no.nav.mulighetsrommet.api.domain.dto.ProgramomradeMedUtdanningerRequestDto
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.domain.serializers.AvbruttAarsakSerializer
@@ -174,20 +173,14 @@ fun Route.tiltaksgjennomforingRoutes() {
             val id: UUID by call.parameters
 
             val deltakereForGjennomforing = deltakere.getAll(id)
-            val groupedDeltakere = deltakereForGjennomforing.groupBy { it.status }
+
             val summary = TiltaksgjennomforingDeltakerSummary(
                 antallDeltakere = deltakereForGjennomforing.size,
-                antallAktiveDeltakere = groupedDeltakere.getOrDefault(Deltakerstatus.DELTAR, emptyList()).size,
-                antallDeltakereSomVenter = groupedDeltakere.getOrDefault(Deltakerstatus.VENTER, emptyList()).size,
-                antallAvsluttedeDeltakere = groupedDeltakere.getOrDefault(Deltakerstatus.AVSLUTTET, emptyList()).size,
-                antallIkkeAktuelleDeltakere = groupedDeltakere.getOrDefault(
-                    Deltakerstatus.IKKE_AKTUELL,
-                    emptyList(),
-                ).size,
-                pabegyntRegistrering = groupedDeltakere.getOrDefault(
-                    Deltakerstatus.PABEGYNT_REGISTRERING,
-                    emptyList(),
-                ).size,
+                deltakereByStatus = deltakereForGjennomforing
+                    .groupBy { it.status.type }
+                    .map { (status, deltakere) ->
+                        DeltakerStatusSummary(status = status.description, count = deltakere.size)
+                    },
             )
 
             call.respond(summary)
@@ -235,11 +228,13 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
 @Serializable
 data class TiltaksgjennomforingDeltakerSummary(
     val antallDeltakere: Int,
-    val antallAktiveDeltakere: Int,
-    val antallDeltakereSomVenter: Int,
-    val antallAvsluttedeDeltakere: Int,
-    val antallIkkeAktuelleDeltakere: Int,
-    val pabegyntRegistrering: Int,
+    val deltakereByStatus: List<DeltakerStatusSummary>,
+)
+
+@Serializable
+data class DeltakerStatusSummary(
+    val status: String,
+    val count: Int,
 )
 
 @Serializable
@@ -281,7 +276,7 @@ data class TiltaksgjennomforingRequest(
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
-    val programomradeMedUtdanningerRequest: ProgramomradeMedUtdanningerRequestDto?,
+    val utdanningslop: UtdanningslopDbo? = null,
 ) {
     fun toDbo() = TiltaksgjennomforingDbo(
         id = id,
@@ -313,7 +308,7 @@ data class TiltaksgjennomforingRequest(
         estimertVentetidEnhet = estimertVentetid?.enhet,
         tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
         amoKategorisering = amoKategorisering,
-        programomradeOgUtdanningerRequest = programomradeMedUtdanningerRequest,
+        utdanningslop = utdanningslop,
     )
 }
 

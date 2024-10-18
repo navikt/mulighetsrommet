@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.DokumentKoblingForKontaktperson
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.StatusResponse
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -21,11 +22,11 @@ class ArrangorService(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    suspend fun getOrSyncArrangorFromBrreg(orgnr: String): Either<BrregError, ArrangorDto> {
+    suspend fun getOrSyncArrangorFromBrreg(orgnr: Organisasjonsnummer): Either<BrregError, ArrangorDto> {
         return arrangorRepository.get(orgnr)?.right() ?: syncArrangorFromBrreg(orgnr)
     }
 
-    private suspend fun syncArrangorFromBrreg(orgnr: String): Either<BrregError, ArrangorDto> {
+    private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): Either<BrregError, ArrangorDto> {
         log.info("Synkroniserer enhet fra brreg orgnr=$orgnr")
         return brregClient.getBrregVirksomhet(orgnr)
             .flatMap { virksomhet ->

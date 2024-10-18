@@ -25,7 +25,9 @@ import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjem
 import { logEvent } from "@/logging/amplitude";
 import { RedaksjoneltInnholdBunnKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdBunnKnapperad";
 import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
-import { useCallback } from "react";
+import React, { useCallback } from "react";
+import { Laster } from "@/components/laster/Laster";
+import { InlineErrorBoundary } from "@mr/frontend-common";
 
 interface Props {
   onClose: () => void;
@@ -81,8 +83,7 @@ export function TiltaksgjennomforingSkjemaContainer({
           startDato: "startOgSluttDato.startDato",
           sluttDato: "startOgSluttDato.sluttDato",
           arrangorOrganisasjonsnummer: "tiltaksArrangorUnderenhetOrganisasjonsnummer",
-          programomrade: "programomradeOgUtdanninger.programomradeId",
-          utdanninger: "programomradeOgUtdanninger.utdanningsIder",
+          utdanningslop: "utdanningslop.utdanninger",
         };
         return (mapping[name] ?? name) as keyof InferredTiltaksgjennomforingSchema;
       }
@@ -125,13 +126,9 @@ export function TiltaksgjennomforingSkjemaContainer({
       estimertVentetid: data.estimertVentetid ?? null,
       tilgjengeligForArrangorFraOgMedDato: data.tilgjengeligForArrangorFraOgMedDato ?? null,
       amoKategorisering: data.amoKategorisering ?? null,
-      programomradeMedUtdanningerRequest:
-        avtale.programomradeMedUtdanninger?.programomrade?.id &&
+      utdanningslop:
         avtale.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING
-          ? {
-              programomradeId: avtale.programomradeMedUtdanninger?.programomrade?.id,
-              utdanningsIder: data.programomradeOgUtdanninger?.utdanningsIder || [],
-            }
+          ? (data.utdanningslop ?? null)
           : null,
     };
 
@@ -174,10 +171,14 @@ export function TiltaksgjennomforingSkjemaContainer({
             />
           </Tabs.List>
           <Tabs.Panel value="detaljer">
-            <TiltaksgjennomforingSkjemaDetaljer
-              avtale={avtale}
-              tiltaksgjennomforing={tiltaksgjennomforing}
-            />
+            <InlineErrorBoundary>
+              <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
+                <TiltaksgjennomforingSkjemaDetaljer
+                  avtale={avtale}
+                  tiltaksgjennomforing={tiltaksgjennomforing}
+                />
+              </React.Suspense>
+            </InlineErrorBoundary>
           </Tabs.Panel>
           <Tabs.Panel value="redaksjonelt-innhold">
             <TiltakgjennomforingRedaksjoneltInnholdForm avtale={avtale} />

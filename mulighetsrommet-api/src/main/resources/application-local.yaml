@@ -34,9 +34,6 @@ app:
     - ARBEIDSRETTET_REHABILITERING
     - VARIG_TILRETTELAGT_ARBEID_SKJERMET
 
-  pameldingKommerSnartIModia:
-    - ARBEIDSFORBEREDENDE_TRENING
-
   kafka:
     brokerUrl: localhost:29092
     producerId: mulighetsrommet-api-kafka-producer.v1
@@ -87,6 +84,16 @@ app:
       # (GRP) mr-nav_kontaktperson
       - adGruppeId: 0fdd133a-f47f-4b95-9a5e-f3a5ec87a472
         rolle: KONTAKTPERSON
+    tokenx:
+      issuer: http://localhost:8081/tokenx
+      jwksUri: http://localhost:8081/tokenx/jwks
+      audience: mulighetsrommet-api
+      tokenEndpointUrl: http://localhost:8081/tokenx/token
+    maskinporten:
+      issuer: http://localhost:8081/maskinporten
+      jwksUri: http://localhost:8081/maskinporten/jwks
+      audience: mulighetsrommet-api
+      tokenEndpointUrl: http://localhost:8081/maskinporten/token
 
   sanity:
     dataset: test
@@ -100,7 +107,7 @@ app:
 
   tiltakshistorikk:
     # url: http://0.0.0.0:8070 # Mot tiltakshistorikk lokalt
-    url: http://0.0.0.0:8090  # Wiremock
+    url: http://0.0.0.0:8090 # Wiremock
     scope: mr-tiltakshistorikk
 
   veilarbvedtaksstotteConfig:
@@ -145,6 +152,11 @@ app:
   brreg:
     baseUrl: https://data.brreg.no/enhetsregisteret/api
 
+  altinn:
+    url: http://localhost:8090/altinn
+    apiKey: dummy
+    scope: default
+
   tasks:
     synchronizeNorgEnheter:
       disabled: true
@@ -180,9 +192,9 @@ app:
   unleash:
     appName: mulighetsrommet-api
     url: http://localhost:8090/unleash
-    token: ''
+    token: ""
     instanceId: mulighetsrommet-api
     environment: local
 
   utdanning:
-    baseurl: https://public-staging.api.utdanning.no
+    baseurl: https://api.utdanning.no

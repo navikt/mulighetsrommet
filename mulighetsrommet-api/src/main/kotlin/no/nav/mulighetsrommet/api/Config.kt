@@ -2,9 +2,9 @@ package no.nav.mulighetsrommet.api
 
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
+import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
-import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
@@ -16,6 +16,8 @@ import no.nav.mulighetsrommet.kafka.producers.SisteTiltaksgjennomforingerV1Kafka
 import no.nav.mulighetsrommet.kafka.producers.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.mulighetsrommet.unleash.UnleashService
+import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
+import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import java.util.*
 
 data class Config(
@@ -28,7 +30,6 @@ data class AppConfig(
     val flyway: FlywayMigrationManager.MigrationConfig,
     val migrerteTiltak: List<Tiltakskode>,
     val pameldingIModia: List<Tiltakskode>,
-    val pameldingKommerSnartIModia: List<Tiltakskode>,
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityClient.Config,
@@ -50,10 +51,13 @@ data class AppConfig(
     val pdl: ServiceClientConfig,
     val engine: HttpClientEngine = CIO.create(),
     val utdanning: UtdanningClient.Config,
+    val altinn: AltinnClient.Config,
 )
 
 data class AuthConfig(
     val azure: AuthProvider,
+    val tokenx: AuthProvider,
+    val maskinporten: AuthProvider,
     val roles: List<AdGruppeNavAnsattRolleMapping>,
 )
 

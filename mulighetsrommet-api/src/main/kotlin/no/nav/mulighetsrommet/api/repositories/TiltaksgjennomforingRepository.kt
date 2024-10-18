@@ -169,19 +169,19 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
 
         @Language("PostgreSQL")
-        val deleteProgramomradeAndUtdanninger = """
-            delete from utdanning_programomrade_tiltaksgjennomforing
+        val deleteUtdanningslop = """
+            delete from tiltaksgjennomforing_utdanningsprogram
             where tiltaksgjennomforing_id = ?::uuid
         """.trimIndent()
 
         @Language("PostgreSQL")
-        val upsertProgramomradeAndUtdanninger = """
-            insert into utdanning_programomrade_tiltaksgjennomforing(
+        val insertUtdanningslop = """
+            insert into tiltaksgjennomforing_utdanningsprogram(
                 tiltaksgjennomforing_id,
                 utdanning_id,
-                programomrade_id
+                utdanningsprogram_id
             )
-            values(:tiltaksgjennomforing_id::uuid, :utdanning_id::uuid, :programomrade_id::uuid)
+            values(:tiltaksgjennomforing_id::uuid, :utdanning_id::uuid, :utdanningsprogram_id::uuid)
         """.trimIndent()
 
         tx.run(queryOf(query, tiltaksgjennomforing.toSqlParameters()).asExecute)
@@ -266,16 +266,15 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         AmoKategoriseringRepository.upsert(tiltaksgjennomforing, tx)
 
-        tx.run(queryOf(deleteProgramomradeAndUtdanninger, tiltaksgjennomforing.id).asExecute)
-        tiltaksgjennomforing.programomradeOgUtdanningerRequest?.let { programomradeOgUtdanninger ->
-            val programomradeId = programomradeOgUtdanninger.programomradeId
-            programomradeOgUtdanninger.utdanningsIder.forEach {
+        tx.run(queryOf(deleteUtdanningslop, tiltaksgjennomforing.id).asExecute)
+        tiltaksgjennomforing.utdanningslop?.let { utdanningslop ->
+            utdanningslop.utdanninger.forEach {
                 tx.run(
                     queryOf(
-                        upsertProgramomradeAndUtdanninger,
+                        insertUtdanningslop,
                         mapOf(
                             "tiltaksgjennomforing_id" to tiltaksgjennomforing.id,
-                            "programomrade_id" to programomradeId,
+                            "utdanningsprogram_id" to utdanningslop.utdanningsprogram,
                             "utdanning_id" to it,
                         ),
                     ).asExecute,
@@ -419,7 +418,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         sluttDatoGreaterThanOrEqualTo: LocalDate? = null,
         avtaleId: UUID? = null,
         arrangorIds: List<UUID> = emptyList(),
-        arrangorOrgnr: List<String> = emptyList(),
+        arrangorOrgnr: List<Organisasjonsnummer> = emptyList(),
         administratorNavIdent: NavIdent? = null,
         opphav: ArenaMigrering.Opphav? = null,
         publisert: Boolean? = null,
@@ -432,7 +431,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "nav_enheter" to navEnheter.ifEmpty { null }?.let { db.createTextArray(it) },
             "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { db.createUuidArray(it) },
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { db.createUuidArray(it) },
-            "arrangor_orgnrs" to arrangorOrgnr.ifEmpty { null }?.let { db.createTextArray(it) },
+            "arrangor_orgnrs" to arrangorOrgnr.ifEmpty { null }?.let { db.createTextArray(it.map { it.value }) },
             "statuser" to statuser.ifEmpty { null }?.let { db.createArrayOf("text", statuser) },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "opphav" to opphav?.name,
@@ -491,13 +490,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     }
 
     fun getGjennomforesInPeriodeUtenRefusjonskrav(
-        periodeStart: LocalDate,
-        periodeSlutt: LocalDate,
+        periodeStart: LocalDateTime,
+        periodeSlutt: LocalDateTime,
     ): List<TiltaksgjennomforingDto> {
         @Language("PostgreSQL")
         val query = """
             select * from tiltaksgjennomforing_admin_dto_view
-            left join refusjonskrav on refusjonskrav.tiltaksgjennomforing_id = tiltaksgjennomforing_admin_dto_view.id
+            left join refusjonskrav on refusjonskrav.gjennomforing_id = tiltaksgjennomforing_admin_dto_view.id
             where
                 (start_dato <= :periode_slutt) and
                 (slutt_dato >= :periode_start or slutt_dato is null) and
@@ -855,8 +854,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
         val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
 
-        val programomradeMedUtdanninger = stringOrNull("programomrade_og_utdanninger_json")?.let {
-            JsonIgnoreUnknownKeys.decodeFromString<ProgramomradeMedUtdanninger>(it)
+        val utdanningslop = stringOrNull("utdanningslop_json")?.let {
+            Json.decodeFromString<UtdanningslopDto>(it)
         }
 
         return TiltaksgjennomforingDto(
@@ -913,7 +912,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             administratorer = administratorer,
             arrangor = TiltaksgjennomforingDto.ArrangorUnderenhet(
                 id = uuid("arrangor_id"),
-                organisasjonsnummer = string("arrangor_organisasjonsnummer"),
+                organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
                 navn = string("arrangor_navn"),
                 slettet = boolean("arrangor_slettet"),
                 kontaktpersoner = arrangorKontaktpersoner,
@@ -925,7 +924,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             ),
             tilgjengeligForArrangorFraOgMedDato = localDateOrNull("tilgjengelig_for_arrangor_fra_og_med_dato"),
             amoKategorisering = stringOrNull("amo_kategorisering_json")?.let { JsonIgnoreUnknownKeys.decodeFromString(it) },
-            programomradeMedUtdanninger = programomradeMedUtdanninger,
+            utdanningslop = utdanningslop,
         )
     }
 

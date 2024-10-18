@@ -147,17 +147,16 @@ class AvtaleValidator(
 
             if (unleashService.isEnabled("mulighetsrommet.admin-flate.enable-utdanningskategorier")) {
                 if (tiltakstype.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
-                    if (avtale.programomradeOgUtdanningerRequest == null) {
+                    val utdanninger = avtale.utdanningslop
+                    if (utdanninger == null) {
                         add(
-                            ValidationError.ofCustomLocation(
-                                "programomrade",
-                                "Du må velge et programområde og én eller flere sluttkompetanser",
+                            ValidationError.of(
+                                AvtaleDbo::utdanningslop,
+                                "Du må velge et utdanningsprogram og minst ett lærefag",
                             ),
                         )
-                    }
-
-                    if (avtale.programomradeOgUtdanningerRequest != null && avtale.programomradeOgUtdanningerRequest.utdanningsIder.isEmpty()) {
-                        add(ValidationError.ofCustomLocation("utdanninger", "Du må velge minst én sluttkompetanse"))
+                    } else if (utdanninger.utdanninger.isEmpty()) {
+                        add(ValidationError.of(AvtaleDbo::utdanningslop, "Du må velge minst ett lærefag"))
                     }
                 }
             }
@@ -248,25 +247,6 @@ class AvtaleValidator(
                 )
             }
 
-            if (avtale.programomradeOgUtdanningerRequest?.programomradeId != currentAvtale.programomradeMedUtdanninger?.programomrade?.id) {
-                add(
-                    ValidationError.ofCustomLocation(
-                        "programomrade",
-                        "Programområde kan ikke endres fordi det finnes gjennomføringer for avtalen",
-                    ),
-                )
-            }
-
-            val currentUtdanningsIder = currentAvtale.programomradeMedUtdanninger?.utdanninger?.map { it.id } ?: emptyList()
-            if (avtale.programomradeOgUtdanningerRequest?.utdanningsIder != null && avtale.programomradeOgUtdanningerRequest.utdanningsIder.toSet() != currentUtdanningsIder.toSet()) {
-                add(
-                    ValidationError.ofCustomLocation(
-                        "utdanninger",
-                        "Sluttkompetanser kan ikke endres fordi det finnes gjennomføringer for avtalen",
-                    ),
-                )
-            }
-
             gjennomforinger.forEach { gjennomforing ->
                 val arrangorId = gjennomforing.arrangor.id
                 if (arrangorId !in avtale.arrangorUnderenheter) {
@@ -284,9 +264,32 @@ class AvtaleValidator(
                     add(
                         ValidationError.of(
                             AvtaleDbo::startDato,
-                            "Startdato kan ikke være før startdatoen til tiltaksgjennomføringer koblet til avtalen. Minst en gjennomføring har startdato: $gjennomforingsStartDato",
+                            "Startdato kan ikke være før startdatoen til gjennomføringer koblet til avtalen. Minst en gjennomføring har startdato: $gjennomforingsStartDato",
                         ),
                     )
+                }
+
+                gjennomforing.utdanningslop?.also {
+                    if (avtale.utdanningslop?.utdanningsprogram != it.utdanningsprogram.id) {
+                        add(
+                            ValidationError.of(
+                                AvtaleDbo::utdanningslop,
+                                "Utdanningsprogram kan ikke endres fordi en gjennomføring allerede er opprettet for utdanningsprogrammet ${it.utdanningsprogram.navn}",
+                            ),
+                        )
+                    }
+
+                    it.utdanninger.forEach { utdanning ->
+                        val utdanninger = avtale.utdanningslop?.utdanninger ?: listOf()
+                        if (!utdanninger.contains(utdanning.id)) {
+                            add(
+                                ValidationError.of(
+                                    AvtaleDbo::utdanningslop,
+                                    "Lærefaget ${utdanning.navn} mangler i avtalen, men er i bruk på en av avtalens gjennomføringer",
+                                ),
+                            )
+                        }
+                    }
                 }
             }
         }

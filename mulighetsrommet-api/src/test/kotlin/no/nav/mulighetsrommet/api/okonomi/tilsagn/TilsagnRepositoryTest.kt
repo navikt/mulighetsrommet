@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
@@ -95,6 +96,59 @@ class TilsagnRepositoryTest : FunSpec({
             )
             repository.upsert(tilsagn)
             repository.get(tilsagn.id)?.besluttelse shouldBe null
+        }
+
+        test("get by arrangor_ids") {
+            repository.upsert(tilsagn)
+            repository.setBesluttelse(tilsagn.id, TilsagnBesluttelse.GODKJENT, NavIdent("Z123456"), LocalDateTime.now())
+            repository.getAllArrangorflateTilsagn(listOf(tilsagn.arrangorId)) shouldBe listOf(
+                ArrangorflateTilsagn(
+                    id = tilsagn.id,
+                    gjennomforing = ArrangorflateTilsagn.Gjennomforing(
+                        navn = AFT1.navn,
+                    ),
+                    tiltakstype = ArrangorflateTilsagn.Tiltakstype(
+                        navn = TiltakstypeFixtures.AFT.navn,
+                    ),
+                    periodeStart = LocalDate.of(2023, 1, 1),
+                    periodeSlutt = LocalDate.of(2023, 2, 1),
+                    arrangor = ArrangorflateTilsagn.Arrangor(
+                        navn = ArrangorFixtures.underenhet1.navn,
+                        id = ArrangorFixtures.underenhet1.id,
+                        organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+                    ),
+                    beregning = Prismodell.TilsagnBeregning.Fri(123),
+                ),
+            )
+            repository.getArrangorflateTilsagn(tilsagn.id)?.id shouldBe tilsagn.id
+        }
+
+        test("get til refusjon") {
+            repository.upsert(tilsagn)
+            repository.setBesluttelse(tilsagn.id, TilsagnBesluttelse.GODKJENT, NavIdent("Z123456"), LocalDateTime.now())
+            repository.getArrangorflateTilsagnTilRefusjon(
+                tilsagn.tiltaksgjennomforingId,
+                LocalDate.of(2023, 1, 14),
+                LocalDate.of(2023, 1, 15),
+            ) shouldBe listOf(
+                ArrangorflateTilsagn(
+                    id = tilsagn.id,
+                    gjennomforing = ArrangorflateTilsagn.Gjennomforing(
+                        navn = AFT1.navn,
+                    ),
+                    tiltakstype = ArrangorflateTilsagn.Tiltakstype(
+                        navn = TiltakstypeFixtures.AFT.navn,
+                    ),
+                    periodeStart = LocalDate.of(2023, 1, 1),
+                    periodeSlutt = LocalDate.of(2023, 2, 1),
+                    arrangor = ArrangorflateTilsagn.Arrangor(
+                        navn = ArrangorFixtures.underenhet1.navn,
+                        id = ArrangorFixtures.underenhet1.id,
+                        organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+                    ),
+                    beregning = Prismodell.TilsagnBeregning.Fri(123),
+                ),
+            )
         }
     }
 })

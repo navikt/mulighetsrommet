@@ -11,7 +11,9 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import org.intellij.lang.annotations.Language
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -91,6 +93,58 @@ class TilsagnRepository(private val db: Database) {
         return queryOf(query, mapOf("gjennomforing_id" to gjennomforingId))
             .map { it.toTilsagnDto() }
             .asList
+            .let { db.run(it) }
+    }
+
+    fun getAllArrangorflateTilsagn(arrangorIds: List<UUID>): List<ArrangorflateTilsagn> {
+        @Language("PostgreSQL")
+        val query = """
+            select * from tilsagn_arrangorflate_view
+            where arrangor_id = any (?)
+        """.trimIndent()
+
+        return queryOf(query, db.createUuidArray(arrangorIds))
+            .map { it.toArrangorflateTilsagn() }
+            .asList
+            .let { db.run(it) }
+    }
+
+    fun getArrangorflateTilsagnTilRefusjon(
+        gjennomforingId: UUID,
+        periodeStart: LocalDate,
+        periodeSlutt: LocalDate,
+    ): List<ArrangorflateTilsagn> {
+        @Language("PostgreSQL")
+        val query = """
+            select * from tilsagn_arrangorflate_view
+            where gjennomforing_id = :gjennomforing_id::uuid
+            and (:periode_slutt::date is null or periode_start <= :periode_slutt::date)
+            and (:periode_start::date is null or periode_slutt >= :periode_start::date)
+        """.trimIndent()
+
+        return queryOf(
+            query,
+            mapOf(
+                "gjennomforing_id" to gjennomforingId,
+                "periode_start" to periodeStart,
+                "periode_slutt" to periodeSlutt,
+            ),
+        )
+            .map { it.toArrangorflateTilsagn() }
+            .asList
+            .let { db.run(it) }
+    }
+
+    fun getArrangorflateTilsagn(id: UUID): ArrangorflateTilsagn? {
+        @Language("PostgreSQL")
+        val query = """
+            select * from tilsagn_arrangorflate_view
+            where id = ?::uuid
+        """.trimIndent()
+
+        return queryOf(query, id)
+            .map { it.toArrangorflateTilsagn() }
+            .asSingle
             .let { db.run(it) }
     }
 
@@ -187,9 +241,29 @@ class TilsagnRepository(private val db: Database) {
             ),
             arrangor = TilsagnDto.Arrangor(
                 id = uuid("arrangor_id"),
-                organisasjonsnummer = string("arrangor_organisasjonsnummer"),
+                organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
                 navn = string("arrangor_navn"),
                 slettet = boolean("arrangor_slettet"),
+            ),
+            beregning = Json.decodeFromString<Prismodell.TilsagnBeregning>(string("beregning")),
+        )
+    }
+
+    private fun Row.toArrangorflateTilsagn(): ArrangorflateTilsagn {
+        return ArrangorflateTilsagn(
+            id = uuid("id"),
+            gjennomforing = ArrangorflateTilsagn.Gjennomforing(
+                navn = string("gjennomforing_navn"),
+            ),
+            tiltakstype = ArrangorflateTilsagn.Tiltakstype(
+                navn = string("tiltakstype_navn"),
+            ),
+            periodeSlutt = localDate("periode_slutt"),
+            periodeStart = localDate("periode_start"),
+            arrangor = ArrangorflateTilsagn.Arrangor(
+                id = uuid("arrangor_id"),
+                organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+                navn = string("arrangor_navn"),
             ),
             beregning = Json.decodeFromString<Prismodell.TilsagnBeregning>(string("beregning")),
         )

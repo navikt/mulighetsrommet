@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.domain.dto.ProgramomradeMedUtdanningerRequestDto
 import no.nav.mulighetsrommet.api.routes.v1.EstimertVentetid
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
@@ -54,7 +53,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
         amoKategorisering = null,
-        programomradeOgUtdanningerRequest = null,
+        utdanningslop = null,
     )
 
     val EnkelAmo1 = TiltaksgjennomforingDbo(
@@ -81,7 +80,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
         amoKategorisering = null,
-        programomradeOgUtdanningerRequest = null,
+        utdanningslop = null,
     )
 
     val Oppfolging1Request = TiltaksgjennomforingRequest(
@@ -110,7 +109,7 @@ object TiltaksgjennomforingFixtures {
             enhet = "dag",
         ),
         amoKategorisering = null,
-        programomradeMedUtdanningerRequest = null,
+        utdanningslop = null,
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
@@ -137,7 +136,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
         amoKategorisering = null,
-        programomradeOgUtdanningerRequest = null,
+        utdanningslop = null,
     )
 
     val VTA1 = TiltaksgjennomforingDbo(
@@ -164,7 +163,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
         amoKategorisering = null,
-        programomradeOgUtdanningerRequest = null,
+        utdanningslop = null,
     )
 
     val AFT1 = TiltaksgjennomforingDbo(
@@ -191,7 +190,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
         amoKategorisering = null,
-        programomradeOgUtdanningerRequest = null,
+        utdanningslop = null,
     )
 
     val Jobbklubb1 = TiltaksgjennomforingDbo(
@@ -218,7 +217,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
         amoKategorisering = null,
-        programomradeOgUtdanningerRequest = null,
+        utdanningslop = null,
     )
 
     val GruppeAmo1 = TiltaksgjennomforingDbo(
@@ -245,7 +244,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
         amoKategorisering = null,
-        programomradeOgUtdanningerRequest = null,
+        utdanningslop = null,
     )
 
     val GruppeFagYrke1 = TiltaksgjennomforingDbo(
@@ -272,10 +271,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
         amoKategorisering = null,
-        programomradeOgUtdanningerRequest = ProgramomradeMedUtdanningerRequestDto(
-            programomradeId = UUID.randomUUID(),
-            utdanningsIder = emptyList(),
-        ),
+        utdanningslop = null,
     )
 
     val IPS1 = TiltaksgjennomforingDbo(
@@ -302,6 +298,6 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
         amoKategorisering = null,
-        programomradeOgUtdanningerRequest = null,
+        utdanningslop = null,
     )
 }

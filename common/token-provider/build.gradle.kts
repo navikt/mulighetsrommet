@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     implementation(projects.common.nais)
+    implementation(projects.common.ktorClients)
 
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.serialization.json)

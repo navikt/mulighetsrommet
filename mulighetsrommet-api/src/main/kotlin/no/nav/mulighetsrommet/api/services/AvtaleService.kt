@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Opphav
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
@@ -74,7 +75,7 @@ class AvtaleService(
                         amoKategorisering = amoKategorisering,
                         opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
                         customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
-                        programomradeOgUtdanningerRequest = programomradeMedUtdanningerRequest,
+                        utdanningslop = utdanningslop,
                     )
                 }
                 validator.validate(dbo, previous)
@@ -111,7 +112,7 @@ class AvtaleService(
             Pair(arrangor, underenheter)
         }
 
-    private suspend fun syncArrangorFromBrreg(orgnr: String): Either<List<ValidationError>, ArrangorDto> = arrangorService
+    private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): Either<List<ValidationError>, ArrangorDto> = arrangorService
         .getOrSyncArrangorFromBrreg(orgnr)
         .mapLeft {
             ValidationError.of(

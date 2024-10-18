@@ -8,6 +8,9 @@ import no.nav.common.client.axsys.AxsysV2ClientImpl
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesPreset
+import no.nav.mulighetsrommet.altinn.AltinnClient
+import no.nav.mulighetsrommet.altinn.AltinnRettigheterRepository
+import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.TaskConfig
@@ -24,7 +27,6 @@ import no.nav.mulighetsrommet.api.clients.pamOntologi.PamOntologiClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
-import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.okonomi.refusjon.RefusjonService
 import no.nav.mulighetsrommet.api.okonomi.refusjon.RefusjonskravRepository
@@ -33,7 +35,6 @@ import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnValidator
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
-import no.nav.mulighetsrommet.api.services.VeilederflateService
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
@@ -56,9 +57,14 @@ import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
+import no.nav.mulighetsrommet.tokenprovider.M2MTokenProvider
+import no.nav.mulighetsrommet.tokenprovider.createMaskinportenM2mTokenClient
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
 import no.nav.mulighetsrommet.unleash.strategies.ByNavIdentStrategy
+import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
+import no.nav.mulighetsrommet.utdanning.db.UtdanningRepository
+import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -142,7 +148,7 @@ private fun kafka(appConfig: AppConfig) = module {
                 arenaMigreringTiltaksgjennomforingProducer = get(),
                 tiltaksgjennomforingRepository = get(),
             ),
-            AmtDeltakerV1KafkaConsumer(config = config.consumers.amtDeltakerV1, deltakere = get()),
+            AmtDeltakerV1KafkaConsumer(config = config.consumers.amtDeltakerV1, tiltakstyper = get(), deltakere = get()),
             AmtVirksomheterV1KafkaConsumer(
                 config = config.consumers.amtVirksomheterV1,
                 arrangorRepository = get(),
@@ -172,11 +178,17 @@ private fun repositories() = module {
     single { TilsagnRepository(get()) }
     single { RefusjonskravRepository(get()) }
     single { UtdanningRepository(get()) }
+    single { AltinnRettigheterRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
     val azure = appConfig.auth.azure
     val cachedTokenProvider = CachedTokenProvider.init(azure.audience, azure.tokenEndpointUrl)
+    val maskinportenTokenProvider = createMaskinportenM2mTokenClient(
+        appConfig.auth.maskinporten.audience,
+        appConfig.auth.maskinporten.tokenEndpointUrl,
+        appConfig.auth.maskinporten.issuer,
+    )
 
     single {
         VeilarboppfolgingClient(
@@ -261,6 +273,17 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single { UtdanningClient(config = appConfig.utdanning) }
+    single {
+        AltinnClient(
+            baseUrl = appConfig.altinn.url,
+            altinnApiKey = appConfig.altinn.apiKey,
+            clientEngine = appConfig.engine,
+            tokenProvider = maskinportenTokenProvider?.withScope(
+                scope = appConfig.altinn.scope,
+                targetAudience = appConfig.altinn.url,
+            ) ?: M2MTokenProvider { "dummy" }, // TODO: Remove when prod
+        )
+    }
     single { EndringshistorikkService(get()) }
     single {
         ArenaAdapterService(
@@ -337,6 +360,7 @@ private fun services(appConfig: AppConfig) = module {
     single { OpsjonLoggService(get(), get(), get(), get(), get()) }
     single { LagretFilterService(get()) }
     single { TilsagnService(get(), get(), get(), get()) }
+    single { AltinnRettigheterService(get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
@@ -344,7 +368,7 @@ private fun tasks(config: TaskConfig) = module {
     single { InitialLoadTiltaksgjennomforinger(get(), get(), get(), get()) }
     single { InitialLoadTiltakstyper(get(), get(), get(), get()) }
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get()) }
-    single { SynchronizeUtdanninger(get(), get(), config.synchronizeUtdanninger, get()) }
+    single { SynchronizeUtdanninger(config.synchronizeUtdanninger, get(), get(), get()) }
     single { GenerateRefusjonskrav(config.generateRefusjonskrav, get(), get()) }
     single {
         val updateTiltaksgjennomforingStatus = UpdateTiltaksgjennomforingStatus(

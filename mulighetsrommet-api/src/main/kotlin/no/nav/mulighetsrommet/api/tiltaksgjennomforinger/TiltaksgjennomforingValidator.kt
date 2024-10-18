@@ -5,7 +5,6 @@ import arrow.core.left
 import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.right
-import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
@@ -74,7 +73,12 @@ class TiltaksgjennomforingValidator(
             }
 
             if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && next.sluttDato == null) {
-                add(ValidationError.of(AvtaleDbo::sluttDato, "Du må legge inn sluttdato for gjennomføringen"))
+                add(
+                    ValidationError.of(
+                        TiltaksgjennomforingDbo::sluttDato,
+                        "Du må legge inn sluttdato for gjennomføringen",
+                    ),
+                )
             }
 
             if (next.sluttDato != null && next.startDato.isAfter(next.sluttDato)) {
@@ -140,12 +144,38 @@ class TiltaksgjennomforingValidator(
 
             if (unleashService.isEnabled("mulighetsrommet.admin-flate.enable-utdanningskategorier")) {
                 if (avtale.tiltakstype.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
-                    if (next.programomradeOgUtdanningerRequest == null) {
-                        add(ValidationError.ofCustomLocation("programomrade", "Du må velge programområde og sluttkompetanse"))
-                    }
-
-                    if (next.programomradeOgUtdanningerRequest != null && next.programomradeOgUtdanningerRequest?.utdanningsIder?.size != 1) {
-                        add(ValidationError.ofCustomLocation("utdanninger", "Du må velge én sluttkompetanse for gjennomføringen"))
+                    val utdanningslop = next.utdanningslop
+                    if (utdanningslop == null) {
+                        add(
+                            ValidationError.of(
+                                TiltaksgjennomforingDbo::utdanningslop,
+                                "Du må velge utdanningsprogram og lærefag på avtalen",
+                            ),
+                        )
+                    } else if (utdanningslop.utdanninger.isEmpty()) {
+                        add(
+                            ValidationError.of(
+                                TiltaksgjennomforingDbo::utdanningslop,
+                                "Du må velge minst ett lærefag",
+                            ),
+                        )
+                    } else if (utdanningslop.utdanningsprogram != avtale.utdanningslop?.utdanningsprogram?.id) {
+                        add(
+                            ValidationError.of(
+                                TiltaksgjennomforingDbo::utdanningslop,
+                                "Utdanningsprogrammet må være det samme som for avtalen: ${avtale.utdanningslop?.utdanningsprogram?.navn}",
+                            ),
+                        )
+                    } else {
+                        val avtalensUtdanninger = avtale.utdanningslop.utdanninger.map { it.id }
+                        if (!avtalensUtdanninger.containsAll(utdanningslop.utdanninger)) {
+                            add(
+                                ValidationError.of(
+                                    TiltaksgjennomforingDbo::utdanningslop,
+                                    "Lærefag må være valgt fra avtalens lærefag, minst ett av lærefagene mangler i avtalen.",
+                                ),
+                            )
+                        }
                     }
                 }
             }
