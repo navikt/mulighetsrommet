@@ -1,3 +1,3 @@
-import { refusjonHandlers } from "./refusjonMocks";
+import { arrangorflateHandlers } from "./arrangorflateMocks";
 
-export const handlers = [...refusjonHandlers];
+export const handlers = [...arrangorflateHandlers];
