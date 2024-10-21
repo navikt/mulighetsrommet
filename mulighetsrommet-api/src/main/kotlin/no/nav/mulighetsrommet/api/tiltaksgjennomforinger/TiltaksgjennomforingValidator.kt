@@ -156,7 +156,7 @@ class TiltaksgjennomforingValidator(
                     add(
                         ValidationError.of(
                             TiltaksgjennomforingDbo::amoKategorisering,
-                            "Du må velge et kurselement på gjennomføringen",
+                            "Du må velge et kurselement for gjennomføringen",
                         ),
                     )
                 }
