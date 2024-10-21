@@ -285,7 +285,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
         validator.validate(gruppeAmo, null).shouldBeLeft(
             listOf(
-                ValidationError("amoKategorisering", "Du må velge en kurstype for avtalen"),
+                ValidationError("avtale.amoKategorisering", "Du må velge en kurstype for avtalen"),
                 ValidationError("amoKategorisering", "Du må velge et kurselement for gjennomføringen"),
             ),
         )
