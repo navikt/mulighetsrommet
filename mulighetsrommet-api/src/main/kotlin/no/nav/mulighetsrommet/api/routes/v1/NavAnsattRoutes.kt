@@ -8,6 +8,8 @@ import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.NavAnsattService
 import no.nav.mulighetsrommet.api.utils.getNavAnsattFilter
+import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
 
 fun Route.navAnsattRoutes() {
@@ -22,14 +24,16 @@ fun Route.navAnsattRoutes() {
 
         get("/sok") {
             val q: String by call.request.queryParameters
+            val obo = AccessType.OBO(call.getAccessToken())
 
-            val ansatte = ansattService.getNavAnsattFromAzureSok(query = q)
+            val ansatte = ansattService.getNavAnsattFromAzureSok(query = q, obo)
             call.respond(ansatte)
         }
 
         get("/me") {
             val azureId = getNavAnsattAzureId()
-            val ansatt = ansattService.getOrSynchronizeNavAnsatt(azureId)
+            val obo = AccessType.OBO(call.getAccessToken())
+            val ansatt = ansattService.getOrSynchronizeNavAnsatt(azureId, obo)
             call.respond(ansatt)
         }
     }

@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api.clients.msgraph
 
+import com.github.benmanes.caffeine.cache.Cache
+import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
@@ -15,8 +17,10 @@ import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
+import no.nav.mulighetsrommet.utils.CacheUtils
 import org.slf4j.LoggerFactory
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 /**
  * Graph explorer kan benyttes for å utforske API'et til msgraph:
@@ -34,6 +38,23 @@ class MicrosoftGraphClient(
     private val tokenProvider: TokenProvider,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
+    private val ansattDataCache: Cache<UUID, AzureAdNavAnsatt> = Caffeine.newBuilder()
+        .expireAfterWrite(4, TimeUnit.HOURS)
+        .maximumSize(2000)
+        .recordStats()
+        .build()
+
+    private val ansattDataCacheByNavIdent: Cache<NavIdent, AzureAdNavAnsatt> = Caffeine.newBuilder()
+        .expireAfterWrite(4, TimeUnit.HOURS)
+        .maximumSize(2000)
+        .recordStats()
+        .build()
+
+    private val navAnsattAdGrupperCache: Cache<UUID, List<AdGruppe>> = Caffeine.newBuilder()
+        .expireAfterWrite(1, TimeUnit.HOURS)
+        .maximumSize(10_000)
+        .recordStats()
+        .build()
 
     private val client = httpJsonClient(engine).config {
         install(HttpCache)
@@ -48,40 +69,44 @@ class MicrosoftGraphClient(
         "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone"
 
     suspend fun getNavAnsatt(navAnsattAzureId: UUID, accessType: AccessType): AzureAdNavAnsatt {
-        val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId") {
-            bearerAuth(tokenProvider.exchange(accessType))
-            parameter("\$select", azureAdNavAnsattFields)
+        return CacheUtils.tryCacheFirstNotNull(ansattDataCache, navAnsattAzureId) {
+            val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId") {
+                bearerAuth(tokenProvider.exchange(accessType))
+                parameter("\$select", azureAdNavAnsattFields)
+            }
+
+            if (!response.status.isSuccess()) {
+                log.error("Klarte ikke finne bruker med id=$navAnsattAzureId")
+                throw RuntimeException("Klarte ikke finne bruker med id=$navAnsattAzureId. Finnes brukeren i AD?")
+            }
+
+            val user = response.body<MsGraphUserDto>()
+
+            toNavAnsatt(user) ?: throw Exception("Ansatt med azureId ${user.id} manglet required felter")
         }
-
-        if (!response.status.isSuccess()) {
-            log.error("Klarte ikke finne bruker med id=$navAnsattAzureId")
-            throw RuntimeException("Klarte ikke finne bruker med id=$navAnsattAzureId. Finnes brukeren i AD?")
-        }
-
-        val user = response.body<MsGraphUserDto>()
-
-        return toNavAnsatt(user) ?: throw Exception("Ansatt med azureId ${user.id} manglet required felter")
     }
 
     suspend fun getNavAnsattByNavIdent(navIdent: NavIdent, accessType: AccessType): AzureAdNavAnsatt? {
-        val response = client.get("$baseUrl/v1.0/users") {
-            bearerAuth(tokenProvider.exchange(accessType))
-            parameter("\$search", "\"onPremisesSamAccountName:${navIdent.value}\"")
-            parameter("\$select", azureAdNavAnsattFields)
-            header("ConsistencyLevel", "eventual")
-        }
-
-        if (!response.status.isSuccess()) {
-            log.error("Feil ved søk på bruker med navIdent=$navIdent {}", response.bodyAsText())
-            throw RuntimeException("Feil ved søk på bruker med navIdent=$navIdent")
-        }
-
-        return response.body<GetUserSearchResponse>()
-            .value
-            .firstOrNull()
-            ?.let {
-                toNavAnsatt(it)
+        return CacheUtils.tryCacheFirstNullable(ansattDataCacheByNavIdent, navIdent) {
+            val response = client.get("$baseUrl/v1.0/users") {
+                bearerAuth(tokenProvider.exchange(accessType))
+                parameter("\$search", "\"onPremisesSamAccountName:${navIdent.value}\"")
+                parameter("\$select", azureAdNavAnsattFields)
+                header("ConsistencyLevel", "eventual")
             }
+
+            if (!response.status.isSuccess()) {
+                log.error("Feil ved søk på bruker med navIdent=$navIdent {}", response.bodyAsText())
+                throw RuntimeException("Feil ved søk på bruker med navIdent=$navIdent")
+            }
+
+            response.body<GetUserSearchResponse>()
+                .value
+                .firstOrNull()
+                ?.let {
+                    toNavAnsatt(it)
+                }
+        }
     }
 
     suspend fun getNavAnsattSok(nameQuery: String, accessType: AccessType): List<AzureAdNavAnsatt> {
@@ -107,20 +132,22 @@ class MicrosoftGraphClient(
     }
 
     suspend fun getMemberGroups(navAnsattAzureId: UUID, accessType: AccessType): List<AdGruppe> {
-        val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId/transitiveMemberOf/microsoft.graph.group") {
-            bearerAuth(tokenProvider.exchange(accessType))
-            parameter("\$select", "id,displayName")
-        }
+        return CacheUtils.tryCacheFirstNotNull(navAnsattAdGrupperCache, navAnsattAzureId) {
+            val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId/transitiveMemberOf/microsoft.graph.group") {
+                bearerAuth(tokenProvider.exchange(accessType))
+                parameter("\$select", "id,displayName")
+            }
 
-        if (!response.status.isSuccess()) {
-            log.error("Klarte ikke hente AD-grupper for bruker id=$navAnsattAzureId")
-            throw RuntimeException("Klarte ikke hente AD-grupper for bruker id=$navAnsattAzureId")
-        }
+            if (!response.status.isSuccess()) {
+                log.error("Klarte ikke hente AD-grupper for bruker id=$navAnsattAzureId")
+                throw RuntimeException("Klarte ikke hente AD-grupper for bruker id=$navAnsattAzureId")
+            }
 
-        val result = response.body<GetMemberGroupsResponse>()
+            val result = response.body<GetMemberGroupsResponse>()
 
-        return result.value.map { group ->
-            AdGruppe(id = group.id, navn = group.displayName)
+            result.value.map { group ->
+                AdGruppe(id = group.id, navn = group.displayName)
+            }
         }
     }
 
