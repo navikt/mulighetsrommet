@@ -156,7 +156,11 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                     ? avtaletypeOptions(event.target.value.tiltakskode)
                     : [];
                   const avtaletype = options[0]?.value;
-                  setValue("avtaletype", avtaletype);
+                  if (options.length === 1) {
+                    setValue("avtaletype", avtaletype);
+                  } else {
+                    setValue("avtaletype", undefined);
+                  }
                   updateOpsjonsmodell(avtaletype);
                 }}
                 options={tiltakstyper.map((tiltakstype) => ({
