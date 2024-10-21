@@ -44,15 +44,10 @@ updates:
         patterns:
           - "com.pinterest.ktlint:ktlint-cli"
 
-      patches:
-        update-types:
-          - "patch"
-        exclude-patterns:
-          - "com.pinterest.ktlint:ktlint-cli"
-
-      minorversions:
+      minor-and-patch:
         update-types:
           - "minor"
+          - "patch"
         exclude-patterns:
           - "com.pinterest.ktlint:ktlint-cli"
 
@@ -91,21 +86,10 @@ updates:
         patterns:
           - "@rjsf/*"
 
-      patches:
-        update-types:
-          - "patch"
-        exclude-patterns:
-          - "playwright"
-          - "@playwright/test"
-          - "react"
-          - "react-dom"
-          - "@navikt/aksel-*"
-          - "@navikt/ds-*"
-          - "@rjsf/*"
-
-      minorversions:
+      minor-and-patch:
         update-types:
           - "minor"
+          - "patch"
         exclude-patterns:
           - "playwright"
           - "@playwright/test"
