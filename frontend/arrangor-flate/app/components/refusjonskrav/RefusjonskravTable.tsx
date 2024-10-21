@@ -28,35 +28,39 @@ export function RefusjonskravTable({ krav }: Props) {
           </div>
         </div>
         <div>
-          {krav.map(({ id, status, fristForGodkjenning, beregning, gjennomforing }) => {
-            return (
-              <div
-                className={
-                  getRowStyle(status) + "grid grid-cols-12 gap-4 border border-[#122B4414] my-4"
-                }
-                key={id}
-              >
-                <div className={"col-span-12 bg-[#122B4414] p-1"}>{gjennomforing.navn}</div>
-                <div className={"grid grid-cols-12 col-span-12 p-2"}>
-                  <div className={"col-span-3"}>
-                    {`${formaterDato(beregning.periodeStart)} - ${formaterDato(beregning.periodeSlutt)}`}
+          {krav.map(
+            ({ id, status, fristForGodkjenning, beregning, gjennomforing, tiltakstype }) => {
+              return (
+                <div
+                  className={
+                    getRowStyle(status) + "grid grid-cols-12 gap-4 border border-[#122B4414] my-4"
+                  }
+                  key={id}
+                >
+                  <div className={"col-span-12 bg-[#122B4414] p-1"}>
+                    {tiltakstype.navn} - {gjennomforing.navn}
                   </div>
-                  <div className="col-span-2">{beregning.antallManedsverk}</div>
-                  <div className="col-span-2">{formaterTall(beregning.belop)} NOK</div>
-                  <div className="col-span-2">{formaterDato(fristForGodkjenning)}</div>
-                  <div className="col-span-2">{statusTilTag(status)}</div>
-                  <div className="col-span-1">
-                    <Link
-                      className="hover:underline font-bold no-underline"
-                      to={`for-du-begynner/${id}`}
-                    >
-                      Detaljer
-                    </Link>
+                  <div className={"grid grid-cols-12 col-span-12 p-2"}>
+                    <div className={"col-span-3"}>
+                      {`${formaterDato(beregning.periodeStart)} - ${formaterDato(beregning.periodeSlutt)}`}
+                    </div>
+                    <div className="col-span-2">{beregning.antallManedsverk}</div>
+                    <div className="col-span-2">{formaterTall(beregning.belop)} NOK</div>
+                    <div className="col-span-2">{formaterDato(fristForGodkjenning)}</div>
+                    <div className="col-span-2">{statusTilTag(status)}</div>
+                    <div className="col-span-1">
+                      <Link
+                        className="hover:underline font-bold no-underline"
+                        to={`for-du-begynner/${id}`}
+                      >
+                        Detaljer
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            },
+          )}
         </div>
       </div>
     </>
