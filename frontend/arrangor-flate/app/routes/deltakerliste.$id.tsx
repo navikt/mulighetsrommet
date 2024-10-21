@@ -77,7 +77,7 @@ export default function RefusjonDeltakerlister() {
         tilbakeLenke={{ navn: "Tilbake til refusjonsliste", url: "/" }}
       />
       <HGrid gap="5" columns={1}>
-        <DeltakerlisteDetaljer krav={krav} />
+        <DeltakerlisteDetaljer className="max-w-[50%]" krav={krav} />
         <Table
           sort={sort}
           onSortChange={(sortKey) => handleSort(sortKey as ScopedSortState["orderBy"])}

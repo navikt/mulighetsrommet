@@ -222,9 +222,9 @@ export const arrangorflateHandlers = [
   http.get<PathParams, RefusjonKravAft[]>("*/api/v1/intern/arrangorflate/refusjonskrav/:id", () =>
     HttpResponse.json(mockKrav[1]),
   ),
-  http.get<PathParams, RefusjonKravAft[]>(
+  http.post<PathParams, RefusjonKravAft[]>(
     "*/api/v1/intern/arrangorflate/refusjonskrav/:id/godkjenn-refusjon",
-    () => HttpResponse.json(),
+    () => HttpResponse.json({}),
   ),
   http.get<PathParams, RefusjonKravAft[]>(
     "*/api/v1/intern/arrangorflate/refusjonskrav/:id/kvittering",

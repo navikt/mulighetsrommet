@@ -63,14 +63,13 @@ export default function RefusjonskravDetaljer() {
           url: `/deltakerliste/${krav.id}`,
         }}
       />
-      <VStack gap="5">
+      <VStack className="max-w-[50%]" gap="5">
         <DeltakerlisteDetaljer krav={krav} />
         <Separator />
         {tilsagn.map((t) => (
           <Box
             padding="2"
             key={t.id}
-            maxWidth="50%"
             borderWidth="1"
             borderColor="border-subtle"
             borderRadius="medium"
