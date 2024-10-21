@@ -117,7 +117,7 @@ export function AvtaleVarighet({
       ) : null}
 
       {opsjonsmodell && opsjonsmodell.kreverMaksVarighet ? (
-        <HGrid columns={3} gap="10">
+        <HGrid columns={3} gap="5" align="end">
           <ControlledDateInput
             size="small"
             label={avtaletekster.startdatoLabel}
