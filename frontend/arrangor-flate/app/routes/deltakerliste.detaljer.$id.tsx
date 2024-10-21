@@ -1,4 +1,4 @@
-import { Alert, Box, Button, Checkbox, VStack } from "@navikt/ds-react";
+import { Alert, Box, Button, Checkbox, Heading, VStack } from "@navikt/ds-react";
 import { ActionFunction, json, LoaderFunction, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { DeltakerlisteDetaljer } from "../components/deltakerliste/DeltakerlisteDetaljer";
@@ -66,6 +66,7 @@ export default function RefusjonskravDetaljer() {
       <VStack className="max-w-[50%]" gap="5">
         <DeltakerlisteDetaljer krav={krav} />
         <Separator />
+        <Heading size="medium">Tilsagnsdetaljer</Heading>
         {tilsagn.map((t) => (
           <Box
             padding="2"
