@@ -9,7 +9,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
@@ -188,7 +187,6 @@ private fun toRefusjonKravOppsummering(krav: RefusjonskravDto) = when (val bereg
 }
 
 @Serializable
-@SerialName("AFT")
 data class RefusjonKravAft(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
