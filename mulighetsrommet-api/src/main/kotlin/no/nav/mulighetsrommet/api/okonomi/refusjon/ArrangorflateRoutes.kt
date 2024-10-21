@@ -10,6 +10,9 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
+import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
+import no.nav.mulighetsrommet.api.domain.dto.DeltakerDto
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDto
@@ -44,6 +47,8 @@ fun Route.arrangorflateRoutes() {
     val refusjonskrav: RefusjonskravRepository by inject()
     val deltakerRepository: DeltakerRepository by inject()
 
+    val pdl: PdlClient by inject()
+
     suspend fun <T : Any> PipelineContext<T, ApplicationCall>.arrangorerMedTilgang(): List<UUID> {
         return call.principal<ArrangorflatePrincipal>()
             ?.organisasjonsnummer
@@ -70,7 +75,7 @@ fun Route.arrangorflateRoutes() {
                 val arrangorIds = arrangorerMedTilgang()
 
                 val krav = refusjonskrav.getByArrangorIds(arrangorIds)
-                    .map { toRefusjonKravOppsummering(deltakerRepository, it) }
+                    .map { toRefusjonskrav(pdl, deltakerRepository, it) }
 
                 call.respond(krav)
             }
@@ -82,7 +87,7 @@ fun Route.arrangorflateRoutes() {
                     ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
-                val oppsummering = toRefusjonKravOppsummering(deltakerRepository, krav)
+                val oppsummering = toRefusjonskrav(pdl, deltakerRepository, krav)
 
                 call.respond(oppsummering)
             }
@@ -149,27 +154,27 @@ fun Route.arrangorflateRoutes() {
     }
 }
 
-fun toRefusjonKravOppsummering(
+suspend fun toRefusjonskrav(
+    pdl: PdlClient,
     deltakerRepository: DeltakerRepository,
     krav: RefusjonskravDto,
 ) = when (val beregning = krav.beregning) {
     is RefusjonKravBeregningAft -> {
-        val perioder = beregning.input.deltakelser.associateBy { it.deltakelseId }
-        val manedsverk = beregning.output.deltakelser.associateBy { it.deltakelseId }
-        val deltakere = deltakerRepository.getAll(krav.gjennomforing.id).associateBy { it.id }
+        val deltakere = deltakerRepository.getAll(krav.gjennomforing.id)
 
-        val deltakelser = perioder.map { (id, deltakelse) ->
-            val deltaker = deltakere.getValue(id)
+        val deltakereById = deltakere.associateBy { it.id }
+        val personerByNorskIdent: Map<NorskIdent, RefusjonKravDeltakelse.Person> = getPersoner(pdl, deltakere)
+        val perioderById = beregning.input.deltakelser.associateBy { it.deltakelseId }
+        val manedsverkById = beregning.output.deltakelser.associateBy { it.deltakelseId }
 
-            val person = RefusjonKravDeltakelse.Person(
-                norskIdent = NorskIdent("12345678910"),
-                navn = "TODO TODOESEN",
-            )
-
+        val deltakelser = perioderById.map { (id, deltakelse) ->
+            val deltaker = deltakereById.getValue(id)
+            val manedsverk = manedsverkById.getValue(id).manedsverk
+            val person = personerByNorskIdent[deltaker.norskIdent]
             RefusjonKravDeltakelse(
                 id = id,
                 perioder = deltakelse.perioder,
-                manedsverk = manedsverk.getValue(id).manedsverk,
+                manedsverk = manedsverk,
                 startDato = deltaker.startDato,
                 sluttDato = deltaker.startDato,
                 person = person,
@@ -200,6 +205,31 @@ fun toRefusjonKravOppsummering(
             ),
         )
     }
+}
+
+private suspend fun getPersoner(
+    pdl: PdlClient,
+    deltakere: List<DeltakerDto>,
+): Map<NorskIdent, RefusjonKravDeltakelse.Person> {
+    val identer = deltakere.mapNotNull { deltaker -> deltaker.norskIdent?.value?.let { PdlIdent(it) } }.toSet()
+    return pdl.hentPersonBolk(identer).fold(
+        {
+            // TODO: fail on error? log error? ignore error?
+            mapOf()
+        },
+        {
+            it.entries
+                .mapNotNull { (ident, person) ->
+                    person.navn.firstOrNull()?.let { navn ->
+                        RefusjonKravDeltakelse.Person(
+                            norskIdent = NorskIdent(ident.value),
+                            navn = "${navn.etternavn}, ${navn.fornavn}",
+                        )
+                    }
+                }
+                .associateBy { person -> person.norskIdent }
+        },
+    )
 }
 
 @Serializable

@@ -7,7 +7,10 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
+import io.ktor.http.content.*
+import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.ktor.createMockEngine
+import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 
 class PdlClientTest : FunSpec({
@@ -17,14 +20,12 @@ class PdlClientTest : FunSpec({
             tokenProvider = { "token" },
             clientEngine = createMockEngine(
                 "/graphql" to {
-                    respond(
-                        content = """
+                    respondJson(
+                        """
                             {
                                 "data": { "hentIdenter": { "identer": [] } }
                             }
                         """.trimIndent(),
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType to listOf(ContentType.Application.Json.toString())),
                     )
                 },
             ),
@@ -40,8 +41,8 @@ class PdlClientTest : FunSpec({
             tokenProvider = { "token" },
             clientEngine = createMockEngine(
                 "/graphql" to {
-                    respond(
-                        content = """
+                    respondJson(
+                        """
                             {
                                 "data": { "hentIdenter": null },
                                 "errors": [
@@ -50,8 +51,6 @@ class PdlClientTest : FunSpec({
                                 ]
                             }
                         """.trimIndent(),
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType to listOf(ContentType.Application.Json.toString())),
                     )
                 },
             ),
@@ -67,8 +66,8 @@ class PdlClientTest : FunSpec({
             tokenProvider = { "token" },
             clientEngine = createMockEngine(
                 "/graphql" to {
-                    respond(
-                        content = """
+                    respondJson(
+                        """
                             {
                                 "data": {
                                     "hentIdenter": {
@@ -94,8 +93,6 @@ class PdlClientTest : FunSpec({
                                 "errors": []
                             }
                         """.trimIndent(),
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType to listOf(ContentType.Application.Json.toString())),
                     )
                 },
             ),
@@ -131,8 +128,8 @@ class PdlClientTest : FunSpec({
             tokenProvider = { "token" },
             clientEngine = createMockEngine(
                 "/graphql" to {
-                    respond(
-                        content = """
+                    respondJson(
+                        """
                             {
                                 "data": {
                                     "hentPerson": {
@@ -147,8 +144,6 @@ class PdlClientTest : FunSpec({
                                 }
                             }
                         """.trimIndent(),
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType to listOf(ContentType.Application.Json.toString())),
                     )
                 },
             ),
@@ -164,8 +159,8 @@ class PdlClientTest : FunSpec({
             tokenProvider = { "token" },
             clientEngine = createMockEngine(
                 "/graphql" to {
-                    respond(
-                        content = """
+                    respondJson(
+                        """
                             {
                                 "data": {
                                     "hentGeografiskTilknytning":{
@@ -177,8 +172,6 @@ class PdlClientTest : FunSpec({
                                 }
                             }
                         """.trimIndent(),
-                        status = HttpStatusCode.OK,
-                        headers = headersOf(HttpHeaders.ContentType to listOf(ContentType.Application.Json.toString())),
                     )
                 },
             ),
@@ -187,5 +180,69 @@ class PdlClientTest : FunSpec({
         val geografiskTilknytning =
             pdlClient.hentGeografiskTilknytning(PdlIdent("12345678910"), AccessType.M2M).shouldBeRight()
         geografiskTilknytning shouldBe GeografiskTilknytning.GtBydel(value = "030102")
+    }
+
+    test("happy case hentPersonBolk") {
+        val identer = setOf(PdlIdent("12345678910"), PdlIdent("12345678911"), PdlIdent("test"))
+
+        val pdlClient = PdlClient(
+            baseUrl = "https://pdl.no",
+            tokenProvider = { "token" },
+            clientEngine = createMockEngine(
+                "/graphql" to {
+
+                    val body = Json.decodeFromString<GraphqlRequest<GraphqlRequest.Identer>>(
+                        (it.body as TextContent).text,
+                    )
+                    body.variables.identer shouldBe identer
+
+                    respondJson(
+                        """
+                            {
+                                "data": {
+                                    "hentPersonBolk": [
+                                        {
+                                            "ident": "12345678910",
+                                            "person": {
+                                                 "navn": [
+                                                     {
+                                                         "fornavn": "Ola",
+                                                         "mellomnavn": null,
+                                                         "etternavn": "Normann"
+                                                     }
+                                                 ]
+                                            },
+                                            "code": "ok"
+                                        },
+                                        {
+                                            "ident": "12345678911",
+                                            "person": null,
+                                            "code": "not_found"
+                                        },
+                                        {
+                                            "ident": "test",
+                                            "person": null,
+                                            "code": "bad_request"
+                                        }
+                                    ]
+                                }
+                            }
+                        """.trimIndent(),
+                    )
+                },
+            ),
+        )
+
+        val response = pdlClient.hentPersonBolk(identer).shouldBeRight()
+        response shouldBe mapOf(
+            PdlIdent("12345678910") to PdlPerson(
+                navn = listOf(
+                    PdlPerson.PdlNavn(
+                        fornavn = "Ola",
+                        etternavn = "Normann",
+                    ),
+                ),
+            ),
+        )
     }
 })
