@@ -282,7 +282,7 @@ class AvtaleValidatorTest : FunSpec({
 
     test("amoKategorisering er påkrevd hvis gruppe amo") {
         val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
-        val gruppeAmo = AvtaleFixtures.gruppeAmo.copy()
+        val gruppeAmo = AvtaleFixtures.gruppeAmo.copy(amoKategorisering = null)
         validator.validate(gruppeAmo, null).shouldBeLeft(
             listOf(ValidationError("amoKategorisering.kurstype", "Du må velge en kurstype")),
         )
