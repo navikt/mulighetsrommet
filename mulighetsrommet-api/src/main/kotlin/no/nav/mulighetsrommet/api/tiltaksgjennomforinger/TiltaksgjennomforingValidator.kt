@@ -145,8 +145,8 @@ class TiltaksgjennomforingValidator(
             if (avtale.tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING) {
                 if (avtale.amoKategorisering == null) {
                     add(
-                        ValidationError.of(
-                            AvtaleDto::amoKategorisering,
+                        ValidationError(
+                            "avtale.amoKategorisering",
                             "Du må velge en kurstype for avtalen",
                         ),
                     )
