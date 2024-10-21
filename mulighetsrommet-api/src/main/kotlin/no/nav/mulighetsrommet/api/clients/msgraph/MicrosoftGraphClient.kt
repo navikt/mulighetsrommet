@@ -109,12 +109,12 @@ class MicrosoftGraphClient(
         }
     }
 
-    suspend fun getNavAnsattSok(nameQuery: String, accessType: AccessType): List<AzureAdNavAnsatt> {
+    suspend fun getNavAnsattSok(nameQuery: String): List<AzureAdNavAnsatt> {
         if (nameQuery.isBlank()) {
             return emptyList()
         }
         val response = client.get("$baseUrl/v1.0/users") {
-            bearerAuth(tokenProvider.exchange(accessType))
+            bearerAuth(tokenProvider.exchange(AccessType.M2M))
             parameter("\$search", "\"displayName:$nameQuery\"")
             parameter("\$orderBy", "displayName")
             parameter("\$select", azureAdNavAnsattFields)

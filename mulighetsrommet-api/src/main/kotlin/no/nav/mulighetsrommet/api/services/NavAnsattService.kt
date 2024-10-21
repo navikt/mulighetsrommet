@@ -57,8 +57,8 @@ class NavAnsattService(
         microsoftGraphClient.addToGroup(ansatt.azureId, kontaktPersonGruppeId)
     }
 
-    suspend fun getNavAnsattFromAzureSok(query: String, accessType: AccessType): List<NavAnsattDto> {
-        return microsoftGraphClient.getNavAnsattSok(query, accessType)
+    suspend fun getNavAnsattFromAzureSok(query: String): List<NavAnsattDto> {
+        return microsoftGraphClient.getNavAnsattSok(query)
             .map { NavAnsattDto.fromAzureAdNavAnsatt(it, emptySet()) }
     }
 

@@ -24,9 +24,8 @@ fun Route.navAnsattRoutes() {
 
         get("/sok") {
             val q: String by call.request.queryParameters
-            val obo = AccessType.OBO(call.getAccessToken())
 
-            val ansatte = ansattService.getNavAnsattFromAzureSok(query = q, obo)
+            val ansatte = ansattService.getNavAnsattFromAzureSok(query = q)
             call.respond(ansatte)
         }
 
