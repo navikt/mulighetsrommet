@@ -1,7 +1,7 @@
 import { RefusjonKravAft, RefusjonskravStatus } from "@mr/api-client";
-import { Tag } from "@navikt/ds-react";
+import { Alert, Table, Tag } from "@navikt/ds-react";
 import { Link } from "@remix-run/react";
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 import { formaterDato } from "~/utils";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
 
@@ -9,60 +9,70 @@ interface Props {
   krav: RefusjonKravAft[];
 }
 
-const TableTitle = ({ children, className }: { children: ReactNode; className?: string }) => {
-  return <div className={"font-bold " + className}>{children}</div>;
-};
-
 export function RefusjonskravTable({ krav }: Props) {
+  if (krav.length === 0) {
+    return (
+      <Alert className="my-10" variant="info">
+        Det finnes ingen refusjonskrav her
+      </Alert>
+    );
+  }
+
   return (
     <>
-      <div className="border-spacing-y-6 border-collapsed mt-4">
-        <div>
-          <div className="grid grid-cols-12 w-full gap-4">
-            <TableTitle className={"col-span-3"}>Periode</TableTitle>
-            <TableTitle className={"col-span-2"}>Månedsverk</TableTitle>
-            <TableTitle className={"col-span-2"}>Beløp</TableTitle>
-            <TableTitle className={"col-span-2"}>Frist for godkjenning</TableTitle>
-            <TableTitle>Status</TableTitle>
-            <div></div>
-          </div>
-        </div>
-        <div>
+      <Table aria-label="Refusjonskrav">
+        <Table.Header>
+          <Table.Row>
+            <Table.HeaderCell scope="col">Periode</Table.HeaderCell>
+            <Table.HeaderCell scope="col">Månedsverk</Table.HeaderCell>
+            <Table.HeaderCell scope="col">Beløp</Table.HeaderCell>
+            <Table.HeaderCell scope="col">Frist for godkjenning</Table.HeaderCell>
+            <Table.HeaderCell scope="col">Status</Table.HeaderCell>
+            <Table.HeaderCell scope="col"></Table.HeaderCell>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
           {krav.map(
-            ({ id, status, fristForGodkjenning, beregning, gjennomforing, tiltakstype }) => {
+            ({ id, status, fristForGodkjenning, beregning, gjennomforing, tiltakstype }, index) => {
               return (
-                <div
-                  className={
-                    getRowStyle(status) + "grid grid-cols-12 gap-4 border border-[#122B4414] my-4"
-                  }
-                  key={id}
-                >
-                  <div className={"col-span-12 bg-[#122B4414] p-1"}>
-                    {tiltakstype.navn} - {gjennomforing.navn}
-                  </div>
-                  <div className={"grid grid-cols-12 col-span-12 p-2"}>
-                    <div className={"col-span-3"}>
+                <React.Fragment key={id}>
+                  <Table.Row id={`row${index + 1}-header`}>
+                    <Table.HeaderCell
+                      className="w-full bg-bg-subtle"
+                      colSpan={6}
+                      scope="rowgroup"
+                      aria-label={`${tiltakstype.navn} - ${gjennomforing.navn}`}
+                    >
+                      {tiltakstype.navn} - {gjennomforing.navn}
+                    </Table.HeaderCell>
+                  </Table.Row>
+                  <Table.Row
+                    aria-labelledby={`row${index + 1}-header`}
+                    className={getRowStyle(status) + " pb-10"}
+                  >
+                    <Table.DataCell>
                       {`${formaterDato(beregning.periodeStart)} - ${formaterDato(beregning.periodeSlutt)}`}
-                    </div>
-                    <div className="col-span-2">{beregning.antallManedsverk}</div>
-                    <div className="col-span-2">{formaterTall(beregning.belop)} NOK</div>
-                    <div className="col-span-2">{formaterDato(fristForGodkjenning)}</div>
-                    <div className="col-span-2">{statusTilTag(status)}</div>
-                    <div className="col-span-1">
+                    </Table.DataCell>
+                    <Table.DataCell>{beregning.antallManedsverk}</Table.DataCell>
+                    <Table.DataCell>{formaterTall(beregning.belop)} NOK</Table.DataCell>
+                    <Table.DataCell>{formaterDato(fristForGodkjenning)}</Table.DataCell>
+                    <Table.DataCell>{statusTilTag(status)}</Table.DataCell>
+                    <Table.DataCell>
                       <Link
                         className="hover:underline font-bold no-underline"
                         to={`for-du-begynner/${id}`}
                       >
                         Detaljer
                       </Link>
-                    </div>
-                  </div>
-                </div>
+                    </Table.DataCell>
+                  </Table.Row>
+                  <div className="not-sr-only mb-5 opacity-0 aria-hidden"></div>
+                </React.Fragment>
               );
             },
           )}
-        </div>
-      </div>
+        </Table.Body>
+      </Table>
     </>
   );
 }
