@@ -7,7 +7,7 @@ kotest = "5.9.1"
 kotest-testcontainers = "2.0.2"
 kotlin = "2.0.21"
 ktor = "2.3.12"
-logback = "1.5.10"
+logback = "1.5.11"
 metrics = "4.2.28"
 arrow = "1.2.4"
 
@@ -35,7 +35,7 @@ arrow-core-serialization = { module = "io.arrow-kt:arrow-core-serialization", ve
 assertj-db = "org.assertj:assertj-db:2.0.2"
 
 caffeine = "com.github.ben-manes.caffeine:caffeine:3.1.8"
-pdfgen-core = "no.nav.pdfgen:pdfgen-core:1.1.30"
+pdfgen-core = "no.nav.pdfgen:pdfgen-core:1.1.32"
 verapdf = "org.verapdf:validation-model:1.26.1"
 handlebars = "com.github.jknack:handlebars:4.4.0"
 
@@ -102,7 +102,7 @@ logback-logstashLogbackEncoder = "net.logstash.logback:logstash-logback-encoder:
 metrics-core = { module = "io.dropwizard.metrics:metrics-core", version.ref = "metrics" }
 metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", version.ref = "metrics" }
 
-micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.13.5"
+micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.13.6"
 
 mockk = "io.mockk:mockk:1.13.13"
 
