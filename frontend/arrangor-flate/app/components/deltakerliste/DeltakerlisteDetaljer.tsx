@@ -3,13 +3,15 @@ import { Definisjonsliste } from "../Definisjonsliste";
 
 interface Props {
   krav: Refusjonskrav;
+  className?: string;
 }
 
-export function DeltakerlisteDetaljer({ krav }: Props) {
+export function DeltakerlisteDetaljer({ className, krav }: Props) {
   const { tiltaksnavn, tiltakstype, refusjonskravperiode } = krav.detaljer;
 
   return (
     <Definisjonsliste
+      className={className}
       title="Generelt"
       definitions={[
         { key: "Tiltaksnavn", value: tiltaksnavn },

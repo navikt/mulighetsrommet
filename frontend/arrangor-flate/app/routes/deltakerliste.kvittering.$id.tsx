@@ -60,7 +60,7 @@ export default function RefusjonskravKvittering() {
         </a>
       </div>
       <Separator />
-      <VStack gap="5" className="mt-5">
+      <VStack gap="5" className="max-w-[50%] mt-5">
         <DeltakerlisteDetaljer krav={krav} />
         <Separator />
         <RefusjonTilsagnsDetaljer tilsagnsDetaljer={tilsagnDetaljer} />
