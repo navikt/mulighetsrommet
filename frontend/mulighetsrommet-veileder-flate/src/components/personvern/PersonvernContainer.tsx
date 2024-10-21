@@ -61,7 +61,7 @@ export function PersonvernContainer({ tiltak }: Props) {
         </ModalHeader>
         <ModalBody>
           <BodyLong spacing className={styles.lesebredde}>
-            NAV har avtalt med tiltaksarrangøren at følgende opplysninger kan behandles om deltakere
+            Nav har avtalt med tiltaksarrangøren at følgende opplysninger kan behandles om deltakere
             i tiltaket. Dersom du mener det er behov for å utveksle andre typer opplysninger om
             deltaker, må du ta kontakt med avtaleeier i tiltaksenheten/fylket.
           </BodyLong>

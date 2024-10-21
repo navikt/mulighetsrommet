@@ -140,7 +140,7 @@ export const faneinnhold = defineType({
     defineField({
       name: "lenker",
       title: "Lenker",
-      description: "Legg til lenker som blir synlig for NAV-ansatte",
+      description: "Legg til lenker som blir synlig for Nav-ansatte",
       type: "array",
       of: [{ type: "lenke" }],
     }),

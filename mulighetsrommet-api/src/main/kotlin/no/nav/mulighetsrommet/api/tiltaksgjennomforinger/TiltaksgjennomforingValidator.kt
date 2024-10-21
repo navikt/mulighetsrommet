@@ -108,14 +108,14 @@ class TiltaksgjennomforingValidator(
             }
 
             if (next.navEnheter.isEmpty()) {
-                add(ValidationError.of(TiltaksgjennomforingDbo::navEnheter, "Du må velge minst ett NAV-kontor"))
+                add(ValidationError.of(TiltaksgjennomforingDbo::navEnheter, "Du må velge minst ett Nav-kontor"))
             }
 
             if (!avtale.kontorstruktur.any { it.region.enhetsnummer == next.navRegion }) {
                 add(
                     ValidationError.of(
                         TiltaksgjennomforingDbo::navEnheter,
-                        "NAV-region ${next.navRegion} mangler i avtalen",
+                        "Nav-region ${next.navRegion} mangler i avtalen",
                     ),
                 )
             }
@@ -126,7 +126,7 @@ class TiltaksgjennomforingValidator(
                     add(
                         ValidationError.of(
                             TiltaksgjennomforingDbo::navEnheter,
-                            "NAV-enhet $enhetsnummer mangler i avtalen",
+                            "Nav-enhet $enhetsnummer mangler i avtalen",
                         ),
                     )
                 }

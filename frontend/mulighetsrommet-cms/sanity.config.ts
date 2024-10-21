@@ -68,7 +68,7 @@ const createCommonConfig = (dataset: "production" | "test", basePath: string) =>
       // https://www.sanity.io/docs/migrating-custom-auth-providers#67b857c108e4
       {
         name: "saml",
-        title: "NAV SSO",
+        title: "Nav SSO",
         url: "https://api.sanity.io/v2021-10-01/auth/saml/login/f3270b37",
         logo: "/static/navlogo.svg",
       },

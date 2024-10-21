@@ -1,7 +1,7 @@
 # `mulighetsrommet-api`
 
 <p>
-Et API med endepunkter for å hente ut informasjon om forskjellige tiltak NAV kan tilby brukere.
+Et API med endepunkter for å hente ut informasjon om forskjellige tiltak Nav kan tilby brukere.
 </p>
 
 # Innhold

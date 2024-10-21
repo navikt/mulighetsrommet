@@ -485,7 +485,7 @@ export const mockOppskrifter: { data: Oppskrift[] } = {
                   _key: "e46486308c7b0",
                   _type: "span",
                   marks: [],
-                  text: "For disse tiltakene har NAV Tiltak gjort den første registreringsjobben. Din oppgave er å søke inn på tiltaket og legge inn en begrunnelse. Du kan finne mer Informasjon om de enkelte tiltakene på tiltakslenkene over.",
+                  text: "For disse tiltakene har Nav Tiltak gjort den første registreringsjobben. Din oppgave er å søke inn på tiltaket og legge inn en begrunnelse. Du kan finne mer Informasjon om de enkelte tiltakene på tiltakslenkene over.",
                 },
               ],
               _type: "block",
@@ -547,7 +547,7 @@ export const mockOppskrifter: { data: Oppskrift[] } = {
           _type: "steg",
         },
         {
-          navn: "Hvis du tilhører NAV Rogaland",
+          navn: "Hvis du tilhører Nav Rogaland",
           innhold: [
             {
               style: "normal",
@@ -573,7 +573,7 @@ export const mockOppskrifter: { data: Oppskrift[] } = {
                     {
                       _type: "span",
                       marks: [],
-                      text: "Hvis du tilhører NAV Rogaland så må du lese det viktige under her...",
+                      text: "Hvis du tilhører Nav Rogaland så må du lese det viktige under her...",
                       _key: "1ad0b6b9ed60",
                     },
                   ],
@@ -589,7 +589,7 @@ export const mockOppskrifter: { data: Oppskrift[] } = {
                 {
                   _type: "span",
                   marks: [],
-                  text: "Vi i Rogaland gjør ting på en litt annen måte. Dere må blant annet sende sak til NAV Tiltak Rogaland etter registrering.",
+                  text: "Vi i Rogaland gjør ting på en litt annen måte. Dere må blant annet sende sak til Nav Tiltak Rogaland etter registrering.",
                   _key: "47e1f88f2d09",
                 },
               ],
@@ -1026,7 +1026,7 @@ export const mockOppskrifter: { data: Oppskrift[] } = {
                 {
                   _type: "span",
                   marks: [],
-                  text: "For disse tiltakene har NAV Tiltak gjort den første registreringsjobben. Din oppgave er å søke inn på tiltaket og legge inn en begrunnelse. Du kan finne mer Informasjon om de enkelte tiltakene på tiltakslenkene over.",
+                  text: "For disse tiltakene har Nav Tiltak gjort den første registreringsjobben. Din oppgave er å søke inn på tiltaket og legge inn en begrunnelse. Du kan finne mer Informasjon om de enkelte tiltakene på tiltakslenkene over.",
                   _key: "36b515ff4c580",
                 },
               ],
@@ -1635,7 +1635,7 @@ export const mockOppskrifter: { data: Oppskrift[] } = {
               children: [
                 {
                   marks: [],
-                  text: "Gå til fanen Bestilling. Skriv en konkret og gjennomtenkt bestilling til tiltaksarrangøren. Bestillingen er tiltaksarrangørens utgangspunkt når de skal vurdere hvilke aktiviteter de skal gjøre i tiltaket for å løse bestillingen fra NAV.",
+                  text: "Gå til fanen Bestilling. Skriv en konkret og gjennomtenkt bestilling til tiltaksarrangøren. Bestillingen er tiltaksarrangørens utgangspunkt når de skal vurdere hvilke aktiviteter de skal gjøre i tiltaket for å løse bestillingen fra Nav.",
                   _key: "1d5051fc12a00",
                   _type: "span",
                 },
@@ -2012,7 +2012,7 @@ export const mockOppskrifter: { data: Oppskrift[] } = {
                   children: [
                     {
                       marks: [],
-                      text: "Dersom deltakeren ikke har 14a-vedtak, er dette den eneste måten tiltaksarrangøren får beskjed om hvem som er NAV-veileder.",
+                      text: "Dersom deltakeren ikke har 14a-vedtak, er dette den eneste måten tiltaksarrangøren får beskjed om hvem som er Nav-veileder.",
                       _key: "57cf99ff64ed",
                       _type: "span",
                     },
@@ -2311,7 +2311,7 @@ export const mockOppskrifter: { data: Oppskrift[] } = {
             {
               children: [
                 {
-                  text: "Ikke send flere personopplysninger til tiltaksarrangøren enn det som er nødvendig. Det skal vurderes strengt hvilke personopplysninger tiltaksarrangøren må få fra NAV for å kunne utføre oppdraget sitt.",
+                  text: "Ikke send flere personopplysninger til tiltaksarrangøren enn det som er nødvendig. Det skal vurderes strengt hvilke personopplysninger tiltaksarrangøren må få fra Nav for å kunne utføre oppdraget sitt.",
                   _key: "feaf16b4b6b00",
                   _type: "span",
                   marks: [],
@@ -2372,7 +2372,7 @@ export const mockOppskrifter: { data: Oppskrift[] } = {
               children: [
                 {
                   marks: [],
-                  text: "Tiltaksarrangørene kan ikke innhente dokumentasjon fra for eksempel leger eller andre behandlere. Tiltaksarrangørene kan heller ikke kreve at NAV sender tilleggsinformasjon. Det er NAV som avgjør hvilke personopplysninger som er relevante og nødvendige for gjennomføringen.",
+                  text: "Tiltaksarrangørene kan ikke innhente dokumentasjon fra for eksempel leger eller andre behandlere. Tiltaksarrangørene kan heller ikke kreve at Nav sender tilleggsinformasjon. Det er Nav som avgjør hvilke personopplysninger som er relevante og nødvendige for gjennomføringen.",
                   _key: "641556c4cca00",
                   _type: "span",
                 },
@@ -3160,7 +3160,7 @@ export const mockOppskrifter: { data: Oppskrift[] } = {
                       _key: "62bb0292f98a0",
                       _type: "span",
                       marks: [],
-                      text: "Til- og fra-datoene legges inn når NAV Tiltak har mottatt oppstartsdato fra tiltaksarrangøren. Status vil omgjøres til Gjennomføres i den aktive tiltaksperioden.",
+                      text: "Til- og fra-datoene legges inn når Nav Tiltak har mottatt oppstartsdato fra tiltaksarrangøren. Status vil omgjøres til Gjennomføres i den aktive tiltaksperioden.",
                     },
                   ],
                   _type: "block",

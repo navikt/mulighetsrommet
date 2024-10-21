@@ -221,7 +221,7 @@ export const tiltakAmoGruppe: VeilederflateTiltakGruppe = {
         markDefs: [{ _type: "link", _key: "nav.no", href: "https://nav.no" }],
         children: [
           { _type: "span", text: "Du kan lese mer om tiltaket på " },
-          { _type: "span", text: "NAV.no ", marks: ["nav.no"] },
+          { _type: "span", text: "Nav.no ", marks: ["nav.no"] },
         ],
       },
     ],
@@ -242,7 +242,7 @@ export const tiltakAmoGruppe: VeilederflateTiltakGruppe = {
         style: "normal",
         children: [
           {
-            text: "Ta kontakt med NAV-kontoret der du bor. NAV vurderer sammen med deg om du har behov for tiltaket. NAV avgjør om du får tilbudet.",
+            text: "Ta kontakt med Nav-kontoret der du bor. Nav vurderer sammen med deg om du har behov for tiltaket. Nav avgjør om du får tilbudet.",
             _type: "span",
           },
         ],
@@ -335,7 +335,7 @@ export const tiltakVta: VeilederflateTiltakGruppe = {
         style: "normal",
         children: [
           {
-            text: "Ta kontakt med NAV-kontoret der du bor. NAV vurderer sammen med deg om du har behov for tiltaket. NAV avgjør om du får tilbudet.",
+            text: "Ta kontakt med Nav-kontoret der du bor. Nav vurderer sammen med deg om du har behov for tiltaket. Nav avgjør om du får tilbudet.",
             _type: "span",
           },
         ],

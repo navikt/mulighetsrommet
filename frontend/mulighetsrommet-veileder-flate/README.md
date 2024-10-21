@@ -1,13 +1,13 @@
 # Arbeidsmarkedstiltak (veileder-flate)
 
-Visning av arbeidsmarkedstiltak til veiledere og NAV-ansatte. Applikasjonen bygges og distribueres i flere varianter
+Visning av arbeidsmarkedstiltak til veiledere og Nav-ansatte. Applikasjonen bygges og distribueres i flere varianter
 avhengig av bruksområde.
 
 **MODIA**
 
 - En variant rettet mot veiledere ved arbeidsrettet oppfølging.
     - Kjører med en bruker (borger) i kontekst og inkluderer en del funksjoner rettet mot samhandling mellom
-      NAV-veileder og bruker.
+      Nav-veileder og bruker.
     - Lar deg finne relevante arbeidsmarkedstiltak for bruker i kontekst.
     - Gir deg oversikt over brukers tiltakshistorikk og integrerer med påmeldingsløsning for grintegrerer med
       påmeldingsløsning for gruppetiltak.
@@ -16,8 +16,8 @@ avhengig av bruksområde.
 
 **NAV**
 
-- En variant som er tilgjengelig for alle NAV-ansatte.
-    - Gir deg en oversikt over arbeidsmarkedstiltak i NAV.
+- En variant som er tilgjengelig for alle Nav-ansatte.
+    - Gir deg en oversikt over arbeidsmarkedstiltak i Nav.
 - Inneholder også en modus for forhåndsvisning av redaksjonelt innhold.
     - Tilgjengelig for administratorer/redaktører innen tiltaksadministrasjon.
     - Inkluderer noen mock-varianter av funksjoner som ellers kun er tilgjenglige for veiledere (via `MODIA`-varianten)
@@ -32,7 +32,7 @@ avhengig av bruksområde.
 Som standard vil `LOKAL`-appen startes lokalt. Om ønskelig kan dette overstyres via miljøvariabelen `APP` i `.env`:
 
 ```.env
-APP=LOKAL # Eller MODIA, NAV
+APP=LOKAL # Eller MODIA, Nav
 ```
 
 ### Installere avhengigheter
@@ -88,6 +88,6 @@ turbo run playwright:open
 
 Ved merge til main-branch deployes appen til dev og prod.
 
-- `MODIA`-varianten lastes opp til NAV CDN og importeres direkte
+- `MODIA`-varianten lastes opp til Nav CDN og importeres direkte
   i [veilarbpersonflate](https://github.com/navikt/veilarbpersonflatefs).
 - `NAV`-varianten hostes via egen instans av [POAO-frontend](https://github.com/navikt/poao-frontend).

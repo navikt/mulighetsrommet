@@ -44,7 +44,7 @@ class OpsjonLoggValidatorTest : FunSpec({
         startDato = LocalDate.of(2024, 7, 5),
         sluttDato = LocalDate.of(2024, 7, 5).plusYears(2),
         arenaAnsvarligEnhet = ArenaNavEnhet(
-            navn = "NAV Oslo",
+            navn = "Nav Oslo",
             enhetsnummer = "0100",
         ),
         avtaletype = Avtaletype.Avtale,
