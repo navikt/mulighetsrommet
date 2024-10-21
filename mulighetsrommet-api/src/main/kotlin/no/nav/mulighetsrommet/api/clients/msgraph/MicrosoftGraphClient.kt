@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api.clients.msgraph
 
+import arrow.core.Either
+import arrow.core.getOrElse
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.call.*
@@ -82,7 +84,7 @@ class MicrosoftGraphClient(
 
             val user = response.body<MsGraphUserDto>()
 
-            toNavAnsatt(user) ?: throw Exception("Ansatt med azureId ${user.id} manglet required felter")
+            toNavAnsatt(user).getOrElse { throw it }
         }
     }
 
@@ -104,7 +106,7 @@ class MicrosoftGraphClient(
                 .value
                 .firstOrNull()
                 ?.let {
-                    toNavAnsatt(it)
+                    toNavAnsatt(it).getOrElse { ex -> throw ex }
                 }
         }
     }
@@ -128,7 +130,8 @@ class MicrosoftGraphClient(
 
         return response.body<GetUserSearchResponse>()
             .value
-            .mapNotNull { toNavAnsatt(it) }
+            // Her returneres mye rart (f. eks ikke personer) så vi filtrerer vekk de som mangler required felter
+            .mapNotNull { toNavAnsatt(it).getOrNull() }
     }
 
     suspend fun getMemberGroups(navAnsattAzureId: UUID, accessType: AccessType): List<AdGruppe> {
@@ -167,7 +170,7 @@ class MicrosoftGraphClient(
 
         return result.value
             .filter { isNavAnsatt(it) }
-            .map { toNavAnsatt(it) ?: throw Exception("Ansatt med azureId ${it.id} manglet required felter") }
+            .map { toNavAnsatt(it).getOrElse { ex -> throw ex } }
     }
 
     suspend fun addToGroup(objectId: UUID, groupId: UUID) {
@@ -187,42 +190,43 @@ class MicrosoftGraphClient(
      */
     private fun isNavAnsatt(it: MsGraphUserDto) = it.onPremisesSamAccountName != null
 
-    private fun toNavAnsatt(user: MsGraphUserDto) = when {
-        user.onPremisesSamAccountName == null -> {
-            log.warn("NAVident mangler for bruker med id=${user.id}")
-            null
-        }
-        user.streetAddress == null -> {
-            log.warn("NAV Enhetskode mangler for bruker med id=${user.id}")
-            null
-        }
-        user.city == null -> {
-            log.warn("NAV Enhetsnavn mangler for bruker med id=${user.id}")
-            null
-        }
-        user.givenName == null -> {
-            log.warn("Fornavn på ansatt mangler for bruker med id=${user.id}")
-            null
-        }
-        user.surname == null -> {
-            log.warn("Etternavn på ansatt mangler for bruker med id=${user.id}")
-            null
-        }
-        user.mail == null -> {
-            log.warn("Epost på ansatt mangler for bruker med id=${user.id}")
-            null
-        }
+    private fun toNavAnsatt(user: MsGraphUserDto): Either<Throwable, AzureAdNavAnsatt> = Either.catch {
+        when {
+            user.onPremisesSamAccountName == null -> {
+                throw IllegalArgumentException("NAVident mangler for bruker med id=${user.id}")
+            }
 
-        else -> AzureAdNavAnsatt(
-            azureId = user.id,
-            navIdent = NavIdent(user.onPremisesSamAccountName),
-            fornavn = user.givenName,
-            etternavn = user.surname,
-            hovedenhetKode = user.streetAddress,
-            hovedenhetNavn = user.city,
-            mobilnummer = user.mobilePhone,
-            epost = user.mail,
-        )
+            user.streetAddress == null -> {
+                throw IllegalArgumentException("NAV Enhetskode mangler for bruker med id=${user.id}")
+            }
+
+            user.city == null -> {
+                throw IllegalArgumentException("NAV Enhetsnavn mangler for bruker med id=${user.id}")
+            }
+
+            user.givenName == null -> {
+                throw IllegalArgumentException("Fornavn på ansatt mangler for bruker med id=${user.id}")
+            }
+
+            user.surname == null -> {
+                throw IllegalArgumentException("Etternavn på ansatt mangler for bruker med id=${user.id}")
+            }
+
+            user.mail == null -> {
+                throw IllegalArgumentException("Epost på ansatt mangler for bruker med id=${user.id}")
+            }
+
+            else -> AzureAdNavAnsatt(
+                azureId = user.id,
+                navIdent = NavIdent(user.onPremisesSamAccountName),
+                fornavn = user.givenName,
+                etternavn = user.surname,
+                hovedenhetKode = user.streetAddress,
+                hovedenhetNavn = user.city,
+                mobilnummer = user.mobilePhone,
+                epost = user.mail,
+            )
+        }
     }
 }
 
