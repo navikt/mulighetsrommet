@@ -81,6 +81,9 @@ app:
       # 0000-AZ-TILTAK-okonomi_beslutter
       - adGruppeId: b00ba197-c90a-4ff9-966e-6c9cf1c882bf
         rolle: OKONOMI_BESLUTTER
+      # (GRP) mr-nav_kontaktperson
+      - adGruppeId: 0fdd133a-f47f-4b95-9a5e-f3a5ec87a472
+        rolle: KONTAKTPERSON
     tokenx:
       issuer: http://localhost:8081/tokenx
       jwksUri: http://localhost:8081/tokenx/jwks

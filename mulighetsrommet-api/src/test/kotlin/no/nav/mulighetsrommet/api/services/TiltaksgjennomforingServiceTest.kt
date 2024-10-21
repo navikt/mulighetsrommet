@@ -42,6 +42,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
     val tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer = mockk(relaxed = true)
     val tiltakstypeService: TiltakstypeService = mockk(relaxed = true)
+    val navAnsattService: NavAnsattService = mockk(relaxed = true)
     val tilsagnRepository: TilsagnRepository = mockk(relaxed = true)
     val validator = mockk<TiltaksgjennomforingValidator>()
     val avtaleId = AvtaleFixtures.oppfolging.id
@@ -75,6 +76,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             validator,
             EndringshistorikkService(database.db),
             tiltakstypeService,
+            navAnsattService,
             database.db,
         )
 
@@ -154,6 +156,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             validator,
             EndringshistorikkService(database.db),
             tiltakstypeService,
+            navAnsattService,
             database.db,
         )
 
@@ -185,6 +188,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             validator,
             EndringshistorikkService(database.db),
             tiltakstypeService,
+            navAnsattService,
             database.db,
         )
         val navAnsattRepository = NavAnsattRepository(database.db)
@@ -301,6 +305,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             validator,
             EndringshistorikkService(database.db),
             tiltakstypeService,
+            navAnsattService,
             database.db,
         )
 

@@ -14,6 +14,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
+import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle.*
@@ -55,22 +56,22 @@ class NavAnsattServiceTest : FunSpec({
     )
     val kontaktperson = AdGruppeNavAnsattRolleMapping(adGruppeId = UUID.randomUUID(), rolle = KONTAKTPERSON)
 
-    val msGraph = mockk<MicrosoftGraphService>()
-    coEvery { msGraph.getNavAnsatteInGroup(tiltaksadministrasjon.adGruppeId) } returns listOf(ansatt1, ansatt2)
-    coEvery { msGraph.getNavAnsatteInGroup(kontaktperson.adGruppeId) } returns listOf(ansatt2)
+    val msGraph = mockk<MicrosoftGraphClient>()
+    coEvery { msGraph.getGroupMembers(tiltaksadministrasjon.adGruppeId) } returns listOf(ansatt1, ansatt2)
+    coEvery { msGraph.getGroupMembers(kontaktperson.adGruppeId) } returns listOf(ansatt2)
 
     context("getNavAnsattFromAzure") {
         test("should get NavAnsatt with roles filtered by the configured roles") {
             val service = NavAnsattService(
                 roles = listOf(tiltaksadministrasjon),
-                microsoftGraphService = msGraph,
+                microsoftGraphClient = msGraph,
                 navAnsattRepository = NavAnsattRepository(database.db),
             )
 
             val azureId = UUID.randomUUID()
 
             coEvery { msGraph.getNavAnsatt(azureId, AccessType.M2M) } returns ansatt1
-            coEvery { msGraph.getNavAnsattAdGrupper(azureId, AccessType.M2M) } returns listOf(
+            coEvery { msGraph.getMemberGroups(azureId, AccessType.M2M) } returns listOf(
                 AdGruppe(id = tiltaksadministrasjon.adGruppeId, navn = "Tiltaksadministrasjon generell"),
                 AdGruppe(
                     id = UUID.randomUUID(),
@@ -78,7 +79,7 @@ class NavAnsattServiceTest : FunSpec({
                 ),
             )
 
-            service.getNavAnsattFromAzure(azureId) shouldBe NavAnsattDto.fromAzureAdNavAnsatt(
+            service.getNavAnsattFromAzure(azureId, AccessType.M2M) shouldBe NavAnsattDto.fromAzureAdNavAnsatt(
                 ansatt1,
                 setOf(TILTAKADMINISTRASJON_GENERELL),
             )
@@ -87,19 +88,19 @@ class NavAnsattServiceTest : FunSpec({
         test("should fail when the requested NavAnsatt does not have any of the configured roles") {
             val service = NavAnsattService(
                 roles = listOf(kontaktperson),
-                microsoftGraphService = msGraph,
+                microsoftGraphClient = msGraph,
                 navAnsattRepository = NavAnsattRepository(database.db),
             )
 
             val azureId = UUID.randomUUID()
 
             coEvery { msGraph.getNavAnsatt(azureId, AccessType.M2M) } returns ansatt1
-            coEvery { msGraph.getNavAnsattAdGrupper(azureId, AccessType.M2M) } returns listOf(
+            coEvery { msGraph.getMemberGroups(azureId, AccessType.M2M) } returns listOf(
                 AdGruppe(id = tiltaksadministrasjon.adGruppeId, navn = "Tiltaksadministrasjon generell"),
             )
 
             shouldThrow<IllegalStateException> {
-                service.getNavAnsattFromAzure(azureId)
+                service.getNavAnsattFromAzure(azureId, AccessType.M2M)
             }
         }
     }
@@ -132,7 +133,7 @@ class NavAnsattServiceTest : FunSpec({
                 runBlocking {
                     val service = NavAnsattService(
                         roles = roles,
-                        microsoftGraphService = msGraph,
+                        microsoftGraphClient = msGraph,
                         navAnsattRepository = NavAnsattRepository(database.db),
                     )
 
@@ -149,11 +150,11 @@ class NavAnsattServiceTest : FunSpec({
                 AdGruppeNavAnsattRolleMapping(adGruppeId = id, rolle = TILTAKADMINISTRASJON_GENERELL),
                 AdGruppeNavAnsattRolleMapping(adGruppeId = id, rolle = KONTAKTPERSON),
             )
-            coEvery { msGraph.getNavAnsatteInGroup(id) } returns listOf(ansatt1, ansatt2)
+            coEvery { msGraph.getGroupMembers(id) } returns listOf(ansatt1, ansatt2)
 
             val service = NavAnsattService(
                 roles = roles,
-                microsoftGraphService = msGraph,
+                microsoftGraphClient = msGraph,
                 navAnsattRepository = NavAnsattRepository(database.db),
             )
 

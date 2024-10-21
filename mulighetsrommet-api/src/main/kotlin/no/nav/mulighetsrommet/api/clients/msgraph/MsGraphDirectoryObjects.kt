@@ -29,7 +29,7 @@ internal data class MsGraphUserDto(
     /**
      * E-postadresse
      */
-    val mail: String,
+    val mail: String?,
     /**
      * NAV Enhetskode
      *

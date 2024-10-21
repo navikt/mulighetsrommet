@@ -37,6 +37,7 @@ export const QueryKeys = {
   sokSertifiseringer: (q: string) => ["sokSertifiseringer", "q", q],
   brregVirksomhetUnderenheter: (id: string) => ["virksomet", id, "underenheter"],
   navansatt: (rolle: NavAnsattRolle) => ["nav-ansatte", rolle],
+  sokNavansatt: (q: string) => ["sok-nav-ansatte", q],
   features: (feature: string) => ["feature", feature],
   migrerteTiltakstyper: () => ["migrerteTiltakstyper"],
   navRegioner: () => ["navRegioner"],
