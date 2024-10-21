@@ -152,6 +152,7 @@ private fun kafka(appConfig: AppConfig) = module {
                 config = config.consumers.amtDeltakerV1,
                 tiltakstyper = get(),
                 deltakere = get(),
+                refusjonService = get(),
             ),
             AmtVirksomheterV1KafkaConsumer(
                 config = config.consumers.amtVirksomheterV1,

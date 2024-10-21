@@ -7,6 +7,10 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
@@ -14,7 +18,10 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.api.domain.dto.DeltakerDto
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging1
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.VTA1
+import no.nav.mulighetsrommet.api.okonomi.refusjon.RefusjonService
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
@@ -33,24 +40,30 @@ import java.util.*
 class AmtDeltakerV1KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    fun createConsumer(period: Period = Period.ofDays(1)) = AmtDeltakerV1KafkaConsumer(
-        config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
-        relevantDeltakerSluttDatoPeriod = period,
-        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf()),
-        deltakere = DeltakerRepository(database.db),
-    )
+    fun createConsumer(
+        period: Period = Period.ofDays(1),
+        refusjonService: RefusjonService = mockk(),
+    ): AmtDeltakerV1KafkaConsumer {
+        return AmtDeltakerV1KafkaConsumer(
+            config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
+            relevantDeltakerSluttDatoPeriod = period,
+            tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf()),
+            deltakere = DeltakerRepository(database.db),
+            refusjonService = refusjonService,
+        )
+    }
 
     context("konsumering av deltakere") {
         val deltakere = DeltakerRepository(database.db)
 
         val amtDeltaker1 = createAmtDeltakerV1Dto(
-            gjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
+            gjennomforingId = Oppfolging1.id,
             status = DeltakerStatus.Type.VENTER_PA_OPPSTART,
             personIdent = "12345678910",
         )
 
         val amtDeltaker2 = createAmtDeltakerV1Dto(
-            gjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
+            gjennomforingId = Oppfolging1.id,
             status = DeltakerStatus.Type.VENTER_PA_OPPSTART,
             personIdent = "12345678911",
         )
@@ -70,11 +83,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         )
 
         val domain = MulighetsrommetTestDomain(
-            gjennomforinger = listOf(
-                TiltaksgjennomforingFixtures.Oppfolging1,
-                TiltaksgjennomforingFixtures.AFT1,
-                TiltaksgjennomforingFixtures.VTA1,
-            ),
+            gjennomforinger = listOf(Oppfolging1, AFT1, VTA1),
         )
 
         beforeTest {
@@ -123,19 +132,19 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             val deltakerConsumer = createConsumer()
             deltakerConsumer.consume(
                 amtDeltaker1.id,
-                Json.encodeToJsonElement(amtDeltaker1.copy(gjennomforingId = TiltaksgjennomforingFixtures.AFT1.id)),
+                Json.encodeToJsonElement(amtDeltaker1.copy(gjennomforingId = AFT1.id)),
             )
             deltakerConsumer.consume(
                 amtDeltaker2.id,
-                Json.encodeToJsonElement(amtDeltaker2.copy(gjennomforingId = TiltaksgjennomforingFixtures.VTA1.id)),
+                Json.encodeToJsonElement(amtDeltaker2.copy(gjennomforingId = VTA1.id)),
             )
 
             deltakere.getAll().shouldContainExactlyInAnyOrder(
                 deltaker1Dbo
-                    .copy(gjennomforingId = TiltaksgjennomforingFixtures.AFT1.id, stillingsprosent = 100.0)
+                    .copy(gjennomforingId = AFT1.id, stillingsprosent = 100.0)
                     .toDto(),
                 deltaker2Dbo
-                    .copy(gjennomforingId = TiltaksgjennomforingFixtures.VTA1.id, stillingsprosent = 100.0)
+                    .copy(gjennomforingId = VTA1.id, stillingsprosent = 100.0)
                     .toDto(),
             )
         }
@@ -144,26 +153,32 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
     context("deltakelser for refusjonskrav") {
         val deltakere = DeltakerRepository(database.db)
 
+        val refusjonService: RefusjonService = mockk()
+
         val amtDeltaker1 = createAmtDeltakerV1Dto(
-            gjennomforingId = TiltaksgjennomforingFixtures.AFT1.id,
+            gjennomforingId = AFT1.id,
             status = DeltakerStatus.Type.DELTAR,
             personIdent = "12345678910",
         )
 
         val domain = MulighetsrommetTestDomain(
-            gjennomforinger = listOf(TiltaksgjennomforingFixtures.AFT1),
+            gjennomforinger = listOf(AFT1),
         )
 
         beforeEach {
             domain.initialize(database.db)
+
+            every { refusjonService.recalculateRefusjonskravForGjennomforing(any()) } returns Unit
         }
 
         afterEach {
             database.db.truncateAll()
+
+            clearAllMocks()
         }
 
         test("lagrer fødselsnummer på deltakere i AFT med relevant status") {
-            val deltakerConsumer = createConsumer()
+            val deltakerConsumer = createConsumer(refusjonService = refusjonService)
 
             forAll(
                 row(DeltakerStatus.Type.VENTER_PA_OPPSTART, null),
@@ -183,7 +198,10 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         }
 
         test("lagrer ikke fødselsnummer når deltakelsen har en sluttdato før konfigurert periode") {
-            val deltakerConsumer = createConsumer(Period.ofDays(1))
+            val deltakerConsumer = createConsumer(
+                period = Period.ofDays(1),
+                refusjonService = refusjonService,
+            )
 
             forAll(
                 row(LocalDate.now().minusDays(2), null),
@@ -197,6 +215,16 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
                 deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(deltaker))
 
                 deltakere.get(deltaker.id).shouldNotBeNull().norskIdent.shouldBe(expectedNorskIdent)
+            }
+        }
+
+        test("trigger at refusjonskrav for aktell gjennomføring beregnes på nytt") {
+            val deltakerConsumer = createConsumer(refusjonService = refusjonService)
+
+            deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
+
+            verify(exactly = 1) {
+                refusjonService.recalculateRefusjonskravForGjennomforing(AFT1.id)
             }
         }
     }

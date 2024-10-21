@@ -4,6 +4,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.api.okonomi.refusjon.RefusjonService
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.domain.Tiltakskode
@@ -24,6 +25,7 @@ class AmtDeltakerV1KafkaConsumer(
     private val relevantDeltakerSluttDatoPeriod: Period = Period.ofMonths(3),
     private val tiltakstyper: TiltakstypeService,
     private val deltakere: DeltakerRepository,
+    private val refusjonService: RefusjonService,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     config,
     uuidDeserializer(),
@@ -34,27 +36,27 @@ class AmtDeltakerV1KafkaConsumer(
     override suspend fun consume(key: UUID, message: JsonElement) {
         logger.info("Konsumerer deltaker med id=$key")
 
-        val amtDeltaker = JsonIgnoreUnknownKeys.decodeFromJsonElement<AmtDeltakerV1Dto?>(message)
+        val deltaker = JsonIgnoreUnknownKeys.decodeFromJsonElement<AmtDeltakerV1Dto?>(message)
 
         when {
-            amtDeltaker == null -> {
+            deltaker == null -> {
                 logger.info("Mottok tombstone for deltaker deltakerId=$key, sletter deltakeren")
                 deltakere.delete(key)
             }
 
-            amtDeltaker.status.type == DeltakerStatus.Type.FEILREGISTRERT -> {
+            deltaker.status.type == DeltakerStatus.Type.FEILREGISTRERT -> {
                 logger.info("Sletter deltaker deltakerId=$key fordi den var feilregistrert")
                 deltakere.delete(key)
             }
 
             else -> {
                 logger.info("Lagrer deltaker deltakerId=$key")
-                deltakere.upsert(amtDeltaker.toDeltakerDbo())
+                deltakere.upsert(deltaker.toDeltakerDbo())
 
-                if (isRelevantForRefusjonskrav(amtDeltaker)) {
-                    logger.info("Lagrer norsk ident for deltaker som er relevant for refusjonskrav deltakerId=$key")
-                    val norskIdent = NorskIdent(amtDeltaker.personIdent)
-                    deltakere.setNorskIdent(amtDeltaker.id, norskIdent)
+                if (isRelevantForRefusjonskrav(deltaker)) {
+                    deltakere.setNorskIdent(deltaker.id, NorskIdent(deltaker.personIdent))
+
+                    refusjonService.recalculateRefusjonskravForGjennomforing(deltaker.gjennomforingId)
                 }
             }
         }
