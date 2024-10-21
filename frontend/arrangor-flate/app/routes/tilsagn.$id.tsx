@@ -23,7 +23,7 @@ export default function TilsagnDetaljerPage() {
   const { tilsagn } = useLoaderData<LoaderData>();
 
   return (
-    <>
+    <div className="max-w-[50%]">
       <PageHeader
         title="Detaljer for tilsagn"
         tilbakeLenke={{
@@ -39,6 +39,6 @@ export default function TilsagnDetaljerPage() {
         ]}
       />
       <TilsagnDetaljer tilsagn={tilsagn} />
-    </>
+    </div>
   );
 }
