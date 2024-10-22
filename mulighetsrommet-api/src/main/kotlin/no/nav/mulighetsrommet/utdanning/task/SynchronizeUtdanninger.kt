@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.client.UtdanningNoProgramomraade
-import no.nav.mulighetsrommet.utdanning.db.*
+import no.nav.mulighetsrommet.utdanning.db.UtdanningRepository
 import no.nav.mulighetsrommet.utdanning.model.NusKodeverk
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
@@ -87,14 +87,13 @@ private fun resolveRelevantUtdanninger(utdanninger: List<UtdanningNoProgramomraa
 
             val relevanteUtdanninger = utdanninger
                 .filter { it.nusKodeverk.isNotEmpty() }
-                .map { sanitizeUtdanning(it) }
+                .map { toUtdanning(it) }
 
             Pair(utdanningssprogrammer, relevanteUtdanninger)
         }
 }
 
 private fun toUtdanningsprogram(utdanning: UtdanningNoProgramomraade): Utdanningsprogram {
-    val navn = utdanning.navn.replace("^Vg\\d ".toRegex(), "")
     val utdanningsprogram = when (utdanning.utdanningsprogram) {
         UtdanningNoProgramomraade.Utdanningsprogram.YRKESFAGLIG -> UtdanningsprogramType.YRKESFAGLIG
         else -> throw IllegalArgumentException("Utdanningsprogram må være yrkesfaglig, '${utdanning.utdanningsprogram}' ble mottatt")
@@ -103,7 +102,7 @@ private fun toUtdanningsprogram(utdanning: UtdanningNoProgramomraade): Utdanning
     val nusKoder = utledNusKoder(utdanning.programomradekode)
 
     return Utdanningsprogram(
-        navn = navn,
+        navn = sanitizeNavn(utdanning.navn),
         nusKoder = nusKoder,
         programomradekode = utdanning.programomradekode,
         type = utdanningsprogram,
@@ -133,9 +132,9 @@ private fun utledNusKoder(programomradekode: String): List<String> {
     }
 }
 
-private fun sanitizeUtdanning(utdanning: UtdanningNoProgramomraade): Utdanning {
+private fun toUtdanning(utdanning: UtdanningNoProgramomraade): Utdanning {
     return Utdanning(
-        navn = utdanning.navn.replace(" \\(opplæring i bedrift\\)\$".toRegex(), ""),
+        navn = sanitizeNavn(utdanning.navn),
         programomradekode = utdanning.programomradekode,
         utdanningId = requireNotNull(utdanning.utdanningId) {
             "klarte ikke lese utdanningId for utdanning=$utdanning"
@@ -158,3 +157,7 @@ private fun sanitizeUtdanning(utdanning: UtdanningNoProgramomraade): Utdanning {
         nusKodeverk = utdanning.nusKodeverk.map { NusKodeverk(navn = it.navn, kode = it.kode) },
     )
 }
+
+private fun sanitizeNavn(navn: String) = navn
+    .replace("^Vg\\d ".toRegex(), "")
+    .replace(" \\(opplæring i bedrift\\)\$".toRegex(), "")
