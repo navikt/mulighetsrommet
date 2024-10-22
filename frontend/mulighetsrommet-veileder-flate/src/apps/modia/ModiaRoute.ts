@@ -6,6 +6,7 @@ export enum ModiaRoute {
   DIALOG,
   ARBEIDSMARKEDSTILTAK_DELTAKELSE,
   ARBEIDSMARKEDSTILTAK_OPPRETT_DELTAKELSE,
+  ARBEIDSMARKEDSTILTAK_DETALJER,
 }
 
 export type ModiaRouteParams =
@@ -20,6 +21,10 @@ export type ModiaRouteParams =
   | {
       route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE;
       deltakerId: UUID;
+    }
+  | {
+      route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DETALJER;
+      gjennomforingId: UUID;
     };
 
 export function resolveModiaRoute(route: ModiaRouteParams) {
@@ -41,6 +46,8 @@ export function resolveRoutePath(route: ModiaRouteParams): string {
       return `/arbeidsmarkedstiltak/deltakelse/${route.gjennomforingId}`;
     case ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE:
       return `/arbeidsmarkedstiltak/deltakelse/deltaker/${route.deltakerId}`;
+    case ModiaRoute.ARBEIDSMARKEDSTILTAK_DETALJER:
+      return `/arbeidsmarkedstiltak/tiltak/${route.gjennomforingId}`;
   }
 }
 

@@ -45,13 +45,22 @@ function DeltakelseInnhold({ deltakelse }: Props) {
       route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
       deltakerId: deltakelse.id,
     });
+    const detaljerRoute = resolveModiaRoute({
+      route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DETALJER,
+      gjennomforingId: deltakelse.gjennomforingId,
+    });
 
     return (
       <HGrid columns="1fr 20%" align="center">
         <Innhold deltakelse={deltakelse} />
-        <Button variant="secondary" onClick={deltakelseRoute.navigate} size="small">
-          Gå til deltakelse
-        </Button>
+        <VStack gap="1">
+          <Button variant="secondary" onClick={deltakelseRoute.navigate} size="small">
+            Gå til deltakelse
+          </Button>
+          <Button variant="tertiary" onClick={detaljerRoute.navigate} size="small">
+            Gå til tiltak
+          </Button>
+        </VStack>
       </HGrid>
     );
   } else if (deltakelse.eierskap === "TEAM_TILTAK") {
