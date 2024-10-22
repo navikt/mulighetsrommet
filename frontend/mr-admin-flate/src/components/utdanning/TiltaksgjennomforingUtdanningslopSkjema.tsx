@@ -1,5 +1,5 @@
 import { AvtaleDto } from "@mr/api-client";
-import { Select } from "@navikt/ds-react";
+import { Select, Alert } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { InferredTiltaksgjennomforingSchema } from "../redaksjoneltInnhold/TiltaksgjennomforingSchema";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
@@ -13,7 +13,9 @@ export function TiltaksgjennomforingUtdanningslopSkjema({ avtale }: Props) {
   const { register } = useFormContext<InferredTiltaksgjennomforingSchema>();
 
   if (!avtale.utdanningslop) {
-    return null;
+    return (
+      <Alert variant="warning">{avtaletekster.utdanning.utdanningsprogramManglerForAvtale}</Alert>
+    );
   }
 
   return (
