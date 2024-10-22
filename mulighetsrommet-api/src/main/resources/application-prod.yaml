@@ -7,7 +7,7 @@ app:
     jdbcUrl: ${DB_JDBC_URL}
     maximumPoolSize: 10
   flyway:
-    strategy: RepairAndMigrate
+    strategy: Migrate
 
   migrerteTiltak:
     - ARBEIDSFORBEREDENDE_TRENING
@@ -15,6 +15,7 @@ app:
     - AVKLARING
     - DIGITALT_OPPFOLGINGSTILTAK
     - GRUPPE_ARBEIDSMARKEDSOPPLAERING
+    - GRUPPE_FAG_OG_YRKESOPPLAERING
     - JOBBKLUBB
     - OPPFOLGING
     - VARIG_TILRETTELAGT_ARBEID_SKJERMET
