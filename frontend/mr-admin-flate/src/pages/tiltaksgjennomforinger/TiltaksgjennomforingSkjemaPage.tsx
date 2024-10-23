@@ -93,7 +93,7 @@ export function TiltaksgjennomforingSkjemaPage() {
         }
       : undefined,
     {
-      tittel: redigeringsModus ? "Rediger tiltaksgjennomføring" : "Ny tiltaksgjennomføring",
+      tittel: redigeringsModus ? "Rediger gjennomføring" : "Ny tiltaksgjennomføring",
       lenke: redigeringsModus
         ? `/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}/skjema`
         : "/tiltaksgjennomforinger/skjema",
@@ -106,7 +106,7 @@ export function TiltaksgjennomforingSkjemaPage() {
       <Header>
         <TiltaksgjennomforingIkon />
         <Heading size="large" level="2">
-          {redigeringsModus ? "Rediger tiltaksgjennomføring" : "Opprett ny tiltaksgjennomføring"}
+          {redigeringsModus ? "Rediger gjennomføring" : "Opprett ny tiltaksgjennomføring"}
         </Heading>
         {tiltaksgjennomforing ? (
           <TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} showAvbruttAarsak />

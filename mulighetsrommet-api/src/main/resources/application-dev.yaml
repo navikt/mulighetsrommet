@@ -7,7 +7,7 @@ app:
     jdbcUrl: ${DB_JDBC_URL}
     maximumPoolSize: 10
   flyway:
-    strategy: RepairAndMigrate
+    strategy: Migrate
 
   migrerteTiltak:
     - AVKLARING
