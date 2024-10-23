@@ -25,13 +25,6 @@ type HISTORIKK_EVENT = {
   };
 };
 
-type HISTORIKK__FANE_VALGT_EVENT = {
-  name: "arbeidsmarkedstiltak.historikk.fane-valgt";
-  data: {
-    action: string;
-  };
-};
-
 type VIS_ANTALL_TILTAK_EVENT = {
   name: "arbeidsmarkedstiltak.vis-antall-tiltak";
   data: {
@@ -47,11 +40,15 @@ type LANDINGSSIDE_FANE_VALGT_EVENT = {
   };
 };
 
+type VIS_ALL_HISTORIKK = {
+  name: "arbeidsmarkedstiltak.historikk.vis-all-historikk";
+};
+
 export type Event =
   | DEL_MED_BRUKER_EVENT
   | KLIKK_PA_FANE_EVENT
   | UNIKE_BRUKERE
   | HISTORIKK_EVENT
   | VIS_ANTALL_TILTAK_EVENT
-  | HISTORIKK__FANE_VALGT_EVENT
-  | LANDINGSSIDE_FANE_VALGT_EVENT;
+  | LANDINGSSIDE_FANE_VALGT_EVENT
+  | VIS_ALL_HISTORIKK;

@@ -97,4 +97,17 @@ export const deltakelserHistoriske: Deltakelse[] = [
     eierskap: DeltakelseEierskap.TEAM_KOMET,
     periode: {},
   },
+  {
+    tittel: "Gammel Avklaring med Anne",
+    tiltakstypeNavn: "Avklaring",
+    id: window.crypto.randomUUID(),
+    gjennomforingId: tiltakAvklaring.id,
+    status: {
+      type: GruppetiltakDeltakerStatus.FULLFORT,
+      visningstekst: "Fullført",
+    },
+    innsoktDato: "2017-02-03",
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
+    periode: {},
+  },
 ];
