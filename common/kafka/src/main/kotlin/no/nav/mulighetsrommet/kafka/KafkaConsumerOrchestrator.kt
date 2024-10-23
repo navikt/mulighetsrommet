@@ -43,6 +43,8 @@ class KafkaConsumerOrchestrator(
     init {
         logger.info("Initializing Kafka consumer clients")
 
+        validateConsumers(consumers)
+
         resetTopics(consumers)
 
         consumerClients = consumers.associate { consumer ->
@@ -165,4 +167,10 @@ class KafkaConsumerOrchestrator(
 
     private fun getUpdatedTopicsOnly(updated: List<Topic>, current: List<Topic>) =
         updated.filter { x -> current.any { y -> y.id == x.id && y.running != x.running } }
+}
+
+private fun validateConsumers(consumers: List<KafkaTopicConsumer<*, *>>) {
+    require(consumers.distinctBy { it.config.id }.size == consumers.size) {
+        "Each consumer must have a unique 'id'. At least two consumers share the same 'id'."
+    }
 }
