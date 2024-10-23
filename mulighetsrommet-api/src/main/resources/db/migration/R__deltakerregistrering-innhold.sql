@@ -1,7 +1,7 @@
 /**
  * Script for å populere tabeller med strukturert
  *  informasjon om hvilke type innhold en gitt tiltakstype kan forvente å innhold.
- *  Bruker blant annet av Komet sin påmeldingsløsning
+ *  Brukes blant annet av Komet sin påmeldingsløsning
  */
 
 update tiltakstype
@@ -23,6 +23,10 @@ where tiltakskode = 'OPPFOLGING';
 update tiltakstype
 set deltaker_registrering_ledetekst = 'Varig tilrettelagt arbeid er et tilbud for deg som får uføretrygd. Du jobber i en skjermet bedrift med arbeidsoppgaver som er tilpasset deg.'
 where tiltakskode = 'VARIG_TILRETTELAGT_ARBEID_SKJERMET';
+
+update tiltakstype
+set deltaker_registrering_ledetekst = 'Du får oppfølging og støtte til jobbsøkingen. På kurset får du karriereveiledning, hjelp til å orientere deg på arbeidsmarkedet, skrive CV og jobbsøknad og trene på jobbintervju.'
+where tiltakskode = 'DIGITALT_OPPFOLGINGSTILTAK';
 
 insert into deltaker_registrering_innholdselement(innholdskode, tekst)
 values ('jobbsoking', 'Støtte til å søke jobber'),
