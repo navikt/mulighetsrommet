@@ -10,6 +10,8 @@ import { Separator } from "~/components/Separator";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
+import React from "react";
+import { Definisjon } from "~/components/Definisjon";
 
 type LoaderData = {
   krav: Refusjonskrav;
@@ -80,6 +82,11 @@ export default function RefusjonskravDetaljer() {
         ))}
         <Separator />
         <RefusjonDetaljer krav={krav} />
+        <Separator />
+        <Heading className="mb-2" size="medium" level="2">
+          Betalingsinformasjon
+        </Heading>
+        <Definisjon key="Kontonummer" value={""} />
 
         <Form method="post">
           <VStack gap="2" justify={"start"} align={"start"}>

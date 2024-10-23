@@ -5,6 +5,8 @@ import { formaterDato } from "~/utils";
 export async function loadRefusjonskrav(id: string): Promise<Refusjonskrav> {
   const krav = await ArrangorflateService.getRefusjonkrav({ id });
 
+  console.log(krav);
+
   const { beregning } = krav;
 
   return {
