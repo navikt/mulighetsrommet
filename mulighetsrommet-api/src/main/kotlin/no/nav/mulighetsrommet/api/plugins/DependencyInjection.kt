@@ -131,12 +131,12 @@ private fun kafka(appConfig: AppConfig) = module {
     val consumerPreset = when (NaisEnv.current()) {
         NaisEnv.Local -> KafkaPropertiesBuilder.consumerBuilder()
             .withBaseProperties()
-            .withConsumerGroupId(config.consumerGroupId)
+            .withConsumerGroupId(config.defaultConsumerGroupId)
             .withBrokerUrl(config.brokerUrl)
             .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
             .build()
 
-        else -> KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.consumerGroupId)
+        else -> KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.defaultConsumerGroupId)
     }
 
     single {

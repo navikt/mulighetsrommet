@@ -124,7 +124,7 @@ fun createKafkaConfig(): KafkaConfig = KafkaConfig(
             topic = "arena-migrering-tiltaksgjennomforinger-v1",
         ),
     ),
-    consumerGroupId = "mulighetsrommet-api-consumer",
+    defaultConsumerGroupId = "mulighetsrommet-api-consumer",
     consumers = KafkaConsumers(
         tiltaksgjennomforingerV1 = KafkaTopicConsumer.Config(
             id = "siste-tiltaksgjennomforinger",
