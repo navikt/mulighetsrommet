@@ -9,6 +9,9 @@
          <appender-ref ref="STDOUT"/>
     </root>
 
+    <!-- Prometheus logger configuration -->
+    <logger name="io.micrometer" level="DEBUG" />
+
     <logger name="secureLogger" level="INFO" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>

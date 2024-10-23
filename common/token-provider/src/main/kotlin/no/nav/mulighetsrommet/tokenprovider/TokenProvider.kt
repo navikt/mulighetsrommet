@@ -10,8 +10,10 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
+import no.nav.common.token_client.builder.TokenXTokenClientBuilder
 import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.common.token_client.client.OnBehalfOfTokenClient
+import no.nav.common.token_client.client.TokenXOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.env.NaisEnv
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey
@@ -37,8 +39,9 @@ fun interface M2MTokenProvider {
  * spør igjen for å hente det cachede tokenet.
  */
 class CachedTokenProvider(
-    private val m2mTokenProvider: MachineToMachineTokenClient,
+    private val tokenXTokenProvider: TokenXOnBehalfOfTokenClient,
     private val oboTokenProvider: OnBehalfOfTokenClient,
+    private val m2MTokenProvider: MachineToMachineTokenClient,
 ) {
     private val cache: Cache<String, Deferred<String>> = Caffeine.newBuilder()
         .expireAfterWrite(30, TimeUnit.SECONDS)
@@ -49,8 +52,9 @@ class CachedTokenProvider(
     companion object {
         fun init(clientId: String, tokenEndpointUrl: String): CachedTokenProvider {
             return CachedTokenProvider(
-                m2mTokenProvider = createM2mTokenClient(clientId, tokenEndpointUrl),
+                tokenXTokenProvider = createTokenXTokenClient(clientId),
                 oboTokenProvider = createOboTokenClient(clientId, tokenEndpointUrl),
+                m2MTokenProvider = createM2mTokenClient(clientId, tokenEndpointUrl),
             )
         }
     }
@@ -71,7 +75,8 @@ class CachedTokenProvider(
     private fun exchangeAsync(scope: String, accessType: AccessType): Deferred<String> {
         return CoroutineScope(Dispatchers.IO).async {
             when (accessType) {
-                AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(scope)
+                is AccessType.TOKENX -> tokenXTokenProvider.exchangeOnBehalfOfToken(scope, accessType.token)
+                AccessType.M2M -> m2MTokenProvider.createMachineToMachineToken(scope)
                 is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(scope, accessType.token)
             }
         }
@@ -82,6 +87,17 @@ private fun AccessType.subject(): String =
     when (this) {
         AccessType.M2M -> ""
         is AccessType.OBO -> {
+            try {
+                val token = JWTParser.parse(this.token)
+                val subject = token.jwtClaimsSet.subject
+                    ?: throw IllegalArgumentException("Unable to get subject, access token is missing subject")
+                subject
+            } catch (e: ParseException) {
+                throw IllegalArgumentException("Unable to get subject, access token is invalid")
+            }
+        }
+
+        is AccessType.TOKENX -> {
             try {
                 val token = JWTParser.parse(this.token)
                 val subject = token.jwtClaimsSet.subject
@@ -115,7 +131,21 @@ private fun createM2mTokenClient(clientId: String, tokenEndpointUrl: String): Ma
         else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
     }
 
-fun createMaskinportenM2mTokenClient(clientId: String, tokenEndpointUrl: String, issuer: String): MaskinPortenTokenProvider? =
+fun createTokenXTokenClient(clientId: String): TokenXOnBehalfOfTokenClient =
+    when (NaisEnv.current()) {
+        NaisEnv.Local -> TokenXTokenClientBuilder.builder()
+            .withClientId(clientId)
+            .withPrivateJwk(createMockRSAKey("azure").toJSONString())
+            .buildOnBehalfOfTokenClient()
+
+        else -> TokenXTokenClientBuilder.builder().withNaisDefaults().buildOnBehalfOfTokenClient()
+    }
+
+fun createMaskinportenM2mTokenClient(
+    clientId: String,
+    tokenEndpointUrl: String,
+    issuer: String,
+): MaskinPortenTokenProvider? =
     when (NaisEnv.current()) {
         NaisEnv.Local -> MaskinPortenTokenProvider(
             clientId = clientId,
@@ -123,6 +153,7 @@ fun createMaskinportenM2mTokenClient(clientId: String, tokenEndpointUrl: String,
             privateJwk = createMockRSAKey("maskinporten").toJSONString(),
             issuer = issuer,
         )
+
         NaisEnv.ProdGCP -> null // TODO: Remove when prod
         else -> MaskinPortenTokenProvider(
             clientId = clientId,

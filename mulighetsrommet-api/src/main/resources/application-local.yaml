@@ -154,7 +154,6 @@ app:
 
   altinn:
     url: http://localhost:8090/altinn
-    apiKey: dummy
     scope: default
 
   tasks:

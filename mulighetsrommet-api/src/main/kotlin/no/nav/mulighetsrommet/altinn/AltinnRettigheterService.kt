@@ -21,7 +21,7 @@ class AltinnRettigheterService(
     }
 
     private suspend fun syncRettigheter(norskIdent: NorskIdent): List<BedriftRettigheter> {
-        val rettigheter = altinnClient.hentRettigheter(norskIdent)
+        val rettigheter = altinnClient.hentRettigheter()
         altinnRettigheterRepository.upsertRettighet(
             PersonBedriftRettigheter(
                 norskIdent = norskIdent,

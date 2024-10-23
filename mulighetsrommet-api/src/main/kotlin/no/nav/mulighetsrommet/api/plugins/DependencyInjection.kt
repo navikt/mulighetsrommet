@@ -57,8 +57,6 @@ import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
-import no.nav.mulighetsrommet.tokenprovider.M2MTokenProvider
-import no.nav.mulighetsrommet.tokenprovider.createMaskinportenM2mTokenClient
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
 import no.nav.mulighetsrommet.unleash.strategies.ByNavIdentStrategy
@@ -148,7 +146,11 @@ private fun kafka(appConfig: AppConfig) = module {
                 arenaMigreringTiltaksgjennomforingProducer = get(),
                 tiltaksgjennomforingRepository = get(),
             ),
-            AmtDeltakerV1KafkaConsumer(config = config.consumers.amtDeltakerV1, tiltakstyper = get(), deltakere = get()),
+            AmtDeltakerV1KafkaConsumer(
+                config = config.consumers.amtDeltakerV1,
+                tiltakstyper = get(),
+                deltakere = get(),
+            ),
             AmtVirksomheterV1KafkaConsumer(
                 config = config.consumers.amtVirksomheterV1,
                 arrangorRepository = get(),
@@ -184,11 +186,6 @@ private fun repositories() = module {
 private fun services(appConfig: AppConfig) = module {
     val azure = appConfig.auth.azure
     val cachedTokenProvider = CachedTokenProvider.init(azure.audience, azure.tokenEndpointUrl)
-    val maskinportenTokenProvider = createMaskinportenM2mTokenClient(
-        appConfig.auth.maskinporten.audience,
-        appConfig.auth.maskinporten.tokenEndpointUrl,
-        appConfig.auth.maskinporten.issuer,
-    )
 
     single {
         VeilarboppfolgingClient(
@@ -276,12 +273,8 @@ private fun services(appConfig: AppConfig) = module {
     single {
         AltinnClient(
             baseUrl = appConfig.altinn.url,
-            altinnApiKey = appConfig.altinn.apiKey,
             clientEngine = appConfig.engine,
-            tokenProvider = maskinportenTokenProvider?.withScope(
-                scope = appConfig.altinn.scope,
-                targetAudience = appConfig.altinn.url,
-            ) ?: M2MTokenProvider { "dummy" }, // TODO: Remove when prod
+            tokenProvider = cachedTokenProvider.withScope(appConfig.altinn.scope),
         )
     }
     single { EndringshistorikkService(get()) }

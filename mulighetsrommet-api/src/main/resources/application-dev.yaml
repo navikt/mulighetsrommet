@@ -142,9 +142,8 @@ app:
     baseUrl: https://data.brreg.no/enhetsregisteret/api
 
   altinn:
-    url: https://platform.tt02.altinn.no
-    apiKey: ${ALTINN_API_KEY}
-    scope: ${MASKINPORTEN_SCOPES}
+    url: http://arbeidsgiver-altinn-tilganger.fager
+    scope: dev-gcp.fager.arbeidsgiver-altinn-tilganger
 
   tasks:
     synchronizeNorgEnheter:

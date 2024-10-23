@@ -130,6 +130,8 @@ spec:
           namespace: org
         - application: veilarboppfolging
           namespace: poao
+        - application: arbeidsgiver-altinn-tilganger
+          namespace: fager
       external:
         - host: slack.com
         - host: data.brreg.no

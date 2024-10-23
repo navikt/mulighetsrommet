@@ -141,9 +141,8 @@ app:
     baseUrl: https://data.brreg.no/enhetsregisteret/api
 
   altinn:
-    url: dummy
-    apiKey: dummy
-    scope: dummy
+    url: http://arbeidsgiver-altinn-tilganger.fager
+    scope: prod-gcp.fager.arbeidsgiver-altinn-tilganger
 
   tasks:
     synchronizeNorgEnheter:

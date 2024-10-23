@@ -14,13 +14,12 @@ import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.tokenprovider.AccessType
-import no.nav.mulighetsrommet.tokenprovider.M2MTokenProvider
+import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
 
 class AltinnClient(
     private val baseUrl: String,
-    private val altinnApiKey: String,
-    private val tokenProvider: M2MTokenProvider,
+    private val tokenProvider: TokenProvider,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -30,68 +29,54 @@ class AltinnClient(
 
     data class Config(
         val url: String,
-        val apiKey: String,
         val scope: String,
     )
 
-    suspend fun hentRettigheter(norskIdent: NorskIdent): List<BedriftRettigheter> {
+    suspend fun hentRettigheter(): List<BedriftRettigheter> {
         log.info("Henter organisasjoner fra Altinn")
-        // TODO: Fiks paginering
-        val authorizedParties = hentAuthorizedParties(norskIdent)
-        return findAltinnRoller(authorizedParties)
+        val tilganger = hentTilganger()
+        return findAltinnRoller(tilganger)
     }
 
     private fun findAltinnRoller(
-        parties: List<AuthorizedParty>,
+        bedriftsrettigheter: List<BedriftRettigheter>,
     ): List<BedriftRettigheter> =
-        parties
-            .flatMap { party ->
-                findAltinnRoller(party.subunits) +
+        bedriftsrettigheter
+            .flatMap { rettighet ->
+                findAltinnRoller(rettighet.) +
                     BedriftRettigheter(
-                        organisasjonsnummer = Organisasjonsnummer(party.organizationNumber),
+                        organisasjonsnummer = Organisasjonsnummer(rettighet.organizationNumber),
                         rettigheter = AltinnRessurs
                             .entries
-                            .filter { it.ressursId in party.authorizedResources },
+                            .filter { it.ressursId in rettighet.authorizedResources },
                     )
             }
             .filter { it.rettigheter.isNotEmpty() }
 
-    private suspend fun hentAuthorizedParties(norskIdent: NorskIdent): List<AuthorizedParty> {
-        @Serializable
-        data class Request(
-            val type: String,
-            val value: String,
-        )
-        val response = client.post("$baseUrl/accessmanagement/api/v1/resourceowner/authorizedparties") {
-            parameter("includeAltinn2", "true")
-            header("Ocp-Apim-Subscription-Key", altinnApiKey)
+    private suspend fun hentTilganger(): Tilgangshierarki {
+        val response = client.post("$baseUrl/altinn-tilganger") {
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
-            setBody(
-                Request(
-                    type = "urn:altinn:person:identifier-no",
-                    value = norskIdent.value,
-                ),
-            )
         }
 
         if (response.status != HttpStatusCode.OK) {
-            log.error("Klarte ikke hente organisasjoner for Altinn. response: ${response.status}, body=${response.bodyAsText()}")
+            log.error("Klarte ikke hente organisasjoner fra arbeidsgiver-altinn-tilganger. response: ${response.status}, body=${response.bodyAsText()}")
             throw RuntimeException("Klarte ikke å hente organisasjoner code=${response.status}")
-        }
-
-        if (!response.headers["X-Warning-LimitReached"].isNullOrEmpty()) {
-            log.error("For mange tilganger. Klarte ikke hente tilganger for bruker. response: ${response.status}")
         }
 
         return response.body()
     }
 
     @Serializable
-    data class AuthorizedParty(
-        val organizationNumber: String,
-        val type: String,
-        val authorizedResources: List<String>,
-        val subunits: List<AuthorizedParty>,
+    data class Tilgangshierarki(
+        val hierarki: List<TilgangForOrganisasjon>,
+    )
+
+    @Serializable
+    data class TilgangForOrganisasjon(
+        val navn: String,
+        val orgnr: String,
+        val altinn3Tilganger: List<String>,
+        val underenheter: List<TilgangForOrganisasjon>,
     )
 }
