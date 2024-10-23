@@ -7,8 +7,8 @@ import kotlinx.serialization.json.jsonPrimitive
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 
-class TestConsumer(name: String) : KafkaTopicConsumer<String?, String?>(
-    Config(name, name, true),
+class TestConsumer(id: String, topic: String, group: String? = null) : KafkaTopicConsumer<String?, String?>(
+    Config(id, topic, true, group),
     stringDeserializer(),
     stringDeserializer(),
 ) {
