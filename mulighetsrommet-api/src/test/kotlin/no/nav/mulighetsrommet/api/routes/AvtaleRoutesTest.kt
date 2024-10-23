@@ -54,12 +54,10 @@ class AvtaleRoutesTest : FunSpec({
 
     fun appConfig(
         engine: HttpClientEngine = CIO.create(),
-        migrerteTiltak: List<Tiltakskode> = listOf(),
     ) = createTestApplicationConfig().copy(
         database = databaseConfig,
         auth = createAuthConfig(oauth, roles = listOf(generellRolle, avtaleSkrivRolle)),
         engine = engine,
-        migrerteTiltak = migrerteTiltak,
     )
 
     test("401 Unauthorized for uautentisert kall for PUT av avtaledata") {
@@ -110,7 +108,6 @@ class AvtaleRoutesTest : FunSpec({
         )
         val config = appConfig(
             engine = engine,
-            migrerteTiltak = listOf(Tiltakskode.OPPFOLGING),
         )
         withTestApplication(config) {
             val client = createClient {

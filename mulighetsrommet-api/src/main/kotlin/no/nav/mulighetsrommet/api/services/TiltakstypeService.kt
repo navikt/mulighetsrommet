@@ -7,14 +7,12 @@ import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.TiltakstypeFilter
 import no.nav.mulighetsrommet.database.utils.Pagination
-import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 class TiltakstypeService(
     private val tiltakstypeRepository: TiltakstypeRepository,
-    private val enabledTiltakskoder: List<Tiltakskode>,
 ) {
 
     private val cacheBySanityId: Cache<UUID, TiltakstypeDto> = Caffeine.newBuilder()
@@ -28,8 +26,6 @@ class TiltakstypeService(
         .maximumSize(10_000)
         .recordStats()
         .build()
-
-    fun isEnabled(tiltakskode: Tiltakskode?) = enabledTiltakskoder.contains(tiltakskode)
 
     fun getAll(
         filter: TiltakstypeFilter,

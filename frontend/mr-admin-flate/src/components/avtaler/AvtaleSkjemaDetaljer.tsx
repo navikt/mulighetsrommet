@@ -1,5 +1,4 @@
 import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
-import { useMigrerteTiltakstyperForAvtaler } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { AvtaleAmoKategoriseringSkjema } from "@/components/amoKategorisering/AvtaleAmoKategoriseringSkjema";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { FormGroup } from "@/components/skjema/FormGroup";
@@ -15,7 +14,6 @@ import {
   NavAnsatt,
   NavEnhet,
   NavEnhetType,
-  Opphav,
   OpsjonsmodellKey,
   Tiltakskode,
   TiltakstypeDto,
@@ -44,7 +42,6 @@ interface Props {
 }
 
 export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: Props) {
-  const { data: migrerteTiltakstyper } = useMigrerteTiltakstyperForAvtaler();
   const { data: administratorer } = useAvtaleAdministratorer();
 
   const {
@@ -80,19 +77,12 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
     }
   }, [avtale, updateOpsjonsmodellClb]);
 
-  const arenaOpphavOgIngenEierskap = avtale?.opphav === Opphav.ARENA && !erMigrert(tiltakskode);
-
   const navRegionerOptions = enheter
     .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
     .map((enhet) => ({
       value: enhet.enhetsnummer,
       label: enhet.navn,
     }));
-
-  function erMigrert(tiltakskode?: Tiltakskode | null): boolean {
-    if (!tiltakskode) return false;
-    return migrerteTiltakstyper.includes(tiltakskode);
-  }
 
   return (
     <SkjemaDetaljerContainer>
@@ -101,7 +91,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
           <FormGroup>
             <TextField
               size="small"
-              readOnly={arenaOpphavOgIngenEierskap}
               error={errors.navn?.message}
               label={avtaletekster.avtalenavnLabel}
               autoFocus
@@ -146,7 +135,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             <HGrid gap="4" columns={2}>
               <ControlledSokeSelect
                 size="small"
-                readOnly={arenaOpphavOgIngenEierskap}
                 placeholder="Velg en"
                 label={avtaletekster.tiltakstypeLabel}
                 {...register("tiltakstype")}
@@ -169,15 +157,11 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                     id: tiltakstype.id,
                     tiltakskode: tiltakstype.tiltakskode,
                   },
-                  label: !erMigrert(tiltakstype.tiltakskode)
-                    ? `${tiltakstype.navn} må opprettes i Arena`
-                    : tiltakstype.navn,
-                  isDisabled: !erMigrert(tiltakstype.tiltakskode),
+                  label: tiltakstype.navn,
                 }))}
               />
               <ControlledSokeSelect
                 size="small"
-                readOnly={arenaOpphavOgIngenEierskap}
                 placeholder="Velg en"
                 label={avtaletekster.avtaletypeLabel}
                 {...register("avtaletype")}
@@ -197,7 +181,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             opsjonsmodell={opsjonsmodeller.find(
               (m) => m.value === watch("opsjonsmodellData.opsjonsmodell"),
             )}
-            arenaOpphavOgIngenEierskap={arenaOpphavOgIngenEierskap}
           />
 
           {tiltakskode && erAnskaffetTiltak(tiltakskode) && (
@@ -205,7 +188,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               <FormGroup>
                 <Textarea
                   size="small"
-                  readOnly={arenaOpphavOgIngenEierskap}
                   error={errors.prisbetingelser?.message}
                   label={avtaletekster.prisOgBetalingLabel}
                   {...register("prisbetingelser")}
@@ -265,7 +247,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             </FormGroup>
           </div>
           <FormGroup>
-            <AvtaleArrangorSkjema readOnly={arenaOpphavOgIngenEierskap} />
+            <AvtaleArrangorSkjema readOnly={false} />
           </FormGroup>
         </SkjemaKolonne>
       </SkjemaInputContainer>

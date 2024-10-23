@@ -12,17 +12,6 @@ app:
     # Kan benyttes når du må kjøre flyway repair lokalt
     # strategy: RepairAndMigrate
 
-  migrerteTiltak:
-    - AVKLARING
-    - OPPFOLGING
-    - GRUPPE_ARBEIDSMARKEDSOPPLAERING
-    - JOBBKLUBB
-    - DIGITALT_OPPFOLGINGSTILTAK
-    - ARBEIDSFORBEREDENDE_TRENING
-    - GRUPPE_FAG_OG_YRKESOPPLAERING
-    - ARBEIDSRETTET_REHABILITERING
-    - VARIG_TILRETTELAGT_ARBEID_SKJERMET
-
   pameldingIModia:
     - AVKLARING
     - OPPFOLGING

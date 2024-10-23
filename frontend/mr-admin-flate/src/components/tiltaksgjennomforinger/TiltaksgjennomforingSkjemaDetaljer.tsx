@@ -1,7 +1,6 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useTiltaksgjennomforingAdministratorer } from "@/api/ansatt/useTiltaksgjennomforingAdministratorer";
 import { useGjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
-import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { addYear, formaterDato } from "@/utils/Utils";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import {
@@ -35,7 +34,6 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { SelectOppstartstype } from "./SelectOppstartstype";
 import { TiltaksgjennomforingArrangorSkjema } from "./TiltaksgjennomforingArrangorSkjema";
-import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst";
 import { TiltaksgjennomforingAmoKategoriseringSkjema } from "@/components/amoKategorisering/TiltaksgjennomforingAmoKategoriseringSkjema";
 import styles from "./TiltaksgjennomforingSkjemaDetaljer.module.scss";
 import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
@@ -67,7 +65,6 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const [kontaktpersonerQuery, setKontaktpersonerQuery] = useState<string>("");
   const { data: kontaktpersoner } = useSokNavAnsatt(kontaktpersonerQuery);
-  const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
   const { data: deltakerSummary } = useGjennomforingDeltakerSummary(tiltaksgjennomforing?.id);
   const { data: enableUtdanningskategorier } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_UTDANNINGSKATEGORIER,
@@ -78,8 +75,8 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
 
   const kontaktpersonerOption = (selectedIndex: number) => {
     const excludedKontaktpersoner = watch("kontaktpersoner")
-      ?.filter((_: any, i: number) => i !== selectedIndex)
-      .map((k: any) => k["navIdent"]);
+      ?.filter((_, i) => i !== selectedIndex)
+      .map((k) => k.navIdent);
 
     const options = kontaktpersoner
       ?.filter((kontaktperson) => !excludedKontaktpersoner?.includes(kontaktperson.navIdent))
@@ -164,11 +161,6 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
 
   const valgteNavEnheter = watch("navEnheter");
 
-  const eierIkkeGjennomforing = erArenaOpphavOgIngenEierskap(
-    tiltaksgjennomforing,
-    migrerteTiltakstyper,
-  );
-
   return (
     <SkjemaDetaljerContainer>
       <SkjemaInputContainer>
@@ -176,7 +168,6 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
           <FormGroup>
             <TextField
               size="small"
-              readOnly={eierIkkeGjennomforing}
               error={errors.navn?.message as string}
               label={tiltaktekster.tiltaksnavnLabel}
               autoFocus
@@ -243,7 +234,6 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
               <ControlledDateInput
                 size="small"
                 label={tiltaktekster.startdatoLabel}
-                readOnly={eierIkkeGjennomforing}
                 fromDate={minStartdato}
                 toDate={maxSluttdato}
                 {...register("startOgSluttDato.startDato")}
@@ -252,7 +242,6 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
               <ControlledDateInput
                 size="small"
                 label={tiltaktekster.sluttdatoLabel}
-                readOnly={eierIkkeGjennomforing}
                 fromDate={minStartdato}
                 toDate={maxSluttdato}
                 {...register("startOgSluttDato.sluttDato")}
@@ -262,7 +251,6 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
             {visApentForInnsok(avtale.tiltakstype.tiltakskode) ? (
               <Switch
                 size="small"
-                readOnly={eierIkkeGjennomforing}
                 {...register("apentForInnsok")}
                 checked={watch("apentForInnsok")}
               >
@@ -272,7 +260,6 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
             <HGrid align="start" columns={2}>
               <TextField
                 size="small"
-                readOnly={eierIkkeGjennomforing}
                 error={errors.antallPlasser?.message as string}
                 type="number"
                 style={{ width: "180px" }}
@@ -284,7 +271,6 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
               {isKursTiltak(avtale.tiltakstype.tiltakskode) && (
                 <TextField
                   size="small"
-                  readOnly={eierIkkeGjennomforing}
                   error={errors.deltidsprosent?.message as string}
                   type="number"
                   step="0.01"
@@ -448,7 +434,7 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
             </FormGroup>
           </div>
           <FormGroup>
-            <TiltaksgjennomforingArrangorSkjema readOnly={eierIkkeGjennomforing} avtale={avtale} />
+            <TiltaksgjennomforingArrangorSkjema readOnly={false} avtale={avtale} />
           </FormGroup>
         </SkjemaKolonne>
       </SkjemaInputContainer>

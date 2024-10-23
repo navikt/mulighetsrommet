@@ -43,7 +43,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         val deltakere = DeltakerRepository(database.db)
         val deltakerConsumer = AmtDeltakerV1KafkaConsumer(
             config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
-            tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf()),
+            tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db)),
             deltakere = deltakere,
         )
 

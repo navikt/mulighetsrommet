@@ -26,7 +26,6 @@ import no.nav.mulighetsrommet.api.responses.NotFound
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
-import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -65,7 +64,6 @@ class AvtaleServiceTest : FunSpec({
         val avtaleService = AvtaleService(
             avtaler,
             tiltaksgjennomforinger,
-            listOf(Tiltakskode.OPPFOLGING),
             arrangorService,
             NotificationRepository(database.db),
             validator,
@@ -111,7 +109,6 @@ class AvtaleServiceTest : FunSpec({
         val avtaleService = AvtaleService(
             avtaleRepository,
             tiltaksgjennomforinger,
-            listOf(Tiltakskode.JOBBKLUBB),
             arrangorService,
             NotificationRepository(database.db),
             validator,
@@ -124,31 +121,17 @@ class AvtaleServiceTest : FunSpec({
             val avtaleIdSomIkkeFinnes = "3c9f3d26-50ec-45a7-a7b2-c2d8a3653945".toUUID()
             avtaleRepository.upsert(avtale)
 
-            avtaleService.avbrytAvtale(avtaleIdSomIkkeFinnes, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
-                NotFound("Avtalen finnes ikke"),
-            )
+            avtaleService.avbrytAvtale(avtaleIdSomIkkeFinnes, bertilNavIdent, AvbruttAarsak.Feilregistrering)
+                .shouldBeLeft(
+                    NotFound("Avtalen finnes ikke"),
+                )
         }
 
-        test("Man skal ikke få avbryte, men få en melding dersom opphav for avtalen ikke er admin-flate og vi ikke har tatt eierskap til tiltakstypen enda") {
-            val avtale = AvtaleFixtures.oppfolging.copy(
-                navn = "Avtale som eksisterer",
-                startDato = LocalDate.of(2023, 6, 1),
-                sluttDato = LocalDate.of(2023, 7, 1),
-            )
-            avtaleRepository.upsert(avtale)
-            avtaleRepository.setOpphav(avtale.id, ArenaMigrering.Opphav.ARENA)
-
-            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
-                BadRequest("Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."),
-            )
-        }
-
-        test("Man skal få avbryte dersom opphav for avtalen er Arena, men vi har tatt eierskap til tiltakstype") {
+        test("Man skal få avbryte om opphav for avtalen er Arena") {
             val avtaler = AvtaleRepository(database.db)
             val service = AvtaleService(
                 avtaleRepository,
                 tiltaksgjennomforinger,
-                listOf(Tiltakskode.OPPFOLGING),
                 arrangorService,
                 NotificationRepository(database.db),
                 validator,
@@ -268,7 +251,6 @@ class AvtaleServiceTest : FunSpec({
         val avtaleService = AvtaleService(
             avtaler,
             tiltaksgjennomforinger,
-            listOf(Tiltakskode.OPPFOLGING),
             arrangorService,
             NotificationRepository(database.db),
             validator,

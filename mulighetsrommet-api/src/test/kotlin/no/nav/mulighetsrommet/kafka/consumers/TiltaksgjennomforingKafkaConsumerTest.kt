@@ -14,10 +14,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
-import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.ArenaTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
@@ -52,44 +49,12 @@ class TiltaksgjennomforingKafkaConsumerTest : FunSpec({
             clearAllMocks()
         }
 
-        test("skal ikke publisere gjennomføringer til migreringstopic før tiltakstype er migrert") {
+        test("skal publisere gjennomføringer til migreringstopic") {
             val arenaAdapterClient = mockk<ArenaAdapterClient>()
             coEvery { arenaAdapterClient.hentArenadata(gjennomforing.id) } returns null
 
-            val tiltakstyper = TiltakstypeService(
-                TiltakstypeRepository(database.db),
-                enabledTiltakskoder = emptyList(),
-            )
-
             val consumer = SisteTiltaksgjennomforingerV1KafkaConsumer(
                 KafkaTopicConsumer.Config(id = "id", topic = "topic"),
-                tiltakstyper,
-                gjennomforinger,
-                producer,
-                arenaAdapterClient,
-            )
-
-            consumer.consume(
-                gjennomforing.id.toString(),
-                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingV1Dto()),
-            )
-
-            verify(exactly = 0) { producer.publish(any()) }
-            verify(exactly = 0) { producerClient.sendSync(any()) }
-        }
-
-        test("skal publisere gjennomføringer til tiltaksgjennomføringer når tiltakstype er migrert") {
-            val arenaAdapterClient = mockk<ArenaAdapterClient>()
-            coEvery { arenaAdapterClient.hentArenadata(gjennomforing.id) } returns null
-
-            val tiltakstyper = TiltakstypeService(
-                TiltakstypeRepository(database.db),
-                listOf(Tiltakskode.OPPFOLGING),
-            )
-
-            val consumer = SisteTiltaksgjennomforingerV1KafkaConsumer(
-                KafkaTopicConsumer.Config(id = "id", topic = "topic"),
-                tiltakstyper,
                 gjennomforinger,
                 producer,
                 arenaAdapterClient,
@@ -112,14 +77,8 @@ class TiltaksgjennomforingKafkaConsumerTest : FunSpec({
                 status = "AVSLU",
             )
 
-            val tiltakstyper = TiltakstypeService(
-                TiltakstypeRepository(database.db),
-                enabledTiltakskoder = listOf(Tiltakskode.OPPFOLGING),
-            )
-
             val consumer = SisteTiltaksgjennomforingerV1KafkaConsumer(
                 KafkaTopicConsumer.Config(id = "id", topic = "topic"),
-                tiltakstyper,
                 gjennomforinger,
                 producer,
                 arenaAdapterClient,
