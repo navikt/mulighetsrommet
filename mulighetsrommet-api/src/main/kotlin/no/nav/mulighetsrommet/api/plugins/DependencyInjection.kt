@@ -38,6 +38,10 @@ import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
+import no.nav.mulighetsrommet.api.veilederflate.BrukerService
+import no.nav.mulighetsrommet.api.veilederflate.DelMedBrukerService
+import no.nav.mulighetsrommet.api.veilederflate.VeilederJoyrideRepository
+import no.nav.mulighetsrommet.api.veilederflate.VeilederflateService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.env.NaisEnv
@@ -338,7 +342,6 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakstypeService(get(), appConfig.migrerteTiltak) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
-    single { NavVeilederService(get()) }
     single { NotificationService(get(), get(), get()) }
     single { ArrangorService(get(), get()) }
     single { RefusjonService(get(), get(), get(), get()) }

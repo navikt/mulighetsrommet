@@ -1,11 +1,11 @@
-package no.nav.mulighetsrommet.api.services
+package no.nav.mulighetsrommet.api.veilederflate
 
 import io.ktor.server.plugins.*
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
+import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.api.services.cms.CacheUsage
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils.tittelOgUnderTittel
@@ -271,27 +271,9 @@ data class TiltakDeltMedBruker(
     )
 }
 
-@Serializable
 data class TiltakFraDb(
     val navn: String,
-    @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val tiltakskode: Tiltakskode,
     val tiltakstypeNavn: String,
 )
-
-@Serializable
-data class SanityTiltak(
-    @SerialName("tiltaksgjennomforingNavn")
-    val navn: String,
-    @SerialName("_id")
-    val id: String,
-    val tiltakstype: Tiltakstype,
-) {
-    @Serializable
-    data class Tiltakstype(
-        @SerialName("_id")
-        val id: String,
-        val tiltakstypeNavn: String,
-    )
-}

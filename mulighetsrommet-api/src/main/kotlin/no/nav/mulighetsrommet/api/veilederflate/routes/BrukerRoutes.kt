@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.routes.v1
+package no.nav.mulighetsrommet.api.veilederflate.routes
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -12,10 +12,10 @@ import no.nav.common.audit_log.cef.CefMessageSeverity
 import no.nav.mulighetsrommet.api.domain.dto.Deltakelse
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.services.BrukerService
 import no.nav.mulighetsrommet.api.services.DeltakelserMelding
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.TiltakshistorikkService
+import no.nav.mulighetsrommet.api.veilederflate.BrukerService
 import no.nav.mulighetsrommet.auditlog.AuditLog
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.NorskIdent

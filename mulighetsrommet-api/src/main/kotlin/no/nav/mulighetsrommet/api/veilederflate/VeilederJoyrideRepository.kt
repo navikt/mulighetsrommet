@@ -1,8 +1,8 @@
-package no.nav.mulighetsrommet.api.repositories
+package no.nav.mulighetsrommet.api.veilederflate
 
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.domain.dto.JoyrideType
-import no.nav.mulighetsrommet.api.domain.dto.VeilederJoyrideDto
+import no.nav.mulighetsrommet.api.veilederflate.models.JoyrideType
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederJoyrideDto
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query

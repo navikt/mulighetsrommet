@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.services
+package no.nav.mulighetsrommet.api.veilederflate
 
 import arrow.core.getOrElse
 import io.ktor.http.*
@@ -20,6 +20,8 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakError
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.api.services.NAV_EGNE_ANSATTE_TIL_FYLKE_MAP
+import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.exception.StatusException

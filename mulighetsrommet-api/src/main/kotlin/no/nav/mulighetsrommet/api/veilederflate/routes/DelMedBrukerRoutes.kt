@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.routes.v1
+package no.nav.mulighetsrommet.api.veilederflate.routes
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -12,43 +12,14 @@ import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogError
 import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
+import no.nav.mulighetsrommet.api.veilederflate.DelMedBrukerService
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
 import java.util.*
-
-@Serializable
-data class DelTiltakMedBrukerRequest(
-    val overskrift: String,
-    val tekst: String,
-    val venterPaaSvarFraBruker: Boolean,
-    val fnr: NorskIdent,
-    @Serializable(with = UUIDSerializer::class)
-    val tiltaksgjennomforingId: UUID?,
-    @Serializable(with = UUIDSerializer::class)
-    val sanityId: UUID?,
-)
-
-@Serializable
-data class DelTiltakMedBrukerResponse(
-    val dialogId: String,
-)
-
-@Serializable
-data class GetDelMedBrukerRequest(
-    @Serializable(with = UUIDSerializer::class)
-    val tiltakId: UUID,
-    val norskIdent: NorskIdent,
-)
-
-@Serializable
-data class GetAlleDeltMedBrukerRequest(
-    val norskIdent: NorskIdent,
-)
 
 fun Route.delMedBrukerRoutes() {
     val dialogClient: VeilarbdialogClient by inject()
@@ -136,3 +107,32 @@ fun Route.delMedBrukerRoutes() {
         }
     }
 }
+
+@Serializable
+data class DelTiltakMedBrukerRequest(
+    val overskrift: String,
+    val tekst: String,
+    val venterPaaSvarFraBruker: Boolean,
+    val fnr: NorskIdent,
+    @Serializable(with = UUIDSerializer::class)
+    val tiltaksgjennomforingId: UUID?,
+    @Serializable(with = UUIDSerializer::class)
+    val sanityId: UUID?,
+)
+
+@Serializable
+data class DelTiltakMedBrukerResponse(
+    val dialogId: String,
+)
+
+@Serializable
+data class GetDelMedBrukerRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val tiltakId: UUID,
+    val norskIdent: NorskIdent,
+)
+
+@Serializable
+data class GetAlleDeltMedBrukerRequest(
+    val norskIdent: NorskIdent,
+)
