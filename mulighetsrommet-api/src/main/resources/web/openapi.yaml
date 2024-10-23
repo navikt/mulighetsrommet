@@ -4923,6 +4923,15 @@ components:
             $ref: "#/components/schemas/RefusjonKravDeltakelse"
         beregning:
           $ref: "#/components/schemas/RefusjonKravAftBeregning"
+        betalingsinformasjon:
+          type: object
+          properties:
+            kontoNummer:
+              type: string
+            kid:
+              type: string
+          required:
+            - kontoNummer
       required:
         - type
         - id
@@ -4933,6 +4942,7 @@ components:
         - arrangor
         - deltakelser
         - beregning
+        - betalingsinformasjon
 
     RefusjonKravTiltakstype:
       type: object

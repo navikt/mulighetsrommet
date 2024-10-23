@@ -212,6 +212,10 @@ class RefusjonskravRepository(private val db: Database) {
                 navn = string("tiltakstype_navn"),
             ),
             beregning = beregning,
+            betalingsinformasjon = RefusjonskravDto.Betalingsinformasjon(
+                kontoNummer = string("konto_nummer"),
+                kid = stringOrNull("kid"),
+            ),
         )
     }
 }

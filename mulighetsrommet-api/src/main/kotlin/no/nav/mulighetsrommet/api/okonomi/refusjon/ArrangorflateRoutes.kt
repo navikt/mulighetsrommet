@@ -184,6 +184,7 @@ private fun toRefusjonKravOppsummering(krav: RefusjonskravDto) = when (val bereg
                 antallManedsverk = deltakelser.sumOf { it.manedsverk },
                 belop = beregning.output.belop,
             ),
+            betalingsinformasjon = krav.betalingsinformasjon,
         )
     }
 }
@@ -201,6 +202,7 @@ data class RefusjonKravAft(
     val arrangor: RefusjonskravDto.Arrangor,
     val deltakelser: List<RefusjonKravDeltakelse>,
     val beregning: Beregning,
+    val betalingsinformasjon: RefusjonskravDto.Betalingsinformasjon,
 ) {
     @Serializable
     data class Beregning(
