@@ -11,7 +11,6 @@ import java.util.*
 class ByEnhetStrategy(private val axsysClient: AxsysClient) : Strategy {
     companion object {
         const val VALGT_ENHET_PARAM = "valgtEnhet"
-        private const val TEMA_OPPFOLGING = "OPP"
     }
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
@@ -27,7 +26,7 @@ class ByEnhetStrategy(private val axsysClient: AxsysClient) : Strategy {
     override fun isEnabled(parameters: MutableMap<String, String>, context: UnleashContext): Boolean {
         return context.userId
             .flatMap { userId ->
-                Optional.ofNullable(parameters.get(VALGT_ENHET_PARAM))
+                Optional.ofNullable(parameters[VALGT_ENHET_PARAM])
                     .map { enheter -> enheter.split(",\\s?".toRegex()) }
                     .map { enabledEnheter -> enabledEnheter.intersect(brukersEnheter(userId).toSet()).isNotEmpty() }
             }.orElse(false)

@@ -8,17 +8,12 @@ import {
 import {
   paginertMockTiltakstyper,
   mockVeilederflateTiltakstypeAFT,
-  mockMigrerteTiltakstyper,
 } from "../fixtures/mock_tiltakstyper";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 
 export const tiltakstypeHandlers = [
   http.get<PathParams, PaginertTiltakstype>("*/api/v1/intern/tiltakstyper", () => {
     return HttpResponse.json(paginertMockTiltakstyper);
-  }),
-
-  http.get<PathParams, string[]>("*/api/v1/intern/tiltakstyper/migrerte", () => {
-    return HttpResponse.json(mockMigrerteTiltakstyper);
   }),
 
   http.get<{ id: string }, TiltakstypeDto | undefined>(

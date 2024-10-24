@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.utdanning.api
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.domain.dbo.UtdanningslopDbo
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.util.*
 
@@ -10,13 +9,6 @@ data class UtdanningsprogramMedUtdanninger(
     val utdanningsprogram: Utdanningsprogram,
     val utdanninger: List<Utdanning>,
 ) {
-    fun toRequest(): UtdanningslopDbo {
-        return UtdanningslopDbo(
-            utdanningsprogram = utdanningsprogram.id,
-            utdanninger = utdanninger.map { it.id },
-        )
-    }
-
     @Serializable
     data class Utdanningsprogram(
         @Serializable(with = UUIDSerializer::class)

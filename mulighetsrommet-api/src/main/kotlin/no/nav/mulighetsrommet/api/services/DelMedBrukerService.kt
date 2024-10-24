@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
 import io.ktor.server.plugins.*
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotliquery.Row
 import kotliquery.queryOf
@@ -279,19 +278,3 @@ data class TiltakFraDb(
     val tiltakskode: Tiltakskode,
     val tiltakstypeNavn: String,
 )
-
-@Serializable
-data class SanityTiltak(
-    @SerialName("tiltaksgjennomforingNavn")
-    val navn: String,
-    @SerialName("_id")
-    val id: String,
-    val tiltakstype: Tiltakstype,
-) {
-    @Serializable
-    data class Tiltakstype(
-        @SerialName("_id")
-        val id: String,
-        val tiltakstypeNavn: String,
-    )
-}

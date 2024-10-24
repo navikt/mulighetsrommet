@@ -5,7 +5,6 @@ import {
   Opphav,
   TiltaksgjennomforingDto,
   TiltaksgjennomforingOppstartstype,
-  Tiltakskode,
   Utdanningslop,
   UtdanningslopDbo,
 } from "@mr/api-client";
@@ -22,16 +21,6 @@ export function defaultOppstartType(avtale?: AvtaleDto): TiltaksgjennomforingOpp
   return isKursTiltak(tiltakskode)
     ? TiltaksgjennomforingOppstartstype.FELLES
     : TiltaksgjennomforingOppstartstype.LOPENDE;
-}
-
-export function erArenaOpphavOgIngenEierskap(
-  tiltaksgjennomforing: TiltaksgjennomforingDto | undefined,
-  migrerteTiltakstyper: Tiltakskode[],
-) {
-  return (
-    tiltaksgjennomforing?.opphav === Opphav.ARENA &&
-    !migrerteTiltakstyper?.includes(tiltaksgjennomforing.tiltakstype.tiltakskode)
-  );
 }
 
 function defaultNavRegion(

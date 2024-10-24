@@ -773,21 +773,6 @@ paths:
               schema:
                 type: string
 
-  /api/v1/intern/tiltakstyper/migrerte:
-    get:
-      tags:
-        - Tiltakstyper
-      operationId: getMigrerteTiltakstyper
-      responses:
-        200:
-          description: Liste over tiltak vi har tatt eierskap over fra Arena
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Tiltakskode"
-
   /api/v1/intern/tiltakstyper/stotterPameldingIModia:
     get:
       tags:
@@ -801,7 +786,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: string
+                  $ref: "#/components/schemas/Tiltakskode"
 
   /api/v1/intern/veileder/innsatsgrupper:
     get:

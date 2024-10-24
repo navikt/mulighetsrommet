@@ -17,10 +17,6 @@ fun Route.featureTogglesRoute(config: AppConfig) {
     val unleashService: UnleashService by inject()
 
     route("/tiltakstyper") {
-        get("migrerte") {
-            call.respond(config.migrerteTiltak)
-        }
-
         get("stotterPameldingIModia") {
             call.respond(config.pameldingIModia)
         }

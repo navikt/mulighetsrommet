@@ -3,8 +3,6 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.routes.v1.EstimertVentetid
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
-import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -12,23 +10,6 @@ import java.time.LocalDate
 import java.util.*
 
 object TiltaksgjennomforingFixtures {
-    val ArenaOppfolging1 = ArenaTiltaksgjennomforingDbo(
-        id = UUID.randomUUID(),
-        sanityId = null,
-        navn = "Oppfølging 1",
-        tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-        tiltaksnummer = "2023#1",
-        arrangorOrganisasjonsnummer = "976663934",
-        startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = LocalDate.of(2023, 2, 1),
-        arenaAnsvarligEnhet = NavEnhetFixtures.Innlandet.enhetsnummer,
-        avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-        apentForInnsok = true,
-        antallPlasser = null,
-        avtaleId = AvtaleFixtures.oppfolging.id,
-        deltidsprosent = 100.0,
-    )
-
     val Oppfolging1 = TiltaksgjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "Oppfølging 1",

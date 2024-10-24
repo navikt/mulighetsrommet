@@ -143,12 +143,15 @@ private fun kafka(appConfig: AppConfig) = module {
         val consumers = listOf(
             SisteTiltaksgjennomforingerV1KafkaConsumer(
                 config = config.consumers.tiltaksgjennomforingerV1,
-                tiltakstyper = get(),
                 arenaAdapterClient = get(),
                 arenaMigreringTiltaksgjennomforingProducer = get(),
                 tiltaksgjennomforingRepository = get(),
             ),
-            AmtDeltakerV1KafkaConsumer(config = config.consumers.amtDeltakerV1, tiltakstyper = get(), deltakere = get()),
+            AmtDeltakerV1KafkaConsumer(
+                config = config.consumers.amtDeltakerV1,
+                tiltakstyper = get(),
+                deltakere = get(),
+            ),
             AmtVirksomheterV1KafkaConsumer(
                 config = config.consumers.amtVirksomheterV1,
                 arrangorRepository = get(),
@@ -295,18 +298,12 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
         )
     }
     single {
         AvtaleService(
             get(),
             get(),
-            tiltakstyperMigrert = appConfig.migrerteTiltak,
             get(),
             get(),
             get(),
@@ -332,10 +329,9 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
-    single { TiltakstypeService(get(), appConfig.migrerteTiltak) }
+    single { TiltakstypeService(get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
     single { NavVeilederService(get()) }

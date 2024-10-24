@@ -9,11 +9,9 @@ import { useNavigate } from "react-router-dom";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
-import { erArenaOpphavOgIngenEierskap } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
-import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
 import { KnapperadContainer } from "@/pages/KnapperadContainer";
-import { useFeatureToggle } from "../../api/features/useFeatureToggle";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
 interface Props {
   bruker: NavAnsatt;
@@ -24,7 +22,6 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
   const navigate = useNavigate();
   const { mutate } = useMutatePublisert();
   const advarselModal = useRef<HTMLDialogElement>(null);
-  const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const { data: enableOpprettTilsagn } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
@@ -85,14 +82,11 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
                   Opprett tilsagn
                 </Dropdown.Menu.GroupedList.Item>
               ) : null}
-              {!erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper) &&
-                gjennomforingIsAktiv(tiltaksgjennomforing.status.status) && (
-                  <Dropdown.Menu.GroupedList.Item
-                    onClick={() => avbrytModalRef.current?.showModal()}
-                  >
-                    Avbryt gjennomføring
-                  </Dropdown.Menu.GroupedList.Item>
-                )}
+              {gjennomforingIsAktiv(tiltaksgjennomforing.status.status) && (
+                <Dropdown.Menu.GroupedList.Item onClick={() => avbrytModalRef.current?.showModal()}>
+                  Avbryt gjennomføring
+                </Dropdown.Menu.GroupedList.Item>
+              )}
             </Dropdown.Menu.GroupedList>
           </Dropdown.Menu>
         </Dropdown>

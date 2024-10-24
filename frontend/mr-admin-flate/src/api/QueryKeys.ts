@@ -39,7 +39,6 @@ export const QueryKeys = {
   navansatt: (rolle: NavAnsattRolle) => ["nav-ansatte", rolle],
   sokNavansatt: (q: string) => ["sok-nav-ansatte", q],
   features: (feature: string) => ["feature", feature],
-  migrerteTiltakstyper: () => ["migrerteTiltakstyper"],
   navRegioner: () => ["navRegioner"],
   personopplysninger: () => ["personopplysninger"],
   opprettTilsagn: () => ["opprett-tilsagn"],

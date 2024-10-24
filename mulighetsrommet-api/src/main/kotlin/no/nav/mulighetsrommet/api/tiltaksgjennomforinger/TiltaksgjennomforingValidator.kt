@@ -8,14 +8,12 @@ import arrow.core.right
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeDto
 import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isKursTiltak
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
@@ -39,16 +37,6 @@ class TiltaksgjennomforingValidator(
 
         val tiltakstype = tiltakstyper.getById(next.tiltakstypeId)
             ?: raise(ValidationError.of(TiltaksgjennomforingDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
-
-        if (isTiltakstypeDisabled(previous, tiltakstype)) {
-            return ValidationError
-                .of(
-                    TiltaksgjennomforingDbo::avtaleId,
-                    "Opprettelse av tiltaksgjennomføring for tiltakstype: '${tiltakstype.navn}' er ikke skrudd på enda.",
-                )
-                .nel()
-                .left()
-        }
 
         val avtale = avtaler.get(next.avtaleId)
             ?: raise(ValidationError.of(TiltaksgjennomforingDbo::avtaleId, "Avtalen finnes ikke").nel())
@@ -350,47 +338,6 @@ class TiltaksgjennomforingValidator(
                 )
             }
         }
-
-        if (isOwnedByArena(previous)) {
-            if (gjennomforing.navn != previous.navn) {
-                add(ValidationError.of(TiltaksgjennomforingDbo::navn, "Navn kan ikke endres utenfor Arena"))
-            }
-
-            if (gjennomforing.startDato != previous.startDato) {
-                add(ValidationError.of(TiltaksgjennomforingDbo::startDato, "Startdato kan ikke endres utenfor Arena"))
-            }
-
-            if (gjennomforing.sluttDato != previous.sluttDato) {
-                add(ValidationError.of(TiltaksgjennomforingDbo::sluttDato, "Sluttdato kan ikke endres utenfor Arena"))
-            }
-
-            if (gjennomforing.apentForInnsok != previous.apentForInnsok) {
-                add(
-                    ValidationError.of(
-                        TiltaksgjennomforingDbo::apentForInnsok,
-                        "Åpent for innsøk kan ikke endres utenfor Arena",
-                    ),
-                )
-            }
-
-            if (gjennomforing.antallPlasser != previous.antallPlasser) {
-                add(
-                    ValidationError.of(
-                        TiltaksgjennomforingDbo::antallPlasser,
-                        "Antall plasser kan ikke endres utenfor Arena",
-                    ),
-                )
-            }
-
-            if (gjennomforing.deltidsprosent != previous.deltidsprosent) {
-                add(
-                    ValidationError.of(
-                        TiltaksgjennomforingDbo::deltidsprosent,
-                        "Deltidsprosent kan ikke endres utenfor Arena",
-                    ),
-                )
-            }
-        }
     }
 
     private fun MutableList<ValidationError>.validateKursTiltak(dbo: TiltaksgjennomforingDbo) {
@@ -409,14 +356,5 @@ class TiltaksgjennomforingValidator(
                 ),
             )
         }
-    }
-
-    private fun isTiltakstypeDisabled(
-        previous: TiltaksgjennomforingDto?,
-        tiltakstype: TiltakstypeDto,
-    ) = previous == null && !tiltakstyper.isEnabled(tiltakstype.tiltakskode)
-
-    private fun isOwnedByArena(previous: TiltaksgjennomforingDto): Boolean {
-        return previous.opphav == ArenaMigrering.Opphav.ARENA && !tiltakstyper.isEnabled(previous.tiltakstype.tiltakskode)
     }
 }

@@ -43,7 +43,6 @@ class TiltaksgjennomforingService(
     private val notificationRepository: NotificationRepository,
     private val validator: TiltaksgjennomforingValidator,
     private val documentHistoryService: EndringshistorikkService,
-    private val tiltakstypeService: TiltakstypeService,
     private val navAnsattService: NavAnsattService,
     private val db: Database,
 ) {
@@ -198,10 +197,6 @@ class TiltaksgjennomforingService(
         }
 
         val gjennomforing = get(id) ?: return Either.Left(NotFound("Gjennomføringen finnes ikke"))
-
-        if (!tiltakstypeService.isEnabled(gjennomforing.tiltakstype.tiltakskode)) {
-            return Either.Left(BadRequest(message = "Tiltakstype '${gjennomforing.tiltakstype.navn}' må avbrytes i Arena."))
-        }
 
         if (aarsak is AvbruttAarsak.Annet && aarsak.name.length > 100) {
             return Either.Left(BadRequest(message = "Beskrivelse kan ikke inneholde mer enn 100 tegn"))

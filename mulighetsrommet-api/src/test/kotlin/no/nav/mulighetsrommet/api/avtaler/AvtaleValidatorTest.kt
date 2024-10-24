@@ -26,7 +26,6 @@ import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
-import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.unleash.UnleashService
@@ -120,7 +119,7 @@ class AvtaleValidatorTest : FunSpec({
     beforeEach {
         domain.initialize(database.db)
 
-        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries)
+        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db))
         navEnheterService = NavEnhetService(NavEnhetRepository(database.db))
         avtaler = AvtaleRepository(database.db)
         opsjonslogg = OpsjonLoggRepository(database.db)
@@ -130,37 +129,6 @@ class AvtaleValidatorTest : FunSpec({
 
     afterEach {
         database.db.truncateAll()
-    }
-
-    test("skal feile når tiltakstypen ikke er aktivert") {
-        tiltakstyper = TiltakstypeService(
-            TiltakstypeRepository(database.db),
-            emptyList(),
-        )
-        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
-
-        val dbo = avtaleDbo.copy(
-            tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-        )
-
-        validator.validate(dbo, null).shouldBeLeft().shouldContainAll(
-            ValidationError(
-                "tiltakstypeId",
-                "Opprettelse av avtale for tiltakstype: 'Oppfølging' er ikke skrudd på enda.",
-            ),
-        )
-    }
-
-    test("skal ikke feile når tiltakstypen er AFT, VTA, eller aktivert") {
-        tiltakstyper = TiltakstypeService(
-            TiltakstypeRepository(database.db),
-            listOf(Tiltakskode.OPPFOLGING),
-        )
-        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
-
-        validator.validate(AvtaleFixtures.AFT, null).shouldBeRight()
-        validator.validate(AvtaleFixtures.VTA, null).shouldBeRight()
-        validator.validate(AvtaleFixtures.oppfolging, null).shouldBeRight()
     }
 
     test("should accumulate errors when dbo has multiple issues") {
@@ -491,12 +459,7 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     context("når avtalen allerede eksisterer") {
-        test("skal kunne endre felter med opphav fra Arena når vi har tatt eierskap til tiltakstypen") {
-            tiltakstyper = TiltakstypeService(
-                TiltakstypeRepository(database.db),
-                listOf(Tiltakskode.OPPFOLGING, Tiltakskode.ARBEIDSFORBEREDENDE_TRENING),
-            )
-
+        test("skal kunne endre felter med opphav fra Arena") {
             val avtaleMedEndringer = AvtaleDbo(
                 id = avtaleDbo.id,
                 navn = "Nytt navn",
@@ -531,59 +494,6 @@ class AvtaleValidatorTest : FunSpec({
 
             val previous = avtaler.get(avtaleDbo.id)
             validator.validate(avtaleMedEndringer, previous).shouldBeRight()
-        }
-
-        test("skal ikke kunne endre felter med opphav fra Arena når vi ikke har tatt eierskap til tiltakstypen") {
-            tiltakstyper = TiltakstypeService(
-                TiltakstypeRepository(database.db),
-                emptyList(),
-            )
-
-            val avtaleMedEndringer = AvtaleDbo(
-                id = avtaleDbo.id,
-                navn = "Nytt navn",
-                tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
-                arrangorId = ArrangorFixtures.underenhet1.id,
-                arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
-                arrangorKontaktpersoner = emptyList(),
-                avtalenummer = "123456",
-                websaknummer = Websaknummer("24/1234"),
-                startDato = LocalDate.now(),
-                sluttDato = LocalDate.now().plusYears(1),
-                administratorer = listOf(NavIdent("B123456")),
-                avtaletype = Avtaletype.Avtale,
-                prisbetingelser = null,
-                navEnheter = listOf("0300"),
-                antallPlasser = null,
-                beskrivelse = null,
-                faneinnhold = Faneinnhold(kurstittel = "Min kurstittel"),
-                personopplysninger = emptyList(),
-                personvernBekreftet = false,
-                amoKategorisering = null,
-                opsjonMaksVarighet = LocalDate.now().plusYears(3),
-                opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
-                customOpsjonsmodellNavn = null,
-                utdanningslop = null,
-            )
-
-            avtaler.upsert(
-                avtaleDbo.copy(
-                    administratorer = listOf(),
-                    tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
-                ),
-            )
-            avtaler.setOpphav(avtaleDbo.id, ArenaMigrering.Opphav.ARENA)
-
-            val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
-
-            val previous = avtaler.get(avtaleDbo.id)
-            validator.validate(avtaleMedEndringer, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                ValidationError("navn", "Navn kan ikke endres utenfor Arena"),
-                ValidationError("startDato", "Startdato kan ikke endres utenfor Arena"),
-                ValidationError("sluttDato", "Sluttdato kan ikke endres utenfor Arena"),
-                ValidationError("avtaletype", "Avtaletype kan ikke endres utenfor Arena"),
-                ValidationError("arrangorId", "Tiltaksarrangøren kan ikke endres utenfor Arena"),
-            )
         }
 
         test("Skal ikke kunne endre opsjonsmodell når opsjon er registrert") {

@@ -25,8 +25,6 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
-import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
@@ -126,7 +124,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     beforeEach {
         domain.initialize(database.db)
 
-        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries)
+        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db))
         avtaler = AvtaleRepository(database.db)
         tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         arrangorer = ArrangorRepository(database.db)
@@ -134,18 +132,6 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
     afterTest {
         database.db.truncateAll()
-    }
-
-    test("should fail when tiltakstype is not enabled") {
-        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), emptyList())
-        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
-
-        validator.validate(gjennomforing, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            ValidationError(
-                "avtaleId",
-                "Opprettelse av tiltaksgjennomføring for tiltakstype: 'Oppfølging' er ikke skrudd på enda.",
-            ),
-        )
     }
 
     test("should fail when avtale does not exist") {
@@ -246,7 +232,10 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             sluttDato = null,
             avtaleId = AvtaleFixtures.oppfolgingMedAvtale.id,
         )
-        val offentligOffentlig = TiltaksgjennomforingFixtures.GruppeAmo1.copy(sluttDato = null, amoKategorisering = AmoKategorisering.Studiespesialisering)
+        val offentligOffentlig = TiltaksgjennomforingFixtures.GruppeAmo1.copy(
+            sluttDato = null,
+            amoKategorisering = AmoKategorisering.Studiespesialisering,
+        )
 
         validator.validate(forhaandsgodkjent, null).shouldBeRight()
         validator.validate(rammeAvtale, null).shouldBeLeft(
@@ -263,7 +252,10 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     test("kurstittel er påkrevd hvis kurstiltak") {
         val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
         val jobbklubb = TiltaksgjennomforingFixtures.Jobbklubb1.copy(faneinnhold = null)
-        val gruppeAmo = TiltaksgjennomforingFixtures.GruppeAmo1.copy(faneinnhold = null, amoKategorisering = AmoKategorisering.Studiespesialisering)
+        val gruppeAmo = TiltaksgjennomforingFixtures.GruppeAmo1.copy(
+            faneinnhold = null,
+            amoKategorisering = AmoKategorisering.Studiespesialisering,
+        )
         val oppfolging = TiltaksgjennomforingFixtures.Oppfolging1
 
         validator.validate(jobbklubb, null).shouldBeLeft(
@@ -276,12 +268,16 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     }
 
     test("amoKategorisering er påkrevd for avtale og gjennomføring når tiltakstype er Gruppe AMO") {
-        val avtaleUtenAmokategorisering = AvtaleFixtures.gruppeAmo.copy(tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id, amoKategorisering = null)
+        val avtaleUtenAmokategorisering =
+            AvtaleFixtures.gruppeAmo.copy(tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id, amoKategorisering = null)
         avtaler.upsert(avtaleUtenAmokategorisering)
 
         val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
 
-        val gruppeAmo = TiltaksgjennomforingFixtures.GruppeAmo1.copy(amoKategorisering = null, avtaleId = avtaleUtenAmokategorisering.id)
+        val gruppeAmo = TiltaksgjennomforingFixtures.GruppeAmo1.copy(
+            amoKategorisering = null,
+            avtaleId = avtaleUtenAmokategorisering.id,
+        )
 
         validator.validate(gruppeAmo, null).shouldBeLeft(
             listOf(
@@ -292,12 +288,18 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     }
 
     test("Kurselement må velges for gjennomføring når tiltakstype er Gruppe AMO") {
-        val avtaleMedAmokategorisering = AvtaleFixtures.gruppeAmo.copy(tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id, amoKategorisering = AmoKategorisering.Studiespesialisering)
+        val avtaleMedAmokategorisering = AvtaleFixtures.gruppeAmo.copy(
+            tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id,
+            amoKategorisering = AmoKategorisering.Studiespesialisering,
+        )
         avtaler.upsert(avtaleMedAmokategorisering)
 
         val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
 
-        val gruppeAmo = TiltaksgjennomforingFixtures.GruppeAmo1.copy(amoKategorisering = null, avtaleId = avtaleMedAmokategorisering.id)
+        val gruppeAmo = TiltaksgjennomforingFixtures.GruppeAmo1.copy(
+            amoKategorisering = null,
+            avtaleId = avtaleMedAmokategorisering.id,
+        )
 
         validator.validate(gruppeAmo, null).shouldBeLeft(
             listOf(
@@ -385,37 +387,6 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
         afterEach {
             tiltaksgjennomforinger.delete(gjennomforing.id)
-        }
-
-        test("skal ikke kunne endre felter med opphav fra Arena når vi ikke har tatt eierskap til tiltakstypen") {
-            tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf())
-
-            val gjennomforingMedEndringer = gjennomforing.copy(
-                navn = "Nytt navn",
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                arrangorId = ArrangorFixtures.underenhet2.id,
-                startDato = gjennomforing.startDato.plusDays(1),
-                sluttDato = gjennomforing.sluttDato?.plusDays(1),
-                apentForInnsok = false,
-                antallPlasser = 1000,
-                deltidsprosent = 1.5,
-            )
-
-            tiltaksgjennomforinger.setOpphav(gjennomforing.id, ArenaMigrering.Opphav.ARENA)
-
-            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
-
-            val current = tiltaksgjennomforinger.get(gjennomforing.id)
-            validator.validate(gjennomforingMedEndringer, current).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                ValidationError("navn", "Navn kan ikke endres utenfor Arena"),
-                ValidationError("startDato", "Startdato kan ikke endres utenfor Arena"),
-                ValidationError("sluttDato", "Sluttdato kan ikke endres utenfor Arena"),
-                ValidationError("apentForInnsok", "Åpent for innsøk kan ikke endres utenfor Arena"),
-                ValidationError("antallPlasser", "Antall plasser kan ikke endres utenfor Arena"),
-                ValidationError("deltidsprosent", "Deltidsprosent kan ikke endres utenfor Arena"),
-                ValidationError("arrangorId", "Du kan ikke endre arrangør når gjennomføringen er aktiv"),
-                ValidationError("arrangorId", "Du må velge en arrangør for avtalen"),
-            )
         }
 
         test("Skal godta endringer for antall plasser selv om gjennomføringen er aktiv") {

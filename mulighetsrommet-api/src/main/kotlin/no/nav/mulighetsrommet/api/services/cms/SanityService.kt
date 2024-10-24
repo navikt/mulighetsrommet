@@ -362,9 +362,6 @@ class SanityService(
         }
     }
 
-    private suspend fun existsInSanity(sanityId: UUID) =
-        isPublished(sanityId) || isDraft(sanityId)
-
     private suspend fun getSanityId(sanityId: UUID) =
         if (isPublished(sanityId)) {
             "$sanityId"

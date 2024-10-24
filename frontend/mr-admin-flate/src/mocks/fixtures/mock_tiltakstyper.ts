@@ -310,15 +310,3 @@ export const mockVeilederflateTiltakstypeAFT: VeilederflateTiltakstype = {
     "Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et tilbud for deg som deg som har nedsatt arbeidsevne og trenger hjelp for å komme i jobb.\n\nMålet er å avklare arbeidsevnen din gjennom arbeidstrening i ulike arbeidssituasjoner.\n\n- Etter en periode med forberedende arbeidstrening i et tilrettelagt arbeidsmiljø får du arbeidstrening i en vanlig bedrift.\n- Du får kartlagt kompetansen din og får karriereveiledning.\n- Du kan få tilrettelagt opplæring hvis du ønsker å gå videre med et yrkesfaglig utdanningsløp. Opplæringen skal bedre mulighetene dine til å komme i jobb.\n\n[Du kan lese mer om kurset på nav.no](www.nav.no/arbeidsforberedende-trening)",
   kanKombineresMed: [],
 };
-
-export const mockMigrerteTiltakstyper: Tiltakskode[] = [
-  Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-  Tiltakskode.ARBEIDSRETTET_REHABILITERING,
-  Tiltakskode.AVKLARING,
-  Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-  Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-  Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-  Tiltakskode.OPPFOLGING,
-  Tiltakskode.JOBBKLUBB,
-  Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-];
