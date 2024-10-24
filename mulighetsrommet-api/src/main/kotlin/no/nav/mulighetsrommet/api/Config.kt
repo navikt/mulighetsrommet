@@ -90,7 +90,8 @@ data class AuthProvider(
     val issuer: String,
     val jwksUri: String,
     val audience: String,
-    val tokenEndpointUrl: String,
+    val tokenEndpointUrl: String? = null,
+    val wellKnownUrl: String? = null,
 )
 
 data class ServiceClientConfig(

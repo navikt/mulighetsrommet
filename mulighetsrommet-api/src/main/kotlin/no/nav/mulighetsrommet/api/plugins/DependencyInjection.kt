@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.plugins
 
 import com.github.kagkarlsson.scheduler.Scheduler
+import com.nimbusds.jose.jwk.KeyUse
+import com.nimbusds.jose.jwk.RSAKey
 import io.ktor.server.application.*
 import kotlinx.coroutines.runBlocking
 import no.nav.common.client.axsys.AxsysClient
@@ -8,6 +10,8 @@ import no.nav.common.client.axsys.AxsysV2ClientImpl
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesPreset
+import no.nav.common.token_client.builder.TokenXTokenClientBuilder
+import no.nav.common.token_client.client.TokenXOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterRepository
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
@@ -71,6 +75,9 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.koin.ktor.plugin.KoinIsolated
 import org.koin.logger.SLF4JLogger
+import java.security.KeyPairGenerator
+import java.security.interfaces.RSAPrivateKey
+import java.security.interfaces.RSAPublicKey
 
 fun Application.configureDependencyInjection(appConfig: AppConfig) {
     install(KoinIsolated) {
@@ -185,7 +192,8 @@ private fun repositories() = module {
 
 private fun services(appConfig: AppConfig) = module {
     val azure = appConfig.auth.azure
-    val cachedTokenProvider = CachedTokenProvider.init(azure.audience, azure.tokenEndpointUrl)
+    val cachedTokenProvider = CachedTokenProvider.init(azure.audience, requireNotNull(azure.tokenEndpointUrl))
+    val tokenXTokenProvider = createTokenXTokenClient(requireNotNull(appConfig.auth.tokenx.wellKnownUrl))
 
     single {
         VeilarboppfolgingClient(
@@ -274,7 +282,7 @@ private fun services(appConfig: AppConfig) = module {
         AltinnClient(
             baseUrl = appConfig.altinn.url,
             clientEngine = appConfig.engine,
-            tokenProvider = cachedTokenProvider.withScope(appConfig.altinn.scope),
+            tokenProvider = { tokenXTokenProvider.exchangeOnBehalfOfToken(appConfig.altinn.scope, it) },
         )
     }
     single { EndringshistorikkService(get()) }
@@ -421,3 +429,26 @@ private fun tasks(config: TaskConfig) = module {
             .build()
     }
 }
+
+fun createTokenXTokenClient(discoveryUrl: String): TokenXOnBehalfOfTokenClient =
+    when (NaisEnv.current()) {
+        NaisEnv.Local -> TokenXTokenClientBuilder.builder()
+            .withDiscoveryUrl(discoveryUrl)
+            .withClientId("mulighetsrommet-api")
+            .withPrivateJwk(createMockRSAKey("tokenx").toJSONString())
+            .buildOnBehalfOfTokenClient()
+
+        else -> TokenXTokenClientBuilder.builder().withNaisDefaults().buildOnBehalfOfTokenClient()
+    }
+
+private fun createMockRSAKey(keyID: String): RSAKey = KeyPairGenerator
+    .getInstance("RSA").let {
+        it.initialize(2048)
+        it.generateKeyPair()
+    }.let {
+        RSAKey.Builder(it.public as RSAPublicKey)
+            .privateKey(it.private as RSAPrivateKey)
+            .keyUse(KeyUse.SIGNATURE)
+            .keyID(keyID)
+            .build()
+    }

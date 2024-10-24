@@ -11,17 +11,17 @@ class AltinnRettigheterService(
 ) {
     private val rolleExpiryDuration = Duration.ofDays(1)
 
-    suspend fun getRettigheter(norskIdent: NorskIdent): List<BedriftRettigheter> {
+    suspend fun getRettigheter(token: String, norskIdent: NorskIdent): List<BedriftRettigheter> {
         val bedriftRettigheter = altinnRettigheterRepository.getRettigheter(norskIdent)
         return if (bedriftRettigheter.isEmpty() || bedriftRettigheter.any { it.rettigheter.any { it.expiry.isBefore(LocalDateTime.now()) } }) {
-            syncRettigheter(norskIdent)
+            syncRettigheter(token, norskIdent)
         } else {
             bedriftRettigheter.map { it.toBedriftRettigheter() }
         }
     }
 
-    private suspend fun syncRettigheter(norskIdent: NorskIdent): List<BedriftRettigheter> {
-        val rettigheter = altinnClient.hentRettigheter()
+    private suspend fun syncRettigheter(token: String, norskIdent: NorskIdent): List<BedriftRettigheter> {
+        val rettigheter = altinnClient.hentRettigheter(token)
         altinnRettigheterRepository.upsertRettighet(
             PersonBedriftRettigheter(
                 norskIdent = norskIdent,

@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import org.koin.ktor.ext.inject
 import java.net.URI
 import java.util.*
@@ -262,11 +263,12 @@ fun Application.configureAuthentication(
             }
             validate { credentials ->
                 credentials["pid"] ?: return@validate null
+                val token = getAccessToken()
                 val norskIdent = credentials["pid"]?.let {
                     runCatching { NorskIdent(it) }.getOrNull()
                 } ?: return@validate null
 
-                val organisasjonsnummer = altinnRettigheterService.getRettigheter(norskIdent)
+                val organisasjonsnummer = altinnRettigheterService.getRettigheter(token, norskIdent)
                     .filter {
                         it.rettigheter.contains(AltinnRessurs.TILTAK_ARRANGOR_REFUSJON)
                     }

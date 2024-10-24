@@ -10,16 +10,13 @@ import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.altinn.models.AltinnRessurs
 import no.nav.mulighetsrommet.altinn.models.BedriftRettigheter
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
-import no.nav.mulighetsrommet.tokenprovider.AccessType
-import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
 
 class AltinnClient(
     private val baseUrl: String,
-    private val tokenProvider: TokenProvider,
+    private val tokenProvider: (token: String) -> String,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -32,30 +29,29 @@ class AltinnClient(
         val scope: String,
     )
 
-    suspend fun hentRettigheter(): List<BedriftRettigheter> {
-        log.info("Henter organisasjoner fra Altinn")
-        val tilganger = hentTilganger()
-        return findAltinnRoller(tilganger)
+    suspend fun hentRettigheter(token: String): List<BedriftRettigheter> {
+        log.info("Henter rettigheter fra Altinn for bruker via Team Fager")
+        val tilganger = hentTilganger(token)
+        return sjekkTilganger(tilganger)
     }
 
-    private fun findAltinnRoller(
-        bedriftsrettigheter: List<BedriftRettigheter>,
-    ): List<BedriftRettigheter> =
-        bedriftsrettigheter
-            .flatMap { rettighet ->
-                findAltinnRoller(rettighet.) +
-                    BedriftRettigheter(
-                        organisasjonsnummer = Organisasjonsnummer(rettighet.organizationNumber),
-                        rettigheter = AltinnRessurs
-                            .entries
-                            .filter { it.ressursId in rettighet.authorizedResources },
-                    )
-            }
-            .filter { it.rettigheter.isNotEmpty() }
+    fun sjekkTilganger(tilganger: Tilgangshierarki): List<BedriftRettigheter> {
+        val result = mutableListOf<BedriftRettigheter>()
 
-    private suspend fun hentTilganger(): Tilgangshierarki {
+        fun checkTilganger(org: TilgangForOrganisasjon) {
+            if (AltinnRessurs.TILTAK_ARRANGOR_REFUSJON.ressursId in org.altinn3Tilganger) {
+                result.add(BedriftRettigheter(Organisasjonsnummer(org.orgnr), listOf(AltinnRessurs.TILTAK_ARRANGOR_REFUSJON)))
+            }
+            org.underenheter.forEach { checkTilganger(it) }
+        }
+
+        tilganger.hierarki.forEach { checkTilganger(it) }
+        return result
+    }
+
+    private suspend fun hentTilganger(token: String): Tilgangshierarki {
         val response = client.post("$baseUrl/altinn-tilganger") {
-            bearerAuth(tokenProvider.exchange(AccessType.M2M))
+            bearerAuth(tokenProvider.invoke(token))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
         }
 

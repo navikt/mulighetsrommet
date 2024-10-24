@@ -108,9 +108,8 @@ fun createTestApplicationConfig() = AppConfig(
         baseUrl = "",
     ),
     altinn = AltinnClient.Config(
-        url = "altinn-acl",
+        url = "",
         scope = "default",
-        apiKey = "apiKey",
     ),
 )
 
@@ -153,18 +152,21 @@ fun createAuthConfig(
         audience = audience,
         jwksUri = oauth?.jwksUrl(issuer)?.toUri()?.toString() ?: "http://localhost",
         tokenEndpointUrl = oauth?.tokenEndpointUrl(issuer)?.toString() ?: "http://localhost",
+        wellKnownUrl = null,
     ),
     roles = roles,
     tokenx = AuthProvider(
         issuer = oauth?.issuerUrl(issuer)?.toString() ?: issuer,
         audience = audience,
-        jwksUri = oauth?.jwksUrl(issuer)?.toUri()?.toString() ?: "http://localhost",
-        tokenEndpointUrl = oauth?.tokenEndpointUrl(issuer)?.toString() ?: "http://localhost",
+        jwksUri = oauth?.jwksUrl(issuer)?.toUri()?.toString() ?: "http://localhost:8081",
+        tokenEndpointUrl = null,
+        wellKnownUrl = oauth?.wellKnownUrl(issuer)?.toString() ?: "http://localhost:8081/tokenx/.well-known/openid-configuration",
     ),
     maskinporten = AuthProvider(
         issuer = oauth?.issuerUrl(issuer)?.toString() ?: issuer,
         audience = audience,
         jwksUri = oauth?.jwksUrl(issuer)?.toUri()?.toString() ?: "http://localhost",
         tokenEndpointUrl = oauth?.tokenEndpointUrl(issuer)?.toString() ?: "http://localhost",
+        wellKnownUrl = null,
     ),
 )

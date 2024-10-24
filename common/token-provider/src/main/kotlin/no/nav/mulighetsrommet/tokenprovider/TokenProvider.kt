@@ -10,10 +10,8 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
-import no.nav.common.token_client.builder.TokenXTokenClientBuilder
 import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.common.token_client.client.OnBehalfOfTokenClient
-import no.nav.common.token_client.client.TokenXOnBehalfOfTokenClient
 import no.nav.mulighetsrommet.env.NaisEnv
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey
@@ -39,7 +37,6 @@ fun interface M2MTokenProvider {
  * spør igjen for å hente det cachede tokenet.
  */
 class CachedTokenProvider(
-    private val tokenXTokenProvider: TokenXOnBehalfOfTokenClient,
     private val oboTokenProvider: OnBehalfOfTokenClient,
     private val m2MTokenProvider: MachineToMachineTokenClient,
 ) {
@@ -52,7 +49,6 @@ class CachedTokenProvider(
     companion object {
         fun init(clientId: String, tokenEndpointUrl: String): CachedTokenProvider {
             return CachedTokenProvider(
-                tokenXTokenProvider = createTokenXTokenClient(clientId),
                 oboTokenProvider = createOboTokenClient(clientId, tokenEndpointUrl),
                 m2MTokenProvider = createM2mTokenClient(clientId, tokenEndpointUrl),
             )
@@ -75,7 +71,6 @@ class CachedTokenProvider(
     private fun exchangeAsync(scope: String, accessType: AccessType): Deferred<String> {
         return CoroutineScope(Dispatchers.IO).async {
             when (accessType) {
-                is AccessType.TOKENX -> tokenXTokenProvider.exchangeOnBehalfOfToken(scope, accessType.token)
                 AccessType.M2M -> m2MTokenProvider.createMachineToMachineToken(scope)
                 is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(scope, accessType.token)
             }
@@ -87,17 +82,6 @@ private fun AccessType.subject(): String =
     when (this) {
         AccessType.M2M -> ""
         is AccessType.OBO -> {
-            try {
-                val token = JWTParser.parse(this.token)
-                val subject = token.jwtClaimsSet.subject
-                    ?: throw IllegalArgumentException("Unable to get subject, access token is missing subject")
-                subject
-            } catch (e: ParseException) {
-                throw IllegalArgumentException("Unable to get subject, access token is invalid")
-            }
-        }
-
-        is AccessType.TOKENX -> {
             try {
                 val token = JWTParser.parse(this.token)
                 val subject = token.jwtClaimsSet.subject
@@ -129,38 +113,6 @@ private fun createM2mTokenClient(clientId: String, tokenEndpointUrl: String): Ma
             .buildMachineToMachineTokenClient()
 
         else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
-    }
-
-fun createTokenXTokenClient(clientId: String): TokenXOnBehalfOfTokenClient =
-    when (NaisEnv.current()) {
-        NaisEnv.Local -> TokenXTokenClientBuilder.builder()
-            .withClientId(clientId)
-            .withPrivateJwk(createMockRSAKey("azure").toJSONString())
-            .buildOnBehalfOfTokenClient()
-
-        else -> TokenXTokenClientBuilder.builder().withNaisDefaults().buildOnBehalfOfTokenClient()
-    }
-
-fun createMaskinportenM2mTokenClient(
-    clientId: String,
-    tokenEndpointUrl: String,
-    issuer: String,
-): MaskinPortenTokenProvider? =
-    when (NaisEnv.current()) {
-        NaisEnv.Local -> MaskinPortenTokenProvider(
-            clientId = clientId,
-            tokenEndpointUrl = tokenEndpointUrl,
-            privateJwk = createMockRSAKey("maskinporten").toJSONString(),
-            issuer = issuer,
-        )
-
-        NaisEnv.ProdGCP -> null // TODO: Remove when prod
-        else -> MaskinPortenTokenProvider(
-            clientId = clientId,
-            tokenEndpointUrl = tokenEndpointUrl,
-            privateJwk = System.getenv("MASKINPORTEN_CLIENT_JWK"),
-            issuer = issuer,
-        )
     }
 
 private fun createMockRSAKey(keyID: String): RSAKey = KeyPairGenerator
