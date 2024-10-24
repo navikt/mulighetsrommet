@@ -1913,7 +1913,7 @@ paths:
       operationId: setRefusjonskravBetalingsinformasjon
       responses:
         200:
-          description: Set betalibngsinformasjon for et refusjonskrav
+          description: Set betalingsinformasjon for et refusjonskrav
 
   /api/v1/intern/arrangorflate/refusjonskrav/{id}/kvittering:
     parameters:
