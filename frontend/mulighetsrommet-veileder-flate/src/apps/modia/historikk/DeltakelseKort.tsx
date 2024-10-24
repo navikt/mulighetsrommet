@@ -22,6 +22,7 @@ import styles from "./DeltakelseKort.module.scss";
 import { ReactNode } from "react";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL } from "@/constants";
+import { Link } from "react-router-dom";
 
 type Size = "small" | "medium" | "large";
 
@@ -45,21 +46,20 @@ function DeltakelseInnhold({ deltakelse }: Props) {
       route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
       deltakerId: deltakelse.id,
     });
-    const detaljerRoute = resolveModiaRoute({
-      route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DETALJER,
-      gjennomforingId: deltakelse.gjennomforingId,
-    });
 
     return (
       <HGrid columns="1fr 20%" align="center">
         <Innhold deltakelse={deltakelse} />
-        <VStack gap="1">
+        <VStack gap="2">
           <Button variant="secondary" onClick={deltakelseRoute.navigate} size="small">
             Gå til deltakelse
           </Button>
-          <Button variant="tertiary" onClick={detaljerRoute.navigate} size="small">
+          <Link
+            to={`/arbeidsmarkedstiltak/tiltak/${deltakelse.gjennomforingId}`}
+            className={styles.tertiary_link}
+          >
             Gå til tiltak
-          </Button>
+          </Link>
         </VStack>
       </HGrid>
     );
