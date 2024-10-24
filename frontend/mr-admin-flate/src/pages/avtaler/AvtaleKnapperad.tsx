@@ -51,7 +51,7 @@ export function AvtaleKnapperad({ bruker, avtale }: Props) {
                   }
                 }}
               >
-                Rediger
+                Rediger avtale
               </Dropdown.Menu.GroupedList.Item>
               {kanRegistrereOpsjon(avtale) && (
                 <Dropdown.Menu.GroupedList.Item

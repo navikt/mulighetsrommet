@@ -152,8 +152,10 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 {...register("tiltakstype")}
                 onChange={(event) => {
                   setValue("amoKategorisering", null);
-                  const options = event.target.value?.tiltakskode
-                    ? avtaletypeOptions(event.target.value.tiltakskode)
+                  const options = (event.target.value as { tiltakskode: string })?.tiltakskode
+                    ? avtaletypeOptions(
+                        (event.target.value as { tiltakskode: Tiltakskode }).tiltakskode,
+                      )
                     : [];
                   const avtaletype = options[0]?.value;
                   if (options.length === 1) {

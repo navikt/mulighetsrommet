@@ -37,7 +37,7 @@ app:
   kafka:
     brokerUrl: localhost:29092
     producerId: mulighetsrommet-api-kafka-producer.v1
-    consumerGroupId: mulighetsrommet-api-kafka-consumer.v1
+    defaultConsumerGroupId: mulighetsrommet-api-kafka-consumer.v1
     producers:
       arenaMigreringTiltaksgjennomforinger:
         topic: arena-migrering-tiltaksgjennomforinger-v1

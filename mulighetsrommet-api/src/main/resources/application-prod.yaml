@@ -7,7 +7,7 @@ app:
     jdbcUrl: ${DB_JDBC_URL}
     maximumPoolSize: 10
   flyway:
-    strategy: RepairAndMigrate
+    strategy: Migrate
 
   migrerteTiltak:
     - ARBEIDSFORBEREDENDE_TRENING
@@ -15,6 +15,7 @@ app:
     - AVKLARING
     - DIGITALT_OPPFOLGINGSTILTAK
     - GRUPPE_ARBEIDSMARKEDSOPPLAERING
+    - GRUPPE_FAG_OG_YRKESOPPLAERING
     - JOBBKLUBB
     - OPPFOLGING
     - VARIG_TILRETTELAGT_ARBEID_SKJERMET
@@ -24,7 +25,7 @@ app:
 
   kafka:
     producerId: mulighetsrommet-api-kafka-producer.v1
-    consumerGroupId: mulighetsrommet-api-kafka-consumer.v1
+    defaultConsumerGroupId: mulighetsrommet-api-kafka-consumer.v1
     producers:
       arenaMigreringTiltaksgjennomforinger:
         topic: team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1
@@ -91,8 +92,8 @@ app:
     token: ${SANITY_AUTH_TOKEN}
 
   veilarbvedtaksstotteConfig:
-    url: https://veilarbvedtaksstotte.prod-fss-pub.nais.io/veilarbvedtaksstotte/api
-    scope: api://prod-fss.pto.veilarbvedtaksstotte/.default
+    url: http://veilarbvedtaksstotte.obo/veilarbvedtaksstotte/api
+    scope: api://prod-gcp.obo.veilarbvedtaksstotte/.default
 
   veilarboppfolgingConfig:
     url: http://veilarboppfolging.poao/veilarboppfolging/api
