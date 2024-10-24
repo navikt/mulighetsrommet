@@ -58,7 +58,7 @@ class AltinnClientTest : FunSpec({
     "tiltak-arrangor-refusjon": [
       "211267232"
     ]
-  }<<
+  }
 }
     """.trimIndent()
 
