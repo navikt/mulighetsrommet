@@ -1,6 +1,4 @@
-import { Heading } from "@navikt/ds-react";
 import React from "react";
-import { Definition } from "~/components/Definisjonsliste";
 
 export function Definisjon({
   label,

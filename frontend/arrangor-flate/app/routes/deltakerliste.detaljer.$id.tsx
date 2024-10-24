@@ -61,7 +61,7 @@ export const action: ActionFunction = async ({ request }) => {
     requestBody: {
       kontoNummer: kontoNummer as string,
       kid: kid as string,
-    }
+    },
   });
 
   return redirect(`/deltakerliste/kvittering/${refusjonskravId}`);
@@ -109,26 +109,26 @@ export default function RefusjonskravDetaljer() {
             <input
               type="text"
               name="kontoNummer"
-              className={'border border-[#0214317D] rounded-md ' + (isEditing ? '' : 'hidden')}
+              className={"border border-[#0214317D] rounded-md " + (isEditing ? "" : "hidden")}
               value={kontoNummer}
               onChange={(e) => setKontoNummer(e.target.value)}
             />
+            <span className={"ml-4 cursor-pointer " + (isEditing ? "hidden" : "")}>
+              {formaterKontoNummer(kontoNummer)}
+            </span>
             <span
-              className={'ml-4 cursor-pointer ' + (isEditing ? 'hidden' : '')}
-            >{formaterKontoNummer(kontoNummer)}</span>
-            <span className="ml-4 text-text-action cursor-pointer" onClick={() => {
-              setIsEditing(!isEditing);
-            }}>Endre</span>
+              className="ml-4 text-text-action cursor-pointer"
+              onClick={() => {
+                setIsEditing(!isEditing);
+              }}
+            >
+              Endre
+            </span>
           </Definisjon>
           <Definisjon label="Evt KID nr for refusjonskrav" className="my-4 flex">
             <div className="flex">
               <span>{krav.betalingsinformasjon.kid}</span>
-              <input
-                type="text"
-                name="kid"
-                className="border border-[#0214317D] rounded-md"
-              />
-              {/* <span className="ml-4 text-text-action cursor-pointer">Endre</span> */}
+              <input type="text" name="kid" className="border border-[#0214317D] rounded-md" />
             </div>
           </Definisjon>
           <VStack gap="2" justify={"start"} align={"start"}>
