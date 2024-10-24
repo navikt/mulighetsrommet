@@ -69,7 +69,7 @@ data class AdGruppeNavAnsattRolleMapping(
 data class KafkaConfig(
     val brokerUrl: String? = null,
     val producerId: String,
-    val consumerGroupId: String,
+    val defaultConsumerGroupId: String,
     val producers: KafkaProducers,
     val consumers: KafkaConsumers,
 )
