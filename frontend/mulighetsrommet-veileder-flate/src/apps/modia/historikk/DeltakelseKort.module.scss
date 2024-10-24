@@ -14,3 +14,11 @@
 .kladd {
   border: 2px dashed var(--a-border-warning);
 }
+.tertiary_link {
+  text-align: center;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

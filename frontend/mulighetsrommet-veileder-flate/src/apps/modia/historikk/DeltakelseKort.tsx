@@ -22,6 +22,7 @@ import styles from "./DeltakelseKort.module.scss";
 import { ReactNode } from "react";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL } from "@/constants";
+import { Link } from "react-router-dom";
 
 type Size = "small" | "medium" | "large";
 
@@ -49,9 +50,17 @@ function DeltakelseInnhold({ deltakelse }: Props) {
     return (
       <HGrid columns="1fr 20%" align="center">
         <Innhold deltakelse={deltakelse} />
-        <Button variant="secondary" onClick={deltakelseRoute.navigate} size="small">
-          Gå til deltakelse
-        </Button>
+        <VStack gap="2">
+          <Button variant="secondary" onClick={deltakelseRoute.navigate} size="small">
+            Gå til deltakelse
+          </Button>
+          <Link
+            to={`/arbeidsmarkedstiltak/tiltak/${deltakelse.gjennomforingId}`}
+            className={styles.tertiary_link}
+          >
+            Gå til tiltak
+          </Link>
+        </VStack>
       </HGrid>
     );
   } else if (deltakelse.eierskap === "TEAM_TILTAK") {

@@ -1,4 +1,9 @@
-import { GruppetiltakDeltakerStatus, Deltakelse, DeltakelseEierskap } from "@mr/api-client";
+import {
+  GruppetiltakDeltakerStatus,
+  Deltakelse,
+  DeltakelseEierskap,
+  ArbeidsgiverAvtaleStatus,
+} from "@mr/api-client";
 import { tiltakAvklaring, tiltakOppfolging } from "./mockTiltaksgjennomforinger";
 
 export const deltakelserHistoriske: Deltakelse[] = [
@@ -14,6 +19,19 @@ export const deltakelserHistoriske: Deltakelse[] = [
     sistEndretDato: "2024-03-07",
     innsoktDato: "2024-03-02",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
+    periode: {},
+  },
+  {
+    tittel: "Mentor hos Fretex AS",
+    tiltakstypeNavn: "Mentor",
+    id: window.crypto.randomUUID(),
+    status: {
+      type: ArbeidsgiverAvtaleStatus.AVSLUTTET,
+      visningstekst: "Avsluttet",
+    },
+    sistEndretDato: "2024-03-07",
+    innsoktDato: "2024-03-02",
+    eierskap: DeltakelseEierskap.TEAM_TILTAK,
     periode: {},
   },
   {
