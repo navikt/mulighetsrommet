@@ -58,13 +58,13 @@ class AltinnClientTest : FunSpec({
     "tiltak-arrangor-refusjon": [
       "211267232"
     ]
-  }
+  }<<
 }
     """.trimIndent()
 
     test("hentAlleOrganisasjoner 1 tilgang - kun et kall til Altinn") {
         val altinnClient = AltinnClient(
-            "https://altinn.no",
+            "http://arbeidsgiver-altinn-tilgang.fager",
             tokenProvider = { "token" },
             createMockEngine(
                 "/altinn-tilganger" to {
