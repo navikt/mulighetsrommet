@@ -31,12 +31,16 @@ export function RefusjonskravTable({ krav }: Props) {
             <Table.HeaderCell scope="col"></Table.HeaderCell>
           </Table.Row>
         </Table.Header>
+        <div className="not-sr-only mb-5 opacity-0 aria-hidden"></div>
         <Table.Body>
           {krav.map(
             ({ id, status, fristForGodkjenning, beregning, gjennomforing, tiltakstype }, index) => {
               return (
                 <React.Fragment key={id}>
-                  <Table.Row id={`row${index + 1}-header`}>
+                  <Table.Row
+                    id={`row${index + 1}-header`}
+                    className="border-border-divider border-t-2 border-x-2 border-b-0"
+                  >
                     <Table.HeaderCell
                       className="w-full bg-bg-subtle"
                       colSpan={6}
@@ -48,7 +52,10 @@ export function RefusjonskravTable({ krav }: Props) {
                   </Table.Row>
                   <Table.Row
                     aria-labelledby={`row${index + 1}-header`}
-                    className={getRowStyle(status) + " pb-10"}
+                    className={
+                      getRowStyle(status) +
+                      " pb-10 border-border-divider border-b-2 border-x-2 border-t-0"
+                    }
                   >
                     <Table.DataCell>
                       {`${formaterDato(beregning.periodeStart)} - ${formaterDato(beregning.periodeSlutt)}`}
