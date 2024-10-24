@@ -245,14 +245,6 @@ data class GjennomforingAndKontaktpersoner(
 }
 
 @Serializable
-data class PatchGjennomforingAndKontaktpersoner(
-    val kontaktpersoner: List<GjennomforingAndKontaktpersoner.NavKontaktperson<SanityReference>>,
-    val redaktor: List<SanityReference>,
-    @Serializable(with = UUIDSerializer::class)
-    val _id: UUID,
-)
-
-@Serializable
 data class SanityReference(
     val _type: String = "reference",
     val _ref: String,

@@ -6,14 +6,11 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.ktor.util.logging.*
-import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.services.ArenaAdapterService
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.UpsertTiltaksgjennomforingResponse
 import org.koin.ktor.ext.inject
-import org.postgresql.util.PSQLException
 import java.util.*
 
 fun Route.arenaAdapterRoutes() {
@@ -41,11 +38,4 @@ fun Route.arenaAdapterRoutes() {
             call.response.status(HttpStatusCode.OK)
         }
     }
-}
-
-fun PipelineContext<Unit, ApplicationCall>.logError(logger: Logger, error: PSQLException) {
-    logger.warn(
-        "Error during at request handler method=${this.context.request.httpMethod.value} path=${this.context.request.path()}",
-        error,
-    )
 }

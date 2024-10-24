@@ -152,18 +152,6 @@ class NavAnsattRepository(private val db: Database) {
         "skal_slettes_dato" to skalSlettesDato,
     )
 
-    private fun Row.toNavAnsatt() = NavAnsattDbo(
-        navIdent = NavIdent(string("nav_ident")),
-        fornavn = string("fornavn"),
-        etternavn = string("etternavn"),
-        hovedenhet = string("hovedenhet"),
-        azureId = uuid("azure_id"),
-        mobilnummer = stringOrNull("mobilnummer"),
-        epost = string("epost"),
-        roller = array<String>("roller").map { NavAnsattRolle.valueOf(it) }.toSet(),
-        skalSlettesDato = localDateOrNull("skal_slettes_dato"),
-    )
-
     private fun Row.toNavAnsattDto() = NavAnsattDto(
         navIdent = NavIdent(string("nav_ident")),
         fornavn = string("fornavn"),

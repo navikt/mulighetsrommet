@@ -22,8 +22,6 @@ import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isKursTiltak
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
@@ -653,32 +651,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "estimert_ventetid_verdi" to estimertVentetidVerdi,
         "estimert_ventetid_enhet" to estimertVentetidEnhet,
         "tilgjengelig_for_arrangor_fra_dato" to tilgjengeligForArrangorFraOgMedDato,
-    )
-
-    private fun ArenaTiltaksgjennomforingDbo.toSqlParameters(arrangorId: UUID) = mapOf(
-        "opphav" to ArenaMigrering.Opphav.ARENA.name,
-        "id" to id,
-        "navn" to navn,
-        "tiltakstype_id" to tiltakstypeId,
-        "tiltaksnummer" to tiltaksnummer,
-        "arrangor_id" to arrangorId,
-        "start_dato" to startDato,
-        "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
-        "slutt_dato" to sluttDato,
-        "apent_for_innsok" to apentForInnsok,
-        "antall_plasser" to antallPlasser,
-        "avtale_id" to avtaleId,
-        "deltidsprosent" to deltidsprosent,
-        "avbrutt_tidspunkt" to when (avslutningsstatus) {
-            Avslutningsstatus.AVLYST -> startDato.atStartOfDay().minusDays(1)
-            Avslutningsstatus.AVBRUTT -> startDato.atStartOfDay()
-            Avslutningsstatus.AVSLUTTET -> null
-            Avslutningsstatus.IKKE_AVSLUTTET -> null
-        },
-        "avbrutt_aarsak" to when (avslutningsstatus) {
-            Avslutningsstatus.AVLYST, Avslutningsstatus.AVBRUTT -> AvbruttAarsak.AvbruttIArena.name
-            Avslutningsstatus.AVSLUTTET, Avslutningsstatus.IKKE_AVSLUTTET -> null
-        },
     )
 
     private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltakGruppe {
