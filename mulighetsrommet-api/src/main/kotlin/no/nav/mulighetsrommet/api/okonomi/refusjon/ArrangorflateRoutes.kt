@@ -6,6 +6,7 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.plugins.*
+import io.ktor.server.request.receive
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
@@ -96,6 +97,24 @@ fun Route.arrangorflateRoutes() {
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
                 refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now())
+
+                call.respond(HttpStatusCode.OK)
+            }
+
+            post("/{id}/set-betalings-informasjon") {
+                val id = call.parameters.getOrFail<UUID>("id")
+
+                val krav = refusjonskrav.get(id)
+                    ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+
+                requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
+                val request = call.receive<SetRefusjonKravBetalingsinformasjonRequest>()
+
+                refusjonskrav.setBetalingsInformasjon(
+                    id,
+                    request.kontoNummer,
+                    request.kid,
+                )
 
                 call.respond(HttpStatusCode.OK)
             }
@@ -228,4 +247,10 @@ data class RefusjonKravDeltakelse(
     val perioder: List<DeltakelsePeriode>,
     val manedsverk: Double,
     val veileder: String?,
+)
+
+@Serializable
+data class SetRefusjonKravBetalingsinformasjonRequest(
+    val kontoNummer: String,
+    val kid: String?,
 )

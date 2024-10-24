@@ -130,6 +130,23 @@ class RefusjonskravRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun setBetalingsInformasjon(id: UUID, kontoNummer: String, kid: String?) {
+        @Language("PostgreSQL")
+        val query = """
+            update refusjonskrav
+            set konto_nummer = :kontoNummer, kid = :kid
+            where id = :id::uuid
+        """.trimIndent()
+
+        queryOf(query, mapOf(
+            "id" to id,
+            "kontoNummer" to kontoNummer,
+            "kid" to kid,
+        ))
+            .asUpdate
+            .let { db.run(it) }
+    }
+
     fun get(id: UUID) = db.transaction { get(id, it) }
 
     fun get(id: UUID, tx: Session): RefusjonskravDto? {

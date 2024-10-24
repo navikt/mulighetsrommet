@@ -1891,6 +1891,30 @@ paths:
         200:
           description: Godkjenn et refusjonskrav
 
+  /api/v1/intern/arrangorflate/refusjonskrav/{id}/set-betalings-informasjon:
+    post:
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                kontoNummer:
+                  type: string
+                kid:
+                  type: string
+              required:
+                - kontoNummer
+        required: true
+      tags:
+        - Arrangorflate
+      operationId: setRefusjonskravBetalingsinformasjon
+      responses:
+        200:
+          description: Set betalibngsinformasjon for et refusjonskrav
+
   /api/v1/intern/arrangorflate/refusjonskrav/{id}/kvittering:
     parameters:
       - $ref: "#/components/parameters/ID"
