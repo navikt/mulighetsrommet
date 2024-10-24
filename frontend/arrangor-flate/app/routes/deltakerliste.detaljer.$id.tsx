@@ -12,6 +12,7 @@ import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import React from "react";
 import { Definisjon } from "~/components/Definisjon";
+import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 
 type LoaderData = {
   krav: Refusjonskrav;
@@ -86,9 +87,21 @@ export default function RefusjonskravDetaljer() {
         <Heading className="mb-2" size="medium" level="2">
           Betalingsinformasjon
         </Heading>
-        <Definisjon key="Kontonummer" value={""} />
 
         <Form method="post">
+          <Definisjon label="Kontonummer">
+            <span>{formaterKontoNummer(krav.betalingsinformasjon.kontoNummer)}</span>
+            <span>{formaterKontoNummer('12345678901')}</span>
+            <span className="ml-4 text-text-action cursor-pointer">Endre</span>
+          </Definisjon>
+          <Definisjon label="Evt KID nr for refusjonskrav" className="my-4">
+            <span>{krav.betalingsinformasjon.kid}</span>
+            <input
+              type="text"
+              name="kid"
+            />
+            <span className="ml-4 text-text-action cursor-pointer">Endre</span>
+          </Definisjon>
           <VStack gap="2" justify={"start"} align={"start"}>
             <Checkbox name="bekreftelse" value="bekreftet">
               Det erklæres herved at alle opplysninger er gitt i henhold til de faktiske forhold

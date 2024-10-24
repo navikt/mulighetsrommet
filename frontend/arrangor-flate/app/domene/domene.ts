@@ -23,6 +23,10 @@ export interface Refusjonskrav {
   };
   beregning: RefusjonKravAftBeregning;
   deltakere: Deltaker[];
+  betalingsinformasjon: {
+    kontoNummer: string;
+    kid?: string;
+  };
 }
 
 export type TilsagnDetaljer = {

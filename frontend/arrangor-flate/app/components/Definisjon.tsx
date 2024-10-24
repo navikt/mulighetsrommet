@@ -3,15 +3,19 @@ import React from "react";
 import { Definition } from "~/components/Definisjonsliste";
 
 export function Definisjon({
-  key,
-  value,
+  label,
+  children,
   className,
-}: Definition & { className?: string; value: React.ReactNode }) {
+}: {
+  label: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
   const styles = "flex justify-between";
   return (
-    <div className={className ? `${styles} ${className}` : styles} key={key}>
-      <dt>{key}:</dt>
-      <dd className="font-bold text-right">{value}</dd>
+    <div className={className ? `${styles} ${className}` : styles} key={label}>
+      <dt>{label}:</dt>
+      <dd className="font-bold text-right">{children}</dd>
     </div>
   );
 }
