@@ -1,7 +1,7 @@
 import { Heading } from "@navikt/ds-react";
 import React from "react";
 
-interface Definition {
+export interface Definition {
   key: string;
   value: string;
 }

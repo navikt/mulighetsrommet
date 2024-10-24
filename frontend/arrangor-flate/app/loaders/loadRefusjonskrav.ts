@@ -31,5 +31,6 @@ export async function loadRefusjonskrav(id: string): Promise<Refusjonskrav> {
         perioder: d.perioder,
       };
     }),
+    betalingsinformasjon: krav.betalingsinformasjon,
   };
 }

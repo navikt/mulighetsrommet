@@ -11,6 +11,10 @@ const mockKrav: RefusjonKravAft[] = [
     tiltakstype: {
       navn: "Arbeidsforbredene trening",
     },
+    betalingsinformasjon: {
+      kontoNummer: "12345678901",
+      kid: "123456789",
+    },
     gjennomforing: {
       id: uuid(),
       navn: "AFT tiltak Moss",
@@ -63,6 +67,10 @@ const mockKrav: RefusjonKravAft[] = [
     fristForGodkjenning: "2024-08-01T00:00:00",
     tiltakstype: {
       navn: "Arbeidsforbredene trening",
+    },
+    betalingsinformasjon: {
+      kontoNummer: "12345678901",
+      kid: "123456789",
     },
     gjennomforing: {
       id: uuid(),
@@ -120,6 +128,10 @@ const mockKrav: RefusjonKravAft[] = [
     gjennomforing: {
       id: uuid(),
       navn: "Amo tiltak Halden",
+    },
+    betalingsinformasjon: {
+      kontoNummer: "12345678901",
+      kid: "123456789",
     },
     arrangor: {
       id: uuid(),

@@ -11,6 +11,7 @@ import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { DeltakerlisteDetaljer } from "~/components/deltakerliste/DeltakerlisteDetaljer";
 import { RefusjonTilsagnsDetaljer } from "~/components/refusjonskrav/TilsagnsDetaljer";
 import { RefusjonDetaljer } from "~/components/refusjonskrav/RefusjonDetaljer";
+import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 
 type LoaderData = {
   krav: Refusjonskrav;
@@ -70,8 +71,14 @@ export default function RefusjonskravKvittering() {
         <Definisjonsliste
           title="Betalingsinformasjon"
           definitions={[
-            { key: "Kontonummer", value: "1234.56.78901" },
-            { key: "KID-nummer", value: "123456701123453" },
+            {
+              key: "Kontonummer",
+              value: formaterKontoNummer(krav.betalingsinformasjon.kontoNummer),
+            },
+            {
+              key: "KID-nummer",
+              value: krav.betalingsinformasjon.kid!,
+            },
             { key: "Refusjonskravansvarlig", value: "Ingvild Pettersen" },
             { key: "E-postadresse", value: "ingvild.pettersen@fretexas.no" },
           ]}

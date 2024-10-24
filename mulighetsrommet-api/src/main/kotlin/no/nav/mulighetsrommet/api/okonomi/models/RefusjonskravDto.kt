@@ -19,6 +19,7 @@ data class RefusjonskravDto(
     val gjennomforing: Gjennomforing,
     val arrangor: Arrangor,
     val beregning: RefusjonKravBeregning,
+    val betalingsinformasjon: Betalingsinformasjon,
 ) {
     @Serializable
     data class Gjennomforing(
@@ -39,5 +40,12 @@ data class RefusjonskravDto(
     @Serializable
     data class Tiltakstype(
         val navn: String,
+    )
+
+    @Serializable
+    data class Betalingsinformasjon(
+        val kontoNummer: String,
+        val kid: String?,
+
     )
 }
