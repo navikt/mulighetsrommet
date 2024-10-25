@@ -1,13 +1,13 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
 import io.ktor.server.application.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import io.ktor.util.pipeline.*
+import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.NavAnsattService
-import no.nav.mulighetsrommet.api.utils.getNavAnsattFilter
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
@@ -37,3 +37,15 @@ fun Route.navAnsattRoutes() {
         }
     }
 }
+
+fun <T : Any> PipelineContext<T, ApplicationCall>.getNavAnsattFilter(): NavAnsattFilter {
+    val azureIder = call.parameters.getAll("roller")
+        ?.map { NavAnsattRolle.valueOf(it) }
+        ?: emptyList()
+
+    return NavAnsattFilter(roller = azureIder)
+}
+
+data class NavAnsattFilter(
+    val roller: List<NavAnsattRolle> = emptyList(),
+)
