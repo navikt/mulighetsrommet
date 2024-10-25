@@ -2,7 +2,6 @@ import { Button, HGrid, SortState, Table } from "@navikt/ds-react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { PageHeader } from "~/components/PageHeader";
-import { DeltakerlisteDetaljer } from "~/components/deltakerliste/DeltakerlisteDetaljer";
 import { Deltaker, Refusjonskrav } from "~/domene/domene";
 import { checkValidToken } from "~/auth/auth.server";
 import { RefusjonKravDeltakelse } from "@mr/api-client";
@@ -11,6 +10,7 @@ import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { formaterDato } from "~/utils";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { GenerelleDetaljer } from "~/components/refusjonskrav/GenerelleDetaljer";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Refusjon" }, { name: "description", content: "Refusjonsdetaljer" }];
@@ -78,7 +78,7 @@ export default function RefusjonDeltakerlister() {
         tilbakeLenke={{ navn: "Tilbake til refusjonsliste", url: "/" }}
       />
       <HGrid gap="5" columns={1}>
-        <DeltakerlisteDetaljer className="max-w-[50%]" krav={krav} />
+        <GenerelleDetaljer className="max-w-[50%]" krav={krav} />
         <Table
           sort={sort}
           onSortChange={(sortKey) => handleSort(sortKey as ScopedSortState["orderBy"])}
