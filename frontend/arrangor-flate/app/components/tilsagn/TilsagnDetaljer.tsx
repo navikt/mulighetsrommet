@@ -1,7 +1,7 @@
 import { ArrangorflateTilsagn, TilsagnBeregningAFT } from "@mr/api-client";
 import { Definisjonsliste } from "../Definisjonsliste";
 import { formaterDato } from "~/utils";
-import { formaterTall } from "@mr/frontend-common/utils/utils";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
 
 interface Props {
   tilsagn: ArrangorflateTilsagn;
@@ -17,8 +17,8 @@ export function TilsagnDetaljer({ tilsagn }: Props) {
             key: "Tilsagnsperiode",
             value: `${formaterDato(tilsagn.periodeStart)} - ${formaterDato(tilsagn.periodeSlutt)}`,
           },
-          { key: "Beløp", value: formaterTall(tilsagn.beregning.belop) },
-          { key: "Utbetalt så langt", value: formaterTall(0) },
+          { key: "Beløp", value: formaterNOK(tilsagn.beregning.belop) },
+          { key: "Utbetalt så langt", value: "TODO" },
         ]}
       />
       {tilsagn.beregning.type === "AFT" ? (
@@ -36,7 +36,7 @@ function AFTDetaljer({ beregning }: { beregning: TilsagnBeregningAFT }) {
       className="mt-4"
       definitions={[
         { key: "Antall plasser", value: String(beregning.antallPlasser) },
-        { key: "Sats", value: formaterTall(beregning.sats) },
+        { key: "Sats", value: formaterNOK(beregning.sats) },
       ]}
     />
   );

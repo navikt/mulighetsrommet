@@ -10,6 +10,7 @@ import { useState } from "react";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { formaterDato } from "~/utils";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Refusjon" }, { name: "description", content: "Refusjonsdetaljer" }];
@@ -133,7 +134,7 @@ export default function RefusjonDeltakerlister() {
             },
             {
               key: "Beløp",
-              value: String(krav.beregning.belop),
+              value: formaterNOK(krav.beregning.belop),
             },
           ]}
         />

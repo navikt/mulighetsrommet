@@ -27,6 +27,10 @@ export function gjennomforingIsAktiv(status: TiltaksgjennomforingStatus): boolea
   }
 }
 
+export function formaterNOK(tall: number) {
+  return `${formaterTall(tall)} NOK`;
+}
+
 export function formaterTall(tall: number) {
   return Intl.NumberFormat("no-nb").format(tall);
 }
