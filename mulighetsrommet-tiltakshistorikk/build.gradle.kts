@@ -51,7 +51,8 @@ dependencies {
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.server.defaultHeaders)
     implementation(libs.ktor.server.metricsMicrometer)
-    testImplementation(libs.ktor.server.tests)
+    implementation(libs.ktor.server.netty)
+    testImplementation(libs.ktor.server.testHost)
 
     // Test
     testImplementation(libs.kotest.junit)

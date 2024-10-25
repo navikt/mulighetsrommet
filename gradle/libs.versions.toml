@@ -6,7 +6,7 @@ koin = "4.0.0"
 kotest = "5.9.1"
 kotest-testcontainers = "2.0.2"
 kotlin = "2.0.21"
-ktor = "2.3.12"
+ktor = "3.0.0"
 logback = "1.5.12"
 metrics = "4.2.28"
 arrow = "1.2.4"
@@ -93,7 +93,6 @@ ktor-server-sessions = { module = "io.ktor:ktor-server-sessions", version.ref = 
 ktor-server-statusPages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
 ktor-server-swagger = { module = "io.ktor:ktor-server-swagger", version.ref = "ktor" }
 ktor-server-testHost = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
-ktor-server-tests = { module = "io.ktor:ktor-server-tests-jvm", version.ref = "ktor" }
 
 logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
