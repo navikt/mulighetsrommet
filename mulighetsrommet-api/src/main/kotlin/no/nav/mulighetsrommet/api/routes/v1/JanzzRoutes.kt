@@ -6,6 +6,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.clients.pamOntologi.PamOntologiClient
 import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import org.koin.ktor.ext.inject
@@ -16,10 +17,7 @@ fun Route.janzzRoutes() {
     get("janzz/sertifiseringer/sok") {
         val q: String by call.request.queryParameters
 
-        val autoriseringer = async { pam.sokAutorisasjon(q) }
-        val andreGodkjenninger = async { pam.sokAndreGodkjenninger(q) }
-
-        val sertifiseringer = awaitAll(autoriseringer, andreGodkjenninger)
+        val sertifiseringer = sokSertifiseringer(pam, q)
             .asSequence()
             .flatMap { typeaheads ->
                 typeaheads.map {
@@ -40,4 +38,10 @@ fun Route.janzzRoutes() {
 
         call.respond(sertifiseringer)
     }
+}
+
+private suspend fun sokSertifiseringer(pam: PamOntologiClient, sok: String) = coroutineScope {
+    val autoriseringer = async { pam.sokAutorisasjon(sok) }
+    val andreGodkjenninger = async { pam.sokAndreGodkjenninger(sok) }
+    awaitAll(autoriseringer, andreGodkjenninger)
 }

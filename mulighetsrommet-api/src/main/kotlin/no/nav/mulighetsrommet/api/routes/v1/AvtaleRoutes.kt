@@ -6,6 +6,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.UtdanningslopDbo
 import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
@@ -19,10 +20,10 @@ import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.AvtaleService
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.api.services.OpsjonLoggService
-import no.nav.mulighetsrommet.api.utils.getAvtaleFilter
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.*
@@ -239,3 +240,42 @@ fun Route.avtaleRoutes() {
         }
     }
 }
+
+fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilter {
+    val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { it.toUUID() } ?: emptyList()
+    val search = call.request.queryParameters["search"]
+    val statuser = call.parameters.getAll("statuser")
+        ?.map { status -> AvtaleStatus.Enum.valueOf(status) }
+        ?: emptyList()
+    val avtaletyper = call.parameters.getAll("avtaletyper")
+        ?.map { type -> Avtaletype.valueOf(type) }
+        ?: emptyList()
+    val navRegioner = call.parameters.getAll("navRegioner") ?: emptyList()
+    val sortering = call.request.queryParameters["sort"]
+    val arrangorIds = call.parameters.getAll("arrangorer")?.map { UUID.fromString(it) } ?: emptyList()
+    val personvernBekreftet = call.request.queryParameters["personvernBekreftet"]?.let { it == "true" }
+
+    return AvtaleFilter(
+        tiltakstypeIder = tiltakstypeIder,
+        search = search,
+        statuser = statuser,
+        avtaletyper = avtaletyper,
+        navRegioner = navRegioner,
+        sortering = sortering,
+        arrangorIds = arrangorIds,
+        administratorNavIdent = null,
+        personvernBekreftet = personvernBekreftet,
+    )
+}
+
+data class AvtaleFilter(
+    val tiltakstypeIder: List<UUID> = emptyList(),
+    val search: String? = null,
+    val statuser: List<AvtaleStatus.Enum> = emptyList(),
+    val avtaletyper: List<Avtaletype> = emptyList(),
+    val navRegioner: List<String> = emptyList(),
+    val sortering: String? = null,
+    val arrangorIds: List<UUID> = emptyList(),
+    val administratorNavIdent: NavIdent? = null,
+    val personvernBekreftet: Boolean? = null,
+)
