@@ -48,7 +48,7 @@ export const action: ActionFunction = async ({ request }) => {
     id: refusjonskravId as string,
   });
 
-  return redirect(`/deltakerliste/kvittering/${refusjonskravId}`);
+  return redirect(`/refusjonskrav/${refusjonskravId}/kvittering`);
 };
 
 export default function BekreftRefusjonskrav() {
@@ -61,7 +61,7 @@ export default function BekreftRefusjonskrav() {
         title="Detaljer for refusjonskrav"
         tilbakeLenke={{
           navn: "Tilbake til deltakerliste",
-          url: `/deltakerliste/${krav.id}`,
+          url: `/refusjonskrav/${krav.id}`,
         }}
       />
       <VStack className="max-w-[50%]" gap="5">

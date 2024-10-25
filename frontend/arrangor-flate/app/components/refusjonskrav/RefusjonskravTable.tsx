@@ -67,7 +67,7 @@ export function RefusjonskravTable({ krav }: Props) {
                     <Table.DataCell>
                       <Link
                         className="hover:underline font-bold no-underline"
-                        to={`for-du-begynner/${id}`}
+                        to={`/refusjonskrav/${id}/for-du-begynner`}
                       >
                         Detaljer
                       </Link>

@@ -34,7 +34,7 @@ interface ScopedSortState extends SortState {
   orderBy: RefusjonKravDeltakelse["navn"];
 }
 
-export default function RefusjonDeltakerlister() {
+export default function RefusjonskravBeregning() {
   const { krav } = useLoaderData<LoaderData>();
   const [sort, setSort] = useState<ScopedSortState | undefined>();
 
@@ -74,8 +74,8 @@ export default function RefusjonDeltakerlister() {
   return (
     <>
       <PageHeader
-        title="Deltakerliste"
-        tilbakeLenke={{ navn: "Tilbake til refusjonsliste", url: "/" }}
+        title="Beregning"
+        tilbakeLenke={{ navn: "Tilbake til refusjonskravliste", url: "/" }}
       />
       <HGrid gap="5" columns={1}>
         <GenerelleDetaljer className="max-w-[50%]" krav={krav} />
@@ -138,7 +138,7 @@ export default function RefusjonDeltakerlister() {
             },
           ]}
         />
-        <Button as={Link} className="justify-self-end" to={`/deltakerliste/detaljer/${krav.id}`}>
+        <Button as={Link} className="justify-self-end" to={`/refusjonskrav/${krav.id}/bekreft`}>
           Neste
         </Button>
       </HGrid>

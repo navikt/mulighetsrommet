@@ -49,7 +49,7 @@ export default function RefusjonskravKvittering() {
       />
       <Separator />
       <div className="flex justify-end">
-        <a href={`/lastned-kvittering/${params.id}`} target="_blank">
+        <a href={`/refusjonskrav/${params.id}/kvittering/lastned`} target="_blank">
           <Button variant="tertiary-neutral" size="small">
             <span className="flex gap-2 items-center">
               Last ned som PDF <FilePdfIcon fontSize={35} />
