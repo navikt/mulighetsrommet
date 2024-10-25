@@ -103,7 +103,7 @@ data class ArrangorFilter(
     val sortering: String? = null,
 )
 
-fun <T : Any> PipelineContext<T, ApplicationCall>.getArrangorFilter(): ArrangorFilter {
+fun RoutingContext.getArrangorFilter(): ArrangorFilter {
     val til = call.request.queryParameters["til"]
     val sok = call.request.queryParameters["sok"]
     val sortering = call.request.queryParameters["sortering"]

@@ -7,14 +7,12 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
@@ -55,7 +53,7 @@ fun Route.arrangorflateRoutes() {
 
     val pdl: HentAdressebeskyttetPersonBolkPdlQuery by inject()
 
-    suspend fun <T : Any> PipelineContext<T, ApplicationCall>.arrangorerMedTilgang(): List<ArrangorDto> {
+    suspend fun RoutingContext.arrangorerMedTilgang(): List<ArrangorDto> {
         return call.principal<ArrangorflatePrincipal>()
             ?.organisasjonsnummer
             ?.map {
@@ -67,7 +65,7 @@ fun Route.arrangorflateRoutes() {
             ?: throw StatusException(HttpStatusCode.Unauthorized)
     }
 
-    fun <T : Any> PipelineContext<T, ApplicationCall>.requireTilgangHosArrangor(organisasjonsnummer: Organisasjonsnummer) {
+    fun RoutingContext.requireTilgangHosArrangor(organisasjonsnummer: Organisasjonsnummer) {
         call.principal<ArrangorflatePrincipal>()
             ?.organisasjonsnummer
             ?.find { it == organisasjonsnummer }

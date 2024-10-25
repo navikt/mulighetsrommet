@@ -36,7 +36,7 @@ enum class ApentForInnsok {
     APENT_ELLER_STENGT,
 }
 
-internal fun <T : Any> PipelineContext<T, ApplicationCall>.getArbeidsmarkedstiltakFilter(): ArbeidsmarkedstiltakFilter {
+internal fun RoutingContext.getArbeidsmarkedstiltakFilter(): ArbeidsmarkedstiltakFilter {
     val queryParameters = call.request.queryParameters
 
     val enheter = queryParameters.getAll("enheter")

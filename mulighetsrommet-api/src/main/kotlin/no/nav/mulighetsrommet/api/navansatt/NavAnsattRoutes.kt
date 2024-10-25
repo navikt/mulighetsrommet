@@ -4,7 +4,6 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
@@ -37,7 +36,7 @@ fun Route.navAnsattRoutes() {
     }
 }
 
-fun <T : Any> PipelineContext<T, ApplicationCall>.getNavAnsattFilter(): NavAnsattFilter {
+fun RoutingContext.getNavAnsattFilter(): NavAnsattFilter {
     val azureIder = call.parameters.getAll("roller")
         ?.map { NavAnsattRolle.valueOf(it) }
         ?: emptyList()

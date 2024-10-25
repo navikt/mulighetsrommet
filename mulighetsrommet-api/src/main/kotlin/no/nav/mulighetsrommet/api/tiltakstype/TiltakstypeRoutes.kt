@@ -59,7 +59,7 @@ data class TiltakstypeFilter(
     val sortering: String? = null,
 )
 
-fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltakstypeFilter(): TiltakstypeFilter {
+fun RoutingContext.getTiltakstypeFilter(): TiltakstypeFilter {
     val sortering = call.request.queryParameters["sort"]
     return TiltakstypeFilter(
         sortering = sortering,
