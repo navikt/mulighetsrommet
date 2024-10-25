@@ -2,7 +2,6 @@ import { Button, HGrid, SortState, Table } from "@navikt/ds-react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { PageHeader } from "~/components/PageHeader";
-import { DeltakerlisteDetaljer } from "~/components/deltakerliste/DeltakerlisteDetaljer";
 import { Deltaker, Refusjonskrav } from "~/domene/domene";
 import { checkValidToken } from "~/auth/auth.server";
 import { RefusjonKravDeltakelse } from "@mr/api-client";
@@ -10,6 +9,8 @@ import { useState } from "react";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { formaterDato } from "~/utils";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { GenerelleDetaljer } from "~/components/refusjonskrav/GenerelleDetaljer";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Refusjon" }, { name: "description", content: "Refusjonsdetaljer" }];
@@ -33,7 +34,7 @@ interface ScopedSortState extends SortState {
   orderBy: RefusjonKravDeltakelse["navn"];
 }
 
-export default function RefusjonDeltakerlister() {
+export default function RefusjonskravBeregning() {
   const { krav } = useLoaderData<LoaderData>();
   const [sort, setSort] = useState<ScopedSortState | undefined>();
 
@@ -73,11 +74,11 @@ export default function RefusjonDeltakerlister() {
   return (
     <>
       <PageHeader
-        title="Deltakerliste"
-        tilbakeLenke={{ navn: "Tilbake til refusjonsliste", url: "/" }}
+        title="Beregning"
+        tilbakeLenke={{ navn: "Tilbake til refusjonskravliste", url: "/" }}
       />
       <HGrid gap="5" columns={1}>
-        <DeltakerlisteDetaljer className="max-w-[50%]" krav={krav} />
+        <GenerelleDetaljer className="max-w-[50%]" krav={krav} />
         <Table
           sort={sort}
           onSortChange={(sortKey) => handleSort(sortKey as ScopedSortState["orderBy"])}
@@ -133,11 +134,11 @@ export default function RefusjonDeltakerlister() {
             },
             {
               key: "Beløp",
-              value: String(krav.beregning.belop),
+              value: formaterNOK(krav.beregning.belop),
             },
           ]}
         />
-        <Button as={Link} className="justify-self-end" to={`/deltakerliste/detaljer/${krav.id}`}>
+        <Button as={Link} className="justify-self-end" to={`/refusjonskrav/${krav.id}/bekreft`}>
           Neste
         </Button>
       </HGrid>

@@ -1,5 +1,5 @@
-import { formaterTall } from "@mr/frontend-common/utils/utils";
-import { Refusjonskrav } from "../../domene/domene";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { Refusjonskrav } from "~/domene/domene";
 import { Definisjonsliste } from "../Definisjonsliste";
 
 interface Props {
@@ -19,7 +19,7 @@ export function RefusjonDetaljer({ krav }: Props) {
         className="mt-4"
         definitions={[
           { key: "Antall månedsverk", value: String(krav.beregning.antallManedsverk) },
-          { key: "Total refusjonskrav", value: formaterTall(krav.beregning.belop) },
+          { key: "Total refusjonskrav", value: formaterNOK(krav.beregning.belop) },
         ]}
       />
     </>

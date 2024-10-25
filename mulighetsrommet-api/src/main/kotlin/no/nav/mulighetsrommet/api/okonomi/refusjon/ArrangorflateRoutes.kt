@@ -9,7 +9,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
@@ -29,6 +28,8 @@ import no.nav.pdfgen.core.pdf.createHtmlFromTemplateData
 import no.nav.pdfgen.core.pdf.createPDFA
 import org.koin.ktor.ext.inject
 import org.verapdf.gf.foundry.VeraGreenfieldFoundryProvider
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -169,6 +170,12 @@ private fun toRefusjonKravOppsummering(krav: RefusjonskravDto) = when (val bereg
             )
         }
 
+        val antallManedsverk = deltakelser
+            .map { BigDecimal(it.manedsverk) }
+            .sumOf { it }
+            .setScale(2, RoundingMode.HALF_UP)
+            .toDouble()
+
         RefusjonKravAft(
             id = krav.id,
             status = krav.status,
@@ -180,7 +187,7 @@ private fun toRefusjonKravOppsummering(krav: RefusjonskravDto) = when (val bereg
             beregning = RefusjonKravAft.Beregning(
                 periodeStart = beregning.input.periodeStart,
                 periodeSlutt = beregning.input.periodeSlutt,
-                antallManedsverk = deltakelser.sumOf { it.manedsverk },
+                antallManedsverk = antallManedsverk,
                 belop = beregning.output.belop,
             ),
         )
@@ -188,7 +195,6 @@ private fun toRefusjonKravOppsummering(krav: RefusjonskravDto) = when (val bereg
 }
 
 @Serializable
-@SerialName("AFT")
 data class RefusjonKravAft(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,

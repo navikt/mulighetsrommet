@@ -10,7 +10,7 @@ import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { formaterDato } from "@/utils/Utils";
-import { formaterTall } from "@mr/frontend-common/utils/utils";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { DetaljerContainer } from "@/pages/DetaljerContainer";
 import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
 import { useGetTilsagnById } from "./useGetTilsagnById";
@@ -130,7 +130,7 @@ export function TilsagnDetaljer() {
                 header="Kostnadssted"
                 verdi={`${tilsagn.kostnadssted.navn} - ${tilsagn.kostnadssted.enhetsnummer}`}
               />
-              <Metadata header="Beløp" verdi={`${formaterTall(tilsagn.beregning.belop)} kr`} />
+              <Metadata header="Beløp" verdi={formaterNOK(tilsagn.beregning.belop)} />
             </Bolk>
             <Bolk>
               <Metadata header="Løpenummer" verdi={tilsagn.lopenummer} />

@@ -3,7 +3,7 @@ import { Alert, Table, Tag } from "@navikt/ds-react";
 import { Link } from "@remix-run/react";
 import React, { ReactNode } from "react";
 import { formaterDato } from "~/utils";
-import { formaterTall } from "@mr/frontend-common/utils/utils";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
 
 interface Props {
   krav: RefusjonKravAft[];
@@ -61,13 +61,13 @@ export function RefusjonskravTable({ krav }: Props) {
                       {`${formaterDato(beregning.periodeStart)} - ${formaterDato(beregning.periodeSlutt)}`}
                     </Table.DataCell>
                     <Table.DataCell>{beregning.antallManedsverk}</Table.DataCell>
-                    <Table.DataCell>{formaterTall(beregning.belop)} NOK</Table.DataCell>
+                    <Table.DataCell>{formaterNOK(beregning.belop)}</Table.DataCell>
                     <Table.DataCell>{formaterDato(fristForGodkjenning)}</Table.DataCell>
                     <Table.DataCell>{statusTilTag(status)}</Table.DataCell>
                     <Table.DataCell>
                       <Link
                         className="hover:underline font-bold no-underline"
-                        to={`for-du-begynner/${id}`}
+                        to={`/refusjonskrav/${id}/for-du-begynner`}
                       >
                         Detaljer
                       </Link>

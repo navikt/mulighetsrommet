@@ -1,33 +1,34 @@
-import { Alert, Box, Button, Checkbox, Heading, VStack } from "@navikt/ds-react";
+import { Alert, Button, Checkbox, VStack } from "@navikt/ds-react";
 import { ActionFunction, json, LoaderFunction, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import { DeltakerlisteDetaljer } from "../components/deltakerliste/DeltakerlisteDetaljer";
-import { PageHeader } from "../components/PageHeader";
-import { Refusjonskrav } from "../domene/domene";
-import { checkValidToken } from "../auth/auth.server";
-import { RefusjonDetaljer } from "~/components/refusjonskrav/RefusjonDetaljer";
-import { Separator } from "~/components/Separator";
+import { PageHeader } from "~/components/PageHeader";
+import { Refusjonskrav } from "~/domene/domene";
+import { checkValidToken } from "~/auth/auth.server";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
-import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
+import { RefusjonskravDetaljer } from "~/components/refusjonskrav/RefusjonskravDetaljer";
 
-type LoaderData = {
+type BekreftRefusjonskravData = {
   krav: Refusjonskrav;
   tilsagn: ArrangorflateTilsagn[];
 };
 
-export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
+export const loader: LoaderFunction = async ({
+  request,
+  params,
+}): Promise<BekreftRefusjonskravData> => {
   await checkValidToken(request);
 
-  if (params.id === undefined) throw Error("Mangler id");
+  if (params.id === undefined) {
+    throw Error("Mangler id");
+  }
 
-  const krav = await loadRefusjonskrav(params.id);
-  const tilsagn = await ArrangorflateService.getArrangorflateTilsagnTilRefusjon({ id: krav.id });
+  const [krav, tilsagn] = await Promise.all([
+    loadRefusjonskrav(params.id),
+    ArrangorflateService.getArrangorflateTilsagnTilRefusjon({ id: params.id }),
+  ]);
 
-  return {
-    krav,
-    tilsagn,
-  };
+  return { krav, tilsagn };
 };
 
 export const action: ActionFunction = async ({ request }) => {
@@ -47,11 +48,11 @@ export const action: ActionFunction = async ({ request }) => {
     id: refusjonskravId as string,
   });
 
-  return redirect(`/deltakerliste/kvittering/${refusjonskravId}`);
+  return redirect(`/refusjonskrav/${refusjonskravId}/kvittering`);
 };
 
-export default function RefusjonskravDetaljer() {
-  const { tilsagn, krav } = useLoaderData<LoaderData>();
+export default function BekreftRefusjonskrav() {
+  const { krav, tilsagn } = useLoaderData<BekreftRefusjonskravData>();
   const data = useActionData<typeof action>();
 
   return (
@@ -60,26 +61,11 @@ export default function RefusjonskravDetaljer() {
         title="Detaljer for refusjonskrav"
         tilbakeLenke={{
           navn: "Tilbake til deltakerliste",
-          url: `/deltakerliste/${krav.id}`,
+          url: `/refusjonskrav/${krav.id}`,
         }}
       />
       <VStack className="max-w-[50%]" gap="5">
-        <DeltakerlisteDetaljer krav={krav} />
-        <Separator />
-        <Heading size="medium">Tilsagnsdetaljer</Heading>
-        {tilsagn.map((t) => (
-          <Box
-            padding="2"
-            key={t.id}
-            borderWidth="1"
-            borderColor="border-subtle"
-            borderRadius="medium"
-          >
-            <TilsagnDetaljer tilsagn={t} />
-          </Box>
-        ))}
-        <Separator />
-        <RefusjonDetaljer krav={krav} />
+        <RefusjonskravDetaljer krav={krav} tilsagn={tilsagn} />
 
         <Form method="post">
           <VStack gap="2" justify={"start"} align={"start"}>

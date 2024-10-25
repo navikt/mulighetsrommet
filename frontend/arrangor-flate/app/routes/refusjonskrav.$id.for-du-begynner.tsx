@@ -36,7 +36,7 @@ export default function ForDuBegynner() {
             <List.Item>Og for øvrig kan man gjøre som man vil</List.Item>
           </List>
         </GuidePanel>
-        <Button as={Link} className="justify-self-end" to={`/deltakerliste/${id}`}>
+        <Button as={Link} className="justify-self-end" to={`/refusjonskrav/${id}/beregning`}>
           Neste
         </Button>
       </HGrid>
