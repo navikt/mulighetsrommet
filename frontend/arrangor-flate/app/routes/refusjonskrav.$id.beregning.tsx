@@ -4,13 +4,13 @@ import { Link, useLoaderData } from "@remix-run/react";
 import { PageHeader } from "~/components/PageHeader";
 import { Deltaker, Refusjonskrav } from "~/domene/domene";
 import { checkValidToken } from "~/auth/auth.server";
-import { RefusjonKravDeltakelse } from "@mr/api-client";
 import { useState } from "react";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { formaterDato } from "~/utils";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { GenerelleDetaljer } from "~/components/refusjonskrav/GenerelleDetaljer";
+import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Refusjon" }, { name: "description", content: "Refusjonsdetaljer" }];
@@ -19,7 +19,6 @@ export const meta: MetaFunction = () => {
 type LoaderData = {
   krav: Refusjonskrav;
 };
-
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
   await checkValidToken(request);
 
@@ -30,46 +29,41 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   return { krav };
 };
 
-interface ScopedSortState extends SortState {
-  orderBy: RefusjonKravDeltakelse["navn"];
+interface DeltakerSortState extends SortState {
+  direction: SortOrder;
+  orderBy: DeltakerSortKey;
+}
+
+enum DeltakerSortKey {
+  PERSON_NAVN = "PERSON_NAVN",
+  PERIODE_START = "PERIODE_START",
+  PERIODE_SLUTT = "PERIODE_SLUTT",
+  VEILEDER_NAVN = "VEILEDER_NAVN",
 }
 
 export default function RefusjonskravBeregning() {
   const { krav } = useLoaderData<LoaderData>();
-  const [sort, setSort] = useState<ScopedSortState | undefined>();
+  const [sort, setSort] = useState<DeltakerSortState | undefined>();
 
-  const handleSort = (sortKey: ScopedSortState["orderBy"]) => {
-    setSort(
-      sort && sortKey === sort.orderBy && sort.direction === "descending"
-        ? undefined
-        : {
-            orderBy: sortKey,
-            direction:
-              sort && sortKey === sort.orderBy && sort.direction === "ascending"
-                ? "descending"
-                : "ascending",
-          },
-    );
+  const handleSort = (orderBy: string) => {
+    if (!isDeltakerSortKey(orderBy)) {
+      return;
+    }
+
+    if (sort && orderBy === sort.orderBy && sort.direction === "descending") {
+      setSort(undefined);
+    } else {
+      const direction =
+        sort && orderBy === sort.orderBy && sort.direction === "ascending"
+          ? "descending"
+          : "ascending";
+      setSort({ orderBy, direction });
+    }
   };
 
-  function comparator<T>(a: T, b: T, orderBy: keyof T): number {
-    if (b[orderBy] == null || b[orderBy] < a[orderBy]) {
-      return -1;
-    }
-    if (b[orderBy] > a[orderBy]) {
-      return 1;
-    }
-    return 0;
-  }
-
-  const sortedData = krav.deltakere.slice().sort((a, b) => {
-    if (sort) {
-      return sort.direction === "ascending"
-        ? comparator(b, a, sort.orderBy as keyof Deltaker)
-        : comparator(a, b, sort.orderBy as keyof Deltaker);
-    }
-    return 1;
-  });
+  const sortedData = sort
+    ? sortBy(krav.deltakere, sort.direction, getDeltakerSelector(sort.orderBy))
+    : krav.deltakere;
 
   return (
     <>
@@ -79,27 +73,23 @@ export default function RefusjonskravBeregning() {
       />
       <HGrid gap="5" columns={1}>
         <GenerelleDetaljer className="max-w-[50%]" krav={krav} />
-        <Table
-          sort={sort}
-          onSortChange={(sortKey) => handleSort(sortKey as ScopedSortState["orderBy"])}
-          zebraStripes
-        >
+        <Table sort={sort} onSortChange={(sortKey) => handleSort(sortKey)} zebraStripes>
           <Table.Header>
             <Table.Row>
-              <Table.ColumnHeader scope="col" sortable sortKey="name">
+              <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.PERSON_NAVN}>
                 Navn
               </Table.ColumnHeader>
               <Table.HeaderCell scope="col">Fødselsdato</Table.HeaderCell>
               <Table.HeaderCell scope="col">Startdato i tiltaket</Table.HeaderCell>
-              <Table.ColumnHeader scope="col" sortable sortKey="startDatePeriod">
+              <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.PERIODE_START}>
                 Startdato i perioden
               </Table.ColumnHeader>
-              <Table.ColumnHeader scope="col" sortable sortKey="endDatePeriod">
+              <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.PERIODE_SLUTT}>
                 Sluttdato i perioden
               </Table.ColumnHeader>
               <Table.HeaderCell scope="col">Stillings-prosent</Table.HeaderCell>
               <Table.HeaderCell scope="col">Månedsverk i perioden</Table.HeaderCell>
-              <Table.ColumnHeader scope="col" sortable sortKey="veileder">
+              <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.VEILEDER_NAVN}>
                 Veileder
               </Table.ColumnHeader>
               <Table.HeaderCell scope="col"></Table.HeaderCell>
@@ -109,8 +99,8 @@ export default function RefusjonskravBeregning() {
             {sortedData.map((deltaker) => {
               return (
                 <Table.ExpandableRow key={deltaker.id} content={null} togglePlacement="right">
-                  <Table.HeaderCell>{deltaker.navn}</Table.HeaderCell>
-                  <Table.DataCell>{deltaker.norskIdent}</Table.DataCell>
+                  <Table.HeaderCell>{deltaker.person?.navn}</Table.HeaderCell>
+                  <Table.DataCell>{deltaker.person?.norskIdent}</Table.DataCell>
                   <Table.DataCell>{deltaker.startDatoTiltaket}</Table.DataCell>
                   <Table.DataCell>
                     {deltaker.startDatoPerioden && formaterDato(deltaker.startDatoPerioden)}
@@ -144,4 +134,21 @@ export default function RefusjonskravBeregning() {
       </HGrid>
     </>
   );
+}
+
+function isDeltakerSortKey(sortKey: string): sortKey is DeltakerSortKey {
+  return sortKey in DeltakerSortKey;
+}
+
+function getDeltakerSelector(sortKey: DeltakerSortKey): SortBySelector<Deltaker> {
+  switch (sortKey) {
+    case DeltakerSortKey.PERSON_NAVN:
+      return (d) => d.person?.navn;
+    case DeltakerSortKey.PERIODE_START:
+      return (d) => d.startDatoPerioden;
+    case DeltakerSortKey.PERIODE_SLUTT:
+      return (d) => d.sluttDatoPerioden;
+    case DeltakerSortKey.VEILEDER_NAVN:
+      return (d) => d.veileder;
+  }
 }
