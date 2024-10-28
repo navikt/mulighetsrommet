@@ -42,7 +42,7 @@ export function RefusjonskravTable({ krav }: Props) {
                     className="border-border-divider border-t-2 border-x-2 border-b-0"
                   >
                     <Table.HeaderCell
-                      className="w-full bg-bg-subtle"
+                      className="w-full bg-bg-subtle border-b-0"
                       colSpan={6}
                       scope="rowgroup"
                       aria-label={`${tiltakstype.navn} - ${gjennomforing.navn}`}
