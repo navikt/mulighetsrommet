@@ -88,55 +88,53 @@ data class TiltaksgjennomforingDto(
         val enhet: String,
     )
 
-    fun toTiltaksgjennomforingV1Dto() =
-        TiltaksgjennomforingEksternV1Dto(
-            id = id,
-            tiltakstype = TiltaksgjennomforingEksternV1Dto.Tiltakstype(
-                id = tiltakstype.id,
-                navn = tiltakstype.navn,
-                arenaKode = tiltakstype.tiltakskode.toArenaKode(),
-                tiltakskode = tiltakstype.tiltakskode,
-            ),
-            navn = navn,
-            startDato = startDato,
-            sluttDato = sluttDato,
-            status = status.status,
-            virksomhetsnummer = arrangor.organisasjonsnummer.value,
-            oppstart = oppstart,
-            tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
-        )
+    fun toTiltaksgjennomforingV1Dto() = TiltaksgjennomforingEksternV1Dto(
+        id = id,
+        tiltakstype = TiltaksgjennomforingEksternV1Dto.Tiltakstype(
+            id = tiltakstype.id,
+            navn = tiltakstype.navn,
+            arenaKode = tiltakstype.tiltakskode.toArenaKode(),
+            tiltakskode = tiltakstype.tiltakskode,
+        ),
+        navn = navn,
+        startDato = startDato,
+        sluttDato = sluttDato,
+        status = status.status,
+        virksomhetsnummer = arrangor.organisasjonsnummer.value,
+        oppstart = oppstart,
+        tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
+    )
 
-    fun toTiltaksgjennomforingDbo() =
-        TiltaksgjennomforingDbo(
-            id = id,
-            navn = navn,
-            tiltakstypeId = tiltakstype.id,
-            arrangorId = arrangor.id,
-            arrangorKontaktpersoner = arrangor.kontaktpersoner.map { it.id },
-            startDato = startDato,
-            sluttDato = sluttDato,
-            apentForInnsok = apentForInnsok,
-            antallPlasser = antallPlasser ?: -1,
-            avtaleId = avtaleId ?: id,
-            administratorer = administratorer.map { it.navIdent },
-            navRegion = navRegion?.enhetsnummer ?: "",
-            navEnheter = navEnheter.map { it.enhetsnummer },
-            oppstart = oppstart,
-            kontaktpersoner = kontaktpersoner.map {
-                TiltaksgjennomforingKontaktpersonDbo(
-                    navIdent = it.navIdent,
-                    navEnheter = it.navEnheter,
-                    beskrivelse = it.beskrivelse,
-                )
-            },
-            stedForGjennomforing = stedForGjennomforing,
-            faneinnhold = faneinnhold,
-            beskrivelse = beskrivelse,
-            deltidsprosent = deltidsprosent,
-            estimertVentetidVerdi = estimertVentetid?.verdi,
-            estimertVentetidEnhet = estimertVentetid?.enhet,
-            tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
-            amoKategorisering = amoKategorisering,
-            utdanningslop = utdanningslop?.toDbo(),
-        )
+    fun toTiltaksgjennomforingDbo() = TiltaksgjennomforingDbo(
+        id = id,
+        navn = navn,
+        tiltakstypeId = tiltakstype.id,
+        arrangorId = arrangor.id,
+        arrangorKontaktpersoner = arrangor.kontaktpersoner.map { it.id },
+        startDato = startDato,
+        sluttDato = sluttDato,
+        apentForInnsok = apentForInnsok,
+        antallPlasser = antallPlasser ?: -1,
+        avtaleId = avtaleId ?: id,
+        administratorer = administratorer.map { it.navIdent },
+        navRegion = navRegion?.enhetsnummer ?: "",
+        navEnheter = navEnheter.map { it.enhetsnummer },
+        oppstart = oppstart,
+        kontaktpersoner = kontaktpersoner.map {
+            TiltaksgjennomforingKontaktpersonDbo(
+                navIdent = it.navIdent,
+                navEnheter = it.navEnheter,
+                beskrivelse = it.beskrivelse,
+            )
+        },
+        stedForGjennomforing = stedForGjennomforing,
+        faneinnhold = faneinnhold,
+        beskrivelse = beskrivelse,
+        deltidsprosent = deltidsprosent,
+        estimertVentetidVerdi = estimertVentetid?.verdi,
+        estimertVentetidEnhet = estimertVentetid?.enhet,
+        tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
+        amoKategorisering = amoKategorisering,
+        utdanningslop = utdanningslop?.toDbo(),
+    )
 }

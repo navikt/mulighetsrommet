@@ -99,24 +99,22 @@ class AvtaleService(
             }
     }
 
-    private suspend fun syncArrangorerFromBrreg(request: AvtaleRequest): Either<List<ValidationError>, Pair<ArrangorDto, List<ArrangorDto>>> =
-        either {
-            val arrangor = syncArrangorFromBrreg(request.arrangorOrganisasjonsnummer).bind()
-            val underenheter = request.arrangorUnderenheter.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
-                syncArrangorFromBrreg(it).bind()
-            }.bind()
-            Pair(arrangor, underenheter)
-        }
+    private suspend fun syncArrangorerFromBrreg(request: AvtaleRequest): Either<List<ValidationError>, Pair<ArrangorDto, List<ArrangorDto>>> = either {
+        val arrangor = syncArrangorFromBrreg(request.arrangorOrganisasjonsnummer).bind()
+        val underenheter = request.arrangorUnderenheter.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
+            syncArrangorFromBrreg(it).bind()
+        }.bind()
+        Pair(arrangor, underenheter)
+    }
 
-    private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): Either<List<ValidationError>, ArrangorDto> =
-        arrangorService
-            .getOrSyncArrangorFromBrreg(orgnr)
-            .mapLeft {
-                ValidationError.of(
-                    AvtaleRequest::arrangorOrganisasjonsnummer,
-                    "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
-                ).nel()
-            }
+    private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): Either<List<ValidationError>, ArrangorDto> = arrangorService
+        .getOrSyncArrangorFromBrreg(orgnr)
+        .mapLeft {
+            ValidationError.of(
+                AvtaleRequest::arrangorOrganisasjonsnummer,
+                "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
+            ).nel()
+        }
 
     fun getAll(
         filter: AvtaleFilter,
@@ -204,8 +202,7 @@ class AvtaleService(
         return Either.Right(Unit)
     }
 
-    fun getEndringshistorikk(id: UUID): EndringshistorikkDto =
-        endringshistorikkService.getEndringshistorikk(DocumentClass.AVTALE, id)
+    fun getEndringshistorikk(id: UUID): EndringshistorikkDto = endringshistorikkService.getEndringshistorikk(DocumentClass.AVTALE, id)
 
     private fun getOrError(id: UUID, tx: TransactionalSession): AvtaleDto {
         val dto = avtaler.get(id, tx)

@@ -387,9 +387,8 @@ class AvtaleValidator(
         return kanIkkeOppretteAvtale || kanIkkeRedigereTiltakstypeForAvtale
     }
 
-    private fun isEnabled(tiltakskode: Tiltakskode?) =
-        tiltakstyper.isEnabled(tiltakskode) ||
-            Tiltakskoder.TiltakMedAvtalerFraMulighetsrommet.contains(tiltakskode)
+    private fun isEnabled(tiltakskode: Tiltakskode?) = tiltakstyper.isEnabled(tiltakskode) ||
+        Tiltakskoder.TiltakMedAvtalerFraMulighetsrommet.contains(tiltakskode)
 }
 
 private fun avtaleTypeErForhandsgodkjent(avtaletype: Avtaletype): Boolean {

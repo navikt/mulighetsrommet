@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.altinn
 
-import kotliquery.Session
+import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.altinn.models.AltinnRessurs
 import no.nav.mulighetsrommet.altinn.models.BedriftRettigheter
@@ -11,10 +11,11 @@ import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 
 class AltinnRettigheterRepository(private val db: Database) {
-    fun upsertRettighet(personBedriftRettigheter: PersonBedriftRettigheter) =
-        db.transaction { tx -> upsertRettighet(personBedriftRettigheter, tx) }
+    fun upsertRettighet(personBedriftRettigheter: PersonBedriftRettigheter) = db.transaction {
+        upsertRettighet(personBedriftRettigheter, it)
+    }
 
-    fun upsertRettighet(personBedriftRettigheter: PersonBedriftRettigheter, tx: Session) {
+    fun upsertRettighet(personBedriftRettigheter: PersonBedriftRettigheter, tx: TransactionalSession) {
         @Language("PostgreSQL")
         val upsertRolle = """
              insert into altinn_person_rettighet (

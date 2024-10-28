@@ -20,13 +20,12 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 
 var databaseConfig: DatabaseConfig? = null
 
-fun createDatabaseTestConfig() =
-    if (databaseConfig == null) {
-        databaseConfig = createDatabaseTestSchema("mr-api")
-        databaseConfig!!
-    } else {
-        databaseConfig!!
-    }
+fun createDatabaseTestConfig() = if (databaseConfig == null) {
+    databaseConfig = createDatabaseTestSchema("mr-api")
+    databaseConfig!!
+} else {
+    databaseConfig!!
+}
 
 fun <R> withTestApplication(
     config: AppConfig = createTestApplicationConfig(),

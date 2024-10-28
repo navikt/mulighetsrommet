@@ -43,18 +43,17 @@ class AltinnClient(
 
     private fun findAltinnRoller(
         parties: List<AuthorizedParty>,
-    ): List<BedriftRettigheter> =
-        parties
-            .flatMap { party ->
-                findAltinnRoller(party.subunits) +
-                    BedriftRettigheter(
-                        organisasjonsnummer = Organisasjonsnummer(party.organizationNumber),
-                        rettigheter = AltinnRessurs
-                            .entries
-                            .filter { it.ressursId in party.authorizedResources },
-                    )
-            }
-            .filter { it.rettigheter.isNotEmpty() }
+    ): List<BedriftRettigheter> = parties
+        .flatMap { party ->
+            findAltinnRoller(party.subunits) +
+                BedriftRettigheter(
+                    organisasjonsnummer = Organisasjonsnummer(party.organizationNumber),
+                    rettigheter = AltinnRessurs
+                        .entries
+                        .filter { it.ressursId in party.authorizedResources },
+                )
+        }
+        .filter { it.rettigheter.isNotEmpty() }
 
     private suspend fun hentAuthorizedParties(norskIdent: NorskIdent): List<AuthorizedParty> {
         @Serializable

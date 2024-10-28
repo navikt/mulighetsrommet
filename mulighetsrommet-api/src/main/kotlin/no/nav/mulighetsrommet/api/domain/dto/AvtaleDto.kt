@@ -99,50 +99,48 @@ data class AvtaleDto(
         val status: OpsjonLoggRequest.OpsjonsLoggStatus,
     )
 
-    fun toDbo() =
-        AvtaleDbo(
-            id = id,
-            navn = navn,
-            tiltakstypeId = tiltakstype.id,
-            avtalenummer = avtalenummer,
-            websaknummer = websaknummer,
-            arrangorId = arrangor.id,
-            arrangorUnderenheter = arrangor.underenheter.map { it.id },
-            arrangorKontaktpersoner = arrangor.kontaktpersoner.map { it.id },
-            startDato = startDato,
-            sluttDato = sluttDato,
-            navEnheter = this.kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer },
-            avtaletype = avtaletype,
-            prisbetingelser = prisbetingelser,
-            antallPlasser = antallPlasser,
-            administratorer = administratorer.map { it.navIdent },
-            beskrivelse = null,
-            faneinnhold = null,
-            personopplysninger = personopplysninger,
-            personvernBekreftet = personvernBekreftet,
-            amoKategorisering = amoKategorisering,
-            opsjonMaksVarighet = opsjonsmodellData?.opsjonMaksVarighet,
-            opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
-            customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
-            utdanningslop = utdanningslop?.toDbo(),
-        )
+    fun toDbo() = AvtaleDbo(
+        id = id,
+        navn = navn,
+        tiltakstypeId = tiltakstype.id,
+        avtalenummer = avtalenummer,
+        websaknummer = websaknummer,
+        arrangorId = arrangor.id,
+        arrangorUnderenheter = arrangor.underenheter.map { it.id },
+        arrangorKontaktpersoner = arrangor.kontaktpersoner.map { it.id },
+        startDato = startDato,
+        sluttDato = sluttDato,
+        navEnheter = this.kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer },
+        avtaletype = avtaletype,
+        prisbetingelser = prisbetingelser,
+        antallPlasser = antallPlasser,
+        administratorer = administratorer.map { it.navIdent },
+        beskrivelse = null,
+        faneinnhold = null,
+        personopplysninger = personopplysninger,
+        personvernBekreftet = personvernBekreftet,
+        amoKategorisering = amoKategorisering,
+        opsjonMaksVarighet = opsjonsmodellData?.opsjonMaksVarighet,
+        opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
+        customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
+        utdanningslop = utdanningslop?.toDbo(),
+    )
 
-    fun toArenaAvtaleDbo() =
-        ArenaAvtaleDbo(
-            id = id,
-            navn = navn,
-            tiltakstypeId = tiltakstype.id,
-            avtalenummer = avtalenummer,
-            arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer.value,
-            startDato = startDato,
-            sluttDato = sluttDato,
-            arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,
-            avtaletype = avtaletype,
-            avslutningsstatus = when (status) {
-                is AvtaleStatus.AKTIV -> Avslutningsstatus.IKKE_AVSLUTTET
-                is AvtaleStatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
-                is AvtaleStatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
-            },
-            prisbetingelser = prisbetingelser,
-        )
+    fun toArenaAvtaleDbo() = ArenaAvtaleDbo(
+        id = id,
+        navn = navn,
+        tiltakstypeId = tiltakstype.id,
+        avtalenummer = avtalenummer,
+        arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer.value,
+        startDato = startDato,
+        sluttDato = sluttDato,
+        arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,
+        avtaletype = avtaletype,
+        avslutningsstatus = when (status) {
+            is AvtaleStatus.AKTIV -> Avslutningsstatus.IKKE_AVSLUTTET
+            is AvtaleStatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
+            is AvtaleStatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
+        },
+        prisbetingelser = prisbetingelser,
+    )
 }

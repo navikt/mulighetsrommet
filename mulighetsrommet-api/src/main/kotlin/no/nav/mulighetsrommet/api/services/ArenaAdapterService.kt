@@ -195,39 +195,38 @@ class ArenaAdapterService(
         tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo,
         current: TiltaksgjennomforingDto,
         tiltakstype: TiltakstypeDto,
-    ): ArenaTiltaksgjennomforingDbo =
-        if (tiltakstypeService.isEnabled(tiltakstype.tiltakskode)) {
-            ArenaTiltaksgjennomforingDbo(
-                // Behold felter som settes i Arena
-                tiltaksnummer = tiltaksgjennomforing.tiltaksnummer,
-                sanityId = tiltaksgjennomforing.sanityId,
-                arenaAnsvarligEnhet = tiltaksgjennomforing.arenaAnsvarligEnhet,
+    ): ArenaTiltaksgjennomforingDbo = if (tiltakstypeService.isEnabled(tiltakstype.tiltakskode)) {
+        ArenaTiltaksgjennomforingDbo(
+            // Behold felter som settes i Arena
+            tiltaksnummer = tiltaksgjennomforing.tiltaksnummer,
+            sanityId = tiltaksgjennomforing.sanityId,
+            arenaAnsvarligEnhet = tiltaksgjennomforing.arenaAnsvarligEnhet,
 
-                // Resten av feltene skal ikke overskrives med data fra Arena
-                id = current.id,
-                avtaleId = current.avtaleId ?: tiltaksgjennomforing.avtaleId,
-                navn = current.navn,
-                tiltakstypeId = current.tiltakstype.id,
-                arrangorOrganisasjonsnummer = current.arrangor.organisasjonsnummer.value,
-                startDato = current.startDato,
-                sluttDato = current.sluttDato,
-                apentForInnsok = current.apentForInnsok,
-                antallPlasser = current.antallPlasser,
-                deltidsprosent = current.deltidsprosent,
-                avslutningsstatus = current.status.toAvslutningsstatus(),
-            )
+            // Resten av feltene skal ikke overskrives med data fra Arena
+            id = current.id,
+            avtaleId = current.avtaleId ?: tiltaksgjennomforing.avtaleId,
+            navn = current.navn,
+            tiltakstypeId = current.tiltakstype.id,
+            arrangorOrganisasjonsnummer = current.arrangor.organisasjonsnummer.value,
+            startDato = current.startDato,
+            sluttDato = current.sluttDato,
+            apentForInnsok = current.apentForInnsok,
+            antallPlasser = current.antallPlasser,
+            deltidsprosent = current.deltidsprosent,
+            avslutningsstatus = current.status.toAvslutningsstatus(),
+        )
+    } else {
+        // Pass på at man ikke mister referansen til Avtalen
+        val avtaleId = if (
+            current.opphav == ArenaMigrering.Opphav.MR_ADMIN_FLATE ||
+            Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.tiltakskode)
+        ) {
+            current.avtaleId ?: tiltaksgjennomforing.avtaleId
         } else {
-            // Pass på at man ikke mister referansen til Avtalen
-            val avtaleId = if (
-                current.opphav == ArenaMigrering.Opphav.MR_ADMIN_FLATE ||
-                Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.tiltakskode)
-            ) {
-                current.avtaleId ?: tiltaksgjennomforing.avtaleId
-            } else {
-                tiltaksgjennomforing.avtaleId
-            }
-            tiltaksgjennomforing.copy(avtaleId = avtaleId)
+            tiltaksgjennomforing.avtaleId
         }
+        tiltaksgjennomforing.copy(avtaleId = avtaleId)
+    }
 
     private fun hasNoRelevantChanges(
         arenaGjennomforing: ArenaTiltaksgjennomforingDbo,

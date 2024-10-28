@@ -362,17 +362,15 @@ class SanityService(
         }
     }
 
-    private suspend fun existsInSanity(sanityId: UUID) =
-        isPublished(sanityId) || isDraft(sanityId)
+    private suspend fun existsInSanity(sanityId: UUID) = isPublished(sanityId) || isDraft(sanityId)
 
-    private suspend fun getSanityId(sanityId: UUID) =
-        if (isPublished(sanityId)) {
-            "$sanityId"
-        } else if (isDraft(sanityId)) {
-            "drafts.$sanityId"
-        } else {
-            null
-        }
+    private suspend fun getSanityId(sanityId: UUID) = if (isPublished(sanityId)) {
+        "$sanityId"
+    } else if (isDraft(sanityId)) {
+        "drafts.$sanityId"
+    } else {
+        null
+    }
 
     private suspend fun isPublished(sanityId: UUID): Boolean {
         val query = """

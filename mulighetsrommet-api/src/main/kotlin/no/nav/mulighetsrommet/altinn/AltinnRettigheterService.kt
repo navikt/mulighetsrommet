@@ -34,8 +34,7 @@ class AltinnRettigheterService(
     }
 }
 
-fun BedriftRettigheterDbo.toBedriftRettigheter() =
-    BedriftRettigheter(
-        organisasjonsnummer = this.organisasjonsnummer,
-        rettigheter = this.rettigheter.map { it.rettighet },
-    )
+fun BedriftRettigheterDbo.toBedriftRettigheter() = BedriftRettigheter(
+    organisasjonsnummer = this.organisasjonsnummer,
+    rettigheter = this.rettigheter.map { it.rettighet },
+)

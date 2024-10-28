@@ -42,11 +42,9 @@ class ArrangorService(
             }
     }
 
-    fun upsertKontaktperson(kontaktperson: ArrangorKontaktperson) =
-        arrangorRepository.upsertKontaktperson(kontaktperson)
+    fun upsertKontaktperson(kontaktperson: ArrangorKontaktperson) = arrangorRepository.upsertKontaktperson(kontaktperson)
 
-    fun hentKontaktpersoner(arrangorId: UUID): List<ArrangorKontaktperson> =
-        arrangorRepository.getKontaktpersoner(arrangorId)
+    fun hentKontaktpersoner(arrangorId: UUID): List<ArrangorKontaktperson> = arrangorRepository.getKontaktpersoner(arrangorId)
 
     fun hentKoblingerForKontaktperson(kontaktpersonId: UUID): StatusResponse<KoblingerForKontaktperson> {
         val (gjennomforinger, avtaler) = arrangorRepository.koblingerTilKontaktperson(kontaktpersonId)

@@ -5,6 +5,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
+import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
@@ -36,7 +37,7 @@ class AvtaleRepository(private val db: Database) {
 
     fun upsert(avtale: AvtaleDbo) = db.transaction { upsert(avtale, it) }
 
-    fun upsert(avtale: AvtaleDbo, tx: Session) {
+    fun upsert(avtale: AvtaleDbo, tx: TransactionalSession) {
         logger.info("Lagrer avtale id=${avtale.id}")
 
         @Language("PostgreSQL")
@@ -339,7 +340,7 @@ class AvtaleRepository(private val db: Database) {
         queryOf(query, avtale.toSqlParameters(arrangorId)).asExecute.let { tx.run(it) }
     }
 
-    fun get(id: UUID): AvtaleDto? = db.transaction { get(id, it) }
+    fun get(id: UUID): AvtaleDto? = db.useSession { get(id, it) }
 
     fun get(id: UUID, tx: Session): AvtaleDto? {
         @Language("PostgreSQL")
@@ -462,8 +463,9 @@ class AvtaleRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int =
-        db.transaction { avbryt(it, id, tidspunkt, aarsak) }
+    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int = db.useSession {
+        avbryt(it, id, tidspunkt, aarsak)
+    }
 
     fun avbryt(tx: Session, id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
         @Language("PostgreSQL")

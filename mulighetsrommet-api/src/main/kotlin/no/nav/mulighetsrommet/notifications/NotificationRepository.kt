@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.notifications
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
-import kotliquery.Session
+import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils
@@ -18,10 +18,9 @@ import java.util.*
 class NotificationRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun insert(notification: ScheduledNotification) =
-        db.transaction { insert(notification, it) }
+    fun insert(notification: ScheduledNotification) = db.transaction { insert(notification, it) }
 
-    fun insert(notification: ScheduledNotification, tx: Session) {
+    fun insert(notification: ScheduledNotification, tx: TransactionalSession) {
         logger.info("Saving notification id=${notification.id}")
 
         @Language("PostgreSQL")
@@ -122,27 +121,26 @@ class NotificationRepository(private val db: Database) {
     fun getUserNotifications(
         userId: NavIdent? = null,
         status: NotificationStatus? = null,
-    ): QueryResult<List<UserNotification>> =
-        query {
-            val where = DatabaseUtils.andWhereParameterNotNull(
-                userId to "un.user_id = :user_id",
-                status to status?.toDbStatement(),
-            )
+    ): QueryResult<List<UserNotification>> = query {
+        val where = DatabaseUtils.andWhereParameterNotNull(
+            userId to "un.user_id = :user_id",
+            status to status?.toDbStatement(),
+        )
 
-            @Language("PostgreSQL")
-            val query = """
+        @Language("PostgreSQL")
+        val query = """
             select n.id, n.type, n.title, n.description, n.created_at, un.user_id, un.done_at, n.metadata
             from notification n
                      left join user_notification un on n.id = un.notification_id
             $where
             order by created_at desc
-            """.trimIndent()
+        """.trimIndent()
 
-            queryOf(query, mapOf("user_id" to userId?.value))
-                .map { it.toUserNotification() }
-                .asList
-                .let { db.run(it) }
-        }
+        queryOf(query, mapOf("user_id" to userId?.value))
+            .map { it.toUserNotification() }
+            .asList
+            .let { db.run(it) }
+    }
 
     fun getUserNotificationSummary(userId: NavIdent): QueryResult<UserNotificationSummary> = query {
         @Language("PostgreSQL")

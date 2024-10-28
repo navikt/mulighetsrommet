@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.okonomi.refusjon
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
+import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregning
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
@@ -14,10 +15,11 @@ import java.time.LocalDateTime
 import java.util.*
 
 class RefusjonskravRepository(private val db: Database) {
-    fun upsert(dbo: RefusjonskravDbo) =
-        db.transaction { upsert(dbo, it) }
+    fun upsert(dbo: RefusjonskravDbo) = db.transaction {
+        upsert(dbo, it)
+    }
 
-    fun upsert(dbo: RefusjonskravDbo, tx: Session) {
+    fun upsert(dbo: RefusjonskravDbo, tx: TransactionalSession) {
         @Language("PostgreSQL")
         val refusjonskravQuery = """
             insert into refusjonskrav (id, gjennomforing_id, frist_for_godkjenning)

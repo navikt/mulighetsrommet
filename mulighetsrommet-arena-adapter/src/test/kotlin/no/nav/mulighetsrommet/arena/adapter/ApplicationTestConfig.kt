@@ -11,13 +11,12 @@ import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 var databaseConfig: DatabaseConfig? = null
-fun createDatabaseTestConfig() =
-    if (databaseConfig == null) {
-        databaseConfig = createDatabaseTestSchema("mr-arena-adapter")
-        databaseConfig!!
-    } else {
-        databaseConfig!!
-    }
+fun createDatabaseTestConfig() = if (databaseConfig == null) {
+    databaseConfig = createDatabaseTestSchema("mr-arena-adapter")
+    databaseConfig!!
+} else {
+    databaseConfig!!
+}
 
 fun <R> withTestApplication(
     oauth: MockOAuth2Server = MockOAuth2Server(),

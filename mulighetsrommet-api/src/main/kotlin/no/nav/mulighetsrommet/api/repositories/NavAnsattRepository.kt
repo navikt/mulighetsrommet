@@ -14,10 +14,9 @@ import java.time.LocalDate
 import java.util.*
 
 class NavAnsattRepository(private val db: Database) {
-    fun upsert(ansatt: NavAnsattDbo) =
-        db.transaction { tx ->
-            upsert(ansatt, tx)
-        }
+    fun upsert(ansatt: NavAnsattDbo) = db.useSession {
+        upsert(ansatt, it)
+    }
 
     fun upsert(ansatt: NavAnsattDbo, tx: Session) {
         @Language("PostgreSQL")

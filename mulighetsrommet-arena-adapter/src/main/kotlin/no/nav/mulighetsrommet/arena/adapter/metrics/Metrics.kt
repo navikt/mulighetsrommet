@@ -5,11 +5,10 @@ import io.micrometer.core.instrument.Timer
 import no.nav.mulighetsrommet.metrics.Metrikker
 import java.util.concurrent.TimeUnit
 
-suspend fun <A> Timer.recordSuspend(block: suspend () -> A): A =
-    when (val timer = this) {
-        is AbstractTimer -> timer.recordSuspendInternal(block)
-        else -> block()
-    }
+suspend fun <A> Timer.recordSuspend(block: suspend () -> A): A = when (val timer = this) {
+    is AbstractTimer -> timer.recordSuspendInternal(block)
+    else -> block()
+}
 
 private suspend fun <A> AbstractTimer.recordSuspendInternal(block: suspend () -> A): A {
     val clock = Metrikker.appMicrometerRegistry.config().clock()

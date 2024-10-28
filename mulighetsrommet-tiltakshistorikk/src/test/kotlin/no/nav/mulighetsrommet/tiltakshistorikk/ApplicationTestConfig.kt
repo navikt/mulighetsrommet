@@ -10,13 +10,12 @@ import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 var databaseConfig: DatabaseConfig? = null
-fun createDatabaseTestConfig() =
-    if (databaseConfig == null) {
-        databaseConfig = createDatabaseTestSchema("mr-tiltakshistorikk")
-        databaseConfig!!
-    } else {
-        databaseConfig!!
-    }
+fun createDatabaseTestConfig() = if (databaseConfig == null) {
+    databaseConfig = createDatabaseTestSchema("mr-tiltakshistorikk")
+    databaseConfig!!
+} else {
+    databaseConfig!!
+}
 
 fun <R> withTestApplication(
     oauth: MockOAuth2Server = MockOAuth2Server(),

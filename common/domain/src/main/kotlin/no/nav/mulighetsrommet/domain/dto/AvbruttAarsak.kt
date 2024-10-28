@@ -29,14 +29,13 @@ sealed class AvbruttAarsak {
     }
 
     companion object {
-        fun fromString(value: String): AvbruttAarsak =
-            when (value) {
-                "ENDRING_HOS_ARRANGOR" -> EndringHosArrangor
-                "BUDSJETT_HENSYN" -> BudsjettHensyn
-                "FOR_FAA_DELTAKERE" -> ForFaaDeltakere
-                "FEILREGISTRERING" -> Feilregistrering
-                "AVBRUTT_I_ARENA" -> AvbruttIArena
-                else -> Annet(value)
-            }
+        fun fromString(value: String): AvbruttAarsak = when (value) {
+            "ENDRING_HOS_ARRANGOR" -> EndringHosArrangor
+            "BUDSJETT_HENSYN" -> BudsjettHensyn
+            "FOR_FAA_DELTAKERE" -> ForFaaDeltakere
+            "FEILREGISTRERING" -> Feilregistrering
+            "AVBRUTT_I_ARENA" -> AvbruttIArena
+            else -> Annet(value)
+        }
     }
 }
