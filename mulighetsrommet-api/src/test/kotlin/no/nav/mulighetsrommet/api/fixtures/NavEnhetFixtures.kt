@@ -14,28 +14,28 @@ object NavEnhetFixtures {
     )
 
     val Innlandet = NavEnhetDbo(
-        navn = "NAV Innlandet",
+        navn = "Nav Innlandet",
         enhetsnummer = "0400",
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.FYLKE,
         overordnetEnhet = null,
     )
     val Gjovik = NavEnhetDbo(
-        navn = "NAV Gjøvik",
+        navn = "Nav Gjøvik",
         enhetsnummer = "0502",
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.LOKAL,
         overordnetEnhet = "0400",
     )
     val Lillehammer = NavEnhetDbo(
-        navn = "NAV Lillehammer",
+        navn = "Nav Lillehammer",
         enhetsnummer = "0501",
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.LOKAL,
         overordnetEnhet = "0400",
     )
     val Sel = NavEnhetDbo(
-        navn = "NAV Sel",
+        navn = "Nav Sel",
         enhetsnummer = "0517",
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.LOKAL,
@@ -43,21 +43,21 @@ object NavEnhetFixtures {
     )
 
     val Oslo = NavEnhetDbo(
-        navn = "NAV Oslo",
+        navn = "Nav Oslo",
         enhetsnummer = "0300",
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.FYLKE,
         overordnetEnhet = null,
     )
     val TiltakOslo = NavEnhetDbo(
-        navn = "NAV Tiltak Oslo",
+        navn = "Nav Tiltak Oslo",
         enhetsnummer = "0387",
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.TILTAK,
         overordnetEnhet = "0300",
     )
     val Sagene = NavEnhetDbo(
-        navn = "NAV Sagene",
+        navn = "Nav Sagene",
         enhetsnummer = "0314",
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.LOKAL,

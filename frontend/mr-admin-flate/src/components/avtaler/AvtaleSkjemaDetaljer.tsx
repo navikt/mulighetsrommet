@@ -260,7 +260,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 velgAlle
                 placeholder="Velg en"
                 label={avtaletekster.navEnheterLabel}
-                helpText="Bestemmer hvilke NAV-enheter som kan velges i gjennomføringene til avtalen."
+                helpText="Bestemmer hvilke Nav-enheter som kan velges i gjennomføringene til avtalen."
                 {...register("navEnheter")}
                 options={getLokaleUnderenheterAsSelectOptions(watch("navRegioner") ?? [], enheter)}
               />

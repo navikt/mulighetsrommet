@@ -122,7 +122,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 )
                 it.startDato shouldBe LocalDate.of(2023, 1, 1)
                 it.sluttDato shouldBe LocalDate.of(2023, 2, 2)
-                it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = "NAV Innlandet", enhetsnummer = "0400")
+                it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = "Nav Innlandet", enhetsnummer = "0400")
                 it.apentForInnsok shouldBe false
                 it.antallPlasser shouldBe 10
                 it.avtaleId shouldBe null
@@ -202,7 +202,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
         }
 
-        test("håndterer at arena-ansvarlig-enhet ikke er en kjent NAV-enhet") {
+        test("håndterer at arena-ansvarlig-enhet ikke er en kjent Nav-enhet") {
             tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1.copy(arenaAnsvarligEnhet = "9999"))
 
             tiltaksgjennomforinger.get(ArenaOppfolging1.id).shouldNotBeNull().arenaAnsvarligEnhet.shouldBe(
@@ -850,7 +850,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
         }
 
-        test("filtrering på NAV-enhet") {
+        test("filtrering på Nav-enhet") {
             MulighetsrommetTestDomain(
                 enheter = listOf(
                     NavEnhetFixtures.IT,

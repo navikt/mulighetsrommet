@@ -15,7 +15,7 @@ export const lagretFilterHandlers = [
             search: "",
             navEnheter: [
               {
-                navn: "NAV Fredrikstad",
+                navn: "Nav Fredrikstad",
                 type: "LOKAL",
                 status: "AKTIV",
                 enhetsnummer: "0106",

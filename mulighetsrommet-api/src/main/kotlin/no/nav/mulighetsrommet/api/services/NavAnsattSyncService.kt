@@ -114,7 +114,7 @@ class NavAnsattSyncService(
         val notification = ScheduledNotification(
             type = NotificationType.TASK,
             title = """Avtalen "${avtale.navn}" mangler administrator.""",
-            description = "Du har blitt varslet fordi din NAV-hovedenhet er i samme fylke som forrige administrators NAV-hovedenhet. Gå til avtalen og sett deg som administrator hvis du eier avtalen.",
+            description = "Du har blitt varslet fordi din Nav-hovedenhet er i samme fylke som forrige administrators Nav-hovedenhet. Gå til avtalen og sett deg som administrator hvis du eier avtalen.",
             metadata = NotificationMetadata(
                 linkText = "Gå til avtalen",
                 link = "/avtaler/${avtale.id}",
@@ -152,7 +152,7 @@ class NavAnsattSyncService(
         val notification = ScheduledNotification(
             type = NotificationType.TASK,
             title = """Kontaktperson eller redaktør for tiltak: "${tiltak.tiltaksgjennomforingNavn}" ble fjernet i Sanity""",
-            description = "Du har blitt varslet fordi din NAV-hovedenhet er i samme fylke som den slettede kontaktpersons/redaktørs NAV-hovedenhet. Gå til tiltaksgjennomføringen i Sanity og sjekk at kontaktpersonene og redaktørene for tiltaket er korrekt.",
+            description = "Du har blitt varslet fordi din Nav-hovedenhet er i samme fylke som den slettede kontaktpersons/redaktørs Nav-hovedenhet. Gå til tiltaksgjennomføringen i Sanity og sjekk at kontaktpersonene og redaktørene for tiltaket er korrekt.",
             metadata = NotificationMetadata(
                 linkText = "Gå til gjennomføringen i Sanity",
                 link = "https://mulighetsrommet-sanity-studio.intern.nav.no/prod/structure/tiltaksgjennomforinger;alleTiltaksgjennomforinger;${tiltak._id}",

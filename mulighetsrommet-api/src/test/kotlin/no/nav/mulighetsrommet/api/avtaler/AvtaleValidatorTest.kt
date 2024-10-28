@@ -41,21 +41,21 @@ class AvtaleValidatorTest : FunSpec({
     val domain = MulighetsrommetTestDomain(
         enheter = listOf(
             NavEnhetDbo(
-                navn = "NAV Oslo",
+                navn = "Nav Oslo",
                 enhetsnummer = "0300",
                 status = NavEnhetStatus.AKTIV,
                 type = Norg2Type.FYLKE,
                 overordnetEnhet = null,
             ),
             NavEnhetDbo(
-                navn = "NAV Innlandet",
+                navn = "Nav Innlandet",
                 enhetsnummer = "0400",
                 status = NavEnhetStatus.AKTIV,
                 type = Norg2Type.FYLKE,
                 overordnetEnhet = null,
             ),
             NavEnhetDbo(
-                navn = "NAV Gjøvik",
+                navn = "Nav Gjøvik",
                 enhetsnummer = "0502",
                 status = NavEnhetStatus.AKTIV,
                 type = Norg2Type.LOKAL,
@@ -176,7 +176,7 @@ class AvtaleValidatorTest : FunSpec({
         validator.validate(dbo, null).shouldBeLeft().shouldContainAll(
             listOf(
                 ValidationError("startDato", "Startdato må være før sluttdato"),
-                ValidationError("navEnheter", "Du må velge minst én NAV-region"),
+                ValidationError("navEnheter", "Du må velge minst én Nav-region"),
                 ValidationError("arrangorUnderenheter", "Du må velge minst én underenhet for tiltaksarrangør"),
             ),
         )
@@ -243,7 +243,7 @@ class AvtaleValidatorTest : FunSpec({
         validator.validate(dbo2, null).shouldBeRight()
     }
 
-    test("skal validere at NAV-enheter må være koblet til NAV-fylke") {
+    test("skal validere at Nav-enheter må være koblet til Nav-fylke") {
         val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
 
         val dbo = avtaleDbo.copy(
@@ -252,7 +252,7 @@ class AvtaleValidatorTest : FunSpec({
 
         validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             listOf(
-                ValidationError("navEnheter", "NAV-enheten 0502 passer ikke i avtalens kontorstruktur"),
+                ValidationError("navEnheter", "Nav-enheten 0502 passer ikke i avtalens kontorstruktur"),
             ),
         )
     }
@@ -706,7 +706,7 @@ class AvtaleValidatorTest : FunSpec({
                 )
             }
 
-            test("skal godta at gjennomføring har andre NAV-enheter enn avtalen") {
+            test("skal godta at gjennomføring har andre Nav-enheter enn avtalen") {
                 gjennomforinger.upsert(
                     gjennomforing.copy(navRegion = "0400"),
                 )

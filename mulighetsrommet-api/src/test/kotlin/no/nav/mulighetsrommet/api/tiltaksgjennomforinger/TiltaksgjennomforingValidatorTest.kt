@@ -64,28 +64,28 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     val domain = MulighetsrommetTestDomain(
         enheter = listOf(
             NavEnhetDbo(
-                navn = "NAV Oslo",
+                navn = "Nav Oslo",
                 enhetsnummer = "0300",
                 status = NavEnhetStatus.AKTIV,
                 type = Norg2Type.FYLKE,
                 overordnetEnhet = null,
             ),
             NavEnhetDbo(
-                navn = "NAV Innlandet",
+                navn = "Nav Innlandet",
                 enhetsnummer = "0400",
                 status = NavEnhetStatus.AKTIV,
                 type = Norg2Type.FYLKE,
                 overordnetEnhet = null,
             ),
             NavEnhetDbo(
-                navn = "NAV Gjøvik",
+                navn = "Nav Gjøvik",
                 enhetsnummer = "0502",
                 status = NavEnhetStatus.AKTIV,
                 type = Norg2Type.LOKAL,
                 overordnetEnhet = "0400",
             ),
             NavEnhetDbo(
-                navn = "NAV IT",
+                navn = "Nav IT",
                 enhetsnummer = "2990",
                 status = NavEnhetStatus.AKTIV,
                 type = Norg2Type.IT,
@@ -367,7 +367,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             ),
             row(
                 gjennomforing.copy(navEnheter = listOf("0401")),
-                listOf(ValidationError("navEnheter", "NAV-enhet 0401 mangler i avtalen")),
+                listOf(ValidationError("navEnheter", "Nav-enhet 0401 mangler i avtalen")),
             ),
             row(
                 gjennomforing.copy(arrangorId = ArrangorFixtures.underenhet2.id),

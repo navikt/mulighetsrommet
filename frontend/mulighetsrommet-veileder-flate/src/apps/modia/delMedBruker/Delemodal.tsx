@@ -21,7 +21,7 @@ interface DelemodalProps {
 }
 
 function overskrift(tiltak: VeilederflateTiltak): string {
-  return `Tiltak gjennom NAV: ${tiltak.tittel}`;
+  return `Tiltak gjennom Nav: ${tiltak.tittel}`;
 }
 
 export function Delemodal({
@@ -163,7 +163,7 @@ export function Delemodal({
           </div>
 
           <BodyShort size="small">
-            Kandidatene vil få et varsel fra NAV, og kan logge inn på nav.no for å lese meldingen.
+            Kandidatene vil få et varsel fra Nav, og kan logge inn på nav.no for å lese meldingen.
           </BodyShort>
           <div className={style.hr} />
           <div className={style.knapperad}>

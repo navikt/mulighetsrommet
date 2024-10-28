@@ -1199,7 +1199,7 @@ paths:
       - in: "path"
         name: enhetsnummer
         required: true
-        description: "Enhetsnummer for NAV-enhet"
+        description: "Enhetsnummer for Nav-enhet"
         schema:
           type: string
     get:

@@ -4,7 +4,7 @@ import { Information } from "../components/Information";
 
 export const navKontaktperson = defineType({
   name: "navKontaktperson",
-  title: "NAV kontaktperson",
+  title: "Nav kontaktperson",
   type: "document",
   icon: GrUserWorker,
   readOnly: true,
@@ -29,13 +29,13 @@ export const navKontaktperson = defineType({
     }),
     defineField({
       name: "navIdent",
-      title: "NAV-ident",
+      title: "Nav-ident",
       type: "slug",
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: "enhet",
-      title: "NAV-enhet",
+      title: "Nav-enhet",
       type: "string",
       validation: (rule) => rule.required().min(2).max(200),
     }),

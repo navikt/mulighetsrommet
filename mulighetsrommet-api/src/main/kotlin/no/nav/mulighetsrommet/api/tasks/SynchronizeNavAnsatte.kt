@@ -48,8 +48,8 @@ class SynchronizeNavAnsatte(
             val stackTrace = failure.cause.getOrNull()?.stackTraceToString()
             slack.sendMessage(
                 """
-                Klarte ikke synkronisere NAV-ansatte fra Azure AD.
-                Konsekvensen er at databasen over NAV-ansatte i løsningen kan være utdatert.
+                Klarte ikke synkronisere Nav-ansatte fra Azure AD.
+                Konsekvensen er at databasen over Nav-ansatte i løsningen kan være utdatert.
                 Detaljer: $cause
                 Stacktrace: $stackTrace
                 """.trimIndent(),
@@ -58,7 +58,7 @@ class SynchronizeNavAnsatte(
         .execute { instance, _ ->
             MDC.put("correlationId", instance.id)
 
-            logger.info("Synkroniserer NAV-ansatte fra Azure til database...")
+            logger.info("Synkroniserer Nav-ansatte fra Azure til database...")
 
             runBlocking {
                 val today = LocalDate.now()

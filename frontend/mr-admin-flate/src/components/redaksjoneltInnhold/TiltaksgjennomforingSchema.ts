@@ -37,7 +37,7 @@ export const TiltaksgjennomforingSchema = z
       .object({
         navIdent: z.string({ required_error: "Du må velge en kontaktperson" }),
         navEnheter: z
-          .string({ required_error: "Du må velge NAV-enheter kontaktpersonen er tilgjengelig for" })
+          .string({ required_error: "Du må velge Nav-enheter kontaktpersonen er tilgjengelig for" })
           .array(),
         beskrivelse: z.string().nullable().optional(),
       })

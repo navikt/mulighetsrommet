@@ -471,7 +471,7 @@ class AvtaleRepositoryTest : FunSpec({
                 }
             }
 
-            test("filtrering på NAV-enheter") {
+            test("filtrering på Nav-enheter") {
                 MulighetsrommetTestDomain(
                     enheter = listOf(Innlandet, Gjovik, Sel),
                     tiltakstyper = listOf(
@@ -503,7 +503,7 @@ class AvtaleRepositoryTest : FunSpec({
                 }
             }
 
-            test("Avtale NAV-enhet blir med riktig tilbake") {
+            test("Avtale Nav-enhet blir med riktig tilbake") {
                 val navEnhetRepository = NavEnhetRepository(database.db)
                 navEnhetRepository.upsert(
                     NavEnhetDbo(

@@ -59,7 +59,7 @@ export const oversiktenSteps: MulighetsrommetStep[] = [
   },
   {
     title: "Liste over tiltak",
-    content: "I listen finnes alle gjennomføringene som er tilknyttet brukerens NAV-enhet.",
+    content: "I listen finnes alle gjennomføringene som er tilknyttet brukerens Nav-enhet.",
     target: '[data-testid="oversikt_tiltaksgjennomforinger"]',
     disableBeacon: true,
     id: "liste-over-tiltak",

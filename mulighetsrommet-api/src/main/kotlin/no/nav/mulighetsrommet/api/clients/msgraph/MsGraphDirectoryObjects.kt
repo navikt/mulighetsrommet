@@ -23,7 +23,7 @@ internal data class MsGraphUserDto(
      * NAVident
      *
      * Vi antar at denne er definert for alle ansatte,
-     * om feltet er null så antar vi at brukeren ikke er en ansatt hos NAV.
+     * om feltet er null så antar vi at brukeren ikke er en ansatt hos Nav.
      */
     val onPremisesSamAccountName: String?,
     /**
@@ -31,17 +31,17 @@ internal data class MsGraphUserDto(
      */
     val mail: String?,
     /**
-     * NAV Enhetskode
+     * Nav Enhetskode
      *
      * Vi antar at denne er definert for alle ansatte,
-     * om feltet er null så antar vi at brukeren ikke er en ansatt hos NAV.
+     * om feltet er null så antar vi at brukeren ikke er en ansatt hos Nav.
      */
     val streetAddress: String?,
     /**
-     * NAV Enhetsnavn
+     * Nav Enhetsnavn
      *
      * Vi antar at denne er definert for alle ansatte,
-     * om feltet er null så antar vi at brukeren ikke er en ansatt hos NAV.
+     * om feltet er null så antar vi at brukeren ikke er en ansatt hos Nav.
      */
     val city: String?,
     /**
