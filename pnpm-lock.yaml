@@ -66,8 +66,8 @@ importers:
         specifier: 6.27.0
         version: 6.27.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       uuid:
-        specifier: 10.0.0
-        version: 10.0.0
+        specifier: 11.0.1
+        version: 11.0.1
     devDependencies:
       '@mr/eslint-config-react-app':
         specifier: workspace:*
@@ -178,8 +178,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       uuid:
-        specifier: 10.0.0
-        version: 10.0.0
+        specifier: 11.0.1
+        version: 11.0.1
     devDependencies:
       '@remix-run/dev':
         specifier: ^2.13.1
@@ -441,8 +441,8 @@ importers:
         specifier: 1.8.1
         version: 1.8.1(react@18.3.1)
       uuid:
-        specifier: 10.0.0
-        version: 10.0.0
+        specifier: 11.0.1
+        version: 11.0.1
       zod:
         specifier: 3.23.8
         version: 3.23.8
@@ -617,8 +617,8 @@ importers:
         specifier: 6.27.0
         version: 6.27.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       uuid:
-        specifier: 10.0.0
-        version: 10.0.0
+        specifier: 11.0.1
+        version: 11.0.1
       zod:
         specifier: 3.23.8
         version: 3.23.8
@@ -8248,6 +8248,10 @@ packages:
 
   uuid@10.0.0:
     resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==}
+    hasBin: true
+
+  uuid@11.0.1:
+    resolution: {integrity: sha512-wt9UB5EcLhnboy1UvA1mvGPXkIIrHSu+3FmUksARfdVw9tuPf3CH/CohxO0Su1ApoKAeT6BVzAJIvjTuQVSmuQ==}
     hasBin: true
 
   uuid@8.3.2:
@@ -17706,6 +17710,8 @@ snapshots:
   utils-merge@1.0.1: {}
 
   uuid@10.0.0: {}
+
+  uuid@11.0.1: {}
 
   uuid@8.3.2: {}
 
