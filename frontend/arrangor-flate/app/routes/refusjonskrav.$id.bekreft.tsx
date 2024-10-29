@@ -87,6 +87,7 @@ export default function BekreftRefusjonskrav() {
               name="kontonummer"
               className="border border-[#0214317D] rounded-md"
               defaultValue={krav.betalingsinformasjon?.kontonummer}
+              maxLength={11}
             />
           </Definisjon>
           <Definisjon label="Evt KID nr for refusjonskrav" className="my-4 flex">
@@ -97,6 +98,7 @@ export default function BekreftRefusjonskrav() {
                 name="kid"
                 className="border border-[#0214317D] rounded-md"
                 defaultValue={krav.betalingsinformasjon?.kid}
+                maxLength={25}
               />
             </div>
           </Definisjon>
