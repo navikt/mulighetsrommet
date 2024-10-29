@@ -2,9 +2,9 @@ import { ClockIcon } from "@navikt/aksel-icons";
 import { Alert, Button, HelpText, HStack, Table } from "@navikt/ds-react";
 import { NavAnsatt, NavAnsattRolle, TilsagnBesluttelse, TilsagnDto } from "@mr/api-client";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
-import { formaterDato } from "../../../utils/Utils";
-import { formaterTall } from "@mr/frontend-common/utils/utils";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { formaterDato } from "@/utils/Utils";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
 
 interface Props {
   tilsagn: TilsagnDto[];
@@ -86,7 +86,7 @@ export function Tilsagnstabell({ tilsagn }: Props) {
           <Table.HeaderCell>Periodeslutt</Table.HeaderCell>
           <Table.HeaderCell>Kostnadssted</Table.HeaderCell>
           <Table.HeaderCell>
-            Beløp <small>(totalt {formaterTall(totalSum(tilsagn))} kr)</small>
+            Beløp <small>(totalt {formaterNOK(totalSum(tilsagn))})</small>
           </Table.HeaderCell>
           <Table.HeaderCell></Table.HeaderCell>
           <Table.HeaderCell></Table.HeaderCell>
@@ -103,7 +103,7 @@ export function Tilsagnstabell({ tilsagn }: Props) {
               <Table.DataCell>
                 {kostnadssted.navn} {kostnadssted.enhetsnummer}
               </Table.DataCell>
-              <Table.DataCell>{formaterTall(beregning.belop)} kr</Table.DataCell>
+              <Table.DataCell>{formaterNOK(beregning.belop)}</Table.DataCell>
               <Table.DataCell>
                 <TilsagnStatus tilsagn={tilsagn} ansatt={ansatt} />
               </Table.DataCell>

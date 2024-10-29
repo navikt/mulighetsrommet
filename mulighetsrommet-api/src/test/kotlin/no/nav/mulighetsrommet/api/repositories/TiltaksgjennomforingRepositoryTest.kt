@@ -122,7 +122,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 )
                 it.startDato shouldBe LocalDate.of(2023, 1, 1)
                 it.sluttDato shouldBe LocalDate.of(2023, 2, 2)
-                it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = "NAV Innlandet", enhetsnummer = "0400")
+                it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = "Nav Innlandet", enhetsnummer = "0400")
                 it.apentForInnsok shouldBe false
                 it.antallPlasser shouldBe 10
                 it.avtaleId shouldBe null
@@ -202,7 +202,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
         }
 
-        test("håndterer at arena-ansvarlig-enhet ikke er en kjent NAV-enhet") {
+        test("håndterer at arena-ansvarlig-enhet ikke er en kjent Nav-enhet") {
             tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1.copy(arenaAnsvarligEnhet = "9999"))
 
             tiltaksgjennomforinger.get(ArenaOppfolging1.id).shouldNotBeNull().arenaAnsvarligEnhet.shouldBe(
@@ -850,7 +850,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
         }
 
-        test("filtrering på NAV-enhet") {
+        test("filtrering på Nav-enhet") {
             MulighetsrommetTestDomain(
                 enheter = listOf(
                     NavEnhetFixtures.IT,
@@ -952,210 +952,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             items.lastOrNull()?.navn shouldBe expectedLast
 
             totalCount shouldBe expectedTotalCount
-        }
-    }
-
-    context("getAllVeilederflateTiltaksgjennomforing") {
-        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-
-        val oppfolgingSanityId = UUID.randomUUID()
-        val arbeidstreningSanityId = UUID.randomUUID()
-
-        beforeEach {
-            Query("update tiltakstype set sanity_id = '$oppfolgingSanityId' where id = '${TiltakstypeFixtures.Oppfolging.id}'")
-                .asUpdate
-                .let { database.db.run(it) }
-            Query("update tiltakstype set sanity_id = '$arbeidstreningSanityId' where id = '${TiltakstypeFixtures.AFT.id}'")
-                .asUpdate
-                .let { database.db.run(it) }
-            Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.VARIG_TILPASSET_INNSATS}'::innsatsgruppe]")
-                .asUpdate
-                .let { database.db.run(it) }
-
-            tiltaksgjennomforinger.upsert(Oppfolging1.copy(sluttDato = null, navEnheter = listOf("2990")))
-            tiltaksgjennomforinger.setPublisert(Oppfolging1.id, true)
-
-            tiltaksgjennomforinger.upsert(AFT1.copy(navEnheter = listOf("2990")))
-            tiltaksgjennomforinger.setPublisert(AFT1.id, true)
-        }
-
-        test("skal filtrere basert på om tiltaket er publisert") {
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                brukersEnheter = listOf("2990"),
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-            ) shouldHaveSize 2
-
-            tiltaksgjennomforinger.setPublisert(Oppfolging1.id, false)
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                brukersEnheter = listOf("2990"),
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-            ) shouldHaveSize 1
-
-            tiltaksgjennomforinger.setPublisert(AFT1.id, false)
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                brukersEnheter = listOf("2990"),
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-            ) shouldHaveSize 0
-        }
-
-        test("skal filtrere basert på innsatsgruppe") {
-            Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.SPESIELT_TILPASSET_INNSATS}'::innsatsgruppe] where id = '${TiltakstypeFixtures.Oppfolging.id}'")
-                .asUpdate
-                .let { database.db.run(it) }
-            Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.STANDARD_INNSATS}'::innsatsgruppe, '${Innsatsgruppe.SPESIELT_TILPASSET_INNSATS}'::innsatsgruppe] where id = '${TiltakstypeFixtures.AFT.id}'")
-                .asUpdate
-                .let { database.db.run(it) }
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS,
-                brukersEnheter = listOf("2990"),
-            ).should {
-                it shouldHaveSize 1
-                it[0].underTittel shouldBe AFT1.navn
-                it[0].tittel shouldBe TiltakstypeFixtures.AFT.navn
-            }
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                innsatsgruppe = Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
-                brukersEnheter = listOf("2990"),
-            ) shouldHaveSize 2
-        }
-
-        test("skal filtrere på brukers enheter") {
-            tiltaksgjennomforinger.upsert(Oppfolging1.copy(sluttDato = null, navEnheter = listOf("2990", "0400")))
-            tiltaksgjennomforinger.upsert(AFT1.copy(navEnheter = listOf("2990", "0300")))
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                brukersEnheter = listOf("0400"),
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-            ).should {
-                it shouldHaveSize 1
-                it[0].underTittel shouldBe Oppfolging1.navn
-                it[0].tittel shouldBe TiltakstypeFixtures.Oppfolging.navn
-            }
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-                brukersEnheter = listOf("0300"),
-            ).should {
-                it shouldHaveSize 1
-                it[0].underTittel shouldBe AFT1.navn
-            }
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-                brukersEnheter = listOf("0400", "0300"),
-            ) shouldHaveSize 2
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-                brukersEnheter = listOf("2990"),
-            ) shouldHaveSize 2
-        }
-
-        test("skal filtrere basert på tiltakstype sanity Id") {
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                sanityTiltakstypeIds = null,
-                brukersEnheter = listOf("2990"),
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-            ) shouldHaveSize 2
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-                sanityTiltakstypeIds = listOf(oppfolgingSanityId),
-                brukersEnheter = listOf("2990"),
-            ).should {
-                it shouldHaveSize 1
-                it[0].underTittel shouldBe Oppfolging1.navn
-                it[0].tittel shouldBe TiltakstypeFixtures.Oppfolging.navn
-            }
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-                sanityTiltakstypeIds = listOf(arbeidstreningSanityId),
-                brukersEnheter = listOf("2990"),
-            ).should {
-                it shouldHaveSize 1
-                it[0].underTittel shouldBe AFT1.navn
-            }
-        }
-
-        test("skal filtrere basert fritekst i navn") {
-            tiltaksgjennomforinger.upsert(Oppfolging1.copy(sluttDato = null, navn = "Oppfølging hos Erik"))
-            tiltaksgjennomforinger.upsert(AFT1.copy(navn = "AFT hos Frank"))
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-                brukersEnheter = listOf("0502"),
-                search = "erik",
-            ).should {
-                it shouldHaveSize 1
-                it[0].id shouldBe Oppfolging1.id
-            }
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-                brukersEnheter = listOf("0502"),
-                search = "frank aft",
-            ).should {
-                it shouldHaveSize 1
-                it[0].id shouldBe AFT1.id
-            }
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-                brukersEnheter = listOf("0502"),
-                search = "aft erik",
-            ).should {
-                it shouldHaveSize 0
-            }
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-                brukersEnheter = listOf("0502"),
-                search = "af",
-            ).should {
-                it shouldHaveSize 1
-                it[0].id shouldBe AFT1.id
-            }
-        }
-
-        test("skal filtrere basert på apent_for_innsok") {
-            tiltaksgjennomforinger.upsert(
-                Oppfolging1.copy(
-                    sluttDato = null,
-                    apentForInnsok = true,
-                    navEnheter = listOf("2990"),
-                ),
-            )
-            tiltaksgjennomforinger.upsert(AFT1.copy(apentForInnsok = false, navEnheter = listOf("2990")))
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-                apentForInnsok = true,
-                brukersEnheter = listOf("2990"),
-            ).should {
-                it shouldHaveSize 1
-                it[0].underTittel shouldBe Oppfolging1.navn
-                it[0].tittel shouldBe TiltakstypeFixtures.Oppfolging.navn
-            }
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-                apentForInnsok = false,
-                brukersEnheter = listOf("2990"),
-            ).should {
-                it shouldHaveSize 1
-                it[0].underTittel shouldBe AFT1.navn
-            }
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-                apentForInnsok = null,
-                brukersEnheter = listOf("2990"),
-            ) shouldHaveSize 2
         }
     }
 

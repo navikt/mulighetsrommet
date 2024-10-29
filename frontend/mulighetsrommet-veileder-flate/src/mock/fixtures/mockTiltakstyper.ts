@@ -265,7 +265,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
             {
               _type: "span",
               marks: [],
-              text: "Husk å følge rutiner for anskaffelse av enkeltplasser hvis NAV skal betale for en skoleplass for en bruker.",
+              text: "Husk å følge rutiner for anskaffelse av enkeltplasser hvis Nav skal betale for en skoleplass for en bruker.",
               _key: "716ab73fbda40",
             },
           ],
@@ -1566,7 +1566,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
             {
               _type: "span",
               marks: [],
-              text: "\nVarigheten av oppfølgingen skal tilpasses deltakerens individuelle behov. Timeforbruket vil derfor variere fra deltaker til deltaker. NAV antar at et gjennomsnittsbehov vil være om lag 10 timer oppfølging per deltaker per måned i hele tiltaksperioden. Det understrekes imidlertid at hver enkelt deltaker skal få det antallet oppfølgingstimer som er nødvendig for at deltaker skal nå målet om å få og/eller beholde arbeid. ",
+              text: "\nVarigheten av oppfølgingen skal tilpasses deltakerens individuelle behov. Timeforbruket vil derfor variere fra deltaker til deltaker. Nav antar at et gjennomsnittsbehov vil være om lag 10 timer oppfølging per deltaker per måned i hele tiltaksperioden. Det understrekes imidlertid at hver enkelt deltaker skal få det antallet oppfølgingstimer som er nødvendig for at deltaker skal nå målet om å få og/eller beholde arbeid. ",
               _key: "d919e0801ee3",
             },
           ],
@@ -1817,7 +1817,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
           children: [
             {
               marks: [],
-              text: "Påmelding til Varig lønnstilskudd tilgjengelig som digital avtale. Det vil si at deltaker, arbeidsgiver og NAV fyller ut, ser over og godkjenner avtalen i samme løsning i sanntid.",
+              text: "Påmelding til Varig lønnstilskudd tilgjengelig som digital avtale. Det vil si at deltaker, arbeidsgiver og Nav fyller ut, ser over og godkjenner avtalen i samme løsning i sanntid.",
               _key: "99d37d57c8ac",
               _type: "span",
             },
@@ -1900,7 +1900,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
             {
               _type: "span",
               marks: [],
-              text: "Oppfølgingen og tilrettelegging skal være individuell og planlegges i nært samarbeid med den enkelte deltaker og arbeidsgiver.\n\nDet skal være en fast kontaktperson i NAV og på arbeidsplassen hvor avtalepartene kan henvende seg",
+              text: "Oppfølgingen og tilrettelegging skal være individuell og planlegges i nært samarbeid med den enkelte deltaker og arbeidsgiver.\n\nDet skal være en fast kontaktperson i Nav og på arbeidsplassen hvor avtalepartene kan henvende seg",
               _key: "27ee2ce6b915",
             },
           ],
@@ -2052,7 +2052,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
           markDefs: [],
           children: [
             {
-              text: "Påmelding til midlertidig lønnstilskudd er tilgjengelig som digital avtale. Det vil si at deltaker, arbeidsgiver og NAV fyller ut, ser over og godkjenner avtalen i samme løsning i sanntid.",
+              text: "Påmelding til midlertidig lønnstilskudd er tilgjengelig som digital avtale. Det vil si at deltaker, arbeidsgiver og Nav fyller ut, ser over og godkjenner avtalen i samme løsning i sanntid.",
               _key: "61b639de745d",
               _type: "span",
               marks: [],
@@ -2243,7 +2243,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     ],
     sanityId: "a97fd87c-d7c1-49af-b3fb-cf5e5c10522a",
     delingMedBruker:
-      "Hei <Fornavn>,   \n\nVi har et tilbud til personer som har behov for hjelp med å få eller beholde en fast jobb. Det heter <tiltaksnavn>, og er en støtteordning hvor NAV dekker en del av lønnen til en arbeidstaker i en periode.\n\nMålet er å hjelpe flere med å få eller beholde en fast jobb.  \n\nDu blir ansatt med vanlig lønn i en hel- eller deltidsstilling, mens arbeidsgiveren får et tilskudd til lønnen din fra NAV.  \n\nDu kan lese mer om tilskuddet på https://www.nav.no/midlertidig-lonnstilskudd \n",
+      "Hei <Fornavn>,   \n\nVi har et tilbud til personer som har behov for hjelp med å få eller beholde en fast jobb. Det heter <tiltaksnavn>, og er en støtteordning hvor Nav dekker en del av lønnen til en arbeidstaker i en periode.\n\nMålet er å hjelpe flere med å få eller beholde en fast jobb.  \n\nDu blir ansatt med vanlig lønn i en hel- eller deltidsstilling, mens arbeidsgiveren får et tilskudd til lønnen din fra Nav.  \n\nDu kan lese mer om tilskuddet på https://www.nav.no/midlertidig-lonnstilskudd \n",
     beskrivelse:
       "Lønnstilskudd skal gi bistand til tiltaksdeltakere slik at de skaffer seg og/eller beholder, lønnet arbeid. Målet er at tiltaksdeltaker i størst mulig grad skal bli selvforsørget med en varig tilknytning til arbeidslivet.",
     navn: "Midlertidig lønnstilskudd",
@@ -2257,7 +2257,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
           markDefs: [],
           children: [
             {
-              text: "Påmelding til mentor er tilgjengelig som digital avtale. Det vil si at deltaker, arbeidsgiver og NAV fyller ut, ser over og godkjenner avtalen i samme løsning i sanntid. Mentoren er ikke en part i avtalen, men har lesetilgang til det meste i avtalen og må signere en taushetserklæring.",
+              text: "Påmelding til mentor er tilgjengelig som digital avtale. Det vil si at deltaker, arbeidsgiver og Nav fyller ut, ser over og godkjenner avtalen i samme løsning i sanntid. Mentoren er ikke en part i avtalen, men har lesetilgang til det meste i avtalen og må signere en taushetserklæring.",
               _key: "285cf24d8e29",
               _type: "span",
               marks: [],
@@ -2736,7 +2736,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
             {
               _type: "span",
               marks: [],
-              text: "Påmelding til arbeidstrening er tilgjengelig som digital avtale. Det vil si at deltaker, arbeidsgiver og NAV fyller ut, ser over og godkjenner avtalen i samme løsning i sanntid.",
+              text: "Påmelding til arbeidstrening er tilgjengelig som digital avtale. Det vil si at deltaker, arbeidsgiver og Nav fyller ut, ser over og godkjenner avtalen i samme løsning i sanntid.",
               _key: "cc623cbb13d5",
             },
           ],
@@ -2820,7 +2820,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     tiltakskode: Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
     sanityId: "eadeb22c-bd89-4298-a5c2-145f112f8e7d",
     delingMedBruker:
-      "Har du vurdert utdanning for å få flere muligheter på arbeidsmarkedet?  \n\nDu kan lese mer om tiltaket på www.nav.no/opplaring \n\nEr dette aktuelt for deg? Gi meg tilbakemelding her i dialogen. \nSvaret ditt vil ikke endre din utbetaling fra NAV. \n\nVi holder kontakten!\nHilsen <Veiledernavn> \n",
+      "Har du vurdert utdanning for å få flere muligheter på arbeidsmarkedet?  \n\nDu kan lese mer om tiltaket på www.nav.no/opplaring \n\nEr dette aktuelt for deg? Gi meg tilbakemelding her i dialogen. \nSvaret ditt vil ikke endre din utbetaling fra Nav. \n\nVi holder kontakten!\nHilsen <Veiledernavn> \n",
     regelverkLenker: [
       {
         _id: "123",
@@ -3203,7 +3203,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     ],
     sanityId: "f9618e97-4510-49e2-b748-29cae84d9019",
     delingMedBruker:
-      "Vi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>.\n\nI tiltaket kan det være aktuelt å kartlegge og gi hjelp til å\n- tilpasse arbeidssituasjonen og -oppgaver slik at du kan utføre jobben\n- finne ut hva slags hjelp eller tilrettelegging som skal til for at du kan jobbe\n- se kompetansen din og mulighetene dine\n\nUnder avklaring kan du også få\n- informasjon om arbeidsmarkedet, yrker og jobbkrav\n- veiledning for å velge yrkesmål og arbeidsoppgaver\n- arbeidsutprøving på en arbeidsplass\n\n[Du kan lese mer om kurset på NAV.no](www.nav.no/avklaring)",
+      "Vi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>.\n\nI tiltaket kan det være aktuelt å kartlegge og gi hjelp til å\n- tilpasse arbeidssituasjonen og -oppgaver slik at du kan utføre jobben\n- finne ut hva slags hjelp eller tilrettelegging som skal til for at du kan jobbe\n- se kompetansen din og mulighetene dine\n\nUnder avklaring kan du også få\n- informasjon om arbeidsmarkedet, yrker og jobbkrav\n- veiledning for å velge yrkesmål og arbeidsoppgaver\n- arbeidsutprøving på en arbeidsplass\n\n[Du kan lese mer om kurset på Nav.no](www.nav.no/avklaring)",
     navn: "Avklaring",
   },
 };

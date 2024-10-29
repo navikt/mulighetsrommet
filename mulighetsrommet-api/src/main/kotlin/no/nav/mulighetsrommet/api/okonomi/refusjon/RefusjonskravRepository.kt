@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.okonomi.refusjon
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
+import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregning
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
@@ -14,10 +15,11 @@ import java.time.LocalDateTime
 import java.util.*
 
 class RefusjonskravRepository(private val db: Database) {
-    fun upsert(dbo: RefusjonskravDbo) =
-        db.transaction { upsert(dbo, it) }
+    fun upsert(dbo: RefusjonskravDbo) = db.transaction {
+        upsert(dbo, it)
+    }
 
-    fun upsert(dbo: RefusjonskravDbo, tx: Session) {
+    fun upsert(dbo: RefusjonskravDbo, tx: TransactionalSession) {
         @Language("PostgreSQL")
         val refusjonskravQuery = """
             insert into refusjonskrav (id, gjennomforing_id, frist_for_godkjenning)
@@ -43,7 +45,7 @@ class RefusjonskravRepository(private val db: Database) {
     }
 
     private fun upsertRefusjonskravBeregningAft(
-        tx: Session,
+        tx: TransactionalSession,
         id: UUID,
         beregning: RefusjonKravBeregningAft,
     ) {
@@ -179,18 +181,23 @@ class RefusjonskravRepository(private val db: Database) {
         )
     }
 
-    fun getByGjennomforingId(id: UUID) = db.transaction { getByGjennomforingId(id, it) }
+    fun getByGjennomforing(id: UUID, status: RefusjonskravStatus): List<RefusjonskravDto> = db.useSession {
+        getByGjennomforing(it, id, status)
+    }
 
-    fun getByGjennomforingId(id: UUID, tx: Session): RefusjonskravDto? {
+    fun getByGjennomforing(tx: Session, id: UUID, status: RefusjonskravStatus): List<RefusjonskravDto> {
         @Language("PostgreSQL")
         val query = """
-            select * from refusjonskrav_aft_view
-            where gjennomforing_id = :id::uuid
+            select *
+            from refusjonskrav_aft_view
+            where gjennomforing_id = :id::uuid and status = :status::refusjonskrav_status
         """.trimIndent()
 
-        return queryOf(query, mapOf("id" to id))
+        val params = mapOf("id" to id, "status" to status.name)
+
+        return queryOf(query, params)
             .map { it.toRefusjonsKravAft() }
-            .asSingle
+            .asList
             .runWithSession(tx)
     }
 

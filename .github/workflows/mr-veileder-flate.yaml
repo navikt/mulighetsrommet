@@ -77,7 +77,7 @@ jobs:
         env:
           VITE_FARO_URL: https://telemetry.ekstern.dev.nav.no/collect
           VITE_PORTEN_URL: https://jira.adeo.no/plugins/servlet/desk/portal/541/create/1401
-      - name: Upload to NAV CDN
+      - name: Upload to Nav CDN
         uses: nais/deploy/actions/cdn-upload/v2@master
         with:
           team: team-mulighetsrommet
@@ -105,7 +105,7 @@ jobs:
         env:
           VITE_FARO_URL: https://telemetry.nav.no/collect
           VITE_PORTEN_URL: https://jira.adeo.no/plugins/servlet/desk/portal/541/create/1401
-      - name: Upload to NAV CDN
+      - name: Upload to Nav CDN
         uses: nais/deploy/actions/cdn-upload/v2@master
         with:
           team: team-mulighetsrommet

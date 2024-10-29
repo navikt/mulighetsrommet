@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeDto
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.cms.SanityService
-import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -259,7 +258,7 @@ class ArenaAdapterService(
             ScheduledNotification(
                 type = NotificationType.TASK,
                 title = """Avtalen "${avtale.navn}" har endringer fra Arena, men mangler administrator.""",
-                description = "Du har blitt varslet fordi din NAV-hovedenhet og avtalens ansvarlige NAV-enhet begge er relatert til ${enhet.navn}. Gå til avtalen og sett deg som administrator hvis du eier avtalen.",
+                description = "Du har blitt varslet fordi din Nav-hovedenhet og avtalens ansvarlige Nav-enhet begge er relatert til ${enhet.navn}. Gå til avtalen og sett deg som administrator hvis du eier avtalen.",
                 metadata = NotificationMetadata(
                     linkText = "Gå til avtalen",
                     link = "/avtaler/${avtale.id}",
@@ -276,7 +275,7 @@ class ArenaAdapterService(
             ScheduledNotification(
                 type = NotificationType.TASK,
                 title = """Gjennomføringen "${gjennomforing.navn}" har endringer fra Arena, men mangler administrator.""",
-                description = "Du har blitt varslet fordi din NAV-hovedenhet og gjennomføringens ansvarlige NAV-enhet begge er relatert til ${enhet.navn}. Gå til gjennomføringen og sett deg som administrator hvis du eier gjennomføringen.",
+                description = "Du har blitt varslet fordi din Nav-hovedenhet og gjennomføringens ansvarlige Nav-enhet begge er relatert til ${enhet.navn}. Gå til gjennomføringen og sett deg som administrator hvis du eier gjennomføringen.",
                 metadata = NotificationMetadata(
                     linkText = "Gå til gjennomføringen",
                     link = "/tiltaksgjennomforinger/${gjennomforing.id}",

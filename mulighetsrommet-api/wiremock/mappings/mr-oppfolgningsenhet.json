@@ -7,7 +7,7 @@
     "status": 200,
     "jsonBody": {
       "oppfolgingsenhet": {
-        "navn": "NAV Fredrikstad",
+        "navn": "Nav Fredrikstad",
         "enhetId": "0106"
       },
       "servicegruppe": "IKKE_VURDERT"

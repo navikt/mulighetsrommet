@@ -15,16 +15,17 @@ import no.nav.mulighetsrommet.api.domain.dto.SanityArrangor
 import no.nav.mulighetsrommet.api.domain.dto.SanityArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.domain.dto.SanityTiltakstype
-import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltakEnkeltplassAnskaffet
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
-import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
-import no.nav.mulighetsrommet.api.routes.v1.ApentForInnsok
 import no.nav.mulighetsrommet.api.services.cms.CacheUsage
 import no.nav.mulighetsrommet.api.services.cms.SanityService
+import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakRepository
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet
+import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForInnsok
+import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
@@ -129,7 +130,7 @@ class VeilederflateServiceTest : FunSpec({
     test("utleder gjennomføringer som enkeltplass anskaffet tiltak når de har arrangør") {
         val veilederFlateService = VeilederflateService(
             sanityService = sanityService,
-            tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db),
+            veilederflateTiltakRepository = VeilederflateTiltakRepository(database.db),
             tiltakstypeService = TiltakstypeService(TiltakstypeRepository(database.db), listOf()),
             navEnhetService = NavEnhetService(NavEnhetRepository(database.db)),
         )
@@ -153,7 +154,7 @@ class VeilederflateServiceTest : FunSpec({
     test("henter ikke gjennomføringer fra Sanity når filter for 'Åpent for innsøk' er STENGT") {
         val veilederFlateService = VeilederflateService(
             sanityService = sanityService,
-            tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db),
+            veilederflateTiltakRepository = VeilederflateTiltakRepository(database.db),
             tiltakstypeService = TiltakstypeService(TiltakstypeRepository(database.db), listOf()),
             navEnhetService = NavEnhetService(NavEnhetRepository(database.db)),
         )

@@ -9,8 +9,8 @@ enum class Personopplysning(private val tittel: String, private val hjelpetekst:
     TELEFONNUMMER("Telefonnummer", null, 4),
     FOLKEREGISTER_IDENTIFIKATOR("Folkeregisteridentifikator (personnummer/D-nummer)", null, 5),
     FODSELSDATO("Fødselsdato", null, 6),
-    BEHOV_FOR_BISTAND_FRA_NAV("Behov for bistand fra NAV", null, 7),
-    YTELSER_FRA_NAV("Ytelser fra NAV", null, 8),
+    BEHOV_FOR_BISTAND_FRA_NAV("Behov for bistand fra Nav", null, 7),
+    YTELSER_FRA_NAV("Ytelser fra Nav", null, 8),
     BILDE("Bilde", null, 9),
     EPOST("E-postadresse", null, 10),
     BRUKERNAVN("Brukernavn", null, 11),
@@ -26,7 +26,7 @@ enum class Personopplysning(private val tittel: String, private val hjelpetekst:
     SPRAKKUNNSKAP("Opplysninger om språkkunnskap", null, 17),
     ADFERD(
         "Opplysninger om atferd som kan ha betydning for tiltaksgjennomføring og jobbmuligheter",
-        "For eksempel truende adferd, vanskelig å samarbeide med osv. Det kan for eksempel være tilfeller hvor det er nødvendig å informere tiltaksarrangør om at bruker har et sikkerhetstiltak hos NAV.",
+        "For eksempel truende adferd, vanskelig å samarbeide med osv. Det kan for eksempel være tilfeller hvor det er nødvendig å informere tiltaksarrangør om at bruker har et sikkerhetstiltak hos Nav.",
         18,
     ),
     SOSIALE_FORHOLD(

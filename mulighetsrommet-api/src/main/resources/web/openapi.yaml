@@ -1199,7 +1199,7 @@ paths:
       - in: "path"
         name: enhetsnummer
         required: true
-        description: "Enhetsnummer for NAV-enhet"
+        description: "Enhetsnummer for Nav-enhet"
         schema:
           type: string
     get:
@@ -5031,10 +5031,6 @@ components:
         id:
           type: string
           format: uuid
-        norskIdent:
-          type: string
-        navn:
-          type: string
         startDato:
           type: string
           format: date
@@ -5047,14 +5043,25 @@ components:
             $ref: "#/components/schemas/RefusjonKravDeltakelsePeriode"
         manedsverk:
           type: number
+        person:
+          $ref: "#/components/schemas/RefusjonKravDeltakelsePerson"
         veileder:
           type: string
       required:
         - id
-        - norskIdent
-        - navn
         - perioder
         - manedsverk
+
+    RefusjonKravDeltakelsePerson:
+      type: object
+      properties:
+        norskIdent:
+          type: string
+        navn:
+          type: string
+      required:
+        - norskIdent
+        - navn
 
     RefusjonKravDeltakelsePeriode:
       type: object

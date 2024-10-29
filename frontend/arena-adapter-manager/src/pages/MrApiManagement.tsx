@@ -27,7 +27,7 @@ export function MrApiManagement() {
         </RunTask>
 
         <RunTask base={ApiBase.MR_API} task={"sync-navansatte"}>
-          Synkroniserer NAV-ansatte fra relevante AD-grupper.
+          Synkroniserer Nav-ansatte fra relevante AD-grupper.
         </RunTask>
 
         <RunTask base={ApiBase.MR_API} task={"sync-utdanning"}>

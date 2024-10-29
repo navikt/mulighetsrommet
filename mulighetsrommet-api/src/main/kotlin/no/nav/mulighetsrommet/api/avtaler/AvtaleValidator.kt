@@ -344,7 +344,7 @@ class AvtaleValidator(
         val actualNavEnheter = resolveNavEnheter(navEnheter)
 
         if (!actualNavEnheter.any { it.value.type == Norg2Type.FYLKE }) {
-            add(ValidationError.of(AvtaleDbo::navEnheter, "Du må velge minst én NAV-region"))
+            add(ValidationError.of(AvtaleDbo::navEnheter, "Du må velge minst én Nav-region"))
         }
 
         navEnheter.forEach { enhet ->
@@ -352,7 +352,7 @@ class AvtaleValidator(
                 add(
                     ValidationError.of(
                         AvtaleDbo::navEnheter,
-                        "NAV-enheten $enhet passer ikke i avtalens kontorstruktur",
+                        "Nav-enheten $enhet passer ikke i avtalens kontorstruktur",
                     ),
                 )
             }

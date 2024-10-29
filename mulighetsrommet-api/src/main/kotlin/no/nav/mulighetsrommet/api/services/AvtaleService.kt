@@ -14,17 +14,13 @@ import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.responses.*
+import no.nav.mulighetsrommet.api.routes.v1.AvtaleFilter
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
-import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Opphav
-import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
-import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
-import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -112,14 +108,15 @@ class AvtaleService(
             Pair(arrangor, underenheter)
         }
 
-    private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): Either<List<ValidationError>, ArrangorDto> = arrangorService
-        .getOrSyncArrangorFromBrreg(orgnr)
-        .mapLeft {
-            ValidationError.of(
-                AvtaleRequest::arrangorOrganisasjonsnummer,
-                "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
-            ).nel()
-        }
+    private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): Either<List<ValidationError>, ArrangorDto> =
+        arrangorService
+            .getOrSyncArrangorFromBrreg(orgnr)
+            .mapLeft {
+                ValidationError.of(
+                    AvtaleRequest::arrangorOrganisasjonsnummer,
+                    "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
+                ).nel()
+            }
 
     fun getAll(
         filter: AvtaleFilter,
@@ -207,7 +204,8 @@ class AvtaleService(
         return Either.Right(Unit)
     }
 
-    fun getEndringshistorikk(id: UUID): EndringshistorikkDto = endringshistorikkService.getEndringshistorikk(DocumentClass.AVTALE, id)
+    fun getEndringshistorikk(id: UUID): EndringshistorikkDto =
+        endringshistorikkService.getEndringshistorikk(DocumentClass.AVTALE, id)
 
     private fun getOrError(id: UUID, tx: TransactionalSession): AvtaleDto {
         val dto = avtaler.get(id, tx)

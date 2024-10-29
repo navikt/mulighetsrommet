@@ -10,7 +10,7 @@ export function ArbeidsmarkedstiltakHeader(props: Props) {
   return (
     <header>
       <InternalHeader>
-        <InternalHeader.Title href={props.href}>NAV Arbeidsmarkedstiltak</InternalHeader.Title>
+        <InternalHeader.Title href={props.href}>Nav Arbeidsmarkedstiltak</InternalHeader.Title>
         {props.children}
       </InternalHeader>
     </header>

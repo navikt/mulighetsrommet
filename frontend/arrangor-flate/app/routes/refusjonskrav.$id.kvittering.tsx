@@ -2,43 +2,41 @@ import { FilePdfIcon } from "@navikt/aksel-icons";
 import { Button, VStack } from "@navikt/ds-react";
 import { LoaderFunction } from "@remix-run/node";
 import { useLoaderData, useParams } from "@remix-run/react";
-import { Definisjonsliste } from "../components/Definisjonsliste";
-import { PageHeader } from "../components/PageHeader";
-import { Separator } from "../components/Separator";
-import { Refusjonskrav, TilsagnDetaljer } from "../domene/domene";
-import { checkValidToken } from "../auth/auth.server";
+import { Definisjonsliste } from "~/components/Definisjonsliste";
+import { PageHeader } from "~/components/PageHeader";
+import { Separator } from "~/components/Separator";
+import { Refusjonskrav } from "~/domene/domene";
+import { checkValidToken } from "~/auth/auth.server";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
-import { DeltakerlisteDetaljer } from "~/components/deltakerliste/DeltakerlisteDetaljer";
-import { RefusjonTilsagnsDetaljer } from "~/components/refusjonskrav/TilsagnsDetaljer";
-import { RefusjonDetaljer } from "~/components/refusjonskrav/RefusjonDetaljer";
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
+import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
+import { RefusjonskravDetaljer } from "~/components/refusjonskrav/RefusjonskravDetaljer";
 
-type LoaderData = {
+type RefusjonskavKvitteringData = {
   krav: Refusjonskrav;
-  tilsagnDetaljer: TilsagnDetaljer;
+  tilsagn: ArrangorflateTilsagn[];
 };
 
-export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
+export const loader: LoaderFunction = async ({
+  request,
+  params,
+}): Promise<RefusjonskavKvitteringData> => {
   await checkValidToken(request);
 
-  if (params.id === undefined) throw Error("Mangler id");
+  if (params.id === undefined) {
+    throw Error("Mangler id");
+  }
 
-  const krav = await loadRefusjonskrav(params.id);
+  const [krav, tilsagn] = await Promise.all([
+    loadRefusjonskrav(params.id),
+    ArrangorflateService.getArrangorflateTilsagnTilRefusjon({ id: params.id }),
+  ]);
 
-  return {
-    krav,
-    tilsagnDetaljer: {
-      antallPlasser: 20,
-      prisPerPlass: 20205,
-      tilsagnsBelop: 1308530,
-      tilsagnsPeriode: "01.06.2024 - 30.06.2024",
-      sum: 1308530,
-    },
-  };
+  return { krav, tilsagn };
 };
 
 export default function RefusjonskravKvittering() {
-  const { krav, tilsagnDetaljer } = useLoaderData<LoaderData>();
+  const { krav, tilsagn } = useLoaderData<RefusjonskavKvitteringData>();
   const params = useParams();
 
   return (
@@ -52,7 +50,7 @@ export default function RefusjonskravKvittering() {
       />
       <Separator />
       <div className="flex justify-end">
-        <a href={`/lastned-kvittering/${params.id}`} target="_blank">
+        <a href={`/refusjonskrav/${params.id}/kvittering/lastned`} target="_blank">
           <Button variant="tertiary-neutral" size="small">
             <span className="flex gap-2 items-center">
               Last ned som PDF <FilePdfIcon fontSize={35} />
@@ -62,11 +60,7 @@ export default function RefusjonskravKvittering() {
       </div>
       <Separator />
       <VStack gap="5" className="max-w-[50%] mt-5">
-        <DeltakerlisteDetaljer krav={krav} />
-        <Separator />
-        <RefusjonTilsagnsDetaljer tilsagnsDetaljer={tilsagnDetaljer} />
-        <Separator />
-        <RefusjonDetaljer krav={krav} />
+        <RefusjonskravDetaljer krav={krav} tilsagn={tilsagn} />
         <Separator />
         <Definisjonsliste
           title="Betalingsinformasjon"

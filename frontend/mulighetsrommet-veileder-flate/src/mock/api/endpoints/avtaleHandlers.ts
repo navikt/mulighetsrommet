@@ -36,12 +36,12 @@ export const avtaleHandlers = [
       },
       {
         personopplysning: Personopplysning.BEHOV_FOR_BISTAND_FRA_NAV,
-        tittel: "Behov for bistand fra NAV",
+        tittel: "Behov for bistand fra Nav",
         hjelpetekst: null,
       },
       {
         personopplysning: Personopplysning.YTELSER_FRA_NAV,
-        tittel: "Ytelser fra NAV",
+        tittel: "Ytelser fra Nav",
         hjelpetekst: null,
       },
       {

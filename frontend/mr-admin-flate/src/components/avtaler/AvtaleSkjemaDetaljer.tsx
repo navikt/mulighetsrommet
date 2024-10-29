@@ -152,8 +152,10 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 {...register("tiltakstype")}
                 onChange={(event) => {
                   setValue("amoKategorisering", null);
-                  const options = event.target.value?.tiltakskode
-                    ? avtaletypeOptions(event.target.value.tiltakskode)
+                  const options = (event.target.value as { tiltakskode: string })?.tiltakskode
+                    ? avtaletypeOptions(
+                        (event.target.value as { tiltakskode: Tiltakskode }).tiltakskode,
+                      )
                     : [];
                   const avtaletype = options[0]?.value;
                   if (options.length === 1) {
@@ -258,7 +260,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 velgAlle
                 placeholder="Velg en"
                 label={avtaletekster.navEnheterLabel}
-                helpText="Bestemmer hvilke NAV-enheter som kan velges i gjennomføringene til avtalen."
+                helpText="Bestemmer hvilke Nav-enheter som kan velges i gjennomføringene til avtalen."
                 {...register("navEnheter")}
                 options={getLokaleUnderenheterAsSelectOptions(watch("navRegioner") ?? [], enheter)}
               />

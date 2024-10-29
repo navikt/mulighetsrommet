@@ -20,13 +20,13 @@ export const redaktor = defineType({
     }),
     defineField({
       name: "navIdent",
-      title: "NAV-ident",
+      title: "Nav-ident",
       type: "slug",
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: "epost",
-      title: "NAV-epost",
+      title: "Nav-epost",
       type: "slug",
       validation: (rule) => rule.required(),
       initialValue: async (params, { currentUser }) => {
@@ -36,8 +36,8 @@ export const redaktor = defineType({
     }),
     defineField({
       name: "enhet",
-      title: "NAV-enhet",
-      description: "Tilhørende NAV-enhet.",
+      title: "Nav-enhet",
+      description: "Tilhørende Nav-enhet.",
       type: "string",
       validation: (rule) => rule.required().min(2).max(200),
     }),

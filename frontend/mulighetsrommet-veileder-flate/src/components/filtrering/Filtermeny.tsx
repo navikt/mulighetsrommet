@@ -53,7 +53,7 @@ export function Filtermeny() {
             data-testid="filter_accordionheader_brukers-enhet"
           >
             <FilterAccordionHeader
-              tittel="NAV-enhet"
+              tittel="Nav-enhet"
               antallValgteFilter={filter.navEnheter.length}
             />
           </Accordion.Header>

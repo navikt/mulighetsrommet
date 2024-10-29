@@ -120,12 +120,14 @@ spec:
           namespace: poao
         - application: amt-enhetsregister
           namespace: amt
-        - application: pam-ontologi
-          namespace: teampam
         - application: amt-deltaker
           namespace: amt
+        - application: pam-ontologi
+          namespace: teampam
         - application: veilarbdialog
           namespace: dab
+        - application: veilarbvedtaksstotte
+          namespace: obo
         - application: norg2
           namespace: org
         - application: veilarboppfolging

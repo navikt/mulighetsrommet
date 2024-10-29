@@ -31,7 +31,7 @@ export const brukerHandlers = [
         erUnderOppfolging: true,
         enheter: [
           {
-            navn: "NAV Sarpsborg",
+            navn: "Nav Sarpsborg",
             enhetsnummer: "0105",
             overordnetEnhet: "0200",
             type: NavEnhetType.LOKAL,

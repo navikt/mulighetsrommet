@@ -15,11 +15,11 @@ export function OmArbeidsmarkedstiltak() {
     >
       <div>
         <Heading size="xlarge" style={{ marginBottom: "1rem" }}>
-          Om NAV Arbeidsmarkedstiltak
+          Om Nav Arbeidsmarkedstiltak
         </Heading>
         <BodyShort>
-          I løsningen NAV Arbeidsmarkedstiltak får du oversikt over alle tiltak som veiledere i NAV
-          kan benytte seg av i sine NAV-regioner. Du kan bruke filteret på venstresiden til å finne
+          I løsningen Nav Arbeidsmarkedstiltak får du oversikt over alle tiltak som veiledere i Nav
+          kan benytte seg av i sine Nav-regioner. Du kan bruke filteret på venstresiden til å finne
           tiltak for et lokalkontor eller for én eller flere regioner.
         </BodyShort>
         <BodyShort>

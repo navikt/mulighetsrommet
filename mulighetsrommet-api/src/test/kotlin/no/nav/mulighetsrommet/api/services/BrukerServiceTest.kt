@@ -22,6 +22,9 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
+import no.nav.mulighetsrommet.api.veilederflate.services.getRelevanteEnheterForBruker
+import no.nav.mulighetsrommet.api.veilederflate.services.oppfolgingsenhetLokalOgUlik
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -81,7 +84,7 @@ class BrukerServiceTest : FunSpec({
 
         coEvery { norg2Client.hentEnhetByGeografiskOmraade(any()) } returns Norg2EnhetDto(
             enhetId = 1,
-            navn = "NAV Fredrikstad",
+            navn = "Nav Fredrikstad",
             enhetNr = "0106",
             status = Norg2EnhetStatus.AKTIV,
             type = Norg2Type.LOKAL,
@@ -101,7 +104,7 @@ class BrukerServiceTest : FunSpec({
         ).right()
 
         coEvery { navEnhetService.hentEnhet(any()) } returns NavEnhetDbo(
-            navn = "NAV Fredrikstad",
+            navn = "Nav Fredrikstad",
             enhetsnummer = "0106",
             status = NavEnhetStatus.AKTIV,
             type = Norg2Type.LOKAL,
@@ -124,7 +127,7 @@ class BrukerServiceTest : FunSpec({
                 ),
                 enheter = listOf(
                     NavEnhetDbo(
-                        navn = "NAV Fredrikstad",
+                        navn = "Nav Fredrikstad",
                         enhetsnummer = "0106",
                         type = Norg2Type.LOKAL,
                         overordnetEnhet = "0100",
@@ -224,5 +227,5 @@ fun mockManuellStatus(): ManuellStatusDto {
 }
 
 fun mockOppfolgingsenhet(): Oppfolgingsenhet {
-    return Oppfolgingsenhet(navn = "NAV Fredrikstad", enhetId = "0106")
+    return Oppfolgingsenhet(navn = "Nav Fredrikstad", enhetId = "0106")
 }

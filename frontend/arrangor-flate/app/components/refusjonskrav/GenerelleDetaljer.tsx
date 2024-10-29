@@ -1,4 +1,4 @@
-import { Refusjonskrav } from "../../domene/domene";
+import { Refusjonskrav } from "~/domene/domene";
 import { Definisjonsliste } from "../Definisjonsliste";
 
 interface Props {
@@ -6,7 +6,7 @@ interface Props {
   className?: string;
 }
 
-export function DeltakerlisteDetaljer({ className, krav }: Props) {
+export function GenerelleDetaljer({ className, krav }: Props) {
   const { tiltaksnavn, tiltakstype, refusjonskravperiode } = krav.detaljer;
 
   return (

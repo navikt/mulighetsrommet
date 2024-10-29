@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.services
+package no.nav.mulighetsrommet.api.veilederflate.services
 
 import arrow.core.NonEmptyList
 import io.ktor.server.plugins.*
@@ -6,11 +6,24 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.*
-import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.routes.v1.ApentForInnsok
+import no.nav.mulighetsrommet.api.services.NavEnhetService
+import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.api.services.cms.CacheUsage
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils.tittelOgUnderTittel
+import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakRepository
+import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrift
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangor
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangorKontaktperson
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateInnsatsgruppe
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateKontaktinfo
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateKontaktinfoTiltaksansvarlig
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltak
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEgenRegi
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakstype
+import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForInnsok
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
@@ -20,7 +33,7 @@ import java.util.*
 
 class VeilederflateService(
     private val sanityService: SanityService,
-    private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
+    private val veilederflateTiltakRepository: VeilederflateTiltakRepository,
     private val tiltakstypeService: TiltakstypeService,
     private val navEnhetService: NavEnhetService,
 ) {
@@ -113,7 +126,7 @@ class VeilederflateService(
         apentForInnsok: ApentForInnsok,
         search: String?,
     ): List<VeilederflateTiltak> {
-        return tiltaksgjennomforingRepository.getAllVeilederflateTiltaksgjennomforing(
+        return veilederflateTiltakRepository.getAll(
             search = search,
             sanityTiltakstypeIds = tiltakstypeIds?.map { UUID.fromString(it) },
             innsatsgruppe = innsatsgruppe,
@@ -130,7 +143,7 @@ class VeilederflateService(
         id: UUID,
         sanityPerspective: SanityPerspective,
     ): VeilederflateTiltak {
-        return tiltaksgjennomforingRepository.getVeilederflateTiltaksgjennomforing(id)
+        return veilederflateTiltakRepository.get(id)
             ?.let { gjennomforing ->
                 val hentTiltakstyper = hentTiltakstyper()
                 val sanityTiltakstype = hentTiltakstyper

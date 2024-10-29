@@ -38,6 +38,11 @@ import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
+import no.nav.mulighetsrommet.api.veilederflate.VeilederJoyrideRepository
+import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakRepository
+import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
+import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
+import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.env.NaisEnv
@@ -128,15 +133,15 @@ private fun kafka(appConfig: AppConfig) = module {
     single { SisteTiltaksgjennomforingerV1KafkaProducer(producerClient, config.producers.tiltaksgjennomforinger) }
     single { SisteTiltakstyperV2KafkaProducer(producerClient, config.producers.tiltakstyper) }
 
-    val properties = when (NaisEnv.current()) {
+    val consumerPreset = when (NaisEnv.current()) {
         NaisEnv.Local -> KafkaPropertiesBuilder.consumerBuilder()
             .withBaseProperties()
-            .withConsumerGroupId(config.consumerGroupId)
+            .withConsumerGroupId(config.defaultConsumerGroupId)
             .withBrokerUrl(config.brokerUrl)
             .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
             .build()
 
-        else -> KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.consumerGroupId)
+        else -> KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.defaultConsumerGroupId)
     }
 
     single {
@@ -148,7 +153,12 @@ private fun kafka(appConfig: AppConfig) = module {
                 arenaMigreringTiltaksgjennomforingProducer = get(),
                 tiltaksgjennomforingRepository = get(),
             ),
-            AmtDeltakerV1KafkaConsumer(config = config.consumers.amtDeltakerV1, tiltakstyper = get(), deltakere = get()),
+            AmtDeltakerV1KafkaConsumer(
+                config = config.consumers.amtDeltakerV1,
+                tiltakstyper = get(),
+                deltakere = get(),
+                refusjonService = get(),
+            ),
             AmtVirksomheterV1KafkaConsumer(
                 config = config.consumers.amtVirksomheterV1,
                 arrangorRepository = get(),
@@ -156,7 +166,7 @@ private fun kafka(appConfig: AppConfig) = module {
             ),
         )
         KafkaConsumerOrchestrator(
-            consumerPreset = properties,
+            consumerPreset = consumerPreset,
             db = get(),
             consumers = consumers,
         )
@@ -179,6 +189,7 @@ private fun repositories() = module {
     single { RefusjonskravRepository(get()) }
     single { UtdanningRepository(get()) }
     single { AltinnRettigheterRepository(get()) }
+    single { VeilederflateTiltakRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -338,7 +349,6 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakstypeService(get(), appConfig.migrerteTiltak) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
-    single { NavVeilederService(get()) }
     single { NotificationService(get(), get(), get()) }
     single { ArrangorService(get(), get()) }
     single { RefusjonService(get(), get(), get(), get()) }

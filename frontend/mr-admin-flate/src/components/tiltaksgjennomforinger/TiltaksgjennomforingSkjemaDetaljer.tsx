@@ -306,7 +306,7 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
                     <HelpText title="Hva er estimert ventetid?">
                       Estimert ventetid er et felt som kan brukes hvis dere sitter på informasjon om
                       estimert ventetid for tiltaket. Hvis dere legger inn en verdi i feltene her
-                      blir det synlig for alle ansatte i NAV.
+                      blir det synlig for alle ansatte i Nav.
                     </HelpText>
                   </HStack>
                   <Switch

@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.Mutation
-import no.nav.mulighetsrommet.api.domain.dto.Oppskrift
 import no.nav.mulighetsrommet.api.domain.dto.SanityEnhet
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforing
@@ -20,6 +19,7 @@ import no.nav.mulighetsrommet.api.domain.dto.Slug
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeRef
 import no.nav.mulighetsrommet.api.services.SanityNavKontaktperson
 import no.nav.mulighetsrommet.api.services.SanityRedaktor
+import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrift
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NavIdent

@@ -40,7 +40,7 @@ function render() {
               <Link to="/arbeidsmarkedstiltak">Modia Arbeidsmarkedstiltak</Link>
             </li>
             <li>
-              <Link to="/nav">NAV Arbeidsmarkedstiltak</Link>
+              <Link to="/nav">Nav Arbeidsmarkedstiltak</Link>
             </li>
             <li>
               <Link to="/preview">Preview Arbeidsmarkedstiltak</Link>

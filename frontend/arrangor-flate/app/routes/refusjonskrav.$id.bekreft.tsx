@@ -1,36 +1,37 @@
-import { Alert, Box, Button, Checkbox, Heading, VStack } from "@navikt/ds-react";
+import { Alert, Button, Checkbox, VStack } from "@navikt/ds-react";
 import { ActionFunction, json, LoaderFunction, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import { DeltakerlisteDetaljer } from "../components/deltakerliste/DeltakerlisteDetaljer";
-import { PageHeader } from "../components/PageHeader";
-import { Refusjonskrav } from "../domene/domene";
-import { checkValidToken } from "../auth/auth.server";
-import { RefusjonDetaljer } from "~/components/refusjonskrav/RefusjonDetaljer";
-import { Separator } from "~/components/Separator";
+import { PageHeader } from "~/components/PageHeader";
+import { Refusjonskrav } from "~/domene/domene";
+import { checkValidToken } from "~/auth/auth.server";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
-import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
+import { RefusjonskravDetaljer } from "~/components/refusjonskrav/RefusjonskravDetaljer";
 import React from "react";
 import { Definisjon } from "~/components/Definisjon";
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 
-type LoaderData = {
+type BekreftRefusjonskravData = {
   krav: Refusjonskrav;
   tilsagn: ArrangorflateTilsagn[];
 };
 
-export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
+export const loader: LoaderFunction = async ({
+  request,
+  params,
+}): Promise<BekreftRefusjonskravData> => {
   await checkValidToken(request);
 
-  if (params.id === undefined) throw Error("Mangler id");
+  if (params.id === undefined) {
+    throw Error("Mangler id");
+  }
 
-  const krav = await loadRefusjonskrav(params.id);
-  const tilsagn = await ArrangorflateService.getArrangorflateTilsagnTilRefusjon({ id: krav.id });
+  const [krav, tilsagn] = await Promise.all([
+    loadRefusjonskrav(params.id),
+    ArrangorflateService.getArrangorflateTilsagnTilRefusjon({ id: params.id }),
+  ]);
 
-  return {
-    krav,
-    tilsagn,
-  };
+  return { krav, tilsagn };
 };
 
 export const action: ActionFunction = async ({ request }) => {
@@ -56,19 +57,19 @@ export const action: ActionFunction = async ({ request }) => {
     id: refusjonskravId as string,
   });
 
-  await ArrangorflateService.setRefusjonskravBetalingsinformasjon({
-    id: refusjonskravId as string,
-    requestBody: {
-      kontoNummer: kontoNummer as string,
-      kid: kid as string,
-    },
-  });
+  // await ArrangorflateService.setRefusjonskravBetalingsinformasjon({
+  //   id: refusjonskravId as string,
+  //   requestBody: {
+  //     kontoNummer: kontoNummer as string,
+  //     kid: kid as string,
+  //   },
+  // });
 
-  return redirect(`/deltakerliste/kvittering/${refusjonskravId}`);
+  return redirect(`/refusjonskrav/${refusjonskravId}/kvittering`);
 };
 
-export default function RefusjonskravDetaljer() {
-  const { tilsagn, krav } = useLoaderData<LoaderData>();
+export default function BekreftRefusjonskrav() {
+  const { krav, tilsagn } = useLoaderData<BekreftRefusjonskravData>();
   const data = useActionData<typeof action>();
   const [isEditing, setIsEditing] = React.useState(false);
   const [kontoNummer, setKontoNummer] = React.useState(krav.betalingsinformasjon.kontoNummer);
@@ -79,30 +80,11 @@ export default function RefusjonskravDetaljer() {
         title="Detaljer for refusjonskrav"
         tilbakeLenke={{
           navn: "Tilbake til deltakerliste",
-          url: `/deltakerliste/${krav.id}`,
+          url: `/refusjonskrav/${krav.id}`,
         }}
       />
-      <VStack className="max-w-[70%]" gap="5">
-        <DeltakerlisteDetaljer krav={krav} />
-        <Separator />
-        <Heading size="medium">Tilsagnsdetaljer</Heading>
-        {tilsagn.map((t) => (
-          <Box
-            padding="2"
-            key={t.id}
-            borderWidth="1"
-            borderColor="border-subtle"
-            borderRadius="medium"
-          >
-            <TilsagnDetaljer tilsagn={t} />
-          </Box>
-        ))}
-        <Separator />
-        <RefusjonDetaljer krav={krav} />
-        <Separator />
-        <Heading className="mb-2" size="medium" level="2">
-          Betalingsinformasjon
-        </Heading>
+      <VStack className="max-w-[50%]" gap="5">
+        <RefusjonskravDetaljer krav={krav} tilsagn={tilsagn} />
 
         <Form method="post">
           <Definisjon label="Kontonummer">

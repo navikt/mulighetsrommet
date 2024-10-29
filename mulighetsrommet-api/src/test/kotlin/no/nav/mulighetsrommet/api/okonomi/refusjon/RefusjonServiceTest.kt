@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.okonomi.refusjon
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
@@ -10,10 +11,7 @@ import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.okonomi.models.DeltakelseManedsverk
-import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
-import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePerioder
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
+import no.nav.mulighetsrommet.api.okonomi.models.*
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -21,6 +19,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.*
 
 class RefusjonServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -29,7 +28,7 @@ class RefusjonServiceTest : FunSpec({
         database.db.truncateAll()
     }
 
-    context("Generering av refusjonskrav for AFT") {
+    context("generering av refusjonskrav for AFT") {
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val refusjonskravRepository = RefusjonskravRepository(database.db)
         val deltakerRepository = DeltakerRepository(database.db)
@@ -204,6 +203,90 @@ class RefusjonServiceTest : FunSpec({
             krav.beregning.input.shouldBeTypeOf<RefusjonKravBeregningAft.Input>().should {
                 it.deltakelser shouldHaveSize 1
             }
+        }
+    }
+
+    context("rekalkulering av refusjonskrav for AFT") {
+        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+        val refusjonskravRepository = RefusjonskravRepository(database.db)
+        val deltakerRepository = DeltakerRepository(database.db)
+
+        val service = RefusjonService(
+            tiltaksgjennomforingRepository = tiltaksgjennomforingRepository,
+            deltakerRepository = deltakerRepository,
+            refusjonskravRepository = refusjonskravRepository,
+            db = database.db,
+        )
+
+        val domain = MulighetsrommetTestDomain(
+            gjennomforinger = listOf(AFT1),
+            deltakere = listOf(
+                DeltakerFixtures.createDeltaker(
+                    AFT1.id,
+                    startDato = LocalDate.of(2024, 6, 1),
+                    sluttDato = LocalDate.of(2024, 6, 30),
+                    statusType = DeltakerStatus.Type.DELTAR,
+                    stillingsprosent = 100.0,
+                ),
+            ),
+        )
+
+        lateinit var krav1: RefusjonskravDbo
+
+        beforeEach {
+            domain.initialize(database.db)
+
+            krav1 = service.createRefusjonskravAft(
+                refusjonskravId = UUID.randomUUID(),
+                gjennomforingId = AFT1.id,
+                periodeStart = LocalDate.of(2024, 6, 1).atStartOfDay(),
+                periodeSlutt = LocalDate.of(2024, 7, 1).atStartOfDay(),
+            )
+            refusjonskravRepository.upsert(krav1)
+
+            val krav2 = refusjonskravRepository.get(krav1.id).shouldNotBeNull()
+            krav2.beregning.output.shouldBeTypeOf<RefusjonKravBeregningAft.Output>().should {
+                it.belop shouldBe 20205
+                it.deltakelser shouldBe setOf(
+                    DeltakelseManedsverk(
+                        deltakelseId = domain.deltakere[0].id,
+                        manedsverk = 1.0,
+                    ),
+                )
+            }
+        }
+
+        test("oppdaterer beregnet refusjonskrav når deltakelser endres") {
+            deltakerRepository.upsert(
+                domain.deltakere[0].copy(
+                    sluttDato = LocalDate.of(2024, 6, 15),
+                ),
+            )
+            service.recalculateRefusjonskravForGjennomforing(AFT1.id)
+
+            val krav2 = refusjonskravRepository.get(krav1.id).shouldNotBeNull()
+            krav2.beregning.output.shouldBeTypeOf<RefusjonKravBeregningAft.Output>().should {
+                it.belop shouldBe 10102
+                it.deltakelser shouldBe setOf(
+                    DeltakelseManedsverk(
+                        deltakelseId = domain.deltakere[0].id,
+                        manedsverk = 0.5,
+                    ),
+                )
+            }
+        }
+
+        test("oppdaterer ikke refusjonskrav hvis det allerede er godkjent av arrangør") {
+            deltakerRepository.upsert(
+                domain.deltakere[0].copy(
+                    sluttDato = LocalDate.of(2024, 6, 15),
+                ),
+            )
+            refusjonskravRepository.setGodkjentAvArrangor(krav1.id, LocalDateTime.now())
+            service.recalculateRefusjonskravForGjennomforing(AFT1.id)
+
+            val krav2 = refusjonskravRepository.get(krav1.id).shouldNotBeNull()
+            krav2.beregning shouldBe krav1.beregning
         }
     }
 })

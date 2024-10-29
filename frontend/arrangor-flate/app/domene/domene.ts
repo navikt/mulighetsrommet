@@ -1,4 +1,8 @@
-import { RefusjonKravAftBeregning, RefusjonKravDeltakelsePeriode } from "@mr/api-client";
+import {
+  RefusjonKravAftBeregning,
+  RefusjonKravDeltakelsePeriode,
+  RefusjonKravDeltakelsePerson,
+} from "@mr/api-client";
 
 export interface Krav {
   id: string;
@@ -39,8 +43,7 @@ export type TilsagnDetaljer = {
 
 export interface Deltaker {
   id: string;
-  navn: string;
-  norskIdent: string;
+  person?: RefusjonKravDeltakelsePerson;
   veileder?: string;
   startDatoTiltaket?: string;
   startDatoPerioden?: string;
