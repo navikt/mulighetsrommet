@@ -212,12 +212,8 @@ private suspend fun getPersoner(
     deltakere: List<DeltakerDto>,
 ): Map<NorskIdent, RefusjonKravDeltakelse.Person> {
     val identer = deltakere.mapNotNull { deltaker -> deltaker.norskIdent?.value?.let { PdlIdent(it) } }.toSet()
-    return pdl.hentPersonBolk(identer).fold(
-        {
-            // TODO: fail on error? log error? ignore error?
-            mapOf()
-        },
-        {
+    return pdl.hentPersonBolk(identer)
+        .map {
             it.entries
                 .mapNotNull { (ident, person) ->
                     person.navn.firstOrNull()?.let { navn ->
@@ -228,8 +224,13 @@ private suspend fun getPersoner(
                     }
                 }
                 .associateBy { person -> person.norskIdent }
-        },
-    )
+        }
+        .getOrElse {
+            throw StatusException(
+                status = HttpStatusCode.InternalServerError,
+                description = "Klarte ikke hente informasjon om deltakere i refusjonskravet.",
+            )
+        }
 }
 
 @Serializable
