@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.routes.v1
+package no.nav.mulighetsrommet.api.veilederflate.routes
 
 import arrow.core.NonEmptyList
 import arrow.core.toNonEmptyListOrNull
@@ -9,19 +9,19 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
-import no.nav.mulighetsrommet.api.domain.dto.Oppskrifter
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
-import no.nav.mulighetsrommet.api.services.VeilederflateService
 import no.nav.mulighetsrommet.api.services.cms.CacheUsage
+import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrifter
+import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import org.koin.ktor.ext.inject
 import java.util.*
 
-data class ArbeidsmarkedstiltakFilter(
+internal data class ArbeidsmarkedstiltakFilter(
     val enheter: NonEmptyList<String>,
     val innsatsgruppe: Innsatsgruppe,
     val tiltakstyper: List<String>?,
@@ -35,7 +35,7 @@ enum class ApentForInnsok {
     APENT_ELLER_STENGT,
 }
 
-fun <T : Any> PipelineContext<T, ApplicationCall>.getArbeidsmarkedstiltakFilter(): ArbeidsmarkedstiltakFilter {
+internal fun <T : Any> PipelineContext<T, ApplicationCall>.getArbeidsmarkedstiltakFilter(): ArbeidsmarkedstiltakFilter {
     val queryParameters = call.request.queryParameters
 
     val enheter = queryParameters.getAll("enheter")
