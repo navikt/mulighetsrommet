@@ -8,7 +8,6 @@ import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.api.utils.EksternTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingArenaDataDto
 import org.koin.ktor.ext.inject
@@ -62,6 +61,10 @@ fun Route.externalRoutes() {
         }
     }
 }
+
+data class EksternTiltaksgjennomforingFilter(
+    val arrangorOrgnr: List<Organisasjonsnummer> = emptyList(),
+)
 
 fun toArenaDataDto(tiltaksnummer: String) = TiltaksgjennomforingArenaDataDto(
     opprettetAar = tiltaksnummer.split("#").first().toInt(),

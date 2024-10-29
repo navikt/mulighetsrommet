@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
-import no.nav.mulighetsrommet.api.utils.NavAnsattFilter
+import no.nav.mulighetsrommet.api.routes.v1.NavAnsattFilter
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory

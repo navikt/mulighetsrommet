@@ -3,7 +3,7 @@
 ## Introduksjon
 
 Mulighetsrommet er en applikasjonsportfølje som skal hjelpe brukere og veiledere til å få en helhetlig oversikt
-over alle arbeidsmarkedstiltak NAV kan tilby.
+over alle arbeidsmarkedstiltak Nav kan tilby.
 
 ## Oppsett
 
@@ -88,7 +88,7 @@ Brukernavn er Github-brukernavnet ditt. Passordet er et [Personal Access Token](
 1. Gå til [Personal Access Token på Github](https://github.com/settings/tokens)
 2. Trykk `Tokens (classic)`
 3. Trykk `Generate new token` --> `Generate new token (classic)`
-4. Skriv noe som `NAV IT` under `Note`
+4. Skriv noe som `Nav IT` under `Note`
 5. Velg hvor lenge du vil at det skal vare under `Expiration`
 6. Under `Select scope` velg `repo` og `read:packages`
 7. Trykk `Generate token`
@@ -221,7 +221,7 @@ Applikasjon som gir oversikt over kafka-topics relevante for dette prosjektet.
 
 ### `mr-admin-flate`
 
-Administrasjonsflate for tiltak- og fagansvarlige i NAV som jobber med tiltakstyper og tiltaksgjennomføringer.
+Administrasjonsflate for tiltak- og fagansvarlige i Nav som jobber med tiltakstyper og tiltaksgjennomføringer.
 
 |                  |                                                                                         |
 |------------------|-----------------------------------------------------------------------------------------|
@@ -280,7 +280,7 @@ her: https://data.intern.nav.no/dataproduct/5755b188-6670-41a2-8bbc-74fba810bd9e
 
 Spørsmål knyttet til koden eller prosjektet kan stilles via issues her på GitHub.
 
-### For NAV-ansatte
+### For Nav-ansatte
 
 Interne henvendelser kan sendes via Slack i kanalen #team-valp
 

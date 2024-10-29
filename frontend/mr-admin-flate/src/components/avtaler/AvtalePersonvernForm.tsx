@@ -89,7 +89,7 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
   return (
     <VStack gap="4" className={styles.container}>
       <GuidePanel poster className={styles.guide_panel}>
-        Huk av de personopplysningene som er avtalt i databehandleravtalen. NAV tiltaksenhet/fylke
+        Huk av de personopplysningene som er avtalt i databehandleravtalen. Nav tiltaksenhet/fylke
         er ansvarlig for at listen er i samsvar med gjeldende databehandleravtale.
       </GuidePanel>
       <HStack wrap gap="10">

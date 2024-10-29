@@ -68,7 +68,7 @@ class EndringshistorikkServiceTest : FunSpec({
         )
     }
 
-    test("bruker i endringshistorikk blir utledet fra kjente NAV-ansatte") {
+    test("bruker i endringshistorikk blir utledet fra kjente Nav-ansatte") {
         val id = UUID.randomUUID()
 
         val ansatt1 = NavAnsattFixture.ansatt1

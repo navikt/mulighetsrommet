@@ -66,7 +66,7 @@ allprojects {
         }
 
         maven {
-            // Needed for NAV-packages
+            // Needed for Nav-packages
             url = uri("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
         }
     }

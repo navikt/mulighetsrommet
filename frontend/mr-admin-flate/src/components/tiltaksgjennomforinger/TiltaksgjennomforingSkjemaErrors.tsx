@@ -20,7 +20,7 @@ const avtaleFinnesIkke = () => (
 const avtaleManglerNavRegionError = (avtaleId?: string) => (
   <>
     <BodyShort>
-      Avtalen mangler NAV region. Du må oppdatere avtalens NAV region for å kunne opprette en
+      Avtalen mangler Nav region. Du må oppdatere avtalens Nav region for å kunne opprette en
       gjennomføring.
       {avtaleId ? (
         <Link reloadDocument to={`/avtaler/${avtaleId}`}>

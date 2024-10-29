@@ -74,7 +74,7 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
                   }
                 }}
               >
-                Rediger
+                Rediger gjennomføring
               </Dropdown.Menu.GroupedList.Item>
               {enableOpprettTilsagn && gjennomforingIsAktiv(tiltaksgjennomforing.status.status) ? (
                 <Dropdown.Menu.GroupedList.Item

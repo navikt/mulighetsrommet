@@ -70,7 +70,7 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
               !isFilterReady(filter) ? (
                 <Feilmelding
                   data-testid="filter-mangler-verdier-feilmelding"
-                  header="Du må filtrere på en innsatsgruppe og minst én NAV-enhet for å se tiltaksgjennomføringer"
+                  header="Du må filtrere på en innsatsgruppe og minst én Nav-enhet for å se tiltaksgjennomføringer"
                   ikonvariant="info"
                 />
               ) : tiltak.length === 0 ? (

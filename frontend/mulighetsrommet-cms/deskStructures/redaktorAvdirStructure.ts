@@ -40,7 +40,7 @@ const redaktorAvdirStructure = (S, context) => [
                     });
                   return S.documentList()
                     .apiVersion(API_VERSION)
-                    .title("NAV-kontaktperson")
+                    .title("Nav-kontaktperson")
                     .filter(`_type == 'navKontaktperson' && _id in $kontaktPersonIder`)
                     .defaultOrdering([
                       {

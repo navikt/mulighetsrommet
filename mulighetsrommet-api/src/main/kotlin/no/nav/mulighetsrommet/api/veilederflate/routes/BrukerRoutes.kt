@@ -59,7 +59,7 @@ fun Route.brukerRoutes() {
 
             if (response.deltakelser.isNotEmpty()) {
                 val message = createAuditMessage(
-                    msg = "NAV-ansatt med ident: '$navIdent' har sett på $type tiltaksdeltakelser for bruker med ident: '$norskIdent'.",
+                    msg = "Nav-ansatt med ident: '$navIdent' har sett på $type tiltaksdeltakelser for bruker med ident: '$norskIdent'.",
                     topic = "Vis tiltakshistorikk",
                     navIdent = navIdent,
                     norskIdent = norskIdent,

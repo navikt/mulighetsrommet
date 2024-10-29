@@ -40,7 +40,7 @@ internal fun <T : Any> PipelineContext<T, ApplicationCall>.getArbeidsmarkedstilt
 
     val enheter = queryParameters.getAll("enheter")
         ?.toNonEmptyListOrNull()
-        ?: throw StatusException(HttpStatusCode.BadRequest, "NAV-enheter er påkrevd")
+        ?: throw StatusException(HttpStatusCode.BadRequest, "Nav-enheter er påkrevd")
     val innsatsgruppe = queryParameters["innsatsgruppe"]
         ?.let { Innsatsgruppe.valueOf(it) }
         ?: throw StatusException(HttpStatusCode.BadRequest, "Innsatsgruppe er påkrevd")

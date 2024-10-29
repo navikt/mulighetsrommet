@@ -5,49 +5,49 @@ export const mockEnheter: {
 } = {
   // Innlandet
   _0425: {
-    navn: "NAV Solør",
+    navn: "Nav Solør",
     type: NavEnhetType.LOKAL,
     status: NavEnhetStatus.AKTIV,
     enhetsnummer: "0425",
     overordnetEnhet: "0400",
   },
   _0402: {
-    navn: "NAV Kongsvinger",
+    navn: "Nav Kongsvinger",
     type: NavEnhetType.LOKAL,
     status: NavEnhetStatus.AKTIV,
     enhetsnummer: "0402",
     overordnetEnhet: "0400",
   },
   _0415: {
-    navn: "NAV Løten",
+    navn: "Nav Løten",
     type: NavEnhetType.LOKAL,
     status: NavEnhetStatus.AKTIV,
     enhetsnummer: "0415",
     overordnetEnhet: "0400",
   },
   _0428: {
-    navn: "NAV Trysil",
+    navn: "Nav Trysil",
     type: NavEnhetType.LOKAL,
     status: NavEnhetStatus.AKTIV,
     enhetsnummer: "0428",
     overordnetEnhet: "0400",
   },
   _0511: {
-    navn: "NAV Lesja - Dovre",
+    navn: "Nav Lesja - Dovre",
     type: NavEnhetType.LOKAL,
     status: NavEnhetStatus.AKTIV,
     enhetsnummer: "0511",
     overordnetEnhet: "0400",
   },
   _0420: {
-    navn: "NAV Eidskog",
+    navn: "Nav Eidskog",
     type: NavEnhetType.LOKAL,
     status: NavEnhetStatus.AKTIV,
     enhetsnummer: "0420",
     overordnetEnhet: "0400",
   },
   _0400: {
-    navn: "NAV Innlandet",
+    navn: "Nav Innlandet",
     type: NavEnhetType.FYLKE,
     status: NavEnhetStatus.AKTIV,
     enhetsnummer: "0400",
@@ -56,42 +56,42 @@ export const mockEnheter: {
 
   // Oslo
   _0313: {
-    navn: "NAV St. Hanshaugen",
+    navn: "Nav St. Hanshaugen",
     type: NavEnhetType.LOKAL,
     status: NavEnhetStatus.AKTIV,
     enhetsnummer: "0313",
     overordnetEnhet: "0300",
   },
   _0330: {
-    navn: "NAV Bjerke",
+    navn: "Nav Bjerke",
     type: NavEnhetType.LOKAL,
     status: NavEnhetStatus.AKTIV,
     enhetsnummer: "0330",
     overordnetEnhet: "0300",
   },
   _0318: {
-    navn: "NAV Nordstrand",
+    navn: "Nav Nordstrand",
     type: NavEnhetType.LOKAL,
     status: NavEnhetStatus.AKTIV,
     enhetsnummer: "0318",
     overordnetEnhet: "0300",
   },
   _0334: {
-    navn: "NAV Vestre Aker",
+    navn: "Nav Vestre Aker",
     type: NavEnhetType.LOKAL,
     status: NavEnhetStatus.AKTIV,
     enhetsnummer: "0334",
     overordnetEnhet: "0300",
   },
   _0315: {
-    navn: "NAV Grünerløkka",
+    navn: "Nav Grünerløkka",
     type: NavEnhetType.LOKAL,
     status: NavEnhetStatus.AKTIV,
     enhetsnummer: "0315",
     overordnetEnhet: "0300",
   },
   _0300: {
-    navn: "NAV Oslo",
+    navn: "Nav Oslo",
     type: NavEnhetType.FYLKE,
     status: NavEnhetStatus.AKTIV,
     enhetsnummer: "0300",
@@ -100,21 +100,21 @@ export const mockEnheter: {
 
   // Ost Viken
   _0106: {
-    navn: "NAV Fredrikstad",
+    navn: "Nav Fredrikstad",
     type: NavEnhetType.LOKAL,
     status: NavEnhetStatus.AKTIV,
     enhetsnummer: "0106",
     overordnetEnhet: "0200",
   },
   _0105: {
-    navn: "NAV Sarpsborg",
+    navn: "Nav Sarpsborg",
     type: NavEnhetType.LOKAL,
     status: NavEnhetStatus.AKTIV,
     enhetsnummer: "0105",
     overordnetEnhet: "0200",
   },
   _0200: {
-    navn: "NAV Øst-Viken",
+    navn: "Nav Øst-Viken",
     type: NavEnhetType.FYLKE,
     status: NavEnhetStatus.AKTIV,
     enhetsnummer: "0200",
@@ -124,7 +124,7 @@ export const mockEnheter: {
 
 export const mockRegioner: NavRegion[] = [
   {
-    navn: "NAV Oslo",
+    navn: "Nav Oslo",
     type: NavEnhetType.FYLKE,
     status: NavEnhetStatus.AKTIV,
     enhetsnummer: "0300",
@@ -137,7 +137,7 @@ export const mockRegioner: NavRegion[] = [
     ],
   },
   {
-    navn: "NAV Innlandet",
+    navn: "Nav Innlandet",
     type: NavEnhetType.FYLKE,
     status: NavEnhetStatus.AKTIV,
     enhetsnummer: "0400",
@@ -151,7 +151,7 @@ export const mockRegioner: NavRegion[] = [
     ],
   },
   {
-    navn: "NAV Øst-Viken",
+    navn: "Nav Øst-Viken",
     type: NavEnhetType.FYLKE,
     status: NavEnhetStatus.AKTIV,
     enhetsnummer: "0200",

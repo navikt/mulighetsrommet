@@ -4,19 +4,18 @@ import arrow.core.getOrElse
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
 import io.ktor.server.plugins.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDto
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
+import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.services.ArrangorService
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
@@ -30,6 +29,8 @@ import no.nav.pdfgen.core.pdf.createHtmlFromTemplateData
 import no.nav.pdfgen.core.pdf.createPDFA
 import org.koin.ktor.ext.inject
 import org.verapdf.gf.foundry.VeraGreenfieldFoundryProvider
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -41,6 +42,7 @@ fun Route.arrangorflateRoutes() {
     val tilsagnService: TilsagnService by inject()
     val arrangorService: ArrangorService by inject()
     val refusjonskrav: RefusjonskravRepository by inject()
+    val deltakerRepository: DeltakerRepository by inject()
 
     suspend fun <T : Any> PipelineContext<T, ApplicationCall>.arrangorerMedTilgang(): List<UUID> {
         return call.principal<ArrangorflatePrincipal>()
@@ -68,10 +70,7 @@ fun Route.arrangorflateRoutes() {
                 val arrangorIds = arrangorerMedTilgang()
 
                 val krav = refusjonskrav.getByArrangorIds(arrangorIds)
-                    .map {
-                        // TODO egen listemodell som er generell på tvers av beregningstype?
-                        toRefusjonKravOppsummering(it)
-                    }
+                    .map { toRefusjonKravOppsummering(deltakerRepository, it) }
 
                 call.respond(krav)
             }
@@ -83,7 +82,7 @@ fun Route.arrangorflateRoutes() {
                     ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
-                val oppsummering = toRefusjonKravOppsummering(krav)
+                val oppsummering = toRefusjonKravOppsummering(deltakerRepository, krav)
 
                 call.respond(oppsummering)
             }
@@ -150,25 +149,40 @@ fun Route.arrangorflateRoutes() {
     }
 }
 
-private fun toRefusjonKravOppsummering(krav: RefusjonskravDto) = when (val beregning = krav.beregning) {
+fun toRefusjonKravOppsummering(
+    deltakerRepository: DeltakerRepository,
+    krav: RefusjonskravDto,
+) = when (val beregning = krav.beregning) {
     is RefusjonKravBeregningAft -> {
         val perioder = beregning.input.deltakelser.associateBy { it.deltakelseId }
         val manedsverk = beregning.output.deltakelser.associateBy { it.deltakelseId }
+        val deltakere = deltakerRepository.getAll(krav.gjennomforing.id).associateBy { it.id }
 
-        val deltakelser = perioder.map { (id, perioder) ->
-            RefusjonKravDeltakelse(
-                id = id,
-                perioder = perioder.perioder,
-                manedsverk = manedsverk.getValue(id).manedsverk,
-                // TODO data om deltaker
+        val deltakelser = perioder.map { (id, deltakelse) ->
+            val deltaker = deltakere.getValue(id)
+
+            val person = RefusjonKravDeltakelse.Person(
                 norskIdent = NorskIdent("12345678910"),
                 navn = "TODO TODOESEN",
-                startDato = null,
-                sluttDato = null,
+            )
+
+            RefusjonKravDeltakelse(
+                id = id,
+                perioder = deltakelse.perioder,
+                manedsverk = manedsverk.getValue(id).manedsverk,
+                startDato = deltaker.startDato,
+                sluttDato = deltaker.startDato,
+                person = person,
                 // TODO data om veileder hos arrangør
                 veileder = null,
             )
         }
+
+        val antallManedsverk = deltakelser
+            .map { BigDecimal(it.manedsverk) }
+            .sumOf { it }
+            .setScale(2, RoundingMode.HALF_UP)
+            .toDouble()
 
         RefusjonKravAft(
             id = krav.id,
@@ -181,7 +195,7 @@ private fun toRefusjonKravOppsummering(krav: RefusjonskravDto) = when (val bereg
             beregning = RefusjonKravAft.Beregning(
                 periodeStart = beregning.input.periodeStart,
                 periodeSlutt = beregning.input.periodeSlutt,
-                antallManedsverk = deltakelser.sumOf { it.manedsverk },
+                antallManedsverk = antallManedsverk,
                 belop = beregning.output.belop,
             ),
         )
@@ -189,7 +203,6 @@ private fun toRefusjonKravOppsummering(krav: RefusjonskravDto) = when (val bereg
 }
 
 @Serializable
-@SerialName("AFT")
 data class RefusjonKravAft(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
@@ -217,13 +230,18 @@ data class RefusjonKravAft(
 data class RefusjonKravDeltakelse(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val norskIdent: NorskIdent,
-    val navn: String,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val perioder: List<DeltakelsePeriode>,
     val manedsverk: Double,
+    val person: Person?,
     val veileder: String?,
-)
+) {
+    @Serializable
+    data class Person(
+        val norskIdent: NorskIdent,
+        val navn: String,
+    )
+}

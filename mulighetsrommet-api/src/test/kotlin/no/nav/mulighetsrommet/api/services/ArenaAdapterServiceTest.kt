@@ -522,7 +522,7 @@ class ArenaAdapterServiceTest :
 
                 gjennomforinger.get(gjennomforing1.id).shouldNotBeNull().should {
                     it.tiltaksnummer shouldBe "2024#2024"
-                    it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = "NAV Tiltak Oslo", enhetsnummer = "0387")
+                    it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = "Nav Tiltak Oslo", enhetsnummer = "0387")
                     it.status.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
 
                     it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE

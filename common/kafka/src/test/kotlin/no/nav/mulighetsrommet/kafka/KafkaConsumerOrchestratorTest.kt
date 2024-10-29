@@ -52,7 +52,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
     }
 
     test("should store topics based on provided consumers during setup") {
-        val consumer = TestConsumer("foo")
+        val consumer = TestConsumer(id = "1", topic = "foo")
 
         val orchestrator = KafkaConsumerOrchestrator(
             KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
@@ -63,7 +63,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
 
         orchestrator.getTopics() shouldContainExactly listOf(
             Topic(
-                id = "foo",
+                id = "1",
                 topic = "foo",
                 type = TopicType.CONSUMER,
                 running = true,
@@ -72,7 +72,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
     }
 
     test("should update the consumer running state based on the topic configuration") {
-        val consumer = TestConsumer("foo")
+        val consumer = TestConsumer(id = "1", topic = "foo")
 
         val orchestrator = KafkaConsumerOrchestrator(
             KafkaConsumerOrchestrator.Config(topicStatePollDelay = 10),
@@ -101,7 +101,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         producer.send(ProducerRecord(topic, "key2", null))
         producer.close()
 
-        val consumer = spyk(TestConsumer(topic))
+        val consumer = spyk(TestConsumer(id = "1", topic))
 
         KafkaConsumerOrchestrator(
             KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
@@ -115,6 +115,31 @@ class KafkaConsumerOrchestratorTest : FunSpec({
                 consumer.consume(null, "true")
                 consumer.consume("key1", "true")
                 consumer.consume("key2", null)
+            }
+        }
+    }
+
+    test("multiple consumers should be able to process events from the same topic") {
+        val topic = uniqueTopicName()
+
+        val producer = kafka.stringStringProducer()
+        producer.send(ProducerRecord(topic, "key1", "true"))
+        producer.close()
+
+        val consumer1 = spyk(TestConsumer("1", topic, "group-1"))
+        val consumer2 = spyk(TestConsumer("2", topic, "group-2"))
+
+        KafkaConsumerOrchestrator(
+            KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
+            kafka.getConsumerProperties(),
+            database.db,
+            listOf(consumer1, consumer2),
+        )
+
+        eventually(5.seconds) {
+            coVerify(exactly = 1) {
+                consumer1.consume("key1", "true")
+                consumer2.consume("key1", "true")
             }
         }
     }
@@ -151,7 +176,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         producer.send(ProducerRecord(topic, "false"))
         producer.close()
 
-        val consumer = spyk(TestConsumer(topic))
+        val consumer = spyk(TestConsumer(id = "1", topic))
 
         KafkaConsumerOrchestrator(
             KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),

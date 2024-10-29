@@ -186,7 +186,7 @@ class MicrosoftGraphClient(
     }
 
     /**
-     * Når NAVident er definert på en MsGraphUserDto så anser vi brukeren som en NAV-ansatt.
+     * Når NAVident er definert på en MsGraphUserDto så anser vi brukeren som en Nav-ansatt.
      */
     private fun isNavAnsatt(it: MsGraphUserDto) = it.onPremisesSamAccountName != null
 
@@ -197,11 +197,11 @@ class MicrosoftGraphClient(
             }
 
             user.streetAddress == null -> {
-                throw IllegalArgumentException("NAV Enhetskode mangler for bruker med id=${user.id}")
+                throw IllegalArgumentException("Nav Enhetskode mangler for bruker med id=${user.id}")
             }
 
             user.city == null -> {
-                throw IllegalArgumentException("NAV Enhetsnavn mangler for bruker med id=${user.id}")
+                throw IllegalArgumentException("Nav Enhetsnavn mangler for bruker med id=${user.id}")
             }
 
             user.givenName == null -> {

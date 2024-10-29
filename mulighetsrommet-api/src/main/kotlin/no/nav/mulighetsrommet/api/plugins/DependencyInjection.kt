@@ -132,15 +132,15 @@ private fun kafka(appConfig: AppConfig) = module {
     single { SisteTiltaksgjennomforingerV1KafkaProducer(producerClient, config.producers.tiltaksgjennomforinger) }
     single { SisteTiltakstyperV2KafkaProducer(producerClient, config.producers.tiltakstyper) }
 
-    val properties = when (NaisEnv.current()) {
+    val consumerPreset = when (NaisEnv.current()) {
         NaisEnv.Local -> KafkaPropertiesBuilder.consumerBuilder()
             .withBaseProperties()
-            .withConsumerGroupId(config.consumerGroupId)
+            .withConsumerGroupId(config.defaultConsumerGroupId)
             .withBrokerUrl(config.brokerUrl)
             .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
             .build()
 
-        else -> KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.consumerGroupId)
+        else -> KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.defaultConsumerGroupId)
     }
 
     single {
@@ -160,7 +160,7 @@ private fun kafka(appConfig: AppConfig) = module {
             ),
         )
         KafkaConsumerOrchestrator(
-            consumerPreset = properties,
+            consumerPreset = consumerPreset,
             db = get(),
             consumers = consumers,
         )

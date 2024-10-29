@@ -5,10 +5,10 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
-import no.nav.mulighetsrommet.api.utils.getNotificationFilter
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationStatus
@@ -60,3 +60,14 @@ data class SetNotificationStatusRequest(
         val status: NotificationStatus,
     )
 }
+
+fun <T : Any> PipelineContext<T, ApplicationCall>.getNotificationFilter(): NotificationFilter {
+    val status = call.request.queryParameters["status"]
+    return NotificationFilter(
+        status = status?.let { NotificationStatus.valueOf(it) },
+    )
+}
+
+data class NotificationFilter(
+    val status: NotificationStatus? = null,
+)

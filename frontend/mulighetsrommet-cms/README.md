@@ -4,7 +4,7 @@ Forvaltning av arbeidsmarkedinformasjon rettet mot veiledere
 
 ## Sanity Content Studio
 
-Sanity Studio satt opp med NAV SSO-login.
+Sanity Studio satt opp med Nav SSO-login.
 
 ### 🚀 Kom i gang
 
@@ -23,11 +23,11 @@ Du kan nå studioet via url'en her https://mulighetsrommet-sanity-studio.intern.
 
 ### 👨‍👩‍👦‍👦 Nye brukere
 
-Nye brukere som logger seg inn på Admin-panelet via NAV SSO vil automatisk få tildelt rollen `Viewer`.
+Nye brukere som logger seg inn på Admin-panelet via Nav SSO vil automatisk få tildelt rollen `Viewer`.
 Følgende steg må til for å logge inn første gang:
 
 1. Legg til Sanity.io i [My Apps](https://myapps.microsoft.com/), og vent på at du får denne godkjent.
-2. Logg deg inn på CMS'et vha. NAV SSO.
+2. Logg deg inn på CMS'et vha. Nav SSO.
 3. Hvis du ønsker andre rettigheter enn `Viewer` må du ta kontakt med en som har rollen `Administrator` i prosjektet.
 
 ## Backup

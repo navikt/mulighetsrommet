@@ -7,7 +7,6 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
-import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.concurrent.TimeUnit
 
@@ -78,3 +77,9 @@ class NavEnhetService(private val enhetRepository: NavEnhetRepository) {
         val enheter: List<NavEnhetDbo>,
     )
 }
+
+data class EnhetFilter(
+    val statuser: List<NavEnhetStatus>? = null,
+    val typer: List<Norg2Type>? = null,
+    val overordnetEnhet: String? = null,
+)

@@ -40,7 +40,7 @@ export function OpprettTiltakIArenaModal({
           {migrerteTiltakstyperNavn.length > 0 ? (
             <>
               <Heading size="small" level="4">
-                Du kan opprette tiltak for følgende tiltakstyper her i NAV Tiltaksadministrasjon:
+                Du kan opprette tiltak for følgende tiltakstyper her i Nav Tiltaksadministrasjon:
               </Heading>
               <ul>
                 {migrerteTiltakstyperNavn.map((tiltakstype) => (

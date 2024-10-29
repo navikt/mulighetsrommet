@@ -9,7 +9,7 @@ export const mockTilsagn: TilsagnDto[] = [
     id: "10e393b0-1b7c-4c68-9a42-b541b2f114b8",
     kostnadssted: {
       enhetsnummer: "0300",
-      navn: "NAV Oslo",
+      navn: "Nav Oslo",
       overordnetEnhet: null,
       status: NavEnhetStatus.AKTIV,
       type: NavEnhetType.TILTAK,
@@ -26,7 +26,7 @@ export const mockTilsagn: TilsagnDto[] = [
     id: "fd1825aa-1951-4de2-9b72-12d22f121e92",
     kostnadssted: {
       enhetsnummer: "0300",
-      navn: "NAV Oslo",
+      navn: "Nav Oslo",
       overordnetEnhet: null,
       status: NavEnhetStatus.AKTIV,
       type: NavEnhetType.TILTAK,
@@ -43,7 +43,7 @@ export const mockTilsagn: TilsagnDto[] = [
     id: "5950e714-95bc-4d4c-b52e-c75fde749056",
     kostnadssted: {
       enhetsnummer: "0300",
-      navn: "NAV Oslo",
+      navn: "Nav Oslo",
       overordnetEnhet: null,
       status: NavEnhetStatus.AKTIV,
       type: NavEnhetType.TILTAK,

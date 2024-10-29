@@ -5,7 +5,7 @@ import { ForsidekortListe } from "./components/forsidekort/ForsidekortListe";
 import { useTitle } from "@mr/frontend-common";
 
 export function Forside() {
-  useTitle("NAV Tiltaksadministrasjon");
+  useTitle("Nav Tiltaksadministrasjon");
   return (
     <main>
       <div className={styles.hero}>
