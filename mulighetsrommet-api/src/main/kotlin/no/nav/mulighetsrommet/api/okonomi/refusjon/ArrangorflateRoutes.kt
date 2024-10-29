@@ -96,21 +96,9 @@ fun Route.arrangorflateRoutes() {
                 val krav = refusjonskrav.get(id)
                     ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
-
-                refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now())
-
-                call.respond(HttpStatusCode.OK)
-            }
-
-            post("/{id}/set-betalings-informasjon") {
-                val id = call.parameters.getOrFail<UUID>("id")
-
-                val krav = refusjonskrav.get(id)
-                    ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
-
-                requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
                 val request = call.receive<SetRefusjonKravBetalingsinformasjonRequest>()
 
+                refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now())
                 refusjonskrav.setBetalingsInformasjon(
                     id,
                     request.kontonummer,

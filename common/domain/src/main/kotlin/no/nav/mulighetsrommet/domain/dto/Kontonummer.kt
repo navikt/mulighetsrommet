@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.domain.dto
 
 import kotlinx.serialization.Serializable
 
-private val KONTONUMMER_REGEX = "^\\d{9}$".toRegex()
+private val KONTONUMMER_REGEX = "^\\d{11}$".toRegex()
 
 @Serializable
 @JvmInline

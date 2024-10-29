@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.okonomi.models
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.okonomi.refusjon.RefusjonskravStatus
+import no.nav.mulighetsrommet.domain.dto.Kid
+import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -44,8 +46,8 @@ data class RefusjonskravDto(
 
     @Serializable
     data class Betalingsinformasjon(
-        val kontonummer: String,
-        val kid: String?,
+        val kontonummer: Kontonummer?,
+        val kid: Kid?,
 
     )
 }

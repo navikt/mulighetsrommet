@@ -67,7 +67,7 @@ export default function RefusjonskravKvittering() {
           definitions={[
             {
               key: "Kontonummer",
-              value: formaterKontoNummer(krav.betalingsinformasjon.kontoNummer),
+              value: formaterKontoNummer(krav.betalingsinformasjon.kontonummer),
             },
             {
               key: "KID-nummer",

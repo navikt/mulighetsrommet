@@ -3,3 +3,4 @@ alter table refusjonskrav
 
 alter table refusjonskrav
     add column kid varchar(25);
+

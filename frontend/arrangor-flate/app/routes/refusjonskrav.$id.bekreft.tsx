@@ -68,7 +68,7 @@ export default function BekreftRefusjonskrav() {
   const { krav, tilsagn } = useLoaderData<BekreftRefusjonskravData>();
   const data = useActionData<typeof action>();
   const [isEditing, setIsEditing] = React.useState(false);
-  const [kontonummer, setKontoNummer] = React.useState(krav.betalingsinformasjon.kontonummer);
+  const [kontonummer, setKontoNummer] = React.useState(krav.betalingsinformasjon?.kontonummer);
 
   return (
     <>
@@ -92,7 +92,7 @@ export default function BekreftRefusjonskrav() {
               onChange={(e) => setKontoNummer(e.target.value)}
             />
             <span className={"ml-4 cursor-pointer " + (isEditing ? "hidden" : "")}>
-              {formaterKontoNummer(kontonummer)}
+              {kontonummer && formaterKontoNummer(kontonummer)}
             </span>
             <span
               className="ml-4 text-text-action cursor-pointer"

@@ -9,6 +9,8 @@ import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregning
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDto
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.domain.dto.Kid
+import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
@@ -132,11 +134,11 @@ class RefusjonskravRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun setBetalingsInformasjon(id: UUID, kontoNummer: String, kid: String?) {
+    fun setBetalingsInformasjon(id: UUID, kontonummer: Kontonummer, kid: Kid?) {
         @Language("PostgreSQL")
         val query = """
             update refusjonskrav
-            set konto_nummer = :kontoNummer, kid = :kid
+            set kontonummer = :kontonummer, kid = :kid
             where id = :id::uuid
         """.trimIndent()
 
@@ -144,8 +146,8 @@ class RefusjonskravRepository(private val db: Database) {
             query,
             mapOf(
                 "id" to id,
-                "kontoNummer" to kontoNummer,
-                "kid" to kid,
+                "kontonummer" to kontonummer.value,
+                "kid" to kid?.value,
             ),
         )
             .asUpdate
@@ -240,8 +242,8 @@ class RefusjonskravRepository(private val db: Database) {
             ),
             beregning = beregning,
             betalingsinformasjon = RefusjonskravDto.Betalingsinformasjon(
-                kontonummer = string("kontonummer"),
-                kid = stringOrNull("kid"),
+                kontonummer = stringOrNull("kontonummer")?.let { Kontonummer(it) },
+                kid = stringOrNull("kid")?.let { Kid(it) },
             ),
         )
     }
