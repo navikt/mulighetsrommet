@@ -60,6 +60,30 @@ class PdlClientTest : FunSpec({
         pdlClient.hentHistoriskeIdenter(request, AccessType.M2M).shouldBeLeft(PdlError.NotFound)
     }
 
+    test("håndterer errors og manglende data") {
+        val pdlClient = PdlClient(
+            baseUrl = "https://pdl.no",
+            tokenProvider = { "token" },
+            clientEngine = createMockEngine(
+                "/graphql" to {
+                    respondJson(
+                        """
+                            {
+                                "data": null,
+                                "errors": [
+                                    { "extensions": { "code": "bad_request" } }
+                                ]
+                            }
+                        """.trimIndent(),
+                    )
+                },
+            ),
+        )
+
+        val request = GraphqlRequest.HentHistoriskeIdenter(ident = PdlIdent("12345678910"), grupper = listOf())
+        pdlClient.hentHistoriskeIdenter(request, AccessType.M2M).shouldBeLeft(PdlError.Error)
+    }
+
     test("happy case hentIdenter") {
         val pdlClient = PdlClient(
             baseUrl = "https://pdl.no",

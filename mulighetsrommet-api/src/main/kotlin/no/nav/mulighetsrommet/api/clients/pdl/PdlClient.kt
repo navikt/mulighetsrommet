@@ -240,7 +240,10 @@ class PdlClient(
                 PdlError.Error.left()
             }
         } else {
-            graphqlResponse.data.right()
+            val data = requireNotNull(graphqlResponse.data) {
+                "forventet data siden errors var tom"
+            }
+            data.right()
         }
     }
 }
@@ -274,7 +277,7 @@ data class GraphqlRequest<T>(
 
 @Serializable
 data class GraphqlResponse<T>(
-    val data: T,
+    val data: T? = null,
     val errors: List<GraphqlError> = emptyList(),
 ) {
     @Serializable
