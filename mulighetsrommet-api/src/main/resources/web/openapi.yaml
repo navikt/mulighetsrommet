@@ -1886,34 +1886,18 @@ paths:
         - $ref: "#/components/parameters/ID"
       tags:
         - Arrangorflate
-      operationId: godkjennRefusjonskrav
-      responses:
-        200:
-          description: Godkjenn et refusjonskrav
 
-  /api/v1/intern/arrangorflate/refusjonskrav/{id}/set-betalings-informasjon:
-    post:
-      parameters:
-        - $ref: "#/components/parameters/ID"
       requestBody:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                kontoNummer:
-                  type: string
-                kid:
-                  type: string
-              required:
-                - kontoNummer
+              $ref: "#/components/schemas/Betalingsinformasjon"
         required: true
-      tags:
-        - Arrangorflate
-      operationId: setRefusjonskravBetalingsinformasjon
+
+      operationId: godkjennRefusjonskrav
       responses:
         200:
-          description: Set betalingsinformasjon for et refusjonskrav
+          description: Godkjenn et refusjonskrav
 
   /api/v1/intern/arrangorflate/refusjonskrav/{id}/kvittering:
     parameters:
@@ -4948,14 +4932,7 @@ components:
         beregning:
           $ref: "#/components/schemas/RefusjonKravAftBeregning"
         betalingsinformasjon:
-          type: object
-          properties:
-            kontoNummer:
-              type: string
-            kid:
-              type: string
-          required:
-            - kontoNummer
+          $ref: "#/components/schemas/Betalingsinformasjon"
       required:
         - type
         - id
@@ -5194,3 +5171,13 @@ components:
         - arrangor
         - beregning
         - id
+
+    Betalingsinformasjon:
+      type: object
+      properties:
+        kontonummer:
+          type: string
+        kid:
+          type: string
+      required:
+        - kontonummer

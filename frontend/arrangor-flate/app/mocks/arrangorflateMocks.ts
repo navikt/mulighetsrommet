@@ -12,7 +12,7 @@ const mockKrav: RefusjonKravAft[] = [
       navn: "Arbeidsforbredene trening",
     },
     betalingsinformasjon: {
-      kontoNummer: "12345678901",
+      kontonummer: "12345678901",
       kid: "123456789",
     },
     gjennomforing: {
@@ -73,7 +73,7 @@ const mockKrav: RefusjonKravAft[] = [
       navn: "Arbeidsforbredene trening",
     },
     betalingsinformasjon: {
-      kontoNummer: "12345678901",
+      kontonummer: "12345678901",
       kid: "123456789",
     },
     gjennomforing: {
@@ -138,7 +138,7 @@ const mockKrav: RefusjonKravAft[] = [
       navn: "Amo tiltak Halden",
     },
     betalingsinformasjon: {
-      kontoNummer: "12345678901",
+      kontonummer: "12345678901",
       kid: "123456789",
     },
     arrangor: {

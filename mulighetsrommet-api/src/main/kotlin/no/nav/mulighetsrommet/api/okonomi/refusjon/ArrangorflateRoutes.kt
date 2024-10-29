@@ -111,7 +111,7 @@ fun Route.arrangorflateRoutes() {
 
                 refusjonskrav.setBetalingsInformasjon(
                     id,
-                    request.kontoNummer,
+                    request.kontonummer,
                     request.kid,
                 )
 
@@ -263,7 +263,7 @@ data class RefusjonKravDeltakelse(
 
 @Serializable
 data class SetRefusjonKravBetalingsinformasjonRequest(
-    val kontoNummer: String,
+    val kontonummer: String,
     val kid: String?,
 )
 
@@ -272,4 +272,3 @@ data class Person(
     val norskIdent: NorskIdent,
     val navn: String,
 )
-

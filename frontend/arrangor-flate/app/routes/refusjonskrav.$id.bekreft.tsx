@@ -38,7 +38,7 @@ export const action: ActionFunction = async ({ request }) => {
   const formdata = await request.formData();
   const bekreftelse = formdata.get("bekreftelse");
   const refusjonskravId = formdata.get("refusjonskravId");
-  const kontoNummer = formdata.get("kontoNummer");
+  const kontonummer = formdata.get("kontonummer");
   const kid = formdata.get("kid");
 
   if (!bekreftelse) {
@@ -49,21 +49,17 @@ export const action: ActionFunction = async ({ request }) => {
     return json({ error: "Mangler refusjonskravId" }, { status: 400 });
   }
 
-  if (!kontoNummer) {
+  if (!kontonummer) {
     return json({ error: "Mangler kontonummer" }, { status: 400 });
   }
 
   await ArrangorflateService.godkjennRefusjonskrav({
     id: refusjonskravId as string,
+    requestBody: {
+      kontonummer: kontonummer as string,
+      kid: kid as string,
+    },
   });
-
-  // await ArrangorflateService.setRefusjonskravBetalingsinformasjon({
-  //   id: refusjonskravId as string,
-  //   requestBody: {
-  //     kontoNummer: kontoNummer as string,
-  //     kid: kid as string,
-  //   },
-  // });
 
   return redirect(`/refusjonskrav/${refusjonskravId}/kvittering`);
 };
@@ -72,7 +68,7 @@ export default function BekreftRefusjonskrav() {
   const { krav, tilsagn } = useLoaderData<BekreftRefusjonskravData>();
   const data = useActionData<typeof action>();
   const [isEditing, setIsEditing] = React.useState(false);
-  const [kontoNummer, setKontoNummer] = React.useState(krav.betalingsinformasjon.kontoNummer);
+  const [kontonummer, setKontoNummer] = React.useState(krav.betalingsinformasjon.kontonummer);
 
   return (
     <>
@@ -90,13 +86,13 @@ export default function BekreftRefusjonskrav() {
           <Definisjon label="Kontonummer">
             <input
               type="text"
-              name="kontoNummer"
+              name="kontonummer"
               className={"border border-[#0214317D] rounded-md " + (isEditing ? "" : "hidden")}
-              value={kontoNummer}
+              value={kontonummer}
               onChange={(e) => setKontoNummer(e.target.value)}
             />
             <span className={"ml-4 cursor-pointer " + (isEditing ? "hidden" : "")}>
-              {formaterKontoNummer(kontoNummer)}
+              {formaterKontoNummer(kontonummer)}
             </span>
             <span
               className="ml-4 text-text-action cursor-pointer"
