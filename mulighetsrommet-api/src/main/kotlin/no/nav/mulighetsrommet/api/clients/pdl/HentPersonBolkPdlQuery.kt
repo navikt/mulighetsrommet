@@ -13,7 +13,7 @@ class HentPersonBolkPdlQuery(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    suspend fun hentPersonBolk(identer: NonEmptySet<PdlIdent>): Either<PdlError, Map<PdlIdent, PdlPerson>> {
+    suspend fun hentPersonBolk(identer: NonEmptySet<PdlIdent>): Either<PdlError, Map<PdlIdent, HentPersonBolkResponse.Person>> {
         val request = GraphqlRequest(
             query = """
                 query(${'$'}identer: [ID!]!) {
@@ -41,7 +41,7 @@ class HentPersonBolkPdlQuery(
                                 val person = requireNotNull(it.person) {
                                     "person forventet siden response var OK"
                                 }
-                                PdlIdent(it.ident) to PdlPerson(person.navn)
+                                PdlIdent(it.ident) to HentPersonBolkResponse.Person(person.navn)
                             }
 
                             else -> {
@@ -61,9 +61,14 @@ data class HentPersonBolkResponse(
     val hentPersonBolk: List<PersonBolkResponseEntry>,
 ) {
     @Serializable
+    data class Person(
+        val navn: List<PdlNavn>,
+    )
+
+    @Serializable
     data class PersonBolkResponseEntry(
         val ident: String,
-        val person: PdlPerson?,
+        val person: Person?,
         val code: Code,
     ) {
 

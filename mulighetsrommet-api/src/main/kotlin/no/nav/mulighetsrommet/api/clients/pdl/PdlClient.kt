@@ -44,14 +44,14 @@ class PdlClient(
         }
     }
 
-    private val hentIdenterCache: Cache<GraphqlRequest.HentHistoriskeIdenter, List<IdentInformasjon>> =
+    private val hentIdenterCache: Cache<GraphqlRequest.HentHistoriskeIdenter, HentIdenterResponse.Identliste> =
         Caffeine.newBuilder()
             .expireAfterWrite(1, TimeUnit.HOURS)
             .maximumSize(10_000)
             .recordStats()
             .build()
 
-    private val hentPersonCache: Cache<PdlIdent, PdlPerson> = Caffeine.newBuilder()
+    private val hentPersonCache: Cache<PdlIdent, HentPersonResponse.Person> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
         .maximumSize(10_000)
         .recordStats()
@@ -67,7 +67,7 @@ class PdlClient(
         variables: GraphqlRequest.HentHistoriskeIdenter,
         accessType: AccessType,
     ): Either<PdlError, List<IdentInformasjon>> {
-        hentIdenterCache.getIfPresent(variables)?.let { return@hentHistoriskeIdenter it.right() }
+        hentIdenterCache.getIfPresent(variables)?.let { return@hentHistoriskeIdenter it.identer.right() }
 
         val request = GraphqlRequest(
             query = """
@@ -84,16 +84,16 @@ class PdlClient(
             variables = variables,
         )
         return graphqlRequest<GraphqlRequest.HentHistoriskeIdenter, HentIdenterResponse>(request, accessType)
+            .onRight { hentIdenterCache.put(variables, it.hentIdenter) }
             .map {
-                require(it.hentIdenter != null) {
+                requireNotNull(it.hentIdenter) {
                     "hentIdenter var null og errors tom! response: $it"
                 }
                 it.hentIdenter.identer
             }
-            .onRight { hentIdenterCache.put(variables, it) }
     }
 
-    suspend fun hentPerson(ident: PdlIdent, accessType: AccessType): Either<PdlError, PdlPerson> {
+    suspend fun hentPerson(ident: PdlIdent, accessType: AccessType): Either<PdlError, HentPersonResponse.Person> {
         hentPersonCache.getIfPresent(ident)?.let { return@hentPerson it.right() }
 
         val request = GraphqlRequest(
@@ -295,7 +295,6 @@ enum class PdlErrorCode {
 data class HentIdenterResponse(
     val hentIdenter: Identliste? = null,
 ) {
-
     @Serializable
     data class Identliste(
         val identer: List<IdentInformasjon>,
@@ -304,10 +303,23 @@ data class HentIdenterResponse(
 
 @Serializable
 data class HentPersonResponse(
-    val hentPerson: PdlPerson? = null,
-)
+    val hentPerson: Person? = null,
+) {
+    @Serializable
+    data class Person(
+        val navn: List<PdlNavn>,
+    )
+}
 
 @Serializable
 data class HentGeografiskTilknytningResponse(
-    val hentGeografiskTilknytning: PdlGeografiskTilknytning? = null,
-)
+    val hentGeografiskTilknytning: GeografiskTilknytning? = null,
+) {
+    @Serializable
+    data class GeografiskTilknytning(
+        val gtType: TypeGeografiskTilknytning,
+        val gtLand: String? = null,
+        val gtKommune: String? = null,
+        val gtBydel: String? = null,
+    )
+}

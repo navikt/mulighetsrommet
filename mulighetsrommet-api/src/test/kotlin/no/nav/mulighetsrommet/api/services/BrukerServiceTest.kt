@@ -78,7 +78,7 @@ class BrukerServiceTest : FunSpec({
 
         coEvery { pdlClient.hentGeografiskTilknytning(any(), any()) } returns GeografiskTilknytning.GtKommune(value = "0301").right()
 
-        coEvery { pdlClient.hentPerson(PdlIdent(fnr1.value), any()) } returns PdlPerson(
+        coEvery { pdlClient.hentPerson(PdlIdent(fnr1.value), any()) } returns HentPersonResponse.Person(
             navn = listOf(PdlNavn(fornavn = "Ola")),
         ).right()
 
@@ -99,7 +99,7 @@ class BrukerServiceTest : FunSpec({
             innsatsgruppe = VedtakDto.Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
         ).right()
 
-        coEvery { pdlClient.hentPerson(PdlIdent(fnr2.value), any()) } returns PdlPerson(
+        coEvery { pdlClient.hentPerson(PdlIdent(fnr2.value), any()) } returns HentPersonResponse.Person(
             navn = listOf(PdlNavn(fornavn = "Petter")),
         ).right()
 

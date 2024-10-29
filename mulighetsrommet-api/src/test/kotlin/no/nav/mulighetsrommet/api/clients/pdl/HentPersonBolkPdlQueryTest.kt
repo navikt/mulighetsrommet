@@ -66,7 +66,7 @@ class HentPersonBolkPdlQueryTest : FunSpec({
         val response = query.hentPersonBolk(identer).shouldBeRight()
 
         response shouldBe mapOf(
-            PdlIdent("12345678910") to PdlPerson(
+            PdlIdent("12345678910") to HentPersonBolkResponse.Person(
                 navn = listOf(
                     PdlNavn(fornavn = "Ola", etternavn = "Normann"),
                 ),

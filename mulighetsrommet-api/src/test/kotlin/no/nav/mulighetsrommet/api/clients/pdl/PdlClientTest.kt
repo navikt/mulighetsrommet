@@ -170,7 +170,7 @@ class PdlClientTest : FunSpec({
         )
 
         val person = pdlClient.hentPerson(PdlIdent("12345678910"), AccessType.M2M).shouldBeRight()
-        person shouldBe PdlPerson(navn = listOf(PdlNavn(fornavn = "Ola", etternavn = "Normann")))
+        person shouldBe HentPersonResponse.Person(navn = listOf(PdlNavn(fornavn = "Ola", etternavn = "Normann")))
     }
 
     test("happy case hentGeografiskTilknytning") {
