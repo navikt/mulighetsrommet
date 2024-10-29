@@ -1,5 +1,4 @@
 body {
-  /* background-color: var(--a-gray-100); */
   background-color: white;
   min-height: 100vh;
 }
@@ -11,7 +10,7 @@ body {
 .side {
   display: flex;
   flex-direction: column;
-  max-width: 76rem;
+  max-width: 1400px;
   margin-bottom: 3rem;
 }
 
@@ -19,7 +18,7 @@ body {
   background: white;
 }
 
-@media (min-width: 40rem) {
+@media (min-width: 45rem) {
   .side {
     margin: 0rem auto;
     padding: 3rem;
