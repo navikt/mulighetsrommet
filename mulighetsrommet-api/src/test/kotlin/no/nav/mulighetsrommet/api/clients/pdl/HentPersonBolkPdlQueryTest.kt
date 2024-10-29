@@ -68,10 +68,7 @@ class HentPersonBolkPdlQueryTest : FunSpec({
         response shouldBe mapOf(
             PdlIdent("12345678910") to PdlPerson(
                 navn = listOf(
-                    PdlPerson.PdlNavn(
-                        fornavn = "Ola",
-                        etternavn = "Normann",
-                    ),
+                    PdlNavn(fornavn = "Ola", etternavn = "Normann"),
                 ),
             ),
         )

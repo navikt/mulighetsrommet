@@ -79,7 +79,7 @@ class BrukerServiceTest : FunSpec({
         coEvery { pdlClient.hentGeografiskTilknytning(any(), any()) } returns GeografiskTilknytning.GtKommune(value = "0301").right()
 
         coEvery { pdlClient.hentPerson(PdlIdent(fnr1.value), any()) } returns PdlPerson(
-            navn = listOf(PdlPerson.PdlNavn(fornavn = "Ola")),
+            navn = listOf(PdlNavn(fornavn = "Ola")),
         ).right()
 
         coEvery { norg2Client.hentEnhetByGeografiskOmraade(any()) } returns Norg2EnhetDto(
@@ -100,7 +100,7 @@ class BrukerServiceTest : FunSpec({
         ).right()
 
         coEvery { pdlClient.hentPerson(PdlIdent(fnr2.value), any()) } returns PdlPerson(
-            navn = listOf(PdlPerson.PdlNavn(fornavn = "Petter")),
+            navn = listOf(PdlNavn(fornavn = "Petter")),
         ).right()
 
         coEvery { navEnhetService.hentEnhet(any()) } returns NavEnhetDbo(
