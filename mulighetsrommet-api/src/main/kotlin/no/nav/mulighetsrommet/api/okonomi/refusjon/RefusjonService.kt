@@ -15,22 +15,23 @@ import java.time.temporal.TemporalAdjusters
 import java.util.*
 
 class RefusjonService(
+    private val db: Database,
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val deltakerRepository: DeltakerRepository,
     private val refusjonskravRepository: RefusjonskravRepository,
-    private val db: Database,
 ) {
 
     fun genererRefusjonskravForMonth(dayInMonth: LocalDate) {
         val periodeStart = dayInMonth.with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay()
         val periodeSlutt = periodeStart.with(TemporalAdjusters.lastDayOfMonth()).plusDays(1)
 
-        val krav = tiltaksgjennomforingRepository
+        tiltaksgjennomforingRepository
             .getGjennomforesInPeriodeUtenRefusjonskrav(periodeStart, periodeSlutt)
-            .mapNotNull {
-                when (it.tiltakstype.tiltakskode) {
+            .mapNotNull { gjennomforing ->
+                when (gjennomforing.tiltakstype.tiltakskode) {
                     Tiltakskode.ARBEIDSFORBEREDENDE_TRENING -> createRefusjonskravAft(
-                        gjennomforingId = it.id,
+                        refusjonskravId = UUID.randomUUID(),
+                        gjennomforingId = gjennomforing.id,
                         periodeStart = periodeStart,
                         periodeSlutt = periodeSlutt,
                     )
@@ -38,20 +39,37 @@ class RefusjonService(
                     else -> null
                 }
             }
-
-        krav.forEach {
-            db.transaction { tx ->
-                refusjonskravRepository.upsert(it, tx)
+            .forEach { krav ->
+                refusjonskravRepository.upsert(krav)
             }
-        }
+    }
+
+    fun recalculateRefusjonskravForGjennomforing(id: UUID) = db.transaction { tx ->
+        refusjonskravRepository
+            .getByGjennomforing(id, status = RefusjonskravStatus.KLAR_FOR_GODKJENNING)
+            .mapNotNull { gjeldendeKrav ->
+                val nyttKrav = when (gjeldendeKrav.beregning) {
+                    is RefusjonKravBeregningAft -> createRefusjonskravAft(
+                        refusjonskravId = gjeldendeKrav.id,
+                        gjennomforingId = gjeldendeKrav.gjennomforing.id,
+                        periodeStart = gjeldendeKrav.beregning.input.periodeStart,
+                        periodeSlutt = gjeldendeKrav.beregning.input.periodeSlutt,
+                    )
+                }
+
+                nyttKrav.takeIf { it.beregning != gjeldendeKrav.beregning }
+            }
+            .forEach { krav ->
+                refusjonskravRepository.upsert(krav, tx)
+            }
     }
 
     fun createRefusjonskravAft(
+        refusjonskravId: UUID,
         gjennomforingId: UUID,
         periodeStart: LocalDateTime,
         periodeSlutt: LocalDateTime,
     ): RefusjonskravDbo {
-        val refusjonskravId = UUID.randomUUID()
         val frist = periodeSlutt.plusMonths(2)
 
         val deltakere = getDeltakelser(

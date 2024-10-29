@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.api.domain.dto.DeltakerDto
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -51,7 +52,7 @@ class DeltakerRepositoryTest : FunSpec({
             deltakere.upsert(deltaker1)
             deltakere.upsert(deltaker2)
 
-            deltakere.getAll().shouldContainExactly(deltaker1, deltaker2)
+            deltakere.getAll().shouldContainExactly(deltaker1.toDto(), deltaker2.toDto())
 
             val avsluttetDeltaker2 = deltaker2.copy(
                 status = DeltakerStatus(
@@ -62,11 +63,11 @@ class DeltakerRepositoryTest : FunSpec({
             )
             deltakere.upsert(avsluttetDeltaker2)
 
-            deltakere.getAll().shouldContainExactly(deltaker1, avsluttetDeltaker2)
+            deltakere.getAll().shouldContainExactly(deltaker1.toDto(), avsluttetDeltaker2.toDto())
 
             deltakere.delete(deltaker1.id)
 
-            deltakere.getAll().shouldContainExactly(avsluttetDeltaker2)
+            deltakere.getAll().shouldContainExactly(avsluttetDeltaker2.toDto())
         }
 
         test("get by tiltaksgjennomforing") {
@@ -75,11 +76,23 @@ class DeltakerRepositoryTest : FunSpec({
 
             deltakere
                 .getAll(tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id)
-                .shouldContainExactly(deltaker1)
+                .shouldContainExactly(deltaker1.toDto())
 
             deltakere
                 .getAll(tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging2.id)
-                .shouldContainExactly(deltaker2)
+                .shouldContainExactly(deltaker2.toDto())
         }
     }
 })
+
+fun DeltakerDbo.toDto() = DeltakerDto(
+    id = id,
+    gjennomforingId = gjennomforingId,
+    norskIdent = null,
+    startDato = startDato,
+    sluttDato = startDato,
+    registrertTidspunkt = registrertTidspunkt,
+    endretTidspunkt = endretTidspunkt,
+    stillingsprosent = stillingsprosent,
+    status = status,
+)
