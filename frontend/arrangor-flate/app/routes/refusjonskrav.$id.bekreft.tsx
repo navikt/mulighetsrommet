@@ -9,7 +9,6 @@ import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
 import { RefusjonskravDetaljer } from "~/components/refusjonskrav/RefusjonskravDetaljer";
 import React from "react";
 import { Definisjon } from "~/components/Definisjon";
-import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 
 type BekreftRefusjonskravData = {
   krav: Refusjonskrav;
