@@ -31,6 +31,7 @@ export async function loadRefusjonskrav(id: string): Promise<Refusjonskrav> {
       refusjonskravperiode: `${formaterDato(beregning.periodeStart)} - ${formaterDato(beregning.periodeSlutt)}`,
     },
     beregning,
+    betalingsinformasjon: krav.betalingsinformasjon,
     deltakere,
   };
 }

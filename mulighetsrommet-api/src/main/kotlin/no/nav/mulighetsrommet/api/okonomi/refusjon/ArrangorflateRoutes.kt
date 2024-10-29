@@ -5,6 +5,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.plugins.*
+import io.ktor.server.request.receive
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
@@ -17,6 +18,8 @@ import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.services.ArrangorService
+import no.nav.mulighetsrommet.domain.dto.Kid
+import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
@@ -93,8 +96,14 @@ fun Route.arrangorflateRoutes() {
                 val krav = refusjonskrav.get(id)
                     ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
+                val request = call.receive<SetRefusjonKravBetalingsinformasjonRequest>()
 
                 refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now())
+                refusjonskrav.setBetalingsInformasjon(
+                    id,
+                    request.kontonummer,
+                    request.kid,
+                )
 
                 call.respond(HttpStatusCode.OK)
             }
@@ -198,6 +207,7 @@ fun toRefusjonKravOppsummering(
                 antallManedsverk = antallManedsverk,
                 belop = beregning.output.belop,
             ),
+            betalingsinformasjon = krav.betalingsinformasjon,
         )
     }
 }
@@ -214,6 +224,7 @@ data class RefusjonKravAft(
     val arrangor: RefusjonskravDto.Arrangor,
     val deltakelser: List<RefusjonKravDeltakelse>,
     val beregning: Beregning,
+    val betalingsinformasjon: RefusjonskravDto.Betalingsinformasjon,
 ) {
     @Serializable
     data class Beregning(
@@ -245,3 +256,9 @@ data class RefusjonKravDeltakelse(
         val navn: String,
     )
 }
+
+@Serializable
+data class SetRefusjonKravBetalingsinformasjonRequest(
+    val kontonummer: Kontonummer,
+    val kid: Kid?,
+)
