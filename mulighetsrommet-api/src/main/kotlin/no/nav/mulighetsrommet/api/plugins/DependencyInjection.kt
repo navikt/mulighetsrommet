@@ -39,6 +39,7 @@ import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.api.veilederflate.VeilederJoyrideRepository
+import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakRepository
 import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
@@ -188,6 +189,7 @@ private fun repositories() = module {
     single { RefusjonskravRepository(get()) }
     single { UtdanningRepository(get()) }
     single { AltinnRettigheterRepository(get()) }
+    single { VeilederflateTiltakRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
