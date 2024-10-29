@@ -11,6 +11,8 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.okonomi.models.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import no.nav.mulighetsrommet.domain.dto.Kid
+import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import org.junit.jupiter.api.assertThrows
 import java.sql.SQLException
 import java.time.LocalDate
@@ -90,6 +92,8 @@ class RefusjonskravRepositoryTest : FunSpec({
                 gjennomforingId = AFT1.id,
                 fristForGodkjenning = frist,
                 beregning = beregning,
+                kontonummer = Kontonummer("11111111111"),
+                kid = Kid("12345"),
             )
 
             repository.upsert(krav)
@@ -112,6 +116,10 @@ class RefusjonskravRepositoryTest : FunSpec({
                     slettet = ArrangorFixtures.underenhet1.slettetDato != null,
                 ),
                 beregning = beregning,
+                betalingsinformasjon = RefusjonskravDto.Betalingsinformasjon(
+                    kontonummer = Kontonummer("11111111111"),
+                    kid = Kid("12345"),
+                ),
             )
         }
 
@@ -121,6 +129,8 @@ class RefusjonskravRepositoryTest : FunSpec({
                 gjennomforingId = AFT1.id,
                 fristForGodkjenning = LocalDate.of(2024, 10, 1).atStartOfDay(),
                 beregning = beregning,
+                kontonummer = null,
+                kid = null,
             )
 
             repository.upsert(krav)
@@ -158,6 +168,8 @@ class RefusjonskravRepositoryTest : FunSpec({
                         deltakelser = setOf(),
                     ),
                 ),
+                kontonummer = null,
+                kid = null,
             )
 
             assertThrows<SQLException> {
