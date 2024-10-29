@@ -22,9 +22,9 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
-import no.nav.mulighetsrommet.api.veilederflate.BrukerService
-import no.nav.mulighetsrommet.api.veilederflate.getRelevanteEnheterForBruker
-import no.nav.mulighetsrommet.api.veilederflate.oppfolgingsenhetLokalOgUlik
+import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
+import no.nav.mulighetsrommet.api.veilederflate.services.getRelevanteEnheterForBruker
+import no.nav.mulighetsrommet.api.veilederflate.services.oppfolgingsenhetLokalOgUlik
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.exception.StatusException

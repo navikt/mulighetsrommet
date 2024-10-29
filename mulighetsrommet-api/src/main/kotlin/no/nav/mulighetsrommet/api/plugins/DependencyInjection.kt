@@ -38,10 +38,10 @@ import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
-import no.nav.mulighetsrommet.api.veilederflate.BrukerService
-import no.nav.mulighetsrommet.api.veilederflate.DelMedBrukerService
 import no.nav.mulighetsrommet.api.veilederflate.VeilederJoyrideRepository
-import no.nav.mulighetsrommet.api.veilederflate.VeilederflateService
+import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
+import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
+import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.env.NaisEnv

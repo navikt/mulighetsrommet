@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.veilederflate
+package no.nav.mulighetsrommet.api.veilederflate.services
 
 import io.ktor.server.plugins.*
 import kotlinx.serialization.Serializable

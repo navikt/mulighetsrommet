@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.veilederflate
+package no.nav.mulighetsrommet.api.veilederflate.services
 
 import arrow.core.getOrElse
 import io.ktor.http.*

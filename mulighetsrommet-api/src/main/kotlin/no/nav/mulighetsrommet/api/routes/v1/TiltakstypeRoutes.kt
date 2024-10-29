@@ -8,8 +8,8 @@ import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
-import no.nav.mulighetsrommet.api.veilederflate.VeilederflateService
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakstype
+import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
 import org.koin.ktor.ext.inject
 import java.util.*
 
