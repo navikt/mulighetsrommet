@@ -44,7 +44,7 @@ data class RefusjonskravDto(
 
     @Serializable
     data class Betalingsinformasjon(
-        val kontoNummer: String,
+        val kontonummer: String,
         val kid: String?,
 
     )

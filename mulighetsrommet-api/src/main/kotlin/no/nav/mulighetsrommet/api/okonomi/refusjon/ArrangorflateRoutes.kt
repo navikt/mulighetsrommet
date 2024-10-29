@@ -18,6 +18,8 @@ import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.services.ArrangorService
+import no.nav.mulighetsrommet.domain.dto.Kid
+import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
@@ -259,16 +261,16 @@ data class RefusjonKravDeltakelse(
     val manedsverk: Double,
     val person: Person?,
     val veileder: String?,
-)
+) {
+    @Serializable
+    data class Person(
+        val norskIdent: NorskIdent,
+        val navn: String,
+    )
+}
 
 @Serializable
 data class SetRefusjonKravBetalingsinformasjonRequest(
-    val kontonummer: String,
-    val kid: String?,
-)
-
-@Serializable
-data class Person(
-    val norskIdent: NorskIdent,
-    val navn: String,
+    val kontonummer: Kontonummer,
+    val kid: Kid?,
 )

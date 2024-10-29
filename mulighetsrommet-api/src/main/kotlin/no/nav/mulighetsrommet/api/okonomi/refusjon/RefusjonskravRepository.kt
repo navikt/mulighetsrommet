@@ -140,11 +140,14 @@ class RefusjonskravRepository(private val db: Database) {
             where id = :id::uuid
         """.trimIndent()
 
-        queryOf(query, mapOf(
-            "id" to id,
-            "kontoNummer" to kontoNummer,
-            "kid" to kid,
-        ))
+        queryOf(
+            query,
+            mapOf(
+                "id" to id,
+                "kontoNummer" to kontoNummer,
+                "kid" to kid,
+            ),
+        )
             .asUpdate
             .let { db.run(it) }
     }
@@ -237,7 +240,7 @@ class RefusjonskravRepository(private val db: Database) {
             ),
             beregning = beregning,
             betalingsinformasjon = RefusjonskravDto.Betalingsinformasjon(
-                kontoNummer = string("konto_nummer"),
+                kontonummer = string("kontonummer"),
                 kid = stringOrNull("kid"),
             ),
         )
