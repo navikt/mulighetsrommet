@@ -23,41 +23,33 @@ export function RefusjonskravTable({ krav }: Props) {
       <Table aria-label="Refusjonskrav">
         <Table.Header>
           <Table.Row>
-            <Table.HeaderCell scope="col">Periode</Table.HeaderCell>
+            <Table.HeaderCell scope="col">Tiltakstype</Table.HeaderCell>
+            <Table.HeaderCell scope="col">Navn</Table.HeaderCell>
+            <Table.HeaderCell scope="col" colSpan={3}>
+              Periode
+            </Table.HeaderCell>
             <Table.HeaderCell scope="col">Månedsverk</Table.HeaderCell>
             <Table.HeaderCell scope="col">Beløp</Table.HeaderCell>
             <Table.HeaderCell scope="col">Frist for godkjenning</Table.HeaderCell>
             <Table.HeaderCell scope="col">Status</Table.HeaderCell>
             <Table.HeaderCell scope="col"></Table.HeaderCell>
+            <Table.HeaderCell scope="col"></Table.HeaderCell>
           </Table.Row>
         </Table.Header>
-        <div className="not-sr-only mb-5 opacity-0 aria-hidden"></div>
         <Table.Body>
           {krav.map(
-            ({ id, status, fristForGodkjenning, beregning, gjennomforing, tiltakstype }, index) => {
+            ({ id, status, fristForGodkjenning, beregning, gjennomforing, tiltakstype }) => {
               return (
                 <React.Fragment key={id}>
                   <Table.Row
-                    id={`row${index + 1}-header`}
-                    className="border-border-divider border-t-2 border-x-2 border-b-0"
-                  >
-                    <Table.HeaderCell
-                      className="w-full bg-bg-subtle border-b-0"
-                      colSpan={6}
-                      scope="rowgroup"
-                      aria-label={`${tiltakstype.navn} - ${gjennomforing.navn}`}
-                    >
-                      {tiltakstype.navn} - {gjennomforing.navn}
-                    </Table.HeaderCell>
-                  </Table.Row>
-                  <Table.Row
-                    aria-labelledby={`row${index + 1}-header`}
                     className={
                       getRowStyle(status) +
                       " pb-10 border-border-divider border-b-2 border-x-2 border-t-0"
                     }
                   >
-                    <Table.DataCell>
+                    <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
+                    <Table.DataCell>{gjennomforing.navn}</Table.DataCell>
+                    <Table.DataCell colSpan={3}>
                       {`${formaterDato(beregning.periodeStart)} - ${formaterDato(beregning.periodeSlutt)}`}
                     </Table.DataCell>
                     <Table.DataCell>{beregning.antallManedsverk}</Table.DataCell>
@@ -73,7 +65,6 @@ export function RefusjonskravTable({ krav }: Props) {
                       </Link>
                     </Table.DataCell>
                   </Table.Row>
-                  <div className="not-sr-only mb-5 opacity-0 aria-hidden"></div>
                 </React.Fragment>
               );
             },
