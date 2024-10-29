@@ -67,8 +67,6 @@ export const action: ActionFunction = async ({ request }) => {
 export default function BekreftRefusjonskrav() {
   const { krav, tilsagn } = useLoaderData<BekreftRefusjonskravData>();
   const data = useActionData<typeof action>();
-  const [isEditing, setIsEditing] = React.useState(false);
-  const [kontonummer, setKontoNummer] = React.useState(krav.betalingsinformasjon?.kontonummer);
 
   return (
     <>
@@ -87,26 +85,19 @@ export default function BekreftRefusjonskrav() {
             <input
               type="text"
               name="kontonummer"
-              className={"border border-[#0214317D] rounded-md " + (isEditing ? "" : "hidden")}
-              value={kontonummer}
-              onChange={(e) => setKontoNummer(e.target.value)}
+              className="border border-[#0214317D] rounded-md"
+              defaultValue={krav.betalingsinformasjon?.kontonummer}
             />
-            <span className={"ml-4 cursor-pointer " + (isEditing ? "hidden" : "")}>
-              {kontonummer && formaterKontoNummer(kontonummer)}
-            </span>
-            <span
-              className="ml-4 text-text-action cursor-pointer"
-              onClick={() => {
-                setIsEditing(!isEditing);
-              }}
-            >
-              Endre
-            </span>
           </Definisjon>
           <Definisjon label="Evt KID nr for refusjonskrav" className="my-4 flex">
             <div className="flex">
               <span>{krav.betalingsinformasjon.kid}</span>
-              <input type="text" name="kid" className="border border-[#0214317D] rounded-md" />
+              <input
+                type="text"
+                name="kid"
+                className="border border-[#0214317D] rounded-md"
+                defaultValue={krav.betalingsinformasjon?.kid}
+              />
             </div>
           </Definisjon>
           <VStack gap="2" justify={"start"} align={"start"}>
