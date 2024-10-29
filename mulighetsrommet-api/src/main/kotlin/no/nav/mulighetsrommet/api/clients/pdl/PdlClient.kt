@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.clients.pdl
 
 import arrow.core.Either
+import arrow.core.NonEmptySet
 import arrow.core.left
 import arrow.core.right
 import com.github.benmanes.caffeine.cache.Cache
@@ -123,7 +124,7 @@ class PdlClient(
             }
     }
 
-    suspend fun hentPersonBolk(identer: Set<PdlIdent>): Either<PdlError, Map<PdlIdent, PdlPerson>> {
+    suspend fun hentPersonBolk(identer: NonEmptySet<PdlIdent>): Either<PdlError, Map<PdlIdent, PdlPerson>> {
         val request = GraphqlRequest(
             query = """
                 query(${'$'}identer: [ID!]!) {

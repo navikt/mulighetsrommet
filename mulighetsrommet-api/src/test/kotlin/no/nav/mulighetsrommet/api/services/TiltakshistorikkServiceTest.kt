@@ -1,16 +1,14 @@
 package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
-import arrow.core.right
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.*
-import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
-import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
-import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
-import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
+import no.nav.mulighetsrommet.api.clients.pdl.*
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.Deltakelse
@@ -21,6 +19,8 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk.Arrangor
 import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk.Gjennomforing
+import no.nav.mulighetsrommet.ktor.createMockEngine
+import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -142,7 +142,28 @@ class TiltakshistorikkServiceTest : FunSpec({
         innsoktDato = null,
     )
 
-    val pdlClient: PdlClient = mockk()
+    val pdlClient: PdlClient = PdlClient(
+        baseUrl = "https://pdl.no",
+        tokenProvider = { "token" },
+        clientEngine = createMockEngine(
+            "/graphql" to {
+                val content = GraphqlResponse<HentIdenterResponse>(
+                    data = HentIdenterResponse(
+                        hentIdenter = HentIdenterResponse.Identliste(
+                            listOf(
+                                IdentInformasjon(
+                                    ident = PdlIdent("12345678910"),
+                                    gruppe = IdentGruppe.FOLKEREGISTERIDENT,
+                                    historisk = false,
+                                ),
+                            ),
+                        ),
+                    ),
+                )
+                respondJson(Json.encodeToString(content))
+            },
+        ),
+    )
     val tiltakshistorikkClient: TiltakshistorikkClient = mockk()
     val amtDeltakerClient: AmtDeltakerClient = mockk()
 
@@ -153,14 +174,6 @@ class TiltakshistorikkServiceTest : FunSpec({
         arrangorService = ArrangorService(mockk(), ArrangorRepository(database.db)),
         tiltakstypeRepository = TiltakstypeRepository(database.db),
     )
-
-    coEvery { pdlClient.hentHistoriskeIdenter(any(), any()) } returns listOf(
-        IdentInformasjon(
-            ident = PdlIdent("12345678910"),
-            gruppe = IdentGruppe.FOLKEREGISTERIDENT,
-            historisk = false,
-        ),
-    ).right()
 
     beforeAny {
         MulighetsrommetTestDomain(

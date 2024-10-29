@@ -1,12 +1,11 @@
 package no.nav.mulighetsrommet.api.clients.pdl
 
+import arrow.core.nonEmptySetOf
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
-import io.ktor.client.engine.mock.*
-import io.ktor.http.*
 import io.ktor.http.content.*
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.ktor.createMockEngine
@@ -207,7 +206,7 @@ class PdlClientTest : FunSpec({
     }
 
     test("happy case hentPersonBolk") {
-        val identer = setOf(PdlIdent("12345678910"), PdlIdent("12345678911"), PdlIdent("test"))
+        val identer = nonEmptySetOf(PdlIdent("12345678910"), PdlIdent("12345678911"), PdlIdent("test"))
 
         val pdlClient = PdlClient(
             baseUrl = "https://pdl.no",

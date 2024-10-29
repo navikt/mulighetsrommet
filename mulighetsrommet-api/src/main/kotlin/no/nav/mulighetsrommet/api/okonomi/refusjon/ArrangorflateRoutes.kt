@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.okonomi.refusjon
 
 import arrow.core.getOrElse
+import arrow.core.toNonEmptySetOrNull
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -211,7 +212,11 @@ private suspend fun getPersoner(
     pdl: PdlClient,
     deltakere: List<DeltakerDto>,
 ): Map<NorskIdent, RefusjonKravDeltakelse.Person> {
-    val identer = deltakere.mapNotNull { deltaker -> deltaker.norskIdent?.value?.let { PdlIdent(it) } }.toSet()
+    val identer = deltakere
+        .mapNotNull { deltaker -> deltaker.norskIdent?.value?.let { PdlIdent(it) } }
+        .toNonEmptySetOrNull()
+        ?: return mapOf()
+
     return pdl.hentPersonBolk(identer)
         .map {
             it.entries
