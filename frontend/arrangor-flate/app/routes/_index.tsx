@@ -1,4 +1,4 @@
-import { ArrangorflateService, RefusjonKravAft, RefusjonskravStatus } from "@mr/api-client";
+import { ArrangorflateService, RefusjonKravKompakt, RefusjonskravStatus } from "@mr/api-client";
 import { Tabs } from "@navikt/ds-react";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -26,7 +26,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function TilsagnDetaljer() {
   const { krav, tilsagn } = useLoaderData<typeof loader>();
-  const historiske: RefusjonKravAft[] = krav.filter(
+  const historiske: RefusjonKravKompakt[] = krav.filter(
     (k) => k.status === RefusjonskravStatus.GODKJENT_AV_ARRANGOR,
   );
   const aktive = krav.filter((k) => k.status !== RefusjonskravStatus.GODKJENT_AV_ARRANGOR);
