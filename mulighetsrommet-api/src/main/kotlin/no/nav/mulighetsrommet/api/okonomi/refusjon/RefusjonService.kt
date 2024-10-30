@@ -94,6 +94,8 @@ class RefusjonService(
             fristForGodkjenning = frist,
             gjennomforingId = gjennomforingId,
             beregning = beregning,
+            kontonummer = null,
+            kid = null,
         )
     }
 

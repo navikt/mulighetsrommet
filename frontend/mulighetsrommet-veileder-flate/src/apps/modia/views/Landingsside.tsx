@@ -16,6 +16,7 @@ import {
   Skeleton,
   Tabs,
   VStack,
+  Button,
 } from "@navikt/ds-react";
 import { ReactNode, Suspense, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
@@ -26,7 +27,7 @@ import styles from "./Landingsside.module.scss";
 import { DelMedBrukerHistorikk } from "../delMedBruker/DelMedBrukerHistorikk";
 import { useLogEvent } from "@/logging/amplitude";
 import ingenFunnImg from "public/ingen-funn.svg";
-import { DeltakelserMelding } from "@mr/api-client";
+import { Deltakelse, DeltakelserMelding } from "@mr/api-client";
 import { TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL } from "@/constants";
 
 function Feilmelding({ message }: { message: string }) {
@@ -211,7 +212,30 @@ function DeltakelserAktive() {
 }
 
 function DeltakelserHistoriske() {
+  const { logEvent } = useLogEvent();
   const { data } = useTiltakshistorikkForBruker("HISTORISKE");
+  const [yngreEnn5aar, eldreEnn5aar] = data.deltakelser.reduce<[Deltakelse[], Deltakelse[]]>(
+    ([yngre, eldre], deltakelse) => {
+      return isYngreEnn5aar(deltakelse)
+        ? [[...yngre, deltakelse], eldre]
+        : [yngre, [...eldre, deltakelse]];
+    },
+    [[], []],
+  );
+  const [visAlle, setVisAlle] = useState<boolean>(false);
+
+  function isYngreEnn5aar(deltakelse: Deltakelse): boolean {
+    const femAarSiden = new Date();
+    femAarSiden.setFullYear(new Date().getFullYear() - 5);
+
+    const dato =
+      deltakelse.periode.sluttDato ??
+      deltakelse.periode.startDato ??
+      deltakelse.innsoktDato ??
+      deltakelse.sistEndretDato;
+
+    return dato ? new Date(dato) > femAarSiden : false;
+  }
 
   return (
     <Container>
@@ -221,16 +245,36 @@ function DeltakelserHistoriske() {
       {data.meldinger.includes(DeltakelserMelding.MANGLER_DELTAKELSER_FRA_TEAM_TILTAK) && (
         <ManglerDeltakelserFraTeamTiltakMelding />
       )}
-      {data.deltakelser.map((deltakelse) => {
+      {yngreEnn5aar.map((deltakelse) => {
         return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} />;
       })}
-      {data.deltakelser.length === 0 && (
+      {yngreEnn5aar.length === 0 && eldreEnn5aar.length === 0 && (
         <IngenFunnetBox title="Brukeren har ingen tidligere tiltak" />
       )}
+      {eldreEnn5aar.length > 0 && (
+        <HStack justify="start">
+          <Button
+            size="small"
+            onClick={() => {
+              logEvent({
+                name: "arbeidsmarkedstiltak.historikk.vis-all-historikk",
+              });
+              setVisAlle(!visAlle);
+            }}
+            variant="tertiary"
+          >
+            {visAlle ? "Vis bare nyeste tiltak" : "Se hele historikken"}
+          </Button>
+        </HStack>
+      )}
+      {visAlle &&
+        eldreEnn5aar.length > 0 &&
+        eldreEnn5aar.map((deltakelse) => {
+          return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} />;
+        })}
       {data.meldinger.includes(DeltakelserMelding.HENTER_IKKE_DELTAKELSER_FRA_TEAM_TILTAK) && (
         <HenterIkkeDeltakelserFraTeamTiltakMeling />
       )}
-      <Alert variant="info">Vi viser bare historikk 5 år tilbake i tid.</Alert>
     </Container>
   );
 }

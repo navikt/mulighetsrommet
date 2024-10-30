@@ -1886,6 +1886,14 @@ paths:
         - $ref: "#/components/parameters/ID"
       tags:
         - Arrangorflate
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Betalingsinformasjon"
+        required: true
+
       operationId: godkjennRefusjonskrav
       responses:
         200:
@@ -4923,6 +4931,8 @@ components:
             $ref: "#/components/schemas/RefusjonKravDeltakelse"
         beregning:
           $ref: "#/components/schemas/RefusjonKravAftBeregning"
+        betalingsinformasjon:
+          $ref: "#/components/schemas/Betalingsinformasjon"
       required:
         - type
         - id
@@ -4933,6 +4943,7 @@ components:
         - arrangor
         - deltakelser
         - beregning
+        - betalingsinformasjon
 
     RefusjonKravTiltakstype:
       type: object
@@ -5160,3 +5171,13 @@ components:
         - arrangor
         - beregning
         - id
+
+    Betalingsinformasjon:
+      type: object
+      properties:
+        kontonummer:
+          type: string
+        kid:
+          type: string
+      required:
+        - kontonummer

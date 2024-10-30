@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.pamOntologi.PamOntologiClient
+import no.nav.mulighetsrommet.api.clients.pdl.HentPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
@@ -225,7 +226,7 @@ private fun services(appConfig: AppConfig) = module {
             tokenProvider = cachedTokenProvider.withScope(appConfig.pdl.scope),
         )
     }
-
+    single { HentPersonBolkPdlQuery(get()) }
     single<PoaoTilgangClient> {
         PoaoTilgangHttpClient(
             baseUrl = appConfig.poaoTilgang.url,
