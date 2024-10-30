@@ -14,7 +14,7 @@ class HentPersonBolkPdlQueryTest : FunSpec({
         val identer = nonEmptySetOf(PdlIdent("12345678910"), PdlIdent("12345678911"), PdlIdent("test"))
 
         val pdl = PdlClient(
-            baseUrl = "https://pdl.no",
+            config = PdlClient.Config(baseUrl = "https://pdl.no"),
             tokenProvider = { "token" },
             clientEngine = createMockEngine(
                 "/graphql" to {
@@ -66,12 +66,9 @@ class HentPersonBolkPdlQueryTest : FunSpec({
         val response = query.hentPersonBolk(identer).shouldBeRight()
 
         response shouldBe mapOf(
-            PdlIdent("12345678910") to PdlPerson(
+            PdlIdent("12345678910") to HentPersonBolkResponse.Person(
                 navn = listOf(
-                    PdlPerson.PdlNavn(
-                        fornavn = "Ola",
-                        etternavn = "Normann",
-                    ),
+                    PdlNavn(fornavn = "Ola", etternavn = "Normann"),
                 ),
             ),
         )

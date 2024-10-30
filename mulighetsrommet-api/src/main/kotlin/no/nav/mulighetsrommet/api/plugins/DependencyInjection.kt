@@ -222,7 +222,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single {
         PdlClient(
-            baseUrl = appConfig.pdl.url,
+            config = PdlClient.Config(appConfig.pdl.url, maxRetries = 3),
             tokenProvider = cachedTokenProvider.withScope(appConfig.pdl.scope),
         )
     }
