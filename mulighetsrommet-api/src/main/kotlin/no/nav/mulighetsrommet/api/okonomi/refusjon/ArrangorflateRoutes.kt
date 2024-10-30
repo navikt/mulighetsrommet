@@ -264,14 +264,12 @@ private fun toRefusjonskravPerson(person: HentPersonBolkResponse.Person) =
     when (person.adressebeskyttelse.first().gradering) {
         PdlGradering.UGRADERT -> {
             val navn = person.navn.first().let { navn ->
-                val fornavnOgMellomnavn = listOfNotNull(navn.fornavn, navn.mellomnavn)
-                    .joinToString(" ")
-                    .takeIf { it.isNotEmpty() }
-                listOfNotNull(navn.etternavn, fornavnOgMellomnavn).joinToString(", ")
+                val fornavnOgMellomnavn = listOfNotNull(navn.fornavn, navn.mellomnavn).joinToString(" ")
+                listOf(navn.etternavn, fornavnOgMellomnavn).joinToString(", ")
             }
             val foedselsdato = person.foedselsdato.first()
             RefusjonKravDeltakelse.Person(
-                navn = navn ?: "Mangler navn",
+                navn = navn,
                 fodselsaar = foedselsdato.foedselsaar,
                 fodselsdato = foedselsdato.foedselsdato,
             )
