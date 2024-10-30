@@ -63,7 +63,6 @@ class DeltakerRepositoryTest : FunSpec({
         beskrivelse = "Arbeidstrening hos Fretex",
         arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
         registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-
     )
     val mentorArenaDeltakelse = ArenaDeltakerDbo(
         id = UUID.randomUUID(),
@@ -93,6 +92,7 @@ class DeltakerRepositoryTest : FunSpec({
                 status = ArenaDeltakerStatus.GJENNOMFORES,
                 beskrivelse = "Mentortiltak hos Joblearn",
                 arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                registrertTidspunkt = LocalDateTime.of(2002, 1, 1, 0, 0, 0),
             ),
             Tiltakshistorikk.ArenaDeltakelse(
                 id = arbeidstreningArenaDeltakelse.id,
@@ -103,6 +103,7 @@ class DeltakerRepositoryTest : FunSpec({
                 sluttDato = LocalDate.of(2024, 1, 31),
                 beskrivelse = "Arbeidstrening hos Fretex",
                 arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                registrertTidspunkt = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
             ),
         )
 
@@ -118,6 +119,7 @@ class DeltakerRepositoryTest : FunSpec({
                 sluttDato = LocalDate.of(2024, 1, 31),
                 beskrivelse = "Arbeidstrening hos Fretex",
                 arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                registrertTidspunkt = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
             ),
         )
 
@@ -151,6 +153,7 @@ class DeltakerRepositoryTest : FunSpec({
                     tiltakskode = gruppetiltak.tiltakstype.tiltakskode,
                 ),
                 arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                registrertTidspunkt = LocalDateTime.of(2022, 1, 1, 0, 0),
             ),
         )
     }

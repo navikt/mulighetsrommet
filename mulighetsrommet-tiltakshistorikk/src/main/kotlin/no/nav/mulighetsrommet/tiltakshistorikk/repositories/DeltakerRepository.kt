@@ -67,7 +67,8 @@ class DeltakerRepository(private val db: Database) {
                     start_dato,
                     slutt_dato,
                     beskrivelse,
-                    arrangor_organisasjonsnummer
+                    arrangor_organisasjonsnummer,
+                    registrert_i_arena_dato
                 from arena_deltaker
                 where norsk_ident = any(:identer)
                 and (:max_age_years::integer is null or age(coalesce(slutt_dato, registrert_i_arena_dato)) < make_interval(years => :max_age_years::integer))
@@ -154,6 +155,7 @@ class DeltakerRepository(private val db: Database) {
                     deltaker.status_type,
                     deltaker.status_aarsak,
                     deltaker.status_opprettet_dato,
+                    deltaker.registrert_dato,
                     gruppetiltak.id as gruppetiltak_id,
                     gruppetiltak.navn as gruppetiltak_navn,
                     gruppetiltak.tiltakskode as gruppetiltak_tiltakskode,
@@ -208,6 +210,7 @@ private fun Row.toArenaDeltakelse() = Tiltakshistorikk.ArenaDeltakelse(
     arrangor = Tiltakshistorikk.Arrangor(
         organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
     ),
+    registrertTidspunkt = localDateTime("registrert_i_arena_dato"),
 )
 
 private fun AmtDeltakerV1Dto.toSqlParameters() = mapOf(
@@ -245,4 +248,5 @@ private fun Row.toGruppetiltakDeltakelse() = Tiltakshistorikk.GruppetiltakDeltak
     arrangor = Tiltakshistorikk.Arrangor(
         organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
     ),
+    registrertTidspunkt = localDateTime("registrert_dato"),
 )

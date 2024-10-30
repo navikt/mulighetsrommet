@@ -4,8 +4,10 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
@@ -14,6 +16,7 @@ sealed class Tiltakshistorikk {
     abstract val opphav: Opphav
     abstract val startDato: LocalDate?
     abstract val sluttDato: LocalDate?
+    abstract val registrertTidspunkt: LocalDateTime
 
     enum class Opphav {
         ARENA,
@@ -47,6 +50,8 @@ sealed class Tiltakshistorikk {
         override val startDato: LocalDate?,
         @Serializable(with = LocalDateSerializer::class)
         override val sluttDato: LocalDate?,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        override val registrertTidspunkt: LocalDateTime,
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val arenaTiltakskode: String,
@@ -65,6 +70,8 @@ sealed class Tiltakshistorikk {
         override val startDato: LocalDate?,
         @Serializable(with = LocalDateSerializer::class)
         override val sluttDato: LocalDate?,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        override val registrertTidspunkt: LocalDateTime,
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val status: DeltakerStatus,
@@ -82,6 +89,8 @@ sealed class Tiltakshistorikk {
         override val startDato: LocalDate?,
         @Serializable(with = LocalDateSerializer::class)
         override val sluttDato: LocalDate?,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        override val registrertTidspunkt: LocalDateTime,
         @Serializable(with = UUIDSerializer::class)
         val avtaleId: UUID,
         val tiltakstype: Tiltakstype,

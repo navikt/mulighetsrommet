@@ -142,6 +142,7 @@ class TiltakshistorikkTest : FunSpec({
                         sluttDato = LocalDate.of(2024, 2, 29),
                         beskrivelse = "Mentortiltak hos Joblearn",
                         arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                        registrertTidspunkt = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
                     ),
                     Tiltakshistorikk.ArenaDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
@@ -152,6 +153,7 @@ class TiltakshistorikkTest : FunSpec({
                         sluttDato = LocalDate.of(2024, 1, 31),
                         beskrivelse = "Arbeidstrening hos Fretex",
                         arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                        registrertTidspunkt = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
                     ),
                     Tiltakshistorikk.ArbeidsgiverAvtale(
                         norskIdent = NorskIdent("12345678910"),
@@ -161,6 +163,7 @@ class TiltakshistorikkTest : FunSpec({
                         tiltakstype = Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING,
                         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
                         arbeidsgiver = Tiltakshistorikk.Arbeidsgiver(Organisasjonsnummer("123456789")),
+                        registrertTidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
                     ),
                     Tiltakshistorikk.GruppetiltakDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
@@ -178,6 +181,7 @@ class TiltakshistorikkTest : FunSpec({
                             tiltakskode = Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
                         ),
                         arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                        registrertTidspunkt = LocalDateTime.of(2002, 3, 1, 0, 0, 0),
                     ),
                 )
             }

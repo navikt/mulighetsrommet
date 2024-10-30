@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
+import java.time.ZoneId
 
 class TiltakshistorikkService(
     private val deltakerRepository: DeltakerRepository,
@@ -105,4 +106,5 @@ private fun toTiltakshistorikk(avtale: Avtale) = Tiltakshistorikk.ArbeidsgiverAv
         Avtale.Status.AVSLUTTET -> ArbeidsgiverAvtaleStatus.AVSLUTTET
     },
     arbeidsgiver = Tiltakshistorikk.Arbeidsgiver(organisasjonsnummer = avtale.bedriftNr),
+    registrertTidspunkt = avtale.registrertTidspunkt.withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime(),
 )
