@@ -17,7 +17,7 @@ export function Arrangorvelger({ arrangorer }: Props) {
       hideLabel
       name="orgnr"
       onChange={(e) => {
-        navigate(`refusjonskrav/${e.target.value}`);
+        navigate(`${e.target.value}/refusjonskrav`);
       }}
     >
       {arrangorer.map((arrangor) => (

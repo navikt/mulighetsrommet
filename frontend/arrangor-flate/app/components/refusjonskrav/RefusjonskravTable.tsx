@@ -3,13 +3,15 @@ import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, Table, Tag } from "@navikt/ds-react";
 import { Link } from "@remix-run/react";
 import React, { ReactNode } from "react";
-import { formaterDato } from "~/utils";
+import { formaterDato, useOrgnrFromUrl } from "~/utils";
+import { internalNavigation } from "../../internal-navigation";
 
 interface Props {
   krav: RefusjonKravAft[];
 }
 
 export function RefusjonskravTable({ krav }: Props) {
+  const orgnr = useOrgnrFromUrl();
   if (krav.length === 0) {
     return (
       <Alert className="my-10" variant="info">
@@ -58,7 +60,7 @@ export function RefusjonskravTable({ krav }: Props) {
                     <Table.DataCell>
                       <Link
                         className="hover:underline font-bold no-underline"
-                        to={`${id}/for-du-begynner`}
+                        to={internalNavigation(orgnr).forDuBegynner(id)}
                       >
                         Detaljer
                       </Link>

@@ -2,6 +2,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "@remi
 import { redirect } from "@remix-run/node";
 import { hentArrangortilgangerForBruker } from "../auth/arrangortilgang.server";
 import { checkValidToken, setupOpenApi } from "../auth/auth.server";
+import { internalNavigation } from "../internal-navigation";
 
 export const meta: MetaFunction = () => {
   return [
@@ -29,7 +30,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const arrangorer = await hentArrangortilgangerForBruker();
 
   if (!orgnr && arrangorer.length > 0 && url.pathname === "/") {
-    return redirect(`/refusjonskrav/${arrangorer[0].organisasjonsnummer}`);
+    return redirect(internalNavigation(arrangorer[0].organisasjonsnummer).refusjonskravliste);
   }
 
   return null;

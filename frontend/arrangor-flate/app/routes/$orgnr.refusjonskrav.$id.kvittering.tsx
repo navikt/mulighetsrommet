@@ -10,6 +10,8 @@ import { checkValidToken } from "~/auth/auth.server";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
 import { RefusjonskravDetaljer } from "~/components/refusjonskrav/RefusjonskravDetaljer";
+import { internalNavigation } from "../internal-navigation";
+import { useOrgnrFromUrl } from "../utils";
 
 type RefusjonskavKvitteringData = {
   krav: Refusjonskrav;
@@ -36,7 +38,8 @@ export const loader: LoaderFunction = async ({
 
 export default function RefusjonskravKvittering() {
   const { krav, tilsagn } = useLoaderData<RefusjonskavKvitteringData>();
-  const { orgnr, id } = useParams();
+  const { id } = useParams();
+  const orgnr = useOrgnrFromUrl();
 
   return (
     <>
@@ -44,7 +47,7 @@ export default function RefusjonskravKvittering() {
         title="Kvittering"
         tilbakeLenke={{
           navn: "Tilbake til refusjonskravliste",
-          url: `/refusjonskrav/${orgnr}`,
+          url: internalNavigation(orgnr).refusjonskravliste,
         }}
       />
       <Separator />
@@ -71,7 +74,12 @@ export default function RefusjonskravKvittering() {
           ]}
         />
         <VStack align={"start"}>
-          <Button className="" as="a" href={`/refusjonskrav/${orgnr}`} variant="secondary">
+          <Button
+            className=""
+            as="a"
+            href={internalNavigation(orgnr).refusjonskravliste}
+            variant="secondary"
+          >
             Tilbake til refusjonskravliste
           </Button>
         </VStack>

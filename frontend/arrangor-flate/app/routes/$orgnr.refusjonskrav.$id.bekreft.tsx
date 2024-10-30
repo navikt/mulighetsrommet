@@ -8,6 +8,8 @@ import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
 import { RefusjonskravDetaljer } from "~/components/refusjonskrav/RefusjonskravDetaljer";
 import { useOrgnrFromUrl } from "../utils";
+import { internalNavigation } from "../internal-navigation";
+import invariant from "tiny-invariant";
 
 type BekreftRefusjonskravData = {
   krav: Refusjonskrav;
@@ -35,8 +37,8 @@ export const loader: LoaderFunction = async ({
 export const action: ActionFunction = async ({ request }) => {
   const formdata = await request.formData();
   const bekreftelse = formdata.get("bekreftelse");
-  const refusjonskravId = formdata.get("refusjonskravId");
-  const orgnr = formdata.get("orgnr");
+  const refusjonskravId = formdata.get("refusjonskravId")?.toString();
+  const orgnr = formdata.get("orgnr")?.toString();
 
   if (!bekreftelse) {
     return json({ error: "Du må bekrefte at opplysningene er korrekte" }, { status: 400 });
@@ -46,11 +48,13 @@ export const action: ActionFunction = async ({ request }) => {
     return json({ error: "Mangler refusjonskravId" }, { status: 400 });
   }
 
+  invariant(orgnr, "Mangler orgnr");
+
   await ArrangorflateService.godkjennRefusjonskrav({
     id: refusjonskravId as string,
   });
 
-  return redirect(`/refusjonskrav/${orgnr}/${refusjonskravId}/kvittering`);
+  return redirect(internalNavigation(orgnr).kvittering(refusjonskravId));
 };
 
 export default function BekreftRefusjonskrav() {

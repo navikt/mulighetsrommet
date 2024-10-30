@@ -11,6 +11,7 @@ import { formaterDato, useOrgnrFromUrl } from "~/utils";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { GenerelleDetaljer } from "~/components/refusjonskrav/GenerelleDetaljer";
 import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
+import { internalNavigation } from "../internal-navigation";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Refusjon" }, { name: "description", content: "Refusjonsdetaljer" }];
@@ -132,7 +133,7 @@ export default function RefusjonskravBeregning() {
         <Button
           as={Link}
           className="justify-self-end"
-          to={`/refusjonskrav/${orgnr}/}${krav.id}/bekreft`}
+          to={internalNavigation(orgnr).bekreft(krav.id)}
         >
           Neste
         </Button>
