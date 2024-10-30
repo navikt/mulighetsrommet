@@ -79,7 +79,7 @@ class HentAdressebeskyttetPersonBolkPdlQueryTest : FunSpec({
                 navn = nonEmptyListOf(
                     PdlNavn(fornavn = "Ola", etternavn = "Normann"),
                 ),
-                adressebeskyttelse = nonEmptyListOf(
+                adressebeskyttelse = listOf(
                     HentPersonBolkResponse.Adressebeskyttelse(gradering = PdlGradering.STRENGT_FORTROLIG),
                 ),
                 foedselsdato = nonEmptyListOf(
@@ -146,7 +146,7 @@ class HentAdressebeskyttetPersonBolkPdlQueryTest : FunSpec({
                 navn = nonEmptyListOf(
                     PdlNavn(fornavn = "Ola", etternavn = "Normann"),
                 ),
-                adressebeskyttelse = nonEmptyListOf(
+                adressebeskyttelse = listOf(
                     HentPersonBolkResponse.Adressebeskyttelse(gradering = PdlGradering.UGRADERT),
                 ),
                 foedselsdato = nonEmptyListOf(
