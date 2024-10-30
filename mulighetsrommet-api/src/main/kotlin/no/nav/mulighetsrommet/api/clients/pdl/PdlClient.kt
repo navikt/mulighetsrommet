@@ -27,16 +27,20 @@ import java.util.concurrent.TimeUnit
 const val VALP_BEHANDLINGSNUMMER: String = "B450"
 
 class PdlClient(
-    private val baseUrl: String,
+    private val config: Config,
     private val tokenProvider: TokenProvider,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
+    data class Config(
+        val baseUrl: String,
+        val maxRetries: Int = 0,
+    )
     private val log = LoggerFactory.getLogger(javaClass)
 
     private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
         install(HttpRequestRetry) {
-            retryOnException(maxRetries = 3, retryOnTimeout = true)
+            retryOnException(maxRetries = config.maxRetries, retryOnTimeout = true)
             exponentialDelay()
         }
         install(HttpTimeout) {
@@ -175,7 +179,7 @@ class PdlClient(
         req: GraphqlRequest<T>,
         accessType: AccessType,
     ): Either<PdlError, V> {
-        val response = client.post("$baseUrl/graphql") {
+        val response = client.post("${config.baseUrl}/graphql") {
             bearerAuth(tokenProvider.exchange(accessType))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             header("Behandlingsnummer", VALP_BEHANDLINGSNUMMER)
