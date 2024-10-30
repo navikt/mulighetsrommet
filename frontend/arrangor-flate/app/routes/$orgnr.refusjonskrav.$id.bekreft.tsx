@@ -39,7 +39,7 @@ export const loader: LoaderFunction = async ({
 export const action: ActionFunction = async ({ request }) => {
   const formdata = await request.formData();
   const bekreftelse = formdata.get("bekreftelse");
-  const refusjonskravId = formdata.get("refusjonskravId").toString();
+  const refusjonskravId = formdata.get("refusjonskravId")?.toString();
   const kontonummer = formdata.get("kontonummer");
   const kid = formdata.get("kid");
   const orgnr = formdata.get("orgnr")?.toString();

@@ -1886,15 +1886,13 @@ paths:
         - $ref: "#/components/parameters/ID"
       tags:
         - Arrangorflate
-
+      operationId: godkjennRefusjonskrav
       requestBody:
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/Betalingsinformasjon"
         required: true
-
-      operationId: godkjennRefusjonskrav
       responses:
         200:
           description: Godkjenn et refusjonskrav
