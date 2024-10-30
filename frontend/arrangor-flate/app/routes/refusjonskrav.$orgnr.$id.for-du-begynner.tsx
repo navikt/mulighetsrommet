@@ -1,8 +1,8 @@
 import { Button, GuidePanel, Heading, HGrid, List } from "@navikt/ds-react";
-import { json, Link, MetaFunction, useParams } from "@remix-run/react";
-import { PageHeader } from "../components/PageHeader";
-import { checkValidToken } from "../auth/auth.server";
 import { LoaderFunction } from "@remix-run/node";
+import { json, Link, MetaFunction, useParams } from "@remix-run/react";
+import { checkValidToken } from "../auth/auth.server";
+import { PageHeader } from "../components/PageHeader";
 
 export const meta: MetaFunction = () => {
   return [
@@ -18,7 +18,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<objec
 };
 
 export default function ForDuBegynner() {
-  const { id } = useParams();
+  const { id, orgnr } = useParams();
   return (
     <>
       <PageHeader
@@ -36,7 +36,11 @@ export default function ForDuBegynner() {
             <List.Item>Og for øvrig kan man gjøre som man vil</List.Item>
           </List>
         </GuidePanel>
-        <Button as={Link} className="justify-self-end" to={`/refusjonskrav/${id}/beregning`}>
+        <Button
+          as={Link}
+          className="justify-self-end"
+          to={`/refusjonskrav/${orgnr}/${id}/beregning`}
+        >
           Neste
         </Button>
       </HGrid>

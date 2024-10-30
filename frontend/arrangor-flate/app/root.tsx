@@ -20,26 +20,30 @@ import css from "./root.module.css";
 import { Dekoratørfragmenter, hentSsrDekoratør } from "./services/dekoratør/dekorator.server";
 import useInjectDecoratorScript from "./services/dekoratør/useInjectScript";
 import "./tailwind.css";
+import { hentArrangortilgangerForBruker } from "./auth/arrangortilgang.server";
 
 export const meta: MetaFunction = () => [{ title: "Refusjoner" }];
 
 export const loader: LoaderFunction = async ({ request }) => {
   await checkValidToken(request);
+  const arrangortilganger = await hentArrangortilgangerForBruker();
 
   return json({
     dekorator: await hentSsrDekoratør(),
+    arrangortilganger,
   });
 };
 
 export type LoaderData = {
   dekorator: Dekoratørfragmenter | null;
+  arrangortilganger: { navn: string; organisasjonsnummer: string }[]; // TODO Bytt til modell fra OpenAPI
 };
 
 function App() {
-  const { dekorator } = useLoaderData<LoaderData>();
+  const { dekorator, arrangortilganger } = useLoaderData<LoaderData>();
 
   return (
-    <Dokument dekorator={dekorator || undefined}>
+    <Dokument dekorator={dekorator || undefined} arrangorer={arrangortilganger}>
       <Outlet />
     </Dokument>
   );
@@ -48,9 +52,11 @@ function App() {
 function Dokument({
   dekorator,
   children,
+  arrangorer,
 }: {
   dekorator?: Dekoratørfragmenter;
   children: ReactNode;
+  arrangorer: { navn: string; organisasjonsnummer: string }[]; // TODO Bytt til modell fra OpenAPI
 }) {
   useInjectDecoratorScript(dekorator?.scripts);
   return (
@@ -64,14 +70,7 @@ function Dokument({
       </head>
       <body>
         {dekorator && parse(dekorator.header)}
-        <Header />
-        <Alert variant="warning">
-          Dette er en tjeneste under utvikling - Kontakt{" "}
-          <a href="https://teamkatalog.nav.no/team/aa730c95-b437-497b-b1ae-0ccf69a10997">
-            Team Valp
-          </a>{" "}
-          ved spørsmål
-        </Alert>
+        <Header arrangorer={arrangorer} />
         <main className={css.side}>{children}</main>
         <ScrollRestoration />
         <Scripts />
@@ -92,7 +91,7 @@ export const ErrorBoundary = () => {
 
   if (isRouteErrorResponse(error)) {
     return (
-      <Dokument>
+      <Dokument arrangorer={[]}>
         <Heading spacing size="large" level="2">
           {error.status}
         </Heading>
@@ -104,7 +103,7 @@ export const ErrorBoundary = () => {
     );
   } else {
     return (
-      <Dokument>
+      <Dokument arrangorer={[]}>
         <Heading spacing size="large" level="2">
           Ojsann!
         </Heading>

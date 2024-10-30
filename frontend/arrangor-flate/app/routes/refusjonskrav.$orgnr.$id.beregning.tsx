@@ -7,7 +7,7 @@ import { checkValidToken } from "~/auth/auth.server";
 import { useState } from "react";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
-import { formaterDato } from "~/utils";
+import { formaterDato, useOrgnrFromUrl } from "~/utils";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { GenerelleDetaljer } from "~/components/refusjonskrav/GenerelleDetaljer";
 import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
@@ -42,6 +42,7 @@ enum DeltakerSortKey {
 }
 
 export default function RefusjonskravBeregning() {
+  const orgnr = useOrgnrFromUrl();
   const { krav } = useLoaderData<LoaderData>();
   const [sort, setSort] = useState<DeltakerSortState | undefined>();
 
@@ -128,7 +129,11 @@ export default function RefusjonskravBeregning() {
             },
           ]}
         />
-        <Button as={Link} className="justify-self-end" to={`/refusjonskrav/${krav.id}/bekreft`}>
+        <Button
+          as={Link}
+          className="justify-self-end"
+          to={`/refusjonskrav/${orgnr}/}${krav.id}/bekreft`}
+        >
           Neste
         </Button>
       </HGrid>

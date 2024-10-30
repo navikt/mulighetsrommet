@@ -7,6 +7,7 @@ import { checkValidToken } from "~/auth/auth.server";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
 import { RefusjonskravDetaljer } from "~/components/refusjonskrav/RefusjonskravDetaljer";
+import { useOrgnrFromUrl } from "../utils";
 
 type BekreftRefusjonskravData = {
   krav: Refusjonskrav;
@@ -35,6 +36,7 @@ export const action: ActionFunction = async ({ request }) => {
   const formdata = await request.formData();
   const bekreftelse = formdata.get("bekreftelse");
   const refusjonskravId = formdata.get("refusjonskravId");
+  const orgnr = formdata.get("orgnr");
 
   if (!bekreftelse) {
     return json({ error: "Du må bekrefte at opplysningene er korrekte" }, { status: 400 });
@@ -48,12 +50,13 @@ export const action: ActionFunction = async ({ request }) => {
     id: refusjonskravId as string,
   });
 
-  return redirect(`/refusjonskrav/${refusjonskravId}/kvittering`);
+  return redirect(`/refusjonskrav/${orgnr}/${refusjonskravId}/kvittering`);
 };
 
 export default function BekreftRefusjonskrav() {
   const { krav, tilsagn } = useLoaderData<BekreftRefusjonskravData>();
   const data = useActionData<typeof action>();
+  const orgnr = useOrgnrFromUrl();
 
   return (
     <>
@@ -61,7 +64,7 @@ export default function BekreftRefusjonskrav() {
         title="Detaljer for refusjonskrav"
         tilbakeLenke={{
           navn: "Tilbake til deltakerliste",
-          url: `/refusjonskrav/${krav.id}`,
+          url: `/refusjonskrav/${orgnr}/${krav.id}`,
         }}
       />
       <VStack className="max-w-[50%]" gap="5">
@@ -73,6 +76,7 @@ export default function BekreftRefusjonskrav() {
               Det erklæres herved at alle opplysninger er gitt i henhold til de faktiske forhold
             </Checkbox>
             <input type="hidden" name="refusjonskravId" value={krav.id} />
+            <input type="hidden" name="orgnr" value={orgnr} />
             {data?.error && <Alert variant="error">{data.error}</Alert>}
             <Button type="submit">Bekreft og send refusjonskrav</Button>
           </VStack>

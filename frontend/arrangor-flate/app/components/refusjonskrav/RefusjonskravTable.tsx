@@ -1,9 +1,9 @@
 import { RefusjonKravAft, RefusjonskravStatus } from "@mr/api-client";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, Table, Tag } from "@navikt/ds-react";
 import { Link } from "@remix-run/react";
 import React, { ReactNode } from "react";
 import { formaterDato } from "~/utils";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
 
 interface Props {
   krav: RefusjonKravAft[];
@@ -41,25 +41,24 @@ export function RefusjonskravTable({ krav }: Props) {
             ({ id, status, fristForGodkjenning, beregning, gjennomforing, tiltakstype }) => {
               return (
                 <React.Fragment key={id}>
-                  <Table.Row
-                    className={
-                      getRowStyle(status) +
-                      " pb-10 border-border-divider border-b-2 border-x-2 border-t-0"
-                    }
-                  >
+                  <Table.Row className={getRowStyle(status)}>
                     <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
                     <Table.DataCell>{gjennomforing.navn}</Table.DataCell>
                     <Table.DataCell colSpan={3}>
                       {`${formaterDato(beregning.periodeStart)} - ${formaterDato(beregning.periodeSlutt)}`}
                     </Table.DataCell>
-                    <Table.DataCell>{beregning.antallManedsverk}</Table.DataCell>
-                    <Table.DataCell>{formaterNOK(beregning.belop)}</Table.DataCell>
+                    <Table.DataCell className="text-right">
+                      {beregning.antallManedsverk}
+                    </Table.DataCell>
+                    <Table.DataCell className="text-right">
+                      {formaterNOK(beregning.belop)}
+                    </Table.DataCell>
                     <Table.DataCell>{formaterDato(fristForGodkjenning)}</Table.DataCell>
                     <Table.DataCell>{statusTilTag(status)}</Table.DataCell>
                     <Table.DataCell>
                       <Link
                         className="hover:underline font-bold no-underline"
-                        to={`/refusjonskrav/${id}/for-du-begynner`}
+                        to={`${id}/for-du-begynner`}
                       >
                         Detaljer
                       </Link>
