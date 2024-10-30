@@ -12,7 +12,6 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.clients.pdl.HentPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.domain.dto.DeltakerDto
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
@@ -51,7 +50,7 @@ fun Route.arrangorflateRoutes() {
     val refusjonskrav: RefusjonskravRepository by inject()
     val deltakerRepository: DeltakerRepository by inject()
 
-    val pdl: HentPersonBolkPdlQuery by inject()
+    val pdl: HentAdressebeskyttetPersonBolkPdlQuery by inject()
 
     suspend fun <T : Any> PipelineContext<T, ApplicationCall>.arrangorerMedTilgang(): List<UUID> {
         return call.principal<ArrangorflatePrincipal>()
@@ -165,7 +164,7 @@ fun Route.arrangorflateRoutes() {
 }
 
 suspend fun toRefusjonskrav(
-    pdl: HentPersonBolkPdlQuery,
+    pdl: HentAdressebeskyttetPersonBolkPdlQuery,
     deltakerRepository: DeltakerRepository,
     krav: RefusjonskravDto,
 ) = when (val beregning = krav.beregning) {
@@ -219,7 +218,7 @@ suspend fun toRefusjonskrav(
 }
 
 private suspend fun getPersoner(
-    pdl: HentPersonBolkPdlQuery,
+    pdl: HentAdressebeskyttetPersonBolkPdlQuery,
     deltakere: List<DeltakerDto>,
 ): Map<NorskIdent, RefusjonKravDeltakelse.Person> {
     val identer = deltakere

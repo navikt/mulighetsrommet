@@ -40,3 +40,10 @@ enum class TypeGeografiskTilknytning {
     UDEFINERT,
     UTLAND,
 }
+
+enum class PdlGradering {
+    FORTROLIG,
+    STRENGT_FORTROLIG,
+    STRENGT_FORTROLIG_UTLAND,
+    UGRADERT,
+}
