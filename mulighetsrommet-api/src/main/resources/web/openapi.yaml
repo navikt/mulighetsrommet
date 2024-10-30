@@ -5028,16 +5028,19 @@ components:
         - id
         - perioder
         - manedsverk
+        - person
 
     RefusjonKravDeltakelsePerson:
       type: object
       properties:
-        norskIdent:
-          type: string
         navn:
           type: string
+        fodselsdato:
+          type: string
+          format: date
+        fodselsaar:
+          type: integer
       required:
-        - norskIdent
         - navn
 
     RefusjonKravDeltakelsePeriode:

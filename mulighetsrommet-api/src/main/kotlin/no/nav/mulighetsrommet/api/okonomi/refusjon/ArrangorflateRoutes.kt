@@ -6,12 +6,13 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.plugins.*
-import io.ktor.server.request.receive
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.domain.dto.DeltakerDto
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
@@ -228,16 +229,12 @@ private suspend fun getPersoner(
 
     return pdl.hentPersonBolk(identer)
         .map {
-            it.entries
-                .mapNotNull { (ident, person) ->
-                    person.navn.firstOrNull()?.let { navn ->
-                        RefusjonKravDeltakelse.Person(
-                            norskIdent = NorskIdent(ident.value),
-                            navn = "${navn.etternavn}, ${navn.fornavn}",
-                        )
-                    }
+            buildMap {
+                it.entries.forEach { (ident, person) ->
+                    val refusjonskravPerson = toRefusjonskravPerson(person)
+                    put(NorskIdent(ident.value), refusjonskravPerson)
                 }
-                .associateBy { person -> person.norskIdent }
+            }
         }
         .getOrElse {
             throw StatusException(
@@ -246,6 +243,30 @@ private suspend fun getPersoner(
             )
         }
 }
+
+private fun toRefusjonskravPerson(person: HentPersonBolkResponse.Person) =
+    when (person.adressebeskyttelse.gradering) {
+        PdlGradering.UGRADERT -> {
+            val navn = person.navn.firstOrNull()?.let { navn ->
+                val fornavnOgMellomnavn = listOfNotNull(navn.fornavn, navn.mellomnavn)
+                    .joinToString(" ")
+                    .takeIf { it.isNotEmpty() }
+                listOfNotNull(navn.etternavn, fornavnOgMellomnavn).joinToString(", ")
+            }
+            val foedselsdato = person.foedselsdato.firstOrNull()
+            RefusjonKravDeltakelse.Person(
+                navn = navn ?: "Mangler navn",
+                fodselsaar = foedselsdato?.foedselsaar,
+                fodselsdato = foedselsdato?.foedselsdato,
+            )
+        }
+
+        else -> RefusjonKravDeltakelse.Person(
+            navn = "Adressebeskyttet",
+            fodselsaar = null,
+            fodselsdato = null,
+        )
+    }
 
 @Serializable
 data class RefusjonKravAft(
@@ -287,8 +308,10 @@ data class RefusjonKravDeltakelse(
 ) {
     @Serializable
     data class Person(
-        val norskIdent: NorskIdent,
         val navn: String,
+        @Serializable(with = LocalDateSerializer::class)
+        val fodselsdato: LocalDate?,
+        val fodselsaar: Int?,
     )
 }
 

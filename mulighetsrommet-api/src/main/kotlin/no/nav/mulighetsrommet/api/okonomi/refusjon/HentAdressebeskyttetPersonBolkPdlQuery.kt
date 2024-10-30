@@ -79,7 +79,7 @@ data class HentPersonBolkResponse(
 
     @Serializable
     data class Adressebeskyttelse(
-        val gradering: PdlGradering?,
+        val gradering: PdlGradering = PdlGradering.UGRADERT,
     )
 
     @Serializable
