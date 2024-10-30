@@ -76,8 +76,7 @@ data class HentPersonBolkResponse(
     data class Person(
         @Serializable(with = NonEmptyListSerializer::class)
         val navn: NonEmptyList<PdlNavn>,
-        @Serializable(with = NonEmptyListSerializer::class)
-        val adressebeskyttelse: NonEmptyList<Adressebeskyttelse>,
+        val adressebeskyttelse: List<Adressebeskyttelse>,
         @Serializable(with = NonEmptyListSerializer::class)
         val foedselsdato: NonEmptyList<Foedselsdato>,
     )

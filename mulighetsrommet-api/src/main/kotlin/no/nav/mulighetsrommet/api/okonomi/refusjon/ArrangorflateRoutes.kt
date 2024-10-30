@@ -260,8 +260,9 @@ private suspend fun getPersoner(
         }
 }
 
-private fun toRefusjonskravPerson(person: HentPersonBolkResponse.Person) =
-    when (person.adressebeskyttelse.first().gradering) {
+private fun toRefusjonskravPerson(person: HentPersonBolkResponse.Person): RefusjonKravDeltakelse.Person {
+    val gradering = person.adressebeskyttelse.firstOrNull()?.gradering ?: PdlGradering.UGRADERT
+    return when (gradering) {
         PdlGradering.UGRADERT -> {
             val navn = person.navn.first().let { navn ->
                 val fornavnOgMellomnavn = listOfNotNull(navn.fornavn, navn.mellomnavn).joinToString(" ")
@@ -281,6 +282,7 @@ private fun toRefusjonskravPerson(person: HentPersonBolkResponse.Person) =
             fodselsdato = null,
         )
     }
+}
 
 @Serializable
 data class RefusjonKravKompakt(
