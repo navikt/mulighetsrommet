@@ -56,12 +56,24 @@
     <table class="block">
         <tbody>
         <tr>
+            <th>Antall plasser:</th>
+            <td>{{ tilsagnDetails.antallPlasser }}</td>
+        </tr>
+        <tr>
+            <th>Pris per plass:</th>
+            <td>kr {{ currency_no tilsagnDetails.prisPerPlass }}</td>
+        </tr>
+        <tr>
             <th>Tilsagnsbeløp:</th>
             <td>kr {{ currency_no beregning.belop }}</td>
         </tr>
         <tr>
             <th>Tilsagnsperiode:</th>
             <td>{{ iso_to_nor_date beregning.periodeStart }} - {{ iso_to_nor_date beregning.periodeSlutt }}</td>
+        </tr>
+        <tr>
+            <th>Sum utbetalt så langt:</th>
+            <td>kr {{currency_no tilsagnDetails.sumUtbetalt}}</td>
         </tr>
         </tbody>
     </table>

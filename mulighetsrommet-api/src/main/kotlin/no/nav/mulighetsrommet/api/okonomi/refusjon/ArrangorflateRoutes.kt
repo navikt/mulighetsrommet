@@ -122,13 +122,11 @@ fun Route.arrangorflateRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val krav = refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
                 val oppsummering = toRefusjonskrav(pdl, deltakerRepository, krav)
-                // Config to handle date times
                 val mapper = ObjectMapper().apply {
                     registerModule(JavaTimeModule())
                     disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                     registerKotlinModule()
                 }
-                println(oppsummering)
                 val jsonNode: JsonNode = mapper.valueToTree<JsonNode>(oppsummering)
                 val pdfBytes: ByteArray = createPDFA("refusjon-kvittering", "refusjon", jsonNode) ?: throw Exception("Kunne ikke generere PDF")
 
