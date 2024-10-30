@@ -103,6 +103,7 @@ class TiltakshistorikkService(
             tiltakstypeNavn = tiltakstype.navn,
             innsoktDato = null,
             sistEndretDato = null,
+            registrertTidspunkt = registrertTidspunkt,
             eierskap = Deltakelse.Eierskap.ARENA,
         )
     }
@@ -131,6 +132,7 @@ class TiltakshistorikkService(
             tiltakstypeNavn = tiltakstype.await().navn,
             innsoktDato = null,
             sistEndretDato = null,
+            registrertTidspunkt = registrertTidspunkt,
             /**
              * Eierskapet er satt til ARENA selv om deltakelsene kommer fra Komet.
              * Det er først når deltakelsen også er tilgjengelig fra [AmtDeltakerClient.hentDeltakelser]
@@ -166,6 +168,7 @@ class TiltakshistorikkService(
             tiltakstypeNavn = tiltakstype.navn,
             innsoktDato = null,
             sistEndretDato = null,
+            registrertTidspunkt = registrertTidspunkt,
             eierskap = Deltakelse.Eierskap.TEAM_TILTAK,
         )
     }
@@ -255,6 +258,7 @@ fun DeltakelseFraKomet.toDeltakelse(): Deltakelse {
         ),
         innsoktDato = innsoktDato,
         sistEndretDato = sistEndretDato,
+        registrertTidspunkt = null,
     )
 }
 
@@ -280,16 +284,18 @@ data class Deltakelser(
 }
 
 /**
- * Sorterer deltakelser basert på nyeste startdato først
+ * Sorterer deltakelser basert på registrertDato som alle untatt de hentet fra Komet sitt
+ * http endepunkt har. De fallbacker på sistEndret
+ *
  */
 private val deltakelseComparator: Comparator<Deltakelse> = Comparator { a, b ->
-    val startDatoA = a.periode.startDato
-    val startDatoB = b.periode.startDato
+    val datoA = a.registrertTidspunkt?.toLocalDate() ?: a.sistEndretDato
+    val datoB = b.registrertTidspunkt?.toLocalDate() ?: b.sistEndretDato
 
     when {
-        startDatoA === startDatoB -> 0
-        startDatoA == null -> -1
-        startDatoB == null -> 1
-        else -> startDatoB.compareTo(startDatoA)
+        datoA === datoB -> 0
+        datoA == null -> -1
+        datoB == null -> 1
+        else -> datoB.compareTo(datoA)
     }
 }

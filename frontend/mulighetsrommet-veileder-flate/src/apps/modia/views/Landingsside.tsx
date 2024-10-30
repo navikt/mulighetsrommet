@@ -231,6 +231,7 @@ function DeltakelserHistoriske() {
     const dato =
       deltakelse.periode.sluttDato ??
       deltakelse.periode.startDato ??
+      deltakelse.registrertTidspunkt ??
       deltakelse.innsoktDato ??
       deltakelse.sistEndretDato;
 

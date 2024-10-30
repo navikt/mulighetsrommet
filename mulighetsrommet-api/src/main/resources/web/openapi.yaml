@@ -3019,6 +3019,9 @@ components:
           type: string
         sistEndretDato:
           type: string
+        registrertTidspunkt:
+          format: date-time
+          type: string
         periode:
           $ref: "#/components/schemas/DeltakelsePeriode"
         status:
@@ -3076,6 +3079,9 @@ components:
         innsoktDato:
           type: string
         sistEndretDato:
+          type: string
+        registrertTidspunkt:
+          format: date-time
           type: string
         periode:
           $ref: "#/components/schemas/DeltakelsePeriode"
@@ -3136,6 +3142,9 @@ components:
         innsoktDato:
           type: string
         sistEndretDato:
+          type: string
+        registrertTidspunkt:
+          format: date-time
           type: string
         periode:
           $ref: "#/components/schemas/DeltakelsePeriode"

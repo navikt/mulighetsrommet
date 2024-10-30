@@ -5,8 +5,10 @@ import no.nav.mulighetsrommet.domain.dto.ArbeidsgiverAvtaleStatus
 import no.nav.mulighetsrommet.domain.dto.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
@@ -17,6 +19,7 @@ sealed class Deltakelse {
     abstract val tiltakstypeNavn: String
     abstract val innsoktDato: LocalDate?
     abstract val sistEndretDato: LocalDate?
+    abstract val registrertTidspunkt: LocalDateTime?
     abstract val periode: Periode
 
     @Serializable
@@ -45,6 +48,8 @@ sealed class Deltakelse {
         override val innsoktDato: LocalDate?,
         @Serializable(with = LocalDateSerializer::class)
         override val sistEndretDato: LocalDate?,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        override val registrertTidspunkt: LocalDateTime,
         override val periode: Periode,
         val status: Status,
     ) : Deltakelse() {
@@ -66,6 +71,8 @@ sealed class Deltakelse {
         override val innsoktDato: LocalDate?,
         @Serializable(with = LocalDateSerializer::class)
         override val sistEndretDato: LocalDate?,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        override val registrertTidspunkt: LocalDateTime?,
         override val periode: Periode,
         val status: Status,
         @Serializable(with = UUIDSerializer::class)
@@ -90,6 +97,8 @@ sealed class Deltakelse {
         override val innsoktDato: LocalDate?,
         @Serializable(with = LocalDateSerializer::class)
         override val sistEndretDato: LocalDate?,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        override val registrertTidspunkt: LocalDateTime,
         override val periode: Periode,
         val status: Status,
     ) : Deltakelse() {

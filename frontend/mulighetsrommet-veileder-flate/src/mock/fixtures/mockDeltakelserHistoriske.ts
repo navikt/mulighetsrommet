@@ -98,6 +98,21 @@ export const deltakelserHistoriske: Deltakelse[] = [
     periode: {},
   },
   {
+    tittel: "Gammel Avklaring med Sluttdato",
+    tiltakstypeNavn: "Avklaring",
+    id: window.crypto.randomUUID(),
+    gjennomforingId: tiltakAvklaring.id,
+    status: {
+      type: GruppetiltakDeltakerStatus.FULLFORT,
+      visningstekst: "Fullført",
+    },
+    innsoktDato: "2017-02-03",
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
+    periode: {
+      sluttDato: '2018-01-01',
+    },
+  },
+  {
     tittel: "Gammel Avklaring med Anne",
     tiltakstypeNavn: "Avklaring",
     id: window.crypto.randomUUID(),
@@ -107,6 +122,19 @@ export const deltakelserHistoriske: Deltakelse[] = [
       visningstekst: "Fullført",
     },
     innsoktDato: "2017-02-03",
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
+    periode: {},
+  },
+  {
+    tittel: "Gammel Avklaring med kun registrert dato",
+    tiltakstypeNavn: "Avklaring",
+    id: window.crypto.randomUUID(),
+    gjennomforingId: tiltakAvklaring.id,
+    status: {
+      type: GruppetiltakDeltakerStatus.FULLFORT,
+      visningstekst: "Fullført",
+    },
+    registrertTidspunkt: '2016-01-01',
     eierskap: DeltakelseEierskap.TEAM_KOMET,
     periode: {},
   },

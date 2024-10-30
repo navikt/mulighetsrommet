@@ -47,6 +47,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         startDato = LocalDate.of(2018, 12, 3),
         sluttDato = LocalDate.of(2019, 12, 3),
         arrangor = Arrangor(ArrangorFixtures.underenhet1.organisasjonsnummer),
+        registrertTidspunkt = LocalDateTime.of(2018, 12, 3, 0, 0),
     )
 
     val tiltakshistorikkAvklaring = Tiltakshistorikk.ArenaDeltakelse(
@@ -58,6 +59,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         arenaTiltakskode = TiltakstypeFixtures.Avklaring.arenaKode,
         beskrivelse = "Avklaring",
         arrangor = Arrangor(Organisasjonsnummer("123456789")),
+        registrertTidspunkt = LocalDateTime.of(2018, 12, 3, 0, 0),
     )
 
     val tiltakshistorikkArbeidstrening = Tiltakshistorikk.ArbeidsgiverAvtale(
@@ -68,6 +70,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         tiltakstype = Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING,
         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
         arbeidsgiver = Tiltakshistorikk.Arbeidsgiver(ArrangorFixtures.underenhet2.organisasjonsnummer),
+        registrertTidspunkt = LocalDateTime.of(2020, 1, 1, 0, 0),
     )
 
     val deltakelseOppfolgingFraKomet = DeltakelseFraKomet(
@@ -108,6 +111,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
         sistEndretDato = LocalDate.of(2018, 12, 5),
         innsoktDato = LocalDate.of(2018, 12, 3),
+        registrertTidspunkt = null,
     )
     val deltakelseAvklaring = Deltakelse.DeltakelseArena(
         id = tiltakshistorikkAvklaring.id,
@@ -124,6 +128,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
         sistEndretDato = null,
         innsoktDato = null,
+        registrertTidspunkt = LocalDateTime.of(2018, 12, 3, 0, 0),
     )
     val deltakelseArbeidstrening = Deltakelse.DeltakelseArbeidsgiverAvtale(
         id = tiltakshistorikkArbeidstrening.avtaleId,
@@ -140,6 +145,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
         sistEndretDato = null,
         innsoktDato = null,
+        registrertTidspunkt = LocalDateTime.of(2020, 1, 1, 0, 0),
     )
 
     val pdlClient: PdlClient = mockk()
@@ -260,21 +266,18 @@ class TiltakshistorikkServiceTest : FunSpec({
         )
     }
 
-    test("sorterer deltakelser basert nyeste startdato") {
+    test("sorteres i riktig prioritet") {
         coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
-            historikk = listOf(tiltakshistorikkAvklaring, tiltakshistorikkOppfolging),
+            historikk = listOf(
+                tiltakshistorikkArbeidstrening.copy(sluttDato = LocalDate.of(2023, 1, 2)),
+                tiltakshistorikkAvklaring.copy(sluttDato = LocalDate.of(2023, 1, 1)),
+            ),
             meldinger = setOf(),
-        )
-
-        val deltakelseOppfolgingUtenStartdato = deltakelseOppfolgingFraKomet.copy(
-            deltakerId = UUID.randomUUID(),
-            status = DeltakelseFraKomet.Status(type = DeltakerStatus.Type.KLADD, visningstekst = "Kladd"),
-            periode = null,
         )
 
         coEvery { amtDeltakerClient.hentDeltakelser(any(), any()) } returns Either.Right(
             DeltakelserResponse(
-                aktive = listOf(deltakelseOppfolgingFraKomet, deltakelseOppfolgingUtenStartdato),
+                aktive = listOf(deltakelseOppfolgingFraKomet.copy(periode = null, sistEndretDato = LocalDate.of(2024, 2, 2))),
                 historikk = emptyList(),
             ),
         )
@@ -286,14 +289,36 @@ class TiltakshistorikkServiceTest : FunSpec({
             AccessType.OBO("token"),
         )
 
-        historikk shouldBe Deltakelser(
-            meldinger = setOf(),
-            aktive = listOf(
-                deltakelseOppfolgingUtenStartdato.toDeltakelse(),
-                deltakelseOppfolging,
-                deltakelseAvklaring,
+        historikk.aktive.map { it.id } shouldBe listOf(
+            deltakelseOppfolgingFraKomet.deltakerId,
+            deltakelseArbeidstrening.id,
+            deltakelseAvklaring.id,
+        )
+    }
+
+    test("sorteres etter startdato når sluttdato er null") {
+        coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
+            historikk = listOf(
+                tiltakshistorikkArbeidstrening.copy(startDato = LocalDate.of(2023, 1, 3), sluttDato = null),
+                tiltakshistorikkOppfolging.copy(sluttDato = LocalDate.of(2023, 1, 2)),
+                tiltakshistorikkAvklaring.copy(startDato = LocalDate.of(2023, 1, 1), sluttDato = null),
             ),
-            historiske = emptyList(),
+            meldinger = setOf(),
+        )
+        coEvery { amtDeltakerClient.hentDeltakelser(any(), any()) } returns Either.Right(
+            DeltakelserResponse(aktive = emptyList(), historikk = emptyList()),
+        )
+
+        val historikkService = createTiltakshistorikkService()
+        val historikk = historikkService.hentHistorikk(
+            NorskIdent("12345678910"),
+            AccessType.OBO("token"),
+        )
+
+        historikk.aktive.map { it.id } shouldBe listOf(
+            deltakelseArbeidstrening.id,
+            deltakelseOppfolging.id,
+            deltakelseAvklaring.id,
         )
     }
 })
