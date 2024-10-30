@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.clients.pdl
 
+import arrow.core.nonEmptyListOf
 import arrow.core.nonEmptySetOf
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
@@ -12,7 +13,7 @@ import no.nav.mulighetsrommet.api.okonomi.refusjon.HentPersonBolkResponse
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 
-class HentPersonBolkPdlQueryTest : FunSpec({
+class HentAdressebeskyttetPersonBolkPdlQueryTest : FunSpec({
     test("happy case hentPersonBolk") {
         val identer = nonEmptySetOf(PdlIdent("12345678910"), PdlIdent("12345678911"), PdlIdent("test"))
 
@@ -39,9 +40,11 @@ class HentPersonBolkPdlQueryTest : FunSpec({
                                                      "etternavn": "Normann"
                                                  }
                                              ],
-                                             "adressebeskyttelse": {
-                                                 "gradering": "STRENGT_FORTROLIG"
-                                             },
+                                             "adressebeskyttelse": [
+                                                 {
+                                                     "gradering": "STRENGT_FORTROLIG"
+                                                 }
+                                             ],
                                              "foedselsdato": [
                                                  {
                                                      "foedselsaar": 1980,
@@ -73,17 +76,14 @@ class HentPersonBolkPdlQueryTest : FunSpec({
 
         query.hentPersonBolk(identer) shouldBeRight mapOf(
             PdlIdent("12345678910") to HentPersonBolkResponse.Person(
-                navn = listOf(
+                navn = nonEmptyListOf(
                     PdlNavn(fornavn = "Ola", etternavn = "Normann"),
                 ),
-                adressebeskyttelse = HentPersonBolkResponse.Adressebeskyttelse(
-                    gradering = PdlGradering.STRENGT_FORTROLIG,
+                adressebeskyttelse = nonEmptyListOf(
+                    HentPersonBolkResponse.Adressebeskyttelse(gradering = PdlGradering.STRENGT_FORTROLIG),
                 ),
-                foedselsdato = listOf(
-                    HentPersonBolkResponse.Foedselsdato(
-                        foedselsaar = 1980,
-                        foedselsdato = null,
-                    ),
+                foedselsdato = nonEmptyListOf(
+                    HentPersonBolkResponse.Foedselsdato(foedselsaar = 1980, foedselsdato = null),
                 ),
             ),
         )
@@ -100,13 +100,36 @@ class HentPersonBolkPdlQueryTest : FunSpec({
                                     {
                                         "ident": "12345678910",
                                         "person": {
-                                             "navn": [],
-                                             "adressebeskyttelse": {
-                                                 "gradering": null
-                                             },
-                                             "foedselsdato": []
+                                             "navn": [
+                                                 {
+                                                     "fornavn": "Ola",
+                                                     "mellomnavn": null,
+                                                     "etternavn": "Normann"
+                                                 }
+                                             ],
+                                             "adressebeskyttelse": [
+                                                 {
+                                                     "gradering": null
+                                                 }
+                                             ],
+                                             "foedselsdato": [
+                                                 {
+                                                     "foedselsaar": 1980,
+                                                     "foedselsdato": null
+                                                 }
+                                             ]
                                         },
                                         "code": "ok"
+                                    },
+                                    {
+                                        "ident": "12345678911",
+                                        "person": null,
+                                        "code": "not_found"
+                                    },
+                                    {
+                                        "ident": "test",
+                                        "person": null,
+                                        "code": "bad_request"
                                     }
                                 ]
                             }
@@ -120,11 +143,15 @@ class HentPersonBolkPdlQueryTest : FunSpec({
 
         query.hentPersonBolk(nonEmptySetOf(PdlIdent("12345678910"))) shouldBeRight mapOf(
             PdlIdent("12345678910") to HentPersonBolkResponse.Person(
-                navn = listOf(),
-                adressebeskyttelse = HentPersonBolkResponse.Adressebeskyttelse(
-                    gradering = PdlGradering.UGRADERT,
+                navn = nonEmptyListOf(
+                    PdlNavn(fornavn = "Ola", etternavn = "Normann"),
                 ),
-                foedselsdato = listOf(),
+                adressebeskyttelse = nonEmptyListOf(
+                    HentPersonBolkResponse.Adressebeskyttelse(gradering = PdlGradering.UGRADERT),
+                ),
+                foedselsdato = nonEmptyListOf(
+                    HentPersonBolkResponse.Foedselsdato(foedselsaar = 1980, foedselsdato = null),
+                ),
             ),
         )
     }
