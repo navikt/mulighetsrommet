@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
+import no.nav.mulighetsrommet.api.okonomi.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.okonomi.refusjon.RefusjonService
 import no.nav.mulighetsrommet.api.okonomi.refusjon.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnRepository
@@ -221,11 +222,11 @@ private fun services(appConfig: AppConfig) = module {
     }
     single {
         PdlClient(
-            baseUrl = appConfig.pdl.url,
+            config = PdlClient.Config(appConfig.pdl.url, maxRetries = 3),
             tokenProvider = cachedTokenProvider.withScope(appConfig.pdl.scope),
         )
     }
-
+    single { HentAdressebeskyttetPersonBolkPdlQuery(get()) }
     single<PoaoTilgangClient> {
         PoaoTilgangHttpClient(
             baseUrl = appConfig.poaoTilgang.url,

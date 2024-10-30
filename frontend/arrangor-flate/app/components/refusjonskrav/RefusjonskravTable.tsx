@@ -1,4 +1,4 @@
-import { RefusjonKravAft, RefusjonskravStatus } from "@mr/api-client";
+import { RefusjonKravKompakt, RefusjonskravStatus } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, Table, Tag } from "@navikt/ds-react";
 import { Link } from "@remix-run/react";
@@ -7,7 +7,7 @@ import { formaterDato, useOrgnrFromUrl } from "~/utils";
 import { internalNavigation } from "../../internal-navigation";
 
 interface Props {
-  krav: RefusjonKravAft[];
+  krav: RefusjonKravKompakt[];
 }
 
 export function RefusjonskravTable({ krav }: Props) {
@@ -30,7 +30,6 @@ export function RefusjonskravTable({ krav }: Props) {
             <Table.HeaderCell scope="col" colSpan={3}>
               Periode
             </Table.HeaderCell>
-            <Table.HeaderCell scope="col">Månedsverk</Table.HeaderCell>
             <Table.HeaderCell scope="col">Beløp</Table.HeaderCell>
             <Table.HeaderCell scope="col">Frist for godkjenning</Table.HeaderCell>
             <Table.HeaderCell scope="col">Status</Table.HeaderCell>
@@ -46,15 +45,10 @@ export function RefusjonskravTable({ krav }: Props) {
                   <Table.Row className={getRowStyle(status)}>
                     <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
                     <Table.DataCell>{gjennomforing.navn}</Table.DataCell>
-                    <Table.DataCell colSpan={3}>
+                    <Table.DataCell colSpan={3} className="w-80">
                       {`${formaterDato(beregning.periodeStart)} - ${formaterDato(beregning.periodeSlutt)}`}
                     </Table.DataCell>
-                    <Table.DataCell className="text-right">
-                      {beregning.antallManedsverk}
-                    </Table.DataCell>
-                    <Table.DataCell className="text-right">
-                      {formaterNOK(beregning.belop)}
-                    </Table.DataCell>
+                    <Table.DataCell className="w-52">{formaterNOK(beregning.belop)}</Table.DataCell>
                     <Table.DataCell>{formaterDato(fristForGodkjenning)}</Table.DataCell>
                     <Table.DataCell>{statusTilTag(status)}</Table.DataCell>
                     <Table.DataCell>

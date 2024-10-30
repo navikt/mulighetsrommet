@@ -1,16 +1,21 @@
 package no.nav.mulighetsrommet.api.okonomi.refusjon
 
 import arrow.core.getOrElse
+import arrow.core.toNonEmptySetOrNull
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.plugins.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
+import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
+import no.nav.mulighetsrommet.api.domain.dto.DeltakerDto
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDto
@@ -18,6 +23,8 @@ import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.services.ArrangorService
+import no.nav.mulighetsrommet.domain.dto.Kid
+import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
@@ -44,6 +51,8 @@ fun Route.arrangorflateRoutes() {
     val arrangorService: ArrangorService by inject()
     val refusjonskrav: RefusjonskravRepository by inject()
     val deltakerRepository: DeltakerRepository by inject()
+
+    val pdl: HentAdressebeskyttetPersonBolkPdlQuery by inject()
 
     suspend fun <T : Any> PipelineContext<T, ApplicationCall>.arrangorIderMedTilgang(): List<UUID> {
         return call.principal<ArrangorflatePrincipal>()
@@ -83,7 +92,7 @@ fun Route.arrangorflateRoutes() {
                 val arrangorIds = arrangorIderMedTilgang()
 
                 val krav = refusjonskrav.getByArrangorIds(arrangorIds)
-                    .map { toRefusjonKravOppsummering(deltakerRepository, it) }
+                    .map { toRefusjonskravKompakt(it) }
 
                 call.respond(krav)
             }
@@ -95,7 +104,7 @@ fun Route.arrangorflateRoutes() {
                     ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
-                val oppsummering = toRefusjonKravOppsummering(deltakerRepository, krav)
+                val oppsummering = toRefusjonskrav(pdl, deltakerRepository, krav)
 
                 call.respond(oppsummering)
             }
@@ -106,8 +115,14 @@ fun Route.arrangorflateRoutes() {
                 val krav = refusjonskrav.get(id)
                     ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
+                val request = call.receive<SetRefusjonKravBetalingsinformasjonRequest>()
 
                 refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now())
+                refusjonskrav.setBetalingsInformasjon(
+                    id,
+                    request.kontonummer,
+                    request.kid,
+                )
 
                 call.respond(HttpStatusCode.OK)
             }
@@ -168,27 +183,43 @@ fun Route.arrangorflateRoutes() {
     }
 }
 
-fun toRefusjonKravOppsummering(
+fun toRefusjonskravKompakt(krav: RefusjonskravDto) = RefusjonKravKompakt(
+    id = krav.id,
+    status = krav.status,
+    fristForGodkjenning = krav.fristForGodkjenning,
+    tiltakstype = krav.tiltakstype,
+    gjennomforing = krav.gjennomforing,
+    arrangor = krav.arrangor,
+    beregning = krav.beregning.let {
+        RefusjonKravKompakt.Beregning(
+            periodeStart = it.input.periodeStart,
+            periodeSlutt = it.input.periodeSlutt,
+            belop = it.output.belop,
+        )
+    },
+)
+
+suspend fun toRefusjonskrav(
+    pdl: HentAdressebeskyttetPersonBolkPdlQuery,
     deltakerRepository: DeltakerRepository,
     krav: RefusjonskravDto,
 ) = when (val beregning = krav.beregning) {
     is RefusjonKravBeregningAft -> {
-        val perioder = beregning.input.deltakelser.associateBy { it.deltakelseId }
-        val manedsverk = beregning.output.deltakelser.associateBy { it.deltakelseId }
-        val deltakere = deltakerRepository.getAll(krav.gjennomforing.id).associateBy { it.id }
+        val deltakere = deltakerRepository.getAll(krav.gjennomforing.id)
 
-        val deltakelser = perioder.map { (id, deltakelse) ->
-            val deltaker = deltakere.getValue(id)
+        val deltakereById = deltakere.associateBy { it.id }
+        val personerByNorskIdent: Map<NorskIdent, RefusjonKravDeltakelse.Person> = getPersoner(pdl, deltakere)
+        val perioderById = beregning.input.deltakelser.associateBy { it.deltakelseId }
+        val manedsverkById = beregning.output.deltakelser.associateBy { it.deltakelseId }
 
-            val person = RefusjonKravDeltakelse.Person(
-                norskIdent = NorskIdent("12345678910"),
-                navn = "TODO TODOESEN",
-            )
-
+        val deltakelser = perioderById.map { (id, deltakelse) ->
+            val deltaker = deltakereById.getValue(id)
+            val manedsverk = manedsverkById.getValue(id).manedsverk
+            val person = personerByNorskIdent[deltaker.norskIdent]
             RefusjonKravDeltakelse(
                 id = id,
                 perioder = deltakelse.perioder,
-                manedsverk = manedsverk.getValue(id).manedsverk,
+                manedsverk = manedsverk,
                 startDato = deltaker.startDato,
                 sluttDato = deltaker.startDato,
                 person = person,
@@ -217,8 +248,80 @@ fun toRefusjonKravOppsummering(
                 antallManedsverk = antallManedsverk,
                 belop = beregning.output.belop,
             ),
+            betalingsinformasjon = krav.betalingsinformasjon,
         )
     }
+}
+
+private suspend fun getPersoner(
+    pdl: HentAdressebeskyttetPersonBolkPdlQuery,
+    deltakere: List<DeltakerDto>,
+): Map<NorskIdent, RefusjonKravDeltakelse.Person> {
+    val identer = deltakere
+        .mapNotNull { deltaker -> deltaker.norskIdent?.value?.let { PdlIdent(it) } }
+        .toNonEmptySetOrNull()
+        ?: return mapOf()
+
+    return pdl.hentPersonBolk(identer)
+        .map {
+            buildMap {
+                it.entries.forEach { (ident, person) ->
+                    val refusjonskravPerson = toRefusjonskravPerson(person)
+                    put(NorskIdent(ident.value), refusjonskravPerson)
+                }
+            }
+        }
+        .getOrElse {
+            throw StatusException(
+                status = HttpStatusCode.InternalServerError,
+                description = "Klarte ikke hente informasjon om deltakere i refusjonskravet.",
+            )
+        }
+}
+
+private fun toRefusjonskravPerson(person: HentPersonBolkResponse.Person) =
+    when (person.adressebeskyttelse.first().gradering) {
+        PdlGradering.UGRADERT -> {
+            val navn = person.navn.first().let { navn ->
+                val fornavnOgMellomnavn = listOfNotNull(navn.fornavn, navn.mellomnavn).joinToString(" ")
+                listOf(navn.etternavn, fornavnOgMellomnavn).joinToString(", ")
+            }
+            val foedselsdato = person.foedselsdato.first()
+            RefusjonKravDeltakelse.Person(
+                navn = navn,
+                fodselsaar = foedselsdato.foedselsaar,
+                fodselsdato = foedselsdato.foedselsdato,
+            )
+        }
+
+        else -> RefusjonKravDeltakelse.Person(
+            navn = "Adressebeskyttet",
+            fodselsaar = null,
+            fodselsdato = null,
+        )
+    }
+
+@Serializable
+data class RefusjonKravKompakt(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val status: RefusjonskravStatus,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val fristForGodkjenning: LocalDateTime,
+    val tiltakstype: RefusjonskravDto.Tiltakstype,
+    val gjennomforing: RefusjonskravDto.Gjennomforing,
+    val arrangor: RefusjonskravDto.Arrangor,
+    val beregning: Beregning,
+) {
+
+    @Serializable
+    data class Beregning(
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val periodeStart: LocalDateTime,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val periodeSlutt: LocalDateTime,
+        val belop: Int,
+    )
 }
 
 @Serializable
@@ -233,6 +336,7 @@ data class RefusjonKravAft(
     val arrangor: RefusjonskravDto.Arrangor,
     val deltakelser: List<RefusjonKravDeltakelse>,
     val beregning: Beregning,
+    val betalingsinformasjon: RefusjonskravDto.Betalingsinformasjon,
 ) {
     @Serializable
     data class Beregning(
@@ -260,7 +364,15 @@ data class RefusjonKravDeltakelse(
 ) {
     @Serializable
     data class Person(
-        val norskIdent: NorskIdent,
         val navn: String,
+        @Serializable(with = LocalDateSerializer::class)
+        val fodselsdato: LocalDate?,
+        val fodselsaar: Int?,
     )
 }
+
+@Serializable
+data class SetRefusjonKravBetalingsinformasjonRequest(
+    val kontonummer: Kontonummer,
+    val kid: Kid?,
+)

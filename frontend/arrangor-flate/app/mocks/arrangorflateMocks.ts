@@ -11,6 +11,10 @@ const mockKrav: RefusjonKravAft[] = [
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
+    betalingsinformasjon: {
+      kontonummer: "12345678901",
+      kid: "123456789",
+    },
     gjennomforing: {
       id: uuid(),
       navn: "AFT tiltak Moss",
@@ -25,8 +29,9 @@ const mockKrav: RefusjonKravAft[] = [
       {
         id: uuid(),
         person: {
-          norskIdent: "01012212345",
           navn: "Per Petterson",
+          fodselsdato: "1980-01-01",
+          fodselsaar: 1980,
         },
         manedsverk: 0.3,
         perioder: [
@@ -40,8 +45,8 @@ const mockKrav: RefusjonKravAft[] = [
       {
         id: uuid(),
         person: {
-          norskIdent: "10012212346",
           navn: "Stian Bjærvik",
+          fodselsaar: 1980,
         },
         manedsverk: 1,
         perioder: [
@@ -68,6 +73,10 @@ const mockKrav: RefusjonKravAft[] = [
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
+    betalingsinformasjon: {
+      kontonummer: "12345678901",
+      kid: "123456789",
+    },
     gjennomforing: {
       id: uuid(),
       navn: "AFT tiltak Moss",
@@ -82,8 +91,9 @@ const mockKrav: RefusjonKravAft[] = [
       {
         id: uuid(),
         person: {
-          norskIdent: "01012212345",
           navn: "Per Petterson",
+          fodselsdato: "1980-01-01",
+          fodselsaar: 1980,
         },
         manedsverk: 0.3,
         perioder: [
@@ -97,7 +107,6 @@ const mockKrav: RefusjonKravAft[] = [
       {
         id: uuid(),
         person: {
-          norskIdent: "10012212346",
           navn: "Stian Bjærvik",
         },
         manedsverk: 1,
@@ -129,6 +138,10 @@ const mockKrav: RefusjonKravAft[] = [
       id: uuid(),
       navn: "Amo tiltak Halden",
     },
+    betalingsinformasjon: {
+      kontonummer: "12345678901",
+      kid: "123456789",
+    },
     arrangor: {
       id: uuid(),
       organisasjonsnummer: "123456789",
@@ -139,8 +152,9 @@ const mockKrav: RefusjonKravAft[] = [
       {
         id: uuid(),
         person: {
-          norskIdent: "01012212345",
           navn: "Per Petterson",
+          fodselsdato: "1980-01-01",
+          fodselsaar: 1980,
         },
         manedsverk: 0.3,
         perioder: [
@@ -154,7 +168,6 @@ const mockKrav: RefusjonKravAft[] = [
       {
         id: uuid(),
         person: {
-          norskIdent: "10012212346",
           navn: "Stian Bjærvik",
         },
         manedsverk: 1,

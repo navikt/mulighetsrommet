@@ -43,6 +43,7 @@ fun httpJsonClient(engine: HttpClientEngine = CIO.create()) = HttpClient(engine)
         json(
             Json {
                 ignoreUnknownKeys = true
+                coerceInputValues = true
             },
         )
     }

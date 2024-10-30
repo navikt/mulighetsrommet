@@ -72,15 +72,17 @@ class BrukerServiceTest : FunSpec({
 
         coEvery { veilarboppfolgingClient.hentManuellStatus(fnr1, any()) } returns mockManuellStatus().right()
 
-        coEvery { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr1, any()) } returns VedtakDto(
-            innsatsgruppe = VedtakDto.Innsatsgruppe.STANDARD_INNSATS,
-        ).right()
+        coEvery { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr1, any()) } answers {
+            VedtakDto(innsatsgruppe = VedtakDto.Innsatsgruppe.STANDARD_INNSATS).right()
+        }
 
-        coEvery { pdlClient.hentGeografiskTilknytning(any(), any()) } returns GeografiskTilknytning.GtKommune(value = "0301").right()
+        coEvery { pdlClient.hentGeografiskTilknytning(any(), any()) } answers {
+            GeografiskTilknytning.GtKommune(value = "0301").right()
+        }
 
-        coEvery { pdlClient.hentPerson(PdlIdent(fnr1.value), any()) } returns PdlPerson(
-            navn = listOf(PdlPerson.PdlNavn(fornavn = "Ola")),
-        ).right()
+        coEvery { pdlClient.hentPerson(PdlIdent(fnr1.value), any()) } answers {
+            HentPersonResponse.Person(navn = listOf(PdlNavn(fornavn = "Ola", etternavn = "Normann"))).right()
+        }
 
         coEvery { norg2Client.hentEnhetByGeografiskOmraade(any()) } returns Norg2EnhetDto(
             enhetId = 1,
@@ -99,8 +101,8 @@ class BrukerServiceTest : FunSpec({
             innsatsgruppe = VedtakDto.Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
         ).right()
 
-        coEvery { pdlClient.hentPerson(PdlIdent(fnr2.value), any()) } returns PdlPerson(
-            navn = listOf(PdlPerson.PdlNavn(fornavn = "Petter")),
+        coEvery { pdlClient.hentPerson(PdlIdent(fnr2.value), any()) } returns HentPersonResponse.Person(
+            navn = listOf(PdlNavn(fornavn = "Petter", etternavn = "Pettersen")),
         ).right()
 
         coEvery { navEnhetService.hentEnhet(any()) } returns NavEnhetDbo(

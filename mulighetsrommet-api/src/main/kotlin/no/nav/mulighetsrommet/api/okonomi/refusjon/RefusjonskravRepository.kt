@@ -9,6 +9,8 @@ import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregning
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDto
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.domain.dto.Kid
+import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
@@ -22,17 +24,21 @@ class RefusjonskravRepository(private val db: Database) {
     fun upsert(dbo: RefusjonskravDbo, tx: TransactionalSession) {
         @Language("PostgreSQL")
         val refusjonskravQuery = """
-            insert into refusjonskrav (id, gjennomforing_id, frist_for_godkjenning)
-            values (:id::uuid, :gjennomforing_id::uuid, :frist_for_godkjenning)
+            insert into refusjonskrav (id, gjennomforing_id, frist_for_godkjenning, kontonummer, kid)
+            values (:id::uuid, :gjennomforing_id::uuid, :frist_for_godkjenning, :kontonummer, :kid)
             on conflict (id) do update set
                 gjennomforing_id = excluded.gjennomforing_id,
-                frist_for_godkjenning = excluded.frist_for_godkjenning
+                frist_for_godkjenning = excluded.frist_for_godkjenning,
+                kontonummer = excluded.kontonummer,
+                kid = excluded.kid
         """.trimIndent()
 
         val params = mapOf(
             "id" to dbo.id,
             "gjennomforing_id" to dbo.gjennomforingId,
             "frist_for_godkjenning" to dbo.fristForGodkjenning,
+            "kontonummer" to dbo.kontonummer?.value,
+            "kid" to dbo.kid?.value,
         )
 
         queryOf(refusjonskravQuery, params).asExecute.runWithSession(tx)
@@ -132,6 +138,26 @@ class RefusjonskravRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun setBetalingsInformasjon(id: UUID, kontonummer: Kontonummer, kid: Kid?) {
+        @Language("PostgreSQL")
+        val query = """
+            update refusjonskrav
+            set kontonummer = :kontonummer, kid = :kid
+            where id = :id::uuid
+        """.trimIndent()
+
+        queryOf(
+            query,
+            mapOf(
+                "id" to id,
+                "kontonummer" to kontonummer.value,
+                "kid" to kid?.value,
+            ),
+        )
+            .asUpdate
+            .let { db.run(it) }
+    }
+
     fun get(id: UUID) = db.transaction { get(id, it) }
 
     fun get(id: UUID, tx: Session): RefusjonskravDto? {
@@ -219,6 +245,10 @@ class RefusjonskravRepository(private val db: Database) {
                 navn = string("tiltakstype_navn"),
             ),
             beregning = beregning,
+            betalingsinformasjon = RefusjonskravDto.Betalingsinformasjon(
+                kontonummer = stringOrNull("kontonummer")?.let { Kontonummer(it) },
+                kid = stringOrNull("kid")?.let { Kid(it) },
+            ),
         )
     }
 }

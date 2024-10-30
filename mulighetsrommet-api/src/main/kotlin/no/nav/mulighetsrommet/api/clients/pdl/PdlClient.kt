@@ -27,16 +27,20 @@ import java.util.concurrent.TimeUnit
 const val VALP_BEHANDLINGSNUMMER: String = "B450"
 
 class PdlClient(
-    private val baseUrl: String,
+    private val config: Config,
     private val tokenProvider: TokenProvider,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
+    data class Config(
+        val baseUrl: String,
+        val maxRetries: Int = 0,
+    )
     private val log = LoggerFactory.getLogger(javaClass)
 
     private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
         install(HttpRequestRetry) {
-            retryOnException(maxRetries = 3, retryOnTimeout = true)
+            retryOnException(maxRetries = config.maxRetries, retryOnTimeout = true)
             exponentialDelay()
         }
         install(HttpTimeout) {
@@ -44,14 +48,14 @@ class PdlClient(
         }
     }
 
-    private val hentIdenterCache: Cache<GraphqlRequest.HentHistoriskeIdenter, List<IdentInformasjon>> =
+    private val hentIdenterCache: Cache<GraphqlRequest.HentHistoriskeIdenter, HentIdenterResponse.Identliste> =
         Caffeine.newBuilder()
             .expireAfterWrite(1, TimeUnit.HOURS)
             .maximumSize(10_000)
             .recordStats()
             .build()
 
-    private val hentPersonCache: Cache<PdlIdent, PdlPerson> = Caffeine.newBuilder()
+    private val hentPersonCache: Cache<PdlIdent, HentPersonResponse.Person> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
         .maximumSize(10_000)
         .recordStats()
@@ -64,57 +68,53 @@ class PdlClient(
         .build()
 
     suspend fun hentHistoriskeIdenter(
-        request: GraphqlRequest.HentHistoriskeIdenter,
+        variables: GraphqlRequest.HentHistoriskeIdenter,
         accessType: AccessType,
     ): Either<PdlError, List<IdentInformasjon>> {
-        hentIdenterCache.getIfPresent(request)?.let { return@hentHistoriskeIdenter it.right() }
+        hentIdenterCache.getIfPresent(variables)?.let { return@hentHistoriskeIdenter it.identer.right() }
 
-        return graphqlRequest<GraphqlRequest.HentHistoriskeIdenter, HentIdenterResponse>(
-            GraphqlRequest(
-                query = """
-                    query(${'$'}ident: ID!, ${'$'}grupper: [IdentGruppe!]) {
-                        hentIdenter(ident: ${'$'}ident, grupper: ${'$'}grupper, historikk: true) {
-                            identer {
-                                ident,
-                                historisk,
-                                gruppe
-                            }
+        val request = GraphqlRequest(
+            query = """
+                query(${'$'}ident: ID!, ${'$'}grupper: [IdentGruppe!]) {
+                    hentIdenter(ident: ${'$'}ident, grupper: ${'$'}grupper, historikk: true) {
+                        identer {
+                            ident,
+                            historisk,
+                            gruppe
                         }
                     }
-                """.trimIndent(),
-                variables = request,
-            ),
-            accessType = accessType,
+                }
+            """.trimIndent(),
+            variables = variables,
         )
+        return graphqlRequest<GraphqlRequest.HentHistoriskeIdenter, HentIdenterResponse>(request, accessType)
+            .onRight { hentIdenterCache.put(variables, it.hentIdenter) }
             .map {
-                require(it.hentIdenter != null) {
+                requireNotNull(it.hentIdenter) {
                     "hentIdenter var null og errors tom! response: $it"
                 }
                 it.hentIdenter.identer
             }
-            .onRight { hentIdenterCache.put(request, it) }
     }
 
-    suspend fun hentPerson(ident: PdlIdent, accessType: AccessType): Either<PdlError, PdlPerson> {
+    suspend fun hentPerson(ident: PdlIdent, accessType: AccessType): Either<PdlError, HentPersonResponse.Person> {
         hentPersonCache.getIfPresent(ident)?.let { return@hentPerson it.right() }
 
-        return graphqlRequest<GraphqlRequest.Ident, HentPersonResponse>(
-            GraphqlRequest(
-                query = """
-                    query(${'$'}ident: ID!) {
-                        hentPerson(ident: ${'$'}ident) {
-                        	navn(historikk: false) {
-                                fornavn
-                                mellomnavn
-                                etternavn
-                            }
+        val request = GraphqlRequest(
+            query = """
+                query(${'$'}ident: ID!) {
+                    hentPerson(ident: ${'$'}ident) {
+                    	navn(historikk: false) {
+                            fornavn
+                            mellomnavn
+                            etternavn
                         }
                     }
-                """.trimIndent(),
-                variables = GraphqlRequest.Ident(ident = ident.value),
-            ),
-            accessType = accessType,
+                }
+            """.trimIndent(),
+            variables = GraphqlRequest.Ident(ident),
         )
+        return graphqlRequest<GraphqlRequest.Ident, HentPersonResponse>(request, accessType)
             .map {
                 require(it.hentPerson != null) {
                     "hentPerson var null og errors tom! response: $it"
@@ -132,35 +132,31 @@ class PdlClient(
     ): Either<PdlError, GeografiskTilknytning> {
         hentGeografiskTilknytningCache.getIfPresent(ident)?.let { return@hentGeografiskTilknytning it.right() }
 
-        return graphqlRequest<GraphqlRequest.Ident, HentGeografiskTilknytningResponse>(
-            GraphqlRequest(
-                query = """
-                    query(${'$'}ident: ID!) {
-                        hentGeografiskTilknytning(ident: ${'$'}ident) {
-                            gtType
-                            gtKommune
-                            gtBydel
-                            gtLand
-                        }
+        val request = GraphqlRequest(
+            query = """
+                query(${'$'}ident: ID!) {
+                    hentGeografiskTilknytning(ident: ${'$'}ident) {
+                        gtType
+                        gtKommune
+                        gtBydel
+                        gtLand
                     }
-                """.trimIndent(),
-                variables = GraphqlRequest.Ident(ident = ident.value),
-            ),
-            accessType = accessType,
+                }
+            """.trimIndent(),
+            variables = GraphqlRequest.Ident(ident),
         )
+        return graphqlRequest<GraphqlRequest.Ident, HentGeografiskTilknytningResponse>(request, accessType)
             .map {
                 require(it.hentGeografiskTilknytning != null) {
                     "hentGeografiskTilknytning var null og errors tom! response: $it"
                 }
                 when (it.hentGeografiskTilknytning.gtType) {
                     TypeGeografiskTilknytning.BYDEL -> {
-                        requireNotNull(it.hentGeografiskTilknytning.gtBydel)
-                        GeografiskTilknytning.GtBydel(it.hentGeografiskTilknytning.gtBydel)
+                        GeografiskTilknytning.GtBydel(requireNotNull(it.hentGeografiskTilknytning.gtBydel))
                     }
 
                     TypeGeografiskTilknytning.KOMMUNE -> {
-                        requireNotNull(it.hentGeografiskTilknytning.gtKommune)
-                        GeografiskTilknytning.GtKommune(it.hentGeografiskTilknytning.gtKommune)
+                        GeografiskTilknytning.GtKommune(requireNotNull(it.hentGeografiskTilknytning.gtKommune))
                     }
 
                     TypeGeografiskTilknytning.UTLAND -> {
@@ -179,11 +175,11 @@ class PdlClient(
             }
     }
 
-    private suspend inline fun <reified T, reified V> graphqlRequest(
+    internal suspend inline fun <reified T, reified V> graphqlRequest(
         req: GraphqlRequest<T>,
         accessType: AccessType,
     ): Either<PdlError, V> {
-        val response = client.post("$baseUrl/graphql") {
+        val response = client.post("${config.baseUrl}/graphql") {
             bearerAuth(tokenProvider.exchange(accessType))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             header("Behandlingsnummer", VALP_BEHANDLINGSNUMMER)
@@ -205,7 +201,10 @@ class PdlClient(
                 PdlError.Error.left()
             }
         } else {
-            graphqlResponse.data.right()
+            val data = requireNotNull(graphqlResponse.data) {
+                "forventet data siden errors var tom"
+            }
+            data.right()
         }
     }
 }
@@ -221,8 +220,13 @@ data class GraphqlRequest<T>(
     val variables: T,
 ) {
     @Serializable
+    data class Identer(
+        val identer: Set<PdlIdent>,
+    )
+
+    @Serializable
     data class Ident(
-        val ident: String,
+        val ident: PdlIdent,
     )
 
     @Serializable
@@ -234,7 +238,7 @@ data class GraphqlRequest<T>(
 
 @Serializable
 data class GraphqlResponse<T>(
-    val data: T,
+    val data: T? = null,
     val errors: List<GraphqlError> = emptyList(),
 ) {
     @Serializable
@@ -295,7 +299,6 @@ enum class PdlErrorCode {
 data class HentIdenterResponse(
     val hentIdenter: Identliste? = null,
 ) {
-
     @Serializable
     data class Identliste(
         val identer: List<IdentInformasjon>,
@@ -303,63 +306,24 @@ data class HentIdenterResponse(
 }
 
 @Serializable
-@JvmInline
-value class PdlIdent(val value: String)
-
-@Serializable
-data class IdentInformasjon(
-    val ident: PdlIdent,
-    val gruppe: IdentGruppe,
-    val historisk: Boolean,
-)
-
-@Serializable
-enum class IdentGruppe {
-    AKTORID,
-    FOLKEREGISTERIDENT,
-    NPID,
-}
-
-@Serializable
 data class HentPersonResponse(
-    val hentPerson: PdlPerson? = null,
-)
-
-@Serializable
-data class PdlPerson(
-    val navn: List<PdlNavn>,
+    val hentPerson: Person? = null,
 ) {
     @Serializable
-    data class PdlNavn(
-        val fornavn: String? = null,
-        val mellomnavn: String? = null,
-        val etternavn: String? = null,
+    data class Person(
+        val navn: List<PdlNavn>,
     )
 }
 
 @Serializable
 data class HentGeografiskTilknytningResponse(
-    val hentGeografiskTilknytning: PdlGeografiskTilknytning? = null,
-)
-
-sealed class GeografiskTilknytning {
-    data class GtKommune(val value: String) : GeografiskTilknytning()
-    data class GtBydel(val value: String) : GeografiskTilknytning()
-    data class GtUtland(val value: String?) : GeografiskTilknytning()
-    data object GtUdefinert : GeografiskTilknytning()
-}
-
-@Serializable
-data class PdlGeografiskTilknytning(
-    val gtType: TypeGeografiskTilknytning,
-    val gtLand: String? = null,
-    val gtKommune: String? = null,
-    val gtBydel: String? = null,
-)
-
-enum class TypeGeografiskTilknytning {
-    BYDEL,
-    KOMMUNE,
-    UDEFINERT,
-    UTLAND,
+    val hentGeografiskTilknytning: GeografiskTilknytning? = null,
+) {
+    @Serializable
+    data class GeografiskTilknytning(
+        val gtType: TypeGeografiskTilknytning,
+        val gtLand: String? = null,
+        val gtKommune: String? = null,
+        val gtBydel: String? = null,
+    )
 }

@@ -11,6 +11,7 @@ import { formaterDato, useOrgnrFromUrl } from "~/utils";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { GenerelleDetaljer } from "~/components/refusjonskrav/GenerelleDetaljer";
 import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
+import { RefusjonKravDeltakelsePerson } from "@mr/api-client";
 import { internalNavigation } from "../internal-navigation";
 
 export const meta: MetaFunction = () => {
@@ -99,16 +100,18 @@ export default function RefusjonskravBeregning() {
           </Table.Header>
           <Table.Body>
             {sortedData.map((deltaker) => {
+              const { id, person, startDatoPerioden, sluttDatoPerioden } = deltaker;
+              const fodselsdato = getFormattedFodselsdato(person);
               return (
-                <Table.ExpandableRow key={deltaker.id} content={null} togglePlacement="right">
-                  <Table.HeaderCell>{deltaker.person?.navn}</Table.HeaderCell>
-                  <Table.DataCell>{deltaker.person?.norskIdent}</Table.DataCell>
+                <Table.ExpandableRow key={id} content={null} togglePlacement="right">
+                  <Table.HeaderCell>{person.navn}</Table.HeaderCell>
+                  <Table.DataCell>{fodselsdato}</Table.DataCell>
                   <Table.DataCell>{deltaker.startDatoTiltaket}</Table.DataCell>
                   <Table.DataCell>
-                    {deltaker.startDatoPerioden && formaterDato(deltaker.startDatoPerioden)}
+                    {startDatoPerioden && formaterDato(startDatoPerioden)}
                   </Table.DataCell>
                   <Table.DataCell>
-                    {deltaker.sluttDatoPerioden && formaterDato(deltaker.sluttDatoPerioden)}
+                    {sluttDatoPerioden && formaterDato(sluttDatoPerioden)}
                   </Table.DataCell>
                   <Table.DataCell>{deltaker.stillingsprosent}</Table.DataCell>
                   <Table.DataCell>{deltaker.maanedsverk}</Table.DataCell>
@@ -157,4 +160,12 @@ function getDeltakerSelector(sortKey: DeltakerSortKey): SortBySelector<Deltaker>
     case DeltakerSortKey.VEILEDER_NAVN:
       return (d) => d.veileder;
   }
+}
+
+function getFormattedFodselsdato(person: RefusjonKravDeltakelsePerson) {
+  return person.fodselsdato
+    ? formaterDato(person.fodselsdato)
+    : person.fodselsaar
+      ? `Fødselsår: ${person.fodselsaar}`
+      : null;
 }

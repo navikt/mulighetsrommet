@@ -8,6 +8,7 @@ import { Separator } from "~/components/Separator";
 import { Refusjonskrav } from "~/domene/domene";
 import { checkValidToken } from "~/auth/auth.server";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
+import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
 import { RefusjonskravDetaljer } from "~/components/refusjonskrav/RefusjonskravDetaljer";
 import { internalNavigation } from "../internal-navigation";
@@ -67,8 +68,14 @@ export default function RefusjonskravKvittering() {
         <Definisjonsliste
           title="Betalingsinformasjon"
           definitions={[
-            { key: "Kontonummer", value: "1234.56.78901" },
-            { key: "KID-nummer", value: "123456701123453" },
+            {
+              key: "Kontonummer",
+              value: formaterKontoNummer(krav.betalingsinformasjon.kontonummer),
+            },
+            {
+              key: "KID-nummer",
+              value: krav.betalingsinformasjon.kid!,
+            },
             { key: "Refusjonskravansvarlig", value: "Ingvild Pettersen" },
             { key: "E-postadresse", value: "ingvild.pettersen@fretexas.no" },
           ]}

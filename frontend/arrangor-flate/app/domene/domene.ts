@@ -1,4 +1,5 @@
 import {
+  Betalingsinformasjon,
   RefusjonKravAftBeregning,
   RefusjonKravDeltakelsePeriode,
   RefusjonKravDeltakelsePerson,
@@ -27,6 +28,7 @@ export interface Refusjonskrav {
   };
   beregning: RefusjonKravAftBeregning;
   deltakere: Deltaker[];
+  betalingsinformasjon: Betalingsinformasjon;
 }
 
 export type TilsagnDetaljer = {
@@ -39,7 +41,7 @@ export type TilsagnDetaljer = {
 
 export interface Deltaker {
   id: string;
-  person?: RefusjonKravDeltakelsePerson;
+  person: RefusjonKravDeltakelsePerson;
   veileder?: string;
   startDatoTiltaket?: string;
   startDatoPerioden?: string;
