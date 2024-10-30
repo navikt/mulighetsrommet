@@ -1,4 +1,5 @@
-import { Alert, BodyShort, Box, Heading } from "@navikt/ds-react";
+import { Arrangor } from "@mr/api-client";
+import { BodyShort, Box, Heading } from "@navikt/ds-react";
 import { LoaderFunction } from "@remix-run/node";
 import {
   isRouteErrorResponse,
@@ -14,14 +15,13 @@ import {
 } from "@remix-run/react";
 import parse from "html-react-parser";
 import { ReactNode, useEffect } from "react";
+import { hentArrangortilgangerForBruker } from "./auth/arrangortilgang.server";
 import { checkValidToken, setupOpenApi } from "./auth/auth.server";
 import { Header } from "./components/Header";
 import css from "./root.module.css";
 import { Dekoratørfragmenter, hentSsrDekoratør } from "./services/dekoratør/dekorator.server";
 import useInjectDecoratorScript from "./services/dekoratør/useInjectScript";
 import "./tailwind.css";
-import { hentArrangortilgangerForBruker } from "./auth/arrangortilgang.server";
-import { Arrangor } from "@mr/api-client";
 
 export const meta: MetaFunction = () => [{ title: "Refusjoner" }];
 
