@@ -11,6 +11,8 @@ import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
 import { RefusjonskravDetaljer } from "~/components/refusjonskrav/RefusjonskravDetaljer";
+import { internalNavigation } from "../internal-navigation";
+import { useOrgnrFromUrl } from "../utils";
 
 type RefusjonskavKvitteringData = {
   krav: Refusjonskrav;
@@ -37,7 +39,8 @@ export const loader: LoaderFunction = async ({
 
 export default function RefusjonskravKvittering() {
   const { krav, tilsagn } = useLoaderData<RefusjonskavKvitteringData>();
-  const params = useParams();
+  const { id } = useParams();
+  const orgnr = useOrgnrFromUrl();
 
   return (
     <>
@@ -45,12 +48,12 @@ export default function RefusjonskravKvittering() {
         title="Kvittering"
         tilbakeLenke={{
           navn: "Tilbake til refusjonskravliste",
-          url: `/`,
+          url: internalNavigation(orgnr).refusjonskravliste,
         }}
       />
       <Separator />
       <div className="flex justify-end">
-        <a href={`/refusjonskrav/${params.id}/kvittering/lastned`} target="_blank">
+        <a href={`/refusjonskrav/${id}/kvittering/lastned`} target="_blank">
           <Button variant="tertiary-neutral" size="small">
             <span className="flex gap-2 items-center">
               Last ned som PDF <FilePdfIcon fontSize={35} />
@@ -78,7 +81,12 @@ export default function RefusjonskravKvittering() {
           ]}
         />
         <VStack align={"start"}>
-          <Button className="" as="a" href="/" variant="secondary">
+          <Button
+            className=""
+            as="a"
+            href={internalNavigation(orgnr).refusjonskravliste}
+            variant="secondary"
+          >
             Tilbake til refusjonskravliste
           </Button>
         </VStack>

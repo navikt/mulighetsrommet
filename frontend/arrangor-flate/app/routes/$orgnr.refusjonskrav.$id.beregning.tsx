@@ -7,11 +7,12 @@ import { checkValidToken } from "~/auth/auth.server";
 import { useState } from "react";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
-import { formaterDato } from "~/utils";
+import { formaterDato, useOrgnrFromUrl } from "~/utils";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { GenerelleDetaljer } from "~/components/refusjonskrav/GenerelleDetaljer";
 import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
 import { RefusjonKravDeltakelsePerson } from "@mr/api-client";
+import { internalNavigation } from "../internal-navigation";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Refusjon" }, { name: "description", content: "Refusjonsdetaljer" }];
@@ -43,6 +44,7 @@ enum DeltakerSortKey {
 }
 
 export default function RefusjonskravBeregning() {
+  const orgnr = useOrgnrFromUrl();
   const { krav } = useLoaderData<LoaderData>();
   const [sort, setSort] = useState<DeltakerSortState | undefined>();
 
@@ -131,7 +133,11 @@ export default function RefusjonskravBeregning() {
             },
           ]}
         />
-        <Button as={Link} className="justify-self-end" to={`/refusjonskrav/${krav.id}/bekreft`}>
+        <Button
+          as={Link}
+          className="justify-self-end"
+          to={internalNavigation(orgnr).bekreft(krav.id)}
+        >
           Neste
         </Button>
       </HGrid>

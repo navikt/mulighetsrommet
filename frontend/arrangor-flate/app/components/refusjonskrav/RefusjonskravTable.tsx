@@ -1,15 +1,17 @@
 import { RefusjonKravKompakt, RefusjonskravStatus } from "@mr/api-client";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, Table, Tag } from "@navikt/ds-react";
 import { Link } from "@remix-run/react";
 import React, { ReactNode } from "react";
-import { formaterDato } from "~/utils";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { formaterDato, useOrgnrFromUrl } from "~/utils";
+import { internalNavigation } from "../../internal-navigation";
 
 interface Props {
   krav: RefusjonKravKompakt[];
 }
 
 export function RefusjonskravTable({ krav }: Props) {
+  const orgnr = useOrgnrFromUrl();
   if (krav.length === 0) {
     return (
       <Alert className="my-10" variant="info">
@@ -40,24 +42,21 @@ export function RefusjonskravTable({ krav }: Props) {
             ({ id, status, fristForGodkjenning, beregning, gjennomforing, tiltakstype }) => {
               return (
                 <React.Fragment key={id}>
-                  <Table.Row
-                    className={
-                      getRowStyle(status) +
-                      " pb-10 border-border-divider border-b-2 border-x-2 border-t-0"
-                    }
-                  >
+                  <Table.Row className={getRowStyle(status)}>
                     <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
                     <Table.DataCell>{gjennomforing.navn}</Table.DataCell>
-                    <Table.DataCell colSpan={3}>
+                    <Table.DataCell colSpan={3} className="w-80">
                       {`${formaterDato(beregning.periodeStart)} - ${formaterDato(beregning.periodeSlutt)}`}
                     </Table.DataCell>
-                    <Table.DataCell>{formaterNOK(beregning.belop)}</Table.DataCell>
+                    <Table.DataCell className="min-w-44">
+                      {formaterNOK(beregning.belop)}
+                    </Table.DataCell>
                     <Table.DataCell>{formaterDato(fristForGodkjenning)}</Table.DataCell>
                     <Table.DataCell>{statusTilTag(status)}</Table.DataCell>
                     <Table.DataCell>
                       <Link
                         className="hover:underline font-bold no-underline"
-                        to={`/refusjonskrav/${id}/for-du-begynner`}
+                        to={internalNavigation(orgnr).forDuBegynner(id)}
                       >
                         Detaljer
                       </Link>

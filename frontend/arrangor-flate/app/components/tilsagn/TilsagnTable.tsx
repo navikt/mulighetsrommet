@@ -1,13 +1,15 @@
 import { ArrangorflateTilsagn } from "@mr/api-client";
 import { Table } from "@navikt/ds-react";
 import { Link } from "@remix-run/react";
-import { formaterDato } from "~/utils";
+import { formaterDato, useOrgnrFromUrl } from "~/utils";
+import { internalNavigation } from "../../internal-navigation";
 
 interface Props {
   tilsagn: ArrangorflateTilsagn[];
 }
 
 export function TilsagnTable({ tilsagn }: Props) {
+  const orgnr = useOrgnrFromUrl();
   return (
     <>
       <div className="border-spacing-y-6 border-collapsed mt-4">
@@ -24,7 +26,7 @@ export function TilsagnTable({ tilsagn }: Props) {
                   <Table.DataCell>
                     <Link
                       className="hover:underline font-bold no-underline"
-                      to={`tilsagn/${tilsagn.id}`}
+                      to={internalNavigation(orgnr).tilsagn(tilsagn.id)}
                     >
                       Detaljer
                     </Link>

@@ -14,6 +14,7 @@ import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
+import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import no.nav.mulighetsrommet.api.domain.dto.DeltakerDto
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
@@ -53,7 +54,7 @@ fun Route.arrangorflateRoutes() {
 
     val pdl: HentAdressebeskyttetPersonBolkPdlQuery by inject()
 
-    suspend fun <T : Any> PipelineContext<T, ApplicationCall>.arrangorerMedTilgang(): List<UUID> {
+    suspend fun <T : Any> PipelineContext<T, ApplicationCall>.arrangorIderMedTilgang(): List<UUID> {
         return call.principal<ArrangorflatePrincipal>()
             ?.organisasjonsnummer
             ?.map {
@@ -62,6 +63,18 @@ fun Route.arrangorflateRoutes() {
                         throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
                     }
                     .id
+            }
+            ?: throw StatusException(HttpStatusCode.Unauthorized)
+    }
+
+    suspend fun <T : Any> PipelineContext<T, ApplicationCall>.arrangorerMedTilgang(): List<ArrangorDto> {
+        return call.principal<ArrangorflatePrincipal>()
+            ?.organisasjonsnummer
+            ?.map {
+                arrangorService.getOrSyncArrangorFromBrreg(it)
+                    .getOrElse {
+                        throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
+                    }
             }
             ?: throw StatusException(HttpStatusCode.Unauthorized)
     }
@@ -76,7 +89,7 @@ fun Route.arrangorflateRoutes() {
     route("/arrangorflate") {
         route("/refusjonskrav") {
             get {
-                val arrangorIds = arrangorerMedTilgang()
+                val arrangorIds = arrangorIderMedTilgang()
 
                 val krav = refusjonskrav.getByArrangorIds(arrangorIds)
                     .map { toRefusjonskravKompakt(it) }
@@ -148,7 +161,7 @@ fun Route.arrangorflateRoutes() {
 
         route("/tilsagn") {
             get {
-                call.respond(tilsagnService.getAllArrangorflateTilsagn(arrangorerMedTilgang()))
+                call.respond(tilsagnService.getAllArrangorflateTilsagn(arrangorIderMedTilgang()))
             }
 
             get("/{id}") {
@@ -159,6 +172,12 @@ fun Route.arrangorflateRoutes() {
                 requireTilgangHosArrangor(tilsagn.arrangor.organisasjonsnummer)
 
                 call.respond(tilsagn)
+            }
+        }
+
+        route("/tilgang-arrangor") {
+            get {
+                call.respond(arrangorerMedTilgang())
             }
         }
     }
