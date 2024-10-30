@@ -121,6 +121,17 @@ fun Route.arrangorflateRoutes() {
             get("/{id}/kvittering") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val krav = refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+
+                when (krav.beregning) {
+                    is RefusjonKravBeregningAft -> {
+                        val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
+                            gjennomforingId = krav.gjennomforing.id,
+                            periodeStart = krav.beregning.input.periodeStart.toLocalDate(),
+                            periodeSlutt = krav.beregning.input.periodeSlutt.toLocalDate(),
+                        )
+                    }
+                }
+
                 val oppsummering = toRefusjonskrav(pdl, deltakerRepository, krav)
                 val mapper = ObjectMapper().apply {
                     registerModule(JavaTimeModule())

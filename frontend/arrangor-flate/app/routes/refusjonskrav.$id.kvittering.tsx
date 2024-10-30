@@ -73,8 +73,6 @@ export default function RefusjonskravKvittering() {
               key: "KID-nummer",
               value: krav.betalingsinformasjon.kid!,
             },
-            { key: "Refusjonskravansvarlig", value: "Ingvild Pettersen" },
-            { key: "E-postadresse", value: "ingvild.pettersen@fretexas.no" },
           ]}
         />
         <VStack align={"start"}>
