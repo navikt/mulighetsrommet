@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.api.domain.dto.DeltakerDto
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDto
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.ArrangorflateTilsagn
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
@@ -135,15 +136,11 @@ fun Route.arrangorflateRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val krav = refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
 
-                when (krav.beregning) {
-                    is RefusjonKravBeregningAft -> {
-                        val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
-                            gjennomforingId = krav.gjennomforing.id,
-                            periodeStart = krav.beregning.input.periodeStart.toLocalDate(),
-                            periodeSlutt = krav.beregning.input.periodeSlutt.toLocalDate(),
-                        )
-                    }
-                }
+                val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
+                    gjennomforingId = krav.gjennomforing.id,
+                    periodeStart = krav.beregning.input.periodeStart.toLocalDate(),
+                    periodeSlutt = krav.beregning.input.periodeSlutt.toLocalDate(),
+                )
 
                 val oppsummering = toRefusjonskrav(pdl, deltakerRepository, krav)
                 val mapper = ObjectMapper().apply {
@@ -151,7 +148,8 @@ fun Route.arrangorflateRoutes() {
                     disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                     registerKotlinModule()
                 }
-                val jsonNode: JsonNode = mapper.valueToTree<JsonNode>(oppsummering)
+                val dto = RefusjonKravKvitteringDto(oppsummering, tilsagn)
+                val jsonNode: JsonNode = mapper.valueToTree<JsonNode>(dto)
                 val pdfBytes: ByteArray = createPDFA("refusjon-kvittering", "refusjon", jsonNode) ?: throw Exception("Kunne ikke generere PDF")
 
                 call.response.headers.append(
@@ -168,16 +166,12 @@ fun Route.arrangorflateRoutes() {
                     ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
-                when (krav.beregning) {
-                    is RefusjonKravBeregningAft -> {
-                        val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
-                            gjennomforingId = krav.gjennomforing.id,
-                            periodeStart = krav.beregning.input.periodeStart.toLocalDate(),
-                            periodeSlutt = krav.beregning.input.periodeSlutt.toLocalDate(),
-                        )
-                        call.respond(tilsagn)
-                    }
-                }
+                val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
+                    gjennomforingId = krav.gjennomforing.id,
+                    periodeStart = krav.beregning.input.periodeStart.toLocalDate(),
+                    periodeSlutt = krav.beregning.input.periodeSlutt.toLocalDate(),
+                )
+                call.respond(tilsagn)
             }
         }
 
@@ -399,4 +393,10 @@ data class RefusjonKravDeltakelse(
 data class SetRefusjonKravBetalingsinformasjonRequest(
     val kontonummer: Kontonummer,
     val kid: Kid?,
+)
+
+@Serializable
+data class RefusjonKravKvitteringDto(
+    val refusjon: RefusjonKravAft,
+    val tilsagn: List<ArrangorflateTilsagn>,
 )

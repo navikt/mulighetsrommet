@@ -34,6 +34,11 @@
         tr {
             font-size: 10px;
         }
+        .tilsagn-table {
+            border: 1px solid #D1D4D8;
+            padding: 8px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -42,29 +47,43 @@
         <tbody>
         <tr>
             <th>Tiltaksnavn:</th>
-            <td>{{ gjennomforing.navn }}</td>
+            <td>{{ refusjon.gjennomforing.navn }}</td>
         </tr>
         <tr>
             <th>Tiltakstype:</th>
-            <td>{{ tiltakstype.navn }}</td>
+            <td>{{ refusjon.tiltakstype.navn }}</td>
         </tr>
         </tbody>
     </table>
 </div>
-<div class="block line_bottom">
+<div class="block">
     <h4>Tilsagnsdetaljer</h4>
-    <table class="block">
+    {{#each tilsagn }}
+    <table class="block tilsagn-table">
         <tbody>
         <tr>
-            <th>Tilsagnsbeløp:</th>
-            <td>kr {{ currency_no beregning.belop }}</td>
+            <th>Tilsagnsperiode:</th>
+            <td>{{ iso_to_nor_date periodeStart }} - {{ iso_to_nor_date periodeSlutt }}</td>
         </tr>
         <tr>
-            <th>Tilsagnsperiode:</th>
-            <td>{{ iso_to_nor_date beregning.periodeStart }} - {{ iso_to_nor_date beregning.periodeSlutt }}</td>
+            <th>Antall plasser:</th>
+            <td>{{ beregning.antallPlasser }}  </td>
+        </tr>
+        <tr>
+            <th>Sats:</th>
+            <td>{{ currency_no beregning.sats }} kr </td>
+        </tr>
+        <tr>
+            <th>Beløp:</th>
+            <td>{{ currency_no beregning.belop }} kr </td>
+        </tr>
+        <tr>
+            <th>Utbetalt så langt:</th>
+            <td>TODO</td>
         </tr>
         </tbody>
     </table>
+    {{/each}}
 </div>
 <div class="block line_bottom">
     <h4>Refusjonskrav</h4>
@@ -72,11 +91,11 @@
         <tbody>
         <tr>
             <th>Antall månedsverk:</th>
-            <td>{{ beregning.antallManedsverk }}</td>
+            <td>{{ refusjon.beregning.antallManedsverk }}</td>
         </tr>
         <tr>
             <th>Total refusjonskrav:</th>
-            <td>{{ currency_no beregning.belop }}</td>
+            <td>{{ currency_no refusjon.beregning.belop }} kr</td>
         </tr>
         </tbody>
     </table>
@@ -87,11 +106,11 @@
         <tbody>
         <tr>
             <th>Kontonummer:</th>
-            <td>{{ betalingsinformasjon.kontonummer }}</td>
+            <td>{{ refusjon.betalingsinformasjon.kontonummer }}</td>
         </tr>
         <tr>
             <th>KID-nummer:</th>
-            <td>{{ betalingsinformasjon.kid }}</td>
+            <td>{{ refusjon.betalingsinformasjon.kid }}</td>
         </tr>
         </tbody>
     </table>
