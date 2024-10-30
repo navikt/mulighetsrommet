@@ -1,4 +1,5 @@
-import { Alert, BodyShort, Box, Heading } from "@navikt/ds-react";
+import { Arrangor } from "@mr/api-client";
+import { BodyShort, Box, Heading } from "@navikt/ds-react";
 import { LoaderFunction } from "@remix-run/node";
 import {
   isRouteErrorResponse,
@@ -14,7 +15,8 @@ import {
 } from "@remix-run/react";
 import parse from "html-react-parser";
 import { ReactNode, useEffect } from "react";
-import { checkValidToken } from "./auth/auth.server";
+import { hentArrangortilgangerForBruker } from "./auth/arrangortilgang.server";
+import { checkValidToken, setupOpenApi } from "./auth/auth.server";
 import { Header } from "./components/Header";
 import css from "./root.module.css";
 import { Dekoratørfragmenter, hentSsrDekoratør } from "./services/dekoratør/dekorator.server";
@@ -24,22 +26,26 @@ import "./tailwind.css";
 export const meta: MetaFunction = () => [{ title: "Refusjoner" }];
 
 export const loader: LoaderFunction = async ({ request }) => {
+  await setupOpenApi(request);
   await checkValidToken(request);
+  const arrangortilganger = await hentArrangortilgangerForBruker();
 
   return json({
     dekorator: await hentSsrDekoratør(),
+    arrangortilganger,
   });
 };
 
 export type LoaderData = {
   dekorator: Dekoratørfragmenter | null;
+  arrangortilganger: Arrangor[];
 };
 
 function App() {
-  const { dekorator } = useLoaderData<LoaderData>();
+  const { dekorator, arrangortilganger } = useLoaderData<LoaderData>();
 
   return (
-    <Dokument dekorator={dekorator || undefined}>
+    <Dokument dekorator={dekorator || undefined} arrangorer={arrangortilganger}>
       <Outlet />
     </Dokument>
   );
@@ -48,9 +54,11 @@ function App() {
 function Dokument({
   dekorator,
   children,
+  arrangorer,
 }: {
   dekorator?: Dekoratørfragmenter;
   children: ReactNode;
+  arrangorer: Arrangor[];
 }) {
   useInjectDecoratorScript(dekorator?.scripts);
   return (
@@ -64,14 +72,7 @@ function Dokument({
       </head>
       <body>
         {dekorator && parse(dekorator.header)}
-        <Header />
-        <Alert variant="warning">
-          Dette er en tjeneste under utvikling - Kontakt{" "}
-          <a href="https://teamkatalog.nav.no/team/aa730c95-b437-497b-b1ae-0ccf69a10997">
-            Team Valp
-          </a>{" "}
-          ved spørsmål
-        </Alert>
+        <Header arrangorer={arrangorer} />
         <main className={css.side}>{children}</main>
         <ScrollRestoration />
         <Scripts />
@@ -92,7 +93,7 @@ export const ErrorBoundary = () => {
 
   if (isRouteErrorResponse(error)) {
     return (
-      <Dokument>
+      <Dokument arrangorer={[]}>
         <Heading spacing size="large" level="2">
           {error.status}
         </Heading>
@@ -104,7 +105,7 @@ export const ErrorBoundary = () => {
     );
   } else {
     return (
-      <Dokument>
+      <Dokument arrangorer={[]}>
         <Heading spacing size="large" level="2">
           Ojsann!
         </Heading>

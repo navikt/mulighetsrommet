@@ -29,8 +29,9 @@ const mockKrav: RefusjonKravAft[] = [
       {
         id: uuid(),
         person: {
-          norskIdent: "01012212345",
           navn: "Per Petterson",
+          fodselsdato: "1980-01-01",
+          fodselsaar: 1980,
         },
         manedsverk: 0.3,
         perioder: [
@@ -44,8 +45,8 @@ const mockKrav: RefusjonKravAft[] = [
       {
         id: uuid(),
         person: {
-          norskIdent: "10012212346",
           navn: "Stian Bjærvik",
+          fodselsaar: 1980,
         },
         manedsverk: 1,
         perioder: [
@@ -90,8 +91,9 @@ const mockKrav: RefusjonKravAft[] = [
       {
         id: uuid(),
         person: {
-          norskIdent: "01012212345",
           navn: "Per Petterson",
+          fodselsdato: "1980-01-01",
+          fodselsaar: 1980,
         },
         manedsverk: 0.3,
         perioder: [
@@ -105,7 +107,6 @@ const mockKrav: RefusjonKravAft[] = [
       {
         id: uuid(),
         person: {
-          norskIdent: "10012212346",
           navn: "Stian Bjærvik",
         },
         manedsverk: 1,
@@ -151,8 +152,9 @@ const mockKrav: RefusjonKravAft[] = [
       {
         id: uuid(),
         person: {
-          norskIdent: "01012212345",
           navn: "Per Petterson",
+          fodselsdato: "1980-01-01",
+          fodselsaar: 1980,
         },
         manedsverk: 0.3,
         perioder: [
@@ -166,7 +168,6 @@ const mockKrav: RefusjonKravAft[] = [
       {
         id: uuid(),
         person: {
-          norskIdent: "10012212346",
           navn: "Stian Bjærvik",
         },
         manedsverk: 1,

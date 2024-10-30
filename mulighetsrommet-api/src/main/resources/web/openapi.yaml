@@ -1863,7 +1863,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/RefusjonKravAft"
+                  $ref: "#/components/schemas/RefusjonKravKompakt"
 
   /api/v1/intern/arrangorflate/refusjonskrav/{id}:
     get:
@@ -1886,15 +1886,13 @@ paths:
         - $ref: "#/components/parameters/ID"
       tags:
         - Arrangorflate
-
+      operationId: godkjennRefusjonskrav
       requestBody:
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/Betalingsinformasjon"
         required: true
-
-      operationId: godkjennRefusjonskrav
       responses:
         200:
           description: Godkjenn et refusjonskrav
@@ -1914,6 +1912,21 @@ paths:
               schema:
                 type: string
                 format: binary
+
+  /api/v1/intern/arrangorflate/tilgang-arrangor:
+    get:
+      tags:
+        - Arrangorflate
+      operationId: getArrangorerInnloggetBrukerHarTilgangTil
+      responses:
+        200:
+          description: Henter liste over arrangører innlogget bruker har tilgang til
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Arrangor"
 
   /api/v1/intern/utdanninger:
     get:
@@ -4906,6 +4919,50 @@ components:
         - KLAR_FOR_GODKJENNING
         - GODKJENT_AV_ARRANGOR
 
+    RefusjonKravKompakt:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/RefusjonskravStatus"
+        fristForGodkjenning:
+          type: string
+          format: date-time
+        tiltakstype:
+          $ref: "#/components/schemas/RefusjonKravTiltakstype"
+        gjennomforing:
+          $ref: "#/components/schemas/RefusjonKravGjennomforing"
+        arrangor:
+          $ref: "#/components/schemas/RefusjonKravArrangor"
+        beregning:
+          $ref: "#/components/schemas/RefusjonKravKompaktBeregning"
+      required:
+        - id
+        - status
+        - fristForGodkjenning
+        - tiltakstype
+        - gjennomforing
+        - arrangor
+        - beregning
+
+    RefusjonKravKompaktBeregning:
+      type: object
+      properties:
+        periodeStart:
+          type: string
+          format: date-time
+        periodeSlutt:
+          type: string
+          format: date-time
+        belop:
+          type: integer
+      required:
+        - periodeStart
+        - periodeSlutt
+        - belop
+
     RefusjonKravAft:
       type: object
       properties:
@@ -5028,16 +5085,19 @@ components:
         - id
         - perioder
         - manedsverk
+        - person
 
     RefusjonKravDeltakelsePerson:
       type: object
       properties:
-        norskIdent:
-          type: string
         navn:
           type: string
+        fodselsdato:
+          type: string
+          format: date
+        fodselsaar:
+          type: integer
       required:
-        - norskIdent
         - navn
 
     RefusjonKravDeltakelsePeriode:

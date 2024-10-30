@@ -14,7 +14,7 @@ class AltinnRettigheterRepository(private val db: Database) {
     fun upsertRettighet(personBedriftRettigheter: PersonBedriftRettigheter) =
         db.transaction { tx -> upsertRettighet(personBedriftRettigheter, tx) }
 
-    fun upsertRettighet(personBedriftRettigheter: PersonBedriftRettigheter, tx: Session) {
+    private fun upsertRettighet(personBedriftRettigheter: PersonBedriftRettigheter, tx: Session) {
         @Language("PostgreSQL")
         val upsertRolle = """
              insert into altinn_person_rettighet (

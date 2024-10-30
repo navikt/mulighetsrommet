@@ -7,6 +7,7 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.altinn.models.AltinnRessurs
 import no.nav.mulighetsrommet.altinn.models.BedriftRettigheter
@@ -90,6 +91,8 @@ class AltinnClient(
     @Serializable
     data class AuthorizedParty(
         val organizationNumber: String,
+        @SerialName("name")
+        val organizationName: String,
         val type: String,
         val authorizedResources: List<String>,
         val subunits: List<AuthorizedParty>,

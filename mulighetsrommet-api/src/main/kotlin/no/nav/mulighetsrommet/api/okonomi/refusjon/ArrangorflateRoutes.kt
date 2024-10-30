@@ -11,14 +11,15 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.plugins.*
-import io.ktor.server.request.receive
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.clients.pdl.HentPersonBolkPdlQuery
+import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
+import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import no.nav.mulighetsrommet.api.domain.dto.DeltakerDto
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
@@ -55,9 +56,9 @@ fun Route.arrangorflateRoutes() {
     val refusjonskrav: RefusjonskravRepository by inject()
     val deltakerRepository: DeltakerRepository by inject()
 
-    val pdl: HentPersonBolkPdlQuery by inject()
+    val pdl: HentAdressebeskyttetPersonBolkPdlQuery by inject()
 
-    suspend fun <T : Any> PipelineContext<T, ApplicationCall>.arrangorerMedTilgang(): List<UUID> {
+    suspend fun <T : Any> PipelineContext<T, ApplicationCall>.arrangorIderMedTilgang(): List<UUID> {
         return call.principal<ArrangorflatePrincipal>()
             ?.organisasjonsnummer
             ?.map {
@@ -66,6 +67,18 @@ fun Route.arrangorflateRoutes() {
                         throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
                     }
                     .id
+            }
+            ?: throw StatusException(HttpStatusCode.Unauthorized)
+    }
+
+    suspend fun <T : Any> PipelineContext<T, ApplicationCall>.arrangorerMedTilgang(): List<ArrangorDto> {
+        return call.principal<ArrangorflatePrincipal>()
+            ?.organisasjonsnummer
+            ?.map {
+                arrangorService.getOrSyncArrangorFromBrreg(it)
+                    .getOrElse {
+                        throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
+                    }
             }
             ?: throw StatusException(HttpStatusCode.Unauthorized)
     }
@@ -80,10 +93,10 @@ fun Route.arrangorflateRoutes() {
     route("/arrangorflate") {
         route("/refusjonskrav") {
             get {
-                val arrangorIds = arrangorerMedTilgang()
+                val arrangorIds = arrangorIderMedTilgang()
 
                 val krav = refusjonskrav.getByArrangorIds(arrangorIds)
-                    .map { toRefusjonskrav(pdl, deltakerRepository, it) }
+                    .map { toRefusjonskravKompakt(it) }
 
                 call.respond(krav)
             }
@@ -170,7 +183,7 @@ fun Route.arrangorflateRoutes() {
 
         route("/tilsagn") {
             get {
-                call.respond(tilsagnService.getAllArrangorflateTilsagn(arrangorerMedTilgang()))
+                call.respond(tilsagnService.getAllArrangorflateTilsagn(arrangorIderMedTilgang()))
             }
 
             get("/{id}") {
@@ -183,11 +196,33 @@ fun Route.arrangorflateRoutes() {
                 call.respond(tilsagn)
             }
         }
+
+        route("/tilgang-arrangor") {
+            get {
+                call.respond(arrangorerMedTilgang())
+            }
+        }
     }
 }
 
+fun toRefusjonskravKompakt(krav: RefusjonskravDto) = RefusjonKravKompakt(
+    id = krav.id,
+    status = krav.status,
+    fristForGodkjenning = krav.fristForGodkjenning,
+    tiltakstype = krav.tiltakstype,
+    gjennomforing = krav.gjennomforing,
+    arrangor = krav.arrangor,
+    beregning = krav.beregning.let {
+        RefusjonKravKompakt.Beregning(
+            periodeStart = it.input.periodeStart,
+            periodeSlutt = it.input.periodeSlutt,
+            belop = it.output.belop,
+        )
+    },
+)
+
 suspend fun toRefusjonskrav(
-    pdl: HentPersonBolkPdlQuery,
+    pdl: HentAdressebeskyttetPersonBolkPdlQuery,
     deltakerRepository: DeltakerRepository,
     krav: RefusjonskravDto,
 ) = when (val beregning = krav.beregning) {
@@ -241,7 +276,7 @@ suspend fun toRefusjonskrav(
 }
 
 private suspend fun getPersoner(
-    pdl: HentPersonBolkPdlQuery,
+    pdl: HentAdressebeskyttetPersonBolkPdlQuery,
     deltakere: List<DeltakerDto>,
 ): Map<NorskIdent, RefusjonKravDeltakelse.Person> {
     val identer = deltakere
@@ -251,16 +286,12 @@ private suspend fun getPersoner(
 
     return pdl.hentPersonBolk(identer)
         .map {
-            it.entries
-                .mapNotNull { (ident, person) ->
-                    person.navn.firstOrNull()?.let { navn ->
-                        RefusjonKravDeltakelse.Person(
-                            norskIdent = NorskIdent(ident.value),
-                            navn = "${navn.etternavn}, ${navn.fornavn}",
-                        )
-                    }
+            buildMap {
+                it.entries.forEach { (ident, person) ->
+                    val refusjonskravPerson = toRefusjonskravPerson(person)
+                    put(NorskIdent(ident.value), refusjonskravPerson)
                 }
-                .associateBy { person -> person.norskIdent }
+            }
         }
         .getOrElse {
             throw StatusException(
@@ -268,6 +299,53 @@ private suspend fun getPersoner(
                 description = "Klarte ikke hente informasjon om deltakere i refusjonskravet.",
             )
         }
+}
+
+private fun toRefusjonskravPerson(person: HentPersonBolkResponse.Person): RefusjonKravDeltakelse.Person {
+    val gradering = person.adressebeskyttelse.firstOrNull()?.gradering ?: PdlGradering.UGRADERT
+    return when (gradering) {
+        PdlGradering.UGRADERT -> {
+            val navn = person.navn.first().let { navn ->
+                val fornavnOgMellomnavn = listOfNotNull(navn.fornavn, navn.mellomnavn).joinToString(" ")
+                listOf(navn.etternavn, fornavnOgMellomnavn).joinToString(", ")
+            }
+            val foedselsdato = person.foedselsdato.first()
+            RefusjonKravDeltakelse.Person(
+                navn = navn,
+                fodselsaar = foedselsdato.foedselsaar,
+                fodselsdato = foedselsdato.foedselsdato,
+            )
+        }
+
+        else -> RefusjonKravDeltakelse.Person(
+            navn = "Adressebeskyttet",
+            fodselsaar = null,
+            fodselsdato = null,
+        )
+    }
+}
+
+@Serializable
+data class RefusjonKravKompakt(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val status: RefusjonskravStatus,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val fristForGodkjenning: LocalDateTime,
+    val tiltakstype: RefusjonskravDto.Tiltakstype,
+    val gjennomforing: RefusjonskravDto.Gjennomforing,
+    val arrangor: RefusjonskravDto.Arrangor,
+    val beregning: Beregning,
+) {
+
+    @Serializable
+    data class Beregning(
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val periodeStart: LocalDateTime,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val periodeSlutt: LocalDateTime,
+        val belop: Int,
+    )
 }
 
 @Serializable
@@ -310,8 +388,10 @@ data class RefusjonKravDeltakelse(
 ) {
     @Serializable
     data class Person(
-        val norskIdent: NorskIdent,
         val navn: String,
+        @Serializable(with = LocalDateSerializer::class)
+        val fodselsdato: LocalDate?,
+        val fodselsaar: Int?,
     )
 }
 

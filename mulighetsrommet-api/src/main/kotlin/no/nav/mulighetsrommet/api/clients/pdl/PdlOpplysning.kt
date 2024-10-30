@@ -22,9 +22,9 @@ enum class IdentGruppe {
 
 @Serializable
 data class PdlNavn(
-    val fornavn: String? = null,
+    val fornavn: String,
     val mellomnavn: String? = null,
-    val etternavn: String? = null,
+    val etternavn: String,
 )
 
 sealed class GeografiskTilknytning {
@@ -39,4 +39,11 @@ enum class TypeGeografiskTilknytning {
     KOMMUNE,
     UDEFINERT,
     UTLAND,
+}
+
+enum class PdlGradering {
+    FORTROLIG,
+    STRENGT_FORTROLIG,
+    STRENGT_FORTROLIG_UTLAND,
+    UGRADERT,
 }
