@@ -48,7 +48,9 @@ export function RefusjonskravTable({ krav }: Props) {
                     <Table.DataCell colSpan={3} className="w-80">
                       {`${formaterDato(beregning.periodeStart)} - ${formaterDato(beregning.periodeSlutt)}`}
                     </Table.DataCell>
-                    <Table.DataCell className="w-52">{formaterNOK(beregning.belop)}</Table.DataCell>
+                    <Table.DataCell className="min-w-44">
+                      {formaterNOK(beregning.belop)}
+                    </Table.DataCell>
                     <Table.DataCell>{formaterDato(fristForGodkjenning)}</Table.DataCell>
                     <Table.DataCell>{statusTilTag(status)}</Table.DataCell>
                     <Table.DataCell>
