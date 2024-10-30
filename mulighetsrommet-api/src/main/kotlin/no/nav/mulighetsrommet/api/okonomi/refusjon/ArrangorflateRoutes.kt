@@ -2,6 +2,11 @@ package no.nav.mulighetsrommet.api.okonomi.refusjon
 
 import arrow.core.getOrElse
 import arrow.core.toNonEmptySetOrNull
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -32,7 +37,6 @@ import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.pdfgen.core.Environment
 import no.nav.pdfgen.core.PDFGenCore
-import no.nav.pdfgen.core.pdf.createHtmlFromTemplateData
 import no.nav.pdfgen.core.pdf.createPDFA
 import org.koin.ktor.ext.inject
 import org.verapdf.gf.foundry.VeraGreenfieldFoundryProvider
@@ -116,8 +120,17 @@ fun Route.arrangorflateRoutes() {
 
             get("/{id}/kvittering") {
                 val id = call.parameters.getOrFail<UUID>("id")
-                val html = createHtmlFromTemplateData("refusjon-kvittering", "refusjon").toString()
-                val pdfBytes: ByteArray = createPDFA(html)
+                val krav = refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                val oppsummering = toRefusjonskrav(pdl, deltakerRepository, krav)
+                // Config to handle date times
+                val mapper = ObjectMapper().apply {
+                    registerModule(JavaTimeModule())
+                    disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                    registerKotlinModule()
+                }
+                println(oppsummering)
+                val jsonNode: JsonNode = mapper.valueToTree<JsonNode>(oppsummering)
+                val pdfBytes: ByteArray = createPDFA("refusjon-kvittering", "refusjon", jsonNode) ?: throw Exception("Kunne ikke generere PDF")
 
                 call.response.headers.append(
                     "Content-Disposition",
