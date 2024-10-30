@@ -1,14 +1,17 @@
-package no.nav.mulighetsrommet.api.clients.pdl
+package no.nav.mulighetsrommet.api.okonomi.refusjon
 
 import arrow.core.Either
 import arrow.core.NonEmptySet
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.clients.pdl.*
+import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
 
-class HentPersonBolkPdlQuery(
+class HentAdressebeskyttetPersonBolkPdlQuery(
     private val pdl: PdlClient,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -18,14 +21,21 @@ class HentPersonBolkPdlQuery(
             query = """
                 query(${'$'}identer: [ID!]!) {
                     hentPersonBolk(identer: ${'$'}identer) {
-                        ident,
+                        ident
                         person {
                             navn {
                                 fornavn
                                 mellomnavn
                                 etternavn
                             }
-                        },
+                            adressebeskyttelse {
+                                gradering
+                            }
+                            foedselsdato {
+                                foedselsdato
+                                foedselsaar
+                            }
+                        }
                         code
                     }
                 }
@@ -41,7 +51,7 @@ class HentPersonBolkPdlQuery(
                                 val person = requireNotNull(it.person) {
                                     "person forventet siden response var OK"
                                 }
-                                PdlIdent(it.ident) to HentPersonBolkResponse.Person(person.navn)
+                                PdlIdent(it.ident) to person
                             }
 
                             else -> {
@@ -63,6 +73,20 @@ data class HentPersonBolkResponse(
     @Serializable
     data class Person(
         val navn: List<PdlNavn>,
+        val adressebeskyttelse: Adressebeskyttelse,
+        val foedselsdato: List<Foedselsdato>,
+    )
+
+    @Serializable
+    data class Adressebeskyttelse(
+        val gradering: PdlGradering = PdlGradering.UGRADERT,
+    )
+
+    @Serializable
+    data class Foedselsdato(
+        val foedselsaar: Int,
+        @Serializable(with = LocalDateSerializer::class)
+        val foedselsdato: LocalDate?,
     )
 
     @Serializable

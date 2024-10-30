@@ -41,7 +41,7 @@ export type TilsagnDetaljer = {
 
 export interface Deltaker {
   id: string;
-  person?: RefusjonKravDeltakelsePerson;
+  person: RefusjonKravDeltakelsePerson;
   veileder?: string;
   startDatoTiltaket?: string;
   startDatoPerioden?: string;
