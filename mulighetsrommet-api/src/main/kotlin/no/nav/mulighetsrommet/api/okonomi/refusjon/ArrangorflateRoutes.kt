@@ -10,6 +10,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDto
@@ -44,7 +45,7 @@ fun Route.arrangorflateRoutes() {
     val refusjonskrav: RefusjonskravRepository by inject()
     val deltakerRepository: DeltakerRepository by inject()
 
-    suspend fun <T : Any> PipelineContext<T, ApplicationCall>.arrangorerMedTilgang(): List<UUID> {
+    suspend fun <T : Any> PipelineContext<T, ApplicationCall>.arrangorIderMedTilgang(): List<UUID> {
         return call.principal<ArrangorflatePrincipal>()
             ?.organisasjonsnummer
             ?.map {
@@ -53,6 +54,18 @@ fun Route.arrangorflateRoutes() {
                         throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
                     }
                     .id
+            }
+            ?: throw StatusException(HttpStatusCode.Unauthorized)
+    }
+
+    suspend fun <T : Any> PipelineContext<T, ApplicationCall>.arrangorerMedTilgang(): List<ArrangorDto> {
+        return call.principal<ArrangorflatePrincipal>()
+            ?.organisasjonsnummer
+            ?.map {
+                arrangorService.getOrSyncArrangorFromBrreg(it)
+                    .getOrElse {
+                        throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
+                    }
             }
             ?: throw StatusException(HttpStatusCode.Unauthorized)
     }
@@ -67,7 +80,7 @@ fun Route.arrangorflateRoutes() {
     route("/arrangorflate") {
         route("/refusjonskrav") {
             get {
-                val arrangorIds = arrangorerMedTilgang()
+                val arrangorIds = arrangorIderMedTilgang()
 
                 val krav = refusjonskrav.getByArrangorIds(arrangorIds)
                     .map { toRefusjonKravOppsummering(deltakerRepository, it) }
@@ -133,7 +146,7 @@ fun Route.arrangorflateRoutes() {
 
         route("/tilsagn") {
             get {
-                call.respond(tilsagnService.getAllArrangorflateTilsagn(arrangorerMedTilgang()))
+                call.respond(tilsagnService.getAllArrangorflateTilsagn(arrangorIderMedTilgang()))
             }
 
             get("/{id}") {
@@ -144,6 +157,12 @@ fun Route.arrangorflateRoutes() {
                 requireTilgangHosArrangor(tilsagn.arrangor.organisasjonsnummer)
 
                 call.respond(tilsagn)
+            }
+        }
+
+        route("/tilgang-arrangor") {
+            get {
+                call.respond(arrangorerMedTilgang())
             }
         }
     }

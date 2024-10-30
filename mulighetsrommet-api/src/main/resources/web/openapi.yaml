@@ -1907,6 +1907,21 @@ paths:
                 type: string
                 format: binary
 
+  /api/v1/intern/arrangorflate/tilgang-arrangor:
+    get:
+      tags:
+        - Arrangorflate
+      operationId: getArrangorerInnloggetBrukerHarTilgangTil
+      responses:
+        200:
+          description: Henter liste over arrangører innlogget bruker har tilgang til
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Arrangor"
+
   /api/v1/intern/utdanninger:
     get:
       tags:

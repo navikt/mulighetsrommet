@@ -1,9 +1,10 @@
 import { Link } from "@remix-run/react";
 import css from "../root.module.css";
 import { Arrangorvelger } from "./arrangorvelger/Arrangorvelger";
+import { Arrangor } from "@mr/api-client";
 
 interface Props {
-  arrangorer: { navn: string; organisasjonsnummer: string }[]; // TODO Bytt til modell fra OpenAPI
+  arrangorer: Arrangor[];
 }
 
 export function Header({ arrangorer }: Props) {

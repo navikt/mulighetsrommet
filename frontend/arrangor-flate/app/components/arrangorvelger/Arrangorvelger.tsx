@@ -1,14 +1,17 @@
 import { Select } from "@navikt/ds-react";
 import { useNavigate } from "@remix-run/react";
 import { useOrgnrFromUrl } from "../../utils";
+import { Arrangor } from "@mr/api-client";
 
 interface Props {
-  arrangorer: { navn: string; organisasjonsnummer: string }[]; // TODO Bytt til modell fra OpenAPI
+  arrangorer: Arrangor[];
 }
 
 export function Arrangorvelger({ arrangorer }: Props) {
   const navigate = useNavigate();
   const currentOrgnr = useOrgnrFromUrl();
+
+  const alfabetisk = (a: Arrangor, b: Arrangor) => a.navn.localeCompare(b.navn);
 
   return (
     <Select
@@ -20,7 +23,7 @@ export function Arrangorvelger({ arrangorer }: Props) {
         navigate(`${e.target.value}/refusjonskrav`);
       }}
     >
-      {arrangorer.map((arrangor) => (
+      {arrangorer.sort(alfabetisk).map((arrangor) => (
         <option key={arrangor.organisasjonsnummer} value={arrangor.organisasjonsnummer}>
           {arrangor.navn} - {arrangor.organisasjonsnummer}
         </option>

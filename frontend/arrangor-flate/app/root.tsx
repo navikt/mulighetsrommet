@@ -14,17 +14,19 @@ import {
 } from "@remix-run/react";
 import parse from "html-react-parser";
 import { ReactNode, useEffect } from "react";
-import { checkValidToken } from "./auth/auth.server";
+import { checkValidToken, setupOpenApi } from "./auth/auth.server";
 import { Header } from "./components/Header";
 import css from "./root.module.css";
 import { Dekoratørfragmenter, hentSsrDekoratør } from "./services/dekoratør/dekorator.server";
 import useInjectDecoratorScript from "./services/dekoratør/useInjectScript";
 import "./tailwind.css";
 import { hentArrangortilgangerForBruker } from "./auth/arrangortilgang.server";
+import { Arrangor } from "@mr/api-client";
 
 export const meta: MetaFunction = () => [{ title: "Refusjoner" }];
 
 export const loader: LoaderFunction = async ({ request }) => {
+  await setupOpenApi(request);
   await checkValidToken(request);
   const arrangortilganger = await hentArrangortilgangerForBruker();
 
@@ -36,7 +38,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export type LoaderData = {
   dekorator: Dekoratørfragmenter | null;
-  arrangortilganger: { navn: string; organisasjonsnummer: string }[]; // TODO Bytt til modell fra OpenAPI
+  arrangortilganger: Arrangor[];
 };
 
 function App() {
@@ -56,7 +58,7 @@ function Dokument({
 }: {
   dekorator?: Dekoratørfragmenter;
   children: ReactNode;
-  arrangorer: { navn: string; organisasjonsnummer: string }[]; // TODO Bytt til modell fra OpenAPI
+  arrangorer: Arrangor[];
 }) {
   useInjectDecoratorScript(dekorator?.scripts);
   return (
