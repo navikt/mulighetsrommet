@@ -1,4 +1,4 @@
-import { RefusjonKravAft, RefusjonskravStatus } from "@mr/api-client";
+import { RefusjonKravKompakt, RefusjonskravStatus } from "@mr/api-client";
 import { Alert, Table, Tag } from "@navikt/ds-react";
 import { Link } from "@remix-run/react";
 import React, { ReactNode } from "react";
@@ -6,7 +6,7 @@ import { formaterDato } from "~/utils";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 
 interface Props {
-  krav: RefusjonKravAft[];
+  krav: RefusjonKravKompakt[];
 }
 
 export function RefusjonskravTable({ krav }: Props) {
@@ -28,7 +28,6 @@ export function RefusjonskravTable({ krav }: Props) {
             <Table.HeaderCell scope="col" colSpan={3}>
               Periode
             </Table.HeaderCell>
-            <Table.HeaderCell scope="col">Månedsverk</Table.HeaderCell>
             <Table.HeaderCell scope="col">Beløp</Table.HeaderCell>
             <Table.HeaderCell scope="col">Frist for godkjenning</Table.HeaderCell>
             <Table.HeaderCell scope="col">Status</Table.HeaderCell>
@@ -52,7 +51,6 @@ export function RefusjonskravTable({ krav }: Props) {
                     <Table.DataCell colSpan={3}>
                       {`${formaterDato(beregning.periodeStart)} - ${formaterDato(beregning.periodeSlutt)}`}
                     </Table.DataCell>
-                    <Table.DataCell>{beregning.antallManedsverk}</Table.DataCell>
                     <Table.DataCell>{formaterNOK(beregning.belop)}</Table.DataCell>
                     <Table.DataCell>{formaterDato(fristForGodkjenning)}</Table.DataCell>
                     <Table.DataCell>{statusTilTag(status)}</Table.DataCell>

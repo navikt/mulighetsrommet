@@ -79,7 +79,7 @@ fun Route.arrangorflateRoutes() {
                 val arrangorIds = arrangorerMedTilgang()
 
                 val krav = refusjonskrav.getByArrangorIds(arrangorIds)
-                    .map { toRefusjonskrav(pdl, deltakerRepository, it) }
+                    .map { toRefusjonskravKompakt(it) }
 
                 call.respond(krav)
             }
@@ -163,6 +163,22 @@ fun Route.arrangorflateRoutes() {
         }
     }
 }
+
+fun toRefusjonskravKompakt(krav: RefusjonskravDto) = RefusjonKravKompakt(
+    id = krav.id,
+    status = krav.status,
+    fristForGodkjenning = krav.fristForGodkjenning,
+    tiltakstype = krav.tiltakstype,
+    gjennomforing = krav.gjennomforing,
+    arrangor = krav.arrangor,
+    beregning = krav.beregning.let {
+        RefusjonKravKompakt.Beregning(
+            periodeStart = it.input.periodeStart,
+            periodeSlutt = it.input.periodeSlutt,
+            belop = it.output.belop,
+        )
+    },
+)
 
 suspend fun toRefusjonskrav(
     pdl: HentAdressebeskyttetPersonBolkPdlQuery,
@@ -267,6 +283,29 @@ private fun toRefusjonskravPerson(person: HentPersonBolkResponse.Person) =
             fodselsdato = null,
         )
     }
+
+@Serializable
+data class RefusjonKravKompakt(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val status: RefusjonskravStatus,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val fristForGodkjenning: LocalDateTime,
+    val tiltakstype: RefusjonskravDto.Tiltakstype,
+    val gjennomforing: RefusjonskravDto.Gjennomforing,
+    val arrangor: RefusjonskravDto.Arrangor,
+    val beregning: Beregning,
+) {
+
+    @Serializable
+    data class Beregning(
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val periodeStart: LocalDateTime,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val periodeSlutt: LocalDateTime,
+        val belop: Int,
+    )
+}
 
 @Serializable
 data class RefusjonKravAft(

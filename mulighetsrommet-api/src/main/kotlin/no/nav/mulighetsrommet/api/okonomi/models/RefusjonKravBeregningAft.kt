@@ -17,9 +17,9 @@ data class RefusjonKravBeregningAft(
     @Serializable
     data class Input(
         @Serializable(with = LocalDateTimeSerializer::class)
-        val periodeStart: LocalDateTime,
+        override val periodeStart: LocalDateTime,
         @Serializable(with = LocalDateTimeSerializer::class)
-        val periodeSlutt: LocalDateTime,
+        override val periodeSlutt: LocalDateTime,
         val sats: Int,
         val deltakelser: Set<DeltakelsePerioder>,
     ) : RefusjonKravBeregningInput()

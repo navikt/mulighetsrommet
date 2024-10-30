@@ -1863,7 +1863,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/RefusjonKravAft"
+                  $ref: "#/components/schemas/RefusjonKravKompakt"
 
   /api/v1/intern/arrangorflate/refusjonskrav/{id}:
     get:
@@ -4905,6 +4905,50 @@ components:
         - NARMER_SEG_FRIST
         - KLAR_FOR_GODKJENNING
         - GODKJENT_AV_ARRANGOR
+
+    RefusjonKravKompakt:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/RefusjonskravStatus"
+        fristForGodkjenning:
+          type: string
+          format: date-time
+        tiltakstype:
+          $ref: "#/components/schemas/RefusjonKravTiltakstype"
+        gjennomforing:
+          $ref: "#/components/schemas/RefusjonKravGjennomforing"
+        arrangor:
+          $ref: "#/components/schemas/RefusjonKravArrangor"
+        beregning:
+          $ref: "#/components/schemas/RefusjonKravKompaktBeregning"
+      required:
+        - id
+        - status
+        - fristForGodkjenning
+        - tiltakstype
+        - gjennomforing
+        - arrangor
+        - beregning
+
+    RefusjonKravKompaktBeregning:
+      type: object
+      properties:
+        periodeStart:
+          type: string
+          format: date-time
+        periodeSlutt:
+          type: string
+          format: date-time
+        belop:
+          type: integer
+      required:
+        - periodeStart
+        - periodeSlutt
+        - belop
 
     RefusjonKravAft:
       type: object
