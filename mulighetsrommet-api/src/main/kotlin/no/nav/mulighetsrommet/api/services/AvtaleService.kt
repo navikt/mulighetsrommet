@@ -18,8 +18,6 @@ import no.nav.mulighetsrommet.api.routes.v1.AvtaleFilter
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.Pagination
-import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Opphav
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
@@ -32,7 +30,6 @@ import java.util.*
 class AvtaleService(
     private val avtaler: AvtaleRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
-    private val tiltakstyperMigrert: List<Tiltakskode>,
     private val arrangorService: ArrangorService,
     private val notificationRepository: NotificationRepository,
     private val validator: AvtaleValidator,
@@ -145,10 +142,6 @@ class AvtaleService(
             return Either.Left(BadRequest(message = "Årsak mangler"))
         }
         val avtale = avtaler.get(id) ?: return Either.Left(NotFound("Avtalen finnes ikke"))
-
-        if (avtale.opphav == Opphav.ARENA && !tiltakstyperMigrert.contains(avtale.tiltakstype.tiltakskode)) {
-            return Either.Left(BadRequest(message = "Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."))
-        }
 
         if (aarsak is AvbruttAarsak.Annet && aarsak.name.length > 100) {
             return Either.Left(BadRequest(message = "Beskrivelse kan ikke inneholde mer enn 100 tegn"))

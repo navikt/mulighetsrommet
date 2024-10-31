@@ -796,7 +796,6 @@ private fun createArenaAdapterService(
     tiltakstyper = TiltakstypeRepository(db),
     avtaler = AvtaleRepository(db),
     tiltaksgjennomforinger = TiltaksgjennomforingRepository(db),
-    deltakere = DeltakerRepository(db),
     tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
     sanityService = sanityService,
     arrangorService = mockk(relaxed = true),

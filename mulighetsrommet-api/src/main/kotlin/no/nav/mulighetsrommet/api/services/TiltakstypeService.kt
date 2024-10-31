@@ -14,7 +14,21 @@ import java.util.concurrent.TimeUnit
 
 class TiltakstypeService(
     private val tiltakstypeRepository: TiltakstypeRepository,
-    private val enabledTiltakskoder: List<Tiltakskode>,
+    /**
+     * Alle kjent gruppetiltak har foreløpig blitt migrert.
+     * Denne står fortsatt åpen for konfigurasjon for fremtidige tiltak (bl.a. IPS/AMS).
+     */
+    private val enabledTiltakskoder: List<Tiltakskode> = listOf(
+        Tiltakskode.AVKLARING,
+        Tiltakskode.OPPFOLGING,
+        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+        Tiltakskode.JOBBKLUBB,
+        Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+        Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+    ),
 ) {
 
     private val cacheBySanityId: Cache<UUID, TiltakstypeDto> = Caffeine.newBuilder()

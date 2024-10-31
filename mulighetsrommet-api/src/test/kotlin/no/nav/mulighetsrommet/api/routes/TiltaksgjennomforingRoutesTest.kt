@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.*
 
@@ -53,16 +52,15 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
     }
 
     val generellRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
-    val gjennomforingerSkriv = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)
+    val gjennomforingerSkriv =
+        AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)
 
     fun appConfig(
         engine: HttpClientEngine = CIO.create(),
-        migrerteTiltak: List<Tiltakskode> = listOf(),
     ) = createTestApplicationConfig().copy(
         database = databaseConfig,
         auth = createAuthConfig(oauth, roles = listOf(generellRolle, gjennomforingerSkriv)),
         engine = engine,
-        migrerteTiltak = migrerteTiltak,
     )
 
     test("401 Unauthorized for uautentisert kall for PUT av tiltaksgjennomføring") {
@@ -103,10 +101,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
     }
 
     test("200 OK for autentisert kall for PUT av tiltaksgjennomføring når bruker har generell tilgang og til skriv for tiltaksgjennomføring") {
-        val config = appConfig(
-            migrerteTiltak = listOf(Tiltakskode.OPPFOLGING),
-        )
-        withTestApplication(config) {
+        withTestApplication(appConfig()) {
             val client = createClient {
                 install(ContentNegotiation) {
                     json()

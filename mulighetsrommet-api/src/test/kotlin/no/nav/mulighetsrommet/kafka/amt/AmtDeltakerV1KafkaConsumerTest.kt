@@ -47,7 +47,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         return AmtDeltakerV1KafkaConsumer(
             config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
             relevantDeltakerSluttDatoPeriod = period,
-            tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf()),
+            tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db)),
             deltakere = DeltakerRepository(database.db),
             refusjonService = refusjonService,
         )

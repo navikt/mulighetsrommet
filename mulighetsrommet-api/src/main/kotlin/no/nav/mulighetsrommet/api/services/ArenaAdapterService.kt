@@ -39,7 +39,6 @@ class ArenaAdapterService(
     private val tiltakstyper: TiltakstypeRepository,
     private val avtaler: AvtaleRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
-    private val deltakere: DeltakerRepository,
     private val tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
     private val sanityService: SanityService,
     private val arrangorService: ArrangorService,
