@@ -89,10 +89,11 @@ fun Route.arrangorflateRoutes() {
     route("/arrangorflate") {
         route("/refusjonskrav") {
             get("alle/{orgnr}") {
-                val arrangorIds = arrangorIderMedTilgang()
                 val orgnr = call.parameters.getOrFail("orgnr")
+                val organisasjonsnummer = Organisasjonsnummer(orgnr)
+                requireTilgangHosArrangor(organisasjonsnummer)
 
-                val krav = refusjonskrav.getByArrangorIds(arrangorIds, Organisasjonsnummer(orgnr))
+                val krav = refusjonskrav.getByArrangorIds(organisasjonsnummer)
                     .map { toRefusjonskravKompakt(it) }
 
                 call.respond(krav)
@@ -161,8 +162,13 @@ fun Route.arrangorflateRoutes() {
         }
 
         route("/tilsagn") {
-            get {
-                call.respond(tilsagnService.getAllArrangorflateTilsagn(arrangorIderMedTilgang()))
+            route("/alle/{orgnr}") {
+                get {
+                    val orgnr = call.parameters.getOrFail("orgnr")
+                    val organisasjonsnummer = Organisasjonsnummer(orgnr)
+                    requireTilgangHosArrangor(organisasjonsnummer)
+                    call.respond(tilsagnService.getAllArrangorflateTilsagn(organisasjonsnummer))
+                }
             }
 
             get("/{id}") {

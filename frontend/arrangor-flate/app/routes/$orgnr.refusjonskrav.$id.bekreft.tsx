@@ -9,8 +9,6 @@ import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
 import { RefusjonskravDetaljer } from "~/components/refusjonskrav/RefusjonskravDetaljer";
 import { useOrgnrFromUrl } from "../utils";
 import { internalNavigation } from "../internal-navigation";
-import invariant from "tiny-invariant";
-import React from "react";
 import { Definisjon } from "~/components/Definisjon";
 
 type BekreftRefusjonskravData = {
@@ -56,7 +54,9 @@ export const action: ActionFunction = async ({ request }) => {
     return json({ error: "Mangler kontonummer" }, { status: 400 });
   }
 
-  invariant(orgnr, "Mangler orgnr");
+  if (!orgnr) {
+    throw new Error("Mangler orgnr");
+  }
 
   await ArrangorflateService.godkjennRefusjonskrav({
     id: refusjonskravId as string,

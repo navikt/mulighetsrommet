@@ -174,22 +174,21 @@ class RefusjonskravRepository(private val db: Database) {
             .runWithSession(tx)
     }
 
-    fun getByArrangorIds(ids: List<UUID>, organisasjonsnummer: Organisasjonsnummer): List<RefusjonskravDto> =
-        db.transaction { getByArrangorIds(ids, organisasjonsnummer, it) }
+    fun getByArrangorIds(organisasjonsnummer: Organisasjonsnummer): List<RefusjonskravDto> =
+        db.transaction { getByArrangorIds(organisasjonsnummer, it) }
 
     fun getByArrangorIds(
-        ids: List<UUID>,
         organisasjonsnummer: Organisasjonsnummer,
         tx: Session,
     ): List<RefusjonskravDto> {
         @Language("PostgreSQL")
         val query = """
             select * from refusjonskrav_aft_view
-            where arrangor_id = any(:ids) and arrangor_organisasjonsnummer = :organisasjonsnummer
+            where arrangor_organisasjonsnummer = :organisasjonsnummer
         """.trimIndent()
 
         return tx.run(
-            queryOf(query, mapOf("ids" to db.createUuidArray(ids), "organisasjonsnummer" to organisasjonsnummer.value))
+            queryOf(query, mapOf("organisasjonsnummer" to organisasjonsnummer.value))
                 .map { it.toRefusjonsKravAft() }
                 .asList,
         )

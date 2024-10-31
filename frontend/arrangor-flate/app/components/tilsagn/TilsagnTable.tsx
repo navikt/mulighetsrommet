@@ -1,5 +1,5 @@
 import { ArrangorflateTilsagn } from "@mr/api-client";
-import { Table } from "@navikt/ds-react";
+import { Alert, Table } from "@navikt/ds-react";
 import { Link } from "@remix-run/react";
 import { formaterDato, useOrgnrFromUrl } from "~/utils";
 import { internalNavigation } from "../../internal-navigation";
@@ -10,6 +10,15 @@ interface Props {
 
 export function TilsagnTable({ tilsagn }: Props) {
   const orgnr = useOrgnrFromUrl();
+
+  if (tilsagn.length === 0) {
+    return (
+      <Alert className="my-10" variant="info">
+        Det finnes ingen tilsagn her
+      </Alert>
+    );
+  }
+
   return (
     <>
       <div className="border-spacing-y-6 border-collapsed mt-4">

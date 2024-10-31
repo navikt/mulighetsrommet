@@ -1788,11 +1788,13 @@ paths:
                 items:
                   $ref: "#/components/schemas/AFTSats"
 
-  /api/v1/intern/arrangorflate/tilsagn:
+  /api/v1/intern/arrangorflate/tilsagn/alle/{orgnr}:
     get:
       tags:
         - Arrangorflate
       operationId: getAllArrangorflateTilsagn
+      parameters:
+        - $ref: "#/components/parameters/OrgnrParam"
       responses:
         200:
           description: Hent tilsagn til arrangør
