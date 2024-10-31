@@ -71,11 +71,14 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   }
 
   const updateOpsjonsmodellClb = useCallback(updateOpsjonsmodell, [setValue]);
+  const watchedOpsjonsmodell = watch("opsjonsmodellData.opsjonsmodell");
   useEffect(() => {
     if (avtale?.avtaletype && avtale.opsjonsmodellData && !avtale.opsjonsmodellData.opsjonsmodell) {
-      updateOpsjonsmodellClb(avtale?.avtaletype);
+      if (!watchedOpsjonsmodell) {
+        updateOpsjonsmodellClb(avtale?.avtaletype);
+      }
     }
-  }, [avtale, updateOpsjonsmodellClb]);
+  }, [avtale, updateOpsjonsmodellClb, watchedOpsjonsmodell]);
 
   const navRegionerOptions = enheter
     .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
@@ -83,6 +86,10 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
       value: enhet.enhetsnummer,
       label: enhet.navn,
     }));
+
+  const opsjonsmodell = opsjonsmodeller.find(
+    (m) => m.value === watch("opsjonsmodellData.opsjonsmodell"),
+  );
 
   return (
     <SkjemaDetaljerContainer>
@@ -178,12 +185,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             ) : null}
           </FormGroup>
 
-          <AvtaleDatoContainer
-            avtale={avtale}
-            opsjonsmodell={opsjonsmodeller.find(
-              (m) => m.value === watch("opsjonsmodellData.opsjonsmodell"),
-            )}
-          />
+          <AvtaleDatoContainer avtale={avtale} opsjonsmodell={opsjonsmodell} />
 
           {tiltakskode && erAnskaffetTiltak(tiltakskode) && (
             <>
