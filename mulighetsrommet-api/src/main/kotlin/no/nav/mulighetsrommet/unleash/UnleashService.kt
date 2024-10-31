@@ -4,10 +4,12 @@ import io.getunleash.DefaultUnleash
 import io.getunleash.Unleash
 import io.getunleash.UnleashContext
 import io.getunleash.util.UnleashConfig
+import no.nav.common.client.axsys.AxsysClient
 import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
 import no.nav.mulighetsrommet.unleash.strategies.ByNavIdentStrategy
+import no.nav.mulighetsrommet.unleash.strategies.ByTiltakskodeStrategy
 
-class UnleashService(config: Config, byEnhetStrategy: ByEnhetStrategy, byNavidentStrategy: ByNavIdentStrategy) {
+class UnleashService(config: Config, axsysClient: AxsysClient) {
     private val unleash: Unleash
 
     data class Config(
@@ -26,7 +28,13 @@ class UnleashService(config: Config, byEnhetStrategy: ByEnhetStrategy, byNaviden
             .apiKey(config.token)
             .environment(config.environment)
             .build()
-        unleash = DefaultUnleash(unleashConfig, byEnhetStrategy, byNavidentStrategy)
+
+        unleash = DefaultUnleash(
+            unleashConfig,
+            ByEnhetStrategy(axsysClient),
+            ByNavIdentStrategy(),
+            ByTiltakskodeStrategy(),
+        )
     }
 
     fun isEnabled(feature: String, context: FeatureToggleContext): Boolean {
@@ -34,9 +42,11 @@ class UnleashService(config: Config, byEnhetStrategy: ByEnhetStrategy, byNaviden
             .userId(context.userId)
             .sessionId(context.sessionId)
             .remoteAddress(context.remoteAddress)
+            .addProperty(ByTiltakskodeStrategy.TILTAKSKODER_PARAM, context.tiltakskoder.joinToString(",") { it.name })
             .build()
         return unleash.isEnabled(feature, ctx)
     }
+
     fun isEnabled(feature: String): Boolean {
         return unleash.isEnabled(feature)
     }

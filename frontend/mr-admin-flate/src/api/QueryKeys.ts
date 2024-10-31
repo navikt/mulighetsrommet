@@ -38,7 +38,6 @@ export const QueryKeys = {
   brregVirksomhetUnderenheter: (id: string) => ["virksomet", id, "underenheter"],
   navansatt: (rolle: NavAnsattRolle) => ["nav-ansatte", rolle],
   sokNavansatt: (q: string) => ["sok-nav-ansatte", q],
-  features: (feature: string) => ["feature", feature],
   navRegioner: () => ["navRegioner"],
   personopplysninger: () => ["personopplysninger"],
   opprettTilsagn: () => ["opprett-tilsagn"],

@@ -137,13 +137,15 @@ Eksempel:
 $ curl localhost:8080/api/v1/innsatsgrupper -H 'Authorization: Bearer <access_token>'
 ```
 
-For arrangor-flate kreves det token generert fra [mock-oauth2-server sin tokenx side for debugging av tokens](http://localhost:8081/tokenx/debugger). Les mer i readme til arrangor-flate.
+For arrangor-flate kreves det token generert
+fra [mock-oauth2-server sin tokenx side for debugging av tokens](http://localhost:8081/tokenx/debugger). Les mer i
+readme til arrangor-flate.
 
 ### Feature toggles
 
 Vi administrerer en del feature toggles via [NAIS og Unleash](https://doc.nais.io/addons/unleash/).
-Grensesnitt for å definere toggles finner du her: https://team-mulighetsrommet-unleash-web.nav.cloud.nais.io (logg inn
-med @nav-brukeren din).
+Grensesnitt for å definere toggles finner du her: https://team-mulighetsrommet-unleash-web.iap.nav.cloud.nais.io
+(logg inn med @nav-brukeren din).
 
 Standard oppsett er at Unleash blir [mocket lokalt](../README.md#mocks-via-wiremock), så husk gjerne å oppdatere mocken
 med nye feature toggles etter hvert som de legges til.
@@ -152,7 +154,7 @@ Hvis du heller ønsker å peke lokal applikasjon direkte mot Unleash kan du gjø
 1. Konfigurer miljøvariabelen `UNLEASH_SERVER_API_URL` med riktig
    URL: https://team-mulighetsrommet-unleash-api.nav.cloud.nais.io
 2. Opprett et
-   personlig [Unleash token](https://team-mulighetsrommet-unleash-web.nav.cloud.nais.io/profile/personal-api-tokens)
+   personlig [Unleash token](https://team-mulighetsrommet-unleash-web.iap.nav.cloud.nais.io/profile/personal-api-tokens)
    og konfigurerer miljøvariabelen `UNLEASH_SERVER_API_TOKEN` med dette tokenet
 3. Start applikasjonen
 

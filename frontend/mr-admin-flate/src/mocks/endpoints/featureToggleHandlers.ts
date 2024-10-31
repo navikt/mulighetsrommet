@@ -6,6 +6,7 @@ const mockFeatures: Features = {
   [Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_DEBUGGER]: true,
   [Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN]: true,
   [Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_TILBAKEMELDING]: true,
+  [Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_DELTAKER]: true,
 };
 
 export const featureToggleHandlers = [
