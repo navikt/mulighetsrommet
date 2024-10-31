@@ -101,7 +101,7 @@ class TilsagnRepositoryTest : FunSpec({
         test("get by arrangor_ids") {
             repository.upsert(tilsagn)
             repository.setBesluttelse(tilsagn.id, TilsagnBesluttelse.GODKJENT, NavIdent("Z123456"), LocalDateTime.now())
-            repository.getAllArrangorflateTilsagn(listOf(tilsagn.arrangorId)) shouldBe listOf(
+            repository.getAllArrangorflateTilsagn(domain.arrangorer.find { it.id == tilsagn.arrangorId }?.organisasjonsnummer!!) shouldBe listOf(
                 ArrangorflateTilsagn(
                     id = tilsagn.id,
                     gjennomforing = ArrangorflateTilsagn.Gjennomforing(
