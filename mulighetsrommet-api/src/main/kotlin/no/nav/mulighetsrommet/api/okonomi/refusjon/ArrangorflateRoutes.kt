@@ -88,7 +88,7 @@ fun Route.arrangorflateRoutes() {
 
     route("/arrangorflate") {
         route("/refusjonskrav") {
-            get("/alle/{orgnr}") {
+            get("alle/{orgnr}") {
                 val arrangorIds = arrangorIderMedTilgang()
                 val orgnr = call.parameters.getOrFail("orgnr")
 
