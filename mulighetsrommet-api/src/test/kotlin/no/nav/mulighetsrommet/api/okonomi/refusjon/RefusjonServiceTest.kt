@@ -8,7 +8,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
@@ -61,7 +60,6 @@ class RefusjonServiceTest : FunSpec({
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
             val allKrav = refusjonskravRepository.getByArrangorIds(
-                listOf(ArrangorFixtures.underenhet1.id),
                 getOrgnrForArrangor(
                     AFT1,
                     domain,
@@ -126,7 +124,6 @@ class RefusjonServiceTest : FunSpec({
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
             val krav = refusjonskravRepository.getByArrangorIds(
-                listOf(ArrangorFixtures.underenhet1.id),
                 getOrgnrForArrangor(
                     AFT1,
                     domain,
@@ -187,7 +184,6 @@ class RefusjonServiceTest : FunSpec({
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
             val krav = refusjonskravRepository.getByArrangorIds(
-                listOf(ArrangorFixtures.underenhet1.id),
                 getOrgnrForArrangor(
                     AFT1,
                     domain,
@@ -229,7 +225,6 @@ class RefusjonServiceTest : FunSpec({
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
             val krav = refusjonskravRepository.getByArrangorIds(
-                listOf(ArrangorFixtures.underenhet1.id),
                 getOrgnrForArrangor(
                     AFT1,
                     domain,

@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -100,8 +101,8 @@ class TilsagnService(
         }.right()
     }
 
-    fun getAllArrangorflateTilsagn(arrangorIds: List<UUID>): List<ArrangorflateTilsagn> =
-        tilsagnRepository.getAllArrangorflateTilsagn(arrangorIds)
+    fun getAllArrangorflateTilsagn(organisasjonsnummer: Organisasjonsnummer): List<ArrangorflateTilsagn> =
+        tilsagnRepository.getAllArrangorflateTilsagn(organisasjonsnummer)
 
     fun getArrangorflateTilsagnTilRefusjon(
         gjennomforingId: UUID,
