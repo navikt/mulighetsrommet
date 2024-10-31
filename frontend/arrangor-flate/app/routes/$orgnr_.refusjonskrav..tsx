@@ -15,10 +15,11 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request, params }: LoaderFunctionArgs) {
   await checkValidToken(request);
   await setupOpenApi(request);
-  const krav = await ArrangorflateService.getAllRefusjonKrav();
+  const { orgnr } = params;
+  const krav = await ArrangorflateService.getAllRefusjonKrav({ orgnr });
   const tilsagn = await ArrangorflateService.getAllArrangorflateTilsagn();
 
   return json({ krav, tilsagn });

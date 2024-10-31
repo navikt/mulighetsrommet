@@ -15,7 +15,7 @@ export function Arrangorvelger({ arrangorer }: Props) {
 
   return (
     <Select
-      defaultValue={currentOrgnr}
+      value={currentOrgnr}
       label="Velg arrangør du vil representere"
       hideLabel
       name="orgnr"
