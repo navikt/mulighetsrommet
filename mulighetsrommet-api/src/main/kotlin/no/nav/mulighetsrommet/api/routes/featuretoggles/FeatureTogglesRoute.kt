@@ -8,6 +8,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.unleash.FeatureToggleContext
 import no.nav.mulighetsrommet.unleash.UnleashService
 import org.koin.ktor.ext.inject
@@ -24,12 +25,14 @@ fun Route.featureTogglesRoute(config: AppConfig) {
 
     route("/features") {
         get {
-            val feature: String = call.request.queryParameters.getOrFail("feature")
+            val feature: String by call.parameters
+            val tiltakskoder = call.parameters.getAll("tiltakskoder")?.map { Tiltakskode.valueOf(it) } ?: emptyList()
 
             val context = FeatureToggleContext(
                 userId = getNavIdent().value,
                 sessionId = call.generateSessionId(),
                 remoteAddress = call.request.origin.remoteAddress,
+                tiltakskoder = tiltakskoder,
             )
 
             val isEnabled = unleashService.isEnabled(feature, context)

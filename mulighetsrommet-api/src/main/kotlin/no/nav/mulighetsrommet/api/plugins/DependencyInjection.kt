@@ -66,8 +66,6 @@ import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
 import no.nav.mulighetsrommet.tokenprovider.M2MTokenProvider
 import no.nav.mulighetsrommet.tokenprovider.createMaskinportenM2mTokenClient
 import no.nav.mulighetsrommet.unleash.UnleashService
-import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
-import no.nav.mulighetsrommet.unleash.strategies.ByNavIdentStrategy
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.db.UtdanningRepository
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
@@ -350,11 +348,7 @@ private fun services(appConfig: AppConfig) = module {
     single { NotificationService(get(), get(), get()) }
     single { ArrangorService(get(), get()) }
     single { RefusjonService(get(), get(), get(), get()) }
-    single {
-        val byEnhetStrategy = ByEnhetStrategy(get())
-        val byNavidentStrategy = ByNavIdentStrategy()
-        UnleashService(appConfig.unleash, byEnhetStrategy, byNavidentStrategy)
-    }
+    single { UnleashService(appConfig.unleash, get()) }
     single<AxsysClient> {
         AxsysV2ClientImpl(
             appConfig.axsys.url,

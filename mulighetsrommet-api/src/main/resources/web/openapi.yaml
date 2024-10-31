@@ -1482,6 +1482,13 @@ paths:
         required: true
         schema:
           $ref: "#/components/schemas/Toggles"
+
+      - in: query
+        name: tiltakskoder
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tiltakskode"
     get:
       tags:
         - FeatureToggle
@@ -4106,6 +4113,7 @@ components:
         - mulighetsrommet-veilederflate.vis-tilbakemelding
         - mulighetsrommet.admin-flate.enableDebugger
         - mulighetsrommet.admin-flate.opprett-tilsagn
+        - mulighetsrommet.tiltakstype.migrering.deltaker
 
     PublisertRequest:
       type: object
