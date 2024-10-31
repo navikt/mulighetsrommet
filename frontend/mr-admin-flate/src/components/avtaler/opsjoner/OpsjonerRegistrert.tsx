@@ -1,7 +1,7 @@
 import { Alert, BodyShort, Button, Heading, HStack, Table, VStack } from "@navikt/ds-react";
 import { AvtaleDto, OpsjonLoggRegistrert, OpsjonStatus } from "@mr/api-client";
-import { useSlettOpsjon } from "../../../api/avtaler/useSlettOpsjon";
-import { formaterDato } from "../../../utils/Utils";
+import { useSlettOpsjon } from "@/api/avtaler/useSlettOpsjon";
+import { formaterDato } from "@/utils/Utils";
 import styles from "./OpsjonerRegistrert.module.scss";
 
 interface Props {

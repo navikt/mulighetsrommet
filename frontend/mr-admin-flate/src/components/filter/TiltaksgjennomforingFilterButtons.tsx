@@ -1,34 +1,25 @@
 import { Button } from "@navikt/ds-react";
 import { useSetAtom } from "jotai";
-import { Opphav } from "@mr/api-client";
+import { Tiltakskode } from "@mr/api-client";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { useState } from "react";
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { useAvtale } from "@/api/avtaler/useAvtale";
-import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
-import { inneholderUrl } from "@/utils/Utils";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
-import { OpprettTiltakIArenaModal } from "@/components/filter/OpprettTiltakIArenaModal";
 
 export function TiltaksgjennomforingFilterButtons() {
   const { data: avtale } = useAvtale();
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const { data: migrerteTiltakstyper } = useMigrerteTiltakstyper();
-  const [visKanIkkeOppretteTiltakModal, setVisKanIkkeOppretteTiltakModal] = useState(false);
   const setTiltaksgjennomforingFane = useSetAtom(gjennomforingDetaljerTabAtom);
 
-  const visOpprettTiltaksgjennomforingKnapp = inneholderUrl("/avtaler/");
-
-  const avtaleErOpprettetIAdminFlate = avtale?.opphav === Opphav.MR_ADMIN_FLATE;
   const avtaleErAftEllerVta = avtale?.tiltakstype?.tiltakskode
-    ? ["ARBFORB", "VASV"].includes(avtale?.tiltakstype?.tiltakskode)
+    ? [
+        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+      ].includes(avtale.tiltakstype.tiltakskode)
     : false;
   const avtalenErAktiv = avtale?.status.name === "AKTIV";
-
-  const kanOppretteTiltak =
-    avtale?.tiltakstype?.tiltakskode &&
-    migrerteTiltakstyper?.includes(avtale.tiltakstype.tiltakskode);
 
   return (
     <div
@@ -51,26 +42,16 @@ export function TiltaksgjennomforingFilterButtons() {
           }}
         >
           <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
-            {visOpprettTiltaksgjennomforingKnapp && kanOppretteTiltak ? (
-              <Lenkeknapp
-                size="small"
-                to={`skjema`}
-                variant="primary"
-                dataTestid="opprett-ny-tiltaksgjenomforing_knapp"
-                onClick={() => setTiltaksgjennomforingFane("detaljer")}
-              >
-                Opprett ny tiltaksgjennomføring
-              </Lenkeknapp>
-            ) : (
-              <Button
-                variant="primary"
-                size="small"
-                onClick={() => setVisKanIkkeOppretteTiltakModal(true)}
-              >
-                Opprett ny tiltaksgjennomføring
-              </Button>
-            )}
-            {avtaleErOpprettetIAdminFlate && avtaleErAftEllerVta && (
+            <Lenkeknapp
+              size="small"
+              to={`skjema`}
+              variant="primary"
+              dataTestid="opprett-ny-tiltaksgjenomforing_knapp"
+              onClick={() => setTiltaksgjennomforingFane("detaljer")}
+            >
+              Opprett ny tiltaksgjennomføring
+            </Lenkeknapp>
+            {avtaleErAftEllerVta && (
               <>
                 <Button
                   size="small"
@@ -90,13 +71,6 @@ export function TiltaksgjennomforingFilterButtons() {
             )}
           </HarSkrivetilgang>
         </div>
-      )}
-      {avtale && (
-        <OpprettTiltakIArenaModal
-          open={visKanIkkeOppretteTiltakModal}
-          onClose={() => setVisKanIkkeOppretteTiltakModal(false)}
-          tiltakstype={avtale.tiltakstype.navn}
-        />
       )}
     </div>
   );

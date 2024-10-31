@@ -2,7 +2,7 @@ import { AvtaleDto, Avtaletype, OpsjonsmodellKey, OpsjonStatus } from "@mr/api-c
 import { Heading, HGrid, Select, TextField } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
-import { MIN_START_DATO_FOR_AVTALER } from "../../../constants";
+import { MIN_START_DATO_FOR_AVTALER } from "@/constants";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { InferredAvtaleSchema } from "../../redaksjoneltInnhold/AvtaleSchema";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
@@ -12,7 +12,6 @@ import { Opsjonsmodell, opsjonsmodeller } from "../opsjoner/opsjonsmodeller";
 interface Props {
   avtale?: AvtaleDto;
   avtaletype: Avtaletype;
-  arenaOpphavOgIngenEierskap: boolean;
   minStartDato: Date;
   sluttDatoFraDato: Date;
   sluttDatoTilDato: Date;
@@ -23,7 +22,6 @@ interface Props {
 export function AvtaleVarighet({
   avtale,
   avtaletype,
-  arenaOpphavOgIngenEierskap,
   minStartDato,
   sluttDatoFraDato,
   sluttDatoTilDato,
@@ -44,8 +42,7 @@ export function AvtaleVarighet({
   const skalIkkeKunneRedigereOpsjoner = antallOpsjonerUtlost > 0;
 
   const { startDato } = watch("startOgSluttDato");
-  const readonly =
-    opsjonsmodell?.value !== "ANNET" || arenaOpphavOgIngenEierskap || skalIkkeKunneRedigereOpsjoner;
+  const readonly = opsjonsmodell?.value !== "ANNET" || skalIkkeKunneRedigereOpsjoner;
 
   useEffect(() => {
     if (startDato && opsjonsmodell && antallOpsjonerUtlost === 0) {
@@ -152,7 +149,6 @@ export function AvtaleVarighet({
           <ControlledDateInput
             size="small"
             label={avtaletekster.startdatoLabel}
-            readOnly={arenaOpphavOgIngenEierskap}
             fromDate={MIN_START_DATO_FOR_AVTALER}
             toDate={sluttDatoTilDato}
             {...register("startOgSluttDato.startDato")}
@@ -165,7 +161,6 @@ export function AvtaleVarighet({
                 ? avtaletekster.valgfriSluttdatoLabel(avtaletype)
                 : avtaletekster.sluttdatoLabel(false)
             }
-            readOnly={arenaOpphavOgIngenEierskap}
             fromDate={sluttDatoFraDato}
             toDate={sluttDatoTilDato}
             {...register("startOgSluttDato.sluttDato")}

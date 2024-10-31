@@ -555,93 +555,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
-    context("Filtrering på tiltaksgjennomforingstatus") {
-        val tiltaksgjennomforingAktiv = AFT1
-        val tiltaksgjennomforingAvsluttetDato = ArenaOppfolging1.copy(
-            id = UUID.randomUUID(),
-            avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-            sluttDato = LocalDate.now().minusMonths(1),
-        )
-        val tiltaksgjennomforingAvbrutt = ArenaOppfolging1.copy(
-            id = UUID.randomUUID(),
-            avslutningsstatus = Avslutningsstatus.AVBRUTT,
-        )
-        val tiltaksgjennomforingAvlyst = ArenaOppfolging1.copy(
-            id = UUID.randomUUID(),
-            avslutningsstatus = Avslutningsstatus.AVLYST,
-        )
-        val tiltaksgjennomforingPlanlagt = ArenaOppfolging1.copy(
-            id = UUID.randomUUID(),
-            avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-            startDato = LocalDate.now().plusDays(1),
-            sluttDato = LocalDate.now().plusDays(10),
-        )
-
-        beforeAny {
-            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-            tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingAktiv)
-            tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingAvsluttetDato)
-            tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingAvbrutt)
-            tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingPlanlagt)
-            tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingAvlyst)
-        }
-
-        test("filtrer på avbrutt") {
-            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-
-            val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(TiltaksgjennomforingStatus.AVBRUTT),
-            )
-
-            result.totalCount shouldBe 1
-            result.items[0].id shouldBe tiltaksgjennomforingAvbrutt.id
-        }
-
-        test("filtrer på avsluttet") {
-            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-
-            val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(TiltaksgjennomforingStatus.AVSLUTTET),
-            )
-
-            result.totalCount shouldBe 1
-            result.items[0].id shouldBe tiltaksgjennomforingAvsluttetDato.id
-        }
-
-        test("filtrer på gjennomføres") {
-            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-
-            val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(TiltaksgjennomforingStatus.GJENNOMFORES),
-            )
-
-            result.totalCount shouldBe 1
-            result.items[0].id shouldBe tiltaksgjennomforingAktiv.id
-        }
-
-        test("filtrer på avlyst") {
-            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-
-            val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(TiltaksgjennomforingStatus.AVLYST),
-            )
-
-            result.totalCount shouldBe 1
-            result.items[0].id shouldBe tiltaksgjennomforingAvlyst.id
-        }
-
-        test("filtrer på PLANLAGT") {
-            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-
-            val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(TiltaksgjennomforingStatus.PLANLAGT),
-            )
-
-            result.totalCount shouldBe 1
-            result.items[0].id shouldBe tiltaksgjennomforingPlanlagt.id
-        }
-    }
-
     context("filtrering av tiltaksgjennomføringer") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
@@ -1043,7 +956,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
         test("hvis ikke avbrutt så blir status utledet basert på dagens dato") {
             forAll(
-                row(toManederTilbake, enManedTilbake, TiltaksgjennomforingStatus.AVSLUTTET),
                 row(toManederTilbake, enManedTilbake, TiltaksgjennomforingStatus.AVSLUTTET),
                 row(enManedTilbake, enManedFrem, TiltaksgjennomforingStatus.GJENNOMFORES),
                 row(enManedTilbake, null, TiltaksgjennomforingStatus.GJENNOMFORES),

@@ -311,14 +311,12 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
     single {
         AvtaleService(
             get(),
             get(),
-            tiltakstyperMigrert = appConfig.migrerteTiltak,
             get(),
             get(),
             get(),
@@ -344,10 +342,9 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
-    single { TiltakstypeService(get(), appConfig.migrerteTiltak) }
+    single { TiltakstypeService(get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
     single { NotificationService(get(), get(), get()) }

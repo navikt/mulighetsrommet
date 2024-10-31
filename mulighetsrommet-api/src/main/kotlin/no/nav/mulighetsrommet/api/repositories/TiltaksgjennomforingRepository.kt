@@ -430,7 +430,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "nav_enheter" to navEnheter.ifEmpty { null }?.let { db.createTextArray(it) },
             "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { db.createUuidArray(it) },
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { db.createUuidArray(it) },
-            "arrangor_orgnrs" to arrangorOrgnr.ifEmpty { null }?.let { db.createTextArray(it.map { it.value }) },
+            "arrangor_orgnrs" to arrangorOrgnr.ifEmpty { null }?.map { it.value }?.let { db.createTextArray(it) },
             "statuser" to statuser.ifEmpty { null }?.let { db.createArrayOf("text", statuser) },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "opphav" to opphav?.name,

@@ -79,7 +79,12 @@ class VeilederflateServiceTest : FunSpec({
             tiltakstype = SanityTiltakstype(
                 _id = "$enkelAmoSanityId",
                 tiltakstypeNavn = "Arbeidsmarkedsopplæring (enkeltplass)",
-                innsatsgrupper = setOf(Innsatsgruppe.SITUASJONSBESTEMT_INNSATS, Innsatsgruppe.SPESIELT_TILPASSET_INNSATS, Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS, Innsatsgruppe.VARIG_TILPASSET_INNSATS),
+                innsatsgrupper = setOf(
+                    Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+                    Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+                    Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+                    Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                ),
             ),
             fylke = "0300",
             enheter = emptyList(),
@@ -106,7 +111,12 @@ class VeilederflateServiceTest : FunSpec({
             tiltakstype = SanityTiltakstype(
                 _id = "$arbeidstreningSanityId",
                 tiltakstypeNavn = "Arbeidstrening",
-                innsatsgrupper = setOf(Innsatsgruppe.SITUASJONSBESTEMT_INNSATS, Innsatsgruppe.SPESIELT_TILPASSET_INNSATS, Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS, Innsatsgruppe.VARIG_TILPASSET_INNSATS),
+                innsatsgrupper = setOf(
+                    Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+                    Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+                    Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+                    Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                ),
             ),
             fylke = "0400",
             enheter = null,
@@ -120,7 +130,12 @@ class VeilederflateServiceTest : FunSpec({
             tiltakstype = SanityTiltakstype(
                 _id = "$arbeidstreningSanityId",
                 tiltakstypeNavn = "Arbeidstrening",
-                innsatsgrupper = setOf(Innsatsgruppe.SITUASJONSBESTEMT_INNSATS, Innsatsgruppe.SPESIELT_TILPASSET_INNSATS, Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS, Innsatsgruppe.VARIG_TILPASSET_INNSATS),
+                innsatsgrupper = setOf(
+                    Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+                    Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+                    Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+                    Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                ),
             ),
             enheter = listOf("0501"),
             faneinnhold = Faneinnhold(forHvemInfoboks = "infoboks"),
@@ -131,7 +146,7 @@ class VeilederflateServiceTest : FunSpec({
         val veilederFlateService = VeilederflateService(
             sanityService = sanityService,
             veilederflateTiltakRepository = VeilederflateTiltakRepository(database.db),
-            tiltakstypeService = TiltakstypeService(TiltakstypeRepository(database.db), listOf()),
+            tiltakstypeService = TiltakstypeService(TiltakstypeRepository(database.db)),
             navEnhetService = NavEnhetService(NavEnhetRepository(database.db)),
         )
 
@@ -155,7 +170,7 @@ class VeilederflateServiceTest : FunSpec({
         val veilederFlateService = VeilederflateService(
             sanityService = sanityService,
             veilederflateTiltakRepository = VeilederflateTiltakRepository(database.db),
-            tiltakstypeService = TiltakstypeService(TiltakstypeRepository(database.db), listOf()),
+            tiltakstypeService = TiltakstypeService(TiltakstypeRepository(database.db)),
             navEnhetService = NavEnhetService(NavEnhetRepository(database.db)),
         )
 
