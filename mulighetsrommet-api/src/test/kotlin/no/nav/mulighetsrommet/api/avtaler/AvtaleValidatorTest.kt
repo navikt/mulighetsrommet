@@ -700,7 +700,7 @@ class AvtaleValidatorTest : FunSpec({
                         ),
                         ValidationError(
                             "startDato",
-                            "Startdato kan ikke være før startdatoen til gjennomføringer koblet til avtalen. Minst en gjennomføring har startdato: $formatertDato",
+                            "Startdato kan ikke være etter startdatoen til gjennomføringer koblet til avtalen. Minst en gjennomføring har startdato: $formatertDato",
                         ),
                     ),
                 )
