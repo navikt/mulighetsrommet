@@ -20,7 +20,6 @@ import {
   TiltaksgjennomforingKontaktperson,
   TiltaksgjennomforingOppstartstype,
   Tiltakskode,
-  Toggles,
 } from "@mr/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useEffect, useRef, useState } from "react";
@@ -43,7 +42,6 @@ import { VertikalSeparator } from "@/components/skjema/VertikalSeparator";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 import { useSokNavAnsatt } from "@/api/ansatt/useSokNavAnsatt";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { TiltaksgjennomforingUtdanningslopSkjema } from "../utdanning/TiltaksgjennomforingUtdanningslopSkjema";
 
 interface Props {
@@ -66,9 +64,6 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
   const [kontaktpersonerQuery, setKontaktpersonerQuery] = useState<string>("");
   const { data: kontaktpersoner } = useSokNavAnsatt(kontaktpersonerQuery);
   const { data: deltakerSummary } = useGjennomforingDeltakerSummary(tiltaksgjennomforing?.id);
-  const { data: enableUtdanningskategorier } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_UTDANNINGSKATEGORIER,
-  );
 
   const endreStartDatoModalRef = useRef<HTMLDialogElement>(null);
   const endreSluttDatoModalRef = useRef<HTMLDialogElement>(null);
@@ -197,8 +192,7 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
             {avtale.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ? (
               <TiltaksgjennomforingAmoKategoriseringSkjema avtale={avtale} />
             ) : null}
-            {enableUtdanningskategorier &&
-            avtale.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING ? (
+            {avtale.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING ? (
               <TiltaksgjennomforingUtdanningslopSkjema avtale={avtale} />
             ) : null}
           </FormGroup>
