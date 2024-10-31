@@ -4103,7 +4103,6 @@ components:
     Toggles:
       type: string
       enum:
-        - mulighetsrommet.veilederflate.visDeltakerRegistrering
         - mulighetsrommet-veilederflate.vis-tilbakemelding
         - mulighetsrommet.admin-flate.enableDebugger
         - mulighetsrommet.admin-flate.opprett-tilsagn
