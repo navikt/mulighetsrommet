@@ -691,10 +691,6 @@ class AvtaleValidatorTest : FunSpec({
                             "Tiltakstype kan ikke endres fordi det finnes gjennomføringer for avtalen",
                         ),
                         ValidationError(
-                            "avtaletype",
-                            "Avtaletype kan ikke endres fordi det finnes gjennomføringer for avtalen",
-                        ),
-                        ValidationError(
                             "arrangorUnderenheter",
                             "Arrangøren Underenhet 2 AS er i bruk på en av avtalens gjennomføringer, men mangler blant tiltaksarrangørens underenheter",
                         ),

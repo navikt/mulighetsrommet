@@ -238,15 +238,6 @@ class AvtaleValidator(
                 )
             }
 
-            if (avtale.avtaletype != currentAvtale.avtaletype) {
-                add(
-                    ValidationError.of(
-                        AvtaleDbo::avtaletype,
-                        "Avtaletype kan ikke endres fordi det finnes gjennomføringer for avtalen",
-                    ),
-                )
-            }
-
             gjennomforinger.forEach { gjennomforing ->
                 val arrangorId = gjennomforing.arrangor.id
                 if (arrangorId !in avtale.arrangorUnderenheter) {
