@@ -19,7 +19,9 @@ interface Props {
 
 export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen, setTagsHeight }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
-  const { data: arrangorer } = useArrangorer(ArrangorTil.TILTAKSGJENNOMFORING);
+  const { data: arrangorer } = useArrangorer(ArrangorTil.TILTAKSGJENNOMFORING, {
+    pageSize: 10000,
+  });
   const { data: tiltakstyper } = useTiltakstyper();
 
   return (
