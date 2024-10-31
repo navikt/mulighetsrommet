@@ -9,9 +9,6 @@ app:
   flyway:
     strategy: Migrate
 
-  pameldingIModia:
-    - ARBEIDSFORBEREDENDE_TRENING
-
   kafka:
     producerId: mulighetsrommet-api-kafka-producer.v1
     defaultConsumerGroupId: mulighetsrommet-api-kafka-consumer.v1

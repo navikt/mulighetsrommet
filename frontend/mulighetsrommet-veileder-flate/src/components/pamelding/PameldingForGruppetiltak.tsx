@@ -1,4 +1,3 @@
-import { useTiltakstyperSomStotterPameldingIModia } from "@/api/queries/useTiltakstyperSomStotterPameldingIModia";
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
 import {
@@ -23,7 +22,6 @@ export function PameldingForGruppetiltak({
   tiltak,
 }: PameldingProps): ReactNode {
   const { data: brukerDeltarPaaValgtTiltak } = useHentDeltakelseForGjennomforing();
-  const { data: stotterPameldingIModia = [] } = useTiltakstyperSomStotterPameldingIModia();
   const gjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
 
   const tiltakskoder = tiltak.tiltakstype.tiltakskode ? [tiltak.tiltakstype.tiltakskode] : [];
@@ -31,26 +29,6 @@ export function PameldingForGruppetiltak({
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_DELTAKER,
     tiltakskoder,
   );
-
-  const brukerKanMeldesPaaValgtTiltak =
-    brukerHarRettPaaValgtTiltak &&
-    !brukerDeltarPaaValgtTiltak &&
-    (deltakelserErMigrert ||
-      (tiltak.tiltakstype.tiltakskode &&
-        stotterPameldingIModia.includes(tiltak.tiltakstype.tiltakskode)));
-
-  if (brukerKanMeldesPaaValgtTiltak) {
-    const opprettDeltakelseRoute = resolveModiaRoute({
-      route: ModiaRoute.ARBEIDSMARKEDSTILTAK_OPPRETT_DELTAKELSE,
-      gjennomforingId,
-    });
-
-    return (
-      <Button variant={"primary"} onClick={opprettDeltakelseRoute.navigate}>
-        Start påmelding
-      </Button>
-    );
-  }
 
   if (brukerDeltarPaaValgtTiltak) {
     const vedtakRoute = resolveModiaRoute({
@@ -79,6 +57,19 @@ export function PameldingForGruppetiltak({
           ) : null}
         </VStack>
       </Alert>
+    );
+  }
+
+  if (brukerHarRettPaaValgtTiltak && deltakelserErMigrert) {
+    const opprettDeltakelseRoute = resolveModiaRoute({
+      route: ModiaRoute.ARBEIDSMARKEDSTILTAK_OPPRETT_DELTAKELSE,
+      gjennomforingId,
+    });
+
+    return (
+      <Button variant={"primary"} onClick={opprettDeltakelseRoute.navigate}>
+        Start påmelding
+      </Button>
     );
   }
 

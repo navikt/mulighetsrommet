@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.routes
 
 import io.ktor.server.routing.*
-import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.okonomi.refusjon.arrangorflateRoutes
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.tilsagnRoutes
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
@@ -15,7 +14,7 @@ import no.nav.mulighetsrommet.api.veilederflate.routes.delMedBrukerRoutes
 import no.nav.mulighetsrommet.api.veilederflate.routes.veilederRoutes
 import no.nav.mulighetsrommet.utdanning.api.utdanningRoutes
 
-fun Route.apiRoutes(config: AppConfig) {
+fun Route.apiRoutes() {
     authenticate(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET) {
         maamRoutes()
     }
@@ -30,7 +29,7 @@ fun Route.apiRoutes(config: AppConfig) {
 
     route("/api/v1/intern") {
         authenticate(AuthProvider.AZURE_AD_NAV_IDENT) {
-            featureTogglesRoute(config)
+            featureTogglesRoute()
             lagretFilterRoutes()
             navEnhetRoutes()
             veilederflateRoutes()
