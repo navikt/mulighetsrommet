@@ -7,6 +7,7 @@ import { RefusjonskravTable } from "~/components/refusjonskrav/RefusjonskravTabl
 import { TilsagnTable } from "~/components/tilsagn/TilsagnTable";
 import { checkValidToken, setupOpenApi } from "../auth/auth.server";
 import { PageHeader } from "../components/PageHeader";
+import invariant from "tiny-invariant";
 
 export const meta: MetaFunction = () => {
   return [
@@ -15,10 +16,12 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request, params }: LoaderFunctionArgs) {
   await checkValidToken(request);
   await setupOpenApi(request);
-  const krav = await ArrangorflateService.getAllRefusjonKrav();
+  const { orgnr } = params;
+  invariant(orgnr, "Mangler orgnr");
+  const krav = await ArrangorflateService.getAllRefusjonKrav({ orgnr });
   const tilsagn = await ArrangorflateService.getAllArrangorflateTilsagn();
 
   return json({ krav, tilsagn });

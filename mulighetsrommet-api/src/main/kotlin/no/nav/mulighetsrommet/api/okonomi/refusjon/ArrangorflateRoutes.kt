@@ -88,10 +88,11 @@ fun Route.arrangorflateRoutes() {
 
     route("/arrangorflate") {
         route("/refusjonskrav") {
-            get {
+            get("alle/{orgnr}") {
                 val arrangorIds = arrangorIderMedTilgang()
+                val orgnr = call.parameters.getOrFail("orgnr")
 
-                val krav = refusjonskrav.getByArrangorIds(arrangorIds)
+                val krav = refusjonskrav.getByArrangorIds(arrangorIds, Organisasjonsnummer(orgnr))
                     .map { toRefusjonskravKompakt(it) }
 
                 call.respond(krav)

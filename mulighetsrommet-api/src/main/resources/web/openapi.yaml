@@ -1835,10 +1835,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/ArrangorflateTilsagn"
 
-  /api/v1/intern/arrangorflate/refusjonskrav:
+  /api/v1/intern/arrangorflate/refusjonskrav/alle/{orgnr}:
     get:
       tags:
         - Arrangorflate
+      parameters:
+        - $ref: "#/components/parameters/OrgnrParam"
       operationId: getAllRefusjonKrav
       responses:
         200:
