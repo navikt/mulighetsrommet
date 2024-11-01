@@ -38,7 +38,7 @@ fun Application.configure(config: AppConfig) {
     FlywayMigrationManager(config.flyway).migrate(db)
 
     routing {
-        apiRoutes(config)
+        apiRoutes()
 
         swaggerUI(path = "/swagger-ui/internal", swaggerFile = "web/openapi.yaml")
         swaggerUI(path = "/swagger-ui/external", swaggerFile = "web/openapi-external.yaml")

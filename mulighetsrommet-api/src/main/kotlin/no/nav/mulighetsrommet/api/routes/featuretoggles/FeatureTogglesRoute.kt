@@ -6,7 +6,6 @@ import io.ktor.server.plugins.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.unleash.FeatureToggleContext
@@ -14,14 +13,8 @@ import no.nav.mulighetsrommet.unleash.UnleashService
 import org.koin.ktor.ext.inject
 import java.util.*
 
-fun Route.featureTogglesRoute(config: AppConfig) {
+fun Route.featureTogglesRoute() {
     val unleashService: UnleashService by inject()
-
-    route("/tiltakstyper") {
-        get("stotterPameldingIModia") {
-            call.respond(config.pameldingIModia)
-        }
-    }
 
     route("/features") {
         get {
