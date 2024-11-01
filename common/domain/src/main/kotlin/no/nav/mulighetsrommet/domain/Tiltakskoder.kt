@@ -32,25 +32,22 @@ object Tiltakskoder {
      * Tiltakskoder for de forhåndsgodkjente og anskaffede tiltakene, kalt "gruppetilak" (av oss i hvert fall), og som
      * skal migreres fra Arena som del av P4.
      */
-    val GruppetiltakArenaKoder = listOf(
+    private val GruppetiltakArenaKoder = listOf(
         "ARBFORB",
         "ARBRRHDAG",
         "AVKLARAG",
         "DIGIOPPARB",
         "GRUFAGYRKE",
         "GRUPPEAMO",
-        "INDJOBSTOT",
         "INDOPPFAG",
-        "IPSUNG",
         "JOBBK",
-        "UTVAOONAV",
         "VASV",
     )
 
     /**
-     * Tiltakskoder for de gruppetiltak som er i egen regi, og som administreres i Sanity ikke i admin-flate
+     * Tiltakskoder for tiltak i egen regi (regi av Nav), og som foreløpig administreres i Sanity ikke i admin-flate.
      */
-    val EgenRegiTiltak = listOf(
+    private val EgenRegiTiltak = listOf(
         "INDJOBSTOT",
         "IPSUNG",
         "UTVAOONAV",
@@ -60,28 +57,13 @@ object Tiltakskoder {
      * Tiltakskoder som, enn så lenge, blir antatt å ha en felles oppstartsdato for alle deltakere.
      * Disse har blitt referert til som "kurs" av komet.
      */
-    val TiltakMedFellesOppstart = listOf(
+    private val TiltakMedFellesOppstart = listOf(
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
         Tiltakskode.JOBBKLUBB,
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
     )
 
-    /**
-     * Tiltakskoder der Komet har tatt eierskap til deltakelsene.
-     */
-    val AmtTiltak = listOf(
-        "ARBFORB",
-        "ARBRRHDAG",
-        "AVKLARAG",
-        "DIGIOPPARB",
-        "GRUFAGYRKE",
-        "GRUPPEAMO",
-        "INDOPPFAG",
-        "JOBBK",
-        "VASV",
-    )
-
-    val TiltakMedAvtalerFraMulighetsrommet = listOf(
+    private val ForhaandsgodkjentTiltak = listOf(
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
     )
@@ -98,11 +80,7 @@ object Tiltakskoder {
         return tiltakskode in TiltakMedFellesOppstart
     }
 
-    fun isAmtTiltak(arenaKode: String): Boolean {
-        return arenaKode in AmtTiltak
-    }
-
-    fun isTiltakMedAvtalerFraMulighetsrommet(tiltakskode: Tiltakskode?): Boolean {
-        return tiltakskode in TiltakMedAvtalerFraMulighetsrommet
+    fun isForhaandsgodkjentTiltak(tiltakskode: Tiltakskode?): Boolean {
+        return tiltakskode in ForhaandsgodkjentTiltak
     }
 }

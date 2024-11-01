@@ -90,7 +90,7 @@ class ArenaAdapterService(
         tiltakstype: TiltakstypeDto,
         arenaGjennomforing: ArenaTiltaksgjennomforingDbo,
     ) {
-        require(Tiltakskoder.isAmtTiltak(tiltakstype.arenaKode)) {
+        require(Tiltakskoder.isGruppetiltak(tiltakstype.arenaKode)) {
             "Gjennomføringer er ikke støttet for tiltakstype ${tiltakstype.arenaKode}"
         }
 
