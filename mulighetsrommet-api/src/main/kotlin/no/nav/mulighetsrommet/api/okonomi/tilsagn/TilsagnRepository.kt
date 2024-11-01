@@ -219,7 +219,11 @@ class TilsagnRepository(private val db: Database) {
     private fun Row.toTilsagnDto(): TilsagnDto {
         return TilsagnDto(
             id = uuid("id"),
-            tiltaksgjennomforingId = uuid("tiltaksgjennomforing_id"),
+            tiltaksgjennomforing = TilsagnDto.Tiltaksgjennomforing(
+                id = uuid("tiltaksgjennomforing_id"),
+                antallPlasser = int("antall_plasser"),
+                tiltaksnummer = string("tiltaksnummer"),
+            ),
             periodeSlutt = localDate("periode_slutt"),
             periodeStart = localDate("periode_start"),
             opprettetAv = NavIdent(string("opprettet_av")),

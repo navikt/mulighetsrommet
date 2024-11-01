@@ -52,7 +52,11 @@ class TilsagnRepositoryTest : FunSpec({
             repository.upsert(tilsagn)
             repository.get(tilsagn.id) shouldBe TilsagnDto(
                 id = tilsagn.id,
-                tiltaksgjennomforingId = AFT1.id,
+                tiltaksgjennomforing = TilsagnDto.Tiltaksgjennomforing(
+                    id = AFT1.id,
+                    antallPlasser = 10,
+                    tiltaksnummer = "2024#123",
+                ),
                 periodeStart = LocalDate.of(2023, 1, 1),
                 periodeSlutt = LocalDate.of(2023, 2, 1),
                 kostnadssted = Gjovik,
