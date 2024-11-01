@@ -7,6 +7,8 @@ import arrow.core.raise.either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell.TilsagnBeregning
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.db.TilsagnDbo
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.model.TilsagnDto
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.domain.Tiltakskode

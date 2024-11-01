@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.kafka.consumers.amt
+package no.nav.mulighetsrommet.api.okonomi.refusjon.kafka
 
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement

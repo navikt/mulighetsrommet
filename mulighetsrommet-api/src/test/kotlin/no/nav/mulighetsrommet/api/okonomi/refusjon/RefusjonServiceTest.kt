@@ -11,10 +11,9 @@ import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.okonomi.models.DeltakelseManedsverk
-import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
-import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePerioder
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
+import no.nav.mulighetsrommet.api.okonomi.refusjon.db.RefusjonskravDbo
+import no.nav.mulighetsrommet.api.okonomi.refusjon.db.RefusjonskravRepository
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.*
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener

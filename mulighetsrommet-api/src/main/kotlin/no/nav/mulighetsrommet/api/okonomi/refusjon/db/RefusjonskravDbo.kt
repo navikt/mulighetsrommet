@@ -1,6 +1,6 @@
-package no.nav.mulighetsrommet.api.okonomi.refusjon
+package no.nav.mulighetsrommet.api.okonomi.refusjon.db
 
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregning
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonKravBeregning
 import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import java.time.LocalDateTime

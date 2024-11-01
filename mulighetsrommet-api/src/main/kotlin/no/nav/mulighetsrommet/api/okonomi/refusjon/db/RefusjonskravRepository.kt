@@ -1,13 +1,11 @@
-package no.nav.mulighetsrommet.api.okonomi.refusjon
+package no.nav.mulighetsrommet.api.okonomi.refusjon.db
 
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregning
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDto
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
