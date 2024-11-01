@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.okonomi.tilsagn
+package no.nav.mulighetsrommet.api.okonomi.tilsagn.db
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -9,6 +9,9 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnBesluttelse
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.model.ArrangorflateTilsagn
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.model.TilsagnDto
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer

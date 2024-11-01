@@ -15,9 +15,9 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
-import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnDto
-import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnDto.Arrangor
-import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnRepository
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.db.TilsagnRepository
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.model.TilsagnDto
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.model.TilsagnDto.Arrangor
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository

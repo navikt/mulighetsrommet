@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNotificationDto
-import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnRepository
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.responses.*
