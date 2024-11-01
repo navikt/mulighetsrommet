@@ -4103,6 +4103,7 @@ components:
         - mulighetsrommet.admin-flate.enableDebugger
         - mulighetsrommet.admin-flate.opprett-tilsagn
         - mulighetsrommet.tiltakstype.migrering.deltaker
+        - mulighetsrommet.tiltakstype.pamelding-info-komet
 
     PublisertRequest:
       type: object
