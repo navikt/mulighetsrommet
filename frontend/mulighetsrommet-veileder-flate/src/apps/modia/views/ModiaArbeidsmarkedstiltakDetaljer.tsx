@@ -26,7 +26,6 @@ import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { Chat2Icon } from "@navikt/aksel-icons";
 import { Alert, Button } from "@navikt/ds-react";
 import { useAtomValue } from "jotai";
-import { useFeatureToggle } from "@/api/feature-toggles";
 import {
   isTiltakGruppe,
   useModiaArbeidsmarkedstiltakById,
@@ -40,9 +39,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
   const id = useGetTiltaksgjennomforingIdFraUrl();
   const { delMedBrukerInfo } = useHentDeltMedBrukerStatus(fnr, id);
-  const { data: enableDeltakerRegistrering } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_DELTAKER_REGISTRERING,
-  );
 
   const { data: veilederdata } = useHentVeilederdata();
   const { data: brukerdata } = useHentBrukerdata();
@@ -109,9 +105,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </Button>
             )}
 
-            {enableDeltakerRegistrering &&
-            isTiltakGruppe(tiltak) &&
-            gjennomforingIsAktiv(tiltak.status.status) ? (
+            {isTiltakGruppe(tiltak) && gjennomforingIsAktiv(tiltak.status.status) ? (
               <PameldingForGruppetiltak
                 brukerHarRettPaaValgtTiltak={brukerHarRettPaaValgtTiltak}
                 tiltak={tiltak}

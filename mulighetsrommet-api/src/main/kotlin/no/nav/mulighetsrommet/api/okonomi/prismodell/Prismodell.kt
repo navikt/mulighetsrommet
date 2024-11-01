@@ -2,8 +2,8 @@ package no.nav.mulighetsrommet.api.okonomi.prismodell
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.okonomi.models.DeltakelseManedsverk
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.DeltakelseManedsverk
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import java.lang.Math.addExact
 import java.math.BigDecimal

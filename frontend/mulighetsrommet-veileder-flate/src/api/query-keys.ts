@@ -23,7 +23,6 @@ export const QueryKeys = {
     tiltakById: (id: string) => ["tiltaksgjennomforing", id],
     previewTiltakById: (id: string) => ["tiltaksgjennomforing", "preview", id],
   },
-  features: (feature: string) => [feature, "feature"],
   navEnheter: (statuser: NavEnhetStatus[], typer: NavEnhetType[]) => [
     statuser,
     typer,

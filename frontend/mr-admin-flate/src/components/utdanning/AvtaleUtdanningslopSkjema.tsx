@@ -1,9 +1,7 @@
-import { Toggles } from "@mr/api-client";
 import { Select } from "@navikt/ds-react";
 import { Suspense, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
-import { useFeatureToggle } from "../../api/features/useFeatureToggle";
-import { useUtdanningsprogrammer } from "../../api/utdanning/useUtdanningsprogrammer";
+import { useUtdanningsprogrammer } from "@/api/utdanning/useUtdanningsprogrammer";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { InferredAvtaleSchema } from "../redaksjoneltInnhold/AvtaleSchema";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
@@ -11,14 +9,6 @@ import { ReloadAppErrorBoundary } from "@mr/frontend-common";
 import { Laster } from "../laster/Laster";
 
 export function AvtaleUtdanningslopSkjema() {
-  const { data: enableUtdanningskjema } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_UTDANNINGSKATEGORIER,
-  );
-
-  if (!enableUtdanningskjema) {
-    return null;
-  }
-
   return (
     <ReloadAppErrorBoundary>
       <Suspense fallback={<Laster />}>

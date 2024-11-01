@@ -22,7 +22,7 @@ import no.nav.mulighetsrommet.domain.dto.ArenaTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
 
-class TiltaksgjennomforingKafkaConsumerTest : FunSpec({
+class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     context("migrerte gjennomføringer") {

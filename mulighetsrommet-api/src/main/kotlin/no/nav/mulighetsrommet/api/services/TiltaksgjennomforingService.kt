@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNotificationDto
-import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnRepository
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.responses.*
@@ -20,7 +20,7 @@ import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.Pagination
-import no.nav.mulighetsrommet.domain.Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet
+import no.nav.mulighetsrommet.domain.Tiltakskoder.isForhaandsgodkjentTiltak
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -43,7 +43,6 @@ class TiltaksgjennomforingService(
     private val notificationRepository: NotificationRepository,
     private val validator: TiltaksgjennomforingValidator,
     private val documentHistoryService: EndringshistorikkService,
-    private val tiltakstypeService: TiltakstypeService,
     private val navAnsattService: NavAnsattService,
     private val db: Database,
 ) {
@@ -167,7 +166,7 @@ class TiltaksgjennomforingService(
     fun setAvtale(id: UUID, avtaleId: UUID?, navIdent: NavIdent): StatusResponse<Unit> {
         val gjennomforing = get(id) ?: return NotFound("Gjennomføringen finnes ikke").left()
 
-        if (!isTiltakMedAvtalerFraMulighetsrommet(gjennomforing.tiltakstype.tiltakskode)) {
+        if (!isForhaandsgodkjentTiltak(gjennomforing.tiltakstype.tiltakskode)) {
             return BadRequest("Avtale kan bare settes for tiltaksgjennomføringer av type AFT eller VTA").left()
         }
 
@@ -198,10 +197,6 @@ class TiltaksgjennomforingService(
         }
 
         val gjennomforing = get(id) ?: return Either.Left(NotFound("Gjennomføringen finnes ikke"))
-
-        if (!tiltakstypeService.isEnabled(gjennomforing.tiltakstype.tiltakskode)) {
-            return Either.Left(BadRequest(message = "Tiltakstype '${gjennomforing.tiltakstype.navn}' må avbrytes i Arena."))
-        }
 
         if (aarsak is AvbruttAarsak.Annet && aarsak.name.length > 100) {
             return Either.Left(BadRequest(message = "Beskrivelse kan ikke inneholde mer enn 100 tegn"))

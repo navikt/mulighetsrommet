@@ -5,7 +5,6 @@ import { checkValidToken } from "../auth/auth.server";
 import { PageHeader } from "../components/PageHeader";
 import { internalNavigation } from "../internal-navigation";
 import { useOrgnrFromUrl } from "../utils";
-import invariant from "tiny-invariant";
 
 export const meta: MetaFunction = () => {
   return [
@@ -22,7 +21,9 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<objec
 
 export default function ForDuBegynner() {
   const { id } = useParams<{ id: string }>();
-  invariant(id, "Mangler id");
+  if (!id) {
+    throw new Error("Mangler id");
+  }
   const orgnr = useOrgnrFromUrl();
   return (
     <>

@@ -31,10 +31,11 @@ import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClien
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.okonomi.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.okonomi.refusjon.RefusjonService
-import no.nav.mulighetsrommet.api.okonomi.refusjon.RefusjonskravRepository
-import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnRepository
+import no.nav.mulighetsrommet.api.okonomi.refusjon.db.RefusjonskravRepository
+import no.nav.mulighetsrommet.api.okonomi.refusjon.kafka.AmtDeltakerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnValidator
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.services.cms.SanityService
@@ -51,7 +52,6 @@ import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
 import no.nav.mulighetsrommet.kafka.consumers.SisteTiltaksgjennomforingerV1KafkaConsumer
-import no.nav.mulighetsrommet.kafka.consumers.amt.AmtDeltakerV1KafkaConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomheterV1KafkaConsumer
 import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.SisteTiltaksgjennomforingerV1KafkaProducer
@@ -67,8 +67,6 @@ import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
 import no.nav.mulighetsrommet.tokenprovider.M2MTokenProvider
 import no.nav.mulighetsrommet.tokenprovider.createMaskinportenM2mTokenClient
 import no.nav.mulighetsrommet.unleash.UnleashService
-import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
-import no.nav.mulighetsrommet.unleash.strategies.ByNavIdentStrategy
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.db.UtdanningRepository
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
@@ -314,18 +312,12 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
         )
     }
     single {
         AvtaleService(
             get(),
             get(),
-            tiltakstyperMigrert = appConfig.migrerteTiltak,
             get(),
             get(),
             get(),
@@ -351,20 +343,15 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
-    single { TiltakstypeService(get(), appConfig.migrerteTiltak) }
+    single { TiltakstypeService(get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
     single { NotificationService(get(), get(), get()) }
     single { ArrangorService(get(), get()) }
     single { RefusjonService(get(), get(), get(), get()) }
-    single {
-        val byEnhetStrategy = ByEnhetStrategy(get())
-        val byNavidentStrategy = ByNavIdentStrategy()
-        UnleashService(appConfig.unleash, byEnhetStrategy, byNavidentStrategy)
-    }
+    single { UnleashService(appConfig.unleash, get()) }
     single<AxsysClient> {
         AxsysV2ClientImpl(
             appConfig.axsys.url,

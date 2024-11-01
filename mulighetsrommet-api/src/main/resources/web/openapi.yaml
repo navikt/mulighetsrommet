@@ -773,36 +773,6 @@ paths:
               schema:
                 type: string
 
-  /api/v1/intern/tiltakstyper/migrerte:
-    get:
-      tags:
-        - Tiltakstyper
-      operationId: getMigrerteTiltakstyper
-      responses:
-        200:
-          description: Liste over tiltak vi har tatt eierskap over fra Arena
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Tiltakskode"
-
-  /api/v1/intern/tiltakstyper/stotterPameldingIModia:
-    get:
-      tags:
-        - Tiltakstyper
-      operationId: getTiltakstyperSomStotterPameldingIModia
-      responses:
-        200:
-          description: Liste over tiltak som støtter påmelding i Modia
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: string
-
   /api/v1/intern/veileder/innsatsgrupper:
     get:
       tags:
@@ -1498,6 +1468,13 @@ paths:
         required: true
         schema:
           $ref: "#/components/schemas/Toggles"
+
+      - in: query
+        name: tiltakskoder
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tiltakskode"
     get:
       tags:
         - FeatureToggle
@@ -1804,11 +1781,13 @@ paths:
                 items:
                   $ref: "#/components/schemas/AFTSats"
 
-  /api/v1/intern/arrangorflate/tilsagn:
+  /api/v1/intern/arrangorflate/tilsagn/alle/{orgnr}:
     get:
       tags:
         - Arrangorflate
       operationId: getAllArrangorflateTilsagn
+      parameters:
+        - $ref: "#/components/parameters/OrgnrParam"
       responses:
         200:
           description: Hent tilsagn til arrangør
@@ -1851,10 +1830,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/ArrangorflateTilsagn"
 
-  /api/v1/intern/arrangorflate/refusjonskrav:
+  /api/v1/intern/arrangorflate/refusjonskrav/alle/{orgnr}:
     get:
       tags:
         - Arrangorflate
+      parameters:
+        - $ref: "#/components/parameters/OrgnrParam"
       operationId: getAllRefusjonKrav
       responses:
         200:
@@ -4128,11 +4109,10 @@ components:
     Toggles:
       type: string
       enum:
-        - mulighetsrommet.veilederflate.visDeltakerRegistrering
         - mulighetsrommet-veilederflate.vis-tilbakemelding
         - mulighetsrommet.admin-flate.enableDebugger
         - mulighetsrommet.admin-flate.opprett-tilsagn
-        - mulighetsrommet.admin-flate.enable-utdanningskategorier
+        - mulighetsrommet.tiltakstype.migrering.deltaker
 
     PublisertRequest:
       type: object

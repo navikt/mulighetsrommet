@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.kafka.amt
+package no.nav.mulighetsrommet.api.okonomi.refusjon.kafka
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
@@ -31,7 +31,6 @@ import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
-import no.nav.mulighetsrommet.kafka.consumers.amt.AmtDeltakerV1KafkaConsumer
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
@@ -47,7 +46,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         return AmtDeltakerV1KafkaConsumer(
             config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
             relevantDeltakerSluttDatoPeriod = period,
-            tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf()),
+            tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db)),
             deltakere = DeltakerRepository(database.db),
             refusjonService = refusjonService,
         )

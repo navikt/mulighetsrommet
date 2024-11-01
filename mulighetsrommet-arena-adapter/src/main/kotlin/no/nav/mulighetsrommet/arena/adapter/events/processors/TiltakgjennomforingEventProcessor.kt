@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
+import no.nav.mulighetsrommet.domain.Tiltakskoder.isEgenRegiTiltak
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
@@ -76,7 +77,7 @@ class TiltakgjennomforingEventProcessor(
             }
             .bind()
 
-        if (isGruppetiltak(data.TILTAKSKODE)) {
+        if (isGruppetiltak(data.TILTAKSKODE) || isEgenRegiTiltak(data.TILTAKSKODE)) {
             upsertTiltaksgjennomforing(event.operation, tiltaksgjennomforing).bind()
         } else {
             ProcessingResult(Handled)

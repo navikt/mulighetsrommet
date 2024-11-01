@@ -1,15 +1,16 @@
-import { useTiltakstyperSomStotterPameldingIModia } from "@/api/queries/useTiltakstyperSomStotterPameldingIModia";
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
 import {
-  GruppetiltakDeltakerStatus,
   DeltakelseGruppetiltak,
+  GruppetiltakDeltakerStatus,
+  Toggles,
   VeilederflateTiltakGruppe,
 } from "@mr/api-client";
 import { Alert, BodyShort, Button, Heading, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import styles from "./PameldingForGruppetiltak.module.scss";
 import { useHentDeltakelseForGjennomforing } from "@/api/queries/useHentDeltakelseForGjennomforing";
+import { useFeatureToggle } from "@/api/feature-toggles";
 
 interface PameldingProps {
   brukerHarRettPaaValgtTiltak: boolean;
@@ -20,41 +21,22 @@ export function PameldingForGruppetiltak({
   brukerHarRettPaaValgtTiltak,
   tiltak,
 }: PameldingProps): ReactNode {
-  const { data: aktivDeltakelse } = useHentDeltakelseForGjennomforing();
-  const { data: stotterPameldingIModia = [] } = useTiltakstyperSomStotterPameldingIModia();
+  const { data: brukerDeltarPaaValgtTiltak } = useHentDeltakelseForGjennomforing();
   const gjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
 
-  const skalVisePameldingslenke =
-    brukerHarRettPaaValgtTiltak &&
-    tiltak.tiltakstype.tiltakskode &&
-    stotterPameldingIModia.includes(tiltak.tiltakstype.tiltakskode) &&
-    !aktivDeltakelse;
+  const tiltakskoder = tiltak.tiltakstype.tiltakskode ? [tiltak.tiltakstype.tiltakskode] : [];
+  const { data: deltakelserErMigrert } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_DELTAKER,
+    tiltakskoder,
+  );
 
-  const opprettDeltakelseRoute = resolveModiaRoute({
-    route: ModiaRoute.ARBEIDSMARKEDSTILTAK_OPPRETT_DELTAKELSE,
-    gjennomforingId,
-  });
-
-  let vedtakRoute = null;
-  if (aktivDeltakelse) {
-    vedtakRoute = resolveModiaRoute({
+  if (brukerDeltarPaaValgtTiltak) {
+    const vedtakRoute = resolveModiaRoute({
       route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
-      deltakerId: aktivDeltakelse.id,
+      deltakerId: brukerDeltarPaaValgtTiltak.id,
     });
-  }
 
-  if (!skalVisePameldingslenke && !aktivDeltakelse) {
-    return null;
-  }
-
-  if (skalVisePameldingslenke) {
-    return (
-      <Button variant={"primary"} onClick={opprettDeltakelseRoute.navigate}>
-        Start påmelding
-      </Button>
-    );
-  } else if (aktivDeltakelse) {
-    const tekster = utledTekster(aktivDeltakelse);
+    const tekster = utledTekster(brukerDeltarPaaValgtTiltak);
     return (
       <Alert variant={tekster.variant}>
         <Heading level={"2"} size="small">
@@ -77,6 +59,21 @@ export function PameldingForGruppetiltak({
       </Alert>
     );
   }
+
+  if (brukerHarRettPaaValgtTiltak && deltakelserErMigrert) {
+    const opprettDeltakelseRoute = resolveModiaRoute({
+      route: ModiaRoute.ARBEIDSMARKEDSTILTAK_OPPRETT_DELTAKELSE,
+      gjennomforingId,
+    });
+
+    return (
+      <Button variant={"primary"} onClick={opprettDeltakelseRoute.navigate}>
+        Start påmelding
+      </Button>
+    );
+  }
+
+  return null;
 }
 
 interface Tekst {
