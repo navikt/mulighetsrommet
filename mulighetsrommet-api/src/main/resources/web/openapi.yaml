@@ -5072,7 +5072,7 @@ components:
       properties:
         navn:
           type: string
-        fodselsdato:
+        foedselsdato:
           type: string
           format: date
         fodselsaar:
