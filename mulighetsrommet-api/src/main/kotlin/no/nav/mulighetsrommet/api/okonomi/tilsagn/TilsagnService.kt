@@ -7,6 +7,9 @@ import no.nav.mulighetsrommet.api.okonomi.BestillingDto
 import no.nav.mulighetsrommet.api.okonomi.OkonomiClient
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell.TilsagnBeregning
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.db.TilsagnRepository
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.model.ArrangorflateTilsagn
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.model.TilsagnDto
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.database.Database

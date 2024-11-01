@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.okonomi.tilsagn
+package no.nav.mulighetsrommet.api.okonomi.tilsagn.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell

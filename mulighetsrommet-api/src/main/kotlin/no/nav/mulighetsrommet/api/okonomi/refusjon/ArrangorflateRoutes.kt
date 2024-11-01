@@ -16,9 +16,11 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import no.nav.mulighetsrommet.api.domain.dto.DeltakerDto
-import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDto
+import no.nav.mulighetsrommet.api.okonomi.refusjon.db.RefusjonskravRepository
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonKravBeregningAft
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonskravDto
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonskravStatus
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository

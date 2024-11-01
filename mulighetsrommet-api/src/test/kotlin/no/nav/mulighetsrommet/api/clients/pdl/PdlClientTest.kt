@@ -4,7 +4,6 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.ktor.client.engine.mock.*
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.tokenprovider.AccessType
@@ -22,7 +21,7 @@ class PdlClientTest : FunSpec({
                 )
             },
         )
-        val pdlClient = createPdlClient(clientEngine)
+        val pdlClient = mockPdlClient(clientEngine)
 
         val request = GraphqlRequest.HentHistoriskeIdenter(ident = PdlIdent("12345678910"), grupper = listOf())
 
@@ -45,7 +44,7 @@ class PdlClientTest : FunSpec({
                 )
             },
         )
-        val pdlClient = createPdlClient(clientEngine)
+        val pdlClient = mockPdlClient(clientEngine)
 
         val request = GraphqlRequest.HentHistoriskeIdenter(ident = PdlIdent("12345678910"), grupper = listOf())
 
@@ -67,7 +66,7 @@ class PdlClientTest : FunSpec({
                 )
             },
         )
-        val pdlClient = createPdlClient(clientEngine)
+        val pdlClient = mockPdlClient(clientEngine)
 
         val request = GraphqlRequest.HentHistoriskeIdenter(ident = PdlIdent("12345678910"), grupper = listOf())
 
@@ -107,7 +106,7 @@ class PdlClientTest : FunSpec({
                 )
             },
         )
-        val pdlClient = createPdlClient(clientEngine)
+        val pdlClient = mockPdlClient(clientEngine)
 
         val request = GraphqlRequest.HentHistoriskeIdenter(
             ident = PdlIdent("12345678910"),
@@ -155,7 +154,7 @@ class PdlClientTest : FunSpec({
                 )
             },
         )
-        val pdlClient = createPdlClient(clientEngine)
+        val pdlClient = mockPdlClient(clientEngine)
 
         pdlClient
             .hentPerson(PdlIdent("12345678910"), AccessType.M2M)
@@ -181,16 +180,10 @@ class PdlClientTest : FunSpec({
                 )
             },
         )
-        val pdlClient = createPdlClient(clientEngine)
+        val pdlClient = mockPdlClient(clientEngine)
 
         pdlClient
             .hentGeografiskTilknytning(PdlIdent("12345678910"), AccessType.M2M)
             .shouldBeRight(GeografiskTilknytning.GtBydel(value = "030102"))
     }
 })
-
-private fun createPdlClient(clientEngine: MockEngine) = PdlClient(
-    config = PdlClient.Config(baseUrl = "https://pdl.no"),
-    tokenProvider = { "token" },
-    clientEngine = clientEngine,
-)

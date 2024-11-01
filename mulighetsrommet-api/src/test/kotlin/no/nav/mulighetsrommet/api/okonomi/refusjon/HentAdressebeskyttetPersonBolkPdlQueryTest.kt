@@ -1,15 +1,13 @@
-package no.nav.mulighetsrommet.api.clients.pdl
+package no.nav.mulighetsrommet.api.okonomi.refusjon
 
 import arrow.core.nonEmptyListOf
 import arrow.core.nonEmptySetOf
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.ktor.client.engine.mock.*
 import io.ktor.http.content.*
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.okonomi.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
-import no.nav.mulighetsrommet.api.okonomi.refusjon.HentPersonBolkResponse
+import no.nav.mulighetsrommet.api.clients.pdl.*
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 
@@ -72,7 +70,7 @@ class HentAdressebeskyttetPersonBolkPdlQueryTest : FunSpec({
             },
         )
 
-        val query = HentAdressebeskyttetPersonBolkPdlQuery(createPdlClient(clientEngine))
+        val query = HentAdressebeskyttetPersonBolkPdlQuery(mockPdlClient(clientEngine))
 
         query.hentPersonBolk(identer) shouldBeRight mapOf(
             PdlIdent("12345678910") to HentPersonBolkResponse.Person(
@@ -139,7 +137,7 @@ class HentAdressebeskyttetPersonBolkPdlQueryTest : FunSpec({
             },
         )
 
-        val query = HentAdressebeskyttetPersonBolkPdlQuery(createPdlClient(clientEngine))
+        val query = HentAdressebeskyttetPersonBolkPdlQuery(mockPdlClient(clientEngine))
 
         query.hentPersonBolk(nonEmptySetOf(PdlIdent("12345678910"))) shouldBeRight mapOf(
             PdlIdent("12345678910") to HentPersonBolkResponse.Person(
@@ -156,9 +154,3 @@ class HentAdressebeskyttetPersonBolkPdlQueryTest : FunSpec({
         )
     }
 })
-
-private fun createPdlClient(clientEngine: MockEngine) = PdlClient(
-    config = PdlClient.Config(baseUrl = "https://pdl.no"),
-    tokenProvider = { "token" },
-    clientEngine = clientEngine,
-)

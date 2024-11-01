@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.okonomi.models
+package no.nav.mulighetsrommet.api.okonomi.refusjon.model
 
 import kotlinx.serialization.Serializable
 import java.time.LocalDateTime
