@@ -132,6 +132,8 @@ spec:
           namespace: org
         - application: veilarboppfolging
           namespace: poao
+        - application: isoppfolgingstilfelle
+          namespace: teamsykefravr
       external:
         - host: slack.com
         - host: data.brreg.no

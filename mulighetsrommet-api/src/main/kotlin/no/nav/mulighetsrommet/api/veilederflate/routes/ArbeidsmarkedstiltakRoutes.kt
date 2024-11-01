@@ -27,6 +27,7 @@ internal data class ArbeidsmarkedstiltakFilter(
     val tiltakstyper: List<String>?,
     val search: String?,
     val apentForInnsok: ApentForInnsok,
+    val erSykmeldtMedArbeidsgiver: Boolean,
 )
 
 enum class ApentForInnsok {
@@ -44,6 +45,9 @@ internal fun <T : Any> PipelineContext<T, ApplicationCall>.getArbeidsmarkedstilt
     val innsatsgruppe = queryParameters["innsatsgruppe"]
         ?.let { Innsatsgruppe.valueOf(it) }
         ?: throw StatusException(HttpStatusCode.BadRequest, "Innsatsgruppe er påkrevd")
+    val erSykmeldtMedArbeidsgiver = queryParameters["erSykmeldtMedArbeidsgiver"]
+        ?.toBoolean()
+        ?: throw StatusException(HttpStatusCode.BadRequest, "erSykmeldMedArbeidsgiver er påkrevd")
 
     val apentForInnsok: ApentForInnsok by queryParameters
 
@@ -53,6 +57,7 @@ internal fun <T : Any> PipelineContext<T, ApplicationCall>.getArbeidsmarkedstilt
         tiltakstyper = queryParameters.getAll("tiltakstyper"),
         search = queryParameters["search"],
         apentForInnsok = apentForInnsok,
+        erSykmeldtMedArbeidsgiver = erSykmeldtMedArbeidsgiver,
     )
 }
 
@@ -84,6 +89,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
                 tiltakstypeIds = filter.tiltakstyper,
                 search = filter.search,
                 apentForInnsok = filter.apentForInnsok,
+                erSykmeldtMedArbeidsgiver = filter.erSykmeldtMedArbeidsgiver,
                 cacheUsage = CacheUsage.UseCache,
             )
 
@@ -130,6 +136,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
                     tiltakstypeIds = filter.tiltakstyper,
                     search = filter.search,
                     apentForInnsok = filter.apentForInnsok,
+                    erSykmeldtMedArbeidsgiver = filter.erSykmeldtMedArbeidsgiver,
                     cacheUsage = CacheUsage.UseCache,
                 )
 
@@ -159,6 +166,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
                         tiltakstypeIds = filter.tiltakstyper,
                         search = filter.search,
                         apentForInnsok = filter.apentForInnsok,
+                        erSykmeldtMedArbeidsgiver = filter.erSykmeldtMedArbeidsgiver,
                         cacheUsage = CacheUsage.NoCache,
                     )
 

@@ -40,6 +40,7 @@ class VeilederflateTiltakRepository(private val db: Database) {
         search: String? = null,
         apentForInnsok: Boolean? = null,
         sanityTiltakstypeIds: List<UUID>? = null,
+        erSykmeldtMedArbeidsgiver: Boolean = false,
     ): List<VeilederflateTiltakGruppe> {
         val parameters = mapOf(
             "innsatsgruppe" to innsatsgruppe.name,
@@ -47,6 +48,7 @@ class VeilederflateTiltakRepository(private val db: Database) {
             "search" to search?.toFTSPrefixQuery(),
             "apent_for_innsok" to apentForInnsok,
             "sanityTiltakstypeIds" to sanityTiltakstypeIds?.let { db.createUuidArray(it) },
+            "er_sykmeldt_med_arbeidsgiver" to erSykmeldtMedArbeidsgiver,
         )
 
         @Language("PostgreSQL")
@@ -54,7 +56,14 @@ class VeilederflateTiltakRepository(private val db: Database) {
             select *
             from veilederflate_tiltak_view
             where publisert
-              and :innsatsgruppe::innsatsgruppe = any(tiltakstype_innsatsgrupper)
+              and (
+                (:innsatsgruppe::innsatsgruppe = any(tiltakstype_innsatsgrupper))
+                or (
+                    :er_sykmeldt_med_arbeidsgiver = true
+                    and tiltakstype_tiltakskode = 'ARBEIDSRETTET_REHABILITERING'
+                    and :innsatsgruppe::innsatsgruppe = 'STANDARD_INNSATS'
+                   )
+              )
               and nav_enheter && :brukers_enheter
               and (:search::text is null or fts @@ to_tsquery('norwegian', :search))
               and (:sanityTiltakstypeIds::uuid[] is null or tiltakstype_sanity_id = any(:sanityTiltakstypeIds))

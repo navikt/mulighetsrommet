@@ -300,4 +300,31 @@ object TiltaksgjennomforingFixtures {
         amoKategorisering = null,
         utdanningslop = null,
     )
+
+    val ArbeidsrettetRehabilitering = TiltaksgjennomforingDbo(
+        id = UUID.randomUUID(),
+        navn = "Arbeidsretter Rehabilitering 1",
+        tiltakstypeId = TiltakstypeFixtures.ArbeidsrettetRehabilitering.id,
+        arrangorId = ArrangorFixtures.underenhet1.id,
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.of(2023, 2, 1),
+        apentForInnsok = true,
+        antallPlasser = 12,
+        administratorer = listOf(NavIdent("DD1")),
+        navRegion = "0400",
+        navEnheter = listOf("0502"),
+        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+        kontaktpersoner = emptyList(),
+        arrangorKontaktpersoner = emptyList(),
+        stedForGjennomforing = "Oslo",
+        avtaleId = AvtaleFixtures.ArbeidsrettetRehabilitering.id,
+        faneinnhold = null,
+        beskrivelse = null,
+        deltidsprosent = 100.0,
+        estimertVentetidVerdi = 3,
+        estimertVentetidEnhet = "dag",
+        tilgjengeligForArrangorFraOgMedDato = null,
+        amoKategorisering = null,
+        utdanningslop = null,
+    )
 }

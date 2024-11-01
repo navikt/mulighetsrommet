@@ -10,6 +10,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetStatus
@@ -36,9 +37,10 @@ class BrukerServiceTest : FunSpec({
     val navEnhetService: NavEnhetService = mockk()
     val pdlClient: PdlClient = mockk()
     val norg2Client: Norg2Client = mockk()
+    val isoppfolgingstilfelleClient: IsoppfolgingstilfelleClient = mockk()
 
     val brukerService =
-        BrukerService(veilarboppfolgingClient, veilarbvedtaksstotteClient, navEnhetService, pdlClient, norg2Client)
+        BrukerService(veilarboppfolgingClient, veilarbvedtaksstotteClient, navEnhetService, pdlClient, norg2Client, isoppfolgingstilfelleClient)
     val fnr1 = NorskIdent("12345678910")
     val fnr2 = NorskIdent("99887766554")
 
@@ -71,6 +73,7 @@ class BrukerServiceTest : FunSpec({
         coEvery { veilarboppfolgingClient.hentOppfolgingsenhet(fnr1, any()) } returns mockOppfolgingsenhet().right()
 
         coEvery { veilarboppfolgingClient.hentManuellStatus(fnr1, any()) } returns mockManuellStatus().right()
+        coEvery { isoppfolgingstilfelleClient.erSykmeldtMedArbeidsgiver(fnr1, any()) } returns true.right()
 
         coEvery { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr1, any()) } answers {
             VedtakDto(innsatsgruppe = VedtakDto.Innsatsgruppe.STANDARD_INNSATS).right()
@@ -137,6 +140,7 @@ class BrukerServiceTest : FunSpec({
                     ),
                 ),
                 erUnderOppfolging = true,
+                erSykmeldtMedArbeidsgiver = true,
                 varsler = emptyList(),
             )
     }

@@ -24,11 +24,13 @@ import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkelt
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakstype
 import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForInnsok
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
+import no.nav.mulighetsrommet.utils.toUUID
 import java.util.*
 
 class VeilederflateService(
@@ -74,14 +76,15 @@ class VeilederflateService(
         innsatsgruppe: Innsatsgruppe,
         apentForInnsok: ApentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
         search: String? = null,
+        erSykmeldtMedArbeidsgiver: Boolean,
         cacheUsage: CacheUsage,
     ): List<VeilederflateTiltak> = coroutineScope {
         val individuelleGjennomforinger = async {
-            hentSanityTiltak(enheter, tiltakstypeIds, innsatsgruppe, apentForInnsok, search, cacheUsage)
+            hentSanityTiltak(enheter, tiltakstypeIds, innsatsgruppe, apentForInnsok, search, erSykmeldtMedArbeidsgiver, cacheUsage)
         }
 
         val gruppeGjennomforinger = async {
-            hentGruppetiltak(enheter, tiltakstypeIds, innsatsgruppe, apentForInnsok, search)
+            hentGruppetiltak(enheter, tiltakstypeIds, innsatsgruppe, apentForInnsok, search, erSykmeldtMedArbeidsgiver)
         }
 
         (individuelleGjennomforinger.await() + gruppeGjennomforinger.await())
@@ -93,6 +96,7 @@ class VeilederflateService(
         innsatsgruppe: Innsatsgruppe,
         apentForInnsok: ApentForInnsok,
         search: String?,
+        erSykmeldtMedArbeidsgiver: Boolean,
         cacheUsage: CacheUsage,
     ): List<VeilederflateTiltak> {
         if (apentForInnsok == ApentForInnsok.STENGT) {
@@ -108,7 +112,16 @@ class VeilederflateService(
 
         return sanityGjennomforinger
             .filter { tiltakstypeIds.isNullOrEmpty() || tiltakstypeIds.contains(it.tiltakstype._id) }
-            .filter { it.tiltakstype.innsatsgrupper != null && it.tiltakstype.innsatsgrupper.contains(innsatsgruppe) }
+            .filter {
+                val g = 4
+                it.tiltakstype.innsatsgrupper.contains(innsatsgruppe) ||
+                    (
+                        erSykmeldtMedArbeidsgiver &&
+                            innsatsgruppe == Innsatsgruppe.STANDARD_INNSATS &&
+                            tiltakstypeService.getBySanityId(it.tiltakstype._id.toUUID())
+                                .tiltakskode == Tiltakskode.ARBEIDSRETTET_REHABILITERING
+                        )
+            }
             .map { toVeilederTiltaksgjennomforing(it) }
             .filter { gjennomforing ->
                 if (gjennomforing.enheter.isEmpty()) {
@@ -125,6 +138,7 @@ class VeilederflateService(
         innsatsgruppe: Innsatsgruppe,
         apentForInnsok: ApentForInnsok,
         search: String?,
+        erSykmeldtMedArbeidsgiver: Boolean,
     ): List<VeilederflateTiltak> {
         return veilederflateTiltakRepository.getAll(
             search = search,
@@ -136,6 +150,7 @@ class VeilederflateService(
                 ApentForInnsok.STENGT -> false
                 ApentForInnsok.APENT_ELLER_STENGT -> null
             },
+            erSykmeldtMedArbeidsgiver = erSykmeldtMedArbeidsgiver,
         )
     }
 

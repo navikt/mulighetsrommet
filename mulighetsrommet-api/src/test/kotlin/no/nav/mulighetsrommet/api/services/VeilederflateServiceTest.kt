@@ -45,6 +45,7 @@ class VeilederflateServiceTest : FunSpec({
         tiltakstyper = listOf(
             TiltakstypeFixtures.EnkelAmo,
             TiltakstypeFixtures.Arbeidstrening,
+            TiltakstypeFixtures.ArbeidsrettetRehabilitering,
         ),
         avtaler = emptyList(),
         gjennomforinger = emptyList(),
@@ -52,6 +53,7 @@ class VeilederflateServiceTest : FunSpec({
 
     val enkelAmoSanityId = UUID.randomUUID()
     val arbeidstreningSanityId = UUID.randomUUID()
+    val arbeidsrettetRehabiliteringSanityId = UUID.randomUUID()
 
     beforeEach {
         domain.initialize(database.db)
@@ -59,6 +61,7 @@ class VeilederflateServiceTest : FunSpec({
         listOf(
             Query("update tiltakstype set sanity_id = '$enkelAmoSanityId' where id = '${TiltakstypeFixtures.EnkelAmo.id}'"),
             Query("update tiltakstype set sanity_id = '$arbeidstreningSanityId' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'"),
+            Query("update tiltakstype set sanity_id = '$arbeidsrettetRehabiliteringSanityId' where id = '${TiltakstypeFixtures.ArbeidsrettetRehabilitering.id}'"),
         ).forEach {
             database.db.run(it.asExecute)
         }
@@ -142,6 +145,7 @@ class VeilederflateServiceTest : FunSpec({
             apentForInnsok = ApentForInnsok.APENT,
             innsatsgruppe = Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
             cacheUsage = CacheUsage.NoCache,
+            erSykmeldtMedArbeidsgiver = false,
         )
 
         tiltak shouldHaveSize 1
@@ -166,6 +170,7 @@ class VeilederflateServiceTest : FunSpec({
             apentForInnsok = ApentForInnsok.APENT,
             innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             cacheUsage = CacheUsage.NoCache,
+            erSykmeldtMedArbeidsgiver = false,
         ) shouldHaveSize 2
 
         veilederFlateService.hentTiltaksgjennomforinger(
@@ -173,6 +178,7 @@ class VeilederflateServiceTest : FunSpec({
             apentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
             innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             cacheUsage = CacheUsage.NoCache,
+            erSykmeldtMedArbeidsgiver = false,
         ) shouldHaveSize 2
 
         veilederFlateService.hentTiltaksgjennomforinger(
@@ -180,6 +186,60 @@ class VeilederflateServiceTest : FunSpec({
             apentForInnsok = ApentForInnsok.STENGT,
             innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             cacheUsage = CacheUsage.NoCache,
+            erSykmeldtMedArbeidsgiver = false,
         ) shouldHaveSize 0
+    }
+
+    test("ARR er med hvis sykmeldtMedArbeidsgiver og STNDARD_INNSATS") {
+        val veilederFlateService = VeilederflateService(
+            sanityService = sanityService,
+            veilederflateTiltakRepository = VeilederflateTiltakRepository(database.db),
+            tiltakstypeService = TiltakstypeService(TiltakstypeRepository(database.db), listOf()),
+            navEnhetService = NavEnhetService(NavEnhetRepository(database.db)),
+        )
+
+        coEvery { sanityService.getAllTiltak(any(), any()) } returns listOf(
+            SanityTiltaksgjennomforing(
+                _id = "6c64a4bd-2ae1-4aee-ad19-716884bf3b5e",
+                tiltaksgjennomforingNavn = "ARR",
+                stedForGjennomforing = null,
+                tiltaksnummer = "2023#176408",
+                tiltakstype = SanityTiltakstype(
+                    _id = "$arbeidsrettetRehabiliteringSanityId",
+                    tiltakstypeNavn = "Arr",
+                    innsatsgrupper = setOf(Innsatsgruppe.SITUASJONSBESTEMT_INNSATS, Innsatsgruppe.SPESIELT_TILPASSET_INNSATS, Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS, Innsatsgruppe.VARIG_TILPASSET_INNSATS),
+                ),
+                fylke = "0300",
+                enheter = emptyList(),
+                arrangor = null,
+            ),
+        )
+
+        // Riktig innsatsgruppe
+        veilederFlateService.hentTiltaksgjennomforinger(
+            enheter = nonEmptyListOf("0300"),
+            apentForInnsok = ApentForInnsok.APENT,
+            innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+            cacheUsage = CacheUsage.NoCache,
+            erSykmeldtMedArbeidsgiver = false,
+        ) shouldHaveSize 1
+
+        // Feil innsatsgruppe
+        veilederFlateService.hentTiltaksgjennomforinger(
+            enheter = nonEmptyListOf("0300"),
+            apentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
+            innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS,
+            cacheUsage = CacheUsage.NoCache,
+            erSykmeldtMedArbeidsgiver = false,
+        ) shouldHaveSize 0
+
+        // Feil innsatsgruppe men sykmeldt
+        veilederFlateService.hentTiltaksgjennomforinger(
+            enheter = nonEmptyListOf("0300"),
+            apentForInnsok = ApentForInnsok.APENT,
+            innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS,
+            cacheUsage = CacheUsage.NoCache,
+            erSykmeldtMedArbeidsgiver = true,
+        ) shouldHaveSize 1
     }
 })
