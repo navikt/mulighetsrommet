@@ -89,6 +89,7 @@ enum class OppfolgingstilfelleError {
     Error,
 }
 
+@Serializable
 data class OppfolgingstilfellePersonDTO(
     val oppfolgingstilfelleList: List<OppfolgingstilfelleDTO>,
 )

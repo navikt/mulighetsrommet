@@ -137,7 +137,7 @@ const defaultTiltaksgjennomforingfilter: ArbeidsmarkedstiltakFilter = {
   innsatsgruppe: undefined,
   tiltakstyper: [],
   apentForInnsok: ApentForInnsok.APENT_ELLER_STENGT,
-  sykmeldtMedArbeidsgiver: false,
+  erSykmeldtMedArbeidsgiver: false,
 };
 
 export const filterAtom = atomWithStorage<FilterMedBrukerIKontekst>(

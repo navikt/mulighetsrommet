@@ -44,6 +44,7 @@ function useGetArbeidsmarkedstiltakFilterAsQuery() {
       innsatsgruppe: filter.innsatsgruppe?.nokkel,
       enheter: filter.navEnheter.map((enhet: NavEnhet) => enhet.enhetsnummer),
       tiltakstyper,
+      erSykmeldtMedArbeidsgiver: filter.erSykmeldtMedArbeidsgiver,
     },
   };
 }

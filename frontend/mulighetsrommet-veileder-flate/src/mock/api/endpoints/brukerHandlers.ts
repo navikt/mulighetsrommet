@@ -29,6 +29,7 @@ export const brukerHandlers = [
         fnr: norskIdent,
         innsatsgruppe: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
         erUnderOppfolging: true,
+        erSykmeldtMedArbeidsgiver: false,
         enheter: [
           {
             navn: "Nav Sarpsborg",
