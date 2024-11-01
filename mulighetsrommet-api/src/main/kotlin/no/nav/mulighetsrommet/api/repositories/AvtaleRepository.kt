@@ -477,7 +477,7 @@ class AvtaleRepository(private val db: Database) {
         return tx.run(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt, "aarsak" to aarsak.name)).asUpdate)
     }
 
-    fun setArrangorUnderenhet(tx: Session, avtaleId: UUID, arrangorId: UUID) {
+    private fun setArrangorUnderenhet(tx: Session, avtaleId: UUID, arrangorId: UUID) {
         @Language("PostgreSQL")
         val query = """
              insert into avtale_arrangor_underenhet (avtale_id, arrangor_id)
