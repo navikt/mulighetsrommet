@@ -82,16 +82,16 @@ export default function RefusjonskravBeregning() {
               <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.PERSON_NAVN}>
                 Navn
               </Table.ColumnHeader>
-              <Table.HeaderCell scope="col">Fødselsdato</Table.HeaderCell>
-              <Table.HeaderCell scope="col">Startdato i tiltaket</Table.HeaderCell>
+              <Table.ColumnHeader scope="col">Fødselsdato</Table.ColumnHeader>
+              <Table.ColumnHeader scope="col">Startdato i tiltaket</Table.ColumnHeader>
               <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.PERIODE_START}>
                 Startdato i perioden
               </Table.ColumnHeader>
               <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.PERIODE_SLUTT}>
                 Sluttdato i perioden
               </Table.ColumnHeader>
-              <Table.HeaderCell scope="col">Stillings-prosent</Table.HeaderCell>
-              <Table.HeaderCell scope="col">Månedsverk i perioden</Table.HeaderCell>
+              <Table.ColumnHeader scope="col">Stillingsprosent</Table.ColumnHeader>
+              <Table.ColumnHeader scope="col">Månedsverk i perioden</Table.ColumnHeader>
               <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.VEILEDER_NAVN}>
                 Veileder
               </Table.ColumnHeader>
@@ -104,9 +104,11 @@ export default function RefusjonskravBeregning() {
               const fodselsdato = getFormattedFodselsdato(person);
               return (
                 <Table.ExpandableRow key={id} content={null} togglePlacement="right">
-                  <Table.HeaderCell>{person.navn}</Table.HeaderCell>
-                  <Table.DataCell>{fodselsdato}</Table.DataCell>
-                  <Table.DataCell>{deltaker.startDatoTiltaket}</Table.DataCell>
+                  <Table.DataCell className="font-bold">{person.navn}</Table.DataCell>
+                  <Table.DataCell className="w-52">{fodselsdato}</Table.DataCell>
+                  <Table.DataCell>
+                    {deltaker.startDatoTiltaket && formaterDato(deltaker.startDatoTiltaket)}
+                  </Table.DataCell>
                   <Table.DataCell>
                     {startDatoPerioden && formaterDato(startDatoPerioden)}
                   </Table.DataCell>
@@ -163,8 +165,8 @@ function getDeltakerSelector(sortKey: DeltakerSortKey): SortBySelector<Deltaker>
 }
 
 function getFormattedFodselsdato(person: RefusjonKravDeltakelsePerson) {
-  return person.fodselsdato
-    ? formaterDato(person.fodselsdato)
+  return person.foedselsdato
+    ? formaterDato(person.foedselsdato)
     : person.fodselsaar
       ? `Fødselsår: ${person.fodselsaar}`
       : null;
