@@ -3,9 +3,9 @@ package no.nav.mulighetsrommet.utdanning.db
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.utdanning.api.UtdanningsprogramMedUtdanninger
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
+import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramMedUtdanninger
 import org.intellij.lang.annotations.Language
 
 class UtdanningRepository(private val db: Database) {

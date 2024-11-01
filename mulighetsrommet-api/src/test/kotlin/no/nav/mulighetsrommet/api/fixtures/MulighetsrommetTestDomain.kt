@@ -1,11 +1,22 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import io.kotest.assertions.arrow.core.shouldBeRight
-import no.nav.mulighetsrommet.api.domain.dbo.*
-import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
-import no.nav.mulighetsrommet.api.okonomi.refusjon.db.RefusjonskravDbo
-import no.nav.mulighetsrommet.api.okonomi.refusjon.db.RefusjonskravRepository
-import no.nav.mulighetsrommet.api.repositories.*
+import no.nav.mulighetsrommet.api.arrangor.db.ArrangorRepository
+import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
+import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
+import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
+import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
+import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRepository
+import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
+import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetRepository
+import no.nav.mulighetsrommet.api.refusjon.db.DeltakerDbo
+import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
+import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
+import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
+import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeDbo
+import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.Database
 
 data class MulighetsrommetTestDomain(

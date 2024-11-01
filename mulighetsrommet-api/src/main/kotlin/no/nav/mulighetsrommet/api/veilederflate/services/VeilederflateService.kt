@@ -6,11 +6,11 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.*
-import no.nav.mulighetsrommet.api.services.NavEnhetService
-import no.nav.mulighetsrommet.api.services.TiltakstypeService
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.services.cms.CacheUsage
 import no.nav.mulighetsrommet.api.services.cms.SanityService
-import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils.tittelOgUnderTittel
+import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.veilederflate.TiltaksnavnUtils.tittelOgUnderTittel
 import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakRepository
 import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrift
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangor

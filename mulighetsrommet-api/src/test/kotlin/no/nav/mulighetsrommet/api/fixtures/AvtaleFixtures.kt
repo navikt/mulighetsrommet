@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
-import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
-import no.nav.mulighetsrommet.api.routes.v1.Opsjonsmodell
-import no.nav.mulighetsrommet.api.routes.v1.OpsjonsmodellData
+import no.nav.mulighetsrommet.api.avtale.AvtaleRequest
+import no.nav.mulighetsrommet.api.avtale.Opsjonsmodell
+import no.nav.mulighetsrommet.api.avtale.OpsjonsmodellData
+import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.domain.dto.*
 import java.time.LocalDate
 import java.util.*

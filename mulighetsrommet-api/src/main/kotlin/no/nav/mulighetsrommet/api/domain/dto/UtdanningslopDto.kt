@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.domain.dbo.UtdanningslopDbo
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.util.*
 
 @Serializable

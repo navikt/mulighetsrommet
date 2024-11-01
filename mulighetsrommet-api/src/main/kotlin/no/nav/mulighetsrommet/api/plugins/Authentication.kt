@@ -8,9 +8,9 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.routing.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
-import no.nav.mulighetsrommet.altinn.models.AltinnRessurs
+import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
 import no.nav.mulighetsrommet.api.AuthConfig
-import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer

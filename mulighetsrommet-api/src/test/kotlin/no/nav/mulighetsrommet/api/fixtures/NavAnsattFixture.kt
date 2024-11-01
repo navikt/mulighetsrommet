@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
-import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
+import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import java.util.*
 

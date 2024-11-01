@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File

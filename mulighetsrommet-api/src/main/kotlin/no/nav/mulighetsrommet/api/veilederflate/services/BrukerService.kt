@@ -21,9 +21,9 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakError
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
-import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
-import no.nav.mulighetsrommet.api.services.NAV_EGNE_ANSATTE_TIL_FYLKE_MAP
-import no.nav.mulighetsrommet.api.services.NavEnhetService
+import no.nav.mulighetsrommet.api.navenhet.NAV_EGNE_ANSATTE_TIL_FYLKE_MAP
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
+import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.exception.StatusException

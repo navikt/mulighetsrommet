@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.routes.v1.EstimertVentetid
-import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
+import no.nav.mulighetsrommet.api.gjennomforing.EstimertVentetid
+import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingRequest
+import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
