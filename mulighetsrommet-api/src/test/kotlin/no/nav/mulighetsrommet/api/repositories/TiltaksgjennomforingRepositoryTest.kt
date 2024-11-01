@@ -89,7 +89,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.tiltakstype shouldBe TiltaksgjennomforingDto.Tiltakstype(
                     id = TiltakstypeFixtures.Oppfolging.id,
                     navn = TiltakstypeFixtures.Oppfolging.navn,
-                    tiltakskode = Tiltakskode.fromArenaKodeOrFail(TiltakstypeFixtures.Oppfolging.arenaKode),
+                    tiltakskode = Tiltakskode.OPPFOLGING,
                 )
                 it.navn shouldBe Oppfolging1.navn
                 it.tiltaksnummer shouldBe null

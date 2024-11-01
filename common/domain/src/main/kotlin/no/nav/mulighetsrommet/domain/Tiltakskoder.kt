@@ -25,29 +25,6 @@ enum class Tiltakskode {
             VARIG_TILRETTELAGT_ARBEID_SKJERMET -> "VASV"
         }
     }
-
-    companion object {
-        fun fromArenaKode(arenaKode: String): Tiltakskode? {
-            return when (arenaKode) {
-                "ARBFORB" -> ARBEIDSFORBEREDENDE_TRENING
-                "ARBRRHDAG" -> ARBEIDSRETTET_REHABILITERING
-                "AVKLARAG" -> AVKLARING
-                "DIGIOPPARB" -> DIGITALT_OPPFOLGINGSTILTAK
-                "GRUFAGYRKE" -> GRUPPE_FAG_OG_YRKESOPPLAERING
-                "GRUPPEAMO" -> GRUPPE_ARBEIDSMARKEDSOPPLAERING
-                "INDOPPFAG" -> OPPFOLGING
-                "JOBBK" -> JOBBKLUBB
-                "VASV" -> VARIG_TILRETTELAGT_ARBEID_SKJERMET
-                else -> null
-            }
-        }
-
-        fun fromArenaKodeOrFail(arenaKode: String): Tiltakskode {
-            return requireNotNull(fromArenaKode(arenaKode)) {
-                "Tiltakskode er ikke definert for $arenaKode"
-            }
-        }
-    }
 }
 
 object Tiltakskoder {
