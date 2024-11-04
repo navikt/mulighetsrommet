@@ -502,32 +502,6 @@ class AvtaleValidatorTest : FunSpec({
 
             val opsjonLoggService =
                 OpsjonLoggService(database.db, opsjonValidator, avtaler, opsjonslogg, endringshistorikkService)
-            val avtaleMedEndringer = AvtaleDbo(
-                id = avtaleDbo.id,
-                navn = "Nytt navn",
-                tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
-                arrangorId = ArrangorFixtures.underenhet1.id,
-                arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
-                arrangorKontaktpersoner = emptyList(),
-                avtalenummer = "123456",
-                websaknummer = Websaknummer("24/1234"),
-                startDato = LocalDate.of(2024, 5, 7),
-                sluttDato = LocalDate.of(2024, 5, 7).plusYears(1),
-                administratorer = listOf(NavIdent("B123456")),
-                avtaletype = Avtaletype.Avtale,
-                prisbetingelser = null,
-                navEnheter = listOf("0300"),
-                antallPlasser = null,
-                beskrivelse = null,
-                faneinnhold = Faneinnhold(kurstittel = "Min kurstittel"),
-                personopplysninger = emptyList(),
-                personvernBekreftet = false,
-                amoKategorisering = null,
-                opsjonMaksVarighet = LocalDate.of(2024, 5, 7).plusYears(3),
-                opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
-                customOpsjonsmodellNavn = null,
-                utdanningslop = null,
-            )
 
             avtaler.upsert(
                 avtaleDbo.copy(
@@ -555,7 +529,15 @@ class AvtaleValidatorTest : FunSpec({
 
             val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
 
-            validator.validate(avtaleMedEndringer, previous).shouldBeLeft(
+            validator.validate(
+                avtaleDbo.copy(
+                    administratorer = listOf(NavIdent("B123456")),
+                    tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
+                    opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+                    opsjonMaksVarighet = LocalDate.of(2024, 5, 7).plusYears(3),
+                ),
+                previous,
+            ).shouldBeLeft(
                 listOf(
                     ValidationError("opsjonsmodell", "Du kan ikke endre opsjonsmodell når opsjoner er registrert"),
                 ),
