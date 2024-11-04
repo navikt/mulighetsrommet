@@ -14,6 +14,7 @@ import {
   NavAnsatt,
   NavEnhet,
   NavEnhetType,
+  OpsjonStatus,
   OpsjonsmodellKey,
   Tiltakskode,
   TiltakstypeDto,
@@ -90,6 +91,9 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   const opsjonsmodell = opsjonsmodeller.find(
     (m) => m.value === watch("opsjonsmodellData.opsjonsmodell"),
   );
+  const antallOpsjonerUtlost = (
+    avtale?.opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLØST) || []
+  ).length;
 
   return (
     <SkjemaDetaljerContainer>
@@ -172,6 +176,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               <ControlledSokeSelect
                 size="small"
                 placeholder="Velg en"
+                readOnly={antallOpsjonerUtlost > 0}
                 label={avtaletekster.avtaletypeLabel}
                 {...register("avtaletype")}
                 onChange={(e) => {
