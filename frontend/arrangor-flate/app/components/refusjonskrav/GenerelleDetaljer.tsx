@@ -7,7 +7,7 @@ interface Props {
 }
 
 export function GenerelleDetaljer({ className, krav }: Props) {
-  const { tiltaksnavn, tiltakstype, refusjonskravperiode } = krav.detaljer;
+  const { tiltaksnavn, tiltakstype } = krav.detaljer;
 
   return (
     <Definisjonsliste
@@ -16,7 +16,6 @@ export function GenerelleDetaljer({ className, krav }: Props) {
       definitions={[
         { key: "Tiltaksnavn", value: tiltaksnavn },
         { key: "Tiltakstype", value: tiltakstype },
-        { key: "Refusjonskravperiode", value: refusjonskravperiode },
       ]}
     />
   );

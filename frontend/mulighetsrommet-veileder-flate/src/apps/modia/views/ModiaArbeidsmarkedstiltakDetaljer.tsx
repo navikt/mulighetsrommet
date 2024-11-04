@@ -34,6 +34,7 @@ import { PameldingForGruppetiltak } from "@/components/pamelding/PameldingForGru
 import { VisibleWhenToggledOn } from "@/components/toggles/VisibleWhenToggledOn";
 import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
+import { PameldingKometApnerSnart } from "../pamelding/PameldingKometApnerSnart";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -104,6 +105,10 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
                 Opprett avtale
               </Button>
             )}
+
+            {gjennomforingIsAktiv(tiltak.status.status) ? (
+              <PameldingKometApnerSnart tiltak={tiltak} />
+            ) : null}
 
             {isTiltakGruppe(tiltak) && gjennomforingIsAktiv(tiltak.status.status) ? (
               <PameldingForGruppetiltak

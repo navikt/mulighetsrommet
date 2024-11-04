@@ -56,7 +56,7 @@ export function RefusjonskravTable({ krav }: Props) {
                     <Table.DataCell>
                       <Link
                         className="hover:underline font-bold no-underline"
-                        to={internalNavigation(orgnr).forDuBegynner(id)}
+                        to={internalNavigation(orgnr).beregning(id)}
                       >
                         Detaljer
                       </Link>

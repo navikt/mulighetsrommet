@@ -7,7 +7,7 @@
     "status": 200,
     "jsonBody": {
       "data": {
-        "hentGeografiskTilknytning":{
+        "hentGeografiskTilknytning": {
           "gtType": "BYDEL",
           "gtLand": null,
           "gtKommune": null,
@@ -30,7 +30,33 @@
               "historisk": false
             }
           ]
-        }
+        },
+        "hentPersonBolk": [
+          {
+            "ident": "20420251026",
+            "person": {
+              "navn": [
+                {
+                  "fornavn": "Ola",
+                  "mellomnavn": null,
+                  "etternavn": "Normann"
+                }
+              ],
+              "adressebeskyttelse": [
+                {
+                  "gradering": "UGRADERT"
+                }
+              ],
+              "foedselsdato": [
+                {
+                  "foedselsaar": 1993,
+                  "foedselsdato": "1993-11-01"
+                }
+              ]
+            },
+            "code": "ok"
+          }
+        ]
       },
       "errors": []
     },
