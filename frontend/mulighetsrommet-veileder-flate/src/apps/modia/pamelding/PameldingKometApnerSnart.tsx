@@ -1,16 +1,16 @@
+import { Toggles, VeilederflateTiltak } from "@mr/api-client";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { GuidePanel, VStack, Heading, BodyShort, Link } from "@navikt/ds-react";
+import { BodyShort, GuidePanel, Heading, Link, VStack } from "@navikt/ds-react";
+import { useFeatureToggle } from "../../../api/feature-toggles";
 import { TegnestiftIkon } from "../../../ikoner/TegnestiftIkon";
 import styles from "./PameldingKometApnerSnart.module.scss";
-import { Toggles, VeilederflateTiltak } from "@mr/api-client";
-import { useFeatureToggle } from "../../../api/feature-toggles";
 
 interface Props {
   tiltak: VeilederflateTiltak;
 }
 
 export function PameldingKometApnerSnart({ tiltak }: Props) {
-  const tiltakskoder = tiltak.tiltakstype.tiltakskode ? [tiltak.tiltakstype.tiltakskode] : [];
+  const tiltakskoder = tiltak.tiltakstype?.tiltakskode ? [tiltak.tiltakstype.tiltakskode] : [];
   const { data: pameldingApnerSnart } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_PAMELDING_INFO_KOMET,
     tiltakskoder,
