@@ -27,7 +27,7 @@ export default function TilsagnDetaljerPage() {
       <PageHeader
         title="Detaljer for tilsagn"
         tilbakeLenke={{
-          navn: "Tilbake til tilsagnsliste",
+          navn: "Tilbake til tilsagnsoversikt",
           url: `/`,
         }}
       />
