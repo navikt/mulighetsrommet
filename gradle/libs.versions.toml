@@ -35,7 +35,7 @@ arrow-core-serialization = { module = "io.arrow-kt:arrow-core-serialization", ve
 assertj-db = "org.assertj:assertj-db:2.0.2"
 
 caffeine = "com.github.ben-manes.caffeine:caffeine:3.1.8"
-pdfgen-core = "no.nav.pdfgen:pdfgen-core:1.1.32"
+pdfgen-core = "no.nav.pdfgen:pdfgen-core:1.1.33"
 verapdf = "org.verapdf:validation-model:1.26.1"
 handlebars = "com.github.jknack:handlebars:4.4.0"
 
@@ -112,7 +112,7 @@ nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-
 nav-common-tokenClient = { module = "no.nav.common:token-client", version.ref = "common-java-modules" }
 nav-common-client = { module = "no.nav.common:client", version.ref = "common-java-modules" }
 nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2024.10.04_12.38-e183cd9d187f"
-nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.1.9"
+nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.1.10"
 
 postgresql = "org.postgresql:postgresql:42.7.4"
 
