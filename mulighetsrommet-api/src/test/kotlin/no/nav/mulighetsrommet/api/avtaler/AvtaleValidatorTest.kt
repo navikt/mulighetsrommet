@@ -562,6 +562,50 @@ class AvtaleValidatorTest : FunSpec({
             )
         }
 
+        test("Skal ikke kunne endre avtaletype når opsjon er registrert") {
+            val endringshistorikkService: EndringshistorikkService = mockk(relaxed = true)
+            val opsjonValidator = OpsjonLoggValidator()
+
+            val opsjonLoggService =
+                OpsjonLoggService(database.db, opsjonValidator, avtaler, opsjonslogg, endringshistorikkService)
+
+            avtaler.upsert(
+                AvtaleFixtures.oppfolging.copy(
+                    opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN_PLUSS_EN,
+                    administratorer = emptyList(),
+                    opsjonMaksVarighet = LocalDate.of(2024, 5, 7).plusYears(3),
+                    avtaletype = Avtaletype.Rammeavtale,
+                ),
+            )
+            opsjonLoggService.lagreOpsjonLoggEntry(
+                OpsjonLoggEntry(
+                    avtaleId = AvtaleFixtures.oppfolging.id,
+                    sluttdato = AvtaleFixtures.oppfolging.sluttDato?.plusYears(1),
+                    forrigeSluttdato = AvtaleFixtures.oppfolging.sluttDato,
+                    status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST,
+                    registrertAv = NavIdent("M123456"),
+                ),
+            )
+
+            val previous = avtaler.get(AvtaleFixtures.oppfolging.id)
+
+            val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+
+            validator.validate(
+                AvtaleFixtures.oppfolging.copy(
+                    administratorer = listOf(NavIdent("B123456")),
+                    avtaletype = Avtaletype.Avtale,
+                    opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN_PLUSS_EN,
+                    opsjonMaksVarighet = LocalDate.of(2024, 5, 7).plusYears(3),
+                ),
+                previous,
+            ).shouldBeLeft(
+                listOf(
+                    ValidationError("avtaletype", "Du kan ikke endre avtaletype når opsjoner er registrert"),
+                ),
+            )
+        }
+
         context("når avtalen har gjennomføringer") {
             val startDatoForGjennomforing = avtaleDbo.startDato
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(

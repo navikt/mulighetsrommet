@@ -94,6 +94,14 @@ class AvtaleValidator(
                     }
                 }
             }
+            if (currentAvtale?.opsjonerRegistrert?.isNotEmpty() == true && avtale.avtaletype != currentAvtale.avtaletype) {
+                add(
+                    ValidationError.of(
+                        AvtaleDbo::avtaletype,
+                        "Du kan ikke endre avtaletype når opsjoner er registrert",
+                    ),
+                )
+            }
 
             if (currentAvtale?.opsjonerRegistrert?.isNotEmpty() == true && avtale.opsjonsmodell != currentAvtale.opsjonsmodellData?.opsjonsmodell) {
                 add(
