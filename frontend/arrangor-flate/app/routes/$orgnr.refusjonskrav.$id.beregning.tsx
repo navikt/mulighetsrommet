@@ -90,7 +90,7 @@ export default function RefusjonskravBeregning() {
               <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.PERIODE_SLUTT}>
                 Sluttdato i perioden
               </Table.ColumnHeader>
-              <Table.ColumnHeader scope="col">Stillingsprosent</Table.ColumnHeader>
+              <Table.ColumnHeader scope="col">Deltakelsesprosent</Table.ColumnHeader>
               <Table.ColumnHeader scope="col">Månedsverk i perioden</Table.ColumnHeader>
               <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.VEILEDER_NAVN}>
                 Veileder

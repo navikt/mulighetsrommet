@@ -81,9 +81,9 @@ export default function BekreftRefusjonskrav() {
   return (
     <>
       <PageHeader
-        title="Detaljer for refusjonskrav"
+        title="Oppsummering av refusjonskrav"
         tilbakeLenke={{
-          navn: "Tilbake til deltakerliste",
+          navn: "Tilbake til beregning",
           url: `/${orgnr}/refusjonskrav/${krav.id}/beregning`,
         }}
       />

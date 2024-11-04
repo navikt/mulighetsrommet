@@ -23,6 +23,14 @@ export function TilsagnTable({ tilsagn }: Props) {
     <>
       <div className="border-spacing-y-6 border-collapsed mt-4">
         <Table zebraStripes>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell>Tiltakstype</Table.HeaderCell>
+              <Table.HeaderCell>Navn</Table.HeaderCell>
+              <Table.HeaderCell>Periode</Table.HeaderCell>
+              <Table.HeaderCell></Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
           <Table.Body>
             {tilsagn.map((tilsagn, i) => {
               return (
