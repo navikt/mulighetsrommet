@@ -54,7 +54,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   const watchedTiltakstype = watch("tiltakstype");
   const tiltakskode = watchedTiltakstype?.tiltakskode;
 
-  function updateOpsjonsmodell(avtaletype: Avtaletype) {
+  function updateOpsjonsmodell(avtaletype?: Avtaletype) {
     if (avtaletype === Avtaletype.FORHAANDSGODKJENT) {
       setValue("opsjonsmodellData", {
         opsjonsmodell: OpsjonsmodellKey.AVTALE_VALGFRI_SLUTTDATO,
@@ -174,6 +174,9 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 placeholder="Velg en"
                 label={avtaletekster.avtaletypeLabel}
                 {...register("avtaletype")}
+                onChange={(e) => {
+                  updateOpsjonsmodell(e.target.value);
+                }}
                 options={tiltakskode ? avtaletypeOptions(tiltakskode) : []}
               />
             </HGrid>
