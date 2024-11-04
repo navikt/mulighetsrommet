@@ -19,7 +19,9 @@ fun Route.featureTogglesRoute() {
     route("/features") {
         get {
             val feature: String by call.parameters
-            val tiltakskoder = call.parameters.getAll("tiltakskoder")?.map { Tiltakskode.valueOf(it) } ?: emptyList()
+            val tiltakskoder = call.parameters.getAll("tiltakskoder")
+                ?.map { Tiltakskode.valueOf(it) }
+                ?: emptyList()
 
             val context = FeatureToggleContext(
                 userId = getNavIdent().value,
