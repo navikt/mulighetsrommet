@@ -146,7 +146,7 @@ class BrukerService(
                 when (it) {
                     OppfolgingstilfelleError.Forbidden -> throw StatusException(
                         HttpStatusCode.InternalServerError,
-                        "Mangler tilgang til å hente oppfølgingstilfeller.",
+                        "Mangler SYFO rolle for å hente oppfølgingstilfeller.",
                     )
                     OppfolgingstilfelleError.Error -> throw StatusException(
                         HttpStatusCode.InternalServerError,

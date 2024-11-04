@@ -65,7 +65,7 @@ class IsoppfolgingstilfelleClient(
 
         return when (response.status) {
             HttpStatusCode.Forbidden -> {
-                log.info("Manglet tilgang til å hente oppfølgingstilfeller for bruker.")
+                log.info("Manglet SYFO rolle for å hente oppfølgingstilfeller for bruker.")
                 OppfolgingstilfelleError.Forbidden.left()
             }
 
