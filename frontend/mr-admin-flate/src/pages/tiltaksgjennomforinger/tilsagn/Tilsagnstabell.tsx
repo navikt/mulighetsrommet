@@ -1,6 +1,5 @@
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { formaterDato } from "@/utils/Utils";
-import { NavAnsatt, NavAnsattRolle, TilsagnBesluttelse, TilsagnDto } from "@mr/api-client";
+import { TilsagnBesluttelse, TilsagnDto } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { HelpText, HStack, SortState, Table, Tag } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
@@ -17,7 +16,6 @@ interface ScopedSortState extends SortState {
 
 export function Tilsagnstabell({ tilsagn }: Props) {
   const { tiltaksgjennomforingId } = useParams();
-  const { data: ansatt } = useHentAnsatt();
 
   const [sort, setSort] = useState<ScopedSortState>();
 
@@ -45,8 +43,8 @@ export function Tilsagnstabell({ tilsagn }: Props) {
     return 0;
   }
 
-  function TilsagnStatus(props: { tilsagn: TilsagnDto; ansatt?: NavAnsatt }) {
-    const { tilsagn, ansatt } = props;
+  function TilsagnStatus(props: { tilsagn: TilsagnDto }) {
+    const { tilsagn } = props;
 
     if (tilsagn.besluttelse) {
       return (
@@ -68,11 +66,6 @@ export function Tilsagnstabell({ tilsagn }: Props) {
       );
     } else if (tilsagn.annullertTidspunkt) {
       return <Tag variant="neutral"> Annullert</Tag>;
-    } else if (
-      ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER) &&
-      tilsagn.opprettetAv !== ansatt?.navIdent
-    ) {
-      return <Tag variant="info">Til godkjenning</Tag>;
     } else {
       return <Tag variant="info">Til beslutning</Tag>;
     }
@@ -125,7 +118,7 @@ export function Tilsagnstabell({ tilsagn }: Props) {
               <Table.DataCell>{tiltaksgjennomforing.antallPlasser}</Table.DataCell>
               <Table.DataCell>{formaterNOK(beregning.belop)}</Table.DataCell>
               <Table.DataCell>
-                <TilsagnStatus tilsagn={tilsagn} ansatt={ansatt} />
+                <TilsagnStatus tilsagn={tilsagn} />
               </Table.DataCell>
 
               <Table.DataCell>
