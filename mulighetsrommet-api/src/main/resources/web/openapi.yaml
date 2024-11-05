@@ -5229,5 +5229,3 @@ components:
           type: string
         kid:
           type: string
-      required:
-        - kontonummer

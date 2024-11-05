@@ -51,6 +51,8 @@ export function isKursTiltak(tiltakskode?: Tiltakskode, arenaKode?: TiltakskodeA
   return false;
 }
 
-export function formaterKontoNummer(kontoNummer: string): string {
-  return `${kontoNummer.substring(0, 4)} ${kontoNummer.substring(4, 6)} ${kontoNummer.substring(6, 11)}`;
+export function formaterKontoNummer(kontoNummer?: string): string {
+  return !kontoNummer
+    ? ""
+    : `${kontoNummer.substring(0, 4)} ${kontoNummer.substring(4, 6)} ${kontoNummer.substring(6, 11)}`;
 }
