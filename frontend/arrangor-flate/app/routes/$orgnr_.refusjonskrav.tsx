@@ -32,7 +32,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export default function TilsagnDetaljer() {
-  const [currentTab, setTab] = useTabState("tab", "aktive");
+  const [currentTab, setTab] = useTabState("forside-tab", "aktive");
   const { krav, tilsagn } = useLoaderData<typeof loader>();
   const historiske: RefusjonKravKompakt[] = krav.filter(
     (k) => k.status === RefusjonskravStatus.GODKJENT_AV_ARRANGOR,

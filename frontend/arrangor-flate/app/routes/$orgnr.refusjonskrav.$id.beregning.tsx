@@ -68,7 +68,6 @@ export default function RefusjonskravBeregning() {
   const sortedData = sort
     ? sortBy(krav.deltakere, sort.direction, getDeltakerSelector(sort.orderBy))
     : krav.deltakere;
-  console.log(sortedData);
 
   return (
     <>

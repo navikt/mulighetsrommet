@@ -72,8 +72,9 @@ export const action: ActionFunction = async ({ request }) => {
       kid: kid as string,
     },
   });
-
-  return redirect(`/${internalNavigation(orgnr).kvittering}?tab=${currentTab}`);
+  return redirect(
+    `${internalNavigation(orgnr).kvittering(refusjonskravId)}?forside-tab=${currentTab}`,
+  );
 };
 
 export default function BekreftRefusjonskrav() {

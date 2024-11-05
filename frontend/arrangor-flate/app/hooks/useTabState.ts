@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { Tabs } from "../routes/$orgnr_.refusjonskrav";
 
 export function useTabState(
-  key = "tab",
+  key: "forside-tab" = "forside-tab",
   defaultValue: Tabs = "aktive",
 ): [string, (tab: Tabs) => void] {
   const [searchParams, setSearchParams] = useSearchParams();

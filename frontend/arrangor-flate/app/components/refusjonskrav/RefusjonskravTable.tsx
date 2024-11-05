@@ -57,7 +57,11 @@ export function RefusjonskravTable({ krav }: Props) {
                     <Table.DataCell>
                       <LinkWithTabState
                         className="hover:underline font-bold no-underline"
-                        to={internalNavigation(orgnr).beregning(id)}
+                        to={
+                          status === RefusjonskravStatus.GODKJENT_AV_ARRANGOR
+                            ? internalNavigation(orgnr).kvittering(id)
+                            : internalNavigation(orgnr).beregning(id)
+                        }
                       >
                         Detaljer
                       </LinkWithTabState>

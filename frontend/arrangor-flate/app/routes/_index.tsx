@@ -33,7 +33,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   if (!orgnr && arrangorer.length > 0 && url.pathname === "/") {
     return redirect(
-      `${internalNavigation(arrangorer[0].organisasjonsnummer).refusjonskravliste}?tab=${currentTab}`,
+      `${internalNavigation(arrangorer[0].organisasjonsnummer).refusjonskravliste}?forside-tab=${currentTab}`,
     );
   }
 
