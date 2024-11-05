@@ -128,7 +128,7 @@ class TilsagnService(
     }
 
     private suspend fun lagOgSendBestilling(tilsagn: TilsagnDto) {
-        val gjennomforing = tiltaksgjennomforingRepository.get(tilsagn.tiltaksgjennomforingId)
+        val gjennomforing = tiltaksgjennomforingRepository.get(tilsagn.tiltaksgjennomforing.id)
         requireNotNull(gjennomforing) { "Fant ikke gjennomforing til tilsagn" }
         requireNotNull(gjennomforing.avtaleId) { "Fant ikke avtale til gjennomforingen" }
 
