@@ -53,6 +53,5 @@ data class TilsagnDto(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val antallPlasser: Int,
-        val tiltaksnummer: String,
     )
 }

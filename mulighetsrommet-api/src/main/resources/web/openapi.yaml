@@ -4760,12 +4760,9 @@ components:
               format: uuid
             antallPlasser:
               type: number
-            tiltaksnummer:
-              type: string
           required:
             - id
             - antallPlasser
-            - tiltaksnummer
       required:
         - id
         - tiltaksgjennomforingId

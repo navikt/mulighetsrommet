@@ -58,8 +58,7 @@ class TilsagnRepositoryTest : FunSpec({
                 id = tilsagn.id,
                 tiltaksgjennomforing = TilsagnDto.Tiltaksgjennomforing(
                     id = AFT1.id,
-                    antallPlasser = 10,
-                    tiltaksnummer = "2024#123",
+                    antallPlasser = AFT1.antallPlasser,
                 ),
                 periodeStart = LocalDate.of(2023, 1, 1),
                 periodeSlutt = LocalDate.of(2023, 2, 1),

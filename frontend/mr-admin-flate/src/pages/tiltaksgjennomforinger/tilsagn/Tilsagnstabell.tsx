@@ -2,11 +2,10 @@ import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { formaterDato } from "@/utils/Utils";
 import { NavAnsatt, NavAnsattRolle, TilsagnBesluttelse, TilsagnDto } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { ClockIcon } from "@navikt/aksel-icons";
-import { Alert, Button, HelpText, HStack, Table, SortState } from "@navikt/ds-react";
+import { HelpText, HStack, SortState, Table, Tag } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
 import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 interface Props {
   tilsagn: TilsagnDto[];
@@ -19,7 +18,6 @@ interface ScopedSortState extends SortState {
 export function Tilsagnstabell({ tilsagn }: Props) {
   const { tiltaksgjennomforingId } = useParams();
   const { data: ansatt } = useHentAnsatt();
-  const navigate = useNavigate();
 
   const [sort, setSort] = useState<ScopedSortState>();
 
@@ -47,66 +45,40 @@ export function Tilsagnstabell({ tilsagn }: Props) {
     return 0;
   }
 
-  function besluttTilsagn(id: string) {
-    navigate(id);
-  }
-
-  function redigerTilsagn(id: string) {
-    navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn/${id}/rediger-tilsagn`);
-  }
-
   function TilsagnStatus(props: { tilsagn: TilsagnDto; ansatt?: NavAnsatt }) {
     const { tilsagn, ansatt } = props;
 
     if (tilsagn.besluttelse) {
       return (
-        <Alert
-          inline
-          size="small"
-          variant={tilsagn.besluttelse.utfall === "GODKJENT" ? "success" : "warning"}
-        >
-          <HStack justify={"space-between"} gap="2" align={"center"}>
-            {besluttelseTilTekst(tilsagn.besluttelse.utfall)}{" "}
-            <HelpText>
-              {besluttelseTilTekst(tilsagn.besluttelse.utfall)} den{" "}
-              {formaterDato(tilsagn.besluttelse.tidspunkt)} av {tilsagn.besluttelse.navIdent}
-            </HelpText>
-          </HStack>
-        </Alert>
+        <>
+          <Tag
+            variant={
+              tilsagn.besluttelse.utfall === TilsagnBesluttelse.GODKJENT ? "success" : "warning"
+            }
+          >
+            <HStack justify={"space-between"} gap="2" align={"center"}>
+              {besluttelseTilTekst(tilsagn.besluttelse.utfall)}{" "}
+              <HelpText>
+                {besluttelseTilTekst(tilsagn.besluttelse.utfall)} den{" "}
+                {formaterDato(tilsagn.besluttelse.tidspunkt)} av {tilsagn.besluttelse.navIdent}
+              </HelpText>
+            </HStack>
+          </Tag>
+        </>
       );
     } else if (tilsagn.annullertTidspunkt) {
-      return (
-        <HStack justify={"space-between"} gap="2" align={"center"}>
-          Annullert
-          <HelpText>{`Annullert den ${formaterDato(tilsagn.annullertTidspunkt)}`}</HelpText>
-        </HStack>
-      );
+      return <Tag variant="neutral"> Annullert</Tag>;
     } else if (
       ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER) &&
       tilsagn.opprettetAv !== ansatt?.navIdent
     ) {
-      return (
-        <Button
-          type="button"
-          variant="primary"
-          size="small"
-          onClick={() => besluttTilsagn(tilsagn.id)}
-        >
-          Beslutt
-        </Button>
-      );
+      return <Tag variant="info">Til godkjenning</Tag>;
     } else {
-      return (
-        <span>
-          <HStack align={"center"} gap="1">
-            <ClockIcon /> Til beslutning
-          </HStack>
-        </span>
-      );
+      return <Tag variant="info">Til beslutning</Tag>;
     }
   }
 
-  const sortedData = tilsagn.slice().sort((a, b) => {
+  const sortedData = [...tilsagn].sort((a, b) => {
     if (sort) {
       return sort.direction === "ascending"
         ? comparator(b, a, sort.orderBy)
@@ -122,37 +94,31 @@ export function Tilsagnstabell({ tilsagn }: Props) {
     >
       <Table.Header>
         <Table.Row>
-          <Table.ColumnHeader title="Tilsagnsnummer">Tilsagnsnr.</Table.ColumnHeader>
           <TableColumnHeader sortKey="periodeStart" sortable>
             Periodestart
           </TableColumnHeader>
           <TableColumnHeader sortKey="periodeSlutt" sortable>
             Periodeslutt
           </TableColumnHeader>
-          <TableColumnHeader>Kostnadssted</TableColumnHeader>
-          <TableColumnHeader>Antall plasser</TableColumnHeader>
-          <TableColumnHeader>Beløp</TableColumnHeader>
+          <TableColumnHeader sortKey="kostnadssted.navn" sortable>
+            Kostnadssted
+          </TableColumnHeader>
+          <TableColumnHeader sortKey="tiltaksgjennomforing.antallPlasser" sortable>
+            Antall plasser
+          </TableColumnHeader>
+          <TableColumnHeader sortKey="beregning.belop" sortable>
+            Beløp
+          </TableColumnHeader>
           <TableColumnHeader>Status</TableColumnHeader>
-          <TableColumnHeader></TableColumnHeader>
           <TableColumnHeader></TableColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>
         {sortedData.map((tilsagn) => {
-          const {
-            periodeStart,
-            periodeSlutt,
-            kostnadssted,
-            beregning,
-            id,
-            besluttelse,
-            tiltaksgjennomforing,
-          } = tilsagn;
+          const { periodeStart, periodeSlutt, kostnadssted, beregning, id, tiltaksgjennomforing } =
+            tilsagn;
           return (
             <Table.Row key={id}>
-              <Table.DataCell>
-                {tiltaksgjennomforing.tiltaksnummer}/{tilsagn.lopenummer}
-              </Table.DataCell>
               <Table.DataCell>{formaterDato(periodeStart)}</Table.DataCell>
               <Table.DataCell>{formaterDato(periodeSlutt)}</Table.DataCell>
               <Table.DataCell>{kostnadssted.navn}</Table.DataCell>
@@ -161,19 +127,7 @@ export function Tilsagnstabell({ tilsagn }: Props) {
               <Table.DataCell>
                 <TilsagnStatus tilsagn={tilsagn} ansatt={ansatt} />
               </Table.DataCell>
-              <Table.DataCell>
-                {tilsagn?.opprettetAv === ansatt?.navIdent &&
-                besluttelse?.utfall === TilsagnBesluttelse.AVVIST ? (
-                  <Button
-                    type="button"
-                    variant="primary"
-                    size="small"
-                    onClick={() => redigerTilsagn(id)}
-                  >
-                    Korriger
-                  </Button>
-                ) : null}
-              </Table.DataCell>
+
               <Table.DataCell>
                 <Link to={`/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn/${id}`}>
                   Detaljer
