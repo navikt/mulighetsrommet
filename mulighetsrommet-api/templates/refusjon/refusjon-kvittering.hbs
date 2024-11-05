@@ -34,6 +34,11 @@
         tr {
             font-size: 10px;
         }
+        .tilsagn-table {
+            border: 1px solid #D1D4D8;
+            padding: 8px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -42,65 +47,55 @@
         <tbody>
         <tr>
             <th>Tiltaksnavn:</th>
-            <td>{{ tiltakInfo.tiltakNavn }}</td>
+            <td>{{ refusjon.gjennomforing.navn }}</td>
         </tr>
         <tr>
             <th>Tiltakstype:</th>
-            <td>{{ tiltakInfo.tiltakstype }}</td>
-        </tr>
-        <tr>
-            <th>rapporteringsperiode:</th>
-            <td>{{ tiltakInfo.rapporteringsperiode }}</td>
+            <td>{{ refusjon.tiltakstype.navn }}</td>
         </tr>
         </tbody>
     </table>
 </div>
-<div class="block line_bottom">
+<div class="block">
     <h4>Tilsagnsdetaljer</h4>
-    <table class="block">
+    {{#each tilsagn }}
+    <table class="block tilsagn-table">
         <tbody>
         <tr>
-            <th>Antall plasser:</th>
-            <td>{{ tilsagnDetails.antallPlasser }}</td>
-        </tr>
-        <tr>
-            <th>Pris per plass:</th>
-            <td>kr {{ currency_no tilsagnDetails.prisPerPlass }}</td>
-        </tr>
-        <tr>
-            <th>Tilsagnsbeløp:</th>
-            <td>kr {{ currency_no tilsagnDetails.tilsagnBelop }}</td>
-        </tr>
-        <tr>
             <th>Tilsagnsperiode:</th>
-            <td>{{ tilsagnDetails.tilsagnPeriode }}</td>
+            <td>{{ iso_to_nor_date periodeStart }} - {{ iso_to_nor_date periodeSlutt }}</td>
         </tr>
         <tr>
-            <th>Sum utbetalt så langt:</th>
-            <td>kr {{currency_no tilsagnDetails.sumUtbetalt}}</td>
+            <th>Antall plasser:</th>
+            <td>{{ beregning.antallPlasser }}  </td>
+        </tr>
+        <tr>
+            <th>Sats:</th>
+            <td>{{ currency_no beregning.sats }} kr </td>
+        </tr>
+        <tr>
+            <th>Beløp:</th>
+            <td>{{ currency_no beregning.belop }} kr </td>
+        </tr>
+        <tr>
+            <th>Utbetalt så langt:</th>
+            <td>TODO</td>
         </tr>
         </tbody>
     </table>
+    {{/each}}
 </div>
 <div class="block line_bottom">
     <h4>Refusjonskrav</h4>
     <table class="block">
         <tbody>
         <tr>
-            <th>Refusjonskravnummer:</th>
-            <td>{{ refusjonDetails.refusjonNummer }}</td>
-        </tr>
-        <tr>
-            <th>Refusjonskravperiode:</th>
-            <td>{{ refusjonDetails.refusjonPeriode }}</td>
-        </tr>
-        <tr>
             <th>Antall månedsverk:</th>
-            <td>{{ refusjonDetails.antallManedsverk }}</td>
+            <td>{{ refusjon.beregning.antallManedsverk }}</td>
         </tr>
         <tr>
             <th>Total refusjonskrav:</th>
-            <td>{{ currency_no refusjonDetails.totalRefusjonsKrav }}</td>
+            <td>{{ currency_no refusjon.beregning.belop }} kr</td>
         </tr>
         </tbody>
     </table>
@@ -111,11 +106,11 @@
         <tbody>
         <tr>
             <th>Kontonummer:</th>
-            <td>{{ betalingsinformasjon.kontonummer }}</td>
+            <td>{{ refusjon.betalingsinformasjon.kontonummer }}</td>
         </tr>
         <tr>
             <th>KID-nummer:</th>
-            <td>{{ betalingsinformasjon.kidNummer }}</td>
+            <td>{{ refusjon.betalingsinformasjon.kid }}</td>
         </tr>
         </tbody>
     </table>
