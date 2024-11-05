@@ -1,10 +1,12 @@
+import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
 import { LoaderFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { PageHeader } from "../components/PageHeader";
-import { checkValidToken } from "../auth/auth.server";
-import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
+import { checkValidToken } from "../auth/auth.server";
+import { PageHeader } from "../components/PageHeader";
+import { internalNavigation } from "../internal-navigation";
+import { useOrgnrFromUrl } from "../utils";
 
 type LoaderData = {
   tilsagn: ArrangorflateTilsagn;
@@ -21,6 +23,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
 
 export default function TilsagnDetaljerPage() {
   const { tilsagn } = useLoaderData<LoaderData>();
+  const orgnr = useOrgnrFromUrl();
 
   return (
     <div className="max-w-[50%]">
@@ -28,7 +31,7 @@ export default function TilsagnDetaljerPage() {
         title="Detaljer for tilsagn"
         tilbakeLenke={{
           navn: "Tilbake til tilsagnsoversikt",
-          url: `/`,
+          url: internalNavigation(orgnr).root,
         }}
       />
       <Definisjonsliste
