@@ -106,7 +106,7 @@ fun createTestApplicationConfig() = AppConfig(
         baseUrl = "",
     ),
     altinn = AltinnClient.Config(
-        url = "altinn-acl",
+        url = "http://localhost:8090/altinn",
         scope = "default",
         apiKey = "apiKey",
     ),
