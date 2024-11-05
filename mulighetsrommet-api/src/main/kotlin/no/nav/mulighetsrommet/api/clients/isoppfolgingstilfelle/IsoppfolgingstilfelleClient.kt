@@ -28,7 +28,7 @@ class IsoppfolgingstilfelleClient(
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
-    private val personIdentHeader = "NAV_PERSONIDENT_HEADER"
+    private val personIdentHeader = "nav-personident"
 
     private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
