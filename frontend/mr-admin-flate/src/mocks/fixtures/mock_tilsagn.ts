@@ -20,7 +20,6 @@ export const mockTilsagn: TilsagnDto[] = [
     tiltaksgjennomforing: {
       id: mockTiltaksgjennomforinger[0].id,
       antallPlasser: mockTiltaksgjennomforinger[0].antallPlasser || 15,
-      tiltaksnummer: mockTiltaksgjennomforinger[0].tiltaksnummer!!,
     },
     opprettetAv: "B123456",
   },
@@ -41,7 +40,6 @@ export const mockTilsagn: TilsagnDto[] = [
     tiltaksgjennomforing: {
       id: mockTiltaksgjennomforinger[0].id,
       antallPlasser: mockTiltaksgjennomforinger[0].antallPlasser || 15,
-      tiltaksnummer: mockTiltaksgjennomforinger[0].tiltaksnummer!!,
     },
     opprettetAv: "F123456",
   },
@@ -62,7 +60,6 @@ export const mockTilsagn: TilsagnDto[] = [
     tiltaksgjennomforing: {
       id: mockTiltaksgjennomforinger[0].id,
       antallPlasser: mockTiltaksgjennomforinger[0].antallPlasser || 15,
-      tiltaksnummer: mockTiltaksgjennomforinger[0].tiltaksnummer!!,
     },
     opprettetAv: "F123456",
   },
@@ -83,7 +80,6 @@ export const mockTilsagn: TilsagnDto[] = [
     tiltaksgjennomforing: {
       id: mockTiltaksgjennomforinger[0].id,
       antallPlasser: mockTiltaksgjennomforinger[0].antallPlasser || 15,
-      tiltaksnummer: mockTiltaksgjennomforinger[0].tiltaksnummer!!,
     },
     opprettetAv: "F123456",
     besluttelse: {
@@ -109,7 +105,6 @@ export const mockTilsagn: TilsagnDto[] = [
     tiltaksgjennomforing: {
       id: mockTiltaksgjennomforinger[0].id,
       antallPlasser: mockTiltaksgjennomforinger[0].antallPlasser || 15,
-      tiltaksnummer: mockTiltaksgjennomforinger[0].tiltaksnummer!!,
     },
     opprettetAv: "F123456",
     annullertTidspunkt: "2024-05-10",
@@ -131,7 +126,6 @@ export const mockTilsagn: TilsagnDto[] = [
     tiltaksgjennomforing: {
       id: mockTiltaksgjennomforinger[0].id,
       antallPlasser: mockTiltaksgjennomforinger[0].antallPlasser || 15,
-      tiltaksnummer: mockTiltaksgjennomforinger[0].tiltaksnummer!!,
     },
     opprettetAv: "B123456",
     besluttelse: {
