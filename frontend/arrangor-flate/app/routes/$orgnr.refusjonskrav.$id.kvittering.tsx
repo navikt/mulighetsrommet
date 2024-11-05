@@ -1,18 +1,19 @@
+import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
+import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
 import { Button, VStack } from "@navikt/ds-react";
 import { LoaderFunction } from "@remix-run/node";
 import { useLoaderData, useParams } from "@remix-run/react";
+import { checkValidToken } from "~/auth/auth.server";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { PageHeader } from "~/components/PageHeader";
+import { RefusjonskravDetaljer } from "~/components/refusjonskrav/RefusjonskravDetaljer";
 import { Separator } from "~/components/Separator";
 import { Refusjonskrav } from "~/domene/domene";
-import { checkValidToken } from "~/auth/auth.server";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
-import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
-import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
-import { RefusjonskravDetaljer } from "~/components/refusjonskrav/RefusjonskravDetaljer";
 import { internalNavigation } from "../internal-navigation";
 import { useOrgnrFromUrl } from "../utils";
+import { LinkWithTabState } from "../components/LinkWithTabState";
 
 type RefusjonskavKvitteringData = {
   krav: Refusjonskrav;
@@ -82,9 +83,8 @@ export default function RefusjonskravKvittering() {
         />
         <VStack align={"start"}>
           <Button
-            className=""
-            as="a"
-            href={internalNavigation(orgnr).refusjonskravliste}
+            as={LinkWithTabState}
+            to={internalNavigation(orgnr).refusjonskravliste}
             variant="secondary"
           >
             Tilbake til refusjonskravliste

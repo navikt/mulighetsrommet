@@ -1,4 +1,9 @@
-import { ArrangorflateTilsagn, RefusjonKravAft, RefusjonskravStatus } from "@mr/api-client";
+import {
+  Arrangor,
+  ArrangorflateTilsagn,
+  RefusjonKravAft,
+  RefusjonskravStatus,
+} from "@mr/api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import { v4 as uuid } from "uuid";
 
@@ -241,8 +246,9 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
 ];
 
 export const arrangorflateHandlers = [
-  http.get<PathParams, RefusjonKravAft[]>("*/api/v1/intern/arrangorflate/refusjonskrav", () =>
-    HttpResponse.json(mockKrav),
+  http.get<PathParams, RefusjonKravAft[]>(
+    "*/api/v1/intern/arrangorflate/refusjonskrav/alle/:orgnr",
+    () => HttpResponse.json(mockKrav),
   ),
   http.get<PathParams, RefusjonKravAft[]>("*/api/v1/intern/arrangorflate/refusjonskrav/:id", () =>
     HttpResponse.json(mockKrav[1]),
@@ -259,10 +265,24 @@ export const arrangorflateHandlers = [
     "*/api/v1/intern/arrangorflate/refusjonskrav/:id/tilsagn",
     () => HttpResponse.json(mockTilsagn),
   ),
-  http.get<PathParams, RefusjonKravAft[]>("*/api/v1/intern/arrangorflate/tilsagn", () =>
+  http.get<PathParams, RefusjonKravAft[]>("*/api/v1/intern/arrangorflate/tilsagn/alle/:orgnr", () =>
     HttpResponse.json(mockTilsagn),
   ),
   http.get<PathParams, RefusjonKravAft[]>("*/api/v1/intern/arrangorflate/tilsagn/:id", () =>
     HttpResponse.json(mockTilsagn[0]),
   ),
+  http.get<PathParams, Arrangor[]>("*/api/v1/intern/arrangorflate/tilgang-arrangor", () => {
+    return HttpResponse.json([
+      {
+        id: "3aaf8fc1-9532-4927-90f1-346c90cedff7",
+        organisasjonsnummer: "12345678910",
+        navn: "Mock-arrangør",
+        overordnetEnhet: null,
+        underenheter: null,
+        postnummer: null,
+        poststed: null,
+        slettetDato: null,
+      },
+    ]);
+  }),
 ];

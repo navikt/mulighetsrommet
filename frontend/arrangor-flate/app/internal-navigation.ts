@@ -1,6 +1,6 @@
 export const internalNavigation = (orgnr: string) => {
   return {
-    root: "/",
+    root: `/`,
     refusjonskravliste: `/${orgnr}/refusjonskrav`,
     beregning: (id: string) => `/${orgnr}/refusjonskrav/${id}/beregning`,
     bekreft: (id: string) => `/${orgnr}/refusjonskrav/${id}/bekreft`,

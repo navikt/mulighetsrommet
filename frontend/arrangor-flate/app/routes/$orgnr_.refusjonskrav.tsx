@@ -7,6 +7,7 @@ import { RefusjonskravTable } from "~/components/refusjonskrav/RefusjonskravTabl
 import { TilsagnTable } from "~/components/tilsagn/TilsagnTable";
 import { checkValidToken, setupOpenApi } from "../auth/auth.server";
 import { PageHeader } from "../components/PageHeader";
+import { useTabState } from "../hooks/useTabState";
 
 export const meta: MetaFunction = () => {
   return [
@@ -14,6 +15,8 @@ export const meta: MetaFunction = () => {
     { name: "description", content: "Arrangørflate for refusjon" },
   ];
 };
+
+export type Tabs = "aktive" | "historiske" | "tilsagnsoversikt";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   await checkValidToken(request);
@@ -29,6 +32,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export default function TilsagnDetaljer() {
+  const [currentTab, setTab] = useTabState("tab", "aktive");
   const { krav, tilsagn } = useLoaderData<typeof loader>();
   const historiske: RefusjonKravKompakt[] = krav.filter(
     (k) => k.status === RefusjonskravStatus.GODKJENT_AV_ARRANGOR,
@@ -38,7 +42,7 @@ export default function TilsagnDetaljer() {
   return (
     <>
       <PageHeader title="Tilgjengelige refusjonskrav" />
-      <Tabs defaultValue="aktive">
+      <Tabs defaultValue={currentTab} onChange={(tab) => setTab(tab as Tabs)}>
         <Tabs.List>
           <Tabs.Tab value="aktive" label="Aktive" />
           <Tabs.Tab value="historiske" label="Historiske" />

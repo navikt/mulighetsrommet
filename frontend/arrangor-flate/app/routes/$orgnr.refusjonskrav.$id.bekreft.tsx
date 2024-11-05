@@ -1,15 +1,16 @@
+import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
 import { Alert, Button, Checkbox, ErrorSummary, TextField, VStack } from "@navikt/ds-react";
 import { ActionFunction, json, LoaderFunction, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import { PageHeader } from "~/components/PageHeader";
-import { Refusjonskrav } from "~/domene/domene";
 import { checkValidToken } from "~/auth/auth.server";
-import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
-import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
-import { RefusjonskravDetaljer } from "~/components/refusjonskrav/RefusjonskravDetaljer";
-import { useOrgnrFromUrl } from "../utils";
-import { internalNavigation } from "../internal-navigation";
 import { Definisjon } from "~/components/Definisjon";
+import { PageHeader } from "~/components/PageHeader";
+import { RefusjonskravDetaljer } from "~/components/refusjonskrav/RefusjonskravDetaljer";
+import { Refusjonskrav } from "~/domene/domene";
+import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
+import { internalNavigation } from "../internal-navigation";
+import { useOrgnrFromUrl } from "../utils";
+import { getCurrentTab } from "../utils/currentTab";
 
 type BekreftRefusjonskravData = {
   krav: Refusjonskrav;
@@ -41,6 +42,7 @@ export const action: ActionFunction = async ({ request }) => {
   const kontonummer = formdata.get("kontonummer");
   const kid = formdata.get("kid");
   const orgnr = formdata.get("orgnr")?.toString();
+  const currentTab = getCurrentTab(request);
 
   const errors: { [key: string]: string } = {};
 
@@ -71,7 +73,7 @@ export const action: ActionFunction = async ({ request }) => {
     },
   });
 
-  return redirect(internalNavigation(orgnr).kvittering(refusjonskravId));
+  return redirect(`/${internalNavigation(orgnr).kvittering}?tab=${currentTab}`);
 };
 
 export default function BekreftRefusjonskrav() {
@@ -84,7 +86,7 @@ export default function BekreftRefusjonskrav() {
         title="Oppsummering av refusjonskrav"
         tilbakeLenke={{
           navn: "Tilbake til beregning",
-          url: `/${orgnr}/refusjonskrav/${krav.id}/beregning`,
+          url: internalNavigation(orgnr).beregning(krav.id),
         }}
       />
       <VStack className="max-w-[50%]" gap="5">
@@ -106,7 +108,6 @@ export default function BekreftRefusjonskrav() {
           </Definisjon>
           <Definisjon label="Evt KID nr for refusjonskrav" className="my-4 flex">
             <div className="flex">
-              <span>{krav.betalingsinformasjon.kid}</span>
               <TextField
                 label="Evt KID nr for refusjonskrav"
                 hideLabel
