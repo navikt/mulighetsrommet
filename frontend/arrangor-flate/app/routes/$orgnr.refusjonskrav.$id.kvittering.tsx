@@ -53,7 +53,7 @@ export default function RefusjonskravKvittering() {
       />
       <Separator />
       <div className="flex justify-end">
-        <a href={`/refusjonskrav/${id}/kvittering/lastned`} target="_blank">
+        <a href={`/${orgnr}/refusjonskrav/${id}/kvittering/lastned`} target="_blank">
           <Button variant="tertiary-neutral" size="small">
             <span className="flex gap-2 items-center">
               Last ned som PDF <FilePdfIcon fontSize={35} />
@@ -76,8 +76,6 @@ export default function RefusjonskravKvittering() {
               key: "KID-nummer",
               value: krav.betalingsinformasjon.kid!,
             },
-            { key: "Refusjonskravansvarlig", value: "Ingvild Pettersen" },
-            { key: "E-postadresse", value: "ingvild.pettersen@fretexas.no" },
           ]}
         />
         <VStack align={"start"}>
