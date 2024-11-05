@@ -1,4 +1,9 @@
-import { ArrangorflateTilsagn, RefusjonKravAft, RefusjonskravStatus } from "@mr/api-client";
+import {
+  Arrangor,
+  ArrangorflateTilsagn,
+  RefusjonKravAft,
+  RefusjonskravStatus,
+} from "@mr/api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import { v4 as uuid } from "uuid";
 
@@ -187,6 +192,67 @@ const mockKrav: RefusjonKravAft[] = [
       belop: 85000,
     },
   },
+  {
+    type: "AFT",
+    id: uuid(),
+    status: RefusjonskravStatus.GODKJENT_AV_ARRANGOR,
+    fristForGodkjenning: "2024-08-01T00:00:00",
+    tiltakstype: {
+      navn: "Arbeidsforberedende trening",
+    },
+    gjennomforing: {
+      id: uuid(),
+      navn: "Amo tiltak Halden",
+    },
+    betalingsinformasjon: {
+      kontonummer: "12345678901",
+      kid: "123456789",
+    },
+    arrangor: {
+      id: uuid(),
+      organisasjonsnummer: "123456789",
+      navn: "Fretex",
+      slettet: false,
+    },
+    deltakelser: [
+      {
+        id: uuid(),
+        person: {
+          navn: "Per Petterson",
+          foedselsdato: "1980-01-01",
+          fodselsaar: 1980,
+        },
+        manedsverk: 0.3,
+        perioder: [
+          {
+            start: "2024-06-01",
+            slutt: "2024-07-01",
+            stillingsprosent: 30,
+          },
+        ],
+      },
+      {
+        id: uuid(),
+        person: {
+          navn: "Stian Bjærvik",
+        },
+        manedsverk: 1,
+        perioder: [
+          {
+            start: "2024-06-01",
+            slutt: "2024-07-01",
+            stillingsprosent: 100,
+          },
+        ],
+      },
+    ],
+    beregning: {
+      periodeStart: "01.06.2024",
+      periodeSlutt: "30.06.2024",
+      antallManedsverk: 4,
+      belop: 85000,
+    },
+  },
 ];
 
 const mockTilsagn: ArrangorflateTilsagn[] = [
@@ -240,29 +306,50 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
   },
 ];
 
+const arrangorer: Arrangor[] = [
+  {
+    id: uuid(),
+    organisasjonsnummer: "123456789",
+    navn: "Fretex",
+    overordnetEnhet: null,
+  },
+];
+
 export const arrangorflateHandlers = [
-  http.get<PathParams, RefusjonKravAft[]>("*/api/v1/intern/arrangorflate/refusjonskrav", () =>
-    HttpResponse.json(mockKrav),
+  http.get<PathParams, RefusjonKravAft[]>(
+    "*/api/v1/intern/arrangorflate/:orgnr/refusjonskrav",
+    () => HttpResponse.json(mockKrav),
   ),
-  http.get<PathParams, RefusjonKravAft[]>("*/api/v1/intern/arrangorflate/refusjonskrav/:id", () =>
-    HttpResponse.json(mockKrav[1]),
+  http.get<PathParams, RefusjonKravAft[]>(
+    "*/api/v1/intern/arrangorflate/:orgnr/refusjonskrav/:id",
+    ({ params }) => {
+      const { id } = params;
+      return HttpResponse.json(mockKrav.find((k) => k.id === id));
+    },
   ),
   http.post<PathParams, RefusjonKravAft[]>(
-    "*/api/v1/intern/arrangorflate/refusjonskrav/:id/godkjenn-refusjon",
+    "*/api/v1/intern/arrangorflate/:orgnr/refusjonskrav/:id/godkjenn-refusjon",
     () => HttpResponse.json({}),
   ),
   http.get<PathParams, RefusjonKravAft[]>(
-    "*/api/v1/intern/arrangorflate/refusjonskrav/:id/kvittering",
+    "*/api/v1/intern/arrangorflate/:orgnr/refusjonskrav/:id/kvittering",
     () => HttpResponse.json(undefined, { status: 501 }),
   ),
   http.get<PathParams, RefusjonKravAft[]>(
-    "*/api/v1/intern/arrangorflate/refusjonskrav/:id/tilsagn",
+    "*/api/v1/intern/arrangorflate/:orgnr/refusjonskrav/:id/tilsagn",
     () => HttpResponse.json(mockTilsagn),
   ),
-  http.get<PathParams, RefusjonKravAft[]>("*/api/v1/intern/arrangorflate/tilsagn", () =>
+  http.get<PathParams, RefusjonKravAft[]>("*/api/v1/intern/arrangorflate/:orgnr/tilsagn", () =>
     HttpResponse.json(mockTilsagn),
   ),
-  http.get<PathParams, RefusjonKravAft[]>("*/api/v1/intern/arrangorflate/tilsagn/:id", () =>
-    HttpResponse.json(mockTilsagn[0]),
+  http.get<PathParams, RefusjonKravAft[]>(
+    "*/api/v1/intern/arrangorflate/:orgnr/tilsagn/:id",
+    ({ params }) => {
+      const { id } = params;
+      return HttpResponse.json(mockTilsagn.find((k) => k.id === id));
+    },
+  ),
+  http.get<PathParams, Arrangor[]>("*/api/v1/intern/arrangorflate/tilgang-arrangor", () =>
+    HttpResponse.json(arrangorer),
   ),
 ];

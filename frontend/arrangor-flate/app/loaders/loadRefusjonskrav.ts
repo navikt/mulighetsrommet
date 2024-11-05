@@ -2,8 +2,8 @@ import { ArrangorflateService } from "@mr/api-client";
 import { Refusjonskrav } from "~/domene/domene";
 import { formaterDato } from "~/utils";
 
-export async function loadRefusjonskrav(id: string): Promise<Refusjonskrav> {
-  const krav = await ArrangorflateService.getRefusjonkrav({ id });
+export async function loadRefusjonskrav(id: string, orgnr: string): Promise<Refusjonskrav> {
+  const krav = await ArrangorflateService.getRefusjonkrav({ id, orgnr });
 
   const { beregning } = krav;
 

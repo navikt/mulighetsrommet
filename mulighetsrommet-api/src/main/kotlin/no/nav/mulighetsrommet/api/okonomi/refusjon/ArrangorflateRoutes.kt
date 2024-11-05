@@ -94,115 +94,111 @@ fun Route.arrangorflateRoutes() {
     }
 
     route("/arrangorflate") {
-        route("/refusjonskrav") {
-            get("alle/{orgnr}") {
-                val orgnr = call.parameters.getOrFail("orgnr")
-                val organisasjonsnummer = Organisasjonsnummer(orgnr)
-                requireTilgangHosArrangor(organisasjonsnummer)
-
-                val krav = refusjonskrav.getByArrangorIds(organisasjonsnummer)
-                    .map { toRefusjonskravKompakt(it) }
-
-                call.respond(krav)
-            }
-
-            get("/{id}") {
-                val id = call.parameters.getOrFail<UUID>("id")
-
-                val krav = refusjonskrav.get(id)
-                    ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
-                requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
-
-                val oppsummering = toRefusjonskrav(pdl, deltakerRepository, krav)
-
-                call.respond(oppsummering)
-            }
-
-            post("/{id}/godkjenn-refusjon") {
-                val id = call.parameters.getOrFail<UUID>("id")
-
-                val krav = refusjonskrav.get(id)
-                    ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
-                requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
-                val request = call.receive<SetRefusjonKravBetalingsinformasjonRequest>()
-
-                refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now())
-                refusjonskrav.setBetalingsInformasjon(
-                    id,
-                    request.kontonummer,
-                    request.kid,
-                )
-
-                call.respond(HttpStatusCode.OK)
-            }
-
-            get("/{id}/kvittering") {
-                val id = call.parameters.getOrFail<UUID>("id")
-                val krav = refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
-
-                val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
-                    gjennomforingId = krav.gjennomforing.id,
-                    periodeStart = krav.beregning.input.periodeStart.toLocalDate(),
-                    periodeSlutt = krav.beregning.input.periodeSlutt.toLocalDate(),
-                )
-
-                val oppsummering = toRefusjonskrav(pdl, deltakerRepository, krav)
-                val mapper = ObjectMapper().apply {
-                    registerModule(JavaTimeModule())
-                    disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                    registerKotlinModule()
-                }
-                val dto = RefusjonKravKvitteringDto(oppsummering, tilsagn)
-                val jsonNode: JsonNode = mapper.valueToTree<JsonNode>(dto)
-                val pdfBytes: ByteArray = createPDFA("refusjon-kvittering", "refusjon", jsonNode) ?: throw Exception("Kunne ikke generere PDF")
-
-                call.response.headers.append(
-                    "Content-Disposition",
-                    "attachment; filename=\"kvittering.pdf\"",
-                )
-                call.respondBytes(pdfBytes, contentType = ContentType.Application.Pdf)
-            }
-
-            get("/{id}/tilsagn") {
-                val id = call.parameters.getOrFail<UUID>("id")
-
-                val krav = refusjonskrav.get(id)
-                    ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
-                requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
-
-                val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
-                    gjennomforingId = krav.gjennomforing.id,
-                    periodeStart = krav.beregning.input.periodeStart.toLocalDate(),
-                    periodeSlutt = krav.beregning.input.periodeSlutt.toLocalDate(),
-                )
-                call.respond(tilsagn)
-            }
+        get("/tilgang-arrangor") {
+            call.respond(arrangorerMedTilgang())
         }
 
-        route("/tilsagn") {
-            route("/alle/{orgnr}") {
+        route("/{orgnr}") {
+            intercept(ApplicationCallPipeline.Call) {
+                val orgnr = call.parameters.getOrFail("orgnr")
+                requireTilgangHosArrangor(Organisasjonsnummer(orgnr))
+            }
+
+            route("/refusjonskrav") {
                 get {
                     val orgnr = call.parameters.getOrFail("orgnr")
                     val organisasjonsnummer = Organisasjonsnummer(orgnr)
-                    requireTilgangHosArrangor(organisasjonsnummer)
-                    call.respond(tilsagnService.getAllArrangorflateTilsagn(organisasjonsnummer))
+
+                    val krav = refusjonskrav.getByArrangorIds(organisasjonsnummer)
+                        .map { toRefusjonskravKompakt(it) }
+
+                    call.respond(krav)
+                }
+
+                get("/{id}") {
+                    val id = call.parameters.getOrFail<UUID>("id")
+
+                    val krav = refusjonskrav.get(id)
+                        ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+
+                    val oppsummering = toRefusjonskrav(pdl, deltakerRepository, krav)
+
+                    call.respond(oppsummering)
+                }
+
+                post("/{id}/godkjenn-refusjon") {
+                    val id = call.parameters.getOrFail<UUID>("id")
+
+                    val request = call.receive<SetRefusjonKravBetalingsinformasjonRequest>()
+
+                    refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now())
+                    refusjonskrav.setBetalingsInformasjon(
+                        id,
+                        request.kontonummer,
+                        request.kid,
+                    )
+
+                    call.respond(HttpStatusCode.OK)
+                }
+
+                get("/{id}/kvittering") {
+                    val id = call.parameters.getOrFail<UUID>("id")
+                    val krav = refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+
+                    val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
+                        gjennomforingId = krav.gjennomforing.id,
+                        periodeStart = krav.beregning.input.periodeStart.toLocalDate(),
+                        periodeSlutt = krav.beregning.input.periodeSlutt.toLocalDate(),
+                    )
+
+                    val oppsummering = toRefusjonskrav(pdl, deltakerRepository, krav)
+                    val mapper = ObjectMapper().apply {
+                        registerModule(JavaTimeModule())
+                        disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                        registerKotlinModule()
+                    }
+                    val dto = RefusjonKravKvitteringDto(oppsummering, tilsagn)
+                    val jsonNode: JsonNode = mapper.valueToTree<JsonNode>(dto)
+                    val pdfBytes: ByteArray = createPDFA("refusjon-kvittering", "refusjon", jsonNode)
+                        ?: throw Exception("Kunne ikke generere PDF")
+
+                    call.response.headers.append(
+                        "Content-Disposition",
+                        "attachment; filename=\"kvittering.pdf\"",
+                    )
+                    call.respondBytes(pdfBytes, contentType = ContentType.Application.Pdf)
+                }
+
+                get("/{id}/tilsagn") {
+                    val id = call.parameters.getOrFail<UUID>("id")
+
+                    val krav = refusjonskrav.get(id)
+                        ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+
+                    val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
+                        gjennomforingId = krav.gjennomforing.id,
+                        periodeStart = krav.beregning.input.periodeStart.toLocalDate(),
+                        periodeSlutt = krav.beregning.input.periodeSlutt.toLocalDate(),
+                    )
+                    call.respond(tilsagn)
                 }
             }
 
-            get("/{id}") {
-                val id = call.parameters.getOrFail<UUID>("id")
+            route("/tilsagn") {
+                get {
+                    val orgnr = call.parameters.getOrFail("orgnr")
+                    val organisasjonsnummer = Organisasjonsnummer(orgnr)
+                    call.respond(tilsagnService.getAllArrangorflateTilsagn(organisasjonsnummer))
+                }
 
-                val tilsagn = tilsagnService.getArrangorflateTilsagn(id)
-                    ?: throw NotFoundException("Fant ikke tilsagn")
-                requireTilgangHosArrangor(tilsagn.arrangor.organisasjonsnummer)
+                get("/{id}") {
+                    val id = call.parameters.getOrFail<UUID>("id")
 
-                call.respond(tilsagn)
-            }
-        }
+                    val tilsagn = tilsagnService.getArrangorflateTilsagn(id)
+                        ?: throw NotFoundException("Fant ikke tilsagn")
 
-        route("/tilgang-arrangor") {
-            get {
-                call.respond(arrangorerMedTilgang())
+                    call.respond(tilsagn)
+                }
             }
         }
     }
