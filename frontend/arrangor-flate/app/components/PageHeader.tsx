@@ -1,4 +1,3 @@
-import { Link } from "@remix-run/react";
 import { RefusjonskravIkon } from "./icons/RefusjonskravIkon";
 import { LinkWithTabState } from "./LinkWithTabState";
 
