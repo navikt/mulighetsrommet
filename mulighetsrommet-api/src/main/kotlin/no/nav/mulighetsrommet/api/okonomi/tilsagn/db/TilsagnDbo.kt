@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.okonomi.tilsagn
+package no.nav.mulighetsrommet.api.okonomi.tilsagn.db
 
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.domain.dto.NavIdent

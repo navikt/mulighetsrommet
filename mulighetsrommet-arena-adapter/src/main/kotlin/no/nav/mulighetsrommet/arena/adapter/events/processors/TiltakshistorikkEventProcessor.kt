@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
-import no.nav.mulighetsrommet.domain.Tiltakskoder.isAmtTiltak
+import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.domain.dto.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
@@ -65,7 +65,7 @@ class TiltakshistorikkEventProcessor(
             .getTiltakstype(tiltakstypeMapping.entityId)
             .bind()
 
-        if (isAmtTiltak(tiltakstype.tiltakskode)) {
+        if (isGruppetiltak(tiltakstype.tiltakskode)) {
             return@either ProcessingResult(Handled)
         }
 

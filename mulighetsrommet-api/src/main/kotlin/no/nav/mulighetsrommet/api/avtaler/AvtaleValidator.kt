@@ -18,7 +18,6 @@ import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isKursTiltak
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
@@ -38,16 +37,6 @@ class AvtaleValidator(
     fun validate(avtale: AvtaleDbo, currentAvtale: AvtaleDto?): Either<List<ValidationError>, AvtaleDbo> = either {
         val tiltakstype = tiltakstyper.getById(avtale.tiltakstypeId)
             ?: raise(ValidationError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
-
-        if (isTiltakstypeDisabled(currentAvtale, tiltakstype)) {
-            return ValidationError
-                .of(
-                    AvtaleDbo::tiltakstypeId,
-                    "Opprettelse av avtale for tiltakstype: '${tiltakstype.navn}' er ikke skrudd på enda.",
-                )
-                .nel()
-                .left()
-        }
 
         val errors = buildList {
             if (avtale.navn.length < 5 && currentAvtale?.opphav != ArenaMigrering.Opphav.ARENA) {
@@ -104,6 +93,14 @@ class AvtaleValidator(
                         )
                     }
                 }
+            }
+            if (currentAvtale?.opsjonerRegistrert?.isNotEmpty() == true && avtale.avtaletype != currentAvtale.avtaletype) {
+                add(
+                    ValidationError.of(
+                        AvtaleDbo::avtaletype,
+                        "Du kan ikke endre avtaletype når opsjoner er registrert",
+                    ),
+                )
             }
 
             if (currentAvtale?.opsjonerRegistrert?.isNotEmpty() == true && avtale.opsjonsmodell != currentAvtale.opsjonsmodellData?.opsjonsmodell) {
@@ -238,15 +235,6 @@ class AvtaleValidator(
                 )
             }
 
-            if (avtale.avtaletype != currentAvtale.avtaletype) {
-                add(
-                    ValidationError.of(
-                        AvtaleDbo::avtaletype,
-                        "Avtaletype kan ikke endres fordi det finnes gjennomføringer for avtalen",
-                    ),
-                )
-            }
-
             gjennomforinger.forEach { gjennomforing ->
                 val arrangorId = gjennomforing.arrangor.id
                 if (arrangorId !in avtale.arrangorUnderenheter) {
@@ -264,7 +252,7 @@ class AvtaleValidator(
                     add(
                         ValidationError.of(
                             AvtaleDbo::startDato,
-                            "Startdato kan ikke være før startdatoen til gjennomføringer koblet til avtalen. Minst en gjennomføring har startdato: $gjennomforingsStartDato",
+                            "Startdato kan ikke være etter startdatoen til gjennomføringer koblet til avtalen. Minst en gjennomføring har startdato: $gjennomforingsStartDato",
                         ),
                     )
                 }
@@ -291,51 +279,6 @@ class AvtaleValidator(
                         }
                     }
                 }
-            }
-        }
-
-        if (skalValidereArenafelter(currentAvtale, tiltakstype)) {
-            if (avtale.navn != currentAvtale.navn) {
-                add(ValidationError.of(AvtaleDbo::navn, "Navn kan ikke endres utenfor Arena"))
-            }
-
-            if (avtale.avtalenummer != currentAvtale.avtalenummer) {
-                add(
-                    ValidationError.of(
-                        AvtaleDbo::avtalenummer,
-                        "Avtalenummer kan ikke endres utenfor Arena",
-                    ),
-                )
-            }
-
-            if (avtale.startDato != currentAvtale.startDato) {
-                add(ValidationError.of(AvtaleDbo::startDato, "Startdato kan ikke endres utenfor Arena"))
-            }
-
-            if (avtale.sluttDato != currentAvtale.sluttDato) {
-                add(ValidationError.of(AvtaleDbo::sluttDato, "Sluttdato kan ikke endres utenfor Arena"))
-            }
-
-            if (avtale.avtaletype != currentAvtale.avtaletype) {
-                add(ValidationError.of(AvtaleDbo::avtaletype, "Avtaletype kan ikke endres utenfor Arena"))
-            }
-
-            if (avtale.prisbetingelser != currentAvtale.prisbetingelser) {
-                add(
-                    ValidationError.of(
-                        AvtaleDbo::prisbetingelser,
-                        "Pris- og betalingsinformasjon kan ikke endres utenfor Arena",
-                    ),
-                )
-            }
-
-            if (avtale.arrangorId != currentAvtale.arrangor.id) {
-                add(
-                    ValidationError.of(
-                        AvtaleDbo::arrangorId,
-                        "Tiltaksarrangøren kan ikke endres utenfor Arena",
-                    ),
-                )
             }
         }
     }
@@ -366,30 +309,6 @@ class AvtaleValidator(
             .flatMap { listOf(it) + navEnheter.filter { enhet -> enhet.overordnetEnhet == it.enhetsnummer } }
             .associateBy { it.enhetsnummer }
     }
-
-    private fun skalValidereArenafelter(
-        avtale: AvtaleDto,
-        tiltakstype: TiltakstypeDto,
-    ): Boolean {
-        return avtale.opphav == ArenaMigrering.Opphav.ARENA && !isEnabled(tiltakstype.tiltakskode)
-    }
-
-    private fun isTiltakstypeDisabled(
-        previous: AvtaleDto?,
-        tiltakstype: TiltakstypeDto,
-    ): Boolean {
-        val kanIkkeOppretteAvtale = previous == null && !isEnabled(tiltakstype.tiltakskode)
-
-        val kanIkkeRedigereTiltakstypeForAvtale = previous != null &&
-            tiltakstype.tiltakskode != previous.tiltakstype.tiltakskode &&
-            !isEnabled(tiltakstype.tiltakskode)
-
-        return kanIkkeOppretteAvtale || kanIkkeRedigereTiltakstypeForAvtale
-    }
-
-    private fun isEnabled(tiltakskode: Tiltakskode?) =
-        tiltakstyper.isEnabled(tiltakskode) ||
-            Tiltakskoder.TiltakMedAvtalerFraMulighetsrommet.contains(tiltakskode)
 }
 
 private fun avtaleTypeErForhandsgodkjent(avtaletype: Avtaletype): Boolean {

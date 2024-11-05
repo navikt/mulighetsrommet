@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
@@ -226,33 +225,4 @@ data class SanityRedaktor(
     val enhet: String,
     val epost: Slug,
     val navn: String,
-)
-
-@Serializable
-data class GjennomforingAndKontaktpersoner(
-    val kontaktpersoner: List<NavKontaktperson<SanityNavKontaktperson>>,
-    val redaktor: List<SanityRedaktor>,
-    val tiltaksgjennomforingNavn: String,
-    @Serializable(with = UUIDSerializer::class)
-    val _id: UUID,
-) {
-    @Serializable
-    data class NavKontaktperson<T>(
-        val navKontaktperson: T,
-        val _key: String,
-    )
-}
-
-@Serializable
-data class PatchGjennomforingAndKontaktpersoner(
-    val kontaktpersoner: List<GjennomforingAndKontaktpersoner.NavKontaktperson<SanityReference>>,
-    val redaktor: List<SanityReference>,
-    @Serializable(with = UUIDSerializer::class)
-    val _id: UUID,
-)
-
-@Serializable
-data class SanityReference(
-    val _type: String = "reference",
-    val _ref: String,
 )

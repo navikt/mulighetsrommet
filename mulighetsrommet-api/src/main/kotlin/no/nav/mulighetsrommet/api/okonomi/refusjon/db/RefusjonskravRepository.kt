@@ -1,13 +1,11 @@
-package no.nav.mulighetsrommet.api.okonomi.refusjon
+package no.nav.mulighetsrommet.api.okonomi.refusjon.db
 
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregning
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDto
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
@@ -174,17 +172,21 @@ class RefusjonskravRepository(private val db: Database) {
             .runWithSession(tx)
     }
 
-    fun getByArrangorIds(ids: List<UUID>): List<RefusjonskravDto> = db.transaction { getByArrangorIds(ids, it) }
+    fun getByArrangorIds(organisasjonsnummer: Organisasjonsnummer): List<RefusjonskravDto> =
+        db.transaction { getByArrangorIds(organisasjonsnummer, it) }
 
-    fun getByArrangorIds(ids: List<UUID>, tx: Session): List<RefusjonskravDto> {
+    fun getByArrangorIds(
+        organisasjonsnummer: Organisasjonsnummer,
+        tx: Session,
+    ): List<RefusjonskravDto> {
         @Language("PostgreSQL")
         val query = """
             select * from refusjonskrav_aft_view
-            where arrangor_id = any(:ids)
+            where arrangor_organisasjonsnummer = :organisasjonsnummer
         """.trimIndent()
 
         return tx.run(
-            queryOf(query, mapOf("ids" to db.createUuidArray(ids)))
+            queryOf(query, mapOf("organisasjonsnummer" to organisasjonsnummer.value))
                 .map { it.toRefusjonsKravAft() }
                 .asList,
         )

@@ -263,7 +263,9 @@ function DeltakelserHistoriske() {
             }}
             variant="tertiary"
           >
-            {visAlle ? "Vis bare nyeste tiltak" : "Se hele historikken"}
+            {visAlle
+              ? "Se bare historikk 5 år tilbake i tid"
+              : "Se historikk mer enn 5 år tilbake i tid"}
           </Button>
         </HStack>
       )}

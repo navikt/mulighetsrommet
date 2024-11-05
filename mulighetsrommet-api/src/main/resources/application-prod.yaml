@@ -9,20 +9,6 @@ app:
   flyway:
     strategy: Migrate
 
-  migrerteTiltak:
-    - ARBEIDSFORBEREDENDE_TRENING
-    - ARBEIDSRETTET_REHABILITERING
-    - AVKLARING
-    - DIGITALT_OPPFOLGINGSTILTAK
-    - GRUPPE_ARBEIDSMARKEDSOPPLAERING
-    - GRUPPE_FAG_OG_YRKESOPPLAERING
-    - JOBBKLUBB
-    - OPPFOLGING
-    - VARIG_TILRETTELAGT_ARBEID_SKJERMET
-
-  pameldingIModia:
-    - ARBEIDSFORBEREDENDE_TRENING
-
   kafka:
     producerId: mulighetsrommet-api-kafka-producer.v1
     defaultConsumerGroupId: mulighetsrommet-api-kafka-consumer.v1

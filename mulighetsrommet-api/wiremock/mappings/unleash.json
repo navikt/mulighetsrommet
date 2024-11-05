@@ -9,16 +9,6 @@
       "version": 1,
       "features": [
         {
-          "name": "mulighetsrommet.admin-flate.opprett-tilsagn",
-          "enabled": true,
-          "strategies": []
-        },
-        {
-          "name": "mulighetsrommet.admin-flate.enable-utdanningskategorier",
-          "enabled": true,
-          "strategies": []
-        },
-        {
           "name": "mulighetsrommet-veilederflate.vis-tilbakemelding",
           "enabled": true,
           "strategies": []
@@ -29,14 +19,33 @@
           "strategies": []
         },
         {
-          "name": "mulighetsrommet.veilederflate.visDeltakerRegistrering",
+          "name": "mulighetsrommet.admin-flate.opprett-tilsagn",
           "enabled": true,
           "strategies": []
         },
         {
-          "name": "mulighetsrommet.veilederflate-arena-oppskrifter",
+          "name": "mulighetsrommet.tiltakstype.migrering.deltaker",
           "enabled": true,
-          "strategies": []
+          "strategies": [
+            {
+              "name": "by-tiltakskode",
+              "parameters": {
+                "tiltakskoder": "AVKLARING,OPPFOLGING,GRUPPE_ARBEIDSMARKEDSOPPLAERING,JOBBKLUBB,DIGITALT_OPPFOLGINGSTILTAK,ARBEIDSFORBEREDENDE_TRENING,GRUPPE_FAG_OG_YRKESOPPLAERING,ARBEIDSRETTET_REHABILITERING,VARIG_TILRETTELAGT_ARBEID_SKJERMET"
+              }
+            }
+          ]
+        },
+        {
+          "name": "mulighetsrommet.tiltakstype.pamelding-info-komet",
+          "enabled": true,
+          "strategies": [
+            {
+              "name": "by-tiltakskode",
+              "parameters": {
+                "tiltakskoder": "AVKLARING,OPPFOLGING,ARBEIDSRETTET_REHABILITERING"
+              }
+            }
+          ]
         }
       ]
     },

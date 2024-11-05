@@ -15,11 +15,15 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request, params }: LoaderFunctionArgs) {
   await checkValidToken(request);
   await setupOpenApi(request);
-  const krav = await ArrangorflateService.getAllRefusjonKrav();
-  const tilsagn = await ArrangorflateService.getAllArrangorflateTilsagn();
+  const { orgnr } = params;
+  if (!orgnr) {
+    throw new Error("Mangler orgnr");
+  }
+  const krav = await ArrangorflateService.getAllRefusjonKrav({ orgnr });
+  const tilsagn = await ArrangorflateService.getAllArrangorflateTilsagn({ orgnr });
 
   return json({ krav, tilsagn });
 }

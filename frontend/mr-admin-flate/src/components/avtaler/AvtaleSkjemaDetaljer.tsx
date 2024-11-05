@@ -1,5 +1,4 @@
 import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
-import { useMigrerteTiltakstyperForAvtaler } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { AvtaleAmoKategoriseringSkjema } from "@/components/amoKategorisering/AvtaleAmoKategoriseringSkjema";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { FormGroup } from "@/components/skjema/FormGroup";
@@ -15,7 +14,7 @@ import {
   NavAnsatt,
   NavEnhet,
   NavEnhetType,
-  Opphav,
+  OpsjonStatus,
   OpsjonsmodellKey,
   Tiltakskode,
   TiltakstypeDto,
@@ -44,7 +43,6 @@ interface Props {
 }
 
 export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: Props) {
-  const { data: migrerteTiltakstyper } = useMigrerteTiltakstyperForAvtaler();
   const { data: administratorer } = useAvtaleAdministratorer();
 
   const {
@@ -57,7 +55,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   const watchedTiltakstype = watch("tiltakstype");
   const tiltakskode = watchedTiltakstype?.tiltakskode;
 
-  function updateOpsjonsmodell(avtaletype: Avtaletype) {
+  function updateOpsjonsmodell(avtaletype?: Avtaletype) {
     if (avtaletype === Avtaletype.FORHAANDSGODKJENT) {
       setValue("opsjonsmodellData", {
         opsjonsmodell: OpsjonsmodellKey.AVTALE_VALGFRI_SLUTTDATO,
@@ -74,13 +72,14 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   }
 
   const updateOpsjonsmodellClb = useCallback(updateOpsjonsmodell, [setValue]);
+  const watchedOpsjonsmodell = watch("opsjonsmodellData.opsjonsmodell");
   useEffect(() => {
     if (avtale?.avtaletype && avtale.opsjonsmodellData && !avtale.opsjonsmodellData.opsjonsmodell) {
-      updateOpsjonsmodellClb(avtale?.avtaletype);
+      if (!watchedOpsjonsmodell) {
+        updateOpsjonsmodellClb(avtale?.avtaletype);
+      }
     }
-  }, [avtale, updateOpsjonsmodellClb]);
-
-  const arenaOpphavOgIngenEierskap = avtale?.opphav === Opphav.ARENA && !erMigrert(tiltakskode);
+  }, [avtale, updateOpsjonsmodellClb, watchedOpsjonsmodell]);
 
   const navRegionerOptions = enheter
     .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
@@ -89,10 +88,12 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
       label: enhet.navn,
     }));
 
-  function erMigrert(tiltakskode?: Tiltakskode | null): boolean {
-    if (!tiltakskode) return false;
-    return migrerteTiltakstyper.includes(tiltakskode);
-  }
+  const opsjonsmodell = opsjonsmodeller.find(
+    (m) => m.value === watch("opsjonsmodellData.opsjonsmodell"),
+  );
+  const antallOpsjonerUtlost = (
+    avtale?.opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLØST) || []
+  ).length;
 
   return (
     <SkjemaDetaljerContainer>
@@ -101,7 +102,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
           <FormGroup>
             <TextField
               size="small"
-              readOnly={arenaOpphavOgIngenEierskap}
               error={errors.navn?.message}
               label={avtaletekster.avtalenavnLabel}
               autoFocus
@@ -146,7 +146,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             <HGrid gap="4" columns={2}>
               <ControlledSokeSelect
                 size="small"
-                readOnly={arenaOpphavOgIngenEierskap}
                 placeholder="Velg en"
                 label={avtaletekster.tiltakstypeLabel}
                 {...register("tiltakstype")}
@@ -171,18 +170,18 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                     id: tiltakstype.id,
                     tiltakskode: tiltakstype.tiltakskode,
                   },
-                  label: !erMigrert(tiltakstype.tiltakskode)
-                    ? `${tiltakstype.navn} må opprettes i Arena`
-                    : tiltakstype.navn,
-                  isDisabled: !erMigrert(tiltakstype.tiltakskode),
+                  label: tiltakstype.navn,
                 }))}
               />
               <ControlledSokeSelect
                 size="small"
-                readOnly={arenaOpphavOgIngenEierskap}
                 placeholder="Velg en"
+                readOnly={antallOpsjonerUtlost > 0}
                 label={avtaletekster.avtaletypeLabel}
                 {...register("avtaletype")}
+                onChange={(e) => {
+                  updateOpsjonsmodell(e.target.value);
+                }}
                 options={tiltakskode ? avtaletypeOptions(tiltakskode) : []}
               />
             </HGrid>
@@ -194,20 +193,13 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             ) : null}
           </FormGroup>
 
-          <AvtaleDatoContainer
-            avtale={avtale}
-            opsjonsmodell={opsjonsmodeller.find(
-              (m) => m.value === watch("opsjonsmodellData.opsjonsmodell"),
-            )}
-            arenaOpphavOgIngenEierskap={arenaOpphavOgIngenEierskap}
-          />
+          <AvtaleDatoContainer avtale={avtale} opsjonsmodell={opsjonsmodell} />
 
           {tiltakskode && erAnskaffetTiltak(tiltakskode) && (
             <>
               <FormGroup>
                 <Textarea
                   size="small"
-                  readOnly={arenaOpphavOgIngenEierskap}
                   error={errors.prisbetingelser?.message}
                   label={avtaletekster.prisOgBetalingLabel}
                   {...register("prisbetingelser")}
@@ -267,7 +259,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             </FormGroup>
           </div>
           <FormGroup>
-            <AvtaleArrangorSkjema readOnly={arenaOpphavOgIngenEierskap} />
+            <AvtaleArrangorSkjema readOnly={false} />
           </FormGroup>
         </SkjemaKolonne>
       </SkjemaInputContainer>

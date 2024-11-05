@@ -3,11 +3,11 @@ import { Features } from "@/api/feature-toggles";
 import { Toggles } from "@mr/api-client";
 
 const mockFeatures: Features = {
-  [Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_DELTAKER_REGISTRERING]: false,
   [Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_DEBUGGER]: true,
   [Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN]: true,
   [Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_TILBAKEMELDING]: true,
-  [Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_UTDANNINGSKATEGORIER]: true,
+  [Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_DELTAKER]: true,
+  [Toggles.MULIGHETSROMMET_TILTAKSTYPE_PAMELDING_INFO_KOMET]: true,
 };
 
 export const featureToggleHandlers = [

@@ -7,16 +7,19 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
+import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.okonomi.models.*
+import no.nav.mulighetsrommet.api.okonomi.refusjon.db.RefusjonskravDbo
+import no.nav.mulighetsrommet.api.okonomi.refusjon.db.RefusjonskravRepository
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.*
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -40,6 +43,13 @@ class RefusjonServiceTest : FunSpec({
             db = database.db,
         )
 
+        fun getOrgnrForArrangor(
+            gjennomforing: TiltaksgjennomforingDbo,
+            domain: MulighetsrommetTestDomain,
+        ): Organisasjonsnummer {
+            return requireNotNull(domain.arrangorer.find { it.id == gjennomforing.arrangorId }?.organisasjonsnummer)
+        }
+
         test("genererer et refusjonskrav med riktig periode, frist og sats som input") {
             val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
@@ -48,7 +58,12 @@ class RefusjonServiceTest : FunSpec({
 
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
-            val allKrav = refusjonskravRepository.getByArrangorIds(listOf(ArrangorFixtures.underenhet1.id))
+            val allKrav = refusjonskravRepository.getByArrangorIds(
+                getOrgnrForArrangor(
+                    AFT1,
+                    domain,
+                ),
+            )
             allKrav.size shouldBe 1
 
             val krav = allKrav.first()
@@ -107,7 +122,12 @@ class RefusjonServiceTest : FunSpec({
 
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
-            val krav = refusjonskravRepository.getByArrangorIds(listOf(ArrangorFixtures.underenhet1.id)).first()
+            val krav = refusjonskravRepository.getByArrangorIds(
+                getOrgnrForArrangor(
+                    AFT1,
+                    domain,
+                ),
+            ).first()
 
             krav.beregning.input.shouldBeTypeOf<RefusjonKravBeregningAft.Input>().should {
                 it.deltakelser shouldBe setOf(
@@ -162,7 +182,12 @@ class RefusjonServiceTest : FunSpec({
 
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
-            val krav = refusjonskravRepository.getByArrangorIds(listOf(ArrangorFixtures.underenhet1.id)).first()
+            val krav = refusjonskravRepository.getByArrangorIds(
+                getOrgnrForArrangor(
+                    AFT1,
+                    domain,
+                ),
+            ).first()
 
             krav.beregning.output.shouldBeTypeOf<RefusjonKravBeregningAft.Output>().should {
                 it.belop shouldBe 20205
@@ -198,7 +223,12 @@ class RefusjonServiceTest : FunSpec({
             domain.initialize(database.db)
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
-            val krav = refusjonskravRepository.getByArrangorIds(listOf(ArrangorFixtures.underenhet1.id)).first()
+            val krav = refusjonskravRepository.getByArrangorIds(
+                getOrgnrForArrangor(
+                    AFT1,
+                    domain,
+                ),
+            ).first()
 
             krav.beregning.input.shouldBeTypeOf<RefusjonKravBeregningAft.Input>().should {
                 it.deltakelser shouldHaveSize 1

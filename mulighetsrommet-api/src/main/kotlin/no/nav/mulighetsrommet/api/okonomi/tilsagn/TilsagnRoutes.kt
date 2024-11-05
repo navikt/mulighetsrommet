@@ -8,6 +8,7 @@ import io.ktor.server.util.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent

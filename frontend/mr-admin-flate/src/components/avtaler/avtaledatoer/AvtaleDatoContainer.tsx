@@ -10,11 +10,10 @@ import { AvtaleVarighet } from "./AvtaleVarighet";
 
 interface Props {
   avtale?: AvtaleDto;
-  arenaOpphavOgIngenEierskap: boolean;
   opsjonsmodell?: Opsjonsmodell;
 }
 
-export function AvtaleDatoContainer({ avtale, arenaOpphavOgIngenEierskap, opsjonsmodell }: Props) {
+export function AvtaleDatoContainer({ avtale, opsjonsmodell }: Props) {
   const { watch } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
   const avtaletype = watch("avtaletype");
   const { startDato } = watch("startOgSluttDato") ?? {};
@@ -36,7 +35,6 @@ export function AvtaleDatoContainer({ avtale, arenaOpphavOgIngenEierskap, opsjon
         avtale={avtale}
         avtaletype={avtaletype}
         opsjonsmodell={opsjonsmodell}
-        arenaOpphavOgIngenEierskap={arenaOpphavOgIngenEierskap}
         minStartDato={MIN_START_DATO_FOR_AVTALER}
         sluttDatoFraDato={sluttDatoFraDato}
         sluttDatoTilDato={sluttDatoTilDato}

@@ -21,8 +21,6 @@ import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
@@ -282,85 +280,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         }
     }
 
-    fun upsertArenaTiltaksgjennomforing(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo) {
-        db.transaction { upsertArenaTiltaksgjennomforing(tiltaksgjennomforing, it) }
-    }
-
-    fun upsertArenaTiltaksgjennomforing(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo, tx: Session) {
-        logger.info("Lagrer tiltaksgjennomføring fra Arena id=${tiltaksgjennomforing.id}")
-
-        val arrangorId = queryOf(
-            "select id from arrangor where organisasjonsnummer = ?",
-            tiltaksgjennomforing.arrangorOrganisasjonsnummer,
-        )
-            .map { it.uuid("id") }
-            .asSingle
-            .let { requireNotNull(db.run(it)) }
-
-        @Language("PostgreSQL")
-        val query = """
-            insert into tiltaksgjennomforing (
-                id,
-                navn,
-                tiltakstype_id,
-                tiltaksnummer,
-                arrangor_id,
-                arena_ansvarlig_enhet,
-                start_dato,
-                slutt_dato,
-                apent_for_innsok,
-                antall_plasser,
-                avtale_id,
-                oppstart,
-                opphav,
-                deltidsprosent,
-                avbrutt_tidspunkt,
-                avbrutt_aarsak
-            )
-            values (
-                :id::uuid,
-                :navn,
-                :tiltakstype_id::uuid,
-                :tiltaksnummer,
-                :arrangor_id,
-                :arena_ansvarlig_enhet,
-                :start_dato,
-                :slutt_dato,
-                :apent_for_innsok,
-                :antall_plasser,
-                :avtale_id,
-                (select case
-                     when arena_kode in ('GRUPPEAMO', 'JOBBK', 'GRUFAGYRKE') then 'FELLES'
-                     else 'LOPENDE'
-                     end::tiltaksgjennomforing_oppstartstype
-                 from tiltakstype
-                 where tiltakstype.id = :tiltakstype_id::uuid),
-                :opphav::opphav,
-                :deltidsprosent,
-                :avbrutt_tidspunkt,
-                :avbrutt_aarsak
-            )
-            on conflict (id)
-                do update set navn                         = excluded.navn,
-                              tiltakstype_id               = excluded.tiltakstype_id,
-                              tiltaksnummer                = excluded.tiltaksnummer,
-                              arrangor_id                  = excluded.arrangor_id,
-                              arena_ansvarlig_enhet        = excluded.arena_ansvarlig_enhet,
-                              start_dato                   = excluded.start_dato,
-                              slutt_dato                   = excluded.slutt_dato,
-                              apent_for_innsok             = excluded.apent_for_innsok,
-                              antall_plasser               = excluded.antall_plasser,
-                              avtale_id                    = excluded.avtale_id,
-                              oppstart                     = coalesce(tiltaksgjennomforing.oppstart, excluded.oppstart),
-                              opphav                       = coalesce(tiltaksgjennomforing.opphav, excluded.opphav),
-                              deltidsprosent               = excluded.deltidsprosent,
-                              avbrutt_tidspunkt            = excluded.avbrutt_tidspunkt,
-                              avbrutt_aarsak               = excluded.avbrutt_aarsak
-        """.trimIndent()
-
-        queryOf(query, tiltaksgjennomforing.toSqlParameters(arrangorId)).asExecute.let { tx.run(it) }
-    }
-
     fun updateArenaData(id: UUID, tiltaksnummer: String, arenaAnsvarligEnhet: String?, tx: Session) {
         logger.info("Oppdaterer tiltaksgjennomføring med Arena data id=$id")
 
@@ -430,7 +349,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "nav_enheter" to navEnheter.ifEmpty { null }?.let { db.createTextArray(it) },
             "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { db.createUuidArray(it) },
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { db.createUuidArray(it) },
-            "arrangor_orgnrs" to arrangorOrgnr.ifEmpty { null }?.let { db.createTextArray(it.map { it.value }) },
+            "arrangor_orgnrs" to arrangorOrgnr.ifEmpty { null }?.map { it.value }?.let { db.createTextArray(it) },
             "statuser" to statuser.ifEmpty { null }?.let { db.createArrayOf("text", statuser) },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "opphav" to opphav?.name,
@@ -684,32 +603,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "estimert_ventetid_verdi" to estimertVentetidVerdi,
         "estimert_ventetid_enhet" to estimertVentetidEnhet,
         "tilgjengelig_for_arrangor_fra_dato" to tilgjengeligForArrangorFraOgMedDato,
-    )
-
-    private fun ArenaTiltaksgjennomforingDbo.toSqlParameters(arrangorId: UUID) = mapOf(
-        "opphav" to ArenaMigrering.Opphav.ARENA.name,
-        "id" to id,
-        "navn" to navn,
-        "tiltakstype_id" to tiltakstypeId,
-        "tiltaksnummer" to tiltaksnummer,
-        "arrangor_id" to arrangorId,
-        "start_dato" to startDato,
-        "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
-        "slutt_dato" to sluttDato,
-        "apent_for_innsok" to apentForInnsok,
-        "antall_plasser" to antallPlasser,
-        "avtale_id" to avtaleId,
-        "deltidsprosent" to deltidsprosent,
-        "avbrutt_tidspunkt" to when (avslutningsstatus) {
-            Avslutningsstatus.AVLYST -> startDato.atStartOfDay().minusDays(1)
-            Avslutningsstatus.AVBRUTT -> startDato.atStartOfDay()
-            Avslutningsstatus.AVSLUTTET -> null
-            Avslutningsstatus.IKKE_AVSLUTTET -> null
-        },
-        "avbrutt_aarsak" to when (avslutningsstatus) {
-            Avslutningsstatus.AVLYST, Avslutningsstatus.AVBRUTT -> AvbruttAarsak.AvbruttIArena.name
-            Avslutningsstatus.AVSLUTTET, Avslutningsstatus.IKKE_AVSLUTTET -> null
-        },
     )
 
     private fun Row.toTiltaksgjennomforingDto(): TiltaksgjennomforingDto {
