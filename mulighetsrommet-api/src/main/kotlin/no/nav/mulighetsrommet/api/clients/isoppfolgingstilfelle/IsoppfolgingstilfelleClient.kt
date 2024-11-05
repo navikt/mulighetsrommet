@@ -56,9 +56,8 @@ class IsoppfolgingstilfelleClient(
     }
 
     private suspend fun hentOppfolgingstilfeller(norskIdent: NorskIdent, obo: AccessType.OBO): Either<OppfolgingstilfelleError, List<OppfolgingstilfelleDTO>> {
-        val token = tokenProvider.exchange(obo)
         val response = client.get("$baseUrl/api/system/v1/oppfolgingstilfelle/personident") {
-            header(HttpHeaders.Authorization, token)
+            header(HttpHeaders.Authorization, tokenProvider.exchange(AccessType.M2M))
             header(personIdentHeader, norskIdent)
             contentType(ContentType.Application.Json)
         }
