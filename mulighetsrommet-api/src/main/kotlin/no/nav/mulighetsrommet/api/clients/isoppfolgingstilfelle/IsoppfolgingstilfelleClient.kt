@@ -9,8 +9,7 @@ import io.ktor.client.call.body
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
-import io.ktor.client.request.get
-import io.ktor.client.request.header
+import io.ktor.client.request.*
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
@@ -56,8 +55,8 @@ class IsoppfolgingstilfelleClient(
     }
 
     private suspend fun hentOppfolgingstilfeller(norskIdent: NorskIdent, obo: AccessType.OBO): Either<OppfolgingstilfelleError, List<OppfolgingstilfelleDTO>> {
-        val response = client.get("$baseUrl/api/system/v1/oppfolgingstilfelle/personident") {
-            header(HttpHeaders.Authorization, tokenProvider.exchange(AccessType.M2M))
+        val response = client.get("$baseUrl/api/internad/v1/oppfolgingstilfelle/personident") {
+            bearerAuth(tokenProvider.exchange(obo))
             header(personIdentHeader, norskIdent)
             contentType(ContentType.Application.Json)
         }
