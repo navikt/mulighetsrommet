@@ -24,7 +24,7 @@ import java.util.*
 class AmtDeltakerClient(
     private val baseUrl: String,
     private val tokenProvider: TokenProvider,
-    clientEngine: HttpClientEngine = CIO.create(),
+    clientEngine: HttpClientEngine,
 ) {
     private val log = SecureLog.logger
     private val client = httpJsonClient(clientEngine).config {

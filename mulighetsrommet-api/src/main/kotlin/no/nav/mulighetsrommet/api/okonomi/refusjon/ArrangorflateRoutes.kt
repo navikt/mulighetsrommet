@@ -99,17 +99,12 @@ fun Route.arrangorflateRoutes() {
         }
 
         route("/{orgnr}") {
-            intercept(ApplicationCallPipeline.Call) {
-                val orgnr = call.parameters.getOrFail("orgnr")
-                requireTilgangHosArrangor(Organisasjonsnummer(orgnr))
-            }
-
             route("/refusjonskrav") {
                 get {
-                    val orgnr = call.parameters.getOrFail("orgnr")
-                    val organisasjonsnummer = Organisasjonsnummer(orgnr)
+                    val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+                    requireTilgangHosArrangor(orgnr)
 
-                    val krav = refusjonskrav.getByArrangorIds(organisasjonsnummer)
+                    val krav = refusjonskrav.getByArrangorIds(orgnr)
                         .map { toRefusjonskravKompakt(it) }
 
                     call.respond(krav)
@@ -120,6 +115,7 @@ fun Route.arrangorflateRoutes() {
 
                     val krav = refusjonskrav.get(id)
                         ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                    requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
                     val oppsummering = toRefusjonskrav(pdl, deltakerRepository, krav)
 
@@ -128,6 +124,10 @@ fun Route.arrangorflateRoutes() {
 
                 post("/{id}/godkjenn-refusjon") {
                     val id = call.parameters.getOrFail<UUID>("id")
+
+                    val krav = refusjonskrav.get(id)
+                        ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                    requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
                     val request = call.receive<SetRefusjonKravBetalingsinformasjonRequest>()
 
@@ -143,7 +143,10 @@ fun Route.arrangorflateRoutes() {
 
                 get("/{id}/kvittering") {
                     val id = call.parameters.getOrFail<UUID>("id")
-                    val krav = refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+
+                    val krav = refusjonskrav.get(id)
+                        ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                    requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
                     val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
                         gjennomforingId = krav.gjennomforing.id,
@@ -174,6 +177,7 @@ fun Route.arrangorflateRoutes() {
 
                     val krav = refusjonskrav.get(id)
                         ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                    requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
                     val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
                         gjennomforingId = krav.gjennomforing.id,
@@ -186,9 +190,9 @@ fun Route.arrangorflateRoutes() {
 
             route("/tilsagn") {
                 get {
-                    val orgnr = call.parameters.getOrFail("orgnr")
-                    val organisasjonsnummer = Organisasjonsnummer(orgnr)
-                    call.respond(tilsagnService.getAllArrangorflateTilsagn(organisasjonsnummer))
+                    val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+                    requireTilgangHosArrangor(orgnr)
+                    call.respond(tilsagnService.getAllArrangorflateTilsagn(orgnr))
                 }
 
                 get("/{id}") {
@@ -196,6 +200,7 @@ fun Route.arrangorflateRoutes() {
 
                     val tilsagn = tilsagnService.getArrangorflateTilsagn(id)
                         ?: throw NotFoundException("Fant ikke tilsagn")
+                    requireTilgangHosArrangor(tilsagn.arrangor.organisasjonsnummer)
 
                     call.respond(tilsagn)
                 }

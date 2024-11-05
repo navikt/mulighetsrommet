@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory
 class VeilarbdialogClient(
     private val baseUrl: String,
     private val tokenProvider: TokenProvider,
-    clientEngine: HttpClientEngine = CIO.create(),
+    clientEngine: HttpClientEngine,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 

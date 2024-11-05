@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
 class VeilarbvedtaksstotteClient(
     private val baseUrl: String,
     private val tokenProvider: TokenProvider,
-    clientEngine: HttpClientEngine = CIO.create(),
+    clientEngine: HttpClientEngine,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 

@@ -29,7 +29,7 @@ const val VALP_BEHANDLINGSNUMMER: String = "B450"
 class PdlClient(
     private val config: Config,
     private val tokenProvider: TokenProvider,
-    clientEngine: HttpClientEngine = CIO.create(),
+    clientEngine: HttpClientEngine,
 ) {
     data class Config(
         val baseUrl: String,

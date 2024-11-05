@@ -17,7 +17,6 @@ class HentAdressebeskyttetPersonBolkPdlQueryTest : FunSpec({
 
         val clientEngine = createMockEngine(
             "/graphql" to {
-
                 val body = Json.decodeFromString<GraphqlRequest<GraphqlRequest.Identer>>(
                     (it.body as TextContent).text,
                 )
