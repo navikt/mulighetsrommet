@@ -95,7 +95,10 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             every { tilsagnRepository.getByGjennomforingId(any()) } returns listOf(
                 TilsagnDto(
                     id = UUID.randomUUID(),
-                    tiltaksgjennomforingId = TiltaksgjennomforingFixtures.AFT1.id,
+                    tiltaksgjennomforing = TilsagnDto.Tiltaksgjennomforing(
+                        id = TiltaksgjennomforingFixtures.AFT1.id,
+                        antallPlasser = TiltaksgjennomforingFixtures.AFT1.antallPlasser,
+                    ),
                     periodeStart = LocalDate.now(),
                     periodeSlutt = LocalDate.now().plusDays(1),
                     opprettetAv = NavIdent("Z123123"),

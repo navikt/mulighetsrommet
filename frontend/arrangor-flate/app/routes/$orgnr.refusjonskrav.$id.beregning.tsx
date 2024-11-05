@@ -1,17 +1,18 @@
+import { RefusjonKravDeltakelsePerson } from "@mr/api-client";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Button, HGrid, SortState, Table } from "@navikt/ds-react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
-import { PageHeader } from "~/components/PageHeader";
-import { Deltaker, Refusjonskrav } from "~/domene/domene";
-import { checkValidToken } from "~/auth/auth.server";
+import { useLoaderData } from "@remix-run/react";
 import { useState } from "react";
+import { checkValidToken } from "~/auth/auth.server";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
+import { PageHeader } from "~/components/PageHeader";
+import { GenerelleDetaljer } from "~/components/refusjonskrav/GenerelleDetaljer";
+import { Deltaker, Refusjonskrav } from "~/domene/domene";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { formaterDato, useOrgnrFromUrl } from "~/utils";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { GenerelleDetaljer } from "~/components/refusjonskrav/GenerelleDetaljer";
 import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
-import { RefusjonKravDeltakelsePerson } from "@mr/api-client";
+import { LinkWithTabState } from "../components/LinkWithTabState";
 import { internalNavigation } from "../internal-navigation";
 
 export const meta: MetaFunction = () => {
@@ -72,7 +73,10 @@ export default function RefusjonskravBeregning() {
     <>
       <PageHeader
         title="Beregning"
-        tilbakeLenke={{ navn: "Tilbake til refusjonskravliste", url: "/" }}
+        tilbakeLenke={{
+          navn: "Tilbake til refusjonskravliste",
+          url: internalNavigation(orgnr).root,
+        }}
       />
       <HGrid gap="5" columns={1}>
         <GenerelleDetaljer className="max-w-[50%]" krav={krav} />
@@ -136,7 +140,7 @@ export default function RefusjonskravBeregning() {
           ]}
         />
         <Button
-          as={Link}
+          as={LinkWithTabState}
           className="justify-self-end"
           to={internalNavigation(orgnr).bekreft(krav.id)}
         >

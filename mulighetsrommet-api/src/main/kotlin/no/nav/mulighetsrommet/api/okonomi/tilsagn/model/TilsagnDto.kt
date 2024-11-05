@@ -17,8 +17,6 @@ import java.util.*
 data class TilsagnDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    @Serializable(with = UUIDSerializer::class)
-    val tiltaksgjennomforingId: UUID,
     @Serializable(with = LocalDateSerializer::class)
     val periodeStart: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
@@ -31,6 +29,7 @@ data class TilsagnDto(
     val lopenummer: Int,
     val arrangor: Arrangor,
     val besluttelse: Besluttelse?,
+    val tiltaksgjennomforing: Tiltaksgjennomforing,
 ) {
     @Serializable
     data class Arrangor(
@@ -47,5 +46,12 @@ data class TilsagnDto(
         @Serializable(with = LocalDateTimeSerializer::class)
         val tidspunkt: LocalDateTime?,
         val utfall: TilsagnBesluttelse,
+    )
+
+    @Serializable
+    data class Tiltaksgjennomforing(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
+        val antallPlasser: Int,
     )
 }
