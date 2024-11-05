@@ -4716,9 +4716,6 @@ components:
         id:
           type: string
           format: uuid
-        tiltaksgjennomforingId:
-          type: string
-          format: uuid
         periodeStart:
           type: string
           format: date
@@ -4756,6 +4753,17 @@ components:
             - organisasjonsnummer
             - navn
             - overordnetEnhet
+        tiltaksgjennomforing:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            antallPlasser:
+              type: number
+          required:
+            - id
+            - antallPlasser
       required:
         - id
         - tiltaksgjennomforingId
@@ -4767,6 +4775,7 @@ components:
         - arrangor
         - lopenummer
         - opprettetAv
+        - tiltaksgjennomforing
 
     TilsagnBesluttelseDto:
       type: object

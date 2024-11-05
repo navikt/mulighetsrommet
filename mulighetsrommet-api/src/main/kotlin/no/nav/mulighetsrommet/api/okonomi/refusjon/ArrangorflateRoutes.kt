@@ -2,6 +2,11 @@ package no.nav.mulighetsrommet.api.okonomi.refusjon
 
 import arrow.core.getOrElse
 import arrow.core.toNonEmptySetOrNull
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -22,6 +27,7 @@ import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonKravBeregningAf
 import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonskravDto
 import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonskravStatus
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.model.ArrangorflateTilsagn
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.services.ArrangorService
@@ -35,7 +41,6 @@ import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.pdfgen.core.Environment
 import no.nav.pdfgen.core.PDFGenCore
-import no.nav.pdfgen.core.pdf.createHtmlFromTemplateData
 import no.nav.pdfgen.core.pdf.createPDFA
 import org.koin.ktor.ext.inject
 import org.verapdf.gf.foundry.VeraGreenfieldFoundryProvider
@@ -133,8 +138,23 @@ fun Route.arrangorflateRoutes() {
 
             get("/{id}/kvittering") {
                 val id = call.parameters.getOrFail<UUID>("id")
-                val html = createHtmlFromTemplateData("refusjon-kvittering", "refusjon").toString()
-                val pdfBytes: ByteArray = createPDFA(html)
+                val krav = refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+
+                val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
+                    gjennomforingId = krav.gjennomforing.id,
+                    periodeStart = krav.beregning.input.periodeStart.toLocalDate(),
+                    periodeSlutt = krav.beregning.input.periodeSlutt.toLocalDate(),
+                )
+
+                val oppsummering = toRefusjonskrav(pdl, deltakerRepository, krav)
+                val mapper = ObjectMapper().apply {
+                    registerModule(JavaTimeModule())
+                    disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                    registerKotlinModule()
+                }
+                val dto = RefusjonKravKvitteringDto(oppsummering, tilsagn)
+                val jsonNode: JsonNode = mapper.valueToTree<JsonNode>(dto)
+                val pdfBytes: ByteArray = createPDFA("refusjon-kvittering", "refusjon", jsonNode) ?: throw Exception("Kunne ikke generere PDF")
 
                 call.response.headers.append(
                     "Content-Disposition",
@@ -150,16 +170,12 @@ fun Route.arrangorflateRoutes() {
                     ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
-                when (krav.beregning) {
-                    is RefusjonKravBeregningAft -> {
-                        val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
-                            gjennomforingId = krav.gjennomforing.id,
-                            periodeStart = krav.beregning.input.periodeStart.toLocalDate(),
-                            periodeSlutt = krav.beregning.input.periodeSlutt.toLocalDate(),
-                        )
-                        call.respond(tilsagn)
-                    }
-                }
+                val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
+                    gjennomforingId = krav.gjennomforing.id,
+                    periodeStart = krav.beregning.input.periodeStart.toLocalDate(),
+                    periodeSlutt = krav.beregning.input.periodeSlutt.toLocalDate(),
+                )
+                call.respond(tilsagn)
             }
         }
 
@@ -386,4 +402,10 @@ data class RefusjonKravDeltakelse(
 data class SetRefusjonKravBetalingsinformasjonRequest(
     val kontonummer: Kontonummer,
     val kid: Kid?,
+)
+
+@Serializable
+data class RefusjonKravKvitteringDto(
+    val refusjon: RefusjonKravAft,
+    val tilsagn: List<ArrangorflateTilsagn>,
 )
