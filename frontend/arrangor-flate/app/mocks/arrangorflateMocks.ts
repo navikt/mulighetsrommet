@@ -304,6 +304,30 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
       navn: "Amo tiltak Halden",
     },
   },
+  {
+    id: uuid(),
+    tiltakstype: {
+      navn: "Arbeidsforberedende trening",
+    },
+    periodeStart: "2024-08-01",
+    periodeSlutt: "2024-08-31",
+    arrangor: {
+      id: uuid(),
+      organisasjonsnummer: "123456789",
+      navn: "Fretex",
+    },
+    beregning: {
+      type: "AFT",
+      periodeStart: "2024-08-01",
+      periodeSlutt: "2024-08-31",
+      belop: 50000,
+      antallPlasser: 2,
+      sats: 20205,
+    },
+    gjennomforing: {
+      navn: "Amo tiltak Halden",
+    },
+  },
 ];
 
 const arrangorer: Arrangor[] = [

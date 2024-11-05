@@ -1,10 +1,10 @@
 import { RefusjonKravKompakt, RefusjonskravStatus } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, Table, Tag } from "@navikt/ds-react";
-import { Link } from "@remix-run/react";
 import React, { ReactNode } from "react";
 import { formaterDato, useOrgnrFromUrl } from "~/utils";
 import { internalNavigation } from "../../internal-navigation";
+import { LinkWithTabState } from "../LinkWithTabState";
 
 interface Props {
   krav: RefusjonKravKompakt[];
@@ -12,6 +12,7 @@ interface Props {
 
 export function RefusjonskravTable({ krav }: Props) {
   const orgnr = useOrgnrFromUrl();
+
   if (krav.length === 0) {
     return (
       <Alert className="my-10" variant="info">
@@ -54,7 +55,7 @@ export function RefusjonskravTable({ krav }: Props) {
                     <Table.DataCell>{formaterDato(fristForGodkjenning)}</Table.DataCell>
                     <Table.DataCell>{statusTilTag(status)}</Table.DataCell>
                     <Table.DataCell>
-                      <Link
+                      <LinkWithTabState
                         className="hover:underline font-bold no-underline"
                         to={
                           status === RefusjonskravStatus.GODKJENT_AV_ARRANGOR
@@ -63,7 +64,7 @@ export function RefusjonskravTable({ krav }: Props) {
                         }
                       >
                         Detaljer
-                      </Link>
+                      </LinkWithTabState>
                     </Table.DataCell>
                   </Table.Row>
                 </React.Fragment>

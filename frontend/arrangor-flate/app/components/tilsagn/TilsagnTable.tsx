@@ -1,8 +1,8 @@
 import { ArrangorflateTilsagn } from "@mr/api-client";
 import { Alert, Table } from "@navikt/ds-react";
-import { Link } from "@remix-run/react";
 import { formaterDato, useOrgnrFromUrl } from "~/utils";
 import { internalNavigation } from "../../internal-navigation";
+import { LinkWithTabState } from "../LinkWithTabState";
 
 interface Props {
   tilsagn: ArrangorflateTilsagn[];
@@ -41,12 +41,12 @@ export function TilsagnTable({ tilsagn }: Props) {
                     {`${formaterDato(tilsagn.periodeStart)} - ${formaterDato(tilsagn.periodeSlutt)}`}
                   </Table.DataCell>
                   <Table.DataCell>
-                    <Link
+                    <LinkWithTabState
                       className="hover:underline font-bold no-underline"
                       to={internalNavigation(orgnr).tilsagn(tilsagn.id)}
                     >
                       Detaljer
-                    </Link>
+                    </LinkWithTabState>
                   </Table.DataCell>
                 </Table.Row>
               );

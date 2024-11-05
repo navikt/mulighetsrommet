@@ -3,6 +3,7 @@ import { redirect } from "@remix-run/node";
 import { hentArrangortilgangerForBruker } from "../auth/arrangortilgang.server";
 import { checkValidToken, setupOpenApi } from "../auth/auth.server";
 import { internalNavigation } from "../internal-navigation";
+import { getCurrentTab } from "../utils/currentTab";
 
 export const meta: MetaFunction = () => {
   return [
@@ -26,11 +27,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   await checkValidToken(request);
   await setupOpenApi(request);
   const url = new URL(request.url);
+  const currentTab = getCurrentTab(request);
   const { orgnr } = params;
   const arrangorer = await hentArrangortilgangerForBruker();
 
   if (!orgnr && arrangorer.length > 0 && url.pathname === "/") {
-    return redirect(internalNavigation(arrangorer[0].organisasjonsnummer).refusjonskravliste);
+    return redirect(
+      `${internalNavigation(arrangorer[0].organisasjonsnummer).refusjonskravliste}?forside-tab=${currentTab}`,
+    );
   }
 
   return null;
