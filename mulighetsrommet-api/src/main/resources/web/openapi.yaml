@@ -4799,15 +4799,46 @@ components:
         - AVVIST
 
     BesluttTilsagnRequest:
+      oneOf:
+        - $ref: "#/components/schemas/GodkjentTilsagnRequest"
+        - $ref: "#/components/schemas/AvvistTilsagnRequest"
+
+    GodkjentTilsagnRequest:
       type: object
       properties:
         besluttelse:
           $ref: "#/components/schemas/TilsagnBesluttelse"
+      required:
+        - besluttelse
+
+    AvvistTilsagnRequest:
+      type: object
+      properties:
+        besluttelse:
+          $ref: "#/components/schemas/TilsagnBesluttelse"
+        aarsaker:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnAvvisningAarsak"
+        forklaring:
+          type: string
+      required:
+        - besluttelse
+        - aarsaker
 
     TilsagnBeregning:
       oneOf:
         - $ref: "#/components/schemas/TilsagnBeregningAFT"
         - $ref: "#/components/schemas/TilsagnBeregningFri"
+
+    TilsagnAvvisningAarsak:
+      type: string
+      enum:
+        - FEIL_ANTALL_PLASSER
+        - FEIL_KOSTNADSSTED
+        - FEIL_PERIODE
+        - FEIL_BELOP
+        - FEIL_ANNET
 
     TilsagnBeregningAFT:
       type: object

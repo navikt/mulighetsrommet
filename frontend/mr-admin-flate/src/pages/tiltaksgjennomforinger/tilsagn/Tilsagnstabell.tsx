@@ -134,6 +134,6 @@ export function Tilsagnstabell({ tilsagn }: Props) {
   );
 }
 
-function besluttelseTilTekst(besluttelse: TilsagnBesluttelse): "Godkjent" | "Avvist" {
-  return besluttelse === "GODKJENT" ? "Godkjent" : "Avvist";
+function besluttelseTilTekst(besluttelse: TilsagnBesluttelse): "Godkjent" | "Returnert" {
+  return besluttelse === "GODKJENT" ? "Godkjent" : "Returnert";
 }
