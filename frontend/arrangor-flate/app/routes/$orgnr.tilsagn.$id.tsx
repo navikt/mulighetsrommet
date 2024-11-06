@@ -15,9 +15,11 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
   await checkValidToken(request);
 
-  const { id, orgnr } = params;
-  if (!id || !orgnr) throw Error("Mangler id eller orgnr");
-  const tilsagn = await ArrangorflateService.getArrangorflateTilsagn({ id, orgnr });
+  const { id } = params;
+  if (!id) {
+    throw Error("Mangler id");
+  }
+  const tilsagn = await ArrangorflateService.getArrangorflateTilsagn({ id });
 
   return { tilsagn };
 };

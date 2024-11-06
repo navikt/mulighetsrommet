@@ -23,14 +23,14 @@ export const loader: LoaderFunction = async ({
 }): Promise<BekreftRefusjonskravData> => {
   await checkValidToken(request);
 
-  const { id, orgnr } = params;
-  if (!id || !orgnr) {
-    throw Error("Mangler id eller orgnr");
+  const { id } = params;
+  if (!id) {
+    throw Error("Mangler id");
   }
 
   const [krav, tilsagn] = await Promise.all([
-    loadRefusjonskrav(id, orgnr),
-    ArrangorflateService.getArrangorflateTilsagnTilRefusjon({ id, orgnr }),
+    loadRefusjonskrav(id),
+    ArrangorflateService.getArrangorflateTilsagnTilRefusjon({ id }),
   ]);
 
   return { krav, tilsagn };
@@ -68,7 +68,6 @@ export const action: ActionFunction = async ({ request }) => {
 
   await ArrangorflateService.godkjennRefusjonskrav({
     id: refusjonskravId as string,
-    orgnr,
     requestBody: {
       kontonummer: kontonummer as string,
       kid: kid as string,

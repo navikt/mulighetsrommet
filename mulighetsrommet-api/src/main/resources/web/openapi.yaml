@@ -1780,58 +1780,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/AFTSats"
 
-  /api/v1/intern/arrangorflate/{orgnr}/tilsagn:
-    get:
-      tags:
-        - Arrangorflate
-      operationId: getAllArrangorflateTilsagn
-      parameters:
-        - $ref: "#/components/parameters/OrgnrParam"
-      responses:
-        200:
-          description: Hent tilsagn til arrangør
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ArrangorflateTilsagn"
-
-  /api/v1/intern/arrangorflate/{orgnr}/refusjonskrav/{id}/tilsagn:
-    get:
-      tags:
-        - Arrangorflate
-      operationId: getArrangorflateTilsagnTilRefusjon
-      parameters:
-        - $ref: "#/components/parameters/ID"
-        - $ref: "#/components/parameters/OrgnrParam"
-      responses:
-        200:
-          description: Hent tilsagn til refusjonskrav
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ArrangorflateTilsagn"
-
-  /api/v1/intern/arrangorflate/{orgnr}/tilsagn/{id}:
-    get:
-      tags:
-        - Arrangorflate
-      parameters:
-        - $ref: "#/components/parameters/ID"
-        - $ref: "#/components/parameters/OrgnrParam"
-      operationId: getArrangorflateTilsagn
-      responses:
-        200:
-          description: Hent tilsagn by id
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ArrangorflateTilsagn"
-
-  /api/v1/intern/arrangorflate/{orgnr}/refusjonskrav:
+  /api/v1/intern/arrangorflate/arrangor/{orgnr}/refusjonskrav:
     get:
       tags:
         - Arrangorflate
@@ -1848,11 +1797,59 @@ paths:
                 items:
                   $ref: "#/components/schemas/RefusjonKravKompakt"
 
-  /api/v1/intern/arrangorflate/{orgnr}/refusjonskrav/{id}:
+  /api/v1/intern/arrangorflate/arrangor/{orgnr}/tilsagn:
+    get:
+      tags:
+        - Arrangorflate
+      operationId: getAllArrangorflateTilsagn
+      parameters:
+        - $ref: "#/components/parameters/OrgnrParam"
+      responses:
+        200:
+          description: Hent tilsagn til arrangør
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArrangorflateTilsagn"
+
+  /api/v1/intern/arrangorflate/refusjonskrav/{id}/tilsagn:
+    get:
+      tags:
+        - Arrangorflate
+      operationId: getArrangorflateTilsagnTilRefusjon
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        200:
+          description: Hent tilsagn til refusjonskrav
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArrangorflateTilsagn"
+
+  /api/v1/intern/arrangorflate/tilsagn/{id}:
+    get:
+      tags:
+        - Arrangorflate
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      operationId: getArrangorflateTilsagn
+      responses:
+        200:
+          description: Hent tilsagn by id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrangorflateTilsagn"
+
+  /api/v1/intern/arrangorflate/refusjonskrav/{id}:
     get:
       parameters:
         - $ref: "#/components/parameters/ID"
-        - $ref: "#/components/parameters/OrgnrParam"
       tags:
         - Arrangorflate
       operationId: getRefusjonkrav
@@ -1864,11 +1861,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/RefusjonKravAft"
 
-  /api/v1/intern/arrangorflate/{orgnr}/refusjonskrav/{id}/godkjenn-refusjon:
+  /api/v1/intern/arrangorflate/refusjonskrav/{id}/godkjenn-refusjon:
     post:
       parameters:
         - $ref: "#/components/parameters/ID"
-        - $ref: "#/components/parameters/OrgnrParam"
       tags:
         - Arrangorflate
       operationId: godkjennRefusjonskrav
@@ -1882,10 +1878,9 @@ paths:
         200:
           description: Godkjenn et refusjonskrav
 
-  /api/v1/intern/arrangorflate/{orgnr}/refusjonskrav/{id}/kvittering:
+  /api/v1/intern/arrangorflate/refusjonskrav/{id}/kvittering:
     parameters:
       - $ref: "#/components/parameters/ID"
-      - $ref: "#/components/parameters/OrgnrParam"
     get:
       tags:
         - Arrangorflate

@@ -5,13 +5,12 @@ import { ArrangorflateService } from "@mr/api-client";
 export const loader: LoaderFunction = async ({ request, params }): Promise<Response> => {
   await checkValidToken(request);
 
-  const { id, orgnr } = params;
-  if (!id || !orgnr) throw Error("Mangler id eller orgnr");
+  const { id } = params;
+  if (!id) {
+    throw Error("Mangler id");
+  }
 
-  const kvittering = await ArrangorflateService.getRefusjonkravKvittering({
-    id,
-    orgnr,
-  });
+  const kvittering = await ArrangorflateService.getRefusjonkravKvittering({ id });
 
   return new Response(kvittering, {
     status: 200,

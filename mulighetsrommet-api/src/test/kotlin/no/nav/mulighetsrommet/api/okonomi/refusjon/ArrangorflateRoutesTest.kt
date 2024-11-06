@@ -155,7 +155,7 @@ class ArrangorflateRoutesTest : FunSpec({
 
     test("401 hent krav uten tilgang til bedrift") {
         withTestApplication(appConfig()) {
-            val response = client.get("/api/v1/intern/arrangorflate/${barnevernsNembda.organisasjonsnummer.value}/refusjonskrav/${krav.id}") {
+            val response = client.get("/api/v1/intern/arrangorflate/refusjonskrav/${krav.id}") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922")).serialize())
                 contentType(ContentType.Application.Json)
             }
@@ -165,7 +165,7 @@ class ArrangorflateRoutesTest : FunSpec({
 
     test("200 hent krav") {
         withTestApplication(appConfig()) {
-            val response = client.get("/api/v1/intern/arrangorflate/${barnevernsNembda.organisasjonsnummer.value}/refusjonskrav/${krav.id}") {
+            val response = client.get("/api/v1/intern/arrangorflate/refusjonskrav/${krav.id}") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
             }

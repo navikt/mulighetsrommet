@@ -25,10 +25,12 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
   await checkValidToken(request);
 
-  const { id, orgnr } = params;
-  if (!id || !orgnr) throw Error("Mangler id eller orgnr");
+  const { id } = params;
+  if (!id) {
+    throw Error("Mangler id");
+  }
 
-  const krav = await loadRefusjonskrav(id, orgnr);
+  const krav = await loadRefusjonskrav(id);
 
   return { krav };
 };
