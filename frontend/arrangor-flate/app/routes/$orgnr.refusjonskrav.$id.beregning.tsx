@@ -1,8 +1,8 @@
 import { RefusjonKravDeltakelsePerson } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Button, HGrid, SortState, Table } from "@navikt/ds-react";
+import { Button, GuidePanel, HGrid, SortState, Table } from "@navikt/ds-react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import { checkValidToken } from "~/auth/auth.server";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
@@ -80,6 +80,10 @@ export default function RefusjonskravBeregning() {
       />
       <HGrid gap="5" columns={1}>
         <GenerelleDetaljer className="max-w-[50%]" krav={krav} />
+        <GuidePanel>
+          Hvis noen av opplysningene om deltakerne ikke stemmer, må det sendes forslag til Nav om
+          endring via <Link to={deltakerOversiktLenke()}>Deltakeroversikten</Link>.
+        </GuidePanel>
         <Table sort={sort} onSortChange={(sortKey) => handleSort(sortKey)} zebraStripes>
           <Table.Header>
             <Table.Row>
@@ -174,4 +178,13 @@ function getFormattedFodselsdato(person: RefusjonKravDeltakelsePerson) {
     : person.fodselsaar
       ? `Fødselsår: ${person.fodselsaar}`
       : null;
+}
+
+function deltakerOversiktLenke(): string {
+  const url = window.location.href;
+  if (url.includes("intern.dev.nav.no")) {
+    return "https://amt.intern.dev.nav.no/deltakeroversikt";
+  }
+
+  return "https://nav.no/deltakeroversikt";
 }
