@@ -17,7 +17,7 @@ import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 class TiltakshistorikkClient(
     private val baseUrl: String,
     private val tokenProvider: TokenProvider,
-    clientEngine: HttpClientEngine = CIO.create(),
+    clientEngine: HttpClientEngine,
 ) {
     val client = httpJsonClient(clientEngine).config {
         install(HttpCache)

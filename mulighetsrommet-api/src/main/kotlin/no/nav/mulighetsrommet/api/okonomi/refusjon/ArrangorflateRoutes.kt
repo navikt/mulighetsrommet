@@ -94,19 +94,30 @@ fun Route.arrangorflateRoutes() {
     }
 
     route("/arrangorflate") {
-        route("/refusjonskrav") {
-            get("alle/{orgnr}") {
-                val orgnr = call.parameters.getOrFail("orgnr")
-                val organisasjonsnummer = Organisasjonsnummer(orgnr)
-                requireTilgangHosArrangor(organisasjonsnummer)
+        get("/tilgang-arrangor") {
+            call.respond(arrangorerMedTilgang())
+        }
 
-                val krav = refusjonskrav.getByArrangorIds(organisasjonsnummer)
+        route("/arrangor/{orgnr}") {
+            get("/refusjonskrav") {
+                val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+                requireTilgangHosArrangor(orgnr)
+
+                val krav = refusjonskrav.getByArrangorIds(orgnr)
                     .map { toRefusjonskravKompakt(it) }
 
                 call.respond(krav)
             }
 
-            get("/{id}") {
+            get("/tilsagn") {
+                val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+                requireTilgangHosArrangor(orgnr)
+                call.respond(tilsagnService.getAllArrangorflateTilsagn(orgnr))
+            }
+        }
+
+        route("/refusjonskrav/{id}") {
+            get {
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 val krav = refusjonskrav.get(id)
@@ -118,12 +129,13 @@ fun Route.arrangorflateRoutes() {
                 call.respond(oppsummering)
             }
 
-            post("/{id}/godkjenn-refusjon") {
+            post("/godkjenn-refusjon") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 val krav = refusjonskrav.get(id)
                     ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
+
                 val request = call.receive<SetRefusjonKravBetalingsinformasjonRequest>()
 
                 refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now())
@@ -136,9 +148,12 @@ fun Route.arrangorflateRoutes() {
                 call.respond(HttpStatusCode.OK)
             }
 
-            get("/{id}/kvittering") {
+            get("/kvittering") {
                 val id = call.parameters.getOrFail<UUID>("id")
-                val krav = refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+
+                val krav = refusjonskrav.get(id)
+                    ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
                 val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
                     gjennomforingId = krav.gjennomforing.id,
@@ -154,7 +169,8 @@ fun Route.arrangorflateRoutes() {
                 }
                 val dto = RefusjonKravKvitteringDto(oppsummering, tilsagn)
                 val jsonNode: JsonNode = mapper.valueToTree<JsonNode>(dto)
-                val pdfBytes: ByteArray = createPDFA("refusjon-kvittering", "refusjon", jsonNode) ?: throw Exception("Kunne ikke generere PDF")
+                val pdfBytes: ByteArray = createPDFA("refusjon-kvittering", "refusjon", jsonNode)
+                    ?: throw Exception("Kunne ikke generere PDF")
 
                 call.response.headers.append(
                     "Content-Disposition",
@@ -163,7 +179,7 @@ fun Route.arrangorflateRoutes() {
                 call.respondBytes(pdfBytes, contentType = ContentType.Application.Pdf)
             }
 
-            get("/{id}/tilsagn") {
+            get("/tilsagn") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 val krav = refusjonskrav.get(id)
@@ -179,17 +195,8 @@ fun Route.arrangorflateRoutes() {
             }
         }
 
-        route("/tilsagn") {
-            route("/alle/{orgnr}") {
-                get {
-                    val orgnr = call.parameters.getOrFail("orgnr")
-                    val organisasjonsnummer = Organisasjonsnummer(orgnr)
-                    requireTilgangHosArrangor(organisasjonsnummer)
-                    call.respond(tilsagnService.getAllArrangorflateTilsagn(organisasjonsnummer))
-                }
-            }
-
-            get("/{id}") {
+        route("/tilsagn/{id}") {
+            get {
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 val tilsagn = tilsagnService.getArrangorflateTilsagn(id)
@@ -197,12 +204,6 @@ fun Route.arrangorflateRoutes() {
                 requireTilgangHosArrangor(tilsagn.arrangor.organisasjonsnummer)
 
                 call.respond(tilsagn)
-            }
-        }
-
-        route("/tilgang-arrangor") {
-            get {
-                call.respond(arrangorerMedTilgang())
             }
         }
     }

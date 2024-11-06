@@ -25,9 +25,12 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
   await checkValidToken(request);
 
-  if (params.id === undefined) throw Error("Mangler id");
+  const { id } = params;
+  if (!id) {
+    throw Error("Mangler id");
+  }
 
-  const krav = await loadRefusjonskrav(params.id);
+  const krav = await loadRefusjonskrav(id);
 
   return { krav };
 };
@@ -112,7 +115,7 @@ export default function RefusjonskravBeregning() {
               const fodselsdato = getFormattedFodselsdato(person);
               return (
                 <Table.ExpandableRow key={id} content={null} togglePlacement="right">
-                  <Table.DataCell className="font-bold">{person.navn}</Table.DataCell>
+                  <Table.DataCell className="font-bold">{person?.navn}</Table.DataCell>
                   <Table.DataCell className="w-52">{fodselsdato}</Table.DataCell>
                   <Table.DataCell>
                     {deltaker.startDatoTiltaket && formaterDato(deltaker.startDatoTiltaket)}
@@ -172,10 +175,10 @@ function getDeltakerSelector(sortKey: DeltakerSortKey): SortBySelector<Deltaker>
   }
 }
 
-function getFormattedFodselsdato(person: RefusjonKravDeltakelsePerson) {
-  return person.foedselsdato
-    ? formaterDato(person.foedselsdato)
-    : person.fodselsaar
+function getFormattedFodselsdato(person?: RefusjonKravDeltakelsePerson) {
+  return person?.foedselsdato
+    ? formaterDato(person?.foedselsdato)
+    : person?.fodselsaar
       ? `Fødselsår: ${person.fodselsaar}`
       : null;
 }

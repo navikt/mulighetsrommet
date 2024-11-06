@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jwt.JWTParser
+import io.ktor.client.engine.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -115,7 +116,12 @@ private fun createM2mTokenClient(clientId: String, tokenEndpointUrl: String): Ma
         else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
     }
 
-fun createMaskinportenM2mTokenClient(clientId: String, tokenEndpointUrl: String, issuer: String): MaskinPortenTokenProvider? =
+fun createMaskinportenM2mTokenClient(
+    clientId: String,
+    tokenEndpointUrl: String,
+    issuer: String,
+    engine: HttpClientEngine,
+): MaskinPortenTokenProvider? =
     when (NaisEnv.current()) {
         NaisEnv.Local -> MaskinPortenTokenProvider(
             clientId = clientId,

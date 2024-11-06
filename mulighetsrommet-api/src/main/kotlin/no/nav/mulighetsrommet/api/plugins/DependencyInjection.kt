@@ -198,30 +198,35 @@ private fun services(appConfig: AppConfig) = module {
         appConfig.auth.maskinporten.audience,
         appConfig.auth.maskinporten.tokenEndpointUrl,
         appConfig.auth.maskinporten.issuer,
+        engine = appConfig.engine,
     )
 
     single {
         VeilarboppfolgingClient(
             baseUrl = appConfig.veilarboppfolgingConfig.url,
             tokenProvider = cachedTokenProvider.withScope(appConfig.veilarboppfolgingConfig.scope),
+            clientEngine = appConfig.engine,
         )
     }
     single {
         VeilarbvedtaksstotteClient(
             baseUrl = appConfig.veilarbvedtaksstotteConfig.url,
             tokenProvider = cachedTokenProvider.withScope(appConfig.veilarbvedtaksstotteConfig.scope),
+            clientEngine = appConfig.engine,
         )
     }
     single {
         VeilarbdialogClient(
             baseUrl = appConfig.veilarbdialogConfig.url,
             tokenProvider = cachedTokenProvider.withScope(appConfig.veilarbdialogConfig.scope),
+            clientEngine = appConfig.engine,
         )
     }
     single {
         PdlClient(
             config = PdlClient.Config(appConfig.pdl.url, maxRetries = 3),
             tokenProvider = cachedTokenProvider.withScope(appConfig.pdl.scope),
+            clientEngine = appConfig.engine,
         )
     }
     single { HentAdressebeskyttetPersonBolkPdlQuery(get()) }
@@ -245,16 +250,19 @@ private fun services(appConfig: AppConfig) = module {
         ArenaAdapterClient(
             baseUrl = appConfig.arenaAdapter.url,
             tokenProvider = cachedTokenProvider.withScope(appConfig.arenaAdapter.scope),
+            clientEngine = appConfig.engine,
         )
     }
     single {
         TiltakshistorikkClient(
             baseUrl = appConfig.tiltakshistorikk.url,
             tokenProvider = cachedTokenProvider.withScope(appConfig.tiltakshistorikk.scope),
+            clientEngine = appConfig.engine,
         )
     }
     single {
         Norg2Client(
+            clientEngine = appConfig.engine,
             baseUrl = appConfig.norg2.baseUrl,
         )
     }

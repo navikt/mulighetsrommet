@@ -22,7 +22,7 @@ class AltinnClient(
     private val baseUrl: String,
     private val altinnApiKey: String,
     private val tokenProvider: M2MTokenProvider,
-    clientEngine: HttpClientEngine = CIO.create(),
+    clientEngine: HttpClientEngine,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
     private val client = httpJsonClient(clientEngine).config {
@@ -58,18 +58,13 @@ class AltinnClient(
             .filter { it.rettigheter.isNotEmpty() }
 
     private suspend fun hentAuthorizedParties(norskIdent: NorskIdent): List<AuthorizedParty> {
-        @Serializable
-        data class Request(
-            val type: String,
-            val value: String,
-        )
         val response = client.post("$baseUrl/accessmanagement/api/v1/resourceowner/authorizedparties") {
             parameter("includeAltinn2", "true")
             header("Ocp-Apim-Subscription-Key", altinnApiKey)
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             setBody(
-                Request(
+                AltinnRequest(
                     type = "urn:altinn:person:identifier-no",
                     value = norskIdent.value,
                 ),
@@ -96,5 +91,11 @@ class AltinnClient(
         val type: String,
         val authorizedResources: List<String>,
         val subunits: List<AuthorizedParty>,
+    )
+
+    @Serializable
+    data class AltinnRequest(
+        val type: String,
+        val value: String,
     )
 }

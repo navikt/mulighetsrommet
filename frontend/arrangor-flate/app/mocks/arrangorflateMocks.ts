@@ -330,44 +330,50 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
   },
 ];
 
+const arrangorer: Arrangor[] = [
+  {
+    id: uuid(),
+    organisasjonsnummer: "123456789",
+    navn: "Fretex",
+    overordnetEnhet: null,
+  },
+];
+
 export const arrangorflateHandlers = [
   http.get<PathParams, RefusjonKravAft[]>(
-    "*/api/v1/intern/arrangorflate/refusjonskrav/alle/:orgnr",
+    "*/api/v1/intern/arrangorflate/:orgnr/refusjonskrav",
     () => HttpResponse.json(mockKrav),
   ),
-  http.get<PathParams, RefusjonKravAft[]>("*/api/v1/intern/arrangorflate/refusjonskrav/:id", () =>
-    HttpResponse.json(mockKrav[1]),
+  http.get<PathParams, RefusjonKravAft[]>(
+    "*/api/v1/intern/arrangorflate/:orgnr/refusjonskrav/:id",
+    ({ params }) => {
+      const { id } = params;
+      return HttpResponse.json(mockKrav.find((k) => k.id === id));
+    },
   ),
   http.post<PathParams, RefusjonKravAft[]>(
-    "*/api/v1/intern/arrangorflate/refusjonskrav/:id/godkjenn-refusjon",
+    "*/api/v1/intern/arrangorflate/:orgnr/refusjonskrav/:id/godkjenn-refusjon",
     () => HttpResponse.json({}),
   ),
   http.get<PathParams, RefusjonKravAft[]>(
-    "*/api/v1/intern/arrangorflate/refusjonskrav/:id/kvittering",
+    "*/api/v1/intern/arrangorflate/:orgnr/refusjonskrav/:id/kvittering",
     () => HttpResponse.json(undefined, { status: 501 }),
   ),
   http.get<PathParams, RefusjonKravAft[]>(
-    "*/api/v1/intern/arrangorflate/refusjonskrav/:id/tilsagn",
+    "*/api/v1/intern/arrangorflate/:orgnr/refusjonskrav/:id/tilsagn",
     () => HttpResponse.json(mockTilsagn),
   ),
-  http.get<PathParams, RefusjonKravAft[]>("*/api/v1/intern/arrangorflate/tilsagn/alle/:orgnr", () =>
+  http.get<PathParams, RefusjonKravAft[]>("*/api/v1/intern/arrangorflate/:orgnr/tilsagn", () =>
     HttpResponse.json(mockTilsagn),
   ),
-  http.get<PathParams, RefusjonKravAft[]>("*/api/v1/intern/arrangorflate/tilsagn/:id", () =>
-    HttpResponse.json(mockTilsagn[0]),
+  http.get<PathParams, RefusjonKravAft[]>(
+    "*/api/v1/intern/arrangorflate/:orgnr/tilsagn/:id",
+    ({ params }) => {
+      const { id } = params;
+      return HttpResponse.json(mockTilsagn.find((k) => k.id === id));
+    },
   ),
-  http.get<PathParams, Arrangor[]>("*/api/v1/intern/arrangorflate/tilgang-arrangor", () => {
-    return HttpResponse.json([
-      {
-        id: "3aaf8fc1-9532-4927-90f1-346c90cedff7",
-        organisasjonsnummer: "12345678910",
-        navn: "Mock-arrangør",
-        overordnetEnhet: null,
-        underenheter: null,
-        postnummer: null,
-        poststed: null,
-        slettetDato: null,
-      },
-    ]);
-  }),
+  http.get<PathParams, Arrangor[]>("*/api/v1/intern/arrangorflate/tilgang-arrangor", () =>
+    HttpResponse.json(arrangorer),
+  ),
 ];

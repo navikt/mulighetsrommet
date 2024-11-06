@@ -6,6 +6,7 @@ import io.ktor.http.*
 import io.ktor.http.content.*
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.serializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.utils.toUUID
@@ -23,7 +24,6 @@ inline fun <reified T : Any> HttpRequestData.decodeRequestBody(): T {
  * Utility extension to be used in combination with the ktor [MockEngine] to create an HTTP response with the type [T]
  * encoded as JSON.
  */
-@OptIn(InternalSerializationApi::class)
 inline fun <reified T : Any> MockRequestHandleScope.respondJson(
     content: T,
     status: HttpStatusCode = HttpStatusCode.OK,
@@ -35,7 +35,7 @@ inline fun <reified T : Any> MockRequestHandleScope.respondJson(
     val serializedContent = if (content is String) {
         content
     } else {
-        JsonIgnoreUnknownKeys.encodeToString(T::class.serializer(), content)
+        JsonIgnoreUnknownKeys.encodeToString(content)
     }
     return respond(serializedContent, status, headers)
 }

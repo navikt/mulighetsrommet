@@ -1780,7 +1780,24 @@ paths:
                 items:
                   $ref: "#/components/schemas/AFTSats"
 
-  /api/v1/intern/arrangorflate/tilsagn/alle/{orgnr}:
+  /api/v1/intern/arrangorflate/arrangor/{orgnr}/refusjonskrav:
+    get:
+      tags:
+        - Arrangorflate
+      parameters:
+        - $ref: "#/components/parameters/OrgnrParam"
+      operationId: getAllRefusjonKrav
+      responses:
+        200:
+          description: Hent refusjonskrav til arrangør
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RefusjonKravKompakt"
+
+  /api/v1/intern/arrangorflate/arrangor/{orgnr}/tilsagn:
     get:
       tags:
         - Arrangorflate
@@ -1828,23 +1845,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ArrangorflateTilsagn"
-
-  /api/v1/intern/arrangorflate/refusjonskrav/alle/{orgnr}:
-    get:
-      tags:
-        - Arrangorflate
-      parameters:
-        - $ref: "#/components/parameters/OrgnrParam"
-      operationId: getAllRefusjonKrav
-      responses:
-        200:
-          description: Hent refusjonskrav til arrangør
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/RefusjonKravKompakt"
 
   /api/v1/intern/arrangorflate/refusjonskrav/{id}:
     get:
