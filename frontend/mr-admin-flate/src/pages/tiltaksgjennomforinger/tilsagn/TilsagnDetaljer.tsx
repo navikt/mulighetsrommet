@@ -1,13 +1,6 @@
-import { Alert, BodyShort, Button, Heading, HStack, Modal, Tag } from "@navikt/ds-react";
-import {
-  AvvistTilsagnRequest,
-  BesluttTilsagnRequest,
-  GodkjentTilsagnRequest,
-  NavAnsattRolle,
-  TilsagnBesluttelse,
-  TilsagnDto,
-} from "@mr/api-client";
-import { Link, useMatch, useNavigate, useParams } from "react-router-dom";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { useAnnullerTilsagn } from "@/api/tilsagn/useAnnullerTilsagn";
+import { useBesluttTilsagn } from "@/api/tilsagn/useBesluttTilsagn";
 import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Header } from "@/components/detaljside/Header";
@@ -16,19 +9,23 @@ import { TiltaksgjennomforingIkon } from "@/components/ikoner/Tiltaksgjennomfori
 import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
-import { formaterDato } from "@/utils/Utils";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { DetaljerContainer } from "@/pages/DetaljerContainer";
 import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
-import { useGetTilsagnById } from "./useGetTilsagnById";
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { formaterDato } from "@/utils/Utils";
+import {
+  BesluttTilsagnRequest,
+  NavAnsattRolle,
+  TilsagnBesluttelse,
+  TilsagnDto,
+} from "@mr/api-client";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
-import { useRef, useState } from "react";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { TrashFillIcon } from "@navikt/aksel-icons";
-import { useAnnullerTilsagn } from "@/api/tilsagn/useAnnullerTilsagn";
-import { useBesluttTilsagn } from "@/api/tilsagn/useBesluttTilsagn";
+import { Alert, BodyShort, Button, Heading, HStack, Tag } from "@navikt/ds-react";
+import { useRef, useState } from "react";
+import { Link, useMatch, useNavigate, useParams } from "react-router-dom";
 import { AvvisTilsagnModal } from "./AvvisTilsagnModal";
-import { set } from "react-hook-form";
+import { useGetTilsagnById } from "./useGetTilsagnById";
 
 export function TilsagnDetaljer() {
   const { avtaleId, tiltaksgjennomforingId } = useParams();
@@ -76,23 +73,7 @@ export function TilsagnDetaljer() {
     navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn`);
   }
 
-  function besluttTilsagn(request: GodkjentTilsagnRequest) {
-    if (tilsagn) {
-      besluttMutation.mutate(
-        {
-          id: tilsagn.id,
-          requestBody: {
-            besluttelse: request.besluttelse,
-          },
-        },
-        {
-          onSuccess: navigerTilGjennomforing,
-        },
-      );
-    }
-  }
-
-  function avvisTilsagn(request: AvvistTilsagnRequest) {
+  function besluttTilsagn(request: BesluttTilsagnRequest) {
     if (tilsagn) {
       besluttMutation.mutate(
         {
@@ -203,8 +184,8 @@ export function TilsagnDetaljer() {
             />
             <AvvisTilsagnModal
               open={avvisModalOpen}
-              onClose={() => console.log("Close")}
-              onConfirm={(validatedData) => avvisTilsagn(validatedData)}
+              onClose={() => setAvvisModalOpen(false)}
+              onConfirm={(validatedData) => besluttTilsagn(validatedData)}
             />
           </DetaljerInfoContainer>
         </DetaljerContainer>
