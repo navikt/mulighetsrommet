@@ -1,5 +1,12 @@
-import { Alert, BodyShort, Button, Heading, HStack, Tag } from "@navikt/ds-react";
-import { NavAnsattRolle, TilsagnBesluttelse, TilsagnDto } from "@mr/api-client";
+import { Alert, BodyShort, Button, Heading, HStack, Modal, Tag } from "@navikt/ds-react";
+import {
+  AvvistTilsagnRequest,
+  BesluttTilsagnRequest,
+  GodkjentTilsagnRequest,
+  NavAnsattRolle,
+  TilsagnBesluttelse,
+  TilsagnDto,
+} from "@mr/api-client";
 import { Link, useMatch, useNavigate, useParams } from "react-router-dom";
 import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Bolk } from "@/components/detaljside/Bolk";
@@ -16,10 +23,12 @@ import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
 import { useGetTilsagnById } from "./useGetTilsagnById";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { TrashFillIcon } from "@navikt/aksel-icons";
 import { useAnnullerTilsagn } from "@/api/tilsagn/useAnnullerTilsagn";
 import { useBesluttTilsagn } from "@/api/tilsagn/useBesluttTilsagn";
+import { AvvisTilsagnModal } from "./AvvisTilsagnModal";
+import { set } from "react-hook-form";
 
 export function TilsagnDetaljer() {
   const { avtaleId, tiltaksgjennomforingId } = useParams();
@@ -30,6 +39,7 @@ export function TilsagnDetaljer() {
   const { data: ansatt } = useHentAnsatt();
   const navigate = useNavigate();
   const annullerModalRef = useRef<HTMLDialogElement>(null);
+  const [avvisModalOpen, setAvvisModalOpen] = useState(false);
 
   const erPaaGjennomforingerForAvtale = useMatch(
     "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
@@ -66,13 +76,29 @@ export function TilsagnDetaljer() {
     navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn`);
   }
 
-  function besluttTilsagn(besluttelse: TilsagnBesluttelse) {
+  function besluttTilsagn(request: GodkjentTilsagnRequest) {
     if (tilsagn) {
       besluttMutation.mutate(
         {
           id: tilsagn.id,
           requestBody: {
-            besluttelse,
+            besluttelse: request.besluttelse,
+          },
+        },
+        {
+          onSuccess: navigerTilGjennomforing,
+        },
+      );
+    }
+  }
+
+  function avvisTilsagn(request: AvvistTilsagnRequest) {
+    if (tilsagn) {
+      besluttMutation.mutate(
+        {
+          id: tilsagn.id,
+          requestBody: {
+            ...request,
           },
         },
         {
@@ -143,8 +169,10 @@ export function TilsagnDetaljer() {
             <HStack gap="2" justify={"space-between"}>
               {visBesluttKnapp ? (
                 <GodkjennAvvisTilsagnButtons
-                  onGodkjennTilsagn={() => besluttTilsagn(TilsagnBesluttelse.GODKJENT)}
-                  onAvvisTilsagn={() => besluttTilsagn(TilsagnBesluttelse.AVVIST)}
+                  onGodkjennTilsagn={() =>
+                    besluttTilsagn({ besluttelse: TilsagnBesluttelse.GODKJENT })
+                  }
+                  onAvvisTilsagn={() => setAvvisModalOpen(true)}
                 />
               ) : (
                 <div></div>
@@ -172,6 +200,11 @@ export function TilsagnDetaljer() {
               }
               secondaryButton
               secondaryButtonHandleAction={() => annullerModalRef.current?.close()}
+            />
+            <AvvisTilsagnModal
+              open={avvisModalOpen}
+              onClose={() => console.log("Close")}
+              onConfirm={(validatedData) => avvisTilsagn(validatedData)}
             />
           </DetaljerInfoContainer>
         </DetaljerContainer>
