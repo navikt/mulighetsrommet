@@ -15,7 +15,7 @@ import { formaterDato } from "@/utils/Utils";
 import {
   BesluttTilsagnRequest,
   NavAnsattRolle,
-  TilsagnBesluttelse,
+  TilsagnBesluttelseStatus,
   TilsagnDto,
 } from "@mr/api-client";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
@@ -24,6 +24,7 @@ import { TrashFillIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Button, Heading, HStack, Tag } from "@navikt/ds-react";
 import { useRef, useState } from "react";
 import { Link, useMatch, useNavigate, useParams } from "react-router-dom";
+import { AvvistDetaljer } from "./AvvistDetaljer";
 import { AvvisTilsagnModal } from "./AvvisTilsagnModal";
 import { useGetTilsagnById } from "./useGetTilsagnById";
 
@@ -151,7 +152,7 @@ export function TilsagnDetaljer() {
               {visBesluttKnapp ? (
                 <GodkjennAvvisTilsagnButtons
                   onGodkjennTilsagn={() =>
-                    besluttTilsagn({ besluttelse: TilsagnBesluttelse.GODKJENT })
+                    besluttTilsagn({ besluttelse: TilsagnBesluttelseStatus.GODKJENT })
                   }
                   onAvvisTilsagn={() => setAvvisModalOpen(true)}
                 />
@@ -188,6 +189,7 @@ export function TilsagnDetaljer() {
               onConfirm={(validatedData) => besluttTilsagn(validatedData)}
             />
           </DetaljerInfoContainer>
+          <AvvistDetaljer tilsagn={tilsagn} />
         </DetaljerContainer>
       </ContainerLayout>
     </main>
@@ -218,16 +220,16 @@ function GodkjennAvvisTilsagnButtons({
 function TilsagnTag(props: { tilsagn: TilsagnDto }) {
   const { tilsagn } = props;
 
-  if (tilsagn?.besluttelse?.utfall === TilsagnBesluttelse.GODKJENT) {
+  if (tilsagn?.besluttelse?.status === TilsagnBesluttelseStatus.GODKJENT) {
     return (
       <Tag variant="success" size="small">
         Godkjent
       </Tag>
     );
-  } else if (tilsagn?.besluttelse?.utfall === TilsagnBesluttelse.AVVIST) {
+  } else if (tilsagn?.besluttelse?.status === TilsagnBesluttelseStatus.AVVIST) {
     return (
       <Tag variant="warning" size="small">
-        Avvist
+        Returnert
       </Tag>
     );
   } else if (tilsagn?.annullertTidspunkt) {

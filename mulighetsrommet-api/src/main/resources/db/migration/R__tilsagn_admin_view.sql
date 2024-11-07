@@ -14,6 +14,8 @@ select
     tilsagn.besluttelse,
     tilsagn.besluttet_tidspunkt,
     tilsagn.besluttet_av,
+    tilsagn.avvist_aarsaker,
+    tilsagn.avvist_forklaring,
     nav_enhet.navn              as kostnadssted_navn,
     nav_enhet.overordnet_enhet  as kostnadssted_overordnet_enhet,
     nav_enhet.type              as kostnadssted_type,

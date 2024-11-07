@@ -92,7 +92,9 @@ class TilsagnRepositoryTest : FunSpec({
             repository.get(tilsagn.id)?.besluttelse shouldBe TilsagnDto.Besluttelse(
                 navIdent = NavIdent("Z123456"),
                 tidspunkt = LocalDateTime.of(2023, 2, 2, 0, 0, 0),
-                utfall = TilsagnBesluttelse.AVVIST,
+                status = TilsagnBesluttelseStatus.AVVIST,
+                aarsaker = listOf(AvvistTilsagnAarsak.FEIL_ANNET),
+                forklaring = "Forklaring",
             )
         }
 
