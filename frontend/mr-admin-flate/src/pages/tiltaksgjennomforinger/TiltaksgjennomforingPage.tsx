@@ -21,6 +21,7 @@ import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 function createBrodsmuler(
   tiltaksgjennomforingId: string,
   avtaleId?: string,
+  tilsagn?: boolean,
 ): Array<Brodsmule | undefined> {
   return [
     { tittel: "Forside", lenke: "/" },
@@ -34,10 +35,14 @@ function createBrodsmuler(
           lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
         }
       : undefined,
+
     {
       tittel: "Tiltaksgjennomføringdetaljer",
       lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}`,
     },
+    tilsagn
+      ? { tittel: "Tilsagn", lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn` }
+      : undefined,
   ];
 }
 
@@ -75,7 +80,11 @@ export function TiltaksgjennomforingPage() {
     }
   };
 
-  const brodsmuler = createBrodsmuler(tiltaksgjennomforing.id, avtaleId);
+  const brodsmuler = createBrodsmuler(
+    tiltaksgjennomforing.id,
+    avtaleId,
+    currentTab() === "tilsagn",
+  );
 
   return (
     <main>

@@ -9,7 +9,9 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
-import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnBesluttelse
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.AvvistTilsagnAarsak
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.BesluttTilsagnRequest
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnBesluttelseStatus
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.model.ArrangorflateTilsagn
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.model.TilsagnDto
 import no.nav.mulighetsrommet.database.Database
@@ -163,7 +165,7 @@ class TilsagnRepository(private val db: Database) {
 
     fun setBesluttelse(
         id: UUID,
-        besluttelse: TilsagnBesluttelse,
+        besluttelse: BesluttTilsagnRequest,
         navIdent: NavIdent,
         tidspunkt: LocalDateTime,
     ): Int = db.transaction { tx ->
@@ -178,7 +180,7 @@ class TilsagnRepository(private val db: Database) {
 
     fun setBesluttelse(
         id: UUID,
-        besluttelse: TilsagnBesluttelse,
+        besluttelse: BesluttTilsagnRequest,
         navIdent: NavIdent,
         tidspunkt: LocalDateTime,
         tx: Session,
@@ -188,18 +190,27 @@ class TilsagnRepository(private val db: Database) {
             update tilsagn set
                 besluttelse = :besluttelse::tilsagn_besluttelse,
                 besluttet_av = :nav_ident,
-                besluttet_tidspunkt = :tidspunkt
+                besluttet_tidspunkt = :tidspunkt,
+                avvist_aarsaker = :avvist_aarsak::avvist_aarsak_type[],
+                avvist_forklaring = :avvist_forklaring
             where id = :id::uuid
         """.trimIndent()
+
+        val (aarsak, forklaring) = when (besluttelse) {
+            is BesluttTilsagnRequest.GodkjentTilsagnRequest -> null to null
+            is BesluttTilsagnRequest.AvvistTilsagnRequest -> besluttelse.aarsaker to besluttelse.forklaring
+        }
 
         return tx.run(
             queryOf(
                 query,
                 mapOf(
                     "id" to id,
-                    "besluttelse" to besluttelse.name,
+                    "besluttelse" to besluttelse.besluttelse.name,
                     "nav_ident" to navIdent.value,
                     "tidspunkt" to tidspunkt,
+                    "avvist_aarsak" to aarsak?.map { it.name }?.let { db.createTextArray(it) },
+                    "avvist_forklaring" to forklaring,
                 ),
             ).asUpdate,
         )
@@ -220,6 +231,11 @@ class TilsagnRepository(private val db: Database) {
     )
 
     private fun Row.toTilsagnDto(): TilsagnDto {
+        val avvisteAarsaker =
+            arrayOrNull<String>("avvist_aarsaker")?.toList()?.map { AvvistTilsagnAarsak.valueOf(it) }
+        val avvistForklaring = stringOrNull("avvist_forklaring")
+        val besluttelse = stringOrNull("besluttelse")
+
         return TilsagnDto(
             id = uuid("id"),
             tiltaksgjennomforing = TilsagnDto.Tiltaksgjennomforing(
@@ -229,10 +245,12 @@ class TilsagnRepository(private val db: Database) {
             periodeSlutt = localDate("periode_slutt"),
             periodeStart = localDate("periode_start"),
             opprettetAv = NavIdent(string("opprettet_av")),
-            besluttelse = stringOrNull("besluttelse")?.let {
+            besluttelse = besluttelse?.let {
                 TilsagnDto.Besluttelse(
                     navIdent = NavIdent(string("besluttet_av")),
-                    utfall = TilsagnBesluttelse.valueOf(it),
+                    status = TilsagnBesluttelseStatus.valueOf(besluttelse),
+                    aarsaker = avvisteAarsaker,
+                    forklaring = avvistForklaring,
                     tidspunkt = localDateTime("besluttet_tidspunkt"),
                 )
             },

@@ -80,26 +80,34 @@ class TilsagnRepositoryTest : FunSpec({
         test("besluttelse set and get") {
             repository.upsert(tilsagn)
             repository.setBesluttelse(
-                tilsagn.id,
-                TilsagnBesluttelse.AVVIST,
-                NavIdent("Z123456"),
-                LocalDateTime.of(2023, 2, 2, 0, 0, 0),
+                id = tilsagn.id,
+                besluttelse = BesluttTilsagnRequest.AvvistTilsagnRequest(
+                    aarsaker = listOf(AvvistTilsagnAarsak.FEIL_ANNET),
+                    forklaring = "Forklaring",
+                ),
+                navIdent = NavIdent("Z123456"),
+                tidspunkt = LocalDateTime.of(2023, 2, 2, 0, 0, 0),
             )
 
             repository.get(tilsagn.id)?.besluttelse shouldBe TilsagnDto.Besluttelse(
                 navIdent = NavIdent("Z123456"),
                 tidspunkt = LocalDateTime.of(2023, 2, 2, 0, 0, 0),
-                utfall = TilsagnBesluttelse.AVVIST,
+                status = TilsagnBesluttelseStatus.AVVIST,
+                aarsaker = listOf(AvvistTilsagnAarsak.FEIL_ANNET),
+                forklaring = "Forklaring",
             )
         }
 
         test("upsert nuller ut besluttelse") {
             repository.upsert(tilsagn)
             repository.setBesluttelse(
-                tilsagn.id,
-                TilsagnBesluttelse.AVVIST,
-                NavIdent("Z123456"),
-                LocalDateTime.of(2023, 2, 2, 0, 0, 0),
+                id = tilsagn.id,
+                besluttelse = BesluttTilsagnRequest.AvvistTilsagnRequest(
+                    aarsaker = listOf(AvvistTilsagnAarsak.FEIL_ANNET),
+                    forklaring = "Forklaring",
+                ),
+                navIdent = NavIdent("Z123456"),
+                tidspunkt = LocalDateTime.of(2023, 2, 2, 0, 0, 0),
             )
             repository.upsert(tilsagn)
             repository.get(tilsagn.id)?.besluttelse shouldBe null
@@ -107,7 +115,12 @@ class TilsagnRepositoryTest : FunSpec({
 
         test("get by arrangor_ids") {
             repository.upsert(tilsagn)
-            repository.setBesluttelse(tilsagn.id, TilsagnBesluttelse.GODKJENT, NavIdent("Z123456"), LocalDateTime.now())
+            repository.setBesluttelse(
+                id = tilsagn.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = NavIdent("Z123456"),
+                tidspunkt = LocalDateTime.now(),
+            )
             repository.getAllArrangorflateTilsagn(domain.arrangorer.find { it.id == tilsagn.arrangorId }?.organisasjonsnummer!!) shouldBe listOf(
                 ArrangorflateTilsagn(
                     id = tilsagn.id,
@@ -132,7 +145,12 @@ class TilsagnRepositoryTest : FunSpec({
 
         test("get til refusjon") {
             repository.upsert(tilsagn)
-            repository.setBesluttelse(tilsagn.id, TilsagnBesluttelse.GODKJENT, NavIdent("Z123456"), LocalDateTime.now())
+            repository.setBesluttelse(
+                id = tilsagn.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = NavIdent("Z123456"),
+                tidspunkt = LocalDateTime.now(),
+            )
             repository.getArrangorflateTilsagnTilRefusjon(
                 tilsagn.tiltaksgjennomforingId,
                 LocalDate.of(2023, 1, 14),

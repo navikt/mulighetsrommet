@@ -5,7 +5,8 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
@@ -61,7 +62,11 @@ class TilsagnServiceTest : FunSpec({
         test("kan ikke beslutte egne") {
             service.upsert(tilsagn, NavAnsattFixture.ansatt1.navIdent).shouldBeRight()
 
-            service.beslutt(tilsagn.id, TilsagnBesluttelse.GODKJENT, NavAnsattFixture.ansatt1.navIdent) shouldBe
+            service.beslutt(
+                id = tilsagn.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = NavAnsattFixture.ansatt1.navIdent,
+            ) shouldBe
                 Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
@@ -70,16 +75,28 @@ class TilsagnServiceTest : FunSpec({
 
             service.annuller(tilsagn.id).shouldBeRight()
 
-            service.beslutt(tilsagn.id, TilsagnBesluttelse.GODKJENT, NavAnsattFixture.ansatt2.navIdent) shouldBe
+            service.beslutt(
+                id = tilsagn.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
+            ) shouldBe
                 BadRequest("Tilsagn er annullert").left()
         }
 
         test("kan ikke beslutte to ganger") {
             service.upsert(tilsagn, NavAnsattFixture.ansatt1.navIdent).shouldBeRight()
 
-            service.beslutt(tilsagn.id, TilsagnBesluttelse.GODKJENT, NavAnsattFixture.ansatt2.navIdent).shouldBeRight()
+            service.beslutt(
+                id = tilsagn.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
+            ).shouldBeRight()
 
-            service.beslutt(tilsagn.id, TilsagnBesluttelse.GODKJENT, NavAnsattFixture.ansatt2.navIdent) shouldBe
+            service.beslutt(
+                id = tilsagn.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
+            ) shouldBe
                 BadRequest("Tilsagn allerede besluttet").left()
         }
     }

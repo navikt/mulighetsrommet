@@ -1,6 +1,6 @@
-import { Alert, BodyShort, Button, Heading, HStack, Tag } from "@navikt/ds-react";
-import { NavAnsattRolle, TilsagnBesluttelse, TilsagnDto } from "@mr/api-client";
-import { Link, useMatch, useNavigate, useParams } from "react-router-dom";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { useAnnullerTilsagn } from "@/api/tilsagn/useAnnullerTilsagn";
+import { useBesluttTilsagn } from "@/api/tilsagn/useBesluttTilsagn";
 import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Header } from "@/components/detaljside/Header";
@@ -9,17 +9,24 @@ import { TiltaksgjennomforingIkon } from "@/components/ikoner/Tiltaksgjennomfori
 import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
-import { formaterDato } from "@/utils/Utils";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { DetaljerContainer } from "@/pages/DetaljerContainer";
 import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
-import { useGetTilsagnById } from "./useGetTilsagnById";
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { formaterDato } from "@/utils/Utils";
+import {
+  BesluttTilsagnRequest,
+  NavAnsattRolle,
+  TilsagnBesluttelseStatus,
+  TilsagnDto,
+} from "@mr/api-client";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
-import { useRef } from "react";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { TrashFillIcon } from "@navikt/aksel-icons";
-import { useAnnullerTilsagn } from "@/api/tilsagn/useAnnullerTilsagn";
-import { useBesluttTilsagn } from "@/api/tilsagn/useBesluttTilsagn";
+import { Alert, BodyShort, Button, Heading, HStack, Tag } from "@navikt/ds-react";
+import { useRef, useState } from "react";
+import { Link, useMatch, useNavigate, useParams } from "react-router-dom";
+import { AvvistDetaljer } from "./AvvistDetaljer";
+import { AvvisTilsagnModal } from "./AvvisTilsagnModal";
+import { useGetTilsagnById } from "./useGetTilsagnById";
 
 export function TilsagnDetaljer() {
   const { avtaleId, tiltaksgjennomforingId } = useParams();
@@ -30,6 +37,7 @@ export function TilsagnDetaljer() {
   const { data: ansatt } = useHentAnsatt();
   const navigate = useNavigate();
   const annullerModalRef = useRef<HTMLDialogElement>(null);
+  const [avvisModalOpen, setAvvisModalOpen] = useState(false);
 
   const erPaaGjennomforingerForAvtale = useMatch(
     "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
@@ -66,13 +74,13 @@ export function TilsagnDetaljer() {
     navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn`);
   }
 
-  function besluttTilsagn(besluttelse: TilsagnBesluttelse) {
+  function besluttTilsagn(request: BesluttTilsagnRequest) {
     if (tilsagn) {
       besluttMutation.mutate(
         {
           id: tilsagn.id,
           requestBody: {
-            besluttelse,
+            ...request,
           },
         },
         {
@@ -143,8 +151,10 @@ export function TilsagnDetaljer() {
             <HStack gap="2" justify={"space-between"}>
               {visBesluttKnapp ? (
                 <GodkjennAvvisTilsagnButtons
-                  onGodkjennTilsagn={() => besluttTilsagn(TilsagnBesluttelse.GODKJENT)}
-                  onAvvisTilsagn={() => besluttTilsagn(TilsagnBesluttelse.AVVIST)}
+                  onGodkjennTilsagn={() =>
+                    besluttTilsagn({ besluttelse: TilsagnBesluttelseStatus.GODKJENT })
+                  }
+                  onAvvisTilsagn={() => setAvvisModalOpen(true)}
                 />
               ) : (
                 <div></div>
@@ -173,7 +183,13 @@ export function TilsagnDetaljer() {
               secondaryButton
               secondaryButtonHandleAction={() => annullerModalRef.current?.close()}
             />
+            <AvvisTilsagnModal
+              open={avvisModalOpen}
+              onClose={() => setAvvisModalOpen(false)}
+              onConfirm={(validatedData) => besluttTilsagn(validatedData)}
+            />
           </DetaljerInfoContainer>
+          <AvvistDetaljer tilsagn={tilsagn} />
         </DetaljerContainer>
       </ContainerLayout>
     </main>
@@ -204,16 +220,16 @@ function GodkjennAvvisTilsagnButtons({
 function TilsagnTag(props: { tilsagn: TilsagnDto }) {
   const { tilsagn } = props;
 
-  if (tilsagn?.besluttelse?.utfall === TilsagnBesluttelse.GODKJENT) {
+  if (tilsagn?.besluttelse?.status === TilsagnBesluttelseStatus.GODKJENT) {
     return (
       <Tag variant="success" size="small">
         Godkjent
       </Tag>
     );
-  } else if (tilsagn?.besluttelse?.utfall === TilsagnBesluttelse.AVVIST) {
+  } else if (tilsagn?.besluttelse?.status === TilsagnBesluttelseStatus.AVVIST) {
     return (
       <Tag variant="warning" size="small">
-        Avvist
+        Returnert
       </Tag>
     );
   } else if (tilsagn?.annullertTidspunkt) {

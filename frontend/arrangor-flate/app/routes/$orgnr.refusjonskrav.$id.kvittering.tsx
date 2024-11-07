@@ -26,13 +26,14 @@ export const loader: LoaderFunction = async ({
 }): Promise<RefusjonskavKvitteringData> => {
   await checkValidToken(request);
 
-  if (params.id === undefined) {
+  const { id } = params;
+  if (!id) {
     throw Error("Mangler id");
   }
 
   const [krav, tilsagn] = await Promise.all([
-    loadRefusjonskrav(params.id),
-    ArrangorflateService.getArrangorflateTilsagnTilRefusjon({ id: params.id }),
+    loadRefusjonskrav(id),
+    ArrangorflateService.getArrangorflateTilsagnTilRefusjon({ id }),
   ]);
 
   return { krav, tilsagn };

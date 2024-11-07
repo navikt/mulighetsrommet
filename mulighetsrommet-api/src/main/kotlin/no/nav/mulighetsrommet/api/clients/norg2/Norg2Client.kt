@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
 class Norg2Client(
-    clientEngine: HttpClientEngine = CIO.create(),
+    clientEngine: HttpClientEngine,
     private val baseUrl: String,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)

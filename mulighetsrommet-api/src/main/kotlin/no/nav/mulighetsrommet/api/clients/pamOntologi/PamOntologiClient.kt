@@ -18,7 +18,7 @@ import java.net.URLEncoder
 class PamOntologiClient(
     private val baseUrl: String,
     private val tokenProvider: TokenProvider,
-    clientEngine: HttpClientEngine = CIO.create(),
+    clientEngine: HttpClientEngine,
 ) {
     private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)

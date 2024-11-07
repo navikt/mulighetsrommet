@@ -28,7 +28,7 @@ object OrgnummerUtil {
 
 class BrregClient(
     private val baseUrl: String,
-    clientEngine: HttpClientEngine = CIO.create(),
+    clientEngine: HttpClientEngine,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 

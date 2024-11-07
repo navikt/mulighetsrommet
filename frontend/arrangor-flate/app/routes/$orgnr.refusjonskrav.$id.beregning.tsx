@@ -1,8 +1,8 @@
 import { RefusjonKravDeltakelsePerson } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Button, HGrid, SortState, Table } from "@navikt/ds-react";
+import { Button, GuidePanel, HGrid, SortState, Table } from "@navikt/ds-react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import { checkValidToken } from "~/auth/auth.server";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
@@ -25,9 +25,12 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
   await checkValidToken(request);
 
-  if (params.id === undefined) throw Error("Mangler id");
+  const { id } = params;
+  if (!id) {
+    throw Error("Mangler id");
+  }
 
-  const krav = await loadRefusjonskrav(params.id);
+  const krav = await loadRefusjonskrav(id);
 
   return { krav };
 };
@@ -80,6 +83,10 @@ export default function RefusjonskravBeregning() {
       />
       <HGrid gap="5" columns={1}>
         <GenerelleDetaljer className="max-w-[50%]" krav={krav} />
+        <GuidePanel>
+          Hvis noen av opplysningene om deltakerne ikke stemmer, må det sendes forslag til Nav om
+          endring via <Link to={deltakerOversiktLenke()}>Deltakeroversikten</Link>.
+        </GuidePanel>
         <Table sort={sort} onSortChange={(sortKey) => handleSort(sortKey)} zebraStripes>
           <Table.Header>
             <Table.Row>
@@ -108,7 +115,7 @@ export default function RefusjonskravBeregning() {
               const fodselsdato = getFormattedFodselsdato(person);
               return (
                 <Table.ExpandableRow key={id} content={null} togglePlacement="right">
-                  <Table.DataCell className="font-bold">{person.navn}</Table.DataCell>
+                  <Table.DataCell className="font-bold">{person?.navn}</Table.DataCell>
                   <Table.DataCell className="w-52">{fodselsdato}</Table.DataCell>
                   <Table.DataCell>
                     {deltaker.startDatoTiltaket && formaterDato(deltaker.startDatoTiltaket)}
@@ -168,10 +175,19 @@ function getDeltakerSelector(sortKey: DeltakerSortKey): SortBySelector<Deltaker>
   }
 }
 
-function getFormattedFodselsdato(person: RefusjonKravDeltakelsePerson) {
-  return person.foedselsdato
-    ? formaterDato(person.foedselsdato)
-    : person.fodselsaar
+function getFormattedFodselsdato(person?: RefusjonKravDeltakelsePerson) {
+  return person?.foedselsdato
+    ? formaterDato(person?.foedselsdato)
+    : person?.fodselsaar
       ? `Fødselsår: ${person.fodselsaar}`
       : null;
+}
+
+function deltakerOversiktLenke(): string {
+  const url = window.location.href;
+  if (url.includes("intern.dev.nav.no")) {
+    return "https://amt.intern.dev.nav.no/deltakeroversikt";
+  }
+
+  return "https://nav.no/deltakeroversikt";
 }

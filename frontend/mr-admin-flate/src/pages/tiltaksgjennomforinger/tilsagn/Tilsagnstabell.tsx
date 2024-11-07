@@ -1,5 +1,5 @@
 import { formaterDato } from "@/utils/Utils";
-import { TilsagnBesluttelse, TilsagnDto } from "@mr/api-client";
+import { TilsagnBesluttelseStatus, TilsagnDto } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { HelpText, HStack, SortState, Table, Tag } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
@@ -51,13 +51,15 @@ export function Tilsagnstabell({ tilsagn }: Props) {
         <>
           <Tag
             variant={
-              tilsagn.besluttelse.utfall === TilsagnBesluttelse.GODKJENT ? "success" : "warning"
+              tilsagn.besluttelse.status === TilsagnBesluttelseStatus.GODKJENT
+                ? "success"
+                : "warning"
             }
           >
             <HStack justify={"space-between"} gap="2" align={"center"}>
-              {besluttelseTilTekst(tilsagn.besluttelse.utfall)}{" "}
+              {besluttelseTilTekst(tilsagn.besluttelse.status)}{" "}
               <HelpText>
-                {besluttelseTilTekst(tilsagn.besluttelse.utfall)} den{" "}
+                {besluttelseTilTekst(tilsagn.besluttelse.status)} den{" "}
                 {formaterDato(tilsagn.besluttelse.tidspunkt)} av {tilsagn.besluttelse.navIdent}
               </HelpText>
             </HStack>
@@ -134,6 +136,6 @@ export function Tilsagnstabell({ tilsagn }: Props) {
   );
 }
 
-function besluttelseTilTekst(besluttelse: TilsagnBesluttelse): "Godkjent" | "Avvist" {
-  return besluttelse === "GODKJENT" ? "Godkjent" : "Avvist";
+function besluttelseTilTekst(besluttelse: TilsagnBesluttelseStatus): "Godkjent" | "Returnert" {
+  return besluttelse === "GODKJENT" ? "Godkjent" : "Returnert";
 }

@@ -68,7 +68,7 @@ class TilsagnService(
         )
     }
 
-    suspend fun beslutt(id: UUID, besluttelse: TilsagnBesluttelse, navIdent: NavIdent): StatusResponse<Unit> {
+    suspend fun beslutt(id: UUID, besluttelse: BesluttTilsagnRequest, navIdent: NavIdent): StatusResponse<Unit> {
         val tilsagn = tilsagnRepository.get(id)
             ?: return NotFound("Fant ikke tilsagn").left()
 
@@ -84,10 +84,21 @@ class TilsagnService(
             return BadRequest("Tilsagn er annullert").left()
         }
 
+        when (besluttelse) {
+            is BesluttTilsagnRequest.GodkjentTilsagnRequest -> Unit
+            is BesluttTilsagnRequest.AvvistTilsagnRequest -> {
+                if (besluttelse.aarsaker.contains(AvvistTilsagnAarsak.FEIL_ANNET) && besluttelse.forklaring.isNullOrBlank()) {
+                    return BadRequest("Forklaring må oppgis når årsak er 'Annet' ved avvist tilsagn").left()
+                }
+            }
+        }
+
         return db.transactionSuspend { tx ->
             tilsagnRepository.setBesluttelse(tilsagn.id, besluttelse, navIdent, LocalDateTime.now(), tx)
-            if (besluttelse == TilsagnBesluttelse.GODKJENT) {
-                lagOgSendBestilling(tilsagn)
+
+            when (besluttelse) {
+                is BesluttTilsagnRequest.GodkjentTilsagnRequest -> lagOgSendBestilling(tilsagn)
+                is BesluttTilsagnRequest.AvvistTilsagnRequest -> Unit
             }
         }.right()
     }
@@ -98,7 +109,8 @@ class TilsagnService(
 
         return db.transactionSuspend { tx ->
             tilsagnRepository.setAnnullertTidspunkt(id, LocalDateTime.now(), tx)
-            if (dto.besluttelse?.utfall == TilsagnBesluttelse.GODKJENT) {
+
+            if (dto.besluttelse?.status == TilsagnBesluttelseStatus.GODKJENT) {
                 OkonomiClient.annullerOrder(lagOkonomiId(dto))
             }
         }.right()

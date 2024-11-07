@@ -5,8 +5,10 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
@@ -67,7 +69,7 @@ fun Route.tilsagnRoutes() {
                 val request = call.receive<BesluttTilsagnRequest>()
                 val navIdent = getNavIdent()
 
-                call.respondWithStatusResponse(service.beslutt(id, request.besluttelse, navIdent))
+                call.respondWithStatusResponse(service.beslutt(id, request, navIdent))
             }
         }
 
@@ -124,14 +126,42 @@ data class TilsagnRequest(
     )
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class BesluttTilsagnRequest(
-    val besluttelse: TilsagnBesluttelse,
-)
+@JsonClassDiscriminator("besluttelse")
+sealed class BesluttTilsagnRequest(
+    val besluttelse: TilsagnBesluttelseStatus,
+) {
 
-enum class TilsagnBesluttelse {
+    @Serializable
+    @SerialName("GODKJENT")
+    data object GodkjentTilsagnRequest : BesluttTilsagnRequest(
+        besluttelse = TilsagnBesluttelseStatus.GODKJENT,
+    )
+
+    @Serializable
+    @SerialName("AVVIST")
+    data class AvvistTilsagnRequest(
+        val aarsaker: List<AvvistTilsagnAarsak>,
+        val forklaring: String?,
+    ) : BesluttTilsagnRequest(
+        besluttelse = TilsagnBesluttelseStatus.AVVIST,
+    )
+}
+
+@Serializable
+enum class TilsagnBesluttelseStatus {
     GODKJENT,
     AVVIST,
+}
+
+@Serializable
+enum class AvvistTilsagnAarsak {
+    FEIL_ANTALL_PLASSER,
+    FEIL_KOSTNADSSTED,
+    FEIL_PERIODE,
+    FEIL_BELOP,
+    FEIL_ANNET,
 }
 
 @Serializable
