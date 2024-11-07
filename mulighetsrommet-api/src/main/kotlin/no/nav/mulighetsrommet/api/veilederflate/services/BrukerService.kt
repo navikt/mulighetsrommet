@@ -144,10 +144,10 @@ class BrukerService(
         val erSykmeldtMedArbeidsgiver = deferredErSykmeldtMedArbeidsgiver.await()
             .getOrElse {
                 when (it) {
-                    OppfolgingstilfelleError.Forbidden -> throw StatusException(
-                        HttpStatusCode.InternalServerError,
-                        "Mangler SYFO rolle for å hente oppfølgingstilfeller.",
-                    )
+                    OppfolgingstilfelleError.Forbidden -> {
+                        log.warn("Mangler SYFO rolle for å hente oppfølgingstilfeller.")
+                        false
+                    }
                     OppfolgingstilfelleError.Error -> throw StatusException(
                         HttpStatusCode.InternalServerError,
                         "Klarte ikke hente oppfølgingstilfeller.",
