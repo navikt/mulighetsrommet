@@ -68,8 +68,8 @@ object Prismodell {
             val totalDuration = Duration.between(periodeStart, periodeSlutt).toSeconds().toBigDecimal()
 
             val manedsverk = deltakelser
-                .map { deltkelse ->
-                    val perioder = deltkelse.perioder.map { periode ->
+                .map { deltakelse ->
+                    val perioder = deltakelse.perioder.map { periode ->
                         val start = maxOf(periodeStart, periode.start)
                         val slutt = minOf(periodeSlutt, periode.slutt)
                         val overlapDuration = Duration.between(start, slutt)
@@ -90,7 +90,7 @@ object Prismodell {
                     }
 
                     DeltakelseManedsverk(
-                        deltakelseId = deltkelse.deltakelseId,
+                        deltakelseId = deltakelse.deltakelseId,
                         manedsverk = perioder.sumOf { it }.toDouble(),
                     )
                 }

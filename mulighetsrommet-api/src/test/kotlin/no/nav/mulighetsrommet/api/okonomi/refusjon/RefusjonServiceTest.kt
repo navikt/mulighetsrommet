@@ -13,7 +13,10 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.okonomi.refusjon.db.RefusjonskravDbo
 import no.nav.mulighetsrommet.api.okonomi.refusjon.db.RefusjonskravRepository
-import no.nav.mulighetsrommet.api.okonomi.refusjon.model.*
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.DeltakelseManedsverk
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.DeltakelsePerioder
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -68,10 +71,10 @@ class RefusjonServiceTest : FunSpec({
 
             val krav = allKrav.first()
             krav.gjennomforing.id shouldBe AFT1.id
-            krav.fristForGodkjenning shouldBe LocalDateTime.of(2024, 4, 1, 0, 0, 0)
+            krav.fristForGodkjenning shouldBe LocalDateTime.of(2024, 3, 31, 0, 0, 0)
             krav.beregning.input shouldBe RefusjonKravBeregningAft.Input(
                 periodeStart = LocalDate.of(2024, 1, 1).atStartOfDay(),
-                periodeSlutt = LocalDate.of(2024, 2, 1).atStartOfDay(),
+                periodeSlutt = LocalDate.of(2024, 1, 31).atStartOfDay(),
                 sats = 20205,
                 deltakelser = setOf(),
             )
@@ -136,7 +139,7 @@ class RefusjonServiceTest : FunSpec({
                         perioder = listOf(
                             DeltakelsePeriode(
                                 start = LocalDate.of(2024, 1, 1).atStartOfDay(),
-                                slutt = LocalDate.of(2024, 2, 1).atStartOfDay(),
+                                slutt = LocalDate.of(2024, 1, 31).atStartOfDay(),
                                 stillingsprosent = 100.0,
                             ),
                         ),
@@ -156,7 +159,7 @@ class RefusjonServiceTest : FunSpec({
                         perioder = listOf(
                             DeltakelsePeriode(
                                 start = LocalDate.of(2024, 1, 1).atStartOfDay(),
-                                slutt = LocalDate.of(2024, 2, 1).atStartOfDay(),
+                                slutt = LocalDate.of(2024, 1, 31).atStartOfDay(),
                                 stillingsprosent = 50.0,
                             ),
                         ),

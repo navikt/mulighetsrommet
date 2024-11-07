@@ -3,7 +3,10 @@ package no.nav.mulighetsrommet.api.okonomi.refusjon
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.api.okonomi.refusjon.db.RefusjonskravDbo
 import no.nav.mulighetsrommet.api.okonomi.refusjon.db.RefusjonskravRepository
-import no.nav.mulighetsrommet.api.okonomi.refusjon.model.*
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.DeltakelsePerioder
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonKravBeregningAft
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonskravStatus
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.Database
@@ -23,7 +26,7 @@ class RefusjonService(
 
     fun genererRefusjonskravForMonth(dayInMonth: LocalDate) {
         val periodeStart = dayInMonth.with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay()
-        val periodeSlutt = periodeStart.with(TemporalAdjusters.lastDayOfMonth()).plusDays(1)
+        val periodeSlutt = periodeStart.with(TemporalAdjusters.lastDayOfMonth())
 
         tiltaksgjennomforingRepository
             .getGjennomforesInPeriodeUtenRefusjonskrav(periodeStart, periodeSlutt)
