@@ -25,7 +25,7 @@ data class SanityTiltakstype(
     val _id: String,
     val tiltakstypeNavn: String,
     val beskrivelse: String? = null,
-    val innsatsgrupper: Set<Innsatsgruppe>? = null,
+    val innsatsgrupper: Set<Innsatsgruppe>,
     val regelverkLenker: List<RegelverkLenke>? = null,
     val faneinnhold: Faneinnhold? = null,
     val delingMedBruker: String? = null,

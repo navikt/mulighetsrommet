@@ -45,6 +45,7 @@ class VeilederflateServiceTest : FunSpec({
         tiltakstyper = listOf(
             TiltakstypeFixtures.EnkelAmo,
             TiltakstypeFixtures.Arbeidstrening,
+            TiltakstypeFixtures.ArbeidsrettetRehabilitering,
         ),
         avtaler = emptyList(),
         gjennomforinger = emptyList(),
@@ -52,6 +53,7 @@ class VeilederflateServiceTest : FunSpec({
 
     val enkelAmoSanityId = UUID.randomUUID()
     val arbeidstreningSanityId = UUID.randomUUID()
+    val arbeidsrettetRehabiliteringSanityId = UUID.randomUUID()
 
     beforeEach {
         domain.initialize(database.db)
@@ -59,6 +61,7 @@ class VeilederflateServiceTest : FunSpec({
         listOf(
             Query("update tiltakstype set sanity_id = '$enkelAmoSanityId' where id = '${TiltakstypeFixtures.EnkelAmo.id}'"),
             Query("update tiltakstype set sanity_id = '$arbeidstreningSanityId' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'"),
+            Query("update tiltakstype set sanity_id = '$arbeidsrettetRehabiliteringSanityId' where id = '${TiltakstypeFixtures.ArbeidsrettetRehabilitering.id}'"),
         ).forEach {
             database.db.run(it.asExecute)
         }
@@ -157,6 +160,7 @@ class VeilederflateServiceTest : FunSpec({
             apentForInnsok = ApentForInnsok.APENT,
             innsatsgruppe = Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
             cacheUsage = CacheUsage.NoCache,
+            erSykmeldtMedArbeidsgiver = false,
         )
 
         tiltak shouldHaveSize 1
@@ -181,6 +185,7 @@ class VeilederflateServiceTest : FunSpec({
             apentForInnsok = ApentForInnsok.APENT,
             innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             cacheUsage = CacheUsage.NoCache,
+            erSykmeldtMedArbeidsgiver = false,
         ) shouldHaveSize 2
 
         veilederFlateService.hentTiltaksgjennomforinger(
@@ -188,6 +193,7 @@ class VeilederflateServiceTest : FunSpec({
             apentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
             innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             cacheUsage = CacheUsage.NoCache,
+            erSykmeldtMedArbeidsgiver = false,
         ) shouldHaveSize 2
 
         veilederFlateService.hentTiltaksgjennomforinger(
@@ -195,6 +201,7 @@ class VeilederflateServiceTest : FunSpec({
             apentForInnsok = ApentForInnsok.STENGT,
             innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             cacheUsage = CacheUsage.NoCache,
+            erSykmeldtMedArbeidsgiver = false,
         ) shouldHaveSize 0
     }
 })

@@ -1,0 +1,15 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/isoppfolgingstilfelle/api/system/v1/oppfolgingstilfelle/personident"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "oppfolgingstilfelleList": []
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

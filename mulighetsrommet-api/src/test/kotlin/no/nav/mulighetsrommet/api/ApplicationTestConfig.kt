@@ -110,6 +110,10 @@ fun createTestApplicationConfig() = AppConfig(
         scope = "default",
         apiKey = "apiKey",
     ),
+    isoppfolgingstilfelleConfig = ServiceClientConfig(
+        url = "isoppfolgingstilfelleConfig",
+        scope = "default",
+    ),
 )
 
 fun createKafkaConfig(): KafkaConfig = KafkaConfig(

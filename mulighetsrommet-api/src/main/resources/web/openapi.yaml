@@ -814,6 +814,7 @@ paths:
         - $ref: "#/components/parameters/InnsatsgruppeParam"
         - $ref: "#/components/parameters/EnheterParam"
         - $ref: "#/components/parameters/TiltakstyperParam"
+        - $ref: "#/components/parameters/ErSykmeldtMedArbeidsgiverParam"
       responses:
         200:
           description: Hent tiltaksgjennomføringer
@@ -1973,6 +1974,12 @@ components:
       schema:
         $ref: "#/components/schemas/Innsatsgruppe"
 
+    ErSykmeldtMedArbeidsgiverParam:
+      in: query
+      name: erSykmeldtMedArbeidsgiver
+      schema:
+        type: boolean
+
     TiltakstyperParam:
       in: query
       name: tiltakstyper
@@ -2783,6 +2790,8 @@ components:
       properties:
         fnr:
           type: string
+        erSykmeldtMedArbeidsgiver:
+          type: boolean
         innsatsgruppe:
           $ref: "#/components/schemas/Innsatsgruppe"
         enheter:
@@ -2800,6 +2809,7 @@ components:
           items:
             $ref: "#/components/schemas/BrukerVarsel"
       required:
+        - erSykmeldtMedArbeidsgiver
         - manuellStatus
         - fnr
         - enheter

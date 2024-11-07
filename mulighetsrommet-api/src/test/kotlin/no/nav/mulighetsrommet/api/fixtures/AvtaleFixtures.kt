@@ -279,4 +279,31 @@ object AvtaleFixtures {
         ),
         utdanningslop = null,
     )
+
+    val ArbeidsrettetRehabilitering = AvtaleDbo(
+        id = UUID.randomUUID(),
+        navn = "ARR avtale",
+        avtalenummer = "2023#13",
+        websaknummer = Websaknummer("24/3234"),
+        tiltakstypeId = TiltakstypeFixtures.ArbeidsrettetRehabilitering.id,
+        arrangorId = ArrangorFixtures.hovedenhet.id,
+        arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
+        arrangorKontaktpersoner = emptyList(),
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.now().plusMonths(3),
+        avtaletype = Avtaletype.Rammeavtale,
+        prisbetingelser = "Alt er dyrt",
+        administratorer = listOf(NavIdent("DD1")),
+        navEnheter = listOf("0400", "0502"),
+        antallPlasser = null,
+        beskrivelse = null,
+        faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
+        amoKategorisering = null,
+        opsjonMaksVarighet = LocalDate.now().plusYears(3),
+        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        customOpsjonsmodellNavn = null,
+        utdanningslop = null,
+    )
 }

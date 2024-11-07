@@ -29,6 +29,7 @@ export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
             }
           : undefined,
         navEnheter: brukerdata.enheter,
+        erSykmeldtMedArbeidsgiver: brukerdata.erSykmeldtMedArbeidsgiver,
       });
     }
   }, [
@@ -38,5 +39,6 @@ export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
     filter,
     brukersInnsatsgruppe,
     brukerdata.enheter,
+    brukerdata.erSykmeldtMedArbeidsgiver,
   ]);
 }

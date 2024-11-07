@@ -104,6 +104,10 @@ app:
     url: http://localhost:8090/poao-tilgang
     scope: default
 
+  isoppfolgingstilfelleConfig:
+    url: http://localhost:8090/isoppfolgingstilfelle
+    scope: default
+
   msGraphConfig:
     url: http://localhost:8090/ms-graph
     scope: default
