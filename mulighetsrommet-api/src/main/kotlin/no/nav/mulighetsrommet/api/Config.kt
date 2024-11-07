@@ -38,6 +38,7 @@ data class AppConfig(
     val arenaAdapter: ServiceClientConfig,
     val tiltakshistorikk: ServiceClientConfig,
     val msGraphConfig: ServiceClientConfig,
+    val isoppfolgingstilfelleConfig: ServiceClientConfig,
     val norg2: Norg2Config,
     val tasks: TaskConfig,
     val slack: SlackConfig,

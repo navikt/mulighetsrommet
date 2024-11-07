@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
 import java.time.LocalDate
@@ -142,6 +143,7 @@ class DelMedBrukerServiceTest : FunSpec({
                     tiltakstype = SanityTiltakstype(
                         _id = "$enkeltAmoSanityId",
                         tiltakstypeNavn = "Arbeidsmarkedsopplæring (AMO) enkeltplass",
+                        innsatsgrupper = Innsatsgruppe.entries.toSet(),
                     ),
                 ),
                 SanityTiltaksgjennomforing(
@@ -150,6 +152,7 @@ class DelMedBrukerServiceTest : FunSpec({
                     tiltakstype = SanityTiltakstype(
                         _id = "$arbeidstreningSanityId",
                         tiltakstypeNavn = "Arbeidstrening",
+                        innsatsgrupper = Innsatsgruppe.entries.toSet(),
                     ),
                 ),
             )

@@ -74,6 +74,7 @@ class VeilederflateService(
         innsatsgruppe: Innsatsgruppe,
         apentForInnsok: ApentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
         search: String? = null,
+        erSykmeldtMedArbeidsgiver: Boolean,
         cacheUsage: CacheUsage,
     ): List<VeilederflateTiltak> = coroutineScope {
         val individuelleGjennomforinger = async {
@@ -81,7 +82,7 @@ class VeilederflateService(
         }
 
         val gruppeGjennomforinger = async {
-            hentGruppetiltak(enheter, tiltakstypeIds, innsatsgruppe, apentForInnsok, search)
+            hentGruppetiltak(enheter, tiltakstypeIds, innsatsgruppe, apentForInnsok, search, erSykmeldtMedArbeidsgiver)
         }
 
         (individuelleGjennomforinger.await() + gruppeGjennomforinger.await())
@@ -108,7 +109,7 @@ class VeilederflateService(
 
         return sanityGjennomforinger
             .filter { tiltakstypeIds.isNullOrEmpty() || tiltakstypeIds.contains(it.tiltakstype._id) }
-            .filter { it.tiltakstype.innsatsgrupper != null && it.tiltakstype.innsatsgrupper.contains(innsatsgruppe) }
+            .filter { it.tiltakstype.innsatsgrupper.contains(innsatsgruppe) }
             .map { toVeilederTiltaksgjennomforing(it) }
             .filter { gjennomforing ->
                 if (gjennomforing.enheter.isEmpty()) {
@@ -125,6 +126,7 @@ class VeilederflateService(
         innsatsgruppe: Innsatsgruppe,
         apentForInnsok: ApentForInnsok,
         search: String?,
+        erSykmeldtMedArbeidsgiver: Boolean,
     ): List<VeilederflateTiltak> {
         return veilederflateTiltakRepository.getAll(
             search = search,
@@ -136,6 +138,7 @@ class VeilederflateService(
                 ApentForInnsok.STENGT -> false
                 ApentForInnsok.APENT_ELLER_STENGT -> null
             },
+            erSykmeldtMedArbeidsgiver = erSykmeldtMedArbeidsgiver,
         )
     }
 

@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
+import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
@@ -266,7 +267,6 @@ private fun services(appConfig: AppConfig) = module {
             baseUrl = appConfig.norg2.baseUrl,
         )
     }
-
     single {
         SanityClient(
             config = appConfig.sanity,
@@ -302,6 +302,13 @@ private fun services(appConfig: AppConfig) = module {
             ) ?: M2MTokenProvider { "dummy" }, // TODO: Remove when prod
         )
     }
+    single {
+        IsoppfolgingstilfelleClient(
+            baseUrl = appConfig.isoppfolgingstilfelleConfig.url,
+            clientEngine = appConfig.engine,
+            tokenProvider = cachedTokenProvider.withScope(appConfig.isoppfolgingstilfelleConfig.scope),
+        )
+    }
     single { EndringshistorikkService(get()) }
     single {
         ArenaAdapterService(
@@ -328,7 +335,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { TiltakshistorikkService(get(), get(), get(), get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
-    single { BrukerService(get(), get(), get(), get(), get()) }
+    single { BrukerService(get(), get(), get(), get(), get(), get()) }
     single { NavAnsattService(appConfig.auth.roles, get(), get()) }
     single { NavAnsattSyncService(get(), get(), get(), get(), get(), get(), get()) }
     single { PoaoTilgangService(get()) }

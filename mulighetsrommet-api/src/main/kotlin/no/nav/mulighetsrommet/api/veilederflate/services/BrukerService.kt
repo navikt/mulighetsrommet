@@ -5,6 +5,8 @@ import io.ktor.http.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient
+import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.OppfolgingstilfelleError
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.norg2.NorgError
@@ -26,6 +28,7 @@ import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.tokenprovider.AccessType
+import org.slf4j.LoggerFactory
 
 class BrukerService(
     private val veilarboppfolgingClient: VeilarboppfolgingClient,
@@ -33,7 +36,10 @@ class BrukerService(
     private val navEnhetService: NavEnhetService,
     private val pdlClient: PdlClient,
     private val norg2Client: Norg2Client,
+    private val isoppfolgingstilfelleClient: IsoppfolgingstilfelleClient,
 ) {
+    private val log = LoggerFactory.getLogger(javaClass)
+
     suspend fun hentBrukerdata(fnr: NorskIdent, obo: AccessType.OBO): Brukerdata = coroutineScope {
         val deferredErUnderOppfolging = async { veilarboppfolgingClient.erBrukerUnderOppfolging(fnr, obo) }
         val deferredOppfolgingsenhet = async { veilarboppfolgingClient.hentOppfolgingsenhet(fnr, obo) }
@@ -41,6 +47,7 @@ class BrukerService(
         val deferredSisteVedtak = async { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, obo) }
         val deferredPdlPerson = async { pdlClient.hentPerson(PdlIdent(fnr.value), obo) }
         val deferredBrukersGeografiskeEnhet = async { hentBrukersGeografiskeEnhet(fnr, obo) }
+        val deferredErSykmeldtMedArbeidsgiver = async { isoppfolgingstilfelleClient.erSykmeldtMedArbeidsgiver(fnr, obo) }
 
         val erUnderOppfolging = deferredErUnderOppfolging.await()
             .getOrElse {
@@ -134,6 +141,20 @@ class BrukerService(
 
         val enheter = getRelevanteEnheterForBruker(brukersGeografiskeEnhet, brukersOppfolgingsenhet)
 
+        val erSykmeldtMedArbeidsgiver = deferredErSykmeldtMedArbeidsgiver.await()
+            .getOrElse {
+                when (it) {
+                    OppfolgingstilfelleError.Forbidden -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Mangler SYFO rolle for å hente oppfølgingstilfeller.",
+                    )
+                    OppfolgingstilfelleError.Error -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Klarte ikke hente oppfølgingstilfeller.",
+                    )
+                }
+            }
+
         Brukerdata(
             fnr = fnr,
             innsatsgruppe = sisteVedtak?.innsatsgruppe?.let { toInnsatsgruppe(it) },
@@ -141,6 +162,7 @@ class BrukerService(
             fornavn = pdlPerson.navn.firstOrNull()?.fornavn,
             manuellStatus = manuellStatus,
             erUnderOppfolging = erUnderOppfolging,
+            erSykmeldtMedArbeidsgiver = erSykmeldtMedArbeidsgiver,
             varsler = buildList {
                 if (oppfolgingsenhetLokalOgUlik(brukersGeografiskeEnhet, brukersOppfolgingsenhet)) {
                     add(BrukerVarsel.LOKAL_OPPFOLGINGSENHET)
@@ -199,6 +221,7 @@ class BrukerService(
         val fornavn: String?,
         val manuellStatus: ManuellStatusDto,
         val erUnderOppfolging: Boolean,
+        val erSykmeldtMedArbeidsgiver: Boolean,
         val varsler: List<BrukerVarsel>,
     )
 

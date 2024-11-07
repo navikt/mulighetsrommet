@@ -27,6 +27,7 @@ export const ArbeidsmarkedstiltakFilterSchema = z.object({
     })
     .array(),
   apentForInnsok: z.custom<ApentForInnsok>(),
+  erSykmeldtMedArbeidsgiver: z.boolean(),
 });
 
 export type ArbeidsmarkedstiltakFilter = z.infer<typeof ArbeidsmarkedstiltakFilterSchema>;
@@ -136,6 +137,7 @@ const defaultTiltaksgjennomforingfilter: ArbeidsmarkedstiltakFilter = {
   innsatsgruppe: undefined,
   tiltakstyper: [],
   apentForInnsok: ApentForInnsok.APENT_ELLER_STENGT,
+  erSykmeldtMedArbeidsgiver: false,
 };
 
 export const filterAtom = atomWithStorage<FilterMedBrukerIKontekst>(

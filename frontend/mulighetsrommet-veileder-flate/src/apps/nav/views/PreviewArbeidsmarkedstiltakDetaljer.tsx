@@ -36,6 +36,7 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
                   krrStatus: { kanVarsles: true, erReservert: false },
                 },
                 erUnderOppfolging: true,
+                erSykmeldtMedArbeidsgiver: false,
                 varsler: [],
                 enheter: [
                   {

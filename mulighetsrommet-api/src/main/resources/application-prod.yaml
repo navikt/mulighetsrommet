@@ -121,6 +121,10 @@ app:
     url: http://pam-ontologi.teampam
     scope: api://prod-gcp.teampam.pam-ontologi/.default
 
+  isoppfolgingstilfelleConfig:
+    url: http://isoppfolgingstilfelle.teamsykefravr
+    scope: api://prod-gcp.teamsykefravr.isoppfolgingstilfelle/.default
+
   norg2:
     baseUrl: http://norg2.org
 
