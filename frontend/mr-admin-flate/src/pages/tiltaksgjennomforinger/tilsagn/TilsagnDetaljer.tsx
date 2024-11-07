@@ -21,7 +21,7 @@ import {
 } from "@mr/api-client";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { ExclamationmarkTriangleFillIcon, TrashFillIcon } from "@navikt/aksel-icons";
+import { TrashFillIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Button, Heading, HGrid, HStack, List, Tag } from "@navikt/ds-react";
 import { useRef, useState } from "react";
 import { Link, useMatch, useNavigate, useParams } from "react-router-dom";
