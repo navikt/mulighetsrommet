@@ -130,13 +130,13 @@ data class TilsagnRequest(
 @Serializable
 @JsonClassDiscriminator("besluttelse")
 sealed class BesluttTilsagnRequest(
-    val besluttelse: TilsagnBesluttelse,
+    val besluttelse: TilsagnBesluttelseStatus,
 ) {
 
     @Serializable
     @SerialName("GODKJENT")
     data object GodkjentTilsagnRequest : BesluttTilsagnRequest(
-        besluttelse = TilsagnBesluttelse.GODKJENT,
+        besluttelse = TilsagnBesluttelseStatus.GODKJENT,
     )
 
     @Serializable
@@ -145,12 +145,12 @@ sealed class BesluttTilsagnRequest(
         val aarsaker: List<AvvistTilsagnAarsak>,
         val forklaring: String?,
     ) : BesluttTilsagnRequest(
-        besluttelse = TilsagnBesluttelse.AVVIST,
+        besluttelse = TilsagnBesluttelseStatus.AVVIST,
     )
 }
 
 @Serializable
-enum class TilsagnBesluttelse {
+enum class TilsagnBesluttelseStatus {
     GODKJENT,
     AVVIST,
 }

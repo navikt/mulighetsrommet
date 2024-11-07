@@ -28,7 +28,7 @@ class TilsagnValidator(
                 .nel()
                 .left()
 
-        if (previous?.besluttelse?.utfall == TilsagnBesluttelse.GODKJENT) {
+        if (previous?.besluttelse?.status == TilsagnBesluttelseStatus.GODKJENT) {
             return ValidationError
                 .of(TilsagnDto::id, "Tilsagnet er godkjent og kan ikke endres.")
                 .nel()

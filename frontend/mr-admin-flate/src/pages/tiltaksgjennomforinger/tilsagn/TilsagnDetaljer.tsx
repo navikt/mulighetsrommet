@@ -15,13 +15,14 @@ import { formaterDato } from "@/utils/Utils";
 import {
   BesluttTilsagnRequest,
   NavAnsattRolle,
-  TilsagnBesluttelse,
+  TilsagnAvvisningAarsak,
+  TilsagnBesluttelseStatus,
   TilsagnDto,
 } from "@mr/api-client";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { TrashFillIcon } from "@navikt/aksel-icons";
-import { Alert, BodyShort, Button, Heading, HStack, Tag } from "@navikt/ds-react";
+import { ExclamationmarkTriangleFillIcon, TrashFillIcon } from "@navikt/aksel-icons";
+import { Alert, BodyShort, Button, Heading, HGrid, HStack, List, Tag } from "@navikt/ds-react";
 import { useRef, useState } from "react";
 import { Link, useMatch, useNavigate, useParams } from "react-router-dom";
 import { AvvisTilsagnModal } from "./AvvisTilsagnModal";
@@ -151,7 +152,7 @@ export function TilsagnDetaljer() {
               {visBesluttKnapp ? (
                 <GodkjennAvvisTilsagnButtons
                   onGodkjennTilsagn={() =>
-                    besluttTilsagn({ besluttelse: TilsagnBesluttelse.GODKJENT })
+                    besluttTilsagn({ besluttelse: TilsagnBesluttelseStatus.GODKJENT })
                   }
                   onAvvisTilsagn={() => setAvvisModalOpen(true)}
                 />
@@ -188,6 +189,32 @@ export function TilsagnDetaljer() {
               onConfirm={(validatedData) => besluttTilsagn(validatedData)}
             />
           </DetaljerInfoContainer>
+
+          {tilsagn.besluttelse?.status === TilsagnBesluttelseStatus.AVVIST ? (
+            <DetaljerInfoContainer withBorderRight={false}>
+              <Alert variant="warning">
+                <Heading size="xsmall" level="3">
+                  Tilsagnet er ikke godkjent
+                </Heading>
+                <p>Du må fikse følgende før tilsagnet kan godkjennes:</p>
+                <HGrid columns={2} style={{ marginTop: "1rem" }}>
+                  <Metadata
+                    header={tilsagn?.besluttelse?.aarsaker?.length === 1 ? "Årsak" : "Årsaker"}
+                    verdi={
+                      <List>
+                        {tilsagn?.besluttelse?.aarsaker?.map((aarsak, index) => (
+                          <List.Item key={index}>{tilsagnAarsakTilTekst(aarsak)}</List.Item>
+                        ))}
+                      </List>
+                    }
+                  />
+                  {tilsagn?.besluttelse?.forklaring ? (
+                    <Metadata header="Forklaring" verdi={tilsagn?.besluttelse?.forklaring} />
+                  ) : null}
+                </HGrid>
+              </Alert>
+            </DetaljerInfoContainer>
+          ) : null}
         </DetaljerContainer>
       </ContainerLayout>
     </main>
@@ -218,16 +245,16 @@ function GodkjennAvvisTilsagnButtons({
 function TilsagnTag(props: { tilsagn: TilsagnDto }) {
   const { tilsagn } = props;
 
-  if (tilsagn?.besluttelse?.utfall === TilsagnBesluttelse.GODKJENT) {
+  if (tilsagn?.besluttelse?.status === TilsagnBesluttelseStatus.GODKJENT) {
     return (
       <Tag variant="success" size="small">
         Godkjent
       </Tag>
     );
-  } else if (tilsagn?.besluttelse?.utfall === TilsagnBesluttelse.AVVIST) {
+  } else if (tilsagn?.besluttelse?.status === TilsagnBesluttelseStatus.AVVIST) {
     return (
       <Tag variant="warning" size="small">
-        Avvist
+        Returnert
       </Tag>
     );
   } else if (tilsagn?.annullertTidspunkt) {
@@ -242,5 +269,27 @@ function TilsagnTag(props: { tilsagn: TilsagnDto }) {
         Til beslutning
       </Tag>
     );
+  }
+}
+
+type TilsagnAarsak =
+  | "Feil periode"
+  | "Feil antall plasser"
+  | "Feil kostnadssted"
+  | "Feil beløp"
+  | "Annet - Se forklaring";
+
+function tilsagnAarsakTilTekst(aarsak: TilsagnAvvisningAarsak): TilsagnAarsak {
+  switch (aarsak) {
+    case TilsagnAvvisningAarsak.FEIL_PERIODE:
+      return "Feil periode";
+    case TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER:
+      return "Feil antall plasser";
+    case TilsagnAvvisningAarsak.FEIL_KOSTNADSSTED:
+      return "Feil kostnadssted";
+    case TilsagnAvvisningAarsak.FEIL_BELOP:
+      return "Feil beløp";
+    case TilsagnAvvisningAarsak.FEIL_ANNET:
+      return "Annet - Se forklaring";
   }
 }

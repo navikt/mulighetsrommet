@@ -9,8 +9,9 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.AvvistTilsagnAarsak
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.BesluttTilsagnRequest
-import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnBesluttelse
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnBesluttelseStatus
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.model.ArrangorflateTilsagn
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.model.TilsagnDto
 import no.nav.mulighetsrommet.database.Database
@@ -230,6 +231,11 @@ class TilsagnRepository(private val db: Database) {
     )
 
     private fun Row.toTilsagnDto(): TilsagnDto {
+        val avvisteAarsaker =
+            arrayOrNull<String>("avvist_aarsaker")?.toList()?.map { AvvistTilsagnAarsak.valueOf(it) }
+        val avvistForklaring = stringOrNull("avvist_forklaring")
+        val besluttelse = stringOrNull("besluttelse")
+
         return TilsagnDto(
             id = uuid("id"),
             tiltaksgjennomforing = TilsagnDto.Tiltaksgjennomforing(
@@ -239,10 +245,12 @@ class TilsagnRepository(private val db: Database) {
             periodeSlutt = localDate("periode_slutt"),
             periodeStart = localDate("periode_start"),
             opprettetAv = NavIdent(string("opprettet_av")),
-            besluttelse = stringOrNull("besluttelse")?.let {
+            besluttelse = besluttelse?.let {
                 TilsagnDto.Besluttelse(
                     navIdent = NavIdent(string("besluttet_av")),
-                    utfall = TilsagnBesluttelse.valueOf(it),
+                    status = TilsagnBesluttelseStatus.valueOf(besluttelse),
+                    aarsaker = avvisteAarsaker,
+                    forklaring = avvistForklaring,
                     tidspunkt = localDateTime("besluttet_tidspunkt"),
                 )
             },

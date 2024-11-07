@@ -4785,14 +4785,20 @@ components:
         tidspunkt:
           type: string
           format: date-time
-        utfall:
-          $ref: "#/components/schemas/TilsagnBesluttelse"
+        status:
+          $ref: "#/components/schemas/TilsagnBesluttelseStatus"
+        aarsaker:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnAvvisningAarsak"
+        forklaring:
+            type: string
       required:
         - navIdent
         - tidspunkt
-        - utfall
+        - status
 
-    TilsagnBesluttelse:
+    TilsagnBesluttelseStatus:
       type: string
       enum:
         - GODKJENT
@@ -4807,7 +4813,7 @@ components:
       type: object
       properties:
         besluttelse:
-          $ref: "#/components/schemas/TilsagnBesluttelse"
+          $ref: "#/components/schemas/TilsagnBesluttelseStatus"
       required:
         - besluttelse
 
@@ -4815,7 +4821,7 @@ components:
       type: object
       properties:
         besluttelse:
-          $ref: "#/components/schemas/TilsagnBesluttelse"
+          $ref: "#/components/schemas/TilsagnBesluttelseStatus"
         aarsaker:
           type: array
           items:

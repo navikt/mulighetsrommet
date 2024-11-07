@@ -110,7 +110,7 @@ class TilsagnService(
         return db.transactionSuspend { tx ->
             tilsagnRepository.setAnnullertTidspunkt(id, LocalDateTime.now(), tx)
 
-            if (dto.besluttelse?.utfall == TilsagnBesluttelse.GODKJENT) {
+            if (dto.besluttelse?.status == TilsagnBesluttelseStatus.GODKJENT) {
                 OkonomiClient.annullerOrder(lagOkonomiId(dto))
             }
         }.right()
