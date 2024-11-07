@@ -1,4 +1,10 @@
-import { NavEnhetStatus, NavEnhetType, TilsagnBesluttelseStatus, TilsagnDto } from "@mr/api-client";
+import {
+  NavEnhetStatus,
+  NavEnhetType,
+  TilsagnAvvisningAarsak,
+  TilsagnBesluttelseStatus,
+  TilsagnDto,
+} from "@mr/api-client";
 import { mockArrangorer } from "./mock_arrangorer";
 import { mockTiltaksgjennomforinger } from "./mock_tiltaksgjennomforinger";
 
@@ -132,6 +138,8 @@ export const mockTilsagn: TilsagnDto[] = [
       navIdent: "N12345",
       tidspunkt: "2024-01-10",
       status: TilsagnBesluttelseStatus.AVVIST,
+      aarsaker: [TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER, TilsagnAvvisningAarsak.FEIL_ANNET],
+      forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
     },
   },
 ];
