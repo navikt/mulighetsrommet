@@ -1,4 +1,4 @@
-import { NavEnhetStatus, NavEnhetType, TilsagnBesluttelse, TilsagnDto } from "@mr/api-client";
+import { NavEnhetStatus, NavEnhetType, TilsagnBesluttelseStatus, TilsagnDto } from "@mr/api-client";
 import { mockArrangorer } from "./mock_arrangorer";
 import { mockTiltaksgjennomforinger } from "./mock_tiltaksgjennomforinger";
 
@@ -85,7 +85,7 @@ export const mockTilsagn: TilsagnDto[] = [
     besluttelse: {
       navIdent: "N12345",
       tidspunkt: "2024-01-10",
-      utfall: TilsagnBesluttelse.GODKJENT,
+      status: TilsagnBesluttelseStatus.GODKJENT,
     },
   },
   {
@@ -131,7 +131,7 @@ export const mockTilsagn: TilsagnDto[] = [
     besluttelse: {
       navIdent: "N12345",
       tidspunkt: "2024-01-10",
-      utfall: TilsagnBesluttelse.AVVIST,
+      status: TilsagnBesluttelseStatus.AVVIST,
     },
   },
 ];
