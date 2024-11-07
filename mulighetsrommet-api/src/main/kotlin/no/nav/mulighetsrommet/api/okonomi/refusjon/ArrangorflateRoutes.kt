@@ -1,6 +1,9 @@
 package no.nav.mulighetsrommet.api.okonomi.refusjon
 
+import arrow.core.Either
 import arrow.core.getOrElse
+import arrow.core.left
+import arrow.core.right
 import arrow.core.toNonEmptySetOrNull
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -23,6 +26,8 @@ import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import no.nav.mulighetsrommet.api.domain.dto.DeltakerDto
 import no.nav.mulighetsrommet.api.okonomi.refusjon.db.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.okonomi.refusjon.model.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.DeltakelsePerioder
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonKravBeregning
 import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonskravDto
 import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonskravStatus
@@ -30,6 +35,9 @@ import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.model.ArrangorflateTilsagn
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
+import no.nav.mulighetsrommet.api.responses.BadRequest
+import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ArrangorService
 import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
@@ -131,21 +139,24 @@ fun Route.arrangorflateRoutes() {
 
             post("/godkjenn-refusjon") {
                 val id = call.parameters.getOrFail<UUID>("id")
+                val request = call.receive<GodkjennRefusjonskravAft>()
 
                 val krav = refusjonskrav.get(id)
                     ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
-                val request = call.receive<SetRefusjonKravBetalingsinformasjonRequest>()
+                val result = validerGodkjennRefusjonskrav(request, krav.beregning)
+                    .mapLeft { BadRequest(errors = it) }
+                    .map {
+                        refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now())
+                        refusjonskrav.setBetalingsInformasjon(
+                            id,
+                            request.betalingsinformasjon.kontonummer,
+                            request.betalingsinformasjon.kid,
+                        )
+                    }
 
-                refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now())
-                refusjonskrav.setBetalingsInformasjon(
-                    id,
-                    request.kontonummer,
-                    request.kid,
-                )
-
-                call.respond(HttpStatusCode.OK)
+                call.respondWithStatusResponse(result)
             }
 
             get("/kvittering") {
@@ -208,6 +219,20 @@ fun Route.arrangorflateRoutes() {
         }
     }
 }
+
+fun validerGodkjennRefusjonskrav(
+    request: GodkjennRefusjonskravAft,
+    beregning: RefusjonKravBeregning,
+): Either<List<ValidationError>, Unit> =
+    when (beregning) {
+        is RefusjonKravBeregningAft -> {
+            if (beregning.input.deltakelser != request.deltakelser || beregning.output.belop != request.belop) {
+                listOf(ValidationError.ofCustomLocation("info", "Informasjonen i kravet har endret seg. Vennligst se over på nytt.")).left()
+            } else {
+                Unit.right()
+            }
+        }
+    }
 
 fun toRefusjonskravKompakt(krav: RefusjonskravDto) = RefusjonKravKompakt(
     id = krav.id,
@@ -341,7 +366,6 @@ data class RefusjonKravKompakt(
     val arrangor: RefusjonskravDto.Arrangor,
     val beregning: Beregning,
 ) {
-
     @Serializable
     data class Beregning(
         @Serializable(with = LocalDateTimeSerializer::class)
@@ -400,13 +424,21 @@ data class RefusjonKravDeltakelse(
 }
 
 @Serializable
-data class SetRefusjonKravBetalingsinformasjonRequest(
-    val kontonummer: Kontonummer,
-    val kid: Kid?,
-)
-
-@Serializable
 data class RefusjonKravKvitteringDto(
     val refusjon: RefusjonKravAft,
     val tilsagn: List<ArrangorflateTilsagn>,
 )
+
+// Kan bli gjort om til en sealed class for andre etterhvert hvis det trengs
+@Serializable
+data class GodkjennRefusjonskravAft(
+    val belop: Int,
+    val deltakelser: Set<DeltakelsePerioder>,
+    val betalingsinformasjon: Betalingsinformasjon,
+) {
+    @Serializable
+    data class Betalingsinformasjon(
+        val kontonummer: Kontonummer,
+        val kid: Kid?,
+    )
+}
