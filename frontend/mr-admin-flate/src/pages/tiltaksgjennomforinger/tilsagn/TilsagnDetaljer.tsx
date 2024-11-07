@@ -61,12 +61,16 @@ export function TilsagnDetaljer() {
         }
       : undefined,
     {
-      tittel: "Tiltaksgjennomføring",
+      tittel: "Tiltaksgjennomføringdetaljer",
       lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}`,
     },
     {
       tittel: "Tilsagn",
-      lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}`,
+      lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn`,
+    },
+    {
+      tittel: "Tilsagnsdetaljer",
+      lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn`,
     },
   ];
 
