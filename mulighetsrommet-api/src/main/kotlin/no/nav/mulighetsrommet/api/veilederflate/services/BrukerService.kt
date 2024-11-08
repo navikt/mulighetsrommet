@@ -28,7 +28,6 @@ import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.tokenprovider.AccessType
-import org.slf4j.LoggerFactory
 
 class BrukerService(
     private val veilarboppfolgingClient: VeilarboppfolgingClient,
@@ -38,8 +37,6 @@ class BrukerService(
     private val norg2Client: Norg2Client,
     private val isoppfolgingstilfelleClient: IsoppfolgingstilfelleClient,
 ) {
-    private val log = LoggerFactory.getLogger(javaClass)
-
     suspend fun hentBrukerdata(fnr: NorskIdent, obo: AccessType.OBO): Brukerdata = coroutineScope {
         val deferredErUnderOppfolging = async { veilarboppfolgingClient.erBrukerUnderOppfolging(fnr, obo) }
         val deferredOppfolgingsenhet = async { veilarboppfolgingClient.hentOppfolgingsenhet(fnr, obo) }
@@ -144,10 +141,9 @@ class BrukerService(
         val erSykmeldtMedArbeidsgiver = deferredErSykmeldtMedArbeidsgiver.await()
             .getOrElse {
                 when (it) {
-                    OppfolgingstilfelleError.Forbidden -> throw StatusException(
-                        HttpStatusCode.InternalServerError,
-                        "Mangler SYFO rolle for å hente oppfølgingstilfeller.",
-                    )
+                    OppfolgingstilfelleError.Forbidden -> {
+                        false
+                    }
                     OppfolgingstilfelleError.Error -> throw StatusException(
                         HttpStatusCode.InternalServerError,
                         "Klarte ikke hente oppfølgingstilfeller.",
