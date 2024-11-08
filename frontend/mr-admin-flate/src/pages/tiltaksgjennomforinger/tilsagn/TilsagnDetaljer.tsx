@@ -215,7 +215,7 @@ function GodkjennAvvisTilsagnButtons({
         Godkjenn tilsagn
       </Button>
       <Button variant="secondary" size="small" type="button" onClick={onAvvisTilsagn}>
-        Avvis tilsagn
+        Send i retur med forklaring
       </Button>
     </HStack>
   );
