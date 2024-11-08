@@ -47,7 +47,7 @@ internal fun <T : Any> PipelineContext<T, ApplicationCall>.getArbeidsmarkedstilt
         ?: throw StatusException(HttpStatusCode.BadRequest, "Innsatsgruppe er påkrevd")
     val erSykmeldtMedArbeidsgiver = queryParameters["erSykmeldtMedArbeidsgiver"]
         ?.toBoolean()
-        ?: throw StatusException(HttpStatusCode.BadRequest, "erSykmeldtMedArbeidsgiver er påkrevd")
+        ?: false
 
     val apentForInnsok: ApentForInnsok by queryParameters
 
