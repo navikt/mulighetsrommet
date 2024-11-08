@@ -142,19 +142,17 @@ class AvtaleValidator(
                 add(ValidationError.ofCustomLocation("amoKategorisering.kurstype", "Du må velge en kurstype"))
             }
 
-            if (unleashService.isEnabled("mulighetsrommet.admin-flate.enable-utdanningskategorier")) {
-                if (tiltakstype.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
-                    val utdanninger = avtale.utdanningslop
-                    if (utdanninger == null) {
-                        add(
-                            ValidationError.of(
-                                AvtaleDbo::utdanningslop,
-                                "Du må velge et utdanningsprogram og minst ett lærefag",
-                            ),
-                        )
-                    } else if (utdanninger.utdanninger.isEmpty()) {
-                        add(ValidationError.of(AvtaleDbo::utdanningslop, "Du må velge minst ett lærefag"))
-                    }
+            if (tiltakstype.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
+                val utdanninger = avtale.utdanningslop
+                if (utdanninger == null) {
+                    add(
+                        ValidationError.of(
+                            AvtaleDbo::utdanningslop,
+                            "Du må velge et utdanningsprogram og minst ett lærefag",
+                        ),
+                    )
+                } else if (utdanninger.utdanninger.isEmpty()) {
+                    add(ValidationError.of(AvtaleDbo::utdanningslop, "Du må velge minst ett lærefag"))
                 }
             }
 

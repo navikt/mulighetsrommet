@@ -150,40 +150,38 @@ class TiltaksgjennomforingValidator(
                 }
             }
 
-            if (unleashService.isEnabled("mulighetsrommet.admin-flate.enable-utdanningskategorier")) {
-                if (avtale.tiltakstype.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
-                    val utdanningslop = next.utdanningslop
-                    if (utdanningslop == null) {
+            if (avtale.tiltakstype.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
+                val utdanningslop = next.utdanningslop
+                if (utdanningslop == null) {
+                    add(
+                        ValidationError.of(
+                            TiltaksgjennomforingDbo::utdanningslop,
+                            "Du må velge utdanningsprogram og lærefag på avtalen",
+                        ),
+                    )
+                } else if (utdanningslop.utdanninger.isEmpty()) {
+                    add(
+                        ValidationError.of(
+                            TiltaksgjennomforingDbo::utdanningslop,
+                            "Du må velge minst ett lærefag",
+                        ),
+                    )
+                } else if (utdanningslop.utdanningsprogram != avtale.utdanningslop?.utdanningsprogram?.id) {
+                    add(
+                        ValidationError.of(
+                            TiltaksgjennomforingDbo::utdanningslop,
+                            "Utdanningsprogrammet må være det samme som for avtalen: ${avtale.utdanningslop?.utdanningsprogram?.navn}",
+                        ),
+                    )
+                } else {
+                    val avtalensUtdanninger = avtale.utdanningslop.utdanninger.map { it.id }
+                    if (!avtalensUtdanninger.containsAll(utdanningslop.utdanninger)) {
                         add(
                             ValidationError.of(
                                 TiltaksgjennomforingDbo::utdanningslop,
-                                "Du må velge utdanningsprogram og lærefag på avtalen",
+                                "Lærefag må være valgt fra avtalens lærefag, minst ett av lærefagene mangler i avtalen.",
                             ),
                         )
-                    } else if (utdanningslop.utdanninger.isEmpty()) {
-                        add(
-                            ValidationError.of(
-                                TiltaksgjennomforingDbo::utdanningslop,
-                                "Du må velge minst ett lærefag",
-                            ),
-                        )
-                    } else if (utdanningslop.utdanningsprogram != avtale.utdanningslop?.utdanningsprogram?.id) {
-                        add(
-                            ValidationError.of(
-                                TiltaksgjennomforingDbo::utdanningslop,
-                                "Utdanningsprogrammet må være det samme som for avtalen: ${avtale.utdanningslop?.utdanningsprogram?.navn}",
-                            ),
-                        )
-                    } else {
-                        val avtalensUtdanninger = avtale.utdanningslop.utdanninger.map { it.id }
-                        if (!avtalensUtdanninger.containsAll(utdanningslop.utdanninger)) {
-                            add(
-                                ValidationError.of(
-                                    TiltaksgjennomforingDbo::utdanningslop,
-                                    "Lærefag må være valgt fra avtalens lærefag, minst ett av lærefagene mangler i avtalen.",
-                                ),
-                            )
-                        }
                     }
                 }
             }
