@@ -1,6 +1,6 @@
 [versions]
 common-java-modules = "3.2024.01.24_10.14-f70bae69bd65"
-flyway = "10.20.1"
+flyway = "10.21.0"
 hoplite = "2.8.2"
 koin = "4.0.0"
 kotest = "5.9.1"
@@ -47,7 +47,7 @@ flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql
 google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.21.0"
 google-cloud-storage = "com.google.cloud:google-cloud-storage:2.44.1"
 
-hikaricp = "com.zaxxer:HikariCP:6.0.0"
+hikaricp = "com.zaxxer:HikariCP:6.1.0"
 
 hoplite-core = { module = "com.sksamuel.hoplite:hoplite-core", version.ref = "hoplite" }
 hoplite-yaml = { module = "com.sksamuel.hoplite:hoplite-yaml", version.ref = "hoplite" }

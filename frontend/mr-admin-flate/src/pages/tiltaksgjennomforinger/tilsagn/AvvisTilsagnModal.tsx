@@ -67,7 +67,7 @@ export function AvvisTilsagnModal({ open, onClose, onConfirm }: Props) {
                 }}
                 value={valgteAarsaker}
                 name="aarsak"
-                legend="Årsak for retur av tilsagnet"
+                legend="Årsak"
                 error={errors?.aarsak}
               >
                 <Checkbox value="FEIL_ANTALL_PLASSER">Feil i antall plasser</Checkbox>
@@ -98,7 +98,7 @@ export function AvvisTilsagnModal({ open, onClose, onConfirm }: Props) {
               validate();
             }}
           >
-            Send i retur
+            Send i retur med forklaring
           </Button>
         </Modal.Footer>
       </form>

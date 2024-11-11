@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api
 
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
+import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient

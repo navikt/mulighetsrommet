@@ -55,7 +55,7 @@ function SelectAvtaleUtdanning() {
             setValue("utdanningslop", null);
           }
         }}
-        error={errors.utdanningslop?.utdanningsprogram?.message}
+        error={errors.utdanningslop?.utdanninger?.message}
       >
         <option value={""}>{avtaletekster.utdanning.utdanningsprogram.velg}</option>
         {utdanningsprogrammer.map((utdanningsprogram) => (

@@ -1,6 +1,7 @@
 import { UseMutationResult } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { ApiError, ValidationErrorResponse } from "@mr/api-client";
+import { isValidationError } from "@mr/frontend-common/utils/utils";
 
 export function useHandleApiUpsertResponse<Response, Request>(
   mutation: UseMutationResult<Response, ApiError, Request>,
@@ -25,12 +26,4 @@ export function useHandleApiUpsertResponse<Response, Request>(
     onSuccess,
     onValidationError,
   ]);
-}
-
-function isValidationError(body: unknown): body is ValidationErrorResponse {
-  return (
-    body !== null &&
-    typeof body === "object" &&
-    Object.prototype.hasOwnProperty.call(body, "errors")
-  );
 }
