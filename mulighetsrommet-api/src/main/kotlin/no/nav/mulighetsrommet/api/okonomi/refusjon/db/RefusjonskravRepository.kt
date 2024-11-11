@@ -5,7 +5,10 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.okonomi.refusjon.model.*
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonKravBeregning
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonKravBeregningAft
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonskravDto
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonskravStatus
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
@@ -252,5 +255,23 @@ class RefusjonskravRepository(private val db: Database) {
                 kid = stringOrNull("kid")?.let { Kid(it) },
             ),
         )
+    }
+
+    fun getForrigeRefusjonskrav(gjennomforingId: UUID): RefusjonskravDto? {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from refusjonskrav_aft_view
+            where gjennomforing_id = :gjennomforing_id
+            order by godkjent_av_arrangor_tidspunkt desc
+            limit 1
+        """.trimIndent()
+
+        return db.useSession {
+            queryOf(query, mapOf("gjennomforing_id" to gjennomforingId))
+                .map { krav -> krav.toRefusjonsKravAft() }
+                .asSingle
+                .runWithSession(it)
+        }
     }
 }
