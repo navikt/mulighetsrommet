@@ -47,7 +47,7 @@ class BrukerService(
         val deferredSisteVedtak = async { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, obo) }
         val deferredPdlPerson = async { pdlClient.hentPerson(PdlIdent(fnr.value), obo) }
         val deferredBrukersGeografiskeEnhet = async { hentBrukersGeografiskeEnhet(fnr, obo) }
-        val deferredErSykmeldtMedArbeidsgiver = async { isoppfolgingstilfelleClient.erSykmeldtMedArbeidsgiver(fnr, obo) }
+        val deferredErSykmeldtMedArbeidsgiver = async { isoppfolgingstilfelleClient.erSykmeldtMedArbeidsgiver(fnr) }
 
         val erUnderOppfolging = deferredErUnderOppfolging.await()
             .getOrElse {
