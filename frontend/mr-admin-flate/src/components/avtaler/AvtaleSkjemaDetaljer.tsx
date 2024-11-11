@@ -14,8 +14,8 @@ import {
   NavAnsatt,
   NavEnhet,
   NavEnhetType,
-  OpsjonStatus,
   OpsjonsmodellKey,
+  OpsjonStatus,
   Tiltakskode,
   TiltakstypeDto,
 } from "@mr/api-client";
@@ -28,12 +28,11 @@ import { MultiValue } from "react-select";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
+import { AvtaleUtdanningslopSkjema } from "../utdanning/AvtaleUtdanningslopSkjema";
 import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
 import { AvtaleDatoContainer } from "./avtaledatoer/AvtaleDatoContainer";
 import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
 import { opsjonsmodeller } from "./opsjoner/opsjonsmodeller";
-import { useCallback, useEffect } from "react";
-import { AvtaleUtdanningslopSkjema } from "../utdanning/AvtaleUtdanningslopSkjema";
 
 interface Props {
   tiltakstyper: TiltakstypeDto[];
@@ -55,14 +54,14 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   const watchedTiltakstype = watch("tiltakstype");
   const tiltakskode = watchedTiltakstype?.tiltakskode;
 
-  function updateOpsjonsmodell(avtaletype?: Avtaletype) {
+  function updateOpsjonsmodell(opsjonsmodell?: OpsjonsmodellKey, avtaletype?: Avtaletype) {
     if (avtaletype === Avtaletype.FORHAANDSGODKJENT) {
       setValue("opsjonsmodellData", {
         opsjonsmodell: OpsjonsmodellKey.AVTALE_VALGFRI_SLUTTDATO,
         customOpsjonsmodellNavn: null,
         opsjonMaksVarighet: null,
       });
-    } else {
+    } else if (!opsjonsmodell) {
       setValue("opsjonsmodellData", {
         opsjonsmodell: undefined,
         customOpsjonsmodellNavn: null,
@@ -71,15 +70,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
     }
   }
 
-  const updateOpsjonsmodellClb = useCallback(updateOpsjonsmodell, [setValue]);
   const watchedOpsjonsmodell = watch("opsjonsmodellData.opsjonsmodell");
-  useEffect(() => {
-    if (avtale?.avtaletype && avtale.opsjonsmodellData && !avtale.opsjonsmodellData.opsjonsmodell) {
-      if (!watchedOpsjonsmodell) {
-        updateOpsjonsmodellClb(avtale?.avtaletype);
-      }
-    }
-  }, [avtale, updateOpsjonsmodellClb, watchedOpsjonsmodell]);
 
   const navRegionerOptions = enheter
     .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
@@ -162,7 +153,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                   } else {
                     setValue("avtaletype", undefined);
                   }
-                  updateOpsjonsmodell(avtaletype);
+                  updateOpsjonsmodell(watchedOpsjonsmodell, avtaletype);
                 }}
                 options={tiltakstyper.map((tiltakstype) => ({
                   value: {
@@ -180,7 +171,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 label={avtaletekster.avtaletypeLabel}
                 {...register("avtaletype")}
                 onChange={(e) => {
-                  updateOpsjonsmodell(e.target.value);
+                  updateOpsjonsmodell(watchedOpsjonsmodell, e.target.value);
                 }}
                 options={tiltakskode ? avtaletypeOptions(tiltakskode) : []}
               />
