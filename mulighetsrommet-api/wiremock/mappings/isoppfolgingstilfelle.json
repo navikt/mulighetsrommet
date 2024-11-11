@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPattern": "/isoppfolgingstilfelle/api/system/v1/oppfolgingstilfelle/personident"
+    "urlPattern": "/isoppfolgingstilfelle/api/internad/v1/oppfolgingstilfelle/personident"
   },
   "response": {
     "status": 200,

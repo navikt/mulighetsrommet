@@ -112,7 +112,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     val deltakelseAvklaring = Deltakelse.DeltakelseArena(
         id = tiltakshistorikkAvklaring.id,
         eierskap = Deltakelse.Eierskap.ARENA,
-        tittel = "Avklaring",
+        tittel = "Avklaring hos Hovedenhet AS",
         tiltakstypeNavn = TiltakstypeFixtures.Avklaring.navn,
         status = Deltakelse.DeltakelseArena.Status(
             type = ArenaDeltakerStatus.VENTELISTE,

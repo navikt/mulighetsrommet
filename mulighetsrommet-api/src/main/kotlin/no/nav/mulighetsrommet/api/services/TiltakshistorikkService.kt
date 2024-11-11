@@ -87,9 +87,16 @@ class TiltakshistorikkService(
         is Tiltakshistorikk.ArbeidsgiverAvtale -> it.toDeltakelse()
     }
 
-    private fun Tiltakshistorikk.ArenaDeltakelse.toDeltakelse(): Deltakelse.DeltakelseArena {
+    private suspend fun Tiltakshistorikk.ArenaDeltakelse.toDeltakelse(): Deltakelse.DeltakelseArena = coroutineScope {
         val tiltakstype = tiltakstypeRepository.getByArenaTiltakskode(arenaTiltakskode)
-        return Deltakelse.DeltakelseArena(
+        val arrangorNavn = async { getArrangorHovedenhetNavn(arrangor.organisasjonsnummer) }
+
+        val (tittel) = tittelOgUnderTittel(
+            beskrivelse,
+            tiltakstype.navn,
+            tiltakstype.arenaKode,
+        )
+        Deltakelse.DeltakelseArena(
             id = id,
             periode = Deltakelse.Periode(
                 startDato = startDato,
@@ -99,7 +106,7 @@ class TiltakshistorikkService(
                 type = status,
                 visningstekst = status.description,
             ),
-            tittel = beskrivelse,
+            tittel = tittel.hosTitleCaseArrangor(arrangorNavn.await()),
             tiltakstypeNavn = tiltakstype.navn,
             innsoktDato = null,
             sistEndretDato = null,
