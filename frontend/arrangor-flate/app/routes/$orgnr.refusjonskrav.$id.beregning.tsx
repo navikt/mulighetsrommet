@@ -14,6 +14,7 @@ import { formaterDato, useOrgnrFromUrl } from "~/utils";
 import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
 import { LinkWithTabState } from "../components/LinkWithTabState";
 import { internalNavigation } from "../internal-navigation";
+import { hentMiljø, Miljø } from "../services/miljø";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Refusjon" }, { name: "description", content: "Refusjonsdetaljer" }];
@@ -21,9 +22,11 @@ export const meta: MetaFunction = () => {
 
 type LoaderData = {
   krav: Refusjonskrav;
+  deltakerlisteUrl: string;
 };
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
   await checkValidToken(request);
+  const deltakerlisteUrl = deltakerOversiktLenke(hentMiljø());
 
   const { id } = params;
   if (!id) {
@@ -32,7 +35,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
 
   const krav = await loadRefusjonskrav(id);
 
-  return { krav };
+  return { krav, deltakerlisteUrl };
 };
 
 interface DeltakerSortState extends SortState {
@@ -49,7 +52,7 @@ enum DeltakerSortKey {
 
 export default function RefusjonskravBeregning() {
   const orgnr = useOrgnrFromUrl();
-  const { krav } = useLoaderData<LoaderData>();
+  const { krav, deltakerlisteUrl } = useLoaderData<LoaderData>();
   const [sort, setSort] = useState<DeltakerSortState | undefined>();
 
   const handleSort = (orderBy: string) => {
@@ -85,7 +88,7 @@ export default function RefusjonskravBeregning() {
         <GenerelleDetaljer className="max-w-[50%]" krav={krav} />
         <GuidePanel>
           Hvis noen av opplysningene om deltakerne ikke stemmer, må det sendes forslag til Nav om
-          endring via <Link to={deltakerOversiktLenke()}>Deltakeroversikten</Link>.
+          endring via <Link to={deltakerlisteUrl}>Deltakeroversikten</Link>.
         </GuidePanel>
         <Table sort={sort} onSortChange={(sortKey) => handleSort(sortKey)} zebraStripes>
           <Table.Header>
@@ -183,11 +186,9 @@ function getFormattedFodselsdato(person?: RefusjonKravDeltakelsePerson) {
       : null;
 }
 
-function deltakerOversiktLenke(): string {
-  const url = window.location.href;
-  if (url.includes("intern.dev.nav.no")) {
+function deltakerOversiktLenke(miljo: Miljø): string {
+  if (miljo === Miljø.DevGcp) {
     return "https://amt.intern.dev.nav.no/deltakeroversikt";
   }
-
   return "https://nav.no/deltakeroversikt";
 }
