@@ -341,18 +341,18 @@ const arrangorer: Arrangor[] = [
 
 export const arrangorflateHandlers = [
   http.get<PathParams, RefusjonKravAft[]>(
-    "*/api/v1/intern/arrangorflate/:orgnr/refusjonskrav",
+    "*/api/v1/intern/arrangorflate/arrangor/:orgnr/refusjonskrav",
     () => HttpResponse.json(mockKrav),
   ),
   http.get<PathParams, RefusjonKravAft[]>(
-    "*/api/v1/intern/arrangorflate/:orgnr/refusjonskrav/:id",
+    "*/api/v1/intern/arrangorflate/refusjonskrav/:id",
     ({ params }) => {
       const { id } = params;
       return HttpResponse.json(mockKrav.find((k) => k.id === id));
     },
   ),
   http.post<PathParams, RefusjonKravAft[]>(
-    "*/api/v1/intern/arrangorflate/:orgnr/refusjonskrav/:id/godkjenn-refusjon",
+    "*/api/v1/intern/arrangorflate/refusjonskrav/:id/godkjenn-refusjon",
     () => HttpResponse.json({}),
   ),
   http.get<PathParams, RefusjonKravAft[]>(
@@ -360,11 +360,12 @@ export const arrangorflateHandlers = [
     () => HttpResponse.json(undefined, { status: 501 }),
   ),
   http.get<PathParams, RefusjonKravAft[]>(
-    "*/api/v1/intern/arrangorflate/:orgnr/refusjonskrav/:id/tilsagn",
+    "*/api/v1/intern/arrangorflate/refusjonskrav/:id/tilsagn",
     () => HttpResponse.json(mockTilsagn),
   ),
-  http.get<PathParams, RefusjonKravAft[]>("*/api/v1/intern/arrangorflate/:orgnr/tilsagn", () =>
-    HttpResponse.json(mockTilsagn),
+  http.get<PathParams, RefusjonKravAft[]>(
+    "*/api/v1/intern/arrangorflate/arrangor/:orgnr/tilsagn",
+    () => HttpResponse.json(mockTilsagn),
   ),
   http.get<PathParams, RefusjonKravAft[]>(
     "*/api/v1/intern/arrangorflate/:orgnr/tilsagn/:id",
