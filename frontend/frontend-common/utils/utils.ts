@@ -1,4 +1,4 @@
-import { TiltaksgjennomforingStatus, Tiltakskode, TiltakskodeArena } from "@mr/api-client";
+import { TiltaksgjennomforingStatus, Tiltakskode, TiltakskodeArena, ValidationErrorResponse } from "@mr/api-client";
 import { shallowEquals } from "./shallow-equals";
 
 export function addOrRemove<T>(array: T[], item: T): T[] {
@@ -55,4 +55,12 @@ export function formaterKontoNummer(kontoNummer?: string): string {
   return !kontoNummer
     ? ""
     : `${kontoNummer.substring(0, 4)} ${kontoNummer.substring(4, 6)} ${kontoNummer.substring(6, 11)}`;
+}
+
+export function isValidationError(body: unknown): body is ValidationErrorResponse {
+  return (
+    body !== null &&
+    typeof body === "object" &&
+    Object.prototype.hasOwnProperty.call(body, "errors")
+  );
 }

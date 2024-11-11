@@ -4,10 +4,12 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.content.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedParty
@@ -173,6 +175,31 @@ class ArrangorflateRoutesTest : FunSpec({
             val responseBody = response.bodyAsText()
             val kravResponse: RefusjonKravAft = Json.decodeFromString(responseBody)
             kravResponse.id shouldBe krav.id
+        }
+    }
+
+    test("Utdatert refusjonskrav gir 400 i godkjenn-refusjon") {
+        withTestApplication(appConfig()) {
+            val client = createClient {
+                install(ContentNegotiation) {
+                    json()
+                }
+            }
+            val response = client.post("/api/v1/intern/arrangorflate/refusjonskrav/${krav.id}/godkjenn-refusjon") {
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
+                contentType(ContentType.Application.Json)
+                setBody(
+                    GodkjennRefusjonskravAft(
+                        belop = krav.beregning.output.belop + 200, // Feil belop
+                        deltakelser = (krav.beregning as RefusjonKravBeregningAft).input.deltakelser,
+                        betalingsinformasjon = GodkjennRefusjonskravAft.Betalingsinformasjon(
+                            kontonummer = Kontonummer("12312312312"),
+                            kid = null,
+                        ),
+                    ),
+                )
+            }
+            response.status shouldBe HttpStatusCode.BadRequest
         }
     }
 })

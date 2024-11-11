@@ -1,4 +1,4 @@
-import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
+import { ApiError, ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
 import { Alert, Button, Checkbox, ErrorSummary, TextField, VStack } from "@navikt/ds-react";
 import { ActionFunction, json, LoaderFunction, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
@@ -11,6 +11,7 @@ import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { internalNavigation } from "../internal-navigation";
 import { useOrgnrFromUrl } from "../utils";
 import { getCurrentTab } from "../utils/currentTab";
+import { isValidationError } from "@mr/frontend-common/utils/utils";
 
 type BekreftRefusjonskravData = {
   krav: Refusjonskrav;
@@ -45,37 +46,52 @@ export const action: ActionFunction = async ({ request }) => {
   const orgnr = formdata.get("orgnr")?.toString();
   const currentTab = getCurrentTab(request);
 
-  const errors: { [key: string]: string } = {};
+  const errors: { name: string; message: string }[] = [];
 
   if (!bekreftelse) {
-    errors.bekreftelse = "Du må bekrefte at opplysningene er korrekte";
+    errors.push({ name: "bekreftelse", message: "Du må bekrefte at opplysningene er korrekte" });
   }
-
   if (!kontonummer) {
-    errors.kontonummer = "Du må fylle ut kontonummer";
+    errors.push({ name: "kontonummer", message: "Du må fylle ut kontonummer" });
   }
   if (!refusjonskravId) {
     throw new Error("Mangler refusjonskravId");
   }
-
   if (!orgnr) {
     throw new Error("Mangler orgnr");
   }
-
-  if (Object.keys(errors).length > 0) {
+  if (errors.length > 0) {
     return json({ errors });
   }
 
-  await ArrangorflateService.godkjennRefusjonskrav({
-    id: refusjonskravId as string,
-    requestBody: {
-      kontonummer: kontonummer as string,
-      kid: kid as string,
-    },
-  });
-  return redirect(
-    `${internalNavigation(orgnr).kvittering(refusjonskravId)}?forside-tab=${currentTab}`,
-  );
+  const krav = await loadRefusjonskrav(refusjonskravId);
+
+  try {
+    await ArrangorflateService.godkjennRefusjonskrav({
+      id: refusjonskravId as string,
+      requestBody: {
+        belop: krav.beregning.belop,
+        deltakelser: krav.deltakere.map((d) => ({ deltakelseId: d.id, perioder: d.perioder })),
+        betalingsinformasjon: {
+          kontonummer: kontonummer as string,
+          kid: kid as string,
+        },
+      },
+    });
+
+    return redirect(
+      `${internalNavigation(orgnr).kvittering(refusjonskravId)}?forside-tab=${currentTab}`,
+    );
+  } catch (e) {
+    const apiError = e as ApiError;
+    if (apiError.status === 400 && isValidationError(apiError.body)) {
+      // Remix revaliderer loader data ved actions, så når denne feilmeldingen vises skal allerede kravet
+      // være oppdatert. Det kan hende vi i fremtiden vil vise _hva_ som har endret seg også, men det
+      // får vi ta senere.
+      return json({ errors: apiError.body.errors });
+    }
+    throw e;
+  }
 };
 
 export default function BekreftRefusjonskrav() {
@@ -93,7 +109,6 @@ export default function BekreftRefusjonskrav() {
       />
       <VStack className="max-w-[50%]" gap="5">
         <RefusjonskravDetaljer krav={krav} tilsagn={tilsagn} />
-
         <Form method="post">
           <Definisjon label="Kontonummer">
             <TextField
@@ -127,15 +142,13 @@ export default function BekreftRefusjonskrav() {
             </Checkbox>
             <input type="hidden" name="refusjonskravId" value={krav.id} />
             <input type="hidden" name="orgnr" value={orgnr} />
-            {data?.errors
-              ? Object.keys(data?.errors)?.length > 0 && (
-                  <ErrorSummary>
-                    {Object.values(data?.errors).map((error, index) => {
-                      return <ErrorSummary.Item key={index}>{error as any}</ErrorSummary.Item>;
-                    })}
-                  </ErrorSummary>
-                )
-              : null}
+            {data?.errors?.length > 0 && (
+              <ErrorSummary>
+                {data.errors.map((error: any) => {
+                  return <ErrorSummary.Item key={error.name}>{error.message}</ErrorSummary.Item>;
+                })}
+              </ErrorSummary>
+            )}
             {data?.error && <Alert variant="error">{data.error}</Alert>}
             <Button type="submit">Bekreft og send refusjonskrav</Button>
           </VStack>

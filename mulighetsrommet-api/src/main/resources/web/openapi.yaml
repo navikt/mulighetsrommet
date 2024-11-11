@@ -1873,7 +1873,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Betalingsinformasjon"
+              $ref: "#/components/schemas/GodkjennRefusjonskravAft"
         required: true
       responses:
         200:
@@ -5137,6 +5137,17 @@ components:
       required:
         - navn
 
+    RefusjonKravDeltakelsePerioder:
+      type: object
+      properties:
+        deltakelseId:
+          type: string
+          format: uuid
+        perioder:
+          type: array
+          items:
+            $ref: "#/components/schemas/RefusjonKravDeltakelsePeriode"
+
     RefusjonKravDeltakelsePeriode:
       type: object
       properties:
@@ -5276,3 +5287,19 @@ components:
           type: string
         kid:
           type: string
+
+    GodkjennRefusjonskravAft:
+      type: object
+      properties:
+        belop:
+          type: number
+        deltakelser:
+          type: array
+          items:
+            $ref: "#/components/schemas/RefusjonKravDeltakelsePerioder"
+        betalingsinformasjon:
+          $ref: "#/components/schemas/Betalingsinformasjon"
+      required:
+        - belop
+        - deltakelser
+        - betalingsinformasjon

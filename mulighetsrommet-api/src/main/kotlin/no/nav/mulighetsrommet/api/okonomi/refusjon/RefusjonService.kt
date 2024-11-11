@@ -20,7 +20,6 @@ class RefusjonService(
     private val deltakerRepository: DeltakerRepository,
     private val refusjonskravRepository: RefusjonskravRepository,
 ) {
-
     fun genererRefusjonskravForMonth(dayInMonth: LocalDate) {
         val periodeStart = dayInMonth.with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay()
         val periodeSlutt = periodeStart.with(TemporalAdjusters.lastDayOfMonth()).plusDays(1)
