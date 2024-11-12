@@ -8,6 +8,7 @@ select refusjonskrav.id,
            else 'KLAR_FOR_GODKJENNING'
            end::refusjonskrav_status     as status,
        refusjonskrav.frist_for_godkjenning,
+       refusjonskrav.godkjent_av_arrangor_tidspunkt,
        refusjonskrav.kontonummer,
        refusjonskrav.kid,
        gjennomforing.id                  as gjennomforing_id,
