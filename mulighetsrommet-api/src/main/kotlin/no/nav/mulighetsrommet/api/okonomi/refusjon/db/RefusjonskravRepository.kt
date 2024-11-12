@@ -257,7 +257,7 @@ class RefusjonskravRepository(private val db: Database) {
         )
     }
 
-    fun getForrigeRefusjonskrav(gjennomforingId: UUID): RefusjonskravDto? {
+    fun getSisteGodkjenteRefusjonskrav(gjennomforingId: UUID): RefusjonskravDto? {
         @Language("PostgreSQL")
         val query = """
             select *

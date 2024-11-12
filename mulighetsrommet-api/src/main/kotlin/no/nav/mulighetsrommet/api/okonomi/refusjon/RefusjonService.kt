@@ -91,7 +91,7 @@ class RefusjonService(
 
         val beregning = RefusjonKravBeregningAft(input, output)
 
-        val forrigeKrav = refusjonskravRepository.getForrigeRefusjonskrav(gjennomforingId)
+        val forrigeKrav = refusjonskravRepository.getSisteGodkjenteRefusjonskrav(gjennomforingId)
 
         return RefusjonskravDbo(
             id = refusjonskravId,
