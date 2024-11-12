@@ -40,13 +40,10 @@ class IsoppfolgingstilfelleClient(
         .recordStats()
         .build()
 
-    suspend fun erSykmeldtMedArbeidsgiver(
-        norskIdent: NorskIdent,
-        obo: AccessType.OBO,
-    ): Either<OppfolgingstilfelleError, Boolean> {
+    suspend fun erSykmeldtMedArbeidsgiver(norskIdent: NorskIdent): Either<OppfolgingstilfelleError, Boolean> {
         erSykmeldtMedArbeidsgiverCache.getIfPresent(norskIdent)?.let { return@erSykmeldtMedArbeidsgiver it.right() }
 
-        return hentOppfolgingstilfeller(norskIdent, obo)
+        return hentOppfolgingstilfeller(norskIdent)
             .map { oppfolgingstilfeller ->
                 oppfolgingstilfeller
                     .filter { it.gyldigForDato(LocalDate.now()) }
@@ -54,9 +51,10 @@ class IsoppfolgingstilfelleClient(
             }
     }
 
-    private suspend fun hentOppfolgingstilfeller(norskIdent: NorskIdent, obo: AccessType.OBO): Either<OppfolgingstilfelleError, List<OppfolgingstilfelleDTO>> {
-        val response = client.get("$baseUrl/api/internad/v1/oppfolgingstilfelle/personident") {
-            bearerAuth(tokenProvider.exchange(obo))
+    // Dette kallet gjøres med M2M token fordi ikke alle veiledere har 0000-GA-SYFO-SENSITIV rollen som trengs
+    private suspend fun hentOppfolgingstilfeller(norskIdent: NorskIdent): Either<OppfolgingstilfelleError, List<OppfolgingstilfelleDTO>> {
+        val response = client.get("$baseUrl/api/system/v1/oppfolgingstilfelle/personident") {
+            bearerAuth(tokenProvider.exchange(AccessType.M2M))
             header(personIdentHeader, norskIdent.value)
             contentType(ContentType.Application.Json)
         }

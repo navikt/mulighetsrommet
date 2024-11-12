@@ -199,7 +199,6 @@ private fun services(appConfig: AppConfig) = module {
         appConfig.auth.maskinporten.audience,
         appConfig.auth.maskinporten.tokenEndpointUrl,
         appConfig.auth.maskinporten.issuer,
-        engine = appConfig.engine,
     )
 
     single {
