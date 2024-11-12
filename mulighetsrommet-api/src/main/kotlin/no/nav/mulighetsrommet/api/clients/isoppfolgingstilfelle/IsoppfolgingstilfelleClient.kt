@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit
 class IsoppfolgingstilfelleClient(
     private val baseUrl: String,
     private val tokenProvider: TokenProvider,
-    clientEngine: HttpClientEngine = CIO.create(),
+    clientEngine: HttpClientEngine,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
     private val personIdentHeader = "nav-personident"
@@ -40,23 +40,23 @@ class IsoppfolgingstilfelleClient(
         .recordStats()
         .build()
 
-    suspend fun erSykmeldtMedArbeidsgiver(
-        norskIdent: NorskIdent,
-        obo: AccessType.OBO,
-    ): Either<OppfolgingstilfelleError, Boolean> {
+    suspend fun erSykmeldtMedArbeidsgiver(norskIdent: NorskIdent): Either<OppfolgingstilfelleError, Boolean> {
         erSykmeldtMedArbeidsgiverCache.getIfPresent(norskIdent)?.let { return@erSykmeldtMedArbeidsgiver it.right() }
 
-        return hentOppfolgingstilfeller(norskIdent, obo)
+        return hentOppfolgingstilfeller(norskIdent)
             .map { oppfolgingstilfeller ->
                 oppfolgingstilfeller
                     .filter { it.gyldigForDato(LocalDate.now()) }
                     .firstOrNull { it.arbeidstakerAtTilfelleEnd } != null
             }
+            .onRight {
+                erSykmeldtMedArbeidsgiverCache.put(norskIdent, it)
+            }
     }
 
-    private suspend fun hentOppfolgingstilfeller(norskIdent: NorskIdent, obo: AccessType.OBO): Either<OppfolgingstilfelleError, List<OppfolgingstilfelleDTO>> {
-        val response = client.get("$baseUrl/api/internad/v1/oppfolgingstilfelle/personident") {
-            bearerAuth(tokenProvider.exchange(obo))
+    private suspend fun hentOppfolgingstilfeller(norskIdent: NorskIdent): Either<OppfolgingstilfelleError, List<OppfolgingstilfelleDTO>> {
+        val response = client.get("$baseUrl/api/system/v1/oppfolgingstilfelle/personident") {
+            bearerAuth(tokenProvider.exchange(AccessType.M2M))
             header(personIdentHeader, norskIdent.value)
             contentType(ContentType.Application.Json)
         }

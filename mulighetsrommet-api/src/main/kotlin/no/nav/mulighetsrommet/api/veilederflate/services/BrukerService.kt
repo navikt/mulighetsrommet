@@ -44,7 +44,7 @@ class BrukerService(
         val deferredSisteVedtak = async { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, obo) }
         val deferredPdlPerson = async { pdlClient.hentPerson(PdlIdent(fnr.value), obo) }
         val deferredBrukersGeografiskeEnhet = async { hentBrukersGeografiskeEnhet(fnr, obo) }
-        val deferredErSykmeldtMedArbeidsgiver = async { isoppfolgingstilfelleClient.erSykmeldtMedArbeidsgiver(fnr, obo) }
+        val deferredErSykmeldtMedArbeidsgiver = async { isoppfolgingstilfelleClient.erSykmeldtMedArbeidsgiver(fnr) }
 
         val erUnderOppfolging = deferredErUnderOppfolging.await()
             .getOrElse {
@@ -141,7 +141,11 @@ class BrukerService(
         val erSykmeldtMedArbeidsgiver = deferredErSykmeldtMedArbeidsgiver.await()
             .getOrElse {
                 when (it) {
-                    OppfolgingstilfelleError.Forbidden -> false
+                    OppfolgingstilfelleError.Forbidden ->
+                        throw StatusException(
+                            HttpStatusCode.InternalServerError,
+                            "Manglet tilgang til å hente oppfølgingstilfeller.",
+                        )
                     OppfolgingstilfelleError.Error ->
                         throw StatusException(
                             HttpStatusCode.InternalServerError,
