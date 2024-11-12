@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
+import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import java.util.*
 

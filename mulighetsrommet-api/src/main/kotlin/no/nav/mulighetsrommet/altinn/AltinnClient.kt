@@ -9,8 +9,8 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.altinn.models.AltinnRessurs
-import no.nav.mulighetsrommet.altinn.models.BedriftRettigheter
+import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
+import no.nav.mulighetsrommet.altinn.model.BedriftRettigheter
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
