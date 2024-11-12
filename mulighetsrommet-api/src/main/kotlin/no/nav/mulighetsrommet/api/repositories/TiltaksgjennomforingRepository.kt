@@ -415,11 +415,19 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val query = """
             select * from tiltaksgjennomforing_admin_dto_view
             left join refusjonskrav on refusjonskrav.gjennomforing_id = tiltaksgjennomforing_admin_dto_view.id
+            left join refusjonskrav_beregning_aft ON refusjonskrav.id = refusjonskrav_beregning_aft.refusjonskrav_id
+                and refusjonskrav_beregning_aft.periode && tsrange(:periode_start, :periode_slutt)
             where
                 (start_dato <= :periode_slutt) and
                 (slutt_dato >= :periode_start or slutt_dato is null) and
                 (avbrutt_tidspunkt > :periode_start or avbrutt_tidspunkt is null) and
-                (refusjonskrav.id is null)
+                not exists (
+                    select 1
+                    from refusjonskrav
+                        join refusjonskrav_beregning_aft ON refusjonskrav.id = refusjonskrav_beregning_aft.refusjonskrav_id
+                    where refusjonskrav.gjennomforing_id = tiltaksgjennomforing_admin_dto_view.id
+                    and refusjonskrav_beregning_aft.periode && tsrange(:periode_start, :periode_slutt)
+                );
         """.trimIndent()
 
         return queryOf(query, mapOf("periode_start" to periodeStart, "periode_slutt" to periodeSlutt))
