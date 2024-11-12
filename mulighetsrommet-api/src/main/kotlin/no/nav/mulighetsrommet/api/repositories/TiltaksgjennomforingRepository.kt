@@ -418,8 +418,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where
                 (start_dato <= :periode_slutt) and
                 (slutt_dato >= :periode_start or slutt_dato is null) and
-                (avbrutt_tidspunkt > :periode_start or avbrutt_tidspunkt is null) and
-                (refusjonskrav.id is null)
+                (avbrutt_tidspunkt > :periode_start or avbrutt_tidspunkt is null)
         """.trimIndent()
 
         return queryOf(query, mapOf("periode_start" to periodeStart, "periode_slutt" to periodeSlutt))

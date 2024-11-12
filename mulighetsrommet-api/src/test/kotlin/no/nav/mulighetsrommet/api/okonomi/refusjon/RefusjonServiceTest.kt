@@ -13,12 +13,17 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.okonomi.refusjon.db.RefusjonskravDbo
 import no.nav.mulighetsrommet.api.okonomi.refusjon.db.RefusjonskravRepository
-import no.nav.mulighetsrommet.api.okonomi.refusjon.model.*
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.DeltakelseManedsverk
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.DeltakelsePerioder
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
+import no.nav.mulighetsrommet.domain.dto.Kid
+import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -72,6 +77,64 @@ class RefusjonServiceTest : FunSpec({
             krav.beregning.input shouldBe RefusjonKravBeregningAft.Input(
                 periodeStart = LocalDate.of(2024, 1, 1).atStartOfDay(),
                 periodeSlutt = LocalDate.of(2024, 2, 1).atStartOfDay(),
+                sats = 20205,
+                deltakelser = setOf(),
+            )
+        }
+
+        test("genererer et refusjonskrav med kontonummer og kid-nummer fra forrige godkjente refusjonskrav fra arrangør") {
+            val domain = MulighetsrommetTestDomain(
+                gjennomforinger = listOf(AFT1),
+            )
+            domain.initialize(database.db)
+
+            val januar = LocalDate.of(2024, 1, 1)
+            service.genererRefusjonskravForMonth(januar)
+
+            val allKrav = refusjonskravRepository.getByArrangorIds(
+                getOrgnrForArrangor(
+                    AFT1,
+                    domain,
+                ),
+            )
+            allKrav.size shouldBe 1
+
+            val krav = allKrav.first()
+            krav.gjennomforing.id shouldBe AFT1.id
+            krav.fristForGodkjenning shouldBe LocalDateTime.of(2024, 4, 1, 0, 0, 0)
+            krav.betalingsinformasjon.kontonummer shouldBe null
+            krav.betalingsinformasjon.kid shouldBe null
+            krav.beregning.input shouldBe RefusjonKravBeregningAft.Input(
+                periodeStart = LocalDate.of(2024, 1, 1).atStartOfDay(),
+                periodeSlutt = LocalDate.of(2024, 2, 1).atStartOfDay(),
+                sats = 20205,
+                deltakelser = setOf(),
+            )
+            refusjonskravRepository.setBetalingsInformasjon(
+                id = krav.id,
+                kontonummer = Kontonummer("12345678901"),
+                kid = Kid("12345678901"),
+            )
+            refusjonskravRepository.setGodkjentAvArrangor(krav.id, LocalDateTime.now())
+
+            val februar = LocalDate.of(2024, 2, 1)
+            service.genererRefusjonskravForMonth(februar)
+            val nyeKrav = refusjonskravRepository.getByArrangorIds(
+                getOrgnrForArrangor(
+                    AFT1,
+                    domain,
+                ),
+            )
+            nyeKrav.size shouldBe 2
+
+            val sisteKrav = nyeKrav.first()
+            sisteKrav.gjennomforing.id shouldBe AFT1.id
+            sisteKrav.fristForGodkjenning shouldBe LocalDateTime.of(2024, 5, 1, 0, 0, 0)
+            sisteKrav.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
+            sisteKrav.betalingsinformasjon.kid shouldBe Kid("12345678901")
+            sisteKrav.beregning.input shouldBe RefusjonKravBeregningAft.Input(
+                periodeStart = LocalDate.of(2024, 2, 1).atStartOfDay(),
+                periodeSlutt = LocalDate.of(2024, 3, 1).atStartOfDay(),
                 sats = 20205,
                 deltakelser = setOf(),
             )

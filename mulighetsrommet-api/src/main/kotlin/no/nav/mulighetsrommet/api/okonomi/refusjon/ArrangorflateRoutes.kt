@@ -1,10 +1,6 @@
 package no.nav.mulighetsrommet.api.okonomi.refusjon
 
-import arrow.core.Either
-import arrow.core.getOrElse
-import arrow.core.left
-import arrow.core.right
-import arrow.core.toNonEmptySetOrNull
+import arrow.core.*
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
@@ -25,12 +21,7 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import no.nav.mulighetsrommet.api.domain.dto.DeltakerDto
 import no.nav.mulighetsrommet.api.okonomi.refusjon.db.RefusjonskravRepository
-import no.nav.mulighetsrommet.api.okonomi.refusjon.model.DeltakelsePeriode
-import no.nav.mulighetsrommet.api.okonomi.refusjon.model.DeltakelsePerioder
-import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonKravBeregning
-import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonKravBeregningAft
-import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonskravDto
-import no.nav.mulighetsrommet.api.okonomi.refusjon.model.RefusjonskravStatus
+import no.nav.mulighetsrommet.api.okonomi.refusjon.model.*
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.model.ArrangorflateTilsagn
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
@@ -68,19 +59,6 @@ fun Route.arrangorflateRoutes() {
     val deltakerRepository: DeltakerRepository by inject()
 
     val pdl: HentAdressebeskyttetPersonBolkPdlQuery by inject()
-
-    suspend fun <T : Any> PipelineContext<T, ApplicationCall>.arrangorIderMedTilgang(): List<UUID> {
-        return call.principal<ArrangorflatePrincipal>()
-            ?.organisasjonsnummer
-            ?.map {
-                arrangorService.getOrSyncArrangorFromBrreg(it)
-                    .getOrElse {
-                        throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
-                    }
-                    .id
-            }
-            ?: throw StatusException(HttpStatusCode.Unauthorized)
-    }
 
     suspend fun <T : Any> PipelineContext<T, ApplicationCall>.arrangorerMedTilgang(): List<ArrangorDto> {
         return call.principal<ArrangorflatePrincipal>()
@@ -227,7 +205,12 @@ fun validerGodkjennRefusjonskrav(
     when (beregning) {
         is RefusjonKravBeregningAft -> {
             if (beregning.input.deltakelser != request.deltakelser || beregning.output.belop != request.belop) {
-                listOf(ValidationError.ofCustomLocation("info", "Informasjonen i kravet har endret seg. Vennligst se over på nytt.")).left()
+                listOf(
+                    ValidationError.ofCustomLocation(
+                        "info",
+                        "Informasjonen i kravet har endret seg. Vennligst se over på nytt.",
+                    ),
+                ).left()
             } else {
                 Unit.right()
             }
