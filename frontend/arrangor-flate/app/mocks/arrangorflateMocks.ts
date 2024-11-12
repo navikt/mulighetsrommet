@@ -35,7 +35,7 @@ const mockKrav: RefusjonKravAft[] = [
         id: uuid(),
         person: {
           navn: "Per Petterson",
-          foedselsdato: "1980-01-01",
+          fodselsdato: "1980-01-01",
           fodselsaar: 1980,
         },
         manedsverk: 0.3,
@@ -97,7 +97,7 @@ const mockKrav: RefusjonKravAft[] = [
         id: uuid(),
         person: {
           navn: "Per Petterson",
-          foedselsdato: "1980-01-01",
+          fodselsdato: "1980-01-01",
           fodselsaar: 1980,
         },
         manedsverk: 0.3,
@@ -158,7 +158,7 @@ const mockKrav: RefusjonKravAft[] = [
         id: uuid(),
         person: {
           navn: "Per Petterson",
-          foedselsdato: "1980-01-01",
+          fodselsdato: "1980-01-01",
           fodselsaar: 1980,
         },
         manedsverk: 0.3,
@@ -219,7 +219,7 @@ const mockKrav: RefusjonKravAft[] = [
         id: uuid(),
         person: {
           navn: "Per Petterson",
-          foedselsdato: "1980-01-01",
+          fodselsdato: "1980-01-01",
           fodselsaar: 1980,
         },
         manedsverk: 0.3,

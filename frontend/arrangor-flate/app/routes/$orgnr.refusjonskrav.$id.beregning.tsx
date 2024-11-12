@@ -179,8 +179,8 @@ function getDeltakerSelector(sortKey: DeltakerSortKey): SortBySelector<Deltaker>
 }
 
 function getFormattedFodselsdato(person?: RefusjonKravDeltakelsePerson) {
-  return person?.foedselsdato
-    ? formaterDato(person?.foedselsdato)
+  return person?.fodselsdato
+    ? formaterDato(person.fodselsdato)
     : person?.fodselsaar
       ? `Fødselsår: ${person.fodselsaar}`
       : null;
