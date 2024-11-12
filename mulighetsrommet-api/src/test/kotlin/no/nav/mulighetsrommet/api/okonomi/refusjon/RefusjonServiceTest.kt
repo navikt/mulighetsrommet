@@ -264,7 +264,25 @@ class RefusjonServiceTest : FunSpec({
         }
 
         test("genererer ikke refusjonskrav hvis det finnes et med overlappende periode") {
-            val domain = MulighetsrommetTestDomain(gjennomforinger = listOf(AFT1))
+            val domain = MulighetsrommetTestDomain(
+                gjennomforinger = listOf(AFT1),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltaker(
+                        AFT1.id,
+                        startDato = LocalDate.of(2023, 2, 1),
+                        sluttDato = LocalDate.of(2026, 6, 1),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                        stillingsprosent = 100.0,
+                    ),
+                    DeltakerFixtures.createDeltaker(
+                        AFT1.id,
+                        startDato = LocalDate.of(2023, 1, 1),
+                        sluttDato = LocalDate.of(2026, 2, 1),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                        stillingsprosent = 100.0,
+                    ),
+                ),
+            )
             domain.initialize(database.db)
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
@@ -276,6 +294,12 @@ class RefusjonServiceTest : FunSpec({
             // Februar finnes allerede så ingen nye
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 2, 1))
             refusjonskravRepository.getByArrangorIds(getOrgnrForArrangor(AFT1, domain)) shouldHaveSize 2
+
+            service.genererRefusjonskravForMonth(LocalDate.of(2024, 3, 1))
+            refusjonskravRepository.getByArrangorIds(getOrgnrForArrangor(AFT1, domain)) shouldHaveSize 3
+
+            service.genererRefusjonskravForMonth(LocalDate.of(2024, 3, 1))
+            refusjonskravRepository.getByArrangorIds(getOrgnrForArrangor(AFT1, domain)) shouldHaveSize 3
         }
 
         test("deltaker med startDato lik periodeSlutt blir ikke med i kravet") {
