@@ -17,8 +17,8 @@ import no.nav.mulighetsrommet.api.domain.dto.SanityTiltakstype
 import no.nav.mulighetsrommet.api.domain.dto.SanityTiltakstypeFields
 import no.nav.mulighetsrommet.api.domain.dto.Slug
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeRef
-import no.nav.mulighetsrommet.api.services.SanityNavKontaktperson
-import no.nav.mulighetsrommet.api.services.SanityRedaktor
+import no.nav.mulighetsrommet.api.navansatt.SanityNavKontaktperson
+import no.nav.mulighetsrommet.api.navansatt.SanityRedaktor
 import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrift
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe

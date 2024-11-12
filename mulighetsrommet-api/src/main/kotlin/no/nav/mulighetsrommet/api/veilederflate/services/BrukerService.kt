@@ -21,9 +21,9 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakError
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
-import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
-import no.nav.mulighetsrommet.api.services.NAV_EGNE_ANSATTE_TIL_FYLKE_MAP
-import no.nav.mulighetsrommet.api.services.NavEnhetService
+import no.nav.mulighetsrommet.api.navenhet.NAV_EGNE_ANSATTE_TIL_FYLKE_MAP
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
+import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -44,7 +44,7 @@ class BrukerService(
         val deferredSisteVedtak = async { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, obo) }
         val deferredPdlPerson = async { pdlClient.hentPerson(PdlIdent(fnr.value), obo) }
         val deferredBrukersGeografiskeEnhet = async { hentBrukersGeografiskeEnhet(fnr, obo) }
-        val deferredErSykmeldtMedArbeidsgiver = async { isoppfolgingstilfelleClient.erSykmeldtMedArbeidsgiver(fnr, obo) }
+        val deferredErSykmeldtMedArbeidsgiver = async { isoppfolgingstilfelleClient.erSykmeldtMedArbeidsgiver(fnr) }
 
         val erUnderOppfolging = deferredErUnderOppfolging.await()
             .getOrElse {
@@ -141,7 +141,11 @@ class BrukerService(
         val erSykmeldtMedArbeidsgiver = deferredErSykmeldtMedArbeidsgiver.await()
             .getOrElse {
                 when (it) {
-                    OppfolgingstilfelleError.Forbidden -> false
+                    OppfolgingstilfelleError.Forbidden ->
+                        throw StatusException(
+                            HttpStatusCode.InternalServerError,
+                            "Manglet tilgang til å hente oppfølgingstilfeller.",
+                        )
                     OppfolgingstilfelleError.Error ->
                         throw StatusException(
                             HttpStatusCode.InternalServerError,

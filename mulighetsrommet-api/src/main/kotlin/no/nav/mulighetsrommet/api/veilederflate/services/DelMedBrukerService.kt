@@ -4,11 +4,11 @@ import io.ktor.server.plugins.*
 import kotlinx.serialization.Serializable
 import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
-import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.api.services.cms.CacheUsage
 import no.nav.mulighetsrommet.api.services.cms.SanityService
-import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils.tittelOgUnderTittel
+import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.veilederflate.TiltaksnavnUtils.tittelOgUnderTittel
+import no.nav.mulighetsrommet.api.veilederflate.models.DelMedBrukerDbo
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query

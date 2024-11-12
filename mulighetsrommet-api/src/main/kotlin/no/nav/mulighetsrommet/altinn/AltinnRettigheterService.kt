@@ -1,6 +1,9 @@
 package no.nav.mulighetsrommet.altinn
 
-import no.nav.mulighetsrommet.altinn.models.BedriftRettigheter
+import no.nav.mulighetsrommet.altinn.db.AltinnRettigheterRepository
+import no.nav.mulighetsrommet.altinn.db.BedriftRettigheterDbo
+import no.nav.mulighetsrommet.altinn.db.PersonBedriftRettigheterDbo
+import no.nav.mulighetsrommet.altinn.model.BedriftRettigheter
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import java.time.Duration
 import java.time.LocalDateTime
@@ -23,7 +26,7 @@ class AltinnRettigheterService(
     private suspend fun syncRettigheter(norskIdent: NorskIdent): List<BedriftRettigheter> {
         val rettigheter = altinnClient.hentRettigheter(norskIdent)
         altinnRettigheterRepository.upsertRettighet(
-            PersonBedriftRettigheter(
+            PersonBedriftRettigheterDbo(
                 norskIdent = norskIdent,
                 bedriftRettigheter = rettigheter,
                 expiry = LocalDateTime.now().plusSeconds(rolleExpiryDuration.seconds),
