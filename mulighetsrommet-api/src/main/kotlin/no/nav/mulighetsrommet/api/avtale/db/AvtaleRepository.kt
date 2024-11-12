@@ -37,7 +37,9 @@ import java.util.*
 class AvtaleRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(avtale: AvtaleDbo) = db.transaction { upsert(avtale, it) }
+    fun upsert(avtale: AvtaleDbo) = db.transaction {
+        upsert(avtale, it)
+    }
 
     fun upsert(avtale: AvtaleDbo, tx: Session) {
         logger.info("Lagrer avtale id=${avtale.id}")
@@ -342,7 +344,9 @@ class AvtaleRepository(private val db: Database) {
         queryOf(query, avtale.toSqlParameters(arrangorId)).asExecute.let { tx.run(it) }
     }
 
-    fun get(id: UUID): AvtaleDto? = db.transaction { get(id, it) }
+    fun get(id: UUID): AvtaleDto? = db.transaction {
+        get(id, it)
+    }
 
     fun get(id: UUID, tx: Session): AvtaleDto? {
         @Language("PostgreSQL")
@@ -465,8 +469,9 @@ class AvtaleRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int =
-        db.transaction { avbryt(it, id, tidspunkt, aarsak) }
+    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int = db.transaction {
+        avbryt(it, id, tidspunkt, aarsak)
+    }
 
     fun avbryt(tx: Session, id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
         @Language("PostgreSQL")

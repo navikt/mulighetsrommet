@@ -196,8 +196,8 @@ fun Route.arrangorflateRoutes() {
 fun validerGodkjennRefusjonskrav(
     request: GodkjennRefusjonskravAft,
     krav: RefusjonskravDto,
-): Either<List<ValidationError>, GodkjennRefusjonskravAft> =
-    if (request.digest != krav.beregning.getDigest()) {
+): Either<List<ValidationError>, GodkjennRefusjonskravAft> {
+    return if (request.digest != krav.beregning.getDigest()) {
         listOf(
             ValidationError.ofCustomLocation(
                 "info",
@@ -207,6 +207,7 @@ fun validerGodkjennRefusjonskrav(
     } else {
         request.right()
     }
+}
 
 fun toRefusjonskravKompakt(krav: RefusjonskravDto) = RefusjonKravKompakt(
     id = krav.id,

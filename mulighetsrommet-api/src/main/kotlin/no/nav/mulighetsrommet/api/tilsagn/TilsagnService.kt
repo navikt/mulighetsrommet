@@ -115,23 +115,22 @@ class TilsagnService(
         }.right()
     }
 
-    fun getAllArrangorflateTilsagn(organisasjonsnummer: Organisasjonsnummer): List<ArrangorflateTilsagn> =
-        tilsagnRepository.getAllArrangorflateTilsagn(organisasjonsnummer)
+    fun getAllArrangorflateTilsagn(organisasjonsnummer: Organisasjonsnummer): List<ArrangorflateTilsagn> {
+        return tilsagnRepository.getAllArrangorflateTilsagn(organisasjonsnummer)
+    }
 
     fun getArrangorflateTilsagnTilRefusjon(
         gjennomforingId: UUID,
         periode: RefusjonskravPeriode,
-    ): List<ArrangorflateTilsagn> =
-        tilsagnRepository.getArrangorflateTilsagnTilRefusjon(gjennomforingId, periode)
+    ): List<ArrangorflateTilsagn> {
+        return tilsagnRepository.getArrangorflateTilsagnTilRefusjon(gjennomforingId, periode)
+    }
 
-    fun getArrangorflateTilsagn(id: UUID): ArrangorflateTilsagn? =
-        tilsagnRepository.getArrangorflateTilsagn(id)
+    fun getArrangorflateTilsagn(id: UUID): ArrangorflateTilsagn? = tilsagnRepository.getArrangorflateTilsagn(id)
 
-    fun getByGjennomforingId(gjennomforingId: UUID): List<TilsagnDto> =
-        tilsagnRepository.getByGjennomforingId(gjennomforingId)
+    fun getByGjennomforingId(gjennomforingId: UUID): List<TilsagnDto> = tilsagnRepository.getByGjennomforingId(gjennomforingId)
 
-    fun get(id: UUID): TilsagnDto? =
-        tilsagnRepository.get(id)
+    fun get(id: UUID): TilsagnDto? = tilsagnRepository.get(id)
 
     private fun lagOkonomiId(tilsagn: TilsagnDto): String {
         return "T-${tilsagn.id}"

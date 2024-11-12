@@ -79,63 +79,59 @@ class CachedTokenProvider(
     }
 }
 
-private fun AccessType.subject(): String =
-    when (this) {
-        AccessType.M2M -> ""
-        is AccessType.OBO -> {
-            try {
-                val token = JWTParser.parse(this.token)
-                val subject = token.jwtClaimsSet.subject
-                    ?: throw IllegalArgumentException("Unable to get subject, access token is missing subject")
-                subject
-            } catch (e: ParseException) {
-                throw IllegalArgumentException("Unable to get subject, access token is invalid")
-            }
+private fun AccessType.subject(): String = when (this) {
+    AccessType.M2M -> ""
+    is AccessType.OBO -> {
+        try {
+            val token = JWTParser.parse(this.token)
+            val subject = token.jwtClaimsSet.subject
+                ?: throw IllegalArgumentException("Unable to get subject, access token is missing subject")
+            subject
+        } catch (e: ParseException) {
+            throw IllegalArgumentException("Unable to get subject, access token is invalid")
         }
     }
+}
 
-private fun createOboTokenClient(clientId: String, tokenEndpointUrl: String): OnBehalfOfTokenClient =
-    when (NaisEnv.current()) {
-        NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
-            .withClientId(clientId)
-            .withPrivateJwk(createMockRSAKey("azure").toJSONString())
-            .withTokenEndpointUrl(tokenEndpointUrl)
-            .buildOnBehalfOfTokenClient()
+private fun createOboTokenClient(clientId: String, tokenEndpointUrl: String): OnBehalfOfTokenClient = when (NaisEnv.current()) {
+    NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
+        .withClientId(clientId)
+        .withPrivateJwk(createMockRSAKey("azure").toJSONString())
+        .withTokenEndpointUrl(tokenEndpointUrl)
+        .buildOnBehalfOfTokenClient()
 
-        else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildOnBehalfOfTokenClient()
-    }
+    else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildOnBehalfOfTokenClient()
+}
 
-private fun createM2mTokenClient(clientId: String, tokenEndpointUrl: String): MachineToMachineTokenClient =
-    when (NaisEnv.current()) {
-        NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
-            .withClientId(clientId)
-            .withPrivateJwk(createMockRSAKey("azure").toJSONString())
-            .withTokenEndpointUrl(tokenEndpointUrl)
-            .buildMachineToMachineTokenClient()
+private fun createM2mTokenClient(clientId: String, tokenEndpointUrl: String): MachineToMachineTokenClient = when (NaisEnv.current()) {
+    NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
+        .withClientId(clientId)
+        .withPrivateJwk(createMockRSAKey("azure").toJSONString())
+        .withTokenEndpointUrl(tokenEndpointUrl)
+        .buildMachineToMachineTokenClient()
 
-        else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
-    }
+    else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
+}
 
 fun createMaskinportenM2mTokenClient(
     clientId: String,
     tokenEndpointUrl: String,
     issuer: String,
-): MaskinPortenTokenProvider? =
-    when (NaisEnv.current()) {
-        NaisEnv.Local -> MaskinPortenTokenProvider(
-            clientId = clientId,
-            tokenEndpointUrl = tokenEndpointUrl,
-            privateJwk = createMockRSAKey("maskinporten").toJSONString(),
-            issuer = issuer,
-        )
-        NaisEnv.ProdGCP -> null // TODO: Remove when prod
-        else -> MaskinPortenTokenProvider(
-            clientId = clientId,
-            tokenEndpointUrl = tokenEndpointUrl,
-            privateJwk = System.getenv("MASKINPORTEN_CLIENT_JWK"),
-            issuer = issuer,
-        )
-    }
+): MaskinPortenTokenProvider? = when (NaisEnv.current()) {
+    NaisEnv.Local -> MaskinPortenTokenProvider(
+        clientId = clientId,
+        tokenEndpointUrl = tokenEndpointUrl,
+        privateJwk = createMockRSAKey("maskinporten").toJSONString(),
+        issuer = issuer,
+    )
+    NaisEnv.ProdGCP -> null // TODO: Remove when prod
+    else -> MaskinPortenTokenProvider(
+        clientId = clientId,
+        tokenEndpointUrl = tokenEndpointUrl,
+        privateJwk = System.getenv("MASKINPORTEN_CLIENT_JWK"),
+        issuer = issuer,
+    )
+}
 
 private fun createMockRSAKey(keyID: String): RSAKey = KeyPairGenerator
     .getInstance("RSA").let {

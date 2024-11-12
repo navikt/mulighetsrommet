@@ -179,23 +179,22 @@ class TiltakgjennomforingEventProcessor(
             )
         }.mapLeft { ProcessingError.ProcessingFailed(it.localizedMessage) }
 
-    private fun Tiltaksgjennomforing.toDbo(tiltakstypeId: UUID, sak: Sak, virksomhetsnummer: String, avtaleId: UUID?) =
-        ArenaTiltaksgjennomforingDbo(
-            id = id,
-            sanityId = sanityId,
-            navn = navn,
-            tiltakstypeId = tiltakstypeId,
-            tiltaksnummer = "${sak.aar}#${sak.lopenummer}",
-            arrangorOrganisasjonsnummer = virksomhetsnummer,
-            startDato = fraDato.toLocalDate(),
-            sluttDato = tilDato?.toLocalDate(),
-            arenaAnsvarligEnhet = sak.enhet,
-            avslutningsstatus = resolveAvslutningsstatus(status, tilDato),
-            apentForInnsok = apentForInnsok,
-            antallPlasser = antallPlasser,
-            avtaleId = avtaleId,
-            deltidsprosent = deltidsprosent,
-        )
+    private fun Tiltaksgjennomforing.toDbo(tiltakstypeId: UUID, sak: Sak, virksomhetsnummer: String, avtaleId: UUID?) = ArenaTiltaksgjennomforingDbo(
+        id = id,
+        sanityId = sanityId,
+        navn = navn,
+        tiltakstypeId = tiltakstypeId,
+        tiltaksnummer = "${sak.aar}#${sak.lopenummer}",
+        arrangorOrganisasjonsnummer = virksomhetsnummer,
+        startDato = fraDato.toLocalDate(),
+        sluttDato = tilDato?.toLocalDate(),
+        arenaAnsvarligEnhet = sak.enhet,
+        avslutningsstatus = resolveAvslutningsstatus(status, tilDato),
+        apentForInnsok = apentForInnsok,
+        antallPlasser = antallPlasser,
+        avtaleId = avtaleId,
+        deltidsprosent = deltidsprosent,
+    )
 
     private fun resolveAvslutningsstatus(status: String, tilDato: LocalDateTime?): Avslutningsstatus {
         val avslutningsstatus = Avslutningsstatus.fromArenastatus(status)
