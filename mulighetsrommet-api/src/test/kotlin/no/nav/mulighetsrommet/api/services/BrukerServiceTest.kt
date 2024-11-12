@@ -73,7 +73,7 @@ class BrukerServiceTest : FunSpec({
         coEvery { veilarboppfolgingClient.hentOppfolgingsenhet(fnr1, any()) } returns mockOppfolgingsenhet().right()
 
         coEvery { veilarboppfolgingClient.hentManuellStatus(fnr1, any()) } returns mockManuellStatus().right()
-        coEvery { isoppfolgingstilfelleClient.erSykmeldtMedArbeidsgiver(fnr1) } returns true.right()
+        coEvery { isoppfolgingstilfelleClient.erSykmeldtMedArbeidsgiver(fnr1, any()) } returns true.right()
 
         coEvery { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr1, any()) } answers {
             VedtakDto(innsatsgruppe = VedtakDto.Innsatsgruppe.STANDARD_INNSATS).right()

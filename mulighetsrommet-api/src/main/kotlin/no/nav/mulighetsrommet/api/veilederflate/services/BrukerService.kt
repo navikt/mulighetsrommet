@@ -6,6 +6,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient
+import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.OppfolgingstilfelleError
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.norg2.NorgError
@@ -43,7 +44,7 @@ class BrukerService(
         val deferredSisteVedtak = async { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, obo) }
         val deferredPdlPerson = async { pdlClient.hentPerson(PdlIdent(fnr.value), obo) }
         val deferredBrukersGeografiskeEnhet = async { hentBrukersGeografiskeEnhet(fnr, obo) }
-        val deferredErSykmeldtMedArbeidsgiver = async { isoppfolgingstilfelleClient.erSykmeldtMedArbeidsgiver(fnr) }
+        val deferredErSykmeldtMedArbeidsgiver = async { isoppfolgingstilfelleClient.erSykmeldtMedArbeidsgiver(fnr, obo) }
 
         val erUnderOppfolging = deferredErUnderOppfolging.await()
             .getOrElse {
@@ -139,10 +140,14 @@ class BrukerService(
 
         val erSykmeldtMedArbeidsgiver = deferredErSykmeldtMedArbeidsgiver.await()
             .getOrElse {
-                throw StatusException(
-                    HttpStatusCode.InternalServerError,
-                    "Klarte ikke hente oppfølgingstilfeller.",
-                )
+                when (it) {
+                    OppfolgingstilfelleError.Forbidden -> false
+                    OppfolgingstilfelleError.Error ->
+                        throw StatusException(
+                            HttpStatusCode.InternalServerError,
+                            "Klarte ikke hente oppfølgingstilfeller.",
+                        )
+                }
             }
 
         Brukerdata(

@@ -120,6 +120,7 @@ fun createMaskinportenM2mTokenClient(
     clientId: String,
     tokenEndpointUrl: String,
     issuer: String,
+    engine: HttpClientEngine,
 ): MaskinPortenTokenProvider? =
     when (NaisEnv.current()) {
         NaisEnv.Local -> MaskinPortenTokenProvider(
