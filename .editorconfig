@@ -15,6 +15,7 @@ ktlint_code_style = intellij_idea
 ktlint_standard_no-wildcard-imports = disabled
 ktlint_standard_function-expression-body = disabled
 ktlint_standard_class-signature = disabled
+ktlint_standard_function-signature = disabled
 
 [*.{js,ts,tsx,json}]
 indent_size = 2
