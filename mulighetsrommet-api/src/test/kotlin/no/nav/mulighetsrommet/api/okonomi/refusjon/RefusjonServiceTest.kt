@@ -127,14 +127,14 @@ class RefusjonServiceTest : FunSpec({
             )
             nyeKrav.size shouldBe 2
 
-            val sisteKrav = nyeKrav.last()
+            val sisteKrav = nyeKrav.first()
             sisteKrav.gjennomforing.id shouldBe AFT1.id
-            sisteKrav.fristForGodkjenning shouldBe LocalDateTime.of(2024, 4, 1, 0, 0, 0)
+            sisteKrav.fristForGodkjenning shouldBe LocalDateTime.of(2024, 5, 1, 0, 0, 0)
             sisteKrav.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
             sisteKrav.betalingsinformasjon.kid shouldBe Kid("12345678901")
             sisteKrav.beregning.input shouldBe RefusjonKravBeregningAft.Input(
-                periodeStart = LocalDate.of(2024, 1, 1).atStartOfDay(),
-                periodeSlutt = LocalDate.of(2024, 2, 1).atStartOfDay(),
+                periodeStart = LocalDate.of(2024, 2, 1).atStartOfDay(),
+                periodeSlutt = LocalDate.of(2024, 3, 1).atStartOfDay(),
                 sats = 20205,
                 deltakelser = setOf(),
             )

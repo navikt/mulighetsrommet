@@ -178,7 +178,7 @@ class RefusjonskravRepository(private val db: Database) {
     fun getByArrangorIds(organisasjonsnummer: Organisasjonsnummer): List<RefusjonskravDto> =
         db.transaction { getByArrangorIds(organisasjonsnummer, it) }
 
-    fun getByArrangorIds(
+    private fun getByArrangorIds(
         organisasjonsnummer: Organisasjonsnummer,
         tx: Session,
     ): List<RefusjonskravDto> {
@@ -186,6 +186,7 @@ class RefusjonskravRepository(private val db: Database) {
         val query = """
             select * from refusjonskrav_aft_view
             where arrangor_organisasjonsnummer = :organisasjonsnummer
+            order by frist_for_godkjenning desc
         """.trimIndent()
 
         return tx.run(
