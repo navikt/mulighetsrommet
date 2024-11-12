@@ -263,6 +263,21 @@ class RefusjonServiceTest : FunSpec({
             }
         }
 
+        test("genererer ikke refusjonskrav hvis det finnes et med overlappende periode") {
+            val domain = MulighetsrommetTestDomain(gjennomforinger = listOf(AFT1))
+            domain.initialize(database.db)
+            service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
+
+            refusjonskravRepository.getByArrangorIds(getOrgnrForArrangor(AFT1, domain)) shouldHaveSize 1
+
+            service.genererRefusjonskravForMonth(LocalDate.of(2024, 2, 1))
+            refusjonskravRepository.getByArrangorIds(getOrgnrForArrangor(AFT1, domain)) shouldHaveSize 2
+
+            // Februar finnes allerede så ingen nye
+            service.genererRefusjonskravForMonth(LocalDate.of(2024, 2, 1))
+            refusjonskravRepository.getByArrangorIds(getOrgnrForArrangor(AFT1, domain)) shouldHaveSize 2
+        }
+
         test("deltaker med startDato lik periodeSlutt blir ikke med i kravet") {
             val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
