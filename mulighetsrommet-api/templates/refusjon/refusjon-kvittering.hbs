@@ -46,6 +46,14 @@
     <table class="block">
         <tbody>
         <tr>
+            <th>Refusjonskravperiode:</th>
+            <td>{{ iso_to_nor_date refusjon.beregning.periodeStart }} - {{ iso_to_nor_date refusjon.beregning.periodeSlutt }}</td>
+        </tr>
+        <tr>
+            <th>First for godkjenning:</th>
+            <td>{{ iso_to_nor_date refusjon.fristForGodkjenning }}</td>
+        </tr>
+        <tr>
             <th>Tiltaksnavn:</th>
             <td>{{ refusjon.gjennomforing.navn }}</td>
         </tr>
