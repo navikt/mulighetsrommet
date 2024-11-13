@@ -34,7 +34,7 @@ import java.time.ZonedDateTime
 import java.util.*
 
 class TiltakshistorikkTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val oauth = MockOAuth2Server()
 

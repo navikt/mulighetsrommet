@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifyAll
-import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
@@ -22,7 +22,7 @@ import java.util.*
 class UpdateTiltaksgjennomforingStatusTest :
     FunSpec({
 
-        val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+        val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
         val lastSuccessDate = LocalDate.of(2023, 2, 14)
         val today = LocalDate.of(2023, 2, 16)

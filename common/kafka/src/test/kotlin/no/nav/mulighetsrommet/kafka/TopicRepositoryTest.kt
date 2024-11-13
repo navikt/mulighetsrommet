@@ -3,10 +3,9 @@ package no.nav.mulighetsrommet.kafka
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
 
 class TopicRepositoryTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestSchema()))
+    val database = extension(FlywayDatabaseTestListener(testDatabaseConfig))
 
     val topic0 = Topic(id = "0", topic = "topic-0", type = TopicType.CONSUMER, running = false)
     val topic1 = Topic(id = "1", topic = "topic-1", type = TopicType.CONSUMER, running = false)

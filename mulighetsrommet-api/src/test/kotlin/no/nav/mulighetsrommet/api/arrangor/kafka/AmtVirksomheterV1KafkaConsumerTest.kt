@@ -15,13 +15,13 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.arrangor.db.ArrangorRepository
 import no.nav.mulighetsrommet.api.arrangor.model.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
-import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 
 class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     context("consume virksomheter") {
         val amtVirksomhet = AmtVirksomhetV1Dto(

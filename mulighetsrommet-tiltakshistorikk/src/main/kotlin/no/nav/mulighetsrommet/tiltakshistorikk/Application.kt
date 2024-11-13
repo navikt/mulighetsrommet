@@ -66,6 +66,8 @@ fun Application.configure(config: AppConfig) {
     environment.monitor.subscribe(ApplicationStopPreparing) {
         kafka.disableFailedRecordProcessor()
         kafka.stopPollingTopicChanges()
+
+        db.close()
     }
 }
 

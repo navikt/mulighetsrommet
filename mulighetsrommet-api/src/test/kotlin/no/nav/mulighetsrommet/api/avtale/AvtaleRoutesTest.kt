@@ -28,7 +28,7 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.*
 
 class AvtaleRoutesTest : FunSpec({
-    val databaseConfig = createDatabaseTestConfig()
+    val databaseConfig = databaseConfig
 
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 

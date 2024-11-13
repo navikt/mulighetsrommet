@@ -10,7 +10,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
-import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
@@ -35,7 +35,7 @@ import java.util.*
 
 class ArenaAdapterServiceTest :
     FunSpec({
-        val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+        val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
         context("avtaler") {
             val avtale = ArenaAvtaleDbo(

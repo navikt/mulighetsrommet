@@ -67,5 +67,7 @@ fun Application.configure(config: AppConfig) {
         kafka.stopPollingTopicChanges()
 
         scheduler.stop()
+
+        db.close()
     }
 }

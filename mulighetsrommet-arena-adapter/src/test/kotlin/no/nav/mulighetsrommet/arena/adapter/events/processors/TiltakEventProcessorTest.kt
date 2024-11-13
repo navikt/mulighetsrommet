@@ -4,7 +4,7 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
+import no.nav.mulighetsrommet.arena.adapter.databaseConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
@@ -18,7 +18,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 class TiltakEventProcessorTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     afterEach {
         database.db.truncateAll()

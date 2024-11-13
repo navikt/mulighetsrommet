@@ -5,7 +5,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.utdanning.client.UtdanningNoProgramomraade
 import no.nav.mulighetsrommet.utdanning.db.UtdanningRepository
 
 class SynchronizeUtdanningerTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
     val utdanningClient: UtdanningClient = mockk(relaxed = true)
 
     afterTest {

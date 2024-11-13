@@ -11,13 +11,13 @@ import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
-import no.nav.mulighetsrommet.tiltakshistorikk.createDatabaseTestConfig
+import no.nav.mulighetsrommet.tiltakshistorikk.databaseConfig
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.GruppetiltakRepository
 import java.time.LocalDate
 import java.util.*
 
 class TiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     context("konsumer gjennomføringer") {
         afterEach {

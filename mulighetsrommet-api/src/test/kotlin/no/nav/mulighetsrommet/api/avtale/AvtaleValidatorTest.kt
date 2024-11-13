@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.avtale.db.OpsjonLoggRepository
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
@@ -35,7 +35,7 @@ import java.time.LocalDate
 import java.util.*
 
 class AvtaleValidatorTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
     val unleash: UnleashService = mockk(relaxed = true)
     coEvery { unleash.isEnabled(any()) } returns true
 

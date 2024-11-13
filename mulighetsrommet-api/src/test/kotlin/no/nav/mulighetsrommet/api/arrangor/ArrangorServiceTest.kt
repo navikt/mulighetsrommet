@@ -16,14 +16,14 @@ import no.nav.mulighetsrommet.api.arrangor.db.ArrangorRepository
 import no.nav.mulighetsrommet.api.arrangor.model.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
-import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import java.time.LocalDate
 
 class ArrangorServiceTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val underenhet = BrregVirksomhetDto(
         organisasjonsnummer = Organisasjonsnummer("234567891"),
