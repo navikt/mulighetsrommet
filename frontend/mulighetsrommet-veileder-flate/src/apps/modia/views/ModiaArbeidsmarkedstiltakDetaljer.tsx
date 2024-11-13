@@ -16,7 +16,9 @@ import { isProduction } from "@/environment";
 import { ViewTiltakDetaljer } from "@/layouts/ViewTiltakDetaljer";
 import {
   Bruker,
+  Innsatsgruppe,
   NavVeileder,
+  Tiltakskode,
   TiltakskodeArena,
   Toggles,
   VeilederflateTiltakstype,
@@ -201,5 +203,10 @@ function harBrukerRettPaaValgtTiltak(
     return false;
   }
 
-  return (tiltakstype.innsatsgrupper ?? []).includes(bruker.innsatsgruppe);
+  return (
+    (tiltakstype.innsatsgrupper ?? []).includes(bruker.innsatsgruppe) ||
+    (bruker.erSykmeldtMedArbeidsgiver &&
+      tiltakstype.tiltakskode === Tiltakskode.ARBEIDSRETTET_REHABILITERING &&
+      bruker.innsatsgruppe === Innsatsgruppe.SITUASJONSBESTEMT_INNSATS)
+  );
 }
