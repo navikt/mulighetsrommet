@@ -8,7 +8,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.domain.dto.SanityTiltakstype
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -28,7 +28,7 @@ import java.time.LocalDate
 import java.util.*
 
 class DelMedBrukerServiceTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
     val sanityService: SanityService = mockk(relaxed = true)
     val tiltakstypeService: TiltakstypeService = mockk(relaxed = true)
 

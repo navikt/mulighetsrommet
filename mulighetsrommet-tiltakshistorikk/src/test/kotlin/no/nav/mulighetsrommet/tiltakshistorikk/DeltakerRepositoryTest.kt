@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class DeltakerRepositoryTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val gruppetiltak = TiltaksgjennomforingEksternV1Dto(
         id = UUID.randomUUID(),

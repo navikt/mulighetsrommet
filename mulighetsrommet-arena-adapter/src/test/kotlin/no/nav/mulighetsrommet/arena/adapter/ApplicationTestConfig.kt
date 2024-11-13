@@ -6,19 +6,11 @@ import no.nav.mulighetsrommet.arena.adapter.tasks.NotifyFailedEvents
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
-import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseIfNotExists
 import no.nav.mulighetsrommet.database.kotest.extensions.createRandomDatabaseConfig
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
-var databaseConfig: DatabaseConfig? = null
-fun createDatabaseTestConfig() =
-    if (databaseConfig == null) {
-        databaseConfig = createRandomDatabaseConfig("mr-arena-adapter")
-        databaseConfig!!
-    } else {
-        databaseConfig!!
-    }
+val databaseConfig: DatabaseConfig = createRandomDatabaseConfig("mr-arena-adapter")
 
 fun <R> withTestApplication(
     oauth: MockOAuth2Server = MockOAuth2Server(),
@@ -27,8 +19,6 @@ fun <R> withTestApplication(
 ) {
     testApplication {
         application {
-            createDatabaseIfNotExists(config.database)
-
             configure(config)
         }
 
@@ -37,7 +27,7 @@ fun <R> withTestApplication(
 }
 
 fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
-    database = createDatabaseTestConfig(),
+    database = databaseConfig,
     flyway = FlywayMigrationManager.MigrationConfig(),
     auth = createAuthConfig(oauth),
     kafka = createKafkaConfig(),

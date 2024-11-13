@@ -12,9 +12,7 @@ import org.assertj.db.api.Assertions
 import org.assertj.db.api.TableAssert
 import org.assertj.db.type.Table
 
-class FlywayDatabaseTestListener(private val config: DatabaseConfig) :
-    BeforeSpecListener,
-    AfterSpecListener {
+class FlywayDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpecListener, AfterSpecListener {
     private var delegate: Database? = null
 
     private val flywayMigration: FlywayMigrationManager = FlywayMigrationManager(
@@ -31,8 +29,6 @@ class FlywayDatabaseTestListener(private val config: DatabaseConfig) :
         // It's not optimal to force a sequential test order, but since tests (for now) all share the same database
         // instance they can't be run in parallel
         spec.testOrder = TestCaseOrder.Sequential
-
-        createDatabaseIfNotExists(config)
 
         delegate = Database(config)
 

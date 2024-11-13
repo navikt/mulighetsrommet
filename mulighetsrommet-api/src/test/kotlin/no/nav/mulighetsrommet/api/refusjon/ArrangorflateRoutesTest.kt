@@ -15,8 +15,8 @@ import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedParty
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.createAuthConfig
-import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.createTestApplicationConfig
+import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravAft
@@ -33,7 +33,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class ArrangorflateRoutesTest : FunSpec({
-    val databaseConfig = createDatabaseTestConfig()
+    val databaseConfig = databaseConfig
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val identMedTilgang = NorskIdent("01010199988")

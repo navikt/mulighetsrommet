@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
-import no.nav.mulighetsrommet.tiltakshistorikk.createDatabaseTestConfig
+import no.nav.mulighetsrommet.tiltakshistorikk.databaseConfig
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.GruppetiltakRepository
 import java.time.LocalDate
@@ -21,7 +21,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class AmtDeltakerV1KafkaConsumerTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     context("consume deltakere") {
         val gruppetiltak = GruppetiltakRepository(database.db)

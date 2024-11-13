@@ -20,7 +20,7 @@ import org.intellij.lang.annotations.Language
 import java.util.*
 
 class AuthenticationTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val oauth = MockOAuth2Server()
 

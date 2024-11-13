@@ -4,12 +4,11 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.createRandomDatabaseConfig
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
 class KafkaConsumerRepositoryTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createRandomDatabaseConfig()))
+    val database = extension(FlywayDatabaseTestListener(testDatabaseConfig))
 
     lateinit var kafkaConsumerRepository: KafkaConsumerRepositoryImpl
 
