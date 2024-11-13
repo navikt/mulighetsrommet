@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.api
 
-import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
-import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
@@ -15,26 +13,18 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForInnsok
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.refusjon.task.GenerateRefusjonskrav
-import no.nav.mulighetsrommet.api.tasks.*
+import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
 import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
-import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
+import no.nav.mulighetsrommet.database.kotest.extensions.createRandomDatabaseConfig
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
-var databaseConfig: DatabaseConfig? = null
-
-fun createDatabaseTestConfig() =
-    if (databaseConfig == null) {
-        databaseConfig = createDatabaseTestSchema("mr-api")
-        databaseConfig!!
-    } else {
-        databaseConfig!!
-    }
+val databaseConfig: DatabaseConfig = createRandomDatabaseConfig("mr-api")
 
 fun <R> withTestApplication(
     config: AppConfig = createTestApplicationConfig(),
@@ -44,6 +34,7 @@ fun <R> withTestApplication(
     testApplication {
         application {
             configure(config)
+
             additionalConfiguration?.invoke(this)
         }
 
@@ -52,7 +43,7 @@ fun <R> withTestApplication(
 }
 
 fun createTestApplicationConfig() = AppConfig(
-    database = createDatabaseTestConfig(),
+    database = databaseConfig,
     flyway = FlywayMigrationManager.MigrationConfig(),
     auth = createAuthConfig(oauth = null, roles = listOf()),
     kafka = createKafkaConfig(),

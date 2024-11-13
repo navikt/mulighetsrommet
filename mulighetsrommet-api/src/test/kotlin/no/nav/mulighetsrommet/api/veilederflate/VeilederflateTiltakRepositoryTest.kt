@@ -5,7 +5,7 @@ import io.kotest.matchers.collections.*
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotliquery.Query
-import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
@@ -21,7 +21,7 @@ import no.nav.mulighetsrommet.domain.dto.*
 import java.util.*
 
 class VeilederflateTiltakRepositoryTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
         enheter = listOf(

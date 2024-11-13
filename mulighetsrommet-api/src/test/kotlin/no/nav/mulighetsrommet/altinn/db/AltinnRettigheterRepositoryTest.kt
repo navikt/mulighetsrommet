@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
 import no.nav.mulighetsrommet.altinn.model.BedriftRettigheter
-import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures.underenhet1
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures.underenhet2
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import java.time.LocalDateTime
 
 class AltinnRettigheterRepositoryTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val norskIdent1 = NorskIdent("12345678901")
     val rettighet1 = PersonBedriftRettigheterDbo(

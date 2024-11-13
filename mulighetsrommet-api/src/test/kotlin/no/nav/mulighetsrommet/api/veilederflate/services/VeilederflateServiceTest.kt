@@ -10,7 +10,7 @@ import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotliquery.Query
-import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.domain.dto.SanityArrangor
 import no.nav.mulighetsrommet.api.domain.dto.SanityArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforing
@@ -33,7 +33,7 @@ import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import java.util.*
 
 class VeilederflateServiceTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
         enheter = listOf(

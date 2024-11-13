@@ -12,9 +12,7 @@ import org.assertj.db.api.Assertions
 import org.assertj.db.api.TableAssert
 import org.assertj.db.type.Table
 
-class FlywayDatabaseTestListener(private val config: DatabaseConfig) :
-    BeforeSpecListener,
-    AfterSpecListener {
+class FlywayDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpecListener, AfterSpecListener {
     private var delegate: Database? = null
 
     private val flywayMigration: FlywayMigrationManager = FlywayMigrationManager(
@@ -50,7 +48,7 @@ class FlywayDatabaseTestListener(private val config: DatabaseConfig) :
 
 fun Database.truncateAll() {
     val tableNames =
-        queryOf("SELECT table_name FROM information_schema.tables WHERE table_schema='${config.schema}' AND table_type='BASE TABLE'")
+        queryOf("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'")
             .map { it.string("table_name") }
             .asList
             .let { run(it) }

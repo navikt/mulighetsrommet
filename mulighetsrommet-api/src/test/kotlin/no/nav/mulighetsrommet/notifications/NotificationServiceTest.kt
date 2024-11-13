@@ -8,7 +8,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.should
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -22,7 +22,7 @@ import java.util.*
 import kotlin.time.Duration.Companion.seconds
 
 class NotificationServiceTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
     val domain = MulighetsrommetTestDomain()
 
     beforeEach {

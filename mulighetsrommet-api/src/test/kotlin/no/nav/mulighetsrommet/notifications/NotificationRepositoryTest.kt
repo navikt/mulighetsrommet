@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.notifications
 import arrow.core.nonEmptyListOf
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -17,7 +17,7 @@ import java.util.*
 
 class NotificationRepositoryTest : FunSpec({
 
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain()
 

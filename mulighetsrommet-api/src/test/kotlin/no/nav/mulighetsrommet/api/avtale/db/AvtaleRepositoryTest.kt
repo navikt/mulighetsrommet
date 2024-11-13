@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -44,7 +44,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class AvtaleRepositoryTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     context("CRUD") {
         val arenaAvtale: ArenaAvtaleDbo = AvtaleFixtures.oppfolging.run {

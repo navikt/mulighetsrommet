@@ -8,7 +8,7 @@ import io.mockk.coVerify
 import io.mockk.spyk
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
+import no.nav.mulighetsrommet.arena.adapter.databaseConfig
 import no.nav.mulighetsrommet.arena.adapter.events.processors.ArenaEventProcessor
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
@@ -24,7 +24,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import java.util.*
 
 class ArenaEventServiceTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     afterEach {
         database.db.truncateAll()

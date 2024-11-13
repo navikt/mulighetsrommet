@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
-import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
@@ -29,7 +29,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class TiltakshistorikkServiceTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val tiltaksgjennomforing = TiltaksgjennomforingFixtures.Oppfolging1
 

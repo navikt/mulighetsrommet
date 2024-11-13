@@ -19,7 +19,7 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.*
 
 class TiltaksgjennomforingRoutesTest : FunSpec({
-    val databaseConfig = createDatabaseTestConfig()
+    val databaseConfig = databaseConfig
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
     val domain = MulighetsrommetTestDomain(
         enheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Oslo, NavEnhetFixtures.Sagene),

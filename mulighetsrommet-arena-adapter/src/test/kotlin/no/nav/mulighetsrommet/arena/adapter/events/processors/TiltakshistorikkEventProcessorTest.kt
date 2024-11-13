@@ -11,7 +11,7 @@ import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.clients.TiltakshistorikkClient
-import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
+import no.nav.mulighetsrommet.arena.adapter.databaseConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaHistTiltakdeltakerEvent
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakdeltakerEvent
@@ -42,7 +42,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class TiltakshistorikkEventProcessorTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     afterEach {
         database.db.truncateAll()

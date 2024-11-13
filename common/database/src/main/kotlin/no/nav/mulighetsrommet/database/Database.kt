@@ -7,11 +7,12 @@ import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.action.*
 import kotliquery.sessionOf
+import java.io.Closeable
 import java.sql.Array
 import java.util.*
 import javax.sql.DataSource
 
-class Database(val config: DatabaseConfig) {
+class Database(val config: DatabaseConfig) : Closeable {
 
     private val dataSource: HikariDataSource
 
@@ -40,7 +41,7 @@ class Database(val config: DatabaseConfig) {
         dataSource = HikariDataSource(hikariConfig)
     }
 
-    fun close() {
+    override fun close() {
         if (!dataSource.isClosed) {
             dataSource.close()
         }

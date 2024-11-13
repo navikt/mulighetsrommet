@@ -17,7 +17,7 @@ import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
-import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
+import no.nav.mulighetsrommet.arena.adapter.databaseConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaAvtaleInfoEvent
@@ -49,7 +49,7 @@ import java.time.Period
 import java.util.*
 
 class TiltakgjennomforingEventProcessorTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     afterEach {
         database.db.truncateAll()

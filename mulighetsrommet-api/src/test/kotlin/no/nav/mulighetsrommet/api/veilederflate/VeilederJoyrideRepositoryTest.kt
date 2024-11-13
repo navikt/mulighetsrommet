@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.veilederflate
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.veilederflate.models.JoyrideType
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederJoyrideDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 
 class VeilederJoyrideRepositoryTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     afterEach {
         database.db.truncateAll()

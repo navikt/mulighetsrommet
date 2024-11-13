@@ -5,7 +5,7 @@ import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
-import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
+import no.nav.mulighetsrommet.arena.adapter.databaseConfig
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import java.util.*
 
 class ArenaEntityServiceTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val arenaId = "123456"
     val entityId = UUID.randomUUID()

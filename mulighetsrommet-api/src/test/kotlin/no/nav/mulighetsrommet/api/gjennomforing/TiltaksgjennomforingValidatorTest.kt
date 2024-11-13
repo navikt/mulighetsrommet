@@ -14,7 +14,7 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.api.arrangor.db.ArrangorRepository
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
@@ -35,7 +35,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingValidatorTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
     val unleash: UnleashService = mockk(relaxed = true)
     coEvery { unleash.isEnabled(any()) } returns true
 
