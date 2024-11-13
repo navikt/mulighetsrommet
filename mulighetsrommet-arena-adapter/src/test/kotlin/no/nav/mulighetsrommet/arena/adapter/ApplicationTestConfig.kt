@@ -6,14 +6,15 @@ import no.nav.mulighetsrommet.arena.adapter.tasks.NotifyFailedEvents
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
-import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
+import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseIfNotExists
+import no.nav.mulighetsrommet.database.kotest.extensions.createRandomDatabaseConfig
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 var databaseConfig: DatabaseConfig? = null
 fun createDatabaseTestConfig() =
     if (databaseConfig == null) {
-        databaseConfig = createDatabaseTestSchema("mr-arena-adapter")
+        databaseConfig = createRandomDatabaseConfig("mr-arena-adapter")
         databaseConfig!!
     } else {
         databaseConfig!!
@@ -26,6 +27,8 @@ fun <R> withTestApplication(
 ) {
     testApplication {
         application {
+            createDatabaseIfNotExists(config.database)
+
             configure(config)
         }
 

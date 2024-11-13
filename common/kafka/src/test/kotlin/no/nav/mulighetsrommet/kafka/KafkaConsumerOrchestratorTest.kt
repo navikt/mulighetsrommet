@@ -14,7 +14,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
+import no.nav.mulighetsrommet.database.kotest.extensions.createRandomDatabaseConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -28,7 +28,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         withEmbeddedZookeeper()
     }
 
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestSchema()))
+    val database = extension(FlywayDatabaseTestListener(createRandomDatabaseConfig()))
 
     fun KafkaContainer.getConsumerProperties() = KafkaPropertiesBuilder.consumerBuilder()
         .withBrokerUrl(bootstrapServers)

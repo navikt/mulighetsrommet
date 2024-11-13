@@ -4,7 +4,8 @@ import io.ktor.client.engine.*
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
-import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
+import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseIfNotExists
+import no.nav.mulighetsrommet.database.kotest.extensions.createRandomDatabaseConfig
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -12,7 +13,7 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 var databaseConfig: DatabaseConfig? = null
 fun createDatabaseTestConfig() =
     if (databaseConfig == null) {
-        databaseConfig = createDatabaseTestSchema("mr-tiltakshistorikk")
+        databaseConfig = createRandomDatabaseConfig("mr-tiltakshistorikk")
         databaseConfig!!
     } else {
         databaseConfig!!
@@ -26,6 +27,8 @@ fun <R> withTestApplication(
 ) {
     testApplication {
         application {
+            createDatabaseIfNotExists(config.database)
+
             configure(config)
         }
 
