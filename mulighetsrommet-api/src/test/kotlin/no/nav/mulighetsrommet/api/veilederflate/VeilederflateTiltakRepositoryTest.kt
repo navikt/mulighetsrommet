@@ -285,7 +285,7 @@ class VeilederflateTiltakRepositoryTest : FunSpec({
             ) shouldHaveSize 2
         }
 
-        test("skal ta med ARR hvis sykmeldt med STADNARD_INNSATS") {
+        test("skal ta med ARR hvis sykmeldt med SITUASJONSBESTEMT_INNSATS") {
             tiltaksgjennomforinger.upsert(
                 TiltaksgjennomforingFixtures.ArbeidsrettetRehabilitering.copy(
                     sluttDato = null,
@@ -304,17 +304,18 @@ class VeilederflateTiltakRepositoryTest : FunSpec({
 
             // Feil innsatsgruppe
             veilederflateTiltakRepository.getAll(
-                innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS,
+                innsatsgruppe = Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
                 apentForInnsok = true,
                 brukersEnheter = listOf("2990"),
             ).size shouldBe 0
 
             // Feil innsatsgruppe men sykmeldt
             veilederflateTiltakRepository.getAll(
-                innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS,
+                innsatsgruppe = Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
                 apentForInnsok = true,
                 brukersEnheter = listOf("2990"),
-            ).size shouldBe 0
+                erSykmeldtMedArbeidsgiver = true,
+            ).size shouldBe 1
         }
     }
 })

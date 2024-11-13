@@ -61,7 +61,7 @@ class VeilederflateTiltakRepository(private val db: Database) {
                 or (
                     :er_sykmeldt_med_arbeidsgiver = true
                     and tiltakstype_tiltakskode = 'ARBEIDSRETTET_REHABILITERING'
-                    and :innsatsgruppe::innsatsgruppe = 'STANDARD_INNSATS'
+                    and :innsatsgruppe::innsatsgruppe = 'SITUASJONSBESTEMT_INNSATS'
                    )
               )
               and nav_enheter && :brukers_enheter
