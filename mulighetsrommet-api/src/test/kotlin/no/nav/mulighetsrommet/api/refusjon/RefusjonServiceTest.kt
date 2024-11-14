@@ -293,7 +293,7 @@ class RefusjonServiceTest : FunSpec({
             ).first()
 
             krav.beregning.input.shouldBeTypeOf<RefusjonKravBeregningAft.Input>().should {
-                it.deltakelser shouldHaveSize 1
+                it.deltakelser.shouldHaveSize(1).first().deltakelseId.shouldBe(domain.deltakere[1].id)
             }
         }
     }

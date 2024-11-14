@@ -107,7 +107,7 @@ class RefusjonService(
             }
             .filter { it.stillingsprosent != null }
             .filter {
-                it.startDato != null && !it.startDato.isAfter(periode.slutt)
+                it.startDato != null && it.startDato.isBefore(periode.slutt)
             }
             .filter {
                 it.sluttDato == null || it.sluttDato.plusDays(1).isAfter(periode.start)
@@ -121,14 +121,12 @@ class RefusjonService(
 
                 // TODO: periodisering av prosent - fra Komet
                 val perioder = listOf(DeltakelsePeriode(start, slutt, stillingsprosent))
-                    .filter { it.start.isBefore(it.slutt) }
 
                 DeltakelsePerioder(
                     deltakelseId = deltakelse.id,
                     perioder = perioder,
                 )
             }
-            .filter { it.perioder.isNotEmpty() }
             .toSet()
     }
 }
