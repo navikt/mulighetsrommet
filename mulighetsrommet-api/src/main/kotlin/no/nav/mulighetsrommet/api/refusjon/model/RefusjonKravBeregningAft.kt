@@ -1,27 +1,22 @@
 package no.nav.mulighetsrommet.api.refusjon.model
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.*
 
-@Serializable
-@SerialName("AFT")
 data class RefusjonKravBeregningAft(
     override val input: Input,
     override val output: Output,
 ) : RefusjonKravBeregning() {
 
-    @Serializable
     data class Input(
         override val periode: RefusjonskravPeriode,
         val sats: Int,
         val deltakelser: Set<DeltakelsePerioder>,
     ) : RefusjonKravBeregningInput()
 
-    @Serializable
     data class Output(
         override val belop: Int,
         val deltakelser: Set<DeltakelseManedsverk>,
