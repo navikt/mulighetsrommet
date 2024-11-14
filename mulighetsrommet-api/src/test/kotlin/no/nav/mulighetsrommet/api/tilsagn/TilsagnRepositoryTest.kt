@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.okonomi.Prismodell
+import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.tilsagn.model.ArrangorflateTilsagn
@@ -155,8 +156,7 @@ class TilsagnRepositoryTest : FunSpec({
             )
             repository.getArrangorflateTilsagnTilRefusjon(
                 tilsagn.tiltaksgjennomforingId,
-                LocalDate.of(2023, 1, 14),
-                LocalDate.of(2023, 1, 15),
+                RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2023, 1, 1)),
             ) shouldBe listOf(
                 ArrangorflateTilsagn(
                     id = tilsagn.id,

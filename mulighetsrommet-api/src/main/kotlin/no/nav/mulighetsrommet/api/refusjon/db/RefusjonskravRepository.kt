@@ -5,10 +5,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregning
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravDto
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravStatus
+import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
@@ -68,8 +65,8 @@ class RefusjonskravRepository(private val db: Database) {
 
         val params = mapOf(
             "refusjonskrav_id" to id,
-            "periode_start" to beregning.input.periodeStart,
-            "periode_slutt" to beregning.input.periodeSlutt,
+            "periode_start" to beregning.input.periode.start,
+            "periode_slutt" to beregning.input.periode.slutt,
             "sats" to beregning.input.sats,
             "belop" to beregning.output.belop,
         )
@@ -219,8 +216,7 @@ class RefusjonskravRepository(private val db: Database) {
     private fun Row.toRefusjonsKravAft(): RefusjonskravDto {
         val beregning = RefusjonKravBeregningAft(
             input = RefusjonKravBeregningAft.Input(
-                periodeStart = localDate("periode_start"),
-                periodeSlutt = localDate("periode_slutt"),
+                periode = RefusjonskravPeriode(localDate("periode_start"), localDate("periode_slutt")),
                 sats = int("sats"),
                 deltakelser = stringOrNull("perioder_json")?.let { Json.decodeFromString(it) } ?: setOf(),
             ),

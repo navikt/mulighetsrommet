@@ -5,10 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.refusjon.model.DeltakelseManedsverk
-import no.nav.mulighetsrommet.api.refusjon.model.DeltakelsePeriode
-import no.nav.mulighetsrommet.api.refusjon.model.DeltakelsePerioder
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
+import no.nav.mulighetsrommet.api.refusjon.model.*
 import java.time.LocalDate
 import java.util.*
 
@@ -250,7 +247,8 @@ class PrismodellTest : FunSpec({
                     ),
                 ),
             ) { deltakelser, expectedBeregning ->
-                val input = RefusjonKravBeregningAft.Input(periodeStart, periodeSlutt, 100, deltakelser)
+                val periode = RefusjonskravPeriode(periodeStart, periodeSlutt)
+                val input = RefusjonKravBeregningAft.Input(periode, 100, deltakelser)
 
                 val beregning = Prismodell.AFT.beregnRefusjonBelop(input)
 

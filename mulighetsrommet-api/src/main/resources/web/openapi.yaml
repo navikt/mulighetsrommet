@@ -4802,7 +4802,7 @@ components:
           items:
             $ref: "#/components/schemas/TilsagnAvvisningAarsak"
         forklaring:
-            type: string
+          type: string
       required:
         - navIdent
         - tidspunkt
@@ -5108,6 +5108,14 @@ components:
         sluttDato:
           type: string
           format: date
+        forstePeriodeStartDato:
+          type: string
+          format: date
+        sistePeriodeSluttDato:
+          type: string
+          format: date
+        sistePeriodeDeltakelsesprosent:
+          type: number
         perioder:
           type: array
           items:
@@ -5120,6 +5128,10 @@ components:
           type: string
       required:
         - id
+        - startDato
+        - forstePeriodeStartDato
+        - sistePeriodeSluttDato
+        - sistePeriodeDeltakelsesprosent
         - perioder
         - manedsverk
         - person

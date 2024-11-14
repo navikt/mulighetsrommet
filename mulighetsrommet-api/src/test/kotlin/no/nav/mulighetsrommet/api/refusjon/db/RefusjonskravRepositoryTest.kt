@@ -41,8 +41,7 @@ class RefusjonskravRepositoryTest : FunSpec({
         val beregning = RefusjonKravBeregningAft(
             input = RefusjonKravBeregningAft.Input(
                 sats = 20_205,
-                periodeStart = LocalDate.of(2023, 1, 1),
-                periodeSlutt = LocalDate.of(2023, 2, 1),
+                periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2023, 1, 1)),
                 deltakelser = setOf(
                     DeltakelsePerioder(
                         deltakelseId = deltakelse1Id,
@@ -158,8 +157,7 @@ class RefusjonskravRepositoryTest : FunSpec({
                 fristForGodkjenning = LocalDate.of(2024, 10, 1).atStartOfDay(),
                 beregning = RefusjonKravBeregningAft(
                     input = RefusjonKravBeregningAft.Input(
-                        periodeStart = LocalDate.of(2023, 1, 1),
-                        periodeSlutt = LocalDate.of(2023, 2, 1),
+                        periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2023, 1, 1)),
                         sats = 20_205,
                         deltakelser = setOf(deltakelse),
                     ),

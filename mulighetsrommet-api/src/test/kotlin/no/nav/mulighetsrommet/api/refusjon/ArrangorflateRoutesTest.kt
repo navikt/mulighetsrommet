@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravAft
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
+import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
@@ -59,8 +60,7 @@ class ArrangorflateRoutesTest : FunSpec({
         fristForGodkjenning = LocalDateTime.now(),
         beregning = RefusjonKravBeregningAft(
             input = RefusjonKravBeregningAft.Input(
-                periodeStart = LocalDate.of(2024, 8, 1),
-                periodeSlutt = LocalDate.of(2024, 8, 31),
+                periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2024, 8, 1)),
                 sats = 20205,
                 deltakelser = emptySet(),
             ),

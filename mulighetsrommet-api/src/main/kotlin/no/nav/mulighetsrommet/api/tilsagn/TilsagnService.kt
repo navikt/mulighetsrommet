@@ -8,13 +8,13 @@ import no.nav.mulighetsrommet.api.okonomi.BestillingDto
 import no.nav.mulighetsrommet.api.okonomi.OkonomiClient
 import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.okonomi.Prismodell.TilsagnBeregning
+import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -120,10 +120,9 @@ class TilsagnService(
 
     fun getArrangorflateTilsagnTilRefusjon(
         gjennomforingId: UUID,
-        periodeStart: LocalDate,
-        periodeSlutt: LocalDate,
+        periode: RefusjonskravPeriode,
     ): List<ArrangorflateTilsagn> =
-        tilsagnRepository.getArrangorflateTilsagnTilRefusjon(gjennomforingId, periodeStart, periodeSlutt)
+        tilsagnRepository.getArrangorflateTilsagnTilRefusjon(gjennomforingId, periode)
 
     fun getArrangorflateTilsagn(id: UUID): ArrangorflateTilsagn? =
         tilsagnRepository.getArrangorflateTilsagn(id)

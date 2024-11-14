@@ -41,7 +41,11 @@ data class RefusjonKravDeltakelse(
     val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val perioder: List<DeltakelsePeriode>,
+    @Serializable(with = LocalDateSerializer::class)
+    val forstePeriodeStartDato: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val sistePeriodeSluttDato: LocalDate,
+    val sistePeriodeDeltakelsesprosent: Double,
     val manedsverk: Double,
     val person: Person?,
     val veileder: String?,

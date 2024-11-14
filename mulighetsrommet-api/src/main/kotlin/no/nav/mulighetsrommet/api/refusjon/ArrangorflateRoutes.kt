@@ -141,8 +141,7 @@ fun Route.arrangorflateRoutes() {
 
                 val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
                     gjennomforingId = krav.gjennomforing.id,
-                    periodeStart = krav.beregning.input.periodeStart,
-                    periodeSlutt = krav.beregning.input.periodeSlutt,
+                    periode = krav.beregning.input.periode,
                 )
 
                 val oppsummering = toRefusjonskrav(pdl, deltakerRepository, krav)
@@ -172,8 +171,7 @@ fun Route.arrangorflateRoutes() {
 
                 val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
                     gjennomforingId = krav.gjennomforing.id,
-                    periodeStart = krav.beregning.input.periodeStart,
-                    periodeSlutt = krav.beregning.input.periodeSlutt,
+                    periode = krav.beregning.input.periode,
                 )
                 call.respond(tilsagn)
             }
@@ -221,8 +219,8 @@ fun toRefusjonskravKompakt(krav: RefusjonskravDto) = RefusjonKravKompakt(
     arrangor = krav.arrangor,
     beregning = krav.beregning.let {
         RefusjonKravKompakt.Beregning(
-            periodeStart = it.input.periodeStart,
-            periodeSlutt = it.input.periodeSlutt,
+            periodeStart = it.input.periode.start,
+            periodeSlutt = it.input.periode.getLastDate(),
             belop = it.output.belop,
         )
     },
@@ -245,12 +243,18 @@ suspend fun toRefusjonskrav(
             val deltaker = deltakereById.getValue(id)
             val manedsverk = manedsverkById.getValue(id).manedsverk
             val person = personerByNorskIdent[deltaker.norskIdent]
+
+            val forstePeriode = deltakelse.perioder.first()
+            val sistePeriode = deltakelse.perioder.last()
+
             RefusjonKravDeltakelse(
                 id = id,
-                perioder = deltakelse.perioder,
-                manedsverk = manedsverk,
                 startDato = deltaker.startDato,
                 sluttDato = deltaker.startDato,
+                forstePeriodeStartDato = forstePeriode.start,
+                sistePeriodeSluttDato = sistePeriode.slutt.minusDays(1),
+                sistePeriodeDeltakelsesprosent = sistePeriode.stillingsprosent,
+                manedsverk = manedsverk,
                 person = person,
                 // TODO data om veileder hos arrangør
                 veileder = null,
@@ -272,8 +276,8 @@ suspend fun toRefusjonskrav(
             arrangor = krav.arrangor,
             deltakelser = deltakelser,
             beregning = RefusjonKravAft.Beregning(
-                periodeStart = beregning.input.periodeStart,
-                periodeSlutt = beregning.input.periodeSlutt,
+                periodeStart = beregning.input.periode.start,
+                periodeSlutt = beregning.input.periode.getLastDate(),
                 antallManedsverk = antallManedsverk,
                 belop = beregning.output.belop,
             ),

@@ -3,7 +3,7 @@ import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, Table, Tag } from "@navikt/ds-react";
 import React, { ReactNode } from "react";
 import { formaterDato, useOrgnrFromUrl } from "~/utils";
-import { internalNavigation } from "../../internal-navigation";
+import { internalNavigation } from "~/internal-navigation";
 import { LinkWithTabState } from "../LinkWithTabState";
 
 interface Props {
