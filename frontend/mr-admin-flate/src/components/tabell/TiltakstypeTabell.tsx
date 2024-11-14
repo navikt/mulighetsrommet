@@ -1,24 +1,19 @@
 import { tiltakstypeFilterAtom } from "@/api/atoms";
-import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { formaterDato } from "@/utils/Utils";
+import { PaginertTiltakstype, SorteringTiltakstyper } from "@mr/api-client";
+import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { Alert, Table } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { SorteringTiltakstyper } from "@mr/api-client";
-import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
-import { Laster } from "../laster/Laster";
+import { useLoaderData } from "react-router-dom";
 import { TiltakstypestatusTag } from "../statuselementer/TiltakstypestatusTag";
 import styles from "./Tabell.module.scss";
 
 export function TiltakstypeTabell() {
   const [filter, setFilter] = useAtom(tiltakstypeFilterAtom);
-  const { data, isLoading } = useTiltakstyper(filter);
+  const data = useLoaderData() as PaginertTiltakstype;
   const sort = filter.sort?.tableSort;
-  const tiltakstyper = data?.data ?? [];
-
-  if ((!tiltakstyper || tiltakstyper.length === 0) && isLoading) {
-    return <Laster size="xlarge" tekst="Laster tiltakstyper..." />;
-  }
+  const tiltakstyper = data.data;
 
   if (tiltakstyper.length === 0) {
     return <Alert variant="info">Fant ingen tiltakstyper</Alert>;

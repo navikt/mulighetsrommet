@@ -1,5 +1,5 @@
 import { AvtaleFilter } from "@/api/atoms";
-import { useAvtaler } from "@/api/avtaler/useAvtaler";
+import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { APPLICATION_NAME } from "@/constants";
 import {
@@ -8,20 +8,19 @@ import {
   formaterDato,
   formaterNavEnheter,
 } from "@/utils/Utils";
-import { Alert, Pagination, Table, VStack } from "@navikt/ds-react";
-import { useAtom, WritableAtom } from "jotai";
-import { OpenAPI, SorteringAvtaler } from "@mr/api-client";
+import { OpenAPI, PaginertAvtale, SorteringAvtaler } from "@mr/api-client";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
+import { Alert, Pagination, Table, VStack } from "@navikt/ds-react";
+import { useAtom, WritableAtom } from "jotai";
 import { createRef, useEffect, useState } from "react";
+import { useLoaderData } from "react-router-dom";
 import { ShowOpphavValue } from "../debug/ShowOpphavValue";
-import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { AvtalestatusTag } from "../statuselementer/AvtalestatusTag";
 import styles from "./Tabell.module.scss";
-import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
@@ -34,7 +33,7 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
   const [lasterExcel, setLasterExcel] = useState(false);
   const [excelUrl, setExcelUrl] = useState("");
   const sort = filter.sortering.tableSort;
-  const { data, isLoading } = useAvtaler(filter);
+  const data = useLoaderData() as PaginertAvtale;
 
   const link = createRef<HTMLAnchorElement>();
 
@@ -101,10 +100,6 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
       page: sort.orderBy !== sortKey || sort.direction !== direction ? 1 : filter.page,
     });
   };
-
-  if (!data || isLoading) {
-    return <Laster size="xlarge" tekst="Laster avtaler..." />;
-  }
 
   const { pagination, data: avtaler } = data;
 

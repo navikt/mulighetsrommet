@@ -27,6 +27,8 @@ import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerF
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
 import { IngenLesetilgang } from "./IngenLesetilgang";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
+import { tiltakstyperLoaders } from "./pages/tiltakstyper/tiltakstyperLoaders";
+import { avtalerLoader } from "./pages/avtaler/avtaleLoaders";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -90,6 +92,7 @@ const router = () =>
             path: "tiltakstyper",
             element: <TiltakstyperPage />,
             errorElement: <ErrorPage />,
+            loader: tiltakstyperLoaders,
           },
           {
             path: "tiltakstyper/:tiltakstypeId",
@@ -112,6 +115,7 @@ const router = () =>
             path: "avtaler",
             element: <AvtalerPage />,
             errorElement: <ErrorPage />,
+            loader: avtalerLoader,
           },
           {
             path: "avtaler/:avtaleId",
