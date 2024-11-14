@@ -52,9 +52,31 @@ class RefusjonServiceTest : FunSpec({
             return requireNotNull(domain.arrangorer.find { it.id == gjennomforing.arrangorId }?.organisasjonsnummer)
         }
 
+        test("genererer ikke refusjonskrav når deltakelser mangler") {
+            val domain = MulighetsrommetTestDomain(
+                gjennomforinger = listOf(AFT1),
+            )
+            domain.initialize(database.db)
+
+            service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
+
+            refusjonskravRepository.getByArrangorIds(
+                getOrgnrForArrangor(AFT1, domain),
+            ).shouldHaveSize(0)
+        }
+
         test("genererer et refusjonskrav med riktig periode, frist og sats som input") {
             val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltaker(
+                        AFT1.id,
+                        startDato = LocalDate.of(2024, 1, 1),
+                        sluttDato = LocalDate.of(2024, 1, 31),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                        stillingsprosent = 100.0,
+                    ),
+                ),
             )
             domain.initialize(database.db)
 
@@ -71,13 +93,33 @@ class RefusjonServiceTest : FunSpec({
             krav.beregning.input shouldBe RefusjonKravBeregningAft.Input(
                 periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2024, 1, 1)),
                 sats = 20205,
-                deltakelser = setOf(),
+                deltakelser = setOf(
+                    DeltakelsePerioder(
+                        deltakelseId = domain.deltakere[0].id,
+                        perioder = listOf(
+                            DeltakelsePeriode(
+                                start = LocalDate.of(2024, 1, 1),
+                                slutt = LocalDate.of(2024, 2, 1),
+                                stillingsprosent = 100.0,
+                            ),
+                        ),
+                    ),
+                ),
             )
         }
 
         test("genererer et refusjonskrav med kontonummer og kid-nummer fra forrige godkjente refusjonskrav fra arrangør") {
             val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltaker(
+                        AFT1.id,
+                        startDato = LocalDate.of(2024, 1, 1),
+                        sluttDato = LocalDate.of(2024, 1, 31),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                        stillingsprosent = 100.0,
+                    ),
+                ),
             )
             domain.initialize(database.db)
 

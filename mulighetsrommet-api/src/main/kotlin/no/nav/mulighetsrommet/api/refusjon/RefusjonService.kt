@@ -24,7 +24,7 @@ class RefusjonService(
         tiltaksgjennomforingRepository
             .getGjennomforesInPeriodeUtenRefusjonskrav(periode)
             .mapNotNull { gjennomforing ->
-                when (gjennomforing.tiltakstype.tiltakskode) {
+                val krav = when (gjennomforing.tiltakstype.tiltakskode) {
                     Tiltakskode.ARBEIDSFORBEREDENDE_TRENING -> createRefusjonskravAft(
                         refusjonskravId = UUID.randomUUID(),
                         gjennomforingId = gjennomforing.id,
@@ -33,6 +33,8 @@ class RefusjonService(
 
                     else -> null
                 }
+
+                krav?.takeIf { it.beregning.output.belop > 0 }
             }
             .forEach { krav ->
                 refusjonskravRepository.upsert(krav)
