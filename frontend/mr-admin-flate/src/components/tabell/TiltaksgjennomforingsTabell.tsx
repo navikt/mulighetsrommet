@@ -192,7 +192,7 @@ export function TiltaksgjennomforingsTabell({
                         >
                           <VStack>
                             <Lenke
-                              to={`${tiltaksgjennomforing?.avtaleId ? `/avtaler/${tiltaksgjennomforing?.avtaleId}/tiltaksgjennomforinger/${tiltaksgjennomforing.id}` : `${tiltaksgjennomforing.id}`} `}
+                              to={`${tiltaksgjennomforing?.avtaleId ? `/avtaler/${tiltaksgjennomforing?.avtaleId}/tiltaksgjennomforinger/${tiltaksgjennomforing.id}` : `${tiltaksgjennomforing.id}`}`}
                               data-testid="tiltaksgjennomforing-tabell_tittel"
                             >
                               {tiltaksgjennomforing.navn}
