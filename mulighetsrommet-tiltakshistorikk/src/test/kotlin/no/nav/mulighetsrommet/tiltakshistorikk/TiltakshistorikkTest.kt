@@ -16,8 +16,6 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
-import no.nav.mulighetsrommet.domain.dto.ArenaDeltakerStatus
-import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
@@ -266,6 +264,7 @@ private fun inititalizeData(database: FlywayDatabaseTestListener) {
         status = TiltaksgjennomforingStatus.GJENNOMFORES,
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         tilgjengeligForArrangorFraOgMedDato = null,
+        apentForInnsok = true,
     )
     gruppetiltak.upsert(tiltak)
 

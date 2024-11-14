@@ -46,6 +46,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             status = TiltaksgjennomforingStatus.GJENNOMFORES,
             oppstart = TiltaksgjennomforingOppstartstype.FELLES,
             tilgjengeligForArrangorFraOgMedDato = null,
+            apentForInnsok = true,
         )
 
         val deltakelsesdato = LocalDateTime.of(2023, 3, 1, 0, 0, 0)

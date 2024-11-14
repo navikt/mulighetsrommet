@@ -9,8 +9,6 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
-import no.nav.mulighetsrommet.domain.dto.ArenaDeltakerStatus
-import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.GruppetiltakRepository
@@ -36,6 +34,7 @@ class DeltakerRepositoryTest : FunSpec({
         status = TiltaksgjennomforingStatus.GJENNOMFORES,
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         tilgjengeligForArrangorFraOgMedDato = null,
+        apentForInnsok = true,
     )
     val amtDeltaker = AmtDeltakerV1Dto(
         id = UUID.randomUUID(),

@@ -23,6 +23,7 @@ data class TiltaksgjennomforingEksternV1Dto(
     val oppstart: TiltaksgjennomforingOppstartstype,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
+    val apentForInnsok: Boolean,
 ) {
     @Serializable
     data class Tiltakstype(
