@@ -1,9 +1,8 @@
+import { useNavArbeidsmarkedstiltak } from "@/api/queries/useArbeidsmarkedstiltak";
 import { NavFiltertags } from "@/apps/nav/filtrering/NavFiltertags";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { Filtermeny } from "@/components/filtrering/Filtermeny";
-import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { ArbeidsmarkedstiltakList } from "@/components/oversikt/ArbeidsmarkedstiltakList";
-import { useNavArbeidsmarkedstiltak } from "@/api/queries/useArbeidsmarkedstiltak";
 import {
   ArbeidsmarkedstiltakFilterSchema,
   isFilterReady,
@@ -13,6 +12,7 @@ import {
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { LagretDokumenttype } from "@mr/api-client";
 import { LagredeFilterOversikt, LagreFilterContainer, ListSkeleton } from "@mr/frontend-common";
+import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { HStack } from "@navikt/ds-react";

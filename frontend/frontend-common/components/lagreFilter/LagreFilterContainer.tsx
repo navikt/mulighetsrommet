@@ -50,6 +50,7 @@ export function LagreFilterContainer({ dokumenttype, filter }: Props) {
         type: dokumenttype,
         sortOrder: 0,
         id: window.crypto.randomUUID(),
+        sistBrukt: null,
       },
       {
         onSuccess: () => {

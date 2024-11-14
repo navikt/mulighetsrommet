@@ -1,32 +1,33 @@
 import { avtaleFilterAtom, AvtaleFilterSchema } from "@/api/atoms";
 import { AvtaleFilter } from "@/components/filter/AvtaleFilter";
+import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
+import { AvtaleFiltertags } from "@/components/filter/AvtaleFiltertags";
+import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
+import { Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { AvtaleTabell } from "@/components/tabell/AvtaleTabell";
-import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
+import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { MainContainer } from "@/layouts/MainContainer";
+import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
+import { LagretDokumenttype } from "@mr/api-client";
 import {
   LagredeFilterOversikt,
   ReloadAppErrorBoundary,
-  useTitle,
   useOpenFilterWhenThreshold,
+  useTitle,
 } from "@mr/frontend-common";
-import { AvtaleFiltertags } from "@/components/filter/AvtaleFiltertags";
-import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
-import { useState } from "react";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
-import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
-import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
-import { LagretDokumenttype } from "@mr/api-client";
+import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useAtom } from "jotai/index";
+import { useState } from "react";
+import { useUpdateFilterWithSistBruktLagretFilter } from "../../hooks/useUpdateFilterWithSistBruktLagretFilter";
 
 export function AvtalerPage() {
   useTitle("Avtaler");
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
-
   const [filter, setFilter] = useAtom(avtaleFilterAtom);
+  useUpdateFilterWithSistBruktLagretFilter(LagretDokumenttype.AVTALE, avtaleFilterAtom);
 
   return (
     <>

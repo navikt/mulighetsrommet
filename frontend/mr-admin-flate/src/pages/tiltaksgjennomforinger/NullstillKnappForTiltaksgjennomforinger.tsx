@@ -3,7 +3,7 @@ import { useAtom } from "jotai/index";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { AvtaleDto, LagretDokumenttype } from "@mr/api-client";
 import { WritableAtom } from "jotai";
-import { LagreFilterContainer } from "@mr/frontend-common";
+import { LagreFilterContainer, useResetSistBruktTimestamp } from "@mr/frontend-common";
 
 interface Props {
   filterAtom: WritableAtom<
@@ -15,6 +15,9 @@ interface Props {
 }
 export function NullstillKnappForTiltaksgjennomforinger({ filterAtom, avtale }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
+  const resetSistBruktMutation = useResetSistBruktTimestamp(
+    LagretDokumenttype.TILTAKSGJENNOMFØRING,
+  );
 
   return filter.visMineGjennomforinger ||
     filter.search.length > 0 ||
@@ -25,9 +28,13 @@ export function NullstillKnappForTiltaksgjennomforinger({ filterAtom, avtale }: 
     <>
       <NullstillFilterKnapp
         onClick={() => {
-          setFilter({
-            ...defaultTiltaksgjennomforingfilter,
-            avtale: avtale?.id ?? defaultTiltaksgjennomforingfilter.avtale,
+          resetSistBruktMutation.mutate(LagretDokumenttype.TILTAKSGJENNOMFØRING, {
+            onSuccess: () => {
+              setFilter({
+                ...defaultTiltaksgjennomforingfilter,
+                avtale: avtale?.id ?? defaultTiltaksgjennomforingfilter.avtale,
+              });
+            },
           });
         }}
       />

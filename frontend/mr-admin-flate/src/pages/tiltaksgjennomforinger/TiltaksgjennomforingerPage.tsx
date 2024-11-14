@@ -20,12 +20,17 @@ import { useState } from "react";
 import { NullstillKnappForTiltaksgjennomforinger } from "@/pages/tiltaksgjennomforinger/NullstillKnappForTiltaksgjennomforinger";
 import { LagretDokumenttype } from "@mr/api-client";
 import { useAtom } from "jotai/index";
+import { useUpdateFilterWithSistBruktLagretFilter } from "../../hooks/useUpdateFilterWithSistBruktLagretFilter";
 
 export function TiltaksgjennomforingerPage() {
   useTitle("Tiltaksgjennomføringer");
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
   const [filter, setFilter] = useAtom(tiltaksgjennomforingfilterAtom);
+  useUpdateFilterWithSistBruktLagretFilter(
+    LagretDokumenttype.TILTAKSGJENNOMFØRING,
+    tiltaksgjennomforingfilterAtom,
+  );
 
   return (
     <>

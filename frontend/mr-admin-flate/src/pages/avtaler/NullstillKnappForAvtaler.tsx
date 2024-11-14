@@ -5,7 +5,7 @@ import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFi
 import { WritableAtom } from "jotai";
 import { LagretDokumenttype } from "@mr/api-client";
 import { HStack } from "@navikt/ds-react";
-import { LagreFilterContainer } from "@mr/frontend-common";
+import { LagreFilterContainer, useResetSistBruktTimestamp } from "@mr/frontend-common";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
@@ -14,6 +14,7 @@ interface Props {
 
 export function NullstillKnappForAvtaler({ filterAtom, tiltakstypeId }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
+  const resetSistBruktMutation = useResetSistBruktTimestamp(LagretDokumenttype.AVTALE);
 
   return (
     <div className={style.filterbuttons_container}>
@@ -28,9 +29,16 @@ export function NullstillKnappForAvtaler({ filterAtom, tiltakstypeId }: Props) {
         <HStack gap="2">
           <NullstillFilterKnapp
             onClick={() => {
-              setFilter({
-                ...defaultAvtaleFilter,
-                tiltakstyper: tiltakstypeId ? [tiltakstypeId] : defaultAvtaleFilter.tiltakstyper,
+              resetSistBruktMutation.mutate(LagretDokumenttype.AVTALE, {
+                onSuccess: () => {
+                  setFilter({
+                    ...defaultAvtaleFilter,
+                    tiltakstyper: tiltakstypeId
+                      ? [tiltakstypeId]
+                      : defaultAvtaleFilter.tiltakstyper,
+                    lagretFilterIdValgt: undefined,
+                  });
+                },
               });
             }}
           />

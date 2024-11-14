@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
 
 paths:
   /api/v1/intern/bruker:
@@ -1650,6 +1650,25 @@ paths:
                 items:
                   $ref: "#/components/schemas/LagretFilter"
 
+    put:
+      tags:
+        - LagretFilter
+      operationId: resetSistBruktTimestampForBruker
+      parameters:
+        - in: path
+          name: dokumenttype
+          description: type dokument
+          schema:
+            $ref: "#/components/schemas/LagretDokumenttype"
+          required: true
+      responses:
+        200:
+          description: "Resetter sist brukt timestamp for lagrede filter for bruker for en gitt dokumenttype"
+          content:
+            text/plain:
+              schema:
+                type: string
+
   /api/v1/intern/lagret-filter/{id}:
     delete:
       tags:
@@ -1666,6 +1685,26 @@ paths:
       responses:
         204:
           description: "Ok ved sletting"
+          content:
+            text/plain:
+              schema:
+                type: string
+
+    put:
+      tags:
+        - LagretFilter
+      operationId: updateSistBruktTimestamp
+      parameters:
+        - in: path
+          name: id
+          description: Id for filter
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        204:
+          description: "Oppdatert timestamp ok"
           content:
             text/plain:
               schema:
@@ -4638,12 +4677,17 @@ components:
           type: object
         sortOrder:
           type: number
+        sistBrukt:
+          type: string
+          format: date-time
+          nullable: true
       required:
         - id
         - type
         - navn
         - filter
         - sortOrder
+        - sistBrukt
 
     LagretDokumenttype:
       type: string
@@ -4668,6 +4712,10 @@ components:
           type: object
         sortOrder:
           type: number
+        sistBrukt:
+          type: string
+          format: date-time
+          nullable: true
       required:
         - id
         - brukerId
@@ -4802,7 +4850,7 @@ components:
           items:
             $ref: "#/components/schemas/TilsagnAvvisningAarsak"
         forklaring:
-            type: string
+          type: string
       required:
         - navIdent
         - tidspunkt

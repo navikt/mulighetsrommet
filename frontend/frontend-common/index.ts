@@ -25,6 +25,7 @@ import { LagreFilterContainer } from "./components/lagreFilter/LagreFilterContai
 import { LagredeFilterOversikt } from "./components/lagreFilter/LagredeFilterOversikt";
 import { TilbakemeldingsLenke } from "./components/tilbakemelding/Tilbakemeldingslenke";
 import { FilterContainer } from "./components/filter/FilterContainer";
+import { useResetSistBruktTimestamp } from "./components/lagreFilter/useResetSistBruktTimestamp";
 import { useOpenFilterWhenThreshold } from "./hooks/useOpenFilterWhenThreshold";
 
 export {
@@ -54,4 +55,5 @@ export {
   TilbakemeldingsLenke,
   FilterContainer,
   useOpenFilterWhenThreshold,
+  useResetSistBruktTimestamp,
 };

@@ -12,8 +12,10 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.services.LagretFilterService
 import no.nav.mulighetsrommet.api.services.UpsertFilterEntry
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
+import java.time.LocalDateTime
 import java.util.*
 
 fun Route.lagretFilterRoutes() {
@@ -34,10 +36,23 @@ fun Route.lagretFilterRoutes() {
                 }
         }
 
+        put("mine/{dokumenttype}") {
+            val navIdent = getNavIdent()
+            val dokumenttype = call.parameters.getOrFail("dokumenttype")
+            lagretFilterService.clearSistBruktTimestampForBruker(brukerId = navIdent.value, dokumentType = UpsertFilterEntry.FilterDokumentType.valueOf(dokumenttype))
+            call.respond(HttpStatusCode.OK)
+        }
+
         post {
             val request = call.receive<LagretFilterRequest>()
             lagretFilterService.upsertFilter(request.toLagretFilter(id = request.id, brukerId = getNavIdent()))
             call.respond(HttpStatusCode.Created)
+        }
+
+        put("{id}") {
+            val id = call.parameters.getOrFail<UUID>("id")
+            lagretFilterService.updateSistBruktTimestamp(id)
+            call.respond(HttpStatusCode.OK)
         }
 
         delete("{id}") {
@@ -56,6 +71,8 @@ data class LagretFilterRequest(
     val type: UpsertFilterEntry.FilterDokumentType,
     val filter: JsonElement,
     val sortOrder: Int,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val sistBrukt: LocalDateTime?,
 ) {
     fun toLagretFilter(id: UUID?, brukerId: NavIdent): UpsertFilterEntry {
         return UpsertFilterEntry(
@@ -65,6 +82,7 @@ data class LagretFilterRequest(
             type = type,
             filter = filter,
             sortOrder = sortOrder,
+            sistBrukt = sistBrukt,
         )
     }
 }

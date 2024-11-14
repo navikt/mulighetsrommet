@@ -2,7 +2,8 @@ import { TrashFillIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Button, HStack, Radio, RadioGroup } from "@navikt/ds-react";
 import { LagretDokumenttype, LagretFilter } from "@mr/api-client";
 import { useRef, useState } from "react";
-import { useGetLagredeFilterForDokumenttype } from "./getLagredeFilterForDokumenttype";
+import { useGetLagredeFilterForDokumenttype } from "./useGetLagredeFilterForDokumenttype";
+import { useUpdateSistBruktTimestampForLagretFilter } from "./useUpdateSistBruktTimestampForLagretFilter";
 import styles from "./LagredeFilterOversikt.module.scss";
 import { useSlettFilter } from "./useSlettFilter";
 import { VarselModal } from "../varsel/VarselModal";
@@ -21,6 +22,9 @@ export function LagredeFilterOversikt({
   validateFilterStructure,
 }: Props) {
   const { data: lagredeFilter = [] } = useGetLagredeFilterForDokumenttype(dokumenttype);
+  const updateSistBruktTimestampMutation = useUpdateSistBruktTimestampForLagretFilter({
+    dokumenttype,
+  });
   const [filterForSletting, setFilterForSletting] = useState<LagretFilter | undefined>(undefined);
   const [filterHarUgyldigStruktur, setFilterHarUgyldigStruktur] = useState<
     LagretFilter | undefined
@@ -36,7 +40,11 @@ export function LagredeFilterOversikt({
       if (!validateFilterStructure(valgtFilter.filter)) {
         setFilterHarUgyldigStruktur(valgtFilter);
       } else {
-        setFilter({ ...valgtFilter.filter, lagretFilterIdValgt: valgtFilter.id });
+        updateSistBruktTimestampMutation.mutate(id, {
+          onSuccess: () => {
+            setFilter({ ...valgtFilter.filter, lagretFilterIdValgt: valgtFilter.id });
+          },
+        });
       }
     }
   }
