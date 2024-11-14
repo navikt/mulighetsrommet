@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.database
 
 private const val JDBC_POSTGRESQL_PREFIX = "jdbc:postgresql://"
 
-class DatabaseConfig(
+data class DatabaseConfig(
     val jdbcUrl: String,
     val schema: String?,
     val maximumPoolSize: Int,
