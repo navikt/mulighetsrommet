@@ -41,7 +41,7 @@ export function LagredeFilterOversikt({
         setFilterHarUgyldigStruktur(valgtFilter);
       } else {
         updateSistBruktTimestampMutation.mutate(id, {
-          onSuccess: () => {
+          onSettled: () => {
             setFilter({ ...valgtFilter.filter, lagretFilterIdValgt: valgtFilter.id });
           },
         });
