@@ -24,10 +24,10 @@ data class RefusjonKravAft(
 ) {
     @Serializable
     data class Beregning(
-        @Serializable(with = LocalDateTimeSerializer::class)
-        val periodeStart: LocalDateTime,
-        @Serializable(with = LocalDateTimeSerializer::class)
-        val periodeSlutt: LocalDateTime,
+        @Serializable(with = LocalDateSerializer::class)
+        val periodeStart: LocalDate,
+        @Serializable(with = LocalDateSerializer::class)
+        val periodeSlutt: LocalDate,
         val antallManedsverk: Double,
         val belop: Int,
     )

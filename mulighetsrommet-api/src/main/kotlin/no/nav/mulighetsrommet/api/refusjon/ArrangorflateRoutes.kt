@@ -141,8 +141,8 @@ fun Route.arrangorflateRoutes() {
 
                 val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
                     gjennomforingId = krav.gjennomforing.id,
-                    periodeStart = krav.beregning.input.periodeStart.toLocalDate(),
-                    periodeSlutt = krav.beregning.input.periodeSlutt.toLocalDate(),
+                    periodeStart = krav.beregning.input.periodeStart,
+                    periodeSlutt = krav.beregning.input.periodeSlutt,
                 )
 
                 val oppsummering = toRefusjonskrav(pdl, deltakerRepository, krav)
@@ -172,8 +172,8 @@ fun Route.arrangorflateRoutes() {
 
                 val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
                     gjennomforingId = krav.gjennomforing.id,
-                    periodeStart = krav.beregning.input.periodeStart.toLocalDate(),
-                    periodeSlutt = krav.beregning.input.periodeSlutt.toLocalDate(),
+                    periodeStart = krav.beregning.input.periodeStart,
+                    periodeSlutt = krav.beregning.input.periodeSlutt,
                 )
                 call.respond(tilsagn)
             }

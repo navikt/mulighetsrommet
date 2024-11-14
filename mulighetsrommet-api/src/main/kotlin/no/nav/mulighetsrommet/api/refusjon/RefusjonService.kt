@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.temporal.TemporalAdjusters
 import java.util.*
 
@@ -24,7 +23,7 @@ class RefusjonService(
     private val refusjonskravRepository: RefusjonskravRepository,
 ) {
     fun genererRefusjonskravForMonth(dayInMonth: LocalDate) {
-        val periodeStart = dayInMonth.with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay()
+        val periodeStart = dayInMonth.with(TemporalAdjusters.firstDayOfMonth())
         val periodeSlutt = periodeStart.with(TemporalAdjusters.lastDayOfMonth()).plusDays(1)
 
         tiltaksgjennomforingRepository
@@ -69,8 +68,8 @@ class RefusjonService(
     fun createRefusjonskravAft(
         refusjonskravId: UUID,
         gjennomforingId: UUID,
-        periodeStart: LocalDateTime,
-        periodeSlutt: LocalDateTime,
+        periodeStart: LocalDate,
+        periodeSlutt: LocalDate,
     ): RefusjonskravDbo {
         val frist = periodeSlutt.plusMonths(2)
 
@@ -83,7 +82,7 @@ class RefusjonService(
         val input = RefusjonKravBeregningAft.Input(
             periodeStart = periodeStart,
             periodeSlutt = periodeSlutt,
-            sats = Prismodell.AFT.findSats(periodeStart.toLocalDate()),
+            sats = Prismodell.AFT.findSats(periodeStart),
             deltakelser = deltakere,
         )
 
@@ -95,7 +94,7 @@ class RefusjonService(
 
         return RefusjonskravDbo(
             id = refusjonskravId,
-            fristForGodkjenning = frist,
+            fristForGodkjenning = frist.atStartOfDay(),
             gjennomforingId = gjennomforingId,
             beregning = beregning,
             kontonummer = forrigeKrav?.betalingsinformasjon?.kontonummer,
@@ -105,8 +104,8 @@ class RefusjonService(
 
     private fun getDeltakelser(
         gjennomforingId: UUID,
-        periodeStart: LocalDateTime,
-        periodeSlutt: LocalDateTime,
+        periodeStart: LocalDate,
+        periodeSlutt: LocalDate,
     ): Set<DeltakelsePerioder> {
         val deltakelser = deltakerRepository.getAll(gjennomforingId)
 
@@ -122,14 +121,14 @@ class RefusjonService(
             }
             .filter { it.stillingsprosent != null }
             .filter {
-                it.startDato != null && !it.startDato.atStartOfDay().isAfter(periodeSlutt)
+                it.startDato != null && !it.startDato.isAfter(periodeSlutt)
             }
             .filter {
-                it.sluttDato == null || it.sluttDato.plusDays(1).atStartOfDay().isAfter(periodeStart)
+                it.sluttDato == null || it.sluttDato.plusDays(1).isAfter(periodeStart)
             }
             .map { deltakelse ->
-                val start = maxOf(requireNotNull(deltakelse.startDato).atStartOfDay(), periodeStart)
-                val slutt = minOf(deltakelse.sluttDato?.plusDays(1)?.atStartOfDay() ?: periodeSlutt, periodeSlutt)
+                val start = maxOf(requireNotNull(deltakelse.startDato), periodeStart)
+                val slutt = minOf(deltakelse.sluttDato?.plusDays(1) ?: periodeSlutt, periodeSlutt)
                 val stillingsprosent = requireNotNull(deltakelse.stillingsprosent) {
                     "stillingsprosent mangler for deltakelse id=${deltakelse.id}"
                 }

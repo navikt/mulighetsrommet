@@ -1,8 +1,10 @@
 package no.nav.mulighetsrommet.api.refusjon.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -20,10 +22,10 @@ data class RefusjonKravKompakt(
 ) {
     @Serializable
     data class Beregning(
-        @Serializable(with = LocalDateTimeSerializer::class)
-        val periodeStart: LocalDateTime,
-        @Serializable(with = LocalDateTimeSerializer::class)
-        val periodeSlutt: LocalDateTime,
+        @Serializable(with = LocalDateSerializer::class)
+        val periodeStart: LocalDate,
+        @Serializable(with = LocalDateSerializer::class)
+        val periodeSlutt: LocalDate,
         val belop: Int,
     )
 }

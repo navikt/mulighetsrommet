@@ -59,7 +59,7 @@ class RefusjonskravRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             insert into refusjonskrav_beregning_aft (refusjonskrav_id, periode, sats, belop)
-            values (:refusjonskrav_id::uuid, tsrange(:periode_start, :periode_slutt), :sats, :belop)
+            values (:refusjonskrav_id::uuid, daterange(:periode_start, :periode_slutt), :sats, :belop)
             on conflict (refusjonskrav_id) do update set
                 periode = excluded.periode,
                 sats = excluded.sats,
@@ -86,7 +86,7 @@ class RefusjonskravRepository(private val db: Database) {
         @Language("PostgreSQL")
         val insertPeriodeQuery = """
             insert into refusjonskrav_deltakelse_periode (refusjonskrav_id, deltakelse_id, periode, prosent_stilling)
-            values (:refusjonskrav_id, :deltakelse_id, tsrange(:start, :slutt), :stillingsprosent)
+            values (:refusjonskrav_id, :deltakelse_id, daterange(:start, :slutt), :stillingsprosent)
         """.trimIndent()
 
         val perioder = beregning.input.deltakelser.flatMap { deltakelse ->
@@ -219,8 +219,8 @@ class RefusjonskravRepository(private val db: Database) {
     private fun Row.toRefusjonsKravAft(): RefusjonskravDto {
         val beregning = RefusjonKravBeregningAft(
             input = RefusjonKravBeregningAft.Input(
-                periodeStart = localDateTime("periode_start"),
-                periodeSlutt = localDateTime("periode_slutt"),
+                periodeStart = localDate("periode_start"),
+                periodeSlutt = localDate("periode_slutt"),
                 sats = int("sats"),
                 deltakelser = stringOrNull("perioder_json")?.let { Json.decodeFromString(it) } ?: setOf(),
             ),

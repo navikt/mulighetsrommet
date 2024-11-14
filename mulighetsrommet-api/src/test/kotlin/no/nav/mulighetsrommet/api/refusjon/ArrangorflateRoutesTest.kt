@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -58,8 +59,8 @@ class ArrangorflateRoutesTest : FunSpec({
         fristForGodkjenning = LocalDateTime.now(),
         beregning = RefusjonKravBeregningAft(
             input = RefusjonKravBeregningAft.Input(
-                periodeStart = LocalDateTime.of(2024, 8, 1, 0, 0),
-                periodeSlutt = LocalDateTime.of(2024, 8, 31, 0, 0),
+                periodeStart = LocalDate.of(2024, 8, 1),
+                periodeSlutt = LocalDate.of(2024, 8, 31),
                 sats = 20205,
                 deltakelser = emptySet(),
             ),

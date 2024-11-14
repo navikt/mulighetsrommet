@@ -8,8 +8,8 @@ import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import java.lang.Math.addExact
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.time.Duration
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import kotlin.streams.asSequence
 
 object Prismodell {
@@ -65,16 +65,14 @@ object Prismodell {
 
         fun beregnRefusjonBelop(input: RefusjonKravBeregningAft.Input): RefusjonKravBeregningAft.Output {
             val (periodeStart, periodeSlutt, sats, deltakelser) = input
-            val totalDuration = Duration.between(periodeStart, periodeSlutt).toSeconds().toBigDecimal()
+            val totalDuration = getDurationInDays(periodeStart, periodeSlutt).toBigDecimal()
 
             val manedsverk = deltakelser
                 .map { deltkelse ->
                     val perioder = deltkelse.perioder.map { periode ->
                         val start = maxOf(periodeStart, periode.start)
                         val slutt = minOf(periodeSlutt, periode.slutt)
-                        val overlapDuration = Duration.between(start, slutt)
-                            .toSeconds()
-                            .toBigDecimal()
+                        val overlapDuration = getDurationInDays(start, slutt).toBigDecimal()
 
                         val overlapFraction = overlapDuration.divide(totalDuration, 2, RoundingMode.HALF_UP)
 
@@ -132,4 +130,8 @@ object Prismodell {
         @SerialName("FRI")
         data class Fri(override val belop: Int) : TilsagnBeregning()
     }
+}
+
+fun getDurationInDays(start: LocalDate, slutt: LocalDate): Long {
+    return ChronoUnit.DAYS.between(start, slutt)
 }

@@ -411,9 +411,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         }
     }
 
-    fun getGjennomforesInPeriodeUtenRefusjonskrav(
-        periodeStart: LocalDateTime,
-        periodeSlutt: LocalDateTime,
+fun getGjennomforesInPeriodeUtenRefusjonskrav(
+        periodeStart: LocalDate,
+        periodeSlutt: LocalDate,
     ): List<TiltaksgjennomforingDto> {
         @Language("PostgreSQL")
         val query = """
@@ -427,7 +427,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                     from refusjonskrav
                         join refusjonskrav_beregning_aft ON refusjonskrav.id = refusjonskrav_beregning_aft.refusjonskrav_id
                     where refusjonskrav.gjennomforing_id = tiltaksgjennomforing_admin_dto_view.id
-                    and refusjonskrav_beregning_aft.periode && tsrange(:periode_start, :periode_slutt)
+                    and refusjonskrav_beregning_aft.periode && daterange(:periode_start, :periode_slutt)
                 );
         """.trimIndent()
 

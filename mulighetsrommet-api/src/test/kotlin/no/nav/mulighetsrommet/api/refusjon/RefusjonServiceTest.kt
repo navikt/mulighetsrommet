@@ -75,8 +75,8 @@ class RefusjonServiceTest : FunSpec({
             krav.gjennomforing.id shouldBe AFT1.id
             krav.fristForGodkjenning shouldBe LocalDateTime.of(2024, 4, 1, 0, 0, 0)
             krav.beregning.input shouldBe RefusjonKravBeregningAft.Input(
-                periodeStart = LocalDate.of(2024, 1, 1).atStartOfDay(),
-                periodeSlutt = LocalDate.of(2024, 2, 1).atStartOfDay(),
+                periodeStart = LocalDate.of(2024, 1, 1),
+                periodeSlutt = LocalDate.of(2024, 2, 1),
                 sats = 20205,
                 deltakelser = setOf(),
             )
@@ -105,8 +105,8 @@ class RefusjonServiceTest : FunSpec({
             krav.betalingsinformasjon.kontonummer shouldBe null
             krav.betalingsinformasjon.kid shouldBe null
             krav.beregning.input shouldBe RefusjonKravBeregningAft.Input(
-                periodeStart = LocalDate.of(2024, 1, 1).atStartOfDay(),
-                periodeSlutt = LocalDate.of(2024, 2, 1).atStartOfDay(),
+                periodeStart = LocalDate.of(2024, 1, 1),
+                periodeSlutt = LocalDate.of(2024, 2, 1),
                 sats = 20205,
                 deltakelser = setOf(),
             )
@@ -133,8 +133,8 @@ class RefusjonServiceTest : FunSpec({
             sisteKrav.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
             sisteKrav.betalingsinformasjon.kid shouldBe Kid("12345678901")
             sisteKrav.beregning.input shouldBe RefusjonKravBeregningAft.Input(
-                periodeStart = LocalDate.of(2024, 2, 1).atStartOfDay(),
-                periodeSlutt = LocalDate.of(2024, 3, 1).atStartOfDay(),
+                periodeStart = LocalDate.of(2024, 2, 1),
+                periodeSlutt = LocalDate.of(2024, 3, 1),
                 sats = 20205,
                 deltakelser = setOf(),
             )
@@ -198,8 +198,8 @@ class RefusjonServiceTest : FunSpec({
                         deltakelseId = domain.deltakere[0].id,
                         perioder = listOf(
                             DeltakelsePeriode(
-                                start = LocalDate.of(2024, 1, 1).atStartOfDay(),
-                                slutt = LocalDate.of(2024, 2, 1).atStartOfDay(),
+                                start = LocalDate.of(2024, 1, 1),
+                                slutt = LocalDate.of(2024, 2, 1),
                                 stillingsprosent = 100.0,
                             ),
                         ),
@@ -208,8 +208,8 @@ class RefusjonServiceTest : FunSpec({
                         deltakelseId = domain.deltakere[1].id,
                         perioder = listOf(
                             DeltakelsePeriode(
-                                start = LocalDate.of(2024, 1, 1).atStartOfDay(),
-                                slutt = LocalDate.of(2024, 1, 16).atStartOfDay(),
+                                start = LocalDate.of(2024, 1, 1),
+                                slutt = LocalDate.of(2024, 1, 16),
                                 stillingsprosent = 40.0,
                             ),
                         ),
@@ -218,8 +218,8 @@ class RefusjonServiceTest : FunSpec({
                         deltakelseId = domain.deltakere[2].id,
                         perioder = listOf(
                             DeltakelsePeriode(
-                                start = LocalDate.of(2024, 1, 1).atStartOfDay(),
-                                slutt = LocalDate.of(2024, 2, 1).atStartOfDay(),
+                                start = LocalDate.of(2024, 1, 1),
+                                slutt = LocalDate.of(2024, 2, 1),
                                 stillingsprosent = 50.0,
                             ),
                         ),
@@ -371,8 +371,8 @@ class RefusjonServiceTest : FunSpec({
             krav1 = service.createRefusjonskravAft(
                 refusjonskravId = UUID.randomUUID(),
                 gjennomforingId = AFT1.id,
-                periodeStart = LocalDate.of(2024, 6, 1).atStartOfDay(),
-                periodeSlutt = LocalDate.of(2024, 7, 1).atStartOfDay(),
+                periodeStart = LocalDate.of(2024, 6, 1),
+                periodeSlutt = LocalDate.of(2024, 7, 1),
             )
             refusjonskravRepository.upsert(krav1)
 

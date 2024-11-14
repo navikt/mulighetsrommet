@@ -2,9 +2,9 @@ package no.nav.mulighetsrommet.api.refusjon.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
+import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
-import java.time.LocalDateTime
+import java.time.LocalDate
 import java.util.*
 
 @Serializable
@@ -16,10 +16,10 @@ data class RefusjonKravBeregningAft(
 
     @Serializable
     data class Input(
-        @Serializable(with = LocalDateTimeSerializer::class)
-        override val periodeStart: LocalDateTime,
-        @Serializable(with = LocalDateTimeSerializer::class)
-        override val periodeSlutt: LocalDateTime,
+        @Serializable(with = LocalDateSerializer::class)
+        override val periodeStart: LocalDate,
+        @Serializable(with = LocalDateSerializer::class)
+        override val periodeSlutt: LocalDate,
         val sats: Int,
         val deltakelser: Set<DeltakelsePerioder>,
     ) : RefusjonKravBeregningInput()
@@ -40,10 +40,10 @@ data class DeltakelsePerioder(
 
 @Serializable
 data class DeltakelsePeriode(
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val start: LocalDateTime,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val slutt: LocalDateTime,
+    @Serializable(with = LocalDateSerializer::class)
+    val start: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val slutt: LocalDate,
     // TODO: egen Stillingsprosent-type?
     val stillingsprosent: Double,
 )

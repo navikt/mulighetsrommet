@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.refusjon.model
 
 import kotlinx.serialization.Serializable
-import java.time.LocalDateTime
+import java.time.LocalDate
 
 @Serializable
 sealed class RefusjonKravBeregning {
@@ -10,8 +10,8 @@ sealed class RefusjonKravBeregning {
 }
 
 abstract class RefusjonKravBeregningInput {
-    abstract val periodeStart: LocalDateTime
-    abstract val periodeSlutt: LocalDateTime
+    abstract val periodeStart: LocalDate
+    abstract val periodeSlutt: LocalDate
 }
 
 abstract class RefusjonKravBeregningOutput {
