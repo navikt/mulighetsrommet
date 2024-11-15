@@ -1,3 +1,4 @@
+-- touch
 drop view if exists refusjonskrav_aft_view;
 drop view if exists refusjonskrav_admin_dto_view;
 
