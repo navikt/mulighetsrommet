@@ -312,5 +312,5 @@ export const avtaleDetaljerTabAtom = atom<
   "detaljer" | "pris-og-fakturering" | "personvern" | "redaksjonelt-innhold"
 >("detaljer");
 
-export const gjennomforingFilterAccordionAtom = atom<string[]>(["status"]);
+export const gjennomforingFilterAccordionAtom = atom<string[]>(["navEnhet"]);
 export const avtaleFilterAccordionAtom = atom<string[]>(["region"]);
