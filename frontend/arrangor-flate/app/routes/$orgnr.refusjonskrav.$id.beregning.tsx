@@ -1,6 +1,6 @@
 import { RefusjonKravDeltakelse, RefusjonKravDeltakelsePerson } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Button, GuidePanel, HGrid, SortState, Table } from "@navikt/ds-react";
+import { Button, GuidePanel, HGrid, SortState, Table, VStack } from "@navikt/ds-react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
@@ -131,18 +131,20 @@ export default function RefusjonskravBeregning() {
             })}
           </Table.Body>
         </Table>
-        <Definisjonsliste
-          definitions={[
-            {
-              key: "Antall månedsverk",
-              value: String(krav.beregning.antallManedsverk),
-            },
-            {
-              key: "Beløp",
-              value: formaterNOK(krav.beregning.belop),
-            },
-          ]}
-        />
+        <VStack align="end">
+          <Definisjonsliste
+            definitions={[
+              {
+                key: "Antall månedsverk",
+                value: String(krav.beregning.antallManedsverk),
+              },
+              {
+                key: "Beløp",
+                value: formaterNOK(krav.beregning.belop),
+              },
+            ]}
+          />
+        </VStack>
         <Button
           as={LinkWithTabState}
           className="justify-self-end"

@@ -6,6 +6,7 @@ import {
 
 export interface Refusjonskrav {
   id: string;
+  fristForGodkjenning: string;
   detaljer: {
     tiltaksnavn: string;
     tiltakstype: string;
