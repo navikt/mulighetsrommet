@@ -22,7 +22,7 @@ export function Definisjonsliste({ title, definitions, className }: Props) {
       )}
       <dl className="flex flex-col gap-2">
         {definitions.map((definition, index) => (
-          <div className="flex justify-between" key={index}>
+          <div className="flex justify-between gap-2" key={index}>
             <dt>{definition.key}:</dt>
             <dd className="font-bold text-right">{definition.value}</dd>
           </div>

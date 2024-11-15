@@ -9,6 +9,7 @@ export async function loadRefusjonskrav(id: string): Promise<Refusjonskrav> {
 
   return {
     id,
+    fristForGodkjenning: krav.fristForGodkjenning,
     detaljer: {
       tiltaksnavn: krav.gjennomforing.navn,
       tiltakstype: krav.tiltakstype.navn,
