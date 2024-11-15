@@ -137,6 +137,38 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
         </Switch>
       </div>
       <Accordion>
+        <Accordion.Item open={accordionsOpen.includes("navEnhet")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "navEnhet")]);
+            }}
+          >
+            <FilterAccordionHeader
+              tittel="Nav-enhet"
+              antallValgteFilter={filter.navEnheter.length}
+            />
+          </Accordion.Header>
+          <Accordion.Content>
+            <div style={{ marginLeft: "-2rem" }}>
+              <NavEnhetFilter
+                navEnheter={filter.navEnheter}
+                setNavEnheter={(navEnheter: NavEnhet[]) => {
+                  setFilter({
+                    ...filter,
+                    page: 1,
+                    lagretFilterIdValgt: undefined,
+                    navEnheter,
+                  });
+                  loggBrukAvFilter(
+                    "navEnheter",
+                    navEnheter.map((n) => n.navn),
+                  );
+                }}
+                regioner={regioner}
+              />
+            </div>
+          </Accordion.Content>
+        </Accordion.Item>
         <Accordion.Item open={accordionsOpen.includes("status")}>
           <Accordion.Header
             onClick={() => {
@@ -171,38 +203,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             />
           </Accordion.Content>
         </Accordion.Item>
-        <Accordion.Item open={accordionsOpen.includes("navEnhet")}>
-          <Accordion.Header
-            onClick={() => {
-              setAccordionsOpen([...addOrRemove(accordionsOpen, "navEnhet")]);
-            }}
-          >
-            <FilterAccordionHeader
-              tittel="Nav-enhet"
-              antallValgteFilter={filter.navEnheter.length}
-            />
-          </Accordion.Header>
-          <Accordion.Content>
-            <div style={{ marginLeft: "-2rem" }}>
-              <NavEnhetFilter
-                navEnheter={filter.navEnheter}
-                setNavEnheter={(navEnheter: NavEnhet[]) => {
-                  setFilter({
-                    ...filter,
-                    page: 1,
-                    lagretFilterIdValgt: undefined,
-                    navEnheter,
-                  });
-                  loggBrukAvFilter(
-                    "navEnheter",
-                    navEnheter.map((n) => n.navn),
-                  );
-                }}
-                regioner={regioner}
-              />
-            </div>
-          </Accordion.Content>
-        </Accordion.Item>
+
         <Accordion.Item open={accordionsOpen.includes("arrangor")}>
           <Accordion.Header
             onClick={() => {
