@@ -25,6 +25,6 @@ data class DeltakerDto(
     val registrertTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
     val endretTidspunkt: LocalDateTime,
-    val stillingsprosent: Double?,
+    val deltakelsesprosent: Double?,
     val status: DeltakerStatus,
 )

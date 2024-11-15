@@ -19,7 +19,7 @@ class DeltakerRepository(private val db: Database) {
                                   slutt_dato,
                                   registrert_tidspunkt,
                                   endret_tidspunkt,
-                                  stillingsprosent,
+                                  deltakelsesprosent,
                                   status_type,
                                   status_aarsak,
                                   status_opprettet_tidspunkt)
@@ -29,7 +29,7 @@ class DeltakerRepository(private val db: Database) {
                     :slutt_dato,
                     :registrert_tidspunkt,
                     :endret_tidspunkt,
-                    :stillingsprosent,
+                    :deltakelsesprosent,
                     :status_type::deltaker_status_type,
                     :status_aarsak::deltaker_status_aarsak,
                     :status_opprettet_tidspunkt)
@@ -39,7 +39,7 @@ class DeltakerRepository(private val db: Database) {
                               slutt_dato                 = excluded.slutt_dato,
                               registrert_tidspunkt       = excluded.registrert_tidspunkt,
                               endret_tidspunkt           = excluded.endret_tidspunkt,
-                              stillingsprosent           = excluded.stillingsprosent,
+                              deltakelsesprosent         = excluded.deltakelsesprosent,
                               status_type                = excluded.status_type,
                               status_aarsak              = excluded.status_aarsak,
                               status_opprettet_tidspunkt = excluded.status_opprettet_tidspunkt
@@ -52,7 +52,7 @@ class DeltakerRepository(private val db: Database) {
             "slutt_dato" to deltaker.sluttDato,
             "registrert_tidspunkt" to deltaker.registrertTidspunkt,
             "endret_tidspunkt" to deltaker.endretTidspunkt,
-            "stillingsprosent" to deltaker.stillingsprosent,
+            "deltakelsesprosent" to deltaker.deltakelsesprosent,
             "status_type" to deltaker.status.type.name,
             "status_aarsak" to deltaker.status.aarsak?.name,
             "status_opprettet_tidspunkt" to deltaker.status.opprettetDato,
@@ -87,7 +87,7 @@ class DeltakerRepository(private val db: Database) {
                    slutt_dato,
                    registrert_tidspunkt,
                    endret_tidspunkt,
-                   stillingsprosent,
+                   deltakelsesprosent,
                    status_type,
                    status_aarsak,
                    status_opprettet_tidspunkt
@@ -113,7 +113,7 @@ class DeltakerRepository(private val db: Database) {
                    slutt_dato,
                    registrert_tidspunkt,
                    endret_tidspunkt,
-                   stillingsprosent,
+                   deltakelsesprosent,
                    status_type,
                    status_aarsak,
                    status_opprettet_tidspunkt
@@ -132,7 +132,8 @@ class DeltakerRepository(private val db: Database) {
     fun delete(id: UUID) {
         @Language("PostgreSQL")
         val query = """
-            delete from deltaker
+            delete
+            from deltaker
             where id = ?::uuid
         """.trimIndent()
 
@@ -149,7 +150,7 @@ class DeltakerRepository(private val db: Database) {
         sluttDato = localDateOrNull("slutt_dato"),
         registrertTidspunkt = localDateTime("registrert_tidspunkt"),
         endretTidspunkt = localDateTime("endret_tidspunkt"),
-        stillingsprosent = doubleOrNull("stillingsprosent"),
+        deltakelsesprosent = doubleOrNull("deltakelsesprosent"),
         status = DeltakerStatus(
             type = DeltakerStatus.Type.valueOf(string("status_type")),
             aarsak = stringOrNull("status_aarsak")?.let { DeltakerStatus.Aarsak.valueOf(it) },

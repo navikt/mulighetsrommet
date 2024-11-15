@@ -251,7 +251,7 @@ suspend fun toRefusjonskrav(
                 sluttDato = deltaker.startDato,
                 forstePeriodeStartDato = forstePeriode.start,
                 sistePeriodeSluttDato = sistePeriode.slutt.minusDays(1),
-                sistePeriodeDeltakelsesprosent = sistePeriode.stillingsprosent,
+                sistePeriodeDeltakelsesprosent = sistePeriode.deltakelsesprosent,
                 manedsverk = manedsverk,
                 person = person,
                 // TODO data om veileder hos arrangør

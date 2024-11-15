@@ -76,14 +76,14 @@ object Prismodell {
 
                         val overlapFraction = overlapDuration.divide(totalDuration, 2, RoundingMode.HALF_UP)
 
-                        val stillingsprosent = if (deltakelsePeriode.stillingsprosent < 50) {
+                        val deltakelsesprosent = if (deltakelsePeriode.deltakelsesprosent < 50) {
                             BigDecimal(50)
                         } else {
                             BigDecimal(100)
                         }
 
                         overlapFraction
-                            .multiply(stillingsprosent)
+                            .multiply(deltakelsesprosent)
                             .divide(BigDecimal(100), 2, RoundingMode.HALF_UP)
                     }
 

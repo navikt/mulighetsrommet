@@ -35,7 +35,7 @@ class DeltakerRepositoryTest : FunSpec({
             sluttDato = null,
             registrertTidspunkt = registrertTidspunkt,
             endretTidspunkt = registrertTidspunkt,
-            stillingsprosent = 100.0,
+            deltakelsesprosent = 100.0,
             status = DeltakerStatus(
                 DeltakerStatus.Type.VENTER_PA_OPPSTART,
                 aarsak = null,
@@ -92,6 +92,6 @@ fun DeltakerDbo.toDto() = DeltakerDto(
     sluttDato = startDato,
     registrertTidspunkt = registrertTidspunkt,
     endretTidspunkt = endretTidspunkt,
-    stillingsprosent = stillingsprosent,
+    deltakelsesprosent = deltakelsesprosent,
     status = status,
 )

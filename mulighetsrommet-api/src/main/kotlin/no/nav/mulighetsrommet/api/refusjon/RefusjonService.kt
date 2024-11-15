@@ -107,7 +107,7 @@ class RefusjonService(
                     DeltakerStatus.Type.FULLFORT,
                 )
             }
-            .filter { it.stillingsprosent != null }
+            .filter { it.deltakelsesprosent != null }
             .filter {
                 it.startDato != null && it.startDato.isBefore(periode.slutt)
             }
@@ -117,12 +117,12 @@ class RefusjonService(
             .map { deltakelse ->
                 val start = maxOf(requireNotNull(deltakelse.startDato), periode.start)
                 val slutt = minOf(deltakelse.sluttDato?.plusDays(1) ?: periode.slutt, periode.slutt)
-                val stillingsprosent = requireNotNull(deltakelse.stillingsprosent) {
-                    "stillingsprosent mangler for deltakelse id=${deltakelse.id}"
+                val deltakelsesprosent = requireNotNull(deltakelse.deltakelsesprosent) {
+                    "deltakelsesprosent mangler for deltakelse id=${deltakelse.id}"
                 }
 
                 // TODO: periodisering av prosent - fra Komet
-                val perioder = listOf(DeltakelsePeriode(start, slutt, stillingsprosent))
+                val perioder = listOf(DeltakelsePeriode(start, slutt, deltakelsesprosent))
 
                 DeltakelsePerioder(
                     deltakelseId = deltakelse.id,
