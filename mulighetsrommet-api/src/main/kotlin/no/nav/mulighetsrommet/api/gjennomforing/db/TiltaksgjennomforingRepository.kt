@@ -10,13 +10,14 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRepository
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.domain.dto.*
+import no.nav.mulighetsrommet.api.domain.dto.UtdanningslopDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingNotificationDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
+import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.responses.StatusResponseError
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
@@ -411,10 +412,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         }
     }
 
-    fun getGjennomforesInPeriodeUtenRefusjonskrav(
-        periodeStart: LocalDateTime,
-        periodeSlutt: LocalDateTime,
-    ): List<TiltaksgjennomforingDto> {
+    fun getGjennomforesInPeriodeUtenRefusjonskrav(periode: RefusjonskravPeriode): List<TiltaksgjennomforingDto> {
         @Language("PostgreSQL")
         val query = """
             select * from tiltaksgjennomforing_admin_dto_view
@@ -427,11 +425,11 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                     from refusjonskrav
                         join refusjonskrav_beregning_aft ON refusjonskrav.id = refusjonskrav_beregning_aft.refusjonskrav_id
                     where refusjonskrav.gjennomforing_id = tiltaksgjennomforing_admin_dto_view.id
-                    and refusjonskrav_beregning_aft.periode && tsrange(:periode_start, :periode_slutt)
+                    and refusjonskrav_beregning_aft.periode && daterange(:periode_start, :periode_slutt)
                 );
         """.trimIndent()
 
-        return queryOf(query, mapOf("periode_start" to periodeStart, "periode_slutt" to periodeSlutt))
+        return queryOf(query, mapOf("periode_start" to periode.start, "periode_slutt" to periode.slutt))
             .map { it.toTiltaksgjennomforingDto() }
             .asList
             .let { db.run(it) }

@@ -4,11 +4,11 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.refusjon.model.DeltakelseManedsverk
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
+import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import java.lang.Math.addExact
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.time.Duration
 import java.time.LocalDate
 import kotlin.streams.asSequence
 
@@ -64,21 +64,19 @@ object Prismodell {
         }
 
         fun beregnRefusjonBelop(input: RefusjonKravBeregningAft.Input): RefusjonKravBeregningAft.Output {
-            val (periodeStart, periodeSlutt, sats, deltakelser) = input
-            val totalDuration = Duration.between(periodeStart, periodeSlutt).toSeconds().toBigDecimal()
+            val (periode, sats, deltakelser) = input
+            val totalDuration = periode.getDurationInDays().toBigDecimal()
 
             val manedsverk = deltakelser
                 .map { deltkelse ->
-                    val perioder = deltkelse.perioder.map { periode ->
-                        val start = maxOf(periodeStart, periode.start)
-                        val slutt = minOf(periodeSlutt, periode.slutt)
-                        val overlapDuration = Duration.between(start, slutt)
-                            .toSeconds()
-                            .toBigDecimal()
+                    val perioder = deltkelse.perioder.map { deltakelsePeriode ->
+                        val start = maxOf(periode.start, deltakelsePeriode.start)
+                        val slutt = minOf(periode.slutt, deltakelsePeriode.slutt)
+                        val overlapDuration = RefusjonskravPeriode(start, slutt).getDurationInDays().toBigDecimal()
 
                         val overlapFraction = overlapDuration.divide(totalDuration, 2, RoundingMode.HALF_UP)
 
-                        val stillingsprosent = if (periode.stillingsprosent < 50) {
+                        val stillingsprosent = if (deltakelsePeriode.stillingsprosent < 50) {
                             BigDecimal(50)
                         } else {
                             BigDecimal(100)

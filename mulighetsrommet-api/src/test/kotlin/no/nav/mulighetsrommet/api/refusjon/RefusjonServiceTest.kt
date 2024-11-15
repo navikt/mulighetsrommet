@@ -15,10 +15,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepositor
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
-import no.nav.mulighetsrommet.api.refusjon.model.DeltakelseManedsverk
-import no.nav.mulighetsrommet.api.refusjon.model.DeltakelsePeriode
-import no.nav.mulighetsrommet.api.refusjon.model.DeltakelsePerioder
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
+import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
@@ -55,7 +52,7 @@ class RefusjonServiceTest : FunSpec({
             return requireNotNull(domain.arrangorer.find { it.id == gjennomforing.arrangorId }?.organisasjonsnummer)
         }
 
-        test("genererer et refusjonskrav med riktig periode, frist og sats som input") {
+        test("genererer ikke refusjonskrav når deltakelser mangler") {
             val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
             )
@@ -63,11 +60,30 @@ class RefusjonServiceTest : FunSpec({
 
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
-            val allKrav = refusjonskravRepository.getByArrangorIds(
-                getOrgnrForArrangor(
-                    AFT1,
-                    domain,
+            refusjonskravRepository.getByArrangorIds(
+                getOrgnrForArrangor(AFT1, domain),
+            ).shouldHaveSize(0)
+        }
+
+        test("genererer et refusjonskrav med riktig periode, frist og sats som input") {
+            val domain = MulighetsrommetTestDomain(
+                gjennomforinger = listOf(AFT1),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltaker(
+                        AFT1.id,
+                        startDato = LocalDate.of(2024, 1, 1),
+                        sluttDato = LocalDate.of(2024, 1, 31),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                        stillingsprosent = 100.0,
+                    ),
                 ),
+            )
+            domain.initialize(database.db)
+
+            service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
+
+            val allKrav = refusjonskravRepository.getByArrangorIds(
+                getOrgnrForArrangor(AFT1, domain),
             )
             allKrav.size shouldBe 1
 
@@ -75,41 +91,47 @@ class RefusjonServiceTest : FunSpec({
             krav.gjennomforing.id shouldBe AFT1.id
             krav.fristForGodkjenning shouldBe LocalDateTime.of(2024, 4, 1, 0, 0, 0)
             krav.beregning.input shouldBe RefusjonKravBeregningAft.Input(
-                periodeStart = LocalDate.of(2024, 1, 1).atStartOfDay(),
-                periodeSlutt = LocalDate.of(2024, 2, 1).atStartOfDay(),
+                periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2024, 1, 1)),
                 sats = 20205,
-                deltakelser = setOf(),
+                deltakelser = setOf(
+                    DeltakelsePerioder(
+                        deltakelseId = domain.deltakere[0].id,
+                        perioder = listOf(
+                            DeltakelsePeriode(
+                                start = LocalDate.of(2024, 1, 1),
+                                slutt = LocalDate.of(2024, 2, 1),
+                                stillingsprosent = 100.0,
+                            ),
+                        ),
+                    ),
+                ),
             )
         }
 
         test("genererer et refusjonskrav med kontonummer og kid-nummer fra forrige godkjente refusjonskrav fra arrangør") {
             val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltaker(
+                        AFT1.id,
+                        startDato = LocalDate.of(2024, 1, 1),
+                        sluttDato = LocalDate.of(2024, 1, 31),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                        stillingsprosent = 100.0,
+                    ),
+                ),
             )
             domain.initialize(database.db)
 
-            val januar = LocalDate.of(2024, 1, 1)
-            service.genererRefusjonskravForMonth(januar)
+            service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
-            val allKrav = refusjonskravRepository.getByArrangorIds(
-                getOrgnrForArrangor(
-                    AFT1,
-                    domain,
-                ),
-            )
-            allKrav.size shouldBe 1
-
-            val krav = allKrav.first()
+            val krav = refusjonskravRepository.getByArrangorIds(
+                getOrgnrForArrangor(AFT1, domain),
+            ).first()
             krav.gjennomforing.id shouldBe AFT1.id
-            krav.fristForGodkjenning shouldBe LocalDateTime.of(2024, 4, 1, 0, 0, 0)
             krav.betalingsinformasjon.kontonummer shouldBe null
             krav.betalingsinformasjon.kid shouldBe null
-            krav.beregning.input shouldBe RefusjonKravBeregningAft.Input(
-                periodeStart = LocalDate.of(2024, 1, 1).atStartOfDay(),
-                periodeSlutt = LocalDate.of(2024, 2, 1).atStartOfDay(),
-                sats = 20205,
-                deltakelser = setOf(),
-            )
+
             refusjonskravRepository.setBetalingsInformasjon(
                 id = krav.id,
                 kontonummer = Kontonummer("12345678901"),
@@ -117,27 +139,13 @@ class RefusjonServiceTest : FunSpec({
             )
             refusjonskravRepository.setGodkjentAvArrangor(krav.id, LocalDateTime.now())
 
-            val februar = LocalDate.of(2024, 2, 1)
-            service.genererRefusjonskravForMonth(februar)
-            val nyeKrav = refusjonskravRepository.getByArrangorIds(
-                getOrgnrForArrangor(
-                    AFT1,
-                    domain,
-                ),
-            )
-            nyeKrav.size shouldBe 2
-
-            val sisteKrav = nyeKrav.first()
+            service.genererRefusjonskravForMonth(LocalDate.of(2024, 2, 1))
+            val sisteKrav = refusjonskravRepository.getByArrangorIds(
+                getOrgnrForArrangor(AFT1, domain),
+            ).first()
             sisteKrav.gjennomforing.id shouldBe AFT1.id
-            sisteKrav.fristForGodkjenning shouldBe LocalDateTime.of(2024, 5, 1, 0, 0, 0)
             sisteKrav.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
             sisteKrav.betalingsinformasjon.kid shouldBe Kid("12345678901")
-            sisteKrav.beregning.input shouldBe RefusjonKravBeregningAft.Input(
-                periodeStart = LocalDate.of(2024, 2, 1).atStartOfDay(),
-                periodeSlutt = LocalDate.of(2024, 3, 1).atStartOfDay(),
-                sats = 20205,
-                deltakelser = setOf(),
-            )
         }
 
         test("genererer et refusjonskrav med relevante deltakelser som input") {
@@ -186,10 +194,7 @@ class RefusjonServiceTest : FunSpec({
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
             val krav = refusjonskravRepository.getByArrangorIds(
-                getOrgnrForArrangor(
-                    AFT1,
-                    domain,
-                ),
+                getOrgnrForArrangor(AFT1, domain),
             ).first()
 
             krav.beregning.input.shouldBeTypeOf<RefusjonKravBeregningAft.Input>().should {
@@ -198,8 +203,8 @@ class RefusjonServiceTest : FunSpec({
                         deltakelseId = domain.deltakere[0].id,
                         perioder = listOf(
                             DeltakelsePeriode(
-                                start = LocalDate.of(2024, 1, 1).atStartOfDay(),
-                                slutt = LocalDate.of(2024, 2, 1).atStartOfDay(),
+                                start = LocalDate.of(2024, 1, 1),
+                                slutt = LocalDate.of(2024, 2, 1),
                                 stillingsprosent = 100.0,
                             ),
                         ),
@@ -208,8 +213,8 @@ class RefusjonServiceTest : FunSpec({
                         deltakelseId = domain.deltakere[1].id,
                         perioder = listOf(
                             DeltakelsePeriode(
-                                start = LocalDate.of(2024, 1, 1).atStartOfDay(),
-                                slutt = LocalDate.of(2024, 1, 16).atStartOfDay(),
+                                start = LocalDate.of(2024, 1, 1),
+                                slutt = LocalDate.of(2024, 1, 16),
                                 stillingsprosent = 40.0,
                             ),
                         ),
@@ -218,8 +223,8 @@ class RefusjonServiceTest : FunSpec({
                         deltakelseId = domain.deltakere[2].id,
                         perioder = listOf(
                             DeltakelsePeriode(
-                                start = LocalDate.of(2024, 1, 1).atStartOfDay(),
-                                slutt = LocalDate.of(2024, 2, 1).atStartOfDay(),
+                                start = LocalDate.of(2024, 1, 1),
+                                slutt = LocalDate.of(2024, 2, 1),
                                 stillingsprosent = 50.0,
                             ),
                         ),
@@ -246,10 +251,7 @@ class RefusjonServiceTest : FunSpec({
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
             val krav = refusjonskravRepository.getByArrangorIds(
-                getOrgnrForArrangor(
-                    AFT1,
-                    domain,
-                ),
+                getOrgnrForArrangor(AFT1, domain),
             ).first()
 
             krav.beregning.output.shouldBeTypeOf<RefusjonKravBeregningAft.Output>().should {
@@ -284,8 +286,8 @@ class RefusjonServiceTest : FunSpec({
                 ),
             )
             domain.initialize(database.db)
-            service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
+            service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
             refusjonskravRepository.getByArrangorIds(getOrgnrForArrangor(AFT1, domain)) shouldHaveSize 1
 
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 2, 1))
@@ -333,7 +335,7 @@ class RefusjonServiceTest : FunSpec({
             ).first()
 
             krav.beregning.input.shouldBeTypeOf<RefusjonKravBeregningAft.Input>().should {
-                it.deltakelser shouldHaveSize 1
+                it.deltakelser.shouldHaveSize(1).first().deltakelseId.shouldBe(domain.deltakere[1].id)
             }
         }
     }
@@ -371,8 +373,7 @@ class RefusjonServiceTest : FunSpec({
             krav1 = service.createRefusjonskravAft(
                 refusjonskravId = UUID.randomUUID(),
                 gjennomforingId = AFT1.id,
-                periodeStart = LocalDate.of(2024, 6, 1).atStartOfDay(),
-                periodeSlutt = LocalDate.of(2024, 7, 1).atStartOfDay(),
+                periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2024, 6, 1)),
             )
             refusjonskravRepository.upsert(krav1)
 

@@ -7,22 +7,6 @@ export async function loadRefusjonskrav(id: string): Promise<Refusjonskrav> {
 
   const { beregning } = krav;
 
-  const deltakere = krav.deltakelser.map((d) => {
-    const firstPeriode = d.perioder.at(0);
-    const lastPeriode = d.perioder.at(-1);
-    return {
-      id: d.id,
-      person: d.person,
-      veileder: d.veileder,
-      startDatoTiltaket: d.startDato,
-      startDatoPerioden: firstPeriode?.start,
-      sluttDatoPerioden: lastPeriode?.slutt,
-      stillingsprosent: lastPeriode?.stillingsprosent,
-      maanedsverk: d.manedsverk,
-      perioder: d.perioder,
-    };
-  });
-
   return {
     id,
     detaljer: {
@@ -32,6 +16,6 @@ export async function loadRefusjonskrav(id: string): Promise<Refusjonskrav> {
     },
     beregning,
     betalingsinformasjon: krav.betalingsinformasjon,
-    deltakere,
+    deltakere: krav.deltakelser,
   };
 }

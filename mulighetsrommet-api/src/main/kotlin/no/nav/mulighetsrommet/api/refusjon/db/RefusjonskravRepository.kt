@@ -5,10 +5,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregning
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravDto
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravStatus
+import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
@@ -59,7 +56,7 @@ class RefusjonskravRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             insert into refusjonskrav_beregning_aft (refusjonskrav_id, periode, sats, belop)
-            values (:refusjonskrav_id::uuid, tsrange(:periode_start, :periode_slutt), :sats, :belop)
+            values (:refusjonskrav_id::uuid, daterange(:periode_start, :periode_slutt), :sats, :belop)
             on conflict (refusjonskrav_id) do update set
                 periode = excluded.periode,
                 sats = excluded.sats,
@@ -68,8 +65,8 @@ class RefusjonskravRepository(private val db: Database) {
 
         val params = mapOf(
             "refusjonskrav_id" to id,
-            "periode_start" to beregning.input.periodeStart,
-            "periode_slutt" to beregning.input.periodeSlutt,
+            "periode_start" to beregning.input.periode.start,
+            "periode_slutt" to beregning.input.periode.slutt,
             "sats" to beregning.input.sats,
             "belop" to beregning.output.belop,
         )
@@ -86,7 +83,7 @@ class RefusjonskravRepository(private val db: Database) {
         @Language("PostgreSQL")
         val insertPeriodeQuery = """
             insert into refusjonskrav_deltakelse_periode (refusjonskrav_id, deltakelse_id, periode, prosent_stilling)
-            values (:refusjonskrav_id, :deltakelse_id, tsrange(:start, :slutt), :stillingsprosent)
+            values (:refusjonskrav_id, :deltakelse_id, daterange(:start, :slutt), :stillingsprosent)
         """.trimIndent()
 
         val perioder = beregning.input.deltakelser.flatMap { deltakelse ->
@@ -219,8 +216,7 @@ class RefusjonskravRepository(private val db: Database) {
     private fun Row.toRefusjonsKravAft(): RefusjonskravDto {
         val beregning = RefusjonKravBeregningAft(
             input = RefusjonKravBeregningAft.Input(
-                periodeStart = localDateTime("periode_start"),
-                periodeSlutt = localDateTime("periode_slutt"),
+                periode = RefusjonskravPeriode(localDate("periode_start"), localDate("periode_slutt")),
                 sats = int("sats"),
                 deltakelser = stringOrNull("perioder_json")?.let { Json.decodeFromString(it) } ?: setOf(),
             ),

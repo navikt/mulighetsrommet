@@ -1,4 +1,4 @@
-import { RefusjonKravDeltakelsePerson } from "@mr/api-client";
+import { RefusjonKravDeltakelse, RefusjonKravDeltakelsePerson } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Button, GuidePanel, HGrid, SortState, Table } from "@navikt/ds-react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
@@ -8,13 +8,13 @@ import { checkValidToken } from "~/auth/auth.server";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { PageHeader } from "~/components/PageHeader";
 import { GenerelleDetaljer } from "~/components/refusjonskrav/GenerelleDetaljer";
-import { Deltaker, Refusjonskrav } from "~/domene/domene";
+import { Refusjonskrav } from "~/domene/domene";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { formaterDato, useOrgnrFromUrl } from "~/utils";
 import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
-import { LinkWithTabState } from "../components/LinkWithTabState";
-import { internalNavigation } from "../internal-navigation";
-import { hentMiljø, Miljø } from "../services/miljø";
+import { LinkWithTabState } from "~/components/LinkWithTabState";
+import { internalNavigation } from "~/internal-navigation";
+import { hentMiljø, Miljø } from "~/services/miljø";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Refusjon" }, { name: "description", content: "Refusjonsdetaljer" }];
@@ -114,23 +114,17 @@ export default function RefusjonskravBeregning() {
           </Table.Header>
           <Table.Body>
             {sortedData.map((deltaker) => {
-              const { id, person, startDatoPerioden, sluttDatoPerioden } = deltaker;
+              const { id, person } = deltaker;
               const fodselsdato = getFormattedFodselsdato(person);
               return (
                 <Table.ExpandableRow key={id} content={null} togglePlacement="right">
                   <Table.DataCell className="font-bold">{person?.navn}</Table.DataCell>
                   <Table.DataCell className="w-52">{fodselsdato}</Table.DataCell>
-                  <Table.DataCell>
-                    {deltaker.startDatoTiltaket && formaterDato(deltaker.startDatoTiltaket)}
-                  </Table.DataCell>
-                  <Table.DataCell>
-                    {startDatoPerioden && formaterDato(startDatoPerioden)}
-                  </Table.DataCell>
-                  <Table.DataCell>
-                    {sluttDatoPerioden && formaterDato(sluttDatoPerioden)}
-                  </Table.DataCell>
-                  <Table.DataCell>{deltaker.stillingsprosent}</Table.DataCell>
-                  <Table.DataCell>{deltaker.maanedsverk}</Table.DataCell>
+                  <Table.DataCell>{formaterDato(deltaker.startDato)}</Table.DataCell>
+                  <Table.DataCell>{formaterDato(deltaker.forstePeriodeStartDato)}</Table.DataCell>
+                  <Table.DataCell>{formaterDato(deltaker.sistePeriodeSluttDato)}</Table.DataCell>
+                  <Table.DataCell>{deltaker.sistePeriodeDeltakelsesprosent}</Table.DataCell>
+                  <Table.DataCell>{deltaker.manedsverk}</Table.DataCell>
                   <Table.DataCell>{deltaker.veileder}</Table.DataCell>
                 </Table.ExpandableRow>
               );
@@ -165,14 +159,14 @@ function isDeltakerSortKey(sortKey: string): sortKey is DeltakerSortKey {
   return sortKey in DeltakerSortKey;
 }
 
-function getDeltakerSelector(sortKey: DeltakerSortKey): SortBySelector<Deltaker> {
+function getDeltakerSelector(sortKey: DeltakerSortKey): SortBySelector<RefusjonKravDeltakelse> {
   switch (sortKey) {
     case DeltakerSortKey.PERSON_NAVN:
       return (d) => d.person?.navn;
     case DeltakerSortKey.PERIODE_START:
-      return (d) => d.startDatoPerioden;
+      return (d) => d.forstePeriodeStartDato;
     case DeltakerSortKey.PERIODE_SLUTT:
-      return (d) => d.sluttDatoPerioden;
+      return (d) => d.sistePeriodeSluttDato;
     case DeltakerSortKey.VEILEDER_NAVN:
       return (d) => d.veileder;
   }
