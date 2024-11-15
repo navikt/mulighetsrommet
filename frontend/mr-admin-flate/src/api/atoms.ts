@@ -180,7 +180,7 @@ export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingFilter = {
   search: "",
   navEnheter: [],
   tiltakstyper: [],
-  statuser: [],
+  statuser: [TiltaksgjennomforingStatus.PLANLAGT, TiltaksgjennomforingStatus.GJENNOMFORES],
   sortering: {
     sortString: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
     tableSort: {
@@ -237,7 +237,7 @@ export type AvtaleFilter = z.infer<typeof AvtaleFilterSchema>;
 
 export const defaultAvtaleFilter: AvtaleFilter = {
   sok: "",
-  statuser: [],
+  statuser: [Avtalestatus.AKTIV],
   avtaletyper: [],
   navRegioner: [],
   tiltakstyper: [],
