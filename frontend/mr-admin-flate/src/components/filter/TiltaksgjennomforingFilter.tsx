@@ -171,46 +171,6 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             />
           </Accordion.Content>
         </Accordion.Item>
-
-        {!skjulFilter?.tiltakstype && (
-          <Accordion.Item open={accordionsOpen.includes("tiltakstype")}>
-            <Accordion.Header
-              onClick={() => {
-                setAccordionsOpen([...addOrRemove(accordionsOpen, "tiltakstype")]);
-              }}
-            >
-              <FilterAccordionHeader
-                tittel="Tiltakstype"
-                antallValgteFilter={filter.tiltakstyper.length}
-              />
-            </Accordion.Header>
-            <Accordion.Content>
-              <CheckboxList
-                onSelectAll={(checked) => {
-                  selectDeselectAll(
-                    checked,
-                    "tiltakstyper",
-                    tiltakstyper.data.map((t) => t.id),
-                  );
-                }}
-                items={tiltakstypeOptions(tiltakstyper.data)}
-                isChecked={(tiltakstype) => filter.tiltakstyper.includes(tiltakstype)}
-                onChange={(tiltakstype) => {
-                  setFilter({
-                    ...filter,
-                    page: 1,
-                    lagretFilterIdValgt: undefined,
-                    tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
-                  });
-                  loggBrukAvFilter(
-                    "status",
-                    tiltakstyper.data.find((s) => s.id === tiltakstype)?.navn,
-                  );
-                }}
-              />
-            </Accordion.Content>
-          </Accordion.Item>
-        )}
         <Accordion.Item open={accordionsOpen.includes("navEnhet")}>
           <Accordion.Header
             onClick={() => {
@@ -271,6 +231,47 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             />
           </Accordion.Content>
         </Accordion.Item>
+
+        {!skjulFilter?.tiltakstype && (
+          <Accordion.Item open={accordionsOpen.includes("tiltakstype")}>
+            <Accordion.Header
+              onClick={() => {
+                setAccordionsOpen([...addOrRemove(accordionsOpen, "tiltakstype")]);
+              }}
+            >
+              <FilterAccordionHeader
+                tittel="Tiltakstype"
+                antallValgteFilter={filter.tiltakstyper.length}
+              />
+            </Accordion.Header>
+            <Accordion.Content>
+              <CheckboxList
+                onSelectAll={(checked) => {
+                  selectDeselectAll(
+                    checked,
+                    "tiltakstyper",
+                    tiltakstyper.data.map((t) => t.id),
+                  );
+                }}
+                items={tiltakstypeOptions(tiltakstyper.data)}
+                isChecked={(tiltakstype) => filter.tiltakstyper.includes(tiltakstype)}
+                onChange={(tiltakstype) => {
+                  setFilter({
+                    ...filter,
+                    page: 1,
+                    lagretFilterIdValgt: undefined,
+                    tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
+                  });
+                  loggBrukAvFilter(
+                    "status",
+                    tiltakstyper.data.find((s) => s.id === tiltakstype)?.navn,
+                  );
+                }}
+              />
+            </Accordion.Content>
+          </Accordion.Item>
+        )}
+
         <Accordion.Item open={accordionsOpen.includes("publiserteStatuser")}>
           <Accordion.Header
             onClick={() => {
