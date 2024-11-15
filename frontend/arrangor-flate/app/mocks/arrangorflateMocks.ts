@@ -43,13 +43,6 @@ const mockKrav: RefusjonKravAft[] = [
         sistePeriodeSluttDato: "2024-06-30",
         sistePeriodeDeltakelsesprosent: 30,
         manedsverk: 0.3,
-        perioder: [
-          {
-            start: "2024-06-01",
-            slutt: "2024-07-01",
-            stillingsprosent: 30,
-          },
-        ],
       },
       {
         id: uuid(),
@@ -62,13 +55,6 @@ const mockKrav: RefusjonKravAft[] = [
         sistePeriodeSluttDato: "2024-06-30",
         sistePeriodeDeltakelsesprosent: 100,
         manedsverk: 1,
-        perioder: [
-          {
-            start: "2024-06-01",
-            slutt: "2024-07-01",
-            stillingsprosent: 100,
-          },
-        ],
       },
     ],
     beregning: {
@@ -76,6 +62,7 @@ const mockKrav: RefusjonKravAft[] = [
       periodeSlutt: "2024-06-30",
       antallManedsverk: 17.5,
       belop: 308530,
+      digest: "ac6b2cdcbfc885e64121cf4e0ebee5dd",
     },
   },
   {
@@ -113,13 +100,6 @@ const mockKrav: RefusjonKravAft[] = [
         sistePeriodeSluttDato: "2024-06-30",
         sistePeriodeDeltakelsesprosent: 30,
         manedsverk: 0.3,
-        perioder: [
-          {
-            start: "2024-06-01",
-            slutt: "2024-07-01",
-            stillingsprosent: 30,
-          },
-        ],
       },
       {
         id: uuid(),
@@ -131,13 +111,6 @@ const mockKrav: RefusjonKravAft[] = [
         sistePeriodeSluttDato: "2024-06-30",
         sistePeriodeDeltakelsesprosent: 100,
         manedsverk: 1,
-        perioder: [
-          {
-            start: "2024-06-01",
-            slutt: "2024-07-01",
-            stillingsprosent: 100,
-          },
-        ],
       },
     ],
     beregning: {
@@ -145,6 +118,7 @@ const mockKrav: RefusjonKravAft[] = [
       periodeSlutt: "2024-06-30",
       antallManedsverk: 4,
       belop: 85000,
+      digest: "5c25b2ae0d9b5f2c76e4a6065125cbdb",
     },
   },
   {
@@ -182,13 +156,6 @@ const mockKrav: RefusjonKravAft[] = [
         sistePeriodeSluttDato: "2024-06-30",
         sistePeriodeDeltakelsesprosent: 30,
         manedsverk: 0.3,
-        perioder: [
-          {
-            start: "2024-06-01",
-            slutt: "2024-07-01",
-            stillingsprosent: 30,
-          },
-        ],
       },
       {
         id: uuid(),
@@ -200,13 +167,6 @@ const mockKrav: RefusjonKravAft[] = [
         sistePeriodeSluttDato: "2024-06-30",
         sistePeriodeDeltakelsesprosent: 100,
         manedsverk: 1,
-        perioder: [
-          {
-            start: "2024-06-01",
-            slutt: "2024-07-01",
-            stillingsprosent: 100,
-          },
-        ],
       },
     ],
     beregning: {
@@ -214,6 +174,7 @@ const mockKrav: RefusjonKravAft[] = [
       periodeSlutt: "2024-06-30",
       antallManedsverk: 4,
       belop: 85000,
+      digest: "5c25b2ae0d9b5f2c76e4a6065125cbdb",
     },
   },
 ];

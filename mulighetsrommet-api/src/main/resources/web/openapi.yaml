@@ -1873,7 +1873,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GodkjennRefusjonskravAft"
+              $ref: "#/components/schemas/GodkjennRefusjonskrav"
         required: true
       responses:
         200:
@@ -5090,11 +5090,14 @@ components:
           type: number
         belop:
           type: integer
+        digest:
+          type: string
       required:
         - periodeStart
         - periodeSlutt
         - antallManedsverk
         - belop
+        - digest
 
     RefusjonKravDeltakelse:
       type: object
@@ -5116,10 +5119,6 @@ components:
           format: date
         sistePeriodeDeltakelsesprosent:
           type: number
-        perioder:
-          type: array
-          items:
-            $ref: "#/components/schemas/RefusjonKravDeltakelsePeriode"
         manedsverk:
           type: number
         person:
@@ -5132,7 +5131,6 @@ components:
         - forstePeriodeStartDato
         - sistePeriodeSluttDato
         - sistePeriodeDeltakelsesprosent
-        - perioder
         - manedsverk
         - person
 
@@ -5300,18 +5298,13 @@ components:
         kid:
           type: string
 
-    GodkjennRefusjonskravAft:
+    GodkjennRefusjonskrav:
       type: object
       properties:
-        belop:
-          type: number
-        deltakelser:
-          type: array
-          items:
-            $ref: "#/components/schemas/RefusjonKravDeltakelsePerioder"
+        digest:
+          type: string
         betalingsinformasjon:
           $ref: "#/components/schemas/Betalingsinformasjon"
       required:
-        - belop
-        - deltakelser
+        - digest
         - betalingsinformasjon
