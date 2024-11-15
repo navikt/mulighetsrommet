@@ -313,4 +313,4 @@ export const avtaleDetaljerTabAtom = atom<
 >("detaljer");
 
 export const gjennomforingFilterAccordionAtom = atom<string[]>(["status"]);
-export const avtaleFilterAccordionAtom = atom<string[]>(["status"]);
+export const avtaleFilterAccordionAtom = atom<string[]>(["region"]);

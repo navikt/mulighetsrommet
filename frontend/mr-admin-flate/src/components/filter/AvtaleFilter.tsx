@@ -115,6 +115,33 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
         </Switch>
       </div>
       <Accordion>
+        <Accordion.Item open={accordionsOpen.includes("region")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "region")]);
+            }}
+          >
+            <FilterAccordionHeader tittel="Region" antallValgteFilter={filter.navRegioner.length} />
+          </Accordion.Header>
+          <Accordion.Content>
+            <CheckboxList
+              items={regionOptions(enheter)}
+              isChecked={(region) => filter.navRegioner.includes(region)}
+              onChange={(region) => {
+                setFilter({
+                  ...filter,
+                  page: 1,
+                  navRegioner: addOrRemove(filter.navRegioner, region),
+                  lagretFilterIdValgt: undefined,
+                });
+                loggBrukAvFilter(
+                  "navRegioner",
+                  enheter.find((e) => e.enhetsnummer === region)?.navn,
+                );
+              }}
+            />
+          </Accordion.Content>
+        </Accordion.Item>
         <Accordion.Item open={accordionsOpen.includes("status")}>
           <Accordion.Header
             onClick={() => {
@@ -149,43 +176,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
             />
           </Accordion.Content>
         </Accordion.Item>
-        <Accordion.Item open={accordionsOpen.includes("avtaletype")}>
-          <Accordion.Header
-            onClick={() => {
-              setAccordionsOpen([...addOrRemove(accordionsOpen, "avtaletype")]);
-            }}
-          >
-            <FilterAccordionHeader
-              tittel="Avtaletype"
-              antallValgteFilter={filter.avtaletyper.length}
-            />
-          </Accordion.Header>
-          <Accordion.Content>
-            <CheckboxList
-              onSelectAll={(checked) => {
-                selectDeselectAll(
-                  checked,
-                  "avtaletyper",
-                  AVTALE_TYPE_OPTIONS.map((a) => a.value),
-                );
-              }}
-              items={AVTALE_TYPE_OPTIONS}
-              isChecked={(type) => filter.avtaletyper.includes(type)}
-              onChange={(type) => {
-                setFilter({
-                  ...filter,
-                  page: 1,
-                  avtaletyper: addOrRemove(filter.avtaletyper, type),
-                  lagretFilterIdValgt: undefined,
-                });
-                loggBrukAvFilter(
-                  "avtaletyper",
-                  AVTALE_TYPE_OPTIONS.find((a) => a.value === type)?.label,
-                );
-              }}
-            />
-          </Accordion.Content>
-        </Accordion.Item>
+
         {!skjulFilter?.tiltakstype && (
           <Accordion.Item open={accordionsOpen.includes("tiltakstype")}>
             <Accordion.Header
@@ -225,28 +216,38 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
             </Accordion.Content>
           </Accordion.Item>
         )}
-        <Accordion.Item open={accordionsOpen.includes("region")}>
+        <Accordion.Item open={accordionsOpen.includes("avtaletype")}>
           <Accordion.Header
             onClick={() => {
-              setAccordionsOpen([...addOrRemove(accordionsOpen, "region")]);
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "avtaletype")]);
             }}
           >
-            <FilterAccordionHeader tittel="Region" antallValgteFilter={filter.navRegioner.length} />
+            <FilterAccordionHeader
+              tittel="Avtaletype"
+              antallValgteFilter={filter.avtaletyper.length}
+            />
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
-              items={regionOptions(enheter)}
-              isChecked={(region) => filter.navRegioner.includes(region)}
-              onChange={(region) => {
+              onSelectAll={(checked) => {
+                selectDeselectAll(
+                  checked,
+                  "avtaletyper",
+                  AVTALE_TYPE_OPTIONS.map((a) => a.value),
+                );
+              }}
+              items={AVTALE_TYPE_OPTIONS}
+              isChecked={(type) => filter.avtaletyper.includes(type)}
+              onChange={(type) => {
                 setFilter({
                   ...filter,
                   page: 1,
-                  navRegioner: addOrRemove(filter.navRegioner, region),
+                  avtaletyper: addOrRemove(filter.avtaletyper, type),
                   lagretFilterIdValgt: undefined,
                 });
                 loggBrukAvFilter(
-                  "navRegioner",
-                  enheter.find((e) => e.enhetsnummer === region)?.navn,
+                  "avtaletyper",
+                  AVTALE_TYPE_OPTIONS.find((a) => a.value === type)?.label,
                 );
               }}
             />
