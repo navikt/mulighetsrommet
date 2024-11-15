@@ -5147,33 +5147,6 @@ components:
       required:
         - navn
 
-    RefusjonKravDeltakelsePerioder:
-      type: object
-      properties:
-        deltakelseId:
-          type: string
-          format: uuid
-        perioder:
-          type: array
-          items:
-            $ref: "#/components/schemas/RefusjonKravDeltakelsePeriode"
-
-    RefusjonKravDeltakelsePeriode:
-      type: object
-      properties:
-        start:
-          type: string
-          format: date-time
-        slutt:
-          type: string
-          format: date-time
-        stillingsprosent:
-          type: number
-      required:
-        - start
-        - slutt
-        - stillingsprosent
-
     UtdanningslopDbo:
       type: object
       properties:
