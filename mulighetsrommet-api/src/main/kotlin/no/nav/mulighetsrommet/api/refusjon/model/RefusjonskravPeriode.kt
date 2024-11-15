@@ -34,6 +34,6 @@ data class RefusjonskravPeriode(
     }
 
     fun getLastDate(): LocalDate {
-        return slutt.plusDays(1)
+        return slutt.minusDays(1)
     }
 }
