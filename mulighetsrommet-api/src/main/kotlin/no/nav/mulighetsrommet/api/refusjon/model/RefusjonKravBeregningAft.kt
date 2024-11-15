@@ -36,8 +36,7 @@ data class DeltakelsePeriode(
     val start: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val slutt: LocalDate,
-    // TODO: egen Stillingsprosent-type?
-    val stillingsprosent: Double,
+    val deltakelsesprosent: Double,
 )
 
 @Serializable

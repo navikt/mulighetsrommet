@@ -49,17 +49,17 @@ class RefusjonskravRepositoryTest : FunSpec({
                             DeltakelsePeriode(
                                 start = LocalDate.of(2023, 1, 1),
                                 slutt = LocalDate.of(2023, 1, 10),
-                                stillingsprosent = 100.0,
+                                deltakelsesprosent = 100.0,
                             ),
                             DeltakelsePeriode(
                                 start = LocalDate.of(2023, 1, 10),
                                 slutt = LocalDate.of(2023, 1, 20),
-                                stillingsprosent = 50.0,
+                                deltakelsesprosent = 50.0,
                             ),
                             DeltakelsePeriode(
                                 start = LocalDate.of(2023, 1, 20),
                                 slutt = LocalDate.of(2023, 2, 1),
-                                stillingsprosent = 50.0,
+                                deltakelsesprosent = 50.0,
                             ),
                         ),
                     ),
@@ -69,7 +69,7 @@ class RefusjonskravRepositoryTest : FunSpec({
                             DeltakelsePeriode(
                                 start = LocalDate.of(2023, 1, 1),
                                 slutt = LocalDate.of(2023, 2, 1),
-                                stillingsprosent = 100.0,
+                                deltakelsesprosent = 100.0,
                             ),
                         ),
                     ),
@@ -145,7 +145,7 @@ class RefusjonskravRepositoryTest : FunSpec({
             val periode = DeltakelsePeriode(
                 start = LocalDate.of(2023, 1, 1),
                 slutt = LocalDate.of(2023, 1, 2),
-                stillingsprosent = 100.0,
+                deltakelsesprosent = 100.0,
             )
             val deltakelse = DeltakelsePerioder(
                 deltakelseId = UUID.randomUUID(),

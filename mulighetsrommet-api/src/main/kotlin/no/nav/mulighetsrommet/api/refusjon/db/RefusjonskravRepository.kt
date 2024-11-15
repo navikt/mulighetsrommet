@@ -82,8 +82,8 @@ class RefusjonskravRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val insertPeriodeQuery = """
-            insert into refusjonskrav_deltakelse_periode (refusjonskrav_id, deltakelse_id, periode, prosent_stilling)
-            values (:refusjonskrav_id, :deltakelse_id, daterange(:start, :slutt), :stillingsprosent)
+            insert into refusjonskrav_deltakelse_periode (refusjonskrav_id, deltakelse_id, periode, deltakelsesprosent)
+            values (:refusjonskrav_id, :deltakelse_id, daterange(:start, :slutt), :deltakelsesprosent)
         """.trimIndent()
 
         val perioder = beregning.input.deltakelser.flatMap { deltakelse ->
@@ -93,7 +93,7 @@ class RefusjonskravRepository(private val db: Database) {
                     "deltakelse_id" to deltakelse.deltakelseId,
                     "start" to periode.start,
                     "slutt" to periode.slutt,
-                    "stillingsprosent" to periode.stillingsprosent,
+                    "deltakelsesprosent" to periode.deltakelsesprosent,
                 )
             }
         }

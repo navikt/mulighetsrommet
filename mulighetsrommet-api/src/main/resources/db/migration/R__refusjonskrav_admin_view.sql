@@ -30,7 +30,7 @@ with deltakelse_perioder as (select refusjonskrav_id,
                                     jsonb_agg(jsonb_build_object(
                                             'start', lower(periode),
                                             'slutt', upper(periode),
-                                            'stillingsprosent', prosent_stilling
+                                            'deltakelsesprosent', deltakelsesprosent
                                               )) as perioder
                              from refusjonskrav_deltakelse_periode
                              group by refusjonskrav_id, deltakelse_id),
