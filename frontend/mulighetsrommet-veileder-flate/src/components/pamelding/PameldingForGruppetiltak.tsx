@@ -60,7 +60,7 @@ export function PameldingForGruppetiltak({
     );
   }
 
-  if (brukerHarRettPaaValgtTiltak && deltakelserErMigrert) {
+  if (brukerHarRettPaaValgtTiltak && deltakelserErMigrert && tiltak.apentForInnsok) {
     const opprettDeltakelseRoute = resolveModiaRoute({
       route: ModiaRoute.ARBEIDSMARKEDSTILTAK_OPPRETT_DELTAKELSE,
       gjennomforingId,
