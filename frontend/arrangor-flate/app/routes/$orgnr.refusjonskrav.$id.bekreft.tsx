@@ -8,10 +8,11 @@ import { PageHeader } from "~/components/PageHeader";
 import { RefusjonskravDetaljer } from "~/components/refusjonskrav/RefusjonskravDetaljer";
 import { Refusjonskrav } from "~/domene/domene";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
-import { internalNavigation } from "../internal-navigation";
-import { useOrgnrFromUrl } from "../utils";
-import { getCurrentTab } from "../utils/currentTab";
+import { internalNavigation } from "~/internal-navigation";
+import { useOrgnrFromUrl } from "~/utils";
+import { getCurrentTab } from "~/utils/currentTab";
 import { isValidationError } from "@mr/frontend-common/utils/utils";
+import { FormError, getOrError, getOrThrowError } from "~/form/form-helpers";
 
 type BekreftRefusjonskravData = {
   krav: Refusjonskrav;
@@ -38,43 +39,39 @@ export const loader: LoaderFunction = async ({
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  const formdata = await request.formData();
-  const bekreftelse = formdata.get("bekreftelse");
-  const refusjonskravId = formdata.get("refusjonskravId")?.toString();
-  const kontonummer = formdata.get("kontonummer");
-  const kid = formdata.get("kid");
-  const orgnr = formdata.get("orgnr")?.toString();
+  const formData = await request.formData();
+
   const currentTab = getCurrentTab(request);
+  const refusjonskravId = getOrThrowError(formData, "refusjonskravId").toString();
+  const refusjonskravDigest = getOrThrowError(formData, "refusjonskravDigest").toString();
+  const orgnr = getOrThrowError(formData, "orgnr").toString();
 
-  const errors: { name: string; message: string }[] = [];
+  const { error: bekreftelseError } = getOrError(
+    formData,
+    "bekreftelse",
+    "Du må bekrefte at opplysningene er korrekte",
+  );
+  const { error: kontonummerError, data: kontonummer } = getOrError(
+    formData,
+    "kontonummer",
+    "Du må fylle ut kontonummer",
+  );
+  const kid = formData.get("kid")?.toString();
 
-  if (!bekreftelse) {
-    errors.push({ name: "bekreftelse", message: "Du må bekrefte at opplysningene er korrekte" });
+  if (kontonummerError || bekreftelseError) {
+    return json({
+      errors: [kontonummerError, bekreftelseError].filter((error) => error !== undefined),
+    });
   }
-  if (!kontonummer) {
-    errors.push({ name: "kontonummer", message: "Du må fylle ut kontonummer" });
-  }
-  if (!refusjonskravId) {
-    throw new Error("Mangler refusjonskravId");
-  }
-  if (!orgnr) {
-    throw new Error("Mangler orgnr");
-  }
-  if (errors.length > 0) {
-    return json({ errors });
-  }
-
-  const krav = await loadRefusjonskrav(refusjonskravId);
 
   try {
     await ArrangorflateService.godkjennRefusjonskrav({
-      id: refusjonskravId as string,
+      id: refusjonskravId,
       requestBody: {
-        belop: krav.beregning.belop,
-        deltakelser: krav.deltakere.map((d) => ({ deltakelseId: d.id, perioder: d.perioder })),
+        digest: refusjonskravDigest,
         betalingsinformasjon: {
-          kontonummer: kontonummer as string,
-          kid: kid as string,
+          kontonummer: kontonummer.toString(),
+          kid: kid,
         },
       },
     });
@@ -141,10 +138,11 @@ export default function BekreftRefusjonskrav() {
               Det erklæres herved at alle opplysninger er gitt i henhold til de faktiske forhold
             </Checkbox>
             <input type="hidden" name="refusjonskravId" value={krav.id} />
+            <input type="hidden" name="refusjonskravDigest" value={krav.beregning.digest} />
             <input type="hidden" name="orgnr" value={orgnr} />
             {data?.errors?.length > 0 && (
               <ErrorSummary>
-                {data.errors.map((error: any) => {
+                {data.errors.map((error: FormError) => {
                   return <ErrorSummary.Item key={error.name}>{error.message}</ErrorSummary.Item>;
                 })}
               </ErrorSummary>

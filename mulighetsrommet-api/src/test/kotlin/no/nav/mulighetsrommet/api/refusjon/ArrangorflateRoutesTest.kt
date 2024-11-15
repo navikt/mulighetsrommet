@@ -183,7 +183,7 @@ class ArrangorflateRoutesTest : FunSpec({
         }
     }
 
-    test("Utdatert refusjonskrav gir 400 i godkjenn-refusjon") {
+    test("feil sjekksum ved godkjenning av refusjon gir 400") {
         withTestApplication(appConfig()) {
             val client = createClient {
                 install(ContentNegotiation) {
@@ -195,8 +195,7 @@ class ArrangorflateRoutesTest : FunSpec({
                 contentType(ContentType.Application.Json)
                 setBody(
                     GodkjennRefusjonskravAft(
-                        belop = krav.beregning.output.belop + 200, // Feil belop
-                        deltakelser = (krav.beregning as RefusjonKravBeregningAft).input.deltakelser,
+                        digest = "d3b07384d113edec49eaa6238ad5ff00",
                         betalingsinformasjon = GodkjennRefusjonskravAft.Betalingsinformasjon(
                             kontonummer = Kontonummer("12312312312"),
                             kid = null,
@@ -205,6 +204,30 @@ class ArrangorflateRoutesTest : FunSpec({
                 )
             }
             response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
+    test("riktig sjekksum ved godkjenning av refusjon gir 200") {
+        withTestApplication(appConfig()) {
+            val client = createClient {
+                install(ContentNegotiation) {
+                    json()
+                }
+            }
+            val response = client.post("/api/v1/intern/arrangorflate/refusjonskrav/${krav.id}/godkjenn-refusjon") {
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
+                contentType(ContentType.Application.Json)
+                setBody(
+                    GodkjennRefusjonskravAft(
+                        digest = krav.beregning.getDigest(),
+                        betalingsinformasjon = GodkjennRefusjonskravAft.Betalingsinformasjon(
+                            kontonummer = Kontonummer("12312312312"),
+                            kid = null,
+                        ),
+                    ),
+                )
+            }
+            response.status shouldBe HttpStatusCode.OK
         }
     }
 })

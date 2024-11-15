@@ -30,6 +30,7 @@ data class RefusjonKravAft(
         val periodeSlutt: LocalDate,
         val antallManedsverk: Double,
         val belop: Int,
+        val digest: String,
     )
 }
 

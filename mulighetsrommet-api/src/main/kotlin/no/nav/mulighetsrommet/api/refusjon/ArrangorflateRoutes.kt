@@ -112,20 +112,22 @@ fun Route.arrangorflateRoutes() {
 
             post("/godkjenn-refusjon") {
                 val id = call.parameters.getOrFail<UUID>("id")
-                val request = call.receive<GodkjennRefusjonskravAft>()
 
                 val krav = refusjonskrav.get(id)
                     ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
-                val result = validerGodkjennRefusjonskrav(request, krav.beregning)
+                val request = call.receive<GodkjennRefusjonskravAft>()
+
+                val result = validerGodkjennRefusjonskrav(request, krav)
                     .mapLeft { BadRequest(errors = it) }
-                    .map {
+                    .map { (betalingsinformasjon) ->
                         refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now())
                         refusjonskrav.setBetalingsInformasjon(
                             id,
-                            request.betalingsinformasjon.kontonummer,
-                            request.betalingsinformasjon.kid,
+                            betalingsinformasjon.kontonummer,
+                            betalingsinformasjon.kid,
                         )
                     }
 
@@ -193,21 +195,17 @@ fun Route.arrangorflateRoutes() {
 
 fun validerGodkjennRefusjonskrav(
     request: GodkjennRefusjonskravAft,
-    beregning: RefusjonKravBeregning,
-): Either<List<ValidationError>, Unit> =
-    when (beregning) {
-        is RefusjonKravBeregningAft -> {
-            if (beregning.input.deltakelser != request.deltakelser || beregning.output.belop != request.belop) {
-                listOf(
-                    ValidationError.ofCustomLocation(
-                        "info",
-                        "Informasjonen i kravet har endret seg. Vennligst se over på nytt.",
-                    ),
-                ).left()
-            } else {
-                Unit.right()
-            }
-        }
+    krav: RefusjonskravDto,
+): Either<List<ValidationError>, GodkjennRefusjonskravAft> =
+    if (request.digest != krav.beregning.getDigest()) {
+        listOf(
+            ValidationError.ofCustomLocation(
+                "info",
+                "Informasjonen i kravet har endret seg. Vennligst se over på nytt.",
+            ),
+        ).left()
+    } else {
+        request.right()
     }
 
 fun toRefusjonskravKompakt(krav: RefusjonskravDto) = RefusjonKravKompakt(
@@ -280,6 +278,7 @@ suspend fun toRefusjonskrav(
                 periodeSlutt = beregning.input.periode.getLastDate(),
                 antallManedsverk = antallManedsverk,
                 belop = beregning.output.belop,
+                digest = beregning.getDigest(),
             ),
             betalingsinformasjon = krav.betalingsinformasjon,
         )
@@ -345,9 +344,8 @@ data class RefusjonKravKvitteringDto(
 // Kan bli gjort om til en sealed class for andre etterhvert hvis det trengs
 @Serializable
 data class GodkjennRefusjonskravAft(
-    val belop: Int,
-    val deltakelser: Set<DeltakelsePerioder>,
     val betalingsinformasjon: Betalingsinformasjon,
+    val digest: String,
 ) {
     @Serializable
     data class Betalingsinformasjon(
