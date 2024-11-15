@@ -29,6 +29,10 @@ import { IngenLesetilgang } from "./IngenLesetilgang";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
 import { tiltakstyperLoaders } from "./pages/tiltakstyper/tiltakstyperLoaders";
 import { avtalerLoader } from "./pages/avtaler/avtaleLoaders";
+import {
+  tiltaksgjennomforingerForAvtaleLoader,
+  tiltaksgjennomforingerLoader,
+} from "./pages/tiltaksgjennomforinger/tiltaksgjennomforingLoaders";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -131,6 +135,10 @@ const router = () =>
                 path: "tiltaksgjennomforinger",
                 element: <TiltaksgjennomforingerForAvtalePage />,
                 errorElement: <ErrorPage />,
+                loader: ({ context }) => {
+                  const { filter } = context;
+                  return tiltaksgjennomforingerForAvtaleLoader();
+                },
               },
             ],
           },
@@ -153,6 +161,7 @@ const router = () =>
             path: "tiltaksgjennomforinger/",
             element: <TiltaksgjennomforingerPage />,
             errorElement: <ErrorPage />,
+            loader: tiltaksgjennomforingerLoader,
           },
           {
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId",

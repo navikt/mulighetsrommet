@@ -8,7 +8,11 @@ import {
 } from "@/utils/Utils";
 import { Alert, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
-import { OpenAPI, SorteringTiltaksgjennomforinger } from "@mr/api-client";
+import {
+  OpenAPI,
+  PaginertTiltaksgjennomforing,
+  SorteringTiltaksgjennomforinger,
+} from "@mr/api-client";
 import { TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
@@ -22,6 +26,7 @@ import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import styles from "./Tabell.module.scss";
 import { APPLICATION_NAME } from "@/constants";
 import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
+import { useLoaderData } from "react-router-dom";
 
 const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: boolean }) => {
   return skjul ? null : <>{children}</>;
@@ -44,7 +49,7 @@ export function TiltaksgjennomforingsTabell({
   const [lasterExcel, setLasterExcel] = useState(false);
   const [excelUrl, setExcelUrl] = useState("");
   const sort = filter.sortering.tableSort;
-  const { data, isLoading } = useAdminTiltaksgjennomforinger(filter);
+  const data = useLoaderData() as PaginertTiltaksgjennomforing;
   const link = createRef<HTMLAnchorElement>();
 
   async function lastNedFil(filter: TiltaksgjennomforingFilter) {
@@ -113,10 +118,6 @@ export function TiltaksgjennomforingsTabell({
       page: sort.orderBy !== sortKey || sort.direction !== direction ? 1 : filter.page,
     });
   };
-
-  if (!data || isLoading) {
-    return <Laster size="xlarge" tekst="Laster tiltaksgjennomføringer..." />;
-  }
 
   const { pagination, data: tiltaksgjennomforinger } = data;
 
