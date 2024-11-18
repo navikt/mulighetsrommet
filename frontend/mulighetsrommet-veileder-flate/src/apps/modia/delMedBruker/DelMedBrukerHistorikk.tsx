@@ -6,6 +6,8 @@ import { formaterDato } from "../../../utils/Utils";
 import { ModiaRoute, navigateToModiaApp } from "../ModiaRoute";
 import { useDeltMedBrukerHistorikk } from "../hooks/useDeltMedBrukerHistorikk";
 import { IngenFunnetBox } from "../views/Landingsside";
+import { Link } from "react-router-dom";
+import styles from "./DelMedBrukerHistorikk.module.scss";
 
 function sortOnCreatedAt(a: TiltakDeltMedBruker, b: TiltakDeltMedBruker) {
   return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
@@ -76,25 +78,6 @@ export function DelMedBrukerHistorikk() {
   );
 }
 
-function NavigateToDialogButton({ tiltak }: { tiltak: TiltakDeltMedBruker }): ReactNode {
-  return (
-    <Button
-      as="a"
-      style={{ textDecoration: "underline", margin: 0, padding: 0, color: "#0067c5" }}
-      variant="tertiary-neutral"
-      onClick={(e) => {
-        e.preventDefault();
-        navigateToModiaApp({
-          route: ModiaRoute.DIALOG,
-          dialogId: tiltak.dialogId,
-        });
-      }}
-    >
-      Gå til dialogen
-    </Button>
-  );
-}
-
 function contentForRow(delteTiltak: TiltakDeltMedBruker[]): ReactNode {
   const tidligereDelte = delteTiltak.slice(1);
 
@@ -123,7 +106,27 @@ function createCells(antallTiltakDelt: number, tiltak: TiltakDeltMedBruker): Rea
       </Table.DataCell>
       <Table.DataCell title={tiltak.createdAt}>{formaterDato(tiltak.createdAt)}</Table.DataCell>
       <Table.DataCell>
-        <NavigateToDialogButton tiltak={tiltak} />
+        <VStack align="center" gap="2">
+          <Button
+            variant="secondary"
+            size="small"
+            onClick={(e) => {
+              e.preventDefault();
+              navigateToModiaApp({
+                route: ModiaRoute.DIALOG,
+                dialogId: tiltak.dialogId,
+              });
+            }}
+          >
+            Gå til dialogen
+          </Button>
+          <Link
+            to={`/arbeidsmarkedstiltak/tiltak/${tiltak.tiltakId}`}
+            className={styles.tertiary_link}
+          >
+            Gå til tiltak
+          </Link>
+        </VStack>
       </Table.DataCell>
     </>
   );
