@@ -40,7 +40,7 @@ export const mockTiltakstyper = {
   },
   DIGIOPPARB: {
     id: "e47447e3-bbe4-4c41-839d-f352130b2e8a",
-    navn: "Digitalt oppfølgingstiltak for arbeidsledige (jobbklubb)",
+    navn: "Digitalt jobbsøkerkurs for arbeidsledige (jobbklubb)",
     tiltakskode: Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
     arenaKode: TiltakskodeArena.DIGIOPPARB,
     startDato: "2021-01-01",

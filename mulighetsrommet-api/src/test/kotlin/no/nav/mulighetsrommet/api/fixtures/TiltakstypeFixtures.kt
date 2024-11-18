@@ -62,7 +62,7 @@ object TiltakstypeFixtures {
 
     val DigitalOppfolging = TiltakstypeDbo(
         id = UUID.fromString("54300eac-a537-418e-a28b-9fa984a8d36f"),
-        navn = "Digital oppfølging",
+        navn = "Digitalt jobbsøkerkurs",
         tiltakskode = Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
         arenaKode = "DIGIOPPARB",
         startDato = LocalDate.of(2023, 1, 1),
