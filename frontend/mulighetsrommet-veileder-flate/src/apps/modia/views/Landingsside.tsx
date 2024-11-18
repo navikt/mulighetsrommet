@@ -294,7 +294,7 @@ function ManglerSisteDeltakelserFraTeamKometMelding() {
             <li>Arbeidsmarkedsopplæring (gruppe)</li>
             <li>Arbeidsrettet rehabilitering</li>
             <li>Avklaring</li>
-            <li>Digitalt oppfølgingstiltak</li>
+            <li>Digitalt jobbsøkerkurs</li>
             <li>Fag- og yrkesopplæring (gruppe)</li>
             <li>Jobbklubb</li>
             <li>Oppfølging</li>

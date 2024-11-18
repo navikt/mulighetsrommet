@@ -771,7 +771,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
               _key: "01e33a0b1bbf",
               _type: "span",
               marks: ["strong"],
-              text: "Digitalt oppfølgingstiltak bør også vurderes før bruker søkes inn på ordinær jobbklubb. Det gjelder ikke for Øst-Viken, Vest-Viken eller Innlandet.",
+              text: "Digitalt jobbsøkerkurs bør også vurderes før bruker søkes inn på ordinær jobbklubb. Det gjelder ikke for Øst-Viken, Vest-Viken eller Innlandet.",
             },
           ],
           _type: "block",
@@ -831,8 +831,8 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     delingMedBruker:
       "Vi har nå et kurs som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>, og er et heldigitalt jobbsøkings- og karriereveiledningskurs.\n\nMålet er at du skal komme i jobb. Du \n- trener på jobbintervju\n- lærer hvordan skrive CV og jobbsøknad\n- får individuell karriereveileding\n- lærer om arbeidsmarkedet og hvor du finner ledige jobber\n- deltar på gruppearbeid og deler erfaringer med andre arbeidssøkere\n- får hjelp til å søke jobber\n\nDu kan lese mer om kurset  på www.nav.no/digital-jobbklubb ",
     beskrivelse:
-      "Digital oppfølgingstiltak er et kortvarig nettbasert kurs som skal gi  karriereveiledning, jobbsøkningsbistand og personlig oppfølging med egen rådgiver. Målet er at tiltaksdeltaker gjennom veiledning og et individuelt tilpasset opplegg  skal bli selvforsørget. ",
-    navn: 'Digitalt oppfølgingstiltak for arbeidsledige ("digital jobbklubb")',
+      "Digitat jobbsøkerkurs er et kortvarig nettbasert kurs som skal gi  karriereveiledning, jobbsøkningsbistand og personlig oppfølging med egen rådgiver. Målet er at tiltaksdeltaker gjennom veiledning og et individuelt tilpasset opplegg  skal bli selvforsørget. ",
+    navn: 'Digitalt jobbsøkerkurs for arbeidsledige ("digital jobbklubb")',
     faneinnhold: {
       forHvemInfoboks:
         "Avtalen med AS3 er sagt opp, så brukere fra Oslo. Øst-Viken, Vest-Viken og Innlandet har ikke lenger tilgang til Digital jobbklubb",
@@ -1622,7 +1622,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
           markDefs: [],
           children: [
             {
-              text: "Se også Digitalt oppfølgingstiltak for arbeidsledige (Digital jobbklubb)",
+              text: "Se også Digitalt jobbsøkerkurs for arbeidsledige (Digital jobbklubb)",
               _key: "491b563474de",
               _type: "span",
               marks: [],
