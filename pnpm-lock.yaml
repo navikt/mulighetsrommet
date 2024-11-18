@@ -113,7 +113,7 @@ importers:
         version: 7.5.1
       '@navikt/nav-dekoratoren-moduler':
         specifier: ^3.1.1
-        version: 3.1.1(csp-header@5.2.1)(html-react-parser@5.1.18(@types/react@18.3.12)(react@18.3.1))(jsdom@25.0.1)(react@18.3.1)
+        version: 3.1.1(csp-header@6.0.0)(html-react-parser@5.1.18(@types/react@18.3.12)(react@18.3.1))(jsdom@25.0.1)(react@18.3.1)
       '@navikt/oasis':
         specifier: ^3.4.0
         version: 3.4.0
@@ -136,8 +136,8 @@ importers:
         specifier: ^7.0.3
         version: 7.0.3
       csp-header:
-        specifier: ^5.2.1
-        version: 5.2.1
+        specifier: ^6.0.0
+        version: 6.0.0
       express:
         specifier: ^4.21.1
         version: 4.21.1
@@ -4061,9 +4061,9 @@ packages:
     resolution: {integrity: sha512-v1plID3y9r/lPhviJ1wrXpLeyUIGAZ2SHNYTEapm7/8A9nLPoyvVp3RK/EPFqn5kEznyWgYZNsRtYYIWbuG8KA==}
     engines: {node: '>=8'}
 
-  csp-header@5.2.1:
-    resolution: {integrity: sha512-qOJNu39JZkPrbrAM40a1tQCePEPYVIoI6nMDhX4RA07QjU8efS+zyd/zE83XJu85KKazH9NjKlvvlswFMteMgg==}
-    engines: {node: '>=10'}
+  csp-header@6.0.0:
+    resolution: {integrity: sha512-36QEB4YiqByFRvpbBJ1sUqdkWZ21vG3pJavt318X9a1jJOBxS2hgtKOM8K5fBZEf8V6yZPbOspvfXdFshM5TuQ==}
+    engines: {node: '>=18'}
 
   css-box-model@1.2.1:
     resolution: {integrity: sha512-a7Vr4Q/kd/aw96bnJG332W9V9LkJO69JRcaCYDUqjp6/z0w6VcZjgAcTbgFxEPfBgdnAwlh3iwu+hLopa+flJw==}
@@ -10570,9 +10570,9 @@ snapshots:
 
   '@navikt/ds-tokens@7.5.1': {}
 
-  '@navikt/nav-dekoratoren-moduler@3.1.1(csp-header@5.2.1)(html-react-parser@5.1.18(@types/react@18.3.12)(react@18.3.1))(jsdom@25.0.1)(react@18.3.1)':
+  '@navikt/nav-dekoratoren-moduler@3.1.1(csp-header@6.0.0)(html-react-parser@5.1.18(@types/react@18.3.12)(react@18.3.1))(jsdom@25.0.1)(react@18.3.1)':
     dependencies:
-      csp-header: 5.2.1
+      csp-header: 6.0.0
       html-react-parser: 5.1.18(@types/react@18.3.12)(react@18.3.1)
       jsdom: 25.0.1
       react: 18.3.1
@@ -12637,7 +12637,7 @@ snapshots:
 
   crypto-random-string@2.0.0: {}
 
-  csp-header@5.2.1: {}
+  csp-header@6.0.0: {}
 
   css-box-model@1.2.1:
     dependencies:
