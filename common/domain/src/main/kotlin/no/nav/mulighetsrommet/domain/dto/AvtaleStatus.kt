@@ -16,16 +16,15 @@ sealed class AvtaleStatus {
     }
 
     companion object {
-        fun fromString(name: String, tidspunkt: LocalDateTime?, aarsak: AvbruttAarsak?): AvtaleStatus =
-            when (Enum.valueOf(name)) {
-                Enum.AKTIV -> AKTIV
-                Enum.AVSLUTTET -> AVSLUTTET
-                Enum.AVBRUTT -> {
-                    requireNotNull(tidspunkt)
-                    requireNotNull(aarsak)
-                    AVBRUTT(tidspunkt, aarsak)
-                }
+        fun fromString(name: String, tidspunkt: LocalDateTime?, aarsak: AvbruttAarsak?): AvtaleStatus = when (Enum.valueOf(name)) {
+            Enum.AKTIV -> AKTIV
+            Enum.AVSLUTTET -> AVSLUTTET
+            Enum.AVBRUTT -> {
+                requireNotNull(tidspunkt)
+                requireNotNull(aarsak)
+                AVBRUTT(tidspunkt, aarsak)
             }
+        }
     }
 
     enum class Enum {

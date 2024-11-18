@@ -165,8 +165,7 @@ class KafkaConsumerOrchestrator(
         topicRepository.setAll(topics)
     }
 
-    private fun getUpdatedTopicsOnly(updated: List<Topic>, current: List<Topic>) =
-        updated.filter { x -> current.any { y -> y.id == x.id && y.running != x.running } }
+    private fun getUpdatedTopicsOnly(updated: List<Topic>, current: List<Topic>) = updated.filter { x -> current.any { y -> y.id == x.id && y.running != x.running } }
 }
 
 private fun validateConsumers(consumers: List<KafkaTopicConsumer<*, *>>) {

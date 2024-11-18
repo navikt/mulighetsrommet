@@ -38,8 +38,9 @@ import java.util.*
 class TiltaksgjennomforingRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo) =
-        db.transaction { upsert(tiltaksgjennomforing, it) }
+    fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo) = db.transaction {
+        upsert(tiltaksgjennomforing, it)
+    }
 
     fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo, tx: Session) {
         logger.info("Lagrer tiltaksgjennomføring id=${tiltaksgjennomforing.id}")
@@ -302,8 +303,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .asExecute.let { tx.run(it) }
     }
 
-    fun get(id: UUID): TiltaksgjennomforingDto? =
-        db.transaction { get(id, it) }
+    fun get(id: UUID): TiltaksgjennomforingDto? = db.transaction {
+        get(id, it)
+    }
 
     fun get(id: UUID, tx: Session): TiltaksgjennomforingDto? {
         @Language("PostgreSQL")
@@ -489,8 +491,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun delete(id: UUID): Int =
-        db.transaction { delete(id, it) }
+    fun delete(id: UUID): Int = db.transaction {
+        delete(id, it)
+    }
 
     fun delete(id: UUID, tx: Session): Int {
         logger.info("Sletter tiltaksgjennomføring id=$id")
@@ -517,7 +520,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun setPublisert(id: UUID, publisert: Boolean): Int = db.transaction { setPublisert(it, id, publisert) }
+    fun setPublisert(id: UUID, publisert: Boolean): Int = db.transaction {
+        setPublisert(it, id, publisert)
+    }
 
     fun setPublisert(tx: Session, id: UUID, publisert: Boolean): Int {
         logger.info("Setter publisert '$publisert' for gjennomføring med id: $id")

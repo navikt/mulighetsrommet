@@ -91,11 +91,10 @@ object DatabaseUtils {
         totalEntries
     }
 
-    fun String.toFTSPrefixQuery() =
-        this
-            .trim()
-            .split("\\s+".toRegex())
-            .map { it.filter { char -> char.isLetterOrDigit() } }
-            .filter { it.isNotEmpty() }
-            .joinToString(separator = "&") { "$it:*" }
+    fun String.toFTSPrefixQuery() = this
+        .trim()
+        .split("\\s+".toRegex())
+        .map { it.filter { char -> char.isLetterOrDigit() } }
+        .filter { it.isNotEmpty() }
+        .joinToString(separator = "&") { "$it:*" }
 }

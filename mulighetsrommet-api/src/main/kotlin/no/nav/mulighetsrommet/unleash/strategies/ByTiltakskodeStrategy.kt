@@ -32,8 +32,7 @@ class ByTiltakskodeStrategy : Strategy {
     }
 }
 
-private fun parseTiltakskoder(it: String) =
-    it
-        .split(",")
-        .filter { it.isNotBlank() }
-        .map { Tiltakskode.valueOf(it) }
+private fun parseTiltakskoder(it: String) = it
+    .split(",")
+    .filter { it.isNotBlank() }
+    .map { Tiltakskode.valueOf(it) }

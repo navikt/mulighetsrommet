@@ -19,13 +19,12 @@ data class TiltaksgjennomforingStatusDto(
     val status: TiltaksgjennomforingStatus,
     val avbrutt: AvbruttDto?,
 ) {
-    fun toAvslutningsstatus(): Avslutningsstatus =
-        when (status) {
-            TiltaksgjennomforingStatus.PLANLAGT, TiltaksgjennomforingStatus.GJENNOMFORES -> Avslutningsstatus.IKKE_AVSLUTTET
-            TiltaksgjennomforingStatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
-            TiltaksgjennomforingStatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
-            TiltaksgjennomforingStatus.AVLYST -> Avslutningsstatus.AVLYST
-        }
+    fun toAvslutningsstatus(): Avslutningsstatus = when (status) {
+        TiltaksgjennomforingStatus.PLANLAGT, TiltaksgjennomforingStatus.GJENNOMFORES -> Avslutningsstatus.IKKE_AVSLUTTET
+        TiltaksgjennomforingStatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
+        TiltaksgjennomforingStatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
+        TiltaksgjennomforingStatus.AVLYST -> Avslutningsstatus.AVLYST
+    }
 }
 
 @Serializable

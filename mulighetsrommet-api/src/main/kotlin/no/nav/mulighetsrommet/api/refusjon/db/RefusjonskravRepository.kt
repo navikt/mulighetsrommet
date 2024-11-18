@@ -156,7 +156,9 @@ class RefusjonskravRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun get(id: UUID) = db.transaction { get(id, it) }
+    fun get(id: UUID) = db.transaction {
+        get(id, it)
+    }
 
     fun get(id: UUID, tx: Session): RefusjonskravDto? {
         @Language("PostgreSQL")
@@ -172,8 +174,9 @@ class RefusjonskravRepository(private val db: Database) {
             .runWithSession(tx)
     }
 
-    fun getByArrangorIds(organisasjonsnummer: Organisasjonsnummer): List<RefusjonskravDto> =
-        db.transaction { getByArrangorIds(organisasjonsnummer, it) }
+    fun getByArrangorIds(organisasjonsnummer: Organisasjonsnummer): List<RefusjonskravDto> = db.transaction {
+        getByArrangorIds(organisasjonsnummer, it)
+    }
 
     private fun getByArrangorIds(
         organisasjonsnummer: Organisasjonsnummer,

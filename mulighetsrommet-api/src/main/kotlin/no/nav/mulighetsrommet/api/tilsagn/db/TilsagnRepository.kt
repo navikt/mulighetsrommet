@@ -23,8 +23,9 @@ import java.time.LocalDateTime
 import java.util.*
 
 class TilsagnRepository(private val db: Database) {
-    fun upsert(dbo: TilsagnDbo) =
-        db.transaction { upsert(dbo, it) }
+    fun upsert(dbo: TilsagnDbo) = db.transaction {
+        upsert(dbo, it)
+    }
 
     fun upsert(dbo: TilsagnDbo, tx: Session) {
         @Language("PostgreSQL")
@@ -71,7 +72,9 @@ class TilsagnRepository(private val db: Database) {
         tx.run(queryOf(query, dbo.toSqlParameters()).asExecute)
     }
 
-    fun get(id: UUID) = db.transaction { get(id, it) }
+    fun get(id: UUID) = db.transaction {
+        get(id, it)
+    }
 
     fun get(id: UUID, tx: Session): TilsagnDto? {
         @Language("PostgreSQL")
