@@ -155,7 +155,8 @@ app:
       bucketName: mulighetsrommet-api-uploads-dev
     updateApentForInnsok:
       disabled: false
-      cronPattern: "0 55 23 * * *" # 23.55 hver kveld
+      cronPattern: "0 */1 * * * *" # Hvert 1 minutt
+#      cronPattern: "0 55 23 * * *" # 23.55 hver kveld
     generateRefusjonskrav:
       cronPattern: "0 0 5 7 * *"
 

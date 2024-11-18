@@ -436,7 +436,7 @@ private fun tasks(config: TaskConfig) = module {
             get(),
             get(),
         )
-        val updateApentForInnsok = UpdateApentForInnsok(config.updateApentForInnsok, get(), get())
+        val updateApentForInnsok = UpdateApentForInnsok(config.updateApentForInnsok, get())
         val notificationService: NotificationService by inject()
         val generateValidationReport: GenerateValidationReport by inject()
         val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
