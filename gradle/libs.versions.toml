@@ -39,7 +39,7 @@ pdfgen-core = "no.nav.pdfgen:pdfgen-core:1.1.33"
 verapdf = "org.verapdf:validation-model:1.26.1"
 handlebars = "com.github.jknack:handlebars:4.4.0"
 
-dbScheduler = "com.github.kagkarlsson:db-scheduler:14.1.0"
+dbScheduler = "com.github.kagkarlsson:db-scheduler:15.0.0"
 
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
