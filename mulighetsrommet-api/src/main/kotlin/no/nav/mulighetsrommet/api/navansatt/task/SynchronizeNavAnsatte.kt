@@ -7,9 +7,9 @@ import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import io.ktor.server.plugins.*
-import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattSyncService
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.tasks.executeSuspend
 import java.time.Instant
 import java.time.LocalDate
 import java.time.Period
@@ -36,12 +36,10 @@ class SynchronizeNavAnsatte(
 
     val task: RecurringTask<Void> = Tasks
         .recurring(javaClass.simpleName, config.toSchedule())
-        .execute { _, _ ->
-            runBlocking {
-                val today = LocalDate.now()
-                val deletionDate = today.plus(config.deleteNavAnsattGracePeriod)
-                navAnsattSyncService.synchronizeNavAnsatte(today, deletionDate)
-            }
+        .executeSuspend { _, _ ->
+            val today = LocalDate.now()
+            val deletionDate = today.plus(config.deleteNavAnsattGracePeriod)
+            navAnsattSyncService.synchronizeNavAnsatte(today, deletionDate)
         }
 
     private val client = SchedulerClient.Builder.create(database.getDatasource(), task).build()

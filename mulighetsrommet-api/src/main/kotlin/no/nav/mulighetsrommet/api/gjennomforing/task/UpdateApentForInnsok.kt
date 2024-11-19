@@ -5,7 +5,6 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
-import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
 import java.time.LocalDate
 
@@ -29,8 +28,6 @@ class UpdateApentForInnsok(
     val task: RecurringTask<Void> = Tasks
         .recurring(javaClass.simpleName, config.toSchedule())
         .execute { _, _ ->
-            runBlocking {
-                tiltaksgjennomforingService.batchApentForInnsokForAlleMedStarttdatoForDato(LocalDate.now())
-            }
+            tiltaksgjennomforingService.batchApentForInnsokForAlleMedStarttdatoForDato(LocalDate.now())
         }
 }
