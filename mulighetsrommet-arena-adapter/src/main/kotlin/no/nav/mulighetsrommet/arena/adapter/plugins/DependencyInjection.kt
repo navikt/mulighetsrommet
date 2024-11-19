@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
+import no.nav.mulighetsrommet.tasks.OpenTelemetrySchedulerListener
 import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.koin.core.module.Module
@@ -67,6 +68,7 @@ private fun tasks(tasks: TaskConfig) = module {
 
         Scheduler
             .create(db.getDatasource(), replayEvents.task)
+            .addSchedulerListener(OpenTelemetrySchedulerListener())
             .startTasks(retryFailedEvents.task, notifyFailedEvents.task)
             .build()
     }

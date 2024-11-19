@@ -5,7 +5,9 @@ import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.google.cloud.storage.Storage
 import com.google.cloud.storage.StorageOptions
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
@@ -20,7 +22,6 @@ import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.slf4j.LoggerFactory
-import org.slf4j.MDC
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.time.Instant
@@ -48,28 +49,10 @@ class GenerateValidationReport(
 
     val task: OneTimeTask<Void> = Tasks
         .oneTime(javaClass.name)
-        .execute { instance, context ->
-            logger.info("Running task ${instance.taskName}")
-
-            MDC.put("correlationId", instance.id)
-
+        .execute { _, _ ->
             runBlocking {
-                val job = async {
-                    val report = createReport()
-                    upload(report)
-                }
-
-                while (job.isActive) {
-                    if (context.schedulerState.isShuttingDown) {
-                        logger.info("Stopping task ${instance.taskName} due to shutdown signal")
-
-                        job.cancelAndJoin()
-
-                        logger.info("Task ${instance.taskName} stopped")
-                    } else {
-                        delay(1000)
-                    }
-                }
+                val report = createReport()
+                upload(report)
             }
         }
 
