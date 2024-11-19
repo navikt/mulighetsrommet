@@ -1,4 +1,5 @@
 import { ApiError, ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
+import { isValidationError } from "@mr/frontend-common/utils/utils";
 import {
   Alert,
   Button,
@@ -15,13 +16,11 @@ import { Definisjon } from "~/components/Definisjon";
 import { PageHeader } from "~/components/PageHeader";
 import { RefusjonskravDetaljer } from "~/components/refusjonskrav/RefusjonskravDetaljer";
 import { Refusjonskrav } from "~/domene/domene";
-import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
+import { FormError, getOrError, getOrThrowError } from "~/form/form-helpers";
 import { internalNavigation } from "~/internal-navigation";
+import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { useOrgnrFromUrl } from "~/utils";
 import { getCurrentTab } from "~/utils/currentTab";
-import { isValidationError } from "@mr/frontend-common/utils/utils";
-import { FormError, getOrError, getOrThrowError } from "~/form/form-helpers";
-import { Definisjonsliste } from "../components/Definisjonsliste";
 
 type BekreftRefusjonskravData = {
   krav: Refusjonskrav;
