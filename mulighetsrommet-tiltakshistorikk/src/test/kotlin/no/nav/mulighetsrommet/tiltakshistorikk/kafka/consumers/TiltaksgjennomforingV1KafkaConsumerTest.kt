@@ -45,6 +45,7 @@ class TiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
             status = TiltaksgjennomforingStatus.GJENNOMFORES,
             oppstart = TiltaksgjennomforingOppstartstype.FELLES,
             tilgjengeligForArrangorFraOgMedDato = null,
+            apentForPamelding = true,
         )
 
         test("upsert gruppetiltak from topic") {

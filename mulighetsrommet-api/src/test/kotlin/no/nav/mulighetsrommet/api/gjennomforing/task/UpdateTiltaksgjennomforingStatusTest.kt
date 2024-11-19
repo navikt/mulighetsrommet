@@ -52,6 +52,7 @@ class UpdateTiltaksgjennomforingStatusTest :
                 status = status,
                 oppstart = oppstart,
                 tilgjengeligForArrangorFraOgMedDato = null,
+                apentForPamelding = true,
             )
 
             val startdatoInnenforMenAvsluttetStatus = TiltaksgjennomforingFixtures.Oppfolging1.copy(

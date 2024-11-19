@@ -105,6 +105,7 @@ data class TiltaksgjennomforingDto(
         virksomhetsnummer = arrangor.organisasjonsnummer.value,
         oppstart = oppstart,
         tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
+        apentForPamelding = apentForPamelding,
     )
 
     fun toTiltaksgjennomforingDbo() = TiltaksgjennomforingDbo(
