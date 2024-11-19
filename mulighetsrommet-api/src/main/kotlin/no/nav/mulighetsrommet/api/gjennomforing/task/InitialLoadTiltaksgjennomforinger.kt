@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.gjennomforing.task
 
 import com.github.kagkarlsson.scheduler.SchedulerClient
-import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
-import com.github.kagkarlsson.scheduler.task.helper.Tasks
-import kotlinx.coroutines.runBlocking
+import com.github.kagkarlsson.scheduler.task.ExecutionContext
+import com.github.kagkarlsson.scheduler.task.TaskDescriptor
+import com.github.kagkarlsson.scheduler.task.TaskInstance
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
@@ -15,8 +15,8 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
+import no.nav.mulighetsrommet.tasks.OneTimeTaskWrapper
 import org.slf4j.LoggerFactory
-import org.slf4j.MDC
 import java.time.Instant
 import java.util.*
 
@@ -25,9 +25,16 @@ class InitialLoadTiltaksgjennomforinger(
     private val tiltakstyper: TiltakstypeRepository,
     private val gjennomforinger: TiltaksgjennomforingRepository,
     private val gjennomforingProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
-) {
+) : OneTimeTaskWrapper<InitialLoadTiltaksgjennomforinger.TaskInput>() {
+
+    override val descriptor: TaskDescriptor<TaskInput> = TaskDescriptor.of(javaClass.name, TaskInput::class.java)
 
     private val logger = LoggerFactory.getLogger(javaClass)
+
+    private val client = SchedulerClient.Builder
+        .create(database.getDatasource(), task)
+        .serializer(DbSchedulerKotlinSerializer())
+        .build()
 
     @Serializable
     data class TaskInput(
@@ -39,37 +46,24 @@ class InitialLoadTiltaksgjennomforinger(
         val tiltakskoder: List<Tiltakskode>? = null,
     )
 
-    val task: OneTimeTask<TaskInput> = Tasks
-        .oneTime(javaClass.name, TaskInput::class.java)
-        .execute { instance, _ ->
-            val input = instance.data
-
-            logger.info("Running task ${instance.taskName} with input=$input")
-
-            MDC.put("correlationId", instance.id)
-
-            if (input.ids != null) {
-                initialLoadTiltaksgjennomforingerByIds(input.ids)
-            } else if (input.tiltakskoder != null) {
-                runBlocking {
-                    initialLoadTiltaksgjennomforinger(
-                        tiltakskoder = input.tiltakskoder,
-                        opphav = input.opphav,
-                    )
-                }
-            }
-        }
-
-    private val client = SchedulerClient.Builder
-        .create(database.getDatasource(), task)
-        .serializer(DbSchedulerKotlinSerializer())
-        .build()
-
     fun schedule(input: TaskInput, startTime: Instant = Instant.now()): UUID {
         val id = UUID.randomUUID()
         val instance = task.instance(id.toString(), input)
         client.scheduleIfNotExists(instance, startTime)
         return id
+    }
+
+    override suspend fun execute(instance: TaskInstance<TaskInput>, context: ExecutionContext) {
+        val input = instance.data
+
+        if (input.ids != null) {
+            initialLoadTiltaksgjennomforingerByIds(input.ids)
+        } else if (input.tiltakskoder != null) {
+            initialLoadTiltaksgjennomforinger(
+                tiltakskoder = input.tiltakskoder,
+                opphav = input.opphav,
+            )
+        }
     }
 
     private suspend fun initialLoadTiltaksgjennomforinger(

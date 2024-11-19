@@ -6,15 +6,14 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
-import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingNotificationDto
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.mulighetsrommet.slack.SlackNotifier
+import no.nav.mulighetsrommet.tasks.traceExecution
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import kotlin.jvm.optionals.getOrNull
@@ -52,28 +51,29 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
                 """.trimIndent(),
             )
         }
-        .execute { _, _ ->
-            logger.info("Oppretter notifikasjoner for tiltaksgjennomføringer som nærmer seg sluttdato...")
+        .execute { i, _ ->
+            traceExecution(logger, i) {
+                logger.info("Oppretter notifikasjoner for tiltaksgjennomføringer som nærmer seg sluttdato...")
 
-            runBlocking {
-                val tiltaksgjennomforinger: List<TiltaksgjennomforingNotificationDto> =
-                    tiltaksgjennomforingService.getAllGjennomforingerSomNarmerSegSluttdato()
-                tiltaksgjennomforinger.forEach {
-                    it.administratorer.toNonEmptyListOrNull()?.let { administratorer ->
-                        val notification = ScheduledNotification(
-                            type = NotificationType.NOTIFICATION,
-                            title = "Gjennomføringen \"${it.navn} ${if (it.tiltaksnummer != null) "(${it.tiltaksnummer})" else ""}\" utløper ${
-                                it.sluttDato?.formaterDatoTilEuropeiskDatoformat()
-                            }",
-                            targets = administratorer,
-                            createdAt = Instant.now(),
-                            metadata = NotificationMetadata(
-                                linkText = "Gå til gjennomføringen",
-                                link = "/tiltaksgjennomforinger/${it.id}",
-                            ),
-                        )
-                        notificationService.scheduleNotification(notification)
-                    } ?: logger.info("Fant ingen administratorer for gjennomføring med id: ${it.id}")
+                val gjennomforinger = tiltaksgjennomforingService.getAllGjennomforingerSomNarmerSegSluttdato()
+                gjennomforinger.forEach {
+                    it.administratorer.toNonEmptyListOrNull()
+                        ?.let { administratorer ->
+                            val notification = ScheduledNotification(
+                                type = NotificationType.NOTIFICATION,
+                                title = "Gjennomføringen \"${it.navn} ${if (it.tiltaksnummer != null) "(${it.tiltaksnummer})" else ""}\" utløper ${
+                                    it.sluttDato?.formaterDatoTilEuropeiskDatoformat()
+                                }",
+                                targets = administratorer,
+                                createdAt = Instant.now(),
+                                metadata = NotificationMetadata(
+                                    linkText = "Gå til gjennomføringen",
+                                    link = "/tiltaksgjennomforinger/${it.id}",
+                                ),
+                            )
+                            notificationService.scheduleNotification(notification)
+                        }
+                        ?: logger.info("Fant ingen administratorer for gjennomføring med id: ${it.id}")
                 }
             }
         }

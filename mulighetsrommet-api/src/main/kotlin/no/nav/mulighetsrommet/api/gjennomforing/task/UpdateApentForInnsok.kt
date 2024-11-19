@@ -8,12 +8,15 @@ import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.tasks.RecurringTaskWrapper
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
 class UpdateApentForInnsok(
     config: Config,
     private val tiltaksgjennomforingService: TiltaksgjennomforingService,
 ) : RecurringTaskWrapper<Void>(config.toSchedule()) {
+    override val log: Logger = LoggerFactory.getLogger(javaClass)
 
     override val descriptor: TaskDescriptor<Void> = TaskDescriptor.of(javaClass.name)
 
@@ -43,7 +46,6 @@ class UpdateApentForInnsok(
 //            )
 //        }
 //        .execute { _, _ ->
-//            logger.info("Oppdaterer Åpent for innsøk for tiltak med startdato i dag...")
 //
 //            runBlocking {
 //                tiltaksgjennomforingService.batchApentForInnsokForAlleMedStarttdatoForDato(LocalDate.now())
@@ -51,6 +53,7 @@ class UpdateApentForInnsok(
 //        }
 
     override suspend fun execute(instance: TaskInstance<Void>, context: ExecutionContext) {
+        log.info("Oppdaterer Åpent for innsøk for tiltak med startdato i dag...")
         tiltaksgjennomforingService.batchApentForInnsokForAlleMedStarttdatoForDato(LocalDate.now())
     }
 }
