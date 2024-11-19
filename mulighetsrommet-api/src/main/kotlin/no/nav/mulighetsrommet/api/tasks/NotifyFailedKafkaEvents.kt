@@ -9,7 +9,6 @@ import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
 import no.nav.mulighetsrommet.slack.SlackNotifier
-import org.slf4j.LoggerFactory
 
 class NotifyFailedKafkaEvents(
     private val config: Config,
@@ -32,17 +31,9 @@ class NotifyFailedKafkaEvents(
         }
     }
 
-    private val logger = LoggerFactory.getLogger(javaClass)
-    private val taskName = "notify-failed-kafka-events"
-
     val task: RecurringTask<Void> = Tasks
-        .recurring(taskName, config.toSchedule())
-        .onFailure { _, _ ->
-            slackNotifier.sendMessage("Klarte ikke kjøre task '$taskName'. Konsekvensen er at man ikke får gitt beskjed på Slack dersom det finnes kafka events som har failed etter for mange retries.")
-        }
-        .execute { instance, _ ->
-            logger.info("Running task ${instance.taskName}")
-
+        .recurring(javaClass.simpleName, config.toSchedule())
+        .execute { _, _ ->
             runBlocking {
                 val retries = config.maxRetries
                 val failedEvents = kafkaConsumerRepository.getAll()

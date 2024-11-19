@@ -48,7 +48,7 @@ class GenerateValidationReport(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     val task: OneTimeTask<Void> = Tasks
-        .oneTime(javaClass.name)
+        .oneTime(javaClass.simpleName)
         .execute { _, _ ->
             runBlocking {
                 val report = createReport()

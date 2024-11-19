@@ -7,13 +7,11 @@ import com.github.kagkarlsson.scheduler.task.schedule.FixedDelay
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.navenhet.NavEnheterSyncService
-import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 
 class SynchronizeNorgEnheter(
     config: Config,
     navEnheterSyncService: NavEnheterSyncService,
-    slackNotifier: SlackNotifier,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -31,10 +29,7 @@ class SynchronizeNorgEnheter(
     }
 
     val task: RecurringTask<Void> = Tasks
-        .recurring("synchronize-norg2-enheter", config.toSchedule())
-        .onFailure { failure, _ ->
-            slackNotifier.sendMessage("Klarte ikke synkronisere enheter fra NORG2. Konsekvensen er at ingen enheter blir oppdaterte i databasen og vi kan potensielt vise feil enheter til bruker i admin-flate. Cause: ${failure.cause.get().message}")
-        }
+        .recurring(javaClass.simpleName, config.toSchedule())
         .execute { _, _ ->
             runBlocking {
                 logger.info("Kjører synkronisering av NORG2-enheter")

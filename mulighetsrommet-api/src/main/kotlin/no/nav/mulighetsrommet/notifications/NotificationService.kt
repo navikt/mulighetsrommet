@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.notifications
 
 import arrow.core.getOrElse
 import com.github.kagkarlsson.scheduler.SchedulerClient
-import com.github.kagkarlsson.scheduler.task.ExecutionComplete
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
@@ -10,7 +9,6 @@ import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import org.slf4j.LoggerFactory
 import java.time.Instant
@@ -19,7 +17,6 @@ import java.util.*
 
 class NotificationService(
     database: Database,
-    private val slack: SlackNotifier,
     private val notifications: NotificationRepository,
 ) {
 
@@ -27,11 +24,6 @@ class NotificationService(
 
     private val handleScheduledNotification: OneTimeTask<ScheduledNotification> = Tasks
         .oneTime("handle-scheduled-notification", ScheduledNotification::class.java)
-        .onFailure { x: ExecutionComplete, _ ->
-            val name = x.execution.taskInstance.taskName
-            val id = x.execution.taskInstance.id
-            slack.sendMessage("Klarte ikke kjøre task '$name' med id=$id. Se loggene for hva som gikk galt.")
-        }
         .execute { instance, _ ->
             val notification: ScheduledNotification = instance.data
             notifications.insert(notification)

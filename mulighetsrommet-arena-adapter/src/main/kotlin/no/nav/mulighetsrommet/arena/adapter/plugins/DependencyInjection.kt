@@ -58,10 +58,10 @@ fun slack(slack: SlackConfig): Module {
 
 private fun tasks(tasks: TaskConfig) = module {
     single {
-        ReplayEvents(get(), get(), get())
+        ReplayEvents(get(), get())
     }
     single {
-        val retryFailedEvents = RetryFailedEvents(tasks.retryFailedEvents, get(), get())
+        val retryFailedEvents = RetryFailedEvents(tasks.retryFailedEvents, get())
         val notifyFailedEvents = NotifyFailedEvents(get(), get(), get(), tasks.notifyFailedEvents)
         val replayEvents: ReplayEvents = get()
 
