@@ -21,6 +21,7 @@ import { internalNavigation } from "~/internal-navigation";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { useOrgnrFromUrl } from "~/utils";
 import { getCurrentTab } from "~/utils/currentTab";
+import { Separator } from "../components/Separator";
 
 type BekreftRefusjonskravData = {
   krav: Refusjonskrav;
@@ -114,6 +115,7 @@ export default function BekreftRefusjonskrav() {
       />
       <VStack className="max-w-[50%]" gap="5">
         <RefusjonskravDetaljer krav={krav} tilsagn={tilsagn} />
+        <Separator />
         <Heading size="medium">Betalingsinformasjon</Heading>
         <Form method="post">
           <Definisjon label="Kontonummer">
