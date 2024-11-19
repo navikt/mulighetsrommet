@@ -7,7 +7,6 @@ import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.should
-import io.mockk.mockk
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -35,7 +34,7 @@ class NotificationServiceTest : FunSpec({
     context("NotificationService") {
         val notifications = NotificationRepository(database.db)
 
-        val service = NotificationService(database.db, mockk(), notifications)
+        val service = NotificationService(database.db, notifications)
 
         beforeEach {
             val scheduler = Scheduler

@@ -14,16 +14,13 @@ import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
-import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 import java.time.Instant
-import kotlin.jvm.optionals.getOrNull
 
 class NotifySluttdatoForAvtalerNarmerSeg(
     config: Config,
     notificationService: NotificationService,
     avtaleService: AvtaleService,
-    slack: SlackNotifier,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -41,17 +38,7 @@ class NotifySluttdatoForAvtalerNarmerSeg(
     }
 
     val task: RecurringTask<Void> = Tasks
-        .recurring("notify-sluttdato-for-avtaler-narmer-seg", config.toSchedule())
-        .onFailure { failure, _ ->
-            val cause = failure.cause.getOrNull()?.message
-            slack.sendMessage(
-                """
-                Klarte ikke opprette notifikasjoner for avtaler som nærmer seg sluttdato.
-                Konsekvensen er at brukere ikke nødvendigvis får med seg at sluttdato nærmer seg for sine avtaler.
-                Detaljer: $cause
-                """.trimIndent(),
-            )
-        }
+        .recurring(javaClass.simpleName, config.toSchedule())
         .execute { _, _ ->
             logger.info("Oppretter notifikasjoner for avtaler som nærmer seg sluttdato...")
 

@@ -25,7 +25,6 @@ class InitialLoadTiltaksgjennomforinger(
     private val gjennomforinger: TiltaksgjennomforingRepository,
     private val gjennomforingProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
 ) {
-
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Serializable
@@ -39,7 +38,7 @@ class InitialLoadTiltaksgjennomforinger(
     )
 
     val task: OneTimeTask<TaskInput> = Tasks
-        .oneTime(javaClass.name, TaskInput::class.java)
+        .oneTime(javaClass.simpleName, TaskInput::class.java)
         .execute { instance, _ ->
             val input = instance.data
 

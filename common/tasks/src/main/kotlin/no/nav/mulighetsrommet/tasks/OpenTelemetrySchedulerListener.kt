@@ -76,12 +76,12 @@ class OpenTelemetrySchedulerListener : SchedulerListener {
 
     private fun cleanUpPreviousExecution() {
         if (executionScope != null) {
-            log.warn("A new task was started, but the scope is still the current context. This is should not happen and might occur due to an unexpected error in db-scheduler.")
+            log.warn("A new task was started, but the scope is still the current context. This should not happen and might occur due to an unexpected error in db-scheduler.")
             executionScope?.close()
         }
 
         if (executionSpan != null) {
-            log.warn("A new task was started, but the span has not ended. This is should not happen and might occur due to an unexpected error in db-scheduler.")
+            log.warn("A new task was started, but the span has not ended. This should not happen and might occur due to an unexpected error in db-scheduler.")
             executionSpan?.end()
         }
     }
