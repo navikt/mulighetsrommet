@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.arena.adapter.tasks
 import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
-import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.database.Database
@@ -24,17 +23,13 @@ class NotifyFailedEvents(
     val task: RecurringTask<Void> = Tasks
         .recurring(javaClass.simpleName, Schedules.cron(config.cron))
         .execute { _, _ ->
-            runBlocking {
-                val retries = config.maxRetries
-                val staleEvents: List<ArenaEvent> = arenaEventService.getStaleEvents(
-                    retriesGreaterThanOrEqual = retries,
-                )
-                if (staleEvents.isNotEmpty()) {
-                    val message = """
+            val retries = config.maxRetries
+            val staleEvents: List<ArenaEvent> = arenaEventService.getStaleEvents(retriesGreaterThanOrEqual = retries)
+            if (staleEvents.isNotEmpty()) {
+                val message = """
                     Det finnes ${staleEvents.size} rader i tabellen 'arena_events' som har retries >= $retries og status Failed.
-                    """.trimIndent()
-                    slackNotifier.sendMessage(message)
-                }
+                """.trimIndent()
+                slackNotifier.sendMessage(message)
             }
         }
 }

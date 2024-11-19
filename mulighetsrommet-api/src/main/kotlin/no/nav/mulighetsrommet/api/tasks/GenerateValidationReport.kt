@@ -6,7 +6,6 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.google.cloud.storage.Storage
 import com.google.cloud.storage.StorageOptions
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
@@ -18,6 +17,7 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.tasks.executeSuspend
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -49,11 +49,9 @@ class GenerateValidationReport(
 
     val task: OneTimeTask<Void> = Tasks
         .oneTime(javaClass.simpleName)
-        .execute { _, _ ->
-            runBlocking {
-                val report = createReport()
-                upload(report)
-            }
+        .executeSuspend { _, _ ->
+            val report = createReport()
+            upload(report)
         }
 
     private val client = SchedulerClient.Builder.create(database.getDatasource(), task).build()

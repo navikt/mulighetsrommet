@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.gjennomforing.task
 import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.Daily
-import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils
@@ -22,13 +21,11 @@ class UpdateTiltaksgjennomforingStatus(
     val task: RecurringTask<Void> = Tasks
         .recurring(javaClass.simpleName, Daily(LocalTime.MIDNIGHT))
         .execute { _, context ->
-            runBlocking {
-                val lastSuccessDate = context.execution.lastSuccess
-                    ?.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) }
-                    ?: LocalDate.of(2023, 2, 1)
+            val lastSuccessDate = context.execution.lastSuccess
+                ?.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) }
+                ?: LocalDate.now()
 
-                oppdaterTiltaksgjennomforingStatus(LocalDate.now(), lastSuccessDate)
-            }
+            oppdaterTiltaksgjennomforingStatus(LocalDate.now(), lastSuccessDate)
         }
 
     fun oppdaterTiltaksgjennomforingStatus(today: LocalDate, lastSuccessDate: LocalDate) {

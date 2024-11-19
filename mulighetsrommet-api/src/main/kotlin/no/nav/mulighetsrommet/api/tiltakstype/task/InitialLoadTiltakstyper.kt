@@ -3,11 +3,11 @@ package no.nav.mulighetsrommet.api.tiltakstype.task
 import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
-import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.tasks.executeSuspend
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.*
@@ -23,10 +23,8 @@ class InitialLoadTiltakstyper(
 
     val task: OneTimeTask<Void> = Tasks
         .oneTime(javaClass.simpleName)
-        .execute { _, _ ->
-            runBlocking {
-                initialLoadTiltakstyper()
-            }
+        .executeSuspend { _, _ ->
+            initialLoadTiltakstyper()
         }
 
     private val client = SchedulerClient.Builder

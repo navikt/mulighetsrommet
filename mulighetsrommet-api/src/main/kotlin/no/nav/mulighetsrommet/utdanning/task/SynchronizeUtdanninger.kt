@@ -5,8 +5,8 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
-import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.client.UtdanningNoProgramomraade
 import no.nav.mulighetsrommet.utdanning.db.UtdanningRepository
@@ -37,10 +37,8 @@ class SynchronizeUtdanninger(
 
     val task: RecurringTask<Void> = Tasks
         .recurring(javaClass.simpleName, config.toSchedule())
-        .execute { _, _ ->
-            runBlocking {
-                syncUtdanninger()
-            }
+        .executeSuspend { _, _ ->
+            syncUtdanninger()
         }
 
     suspend fun syncUtdanninger() {
