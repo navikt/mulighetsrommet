@@ -1,5 +1,13 @@
 import { ApiError, ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
-import { Alert, Button, Checkbox, ErrorSummary, TextField, VStack } from "@navikt/ds-react";
+import {
+  Alert,
+  Button,
+  Checkbox,
+  ErrorSummary,
+  Heading,
+  TextField,
+  VStack,
+} from "@navikt/ds-react";
 import { ActionFunction, json, LoaderFunction, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { checkValidToken } from "~/auth/auth.server";
@@ -13,6 +21,7 @@ import { useOrgnrFromUrl } from "~/utils";
 import { getCurrentTab } from "~/utils/currentTab";
 import { isValidationError } from "@mr/frontend-common/utils/utils";
 import { FormError, getOrError, getOrThrowError } from "~/form/form-helpers";
+import { Definisjonsliste } from "../components/Definisjonsliste";
 
 type BekreftRefusjonskravData = {
   krav: Refusjonskrav;
@@ -106,6 +115,7 @@ export default function BekreftRefusjonskrav() {
       />
       <VStack className="max-w-[50%]" gap="5">
         <RefusjonskravDetaljer krav={krav} tilsagn={tilsagn} />
+        <Heading size="medium">Betalingsinformasjon</Heading>
         <Form method="post">
           <Definisjon label="Kontonummer">
             <TextField
