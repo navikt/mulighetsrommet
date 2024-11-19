@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.database.Database
 import org.slf4j.LoggerFactory
-import org.slf4j.MDC
 import java.time.Instant
 import java.util.*
 
@@ -24,12 +23,7 @@ class InitialLoadTiltakstyper(
 
     val task: OneTimeTask<Void> = Tasks
         .oneTime(javaClass.name)
-        .execute { instance, _ ->
-
-            logger.info("Running task ${instance.taskName}")
-
-            MDC.put("correlationId", instance.id)
-
+        .execute { _, _ ->
             runBlocking {
                 initialLoadTiltakstyper()
             }

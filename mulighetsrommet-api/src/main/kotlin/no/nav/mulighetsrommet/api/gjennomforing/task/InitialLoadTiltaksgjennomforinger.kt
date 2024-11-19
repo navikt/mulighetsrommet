@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import org.slf4j.LoggerFactory
-import org.slf4j.MDC
 import java.time.Instant
 import java.util.*
 
@@ -44,9 +43,7 @@ class InitialLoadTiltaksgjennomforinger(
         .execute { instance, _ ->
             val input = instance.data
 
-            logger.info("Running task ${instance.taskName} with input=$input")
-
-            MDC.put("correlationId", instance.id)
+            logger.info("Relaster gjennomføringer på topic input=$input")
 
             if (input.ids != null) {
                 initialLoadTiltaksgjennomforingerByIds(input.ids)

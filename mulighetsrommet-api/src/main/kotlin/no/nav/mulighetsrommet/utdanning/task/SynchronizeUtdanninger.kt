@@ -15,8 +15,6 @@ import no.nav.mulighetsrommet.utdanning.model.NusKodeverk
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
 import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramType
-import org.slf4j.LoggerFactory
-import org.slf4j.MDC
 import kotlin.jvm.optionals.getOrNull
 
 class SynchronizeUtdanninger(
@@ -25,8 +23,6 @@ class SynchronizeUtdanninger(
     private val utdanningClient: UtdanningClient,
     private val slack: SlackNotifier,
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
     private val utdanningRepository = UtdanningRepository(db)
 
     data class Config(
@@ -55,11 +51,7 @@ class SynchronizeUtdanninger(
                 """.trimIndent(),
             )
         }
-        .execute { instance, _ ->
-            MDC.put("correlationId", instance.id)
-
-            logger.info("Synkroniserer utdanninger fra utdanning.no...")
-
+        .execute { _, _ ->
             runBlocking {
                 syncUtdanninger()
             }

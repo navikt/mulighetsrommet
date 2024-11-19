@@ -34,9 +34,6 @@ class NotificationService(
         }
         .execute { instance, _ ->
             val notification: ScheduledNotification = instance.data
-
-            logger.info("Running task ${instance.taskName} for notification id=${notification.id}")
-
             notifications.insert(notification)
         }
 
