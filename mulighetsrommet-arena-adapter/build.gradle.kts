@@ -41,6 +41,7 @@ dependencies {
     implementation(projects.common.ktorClients)
     implementation(projects.common.slack)
     implementation(projects.common.metrics)
+    implementation(projects.common.tasks)
 
     // Kotlin
     implementation(libs.kotlinx.coroutines.core)
@@ -73,6 +74,4 @@ dependencies {
     // Dependency injection
     implementation(libs.koin.ktor)
     implementation(libs.koin.logger.slf4j)
-
-    implementation(libs.dbScheduler)
 }
