@@ -93,6 +93,7 @@ import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.OpenTelemetrySchedulerListener
+import no.nav.mulighetsrommet.tasks.SlackNotifierSchedulerListener
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
 import no.nav.mulighetsrommet.tokenprovider.M2MTokenProvider
@@ -456,6 +457,7 @@ private fun tasks(config: TaskConfig) = module {
                 initialLoadTiltaksgjennomforinger.task,
                 initialLoadTiltakstyper.task,
             )
+            .addSchedulerListener(SlackNotifierSchedulerListener(get()))
             .addSchedulerListener(OpenTelemetrySchedulerListener())
             .startTasks(
                 synchronizeNorgEnheterTask.task,
