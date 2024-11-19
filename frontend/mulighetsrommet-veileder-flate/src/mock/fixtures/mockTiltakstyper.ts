@@ -311,7 +311,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
           markDefs: [],
           children: [
             {
-              text: "Innsøkingen gjøres i Arena. I Arena blir det generert et innsøkingsbrev som skal sendes til leverandør.",
+              text: "Påmelding gjøres i Modia.",
               _key: "e18da464a378",
               _type: "span",
               marks: [],

@@ -64,7 +64,7 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Pr
           {isTiltakGruppe(tiltak) && !tiltak.apentForPamelding && (
             <PadlockLockedFillIcon
               className={styles.status}
-              title="Tiltaket er stengt for innsøking"
+              title="Tiltaket er stengt for påmelding"
             />
           )}
 
