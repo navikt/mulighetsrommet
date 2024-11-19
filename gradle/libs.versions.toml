@@ -2,7 +2,7 @@
 common-java-modules = "3.2024.10.25_13.44-9db48a0dbe67"
 flyway = "10.21.0"
 hoplite = "2.8.2"
-koin = "4.0.0"
+koin = "4.1.0-Beta1"
 kotest = "5.9.1"
 kotest-testcontainers = "2.0.2"
 kotlin = "2.0.21"
@@ -52,7 +52,7 @@ hikaricp = "com.zaxxer:HikariCP:6.2.0"
 hoplite-core = { module = "com.sksamuel.hoplite:hoplite-core", version.ref = "hoplite" }
 hoplite-yaml = { module = "com.sksamuel.hoplite:hoplite-yaml", version.ref = "hoplite" }
 
-koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin" }
+koin-ktor = { module = "io.insert-koin:koin-ktor3", version.ref = "koin" }
 koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j", version.ref = "koin" }
 
 kotest-assertions-arrow = "io.kotest.extensions:kotest-assertions-arrow:1.4.0"
