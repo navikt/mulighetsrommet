@@ -65,7 +65,7 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
     oppstart,
     antallPlasser,
     deltidsprosent,
-    apentForInnsok,
+    apentForPamelding,
     administratorer,
     navRegion,
     navEnheter,
@@ -145,10 +145,10 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
           </Bolk>
 
           <Separator />
-          <Bolk aria-label={tiltaktekster.apentForInnsokLabel}>
+          <Bolk aria-label={tiltaktekster.apentForPameldingLabel}>
             <Metadata
-              header={tiltaktekster.apentForInnsokLabel}
-              verdi={apentForInnsok ? "Ja" : "Nei"}
+              header={tiltaktekster.apentForPameldingLabel}
+              verdi={apentForPamelding ? "Ja" : "Nei"}
             />
           </Bolk>
 

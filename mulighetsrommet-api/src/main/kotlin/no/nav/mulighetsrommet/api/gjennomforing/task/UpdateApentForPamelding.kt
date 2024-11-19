@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import kotlin.jvm.optionals.getOrNull
 
-class UpdateApentForInnsok(
+class UpdateApentForPamelding(
     config: Config,
     tiltaksgjennomforingService: TiltaksgjennomforingService,
     slack: SlackNotifier,
@@ -38,17 +38,17 @@ class UpdateApentForInnsok(
             val cause = failure.cause.getOrNull()?.message
             slack.sendMessage(
                 """
-                Klarte ikke oppdatere Åpent for innsøk for tiltak der startdato har passert.
-                Konsekvensen er at tiltak kan stå at de er åpne for innsøk når de egentlig ikke er det og redaktører må manuelt rydde opp.
+                Klarte ikke oppdatere Åpent for påmelding for tiltak der startdato har passert.
+                Konsekvensen er at tiltak kan stå at de er åpne for påmelding når de egentlig ikke er det og redaktører må manuelt rydde opp.
                 Detaljer: $cause
                 """.trimIndent(),
             )
         }
         .execute { _, _ ->
-            logger.info("Oppdaterer Åpent for innsøk for tiltak med startdato i dag...")
+            logger.info("Oppdaterer Åpent for påmelding for tiltak med startdato i dag...")
 
             runBlocking {
-                tiltaksgjennomforingService.batchApentForInnsokForAlleMedStarttdatoForDato(LocalDate.now())
+                tiltaksgjennomforingService.batchApentForPameldingForAlleMedStarttdatoForDato(LocalDate.now())
             }
         }
 }

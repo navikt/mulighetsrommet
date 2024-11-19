@@ -1,4 +1,4 @@
-import { ApentForInnsok } from "@mr/api-client";
+import { ApentForPamelding } from "@mr/api-client";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { FilterTag } from "@mr/frontend-common/components/filter/filterTag/FilterTag";
 import { NavEnhetFilterTag } from "@mr/frontend-common/components/filter/filterTag/NavEnhetFilterTag";
@@ -19,13 +19,13 @@ export function ModiaFiltertags({ filterOpen, setTagsHeight }: Props) {
         navEnheter={filter.navEnheter}
         onClose={() => setFilter({ ...filter, navEnheter: [] })}
       />
-      {filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT && (
+      {filter.apentForPamelding !== ApentForPamelding.APENT_ELLER_STENGT && (
         <FilterTag
-          label={filter.apentForInnsok === ApentForInnsok.APENT ? "Åpent" : "Stengt"}
+          label={filter.apentForPamelding === ApentForPamelding.APENT ? "Åpent" : "Stengt"}
           onClose={() =>
             setFilter({
               ...filter,
-              apentForInnsok: ApentForInnsok.APENT_ELLER_STENGT,
+              apentForPamelding: ApentForPamelding.APENT_ELLER_STENGT,
             })
           }
         />

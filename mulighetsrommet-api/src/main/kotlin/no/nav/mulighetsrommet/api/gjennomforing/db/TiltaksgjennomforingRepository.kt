@@ -53,7 +53,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 arrangor_id,
                 start_dato,
                 slutt_dato,
-                apent_for_innsok,
+                apent_for_pamelding,
                 antall_plasser,
                 avtale_id,
                 oppstart,
@@ -74,7 +74,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :arrangor_id,
                 :start_dato,
                 :slutt_dato,
-                :apent_for_innsok,
+                :apent_for_pamelding,
                 :antall_plasser,
                 :avtale_id,
                 :oppstart::tiltaksgjennomforing_oppstartstype,
@@ -94,7 +94,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 arrangor_id                        = excluded.arrangor_id,
                 start_dato                         = excluded.start_dato,
                 slutt_dato                         = excluded.slutt_dato,
-                apent_for_innsok                   = excluded.apent_for_innsok,
+                apent_for_pamelding                   = excluded.apent_for_pamelding,
                 antall_plasser                     = excluded.antall_plasser,
                 avtale_id                          = excluded.avtale_id,
                 oppstart                           = excluded.oppstart,
@@ -580,15 +580,15 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return tx.run(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt, "aarsak" to aarsak.name)).asUpdate)
     }
 
-    fun lukkApentForInnsokForTiltakMedStartdatoForDato(
+    fun lukkApentForPameldingForTiltakMedStartdatoForDato(
         dagensDato: LocalDate,
         tx: TransactionalSession,
     ): List<TiltaksgjennomforingDto> {
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing
-            set apent_for_innsok = false
-            where apent_for_innsok = true and oppstart = 'FELLES' and start_dato = ? and opphav = 'MR_ADMIN_FLATE'
+            set apent_for_pamelding = false
+            where apent_for_pamelding = true and oppstart = 'FELLES' and start_dato = ? and opphav = 'MR_ADMIN_FLATE'
             returning id
         """.trimIndent()
 
@@ -603,7 +603,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "arrangor_id" to arrangorId,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
-        "apent_for_innsok" to apentForInnsok,
+        "apent_for_pamelding" to apentForPamelding,
         "antall_plasser" to antallPlasser,
         "avtale_id" to avtaleId,
         "oppstart" to oppstart.name,
@@ -657,7 +657,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                     )
                 },
             ),
-            apentForInnsok = boolean("apent_for_innsok"),
+            apentForPamelding = boolean("apent_for_pamelding"),
             antallPlasser = intOrNull("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
             oppstart = TiltaksgjennomforingOppstartstype.valueOf(string("oppstart")),

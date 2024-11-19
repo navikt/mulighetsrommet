@@ -26,7 +26,7 @@ import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakRepository
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet
-import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForInnsok
+import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForPamelding
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
@@ -158,7 +158,7 @@ class VeilederflateServiceTest : FunSpec({
 
         val tiltak = veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf("0300"),
-            apentForInnsok = ApentForInnsok.APENT,
+            apentForPamelding = ApentForPamelding.APENT,
             innsatsgruppe = Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
@@ -171,7 +171,7 @@ class VeilederflateServiceTest : FunSpec({
         }
     }
 
-    test("henter ikke gjennomføringer fra Sanity når filter for 'Åpent for innsøk' er STENGT") {
+    test("henter ikke gjennomføringer fra Sanity når filter for 'Åpent for påmelding' er STENGT") {
         val veilederFlateService = VeilederflateService(
             sanityService = sanityService,
             veilederflateTiltakRepository = VeilederflateTiltakRepository(database.db),
@@ -183,7 +183,7 @@ class VeilederflateServiceTest : FunSpec({
 
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf("0501"),
-            apentForInnsok = ApentForInnsok.APENT,
+            apentForPamelding = ApentForPamelding.APENT,
             innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
@@ -191,7 +191,7 @@ class VeilederflateServiceTest : FunSpec({
 
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf("0501"),
-            apentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
+            apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
             innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
@@ -199,7 +199,7 @@ class VeilederflateServiceTest : FunSpec({
 
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf("0501"),
-            apentForInnsok = ApentForInnsok.STENGT,
+            apentForPamelding = ApentForPamelding.STENGT,
             innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,

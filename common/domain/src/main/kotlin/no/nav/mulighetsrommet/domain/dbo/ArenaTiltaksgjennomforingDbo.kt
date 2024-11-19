@@ -23,7 +23,7 @@ data class ArenaTiltaksgjennomforingDbo(
     val sluttDato: LocalDate?,
     val arenaAnsvarligEnhet: String?,
     val avslutningsstatus: Avslutningsstatus,
-    val apentForInnsok: Boolean,
+    val apentForPamelding: Boolean,
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,

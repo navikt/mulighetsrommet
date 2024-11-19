@@ -108,7 +108,7 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
                 status = "GJENNOMFOR",
                 fraDato = LocalDateTime.of(2023, 1, 1, 0, 0),
                 tilDato = null,
-                apentForInnsok = true,
+                apentForPamelding = true,
                 antallPlasser = null,
                 avtaleId = null,
                 deltidsprosent = 100.0,

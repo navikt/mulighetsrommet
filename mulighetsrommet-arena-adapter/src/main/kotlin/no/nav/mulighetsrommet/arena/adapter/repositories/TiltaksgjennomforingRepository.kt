@@ -19,8 +19,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (id, sanity_id, tiltaksgjennomforing_id, sak_id, tiltakskode, arrangor_id, navn, fra_dato, til_dato, apent_for_innsok, antall_plasser, status, avtale_id, deltidsprosent)
-            values (:id::uuid, :sanity_id::uuid, :tiltaksgjennomforing_id, :sak_id, :tiltakskode, :arrangor_id, :navn, :fra_dato, :til_dato, :apent_for_innsok, :antall_plasser, :status, :avtale_id, :deltidsprosent)
+            insert into tiltaksgjennomforing (id, sanity_id, tiltaksgjennomforing_id, sak_id, tiltakskode, arrangor_id, navn, fra_dato, til_dato, apent_for_pamelding, antall_plasser, status, avtale_id, deltidsprosent)
+            values (:id::uuid, :sanity_id::uuid, :tiltaksgjennomforing_id, :sak_id, :tiltakskode, :arrangor_id, :navn, :fra_dato, :til_dato, :apent_for_pamelding, :antall_plasser, :status, :avtale_id, :deltidsprosent)
             on conflict (id)
                 do update set tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
                               sak_id                  = excluded.sak_id,
@@ -29,7 +29,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               navn                    = excluded.navn,
                               fra_dato                = excluded.fra_dato,
                               til_dato                = excluded.til_dato,
-                              apent_for_innsok        = excluded.apent_for_innsok,
+                              apent_for_pamelding        = excluded.apent_for_pamelding,
                               antall_plasser          = excluded.antall_plasser,
                               status                  = excluded.status,
                               avtale_id               = excluded.avtale_id,
@@ -82,7 +82,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 navn,
                 fra_dato,
                 til_dato,
-                apent_for_innsok,
+                apent_for_pamelding,
                 antall_plasser,
                 status,
                 avtale_id,
@@ -107,7 +107,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "arrangor_id" to arrangorId,
         "fra_dato" to fraDato,
         "til_dato" to tilDato,
-        "apent_for_innsok" to apentForInnsok,
+        "apent_for_pamelding" to apentForPamelding,
         "antall_plasser" to antallPlasser,
         "status" to status,
         "avtale_id" to avtaleId,
@@ -124,7 +124,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         arrangorId = int("arrangor_id"),
         fraDato = localDateTime("fra_dato"),
         tilDato = localDateTimeOrNull("til_dato"),
-        apentForInnsok = boolean("apent_for_innsok"),
+        apentForPamelding = boolean("apent_for_pamelding"),
         antallPlasser = intOrNull("antall_plasser"),
         status = string("status"),
         avtaleId = intOrNull("avtale_id"),

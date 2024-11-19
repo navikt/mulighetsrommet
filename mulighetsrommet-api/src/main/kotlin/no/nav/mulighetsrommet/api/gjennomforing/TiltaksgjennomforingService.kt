@@ -227,20 +227,20 @@ class TiltaksgjennomforingService(
         return Either.Right(Unit)
     }
 
-    fun batchApentForInnsokForAlleMedStarttdatoForDato(dagensDato: LocalDate) {
+    fun batchApentForPameldingForAlleMedStarttdatoForDato(dagensDato: LocalDate) {
         db.transaction { tx ->
-            val tiltak = tiltaksgjennomforinger.lukkApentForInnsokForTiltakMedStartdatoForDato(
+            val tiltak = tiltaksgjennomforinger.lukkApentForPameldingForTiltakMedStartdatoForDato(
                 dagensDato,
                 tx,
             )
             tiltak.forEach { gjennomforing ->
                 logEndringSomSystembruker(
-                    operation = "Stengte for innsøk",
+                    operation = "Stengte for påmelding",
                     gjennomforing,
                     tx,
                 )
             }
-            logger.info("Oppdaterte ${tiltak.size} tiltak med åpent for innsøk = false")
+            logger.info("Oppdaterte ${tiltak.size} tiltak med åpent for påmelding = false")
         }
     }
 

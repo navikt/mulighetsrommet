@@ -13,7 +13,7 @@ data class Tiltaksgjennomforing(
     val navn: String,
     val fraDato: LocalDateTime,
     val tilDato: LocalDateTime?,
-    val apentForInnsok: Boolean,
+    val apentForPamelding: Boolean,
     val antallPlasser: Int?,
     val status: String,
     val avtaleId: Int?,

@@ -29,7 +29,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
     val antallPlasser: Int?,
     val status: TiltaksgjennomforingStatus,
     val enhet: String,
-    val apentForInnsok: Boolean,
+    val apentForPamelding: Boolean,
     val deltidsprosent: Double,
 ) {
     companion object {
@@ -65,7 +65,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
                 status = status,
                 arenaId = arenaId,
                 enhet = enhetsnummer,
-                apentForInnsok = tiltaksgjennomforing.apentForInnsok,
+                apentForPamelding = tiltaksgjennomforing.apentForPamelding,
                 deltidsprosent = tiltaksgjennomforing.deltidsprosent,
             )
         }

@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
-import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForInnsok
+import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
@@ -111,7 +111,7 @@ data class TaskConfig(
     val notifySluttdatoForAvtalerNarmerSeg: NotifySluttdatoForAvtalerNarmerSeg.Config,
     val notifyFailedKafkaEvents: NotifyFailedKafkaEvents.Config,
     val generateValidationReport: GenerateValidationReport.Config = GenerateValidationReport.Config(),
-    val updateApentForInnsok: UpdateApentForInnsok.Config = UpdateApentForInnsok.Config(),
+    val updateApentForPamelding: UpdateApentForPamelding.Config = UpdateApentForPamelding.Config(),
     val generateRefusjonskrav: GenerateRefusjonskrav.Config,
 )
 

@@ -1,7 +1,7 @@
 import { Accordion, Alert, Checkbox, CheckboxGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import React from "react";
-import { filterAccordionAtom } from "@/core/atoms";
+import { filterAccordionAtom, FilterAccordionTypes } from "@/core/atoms";
 import { addOrRemove } from "@/utils/Utils";
 import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 
@@ -26,7 +26,7 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
 }: CheckboxFilterProps<T>) => {
   const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
   const valgteTypeIDer = options.map((type) => type.id);
-  const kebabCaseAccordionNavn = kebabCase(accordionNavn);
+  const kebabCaseAccordionNavn = kebabCase(accordionNavn) as FilterAccordionTypes;
 
   const handleEndreFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

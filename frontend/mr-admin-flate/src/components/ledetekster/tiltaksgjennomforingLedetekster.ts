@@ -12,7 +12,7 @@ export const tiltaktekster = {
   sluttdatoLabel: "Sluttdato",
   antallPlasserLabel: "Antall plasser",
   deltidsprosentLabel: "Deltidsprosent",
-  apentForInnsokLabel: "Åpent for innsøk",
+  apentForPameldingLabel: "Åpent for påmelding",
   estimertVentetidLabel: "Estimert ventetid",
   administratorerForGjennomforingenLabel: "Administratorer for gjennomføringen",
   ingenAdministratorerSattForGjennomforingenLabel: "Ingen administratorer satt for gjennomføringen",

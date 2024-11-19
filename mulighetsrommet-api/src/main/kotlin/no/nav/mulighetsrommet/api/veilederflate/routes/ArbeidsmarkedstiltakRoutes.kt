@@ -26,11 +26,11 @@ internal data class ArbeidsmarkedstiltakFilter(
     val innsatsgruppe: Innsatsgruppe,
     val tiltakstyper: List<String>?,
     val search: String?,
-    val apentForInnsok: ApentForInnsok,
+    val apentForPamelding: ApentForPamelding,
     val erSykmeldtMedArbeidsgiver: Boolean,
 )
 
-enum class ApentForInnsok {
+enum class ApentForPamelding {
     APENT,
     STENGT,
     APENT_ELLER_STENGT,
@@ -49,14 +49,14 @@ internal fun <T : Any> PipelineContext<T, ApplicationCall>.getArbeidsmarkedstilt
         ?.toBoolean()
         ?: false
 
-    val apentForInnsok: ApentForInnsok by queryParameters
+    val apentForPamelding: ApentForPamelding by queryParameters
 
     return ArbeidsmarkedstiltakFilter(
         enheter = enheter,
         innsatsgruppe = innsatsgruppe,
         tiltakstyper = queryParameters.getAll("tiltakstyper"),
         search = queryParameters["search"],
-        apentForInnsok = apentForInnsok,
+        apentForPamelding = apentForPamelding,
         erSykmeldtMedArbeidsgiver = erSykmeldtMedArbeidsgiver,
     )
 }
@@ -88,7 +88,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
                 innsatsgruppe = filter.innsatsgruppe,
                 tiltakstypeIds = filter.tiltakstyper,
                 search = filter.search,
-                apentForInnsok = filter.apentForInnsok,
+                apentForPamelding = filter.apentForPamelding,
                 erSykmeldtMedArbeidsgiver = filter.erSykmeldtMedArbeidsgiver,
                 cacheUsage = CacheUsage.UseCache,
             )
@@ -135,7 +135,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
                     innsatsgruppe = filter.innsatsgruppe,
                     tiltakstypeIds = filter.tiltakstyper,
                     search = filter.search,
-                    apentForInnsok = filter.apentForInnsok,
+                    apentForPamelding = filter.apentForPamelding,
                     erSykmeldtMedArbeidsgiver = filter.erSykmeldtMedArbeidsgiver,
                     cacheUsage = CacheUsage.UseCache,
                 )
@@ -165,7 +165,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
                         innsatsgruppe = filter.innsatsgruppe,
                         tiltakstypeIds = filter.tiltakstyper,
                         search = filter.search,
-                        apentForInnsok = filter.apentForInnsok,
+                        apentForPamelding = filter.apentForPamelding,
                         erSykmeldtMedArbeidsgiver = filter.erSykmeldtMedArbeidsgiver,
                         cacheUsage = CacheUsage.NoCache,
                     )

@@ -104,7 +104,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.sluttDato shouldBe Oppfolging1.sluttDato
                 it.arenaAnsvarligEnhet shouldBe null
                 it.status.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
-                it.apentForInnsok shouldBe true
+                it.apentForPamelding shouldBe true
                 it.antallPlasser shouldBe 12
                 it.avtaleId shouldBe Oppfolging1.avtaleId
                 it.administratorer shouldBe listOf(
@@ -734,16 +734,16 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
-    context("Update åpent for innsøk") {
+    context("Update åpent for påmelding") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
-        test("Skal sette åpent for innsøk til false for tiltak med felles oppstartstype og startdato i dag") {
+        test("Skal sette åpent for påmelding til false for tiltak med felles oppstartstype og startdato i dag") {
             val dagensDatoMock = LocalDate.of(2024, 3, 6)
             val jobbklubbStartDatoIFremtiden = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
                 id = UUID.randomUUID(),
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                 startDato = LocalDate.of(2024, 5, 1),
-                apentForInnsok = true,
+                apentForPamelding = true,
             )
             tiltaksgjennomforinger.upsert(jobbklubbStartDatoIFremtiden)
 
@@ -752,7 +752,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 navn = "Jobbklubb 2",
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                 startDato = dagensDatoMock,
-                apentForInnsok = true,
+                apentForPamelding = true,
             )
             tiltaksgjennomforinger.upsert(jobbklubbStartDatoIDag)
             val jobbklubbStartDatoIDagFraArena = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
@@ -760,7 +760,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 navn = "Jobbklubb 2 fra Arena",
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                 startDato = dagensDatoMock,
-                apentForInnsok = true,
+                apentForPamelding = true,
             )
             tiltaksgjennomforinger.upsert(jobbklubbStartDatoIDagFraArena)
             tiltaksgjennomforinger.setOpphav(jobbklubbStartDatoIDagFraArena.id, ArenaMigrering.Opphav.ARENA)
@@ -770,7 +770,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 navn = "Jobbklubb 3",
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                 startDato = LocalDate.of(2024, 1, 1),
-                apentForInnsok = false,
+                apentForPamelding = false,
             )
             tiltaksgjennomforinger.upsert(jobbklubbStartDatoHarPassert)
 
@@ -779,14 +779,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 row(jobbklubbStartDatoIDag.id, false),
                 row(jobbklubbStartDatoIDagFraArena.id, true),
                 row(jobbklubbStartDatoHarPassert.id, false),
-            ) { id, apentForInnsok ->
+            ) { id, apentForPamelding ->
                 database.db.transaction { tx ->
-                    tiltaksgjennomforinger.lukkApentForInnsokForTiltakMedStartdatoForDato(
+                    tiltaksgjennomforinger.lukkApentForPameldingForTiltakMedStartdatoForDato(
                         dagensDato = dagensDatoMock,
                         tx = tx,
                     )
                 }
-                tiltaksgjennomforinger.get(id)?.apentForInnsok shouldBe apentForInnsok
+                tiltaksgjennomforinger.get(id)?.apentForPamelding shouldBe apentForPamelding
             }
         }
     }

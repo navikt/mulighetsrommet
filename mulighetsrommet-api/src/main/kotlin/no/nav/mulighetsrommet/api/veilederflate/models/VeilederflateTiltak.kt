@@ -55,7 +55,7 @@ data class VeilederflateTiltakGruppe(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val tiltaksnummer: String?,
-    val apentForInnsok: Boolean,
+    val apentForPamelding: Boolean,
     @Serializable(with = LocalDateSerializer::class)
     val oppstartsdato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)

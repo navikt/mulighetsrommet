@@ -16,7 +16,7 @@ data class TiltaksgjennomforingDbo(
     val arrangorKontaktpersoner: List<UUID>,
     val startDato: LocalDate,
     val sluttDato: LocalDate?,
-    val apentForInnsok: Boolean,
+    val apentForPamelding: Boolean,
     val antallPlasser: Int,
     val avtaleId: UUID,
     val administratorer: List<NavIdent>,

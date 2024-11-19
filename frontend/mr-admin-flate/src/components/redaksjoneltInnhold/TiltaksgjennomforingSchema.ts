@@ -71,7 +71,7 @@ export const TiltaksgjennomforingSchema = z
       (val) => !!val,
       "Du må velge oppstartstype",
     ),
-    apentForInnsok: z.boolean().default(true),
+    apentForPamelding: z.boolean().default(true),
     beskrivelse: z.string().nullable(),
     faneinnhold: FaneinnholdSchema.nullable(),
     opphav: z.nativeEnum(Opphav),

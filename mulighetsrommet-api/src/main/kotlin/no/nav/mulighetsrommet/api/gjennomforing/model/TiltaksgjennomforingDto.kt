@@ -32,7 +32,7 @@ data class TiltaksgjennomforingDto(
     val sluttDato: LocalDate?,
     val arenaAnsvarligEnhet: ArenaNavEnhet?,
     val status: TiltaksgjennomforingStatusDto,
-    val apentForInnsok: Boolean,
+    val apentForPamelding: Boolean,
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,
@@ -115,7 +115,7 @@ data class TiltaksgjennomforingDto(
         arrangorKontaktpersoner = arrangor.kontaktpersoner.map { it.id },
         startDato = startDato,
         sluttDato = sluttDato,
-        apentForInnsok = apentForInnsok,
+        apentForPamelding = apentForPamelding,
         antallPlasser = antallPlasser ?: -1,
         avtaleId = avtaleId ?: id,
         administratorer = administratorer.map { it.navIdent },
