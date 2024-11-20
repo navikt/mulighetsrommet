@@ -1,4 +1,4 @@
-FROM node:20-bullseye-slim AS base
+FROM gcr.io/distroless/nodejs20-debian12 AS base
 
 ENV NODE_ENV=production
 ENV PORT="3000"
@@ -8,4 +8,7 @@ COPY ./dist /app
 WORKDIR /app
 
 EXPOSE 3000
-CMD ["npm", "run", "start"]
+
+ENV NODE_ENV=production
+ENV VITE_MULIGHETSROMMET_API_BASE=http://mulighetsrommet-api
+CMD ["./server.js"]
