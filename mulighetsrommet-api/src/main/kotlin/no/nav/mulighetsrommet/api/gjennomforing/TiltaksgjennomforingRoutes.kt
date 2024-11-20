@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.ServerError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponseError
+import no.nav.mulighetsrommet.api.services.EndretAv
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
@@ -66,6 +67,14 @@ fun Route.tiltaksgjennomforingRoutes() {
                 val navIdent = getNavIdent()
                 val request = call.receive<PublisertRequest>()
                 service.setPublisert(id, request.publisert, navIdent)
+                call.respond(HttpStatusCode.OK)
+            }
+
+            put("{id}/apent-for-pamelding") {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val navIdent = getNavIdent()
+                val request = call.receive<SetApentForPameldingRequest>()
+                service.setApentForPamelding(id, request.apentForPamelding, EndretAv.NavAnsatt(navIdent))
                 call.respond(HttpStatusCode.OK)
             }
 
@@ -273,7 +282,6 @@ data class TiltaksgjennomforingRequest(
     val navRegion: String,
     val navEnheter: List<String>,
     val oppstart: TiltaksgjennomforingOppstartstype,
-    val apentForPamelding: Boolean,
     val kontaktpersoner: List<TiltaksgjennomforingKontaktpersonDto>,
     val stedForGjennomforing: String?,
     val faneinnhold: Faneinnhold?,
@@ -293,7 +301,6 @@ data class TiltaksgjennomforingRequest(
         startDato = startDato,
         sluttDato = sluttDato,
         antallPlasser = antallPlasser,
-        apentForPamelding = apentForPamelding,
         arrangorId = arrangorId,
         arrangorKontaktpersoner = arrangorKontaktpersoner,
         administratorer = administratorer,
@@ -341,6 +348,11 @@ data class TiltaksgjennomforingKontaktpersonDto(
 @Serializable
 data class PublisertRequest(
     val publisert: Boolean,
+)
+
+@Serializable
+data class SetApentForPameldingRequest(
+    val apentForPamelding: Boolean,
 )
 
 @Serializable

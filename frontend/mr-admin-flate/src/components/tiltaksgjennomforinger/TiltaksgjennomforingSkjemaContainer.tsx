@@ -109,7 +109,6 @@ export function TiltaksgjennomforingSkjemaContainer({
       administratorer: data.administratorer,
       arrangorId: data.arrangorId,
       oppstart: data.oppstart,
-      apentForPamelding: data.apentForPamelding,
       kontaktpersoner:
         data.kontaktpersoner
           ?.filter((kontakt) => kontakt.navIdent !== null)

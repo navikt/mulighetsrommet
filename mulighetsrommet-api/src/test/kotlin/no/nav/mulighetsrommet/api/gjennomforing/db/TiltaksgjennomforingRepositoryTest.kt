@@ -699,9 +699,10 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         test("skal sette åpent for påmelding") {
             val gjennomforing = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
                 id = UUID.randomUUID(),
-                apentForPamelding = true,
             )
             tiltaksgjennomforinger.upsert(gjennomforing)
+
+            tiltaksgjennomforinger.get(gjennomforing.id).shouldNotBeNull().apentForPamelding shouldBe true
 
             tiltaksgjennomforinger.setApentForPamelding(gjennomforing.id, false)
 

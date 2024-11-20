@@ -251,11 +251,10 @@ class VeilederflateTiltakRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(
                 Oppfolging1.copy(
                     sluttDato = null,
-                    apentForPamelding = true,
                     navEnheter = listOf("2990"),
                 ),
             )
-            tiltaksgjennomforinger.upsert(AFT1.copy(apentForPamelding = false, navEnheter = listOf("2990")))
+            tiltaksgjennomforinger.upsert(AFT1.copy(navEnheter = listOf("2990")))
             tiltaksgjennomforinger.setPublisert(Oppfolging1.id, true)
             tiltaksgjennomforinger.setPublisert(AFT1.id, true)
 
@@ -289,7 +288,6 @@ class VeilederflateTiltakRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(
                 TiltaksgjennomforingFixtures.ArbeidsrettetRehabilitering.copy(
                     sluttDato = null,
-                    apentForPamelding = true,
                     navEnheter = listOf("2990"),
                 ),
             )
@@ -298,21 +296,18 @@ class VeilederflateTiltakRepositoryTest : FunSpec({
             // Riktig innsatsgruppe
             veilederflateTiltakRepository.getAll(
                 innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-                apentForPamelding = true,
                 brukersEnheter = listOf("2990"),
             ).size shouldBe 1
 
             // Feil innsatsgruppe
             veilederflateTiltakRepository.getAll(
                 innsatsgruppe = Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-                apentForPamelding = true,
                 brukersEnheter = listOf("2990"),
             ).size shouldBe 0
 
             // Feil innsatsgruppe men sykmeldt
             veilederflateTiltakRepository.getAll(
                 innsatsgruppe = Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-                apentForPamelding = true,
                 brukersEnheter = listOf("2990"),
                 erSykmeldtMedArbeidsgiver = true,
             ).size shouldBe 1
