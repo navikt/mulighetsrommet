@@ -221,6 +221,8 @@ class TiltaksgjennomforingService(
             "Stengte for påmelding"
         }
         logEndring(operation, dto, bruker, tx)
+
+        tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
     }
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto {
