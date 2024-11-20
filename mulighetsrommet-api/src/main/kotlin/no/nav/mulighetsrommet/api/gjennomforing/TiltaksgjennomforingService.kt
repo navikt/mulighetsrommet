@@ -273,7 +273,7 @@ class TiltaksgjennomforingService(
             tx,
             DocumentClass.TILTAKSGJENNOMFORING,
             operation,
-            endretAv.id,
+            endretAv,
             dto.id,
         ) {
             Json.encodeToJsonElement(dto)

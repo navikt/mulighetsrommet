@@ -25,7 +25,7 @@ class EndringshistorikkServiceTest : FunSpec({
                 tx,
                 DocumentClass.AVTALE,
                 operation = "OPPRETTET",
-                userId = "Arena",
+                user = EndretAv.Arena,
                 documentId = id,
                 timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Ny avtale" }""") }
@@ -34,7 +34,7 @@ class EndringshistorikkServiceTest : FunSpec({
                 tx,
                 DocumentClass.AVTALE,
                 operation = "ENDRET",
-                userId = "Ola",
+                user = EndretAv.System,
                 documentId = id,
                 timestamp = LocalDateTime.of(2023, 1, 2, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Endret avtale" }""") }
@@ -43,7 +43,7 @@ class EndringshistorikkServiceTest : FunSpec({
                 tx,
                 DocumentClass.AVTALE,
                 operation = "SLETTET",
-                userId = "Arena",
+                user = EndretAv.System,
                 documentId = id,
                 timestamp = LocalDateTime.of(2023, 1, 3, 9, 0, 0),
             ) { JsonNull }
@@ -55,13 +55,13 @@ class EndringshistorikkServiceTest : FunSpec({
                     id = id,
                     operation = "SLETTET",
                     editedAt = LocalDateTime.of(2023, 1, 3, 9, 0, 0),
-                    editedBy = EndringshistorikkDto.Systembruker(navn = "Arena"),
+                    editedBy = EndringshistorikkDto.Systembruker(navn = "System"),
                 ),
                 EndringshistorikkDto.Entry(
                     id = id,
                     operation = "ENDRET",
                     editedAt = LocalDateTime.of(2023, 1, 2, 9, 0, 0),
-                    editedBy = EndringshistorikkDto.Systembruker(navn = "Ola"),
+                    editedBy = EndringshistorikkDto.Systembruker(navn = "System"),
                 ),
                 EndringshistorikkDto.Entry(
                     id = id,
@@ -89,7 +89,7 @@ class EndringshistorikkServiceTest : FunSpec({
                 tx,
                 DocumentClass.AVTALE,
                 operation = "OPPRETTET",
-                userId = ansatt1.navIdent.value,
+                user = EndretAv.NavAnsatt(ansatt1.navIdent),
                 documentId = id,
                 timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Ny avtale" }""") }
@@ -98,7 +98,7 @@ class EndringshistorikkServiceTest : FunSpec({
                 tx,
                 DocumentClass.AVTALE,
                 operation = "ENDRET",
-                userId = ansatt2.navIdent.value,
+                user = EndretAv.NavAnsatt(ansatt2.navIdent),
                 documentId = id,
                 timestamp = LocalDateTime.of(2023, 1, 2, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Endret avtale" }""") }
