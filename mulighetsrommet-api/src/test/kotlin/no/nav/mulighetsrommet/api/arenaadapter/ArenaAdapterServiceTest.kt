@@ -95,7 +95,7 @@ class ArenaAdapterServiceTest :
                 sluttDato = LocalDate.now().plusYears(1),
                 arenaAnsvarligEnhet = null,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                apentForInnsok = true,
+                apentForPamelding = true,
                 antallPlasser = null,
                 avtaleId = null,
                 deltidsprosent = 100.0,
@@ -200,7 +200,7 @@ class ArenaAdapterServiceTest :
                     sluttDato = LocalDate.now().plusYears(1),
                     arenaAnsvarligEnhet = null,
                     avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                    apentForInnsok = true,
+                    apentForPamelding = true,
                     antallPlasser = null,
                     avtaleId = null,
                     deltidsprosent = 100.0,
@@ -243,7 +243,7 @@ class ArenaAdapterServiceTest :
                     sluttDato = LocalDate.of(2024, 1, 1),
                     arenaAnsvarligEnhet = NavEnhetFixtures.TiltakOslo.enhetsnummer,
                     avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-                    apentForInnsok = false,
+                    apentForPamelding = false,
                     antallPlasser = 100,
                     avtaleId = null,
                     deltidsprosent = 1.0,
@@ -264,7 +264,7 @@ class ArenaAdapterServiceTest :
                     it.arrangor.organisasjonsnummer shouldBe ArrangorFixtures.underenhet1.organisasjonsnummer
                     it.startDato shouldBe gjennomforing1.startDato
                     it.sluttDato shouldBe gjennomforing1.sluttDato
-                    it.apentForInnsok shouldBe gjennomforing1.apentForInnsok
+                    it.apentForPamelding shouldBe gjennomforing1.apentForPamelding
                     it.antallPlasser shouldBe gjennomforing1.antallPlasser
                     it.oppstart shouldBe gjennomforing1.oppstart
                     it.deltidsprosent shouldBe gjennomforing1.deltidsprosent
@@ -306,7 +306,7 @@ class ArenaAdapterServiceTest :
                     sluttDato = LocalDate.of(2024, 1, 1),
                     arenaAnsvarligEnhet = NavEnhetFixtures.TiltakOslo.enhetsnummer,
                     avslutningsstatus = Avslutningsstatus.AVLYST,
-                    apentForInnsok = false,
+                    apentForPamelding = false,
                     antallPlasser = 100,
                     avtaleId = null,
                     deltidsprosent = 1.0,
@@ -354,7 +354,7 @@ class ArenaAdapterServiceTest :
                     sluttDato = LocalDate.now().plusYears(1),
                     arenaAnsvarligEnhet = null,
                     avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                    apentForInnsok = true,
+                    apentForPamelding = true,
                     antallPlasser = null,
                     avtaleId = null,
                     deltidsprosent = 100.0,

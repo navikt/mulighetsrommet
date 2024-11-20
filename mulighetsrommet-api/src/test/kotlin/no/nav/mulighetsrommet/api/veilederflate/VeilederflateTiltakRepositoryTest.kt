@@ -247,21 +247,21 @@ class VeilederflateTiltakRepositoryTest : FunSpec({
             }
         }
 
-        test("skal filtrere basert på apent_for_innsok") {
+        test("skal filtrere basert på apent_for_pamelding") {
             tiltaksgjennomforinger.upsert(
                 Oppfolging1.copy(
                     sluttDato = null,
-                    apentForInnsok = true,
+                    apentForPamelding = true,
                     navEnheter = listOf("2990"),
                 ),
             )
-            tiltaksgjennomforinger.upsert(AFT1.copy(apentForInnsok = false, navEnheter = listOf("2990")))
+            tiltaksgjennomforinger.upsert(AFT1.copy(apentForPamelding = false, navEnheter = listOf("2990")))
             tiltaksgjennomforinger.setPublisert(Oppfolging1.id, true)
             tiltaksgjennomforinger.setPublisert(AFT1.id, true)
 
             veilederflateTiltakRepository.getAll(
                 innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-                apentForInnsok = true,
+                apentForPamelding = true,
                 brukersEnheter = listOf("2990"),
             ).should {
                 it shouldHaveSize 1
@@ -271,7 +271,7 @@ class VeilederflateTiltakRepositoryTest : FunSpec({
 
             veilederflateTiltakRepository.getAll(
                 innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-                apentForInnsok = false,
+                apentForPamelding = false,
                 brukersEnheter = listOf("2990"),
             ).should {
                 it shouldHaveSize 1
@@ -280,7 +280,7 @@ class VeilederflateTiltakRepositoryTest : FunSpec({
 
             veilederflateTiltakRepository.getAll(
                 innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-                apentForInnsok = null,
+                apentForPamelding = null,
                 brukersEnheter = listOf("2990"),
             ) shouldHaveSize 2
         }
@@ -289,7 +289,7 @@ class VeilederflateTiltakRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(
                 TiltaksgjennomforingFixtures.ArbeidsrettetRehabilitering.copy(
                     sluttDato = null,
-                    apentForInnsok = true,
+                    apentForPamelding = true,
                     navEnheter = listOf("2990"),
                 ),
             )
@@ -298,21 +298,21 @@ class VeilederflateTiltakRepositoryTest : FunSpec({
             // Riktig innsatsgruppe
             veilederflateTiltakRepository.getAll(
                 innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-                apentForInnsok = true,
+                apentForPamelding = true,
                 brukersEnheter = listOf("2990"),
             ).size shouldBe 1
 
             // Feil innsatsgruppe
             veilederflateTiltakRepository.getAll(
                 innsatsgruppe = Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-                apentForInnsok = true,
+                apentForPamelding = true,
                 brukersEnheter = listOf("2990"),
             ).size shouldBe 0
 
             // Feil innsatsgruppe men sykmeldt
             veilederflateTiltakRepository.getAll(
                 innsatsgruppe = Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-                apentForInnsok = true,
+                apentForPamelding = true,
                 brukersEnheter = listOf("2990"),
                 erSykmeldtMedArbeidsgiver = true,
             ).size shouldBe 1

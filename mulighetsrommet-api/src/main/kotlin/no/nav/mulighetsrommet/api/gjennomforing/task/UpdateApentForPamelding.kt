@@ -8,7 +8,7 @@ import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
 import java.time.LocalDate
 
-class UpdateApentForInnsok(
+class UpdateApentForPamelding(
     config: Config,
     tiltaksgjennomforingService: TiltaksgjennomforingService,
 ) {
@@ -28,6 +28,6 @@ class UpdateApentForInnsok(
     val task: RecurringTask<Void> = Tasks
         .recurring(javaClass.simpleName, config.toSchedule())
         .execute { _, _ ->
-            tiltaksgjennomforingService.batchApentForInnsokForAlleMedStarttdatoForDato(LocalDate.now())
+            tiltaksgjennomforingService.batchApentForPameldingForAlleMedStarttdatoForDato(LocalDate.now())
         }
 }

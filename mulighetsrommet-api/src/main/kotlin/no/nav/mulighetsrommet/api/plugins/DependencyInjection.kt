@@ -46,7 +46,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforinge
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
-import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForInnsok
+import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateTiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattSyncService
@@ -435,7 +435,7 @@ private fun tasks(config: TaskConfig) = module {
             get(),
             get(),
         )
-        val updateApentForInnsok = UpdateApentForInnsok(config.updateApentForInnsok, get())
+        val updateApentForPamelding = UpdateApentForPamelding(config.updateApentForPamelding, get())
         val notificationService: NotificationService by inject()
         val generateValidationReport: GenerateValidationReport by inject()
         val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
@@ -464,7 +464,7 @@ private fun tasks(config: TaskConfig) = module {
                 notifySluttdatoForGjennomforingerNarmerSeg.task,
                 notifySluttdatoForAvtalerNarmerSeg.task,
                 notifyFailedKafkaEvents.task,
-                updateApentForInnsok.task,
+                updateApentForPamelding.task,
                 generateRefusjonskrav.task,
             )
             .serializer(DbSchedulerKotlinSerializer())

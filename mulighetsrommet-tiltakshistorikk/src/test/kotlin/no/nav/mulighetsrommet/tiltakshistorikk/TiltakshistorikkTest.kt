@@ -266,6 +266,7 @@ private fun inititalizeData(database: FlywayDatabaseTestListener) {
         status = TiltaksgjennomforingStatus.GJENNOMFORES,
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         tilgjengeligForArrangorFraOgMedDato = null,
+        apentForPamelding = true,
     )
     gruppetiltak.upsert(tiltak)
 

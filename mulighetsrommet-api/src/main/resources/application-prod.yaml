@@ -152,7 +152,7 @@ app:
       cronPattern: "0 */15 * ? * MON-FRI"
     generateValidationReport:
       bucketName: mulighetsrommet-api-uploads-prod
-    updateApentForInnsok:
+    updateApentForPamelding:
       disabled: false
       cronPattern: "0 55 23 * * *" # 23.55 hver kveld
     generateRefusjonskrav:

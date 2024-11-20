@@ -190,7 +190,7 @@ class TiltakgjennomforingEventProcessor(
         sluttDato = tilDato?.toLocalDate(),
         arenaAnsvarligEnhet = sak.enhet,
         avslutningsstatus = resolveAvslutningsstatus(status, tilDato),
-        apentForInnsok = apentForInnsok,
+        apentForPamelding = apentForInnsok,
         antallPlasser = antallPlasser,
         avtaleId = avtaleId,
         deltidsprosent = deltidsprosent,

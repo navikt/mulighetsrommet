@@ -40,7 +40,7 @@ function useGetArbeidsmarkedstiltakFilterAsQuery() {
     isFilterReady: isFilterReady(filter),
     filter: {
       search: filter.search || undefined,
-      apentForInnsok: filter.apentForInnsok,
+      apentForPamelding: filter.apentForPamelding,
       innsatsgruppe: filter.innsatsgruppe?.nokkel,
       enheter: filter.navEnheter.map((enhet: NavEnhet) => enhet.enhetsnummer),
       tiltakstyper,

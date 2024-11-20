@@ -1,8 +1,8 @@
 import { Accordion, ToggleGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { ApentForInnsok } from "@mr/api-client";
+import { ApentForPamelding } from "@mr/api-client";
 import React from "react";
-import { filterAccordionAtom } from "../../core/atoms";
+import { filterAccordionAtom, FilterAccordionTypes } from "../../core/atoms";
 import { addOrRemove } from "../../utils/Utils";
 import "./FilterToggle.module.scss";
 
@@ -16,7 +16,7 @@ export interface Props {
   venstreValue: string;
   midtValue: string;
   hoyreValue: string;
-  accordionIsOpenValue: string;
+  accordionIsOpenValue: FilterAccordionTypes;
 }
 
 export function FilterToggle({
@@ -33,8 +33,8 @@ export function FilterToggle({
 }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
   function onToggleChanged(value: string) {
-    if (Object.values(ApentForInnsok).includes(value as ApentForInnsok)) {
-      onChange(value as ApentForInnsok);
+    if (Object.values(ApentForPamelding).includes(value as ApentForPamelding)) {
+      onChange(value as ApentForPamelding);
     }
   }
 

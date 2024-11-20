@@ -65,7 +65,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
                 status = status,
                 arenaId = arenaId,
                 enhet = enhetsnummer,
-                apentForInnsok = tiltaksgjennomforing.apentForInnsok,
+                apentForInnsok = tiltaksgjennomforing.apentForPamelding,
                 deltidsprosent = tiltaksgjennomforing.deltidsprosent,
             )
         }

@@ -49,15 +49,6 @@ interface Props {
   avtale: AvtaleDto;
 }
 
-function visApentForInnsok(tiltakskode: Tiltakskode) {
-  return [
-    Tiltakskode.JOBBKLUBB,
-    Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-    Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-    Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-  ].includes(tiltakskode);
-}
-
 export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtale }: Props) {
   const { data: administratorer } = useTiltaksgjennomforingAdministratorer();
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
@@ -242,15 +233,13 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
                 format={"iso-string"}
               />
             </HGrid>
-            {visApentForInnsok(avtale.tiltakstype.tiltakskode) ? (
-              <Switch
-                size="small"
-                {...register("apentForInnsok")}
-                checked={watch("apentForInnsok")}
-              >
-                {tiltaktekster.apentForInnsokLabel}
-              </Switch>
-            ) : null}
+            <Switch
+              size="small"
+              {...register("apentForPamelding")}
+              checked={watch("apentForPamelding")}
+            >
+              {tiltaktekster.apentForPameldingLabel}
+            </Switch>
             <HGrid align="start" columns={2}>
               <TextField
                 size="small"

@@ -43,9 +43,9 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
             <div className={styles.tiltakstype_header_maksbredde}>
               <TiltakHeader tiltak={tiltak} />
             </div>
-            {isTiltakGruppe(tiltak) && !tiltak.apentForInnsok && (
+            {isTiltakGruppe(tiltak) && !tiltak.apentForPamelding && (
               <div className={styles.apent_for_innsok_status}>
-                <PadlockLockedFillIcon title="Tiltaket er stengt for innsøking" />
+                <PadlockLockedFillIcon title="Tiltaket er stengt for påmelding" />
               </div>
             )}
             <div className={styles.sidemeny}>
