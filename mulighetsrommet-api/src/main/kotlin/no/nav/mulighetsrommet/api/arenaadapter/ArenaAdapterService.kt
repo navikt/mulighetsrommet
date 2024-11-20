@@ -11,8 +11,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepositor
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.services.DocumentClass
+import no.nav.mulighetsrommet.api.services.EndretAv
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
-import no.nav.mulighetsrommet.api.services.TILTAKSADMINISTRASJON_SYSTEM_BRUKER
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
@@ -151,7 +151,7 @@ class ArenaAdapterService(
             tx,
             DocumentClass.AVTALE,
             "Endret i Arena",
-            "Arena",
+            EndretAv.Arena,
             dto.id,
         ) { Json.encodeToJsonElement(dto) }
     }
@@ -161,7 +161,7 @@ class ArenaAdapterService(
             tx,
             DocumentClass.TILTAKSGJENNOMFORING,
             "Endret i Arena",
-            "Arena",
+            EndretAv.Arena,
             dto.id,
         ) { Json.encodeToJsonElement(dto) }
     }
@@ -171,7 +171,7 @@ class ArenaAdapterService(
             tx,
             DocumentClass.TILTAKSGJENNOMFORING,
             "Oppdatert med tiltaksnummer fra Arena",
-            TILTAKSADMINISTRASJON_SYSTEM_BRUKER,
+            EndretAv.System,
             dto.id,
         ) { Json.encodeToJsonElement(dto) }
     }

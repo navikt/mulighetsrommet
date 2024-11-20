@@ -734,60 +734,19 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
-    context("Update åpent for påmelding") {
+    context("åpent for påmelding") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
-        test("Skal sette åpent for påmelding til false for tiltak med felles oppstartstype og startdato i dag") {
-            val dagensDatoMock = LocalDate.of(2024, 3, 6)
-            val jobbklubbStartDatoIFremtiden = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
+        test("skal sette åpent for påmelding") {
+            val gjennomforing = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
                 id = UUID.randomUUID(),
-                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-                startDato = LocalDate.of(2024, 5, 1),
                 apentForPamelding = true,
             )
-            tiltaksgjennomforinger.upsert(jobbklubbStartDatoIFremtiden)
+            tiltaksgjennomforinger.upsert(gjennomforing)
 
-            val jobbklubbStartDatoIDag = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
-                id = UUID.randomUUID(),
-                navn = "Jobbklubb 2",
-                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-                startDato = dagensDatoMock,
-                apentForPamelding = true,
-            )
-            tiltaksgjennomforinger.upsert(jobbklubbStartDatoIDag)
-            val jobbklubbStartDatoIDagFraArena = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
-                id = UUID.randomUUID(),
-                navn = "Jobbklubb 2 fra Arena",
-                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-                startDato = dagensDatoMock,
-                apentForPamelding = true,
-            )
-            tiltaksgjennomforinger.upsert(jobbklubbStartDatoIDagFraArena)
-            tiltaksgjennomforinger.setOpphav(jobbklubbStartDatoIDagFraArena.id, ArenaMigrering.Opphav.ARENA)
+            tiltaksgjennomforinger.setApentForPamelding(gjennomforing.id, false)
 
-            val jobbklubbStartDatoHarPassert = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
-                id = UUID.randomUUID(),
-                navn = "Jobbklubb 3",
-                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-                startDato = LocalDate.of(2024, 1, 1),
-                apentForPamelding = false,
-            )
-            tiltaksgjennomforinger.upsert(jobbklubbStartDatoHarPassert)
-
-            forAll(
-                row(jobbklubbStartDatoIFremtiden.id, true),
-                row(jobbklubbStartDatoIDag.id, false),
-                row(jobbklubbStartDatoIDagFraArena.id, true),
-                row(jobbklubbStartDatoHarPassert.id, false),
-            ) { id, apentForPamelding ->
-                database.db.transaction { tx ->
-                    tiltaksgjennomforinger.lukkApentForPameldingForTiltakMedStartdatoForDato(
-                        dagensDato = dagensDatoMock,
-                        tx = tx,
-                    )
-                }
-                tiltaksgjennomforinger.get(id)?.apentForPamelding shouldBe apentForPamelding
-            }
+            tiltaksgjennomforinger.get(gjennomforing.id).shouldNotBeNull().apentForPamelding shouldBe false
         }
     }
 

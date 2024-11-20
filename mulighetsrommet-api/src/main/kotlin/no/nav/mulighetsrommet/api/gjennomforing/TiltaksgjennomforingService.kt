@@ -17,8 +17,8 @@ import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.api.routes.v1.EksternTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.services.DocumentClass
+import no.nav.mulighetsrommet.api.services.EndretAv
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
-import no.nav.mulighetsrommet.api.services.TILTAKSADMINISTRASJON_SYSTEM_BRUKER
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -75,7 +75,7 @@ class TiltaksgjennomforingService(
                     } else {
                         "Redigerte gjennomføring"
                     }
-                    logEndring(operation, dto, navIdent, tx)
+                    logEndring(operation, dto, EndretAv.NavAnsatt(navIdent), tx)
                     tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
                     dto
                 }
@@ -135,7 +135,7 @@ class TiltaksgjennomforingService(
             } else {
                 "Tiltak avpublisert"
             }
-            logEndring(operation, dto, navIdent, tx)
+            logEndring(operation, dto, EndretAv.NavAnsatt(navIdent), tx)
         }
     }
 
@@ -159,7 +159,7 @@ class TiltaksgjennomforingService(
                 )
                 val dto = getOrError(id, tx)
                 val operation = "Endret dato for tilgang til Deltakeroversikten"
-                logEndring(operation, dto, navIdent, tx)
+                logEndring(operation, dto, EndretAv.NavAnsatt(navIdent), tx)
                 tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
             }
     }
@@ -182,7 +182,7 @@ class TiltaksgjennomforingService(
         db.transaction { tx ->
             tiltaksgjennomforinger.setAvtaleId(tx, id, avtaleId)
             val dto = getOrError(id, tx)
-            logEndring("Endret avtale", dto, navIdent, tx)
+            logEndring("Endret avtale", dto, EndretAv.NavAnsatt(navIdent), tx)
         }
 
         return Either.Right(Unit)
@@ -220,28 +220,17 @@ class TiltaksgjennomforingService(
         db.transaction { tx ->
             tiltaksgjennomforinger.avbryt(tx, id, LocalDateTime.now(), aarsak)
             val dto = getOrError(id, tx)
-            logEndring("Gjennomføring ble avbrutt", dto, navIdent, tx)
+            logEndring("Gjennomføring ble avbrutt", dto, EndretAv.NavAnsatt(navIdent), tx)
             tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
         }
 
         return Either.Right(Unit)
     }
 
-    fun batchApentForPameldingForAlleMedStarttdatoForDato(dagensDato: LocalDate) {
-        db.transaction { tx ->
-            val tiltak = tiltaksgjennomforinger.lukkApentForPameldingForTiltakMedStartdatoForDato(
-                dagensDato,
-                tx,
-            )
-            tiltak.forEach { gjennomforing ->
-                logEndringSomSystembruker(
-                    operation = "Stengte for påmelding",
-                    gjennomforing,
-                    tx,
-                )
-            }
-            logger.info("Oppdaterte ${tiltak.size} tiltak med åpent for påmelding = false")
-        }
+    fun setApentForPamelding(id: UUID, apentForPamelding: Boolean, bruker: EndretAv) = db.transaction { tx ->
+        tiltaksgjennomforinger.setApentForPamelding(tx, id, apentForPamelding)
+        val dto = getOrError(id, tx)
+        logEndring("Stengte for påmelding", dto, bruker, tx)
     }
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto {
@@ -277,30 +266,14 @@ class TiltaksgjennomforingService(
     private fun logEndring(
         operation: String,
         dto: TiltaksgjennomforingDto,
-        navIdent: NavIdent,
+        endretAv: EndretAv,
         tx: TransactionalSession,
     ) {
         documentHistoryService.logEndring(
             tx,
             DocumentClass.TILTAKSGJENNOMFORING,
             operation,
-            navIdent.value,
-            dto.id,
-        ) {
-            Json.encodeToJsonElement(dto)
-        }
-    }
-
-    private fun logEndringSomSystembruker(
-        operation: String,
-        dto: TiltaksgjennomforingDto,
-        tx: TransactionalSession,
-    ) {
-        documentHistoryService.logEndring(
-            tx,
-            DocumentClass.TILTAKSGJENNOMFORING,
-            operation,
-            TILTAKSADMINISTRASJON_SYSTEM_BRUKER,
+            endretAv,
             dto.id,
         ) {
             Json.encodeToJsonElement(dto)
@@ -325,7 +298,7 @@ class TiltaksgjennomforingService(
                 logEndring(
                     "Kontaktperson ble fjernet fra gjennomføringen via arrangørsidene",
                     gjennomforing,
-                    navIdent,
+                    EndretAv.NavAnsatt(navIdent),
                     tx,
                 )
                 it

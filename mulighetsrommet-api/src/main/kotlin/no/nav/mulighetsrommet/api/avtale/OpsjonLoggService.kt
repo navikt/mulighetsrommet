@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.avtale.db.OpsjonLoggRepository
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.services.DocumentClass
+import no.nav.mulighetsrommet.api.services.EndretAv
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -33,7 +34,13 @@ class OpsjonLoggService(
                     avtaleRepository.oppdaterSluttdato(entry.avtaleId, entry.sluttdato, tx)
                 }
                 opsjonLoggRepository.insert(entry, tx)
-                loggEndring(tx, entry.registrertAv, getEndringsmeldingstekst(entry), entry.avtaleId, entry)
+                loggEndring(
+                    tx,
+                    EndretAv.NavAnsatt(entry.registrertAv),
+                    getEndringsmeldingstekst(entry),
+                    entry.avtaleId,
+                    entry,
+                )
             }
         }.mapLeft {
             logger.debug("Klarte ikke å lagre opsjon: {})", it)
@@ -53,7 +60,7 @@ class OpsjonLoggService(
             }
 
             opsjonLoggRepository.delete(opsjonLoggEntryId, tx)
-            loggEndring(tx, slettesAv, "Opsjon slettet", avtaleId, opsjoner.first())
+            loggEndring(tx, EndretAv.NavAnsatt(slettesAv), "Opsjon slettet", avtaleId, opsjoner.first())
         }
     }
 
@@ -70,7 +77,7 @@ class OpsjonLoggService(
 
     private fun loggEndring(
         tx: TransactionalSession,
-        slettesAv: NavIdent,
+        endretAv: EndretAv.NavAnsatt,
         operation: String,
         avtaleId: UUID,
         opsjon: OpsjonLoggEntry,
@@ -79,7 +86,7 @@ class OpsjonLoggService(
             tx = tx,
             documentClass = DocumentClass.AVTALE,
             operation = operation,
-            userId = slettesAv.value,
+            user = endretAv,
             documentId = avtaleId,
         ) {
             Json.encodeToJsonElement(opsjon)

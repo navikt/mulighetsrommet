@@ -13,7 +13,6 @@ import io.mockk.*
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer

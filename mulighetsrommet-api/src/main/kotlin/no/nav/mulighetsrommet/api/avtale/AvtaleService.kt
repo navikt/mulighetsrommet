@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.api.services.DocumentClass
+import no.nav.mulighetsrommet.api.services.EndretAv
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -90,7 +91,7 @@ class AvtaleService(
                     } else {
                         "Redigerte avtale"
                     }
-                    logEndring(operation, dto, navIdent, tx)
+                    logEndring(operation, dto, EndretAv.NavAnsatt(navIdent), tx)
                     dto
                 }
             }
@@ -189,7 +190,7 @@ class AvtaleService(
         db.transaction { tx ->
             avtaler.avbryt(tx, id, LocalDateTime.now(), aarsak)
             val dto = getOrError(id, tx)
-            logEndring("Avtale ble avbrutt", dto, navIdent, tx)
+            logEndring("Avtale ble avbrutt", dto, EndretAv.NavAnsatt(navIdent), tx)
         }
 
         return Either.Right(Unit)
@@ -224,10 +225,16 @@ class AvtaleService(
     private fun logEndring(
         operation: String,
         dto: AvtaleDto,
-        navIdent: NavIdent,
+        endretAv: EndretAv.NavAnsatt,
         tx: TransactionalSession,
     ) {
-        endringshistorikkService.logEndring(tx, DocumentClass.AVTALE, operation, navIdent.value, dto.id) {
+        endringshistorikkService.logEndring(
+            tx,
+            DocumentClass.AVTALE,
+            operation,
+            endretAv,
+            dto.id,
+        ) {
             Json.encodeToJsonElement(dto)
         }
     }
@@ -241,7 +248,12 @@ class AvtaleService(
         return db.transaction { tx ->
             avtaler.frikobleKontaktpersonFraAvtale(kontaktpersonId = kontaktpersonId, avtaleId = avtaleId, tx = tx)
                 .map {
-                    logEndring("Kontaktperson ble fjernet fra avtalen via arrangørsidene", avtale, navIdent, tx)
+                    logEndring(
+                        "Kontaktperson ble fjernet fra avtalen via arrangørsidene",
+                        avtale,
+                        EndretAv.NavAnsatt(navIdent),
+                        tx,
+                    )
                     it
                 }
                 .mapLeft {
