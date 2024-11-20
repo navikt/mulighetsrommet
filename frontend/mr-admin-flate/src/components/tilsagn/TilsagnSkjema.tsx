@@ -7,12 +7,12 @@ import { addYear, formaterDato } from "../../utils/Utils";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { FormGroup } from "../skjema/FormGroup";
 import { ApiError, TilsagnDto, TilsagnRequest, TiltaksgjennomforingDto } from "@mr/api-client";
-import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { UseMutationResult } from "@tanstack/react-query";
 import { AFTBeregningSkjema } from "./AFTBeregningSkjema";
 import { FriBeregningSkjema } from "./FriBeregningSkjema";
 import { ControlledSokeSelect, TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
 import { Metadata } from "../detaljside/Metadata";
+import { useKostnadssted } from "@/api/enhet/useKostnadssted";
 
 interface Props {
   tiltaksgjennomforing: TiltaksgjennomforingDto;
@@ -31,7 +31,11 @@ export function TilsagnSkjema({
   mutation,
   prismodell,
 }: Props) {
-  const { data: navEnheter } = useNavEnheter();
+  const { data: kostnadssteder } = useKostnadssted(
+    tiltaksgjennomforing.navRegion?.enhetsnummer
+      ? [tiltaksgjennomforing.navRegion.enhetsnummer]
+      : [],
+  );
 
   const form = useForm<InferredOpprettTilsagnSchema>({
     resolver: zodResolver(OpprettTilsagnSchema),
@@ -58,7 +62,7 @@ export function TilsagnSkjema({
       setValue("periode.start", tilsagn.periodeStart);
       setValue("periode.slutt", tilsagn.periodeSlutt);
     }
-  }, [navEnheter, tilsagn, setValue]);
+  }, [kostnadssteder, tilsagn, setValue]);
 
   return (
     <FormProvider {...form}>
@@ -116,7 +120,7 @@ export function TilsagnSkjema({
             label="Kostnadssted"
             {...register("kostnadssted")}
             options={
-              navEnheter
+              kostnadssteder
                 ?.sort((a, b) => a.navn.localeCompare(b.navn))
                 .map(({ navn, enhetsnummer }) => {
                   return {

@@ -98,6 +98,26 @@ class NavEnhetRepository(private val db: Database) {
             .asExecute
             .let { db.run(it) }
     }
+
+    fun getKostnadssted(regioner: List<String>): List<NavEnhetDbo> {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                nav_enhet.navn,
+                nav_enhet.enhetsnummer,
+                nav_enhet.status,
+                nav_enhet.type,
+                nav_enhet.overordnet_enhet
+            from nav_enhet
+                inner join kostnadssted on kostnadssted.enhetsnummer = nav_enhet.enhetsnummer
+            ${if (regioner.isNotEmpty()) "where kostnadssted.region = any(:regioner)" else ""}
+        """.trimIndent()
+
+        return queryOf(query, mapOf("regioner" to db.createTextArray(regioner)))
+            .map { it.toEnhetDbo() }
+            .asList
+            .let { db.run(it) }
+    }
 }
 
 private fun NavEnhetDbo.toSqlParameters() = mapOf(
