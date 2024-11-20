@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.gjennomforing.task
 import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
@@ -15,8 +14,8 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
+import no.nav.mulighetsrommet.tasks.executeSuspend
 import org.slf4j.LoggerFactory
-import org.slf4j.MDC
 import java.time.Instant
 import java.util.*
 
@@ -26,7 +25,6 @@ class InitialLoadTiltaksgjennomforinger(
     private val gjennomforinger: TiltaksgjennomforingRepository,
     private val gjennomforingProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
 ) {
-
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Serializable
@@ -40,23 +38,19 @@ class InitialLoadTiltaksgjennomforinger(
     )
 
     val task: OneTimeTask<TaskInput> = Tasks
-        .oneTime(javaClass.name, TaskInput::class.java)
-        .execute { instance, _ ->
+        .oneTime(javaClass.simpleName, TaskInput::class.java)
+        .executeSuspend { instance, _ ->
             val input = instance.data
 
-            logger.info("Running task ${instance.taskName} with input=$input")
-
-            MDC.put("correlationId", instance.id)
+            logger.info("Relaster gjennomføringer på topic input=$input")
 
             if (input.ids != null) {
                 initialLoadTiltaksgjennomforingerByIds(input.ids)
             } else if (input.tiltakskoder != null) {
-                runBlocking {
-                    initialLoadTiltaksgjennomforinger(
-                        tiltakskoder = input.tiltakskoder,
-                        opphav = input.opphav,
-                    )
-                }
+                initialLoadTiltaksgjennomforinger(
+                    tiltakskoder = input.tiltakskoder,
+                    opphav = input.opphav,
+                )
             }
         }
 

@@ -92,6 +92,8 @@ import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
+import no.nav.mulighetsrommet.tasks.OpenTelemetrySchedulerListener
+import no.nav.mulighetsrommet.tasks.SlackNotifierSchedulerListener
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
 import no.nav.mulighetsrommet.tokenprovider.M2MTokenProvider
@@ -385,7 +387,7 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakstypeService(get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
-    single { NotificationService(get(), get(), get()) }
+    single { NotificationService(get(), get()) }
     single { ArrangorService(get(), get()) }
     single { RefusjonService(get(), get(), get(), get()) }
     single { UnleashService(appConfig.unleash, get()) }
@@ -408,25 +410,22 @@ private fun tasks(config: TaskConfig) = module {
     single { GenerateValidationReport(config.generateValidationReport, get(), get(), get(), get(), get()) }
     single { InitialLoadTiltaksgjennomforinger(get(), get(), get(), get()) }
     single { InitialLoadTiltakstyper(get(), get(), get(), get()) }
-    single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get()) }
-    single { SynchronizeUtdanninger(config.synchronizeUtdanninger, get(), get(), get()) }
-    single { GenerateRefusjonskrav(config.generateRefusjonskrav, get(), get()) }
+    single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get()) }
+    single { SynchronizeUtdanninger(config.synchronizeUtdanninger, get(), get()) }
+    single { GenerateRefusjonskrav(config.generateRefusjonskrav, get()) }
     single {
         val updateTiltaksgjennomforingStatus = UpdateTiltaksgjennomforingStatus(
             get(),
             get(),
-            get(),
         )
-        val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get(), get())
+        val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get())
         val notifySluttdatoForGjennomforingerNarmerSeg = NotifySluttdatoForGjennomforingerNarmerSeg(
             config.notifySluttdatoForGjennomforingerNarmerSeg,
-            get(),
             get(),
             get(),
         )
         val notifySluttdatoForAvtalerNarmerSeg = NotifySluttdatoForAvtalerNarmerSeg(
             config.notifySluttdatoForAvtalerNarmerSeg,
-            get(),
             get(),
             get(),
         )
@@ -436,7 +435,7 @@ private fun tasks(config: TaskConfig) = module {
             get(),
             get(),
         )
-        val updateApentForPamelding = UpdateApentForPamelding(config.updateApentForPamelding, get(), get())
+        val updateApentForPamelding = UpdateApentForPamelding(config.updateApentForPamelding, get())
         val notificationService: NotificationService by inject()
         val generateValidationReport: GenerateValidationReport by inject()
         val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
@@ -455,6 +454,8 @@ private fun tasks(config: TaskConfig) = module {
                 initialLoadTiltaksgjennomforinger.task,
                 initialLoadTiltakstyper.task,
             )
+            .addSchedulerListener(SlackNotifierSchedulerListener(get()))
+            .addSchedulerListener(OpenTelemetrySchedulerListener())
             .startTasks(
                 synchronizeNorgEnheterTask.task,
                 updateTiltaksgjennomforingStatus.task,

@@ -63,7 +63,6 @@ class SynchronizeUtdanningerTest : FunSpec({
                 db = database.db,
                 utdanningClient = utdanningClient,
                 config = SynchronizeUtdanninger.Config(disabled = true, cronPattern = "0 0 0 1 * ?"),
-                slack = mockk(relaxed = true),
             )
 
             coEvery { utdanningClient.getUtdanninger() } returns listOf(
@@ -91,7 +90,6 @@ class SynchronizeUtdanningerTest : FunSpec({
                 db = database.db,
                 utdanningClient = utdanningClient,
                 config = SynchronizeUtdanninger.Config(disabled = true, cronPattern = "0 0 0 1 * ?"),
-                slack = mockk(relaxed = true),
             )
 
             val programomradeBetongOgMurVg2 = UtdanningNoProgramomraade(

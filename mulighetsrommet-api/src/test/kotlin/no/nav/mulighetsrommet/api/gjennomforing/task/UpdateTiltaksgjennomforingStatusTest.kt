@@ -30,7 +30,6 @@ class UpdateTiltaksgjennomforingStatusTest :
         context("oppdater statuser på tiltaksgjennomføringer") {
             val tiltaksgjennomforingKafkaProducer = mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true)
             val task = UpdateTiltaksgjennomforingStatus(
-                mockk(),
                 TiltaksgjennomforingRepository(database.db),
                 tiltaksgjennomforingKafkaProducer,
             )
@@ -138,7 +137,6 @@ class UpdateTiltaksgjennomforingStatusTest :
         context("tiltak i egen regi") {
             val tiltaksgjennomforingKafkaProducer = mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true)
             val task = UpdateTiltaksgjennomforingStatus(
-                mockk(),
                 TiltaksgjennomforingRepository(database.db),
                 tiltaksgjennomforingKafkaProducer,
             )

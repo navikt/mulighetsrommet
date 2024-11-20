@@ -5,9 +5,8 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
-import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.slack.SlackNotifier
+import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.client.UtdanningNoProgramomraade
 import no.nav.mulighetsrommet.utdanning.db.UtdanningRepository
@@ -15,18 +14,12 @@ import no.nav.mulighetsrommet.utdanning.model.NusKodeverk
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
 import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramType
-import org.slf4j.LoggerFactory
-import org.slf4j.MDC
-import kotlin.jvm.optionals.getOrNull
 
 class SynchronizeUtdanninger(
     config: Config,
     private val db: Database,
     private val utdanningClient: UtdanningClient,
-    private val slack: SlackNotifier,
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
     private val utdanningRepository = UtdanningRepository(db)
 
     data class Config(
@@ -42,27 +35,10 @@ class SynchronizeUtdanninger(
         }
     }
 
-    val task: RecurringTask<Void> = Tasks.recurring(javaClass.name, config.toSchedule())
-        .onFailure { failure, _ ->
-            val cause = failure.cause.getOrNull()?.message
-            val stackTrace = failure.cause.getOrNull()?.stackTraceToString()
-            slack.sendMessage(
-                """
-                Klarte ikke synkronisere utdanninger fra utdanning.no.
-                Konsekvensen er at databasen over utdanninger i løsningen kan være utdatert.
-                Detaljer: $cause
-                Stacktrace: $stackTrace
-                """.trimIndent(),
-            )
-        }
-        .execute { instance, _ ->
-            MDC.put("correlationId", instance.id)
-
-            logger.info("Synkroniserer utdanninger fra utdanning.no...")
-
-            runBlocking {
-                syncUtdanninger()
-            }
+    val task: RecurringTask<Void> = Tasks
+        .recurring(javaClass.simpleName, config.toSchedule())
+        .executeSuspend { _, _ ->
+            syncUtdanninger()
         }
 
     suspend fun syncUtdanninger() {

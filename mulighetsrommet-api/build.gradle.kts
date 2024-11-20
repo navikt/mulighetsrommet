@@ -128,7 +128,4 @@ dependencies {
     testImplementation(libs.assertj.db)
     testImplementation(libs.mockk)
     testImplementation(libs.nav.mockOauth2Server)
-
-    // DB-scheduler
-    implementation(libs.dbScheduler)
 }

@@ -5,7 +5,8 @@ import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.google.cloud.storage.Storage
 import com.google.cloud.storage.StorageOptions
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
@@ -16,11 +17,11 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.tasks.executeSuspend
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.slf4j.LoggerFactory
-import org.slf4j.MDC
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.time.Instant
@@ -47,30 +48,10 @@ class GenerateValidationReport(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     val task: OneTimeTask<Void> = Tasks
-        .oneTime(javaClass.name)
-        .execute { instance, context ->
-            logger.info("Running task ${instance.taskName}")
-
-            MDC.put("correlationId", instance.id)
-
-            runBlocking {
-                val job = async {
-                    val report = createReport()
-                    upload(report)
-                }
-
-                while (job.isActive) {
-                    if (context.schedulerState.isShuttingDown) {
-                        logger.info("Stopping task ${instance.taskName} due to shutdown signal")
-
-                        job.cancelAndJoin()
-
-                        logger.info("Task ${instance.taskName} stopped")
-                    } else {
-                        delay(1000)
-                    }
-                }
-            }
+        .oneTime(javaClass.simpleName)
+        .executeSuspend { _, _ ->
+            val report = createReport()
+            upload(report)
         }
 
     private val client = SchedulerClient.Builder.create(database.getDatasource(), task).build()
