@@ -491,7 +491,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun delete(id: UUID): Int = db.transaction {
+    fun delete(id: UUID): Int = db.useSession {
         delete(id, it)
     }
 
@@ -504,10 +504,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where id = ?::uuid
         """.trimIndent()
 
-        return tx.run(queryOf(query, id).asUpdate)
+        return queryOf(query, id).asUpdate.runWithSession(tx)
     }
 
-    fun setOpphav(id: UUID, opphav: ArenaMigrering.Opphav) {
+    fun setOpphav(id: UUID, opphav: ArenaMigrering.Opphav): Int = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing
@@ -515,12 +515,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where id = :id::uuid
         """.trimIndent()
 
-        queryOf(query, mapOf("id" to id, "opphav" to opphav.name))
-            .asUpdate
-            .let { db.run(it) }
+        queryOf(query, mapOf("id" to id, "opphav" to opphav.name)).asUpdate.runWithSession(session)
     }
 
-    fun setPublisert(id: UUID, publisert: Boolean): Int = db.transaction {
+    fun setPublisert(id: UUID, publisert: Boolean): Int = db.useSession {
         setPublisert(it, id, publisert)
     }
 
@@ -533,7 +531,22 @@ class TiltaksgjennomforingRepository(private val db: Database) {
            where id = ?::uuid
         """.trimIndent()
 
-        return queryOf(query, publisert, id).asUpdate.let { tx.run(it) }
+        return queryOf(query, publisert, id).asUpdate.runWithSession(tx)
+    }
+
+    fun setApentForPamelding(id: UUID, apentForPamelding: Boolean): Int = db.useSession {
+        setApentForPamelding(it, id, apentForPamelding)
+    }
+
+    fun setApentForPamelding(tx: Session, id: UUID, apentForPamelding: Boolean): Int {
+        @Language("PostgreSQL")
+        val query = """
+           update tiltaksgjennomforing
+           set apent_for_pamelding = ?
+           where id = ?::uuid
+        """.trimIndent()
+
+        return queryOf(query, apentForPamelding, id).asUpdate.runWithSession(tx)
     }
 
     fun setTilgjengeligForArrangorFraOgMedDato(tx: TransactionalSession, id: UUID, date: LocalDate) {
@@ -578,21 +591,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
 
         return tx.run(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt, "aarsak" to aarsak.name)).asUpdate)
-    }
-
-    fun lukkApentForPameldingForTiltakMedStartdatoForDato(
-        dagensDato: LocalDate,
-        tx: TransactionalSession,
-    ): List<TiltaksgjennomforingDto> {
-        @Language("PostgreSQL")
-        val query = """
-            update tiltaksgjennomforing
-            set apent_for_pamelding = false
-            where apent_for_pamelding = true and oppstart = 'FELLES' and start_dato = ? and opphav = 'MR_ADMIN_FLATE'
-            returning id
-        """.trimIndent()
-
-        return queryOf(query, dagensDato).map { get(it.uuid("id")) }.asList.let { tx.run(it) }
     }
 
     private fun TiltaksgjennomforingDbo.toSqlParameters() = mapOf(

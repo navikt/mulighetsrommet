@@ -5,11 +5,19 @@ import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*
 
 const val TILTAKSADMINISTRASJON_SYSTEM_BRUKER = "System"
+
+sealed class EndretAv(val id: String) {
+    class NavAnsatt(navIdent: NavIdent) : EndretAv(navIdent.value)
+
+    data object System : EndretAv(TILTAKSADMINISTRASJON_SYSTEM_BRUKER)
+}
+
 class EndringshistorikkService(
     private val db: Database,
 ) {
@@ -56,16 +64,22 @@ class EndringshistorikkService(
         return EndringshistorikkDto(entries = entries)
     }
 
-    fun logEndring(
+    fun logEndringSomSystembruker(
+        tx: TransactionalSession,
         documentClass: DocumentClass,
         operation: String,
-        userId: String,
         documentId: UUID,
         timestamp: LocalDateTime? = null,
         valueProvider: () -> JsonElement,
-    ) = db.transaction {
-        logEndring(it, documentClass, operation, userId, documentId, timestamp, valueProvider)
-    }
+    ) = logEndring(
+        tx,
+        documentClass,
+        operation,
+        TILTAKSADMINISTRASJON_SYSTEM_BRUKER,
+        documentId,
+        timestamp,
+        valueProvider,
+    )
 
     fun logEndring(
         tx: TransactionalSession,
