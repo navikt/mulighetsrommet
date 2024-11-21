@@ -28,7 +28,6 @@ import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
-import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -44,8 +43,6 @@ class TiltaksgjennomforingService(
     private val navAnsattService: NavAnsattService,
     private val db: Database,
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
     suspend fun upsert(
         request: TiltaksgjennomforingRequest,
         navIdent: NavIdent,
@@ -224,6 +221,26 @@ class TiltaksgjennomforingService(
         return documentHistoryService.getEndringshistorikk(DocumentClass.TILTAKSGJENNOMFORING, id)
     }
 
+    fun frikobleKontaktpersonFraGjennomforing(
+        kontaktpersonId: UUID,
+        gjennomforingId: UUID,
+        navIdent: NavIdent,
+    ): Unit = db.transaction { tx ->
+        tiltaksgjennomforinger.frikobleKontaktpersonFraGjennomforing(
+            tx = tx,
+            kontaktpersonId = kontaktpersonId,
+            gjennomforingId = gjennomforingId,
+        )
+
+        val gjennomforing = getOrError(gjennomforingId, tx)
+        logEndring(
+            "Kontaktperson ble fjernet fra gjennomføringen via arrangørsidene",
+            gjennomforing,
+            EndretAv.NavAnsatt(navIdent),
+            tx,
+        )
+    }
+
     private fun getOrError(id: UUID, tx: TransactionalSession): TiltaksgjennomforingDto {
         val gjennomforing = tiltaksgjennomforinger.get(id, tx)
         return requireNotNull(gjennomforing) { "Gjennomføringen med id=$id finnes ikke" }
@@ -264,35 +281,6 @@ class TiltaksgjennomforingService(
             dto.id,
         ) {
             Json.encodeToJsonElement(dto)
-        }
-    }
-
-    fun frikobleKontaktpersonFraGjennomforing(
-        kontaktpersonId: UUID,
-        gjennomforingId: UUID,
-        navIdent: NavIdent,
-    ): Either<StatusResponseError, String> {
-        val gjennomforing =
-            tiltaksgjennomforinger.get(gjennomforingId)
-                ?: return Either.Left(NotFound("Gjennomføringen finnes ikke"))
-
-        return db.transaction { tx ->
-            tiltaksgjennomforinger.frikobleKontaktpersonFraGjennomforing(
-                kontaktpersonId = kontaktpersonId,
-                gjennomforingId = gjennomforingId,
-                tx = tx,
-            ).map {
-                logEndring(
-                    "Kontaktperson ble fjernet fra gjennomføringen via arrangørsidene",
-                    gjennomforing,
-                    EndretAv.NavAnsatt(navIdent),
-                    tx,
-                )
-                it
-            }.mapLeft {
-                logger.error("Klarte ikke fjerne kontaktperson fra gjennomføring: KontaktpersonId = '$kontaktpersonId', gjennomforingId = '$gjennomforingId'")
-                ServerError("Klarte ikke fjerne kontaktperson fra gjennomføringen")
-            }
         }
     }
 }
