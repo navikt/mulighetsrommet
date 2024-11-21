@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dto.UtdanningslopDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingKontaktperson
-import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingNotificationDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
@@ -467,30 +466,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getAllGjennomforingerSomNarmerSegSluttdato(currentDate: LocalDate = LocalDate.now()): List<TiltaksgjennomforingNotificationDto> {
-        @Language("PostgreSQL")
-        val query = """
-            select tg.id::uuid,
-                   tg.navn,
-                   tg.start_dato,
-                   tg.slutt_dato,
-                   array_agg(distinct a.nav_ident) as administratorer,
-                   array_agg(e.enhetsnummer) as navEnheter,
-                   tg.tiltaksnummer
-            from tiltaksgjennomforing tg
-                     left join tiltaksgjennomforing_administrator a on a.tiltaksgjennomforing_id = tg.id
-                    left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
-            where (?::timestamp + interval '14' day) = tg.slutt_dato
-               or (?::timestamp + interval '7' day) = tg.slutt_dato
-               or (?::timestamp + interval '1' day) = tg.slutt_dato
-            group by tg.id;
-        """.trimIndent()
-
-        return queryOf(query, currentDate, currentDate, currentDate).map { it.toTiltaksgjennomforingNotificationDto() }
-            .asList
-            .let { db.run(it) }
-    }
-
     fun delete(id: UUID): Int = db.useSession {
         delete(id, it)
     }
@@ -705,25 +680,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             tilgjengeligForArrangorFraOgMedDato = localDateOrNull("tilgjengelig_for_arrangor_fra_og_med_dato"),
             amoKategorisering = stringOrNull("amo_kategorisering_json")?.let { JsonIgnoreUnknownKeys.decodeFromString(it) },
             utdanningslop = utdanningslop,
-        )
-    }
-
-    private fun Row.toTiltaksgjennomforingNotificationDto(): TiltaksgjennomforingNotificationDto {
-        val administratorer = arrayOrNull<String?>("administratorer")
-            ?.asList()
-            ?.filterNotNull()
-            ?.map { NavIdent(it) }
-            ?: emptyList()
-
-        val startDato = localDate("start_dato")
-        val sluttDato = localDateOrNull("slutt_dato")
-        return TiltaksgjennomforingNotificationDto(
-            id = uuid("id"),
-            navn = string("navn"),
-            startDato = startDato,
-            sluttDato = sluttDato,
-            administratorer = administratorer,
-            tiltaksnummer = stringOrNull("tiltaksnummer"),
         )
     }
 

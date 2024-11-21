@@ -665,45 +665,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
-    context("Hente tiltaksgjennomføringer som nærmer seg sluttdato") {
-        test("Skal hente gjennomføringer som er 14, 7 eller 1 dag til sluttdato") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val oppfolging14Dager = Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 5, 30),
-                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
-            )
-            val oppfolging7Dager = Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 5, 23),
-                administratorer = emptyList(),
-            )
-            val oppfolging1Dager = Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 5, 17),
-                administratorer = emptyList(),
-            )
-            val oppfolging10Dager = Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 5, 26),
-            )
-            tiltaksgjennomforinger.upsert(oppfolging14Dager)
-            tiltaksgjennomforinger.upsert(oppfolging7Dager)
-            tiltaksgjennomforinger.upsert(oppfolging1Dager)
-            tiltaksgjennomforinger.upsert(oppfolging10Dager)
-
-            val result = tiltaksgjennomforinger.getAllGjennomforingerSomNarmerSegSluttdato(
-                currentDate = LocalDate.of(2023, 5, 16),
-            )
-
-            result.map { Pair(it.id, it.administratorer) } shouldContainExactlyInAnyOrder listOf(
-                Pair(oppfolging14Dager.id, listOf(NavIdent("DD1"))),
-                Pair(oppfolging7Dager.id, listOf()),
-                Pair(oppfolging1Dager.id, listOf()),
-            )
-        }
-    }
-
     test("pagination") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
