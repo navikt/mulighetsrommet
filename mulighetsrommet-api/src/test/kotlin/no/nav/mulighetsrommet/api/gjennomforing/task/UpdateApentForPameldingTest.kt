@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepositor
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
-import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.notifications.NotificationRepository
@@ -54,7 +53,6 @@ class UpdateApentForPameldingTest : FunSpec({
         val service = TiltaksgjennomforingService(
             AvtaleRepository(database.db),
             gjennomforinger,
-            TilsagnRepository(database.db),
             mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true),
             NotificationRepository(database.db),
             mockk<TiltaksgjennomforingValidator>(),
