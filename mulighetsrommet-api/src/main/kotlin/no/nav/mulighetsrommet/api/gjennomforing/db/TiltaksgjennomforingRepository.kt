@@ -17,6 +17,8 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.createTextArray
+import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -35,7 +37,7 @@ import java.util.*
 class TiltaksgjennomforingRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo) = db.transaction {
+    fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo) = db.useSession {
         upsert(tiltaksgjennomforing, it)
     }
 
@@ -91,7 +93,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 arrangor_id                        = excluded.arrangor_id,
                 start_dato                         = excluded.start_dato,
                 slutt_dato                         = excluded.slutt_dato,
-                apent_for_pamelding                   = excluded.apent_for_pamelding,
+                apent_for_pamelding                = excluded.apent_for_pamelding,
                 antall_plasser                     = excluded.antall_plasser,
                 avtale_id                          = excluded.avtale_id,
                 oppstart                           = excluded.oppstart,
@@ -109,7 +111,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         @Language("PostgreSQL")
         val upsertEnhet = """
              insert into tiltaksgjennomforing_nav_enhet (tiltaksgjennomforing_id, enhetsnummer)
-             values (?::uuid, ?)
+             values (:gjennomforing_id::uuid, :enhetsnummer)
              on conflict (tiltaksgjennomforing_id, enhetsnummer) do nothing
         """.trimIndent()
 
@@ -122,7 +124,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         @Language("PostgreSQL")
         val upsertAdministrator = """
              insert into tiltaksgjennomforing_administrator (tiltaksgjennomforing_id, nav_ident)
-             values (?::uuid, ?)
+             values (:gjennomforing_id::uuid, :nav_ident)
              on conflict (tiltaksgjennomforing_id, nav_ident) do nothing
         """.trimIndent()
 
@@ -184,102 +186,93 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             values(:tiltaksgjennomforing_id::uuid, :utdanning_id::uuid, :utdanningsprogram_id::uuid)
         """.trimIndent()
 
-        tx.run(queryOf(query, tiltaksgjennomforing.toSqlParameters()).asExecute)
+        val gjennomforingParams = mapOf(
+            "opphav" to ArenaMigrering.Opphav.MR_ADMIN_FLATE.name,
+            "id" to tiltaksgjennomforing.id,
+            "navn" to tiltaksgjennomforing.navn,
+            "tiltakstype_id" to tiltaksgjennomforing.tiltakstypeId,
+            "arrangor_id" to tiltaksgjennomforing.arrangorId,
+            "start_dato" to tiltaksgjennomforing.startDato,
+            "slutt_dato" to tiltaksgjennomforing.sluttDato,
+            "apent_for_pamelding" to tiltaksgjennomforing.apentForPamelding,
+            "antall_plasser" to tiltaksgjennomforing.antallPlasser,
+            "avtale_id" to tiltaksgjennomforing.avtaleId,
+            "oppstart" to tiltaksgjennomforing.oppstart.name,
+            "sted_for_gjennomforing" to tiltaksgjennomforing.stedForGjennomforing,
+            "faneinnhold" to tiltaksgjennomforing.faneinnhold?.let { Json.encodeToString<Faneinnhold>(it) },
+            "beskrivelse" to tiltaksgjennomforing.beskrivelse,
+            "nav_region" to tiltaksgjennomforing.navRegion,
+            "deltidsprosent" to tiltaksgjennomforing.deltidsprosent,
+            "estimert_ventetid_verdi" to tiltaksgjennomforing.estimertVentetidVerdi,
+            "estimert_ventetid_enhet" to tiltaksgjennomforing.estimertVentetidEnhet,
+            "tilgjengelig_for_arrangor_fra_dato" to tiltaksgjennomforing.tilgjengeligForArrangorFraOgMedDato,
+        )
+        queryOf(query, gjennomforingParams).asExecute.runWithSession(tx)
 
-        tiltaksgjennomforing.administratorer.forEach { administrator ->
-            tx.run(
-                queryOf(
-                    upsertAdministrator,
-                    tiltaksgjennomforing.id,
-                    administrator.value,
-                ).asExecute,
+        val administratorerParams = tiltaksgjennomforing.administratorer.map { administrator ->
+            mapOf("gjennomforing_id" to tiltaksgjennomforing.id, "nav_ident" to administrator.value)
+        }
+        tx.batchPreparedNamedStatement(upsertAdministrator, administratorerParams)
+
+        queryOf(
+            deleteAdministratorer,
+            tiltaksgjennomforing.id,
+            db.createTextArray(tiltaksgjennomforing.administratorer.map { it.value }),
+        ).asExecute.runWithSession(tx)
+
+        val navEnheterParams = tiltaksgjennomforing.navEnheter.map { enhetId ->
+            mapOf("gjennomforing_id" to tiltaksgjennomforing.id, "enhetsnummer" to enhetId)
+        }
+        tx.batchPreparedNamedStatement(upsertEnhet, navEnheterParams)
+
+        queryOf(
+            deleteEnheter,
+            tiltaksgjennomforing.id,
+            db.createTextArray(tiltaksgjennomforing.navEnheter),
+        ).asExecute.runWithSession(tx)
+
+        val kontaktpersonerParams = tiltaksgjennomforing.kontaktpersoner.map { kontakt ->
+            mapOf(
+                "id" to tiltaksgjennomforing.id,
+                "enheter" to db.createTextArray(kontakt.navEnheter),
+                "nav_ident" to kontakt.navIdent.value,
+                "beskrivelse" to kontakt.beskrivelse,
             )
         }
+        tx.batchPreparedNamedStatement(upsertKontaktperson, kontaktpersonerParams)
 
-        tx.run(
-            queryOf(
-                deleteAdministratorer,
-                tiltaksgjennomforing.id,
-                db.createTextArray(tiltaksgjennomforing.administratorer.map { it.value }),
-            ).asExecute,
-        )
+        queryOf(
+            deleteKontaktpersoner,
+            tiltaksgjennomforing.id,
+            tiltaksgjennomforing.kontaktpersoner.map { it.navIdent.value }.let { tx.createTextArray(it) },
+        ).asExecute.runWithSession(tx)
 
-        tiltaksgjennomforing.navEnheter.forEach { enhetId ->
-            tx.run(
-                queryOf(
-                    upsertEnhet,
-                    tiltaksgjennomforing.id,
-                    enhetId,
-                ).asExecute,
+        val arrangorKontaktpersonerParams = tiltaksgjennomforing.arrangorKontaktpersoner.map { id ->
+            mapOf(
+                "tiltaksgjennomforing_id" to tiltaksgjennomforing.id,
+                "arrangor_kontaktperson_id" to id,
             )
         }
+        tx.batchPreparedNamedStatement(upsertArrangorKontaktperson, arrangorKontaktpersonerParams)
 
-        tx.run(
-            queryOf(
-                deleteEnheter,
-                tiltaksgjennomforing.id,
-                db.createTextArray(tiltaksgjennomforing.navEnheter),
-            ).asExecute,
-        )
-
-        tiltaksgjennomforing.kontaktpersoner.forEach { kontakt ->
-            tx.run(
-                queryOf(
-                    upsertKontaktperson,
-                    mapOf(
-                        "id" to tiltaksgjennomforing.id,
-                        "enheter" to db.createTextArray(kontakt.navEnheter),
-                        "nav_ident" to kontakt.navIdent.value,
-                        "beskrivelse" to kontakt.beskrivelse,
-                    ),
-                ).asExecute,
-            )
-        }
-
-        tx.run(
-            queryOf(
-                deleteKontaktpersoner,
-                tiltaksgjennomforing.id,
-                tiltaksgjennomforing.kontaktpersoner.let { kontakt -> db.createTextArray(kontakt.map { it.navIdent.value }) },
-            ).asExecute,
-        )
-
-        tiltaksgjennomforing.arrangorKontaktpersoner.forEach { person ->
-            tx.run(
-                queryOf(
-                    upsertArrangorKontaktperson,
-                    mapOf(
-                        "tiltaksgjennomforing_id" to tiltaksgjennomforing.id,
-                        "arrangor_kontaktperson_id" to person,
-                    ),
-                ).asExecute,
-            )
-        }
-
-        tx.run(
-            queryOf(
-                deleteArrangorKontaktpersoner,
-                tiltaksgjennomforing.id,
-                db.createUuidArray(tiltaksgjennomforing.arrangorKontaktpersoner),
-            ).asExecute,
-        )
+        queryOf(
+            deleteArrangorKontaktpersoner,
+            tiltaksgjennomforing.id,
+            db.createUuidArray(tiltaksgjennomforing.arrangorKontaktpersoner),
+        ).asExecute.runWithSession(tx)
 
         AmoKategoriseringRepository.upsert(tiltaksgjennomforing, tx)
 
-        tx.run(queryOf(deleteUtdanningslop, tiltaksgjennomforing.id).asExecute)
+        queryOf(deleteUtdanningslop, tiltaksgjennomforing.id).asExecute.runWithSession(tx)
         tiltaksgjennomforing.utdanningslop?.let { utdanningslop ->
-            utdanningslop.utdanninger.forEach {
-                tx.run(
-                    queryOf(
-                        insertUtdanningslop,
-                        mapOf(
-                            "tiltaksgjennomforing_id" to tiltaksgjennomforing.id,
-                            "utdanningsprogram_id" to utdanningslop.utdanningsprogram,
-                            "utdanning_id" to it,
-                        ),
-                    ).asExecute,
+            val utdanningslopParams = utdanningslop.utdanninger.map { id ->
+                mapOf(
+                    "tiltaksgjennomforing_id" to tiltaksgjennomforing.id,
+                    "utdanningsprogram_id" to utdanningslop.utdanningsprogram,
+                    "utdanning_id" to id,
                 )
             }
+            tx.batchPreparedNamedStatement(insertUtdanningslop, utdanningslopParams)
         }
     }
 
@@ -300,7 +293,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .asExecute.let { tx.run(it) }
     }
 
-    fun get(id: UUID): TiltaksgjennomforingDto? = db.transaction {
+    fun get(id: UUID): TiltaksgjennomforingDto? = db.useSession {
         get(id, it)
     }
 
@@ -315,19 +308,19 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return queryOf(query, id)
             .map { it.toTiltaksgjennomforingDto() }
             .asSingle
-            .let { tx.run(it) }
+            .runWithSession(tx)
     }
 
-    fun getUpdatedAt(id: UUID): LocalDateTime? {
+    fun getUpdatedAt(id: UUID): LocalDateTime? = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
             select updated_at from tiltaksgjennomforing where id = ?::uuid
         """.trimIndent()
 
-        return queryOf(query, id)
+        queryOf(query, id)
             .map { it.localDateTimeOrNull("updated_at") }
             .asSingle
-            .let { db.run(it) }
+            .runWithSession(session)
     }
 
     fun getAll(
@@ -344,17 +337,17 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         administratorNavIdent: NavIdent? = null,
         opphav: ArenaMigrering.Opphav? = null,
         publisert: Boolean? = null,
-    ): PaginatedResult<TiltaksgjennomforingDto> {
+    ): PaginatedResult<TiltaksgjennomforingDto> = db.useSession { session ->
         val parameters = mapOf(
             "search" to search?.toFTSPrefixQuery(),
             "search_arrangor" to search?.trim()?.let { "%$it%" },
             "slutt_dato_cutoff" to sluttDatoGreaterThanOrEqualTo,
             "avtale_id" to avtaleId,
-            "nav_enheter" to navEnheter.ifEmpty { null }?.let { db.createTextArray(it) },
-            "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { db.createUuidArray(it) },
-            "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { db.createUuidArray(it) },
-            "arrangor_orgnrs" to arrangorOrgnr.ifEmpty { null }?.map { it.value }?.let { db.createTextArray(it) },
-            "statuser" to statuser.ifEmpty { null }?.let { db.createArrayOf("text", statuser) },
+            "nav_enheter" to navEnheter.ifEmpty { null }?.let { session.createTextArray(it) },
+            "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { session.createUuidArray(it) },
+            "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { session.createUuidArray(it) },
+            "arrangor_orgnrs" to arrangorOrgnr.ifEmpty { null }?.map { it.value }?.let { session.createTextArray(it) },
+            "statuser" to statuser.ifEmpty { null }?.let { session.createArrayOf("text", statuser) },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "opphav" to opphav?.name,
             "publisert" to publisert,
@@ -404,14 +397,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             offset :offset
         """.trimIndent()
 
-        return db.useSession { session ->
-            queryOf(query, parameters + pagination.parameters)
-                .mapPaginated { it.toTiltaksgjennomforingDto() }
-                .runWithSession(session)
-        }
+        queryOf(query, parameters + pagination.parameters)
+            .mapPaginated { it.toTiltaksgjennomforingDto() }
+            .runWithSession(session)
     }
 
-    fun getGjennomforesInPeriodeUtenRefusjonskrav(periode: RefusjonskravPeriode): List<TiltaksgjennomforingDto> {
+    fun getGjennomforesInPeriodeUtenRefusjonskrav(
+        periode: RefusjonskravPeriode,
+    ): List<TiltaksgjennomforingDto> = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
             select * from tiltaksgjennomforing_admin_dto_view
@@ -428,10 +421,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 );
         """.trimIndent()
 
-        return queryOf(query, mapOf("periode_start" to periode.start, "periode_slutt" to periode.slutt))
+        queryOf(query, mapOf("periode_start" to periode.start, "periode_slutt" to periode.slutt))
             .map { it.toTiltaksgjennomforingDto() }
             .asList
-            .let { db.run(it) }
+            .runWithSession(session)
     }
 
     fun getAllByDateIntervalAndNotAvbrutt(
@@ -469,8 +462,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     }
 
     fun delete(id: UUID, tx: Session): Int {
-        logger.info("Sletter tiltaksgjennomføring id=$id")
-
         @Language("PostgreSQL")
         val query = """
             delete from tiltaksgjennomforing
@@ -496,7 +487,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     }
 
     fun setPublisert(tx: Session, id: UUID, publisert: Boolean): Int {
-        logger.info("Setter publisert '$publisert' for gjennomføring med id: $id")
         @Language("PostgreSQL")
         val query = """
            update tiltaksgjennomforing
@@ -538,7 +528,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         tx.run(queryOf(query, parameters).asUpdate)
     }
 
-    fun setAvtaleId(tx: Session, gjennomforingId: UUID, avtaleId: UUID?) {
+    fun setAvtaleId(tx: Session, gjennomforingId: UUID, avtaleId: UUID?): Int {
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing
@@ -546,7 +536,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where id = ?
         """.trimIndent()
 
-        return queryOf(query, avtaleId, gjennomforingId).asUpdate.let { tx.run(it) }
+        return queryOf(query, avtaleId, gjennomforingId).asUpdate.runWithSession(tx)
     }
 
     fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int = db.transaction {
@@ -563,7 +553,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where id = :id::uuid
         """.trimIndent()
 
-        return tx.run(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt, "aarsak" to aarsak.name)).asUpdate)
+        val params = mapOf("id" to id, "tidspunkt" to tidspunkt, "aarsak" to aarsak.name)
+
+        return queryOf(query, params).asUpdate.runWithSession(tx)
     }
 
     fun frikobleKontaktpersonFraGjennomforing(
@@ -580,28 +572,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         queryOf(query, kontaktpersonId, gjennomforingId).asUpdate.runWithSession(tx)
     }
-
-    private fun TiltaksgjennomforingDbo.toSqlParameters() = mapOf(
-        "opphav" to ArenaMigrering.Opphav.MR_ADMIN_FLATE.name,
-        "id" to id,
-        "navn" to navn,
-        "tiltakstype_id" to tiltakstypeId,
-        "arrangor_id" to arrangorId,
-        "start_dato" to startDato,
-        "slutt_dato" to sluttDato,
-        "apent_for_pamelding" to apentForPamelding,
-        "antall_plasser" to antallPlasser,
-        "avtale_id" to avtaleId,
-        "oppstart" to oppstart.name,
-        "sted_for_gjennomforing" to stedForGjennomforing,
-        "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
-        "beskrivelse" to beskrivelse,
-        "nav_region" to navRegion,
-        "deltidsprosent" to deltidsprosent,
-        "estimert_ventetid_verdi" to estimertVentetidVerdi,
-        "estimert_ventetid_enhet" to estimertVentetidEnhet,
-        "tilgjengelig_for_arrangor_fra_dato" to tilgjengeligForArrangorFraOgMedDato,
-    )
 
     private fun Row.toTiltaksgjennomforingDto(): TiltaksgjennomforingDto {
         val administratorer = stringOrNull("administratorer_json")
