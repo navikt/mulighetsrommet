@@ -12,26 +12,23 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.*
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRepository
-import no.nav.mulighetsrommet.api.okonomi.Prismodell
-import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.NotFound
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
-import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.Arrangor
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import java.time.LocalDate
@@ -42,7 +39,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
     val tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer = mockk(relaxed = true)
     val navAnsattService: NavAnsattService = mockk(relaxed = true)
-    val tilsagnRepository: TilsagnRepository = mockk(relaxed = true)
     val validator = mockk<TiltaksgjennomforingValidator>()
     val avtaleId = AvtaleFixtures.oppfolging.id
     val domain = MulighetsrommetTestDomain()
@@ -68,7 +64,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             avtaler,
             tiltaksgjennomforingRepository,
-            tilsagnRepository,
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
@@ -84,44 +79,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 AvbruttAarsak.Feilregistrering,
             ).shouldBeLeft(
                 NotFound(message = "Gjennomføringen finnes ikke"),
-            )
-        }
-
-        test("Man skal ikke få avbryte dersom gjennomføringen har aktive tilsagn") {
-            val gjennomforing = TiltaksgjennomforingFixtures.AFT1.copy(
-                startDato = LocalDate.now(),
-                avtaleId = avtaleId,
-            )
-            tiltaksgjennomforingRepository.upsert(gjennomforing)
-            every { tilsagnRepository.getByGjennomforingId(any()) } returns listOf(
-                TilsagnDto(
-                    id = UUID.randomUUID(),
-                    tiltaksgjennomforing = TilsagnDto.Tiltaksgjennomforing(
-                        id = TiltaksgjennomforingFixtures.AFT1.id,
-                        antallPlasser = TiltaksgjennomforingFixtures.AFT1.antallPlasser,
-                    ),
-                    periodeStart = LocalDate.now(),
-                    periodeSlutt = LocalDate.now().plusDays(1),
-                    opprettetAv = NavIdent("Z123123"),
-                    kostnadssted = NavEnhetFixtures.Oslo,
-                    beregning = Prismodell.TilsagnBeregning.Fri(123),
-                    annullertTidspunkt = null,
-                    lopenummer = 1,
-                    arrangor = Arrangor(
-                        id = UUID.randomUUID(),
-                        organisasjonsnummer = Organisasjonsnummer("123456789"),
-                        navn = "navn",
-                        slettet = false,
-                    ),
-                    besluttelse = null,
-                ),
-            )
-            tiltaksgjennomforingService.avbrytGjennomforing(
-                TiltaksgjennomforingFixtures.AFT1.id,
-                bertilNavIdent,
-                AvbruttAarsak.Feilregistrering,
-            ).shouldBeLeft(
-                BadRequest(message = "Gjennomføringen har aktive tilsagn"),
             )
         }
 
@@ -148,7 +105,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             avtaler,
             tiltaksgjennomforingRepository,
-            tilsagnRepository,
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
@@ -179,7 +135,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             avtaler,
             tiltaksgjennomforingRepository,
-            tilsagnRepository,
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
@@ -295,7 +250,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             avtaler,
             tiltaksgjennomforingRepository,
-            tilsagnRepository,
             tiltaksgjennomforingKafkaProducer,
             notificationRepository,
             validator,
