@@ -3,12 +3,19 @@ package no.nav.mulighetsrommet.api.navenhet.db
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import org.intellij.lang.annotations.Language
 
 class NavEnhetRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
+
+    beforeEach {
+        database.db.truncateAll()
+    }
 
     fun createEnhet(
         enhet: String,
@@ -76,6 +83,32 @@ class NavEnhetRepositoryTest : FunSpec({
             overordnetEnhet,
             underenhet4,
             underenhet5,
+        )
+    }
+
+    test("kostnadssted") {
+        val enheter = NavEnhetRepository(database.db)
+        enheter.upsert(createEnhet(enhet = "0200", type = Norg2Type.FYLKE, overordnetEnhet = null)).shouldBeRight()
+        enheter.upsert(createEnhet(enhet = "0106", type = Norg2Type.LOKAL, overordnetEnhet = "0200")).shouldBeRight()
+        enheter.upsert(createEnhet(enhet = "0101", type = Norg2Type.LOKAL, overordnetEnhet = "0200")).shouldBeRight()
+        enheter.upsert(createEnhet(enhet = "0128", type = Norg2Type.LOKAL, overordnetEnhet = "0200")).shouldBeRight()
+
+        @Language("PostgreSQL")
+        val query = """
+            insert into kostnadssted (enhetsnummer, region)
+            values
+            ('0106', '0200'),
+            ('0101', '0200'),
+            ('0200', '0200');
+        """.trimIndent()
+        database.db.run(queryOf(query).asExecute)
+
+        enheter
+            .getKostnadssted(listOf("0200"))
+            .map { it.enhetsnummer } shouldContainExactlyInAnyOrder listOf(
+            "0106",
+            "0101",
+            "0200",
         )
     }
 })
