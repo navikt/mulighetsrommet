@@ -23,6 +23,11 @@ fun Route.navEnhetRoutes() {
             call.respond(navEnhetService.hentRegioner())
         }
 
+        get("kostnadssted") {
+            val regioner = call.parameters.getAll("regioner") ?: emptyList()
+            call.respond(navEnhetService.hentKostnadssted(regioner))
+        }
+
         get("{enhetsnummer}/overordnet") {
             val enhetsnummer: String by call.parameters
             val overordnetEnhet =

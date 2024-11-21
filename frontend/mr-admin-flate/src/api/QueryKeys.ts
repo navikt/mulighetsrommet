@@ -25,6 +25,7 @@ export const QueryKeys = {
   avtale: (id: string) => ["avtale", id],
   avtaleHistorikk: (id?: string) => ["avtale", id, "historikk"] as const,
   enheter: (filter?: GetEnheterData) => ["enheter", filter],
+  kostnadssted: (regioner?: string[]) => ["kostnadssted", regioner],
   arrangorer: (filter?: GetArrangorerData) => ["arrangorer", filter] as const,
   arrangorById: (id: string) => ["arrangor", id],
   arrangorHovedenhetById: (id: string) => ["arrangorHovedenhet", id],

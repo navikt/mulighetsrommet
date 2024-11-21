@@ -1165,6 +1165,29 @@ paths:
                 items:
                   $ref: "#/components/schemas/NavRegion"
 
+  /api/v1/intern/nav-enheter/kostnadssted:
+    get:
+      tags:
+        - NavEnheter
+      operationId: getKostnadssted
+      parameters:
+        - in: query
+          name: regioner
+          schema:
+            type: array
+            items:
+              type: string
+          description: Hvilke regioner man henter for
+      responses:
+        200:
+          description: Alle kostnadssteder filterert på filter
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NavEnhet"
+
   /api/v1/intern/nav-enheter/{enhetsnummer}/overordnet:
     parameters:
       - in: "path"

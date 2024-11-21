@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.concurrent.TimeUnit
 
 class NavEnhetService(private val enhetRepository: NavEnhetRepository) {
-
     val cache: Cache<String, NavEnhetDbo> = Caffeine.newBuilder()
         .expireAfterWrite(12, TimeUnit.HOURS)
         .maximumSize(500)
@@ -66,6 +65,10 @@ class NavEnhetService(private val enhetRepository: NavEnhetRepository) {
                         .sortedByDescending { it.type },
                 )
             }
+    }
+
+    fun hentKostnadssted(regioner: List<String>): List<NavEnhetDbo> {
+        return enhetRepository.getKostnadssted(regioner)
     }
 
     @Serializable
