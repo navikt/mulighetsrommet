@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationService
 import java.time.LocalDate
 import java.util.*
@@ -47,24 +46,17 @@ class NotifySluttdatoForGjennomforingerNarmerSegTest : FunSpec({
         ),
     )
 
-    fun createTask(
-        notificationService: NotificationService = NotificationService(
-            database.db,
-            NotificationRepository(database.db),
-        ),
-    ) = NotifySluttdatoForGjennomforingerNarmerSeg(
-        NotifySluttdatoForGjennomforingerNarmerSeg.Config(disabled = true),
-        database.db,
-        notificationService,
-    )
-
     beforeAny {
         domain.initialize(database.db)
     }
 
     context("getAllGjennomforingerSomNarmerSegSluttdato") {
         test("skal hente gjennomføringer som er 14, 7 eller 1 dag til sluttdato") {
-            val task = createTask()
+            val task = NotifySluttdatoForGjennomforingerNarmerSeg(
+                NotifySluttdatoForGjennomforingerNarmerSeg.Config(disabled = true),
+                database.db,
+                mockk(),
+            )
 
             val result = task.getAllGjennomforingerSomNarmerSegSluttdato(today = LocalDate.of(2023, 5, 16))
 
@@ -79,7 +71,11 @@ class NotifySluttdatoForGjennomforingerNarmerSegTest : FunSpec({
     context("notifySluttDatoNarmerSeg") {
         test("skal generere varsler til administratorer når sluttdato på gjennomføring nærmer seg") {
             val notificationService: NotificationService = mockk(relaxed = true)
-            val task = createTask(notificationService)
+            val task = NotifySluttdatoForGjennomforingerNarmerSeg(
+                NotifySluttdatoForGjennomforingerNarmerSeg.Config(disabled = true),
+                database.db,
+                notificationService,
+            )
 
             task.notifySluttDatoNarmerSeg(today = LocalDate.of(2023, 5, 25))
 

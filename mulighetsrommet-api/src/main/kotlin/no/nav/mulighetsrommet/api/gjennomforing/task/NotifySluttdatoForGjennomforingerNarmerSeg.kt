@@ -47,14 +47,14 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
     fun notifySluttDatoNarmerSeg(today: LocalDate) {
         val gjennomforinger = getAllGjennomforingerSomNarmerSegSluttdato(today)
 
-        gjennomforinger.forEach { dto ->
-            dto.administratorer.toNonEmptyListOrNull()?.also { administratorer ->
+        gjennomforinger.forEach { gjennomforing ->
+            gjennomforing.administratorer.toNonEmptyListOrNull()?.also { administratorer ->
                 val title = listOfNotNull(
                     "Gjennomføringen",
-                    "\"${dto.navn}\"",
-                    dto.tiltaksnummer?.let { "($it)" },
+                    "\"${gjennomforing.navn}\"",
+                    gjennomforing.tiltaksnummer?.let { "($it)" },
                     "utløper",
-                    dto.sluttDato.formaterDatoTilEuropeiskDatoformat(),
+                    gjennomforing.sluttDato.formaterDatoTilEuropeiskDatoformat(),
                 ).joinToString(" ")
 
                 val notification = ScheduledNotification(
@@ -64,7 +64,7 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
                     createdAt = Instant.now(),
                     metadata = NotificationMetadata(
                         linkText = "Gå til gjennomføringen",
-                        link = "/tiltaksgjennomforinger/${dto.id}",
+                        link = "/tiltaksgjennomforinger/${gjennomforing.id}",
                     ),
                 )
 
@@ -85,25 +85,20 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
                    gjennomforing.tiltaksnummer
             from tiltaksgjennomforing gjennomforing
                      join tiltaksgjennomforing_administrator on tiltaksgjennomforing_id = gjennomforing.id
-            where (:current_date::timestamp + interval '14' day) = gjennomforing.slutt_dato
-               or (:current_date::timestamp + interval '7' day) = gjennomforing.slutt_dato
-               or (:current_date::timestamp + interval '1' day) = gjennomforing.slutt_dato
+            where (:today::timestamp + interval '14' day) = gjennomforing.slutt_dato
+               or (:today::timestamp + interval '7' day) = gjennomforing.slutt_dato
+               or (:today::timestamp + interval '1' day) = gjennomforing.slutt_dato
             group by gjennomforing.id
         """.trimIndent()
 
-        val params = mapOf("current_date" to today)
-
-        queryOf(query, params)
+        queryOf(query, mapOf("today" to today))
             .map { it.toTiltaksgjennomforingNotificationDto() }
             .asList
             .runWithSession(session)
     }
 
     private fun Row.toTiltaksgjennomforingNotificationDto(): TiltaksgjennomforingNotificationDto {
-        val administratorer = array<String>("administratorer")
-            .asList()
-            .map { NavIdent(it) }
-
+        val administratorer = array<String>("administratorer").asList().map { NavIdent(it) }
         return TiltaksgjennomforingNotificationDto(
             id = uuid("id"),
             navn = string("navn"),
