@@ -5,7 +5,8 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
@@ -19,6 +20,7 @@ import org.koin.ktor.ext.inject
 fun Route.managerRoutes() {
     val kafka: KafkaConsumerOrchestrator by inject()
     val arenaEventService: ArenaEventService by inject()
+    val replayEvents: ReplayEvents by inject()
 
     get("/topics") {
         val topics = kafka.getTopics()
@@ -35,12 +37,10 @@ fun Route.managerRoutes() {
         call.respond(ArenaTable.values())
     }
 
-    val replayEvents: ReplayEvents by inject()
-
     put("/events/replay") {
         val (table, status) = call.receive<ReplayEventsTaskData>()
 
-        launch(Dispatchers.IO) {
+        CoroutineScope(Job()).launch {
             try {
                 arenaEventService.setReplayStatusForEvents(table = table, status = status)
 

@@ -55,7 +55,7 @@ fun Route.authenticate(
  * Gets a NAVident from the underlying [JWTPrincipal], or throws a [StatusException]
  * if the claim is not available.
  */
-fun <T : Any> PipelineContext<T, ApplicationCall>.getNavIdent(): NavIdent {
+fun RoutingContext.getNavIdent(): NavIdent {
     return call.principal<JWTPrincipal>()?.get("NAVident")?.let { NavIdent(it) } ?: throw StatusException(
         HttpStatusCode.Forbidden,
         "NAVident mangler i JWTPrincipal",
@@ -66,7 +66,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getNavIdent(): NavIdent {
  * Gets a NavAnsattAzureId from the underlying [JWTPrincipal], or throws a [StatusException]
  * if the claim is not available.
  */
-fun <T : Any> PipelineContext<T, ApplicationCall>.getNavAnsattAzureId(): UUID {
+fun RoutingContext.getNavAnsattAzureId(): UUID {
     return call.principal<JWTPrincipal>()?.get("oid")?.let { UUID.fromString(it) } ?: throw StatusException(
         HttpStatusCode.Forbidden,
         "NavAnsattAzureId mangler i JWTPrincipal",
@@ -77,7 +77,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getNavAnsattAzureId(): UUID {
  * Gets a pid from the underlying [JWTPrincipal], or throws a [StatusException]
  * if the claim is not available.
  */
-fun <T : Any> PipelineContext<T, ApplicationCall>.getPid(): NorskIdent {
+fun RoutingContext.getPid(): NorskIdent {
     return call.principal<JWTPrincipal>()?.get("pid")?.let { NorskIdent(it) } ?: throw StatusException(
         HttpStatusCode.Forbidden,
         "pid mangler i JWTPrincipal",
