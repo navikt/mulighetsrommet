@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.gjennomforing.db
 
-import arrow.core.Either
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
@@ -17,7 +16,6 @@ import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
-import no.nav.mulighetsrommet.api.responses.StatusResponseError
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
@@ -568,6 +566,21 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return tx.run(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt, "aarsak" to aarsak.name)).asUpdate)
     }
 
+    fun frikobleKontaktpersonFraGjennomforing(
+        kontaktpersonId: UUID,
+        gjennomforingId: UUID,
+        tx: Session,
+    ) {
+        @Language("PostgreSQL")
+        val query = """
+            delete
+            from tiltaksgjennomforing_arrangor_kontaktperson
+            where arrangor_kontaktperson_id = ?::uuid and tiltaksgjennomforing_id = ?::uuid
+        """.trimIndent()
+
+        queryOf(query, kontaktpersonId, gjennomforingId).asUpdate.runWithSession(tx)
+    }
+
     private fun TiltaksgjennomforingDbo.toSqlParameters() = mapOf(
         "opphav" to ArenaMigrering.Opphav.MR_ADMIN_FLATE.name,
         "id" to id,
@@ -681,23 +694,5 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             amoKategorisering = stringOrNull("amo_kategorisering_json")?.let { JsonIgnoreUnknownKeys.decodeFromString(it) },
             utdanningslop = utdanningslop,
         )
-    }
-
-    fun frikobleKontaktpersonFraGjennomforing(
-        kontaktpersonId: UUID,
-        gjennomforingId: UUID,
-        tx: Session,
-    ): Either<StatusResponseError, String> {
-        @Language("PostgreSQL")
-        val query = """
-            delete from tiltaksgjennomforing_arrangor_kontaktperson
-            where arrangor_kontaktperson_id = ?::uuid and tiltaksgjennomforing_id = ?::uuid
-        """.trimIndent()
-
-        queryOf(query, kontaktpersonId, gjennomforingId)
-            .asUpdate
-            .let { tx.run(it) }
-
-        return Either.Right(kontaktpersonId.toString())
     }
 }

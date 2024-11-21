@@ -1,12 +1,10 @@
 package no.nav.mulighetsrommet.api.gjennomforing
 
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
@@ -17,7 +15,9 @@ import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.responses.BadRequest
+import no.nav.mulighetsrommet.api.responses.ServerError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.responses.respondWithStatusResponseError
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
@@ -88,13 +88,21 @@ fun Route.tiltaksgjennomforingRoutes() {
             delete("kontaktperson") {
                 val request = call.receive<FrikobleKontaktpersonRequest>()
                 val navIdent = getNavIdent()
-                call.respondWithStatusResponse(
+                try {
                     service.frikobleKontaktpersonFraGjennomforing(
                         kontaktpersonId = request.kontaktpersonId,
                         gjennomforingId = request.dokumentId,
                         navIdent = navIdent,
-                    ),
-                )
+                    )
+                } catch (e: Throwable) {
+                    application.environment.log.error(
+                        "Klarte ikke fjerne kontaktperson fra gjennomføring: $request",
+                        e,
+                    )
+                    call.respondWithStatusResponseError(
+                        ServerError("Klarte ikke fjerne kontaktperson fra gjennomføringen"),
+                    )
+                }
             }
         }
 
