@@ -36,17 +36,17 @@ importers:
         specifier: 11.13.5
         version: 11.13.5(@emotion/react@11.13.5(@types/react@18.3.12)(react@18.3.1))(@types/react@18.3.12)(react@18.3.1)
       '@rjsf/chakra-ui':
-        specifier: 5.22.3
-        version: 5.22.3(ziy7kkaeutjahv3gjptovruuyy)
+        specifier: 5.22.4
+        version: 5.22.4(r6pbke2akuzsrsfhxxfuozfniq)
       '@rjsf/core':
-        specifier: 5.22.3
-        version: 5.22.3(@rjsf/utils@5.22.3(react@18.3.1))(react@18.3.1)
+        specifier: 5.22.4
+        version: 5.22.4(@rjsf/utils@5.22.4(react@18.3.1))(react@18.3.1)
       '@rjsf/utils':
-        specifier: 5.22.3
-        version: 5.22.3(react@18.3.1)
+        specifier: 5.22.4
+        version: 5.22.4(react@18.3.1)
       '@rjsf/validator-ajv8':
-        specifier: 5.22.3
-        version: 5.22.3(@rjsf/utils@5.22.3(react@18.3.1))
+        specifier: 5.22.4
+        version: 5.22.4(@rjsf/utils@5.22.4(react@18.3.1))
       framer-motion:
         specifier: ^11.11.17
         version: 11.11.17(@emotion/is-prop-valid@1.3.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2746,8 +2746,8 @@ packages:
       react: ^18
       react-dom: ^18
 
-  '@rjsf/chakra-ui@5.22.3':
-    resolution: {integrity: sha512-bRweE3eG5mM1Jay36kntLVynz7HN9ExQ8Cu1nH/+rflLMXF9EUwI1N7JxRc7wmE6Qre0sVLLUTSxadY1rpwJzw==}
+  '@rjsf/chakra-ui@5.22.4':
+    resolution: {integrity: sha512-WdqEoeELnhgvnmEiVDH5T+py47+ynH9GjAf6/rTFbMxILK936patT5U4+S2kuj9tnC7Ryn+UA8cNGskwipV6/Q==}
     engines: {node: '>=14'}
     peerDependencies:
       '@chakra-ui/icons': '>=1.1.1'
@@ -2759,21 +2759,21 @@ packages:
       framer-motion: '>=5.6.0'
       react: ^16.14.0 || >=17
 
-  '@rjsf/core@5.22.3':
-    resolution: {integrity: sha512-YVunuas8RyetoPsy/bfkintjMo896APJMmFeYR7fiVQSvANY7Hvc7ySdQ7UmRhtzUyYwDCnplLv01exHpzXCAg==}
+  '@rjsf/core@5.22.4':
+    resolution: {integrity: sha512-0QjAVPXDi/19jR/E44ULDzOkvC4Px5zcZhpGtBFNWNWWmb9UgyjPuvJYga2obzHU46P+5maLvUQEZVAeFwDuqQ==}
     engines: {node: '>=14'}
     peerDependencies:
       '@rjsf/utils': ^5.22.x
       react: ^16.14.0 || >=17
 
-  '@rjsf/utils@5.22.3':
-    resolution: {integrity: sha512-/aWtYX2ruK3x/bGsePc25UEbSsJvLUAMQO1i306RQ3QQzWn4hbyenBfT4iMxh6Kaly6kmKavBlB7knpooCx4OQ==}
+  '@rjsf/utils@5.22.4':
+    resolution: {integrity: sha512-yQTdz5ryiYy258xCVthVPQ3DeaMzrRNrFcO8xvGHorp0/bLUxdTZ0iidXop49m3y8SaxxTZd398ZKWg2cqxiIA==}
     engines: {node: '>=14'}
     peerDependencies:
       react: ^16.14.0 || >=17
 
-  '@rjsf/validator-ajv8@5.22.3':
-    resolution: {integrity: sha512-fHu+oPOckpSHMwKdPCP/h8TtcOJ4I45RxFR//cN1c+um6OtpE/0t9JkVWAtbQlNJffIrzacnJjH5NpGwssxjrA==}
+  '@rjsf/validator-ajv8@5.22.4':
+    resolution: {integrity: sha512-HIMmJpSY9iyN325W/3/l/2Pbt5BAPd9pf0nO+KZuW5dxE0WUThwjIsa104gFJUgig5M3RuKbelX565Qmvfa87A==}
     engines: {node: '>=14'}
     peerDependencies:
       '@rjsf/utils': ^5.22.x
@@ -6970,12 +6970,6 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
 
-  react-select@5.8.2:
-    resolution: {integrity: sha512-a/LkOckoI62710gGPQSQqUp7A10fGbH/ya3/IR49qaq3XoBvwymgD5mJgtiHxBDsutyEQfdKNycWVh8Cg8UCjw==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-
   react-select@5.8.3:
     resolution: {integrity: sha512-lVswnIq8/iTj1db7XCG74M/3fbGB6ZaluCzvwPGT5ZOjCdL/k0CLWhEK0vCBLuU5bHTEf6Gj8jtSvi+3v+tO1w==}
     peerDependencies:
@@ -10976,25 +10970,25 @@ snapshots:
       react-lifecycles-compat: 3.0.4
       react-style-proptype: 3.2.2
 
-  '@rjsf/chakra-ui@5.22.3(ziy7kkaeutjahv3gjptovruuyy)':
+  '@rjsf/chakra-ui@5.22.4(r6pbke2akuzsrsfhxxfuozfniq)':
     dependencies:
       '@chakra-ui/icons': 2.1.1(@chakra-ui/system@2.6.2(@emotion/react@11.13.5(@types/react@18.3.12)(react@18.3.1))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.3.12)(react@18.3.1))(@types/react@18.3.12)(react@18.3.1))(react@18.3.1))(react@18.3.1)
       '@chakra-ui/react': 2.10.3(@emotion/react@11.13.5(@types/react@18.3.12)(react@18.3.1))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.3.12)(react@18.3.1))(@types/react@18.3.12)(react@18.3.1))(@types/react@18.3.12)(framer-motion@11.11.17(@emotion/is-prop-valid@1.3.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@chakra-ui/system': 2.6.2(@emotion/react@11.13.5(@types/react@18.3.12)(react@18.3.1))(@emotion/styled@11.13.5(@emotion/react@11.13.5(@types/react@18.3.12)(react@18.3.1))(@types/react@18.3.12)(react@18.3.1))(react@18.3.1)
-      '@rjsf/core': 5.22.3(@rjsf/utils@5.22.3(react@18.3.1))(react@18.3.1)
-      '@rjsf/utils': 5.22.3(react@18.3.1)
+      '@rjsf/core': 5.22.4(@rjsf/utils@5.22.4(react@18.3.1))(react@18.3.1)
+      '@rjsf/utils': 5.22.4(react@18.3.1)
       chakra-react-select: 4.9.2(lua3slmabkggl3r4jhqlwdsd2u)
       framer-motion: 11.11.17(@emotion/is-prop-valid@1.3.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
-      react-select: 5.8.2(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-select: 5.8.3(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
       - '@types/react'
       - react-dom
       - supports-color
 
-  '@rjsf/core@5.22.3(@rjsf/utils@5.22.3(react@18.3.1))(react@18.3.1)':
+  '@rjsf/core@5.22.4(@rjsf/utils@5.22.4(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@rjsf/utils': 5.22.3(react@18.3.1)
+      '@rjsf/utils': 5.22.4(react@18.3.1)
       lodash: 4.17.21
       lodash-es: 4.17.21
       markdown-to-jsx: 7.5.0(react@18.3.1)
@@ -11002,7 +10996,7 @@ snapshots:
       prop-types: 15.8.1
       react: 18.3.1
 
-  '@rjsf/utils@5.22.3(react@18.3.1)':
+  '@rjsf/utils@5.22.4(react@18.3.1)':
     dependencies:
       json-schema-merge-allof: 0.8.1
       jsonpointer: 5.0.1
@@ -11011,9 +11005,9 @@ snapshots:
       react: 18.3.1
       react-is: 18.3.1
 
-  '@rjsf/validator-ajv8@5.22.3(@rjsf/utils@5.22.3(react@18.3.1))':
+  '@rjsf/validator-ajv8@5.22.4(@rjsf/utils@5.22.4(react@18.3.1))':
     dependencies:
-      '@rjsf/utils': 5.22.3(react@18.3.1)
+      '@rjsf/utils': 5.22.4(react@18.3.1)
       ajv: 8.17.1
       ajv-formats: 2.1.1(ajv@8.17.1)
       lodash: 4.17.21
@@ -16118,23 +16112,6 @@ snapshots:
       use-effect-event: 1.0.2(react@18.3.1)
 
   react-select@5.8.0(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      '@babel/runtime': 7.26.0
-      '@emotion/cache': 11.13.5
-      '@emotion/react': 11.13.5(@types/react@18.3.12)(react@18.3.1)
-      '@floating-ui/dom': 1.6.12
-      '@types/react-transition-group': 4.4.11
-      memoize-one: 6.0.0
-      prop-types: 15.8.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      react-transition-group: 4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      use-isomorphic-layout-effect: 1.1.2(@types/react@18.3.12)(react@18.3.1)
-    transitivePeerDependencies:
-      - '@types/react'
-      - supports-color
-
-  react-select@5.8.2(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.26.0
       '@emotion/cache': 11.13.5
