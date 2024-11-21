@@ -1,0 +1,72 @@
+.container {
+  background-color: white;
+}
+
+.header {
+  padding: var(--a-spacing-6);
+  border-bottom: 1px solid var(--a-border-subtle);
+}
+
+.headerActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--a-spacing-6);
+}
+
+.content {
+  padding: var(--a-spacing-8) var(--a-spacing-6);
+}
+
+.metadatas {
+  margin-top: var(--a-spacing-4);
+  display: flex;
+  justify-content: space-between;
+}
+
+.form {
+  padding: var(--a-spacing-6);
+  border: 1px solid var(--a-border-default);
+  border-radius: 4px;
+}
+
+.formHeader {
+  display: flex;
+  justify-content: space-between;
+}
+
+.formMetadata {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.formMetadataLabels {
+  display: grid;
+  gap: var(--a-spacing-4);
+}
+
+.formContent {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.formContentLeft {
+  padding-right: var(--a-spacing-6);
+}
+
+.formContentRight {
+  border-left: 3px solid var(--a-border-subtle);
+  padding-left: var(--a-spacing-6);
+}
+
+.formTilsagnsStatus {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--a-spacing-1);
+}
+
+
+
+.formDateAndStatus {
+  margin-top: var(--a-spacing-8);
+}

@@ -1,10 +1,11 @@
-import { Alert } from "@navikt/ds-react";
+import { Alert, Heading } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import { useHentTilsagnForTiltaksgjennomforing } from "../../../api/tilsagn/useHentTilsagnForTiltaksgjennomforing";
 import { Laster } from "../../../components/laster/Laster";
 import { InfoContainer } from "../../../components/skjema/InfoContainer";
 import { useGetTiltaksgjennomforingIdFromUrl } from "../../../hooks/useGetTiltaksgjennomforingIdFromUrl";
 import { Tilsagnstabell } from "./Tilsagnstabell";
+import { OpprettTilsagn } from "@/pages/tiltaksgjennomforinger/tilsagn/OpprettTilsagn";
 
 export function TilsagnForGjennomforingContainer() {
   const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFromUrl();
@@ -27,12 +28,16 @@ export function TilsagnForGjennomforingContainer() {
   }
 
   return (
-    <InfoContainer>
-      {tilsagn.length > 0 ? (
-        <Tilsagnstabell tilsagn={tilsagn} />
-      ) : (
-        <Alert variant="info">Det finnes ingen tilsagn for dette tiltaket</Alert>
-      )}
-    </InfoContainer>
+    <>
+      <OpprettTilsagn tilsagn={tilsagn[0]} />
+      <Heading size="large">Aktive tilsagn</Heading>
+      <InfoContainer>
+        {tilsagn.length > 0 ? (
+          <Tilsagnstabell tilsagn={tilsagn} />
+        ) : (
+          <Alert variant="info">Det finnes ingen tilsagn for dette tiltaket</Alert>
+        )}
+      </InfoContainer>
+    </>
   );
 }

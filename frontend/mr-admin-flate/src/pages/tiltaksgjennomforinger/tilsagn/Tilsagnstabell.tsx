@@ -14,6 +14,34 @@ interface ScopedSortState extends SortState {
   orderBy: keyof TilsagnDto;
 }
 
+export function TilsagnStatus(props: { tilsagn: TilsagnDto }) {
+  const { tilsagn } = props;
+
+  if (tilsagn.besluttelse) {
+    return (
+      <>
+        <Tag
+          variant={
+            tilsagn.besluttelse.status === TilsagnBesluttelseStatus.GODKJENT ? "success" : "warning"
+          }
+        >
+          <HStack justify={"space-between"} gap="2" align={"center"}>
+            {besluttelseTilTekst(tilsagn.besluttelse.status)}{" "}
+            <HelpText>
+              {besluttelseTilTekst(tilsagn.besluttelse.status)} den{" "}
+              {formaterDato(tilsagn.besluttelse.tidspunkt)} av {tilsagn.besluttelse.navIdent}
+            </HelpText>
+          </HStack>
+        </Tag>
+      </>
+    );
+  } else if (tilsagn.annullertTidspunkt) {
+    return <Tag variant="neutral"> Annullert</Tag>;
+  } else {
+    return <Tag variant="info">Til beslutning</Tag>;
+  }
+}
+
 export function Tilsagnstabell({ tilsagn }: Props) {
   const { tiltaksgjennomforingId } = useParams();
 
@@ -41,36 +69,6 @@ export function Tilsagnstabell({ tilsagn }: Props) {
       return 1;
     }
     return 0;
-  }
-
-  function TilsagnStatus(props: { tilsagn: TilsagnDto }) {
-    const { tilsagn } = props;
-
-    if (tilsagn.besluttelse) {
-      return (
-        <>
-          <Tag
-            variant={
-              tilsagn.besluttelse.status === TilsagnBesluttelseStatus.GODKJENT
-                ? "success"
-                : "warning"
-            }
-          >
-            <HStack justify={"space-between"} gap="2" align={"center"}>
-              {besluttelseTilTekst(tilsagn.besluttelse.status)}{" "}
-              <HelpText>
-                {besluttelseTilTekst(tilsagn.besluttelse.status)} den{" "}
-                {formaterDato(tilsagn.besluttelse.tidspunkt)} av {tilsagn.besluttelse.navIdent}
-              </HelpText>
-            </HStack>
-          </Tag>
-        </>
-      );
-    } else if (tilsagn.annullertTidspunkt) {
-      return <Tag variant="neutral"> Annullert</Tag>;
-    } else {
-      return <Tag variant="info">Til beslutning</Tag>;
-    }
   }
 
   const sortedData = [...tilsagn].sort((a, b) => {
