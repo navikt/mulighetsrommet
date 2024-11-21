@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingNotificationDto
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.api.routes.v1.EksternTiltaksgjennomforingFilter
@@ -119,10 +118,6 @@ class TiltaksgjennomforingService(
             val data = items.map { dto -> dto.toTiltaksgjennomforingV1Dto() }
             PaginatedResponse.of(pagination, totalCount, data)
         }
-
-    fun getAllGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {
-        return tiltaksgjennomforinger.getAllGjennomforingerSomNarmerSegSluttdato()
-    }
 
     fun setPublisert(id: UUID, publisert: Boolean, navIdent: NavIdent) {
         db.transaction { tx ->
