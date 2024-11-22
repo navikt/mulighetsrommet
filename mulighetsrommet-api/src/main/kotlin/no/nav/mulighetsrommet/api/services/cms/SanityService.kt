@@ -8,15 +8,7 @@ import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
-import no.nav.mulighetsrommet.api.domain.dto.Mutation
-import no.nav.mulighetsrommet.api.domain.dto.SanityEnhet
-import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
-import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforing
-import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforingFields
-import no.nav.mulighetsrommet.api.domain.dto.SanityTiltakstype
-import no.nav.mulighetsrommet.api.domain.dto.SanityTiltakstypeFields
-import no.nav.mulighetsrommet.api.domain.dto.Slug
-import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeRef
+import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.navansatt.SanityNavKontaktperson
 import no.nav.mulighetsrommet.api.navansatt.SanityRedaktor
 import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrift
@@ -362,8 +354,6 @@ class SanityService(
         }
     }
 
-    private suspend fun existsInSanity(sanityId: UUID) = isPublished(sanityId) || isDraft(sanityId)
-
     private suspend fun getSanityId(sanityId: UUID) = if (isPublished(sanityId)) {
         "$sanityId"
     } else if (isDraft(sanityId)) {
@@ -493,7 +483,7 @@ class SanityService(
         val mutations = getTiltakByNavIdent(navIdent)
             .map { tiltak ->
                 Mutation.unsetPatch(
-                    id = tiltak._id.toString(),
+                    id = tiltak._id,
                     unset = listOfNotNull(
                         if (kontaktpersonToDelete != null) {
                             "kontaktpersoner[navKontaktperson._ref == \"${kontaktpersonToDelete._id}\"]"
