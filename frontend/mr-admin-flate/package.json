@@ -21,7 +21,6 @@
   },
   "dependencies": {
     "@amplitude/analytics-browser": "2.11.9",
-    "@eik/rollup-plugin": "4.0.64",
     "@grafana/faro-web-sdk": "1.12.2",
     "@hookform/resolvers": "3.9.1",
     "@mr/api-client": "workspace:*",
