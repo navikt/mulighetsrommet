@@ -42,7 +42,7 @@ export function SetApentForPameldingModal({ modalRef, gjennomforing }: Props) {
       </Modal.Body>
       <Modal.Footer>
         <Button type="button" onClick={() => modalRef.current?.close()}>
-          Ferdig
+          Lukk
         </Button>
       </Modal.Footer>
     </Modal>
