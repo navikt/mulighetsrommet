@@ -5,8 +5,8 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
+  follow-redirects@>=1.15.0 <1.15.9: '>=1.15.9'
   vite@>=4.0.0 <4.5.4: '>=4.5.4'
-  vite@>=4.0.0 <=4.5.3: '>=4.5.4'
   '@sentry/browser@>=8.0.0-alpha.1 <8.33.0': '>=8.33.0'
   cookie@<0.7.0: '>=0.7.0'
   cross-spawn@>=7.0.0 <7.0.5: '>=7.0.5'
@@ -4637,16 +4637,6 @@ packages:
 
   focus-trap@7.6.1:
     resolution: {integrity: sha512-nB8y4nQl8PshahLpGKZOq1sb0xrMVFSn6at7u/qOsBZTlZRzaapISGENcB6mOkoezbClZyiMwEF/dGY8AZ00rA==}
-
-  follow-redirects@1.15.8:
-    resolution: {integrity: sha512-xgrmBhBToVKay1q2Tao5LI26B83UhrB/vM1avwVSDzt8rx3rO6AizBAaF46EgksTVr+rFTQaqZZ9MVBfUe4nig==}
-    engines: {node: '>=4.0'}
-    deprecated: Browser detection issues fixed in v1.15.9
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
 
   follow-redirects@1.15.9:
     resolution: {integrity: sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==}
@@ -13395,10 +13385,6 @@ snapshots:
     dependencies:
       tabbable: 6.2.0
 
-  follow-redirects@1.15.8(debug@4.3.7):
-    optionalDependencies:
-      debug: 4.3.7
-
   follow-redirects@1.15.9(debug@4.3.7):
     optionalDependencies:
       debug: 4.3.7
@@ -13518,7 +13504,7 @@ snapshots:
       '@types/follow-redirects': 1.14.4
       '@types/progress-stream': 2.0.5
       decompress-response: 7.0.0
-      follow-redirects: 1.15.8(debug@4.3.7)
+      follow-redirects: 1.15.9(debug@4.3.7)
       is-retry-allowed: 2.2.0
       progress-stream: 2.0.0
       tunnel-agent: 0.6.0
