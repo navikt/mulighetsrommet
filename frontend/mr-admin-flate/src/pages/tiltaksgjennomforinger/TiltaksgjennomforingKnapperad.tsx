@@ -12,6 +12,7 @@ import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
 import { KnapperadContainer } from "@/pages/KnapperadContainer";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { SetApentForPameldingModal } from "@/components/tiltaksgjennomforinger/SetApentForPameldingModal";
 
 interface Props {
   bruker: NavAnsatt;
@@ -23,6 +24,7 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
   const { mutate } = useMutatePublisert();
   const advarselModal = useRef<HTMLDialogElement>(null);
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
+  const apentForPameldingModalRef = useRef<HTMLDialogElement>(null);
   const { data: enableOpprettTilsagn } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
   );
@@ -73,6 +75,15 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
               >
                 Rediger gjennomføring
               </Dropdown.Menu.GroupedList.Item>
+              {gjennomforingIsAktiv(tiltaksgjennomforing.status.status) && (
+                <Dropdown.Menu.GroupedList.Item
+                  onClick={() => apentForPameldingModalRef.current?.showModal()}
+                >
+                  {tiltaksgjennomforing.apentForPamelding
+                    ? "Steng for påmelding"
+                    : "Åpne for påmelding"}
+                </Dropdown.Menu.GroupedList.Item>
+              )}
               {enableOpprettTilsagn && gjennomforingIsAktiv(tiltaksgjennomforing.status.status) ? (
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => {
@@ -103,6 +114,10 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
             Ja, jeg vil redigere
           </Button>
         }
+      />
+      <SetApentForPameldingModal
+        modalRef={apentForPameldingModalRef}
+        gjennomforing={tiltaksgjennomforing}
       />
       <AvbrytGjennomforingModal
         modalRef={avbrytModalRef}

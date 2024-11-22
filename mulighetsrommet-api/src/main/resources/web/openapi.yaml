@@ -657,6 +657,22 @@ paths:
         200:
           description: Update for 'tilgjengelig for veileder' was successful
 
+  /api/v1/intern/tiltaksgjennomforinger/{id}/apent-for-pamelding:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    put:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: setApentForPamelding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetApentForPameldingRequest"
+      responses:
+        200:
+          description: OK
+
   /api/v1/intern/tiltaksgjennomforinger/{id}/tilgjengelig-for-arrangor:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -2697,8 +2713,6 @@ components:
             type: string
         oppstart:
           $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
-        apentForPamelding:
-          type: boolean
         kontaktpersoner:
           type: array
           items:
@@ -2746,7 +2760,6 @@ components:
         - navRegion
         - navEnheter
         - oppstart
-        - apentForPamelding
         - kontaktpersoner
         - stedForGjennomforing
         - faneinnhold
@@ -4145,6 +4158,14 @@ components:
           type: boolean
       required:
         - publisert
+
+    SetApentForPameldingRequest:
+      type: object
+      properties:
+        apentForPamelding:
+          type: boolean
+      required:
+        - apentForPamelding
 
     SetTilgjengligForArrangorRequest:
       type: object

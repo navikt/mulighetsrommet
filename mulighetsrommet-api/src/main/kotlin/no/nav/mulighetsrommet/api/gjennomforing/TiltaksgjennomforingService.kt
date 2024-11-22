@@ -213,8 +213,16 @@ class TiltaksgjennomforingService(
 
     fun setApentForPamelding(id: UUID, apentForPamelding: Boolean, bruker: EndretAv) = db.transaction { tx ->
         tiltaksgjennomforinger.setApentForPamelding(tx, id, apentForPamelding)
+
         val dto = getOrError(id, tx)
-        logEndring("Stengte for påmelding", dto, bruker, tx)
+        val operation = if (apentForPamelding) {
+            "Åpnet for påmelding"
+        } else {
+            "Stengte for påmelding"
+        }
+        logEndring(operation, dto, bruker, tx)
+
+        tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
     }
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto {
