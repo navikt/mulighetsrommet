@@ -18,8 +18,8 @@ importers:
   frontend/api-client:
     devDependencies:
       '@hey-api/openapi-ts':
-        specifier: 0.54.2
-        version: 0.54.2(typescript@5.6.3)
+        specifier: 0.56.3
+        version: 0.56.3(typescript@5.6.3)
       typescript:
         specifier: 5.6.3
         version: 5.6.3
@@ -2349,8 +2349,8 @@ packages:
   '@grafana/faro-web-sdk@1.12.2':
     resolution: {integrity: sha512-vrMaeyJUEkXvRsO3POQgVfHkmMjFdXGqRnPRR60WsvYh7bDzd4M5B2n44cPN7qL1+pTG70g3CcCSX6Kfr4c34Q==}
 
-  '@hey-api/openapi-ts@0.54.2':
-    resolution: {integrity: sha512-hU/Xf8D5yOSA5JsOkM0x4Sz9jChI0v4JMkkk3sy1Tc3DXbbr+s3uyJngvYoimXOq6ljF/9QSCtrk7z5LXxd64g==}
+  '@hey-api/openapi-ts@0.56.3':
+    resolution: {integrity: sha512-8tXjZJzVD/+S2MGIxsblPtETu9KdmXNPIvWmLnDTNyYNh101gBCu83A1XvSb2kjr7prxxzodcXDxneSUPgagmQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -10427,7 +10427,7 @@ snapshots:
       ua-parser-js: 1.0.39
       web-vitals: 4.2.3
 
-  '@hey-api/openapi-ts@0.54.2(typescript@5.6.3)':
+  '@hey-api/openapi-ts@0.56.3(typescript@5.6.3)':
     dependencies:
       '@apidevtools/json-schema-ref-parser': 11.7.2
       c12: 2.0.1
