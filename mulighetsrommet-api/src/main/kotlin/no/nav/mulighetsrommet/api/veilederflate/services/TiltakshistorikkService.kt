@@ -83,29 +83,29 @@ class TiltakshistorikkService(
     }
 
     private suspend fun toDeltakelse(it: Tiltakshistorikk) = when (it) {
-        is Tiltakshistorikk.ArenaDeltakelse -> it.toDeltakelse()
-        is Tiltakshistorikk.GruppetiltakDeltakelse -> it.toDeltakelse()
-        is Tiltakshistorikk.ArbeidsgiverAvtale -> it.toDeltakelse()
+        is Tiltakshistorikk.ArenaDeltakelse -> toDeltakelse(it)
+        is Tiltakshistorikk.GruppetiltakDeltakelse -> toDeltakelse(it)
+        is Tiltakshistorikk.ArbeidsgiverAvtale -> toDeltakelse(it)
     }
 
-    private suspend fun Tiltakshistorikk.ArenaDeltakelse.toDeltakelse(): Deltakelse.DeltakelseArena = coroutineScope {
-        val tiltakstype = tiltakstypeRepository.getByArenaTiltakskode(arenaTiltakskode)
-        val arrangorNavn = async { getArrangorHovedenhetNavn(arrangor.organisasjonsnummer) }
+    private suspend fun toDeltakelse(deltakelse: Tiltakshistorikk.ArenaDeltakelse): Deltakelse.DeltakelseArena = coroutineScope {
+        val tiltakstype = tiltakstypeRepository.getByArenaTiltakskode(deltakelse.arenaTiltakskode)
+        val arrangorNavn = async { getArrangorHovedenhetNavn(deltakelse.arrangor.organisasjonsnummer) }
 
         val (tittel) = tittelOgUnderTittel(
-            beskrivelse,
+            deltakelse.beskrivelse,
             tiltakstype.navn,
             tiltakstype.arenaKode,
         )
         Deltakelse.DeltakelseArena(
-            id = id,
+            id = deltakelse.id,
             periode = Deltakelse.Periode(
-                startDato = startDato,
-                sluttDato = sluttDato,
+                startDato = deltakelse.startDato,
+                sluttDato = deltakelse.sluttDato,
             ),
             status = Deltakelse.DeltakelseArena.Status(
-                type = status,
-                visningstekst = status.description,
+                type = deltakelse.status,
+                visningstekst = deltakelse.status.description,
             ),
             tittel = tittel.hosTitleCaseArrangor(arrangorNavn.await()),
             tiltakstypeNavn = tiltakstype.navn,
@@ -115,25 +115,25 @@ class TiltakshistorikkService(
         )
     }
 
-    private suspend fun Tiltakshistorikk.GruppetiltakDeltakelse.toDeltakelse() = coroutineScope {
-        val tiltakstype = async { tiltakstypeRepository.getByTiltakskode(gjennomforing.tiltakskode) }
-        val arrangorNavn = async { getArrangorHovedenhetNavn(arrangor.organisasjonsnummer) }
+    private suspend fun toDeltakelse(deltakelse: Tiltakshistorikk.GruppetiltakDeltakelse) = coroutineScope {
+        val tiltakstype = async { tiltakstypeRepository.getByTiltakskode(deltakelse.gjennomforing.tiltakskode) }
+        val arrangorNavn = async { getArrangorHovedenhetNavn(deltakelse.arrangor.organisasjonsnummer) }
 
         val (tittel) = tittelOgUnderTittel(
-            gjennomforing.navn,
+            deltakelse.gjennomforing.navn,
             tiltakstype.await().navn,
-            gjennomforing.tiltakskode,
+            deltakelse.gjennomforing.tiltakskode,
         )
         Deltakelse.DeltakelseGruppetiltak(
-            id = id,
+            id = deltakelse.id,
             periode = Deltakelse.Periode(
-                startDato = startDato,
-                sluttDato = sluttDato,
+                startDato = deltakelse.startDato,
+                sluttDato = deltakelse.sluttDato,
             ),
             status = Deltakelse.DeltakelseGruppetiltak.Status(
-                type = status.type,
-                visningstekst = status.type.description,
-                aarsak = status.aarsak?.description,
+                type = deltakelse.status.type,
+                visningstekst = deltakelse.status.type.description,
+                aarsak = deltakelse.status.aarsak?.description,
             ),
             tittel = tittel.hosTitleCaseArrangor(arrangorNavn.await()),
             tiltakstypeNavn = tiltakstype.await().navn,
@@ -145,12 +145,12 @@ class TiltakshistorikkService(
              * at eierskapet er TEAM_KOMET.
              */
             eierskap = Deltakelse.Eierskap.ARENA,
-            gjennomforingId = gjennomforing.id,
+            gjennomforingId = deltakelse.gjennomforing.id,
         )
     }
 
-    private suspend fun Tiltakshistorikk.ArbeidsgiverAvtale.toDeltakelse(): Deltakelse.DeltakelseArbeidsgiverAvtale {
-        val arenaKode = when (tiltakstype) {
+    private suspend fun toDeltakelse(deltakelse: Tiltakshistorikk.ArbeidsgiverAvtale): Deltakelse.DeltakelseArbeidsgiverAvtale {
+        val arenaKode = when (deltakelse.tiltakstype) {
             Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING -> "ARBTREN"
             Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> "MIDLONTIL"
             Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.VARIG_LONNSTILSKUDD -> "VARLONTIL"
@@ -159,16 +159,16 @@ class TiltakshistorikkService(
             Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.SOMMERJOBB -> "TILSJOBB"
         }
         val tiltakstype = tiltakstypeRepository.getByArenaTiltakskode(arenaKode)
-        val arrangorNavn = getArrangorNavn(arbeidsgiver.organisasjonsnummer)
+        val arrangorNavn = getArrangorNavn(deltakelse.arbeidsgiver.organisasjonsnummer)
         return Deltakelse.DeltakelseArbeidsgiverAvtale(
-            id = avtaleId,
+            id = deltakelse.avtaleId,
             periode = Deltakelse.Periode(
-                startDato = startDato,
-                sluttDato = sluttDato,
+                startDato = deltakelse.startDato,
+                sluttDato = deltakelse.sluttDato,
             ),
             status = Deltakelse.DeltakelseArbeidsgiverAvtale.Status(
-                type = status,
-                visningstekst = status.description,
+                type = deltakelse.status,
+                visningstekst = deltakelse.status.description,
             ),
             tittel = tiltakstype.navn.hosTitleCaseArrangor(arrangorNavn),
             tiltakstypeNavn = tiltakstype.navn,
