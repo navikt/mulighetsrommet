@@ -15,19 +15,18 @@ export function SetApentForPameldingModal({ modalRef, gjennomforing }: Props) {
     <Modal ref={modalRef} header={{ heading: "Åpent for påmelding" }}>
       <Modal.Body>
         <BodyLong>
-          <p>Dette flagget styrer om deltakere kan meldes på fra Modia.</p>
+          <p>Her kan du styre om tiltaket skal være åpent for påmelding i Modia.</p>
 
           <Alert variant={"info"}>
-            <b>Det er kun mulig å stenge for påmelding fra Modia og for AMO i Arena.</b> Hvis
-            deltakelsen fortsatt administreres i Arena (og ikke er AMO) så vil ikke dette flagget ha
-            noen effekt, men det vil likevel vises som stengt i Modia.
+            For tiltak hvor påmelding fortsatt gjøres i Arena, vil det være mulig å melde på
+            deltakere selv om tiltaket vises som stengt i Modia.
           </Alert>
 
           <p>
             Påmelding stenges automatisk av systemet når:
             <ul>
               <li>
-                Tiltak med oppstartstype <b>felles oppstart</b> starter.
+                Tiltak med <b>felles oppstart</b> starter.
               </li>
               <li>Tiltaket avsluttes eller blir avbrutt.</li>
             </ul>

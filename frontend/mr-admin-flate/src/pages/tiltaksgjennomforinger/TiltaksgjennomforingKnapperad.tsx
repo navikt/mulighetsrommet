@@ -79,7 +79,9 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => apentForPameldingModalRef.current?.showModal()}
                 >
-                  Endre synlighet for påmelding
+                  {tiltaksgjennomforing.apentForPamelding
+                    ? "Steng for påmelding"
+                    : "Åpne for påmelding"}
                 </Dropdown.Menu.GroupedList.Item>
               )}
               {enableOpprettTilsagn && gjennomforingIsAktiv(tiltaksgjennomforing.status.status) ? (
