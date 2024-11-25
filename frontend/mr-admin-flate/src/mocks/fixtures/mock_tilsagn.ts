@@ -90,6 +90,7 @@ export const mockTilsagn: TilsagnDto[] = [
     opprettetAv: "F123456",
     besluttelse: {
       navIdent: "N12345",
+      beslutternavn: "Nils Ole Hansen",
       tidspunkt: "2024-01-10",
       status: TilsagnBesluttelseStatus.GODKJENT,
     },
@@ -136,6 +137,7 @@ export const mockTilsagn: TilsagnDto[] = [
     opprettetAv: "B123456",
     besluttelse: {
       navIdent: "N12345",
+      beslutternavn: "Nils Ole Hansen",
       tidspunkt: "2024-01-10",
       status: TilsagnBesluttelseStatus.AVVIST,
       aarsaker: [TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER, TilsagnAvvisningAarsak.FEIL_ANNET],

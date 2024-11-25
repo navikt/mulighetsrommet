@@ -88,16 +88,17 @@ class TilsagnRepositoryTest : FunSpec({
                     aarsaker = listOf(AvvistTilsagnAarsak.FEIL_ANNET),
                     forklaring = "Forklaring",
                 ),
-                navIdent = NavIdent("Z123456"),
+                navIdent = NavAnsattFixture.ansatt1.navIdent,
                 tidspunkt = LocalDateTime.of(2023, 2, 2, 0, 0, 0),
             )
 
             repository.get(tilsagn.id)?.besluttelse shouldBe TilsagnDto.Besluttelse(
-                navIdent = NavIdent("Z123456"),
+                navIdent = NavAnsattFixture.ansatt1.navIdent,
                 tidspunkt = LocalDateTime.of(2023, 2, 2, 0, 0, 0),
                 status = TilsagnBesluttelseStatus.AVVIST,
                 aarsaker = listOf(AvvistTilsagnAarsak.FEIL_ANNET),
                 forklaring = "Forklaring",
+                beslutternavn = "Donald Duck",
             )
         }
 

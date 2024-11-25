@@ -4836,6 +4836,8 @@ components:
       properties:
         navIdent:
           type: string
+        beslutternavn:
+          type: string
         tidspunkt:
           type: string
           format: date-time
@@ -4849,6 +4851,7 @@ components:
           type: string
       required:
         - navIdent
+        - beslutternavn
         - tidspunkt
         - status
 
