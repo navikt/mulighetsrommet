@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
-import no.nav.mulighetsrommet.ktor.exception.StatusException
 import org.junit.jupiter.api.assertThrows
 import java.sql.SQLException
 import java.time.LocalDate

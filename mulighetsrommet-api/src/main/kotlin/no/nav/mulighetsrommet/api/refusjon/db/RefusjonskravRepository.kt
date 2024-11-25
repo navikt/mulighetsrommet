@@ -123,8 +123,7 @@ class RefusjonskravRepository(private val db: Database) {
         tx.batchPreparedNamedStatement(insertManedsverkQuery, manedsverk)
     }
 
-    fun setGodkjentAvArrangor(id: UUID, tidspunkt: LocalDateTime) =
-        db.transaction { setGodkjentAvArrangor(id, tidspunkt, it) }
+    fun setGodkjentAvArrangor(id: UUID, tidspunkt: LocalDateTime) = db.transaction { setGodkjentAvArrangor(id, tidspunkt, it) }
 
     fun setGodkjentAvArrangor(id: UUID, tidspunkt: LocalDateTime, tx: Session) {
         @Language("PostgreSQL")
@@ -139,8 +138,7 @@ class RefusjonskravRepository(private val db: Database) {
             .runWithSession(tx)
     }
 
-    fun setBetalingsInformasjon(id: UUID, kontonummer: Kontonummer, kid: Kid?) =
-        db.transaction { setBetalingsInformasjon(id, kontonummer, kid, it) }
+    fun setBetalingsInformasjon(id: UUID, kontonummer: Kontonummer, kid: Kid?) = db.transaction { setBetalingsInformasjon(id, kontonummer, kid, it) }
 
     fun setBetalingsInformasjon(id: UUID, kontonummer: Kontonummer, kid: Kid?, tx: Session) {
         @Language("PostgreSQL")
@@ -162,9 +160,7 @@ class RefusjonskravRepository(private val db: Database) {
             .runWithSession(tx)
     }
 
-
-    fun setJournalpostId(id: UUID, journalpostId: String) =
-        db.transaction { setJournalpostId(id, journalpostId, it) }
+    fun setJournalpostId(id: UUID, journalpostId: String) = db.transaction { setJournalpostId(id, journalpostId, it) }
 
     fun setJournalpostId(id: UUID, journalpostId: String, tx: Session) {
         @Language("PostgreSQL")

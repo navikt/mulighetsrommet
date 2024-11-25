@@ -137,14 +137,14 @@ class ArrangorflateRoutesTest : FunSpec({
                     journalstatus = "bra",
                     melding = null,
                     journalpostferdigstilt = true,
-                    dokumenter = listOf(DokarkResponseDokument("123"))
+                    dokumenter = listOf(DokarkResponseDokument("123")),
                 ),
             )
         }
 
     fun appConfig(
         requestHandlers: List<Pair<String, suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData>> =
-            listOf(altinnRequestHandler, dokarkRequestHandler)
+            listOf(altinnRequestHandler, dokarkRequestHandler),
     ) = createTestApplicationConfig().copy(
         database = databaseConfig,
         auth = createAuthConfig(oauth, roles = emptyList()),
@@ -255,14 +255,16 @@ class ArrangorflateRoutesTest : FunSpec({
     }
 
     test("feil mot dokark ruller tilbake godkjenning") {
-        withTestApplication(appConfig(
-            listOf(
-                altinnRequestHandler,
-                "/dokark/rest/journalpostapi/v1/journalpost" to {
-                    respondError(HttpStatusCode.InternalServerError)
-                },
-            )
-        )) {
+        withTestApplication(
+            appConfig(
+                listOf(
+                    altinnRequestHandler,
+                    "/dokark/rest/journalpostapi/v1/journalpost" to {
+                        respondError(HttpStatusCode.InternalServerError)
+                    },
+                ),
+            ),
+        ) {
             val client = createClient {
                 install(ContentNegotiation) {
                     json()

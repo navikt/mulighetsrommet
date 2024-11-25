@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.refusjon
 
 import arrow.core.*
-import com.fasterxml.jackson.databind.JsonNode
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.plugins.*
@@ -22,7 +21,6 @@ import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.model.ArrangorflateTilsagn
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
@@ -30,14 +28,11 @@ import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.tokenprovider.AccessType
-import no.nav.pdfgen.core.pdf.createPDFA
 import org.koin.ktor.ext.inject
-import org.slf4j.LoggerFactory
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDateTime
 import java.util.*
-
 
 fun Route.arrangorflateRoutes() {
     val tilsagnService: TilsagnService by inject()
@@ -138,7 +133,7 @@ fun Route.arrangorflateRoutes() {
                     when (result) {
                         is DokarkResult.Error -> throw StatusException(
                             HttpStatusCode.InternalServerError,
-                            "Feilet ved opprettelse av journalpost"
+                            "Feilet ved opprettelse av journalpost",
                         )
                         is DokarkResult.Success -> {
                             refusjonskrav.setJournalpostId(id, result.journalpostId, tx)
