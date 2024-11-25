@@ -225,7 +225,7 @@ class ArrangorRepository(private val db: Database) {
             order by navn
         """.trimIndent()
 
-        val underenheter = queryOf(queryForUnderenheter, arrangor.organisasjonsnummer)
+        val underenheter = queryOf(queryForUnderenheter, arrangor.organisasjonsnummer.value)
             .map { it.toVirksomhetDto() }
             .asList
             .let { db.run(it) }
