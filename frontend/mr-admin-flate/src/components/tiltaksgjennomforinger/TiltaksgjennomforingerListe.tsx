@@ -5,7 +5,7 @@ import styles from "./TiltaksgjennomforingerListe.module.scss";
 import { TiltaksgjennomforingFilter } from "@/api/atoms";
 import { TiltaksgjennomforingDto } from "@mr/api-client";
 import { ReactNode } from "react";
-import { TiltaksgjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
+import { GjennomforingStatusTag } from "@mr/frontend-common";
 
 interface Props {
   filter: Partial<TiltaksgjennomforingFilter>;
@@ -38,7 +38,7 @@ export function TiltaksgjennomforingerListe(props: Props) {
           <li key={gjennomforing.id} className={styles.gjennomforingsliste_element}>
             <BodyShort>{gjennomforing.navn}</BodyShort>
             <BodyShort>{gjennomforing.tiltaksnummer}</BodyShort>
-            <TiltaksgjennomforingStatusMedAarsakTag status={gjennomforing.status} />
+            <GjennomforingStatusTag status={gjennomforing.status.status} />
             {props.action(gjennomforing)}
           </li>
         ))}

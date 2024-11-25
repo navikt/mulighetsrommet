@@ -14,9 +14,9 @@ import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "@/constants";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
-import { TiltaksgjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 import { TiltaksgjennomforingStatus, Toggles } from "@mr/api-client";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 
 function createBrodsmuler(
   tiltaksgjennomforingId: string,
@@ -93,37 +93,34 @@ export function TiltaksgjennomforingPage() {
         <div
           className={classNames(
             headerStyles.header_outer_container,
-            tiltaksgjennomforing?.id
-              ? headerStyles.header_outer_container_forhandsvisningsknapp
-              : null,
+            headerStyles.header_outer_container_forhandsvisningsknapp,
           )}
         >
           <div className={headerStyles.tiltaksnavn_status}>
             <TiltaksgjennomforingIkon />
             <VStack>
               <Heading className={headerStyles.navn} size="large" level="2">
-                {tiltaksgjennomforing?.navn ?? "..."}
+                {tiltaksgjennomforing.navn}
               </Heading>
-              <ShowOpphavValue value={tiltaksgjennomforing?.opphav} />
+              <ShowOpphavValue value={tiltaksgjennomforing.opphav} />
             </VStack>
-            <TiltaksgjennomforingStatusMedAarsakTag status={tiltaksgjennomforing.status} showAvbruttAarsak />
+            <GjennomforingStatusMedAarsakTag status={tiltaksgjennomforing.status} />
             <DupliserTiltak tiltaksgjennomforing={tiltaksgjennomforing} />
           </div>
-          {tiltaksgjennomforing?.id &&
-            [TiltaksgjennomforingStatus.GJENNOMFORES, TiltaksgjennomforingStatus.PLANLAGT].includes(
-              tiltaksgjennomforing.status.status,
-            ) && (
-              <div className={headerStyles.forhandsvisningsknapp}>
-                <Lenkeknapp
-                  size="small"
-                  isExternal={true}
-                  variant="secondary"
-                  to={`${PREVIEW_ARBEIDSMARKEDSTILTAK_URL}/tiltak/${tiltaksgjennomforing.id}`}
-                >
-                  Forhåndsvis i Modia
-                </Lenkeknapp>
-              </div>
-            )}
+          {[TiltaksgjennomforingStatus.GJENNOMFORES, TiltaksgjennomforingStatus.PLANLAGT].includes(
+            tiltaksgjennomforing.status.status,
+          ) && (
+            <div className={headerStyles.forhandsvisningsknapp}>
+              <Lenkeknapp
+                size="small"
+                isExternal={true}
+                variant="secondary"
+                to={`${PREVIEW_ARBEIDSMARKEDSTILTAK_URL}/tiltak/${tiltaksgjennomforing.id}`}
+              >
+                Forhåndsvis i Modia
+              </Lenkeknapp>
+            </div>
+          )}
         </div>
       </Header>
 
