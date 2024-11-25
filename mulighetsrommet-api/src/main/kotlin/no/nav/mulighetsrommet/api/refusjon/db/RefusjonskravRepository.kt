@@ -123,7 +123,10 @@ class RefusjonskravRepository(private val db: Database) {
         tx.batchPreparedNamedStatement(insertManedsverkQuery, manedsverk)
     }
 
-    fun setGodkjentAvArrangor(id: UUID, tidspunkt: LocalDateTime) {
+    fun setGodkjentAvArrangor(id: UUID, tidspunkt: LocalDateTime) =
+        db.transaction { setGodkjentAvArrangor(id, tidspunkt, it) }
+
+    fun setGodkjentAvArrangor(id: UUID, tidspunkt: LocalDateTime, tx: Session) {
         @Language("PostgreSQL")
         val query = """
             update refusjonskrav
@@ -133,10 +136,13 @@ class RefusjonskravRepository(private val db: Database) {
 
         queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt))
             .asUpdate
-            .let { db.run(it) }
+            .runWithSession(tx)
     }
 
-    fun setBetalingsInformasjon(id: UUID, kontonummer: Kontonummer, kid: Kid?) {
+    fun setBetalingsInformasjon(id: UUID, kontonummer: Kontonummer, kid: Kid?) =
+        db.transaction { setBetalingsInformasjon(id, kontonummer, kid, it) }
+
+    fun setBetalingsInformasjon(id: UUID, kontonummer: Kontonummer, kid: Kid?, tx: Session) {
         @Language("PostgreSQL")
         val query = """
             update refusjonskrav
@@ -153,7 +159,27 @@ class RefusjonskravRepository(private val db: Database) {
             ),
         )
             .asUpdate
-            .let { db.run(it) }
+            .runWithSession(tx)
+    }
+
+
+    fun setJournalpostId(id: UUID, journalpostId: String) =
+        db.transaction { setJournalpostId(id, journalpostId, it) }
+
+    fun setJournalpostId(id: UUID, journalpostId: String, tx: Session) {
+        @Language("PostgreSQL")
+        val query = """
+            update refusjonskrav
+            set journalpost_id = :journalpost_id
+            where id = :id::uuid
+        """.trimIndent()
+
+        queryOf(
+            query,
+            mapOf("id" to id, "journalpost_id" to journalpostId),
+        )
+            .asUpdate
+            .runWithSession(tx)
     }
 
     fun get(id: UUID) = db.transaction {

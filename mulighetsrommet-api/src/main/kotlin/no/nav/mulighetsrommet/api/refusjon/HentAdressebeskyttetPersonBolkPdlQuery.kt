@@ -44,7 +44,8 @@ class HentAdressebeskyttetPersonBolkPdlQuery(
             """.trimIndent(),
             variables = GraphqlRequest.Identer(identer),
         )
-        return pdl.graphqlRequest<GraphqlRequest.Identer, HentPersonBolkResponse>(request, AccessType.M2M)
+        return pdl
+            .graphqlRequest<GraphqlRequest.Identer, HentPersonBolkResponse>(request, AccessType.M2M)
             .map { response ->
                 response.hentPersonBolk
                     .mapNotNull {

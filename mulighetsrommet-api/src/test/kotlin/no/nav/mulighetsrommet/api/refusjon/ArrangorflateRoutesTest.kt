@@ -194,9 +194,9 @@ class ArrangorflateRoutesTest : FunSpec({
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(
-                    GodkjennRefusjonskravAft(
+                    GodkjennRefusjonskrav(
                         digest = "d3b07384d113edec49eaa6238ad5ff00",
-                        betalingsinformasjon = GodkjennRefusjonskravAft.Betalingsinformasjon(
+                        betalingsinformasjon = GodkjennRefusjonskrav.Betalingsinformasjon(
                             kontonummer = Kontonummer("12312312312"),
                             kid = null,
                         ),
@@ -218,9 +218,9 @@ class ArrangorflateRoutesTest : FunSpec({
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(
-                    GodkjennRefusjonskravAft(
+                    GodkjennRefusjonskrav(
                         digest = krav.beregning.getDigest(),
-                        betalingsinformasjon = GodkjennRefusjonskravAft.Betalingsinformasjon(
+                        betalingsinformasjon = GodkjennRefusjonskrav.Betalingsinformasjon(
                             kontonummer = Kontonummer("12312312312"),
                             kid = null,
                         ),
