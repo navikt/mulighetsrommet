@@ -5,30 +5,19 @@ import io.ktor.server.plugins.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
-import no.nav.mulighetsrommet.api.domain.dto.*
+import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.services.cms.CacheUsage
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.TiltaksnavnUtils.tittelOgUnderTittel
 import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakRepository
-import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrift
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangor
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangorKontaktperson
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateInnsatsgruppe
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateKontaktinfo
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateKontaktinfoTiltaksansvarlig
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltak
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEgenRegi
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakstype
+import no.nav.mulighetsrommet.api.veilederflate.models.*
 import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForPamelding
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
 import java.util.*
 
 class VeilederflateService(
@@ -82,7 +71,14 @@ class VeilederflateService(
         }
 
         val gruppeGjennomforinger = async {
-            hentGruppetiltak(enheter, tiltakstypeIds, innsatsgruppe, apentForPamelding, search, erSykmeldtMedArbeidsgiver)
+            hentGruppetiltak(
+                enheter,
+                tiltakstypeIds,
+                innsatsgruppe,
+                apentForPamelding,
+                search,
+                erSykmeldtMedArbeidsgiver,
+            )
         }
 
         (individuelleGjennomforinger.await() + gruppeGjennomforinger.await())
@@ -211,10 +207,7 @@ class VeilederflateService(
             )
         }
 
-        val status = TiltaksgjennomforingStatusDto(
-            status = TiltaksgjennomforingStatus.GJENNOMFORES,
-            avbrutt = null,
-        )
+        val status = TiltaksgjennomforingStatus.GJENNOMFORES
         val (tittel, underTittel) = tittelOgUnderTittel(
             navn = gjennomforing.tiltaksgjennomforingNavn ?: "",
             tiltakstypeNavn = tiltakstype.navn,
