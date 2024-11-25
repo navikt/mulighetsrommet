@@ -1,5 +1,5 @@
 import { TiltaksgjennomforingDto } from "@mr/api-client";
-import { TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
+import { GjennomforingStatusTag } from "@mr/frontend-common";
 import { Box, BoxProps, HGrid } from "@navikt/ds-react";
 import { formaterDato } from "../../utils/Utils";
 import { Metadata } from "../detaljside/Metadata";
@@ -30,7 +30,7 @@ export function TiltakDetaljerForTilsagn({ tiltaksgjennomforing, borderWidth = "
           <Metadata header="Antall plasser" verdi={tiltaksgjennomforing.antallPlasser} />
           <Metadata
             header="Status"
-            verdi={<TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} />}
+            verdi={<GjennomforingStatusTag status={tiltaksgjennomforing.status.status} />}
           />
         </HGrid>
       </Box>
