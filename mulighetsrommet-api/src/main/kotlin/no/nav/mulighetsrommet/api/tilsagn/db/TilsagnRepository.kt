@@ -254,7 +254,7 @@ class TilsagnRepository(private val db: Database) {
                     aarsaker = avvisteAarsaker,
                     forklaring = avvistForklaring,
                     tidspunkt = localDateTime("besluttet_tidspunkt"),
-                    beslutternavn = string("beslutternavn")
+                    beslutternavn = string("beslutternavn"),
                 )
             },
             annullertTidspunkt = localDateTimeOrNull("annullert_tidspunkt"),

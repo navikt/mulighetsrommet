@@ -98,7 +98,7 @@ class TilsagnRepositoryTest : FunSpec({
                 status = TilsagnBesluttelseStatus.AVVIST,
                 aarsaker = listOf(AvvistTilsagnAarsak.FEIL_ANNET),
                 forklaring = "Forklaring",
-                beslutternavn = "Donald Duck"
+                beslutternavn = "Donald Duck",
             )
         }
 
