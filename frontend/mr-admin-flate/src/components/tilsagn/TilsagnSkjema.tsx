@@ -1,4 +1,5 @@
 import { useKostnadssted } from "@/api/enhet/useKostnadssted";
+import { addYear } from "@/utils/Utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ApiError, TilsagnDto, TilsagnRequest, TiltaksgjennomforingDto } from "@mr/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common";
@@ -6,7 +7,6 @@ import { Alert, BodyShort, Button, DatePicker, HGrid, HStack } from "@navikt/ds-
 import { UseMutationResult } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { addYear } from "../../utils/Utils";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { FormGroup } from "../skjema/FormGroup";
 import { AFTBeregningSkjema } from "./AFTBeregningSkjema";

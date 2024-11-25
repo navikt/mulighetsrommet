@@ -24,11 +24,11 @@ import {
   VeilederflateTiltakstype,
 } from "@mr/api-client";
 import { InlineErrorBoundary, TilbakemeldingsLenke, useTitle } from "@mr/frontend-common";
-import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { Chat2Icon } from "@navikt/aksel-icons";
 import { Alert, Button } from "@navikt/ds-react";
 import { useAtomValue } from "jotai";
 import {
+  isTiltakAktivt,
   isTiltakGruppe,
   useModiaArbeidsmarkedstiltakById,
 } from "@/api/queries/useArbeidsmarkedstiltakById";
@@ -108,18 +108,16 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </Button>
             )}
 
-            {gjennomforingIsAktiv(tiltak.status.status) ? (
-              <PameldingKometApnerSnart tiltak={tiltak} />
-            ) : null}
+            {isTiltakAktivt(tiltak) ? <PameldingKometApnerSnart tiltak={tiltak} /> : null}
 
-            {isTiltakGruppe(tiltak) && gjennomforingIsAktiv(tiltak.status.status) ? (
+            {isTiltakGruppe(tiltak) && isTiltakAktivt(tiltak) ? (
               <PameldingForGruppetiltak
                 brukerHarRettPaaValgtTiltak={brukerHarRettPaaValgtTiltak}
                 tiltak={tiltak}
               />
             ) : null}
 
-            {brukerdata.erUnderOppfolging && gjennomforingIsAktiv(tiltak.status.status) ? (
+            {brukerdata.erUnderOppfolging && isTiltakAktivt(tiltak) ? (
               <DelMedBruker
                 delMedBrukerInfo={delMedBrukerInfo ?? undefined}
                 veiledernavn={resolveName(veilederdata)}

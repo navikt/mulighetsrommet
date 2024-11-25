@@ -3,19 +3,16 @@ package no.nav.mulighetsrommet.api.veilederflate
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.veilederflate.models.EstimertVentetid
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangor
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangorKontaktperson
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateKontaktinfo
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateKontaktinfoTiltaksansvarlig
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakstype
+import no.nav.mulighetsrommet.api.veilederflate.models.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isKursTiltak
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
+import no.nav.mulighetsrommet.domain.dto.Personopplysning
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
 import org.intellij.lang.annotations.Language
 import java.util.*
 
@@ -89,9 +86,6 @@ class VeilederflateTiltakRepository(private val db: Database) {
             ?.let { Json.decodeFromString<List<VeilederflateArrangorKontaktperson>>(it) }
             ?: emptyList()
 
-        val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
-        val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
-
         val tiltakstypeNavn = string("tiltakstype_navn")
         val tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) }
         val navn = string("navn")
@@ -139,14 +133,7 @@ class VeilederflateTiltakRepository(private val db: Database) {
             personopplysningerSomKanBehandles = personopplysningerSomKanBehandles,
             status = TiltaksgjennomforingStatusDto(
                 TiltaksgjennomforingStatus.valueOf(string("status")),
-                avbruttTidspunkt?.let {
-                    requireNotNull(avbruttAarsak)
-                    AvbruttDto(
-                        tidspunkt = avbruttTidspunkt,
-                        aarsak = avbruttAarsak,
-                        beskrivelse = avbruttAarsak.beskrivelse,
-                    )
-                },
+                null,
             ),
         )
     }

@@ -9,7 +9,6 @@ import {
 import { Alert, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { OpenAPI, SorteringTiltaksgjennomforinger } from "@mr/api-client";
-import { TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
@@ -22,6 +21,7 @@ import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import styles from "./Tabell.module.scss";
 import { APPLICATION_NAME } from "@/constants";
 import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
+import { GjennomforingStatusTag } from "@mr/frontend-common";
 
 const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: boolean }) => {
   return skjul ? null : <>{children}</>;
@@ -266,7 +266,7 @@ export function TiltaksgjennomforingsTabell({
 
                       <SkjulKolonne skjul={!!skjulKolonner?.status}>
                         <Table.DataCell>
-                          <TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} />
+                          <GjennomforingStatusTag status={tiltaksgjennomforing.status.status} />
                         </Table.DataCell>
                       </SkjulKolonne>
                       <Table.DataCell>
