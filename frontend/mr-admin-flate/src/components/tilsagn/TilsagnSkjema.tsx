@@ -2,17 +2,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
 import { InferredOpprettTilsagnSchema, OpprettTilsagnSchema } from "./OpprettTilsagnSchema";
 import { useEffect } from "react";
-import { HGrid, DatePicker, BodyShort, Alert, HStack, Button, Box } from "@navikt/ds-react";
-import { addYear, formaterDato } from "../../utils/Utils";
+import { Alert, BodyShort, Box, Button, DatePicker, HGrid, HStack } from "@navikt/ds-react";
+import { addYear, formaterDato } from "@/utils/Utils";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { FormGroup } from "../skjema/FormGroup";
 import { ApiError, TilsagnDto, TilsagnRequest, TiltaksgjennomforingDto } from "@mr/api-client";
 import { UseMutationResult } from "@tanstack/react-query";
 import { AFTBeregningSkjema } from "./AFTBeregningSkjema";
 import { FriBeregningSkjema } from "./FriBeregningSkjema";
-import { ControlledSokeSelect, TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
+import { ControlledSokeSelect } from "@mr/frontend-common";
 import { Metadata } from "../detaljside/Metadata";
 import { useKostnadssted } from "@/api/enhet/useKostnadssted";
+import { GjennomforingStatusTag } from "@mr/frontend-common";
 
 interface Props {
   tiltaksgjennomforing: TiltaksgjennomforingDto;
@@ -80,7 +81,7 @@ export function TilsagnSkjema({
             <Metadata header="Antall plasser" verdi={tiltaksgjennomforing.antallPlasser} />
             <Metadata
               header="Status"
-              verdi={<TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} />}
+              verdi={<GjennomforingStatusTag status={tiltaksgjennomforing.status.status} />}
             />
           </HGrid>
         </Box>
