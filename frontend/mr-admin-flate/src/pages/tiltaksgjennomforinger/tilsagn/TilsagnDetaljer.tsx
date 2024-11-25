@@ -17,7 +17,6 @@ import {
   TilsagnDto,
 } from "@mr/api-client";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
 import {
   ActionMenu,
@@ -36,7 +35,6 @@ import { TiltakDetaljerForTilsagn } from "../../../components/tilsagn/TiltakDeta
 import { AvvistDetaljer } from "./AvvistDetaljer";
 import { AvvisTilsagnModal } from "./AvvisTilsagnModal";
 import { useGetTilsagnById } from "./useGetTilsagnById";
-import { DetaljerContainer } from "../../DetaljerContainer";
 
 export function TilsagnDetaljer() {
   const { avtaleId, tiltaksgjennomforingId } = useParams();

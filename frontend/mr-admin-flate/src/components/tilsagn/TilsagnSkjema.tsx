@@ -1,18 +1,17 @@
+import { useKostnadssted } from "@/api/enhet/useKostnadssted";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormProvider, useForm } from "react-hook-form";
-import { InferredOpprettTilsagnSchema, OpprettTilsagnSchema } from "./OpprettTilsagnSchema";
+import { ApiError, TilsagnDto, TilsagnRequest, TiltaksgjennomforingDto } from "@mr/api-client";
+import { ControlledSokeSelect } from "@mr/frontend-common";
+import { Alert, BodyShort, Button, DatePicker, HGrid, HStack } from "@navikt/ds-react";
+import { UseMutationResult } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { HGrid, DatePicker, BodyShort, Alert, HStack, Button, Box } from "@navikt/ds-react";
-import { addYear, formaterDato } from "../../utils/Utils";
+import { FormProvider, useForm } from "react-hook-form";
+import { addYear } from "../../utils/Utils";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { FormGroup } from "../skjema/FormGroup";
-import { ApiError, TilsagnDto, TilsagnRequest, TiltaksgjennomforingDto } from "@mr/api-client";
-import { UseMutationResult } from "@tanstack/react-query";
 import { AFTBeregningSkjema } from "./AFTBeregningSkjema";
 import { FriBeregningSkjema } from "./FriBeregningSkjema";
-import { ControlledSokeSelect, TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
-import { Metadata } from "../detaljside/Metadata";
-import { useKostnadssted } from "@/api/enhet/useKostnadssted";
+import { InferredOpprettTilsagnSchema, OpprettTilsagnSchema } from "./OpprettTilsagnSchema";
 import { TiltakDetaljerForTilsagn } from "./TiltakDetaljerForTilsagn";
 
 interface Props {
