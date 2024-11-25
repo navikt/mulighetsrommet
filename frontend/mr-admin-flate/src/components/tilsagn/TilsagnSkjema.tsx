@@ -13,6 +13,7 @@ import { FriBeregningSkjema } from "./FriBeregningSkjema";
 import { ControlledSokeSelect, TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
 import { Metadata } from "../detaljside/Metadata";
 import { useKostnadssted } from "@/api/enhet/useKostnadssted";
+import { TiltakDetaljerForTilsagn } from "./TiltakDetaljerForTilsagn";
 
 interface Props {
   tiltaksgjennomforing: TiltaksgjennomforingDto;
@@ -67,23 +68,7 @@ export function TilsagnSkjema({
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Box borderColor="border-subtle" padding="4" borderWidth="1" borderRadius="medium">
-          <HGrid columns="2fr 2fr 1fr 1fr 1fr 1fr 1fr">
-            <Metadata header="Tiltaksnavn" verdi={tiltaksgjennomforing.navn} />
-            <Metadata
-              header="Arrangør"
-              verdi={`${tiltaksgjennomforing.arrangor.navn} - ${tiltaksgjennomforing.arrangor.organisasjonsnummer}`}
-            />
-            <Metadata header="Tiltaksnummer" verdi={tiltaksgjennomforing.tiltaksnummer} />
-            <Metadata header="Startdato" verdi={formaterDato(tiltaksgjennomforing.startDato)} />
-            <Metadata header="Sluttdato" verdi={formaterDato(tiltaksgjennomforing.startDato)} />
-            <Metadata header="Antall plasser" verdi={tiltaksgjennomforing.antallPlasser} />
-            <Metadata
-              header="Status"
-              verdi={<TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} />}
-            />
-          </HGrid>
-        </Box>
+        <TiltakDetaljerForTilsagn tiltaksgjennomforing={tiltaksgjennomforing} />
         <FormGroup>
           <DatePicker>
             <HGrid columns={2} gap={"2"}>
