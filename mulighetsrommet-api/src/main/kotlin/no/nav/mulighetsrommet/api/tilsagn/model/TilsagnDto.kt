@@ -42,6 +42,7 @@ data class TilsagnDto(
     @Serializable
     data class Besluttelse(
         val navIdent: NavIdent,
+        val beslutternavn: String,
         @Serializable(with = LocalDateTimeSerializer::class)
         val tidspunkt: LocalDateTime?,
         val status: TilsagnBesluttelseStatus,
