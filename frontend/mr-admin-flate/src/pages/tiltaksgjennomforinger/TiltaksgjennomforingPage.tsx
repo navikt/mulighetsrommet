@@ -14,9 +14,10 @@ import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "@/constants";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
-import { TiltaksgjennomforingStatus, Toggles } from "@mr/api-client";
+import { Toggles } from "@mr/api-client";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
+import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 
 function createBrodsmuler(
   tiltaksgjennomforingId: string,
@@ -107,9 +108,7 @@ export function TiltaksgjennomforingPage() {
             <GjennomforingStatusMedAarsakTag status={tiltaksgjennomforing.status} />
             <DupliserTiltak tiltaksgjennomforing={tiltaksgjennomforing} />
           </div>
-          {[TiltaksgjennomforingStatus.GJENNOMFORES, TiltaksgjennomforingStatus.PLANLAGT].includes(
-            tiltaksgjennomforing.status.status,
-          ) && (
+          {gjennomforingIsAktiv(tiltaksgjennomforing.status.status) && (
             <div className={headerStyles.forhandsvisningsknapp}>
               <Lenkeknapp
                 size="small"
