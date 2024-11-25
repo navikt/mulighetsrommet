@@ -7,7 +7,7 @@ interface Props {
   showAvbruttAarsak?: boolean;
 }
 
-export function TiltaksgjennomforingStatusTag({
+export function TiltaksgjennomforingStatusMedAarsakTag({
   status,
   showAvbruttAarsak = false,
 }: Props) {

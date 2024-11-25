@@ -14,7 +14,7 @@ import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "@/constants";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
-import { TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
+import { TiltaksgjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 import { TiltaksgjennomforingStatus, Toggles } from "@mr/api-client";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
@@ -106,7 +106,7 @@ export function TiltaksgjennomforingPage() {
               </Heading>
               <ShowOpphavValue value={tiltaksgjennomforing?.opphav} />
             </VStack>
-            <TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} showAvbruttAarsak />
+            <TiltaksgjennomforingStatusMedAarsakTag status={tiltaksgjennomforing.status} showAvbruttAarsak />
             <DupliserTiltak tiltaksgjennomforing={tiltaksgjennomforing} />
           </div>
           {tiltaksgjennomforing?.id &&

@@ -10,7 +10,7 @@ import { ApiError, TilsagnDto, TilsagnRequest, TiltaksgjennomforingDto } from "@
 import { UseMutationResult } from "@tanstack/react-query";
 import { AFTBeregningSkjema } from "./AFTBeregningSkjema";
 import { FriBeregningSkjema } from "./FriBeregningSkjema";
-import { ControlledSokeSelect, TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
+import { ControlledSokeSelect, TiltaksgjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 import { Metadata } from "../detaljside/Metadata";
 import { useKostnadssted } from "@/api/enhet/useKostnadssted";
 
@@ -80,7 +80,7 @@ export function TilsagnSkjema({
             <Metadata header="Antall plasser" verdi={tiltaksgjennomforing.antallPlasser} />
             <Metadata
               header="Status"
-              verdi={<TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} />}
+              verdi={<TiltaksgjennomforingStatusMedAarsakTag status={tiltaksgjennomforing.status} />}
             />
           </HGrid>
         </Box>

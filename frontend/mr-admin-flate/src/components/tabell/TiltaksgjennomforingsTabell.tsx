@@ -9,7 +9,7 @@ import {
 import { Alert, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { OpenAPI, SorteringTiltaksgjennomforinger } from "@mr/api-client";
-import { TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
+import { TiltaksgjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
@@ -266,7 +266,7 @@ export function TiltaksgjennomforingsTabell({
 
                       <SkjulKolonne skjul={!!skjulKolonner?.status}>
                         <Table.DataCell>
-                          <TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} />
+                          <TiltaksgjennomforingStatusMedAarsakTag status={tiltaksgjennomforing.status} />
                         </Table.DataCell>
                       </SkjulKolonne>
                       <Table.DataCell>

@@ -1,5 +1,5 @@
 import { VeilederflateTiltak } from "@mr/api-client";
-import { TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
+import { TiltaksgjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { BodyLong, Heading, HStack, VStack } from "@navikt/ds-react";
 import styles from "./TiltakHeader.module.scss";
@@ -22,7 +22,7 @@ export function TiltakHeader({ tiltak }: Props) {
           </VStack>
         </Heading>
         {!gjennomforingIsAktiv(tiltak.status.status) && (
-          <TiltaksgjennomforingStatusTag status={tiltak.status} />
+          <TiltaksgjennomforingStatusMedAarsakTag status={tiltak.status} />
         )}
       </HStack>
       {tiltakstype.beskrivelse && (
