@@ -186,6 +186,24 @@ class ArrangorRepositoryTest : FunSpec({
                 it.items[0] shouldBe underenhet
             }
         }
+
+        test("getByHovedenhet") {
+            val hovedenhet = ArrangorFixtures.hovedenhet
+            val underenhet = ArrangorFixtures.underenhet1
+
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(hovedenhet, underenhet),
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+                avtaler = listOf(AvtaleFixtures.oppfolging),
+                gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1),
+            ).initialize(database.db)
+
+            val arrangorRepository = ArrangorRepository(database.db)
+
+            arrangorRepository.getHovedenhetBy(hovedenhet.id).should {
+                it.underenheter?.map { it.id } shouldContainExactlyInAnyOrder listOf(underenhet.id)
+            }
+        }
     }
 
     context("kontaktperson hos arrangør") {
