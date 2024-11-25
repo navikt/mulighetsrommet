@@ -3497,7 +3497,7 @@ components:
         tiltaksnummer:
           type: string
         status:
-          $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
+          $ref: "#/components/schemas/VeilederflateTiltakStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -3558,7 +3558,7 @@ components:
         tiltaksnummer:
           type: string
         status:
-          $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
+          $ref: "#/components/schemas/VeilederflateTiltakStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -3594,7 +3594,7 @@ components:
         tiltakstype:
           $ref: "#/components/schemas/VeilederflateTiltakstype"
         status:
-          $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
+          $ref: "#/components/schemas/VeilederflateTiltakStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -3632,7 +3632,7 @@ components:
         tiltaksnummer:
           type: string
         status:
-          $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
+          $ref: "#/components/schemas/VeilederflateTiltakStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -3662,6 +3662,11 @@ components:
         - tittel
         - underTittel
         - arrangor
+
+    VeilederflateTiltakStatus:
+      oneOf:
+        - $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
+        - $ref: "#/components/schemas/TiltaksgjennomforingStatus"
 
     RegelverkLenke:
       type: object
