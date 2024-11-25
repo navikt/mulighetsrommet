@@ -30,4 +30,4 @@ from tilsagn
          inner join nav_enhet on nav_enhet.enhetsnummer = tilsagn.kostnadssted
          inner join arrangor on arrangor.id = tilsagn.arrangor_id
          inner join tiltaksgjennomforing t on t.id = tilsagn.tiltaksgjennomforing_id
-         inner join nav_ansatt on nav_ansatt.nav_ident = tilsagn.besluttet_av
+         left join nav_ansatt on nav_ansatt.nav_ident = tilsagn.besluttet_av
