@@ -136,8 +136,13 @@ fun Route.arrangorflateRoutes() {
                         AccessType.M2M,
                     )
                     when (result) {
-                        is DokarkResult.Error -> ServerError()
-                        is DokarkResult.Success -> refusjonskrav.setJournalpostId(id, result.journalpostId)
+                        is DokarkResult.Error -> throw StatusException(
+                            HttpStatusCode.InternalServerError,
+                            "Feilet ved opprettelse av journalpost"
+                        )
+                        is DokarkResult.Success -> {
+                            refusjonskrav.setJournalpostId(id, result.journalpostId, tx)
+                        }
                     }
                 }
 
@@ -157,7 +162,7 @@ fun Route.arrangorflateRoutes() {
                 )
 
                 val refusjonsKravAft = toRefusjonskrav(pdl, deltakerRepository, krav)
-                val pdf = Pdfgen.refusjonJournalpost(refusjonsKravAft, tilsagn)
+                val pdf = Pdfgen.refusjonKvittering(refusjonsKravAft, tilsagn)
 
                 call.response.headers.append(
                     "Content-Disposition",
