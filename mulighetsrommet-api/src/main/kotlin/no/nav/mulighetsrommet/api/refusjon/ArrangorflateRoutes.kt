@@ -378,6 +378,7 @@ fun refusjonskravJournalpost(
     ),
     eksternReferanseId = refusjonskravId.toString(),
     journalfoerendeEnhet = "9999", // Automatisk journalføring
+    kanal = "NAV_NO", // Påkrevd for INNGAENDE. Se https://confluence.adeo.no/display/BOA/Mottakskanal
     sak = null,
     bruker = null,
     behandlingstema = null,

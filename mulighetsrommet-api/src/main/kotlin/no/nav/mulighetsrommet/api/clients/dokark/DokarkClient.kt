@@ -75,6 +75,7 @@ data class Journalpost(
     val eksternReferanseId: String,
     val journalfoerendeEnhet: String,
     val journalposttype: String,
+    val kanal: String,
     val sak: Sak?,
 ) {
     @Serializable
