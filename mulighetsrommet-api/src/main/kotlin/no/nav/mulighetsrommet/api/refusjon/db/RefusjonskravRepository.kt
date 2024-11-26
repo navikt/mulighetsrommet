@@ -276,6 +276,7 @@ class RefusjonskravRepository(private val db: Database) {
                 kontonummer = stringOrNull("kontonummer")?.let { Kontonummer(it) },
                 kid = stringOrNull("kid")?.let { Kid(it) },
             ),
+            journalpostId = stringOrNull("journalpost_id"),
         )
     }
 
