@@ -2,38 +2,23 @@ import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAnnullerTilsagn } from "@/api/tilsagn/useAnnullerTilsagn";
 import { useBesluttTilsagn } from "@/api/tilsagn/useBesluttTilsagn";
 import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
-import { Bolk } from "@/components/detaljside/Bolk";
 import { Header } from "@/components/detaljside/Header";
-import { Metadata, Separator } from "@/components/detaljside/Metadata";
+import { Separator } from "@/components/detaljside/Metadata";
 import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
 import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
-import { formaterDato } from "@/utils/Utils";
-import {
-  BesluttTilsagnRequest,
-  NavAnsattRolle,
-  TilsagnBesluttelseStatus,
-  TilsagnDto,
-} from "@mr/api-client";
+import { BesluttTilsagnRequest, NavAnsattRolle, TilsagnBesluttelseStatus } from "@mr/api-client";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
-import {
-  ActionMenu,
-  Alert,
-  BodyShort,
-  Box,
-  Button,
-  Heading,
-  HStack,
-  Tag,
-  VStack,
-} from "@navikt/ds-react";
+import { ActionMenu, Alert, BodyShort, Box, Button, Heading, HStack } from "@navikt/ds-react";
 import { useRef, useState } from "react";
 import { Link, useMatch, useNavigate, useParams } from "react-router-dom";
 import { TiltakDetaljerForTilsagn } from "../../../components/tilsagn/TiltakDetaljerForTilsagn";
+import { AFTTilsagnDetaljer } from "./AFTTilsagnDetaljer";
 import { AvvistDetaljer } from "./AvvistDetaljer";
 import { AvvisTilsagnModal } from "./AvvisTilsagnModal";
+import { TilsagnTag } from "./TilsagnTag";
 import { useGetTilsagnById } from "./useGetTilsagnById";
 
 export function TilsagnDetaljer() {
@@ -174,36 +159,7 @@ export function TilsagnDetaljer() {
             borderRadius={"medium"}
             padding={"2"}
           >
-            <div>
-              <HStack justify={"space-between"} align={"baseline"} padding={"5"}>
-                <Heading size="medium" level="3" spacing>
-                  Tilsagn
-                </Heading>
-              </HStack>
-              <VStack padding="5">
-                <Heading size="small" level="4">
-                  Periode og plasser
-                </Heading>
-                <Bolk>
-                  <Metadata header="Dato fra" verdi={formaterDato(tilsagn.periodeStart)} />
-                  <Metadata header="Dato til" verdi={formaterDato(tilsagn.periodeSlutt)} />
-                  <Metadata header="Tilsagnsstatus" verdi={<TilsagnTag tilsagn={tilsagn} />} />
-                </Bolk>
-                <Bolk>
-                  <Metadata
-                    header="Antall plasser"
-                    verdi={tilsagn.tiltaksgjennomforing.antallPlasser}
-                  />
-                  <Metadata header="Sats per plass per måned" verdi={"TODO"} />
-                </Bolk>
-                <Bolk>
-                  <Metadata
-                    header="Kostnadssted"
-                    verdi={`${tilsagn.kostnadssted.enhetsnummer} ${tilsagn.kostnadssted.navn}`}
-                  />
-                </Bolk>
-              </VStack>
-            </div>
+            <AFTTilsagnDetaljer tilsagn={tilsagn} />
             <div>
               {besluttMutation.error ? (
                 <BodyShort spacing>
@@ -266,34 +222,4 @@ function GodkjennAvvisTilsagnButtons({
       </Button>
     </HStack>
   );
-}
-
-function TilsagnTag(props: { tilsagn: TilsagnDto }) {
-  const { tilsagn } = props;
-
-  if (tilsagn?.besluttelse?.status === TilsagnBesluttelseStatus.GODKJENT) {
-    return (
-      <Tag variant="success" size="small">
-        Godkjent
-      </Tag>
-    );
-  } else if (tilsagn?.besluttelse?.status === TilsagnBesluttelseStatus.AVVIST) {
-    return (
-      <Tag variant="warning" size="small">
-        Returnert
-      </Tag>
-    );
-  } else if (tilsagn?.annullertTidspunkt) {
-    return (
-      <Tag variant="neutral" size="small">
-        Annullert
-      </Tag>
-    );
-  } else {
-    return (
-      <Tag variant="info" size="small">
-        Til beslutning
-      </Tag>
-    );
-  }
 }
