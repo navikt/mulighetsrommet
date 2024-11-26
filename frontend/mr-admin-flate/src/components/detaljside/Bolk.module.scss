@@ -1,5 +1,7 @@
 .bolk {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  margin: 0.5rem 0;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 3rem;
+  margin: 1rem 0;
 }

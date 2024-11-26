@@ -5,7 +5,6 @@ import {
   TilsagnDto,
 } from "@mr/api-client";
 import { Alert, Heading } from "@navikt/ds-react";
-import { DetaljerInfoContainer } from "../../DetaljerInfoContainer";
 import { formaterDato } from "../../../utils/Utils";
 
 interface Props {
@@ -18,26 +17,24 @@ export function AvvistDetaljer({ tilsagn }: Props) {
   const aarsaker = besluttelse?.aarsaker?.map((aarsak) => tilsagnAarsakTilTekst(aarsak)) || [];
 
   return besluttelse?.status === TilsagnBesluttelseStatus.AVVIST && besluttelse?.aarsaker ? (
-    <DetaljerInfoContainer withBorderRight={false}>
-      <Alert variant="warning">
-        <Heading size="xsmall" level="3">
-          Tilsagnet ble returnert av {beslutternavn(besluttelse)}
-        </Heading>
-        <p>
-          Tilsagnet ble returnert av {beslutternavn(besluttelse)} den{" "}
-          {formaterDato(besluttelse.tidspunkt)} med følgende{" "}
-          {aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
-          <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker))}</b>
-          {besluttelse?.forklaring ? (
-            <>
-              {" "}
-              med forklaringen: <b>"{besluttelse?.forklaring}"</b>
-            </>
-          ) : null}
-          .
-        </p>
-      </Alert>
-    </DetaljerInfoContainer>
+    <Alert variant="warning" size="small">
+      <Heading size="xsmall" level="3">
+        Tilsagnet ble returnert av {beslutternavn(besluttelse)}
+      </Heading>
+      <p>
+        Tilsagnet ble returnert av {beslutternavn(besluttelse)} den{" "}
+        {formaterDato(besluttelse.tidspunkt)} med følgende{" "}
+        {aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
+        <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker))}</b>
+        {besluttelse?.forklaring ? (
+          <>
+            {" "}
+            med forklaringen: <b>"{besluttelse?.forklaring}"</b>
+          </>
+        ) : null}
+        .
+      </p>
+    </Alert>
   ) : null;
 }
 

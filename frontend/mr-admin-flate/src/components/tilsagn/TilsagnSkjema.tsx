@@ -1,19 +1,18 @@
+import { useKostnadssted } from "@/api/enhet/useKostnadssted";
+import { addYear } from "@/utils/Utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormProvider, useForm } from "react-hook-form";
-import { InferredOpprettTilsagnSchema, OpprettTilsagnSchema } from "./OpprettTilsagnSchema";
+import { ApiError, TilsagnDto, TilsagnRequest, TiltaksgjennomforingDto } from "@mr/api-client";
+import { ControlledSokeSelect } from "@mr/frontend-common";
+import { Alert, BodyShort, Button, DatePicker, HGrid, HStack } from "@navikt/ds-react";
+import { UseMutationResult } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { Alert, BodyShort, Box, Button, DatePicker, HGrid, HStack } from "@navikt/ds-react";
-import { addYear, formaterDato } from "@/utils/Utils";
+import { FormProvider, useForm } from "react-hook-form";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { FormGroup } from "../skjema/FormGroup";
-import { ApiError, TilsagnDto, TilsagnRequest, TiltaksgjennomforingDto } from "@mr/api-client";
-import { UseMutationResult } from "@tanstack/react-query";
 import { AFTBeregningSkjema } from "./AFTBeregningSkjema";
 import { FriBeregningSkjema } from "./FriBeregningSkjema";
-import { ControlledSokeSelect } from "@mr/frontend-common";
-import { Metadata } from "../detaljside/Metadata";
-import { useKostnadssted } from "@/api/enhet/useKostnadssted";
-import { GjennomforingStatusTag } from "@mr/frontend-common";
+import { InferredOpprettTilsagnSchema, OpprettTilsagnSchema } from "./OpprettTilsagnSchema";
+import { TiltakDetaljerForTilsagn } from "./TiltakDetaljerForTilsagn";
 
 interface Props {
   tiltaksgjennomforing: TiltaksgjennomforingDto;
@@ -68,23 +67,7 @@ export function TilsagnSkjema({
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Box borderColor="border-subtle" padding="4" borderWidth="1" borderRadius="medium">
-          <HGrid columns="2fr 2fr 1fr 1fr 1fr 1fr 1fr">
-            <Metadata header="Tiltaksnavn" verdi={tiltaksgjennomforing.navn} />
-            <Metadata
-              header="Arrangør"
-              verdi={`${tiltaksgjennomforing.arrangor.navn} - ${tiltaksgjennomforing.arrangor.organisasjonsnummer}`}
-            />
-            <Metadata header="Tiltaksnummer" verdi={tiltaksgjennomforing.tiltaksnummer} />
-            <Metadata header="Startdato" verdi={formaterDato(tiltaksgjennomforing.startDato)} />
-            <Metadata header="Sluttdato" verdi={formaterDato(tiltaksgjennomforing.startDato)} />
-            <Metadata header="Antall plasser" verdi={tiltaksgjennomforing.antallPlasser} />
-            <Metadata
-              header="Status"
-              verdi={<GjennomforingStatusTag status={tiltaksgjennomforing.status.status} />}
-            />
-          </HGrid>
-        </Box>
+        <TiltakDetaljerForTilsagn tiltaksgjennomforing={tiltaksgjennomforing} />
         <FormGroup>
           <DatePicker>
             <HGrid columns={2} gap={"2"}>
