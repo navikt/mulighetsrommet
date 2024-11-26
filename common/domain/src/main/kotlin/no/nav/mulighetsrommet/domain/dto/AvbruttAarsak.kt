@@ -29,8 +29,8 @@ sealed class AvbruttAarsak {
         override val beskrivelse = "Avbrutt i Arena"
     }
 
-    data class Annet(override val name: String) : AvbruttAarsak() {
-        override val beskrivelse = name
+    data class Annet(override val beskrivelse: String) : AvbruttAarsak() {
+        override val name = "ANNET"
     }
 
     companion object {

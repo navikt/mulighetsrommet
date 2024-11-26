@@ -16,11 +16,14 @@ object AvbruttAarsakSerializer : KSerializer<AvbruttAarsak> {
             "FOR_FAA_DELTAKERE" -> AvbruttAarsak.ForFaaDeltakere
             "FEILREGISTRERING" -> AvbruttAarsak.Feilregistrering
             "AVBRUTT_I_ARENA" -> AvbruttAarsak.AvbruttIArena
-            else -> AvbruttAarsak.Annet(name = aarsak)
+            else -> AvbruttAarsak.Annet(aarsak)
         }
     }
 
     override fun serialize(encoder: Encoder, value: AvbruttAarsak) {
-        encoder.encodeString(value.name)
+        when (value) {
+            is AvbruttAarsak.Annet -> encoder.encodeString(value.beskrivelse)
+            else -> encoder.encodeString(value.name)
+        }
     }
 }
