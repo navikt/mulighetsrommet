@@ -1,5 +1,6 @@
 .container {
   background-color: white;
+  margin-bottom: var(--a-spacing-6);
 }
 
 .header {
@@ -21,6 +22,7 @@
   margin-top: var(--a-spacing-4);
   display: flex;
   justify-content: space-between;
+  margin-bottom: var(--a-spacing-8);
 }
 
 .form {
@@ -37,6 +39,7 @@
 .formMetadata {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: var(--a-spacing-6);
 }
 
 .formMetadataLabels {
@@ -56,6 +59,9 @@
 .formContentRight {
   border-left: 3px solid var(--a-border-subtle);
   padding-left: var(--a-spacing-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--a-spacing-2);
 }
 
 .formTilsagnsStatus {
@@ -65,8 +71,28 @@
   margin-bottom: var(--a-spacing-1);
 }
 
-
-
 .formDateAndStatus {
   margin-top: var(--a-spacing-8);
+}
+
+.beregnetKostnad {
+  margin: var(--a-spacing-4) 0px;
+}
+
+.formRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--a-spacing-6);
+}
+
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--a-spacing-6);
+}
+
+.rowSpaceBetween {
+  display: flex;
+  justify-content: space-between;
 }

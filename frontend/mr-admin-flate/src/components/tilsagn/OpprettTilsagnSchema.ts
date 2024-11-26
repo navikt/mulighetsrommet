@@ -37,6 +37,7 @@ export const OpprettTilsagnSchema = z
         .string({ required_error: tekster.manglerSluttdato })
         .min(10, tekster.manglerSluttdato),
     }),
+    antallPlasser: z.number().optional().nullable(),
     kostnadssted: z.string().length(4, tekster.manglerKostnadssted),
     beregning: TilsagnBeregningSchema,
   })
