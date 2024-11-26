@@ -54,8 +54,6 @@ fun Route.tiltaksgjennomforingRoutes() {
                 val navIdent = getNavIdent()
                 val request = call.receive<SetAvtaleForGjennomforingRequest>()
 
-                val response = service.setAvtale(id, request.avtaleId, navIdent)
-
                 val gjennomforing = service.get(id) ?: return@put call.respond(
                     HttpStatusCode.NotFound,
                     message = "Gjennomføringen finnes ikke",

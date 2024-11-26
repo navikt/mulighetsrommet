@@ -173,8 +173,83 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
         }
     }
 
+    context("endre avtale for gjennomføring") {
+        val domain = MulighetsrommetTestDomain(
+            avtaler = listOf(
+                AvtaleFixtures.oppfolging,
+                AvtaleFixtures.AFT,
+                AvtaleFixtures.AFT.copy(id = UUID.randomUUID()),
+            ),
+            gjennomforinger = listOf(
+                TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                    startDato = LocalDate.now(),
+                    sluttDato = LocalDate.now(),
+                ),
+                TiltaksgjennomforingFixtures.AFT1.copy(
+                    startDato = LocalDate.now(),
+                    sluttDato = LocalDate.now(),
+                ),
+            ),
+        )
+
+        beforeAny {
+            domain.initialize(database.db)
+        }
+
+        afterContainer {
+            database.db.truncateAll()
+        }
+
+        test("får ikke endre avtale på anskaffede tiltak") {
+            withTestApplication(appConfig()) {
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
+                }
+
+                val response = client
+                    .put("/api/v1/intern/tiltaksgjennomforinger/${domain.gjennomforinger[0].id}/avtale") {
+                        val claims = mapOf(
+                            "NAVident" to "ABC123",
+                            "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
+                        )
+                        bearerAuth(oauth.issueToken(claims = claims).serialize())
+                        contentType(ContentType.Application.Json)
+                        setBody(SetAvtaleForGjennomforingRequest(domain.avtaler[1].id))
+                    }
+
+                response.status shouldBe HttpStatusCode.BadRequest
+                response.bodyAsText() shouldBe "Avtale kan bare settes for tiltaksgjennomføringer av type AFT eller VTA"
+            }
+        }
+
+        test("kan sette avtale for anskaffede tiltak") {
+            withTestApplication(appConfig()) {
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
+                }
+
+                val response = client
+                    .put("/api/v1/intern/tiltaksgjennomforinger/${domain.gjennomforinger[1].id}/avtale") {
+                        val claims = mapOf(
+                            "NAVident" to "ABC123",
+                            "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
+                        )
+                        bearerAuth(oauth.issueToken(claims = claims).serialize())
+                        contentType(ContentType.Application.Json)
+                        setBody(SetAvtaleForGjennomforingRequest(domain.avtaler[2].id))
+                    }
+
+                response.status shouldBe HttpStatusCode.OK
+            }
+        }
+    }
+
     context("avbryt gjennomføring") {
-        val domain2 = MulighetsrommetTestDomain(
+        val domain = MulighetsrommetTestDomain(
             avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(
                 TiltaksgjennomforingFixtures.Oppfolging1.copy(
@@ -190,10 +265,10 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
         beforeAny {
             val gjennomforinger = TiltaksgjennomforingRepository(database.db)
 
-            domain2.initialize(database.db)
+            domain.initialize(database.db)
 
             gjennomforinger.avbryt(
-                domain2.gjennomforinger[1].id,
+                domain.gjennomforinger[1].id,
                 LocalDateTime.now(),
                 AvbruttAarsak.Feilregistrering,
             )
@@ -236,7 +311,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 }
 
                 val response = client
-                    .put("/api/v1/intern/tiltaksgjennomforinger/${domain2.gjennomforinger[0].id}/avbryt") {
+                    .put("/api/v1/intern/tiltaksgjennomforinger/${domain.gjennomforinger[0].id}/avbryt") {
                         val claims = mapOf(
                             "NAVident" to "ABC123",
                             "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
@@ -260,7 +335,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 }
 
                 val response = client
-                    .put("/api/v1/intern/tiltaksgjennomforinger/${domain2.gjennomforinger[0].id}/avbryt") {
+                    .put("/api/v1/intern/tiltaksgjennomforinger/${domain.gjennomforinger[0].id}/avbryt") {
                         val claims = mapOf(
                             "NAVident" to "ABC123",
                             "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
@@ -284,7 +359,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 }
 
                 val response = client
-                    .put("/api/v1/intern/tiltaksgjennomforinger/${domain2.gjennomforinger[1].id}/avbryt") {
+                    .put("/api/v1/intern/tiltaksgjennomforinger/${domain.gjennomforinger[1].id}/avbryt") {
                         val claims = mapOf(
                             "NAVident" to "ABC123",
                             "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
@@ -310,7 +385,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 }
 
                 val response = client
-                    .put("/api/v1/intern/tiltaksgjennomforinger/${domain2.gjennomforinger[0].id}/avbryt") {
+                    .put("/api/v1/intern/tiltaksgjennomforinger/${domain.gjennomforinger[0].id}/avbryt") {
                         val claims = mapOf(
                             "NAVident" to "ABC123",
                             "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
@@ -323,7 +398,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 response.status shouldBe HttpStatusCode.OK
                 response.bodyAsText().shouldBeEmpty()
 
-                gjennomforinger.get(domain2.gjennomforinger[0].id).shouldNotBeNull().should {
+                gjennomforinger.get(domain.gjennomforinger[0].id).shouldNotBeNull().should {
                     it.status.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
                     it.status.avbrutt?.aarsak shouldBe AvbruttAarsak.Feilregistrering
                 }
