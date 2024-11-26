@@ -21,11 +21,7 @@ export function TiltakHeader({ tiltak }: Props) {
             </BodyLong>
           </VStack>
         </Heading>
-        {!isTiltakAktivt(tiltak) && (
-          <GjennomforingStatusTag
-            status={typeof tiltak.status === "string" ? tiltak.status : tiltak.status.status}
-          />
-        )}
+        {!isTiltakAktivt(tiltak) && <GjennomforingStatusTag status={tiltak.status} />}
       </HStack>
       {tiltakstype.beskrivelse && (
         <BodyLong size="large" className={styles.beskrivelse} style={{ whiteSpace: "pre-wrap" }}>
