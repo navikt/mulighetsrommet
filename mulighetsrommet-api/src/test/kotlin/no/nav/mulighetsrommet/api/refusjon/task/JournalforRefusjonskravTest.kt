@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.refusjon.task
 
-import io.kotest.assertions.any
+import arrow.core.right
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -9,7 +9,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
-import no.nav.mulighetsrommet.api.clients.dokark.DokarkResult
+import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
@@ -120,7 +120,13 @@ class JournalforRefusjonskravTest : FunSpec({
         refusjonskravRepository.setGodkjentAvArrangor(krav.id, LocalDateTime.now())
 
         every { tilsagnService.getArrangorflateTilsagnTilRefusjon(any(), any()) } returns emptyList()
-        coEvery { dokarkClient.opprettJournalpost(any(), any()) } returns DokarkResult.Success(journalpostId = "123")
+        coEvery { dokarkClient.opprettJournalpost(any(), any()) } returns DokarkResponse(
+            journalpostId = "123",
+            journalstatus = "ok",
+            melding = null,
+            journalpostferdigstilt = true,
+            dokumenter = emptyList(),
+        ).right()
 
         task.journalforRefusjonskrav(krav.id)
         refusjonskravRepository.get(krav.id)?.journalpostId shouldBe "123"

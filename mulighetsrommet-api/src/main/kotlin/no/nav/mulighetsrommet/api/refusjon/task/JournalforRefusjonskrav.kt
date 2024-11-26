@@ -4,7 +4,6 @@ import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
-import no.nav.mulighetsrommet.api.clients.dokark.DokarkResult
 import no.nav.mulighetsrommet.api.pdfgen.Pdfgen
 import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
@@ -63,17 +62,15 @@ class JournalforRefusjonskrav(
             Pdfgen.refusjonJournalpost(refusjonsKravAft, tilsagn)
         }
 
-        val result = dokarkClient.opprettJournalpost(
+        dokarkClient.opprettJournalpost(
             refusjonskravJournalpost(pdf, krav.id, krav.arrangor.organisasjonsnummer),
             AccessType.M2M,
         )
-        when (result) {
-            is DokarkResult.Error -> throw Exception(
-                "Feil ved opprettelse av journalpost. Message: ${result.message}",
-            )
-            is DokarkResult.Success -> {
-                refusjonskravRepository.setJournalpostId(id, result.journalpostId)
+            .onRight {
+                refusjonskravRepository.setJournalpostId(id, it.journalpostId)
             }
-        }
+            .onLeft {
+                throw Exception("Feil ved opprettelse av journalpost. Message: ${it.message}")
+            }
     }
 }
