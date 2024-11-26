@@ -139,6 +139,10 @@ app:
     apiKey: dummy
     scope: default
 
+  dokark:
+    url: http://localhost:8090/dokark
+    scope: default
+
   tasks:
     synchronizeNorgEnheter:
       disabled: true

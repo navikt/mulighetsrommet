@@ -57,6 +57,7 @@ data class AppConfig(
     val engine: HttpClientEngine = CIO.create(),
     val utdanning: UtdanningClient.Config,
     val altinn: AltinnClient.Config,
+    val dokark: ServiceClientConfig,
 )
 
 data class AuthConfig(

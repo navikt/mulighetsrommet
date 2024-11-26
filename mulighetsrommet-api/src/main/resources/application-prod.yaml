@@ -136,6 +136,13 @@ app:
     apiKey: dummy
     scope: dummy
 
+  utdanning:
+    baseurl: https://api.utdanning.no
+
+  dokark:
+    url: https://dokarkiv.prod-fss-pub.nais.io
+    scope: api://prod-fss.teamdokumenthandtering.dokarkiv/.default
+
   tasks:
     synchronizeNorgEnheter:
       delayOfMinutes: 360 # Hver 6. time
@@ -170,6 +177,3 @@ app:
     token: ${UNLEASH_SERVER_API_TOKEN}
     instanceId: ${NAIS_CLIENT_ID}
     environment: production
-
-  utdanning:
-    baseurl: https://api.utdanning.no
