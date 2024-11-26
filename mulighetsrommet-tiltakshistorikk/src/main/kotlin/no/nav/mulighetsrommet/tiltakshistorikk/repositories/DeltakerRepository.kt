@@ -169,7 +169,10 @@ class DeltakerRepository(private val db: Database) {
             "max_age_years" to maxAgeYears,
         )
 
-        queryOf(query, params).map { it.toGruppetiltakDeltakelse() }.asList.runWithSession(session)
+        queryOf(query, params)
+            .map { it.toGruppetiltakDeltakelse() }
+            .asList
+            .runWithSession(session)
     }
 
     fun deleteKometDeltaker(id: UUID) = db.useSession { session ->

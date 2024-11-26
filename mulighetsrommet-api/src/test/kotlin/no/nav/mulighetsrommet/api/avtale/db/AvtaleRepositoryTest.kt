@@ -846,60 +846,6 @@ class AvtaleRepositoryTest : FunSpec({
         }
     }
 
-    context("Notifikasjoner for avtaler") {
-        context("Avtaler nærmer seg sluttdato") {
-            val avtale6Mnd = AvtaleFixtures.oppfolging.copy(
-                id = UUID.randomUUID(),
-                startDato = LocalDate.of(2021, 1, 1),
-                sluttDato = LocalDate.of(2023, 11, 30),
-            )
-            val avtale3Mnd = AvtaleFixtures.oppfolging.copy(
-                id = UUID.randomUUID(),
-                startDato = LocalDate.of(2021, 1, 1),
-                sluttDato = LocalDate.of(2023, 8, 31),
-            )
-            val avtale14Dag = AvtaleFixtures.oppfolging.copy(
-                id = UUID.randomUUID(),
-                startDato = LocalDate.of(2021, 1, 1),
-                sluttDato = LocalDate.of(2023, 6, 14),
-            )
-            val avtale7Dag = AvtaleFixtures.oppfolging.copy(
-                id = UUID.randomUUID(),
-                startDato = LocalDate.of(2021, 1, 1),
-                sluttDato = LocalDate.of(2023, 6, 7),
-            )
-            val avtaleSomIkkeSkalMatche = AvtaleFixtures.oppfolging.copy(
-                id = UUID.randomUUID(),
-                startDato = LocalDate.of(2022, 6, 7),
-                sluttDato = LocalDate.of(2024, 1, 1),
-            )
-
-            val domain = MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-                avtaler = listOf(avtale6Mnd, avtale3Mnd, avtale14Dag, avtale7Dag, avtaleSomIkkeSkalMatche),
-            )
-
-            domain.initialize(database.db)
-
-            val avtaler = AvtaleRepository(database.db)
-
-            test("Skal returnere avtaler som har sluttdato om 6 mnd, 3 mnd, 14 dager og 7 dager") {
-
-                val result = avtaler.getAllAvtalerSomNarmerSegSluttdato(
-                    currentDate = LocalDate.of(2023, 5, 31),
-                )
-
-                result.map { it.id } shouldContainExactlyInAnyOrder listOf(
-                    avtale6Mnd.id,
-                    avtale3Mnd.id,
-                    avtale14Dag.id,
-                    avtale7Dag.id,
-                )
-            }
-        }
-    }
-
     context("Status på avtale") {
         val domain = MulighetsrommetTestDomain(
             arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),

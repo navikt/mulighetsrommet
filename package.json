@@ -3,7 +3,16 @@
   "name": "mulighetsrommet",
   "devDependencies": {
     "prettier": "3.3.3",
-    "turbo": "2.2.3"
+    "turbo": "2.3.1"
   },
-  "packageManager": "pnpm@9.10.0"
+  "packageManager": "pnpm@9.10.0",
+  "pnpm": {
+    "overrides": {
+      "follow-redirects@>=1.15.0 <1.15.9": ">=1.15.9",
+      "vite@>=4.0.0 <4.5.4": ">=4.5.4",
+      "@sentry/browser@>=8.0.0-alpha.1 <8.33.0": ">=8.33.0",
+      "cookie@<0.7.0": ">=0.7.0",
+      "cross-spawn@>=7.0.0 <7.0.5": ">=7.0.5"
+    }
+  }
 }

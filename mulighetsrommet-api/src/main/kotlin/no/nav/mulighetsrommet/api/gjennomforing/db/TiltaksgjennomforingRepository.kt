@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.gjennomforing.db
 
-import arrow.core.Either
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
@@ -13,12 +12,10 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dto.UtdanningslopDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingKontaktperson
-import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingNotificationDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
-import no.nav.mulighetsrommet.api.responses.StatusResponseError
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
@@ -53,7 +50,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 arrangor_id,
                 start_dato,
                 slutt_dato,
-                apent_for_pamelding,
                 antall_plasser,
                 avtale_id,
                 oppstart,
@@ -74,7 +70,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :arrangor_id,
                 :start_dato,
                 :slutt_dato,
-                :apent_for_pamelding,
                 :antall_plasser,
                 :avtale_id,
                 :oppstart::tiltaksgjennomforing_oppstartstype,
@@ -94,7 +89,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 arrangor_id                        = excluded.arrangor_id,
                 start_dato                         = excluded.start_dato,
                 slutt_dato                         = excluded.slutt_dato,
-                apent_for_pamelding                   = excluded.apent_for_pamelding,
                 antall_plasser                     = excluded.antall_plasser,
                 avtale_id                          = excluded.avtale_id,
                 oppstart                           = excluded.oppstart,
@@ -467,30 +461,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getAllGjennomforingerSomNarmerSegSluttdato(currentDate: LocalDate = LocalDate.now()): List<TiltaksgjennomforingNotificationDto> {
-        @Language("PostgreSQL")
-        val query = """
-            select tg.id::uuid,
-                   tg.navn,
-                   tg.start_dato,
-                   tg.slutt_dato,
-                   array_agg(distinct a.nav_ident) as administratorer,
-                   array_agg(e.enhetsnummer) as navEnheter,
-                   tg.tiltaksnummer
-            from tiltaksgjennomforing tg
-                     left join tiltaksgjennomforing_administrator a on a.tiltaksgjennomforing_id = tg.id
-                    left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
-            where (?::timestamp + interval '14' day) = tg.slutt_dato
-               or (?::timestamp + interval '7' day) = tg.slutt_dato
-               or (?::timestamp + interval '1' day) = tg.slutt_dato
-            group by tg.id;
-        """.trimIndent()
-
-        return queryOf(query, currentDate, currentDate, currentDate).map { it.toTiltaksgjennomforingNotificationDto() }
-            .asList
-            .let { db.run(it) }
-    }
-
     fun delete(id: UUID): Int = db.useSession {
         delete(id, it)
     }
@@ -593,6 +563,21 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return tx.run(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt, "aarsak" to aarsak.name)).asUpdate)
     }
 
+    fun frikobleKontaktpersonFraGjennomforing(
+        kontaktpersonId: UUID,
+        gjennomforingId: UUID,
+        tx: Session,
+    ) {
+        @Language("PostgreSQL")
+        val query = """
+            delete
+            from tiltaksgjennomforing_arrangor_kontaktperson
+            where arrangor_kontaktperson_id = ?::uuid and tiltaksgjennomforing_id = ?::uuid
+        """.trimIndent()
+
+        queryOf(query, kontaktpersonId, gjennomforingId).asUpdate.runWithSession(tx)
+    }
+
     private fun TiltaksgjennomforingDbo.toSqlParameters() = mapOf(
         "opphav" to ArenaMigrering.Opphav.MR_ADMIN_FLATE.name,
         "id" to id,
@@ -601,7 +586,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "arrangor_id" to arrangorId,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
-        "apent_for_pamelding" to apentForPamelding,
         "antall_plasser" to antallPlasser,
         "avtale_id" to avtaleId,
         "oppstart" to oppstart.name,
@@ -706,42 +690,5 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             amoKategorisering = stringOrNull("amo_kategorisering_json")?.let { JsonIgnoreUnknownKeys.decodeFromString(it) },
             utdanningslop = utdanningslop,
         )
-    }
-
-    private fun Row.toTiltaksgjennomforingNotificationDto(): TiltaksgjennomforingNotificationDto {
-        val administratorer = arrayOrNull<String?>("administratorer")
-            ?.asList()
-            ?.filterNotNull()
-            ?.map { NavIdent(it) }
-            ?: emptyList()
-
-        val startDato = localDate("start_dato")
-        val sluttDato = localDateOrNull("slutt_dato")
-        return TiltaksgjennomforingNotificationDto(
-            id = uuid("id"),
-            navn = string("navn"),
-            startDato = startDato,
-            sluttDato = sluttDato,
-            administratorer = administratorer,
-            tiltaksnummer = stringOrNull("tiltaksnummer"),
-        )
-    }
-
-    fun frikobleKontaktpersonFraGjennomforing(
-        kontaktpersonId: UUID,
-        gjennomforingId: UUID,
-        tx: Session,
-    ): Either<StatusResponseError, String> {
-        @Language("PostgreSQL")
-        val query = """
-            delete from tiltaksgjennomforing_arrangor_kontaktperson
-            where arrangor_kontaktperson_id = ?::uuid and tiltaksgjennomforing_id = ?::uuid
-        """.trimIndent()
-
-        queryOf(query, kontaktpersonId, gjennomforingId)
-            .asUpdate
-            .let { tx.run(it) }
-
-        return Either.Right(kontaktpersonId.toString())
     }
 }

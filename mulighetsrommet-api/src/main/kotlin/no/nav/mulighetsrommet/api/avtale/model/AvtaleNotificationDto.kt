@@ -13,8 +13,6 @@ data class AvtaleNotificationDto(
     val id: UUID,
     val navn: String,
     @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate? = null,
+    val sluttDato: LocalDate,
     val administratorer: List<NavIdent>,
 )

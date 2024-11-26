@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.fixtures
 import io.kotest.assertions.arrow.core.shouldBeRight
 import no.nav.mulighetsrommet.api.arrangor.db.ArrangorRepository
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
+import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
@@ -27,6 +28,7 @@ data class MulighetsrommetTestDomain(
         ArrangorFixtures.underenhet1,
         ArrangorFixtures.underenhet2,
     ),
+    val arrangorKontaktpersoner: List<ArrangorKontaktperson> = listOf(),
     val tiltakstyper: List<TiltakstypeDbo> = listOf(
         TiltakstypeFixtures.Oppfolging,
         TiltakstypeFixtures.Arbeidstrening,
@@ -58,6 +60,7 @@ data class MulighetsrommetTestDomain(
 
         ArrangorRepository(database).also { repository ->
             arrangorer.forEach { repository.upsert(it) }
+            arrangorKontaktpersoner.forEach { repository.upsertKontaktperson(it) }
         }
 
         TiltakstypeRepository(database).also { repository ->

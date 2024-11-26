@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.responses.*
@@ -133,8 +132,6 @@ class AvtaleService(
 
         return PaginatedResponse.of(pagination, totalCount, items)
     }
-
-    fun getAllAvtalerSomNarmerSegSluttdato(): List<AvtaleNotificationDto> = avtaler.getAllAvtalerSomNarmerSegSluttdato()
 
     fun avbrytAvtale(id: UUID, navIdent: NavIdent, aarsak: AvbruttAarsak?): StatusResponse<Unit> {
         if (aarsak == null) {

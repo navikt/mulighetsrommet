@@ -1,12 +1,12 @@
 [versions]
 common-java-modules = "3.2024.10.25_13.44-9db48a0dbe67"
-flyway = "10.21.0"
+flyway = "11.0.0"
 hoplite = "2.8.2"
 koin = "4.1.0-Beta1"
 kotest = "5.9.1"
 kotest-testcontainers = "2.0.2"
 kotlin = "2.0.21"
-ktor = "3.0.0"
+ktor = "3.0.1"
 logback = "1.5.12"
 metrics = "4.2.28"
 arrow = "1.2.4"
@@ -17,7 +17,7 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktlint = "org.jlleitschuh.gradle.ktlint:12.1.1"
 shadow = "com.github.johnrengelman.shadow:8.1.1"
-openapi-generator = "org.openapi.generator:7.9.0"
+openapi-generator = "org.openapi.generator:7.10.0"
 
 [bundles]
 logging = [
@@ -35,7 +35,7 @@ arrow-core-serialization = { module = "io.arrow-kt:arrow-core-serialization", ve
 assertj-db = "org.assertj:assertj-db:2.0.2"
 
 caffeine = "com.github.ben-manes.caffeine:caffeine:3.1.8"
-pdfgen-core = "no.nav.pdfgen:pdfgen-core:1.1.34"
+pdfgen-core = "no.nav.pdfgen:pdfgen-core:1.1.35"
 verapdf = "org.verapdf:validation-model:1.26.1"
 handlebars = "com.github.jknack:handlebars:4.4.0"
 
@@ -45,9 +45,9 @@ flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
 google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.21.0"
-google-cloud-storage = "com.google.cloud:google-cloud-storage:2.44.1"
+google-cloud-storage = "com.google.cloud:google-cloud-storage:2.45.0"
 
-hikaricp = "com.zaxxer:HikariCP:6.2.0"
+hikaricp = "com.zaxxer:HikariCP:6.2.1"
 
 hoplite-core = { module = "com.sksamuel.hoplite:hoplite-core", version.ref = "hoplite" }
 hoplite-yaml = { module = "com.sksamuel.hoplite:hoplite-yaml", version.ref = "hoplite" }
@@ -121,11 +121,11 @@ prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
 shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.16.0"
 
-slack-client = "com.slack.api:slack-api-client:1.44.1"
+slack-client = "com.slack.api:slack-api-client:1.44.2"
 
 slf4j = "org.slf4j:slf4j-api:2.0.16"
 
 apache-poi = "org.apache.poi:poi:5.3.0"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.3.0"
 
-unleash = "io.getunleash:unleash-client-java:9.2.4"
+unleash = "io.getunleash:unleash-client-java:9.2.5"

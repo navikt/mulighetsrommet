@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.*
+import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -14,6 +15,8 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedParty
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
+import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
+import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponseDokument
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -22,8 +25,10 @@ import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravAft
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
+import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravStatus
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
@@ -92,6 +97,10 @@ class ArrangorflateRoutesTest : FunSpec({
 
     beforeSpec {
         oauth.start()
+    }
+
+    beforeEach {
+        database.db.truncateAll()
         domain.initialize(database.db)
     }
 
@@ -99,33 +108,47 @@ class ArrangorflateRoutesTest : FunSpec({
         oauth.shutdown()
     }
 
-    fun appConfig(
-        engine: HttpClientEngine = createMockEngine(
-            "/altinn/accessmanagement/api/v1/resourceowner/authorizedparties" to {
-                val body = Json.decodeFromString<AltinnClient.AltinnRequest>(
-                    (it.body as TextContent).text,
-                )
-                if (body.value == identMedTilgang.value) {
-                    respondJson(
-                        listOf(
-                            AuthorizedParty(
-                                organizationNumber = barnevernsNembda.organisasjonsnummer.value,
-                                organizationName = barnevernsNembda.navn,
-                                type = "type",
-                                authorizedResources = listOf("tiltak-arrangor-refusjon"),
-                                subunits = emptyList(),
-                            ),
+    val altinnRequestHandler: Pair<String, suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData> =
+        "/altinn/accessmanagement/api/v1/resourceowner/authorizedparties" to {
+            val body = Json.decodeFromString<AltinnClient.AltinnRequest>(
+                (it.body as TextContent).text,
+            )
+            if (body.value == identMedTilgang.value) {
+                respondJson(
+                    listOf(
+                        AuthorizedParty(
+                            organizationNumber = barnevernsNembda.organisasjonsnummer.value,
+                            organizationName = barnevernsNembda.navn,
+                            type = "type",
+                            authorizedResources = listOf("tiltak-arrangor-refusjon"),
+                            subunits = emptyList(),
                         ),
-                    )
-                } else {
-                    respondJson(emptyList<AuthorizedParty>())
-                }
-            },
-        ),
+                    ),
+                )
+            } else {
+                respondJson(emptyList<AuthorizedParty>())
+            }
+        }
+    val dokarkRequestHandler: Pair<String, suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData> =
+        "/dokark/rest/journalpostapi/v1/journalpost" to {
+            respondJson(
+                DokarkResponse(
+                    journalpostId = "123",
+                    journalstatus = "bra",
+                    melding = null,
+                    journalpostferdigstilt = true,
+                    dokumenter = listOf(DokarkResponseDokument("123")),
+                ),
+            )
+        }
+
+    fun appConfig(
+        requestHandlers: List<Pair<String, suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData>> =
+            listOf(altinnRequestHandler, dokarkRequestHandler),
     ) = createTestApplicationConfig().copy(
         database = databaseConfig,
         auth = createAuthConfig(oauth, roles = emptyList()),
-        engine = engine,
+        engine = createMockEngine(*requestHandlers.toTypedArray()),
     )
 
     test("401 Unauthorized uten pid i claims") {
@@ -194,9 +217,9 @@ class ArrangorflateRoutesTest : FunSpec({
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(
-                    GodkjennRefusjonskravAft(
+                    GodkjennRefusjonskrav(
                         digest = "d3b07384d113edec49eaa6238ad5ff00",
-                        betalingsinformasjon = GodkjennRefusjonskravAft.Betalingsinformasjon(
+                        betalingsinformasjon = GodkjennRefusjonskrav.Betalingsinformasjon(
                             kontonummer = Kontonummer("12312312312"),
                             kid = null,
                         ),
@@ -218,9 +241,9 @@ class ArrangorflateRoutesTest : FunSpec({
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(
-                    GodkjennRefusjonskravAft(
+                    GodkjennRefusjonskrav(
                         digest = krav.beregning.getDigest(),
-                        betalingsinformasjon = GodkjennRefusjonskravAft.Betalingsinformasjon(
+                        betalingsinformasjon = GodkjennRefusjonskrav.Betalingsinformasjon(
                             kontonummer = Kontonummer("12312312312"),
                             kid = null,
                         ),
@@ -228,6 +251,48 @@ class ArrangorflateRoutesTest : FunSpec({
                 )
             }
             response.status shouldBe HttpStatusCode.OK
+        }
+    }
+
+    test("feil mot dokark ruller tilbake godkjenning") {
+        withTestApplication(
+            appConfig(
+                listOf(
+                    altinnRequestHandler,
+                    "/dokark/rest/journalpostapi/v1/journalpost" to {
+                        respondError(HttpStatusCode.InternalServerError)
+                    },
+                ),
+            ),
+        ) {
+            val client = createClient {
+                install(ContentNegotiation) {
+                    json()
+                }
+            }
+            var response = client.post("/api/v1/intern/arrangorflate/refusjonskrav/${krav.id}/godkjenn-refusjon") {
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
+                contentType(ContentType.Application.Json)
+                setBody(
+                    GodkjennRefusjonskrav(
+                        digest = krav.beregning.getDigest(),
+                        betalingsinformasjon = GodkjennRefusjonskrav.Betalingsinformasjon(
+                            kontonummer = Kontonummer("12312312312"),
+                            kid = null,
+                        ),
+                    ),
+                )
+            }
+            response.status shouldBe HttpStatusCode.InternalServerError
+
+            response = client.get("/api/v1/intern/arrangorflate/refusjonskrav/${krav.id}") {
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
+                contentType(ContentType.Application.Json)
+            }
+            response.status shouldBe HttpStatusCode.OK
+            val responseBody = response.bodyAsText()
+            val kravResponse: RefusjonKravAft = Json.decodeFromString(responseBody)
+            kravResponse.status shouldBe RefusjonskravStatus.KLAR_FOR_GODKJENNING
         }
     }
 })

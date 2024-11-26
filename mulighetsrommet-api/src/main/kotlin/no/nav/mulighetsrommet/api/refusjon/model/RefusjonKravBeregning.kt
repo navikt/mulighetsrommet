@@ -1,16 +1,12 @@
 package no.nav.mulighetsrommet.api.refusjon.model
 
-import java.security.MessageDigest
-
 sealed class RefusjonKravBeregning {
     abstract val input: RefusjonKravBeregningInput
     abstract val output: RefusjonKravBeregningOutput
 
     @OptIn(ExperimentalStdlibApi::class)
     fun getDigest(): String {
-        val md = MessageDigest.getInstance("MD5")
-        val digest = md.digest(input.toString().toByteArray() + output.toString().toByteArray())
-        return digest.toHexString()
+        return (input.hashCode() + output.hashCode()).toHexString()
     }
 }
 

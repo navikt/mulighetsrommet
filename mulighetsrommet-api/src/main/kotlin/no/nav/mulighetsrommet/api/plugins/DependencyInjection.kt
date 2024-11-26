@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
+import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
@@ -340,6 +341,13 @@ private fun services(appConfig: AppConfig) = module {
             tokenProvider = cachedTokenProvider.withScope(appConfig.isoppfolgingstilfelleConfig.scope),
         )
     }
+    single {
+        DokarkClient(
+            baseUrl = appConfig.dokark.url,
+            clientEngine = appConfig.engine,
+            tokenProvider = cachedTokenProvider.withScope(appConfig.dokark.scope),
+        )
+    }
     single { EndringshistorikkService(get()) }
     single {
         ArenaAdapterService(
@@ -373,7 +381,6 @@ private fun services(appConfig: AppConfig) = module {
     single { DelMedBrukerService(get(), get(), get()) }
     single {
         TiltaksgjennomforingService(
-            get(),
             get(),
             get(),
             get(),

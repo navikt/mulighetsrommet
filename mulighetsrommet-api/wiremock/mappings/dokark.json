@@ -1,0 +1,23 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/dokark/rest/journalpostapi/v1/journalpost"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "journalpostId": "123",
+      "journalstatus": "bra",
+      "journalpostferdigstilt": "true",
+      "melding": null,
+      "dokumenter": [
+        {
+          "dokumentInfoId": "123"
+        }
+      ]
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

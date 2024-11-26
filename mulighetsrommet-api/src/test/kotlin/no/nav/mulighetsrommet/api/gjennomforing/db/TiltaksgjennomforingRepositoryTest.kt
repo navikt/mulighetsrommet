@@ -11,7 +11,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.serialization.json.Json
 import kotliquery.Query
-import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.arrangor.db.ArrangorRepository
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
@@ -38,7 +37,6 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
-import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -665,45 +663,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
-    context("Hente tiltaksgjennomføringer som nærmer seg sluttdato") {
-        test("Skal hente gjennomføringer som er 14, 7 eller 1 dag til sluttdato") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val oppfolging14Dager = Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 5, 30),
-                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
-            )
-            val oppfolging7Dager = Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 5, 23),
-                administratorer = emptyList(),
-            )
-            val oppfolging1Dager = Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 5, 17),
-                administratorer = emptyList(),
-            )
-            val oppfolging10Dager = Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 5, 26),
-            )
-            tiltaksgjennomforinger.upsert(oppfolging14Dager)
-            tiltaksgjennomforinger.upsert(oppfolging7Dager)
-            tiltaksgjennomforinger.upsert(oppfolging1Dager)
-            tiltaksgjennomforinger.upsert(oppfolging10Dager)
-
-            val result = tiltaksgjennomforinger.getAllGjennomforingerSomNarmerSegSluttdato(
-                currentDate = LocalDate.of(2023, 5, 16),
-            )
-
-            result.map { Pair(it.id, it.administratorer) } shouldContainExactlyInAnyOrder listOf(
-                Pair(oppfolging14Dager.id, listOf(NavIdent("DD1"))),
-                Pair(oppfolging7Dager.id, listOf()),
-                Pair(oppfolging1Dager.id, listOf()),
-            )
-        }
-    }
-
     test("pagination") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
@@ -740,9 +699,10 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         test("skal sette åpent for påmelding") {
             val gjennomforing = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
                 id = UUID.randomUUID(),
-                apentForPamelding = true,
             )
             tiltaksgjennomforinger.upsert(gjennomforing)
+
+            tiltaksgjennomforinger.get(gjennomforing.id).shouldNotBeNull().apentForPamelding shouldBe true
 
             tiltaksgjennomforinger.setApentForPamelding(gjennomforing.id, false)
 
@@ -796,64 +756,60 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     }
 
     context("Frikoble kontaktperson fra arrangør") {
-        // Add some data to tiltaksgjennomforing_arrangor_kontaktperson-table
+        val kontaktperson1 = ArrangorKontaktperson(
+            id = UUID.randomUUID(),
+            arrangorId = ArrangorFixtures.underenhet1.id,
+            navn = "Aran Goran",
+            telefon = "",
+            epost = "test@test.no",
+            beskrivelse = "",
+        )
+
+        val kontaktperson2 = ArrangorKontaktperson(
+            id = UUID.randomUUID(),
+            arrangorId = ArrangorFixtures.underenhet1.id,
+            navn = "Gibli Bobli",
+            telefon = "",
+            epost = "test@test.no",
+            beskrivelse = "",
+        )
+
+        val testDomain = MulighetsrommetTestDomain(
+            arrangorKontaktpersoner = listOf(kontaktperson1, kontaktperson2),
+            tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+            avtaler = listOf(AvtaleFixtures.oppfolging),
+            gjennomforinger = listOf(
+                Oppfolging1.copy(arrangorKontaktpersoner = listOf(kontaktperson1.id)),
+                Oppfolging2.copy(arrangorKontaktpersoner = listOf(kontaktperson2.id)),
+            ),
+        )
+
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+
         test("Skal fjerne kontaktperson fra koblingstabell") {
-            tiltaksgjennomforinger.upsert(Oppfolging1)
-            tiltaksgjennomforinger.upsert(Oppfolging2)
+            testDomain.initialize(database.db)
 
-            val arrangorKontaktperson = ArrangorKontaktperson(
-                id = UUID.randomUUID(),
-                arrangorId = ArrangorFixtures.underenhet1.id,
-                navn = "Aran Goran",
-                telefon = "",
-                epost = "test@test.no",
-                beskrivelse = "",
-            )
+            tiltaksgjennomforinger.get(testDomain.gjennomforinger[0].id).shouldNotBeNull().should {
+                it.arrangor.kontaktpersoner.first().id.shouldBe(kontaktperson1.id)
+            }
+            tiltaksgjennomforinger.get(testDomain.gjennomforinger[1].id).shouldNotBeNull().should {
+                it.arrangor.kontaktpersoner.first().id.shouldBe(kontaktperson2.id)
+            }
 
-            val arrangorKontaktperson2 = ArrangorKontaktperson(
-                id = UUID.randomUUID(),
-                arrangorId = ArrangorFixtures.underenhet1.id,
-                navn = "Gibli Bobli",
-                telefon = "",
-                epost = "test@test.no",
-                beskrivelse = "",
-            )
-
-            @Language("PostgreSQL")
-            val upsertKontaktpersonerQuery = """
-                insert into arrangor_kontaktperson(id, navn, telefon, epost, beskrivelse, arrangor_id) values
-                ('${arrangorKontaktperson.id}', '${arrangorKontaktperson.navn}', '${arrangorKontaktperson.telefon}', '${arrangorKontaktperson.epost}', '${arrangorKontaktperson.beskrivelse}', '${arrangorKontaktperson.arrangorId}'),
-                ('${arrangorKontaktperson2.id}', '${arrangorKontaktperson2.navn}', '${arrangorKontaktperson2.telefon}', '${arrangorKontaktperson2.epost}', '${arrangorKontaktperson2.beskrivelse}', '${arrangorKontaktperson2.arrangorId}')
-            """.trimIndent()
-            queryOf(upsertKontaktpersonerQuery).asExecute.let { database.db.run(it) }
-
-            @Language("PostgreSQL")
-            val upsertQuery = """
-             insert into tiltaksgjennomforing_arrangor_kontaktperson(arrangor_kontaktperson_id, tiltaksgjennomforing_id) values
-             ('${arrangorKontaktperson.id}', '${Oppfolging1.id}'),
-             ('${arrangorKontaktperson2.id}', '${Oppfolging2.id}')
-            """.trimIndent()
-            queryOf(upsertQuery).asExecute.let { database.db.run(it) }
-
-            @Language("PostgreSQL")
-            val selectQuery = """
-                select arrangor_kontaktperson_id from tiltaksgjennomforing_arrangor_kontaktperson
-            """.trimIndent()
-
-            val results =
-                queryOf(selectQuery).map { it.uuid("arrangor_kontaktperson_id") }.asList.let { database.db.run(it) }
-            results.size shouldBe 2
             database.db.transaction { tx ->
                 tiltaksgjennomforinger.frikobleKontaktpersonFraGjennomforing(
-                    arrangorKontaktperson.id,
+                    kontaktperson1.id,
                     Oppfolging1.id,
                     tx,
                 )
             }
-            val resultsAfterFrikobling =
-                queryOf(selectQuery).map { it.uuid("arrangor_kontaktperson_id") }.asList.let { database.db.run(it) }
-            resultsAfterFrikobling.size shouldBe 1
+
+            tiltaksgjennomforinger.get(testDomain.gjennomforinger[0].id).shouldNotBeNull().should {
+                it.arrangor.kontaktpersoner.shouldBeEmpty()
+            }
+            tiltaksgjennomforinger.get(testDomain.gjennomforinger[1].id).shouldNotBeNull().should {
+                it.arrangor.kontaktpersoner.first().id.shouldBe(kontaktperson2.id)
+            }
         }
     }
 })

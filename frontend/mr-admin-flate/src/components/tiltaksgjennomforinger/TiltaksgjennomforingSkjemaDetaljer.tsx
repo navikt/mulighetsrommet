@@ -233,13 +233,6 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
                 format={"iso-string"}
               />
             </HGrid>
-            <Switch
-              size="small"
-              {...register("apentForPamelding")}
-              checked={watch("apentForPamelding")}
-            >
-              {tiltaktekster.apentForPameldingLabel}
-            </Switch>
             <HGrid align="start" columns={2}>
               <TextField
                 size="small"

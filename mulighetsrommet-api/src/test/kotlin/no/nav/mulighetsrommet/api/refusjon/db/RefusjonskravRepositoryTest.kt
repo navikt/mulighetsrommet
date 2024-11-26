@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.refusjon.db
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.ktor.http.*
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -139,6 +140,20 @@ class RefusjonskravRepositoryTest : FunSpec({
             repository.setGodkjentAvArrangor(krav.id, LocalDateTime.now())
 
             repository.get(krav.id).shouldNotBeNull().status shouldBe RefusjonskravStatus.GODKJENT_AV_ARRANGOR
+        }
+
+        test("set journalpost id") {
+            val krav = RefusjonskravDbo(
+                id = UUID.randomUUID(),
+                gjennomforingId = AFT1.id,
+                fristForGodkjenning = LocalDate.of(2024, 10, 1).atStartOfDay(),
+                beregning = beregning,
+                kontonummer = null,
+                kid = null,
+            )
+            repository.upsert(krav)
+
+            repository.setJournalpostId(krav.id, "123")
         }
 
         test("tillater ikke lagring av overlappende perioder") {

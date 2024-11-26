@@ -1,13 +1,12 @@
 package no.nav.mulighetsrommet.api.gjennomforing
 
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingKontaktpersonDbo
@@ -17,8 +16,12 @@ import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.responses.BadRequest
+import no.nav.mulighetsrommet.api.responses.ServerError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.responses.respondWithStatusResponseError
+import no.nav.mulighetsrommet.api.services.EndretAv
 import no.nav.mulighetsrommet.api.services.ExcelService
+import no.nav.mulighetsrommet.domain.Tiltakskoder.isForhaandsgodkjentTiltak
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.domain.serializers.AvbruttAarsakSerializer
@@ -32,6 +35,7 @@ import java.util.*
 fun Route.tiltaksgjennomforingRoutes() {
     val deltakere: DeltakerRepository by inject()
     val service: TiltaksgjennomforingService by inject()
+    val avtaler: AvtaleRepository by inject()
 
     route("tiltaksgjennomforinger") {
         authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
@@ -49,16 +53,74 @@ fun Route.tiltaksgjennomforingRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
                 val request = call.receive<SetAvtaleForGjennomforingRequest>()
-                val response = service.setAvtale(id, request.avtaleId, navIdent)
-                call.respondWithStatusResponse(response)
+
+                val gjennomforing = service.get(id) ?: return@put call.respond(
+                    HttpStatusCode.NotFound,
+                    message = "Gjennomføringen finnes ikke",
+                )
+
+                if (!isForhaandsgodkjentTiltak(gjennomforing.tiltakstype.tiltakskode)) {
+                    return@put call.respond(
+                        HttpStatusCode.BadRequest,
+                        message = "Avtale kan bare settes for tiltaksgjennomføringer av type AFT eller VTA",
+                    )
+                }
+
+                val avtaleId = request.avtaleId?.also {
+                    val avtale = avtaler.get(it) ?: return@put call.respond(
+                        HttpStatusCode.BadRequest,
+                        message = "Avtale med id=$it finnes ikke",
+                    )
+                    if (gjennomforing.tiltakstype.id != avtale.tiltakstype.id) {
+                        return@put call.respond(
+                            HttpStatusCode.BadRequest,
+                            message = "Tiltaksgjennomføringen må ha samme tiltakstype som avtalen",
+                        )
+                    }
+                }
+
+                service.setAvtale(gjennomforing.id, avtaleId, navIdent)
+
+                call.respond(HttpStatusCode.OK)
             }
 
             put("{id}/avbryt") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
                 val request = call.receive<AvbrytRequest>()
-                val response = service.avbrytGjennomforing(id, navIdent, request.aarsak)
-                call.respondWithStatusResponse(response)
+
+                val gjennomforing = service.get(id) ?: return@put call.respond(
+                    HttpStatusCode.NotFound,
+                    message = "Gjennomføringen finnes ikke",
+                )
+
+                if (!gjennomforing.isAktiv()) {
+                    return@put call.respond(
+                        HttpStatusCode.BadRequest,
+                        message = "Gjennomføringen er allerede avsluttet og kan derfor ikke avbrytes.",
+                    )
+                }
+
+                val aarsak = request.aarsak
+                    ?: return@put call.respond(HttpStatusCode.BadRequest, message = "Årsak mangler")
+
+                if (aarsak is AvbruttAarsak.Annet && aarsak.beskrivelse.length > 100) {
+                    return@put call.respond(
+                        HttpStatusCode.BadRequest,
+                        message = "Beskrivelse kan ikke inneholde mer enn 100 tegn",
+                    )
+                }
+
+                if (aarsak is AvbruttAarsak.Annet && aarsak.beskrivelse.isEmpty()) {
+                    return@put call.respond(
+                        HttpStatusCode.BadRequest,
+                        message = "Beskrivelse er obligatorisk når “Annet” er valgt som årsak",
+                    )
+                }
+
+                service.avbryt(id, aarsak, navIdent)
+
+                call.respond(HttpStatusCode.OK)
             }
 
             put("{id}/tilgjengelig-for-veileder") {
@@ -66,6 +128,14 @@ fun Route.tiltaksgjennomforingRoutes() {
                 val navIdent = getNavIdent()
                 val request = call.receive<PublisertRequest>()
                 service.setPublisert(id, request.publisert, navIdent)
+                call.respond(HttpStatusCode.OK)
+            }
+
+            put("{id}/apent-for-pamelding") {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val navIdent = getNavIdent()
+                val request = call.receive<SetApentForPameldingRequest>()
+                service.setApentForPamelding(id, request.apentForPamelding, EndretAv.NavAnsatt(navIdent))
                 call.respond(HttpStatusCode.OK)
             }
 
@@ -88,13 +158,21 @@ fun Route.tiltaksgjennomforingRoutes() {
             delete("kontaktperson") {
                 val request = call.receive<FrikobleKontaktpersonRequest>()
                 val navIdent = getNavIdent()
-                call.respondWithStatusResponse(
+                try {
                     service.frikobleKontaktpersonFraGjennomforing(
                         kontaktpersonId = request.kontaktpersonId,
                         gjennomforingId = request.dokumentId,
                         navIdent = navIdent,
-                    ),
-                )
+                    )
+                } catch (e: Throwable) {
+                    application.environment.log.error(
+                        "Klarte ikke fjerne kontaktperson fra gjennomføring: $request",
+                        e,
+                    )
+                    call.respondWithStatusResponseError(
+                        ServerError("Klarte ikke fjerne kontaktperson fra gjennomføringen"),
+                    )
+                }
             }
         }
 
@@ -265,7 +343,6 @@ data class TiltaksgjennomforingRequest(
     val navRegion: String,
     val navEnheter: List<String>,
     val oppstart: TiltaksgjennomforingOppstartstype,
-    val apentForPamelding: Boolean,
     val kontaktpersoner: List<TiltaksgjennomforingKontaktpersonDto>,
     val stedForGjennomforing: String?,
     val faneinnhold: Faneinnhold?,
@@ -285,7 +362,6 @@ data class TiltaksgjennomforingRequest(
         startDato = startDato,
         sluttDato = sluttDato,
         antallPlasser = antallPlasser,
-        apentForPamelding = apentForPamelding,
         arrangorId = arrangorId,
         arrangorKontaktpersoner = arrangorKontaktpersoner,
         administratorer = administratorer,
@@ -333,6 +409,11 @@ data class TiltaksgjennomforingKontaktpersonDto(
 @Serializable
 data class PublisertRequest(
     val publisert: Boolean,
+)
+
+@Serializable
+data class SetApentForPameldingRequest(
+    val apentForPamelding: Boolean,
 )
 
 @Serializable

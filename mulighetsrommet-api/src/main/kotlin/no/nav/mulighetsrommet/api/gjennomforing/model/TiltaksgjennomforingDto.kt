@@ -116,7 +116,6 @@ data class TiltaksgjennomforingDto(
         arrangorKontaktpersoner = arrangor.kontaktpersoner.map { it.id },
         startDato = startDato,
         sluttDato = sluttDato,
-        apentForPamelding = apentForPamelding,
         antallPlasser = antallPlasser ?: -1,
         avtaleId = avtaleId ?: id,
         administratorer = administratorer.map { it.navIdent },

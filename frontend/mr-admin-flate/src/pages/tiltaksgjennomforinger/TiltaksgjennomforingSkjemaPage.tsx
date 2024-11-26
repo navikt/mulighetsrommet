@@ -11,10 +11,10 @@ import { ErrorMeldinger } from "@/components/tiltaksgjennomforinger/Tiltaksgjenn
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
-import { TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
 import { SkjemaContainer } from "@/components/skjema/SkjemaContainer";
 import { SkjemaContent } from "@/components/skjema/SkjemaContent";
 import { defaultTiltaksgjennomforingData } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
+import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 
 export function TiltaksgjennomforingSkjemaPage() {
   const navigate = useNavigate();
@@ -109,7 +109,7 @@ export function TiltaksgjennomforingSkjemaPage() {
           {redigeringsModus ? "Rediger gjennomføring" : "Opprett ny tiltaksgjennomføring"}
         </Heading>
         {tiltaksgjennomforing ? (
-          <TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} showAvbruttAarsak />
+          <GjennomforingStatusMedAarsakTag status={tiltaksgjennomforing.status} />
         ) : null}
       </Header>
       <ContainerLayout>

@@ -264,7 +264,6 @@ class ArenaAdapterServiceTest :
                     it.arrangor.organisasjonsnummer shouldBe ArrangorFixtures.underenhet1.organisasjonsnummer
                     it.startDato shouldBe gjennomforing1.startDato
                     it.sluttDato shouldBe gjennomforing1.sluttDato
-                    it.apentForPamelding shouldBe gjennomforing1.apentForPamelding
                     it.antallPlasser shouldBe gjennomforing1.antallPlasser
                     it.oppstart shouldBe gjennomforing1.oppstart
                     it.deltidsprosent shouldBe gjennomforing1.deltidsprosent
