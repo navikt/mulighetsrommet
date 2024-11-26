@@ -19,7 +19,10 @@ import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTilta
 import { useNavigate } from "react-router-dom";
 import { useOpprettTilsagn } from "@/components/tilsagn/useOpprettTilsagn";
 import { useEffect } from "react";
-
+/*
+  useBergenTilsagn
+  useAftSatser
+ */
 export function OpprettTilsagn({
   tilsagn,
 }: {
@@ -32,9 +35,7 @@ export function OpprettTilsagn({
     defaultValues: tilsagn
       ? {
           id: tilsagn.id,
-          beregning: {
-            ...tilsagn.beregning,
-          },
+          beregning: tilsagn.beregning,
           kostnadssted: tilsagn.kostnadssted.enhetsnummer,
           periode: {
             start: tilsagn.periodeStart,
@@ -174,7 +175,7 @@ export function OpprettTilsagn({
                       <TextField
                         size="small"
                         label="Sats per plass per måned"
-                        value="TODO"
+                        value={20505}
                         readOnly
                       />
                     </HGrid>
