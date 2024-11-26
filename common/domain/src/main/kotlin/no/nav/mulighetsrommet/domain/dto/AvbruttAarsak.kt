@@ -8,24 +8,29 @@ sealed class AvbruttAarsak {
         override val name = "ENDRING_HOS_ARRANGOR"
         override val beskrivelse = "Endring hos arrangør"
     }
+
     data object BudsjettHensyn : AvbruttAarsak() {
         override val name = "BUDSJETT_HENSYN"
         override val beskrivelse = "Budsjetthensyn"
     }
+
     data object ForFaaDeltakere : AvbruttAarsak() {
         override val name = "FOR_FAA_DELTAKERE"
         override val beskrivelse = "For få deltakere"
     }
+
     data object Feilregistrering : AvbruttAarsak() {
         override val name = "FEILREGISTRERING"
         override val beskrivelse = "Feilregistrering"
     }
+
     data object AvbruttIArena : AvbruttAarsak() {
         override val name = "AVBRUTT_I_ARENA"
         override val beskrivelse = "Avbrutt i Arena"
     }
-    data class Annet(override val name: String) : AvbruttAarsak() {
-        override val beskrivelse = name
+
+    data class Annet(override val beskrivelse: String) : AvbruttAarsak() {
+        override val name = "ANNET"
     }
 
     companion object {

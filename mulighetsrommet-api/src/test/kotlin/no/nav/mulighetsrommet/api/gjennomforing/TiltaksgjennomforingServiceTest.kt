@@ -6,23 +6,20 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.*
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRepository
-import no.nav.mulighetsrommet.api.responses.NotFound
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -38,9 +35,21 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer = mockk(relaxed = true)
-    val navAnsattService: NavAnsattService = mockk(relaxed = true)
     val validator = mockk<TiltaksgjennomforingValidator>()
     val avtaleId = AvtaleFixtures.oppfolging.id
+
+    fun createService(
+        notifications: NotificationRepository = NotificationRepository(database.db),
+    ) = TiltaksgjennomforingService(
+        TiltaksgjennomforingRepository(database.db),
+        tiltaksgjennomforingKafkaProducer,
+        notifications,
+        validator,
+        EndringshistorikkService(database.db),
+        mockk(relaxed = true),
+        database.db,
+    )
+
     val domain = MulighetsrommetTestDomain()
 
     beforeEach {
@@ -58,60 +67,9 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
     val bertilNavIdent = NavIdent("B123456")
 
-    context("Avbryte gjennomføring") {
-        val avtaler = AvtaleRepository(database.db)
-        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-        val tiltaksgjennomforingService = TiltaksgjennomforingService(
-            avtaler,
-            tiltaksgjennomforingRepository,
-            tiltaksgjennomforingKafkaProducer,
-            NotificationRepository(database.db),
-            validator,
-            EndringshistorikkService(database.db),
-            navAnsattService,
-            database.db,
-        )
-
-        test("Man skal ikke få avbryte dersom gjennomføringen ikke finnes") {
-            tiltaksgjennomforingService.avbrytGjennomforing(
-                UUID.randomUUID(),
-                bertilNavIdent,
-                AvbruttAarsak.Feilregistrering,
-            ).shouldBeLeft(
-                NotFound(message = "Gjennomføringen finnes ikke"),
-            )
-        }
-
-        test("Skal få avbryte tiltaksgjennomføring hvis alle sjekkene er ok") {
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                avtaleId = avtaleId,
-                startDato = LocalDate.of(2023, 7, 1),
-                sluttDato = null,
-            )
-            tiltaksgjennomforingRepository.upsert(gjennomforing)
-
-            tiltaksgjennomforingService.avbrytGjennomforing(
-                gjennomforing.id,
-                bertilNavIdent,
-                AvbruttAarsak.Feilregistrering,
-            ).shouldBeRight()
-        }
-    }
-
     context("Upsert gjennomføring") {
-        val avtaler = AvtaleRepository(database.db)
-        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-        val avtaleRepository = AvtaleRepository(database.db)
-        val tiltaksgjennomforingService = TiltaksgjennomforingService(
-            avtaler,
-            tiltaksgjennomforingRepository,
-            tiltaksgjennomforingKafkaProducer,
-            NotificationRepository(database.db),
-            validator,
-            EndringshistorikkService(database.db),
-            navAnsattService,
-            database.db,
-        )
+        val notifications = spyk(NotificationRepository(database.db))
+        val tiltaksgjennomforingService = createService(notifications)
 
         test("Man skal ikke få lov til å opprette gjennomføring dersom det oppstår valideringsfeil") {
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request
@@ -120,28 +78,59 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 ValidationError("navn", "Dårlig navn"),
             ).left()
 
-            avtaleRepository.upsert(AvtaleFixtures.oppfolging)
-
             tiltaksgjennomforingService.upsert(gjennomforing, bertilNavIdent).shouldBeLeft(
                 listOf(ValidationError("navn", "Dårlig navn")),
             )
         }
+
+        test("Hvis publish kaster rulles upsert tilbake") {
+            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request
+
+            every { tiltaksgjennomforingKafkaProducer.publish(any()) } throws Exception()
+
+            shouldThrow<Throwable> {
+                tiltaksgjennomforingService.upsert(gjennomforing, bertilNavIdent)
+            }
+
+            tiltaksgjennomforingService.get(gjennomforing.id) shouldBe null
+        }
+
+        test("Hvis notification kaster rulles upsert tilbake") {
+            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request
+
+            every { notifications.insert(any(), any()) } throws Exception()
+
+            shouldThrow<Throwable> {
+                tiltaksgjennomforingService.upsert(gjennomforing, bertilNavIdent)
+            }
+
+            tiltaksgjennomforingService.get(gjennomforing.id) shouldBe null
+        }
+
+        test("Hvis ingen endring publish'er vi ikke igjen") {
+            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request
+
+            every { tiltaksgjennomforingKafkaProducer.publish(any()) } returns Unit
+
+            tiltaksgjennomforingService.upsert(gjennomforing, bertilNavIdent)
+            tiltaksgjennomforingService.upsert(gjennomforing, bertilNavIdent)
+
+            verify(exactly = 1) { tiltaksgjennomforingKafkaProducer.publish(any()) }
+        }
+
+        test("lagrer gjennomføring når ingen feil oppstår") {
+            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request
+
+            every { tiltaksgjennomforingKafkaProducer.publish(any()) } returns Unit
+
+            tiltaksgjennomforingService.upsert(gjennomforing, bertilNavIdent).shouldBeRight()
+
+            tiltaksgjennomforingService.get(gjennomforing.id) shouldNotBe null
+        }
     }
 
     context("Administrator-notification") {
-        val avtaler = AvtaleRepository(database.db)
-        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-        val avtaleRepository = AvtaleRepository(database.db)
-        val tiltaksgjennomforingService = TiltaksgjennomforingService(
-            avtaler,
-            tiltaksgjennomforingRepository,
-            tiltaksgjennomforingKafkaProducer,
-            NotificationRepository(database.db),
-            validator,
-            EndringshistorikkService(database.db),
-            navAnsattService,
-            database.db,
-        )
+        val tiltaksgjennomforingService = createService()
         val navAnsattRepository = NavAnsattRepository(database.db)
 
         test("Ingen administrator-notification hvis administratorer er samme som opprettet") {
@@ -156,13 +145,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     epost = "",
                     roller = emptySet(),
                     skalSlettesDato = null,
-                ),
-            )
-            avtaleRepository.upsert(
-                AvtaleFixtures.oppfolging.copy(
-                    id = avtaleId,
-                    tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                    sluttDato = LocalDate.of(2025, 1, 1),
                 ),
             )
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request.copy(
@@ -214,13 +196,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     skalSlettesDato = null,
                 ),
             )
-            avtaleRepository.upsert(
-                AvtaleFixtures.oppfolging.copy(
-                    id = avtaleId,
-                    tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                    sluttDato = LocalDate.of(2025, 1, 1),
-                ),
-            )
 
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request.copy(
                 administratorer = listOf(bertilNavIdent),
@@ -243,65 +218,9 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         }
     }
 
-    context("transaction testing") {
-        val avtaler = AvtaleRepository(database.db)
-        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-        val notificationRepository = spyk(NotificationRepository(database.db))
-        val tiltaksgjennomforingService = TiltaksgjennomforingService(
-            avtaler,
-            tiltaksgjennomforingRepository,
-            tiltaksgjennomforingKafkaProducer,
-            notificationRepository,
-            validator,
-            EndringshistorikkService(database.db),
-            navAnsattService,
-            database.db,
-        )
-
-        test("Hvis publish kaster rulles upsert tilbake") {
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request
-
-            every { tiltaksgjennomforingKafkaProducer.publish(any()) } throws Exception()
-
-            shouldThrow<Throwable> {
-                tiltaksgjennomforingService.upsert(gjennomforing, bertilNavIdent)
-            }
-
-            tiltaksgjennomforingService.get(gjennomforing.id) shouldBe null
-        }
-
-        test("Hvis ingen endring publish'er vi ikke igjen") {
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request
-
-            every { tiltaksgjennomforingKafkaProducer.publish(any()) } returns Unit
-
-            tiltaksgjennomforingService.upsert(gjennomforing, bertilNavIdent)
-            tiltaksgjennomforingService.upsert(gjennomforing, bertilNavIdent)
-
-            verify(exactly = 1) { tiltaksgjennomforingKafkaProducer.publish(any()) }
-        }
-
-        test("Hvis is publish _ikke_ kaster blir upsert værende") {
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request
-
-            every { tiltaksgjennomforingKafkaProducer.publish(any()) } returns Unit
-
-            tiltaksgjennomforingService.upsert(gjennomforing, bertilNavIdent).shouldBeRight()
-
-            tiltaksgjennomforingService.get(gjennomforing.id) shouldNotBe null
-        }
-
-        test("Hvis notification kaster rulles upsert tilbake") {
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request
-
-            every { notificationRepository.insert(any(), any()) } throws Exception()
-
-            shouldThrow<Throwable> {
-                tiltaksgjennomforingService.upsert(gjennomforing, bertilNavIdent)
-            }
-
-            tiltaksgjennomforingService.get(gjennomforing.id) shouldBe null
-        }
+    context("Avbryte gjennomføring") {
+        val gjennomforinger = TiltaksgjennomforingRepository(database.db)
+        val tiltaksgjennomforingService = createService()
 
         test("Avbrytes ikke hvis publish feiler") {
             val gjennomforing = TiltaksgjennomforingFixtures.AFT1.copy(
@@ -309,20 +228,20 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                 startDato = LocalDate.of(2023, 7, 1),
                 sluttDato = null,
             )
-            tiltaksgjennomforingRepository.upsert(gjennomforing)
+            gjennomforinger.upsert(gjennomforing)
 
             every { tiltaksgjennomforingKafkaProducer.publish(any()) } throws Exception()
 
             shouldThrow<Throwable> {
-                tiltaksgjennomforingService.avbrytGjennomforing(
+                tiltaksgjennomforingService.avbryt(
                     gjennomforing.id,
-                    bertilNavIdent,
                     AvbruttAarsak.Feilregistrering,
+                    bertilNavIdent,
                 )
             }
 
-            tiltaksgjennomforingService.get(gjennomforing.id) should {
-                it!!.status.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
+            tiltaksgjennomforingService.get(gjennomforing.id).shouldNotBeNull().should {
+                it.status.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
             }
         }
     }
