@@ -6,6 +6,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingKontaktpersonDbo
@@ -20,6 +21,7 @@ import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponseError
 import no.nav.mulighetsrommet.api.services.EndretAv
 import no.nav.mulighetsrommet.api.services.ExcelService
+import no.nav.mulighetsrommet.domain.Tiltakskoder.isForhaandsgodkjentTiltak
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.domain.serializers.AvbruttAarsakSerializer
@@ -33,6 +35,7 @@ import java.util.*
 fun Route.tiltaksgjennomforingRoutes() {
     val deltakere: DeltakerRepository by inject()
     val service: TiltaksgjennomforingService by inject()
+    val avtaler: AvtaleRepository by inject()
 
     route("tiltaksgjennomforinger") {
         authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
@@ -50,16 +53,76 @@ fun Route.tiltaksgjennomforingRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
                 val request = call.receive<SetAvtaleForGjennomforingRequest>()
+
                 val response = service.setAvtale(id, request.avtaleId, navIdent)
-                call.respondWithStatusResponse(response)
+
+                val gjennomforing = service.get(id) ?: return@put call.respond(
+                    HttpStatusCode.NotFound,
+                    message = "Gjennomføringen finnes ikke",
+                )
+
+                if (!isForhaandsgodkjentTiltak(gjennomforing.tiltakstype.tiltakskode)) {
+                    return@put call.respond(
+                        HttpStatusCode.BadRequest,
+                        message = "Avtale kan bare settes for tiltaksgjennomføringer av type AFT eller VTA",
+                    )
+                }
+
+                val avtaleId = request.avtaleId?.also {
+                    val avtale = avtaler.get(it) ?: return@put call.respond(
+                        HttpStatusCode.BadRequest,
+                        message = "Avtale med id=$it finnes ikke",
+                    )
+                    if (gjennomforing.tiltakstype.id != avtale.tiltakstype.id) {
+                        return@put call.respond(
+                            HttpStatusCode.BadRequest,
+                            message = "Tiltaksgjennomføringen må ha samme tiltakstype som avtalen",
+                        )
+                    }
+                }
+
+                service.setAvtale(gjennomforing.id, avtaleId, navIdent)
+
+                call.respond(HttpStatusCode.OK)
             }
 
             put("{id}/avbryt") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
                 val request = call.receive<AvbrytRequest>()
-                val response = service.avbrytGjennomforing(id, navIdent, request.aarsak)
-                call.respondWithStatusResponse(response)
+
+                val gjennomforing = service.get(id) ?: return@put call.respond(
+                    HttpStatusCode.NotFound,
+                    message = "Gjennomføringen finnes ikke",
+                )
+
+                if (!gjennomforing.isAktiv()) {
+                    return@put call.respond(
+                        HttpStatusCode.BadRequest,
+                        message = "Gjennomføringen er allerede avsluttet og kan derfor ikke avbrytes.",
+                    )
+                }
+
+                val aarsak = request.aarsak
+                    ?: return@put call.respond(HttpStatusCode.BadRequest, message = "Årsak mangler")
+
+                if (aarsak is AvbruttAarsak.Annet && aarsak.beskrivelse.length > 100) {
+                    return@put call.respond(
+                        HttpStatusCode.BadRequest,
+                        message = "Beskrivelse kan ikke inneholde mer enn 100 tegn",
+                    )
+                }
+
+                if (aarsak is AvbruttAarsak.Annet && aarsak.beskrivelse.isEmpty()) {
+                    return@put call.respond(
+                        HttpStatusCode.BadRequest,
+                        message = "Beskrivelse er obligatorisk når “Annet” er valgt som årsak",
+                    )
+                }
+
+                service.avbryt(id, aarsak, navIdent)
+
+                call.respond(HttpStatusCode.OK)
             }
 
             put("{id}/tilgjengelig-for-veileder") {
