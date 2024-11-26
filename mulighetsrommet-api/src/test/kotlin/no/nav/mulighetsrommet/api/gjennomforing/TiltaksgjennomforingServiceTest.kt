@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforinge
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRepository
 import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.services.EndretAv
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
@@ -29,6 +30,7 @@ import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingServiceTest : FunSpec({
@@ -233,10 +235,11 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             every { tiltaksgjennomforingKafkaProducer.publish(any()) } throws Exception()
 
             shouldThrow<Throwable> {
-                tiltaksgjennomforingService.avbryt(
+                tiltaksgjennomforingService.setAvsluttet(
                     gjennomforing.id,
+                    LocalDateTime.now(),
                     AvbruttAarsak.Feilregistrering,
-                    bertilNavIdent,
+                    EndretAv.NavAnsatt(bertilNavIdent),
                 )
             }
 
