@@ -1777,10 +1777,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TilsagnDto"
-    delete:
+    put:
       tags:
         - Tilsagn
       operationId: annullerTilsagn
+      responses:
+        200:
+          description: OK
+
+    delete:
+      tags:
+        - Tilsagn
+      operationId: slettTilsagn
       responses:
         200:
           description: OK

@@ -115,6 +115,18 @@ class TilsagnService(
         }.right()
     }
 
+    fun slettTilsagn(id: UUID): Either<StatusResponseError, Unit> {
+        val dto = tilsagnRepository.get(id)
+            ?: return NotFound("Fant ikke tilsagn").left()
+
+        if (dto.besluttelse?.status == TilsagnBesluttelseStatus.GODKJENT) {
+            return BadRequest("Kan ikke slette tilsagn som er godkjent").left()
+        }
+
+        return tilsagnRepository.delete(id).right()
+
+    }
+
     fun getAllArrangorflateTilsagn(organisasjonsnummer: Organisasjonsnummer): List<ArrangorflateTilsagn> {
         return tilsagnRepository.getAllArrangorflateTilsagn(organisasjonsnummer)
     }
@@ -128,7 +140,8 @@ class TilsagnService(
 
     fun getArrangorflateTilsagn(id: UUID): ArrangorflateTilsagn? = tilsagnRepository.getArrangorflateTilsagn(id)
 
-    fun getByGjennomforingId(gjennomforingId: UUID): List<TilsagnDto> = tilsagnRepository.getByGjennomforingId(gjennomforingId)
+    fun getByGjennomforingId(gjennomforingId: UUID): List<TilsagnDto> =
+        tilsagnRepository.getByGjennomforingId(gjennomforingId)
 
     fun get(id: UUID): TilsagnDto? = tilsagnRepository.get(id)
 
@@ -153,3 +166,4 @@ class TilsagnService(
         )
     }
 }
+

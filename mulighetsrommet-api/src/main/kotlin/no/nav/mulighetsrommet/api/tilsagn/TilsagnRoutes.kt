@@ -58,10 +58,16 @@ fun Route.tilsagnRoutes() {
                 call.respondWithStatusResponse(result)
             }
 
-            delete("/{id}") {
+            put("/{id}") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 call.respondWithStatusResponse(service.annuller(id))
+            }
+
+            delete("/{id}") {
+                val id = call.parameters.getOrFail<UUID>("id")
+
+                call.respondWithStatusResponse(service.slettTilsagn(id))
             }
         }
 
