@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.Personopplysning
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
 import org.intellij.lang.annotations.Language
 import java.util.*
 
@@ -131,10 +130,7 @@ class VeilederflateTiltakRepository(private val db: Database) {
             },
             personvernBekreftet = boolean("personvern_bekreftet"),
             personopplysningerSomKanBehandles = personopplysningerSomKanBehandles,
-            status = TiltaksgjennomforingStatusDto(
-                TiltaksgjennomforingStatus.valueOf(string("status")),
-                null,
-            ),
+            status = TiltaksgjennomforingStatus.valueOf(string("status")),
         )
     }
 }

@@ -5,7 +5,6 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -49,7 +48,6 @@ class UpdateApentForPameldingTest : FunSpec({
         val gjennomforinger = TiltaksgjennomforingRepository(database.db)
 
         val service = TiltaksgjennomforingService(
-            AvtaleRepository(database.db),
             gjennomforinger,
             mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true),
             NotificationRepository(database.db),

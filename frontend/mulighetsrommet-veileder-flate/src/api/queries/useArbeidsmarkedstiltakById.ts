@@ -15,11 +15,7 @@ export function isTiltakGruppe(tiltak: VeilederflateTiltak): tiltak is Veilederf
 }
 
 export function isTiltakAktivt(gjennomforing: VeilederflateTiltak): boolean {
-  if (typeof gjennomforing.status === "string") {
-    return gjennomforingIsAktiv(gjennomforing.status);
-  } else {
-    return gjennomforingIsAktiv(gjennomforing.status.status);
-  }
+  return gjennomforingIsAktiv(gjennomforing.status);
 }
 
 export function isTiltakEgenRegi(
