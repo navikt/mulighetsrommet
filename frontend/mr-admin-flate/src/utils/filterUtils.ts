@@ -14,10 +14,6 @@ export const TILTAKSGJENNOMFORING_STATUS_OPTIONS: {
   value: TiltaksgjennomforingStatus;
 }[] = [
   {
-    label: "Planlagt",
-    value: TiltaksgjennomforingStatus.PLANLAGT,
-  },
-  {
     label: "Gjennomføres",
     value: TiltaksgjennomforingStatus.GJENNOMFORES,
   },

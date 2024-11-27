@@ -2797,7 +2797,6 @@ components:
     TiltaksgjennomforingStatus:
       type: string
       enum:
-        - PLANLAGT
         - GJENNOMFORES
         - AVBRUTT
         - AVLYST
