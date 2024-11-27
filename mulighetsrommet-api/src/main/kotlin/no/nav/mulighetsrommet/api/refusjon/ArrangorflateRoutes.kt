@@ -341,6 +341,10 @@ fun refusjonskravJournalpost(
         idType = "ORGNR",
         navn = null,
     ),
+    bruker = Journalpost.Bruker(
+        id = organisasjonsnummer.value,
+        idType = "ORGNR",
+    ),
     tema = "TIL",
     datoMottatt = LocalDateTime.now().toString(),
     dokumenter = listOf(
@@ -359,6 +363,5 @@ fun refusjonskravJournalpost(
     journalfoerendeEnhet = "9999", // Automatisk journalføring
     kanal = "NAV_NO", // Påkrevd for INNGAENDE. Se https://confluence.adeo.no/display/BOA/Mottakskanal
     sak = null,
-    bruker = null,
     behandlingstema = null,
 )
