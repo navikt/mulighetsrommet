@@ -306,7 +306,7 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
         </DetaljerInfoContainer>
       </DetaljerContainer>
 
-      <NokkeltallDeltakere tiltaksgjennomforingId={tiltaksgjennomforing.id} />
+      <NokkeltallDeltakere gjennomforingId={tiltaksgjennomforing.id} />
     </>
   );
 }
