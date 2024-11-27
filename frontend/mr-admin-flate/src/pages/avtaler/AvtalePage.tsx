@@ -3,7 +3,6 @@ import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
 import { useTitle } from "@mr/frontend-common";
 import { Link, Outlet, useLocation, useMatch } from "react-router-dom";
 import { DupliserAvtale } from "@/components/avtaler/DupliserAvtale";
-import { ShowOpphavValue } from "@/components/debug/ShowOpphavValue";
 import { Header } from "@/components/detaljside/Header";
 import headerStyles from "@/components/detaljside/Header.module.scss";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
@@ -74,7 +73,6 @@ export function AvtalePage() {
             <Heading size="large" level="2">
               {avtale.navn ?? "..."}
             </Heading>
-            <ShowOpphavValue value={avtale.opphav} />
           </VStack>
           <AvtalestatusTag avtale={avtale} showAvbruttAarsak />
           <DupliserAvtale avtale={avtale} />
