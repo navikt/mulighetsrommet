@@ -180,7 +180,7 @@ export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingFilter = {
   search: "",
   navEnheter: [],
   tiltakstyper: [],
-  statuser: [TiltaksgjennomforingStatus.PLANLAGT, TiltaksgjennomforingStatus.GJENNOMFORES],
+  statuser: [TiltaksgjennomforingStatus.GJENNOMFORES],
   sortering: {
     sortString: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
     tableSort: {
