@@ -287,7 +287,7 @@ class TiltaksgjennomforingValidator(
         previous: TiltaksgjennomforingDto,
         avtale: AvtaleDto,
     ) {
-        if (!previous.isAktiv()) {
+        if (previous.status.status != TiltaksgjennomforingStatus.GJENNOMFORES) {
             add(
                 ValidationError.of(
                     TiltaksgjennomforingDbo::navn,

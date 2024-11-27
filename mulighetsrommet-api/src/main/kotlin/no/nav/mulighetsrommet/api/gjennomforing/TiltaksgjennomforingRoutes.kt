@@ -95,7 +95,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                     message = "Gjennomføringen finnes ikke",
                 )
 
-                if (!gjennomforing.isAktiv()) {
+                if (gjennomforing.status.status != TiltaksgjennomforingStatus.GJENNOMFORES) {
                     return@put call.respond(
                         HttpStatusCode.BadRequest,
                         message = "Gjennomføringen er allerede avsluttet og kan derfor ikke avbrytes.",

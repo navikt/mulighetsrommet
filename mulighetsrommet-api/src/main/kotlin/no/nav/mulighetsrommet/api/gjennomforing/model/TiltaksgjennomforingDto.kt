@@ -55,10 +55,6 @@ data class TiltaksgjennomforingDto(
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDto?,
 ) {
-    fun isAktiv(): Boolean = status.status in listOf(
-        TiltaksgjennomforingStatus.PLANLAGT,
-        TiltaksgjennomforingStatus.GJENNOMFORES,
-    )
 
     @Serializable
     data class Tiltakstype(
