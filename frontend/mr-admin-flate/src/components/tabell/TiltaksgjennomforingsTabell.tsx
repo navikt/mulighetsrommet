@@ -14,7 +14,6 @@ import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbar
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
 import React, { createRef, useEffect, useState } from "react";
 import pageStyles from "../../pages/Page.module.scss";
-import { ShowOpphavValue } from "../debug/ShowOpphavValue";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
@@ -197,7 +196,6 @@ export function TiltaksgjennomforingsTabell({
                             >
                               {tiltaksgjennomforing.navn}
                             </Lenke>
-                            <ShowOpphavValue value={tiltaksgjennomforing.opphav} />
                           </VStack>
                         </Table.DataCell>
                       </SkjulKolonne>

@@ -3,7 +3,6 @@ import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { Link, Outlet, useLocation, useParams } from "react-router-dom";
-import { ShowOpphavValue } from "@/components/debug/ShowOpphavValue";
 import { Header } from "@/components/detaljside/Header";
 import headerStyles from "@/components/detaljside/Header.module.scss";
 import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
@@ -103,7 +102,6 @@ export function TiltaksgjennomforingPage() {
               <Heading className={headerStyles.navn} size="large" level="2">
                 {tiltaksgjennomforing.navn}
               </Heading>
-              <ShowOpphavValue value={tiltaksgjennomforing.opphav} />
             </VStack>
             <GjennomforingStatusMedAarsakTag status={tiltaksgjennomforing.status} />
             <DupliserTiltak tiltaksgjennomforing={tiltaksgjennomforing} />

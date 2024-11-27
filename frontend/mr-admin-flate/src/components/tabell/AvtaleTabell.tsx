@@ -15,7 +15,6 @@ import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
 import { createRef, useEffect, useState } from "react";
-import { ShowOpphavValue } from "../debug/ShowOpphavValue";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
@@ -170,7 +169,6 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
                         <Lenke to={`/avtaler/${avtale.id}`} data-testid="avtaletabell_tittel">
                           {avtale.navn}
                         </Lenke>
-                        <ShowOpphavValue value={avtale.opphav} />
                       </VStack>
                     </Table.DataCell>
                     <Table.DataCell aria-label={`Avtalenummer: ${avtale?.avtalenummer ?? "N/A"}`}>
