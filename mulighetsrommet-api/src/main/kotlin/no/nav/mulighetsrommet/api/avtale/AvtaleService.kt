@@ -159,29 +159,15 @@ class AvtaleService(
             ),
         )
 
-        val (antallAktiveGjennomforinger, antallPlanlagteGjennomforinger) = gjennomforinger.partition { it.status.status == TiltaksgjennomforingStatus.GJENNOMFORES }
-        if (antallAktiveGjennomforinger.isNotEmpty()) {
-            return Either.Left(
-                BadRequest(
-                    message = "Avtalen har ${antallAktiveGjennomforinger.size} ${
-                        if (antallAktiveGjennomforinger.size > 1) "aktive tiltaksgjennomføringer" else "aktiv tiltaksgjennomføring"
-                    } koblet til seg. Du må frikoble ${
-                        if (antallAktiveGjennomforinger.size > 1) "gjennomføringene" else "gjennomføringen"
-                    } før du kan avbryte avtalen.",
-                ),
-            )
-        }
-
-        if (antallPlanlagteGjennomforinger.isNotEmpty()) {
-            return Either.Left(
-                BadRequest(
-                    message = "Avtalen har ${antallPlanlagteGjennomforinger.size} ${
-                        if (antallPlanlagteGjennomforinger.size > 1) "planlagte tiltaksgjennomføringer" else "planlagt tiltaksgjennomføring"
-                    } koblet til seg. Du må flytte eller avslutte ${
-                        if (antallPlanlagteGjennomforinger.size > 1) "gjennomføringene" else "gjennomføringen"
-                    } før du kan avbryte avtalen.",
-                ),
-            )
+        if (gjennomforinger.isNotEmpty()) {
+            val plural = gjennomforinger.size > 1
+            val message = listOf(
+                "Avtalen har",
+                gjennomforinger.size,
+                if (plural) "aktive gjennomføringer" else "aktiv gjennomføring",
+                "og kan derfor ikke avbrytes.",
+            ).joinToString(" ")
+            return Either.Left(BadRequest(message))
         }
 
         db.transaction { tx ->

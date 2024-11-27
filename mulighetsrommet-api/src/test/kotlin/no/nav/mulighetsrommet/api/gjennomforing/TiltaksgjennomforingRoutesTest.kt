@@ -267,7 +267,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
 
             domain.initialize(database.db)
 
-            gjennomforinger.avbryt(
+            gjennomforinger.setAvsluttet(
                 domain.gjennomforinger[1].id,
                 LocalDateTime.now(),
                 AvbruttAarsak.Feilregistrering,

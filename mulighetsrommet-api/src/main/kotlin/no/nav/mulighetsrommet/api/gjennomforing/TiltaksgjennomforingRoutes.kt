@@ -30,6 +30,7 @@ import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 fun Route.tiltaksgjennomforingRoutes() {
@@ -118,7 +119,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                     )
                 }
 
-                service.avbryt(id, aarsak, navIdent)
+                service.setAvsluttet(id, LocalDateTime.now(), aarsak, EndretAv.NavAnsatt(navIdent))
 
                 call.respond(HttpStatusCode.OK)
             }
