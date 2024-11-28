@@ -70,8 +70,6 @@ fun Application.configure(config: AppConfig) {
         kafka.disableFailedRecordProcessor()
         kafka.stopPollingTopicChanges()
 
-        scheduler.stop()
-
         db.close()
     }
 }
