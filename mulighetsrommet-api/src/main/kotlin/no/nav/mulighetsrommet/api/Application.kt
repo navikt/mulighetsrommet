@@ -52,13 +52,13 @@ fun Application.configure(config: AppConfig) {
 
     val scheduler: Scheduler by inject()
 
-    environment.monitor.subscribe(ApplicationStarted) {
+    monitor.subscribe(ApplicationStarted) {
         kafka.enableFailedRecordProcessor()
 
         scheduler.start()
     }
 
-    environment.monitor.subscribe(ApplicationStopPreparing) {
+    monitor.subscribe(ApplicationStopPreparing) {
         kafka.disableFailedRecordProcessor()
         kafka.stopPollingTopicChanges()
 

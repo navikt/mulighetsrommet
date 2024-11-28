@@ -63,11 +63,11 @@ fun Application.configure(config: AppConfig) {
         tiltakshistorikkRoutes(deltakerRepository, tiltakshistorikkService)
     }
 
-    environment.monitor.subscribe(ApplicationStarted) {
+    monitor.subscribe(ApplicationStarted) {
         kafka.enableFailedRecordProcessor()
     }
 
-    environment.monitor.subscribe(ApplicationStopPreparing) {
+    monitor.subscribe(ApplicationStopPreparing) {
         kafka.disableFailedRecordProcessor()
         kafka.stopPollingTopicChanges()
 
