@@ -6,7 +6,6 @@ import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
 enum class TiltaksgjennomforingStatus {
-    PLANLAGT,
     GJENNOMFORES,
     AVSLUTTET,
     AVBRUTT,

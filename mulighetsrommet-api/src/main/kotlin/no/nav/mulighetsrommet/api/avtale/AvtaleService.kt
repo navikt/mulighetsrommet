@@ -153,10 +153,7 @@ class AvtaleService(
 
         val (_, gjennomforinger) = tiltaksgjennomforinger.getAll(
             avtaleId = id,
-            statuser = listOf(
-                TiltaksgjennomforingStatus.GJENNOMFORES,
-                TiltaksgjennomforingStatus.PLANLAGT,
-            ),
+            statuser = listOf(TiltaksgjennomforingStatus.GJENNOMFORES),
         )
 
         if (gjennomforinger.isNotEmpty()) {

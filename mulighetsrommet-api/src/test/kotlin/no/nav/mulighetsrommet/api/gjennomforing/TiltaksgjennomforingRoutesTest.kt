@@ -262,13 +262,16 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
             ),
         )
 
+        val avsluttetGjennomforingId = domain.gjennomforinger[1].id
+        val aktivGjennomforingId = domain.gjennomforinger[0].id
+
         beforeAny {
             val gjennomforinger = TiltaksgjennomforingRepository(database.db)
 
             domain.initialize(database.db)
 
             gjennomforinger.setAvsluttet(
-                domain.gjennomforinger[1].id,
+                avsluttetGjennomforingId,
                 LocalDateTime.now(),
                 AvbruttAarsak.Feilregistrering,
             )
@@ -311,7 +314,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 }
 
                 val response = client
-                    .put("/api/v1/intern/tiltaksgjennomforinger/${domain.gjennomforinger[0].id}/avbryt") {
+                    .put("/api/v1/intern/tiltaksgjennomforinger/$aktivGjennomforingId/avbryt") {
                         val claims = mapOf(
                             "NAVident" to "ABC123",
                             "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
@@ -335,7 +338,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 }
 
                 val response = client
-                    .put("/api/v1/intern/tiltaksgjennomforinger/${domain.gjennomforinger[0].id}/avbryt") {
+                    .put("/api/v1/intern/tiltaksgjennomforinger/$aktivGjennomforingId/avbryt") {
                         val claims = mapOf(
                             "NAVident" to "ABC123",
                             "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
@@ -359,7 +362,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 }
 
                 val response = client
-                    .put("/api/v1/intern/tiltaksgjennomforinger/${domain.gjennomforinger[1].id}/avbryt") {
+                    .put("/api/v1/intern/tiltaksgjennomforinger/$avsluttetGjennomforingId/avbryt") {
                         val claims = mapOf(
                             "NAVident" to "ABC123",
                             "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
@@ -385,7 +388,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 }
 
                 val response = client
-                    .put("/api/v1/intern/tiltaksgjennomforinger/${domain.gjennomforinger[0].id}/avbryt") {
+                    .put("/api/v1/intern/tiltaksgjennomforinger/$aktivGjennomforingId/avbryt") {
                         val claims = mapOf(
                             "NAVident" to "ABC123",
                             "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
@@ -398,7 +401,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 response.status shouldBe HttpStatusCode.OK
                 response.bodyAsText().shouldBeEmpty()
 
-                gjennomforinger.get(domain.gjennomforinger[0].id).shouldNotBeNull().should {
+                gjennomforinger.get(aktivGjennomforingId).shouldNotBeNull().should {
                     it.status.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
                     it.status.avbrutt?.aarsak shouldBe AvbruttAarsak.Feilregistrering
                 }

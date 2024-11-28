@@ -48,7 +48,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
             }
 
             val status = when (tiltaksgjennomforing.status.status) {
-                TiltaksgjennomforingStatus.PLANLAGT, TiltaksgjennomforingStatus.GJENNOMFORES -> ArenaTiltaksgjennomforingStatus.GJENNOMFORES
+                TiltaksgjennomforingStatus.GJENNOMFORES -> ArenaTiltaksgjennomforingStatus.GJENNOMFORES
                 TiltaksgjennomforingStatus.AVSLUTTET -> ArenaTiltaksgjennomforingStatus.AVSLUTTET
                 TiltaksgjennomforingStatus.AVBRUTT -> ArenaTiltaksgjennomforingStatus.AVBRUTT
                 TiltaksgjennomforingStatus.AVLYST -> ArenaTiltaksgjennomforingStatus.AVLYST

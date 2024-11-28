@@ -168,10 +168,12 @@ class TiltaksgjennomforingService(
 
         val dto = getOrError(id, tx)
         val operation = when (dto.status.status) {
-            TiltaksgjennomforingStatus.AVSLUTTET -> "Gjennomføringen ble avsluttet"
-            TiltaksgjennomforingStatus.AVBRUTT -> "Gjennomføringen ble avbrutt"
-            TiltaksgjennomforingStatus.AVLYST -> "Gjennomføringen ble avlyst"
-            else -> throw IllegalStateException("Gjennomføringen ble nettopp avsluttet, men status ${dto.status.status} indikerer noe annet")
+            TiltaksgjennomforingStatus.AVSLUTTET,
+            TiltaksgjennomforingStatus.AVBRUTT,
+            TiltaksgjennomforingStatus.AVLYST,
+            -> "Gjennomføringen ble ${dto.status.status.name.lowercase()}"
+
+            else -> throw IllegalStateException("Gjennomføringen ble nettopp avsluttet, men status er fortsatt ${dto.status.status}")
         }
         logEndring(operation, dto, endretAv, tx)
 
