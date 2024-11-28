@@ -474,6 +474,7 @@ private fun tasks(config: TaskConfig) = module {
                 generateRefusjonskrav.task,
             )
             .serializer(DbSchedulerKotlinSerializer())
+            .registerShutdownHook()
             .build()
     }
 }
