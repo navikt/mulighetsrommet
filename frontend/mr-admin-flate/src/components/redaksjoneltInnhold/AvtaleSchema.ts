@@ -45,9 +45,11 @@ export const AvtaleSchema = z
       }),
     opsjonsmodellData: z.object({
       opsjonMaksVarighet: z.string().optional().nullable(),
-      opsjonsmodell: z.nativeEnum(OpsjonsmodellKey, {
-        required_error: "Du må velge avtalt mulighet for forlengelse",
-      }),
+      opsjonsmodell: z
+        .nativeEnum(OpsjonsmodellKey, {
+          required_error: "Du må velge avtalt mulighet for forlengelse",
+        })
+        .optional(),
       customOpsjonsmodellNavn: z.string().optional().nullable(),
     }),
     administratorer: z.string().array().min(1, "Du må velge minst én administrator"),
