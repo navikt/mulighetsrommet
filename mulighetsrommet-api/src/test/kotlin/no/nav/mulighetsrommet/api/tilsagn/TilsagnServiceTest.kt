@@ -133,7 +133,7 @@ class TilsagnServiceTest : FunSpec({
                 id = tilsagn.id,
                 besluttelse = BesluttTilsagnRequest.AvvistTilsagnRequest(
                     aarsaker = listOf(AvvistTilsagnAarsak.FEIL_PERIODE),
-                    forklaring = null
+                    forklaring = null,
                 ),
                 navIdent = NavAnsattFixture.ansatt1.navIdent,
             )

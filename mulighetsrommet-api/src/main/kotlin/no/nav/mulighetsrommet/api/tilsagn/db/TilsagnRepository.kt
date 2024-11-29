@@ -304,6 +304,4 @@ class TilsagnRepository(private val db: Database) {
             beregning = Json.decodeFromString<Prismodell.TilsagnBeregning>(string("beregning")),
         )
     }
-
-
 }

@@ -124,7 +124,6 @@ class TilsagnService(
         }
 
         return tilsagnRepository.delete(id).right()
-
     }
 
     fun getAllArrangorflateTilsagn(organisasjonsnummer: Organisasjonsnummer): List<ArrangorflateTilsagn> {
@@ -140,8 +139,7 @@ class TilsagnService(
 
     fun getArrangorflateTilsagn(id: UUID): ArrangorflateTilsagn? = tilsagnRepository.getArrangorflateTilsagn(id)
 
-    fun getByGjennomforingId(gjennomforingId: UUID): List<TilsagnDto> =
-        tilsagnRepository.getByGjennomforingId(gjennomforingId)
+    fun getByGjennomforingId(gjennomforingId: UUID): List<TilsagnDto> = tilsagnRepository.getByGjennomforingId(gjennomforingId)
 
     fun get(id: UUID): TilsagnDto? = tilsagnRepository.get(id)
 
@@ -166,4 +164,3 @@ class TilsagnService(
         )
     }
 }
-
