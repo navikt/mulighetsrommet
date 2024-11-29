@@ -59,9 +59,9 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
   const endreStartDatoModalRef = useRef<HTMLDialogElement>(null);
   const endreSluttDatoModalRef = useRef<HTMLDialogElement>(null);
 
-  const kontaktpersonerOption = (selectedIndex: number) => {
-    const excludedKontaktpersoner = watch("kontaktpersoner")
-      ?.filter((_, i) => i !== selectedIndex)
+  const kontaktpersonerOption = (navident: string) => {
+    const excludedKontaktpersoner = tiltaksgjennomforing?.kontaktpersoner
+      ?.filter((kontakt) => kontakt.navIdent !== navident)
       .map((k) => k.navIdent);
 
     const options = kontaktpersoner
@@ -81,6 +81,7 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
     setValue,
     watch,
   } = useFormContext<InferredTiltaksgjennomforingSchema>();
+
   const {
     fields: kontaktpersonFields,
     append: appendKontaktperson,
@@ -371,7 +372,7 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
                           onInputChange={(s: string) => {
                             setKontaktpersonerQuery(s);
                           }}
-                          options={kontaktpersonerOption(index)}
+                          options={kontaktpersonerOption(field.navIdent)}
                         />
                         <ControlledMultiSelect
                           size="small"
