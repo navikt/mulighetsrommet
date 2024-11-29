@@ -4,6 +4,7 @@ on:
     branches:
       - feature/bigquery-terraform
     paths:
+      - .github/workflows/bigquery-terraform.yaml
       - iac/bigquery-terraform/**
   workflow_dispatch:
 
@@ -74,3 +75,64 @@ jobs:
 #      - name: Run 'terraform apply'
 #        run: terraform apply -auto-approve
 
+  terraform-plan-prod:
+    name: "terraform plan prod-gcp"
+    runs-on: ubuntu-latest
+    concurrency: terraform-plan-prod
+    defaults:
+      run:
+        working-directory: ${{ env.PROD_DIR }}
+
+    permissions:
+      contents: read
+      id-token: write # Required for Workload Identity Federation
+
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/380520190028/locations/global/workloadIdentityPools/github/providers/github-action
+          service_account: terraform@team-mulighetsrommet-prod-5492.iam.gserviceaccount.com
+
+      - name: Run 'terraform setup'
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Run 'terraform init'
+        run: terraform init
+
+      - name: Run 'terraform fmt'
+        run: terraform fmt -check
+
+      - name: Run 'terraform validate'
+        run: terraform validate
+
+      - name: Run 'terraform plan'
+        run: terraform plan
+
+#  terraform-apply-prod:
+#    needs: terraform-plan-prod
+#    if: github.ref_name == 'main'
+#    name: "terraform apply gcp-prod"
+#    runs-on: ubuntu-latest
+#    concurrency: terraform-plan-prod, terraform-apply-prod
+#    defaults:
+#      run:
+#        working-directory: ${{ env.PROD_DIR }}
+#
+#    env:
+#      GOOGLE_CREDENTIALS: ${{ secrets.GCP_SECRET_PROD }}
+#    steps:
+#      - name: "Checkout code"
+#        uses: actions/checkout@v4
+#
+#      - name: Run 'terraform setup'
+#        uses: hashicorp/setup-terraform@v3
+#
+#      - name: Run 'terraform init'
+#        run: terraform init
+#
+#      - name: Run 'terraform apply'
+#        run: terraform apply -auto-approve
