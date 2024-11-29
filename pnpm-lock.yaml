@@ -97,6 +97,9 @@ importers:
 
   frontend/arrangor-flate:
     dependencies:
+      '@axe-core/playwright':
+        specifier: 4.10.1
+        version: 4.10.1(playwright-core@1.49.0)
       '@mr/api-client':
         specifier: workspace:*
         version: link:../api-client
@@ -182,6 +185,9 @@ importers:
         specifier: 11.0.3
         version: 11.0.3
     devDependencies:
+      '@playwright/test':
+        specifier: 1.49.0
+        version: 1.49.0
       '@remix-run/dev':
         specifier: 2.15.0
         version: 2.15.0(@remix-run/react@2.15.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.7.2))(@remix-run/serve@2.15.0(typescript@5.7.2))(@types/node@22.9.3)(babel-plugin-macros@3.1.0)(sass-embedded@1.81.0)(sass@1.79.3)(terser@5.31.6)(typescript@5.7.2)(vite@5.4.10(@types/node@22.9.3)(sass-embedded@1.81.0)(sass@1.79.3)(terser@5.31.6))
@@ -197,6 +203,9 @@ importers:
       '@types/morgan':
         specifier: 1.9.9
         version: 1.9.9
+      '@types/node':
+        specifier: 22.9.3
+        version: 22.9.3
       '@types/react':
         specifier: 18.3.12
         version: 18.3.12
@@ -2235,18 +2244,12 @@ packages:
     peerDependencies:
       '@types/react': ^17.0.30 || ^18.0.0
       react: ^17.0.0 || ^18.0.0
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
 
   '@navikt/ds-react@7.5.3':
     resolution: {integrity: sha512-dVV4ED2nulCSpONs41Lc3RuGEuE+eg8VMNPVTuedwhwEp8HeFE4wl0ACqOgbFGlQ+xDsF11O3cqioPZBqxgAUg==, tarball: https://npm.pkg.github.com/download/@navikt/ds-react/7.5.3/2b1cf3562099ed426afd36a826a96e4a299160a7}
     peerDependencies:
       '@types/react': '>=17.0.30'
       react: '>=17.0.0 || >19.0.0-rc'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
 
   '@navikt/ds-tailwind@7.5.3':
     resolution: {integrity: sha512-E0ocur5VgMigH1Ygo+2Qa1p632b3WsDHVE5o41wnkfWuNfOsfVx3bOXgZz5l5/8MLspLl/tDYRxCVvXOdLjjCQ==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.5.3/68d0f48bed1b518611fd9c12bee1c9e8adab8d4a}
@@ -2262,9 +2265,6 @@ packages:
       html-react-parser: '>=5.x'
       jsdom: '>=16.x'
       react: '>=17.x'
-    peerDependenciesMeta:
-      react:
-        optional: true
 
   '@navikt/oasis@3.4.0':
     resolution: {integrity: sha512-le+J+gE/OeLfqyZFQWDqp/pY6f7lzMpP1ynXnDOWBalmkav9tmWor4g/pqb+Xorm6C6bNCdScmCKDHvNVf+CoQ==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/3.4.0/7a21e6e8c8e6eca00d7e6a5c06f7e8315c0cc71a}
@@ -3094,9 +3094,6 @@ packages:
 
   '@types/ms@0.7.34':
     resolution: {integrity: sha512-nG96G3Wp6acyAgJqGasjODb+acrI7KltPiRxzHPXnP3NgI28bpQDRv53olbqGXbfcgF5aiiHmO3xpwEpS5Ld9g==}
-
-  '@types/node@22.9.1':
-    resolution: {integrity: sha512-p8Yy/8sw1caA8CdRIQBG5tiLHmxtQKObCijiAa9Ez+d4+PRffM4054xbju0msf+cvhJpnFEeNjxmVT/0ipktrg==}
 
   '@types/node@22.9.3':
     resolution: {integrity: sha512-F3u1fs/fce3FFk+DAxbxc78DF8x0cY09RRL8GnXLmkJ1jvx3TtPdWoTT5/NiYfI5ASqXBmfqJi9dZ3gxMx4lzw==}
@@ -10245,9 +10242,8 @@ snapshots:
 
   '@navikt/ds-icons@3.4.3(@types/react@18.3.12)(react@18.3.1)':
     dependencies:
-      react: 18.3.1
-    optionalDependencies:
       '@types/react': 18.3.12
+      react: 18.3.1
 
   '@navikt/ds-react@7.5.3(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -10255,12 +10251,11 @@ snapshots:
       '@floating-ui/react-dom': 2.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@navikt/aksel-icons': 7.5.3
       '@navikt/ds-tokens': 7.5.3
+      '@types/react': 18.3.12
       clsx: 2.1.1
       date-fns: 3.6.0
       react: 18.3.1
       react-day-picker: 8.10.1(date-fns@3.6.0)(react@18.3.1)
-    optionalDependencies:
-      '@types/react': 18.3.12
     transitivePeerDependencies:
       - react-dom
 
@@ -10273,7 +10268,6 @@ snapshots:
       csp-header: 6.0.0
       html-react-parser: 5.1.18(@types/react@18.3.12)(react@18.3.1)
       jsdom: 25.0.1
-    optionalDependencies:
       react: 18.3.1
 
   '@navikt/oasis@3.4.0':
@@ -11383,13 +11377,9 @@ snapshots:
 
   '@types/morgan@1.9.9':
     dependencies:
-      '@types/node': 22.9.1
+      '@types/node': 22.9.3
 
   '@types/ms@0.7.34': {}
-
-  '@types/node@22.9.1':
-    dependencies:
-      undici-types: 6.19.8
 
   '@types/node@22.9.3':
     dependencies:
