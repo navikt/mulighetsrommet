@@ -13,9 +13,14 @@
     "lint:fix": "eslint --cache --cache-location ./node_modules/.cache/eslint app/ server.js --fix",
     "typecheck": "tsc",
     "build": "remix vite:build",
-    "pack": "pnpm --filter @mr/arrangor-flate --prod deploy dist"
+    "pack": "pnpm --filter @mr/arrangor-flate --prod deploy dist",
+    "playwright": "playwright test",
+    "playwright:debug": "playwright test --debug",
+    "playwright:open": "playwright test --ui",
+    "playwright:codegen": "playwright codegen playwright.dev"
   },
   "dependencies": {
+    "@axe-core/playwright": "4.10.1",
     "@mr/api-client": "workspace:*",
     "@mr/frontend-common": "workspace:*",
     "@navikt/aksel-icons": "7.5.3",
@@ -46,11 +51,13 @@
     "uuid": "11.0.3"
   },
   "devDependencies": {
+    "@playwright/test": "1.49.0",
     "@remix-run/dev": "2.15.0",
     "@tailwindcss/typography": "0.5.15",
     "@types/compression": "1.7.5",
     "@types/express": "5.0.0",
     "@types/morgan": "1.9.9",
+    "@types/node": "22.9.3",
     "@types/react": "18.3.12",
     "@types/react-dom": "18.3.1",
     "@typescript-eslint/eslint-plugin": "8.15.0",
@@ -60,6 +67,7 @@
     "eslint-plugin-react": "7.37.2",
     "eslint-plugin-react-hooks": "5.0.0",
     "globals": "15.12.0",
+    "playwright": "1.49.0",
     "postcss": "8.4.49",
     "postcss-import": "16.1.0",
     "tailwindcss": "3.4.15",
