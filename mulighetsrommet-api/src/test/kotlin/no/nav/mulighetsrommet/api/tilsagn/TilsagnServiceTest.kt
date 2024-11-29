@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
 import arrow.core.left
+import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -14,6 +15,7 @@ import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.Forbidden
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
+import no.nav.mulighetsrommet.api.tilsagn.model.AvvistTilsagnAarsak
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import java.time.LocalDate
@@ -98,6 +100,57 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = NavAnsattFixture.ansatt2.navIdent,
             ) shouldBe
                 BadRequest("Tilsagn allerede besluttet").left()
+        }
+    }
+
+    context("slett tilsagn") {
+        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+        val service = TilsagnService(
+            tilsagnRepository = TilsagnRepository(database.db),
+            tiltaksgjennomforingRepository,
+            validator = TilsagnValidator(tiltaksgjennomforingRepository),
+            db = database.db,
+        )
+        val tilsagn = TilsagnRequest(
+            id = UUID.randomUUID(),
+            tiltaksgjennomforingId = AFT1.id,
+            periodeStart = LocalDate.of(2023, 1, 1),
+            periodeSlutt = LocalDate.of(2023, 2, 1),
+            kostnadssted = Gjovik.enhetsnummer,
+            beregning = Prismodell.TilsagnBeregning.AFT(
+                belop = 123,
+                periodeStart = LocalDate.of(2023, 1, 1),
+                periodeSlutt = LocalDate.of(2023, 2, 1),
+                antallPlasser = 2,
+                sats = 4,
+            ),
+        )
+
+        test("kan bare slette tilsagn når det er avvist") {
+            service.upsert(tilsagn, NavAnsattFixture.ansatt1.navIdent).shouldBeRight()
+
+            service.beslutt(
+                id = tilsagn.id,
+                besluttelse = BesluttTilsagnRequest.AvvistTilsagnRequest(
+                    aarsaker = listOf(AvvistTilsagnAarsak.FEIL_PERIODE),
+                    forklaring = null,
+                ),
+                navIdent = NavAnsattFixture.ansatt1.navIdent,
+            )
+
+            service.slettTilsagn(tilsagn.id).shouldBeRight()
+        }
+
+        test("kan ikke slette tilsagn når det er godkjent") {
+            service.upsert(tilsagn, NavAnsattFixture.ansatt1.navIdent).shouldBeRight()
+
+            service.beslutt(
+                id = tilsagn.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
+            ).shouldBeRight()
+
+            service.slettTilsagn(tilsagn.id).shouldBeLeft()
         }
     }
 })
