@@ -118,32 +118,34 @@ export default function BekreftRefusjonskrav() {
         <Separator />
         <Heading size="medium">Betalingsinformasjon</Heading>
         <Form method="post">
-          <Definisjon label="Kontonummer">
-            <TextField
-              label="Kontonummer"
-              hideLabel
-              size="small"
-              error={data?.errors?.kontonummer}
-              name="kontonummer"
-              className="border border-[#0214317D] rounded-md"
-              defaultValue={krav.betalingsinformasjon?.kontonummer}
-              maxLength={11}
-              minLength={11}
-            />
-          </Definisjon>
-          <Definisjon label="Evt KID nr for refusjonskrav" className="my-4 flex">
-            <div className="flex">
+          <dl>
+            <Definisjon label="Kontonummer">
               <TextField
-                label="Evt KID nr for refusjonskrav"
+                label="Kontonummer"
                 hideLabel
                 size="small"
-                name="kid"
+                error={data?.errors?.kontonummer}
+                name="kontonummer"
                 className="border border-[#0214317D] rounded-md"
-                defaultValue={krav.betalingsinformasjon?.kid}
-                maxLength={25}
+                defaultValue={krav.betalingsinformasjon?.kontonummer}
+                maxLength={11}
+                minLength={11}
               />
-            </div>
-          </Definisjon>
+            </Definisjon>
+            <Definisjon label="Evt KID nr for refusjonskrav" className="my-4 flex">
+              <div className="flex">
+                <TextField
+                  label="Evt KID nr for refusjonskrav"
+                  hideLabel
+                  size="small"
+                  name="kid"
+                  className="border border-[#0214317D] rounded-md"
+                  defaultValue={krav.betalingsinformasjon?.kid}
+                  maxLength={25}
+                />
+              </div>
+            </Definisjon>
+          </dl>
           <VStack gap="2" justify={"start"} align={"start"}>
             <Checkbox name="bekreftelse" value="bekreftet" error={data?.errors?.bekreftelse}>
               Det erklæres herved at alle opplysninger er gitt i henhold til de faktiske forhold
