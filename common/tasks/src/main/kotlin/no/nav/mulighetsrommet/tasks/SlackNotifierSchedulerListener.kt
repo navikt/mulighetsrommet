@@ -34,7 +34,9 @@ class SlackNotifierSchedulerListener(
             |*Span id:* ${spanContext.spanId}
             |*Trace id:* ${spanContext.traceId}
             |*Exception message:* ${cause.getOrNull()?.message}
-            |*Exception stack trace:* ```${cause.getOrNull()?.stackTraceToString()}```
+            |*Exception stack trace:* ```
+            |${cause.getOrNull()?.stackTraceToString()}
+            |```
             """.trimMargin(),
         )
     }
