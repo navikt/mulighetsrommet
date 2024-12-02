@@ -1,5 +1,8 @@
 package no.nav.mulighetsrommet.api.clients.dokark
 
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
 import io.ktor.client.plugins.cache.*
@@ -24,7 +27,7 @@ class DokarkClient(
         install(HttpCache)
     }
 
-    suspend fun opprettJournalpost(journalpost: Journalpost, accessType: AccessType): DokarkResult {
+    suspend fun opprettJournalpost(journalpost: Journalpost, accessType: AccessType): Either<DokarkError, DokarkResponse> {
         val response = client.post("$baseUrl/rest/journalpostapi/v1/journalpost?forsoekFerdigstill=true") {
             bearerAuth(tokenProvider.exchange(accessType))
             contentType(ContentType.Application.Json)
@@ -33,14 +36,10 @@ class DokarkClient(
 
         if (!response.status.isSuccess()) {
             log.warn("Feilet å opprette journalpost: {}", response.bodyAsText())
-            return DokarkResult.Error("Feilet å laste opp til joark")
+            return DokarkError("Feilet å laste opp til joark").left()
         }
 
-        val dokarkresponse = response.body<DokarkResponse>()
-        if (!dokarkresponse.journalpostferdigstilt) {
-            log.warn("Opprettet journalpost, men den kunne ikke bli ferdigstilt automatisk")
-        }
-        return DokarkResult.Success(journalpostId = dokarkresponse.journalpostId)
+        return response.body<DokarkResponse>().right()
     }
 }
 
@@ -58,10 +57,7 @@ data class DokarkResponseDokument(
     val dokumentInfoId: String,
 )
 
-sealed interface DokarkResult {
-    data class Success(val journalpostId: String) : DokarkResult
-    data class Error(val message: String) : DokarkResult
-}
+data class DokarkError(val message: String)
 
 @Serializable
 data class Journalpost(

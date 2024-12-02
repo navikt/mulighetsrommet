@@ -25,7 +25,6 @@ import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravAft
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravStatus
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
@@ -230,7 +229,7 @@ class ArrangorflateRoutesTest : FunSpec({
         }
     }
 
-    test("riktig sjekksum ved godkjenning av refusjon gir 200") {
+    test("riktig sjekksum ved godkjenning av refusjon gir 200, og spawner journalforing task") {
         withTestApplication(appConfig()) {
             val client = createClient {
                 install(ContentNegotiation) {
@@ -254,7 +253,7 @@ class ArrangorflateRoutesTest : FunSpec({
         }
     }
 
-    test("feil mot dokark ruller tilbake godkjenning") {
+    test("feil mot dokark gir fortsatt 200 på godkjenn siden det skjer i en task") {
         withTestApplication(
             appConfig(
                 listOf(
@@ -270,7 +269,7 @@ class ArrangorflateRoutesTest : FunSpec({
                     json()
                 }
             }
-            var response = client.post("/api/v1/intern/arrangorflate/refusjonskrav/${krav.id}/godkjenn-refusjon") {
+            val response = client.post("/api/v1/intern/arrangorflate/refusjonskrav/${krav.id}/godkjenn-refusjon") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(
@@ -283,16 +282,7 @@ class ArrangorflateRoutesTest : FunSpec({
                     ),
                 )
             }
-            response.status shouldBe HttpStatusCode.InternalServerError
-
-            response = client.get("/api/v1/intern/arrangorflate/refusjonskrav/${krav.id}") {
-                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
-                contentType(ContentType.Application.Json)
-            }
             response.status shouldBe HttpStatusCode.OK
-            val responseBody = response.bodyAsText()
-            val kravResponse: RefusjonKravAft = Json.decodeFromString(responseBody)
-            kravResponse.status shouldBe RefusjonskravStatus.KLAR_FOR_GODKJENNING
         }
     }
 })
