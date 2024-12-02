@@ -1,7 +1,6 @@
 import { ArrangorflateService, RefusjonKravKompakt, RefusjonskravStatus } from "@mr/api-client";
 import { Tabs } from "@navikt/ds-react";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { RefusjonskravTable } from "~/components/refusjonskrav/RefusjonskravTable";
 import { TilsagnTable } from "~/components/tilsagn/TilsagnTable";
@@ -28,7 +27,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const krav = await ArrangorflateService.getAllRefusjonKrav({ orgnr });
   const tilsagn = await ArrangorflateService.getAllArrangorflateTilsagn({ orgnr });
 
-  return json({ krav, tilsagn });
+  return { krav, tilsagn };
 }
 
 export default function TilsagnDetaljer() {

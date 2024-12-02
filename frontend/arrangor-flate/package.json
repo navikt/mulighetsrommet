@@ -53,6 +53,8 @@
   "devDependencies": {
     "@playwright/test": "1.49.0",
     "@remix-run/dev": "2.15.0",
+    "@remix-run/fs-routes": "^2.15.0",
+    "@remix-run/route-config": "^2.15.0",
     "@tailwindcss/typography": "0.5.15",
     "@types/compression": "1.7.5",
     "@types/express": "5.0.0",
