@@ -13,9 +13,3 @@ variable "mr-api_datastream_secret" {
   type        = string
   default     = "mr-api-datastream-credentials"
 }
-
-variable "mr-api_cloud_sql_port" {
-  description = "The port exposed by the mr-api database Cloud SQL instance."
-  type        = string
-  default     = "5432"
-}
