@@ -1,4 +1,4 @@
-import { createRequestHandler } from "@remix-run/express";
+import { createRequestHandler } from "@react-router/express";
 import compression from "compression";
 import express from "express";
 import expressPromBundle from "express-prom-bundle";
@@ -19,7 +19,7 @@ const viteDevServer =
 
 const remixHandler = createRequestHandler({
   build: viteDevServer
-    ? () => viteDevServer.ssrLoadModule("virtual:remix/server-build")
+    ? () => viteDevServer.ssrLoadModule("virtual:react-router/server-build")
     : await import("./build/server/index.js"),
   getLoadContext: (req) => ({
     erAutorisert: req.headers.authorization,

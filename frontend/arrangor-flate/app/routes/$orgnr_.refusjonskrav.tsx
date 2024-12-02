@@ -1,7 +1,7 @@
 import { ArrangorflateService, RefusjonKravKompakt, RefusjonskravStatus } from "@mr/api-client";
 import { Tabs } from "@navikt/ds-react";
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import type { LoaderFunctionArgs, MetaFunction } from "react-router";
+import { useLoaderData } from "react-router";
 import { RefusjonskravTable } from "~/components/refusjonskrav/RefusjonskravTable";
 import { TilsagnTable } from "~/components/tilsagn/TilsagnTable";
 import { checkValidToken, setupOpenApi } from "../auth/auth.server";

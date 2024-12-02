@@ -1,6 +1,6 @@
 import { OpenAPI } from "@mr/api-client";
 import { getToken, parseIdportenToken, requestTokenxOboToken, validateToken } from "@navikt/oasis";
-import { redirectDocument } from "@remix-run/node";
+import { redirectDocument } from "react-router";
 import { v4 as uuidv4 } from "uuid";
 import { hentMiljø, Miljø } from "../services/miljø";
 

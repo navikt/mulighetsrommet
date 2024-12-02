@@ -1,5 +1,5 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "react-router";
+import { redirect } from "react-router";
 import { hentArrangortilgangerForBruker } from "../auth/arrangortilgang.server";
 import { checkValidToken, setupOpenApi } from "../auth/auth.server";
 import { internalNavigation } from "../internal-navigation";

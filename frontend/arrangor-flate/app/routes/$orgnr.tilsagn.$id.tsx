@@ -1,6 +1,6 @@
 import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
-import { LoaderFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { LoaderFunction } from "react-router";
+import { useLoaderData } from "react-router";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { checkValidToken } from "../auth/auth.server";
