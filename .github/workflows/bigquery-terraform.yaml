@@ -1,4 +1,4 @@
-name: "Terraform"
+name: "BigQuery Terraform"
 on:
   push:
     branches:
@@ -7,6 +7,15 @@ on:
       - .github/workflows/bigquery-terraform.yaml
       - iac/bigquery-terraform/**
   workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Environment
+        required: true
+        default: dev
+        options:
+          - dev
+          - dev_and_prod
 
 env:
   DEV_DIR: "iac/bigquery-terraform/dev"
@@ -38,42 +47,40 @@ jobs:
       - name: Run 'terraform setup'
         uses: hashicorp/setup-terraform@v3
 
-      - name: Run 'terraform init'
-        run: terraform init
+      - run: terraform init
+      - run: terraform fmt -check
+      - run: terraform validate
+      - run: terraform plan
 
-      - name: Run 'terraform fmt'
-        run: terraform fmt -check
+  terraform-apply-dev:
+    needs: terraform-plan-dev
+    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+    name: "terraform apply dev-gcp"
+    runs-on: ubuntu-latest
+    concurrency: terraform-plan-dev, terraform-apply-dev
+    defaults:
+      run:
+        working-directory: ${{ env.DEV_DIR }}
 
-      - name: Run 'terraform validate'
-        run: terraform validate
+    permissions:
+      contents: read
+      id-token: write # Required for Workload Identity Federation
 
-      - name: Run 'terraform plan'
-        run: terraform plan
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
 
-#  terraform-apply-dev:
-#    needs: terraform-plan-dev
-#    if: github.ref_name == 'main' || startsWith(github.ref_name, 'dev-')
-#    name: "terraform apply gcp-dev"
-#    runs-on: ubuntu-latest
-#    concurrency: terraform-plan-dev, terraform-apply-dev
-#    defaults:
-#      run:
-#        working-directory: ${{ env.DEV_DIR }}
-#
-#    env:
-#      GOOGLE_CREDENTIALS: ${{ secrets.GCP_SECRET_DEV }}
-#    steps:
-#      - name: "Checkout code"
-#        uses: actions/checkout@v4
-#
-#      - name: Run 'terraform setup'
-#        uses: hashicorp/setup-terraform@v3
-#
-#      - name: Run 'terraform init'
-#        run: terraform init
-#
-#      - name: Run 'terraform apply'
-#        run: terraform apply -auto-approve
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/932652929200/locations/global/workloadIdentityPools/github/providers/github-action
+          service_account: terraform@team-mulighetsrommet-dev-a2d7.iam.gserviceaccount.com
+
+      - name: Run 'terraform setup'
+        uses: hashicorp/setup-terraform@v3
+
+      - run: terraform init
+      - run: terraform apply -auto-approve
 
   terraform-plan-prod:
     name: "terraform plan prod-gcp"
@@ -100,39 +107,37 @@ jobs:
       - name: Run 'terraform setup'
         uses: hashicorp/setup-terraform@v3
 
-      - name: Run 'terraform init'
-        run: terraform init
+      - run: terraform init
+      - run: terraform fmt -check
+      - run: terraform validate
+      - run: terraform plan
 
-      - name: Run 'terraform fmt'
-        run: terraform fmt -check
+  terraform-apply-prod:
+    needs: terraform-plan-prod
+    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
+    name: "terraform apply prod-gcp"
+    runs-on: ubuntu-latest
+    concurrency: terraform-plan-prod, terraform-apply-prod
+    defaults:
+      run:
+        working-directory: ${{ env.PROD_DIR }}
 
-      - name: Run 'terraform validate'
-        run: terraform validate
+    permissions:
+      contents: read
+      id-token: write # Required for Workload Identity Federation
 
-      - name: Run 'terraform plan'
-        run: terraform plan
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
 
-#  terraform-apply-prod:
-#    needs: terraform-plan-prod
-#    if: github.ref_name == 'main'
-#    name: "terraform apply gcp-prod"
-#    runs-on: ubuntu-latest
-#    concurrency: terraform-plan-prod, terraform-apply-prod
-#    defaults:
-#      run:
-#        working-directory: ${{ env.PROD_DIR }}
-#
-#    env:
-#      GOOGLE_CREDENTIALS: ${{ secrets.GCP_SECRET_PROD }}
-#    steps:
-#      - name: "Checkout code"
-#        uses: actions/checkout@v4
-#
-#      - name: Run 'terraform setup'
-#        uses: hashicorp/setup-terraform@v3
-#
-#      - name: Run 'terraform init'
-#        run: terraform init
-#
-#      - name: Run 'terraform apply'
-#        run: terraform apply -auto-approve
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/380520190028/locations/global/workloadIdentityPools/github/providers/github-action
+          service_account: terraform@team-mulighetsrommet-prod-5492.iam.gserviceaccount.com
+
+      - name: Run 'terraform setup'
+        uses: hashicorp/setup-terraform@v3
+
+      - run: terraform init
+      - run: terraform apply -auto-approve
