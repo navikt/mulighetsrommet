@@ -610,6 +610,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             id = uuid("id"),
             navn = string("navn"),
             tiltaksnummer = stringOrNull("tiltaksnummer"),
+            lopenummer = stringOrNull("lopenummer"),
             startDato = startDato,
             sluttDato = sluttDato,
             status = TiltaksgjennomforingStatusDto(status, avbrutt),

@@ -25,6 +25,7 @@ data class TiltaksgjennomforingDto(
     val tiltakstype: Tiltakstype,
     val navn: String,
     val tiltaksnummer: String?,
+    val lopenummer: String?,
     val arrangor: ArrangorUnderenhet,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
