@@ -25,8 +25,8 @@ importers:
   frontend/api-client:
     devDependencies:
       '@hey-api/openapi-ts':
-        specifier: 0.56.3
-        version: 0.56.3(typescript@5.7.2)
+        specifier: 0.57.1
+        version: 0.57.1(typescript@5.7.2)
       typescript:
         specifier: 5.7.2
         version: 5.7.2
@@ -1669,6 +1669,9 @@ packages:
   '@codemirror/language@6.10.4':
     resolution: {integrity: sha512-qjt7Wn/nxGuI278GYVlqE5V93Xn8ZQwzqZtgS0FaWr7K2yWgd5/FlBNqNi4jtUvBVvWJzAGfnggIlpyjTOaF4A==}
 
+  '@codemirror/language@6.10.6':
+    resolution: {integrity: sha512-KrsbdCnxEztLVbB5PycWXFxas4EOyk/fPAfruSOnDDppevQgid2XZ+KbJ9u+fDikP/e7MW7HPBTvTb8JlZK9vA==}
+
   '@codemirror/lint@6.8.1':
     resolution: {integrity: sha512-IZ0Y7S4/bpaunwggW2jYqwLuHj0QtESf5xcROewY6+lDNwZ/NzvR4t+vpYgg9m7V8UXLPYqG+lu3DF470E5Oxg==}
 
@@ -2127,8 +2130,8 @@ packages:
   '@grafana/faro-web-sdk@1.12.2':
     resolution: {integrity: sha512-vrMaeyJUEkXvRsO3POQgVfHkmMjFdXGqRnPRR60WsvYh7bDzd4M5B2n44cPN7qL1+pTG70g3CcCSX6Kfr4c34Q==}
 
-  '@hey-api/openapi-ts@0.56.3':
-    resolution: {integrity: sha512-8tXjZJzVD/+S2MGIxsblPtETu9KdmXNPIvWmLnDTNyYNh101gBCu83A1XvSb2kjr7prxxzodcXDxneSUPgagmQ==}
+  '@hey-api/openapi-ts@0.57.1':
+    resolution: {integrity: sha512-CZ2W1Ma4Z1zPI2M7mR5wfgTvDnxYenv/zAiX4wYgUX3n8GlWWjRkAQ02TgwBiHD3T9isR2zPyub/8rqyZ5yIsA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -3832,9 +3835,6 @@ packages:
   concat-stream@2.0.0:
     resolution: {integrity: sha512-MWufYdFw53ccGjCA+Ol7XJYpAlW6/prSMzuPOTRnJGcGzuhLn4Scrz7qf6o8bROZ514ltazcIFJZevcfbo0x7A==}
     engines: {'0': node >= 6.0}
-
-  confbox@0.1.7:
-    resolution: {integrity: sha512-uJcB/FKZtBMCJpK8MQji6bJHgu1tixKPxRLeGkNzBoOZzpnZUJm0jm2/sBDWcuBx1dYgxV4JU+g5hmNxCyAmdA==}
 
   confbox@0.1.8:
     resolution: {integrity: sha512-RMtmw0iFkeR4YV+fUOSucriAQNb9g8zFR52MWCtl+cCZOFRNL6zeB395vPzFhEjjn4fMxXudmELnl/KF/WrK6w==}
@@ -5933,9 +5933,6 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  mlly@1.7.1:
-    resolution: {integrity: sha512-rrVRZRELyQzrIUAVMHxP97kv+G786pHmOKzuFII8zDYahFBS7qnHh2AlYSl1GAHhaMPCz6/oHjVMcfFYgFYHgA==}
-
   mlly@1.7.3:
     resolution: {integrity: sha512-xUsx5n/mN0uQf4V548PKQ+YShA4/IW0KI1dZhrNrPCLG+xizETbHTkOa1f8/xut9JRPp8kQuMnz0oqwkTiLo/A==}
 
@@ -6361,9 +6358,6 @@ packages:
   pkg-dir@5.0.0:
     resolution: {integrity: sha512-NPE8TDbzl/3YQYY7CSS228s3g2ollTFnc+Qi3tqmqJp9Vg2ovUpixcJEo2HJScN2Ez+kEaal6y70c0ehqJBJeA==}
     engines: {node: '>=10'}
-
-  pkg-types@1.2.0:
-    resolution: {integrity: sha512-+ifYuSSqOQ8CqP4MbZA5hDpb97n3E8SVWdJe+Wms9kj745lmd3b7EZJiqvmLwAlmRfjrI7Hi5z3kdBJ93lFNPA==}
 
   pkg-types@1.2.1:
     resolution: {integrity: sha512-sQoqa8alT3nHjGuTjuKgOnvjo4cljkufdtLMnO2LBP/wRwuDlo1tkaEdMxCRhyGRPacv/ztlZgDPm2b7FAmEvw==}
@@ -9688,6 +9682,13 @@ snapshots:
       '@codemirror/view': 6.35.0
       '@lezer/common': 1.2.1
 
+  '@codemirror/autocomplete@6.18.3(@codemirror/language@6.10.6)(@codemirror/state@6.4.1)(@codemirror/view@6.35.0)(@lezer/common@1.2.1)':
+    dependencies:
+      '@codemirror/language': 6.10.6
+      '@codemirror/state': 6.4.1
+      '@codemirror/view': 6.35.0
+      '@lezer/common': 1.2.1
+
   '@codemirror/commands@6.7.1':
     dependencies:
       '@codemirror/language': 6.10.4
@@ -9714,6 +9715,15 @@ snapshots:
       '@lezer/lr': 1.4.2
       style-mod: 4.1.2
 
+  '@codemirror/language@6.10.6':
+    dependencies:
+      '@codemirror/state': 6.4.1
+      '@codemirror/view': 6.35.0
+      '@lezer/common': 1.2.1
+      '@lezer/highlight': 1.2.1
+      '@lezer/lr': 1.4.2
+      style-mod: 4.1.2
+
   '@codemirror/lint@6.8.1':
     dependencies:
       '@codemirror/state': 6.4.1
@@ -9730,7 +9740,7 @@ snapshots:
 
   '@codemirror/theme-one-dark@6.1.2':
     dependencies:
-      '@codemirror/language': 6.10.4
+      '@codemirror/language': 6.10.6
       '@codemirror/state': 6.4.1
       '@codemirror/view': 6.35.0
       '@lezer/highlight': 1.2.1
@@ -10098,7 +10108,7 @@ snapshots:
       ua-parser-js: 1.0.39
       web-vitals: 4.2.3
 
-  '@hey-api/openapi-ts@0.56.3(typescript@5.7.2)':
+  '@hey-api/openapi-ts@0.57.1(typescript@5.7.2)':
     dependencies:
       '@apidevtools/json-schema-ref-parser': 11.7.2
       c12: 2.0.1
@@ -12035,16 +12045,16 @@ snapshots:
   c12@2.0.1:
     dependencies:
       chokidar: 4.0.1
-      confbox: 0.1.7
+      confbox: 0.1.8
       defu: 6.1.4
       dotenv: 16.4.5
       giget: 1.2.3
       jiti: 2.3.3
-      mlly: 1.7.1
+      mlly: 1.7.3
       ohash: 1.1.4
       pathe: 1.1.2
       perfect-debounce: 1.0.0
-      pkg-types: 1.2.0
+      pkg-types: 1.2.1
       rc9: 2.1.2
 
   cac@6.7.14: {}
@@ -12198,9 +12208,9 @@ snapshots:
 
   codemirror@6.0.1(@lezer/common@1.2.1):
     dependencies:
-      '@codemirror/autocomplete': 6.18.3(@codemirror/language@6.10.4)(@codemirror/state@6.4.1)(@codemirror/view@6.35.0)(@lezer/common@1.2.1)
+      '@codemirror/autocomplete': 6.18.3(@codemirror/language@6.10.6)(@codemirror/state@6.4.1)(@codemirror/view@6.35.0)(@lezer/common@1.2.1)
       '@codemirror/commands': 6.7.1
-      '@codemirror/language': 6.10.4
+      '@codemirror/language': 6.10.6
       '@codemirror/lint': 6.8.1
       '@codemirror/search': 6.5.8
       '@codemirror/state': 6.4.1
@@ -12287,8 +12297,6 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
       typedarray: 0.0.6
-
-  confbox@0.1.7: {}
 
   confbox@0.1.8: {}
 
@@ -14853,13 +14861,6 @@ snapshots:
 
   mkdirp@3.0.1: {}
 
-  mlly@1.7.1:
-    dependencies:
-      acorn: 8.14.0
-      pathe: 1.1.2
-      pkg-types: 1.2.0
-      ufo: 1.5.4
-
   mlly@1.7.3:
     dependencies:
       acorn: 8.14.0
@@ -15020,7 +15021,7 @@ snapshots:
       consola: 3.2.3
       execa: 8.0.1
       pathe: 1.1.2
-      pkg-types: 1.2.0
+      pkg-types: 1.2.1
       ufo: 1.5.4
 
   object-assign@4.1.1: {}
@@ -15286,12 +15287,6 @@ snapshots:
   pkg-dir@5.0.0:
     dependencies:
       find-up: 5.0.0
-
-  pkg-types@1.2.0:
-    dependencies:
-      confbox: 0.1.7
-      mlly: 1.7.1
-      pathe: 1.1.2
 
   pkg-types@1.2.1:
     dependencies:
