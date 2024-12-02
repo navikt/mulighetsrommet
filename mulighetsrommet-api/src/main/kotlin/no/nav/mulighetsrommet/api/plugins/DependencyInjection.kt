@@ -451,6 +451,7 @@ private fun tasks(config: TaskConfig) = module {
         val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
         val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
         val generateRefusjonskrav: GenerateRefusjonskrav by inject()
+        val journalforRefusjonskrav: JournalforRefusjonskrav by inject()
 
         val db: Database by inject()
 
@@ -461,6 +462,7 @@ private fun tasks(config: TaskConfig) = module {
                 generateValidationReport.task,
                 initialLoadTiltaksgjennomforinger.task,
                 initialLoadTiltakstyper.task,
+                journalforRefusjonskrav.task,
             )
             .addSchedulerListener(SlackNotifierSchedulerListener(get()))
             .addSchedulerListener(OpenTelemetrySchedulerListener())
