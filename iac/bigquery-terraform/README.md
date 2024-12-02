@@ -9,18 +9,28 @@ med Google Datastream. Konfigurasjonen er basert på følgende oppsett:
 
 Formålet med oppsettet er å lage og dele [dataprodukter](https://docs.knada.io/dataprodukter/) via Nada.
 
-*OBS: Husk å se over resultatet av `terraform plan` før du merger noe til main!*
+*OBS! Husk å se over resultatet av `terraform plan` før du merger noe til main!*
+
+### Deploy
+
+Infrastrukturen deployes kontinuerlig via Github Actions når koden merges til `main`, evt. så er det også mulig å
+deploye manuelt via workflow dispatch.
+
+Det har blitt opprettet en egen IAM Service Account som autentiserer med GCP via Workload Identity Federation, oppsettet
+er beskrevet under.
 
 ### Manuelle steg
 
-Under er en del manuelle steg som må til for å få satt opp replikering fra en Postgres-instans til BigQuery.
+Under er det beskrevet en del manuelle steg som må til for å få satt opp replikering fra en Postgres-instans til
+BigQuery.
 
 #### Manuelt oppsett database
 
 Det må opprettes databasebruker for datastreamen, databasebrukeren må gis tilgang, og det må settes opp replikering.
 Dette er godt beskrevet her: https://github.com/navikt/nada-datastream?tab=readme-ov-file#forutsetninger-for-bruk.
-OBS! Ikke sett opp replikeringen før man nærmer seg klar til å lese inn dataene fra datastreamen, hvis ikke fyller
-disken seg opp!
+
+*OBS! Ikke sett opp replikeringen før man nærmer seg klar til å lese inn dataene fra datastreamen, hvis ikke fyller
+disken seg opp!*
 
 #### Opprette secret for datastream-bruker
 
@@ -90,10 +100,11 @@ gcloud projects add-iam-policy-binding $PROJECT --member="serviceAccount:terrafo
 #### Kjør terraform
 
 Hvis du skal kjøre terraform lokalt trenger du credentials til service-accounten til terraform.
-Disse kan opprettes og lastes ned fra GCP via console og kjør deretter `export GOOGLE_CREDENTIALS=~/<key>.json` (
+Disse kan opprettes og lastes ned fra GCP via console og kjør deretter `export GOOGLE_CREDENTIALS=/path/to/<key>.json` (
 `<key>.json` er filen som inneholder json-keyen for service accounten for Terraform) for å gjøre nøkkelen tilgjengelig
 for terraform.
-OBS! Ikke sjekk inn denne filen i git og slett den gjerne lokalt og i GCP om den ikke lengre trengs.
+
+*OBS! Ikke sjekk inn denne filen i git og slett den gjerne lokalt og i GCP om den ikke lengre trengs.*
 
 Hvis alt har blitt satt opp riktig kan terraform kjøres som følger:
 
