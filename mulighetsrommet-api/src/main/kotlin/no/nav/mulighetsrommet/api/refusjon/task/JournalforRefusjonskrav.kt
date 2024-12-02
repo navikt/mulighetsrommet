@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.refusjon.task
 import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.pdfgen.Pdfgen
 import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
@@ -14,6 +15,8 @@ import no.nav.mulighetsrommet.api.refusjon.refusjonskravJournalpost
 import no.nav.mulighetsrommet.api.refusjon.toRefusjonskrav
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
@@ -30,19 +33,26 @@ class JournalforRefusjonskrav(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    val task: OneTimeTask<UUID> = Tasks
-        .oneTime(javaClass.simpleName, UUID::class.java)
+    @Serializable
+    data class TaskData(
+        @Serializable(with = UUIDSerializer::class)
+        val refusjonskravId: UUID,
+    )
+
+    val task: OneTimeTask<TaskData> = Tasks
+        .oneTime(javaClass.simpleName, TaskData::class.java)
         .executeSuspend { inst, _ ->
-            journalforRefusjonskrav(inst.data)
+            journalforRefusjonskrav(inst.data.refusjonskravId)
         }
 
     private val client = SchedulerClient.Builder
         .create(database.getDatasource(), task)
+        .serializer(DbSchedulerKotlinSerializer())
         .build()
 
     fun schedule(refusjonskravId: UUID, startTime: Instant = Instant.now()): UUID {
         val id = UUID.randomUUID()
-        val instance = task.instance(id.toString(), refusjonskravId)
+        val instance = task.instance(id.toString(), TaskData(refusjonskravId))
         client.scheduleIfNotExists(instance, startTime)
         return id
     }
