@@ -82,7 +82,7 @@ class TilsagnRepositoryTest : FunSpec({
         }
 
         test("Skal få status ANNULLERT hvis tilsagnet har et annullert tidspunkt") {
-            val annullertTidspunkt = LocalDateTime.now()
+            val annullertTidspunkt = LocalDateTime.of(2024, 12, 12, 0, 0)
             database.db.transaction {
                 repository.upsert(tilsagn)
                 repository.setAnnullertTidspunkt(tilsagn.id, annullertTidspunkt, it)
