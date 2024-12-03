@@ -112,7 +112,7 @@ class TilsagnRepositoryTest : FunSpec({
         }
 
         test("Skal få status GODKJENT hvis tilsagnet har et annullert tidspunkt") {
-            val besluttetTidspunkt = LocalDateTime.now()
+            val besluttetTidspunkt = LocalDateTime.of(2024, 12, 12, 0, 0)
             database.db.transaction {
                 repository.upsert(tilsagn)
                 repository.setBesluttelse(
@@ -155,7 +155,7 @@ class TilsagnRepositoryTest : FunSpec({
         }
 
         test("Skal få status RETURNERT hvis tilsagnet er avvist") {
-            val returnertTidspunkt = LocalDateTime.now()
+            val returnertTidspunkt = LocalDateTime.of(2024, 12, 12, 0, 0)
             database.db.transaction {
                 repository.upsert(tilsagn)
                 repository.setBesluttelse(
