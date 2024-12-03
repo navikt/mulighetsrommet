@@ -10,7 +10,7 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { BesluttTilsagnRequest, NavAnsattRolle, TilsagnBesluttelseStatus } from "@mr/api-client";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
-import { TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
+import { PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
 import { ActionMenu, Alert, BodyShort, Box, Button, Heading, HStack } from "@navikt/ds-react";
 import { useRef, useState } from "react";
 import { Link, useMatch, useNavigate, useParams } from "react-router-dom";
@@ -21,6 +21,7 @@ import { AvvisTilsagnModal } from "./AvvisTilsagnModal";
 import { TilsagnTag } from "./TilsagnTag";
 import { useGetTilsagnById } from "./useGetTilsagnById";
 import { useSlettTilsagn } from "../../../api/tilsagn/useSlettTilsagn";
+import styles from "./TilsagnDetaljer.module.scss";
 
 export function TilsagnDetaljer() {
   const { avtaleId, tiltaksgjennomforingId } = useParams();
@@ -111,6 +112,7 @@ export function TilsagnDetaljer() {
     return <Laster tekst="Laster tilsagn..." />;
   }
 
+  const visHandlingerMeny = tilsagn.besluttelse?.status === TilsagnBesluttelseStatus.AVVIST;
   return (
     <main>
       <Brodsmuler brodsmuler={brodsmuler} />
@@ -131,31 +133,33 @@ export function TilsagnDetaljer() {
             <Heading size="medium" level="2">
               Tilsagn
             </Heading>
-            <ActionMenu>
-              <ActionMenu.Trigger>
-                <Button variant="primary" size="small">
-                  Handlinger
-                </Button>
-              </ActionMenu.Trigger>
-              <ActionMenu.Content>
-                <ActionMenu.Item
-                  onSelect={() =>
-                    alert("Redigering av tilsagn her i fra er ikke implementert enda ")
-                  }
-                >
-                  Rediger tilsagn
-                </ActionMenu.Item>
-                {tilsagn.besluttelse?.status === TilsagnBesluttelseStatus.AVVIST ? (
-                  <ActionMenu.Item
-                    variant="danger"
-                    onSelect={() => slettTilsagnModalRef.current?.showModal()}
-                    icon={<TrashIcon />}
-                  >
-                    Slett tilsagn
-                  </ActionMenu.Item>
-                ) : null}
-              </ActionMenu.Content>
-            </ActionMenu>
+            {visHandlingerMeny ? (
+              <ActionMenu>
+                <ActionMenu.Trigger>
+                  <Button variant="primary" size="small">
+                    Handlinger
+                  </Button>
+                </ActionMenu.Trigger>
+                <ActionMenu.Content>
+                  {tilsagn.besluttelse?.status === TilsagnBesluttelseStatus.AVVIST ? (
+                    <ActionMenu.Item icon={<PencilFillIcon />}>
+                      <Link className={styles.link_without_underline} to="./rediger-tilsagn">
+                        Rediger tilsagn
+                      </Link>
+                    </ActionMenu.Item>
+                  ) : null}
+                  {tilsagn.besluttelse?.status === TilsagnBesluttelseStatus.AVVIST ? (
+                    <ActionMenu.Item
+                      variant="danger"
+                      onSelect={() => slettTilsagnModalRef.current?.showModal()}
+                      icon={<TrashIcon />}
+                    >
+                      Slett tilsagn
+                    </ActionMenu.Item>
+                  ) : null}
+                </ActionMenu.Content>
+              </ActionMenu>
+            ) : null}
           </HStack>
           <Separator />
           <Heading size="small" level="3">
