@@ -3,18 +3,18 @@ module "mr_datastream_vpc" {
   gcp_project = var.gcp_project
 }
 
-data "google_secret_manager_secret_version" "mr-api_datastream_secret" {
-  secret = var.mr-api_datastream_secret
+data "google_secret_manager_secret_version" "mr_api_datastream_secret" {
+  secret = var.mr_api_datastream_secret
 }
 
-module "mr-api_datastream" {
+module "mr_api_datastream" {
   source                     = "git::https://github.com/navikt/terraform-google-bigquery-datastream.git?ref=v1.0.1"
   gcp_project                = var.gcp_project
   application_name           = "mulighetsrommet-api"
   cloud_sql_instance_name    = "mulighetsrommet-api"
   cloud_sql_instance_db_name = "mulighetsrommet-api-db"
   cloud_sql_instance_db_credentials = jsondecode(
-    data.google_secret_manager_secret_version.mr-api_datastream_secret.secret_data
+    data.google_secret_manager_secret_version.mr_api_datastream_secret.secret_data
   )
   cloud_sql_instance_publication_name = "ds_publication"
   cloud_sql_instance_replication_name = "ds_replication"

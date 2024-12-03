@@ -8,7 +8,7 @@ variable "gcp_project" {
   }
 }
 
-variable "mr-api_datastream_secret" {
+variable "mr_api_datastream_secret" {
   description = "Name of the GCP secret that provides the mr-api datastream credentials."
   type        = string
   default     = "mr-api-datastream-credentials"

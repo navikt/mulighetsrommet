@@ -1,7 +1,7 @@
-module "mr-api_tiltakstype_view" {
+module "mr_api_tiltakstype_view" {
   source              = "../modules/google-bigquery-view"
   deletion_protection = false
-  dataset_id          = module.mr-api_datastream.dataset_id
+  dataset_id          = module.mr_api_datastream.dataset_id
   view_id             = "tiltakstype_view"
   view_schema = jsonencode(
     [
@@ -37,16 +37,22 @@ SELECT
   navn,
   tiltakskode,
   arena_kode as arena_tiltakskode
-FROM `${var.gcp_project["project"]}.${module.mr-api_datastream.dataset_id}.public_tiltakstype`
+FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tiltakstype`
 WHERE tiltakskode IS NOT NULL
 EOF
 }
 
-module "mr-api_tiltaksgjennomforing_view" {
+data "google_bigquery_tables" "tables" {
+  dataset_id = module.mr_api_datastream.dataset_id
+  project    = var.gcp_project["project"]
+}
+
+module "mr_api_tiltaksgjennomforing_view" {
   source              = "../modules/google-bigquery-view"
   deletion_protection = false
-  dataset_id          = module.mr-api_datastream.dataset_id
+  dataset_id          = module.mr_api_datastream.dataset_id
   view_id             = "tiltaksgjennomforing_view"
+  depends_on = [data.google_bigquery_tables.tables]
   view_schema = jsonencode(
     [
       {
@@ -95,7 +101,7 @@ SELECT
   avsluttet_tidspunkt,
   start_dato,
   slutt_dato
-FROM `${var.gcp_project["project"]}.${module.mr-api_datastream.dataset_id}.public_tiltaksgjennomforing`
+FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tiltaksgjennomforing`
 WHERE slutt_dato is null or slutt_dato >= DATE '2018-01-01'
 EOF
 }
