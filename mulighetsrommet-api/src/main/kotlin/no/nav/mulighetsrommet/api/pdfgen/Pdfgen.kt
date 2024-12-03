@@ -25,27 +25,30 @@ object Pdfgen {
         registerKotlinModule()
     }
 
-    fun refusjonKvittering(refusjonKravAft: RefusjonKravAft, tilsagn: List<ArrangorflateTilsagn>): ByteArray {
-        @Serializable
-        data class PdfData(
-            val refusjon: RefusjonKravAft,
-            val tilsagn: List<ArrangorflateTilsagn>,
-        )
+    object Aft {
+        fun refusjonKvittering(refusjonKravAft: RefusjonKravAft, tilsagn: List<ArrangorflateTilsagn>): ByteArray {
+            @Serializable
+            data class PdfData(
+                val refusjon: RefusjonKravAft,
+                val tilsagn: List<ArrangorflateTilsagn>,
+            )
 
-        val jsonNode: JsonNode = objectMapper.valueToTree(PdfData(refusjonKravAft, tilsagn))
-        return createPDFA("refusjon-kvittering", "refusjon", jsonNode)
-            ?: throw Exception("Kunne ikke generere PDF")
-    }
+            val jsonNode: JsonNode = objectMapper.valueToTree(PdfData(refusjonKravAft, tilsagn))
+            return createPDFA("aft-refusjon-kvittering", "refusjon", jsonNode)
+                ?: throw Exception("Kunne ikke generere PDF")
+        }
 
-    fun refusjonJournalpost(refusjonKravAft: RefusjonKravAft, tilsagn: List<ArrangorflateTilsagn>): ByteArray {
-        @Serializable
-        data class PdfData(
-            val refusjon: RefusjonKravAft,
-            val tilsagn: List<ArrangorflateTilsagn>,
-        )
+        fun refusjonJournalpost(refusjonKravAft: RefusjonKravAft, tilsagn: List<ArrangorflateTilsagn>): ByteArray {
+            @Serializable
+            data class PdfData(
+                val refusjon: RefusjonKravAft,
+                val tilsagn: List<ArrangorflateTilsagn>,
+            )
 
-        val jsonNode: JsonNode = objectMapper.valueToTree(PdfData(refusjonKravAft, tilsagn))
-        return createPDFA("refusjon-journalpost", "refusjon", jsonNode)
-            ?: throw Exception("Kunne ikke generere PDF")
+            val jsonNode: JsonNode = objectMapper.valueToTree(PdfData(refusjonKravAft, tilsagn))
+            requireNotNull(jsonNode)
+            return createPDFA("aft-refusjon-journalpost", "refusjon", jsonNode)
+                ?: throw Exception("Kunne ikke generere PDF")
+        }
     }
 }

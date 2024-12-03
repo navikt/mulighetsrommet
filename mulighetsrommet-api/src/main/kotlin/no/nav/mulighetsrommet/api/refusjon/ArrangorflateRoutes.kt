@@ -136,7 +136,7 @@ fun Route.arrangorflateRoutes() {
                 )
 
                 val refusjonsKravAft = toRefusjonskrav(pdl, deltakerRepository, krav)
-                val pdf = Pdfgen.refusjonKvittering(refusjonsKravAft, tilsagn)
+                val pdf = Pdfgen.Aft.refusjonKvittering(refusjonsKravAft, tilsagn)
 
                 call.response.headers.append(
                     "Content-Disposition",

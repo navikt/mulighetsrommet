@@ -85,7 +85,7 @@ class PdfgenTest : FunSpec({
             ),
         )
 
-        Pdfgen.refusjonKvittering(refusjonsKravAft, tilsagn)
+        Pdfgen.Aft.refusjonKvittering(refusjonsKravAft, tilsagn)
     }
 
     test("refusjon-journalpost") {
@@ -105,7 +105,13 @@ class PdfgenTest : FunSpec({
                     id = ArrangorFixtures.underenhet1.id,
                     organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                 ),
-                beregning = Prismodell.TilsagnBeregning.Fri(123),
+                beregning = Prismodell.TilsagnBeregning.AFT(
+                    belop = 450000,
+                    sats = 20501,
+                    antallPlasser = 23,
+                    periodeStart = LocalDate.now().minusMonths(3),
+                    periodeSlutt = LocalDate.now().plusMonths(3),
+                ),
             ),
         )
 
@@ -123,7 +129,7 @@ class PdfgenTest : FunSpec({
             arrangor = RefusjonskravDto.Arrangor(
                 id = UUID.randomUUID(),
                 organisasjonsnummer = Organisasjonsnummer("123456789"),
-                navn = "Navn",
+                navn = "Fretex AS",
                 slettet = false,
             ),
             deltakelser = listOf(
@@ -137,16 +143,46 @@ class PdfgenTest : FunSpec({
                     manedsverk = 1.0,
                     person = RefusjonKravDeltakelse.Person(
                         navn = "Donald DUck",
-                        fodselsdato = LocalDate.now(),
+                        fodselsdato = LocalDate.of(1945, 12, 8),
                         fodselsaar = 2000,
+                    ),
+                    veileder = null,
+                ),
+                RefusjonKravDeltakelse(
+                    id = UUID.randomUUID(),
+                    startDato = LocalDate.now(),
+                    sluttDato = LocalDate.now().plusDays(20),
+                    forstePeriodeStartDato = LocalDate.now(),
+                    sistePeriodeSluttDato = LocalDate.now(),
+                    sistePeriodeDeltakelsesprosent = 100.0,
+                    manedsverk = 1.0,
+                    person = RefusjonKravDeltakelse.Person(
+                        navn = "Adressebeskyttet",
+                        fodselsaar = null,
+                        fodselsdato = null,
+                    ),
+                    veileder = null,
+                ),
+                RefusjonKravDeltakelse(
+                    id = UUID.randomUUID(),
+                    startDato = LocalDate.now(),
+                    sluttDato = LocalDate.now().plusDays(20),
+                    forstePeriodeStartDato = LocalDate.now(),
+                    sistePeriodeSluttDato = LocalDate.now(),
+                    sistePeriodeDeltakelsesprosent = 100.0,
+                    manedsverk = .5,
+                    person = RefusjonKravDeltakelse.Person(
+                        navn = "Onkel Skrue",
+                        fodselsaar = null,
+                        fodselsdato = LocalDate.of(1923, 1, 4),
                     ),
                     veileder = null,
                 ),
             ),
             beregning = RefusjonKravAft.Beregning(
                 periodeStart = LocalDate.now(),
-                periodeSlutt = LocalDate.now(),
-                antallManedsverk = 1.0,
+                periodeSlutt = LocalDate.now().plusMonths(1),
+                antallManedsverk = 2.5,
                 belop = 100,
                 digest = "asdf",
             ),
@@ -156,6 +192,11 @@ class PdfgenTest : FunSpec({
             ),
         )
 
-        Pdfgen.refusjonJournalpost(refusjonsKravAft, tilsagn)
+        // Sjekker kun at ting ikke krasjer
+        val pdf = Pdfgen.Aft.refusjonJournalpost(refusjonsKravAft, tilsagn)
+
+        // For å iterere på pdf'en kan man kjøre denne testen og kommentere ut linjene under
+        // val file = File("/<path>/refusjonskrav.pdf")
+        // file.writeBytes(pdf)
     }
 })

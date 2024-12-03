@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuer
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravAft
+import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravDto
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravStatus
 import no.nav.mulighetsrommet.api.refusjon.toRefusjonskrav
@@ -77,8 +78,12 @@ class JournalforRefusjonskrav(
                 gjennomforingId = krav.gjennomforing.id,
                 periode = krav.beregning.input.periode,
             )
-            val refusjonsKravAft: RefusjonKravAft = toRefusjonskrav(pdl, deltakerRepository, krav)
-            Pdfgen.refusjonJournalpost(refusjonsKravAft, tilsagn)
+            when (krav.beregning) {
+                is RefusjonKravBeregningAft -> {
+                    val refusjonsKravAft: RefusjonKravAft = toRefusjonskrav(pdl, deltakerRepository, krav)
+                    Pdfgen.Aft.refusjonJournalpost(refusjonsKravAft, tilsagn)
+                }
+            }
         }
 
         dokarkClient.opprettJournalpost(
