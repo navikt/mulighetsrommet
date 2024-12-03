@@ -111,16 +111,6 @@ export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
         thousandSeparator=" "
         suffix=" kr"
       />
-      <NumericFormat
-        readOnly
-        size="small"
-        label="Beløp"
-        customInput={TextField}
-        value={beregning?.belop ?? ""}
-        valueIsNumericString
-        thousandSeparator=" "
-        suffix=" kr"
-      />
     </HStack>
   );
 }
