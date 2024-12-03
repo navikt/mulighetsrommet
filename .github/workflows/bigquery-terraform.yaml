@@ -1,8 +1,6 @@
 name: "BigQuery Terraform"
 on:
   push:
-    branches:
-      - feature/bigquery-terraform
     paths:
       - .github/workflows/bigquery-terraform.yaml
       - iac/bigquery-terraform/**
