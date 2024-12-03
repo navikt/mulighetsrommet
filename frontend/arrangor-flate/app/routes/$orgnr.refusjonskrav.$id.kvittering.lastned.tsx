@@ -1,4 +1,4 @@
-import { LoaderFunction } from "@remix-run/node";
+import { LoaderFunction } from "react-router";
 import { checkValidToken } from "../auth/auth.server";
 import { ArrangorflateService } from "@mr/api-client";
 

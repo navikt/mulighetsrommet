@@ -1,5 +1,5 @@
 import { Select } from "@navikt/ds-react";
-import { useNavigate } from "@remix-run/react";
+import { useNavigate } from "react-router";
 import { useOrgnrFromUrl } from "../../utils";
 import { Arrangor } from "@mr/api-client";
 
