@@ -75,9 +75,9 @@ export function Tilsagnstabell({ tilsagn }: Props) {
         ) : null;
       case TilsagnStatus.OPPGJORT:
         return <Tag variant="neutral">Oppgjort</Tag>;
-      case TilsagnStatus.ANNULERT:
+      case TilsagnStatus.ANNULLERT:
         return (
-          <Tag variant="neutral" className={styles.annulert_tag}>
+          <Tag variant="neutral" className={styles.annullert_tag}>
             Annullert
           </Tag>
         );

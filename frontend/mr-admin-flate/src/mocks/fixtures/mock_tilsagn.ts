@@ -120,7 +120,7 @@ export const mockTilsagn: TilsagnDto[] = [
     },
     opprettetAv: "F123456",
     annullertTidspunkt: "2024-05-10",
-    status: TilsagnStatus.ANNULERT,
+    status: TilsagnStatus.ANNULLERT,
   },
   {
     arrangor: mockArrangorer.data[0],

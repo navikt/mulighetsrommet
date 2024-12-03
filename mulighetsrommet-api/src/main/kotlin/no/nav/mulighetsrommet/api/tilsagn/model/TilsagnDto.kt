@@ -63,7 +63,7 @@ data class TilsagnDto(
         TIL_GODKJENNING,
         GODKJENT,
         RETURNERT,
-        ANNULERT,
+        ANNULLERT,
         OPPGJORT,
     }
 }

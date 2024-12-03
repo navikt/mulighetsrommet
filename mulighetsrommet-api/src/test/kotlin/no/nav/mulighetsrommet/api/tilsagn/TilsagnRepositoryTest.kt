@@ -81,11 +81,11 @@ class TilsagnRepositoryTest : FunSpec({
             )
         }
 
-        test("Skal få status ANNULERT hvis tilsagnet har et annullert tidspunkt") {
-            val annulertTidspunkt = LocalDateTime.now()
+        test("Skal få status ANNULLERT hvis tilsagnet har et annullert tidspunkt") {
+            val annullertTidspunkt = LocalDateTime.now()
             database.db.transaction {
                 repository.upsert(tilsagn)
-                repository.setAnnullertTidspunkt(tilsagn.id, annulertTidspunkt, it)
+                repository.setAnnullertTidspunkt(tilsagn.id, annullertTidspunkt, it)
             }
             repository.get(tilsagn.id) shouldBe TilsagnDto(
                 id = tilsagn.id,
@@ -97,7 +97,7 @@ class TilsagnRepositoryTest : FunSpec({
                 periodeSlutt = LocalDate.of(2023, 2, 1),
                 kostnadssted = Gjovik,
                 besluttelse = null,
-                annullertTidspunkt = annulertTidspunkt,
+                annullertTidspunkt = annullertTidspunkt,
                 lopenummer = 1,
                 opprettetAv = NavAnsattFixture.ansatt1.navIdent,
                 arrangor = TilsagnDto.Arrangor(
@@ -107,7 +107,7 @@ class TilsagnRepositoryTest : FunSpec({
                     slettet = ArrangorFixtures.underenhet1.slettetDato != null,
                 ),
                 beregning = Prismodell.TilsagnBeregning.Fri(123),
-                status = TilsagnDto.TilsagnStatus.ANNULERT,
+                status = TilsagnDto.TilsagnStatus.ANNULLERT,
             )
         }
 

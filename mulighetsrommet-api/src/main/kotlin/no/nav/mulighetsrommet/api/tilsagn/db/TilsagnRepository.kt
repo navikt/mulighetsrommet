@@ -290,7 +290,7 @@ class TilsagnRepository(private val db: Database) {
 
     private fun utledStatus(besluttelse: String?, annullertTidspunkt: LocalDateTime?): TilsagnDto.TilsagnStatus {
         if (annullertTidspunkt != null) {
-            return TilsagnDto.TilsagnStatus.ANNULERT
+            return TilsagnDto.TilsagnStatus.ANNULLERT
         }
 
         return when (besluttelse) {
