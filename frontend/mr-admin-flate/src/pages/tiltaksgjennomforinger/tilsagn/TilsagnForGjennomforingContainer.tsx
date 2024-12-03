@@ -5,7 +5,6 @@ import { Laster } from "../../../components/laster/Laster";
 import { InfoContainer } from "../../../components/skjema/InfoContainer";
 import { useGetTiltaksgjennomforingIdFromUrl } from "../../../hooks/useGetTiltaksgjennomforingIdFromUrl";
 import { Tilsagnstabell } from "./Tilsagnstabell";
-import { OpprettTilsagn } from "@/pages/tiltaksgjennomforinger/tilsagn/OpprettTilsagn";
 
 export function TilsagnForGjennomforingContainer() {
   const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFromUrl();

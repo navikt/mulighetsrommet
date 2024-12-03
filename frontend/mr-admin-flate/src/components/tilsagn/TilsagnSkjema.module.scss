@@ -32,16 +32,6 @@
   justify-content: space-between;
   margin: var(--a-spacing-3) 0px;
 }
-.formMetadata {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--a-spacing-6);
-}
-
-.formMetadataLabels {
-  display: grid;
-  gap: var(--a-spacing-4);
-}
 
 .rowSpaceBetween {
   display: flex;

@@ -17,7 +17,6 @@ import { UseMutationResult } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
-import { FormGroup } from "../skjema/FormGroup";
 import { AFTBeregningSkjema } from "./AFTBeregningSkjema";
 import { FriBeregningSkjema } from "./FriBeregningSkjema";
 import { InferredOpprettTilsagnSchema, OpprettTilsagnSchema } from "./OpprettTilsagnSchema";
@@ -84,16 +83,6 @@ export function TilsagnSkjema({
         <div className={styles.formContainer}>
           <div className={styles.formHeader}>
             <Heading size="medium">Tilsagn</Heading>
-            <div className={styles.formMetadata}>
-              <div className={styles.formMetadataLabels}>
-                <div>Tilsagnstype:</div>
-                <div>Tilsagnsnummer:</div>
-              </div>
-              <div className={styles.formMetadataLabels}>
-                <div>{tiltaksgjennomforing.tiltakstype.navn}</div>
-                <div>{tiltaksgjennomforing.tiltaksnummer}</div>
-              </div>
-            </div>
           </div>
           <div className={styles.formContent}>
             <div className={styles.formContentLeft}>
@@ -149,7 +138,7 @@ export function TilsagnSkjema({
               <Heading size="small">Beløp</Heading>
               <div className={styles.rowSpaceBetween}>
                 <Label size="medium">Total beløp</Label>
-                <Label size="medium">{formaterNOK(beregning?.belop)}</Label>
+                {beregning?.belop && <Label size="medium">{formaterNOK(beregning?.belop)}</Label>}
               </div>
             </div>
           </div>
