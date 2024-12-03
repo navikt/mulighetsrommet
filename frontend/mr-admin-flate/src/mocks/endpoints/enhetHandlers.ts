@@ -1,10 +1,17 @@
 import { HttpResponse, PathParams, http } from "msw";
-import { NavEnhet, NavRegion } from "@mr/api-client";
+import { GetKostnadsstedResponse, NavEnhet, NavRegion } from "@mr/api-client";
 import { mockEnheter, mockRegioner } from "../fixtures/mock_enheter";
 
 export const enhetHandlers = [
   http.get<PathParams, NavEnhet[]>("*/api/v1/intern/nav-enheter", () =>
     HttpResponse.json(Object.values(mockEnheter)),
+  ),
+
+  http.get<PathParams, string, GetKostnadsstedResponse>(
+    "*/api/v1/intern/nav-enheter/kostnadssted",
+    () => {
+      return HttpResponse.json(Object.values(mockEnheter));
+    },
   ),
 
   http.get<PathParams, NavRegion[]>("*/api/v1/intern/nav-enheter/regioner", () =>
