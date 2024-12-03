@@ -52,7 +52,7 @@ module "mr_api_tiltaksgjennomforing_view" {
   deletion_protection = false
   dataset_id          = module.mr_api_datastream.dataset_id
   view_id             = "tiltaksgjennomforing_view"
-  depends_on = [data.google_bigquery_tables.tables]
+  depends_on          = [data.google_bigquery_tables.tables]
   view_schema = jsonencode(
     [
       {
