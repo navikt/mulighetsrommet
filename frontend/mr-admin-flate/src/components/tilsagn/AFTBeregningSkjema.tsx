@@ -26,7 +26,6 @@ export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
   const [antallPlasser, setAntallPlasser] = useState<number>(defaultAntallPlasser ?? 0);
 
   const periode = watch("periode");
-  const beregning = watch("beregning");
 
   function findSats(): number | undefined {
     if (!periode?.start) {

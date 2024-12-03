@@ -1,15 +1,14 @@
 import { TiltaksgjennomforingDto } from "@mr/api-client";
 import { GjennomforingStatusTag } from "@mr/frontend-common";
-import { Box, BoxProps, Heading, HGrid, VStack } from "@navikt/ds-react";
+import { Heading, HGrid, VStack } from "@navikt/ds-react";
 import { formaterDato } from "../../utils/Utils";
 import { Metadata } from "../detaljside/Metadata";
 
 interface Props {
   tiltaksgjennomforing: TiltaksgjennomforingDto;
-  borderWidth?: BoxProps["borderWidth"];
 }
 
-export function TiltakDetaljerForTilsagn({ tiltaksgjennomforing, borderWidth = "1" }: Props) {
+export function TiltakDetaljerForTilsagn({ tiltaksgjennomforing }: Props) {
   return (
     <VStack gap="4">
       <Heading size="medium">Tiltaksgjennomføring</Heading>

@@ -1,4 +1,4 @@
-import { Alert, Heading } from "@navikt/ds-react";
+import { Alert } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import { useHentTilsagnForTiltaksgjennomforing } from "../../../api/tilsagn/useHentTilsagnForTiltaksgjennomforing";
 import { Laster } from "../../../components/laster/Laster";

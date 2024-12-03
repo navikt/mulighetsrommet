@@ -1,5 +1,5 @@
 import { HttpResponse, PathParams, http } from "msw";
-import { GetKostnadsstedResponse, NavEnhet, NavRegion } from "@mr/api-client";
+import { NavEnhet, NavRegion } from "@mr/api-client";
 import { mockEnheter, mockRegioner } from "../fixtures/mock_enheter";
 
 export const enhetHandlers = [
