@@ -29,7 +29,16 @@ module "mr_api_datastream" {
       schema = "public",
       tables = [
         { table = "tiltakstype" },
+        { table = "avtale" },
         { table = "tiltaksgjennomforing" },
+        { table = "tiltaksgjennomforing_amo_kategorisering" },
+        { table = "tiltaksgjennomforing_amo_kategorisering_sertifisering" },
+        { table = "tiltaksgjennomforing_utdanningsprogram" },
+        { table = "arrangor" },
+        { table = "utdanningsprogram" },
+        { table = "utdanning" },
+        { table = "utdanning_nus_kode" },
+        { table = "utdanning_nus_kode_innhold" },
       ]
     }
   ]
