@@ -29,6 +29,7 @@ data class TilsagnDto(
     val arrangor: Arrangor,
     val besluttelse: Besluttelse?,
     val tiltaksgjennomforing: Tiltaksgjennomforing,
+    val status: TilsagnStatus,
 ) {
     @Serializable
     data class Arrangor(
@@ -56,4 +57,13 @@ data class TilsagnDto(
         val id: UUID,
         val antallPlasser: Int,
     )
+
+    @Serializable
+    enum class TilsagnStatus {
+        TIL_GODKJENNING,
+        GODKJENT,
+        RETURNERT,
+        ANNULERT,
+        OPPGJORT
+    }
 }

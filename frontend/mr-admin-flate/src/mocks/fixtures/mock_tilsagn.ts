@@ -4,6 +4,7 @@ import {
   TilsagnAvvisningAarsak,
   TilsagnBesluttelseStatus,
   TilsagnDto,
+  TilsagnStatus,
 } from "@mr/api-client";
 import { mockArrangorer } from "./mock_arrangorer";
 import { mockTiltaksgjennomforinger } from "./mock_tiltaksgjennomforinger";
@@ -28,6 +29,7 @@ export const mockTilsagn: TilsagnDto[] = [
       antallPlasser: mockTiltaksgjennomforinger[0].antallPlasser || 15,
     },
     opprettetAv: "B123456",
+    status: TilsagnStatus.TIL_GODKJENNING,
   },
   {
     arrangor: mockArrangorer.data[0],
@@ -48,6 +50,7 @@ export const mockTilsagn: TilsagnDto[] = [
       antallPlasser: mockTiltaksgjennomforinger[0].antallPlasser || 15,
     },
     opprettetAv: "F123456",
+    status: TilsagnStatus.TIL_GODKJENNING,
   },
   {
     arrangor: mockArrangorer.data[0],
@@ -68,6 +71,7 @@ export const mockTilsagn: TilsagnDto[] = [
       antallPlasser: mockTiltaksgjennomforinger[0].antallPlasser || 15,
     },
     opprettetAv: "F123456",
+    status: TilsagnStatus.TIL_GODKJENNING,
   },
   {
     arrangor: mockArrangorer.data[0],
@@ -94,6 +98,7 @@ export const mockTilsagn: TilsagnDto[] = [
       tidspunkt: "2024-01-10",
       status: TilsagnBesluttelseStatus.GODKJENT,
     },
+    status: TilsagnStatus.GODKJENT,
   },
   {
     arrangor: mockArrangorer.data[0],
@@ -115,6 +120,7 @@ export const mockTilsagn: TilsagnDto[] = [
     },
     opprettetAv: "F123456",
     annullertTidspunkt: "2024-05-10",
+    status: TilsagnStatus.ANNULERT,
   },
   {
     arrangor: mockArrangorer.data[0],
@@ -143,5 +149,6 @@ export const mockTilsagn: TilsagnDto[] = [
       aarsaker: [TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER, TilsagnAvvisningAarsak.FEIL_ANNET],
       forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
     },
+    status: TilsagnStatus.RETURNERT,
   },
 ];
