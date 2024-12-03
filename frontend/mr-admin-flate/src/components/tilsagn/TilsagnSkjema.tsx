@@ -150,15 +150,17 @@ export function TilsagnSkjema({
               <Heading size="xsmall" className={styles.beregnetKostnad}>
                 Beregnet kostnad
               </Heading>
-              <div className={styles.rowSpaceBetween}>
-                <div>
-                  {tiltaksgjennomforing.antallPlasser} plasser * {months} mnd
+              {periodeStart && periodeSlutt && (
+                <div className={styles.rowSpaceBetween}>
+                  <div>
+                    {tiltaksgjennomforing.antallPlasser} plasser * {months} mnd
+                  </div>
+                  <div>{tilsagn?.beregning.belop}</div>
                 </div>
-                <div>1 640 400 kr</div>
-              </div>
+              )}
               <div className={styles.rowSpaceBetween}>
                 <Label size="medium">Total beløp</Label>
-                <Label size="medium">1 640 400 kr</Label>
+                <Label size="medium">{tilsagn?.beregning.belop}</Label>
               </div>
             </div>
           </div>

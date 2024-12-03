@@ -1,4 +1,4 @@
-import { Heading } from "@navikt/ds-react";
+import { Alert, Heading, VStack } from "@navikt/ds-react";
 import { useMatch, useParams } from "react-router-dom";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
 import { useTiltaksgjennomforingById } from "../../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
@@ -11,12 +11,19 @@ import { OpprettTilsagnContainer } from "../../../components/tilsagn/OpprettTils
 import { ContainerLayout } from "../../../layouts/ContainerLayout";
 import { inneholderUrl } from "../../../utils/Utils";
 import { useGetTilsagnById } from "./useGetTilsagnById";
+import { Tilsagnstabell } from "@/pages/tiltaksgjennomforinger/tilsagn/Tilsagnstabell";
+import { useGetTiltaksgjennomforingIdFromUrl } from "@/hooks/useGetTiltaksgjennomforingIdFromUrl";
+import { useHentTilsagnForTiltaksgjennomforing } from "@/api/tilsagn/useHentTilsagnForTiltaksgjennomforing";
+import { Laster } from "@/components/laster/Laster";
 
 export function OpprettTilsagnSkjemaPage() {
   const { avtaleId } = useParams();
   const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
   const { data: tilsagn } = useGetTilsagnById();
   const { data: saksbehandler } = useHentAnsatt();
+  const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFromUrl();
+  const { data: tilsagner, isLoading } =
+    useHentTilsagnForTiltaksgjennomforing(tiltaksgjennomforingId);
 
   const erPaaGjennomforingerForAvtale = useMatch(
     "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
@@ -57,6 +64,10 @@ export function OpprettTilsagnSkjemaPage() {
     },
   ];
 
+  if (!tilsagner && isLoading) {
+    return <Laster tekst="Laster tilsagn" />;
+  }
+
   return (
     <main>
       <Brodsmuler brodsmuler={brodsmuler} />
@@ -67,17 +78,32 @@ export function OpprettTilsagnSkjemaPage() {
         </Heading>
       </Header>
       <ContainerLayout>
-        <SkjemaContainer>
-          <SkjemaContent>
-            {tiltaksgjennomforing ? (
-              <OpprettTilsagnContainer
-                tiltaksgjennomforing={tiltaksgjennomforing}
-                tilsagnSkalGodkjennes={godkjenningsModus}
-                tilsagn={tilsagn}
-              />
-            ) : null}
-          </SkjemaContent>
-        </SkjemaContainer>
+        <VStack gap={"8"}>
+          <SkjemaContainer>
+            <SkjemaContent>
+              {tiltaksgjennomforing ? (
+                <OpprettTilsagnContainer
+                  tiltaksgjennomforing={tiltaksgjennomforing}
+                  tilsagnSkalGodkjennes={godkjenningsModus}
+                  tilsagn={tilsagn}
+                />
+              ) : null}
+            </SkjemaContent>
+          </SkjemaContainer>
+
+          <div>
+            <Heading size="medium">Aktive tilsagn</Heading>
+            <SkjemaContainer>
+              <SkjemaContent>
+                {tilsagner.length > 0 ? (
+                  <Tilsagnstabell tilsagn={tilsagner} />
+                ) : (
+                  <Alert variant="info">Det finnes ingen tilsagn for dette tiltaket</Alert>
+                )}
+              </SkjemaContent>
+            </SkjemaContainer>
+          </div>
+        </VStack>
       </ContainerLayout>
     </main>
   );
