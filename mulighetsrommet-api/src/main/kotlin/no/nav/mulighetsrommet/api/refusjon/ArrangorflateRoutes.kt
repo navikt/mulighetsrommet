@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.refusjon.model.*
+import no.nav.mulighetsrommet.api.refusjon.task.JournalforRefusjonskrav
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.database.Database
@@ -27,7 +28,6 @@ import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -39,8 +39,8 @@ fun Route.arrangorflateRoutes() {
     val arrangorService: ArrangorService by inject()
     val refusjonskrav: RefusjonskravRepository by inject()
     val deltakerRepository: DeltakerRepository by inject()
-    val dokarkClient: DokarkClient by inject()
     val pdl: HentAdressebeskyttetPersonBolkPdlQuery by inject()
+    val journalforRefusjonskrav: JournalforRefusjonskrav by inject()
     val db: Database by inject()
 
     suspend fun RoutingContext.arrangorerMedTilgang(): List<ArrangorDto> {
@@ -117,28 +117,7 @@ fun Route.arrangorflateRoutes() {
                         tx,
                     )
 
-                    val pdf = run {
-                        val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
-                            gjennomforingId = krav.gjennomforing.id,
-                            periode = krav.beregning.input.periode,
-                        )
-                        val refusjonsKravAft: RefusjonKravAft = toRefusjonskrav(pdl, deltakerRepository, krav)
-                        Pdfgen.refusjonJournalpost(refusjonsKravAft, tilsagn)
-                    }
-
-                    val result = dokarkClient.opprettJournalpost(
-                        refusjonskravJournalpost(pdf, krav.id, krav.arrangor.organisasjonsnummer),
-                        AccessType.M2M,
-                    )
-                    when (result) {
-                        is DokarkResult.Error -> throw StatusException(
-                            HttpStatusCode.InternalServerError,
-                            "Feilet ved opprettelse av journalpost",
-                        )
-                        is DokarkResult.Success -> {
-                            refusjonskrav.setJournalpostId(id, result.journalpostId, tx)
-                        }
-                    }
+                    journalforRefusjonskrav.schedule(krav.id)
                 }
 
                 call.respond(HttpStatusCode.OK)
@@ -362,6 +341,10 @@ fun refusjonskravJournalpost(
         idType = "ORGNR",
         navn = null,
     ),
+    bruker = Journalpost.Bruker(
+        id = organisasjonsnummer.value,
+        idType = "ORGNR",
+    ),
     tema = "TIL",
     datoMottatt = LocalDateTime.now().toString(),
     dokumenter = listOf(
@@ -380,6 +363,5 @@ fun refusjonskravJournalpost(
     journalfoerendeEnhet = "9999", // Automatisk journalføring
     kanal = "NAV_NO", // Påkrevd for INNGAENDE. Se https://confluence.adeo.no/display/BOA/Mottakskanal
     sak = null,
-    bruker = null,
     behandlingstema = null,
 )

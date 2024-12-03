@@ -438,24 +438,29 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         }
 
         test("should fail when is avbrutt") {
-            tiltaksgjennomforinger.avbryt(gjennomforing.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
+            tiltaksgjennomforinger.setAvsluttet(
+                gjennomforing.id,
+                LocalDateTime.now(),
+                AvbruttAarsak.Feilregistrering,
+            )
 
             val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
 
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
             validator.validate(gjennomforing, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                ValidationError("navn", "Du kan ikke gjøre endringer på en gjennomføring som ikke er aktiv"),
+                ValidationError("navn", "Du kan ikke gjøre endringer på en gjennomføring som er avbrutt"),
             )
         }
 
         test("should fail when is avsluttet") {
             tiltaksgjennomforinger.upsert(gjennomforing.copy(sluttDato = LocalDate.now().minusDays(2)))
+            tiltaksgjennomforinger.setAvsluttet(gjennomforing.id, LocalDateTime.now(), null)
 
             val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
 
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
             validator.validate(gjennomforing, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                ValidationError("navn", "Du kan ikke gjøre endringer på en gjennomføring som ikke er aktiv"),
+                ValidationError("navn", "Du kan ikke gjøre endringer på en gjennomføring som er avsluttet"),
             )
         }
     }

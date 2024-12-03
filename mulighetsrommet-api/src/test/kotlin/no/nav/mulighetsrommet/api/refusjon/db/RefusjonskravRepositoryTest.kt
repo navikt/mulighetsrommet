@@ -120,6 +120,7 @@ class RefusjonskravRepositoryTest : FunSpec({
                     kontonummer = Kontonummer("11111111111"),
                     kid = Kid("12345"),
                 ),
+                journalpostId = null,
             )
         }
 

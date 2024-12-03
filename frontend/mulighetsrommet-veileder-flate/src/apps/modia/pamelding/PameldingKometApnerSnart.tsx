@@ -1,8 +1,8 @@
 import { Toggles, VeilederflateTiltak } from "@mr/api-client";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { BodyShort, GuidePanel, Heading, Link, VStack } from "@navikt/ds-react";
-import { useFeatureToggle } from "../../../api/feature-toggles";
-import { TegnestiftIkon } from "../../../ikoner/TegnestiftIkon";
+import { useFeatureToggle } from "@/api/feature-toggles";
+import { TegnestiftIkon } from "@/ikoner/TegnestiftIkon";
 import styles from "./PameldingKometApnerSnart.module.scss";
 
 interface Props {
@@ -30,8 +30,8 @@ export function PameldingKometApnerSnart({ tiltak }: Props) {
           Flere tiltak får ny påmeldingsløsning i Modia
         </Heading>
         <BodyShort>
-          Påmelding for oppfølging, avklaring og ARR skal i fremtiden gjøres her i Modia. Ny løsning
-          blir tilgjengelig 19. november.
+          Påmelding for digitalt jobbsøkerkurs og VTA skal i fremtiden gjøres her i Modia. Ny
+          løsning blir tilgjengelig 10. desember.
         </BodyShort>
         <BodyShort>
           <Link

@@ -42,4 +42,8 @@ export const tilsagnHandlers = [
       },
     ]);
   }),
+
+  http.delete<PathParams, any, string>("*/api/v1/intern/tilsagn/:id", () => {
+    return HttpResponse.text("Ok");
+  }),
 ];

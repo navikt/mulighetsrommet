@@ -415,7 +415,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where
                 (start_dato <= :periode_slutt) and
                 (slutt_dato >= :periode_start or slutt_dato is null) and
-                (avbrutt_tidspunkt > :periode_start or avbrutt_tidspunkt is null) and
+                (avsluttet_tidspunkt > :periode_start or avsluttet_tidspunkt is null) and
                 not exists (
                     select 1
                     from refusjonskrav
@@ -427,36 +427,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         return queryOf(query, mapOf("periode_start" to periode.start, "periode_slutt" to periode.slutt))
             .map { it.toTiltaksgjennomforingDto() }
-            .asList
-            .let { db.run(it) }
-    }
-
-    fun getAllByDateIntervalAndNotAvbrutt(
-        dateIntervalStart: LocalDate,
-        dateIntervalEnd: LocalDate,
-        pagination: Pagination,
-    ): List<UUID> {
-        logger.info("Henter alle tiltaksgjennomføringer med start- eller sluttdato mellom $dateIntervalStart og $dateIntervalEnd, og ikke avbrutt")
-
-        @Language("PostgreSQL")
-        val query = """
-            select g.id::uuid
-            from tiltaksgjennomforing g join tiltakstype t on g.tiltakstype_id = t.id
-            where t.tiltakskode is not null and g.avbrutt_tidspunkt is null and (
-                (g.start_dato > :date_interval_start and g.start_dato <= :date_interval_end) or
-                (g.slutt_dato >= :date_interval_start and g.slutt_dato < :date_interval_end))
-            order by g.id
-            limit :limit offset :offset
-        """.trimIndent()
-
-        return queryOf(
-            query,
-            mapOf(
-                "date_interval_start" to dateIntervalStart,
-                "date_interval_end" to dateIntervalEnd,
-            ) + pagination.parameters,
-        )
-            .map { it.uuid("id") }
             .asList
             .let { db.run(it) }
     }
@@ -546,21 +516,24 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return queryOf(query, avtaleId, gjennomforingId).asUpdate.let { tx.run(it) }
     }
 
-    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int = db.transaction {
-        avbryt(it, id, tidspunkt, aarsak)
+    fun setAvsluttet(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak?): Int = db.transaction {
+        setAvsluttet(it, id, tidspunkt, aarsak)
     }
 
-    fun avbryt(tx: Session, id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
+    fun setAvsluttet(tx: Session, id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak?): Int {
         @Language("PostgreSQL")
         val query = """
-            update tiltaksgjennomforing set
-                avbrutt_tidspunkt = :tidspunkt,
+            update tiltaksgjennomforing
+            set avsluttet_tidspunkt = :tidspunkt,
                 avbrutt_aarsak = :aarsak,
-                publisert = false
+                publisert = false,
+                apent_for_pamelding = false
             where id = :id::uuid
         """.trimIndent()
 
-        return tx.run(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt, "aarsak" to aarsak.name)).asUpdate)
+        val params = mapOf("id" to id, "tidspunkt" to tidspunkt, "aarsak" to aarsak?.name)
+
+        return queryOf(query, params).asUpdate.runWithSession(tx)
     }
 
     fun frikobleKontaktpersonFraGjennomforing(
@@ -615,11 +588,22 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
 
-        val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
-        val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
-
         val utdanningslop = stringOrNull("utdanningslop_json")?.let {
             Json.decodeFromString<UtdanningslopDto>(it)
+        }
+
+        val status = TiltaksgjennomforingStatus.valueOf(string("status"))
+        val avbrutt = when (status) {
+            TiltaksgjennomforingStatus.AVBRUTT, TiltaksgjennomforingStatus.AVLYST -> {
+                val aarsak = AvbruttAarsak.fromString(string("avbrutt_aarsak"))
+                AvbruttDto(
+                    tidspunkt = localDateTime("avsluttet_tidspunkt"),
+                    aarsak = aarsak,
+                    beskrivelse = aarsak.beskrivelse,
+                )
+            }
+
+            else -> null
         }
 
         return TiltaksgjennomforingDto(
@@ -628,17 +612,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             tiltaksnummer = stringOrNull("tiltaksnummer"),
             startDato = startDato,
             sluttDato = sluttDato,
-            status = TiltaksgjennomforingStatusDto(
-                TiltaksgjennomforingStatus.valueOf(string("status")),
-                avbruttTidspunkt?.let {
-                    requireNotNull(avbruttAarsak)
-                    AvbruttDto(
-                        tidspunkt = avbruttTidspunkt,
-                        aarsak = avbruttAarsak,
-                        beskrivelse = avbruttAarsak.beskrivelse,
-                    )
-                },
-            ),
+            status = TiltaksgjennomforingStatusDto(status, avbrutt),
             apentForPamelding = boolean("apent_for_pamelding"),
             antallPlasser = intOrNull("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),

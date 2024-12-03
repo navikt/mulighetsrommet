@@ -56,7 +56,7 @@ fun Application.configure(config: AppConfig) {
         }
     }
 
-    environment.monitor.subscribe(ApplicationStarted) {
+    monitor.subscribe(ApplicationStarted) {
         if (config.enableFailedRecordProcessor) {
             kafka.enableFailedRecordProcessor()
         }
@@ -66,11 +66,9 @@ fun Application.configure(config: AppConfig) {
         replayEvents.schedule(Instant.now().plusSeconds(60))
     }
 
-    environment.monitor.subscribe(ApplicationStopPreparing) {
+    monitor.subscribe(ApplicationStopPreparing) {
         kafka.disableFailedRecordProcessor()
         kafka.stopPollingTopicChanges()
-
-        scheduler.stop()
 
         db.close()
     }

@@ -17,6 +17,7 @@ data class RefusjonskravDto(
     val arrangor: Arrangor,
     val beregning: RefusjonKravBeregning,
     val betalingsinformasjon: Betalingsinformasjon,
+    val journalpostId: String?,
 ) {
     @Serializable
     data class Gjennomforing(

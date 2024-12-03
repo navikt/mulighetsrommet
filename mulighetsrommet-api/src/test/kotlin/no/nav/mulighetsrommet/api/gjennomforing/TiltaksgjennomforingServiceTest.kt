@@ -12,7 +12,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.*
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
@@ -21,6 +20,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforinge
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRepository
 import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.services.EndretAv
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingServiceTest : FunSpec({
@@ -36,16 +37,16 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
     val tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer = mockk(relaxed = true)
     val validator = mockk<TiltaksgjennomforingValidator>()
-    val avtaleId = AvtaleFixtures.oppfolging.id
 
     fun createService(
         notifications: NotificationRepository = NotificationRepository(database.db),
-    ) = TiltaksgjennomforingService(
+        endringshistorikk: EndringshistorikkService = EndringshistorikkService(database.db),
+    ): TiltaksgjennomforingService = TiltaksgjennomforingService(
         TiltaksgjennomforingRepository(database.db),
         tiltaksgjennomforingKafkaProducer,
         notifications,
         validator,
-        EndringshistorikkService(database.db),
+        endringshistorikk,
         mockk(relaxed = true),
         database.db,
     )
@@ -218,13 +219,49 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         }
     }
 
-    context("Avbryte gjennomføring") {
+    context("avslutte gjennomføring") {
         val gjennomforinger = TiltaksgjennomforingRepository(database.db)
-        val tiltaksgjennomforingService = createService()
 
-        test("Avbrytes ikke hvis publish feiler") {
+        test("publiserer til kafka og skriver til endringshistorikken når gjennomføring avsluttes") {
             val gjennomforing = TiltaksgjennomforingFixtures.AFT1.copy(
-                avtaleId = avtaleId,
+                startDato = LocalDate.of(2023, 7, 1),
+                sluttDato = null,
+            )
+            gjennomforinger.upsert(gjennomforing)
+
+            every { tiltaksgjennomforingKafkaProducer.publish(any()) } returns Unit
+
+            val endringshistorikk = spyk(EndringshistorikkService(database.db))
+            val tiltaksgjennomforingService = createService(endringshistorikk = endringshistorikk)
+
+            tiltaksgjennomforingService.setAvsluttet(
+                gjennomforing.id,
+                LocalDateTime.now(),
+                AvbruttAarsak.Feilregistrering,
+                EndretAv.NavAnsatt(bertilNavIdent),
+            )
+
+            tiltaksgjennomforingService.get(gjennomforing.id).shouldNotBeNull().should {
+                it.status.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
+            }
+
+            verify(exactly = 1) {
+                tiltaksgjennomforingKafkaProducer.publish(match { it.id == gjennomforing.id })
+
+                endringshistorikk.logEndring(
+                    operation = "Gjennomføringen ble avbrutt",
+                    documentId = gjennomforing.id,
+                    tx = any(),
+                    documentClass = any(),
+                    user = any(),
+                    timestamp = any(),
+                    valueProvider = any(),
+                )
+            }
+        }
+
+        test("avsluttes ikke hvis publish feiler") {
+            val gjennomforing = TiltaksgjennomforingFixtures.AFT1.copy(
                 startDato = LocalDate.of(2023, 7, 1),
                 sluttDato = null,
             )
@@ -232,11 +269,14 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
             every { tiltaksgjennomforingKafkaProducer.publish(any()) } throws Exception()
 
+            val tiltaksgjennomforingService = createService()
+
             shouldThrow<Throwable> {
-                tiltaksgjennomforingService.avbryt(
+                tiltaksgjennomforingService.setAvsluttet(
                     gjennomforing.id,
+                    LocalDateTime.now(),
                     AvbruttAarsak.Feilregistrering,
-                    bertilNavIdent,
+                    EndretAv.NavAnsatt(bertilNavIdent),
                 )
             }
 

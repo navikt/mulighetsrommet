@@ -80,6 +80,33 @@ class TilsagnRepositoryTest : FunSpec({
             )
         }
 
+        test("delete") {
+            repository.upsert(tilsagn)
+            repository.get(tilsagn.id) shouldBe TilsagnDto(
+                id = tilsagn.id,
+                tiltaksgjennomforing = TilsagnDto.Tiltaksgjennomforing(
+                    id = AFT1.id,
+                    antallPlasser = AFT1.antallPlasser,
+                ),
+                periodeStart = LocalDate.of(2023, 1, 1),
+                periodeSlutt = LocalDate.of(2023, 2, 1),
+                kostnadssted = Gjovik,
+                besluttelse = null,
+                annullertTidspunkt = null,
+                lopenummer = 1,
+                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
+                arrangor = TilsagnDto.Arrangor(
+                    navn = ArrangorFixtures.underenhet1.navn,
+                    id = ArrangorFixtures.underenhet1.id,
+                    organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+                    slettet = ArrangorFixtures.underenhet1.slettetDato != null,
+                ),
+                beregning = Prismodell.TilsagnBeregning.Fri(123),
+            )
+            repository.delete(tilsagn.id)
+            repository.get(tilsagn.id) shouldBe null
+        }
+
         test("besluttelse set and get") {
             repository.upsert(tilsagn)
             repository.setBesluttelse(

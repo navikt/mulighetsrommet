@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Tiltaksgjennomfori
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -157,10 +158,25 @@ class TiltaksgjennomforingService(
         logEndring("Endret avtale", dto, EndretAv.NavAnsatt(navIdent), tx)
     }
 
-    fun avbryt(id: UUID, aarsak: AvbruttAarsak, navIdent: NavIdent) = db.transaction { tx ->
-        tiltaksgjennomforinger.avbryt(tx, id, LocalDateTime.now(), aarsak)
+    fun setAvsluttet(
+        id: UUID,
+        avsluttetTidspunkt: LocalDateTime,
+        avsluttetAarsak: AvbruttAarsak?,
+        endretAv: EndretAv,
+    ): Unit = db.transaction { tx ->
+        tiltaksgjennomforinger.setAvsluttet(tx, id, avsluttetTidspunkt, avsluttetAarsak)
+
         val dto = getOrError(id, tx)
-        logEndring("Gjennomføring ble avbrutt", dto, EndretAv.NavAnsatt(navIdent), tx)
+        val operation = when (dto.status.status) {
+            TiltaksgjennomforingStatus.AVSLUTTET,
+            TiltaksgjennomforingStatus.AVBRUTT,
+            TiltaksgjennomforingStatus.AVLYST,
+            -> "Gjennomføringen ble ${dto.status.status.name.lowercase()}"
+
+            else -> throw IllegalStateException("Gjennomføringen ble nettopp avsluttet, men status er fortsatt ${dto.status.status}")
+        }
+        logEndring(operation, dto, endretAv, tx)
+
         tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
     }
 

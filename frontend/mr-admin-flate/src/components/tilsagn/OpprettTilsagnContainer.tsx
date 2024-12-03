@@ -33,7 +33,7 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing, tilsagn }: Props
   };
 
   function navigerTilGjennomforing() {
-    navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/tilsagn`);
+    navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`);
   }
 
   function prismodell(tiltaksgjennomforing: TiltaksgjennomforingDto): "AFT" | "FRI" {

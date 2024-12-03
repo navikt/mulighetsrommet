@@ -30,6 +30,7 @@ import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 fun Route.tiltaksgjennomforingRoutes() {
@@ -94,7 +95,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                     message = "Gjennomføringen finnes ikke",
                 )
 
-                if (!gjennomforing.isAktiv()) {
+                if (gjennomforing.status.status != TiltaksgjennomforingStatus.GJENNOMFORES) {
                     return@put call.respond(
                         HttpStatusCode.BadRequest,
                         message = "Gjennomføringen er allerede avsluttet og kan derfor ikke avbrytes.",
@@ -118,7 +119,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                     )
                 }
 
-                service.avbryt(id, aarsak, navIdent)
+                service.setAvsluttet(id, LocalDateTime.now(), aarsak, EndretAv.NavAnsatt(navIdent))
 
                 call.respond(HttpStatusCode.OK)
             }

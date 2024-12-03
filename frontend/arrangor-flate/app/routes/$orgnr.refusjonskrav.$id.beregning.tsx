@@ -1,8 +1,8 @@
 import { RefusjonKravDeltakelse, RefusjonKravDeltakelsePerson } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Button, GuidePanel, HGrid, SortState, Table, VStack } from "@navikt/ds-react";
-import type { LoaderFunction, MetaFunction } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import type { LoaderFunction, MetaFunction } from "react-router";
+import { Link, useLoaderData } from "react-router";
 import { useState } from "react";
 import { checkValidToken } from "~/auth/auth.server";
 import { Definisjonsliste } from "~/components/Definisjonsliste";

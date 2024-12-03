@@ -63,6 +63,7 @@ import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.refusjon.kafka.AmtDeltakerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.refusjon.task.GenerateRefusjonskrav
+import no.nav.mulighetsrommet.api.refusjon.task.JournalforRefusjonskrav
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.services.LagretFilterService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
@@ -419,6 +420,7 @@ private fun tasks(config: TaskConfig) = module {
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get()) }
     single { SynchronizeUtdanninger(config.synchronizeUtdanninger, get(), get()) }
     single { GenerateRefusjonskrav(config.generateRefusjonskrav, get()) }
+    single { JournalforRefusjonskrav(get(), get(), get(), get(), get(), get()) }
     single {
         val updateTiltaksgjennomforingStatus = UpdateTiltaksgjennomforingStatus(
             get(),
@@ -449,6 +451,7 @@ private fun tasks(config: TaskConfig) = module {
         val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
         val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
         val generateRefusjonskrav: GenerateRefusjonskrav by inject()
+        val journalforRefusjonskrav: JournalforRefusjonskrav by inject()
 
         val db: Database by inject()
 
@@ -459,6 +462,7 @@ private fun tasks(config: TaskConfig) = module {
                 generateValidationReport.task,
                 initialLoadTiltaksgjennomforinger.task,
                 initialLoadTiltakstyper.task,
+                journalforRefusjonskrav.task,
             )
             .addSchedulerListener(SlackNotifierSchedulerListener(get()))
             .addSchedulerListener(OpenTelemetrySchedulerListener())
@@ -474,6 +478,7 @@ private fun tasks(config: TaskConfig) = module {
                 generateRefusjonskrav.task,
             )
             .serializer(DbSchedulerKotlinSerializer())
+            .registerShutdownHook()
             .build()
     }
 }

@@ -1,16 +1,14 @@
 import { ApiError, ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
 import { isValidationError } from "@mr/frontend-common/utils/utils";
+import { Button, Checkbox, ErrorSummary, Heading, TextField, VStack } from "@navikt/ds-react";
 import {
-  Alert,
-  Button,
-  Checkbox,
-  ErrorSummary,
-  Heading,
-  TextField,
-  VStack,
-} from "@navikt/ds-react";
-import { ActionFunction, json, LoaderFunction, redirect } from "@remix-run/node";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
+  ActionFunction,
+  Form,
+  LoaderFunction,
+  redirect,
+  useActionData,
+  useLoaderData,
+} from "react-router";
 import { checkValidToken } from "~/auth/auth.server";
 import { Definisjon } from "~/components/Definisjon";
 import { PageHeader } from "~/components/PageHeader";
@@ -27,6 +25,10 @@ type BekreftRefusjonskravData = {
   krav: Refusjonskrav;
   tilsagn: ArrangorflateTilsagn[];
 };
+
+interface ActionData {
+  errors?: FormError[];
+}
 
 export const loader: LoaderFunction = async ({
   request,
@@ -68,9 +70,9 @@ export const action: ActionFunction = async ({ request }) => {
   const kid = formData.get("kid")?.toString();
 
   if (kontonummerError || bekreftelseError) {
-    return json({
+    return {
       errors: [kontonummerError, bekreftelseError].filter((error) => error !== undefined),
-    });
+    };
   }
 
   try {
@@ -94,7 +96,7 @@ export const action: ActionFunction = async ({ request }) => {
       // Remix revaliderer loader data ved actions, så når denne feilmeldingen vises skal allerede kravet
       // være oppdatert. Det kan hende vi i fremtiden vil vise _hva_ som har endret seg også, men det
       // får vi ta senere.
-      return json({ errors: apiError.body.errors });
+      return { errors: [apiError.body.errors] };
     }
     throw e;
   }
@@ -102,7 +104,7 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function BekreftRefusjonskrav() {
   const { krav, tilsagn } = useLoaderData<BekreftRefusjonskravData>();
-  const data = useActionData<typeof action>();
+  const data = useActionData<ActionData>();
   const orgnr = useOrgnrFromUrl();
   return (
     <>
@@ -118,47 +120,53 @@ export default function BekreftRefusjonskrav() {
         <Separator />
         <Heading size="medium">Betalingsinformasjon</Heading>
         <Form method="post">
-          <Definisjon label="Kontonummer">
-            <TextField
-              label="Kontonummer"
-              hideLabel
-              size="small"
-              error={data?.errors?.kontonummer}
-              name="kontonummer"
-              className="border border-[#0214317D] rounded-md"
-              defaultValue={krav.betalingsinformasjon?.kontonummer}
-              maxLength={11}
-              minLength={11}
-            />
-          </Definisjon>
-          <Definisjon label="Evt KID nr for refusjonskrav" className="my-4 flex">
-            <div className="flex">
+          <dl>
+            <Definisjon label="Kontonummer">
               <TextField
-                label="Evt KID nr for refusjonskrav"
+                label="Kontonummer"
                 hideLabel
                 size="small"
-                name="kid"
+                error={data?.errors?.find((error) => error.name === "kontonummer")?.message}
+                name="kontonummer"
                 className="border border-[#0214317D] rounded-md"
-                defaultValue={krav.betalingsinformasjon?.kid}
-                maxLength={25}
+                defaultValue={krav.betalingsinformasjon?.kontonummer}
+                maxLength={11}
+                minLength={11}
               />
-            </div>
-          </Definisjon>
+            </Definisjon>
+            <Definisjon label="Evt KID nr for refusjonskrav" className="my-4 flex">
+              <div className="flex">
+                <TextField
+                  label="Evt KID nr for refusjonskrav"
+                  hideLabel
+                  size="small"
+                  name="kid"
+                  className="border border-[#0214317D] rounded-md"
+                  defaultValue={krav.betalingsinformasjon?.kid}
+                  maxLength={25}
+                />
+              </div>
+            </Definisjon>
+          </dl>
           <VStack gap="2" justify={"start"} align={"start"}>
-            <Checkbox name="bekreftelse" value="bekreftet" error={data?.errors?.bekreftelse}>
+            <Checkbox
+              name="bekreftelse"
+              value="bekreftet"
+              error={!!data?.errors?.find((error) => error.name === "bekreftelse")?.message}
+            >
               Det erklæres herved at alle opplysninger er gitt i henhold til de faktiske forhold
             </Checkbox>
             <input type="hidden" name="refusjonskravId" value={krav.id} />
             <input type="hidden" name="refusjonskravDigest" value={krav.beregning.digest} />
             <input type="hidden" name="orgnr" value={orgnr} />
-            {data?.errors?.length > 0 && (
+            {data?.errors && data.errors.length > 0 && (
               <ErrorSummary>
                 {data.errors.map((error: FormError) => {
                   return <ErrorSummary.Item key={error.name}>{error.message}</ErrorSummary.Item>;
                 })}
               </ErrorSummary>
             )}
-            {data?.error && <Alert variant="error">{data.error}</Alert>}
+
             <Button type="submit">Bekreft og send refusjonskrav</Button>
           </VStack>
         </Form>

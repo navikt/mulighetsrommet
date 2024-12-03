@@ -10,7 +10,7 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { BesluttTilsagnRequest, NavAnsattRolle, TilsagnBesluttelseStatus } from "@mr/api-client";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
-import { TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
+import { PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
 import { ActionMenu, Alert, BodyShort, Box, Button, Heading, HStack } from "@navikt/ds-react";
 import { useRef, useState } from "react";
 import { Link, useMatch, useNavigate, useParams } from "react-router-dom";
@@ -20,16 +20,20 @@ import { AvvistDetaljer } from "./AvvistDetaljer";
 import { AvvisTilsagnModal } from "./AvvisTilsagnModal";
 import { TilsagnTag } from "./TilsagnTag";
 import { useGetTilsagnById } from "./useGetTilsagnById";
+import { useSlettTilsagn } from "../../../api/tilsagn/useSlettTilsagn";
+import styles from "./TilsagnDetaljer.module.scss";
 
 export function TilsagnDetaljer() {
   const { avtaleId, tiltaksgjennomforingId } = useParams();
   const { data: tilsagn } = useGetTilsagnById();
   const besluttMutation = useBesluttTilsagn();
   const annullerMutation = useAnnullerTilsagn();
+  const slettMutation = useSlettTilsagn();
   const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
   const { data: ansatt } = useHentAnsatt();
   const navigate = useNavigate();
   const annullerModalRef = useRef<HTMLDialogElement>(null);
+  const slettTilsagnModalRef = useRef<HTMLDialogElement>(null);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
 
   const erPaaGjennomforingerForAvtale = useMatch(
@@ -93,6 +97,12 @@ export function TilsagnDetaljer() {
     }
   }
 
+  function slettTilsagn() {
+    if (tilsagn) {
+      slettMutation.mutate({ id: tilsagn.id }, { onSuccess: navigerTilGjennomforing });
+    }
+  }
+
   const visBesluttKnapp =
     !tilsagn?.besluttelse &&
     ansatt?.navIdent !== tilsagn?.opprettetAv &&
@@ -102,6 +112,7 @@ export function TilsagnDetaljer() {
     return <Laster tekst="Laster tilsagn..." />;
   }
 
+  const visHandlingerMeny = tilsagn.besluttelse?.status === TilsagnBesluttelseStatus.AVVIST;
   return (
     <main>
       <Brodsmuler brodsmuler={brodsmuler} />
@@ -122,29 +133,33 @@ export function TilsagnDetaljer() {
             <Heading size="medium" level="2">
               Tilsagn
             </Heading>
-            <ActionMenu>
-              <ActionMenu.Trigger>
-                <Button variant="primary" size="small">
-                  Handlinger
-                </Button>
-              </ActionMenu.Trigger>
-              <ActionMenu.Content>
-                <ActionMenu.Item
-                  onSelect={() =>
-                    alert("Redigering av tilsagn her i fra er ikke implementert enda ")
-                  }
-                >
-                  Rediger tilsagn
-                </ActionMenu.Item>
-                <ActionMenu.Item
-                  variant="danger"
-                  onSelect={() => alert("Sletting av tilsagn er ikke implementert enda")}
-                  icon={<TrashIcon />}
-                >
-                  Slett tilsagn
-                </ActionMenu.Item>
-              </ActionMenu.Content>
-            </ActionMenu>
+            {visHandlingerMeny ? (
+              <ActionMenu>
+                <ActionMenu.Trigger>
+                  <Button variant="primary" size="small">
+                    Handlinger
+                  </Button>
+                </ActionMenu.Trigger>
+                <ActionMenu.Content>
+                  {tilsagn.besluttelse?.status === TilsagnBesluttelseStatus.AVVIST ? (
+                    <ActionMenu.Item icon={<PencilFillIcon />}>
+                      <Link className={styles.link_without_underline} to="./rediger-tilsagn">
+                        Rediger tilsagn
+                      </Link>
+                    </ActionMenu.Item>
+                  ) : null}
+                  {tilsagn.besluttelse?.status === TilsagnBesluttelseStatus.AVVIST ? (
+                    <ActionMenu.Item
+                      variant="danger"
+                      onSelect={() => slettTilsagnModalRef.current?.showModal()}
+                      icon={<TrashIcon />}
+                    >
+                      Slett tilsagn
+                    </ActionMenu.Item>
+                  ) : null}
+                </ActionMenu.Content>
+              </ActionMenu>
+            ) : null}
           </HStack>
           <Separator />
           <Heading size="small" level="3">
@@ -194,6 +209,25 @@ export function TilsagnDetaljer() {
                 open={avvisModalOpen}
                 onClose={() => setAvvisModalOpen(false)}
                 onConfirm={(validatedData) => besluttTilsagn(validatedData)}
+              />
+              <VarselModal
+                headingIconType="warning"
+                headingText="Slette tilsagnet?"
+                modalRef={slettTilsagnModalRef}
+                handleClose={() => slettTilsagnModalRef.current?.close()}
+                body={
+                  <p>
+                    Er du sikker på at du vil slette tilsagnet?
+                    <br /> Denne operasjonen kan ikke angres
+                  </p>
+                }
+                primaryButton={
+                  <Button variant="danger" onClick={slettTilsagn} icon={<TrashFillIcon />}>
+                    Ja, jeg vil slette tilsagnet
+                  </Button>
+                }
+                secondaryButton
+                secondaryButtonHandleAction={() => slettTilsagnModalRef.current?.close()}
               />
             </div>
           </Box>

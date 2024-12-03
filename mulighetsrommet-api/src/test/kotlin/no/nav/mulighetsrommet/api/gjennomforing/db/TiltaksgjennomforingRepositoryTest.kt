@@ -101,7 +101,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.startDato shouldBe Oppfolging1.startDato
                 it.sluttDato shouldBe Oppfolging1.sluttDato
                 it.arenaAnsvarligEnhet shouldBe null
-                it.status.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
+                it.status.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
                 it.apentForPamelding shouldBe true
                 it.antallPlasser shouldBe 12
                 it.avtaleId shouldBe Oppfolging1.avtaleId
@@ -355,7 +355,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.get(gjennomforing.id)?.publisert shouldBe false
 
             tiltaksgjennomforinger.setPublisert(gjennomforing.id, true)
-            tiltaksgjennomforinger.avbryt(gjennomforing.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
+            tiltaksgjennomforinger.setAvsluttet(gjennomforing.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
 
             tiltaksgjennomforinger.get(gjennomforing.id)?.publisert shouldBe false
         }
@@ -713,23 +713,27 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     context("tiltaksgjennomforingstatus") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
-        val dagensDato = LocalDate.now()
+        val dagensDato = LocalDate.of(2024, 6, 1)
         val enManedFrem = dagensDato.plusMonths(1)
         val enManedTilbake = dagensDato.minusMonths(1)
         val toManederFrem = dagensDato.plusMonths(2)
         val toManederTilbake = dagensDato.minusMonths(2)
 
-        test("status AVLYST og AVBRUTT utledes fra avbrutt-tidspunkt") {
+        test("status AVLYST, AVBRUTT, AVSLUTTET utledes fra avsluttet-tidspunkt") {
             forAll(
                 row(enManedTilbake, enManedFrem, enManedTilbake.minusDays(1), TiltaksgjennomforingStatus.AVLYST),
+                row(enManedTilbake, null, enManedTilbake.minusDays(1), TiltaksgjennomforingStatus.AVLYST),
                 row(enManedFrem, toManederFrem, dagensDato, TiltaksgjennomforingStatus.AVLYST),
                 row(dagensDato, toManederFrem, dagensDato, TiltaksgjennomforingStatus.AVBRUTT),
                 row(enManedTilbake, enManedFrem, enManedTilbake.plusDays(3), TiltaksgjennomforingStatus.AVBRUTT),
-                row(enManedFrem, toManederFrem, enManedFrem.plusMonths(2), TiltaksgjennomforingStatus.AVBRUTT),
+                row(enManedTilbake, enManedFrem, enManedFrem, TiltaksgjennomforingStatus.AVBRUTT),
+                row(enManedTilbake, null, enManedFrem, TiltaksgjennomforingStatus.AVBRUTT),
+                row(enManedFrem, toManederFrem, enManedFrem.plusMonths(2), TiltaksgjennomforingStatus.AVSLUTTET),
+                row(enManedTilbake, enManedFrem, enManedFrem.plusDays(1), TiltaksgjennomforingStatus.AVSLUTTET),
             ) { startDato, sluttDato, avbruttDato, expectedStatus ->
                 tiltaksgjennomforinger.upsert(AFT1.copy(startDato = startDato, sluttDato = sluttDato))
 
-                tiltaksgjennomforinger.avbryt(
+                tiltaksgjennomforinger.setAvsluttet(
                     AFT1.id,
                     avbruttDato.atStartOfDay(),
                     AvbruttAarsak.Feilregistrering,
@@ -739,14 +743,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
         }
 
-        test("hvis ikke avbrutt så blir status utledet basert på dagens dato") {
+        test("hvis ikke avsluttet så blir status GJENNOMFORES") {
             forAll(
-                row(toManederTilbake, enManedTilbake, TiltaksgjennomforingStatus.AVSLUTTET),
-                row(enManedTilbake, enManedFrem, TiltaksgjennomforingStatus.GJENNOMFORES),
+                row(toManederTilbake, enManedTilbake, TiltaksgjennomforingStatus.GJENNOMFORES),
                 row(enManedTilbake, null, TiltaksgjennomforingStatus.GJENNOMFORES),
                 row(dagensDato, dagensDato, TiltaksgjennomforingStatus.GJENNOMFORES),
-                row(enManedFrem, toManederFrem, TiltaksgjennomforingStatus.PLANLAGT),
-                row(enManedFrem, null, TiltaksgjennomforingStatus.PLANLAGT),
+                row(enManedFrem, toManederFrem, TiltaksgjennomforingStatus.GJENNOMFORES),
+                row(enManedFrem, null, TiltaksgjennomforingStatus.GJENNOMFORES),
             ) { startDato, sluttDato, status ->
                 tiltaksgjennomforinger.upsert(AFT1.copy(startDato = startDato, sluttDato = sluttDato))
 

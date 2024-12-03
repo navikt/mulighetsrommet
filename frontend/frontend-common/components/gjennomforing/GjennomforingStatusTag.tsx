@@ -28,7 +28,5 @@ export function variantAndName(status: TiltaksgjennomforingStatus): {
       return { variant: "error", label: "Avbrutt" };
     case TiltaksgjennomforingStatus.AVLYST:
       return { variant: "error", label: "Avlyst" };
-    case TiltaksgjennomforingStatus.PLANLAGT:
-      return { variant: "alt1", label: "Planlagt" };
   }
 }

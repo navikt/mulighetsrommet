@@ -72,6 +72,7 @@ private fun tasks(tasks: TaskConfig) = module {
             .addSchedulerListener(SlackNotifierSchedulerListener(get()))
             .addSchedulerListener(OpenTelemetrySchedulerListener())
             .startTasks(retryFailedEvents.task, notifyFailedEvents.task)
+            .registerShutdownHook()
             .build()
     }
 }

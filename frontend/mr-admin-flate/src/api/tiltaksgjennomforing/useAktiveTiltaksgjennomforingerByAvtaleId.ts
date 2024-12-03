@@ -8,7 +8,7 @@ export function useAktiveTiltaksgjennomforingerByAvtaleId(avtaleId: string) {
     queryFn: () =>
       TiltaksgjennomforingerService.getTiltaksgjennomforinger({
         avtaleId: avtaleId,
-        statuser: [TiltaksgjennomforingStatus.GJENNOMFORES, TiltaksgjennomforingStatus.PLANLAGT],
+        statuser: [TiltaksgjennomforingStatus.GJENNOMFORES],
       }),
   });
 }

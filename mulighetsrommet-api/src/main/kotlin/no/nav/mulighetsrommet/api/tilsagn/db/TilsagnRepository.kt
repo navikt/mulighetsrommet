@@ -165,6 +165,15 @@ class TilsagnRepository(private val db: Database) {
         return tx.run(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt)).asUpdate)
     }
 
+    fun delete(id: UUID) {
+        @Language("PostgreSQL")
+        val query = """
+            delete from tilsagn where id = :id::uuid
+        """.trimIndent()
+
+        db.run(queryOf(query, mapOf("id" to id)).asExecute)
+    }
+
     fun setBesluttelse(
         id: UUID,
         besluttelse: BesluttTilsagnRequest,

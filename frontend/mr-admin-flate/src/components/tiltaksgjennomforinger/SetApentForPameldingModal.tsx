@@ -1,7 +1,7 @@
-import { Alert, BodyLong, Button, Modal, Switch } from "@navikt/ds-react";
-import { RefObject } from "react";
-import { TiltaksgjennomforingDto } from "@mr/api-client";
 import { useSetApentForPamelding } from "@/api/tiltaksgjennomforing/useSetApentForPamelding";
+import { TiltaksgjennomforingDto } from "@mr/api-client";
+import { Alert, Button, Modal, Switch } from "@navikt/ds-react";
+import { RefObject } from "react";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
@@ -14,7 +14,7 @@ export function SetApentForPameldingModal({ modalRef, gjennomforing }: Props) {
   return (
     <Modal ref={modalRef} header={{ heading: "Åpent for påmelding" }}>
       <Modal.Body>
-        <BodyLong>
+        <div>
           <p>Her kan du styre om tiltaket skal være åpent for påmelding i Modia.</p>
 
           <Alert variant={"info"}>
@@ -22,15 +22,13 @@ export function SetApentForPameldingModal({ modalRef, gjennomforing }: Props) {
             deltakere selv om tiltaket vises som stengt i Modia.
           </Alert>
 
-          <p>
-            Påmelding stenges automatisk av systemet når:
-            <ul>
-              <li>
-                Tiltak med <b>felles oppstart</b> starter.
-              </li>
-              <li>Tiltaket avsluttes eller blir avbrutt.</li>
-            </ul>
-          </p>
+          <p>Påmelding stenges automatisk av systemet når:</p>
+          <ul>
+            <li>
+              Tiltak med <b>felles oppstart</b> starter.
+            </li>
+            <li>Tiltaket avsluttes eller blir avbrutt.</li>
+          </ul>
 
           <Switch
             checked={gjennomforing.apentForPamelding}
@@ -38,7 +36,7 @@ export function SetApentForPameldingModal({ modalRef, gjennomforing }: Props) {
           >
             Åpent for påmelding
           </Switch>
-        </BodyLong>
+        </div>
       </Modal.Body>
       <Modal.Footer>
         <Button type="button" onClick={() => modalRef.current?.close()}>

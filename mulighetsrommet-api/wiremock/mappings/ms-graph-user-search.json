@@ -15,6 +15,24 @@
           "givenName": "Bertil",
           "surname": "Bengtsom",
           "mail": "bertil.bengtson@nav.no"
+        },
+        {
+          "id": "7f3d76ed-0dc7-4731-83d1-a1deb5917c96",
+          "streetAddress": "2990",
+          "city": "IT-Avdelingen",
+          "onPremisesSamAccountName": "Z994233",
+          "givenName": "F_Z994233",
+          "surname": "E_Z994233",
+          "mail": "F_Z994233.E_Z994233@trygdeetaten.no"
+        },
+        {
+          "id": "3c32556c-1413-4f81-8b09-85eb288bd85a",
+          "streetAddress": "2990",
+          "city": "IT-Avdelingen",
+          "onPremisesSamAccountName": "Z994113",
+          "givenName": "F_Z994113",
+          "surname": "E_Z994113",
+          "mail": "F_Z994113.E_Z994113@trygdeetaten.no"
         }
       ]
     },
