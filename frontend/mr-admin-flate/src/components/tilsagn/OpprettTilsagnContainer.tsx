@@ -6,12 +6,6 @@ import { SkjemaKolonne } from "../skjema/SkjemaKolonne";
 import { InferredOpprettTilsagnSchema } from "./OpprettTilsagnSchema";
 import { TilsagnSkjema } from "./TilsagnSkjema";
 import { useOpprettTilsagn } from "./useOpprettTilsagn";
-import { TilsagnTable } from "@mr/arrangor-flate/app/components/tilsagn/TilsagnTable";
-import { Tilsagnstabell } from "@/pages/tiltaksgjennomforinger/tilsagn/Tilsagnstabell";
-import { useGetTiltaksgjennomforingIdFromUrl } from "@/hooks/useGetTiltaksgjennomforingIdFromUrl";
-import { useHentTilsagnForTiltaksgjennomforing } from "@/api/tilsagn/useHentTilsagnForTiltaksgjennomforing";
-import { Laster } from "@/components/laster/Laster";
-import { Alert, Heading } from "@navikt/ds-react";
 
 interface Props {
   tiltaksgjennomforing: TiltaksgjennomforingDto;

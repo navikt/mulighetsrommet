@@ -23,6 +23,7 @@ import { FriBeregningSkjema } from "./FriBeregningSkjema";
 import { InferredOpprettTilsagnSchema, OpprettTilsagnSchema } from "./OpprettTilsagnSchema";
 import { TiltakDetaljerForTilsagn } from "./TiltakDetaljerForTilsagn";
 import styles from "./TilsagnSkjema.module.scss";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
 
 interface Props {
   tiltaksgjennomforing: TiltaksgjennomforingDto;
@@ -74,8 +75,7 @@ export function TilsagnSkjema({
     }
   }, [kostnadssteder, tilsagn, setValue]);
 
-  const [periodeStart, periodeSlutt] = watch(["periode.start", "periode.slutt"]);
-  const months = new Date(periodeSlutt).getMonth() - new Date(periodeStart).getMonth();
+  const beregning = watch("beregning");
 
   return (
     <FormProvider {...form}>
@@ -147,20 +147,9 @@ export function TilsagnSkjema({
             </div>
             <div className={styles.formContentRight}>
               <Heading size="small">Beløp</Heading>
-              <Heading size="xsmall" className={styles.beregnetKostnad}>
-                Beregnet kostnad
-              </Heading>
-              {periodeStart && periodeSlutt && (
-                <div className={styles.rowSpaceBetween}>
-                  <div>
-                    {tiltaksgjennomforing.antallPlasser} plasser * {months} mnd
-                  </div>
-                  <div>{tilsagn?.beregning.belop}</div>
-                </div>
-              )}
               <div className={styles.rowSpaceBetween}>
                 <Label size="medium">Total beløp</Label>
-                <Label size="medium">{tilsagn?.beregning.belop}</Label>
+                <Label size="medium">{formaterNOK(beregning?.belop)}</Label>
               </div>
             </div>
           </div>
