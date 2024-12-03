@@ -1,0 +1,49 @@
+.formGroup {
+  padding: var(--a-spacing-3) 0px;
+}
+
+.formContainer {
+  border: 1px solid var(--a-border-default);
+  border-radius: 4px;
+  padding: var(--a-spacing-4);
+  margin-top: var(--a-spacing-8);
+}
+
+
+.formContent {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.formContentLeft {
+  padding-right: var(--a-spacing-6);
+}
+
+.formContentRight {
+  border-left: 3px solid var(--a-border-subtle);
+  padding-left: var(--a-spacing-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--a-spacing-2);
+}
+
+.formHeader {
+  display: flex;
+  justify-content: space-between;
+  margin: var(--a-spacing-3) 0px;
+}
+.formMetadata {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--a-spacing-6);
+}
+
+.formMetadataLabels {
+  display: grid;
+  gap: var(--a-spacing-4);
+}
+
+.rowSpaceBetween {
+  display: flex;
+  justify-content: space-between;
+}

@@ -3,7 +3,16 @@ import { addYear } from "@/utils/Utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ApiError, TilsagnDto, TilsagnRequest, TiltaksgjennomforingDto } from "@mr/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common";
-import { Alert, BodyShort, Button, DatePicker, HGrid, HStack } from "@navikt/ds-react";
+import {
+  Alert,
+  BodyShort,
+  Button,
+  DatePicker,
+  Heading,
+  HGrid,
+  HStack,
+  Label,
+} from "@navikt/ds-react";
 import { UseMutationResult } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -13,6 +22,7 @@ import { AFTBeregningSkjema } from "./AFTBeregningSkjema";
 import { FriBeregningSkjema } from "./FriBeregningSkjema";
 import { InferredOpprettTilsagnSchema, OpprettTilsagnSchema } from "./OpprettTilsagnSchema";
 import { TiltakDetaljerForTilsagn } from "./TiltakDetaljerForTilsagn";
+import styles from "./TilsagnSkjema.module.scss";
 
 interface Props {
   tiltaksgjennomforing: TiltaksgjennomforingDto;
@@ -52,7 +62,7 @@ export function TilsagnSkjema({
       : {},
   });
 
-  const { handleSubmit, register, setValue } = form;
+  const { handleSubmit, register, setValue, watch } = form;
 
   useEffect(() => {
     if (tilsagn) {
@@ -64,57 +74,95 @@ export function TilsagnSkjema({
     }
   }, [kostnadssteder, tilsagn, setValue]);
 
+  const [periodeStart, periodeSlutt] = watch(["periode.start", "periode.slutt"]);
+  const months = new Date(periodeSlutt).getMonth() - new Date(periodeStart).getMonth();
+
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <TiltakDetaljerForTilsagn tiltaksgjennomforing={tiltaksgjennomforing} />
-        <FormGroup>
-          <DatePicker>
-            <HGrid columns={2} gap={"2"}>
-              <ControlledDateInput
-                label="Startdato"
-                fromDate={new Date(tiltaksgjennomforing.startDato)}
-                toDate={addYear(new Date(), 50)}
-                format="iso-string"
-                {...register("periode.start")}
-                size="small"
-              />
-              <ControlledDateInput
-                label="Sluttdato"
-                fromDate={new Date(tiltaksgjennomforing.startDato)}
-                toDate={addYear(new Date(), 50)}
-                format="iso-string"
-                {...register("periode.slutt")}
-                size="small"
-              />
-            </HGrid>
-          </DatePicker>
-        </FormGroup>
-        <FormGroup>
-          {prismodell == "AFT" ? (
-            <AFTBeregningSkjema defaultAntallPlasser={tiltaksgjennomforing.antallPlasser} />
-          ) : (
-            <FriBeregningSkjema />
-          )}
-        </FormGroup>
-        <FormGroup>
-          <ControlledSokeSelect
-            placeholder="Velg kostnadssted"
-            size="small"
-            label="Kostnadssted"
-            {...register("kostnadssted")}
-            options={
-              kostnadssteder
-                ?.sort((a, b) => a.navn.localeCompare(b.navn))
-                .map(({ navn, enhetsnummer }) => {
-                  return {
-                    value: enhetsnummer,
-                    label: `${navn} - ${enhetsnummer}`,
-                  };
-                }) ?? []
-            }
-          />
-        </FormGroup>
+        <div className={styles.formContainer}>
+          <div className={styles.formHeader}>
+            <Heading size="medium">Tilsagn</Heading>
+            <div className={styles.formMetadata}>
+              <div className={styles.formMetadataLabels}>
+                <div>Tilsagnstype:</div>
+                <div>Tilsagnsnummer:</div>
+              </div>
+              <div className={styles.formMetadataLabels}>
+                <div>{tiltaksgjennomforing.tiltakstype.navn}</div>
+                <div>{tiltaksgjennomforing.tiltaksnummer}</div>
+              </div>
+            </div>
+          </div>
+          <div className={styles.formContent}>
+            <div className={styles.formContentLeft}>
+              <div className={styles.formGroup}>
+                <DatePicker>
+                  <HGrid columns={2} gap={"2"}>
+                    <ControlledDateInput
+                      label="Dato fra"
+                      fromDate={new Date(tiltaksgjennomforing.startDato)}
+                      toDate={addYear(new Date(), 50)}
+                      format="iso-string"
+                      {...register("periode.start")}
+                      size="small"
+                    />
+                    <ControlledDateInput
+                      label="Dato til"
+                      fromDate={new Date(tiltaksgjennomforing.startDato)}
+                      toDate={addYear(new Date(), 50)}
+                      format="iso-string"
+                      {...register("periode.slutt")}
+                      size="small"
+                    />
+                  </HGrid>
+                </DatePicker>
+              </div>
+              <div className={styles.formGroup}>
+                {prismodell == "AFT" ? (
+                  <AFTBeregningSkjema defaultAntallPlasser={tiltaksgjennomforing.antallPlasser} />
+                ) : (
+                  <FriBeregningSkjema />
+                )}
+              </div>
+              <div className={styles.formGroup}>
+                <ControlledSokeSelect
+                  placeholder="Velg kostnadssted"
+                  size="small"
+                  label="Kostnadssted"
+                  {...register("kostnadssted")}
+                  options={
+                    kostnadssteder
+                      ?.sort((a, b) => a.navn.localeCompare(b.navn))
+                      .map(({ navn, enhetsnummer }) => {
+                        return {
+                          value: enhetsnummer,
+                          label: `${navn} - ${enhetsnummer}`,
+                        };
+                      }) ?? []
+                  }
+                />
+              </div>
+            </div>
+            <div className={styles.formContentRight}>
+              <Heading size="small">Beløp</Heading>
+              <Heading size="xsmall" className={styles.beregnetKostnad}>
+                Beregnet kostnad
+              </Heading>
+              <div className={styles.rowSpaceBetween}>
+                <div>
+                  {tiltaksgjennomforing.antallPlasser} plasser * {months} mnd
+                </div>
+                <div>1 640 400 kr</div>
+              </div>
+              <div className={styles.rowSpaceBetween}>
+                <Label size="medium">Total beløp</Label>
+                <Label size="medium">1 640 400 kr</Label>
+              </div>
+            </div>
+          </div>
+        </div>
         <BodyShort spacing>
           {mutation.error ? (
             <Alert variant="error" size="small">
