@@ -121,8 +121,8 @@ class SanityService(
         val params = listOf(SanityParam.of("id", id))
 
         return when (val result = sanityClient.query(query, params, perspective)) {
-            is SanityResponse.Result ->  {
-                if(result.result == null) {
+            is SanityResponse.Result -> {
+                if (result.result == null) {
                     throw NotFoundException("Fant ikke tiltak med id=$id")
                 } else {
                     return result.decode()

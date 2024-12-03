@@ -114,7 +114,7 @@ sealed class SanityResponse {
     ) : SanityResponse() {
         inline fun <reified T> decode(): T {
             if (result == null) {
-               return null as T
+                return null as T
             }
             return JsonIgnoreUnknownKeys.decodeFromJsonElement(result)
         }
