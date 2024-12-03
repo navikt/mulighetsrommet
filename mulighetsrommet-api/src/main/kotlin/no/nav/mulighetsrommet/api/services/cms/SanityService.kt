@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.server.plugins.NotFoundException
 import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
@@ -120,7 +121,13 @@ class SanityService(
         val params = listOf(SanityParam.of("id", id))
 
         return when (val result = sanityClient.query(query, params, perspective)) {
-            is SanityResponse.Result -> result.decode()
+            is SanityResponse.Result ->  {
+                if(result.result == null) {
+                    throw NotFoundException("Fant ikke tiltak med id=$id")
+                } else {
+                    return result.decode()
+                }
+            }
             is SanityResponse.Error -> throw Exception(result.error.toString())
         }
     }
