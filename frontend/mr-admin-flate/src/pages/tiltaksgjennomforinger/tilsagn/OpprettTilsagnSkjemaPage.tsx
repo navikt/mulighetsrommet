@@ -95,7 +95,7 @@ export function OpprettTilsagnSkjemaPage() {
             <Heading size="medium">Aktive tilsagn</Heading>
             <SkjemaContainer>
               <SkjemaContent>
-                {tilsagner.length > 0 ? (
+                {tilsagner && tilsagner.length > 0 ? (
                   <Tilsagnstabell tilsagn={tilsagner} />
                 ) : (
                   <Alert variant="info">Det finnes ingen tilsagn for dette tiltaket</Alert>

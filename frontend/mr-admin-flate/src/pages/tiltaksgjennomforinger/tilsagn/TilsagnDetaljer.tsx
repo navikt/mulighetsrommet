@@ -165,7 +165,7 @@ export function TilsagnDetaljer() {
           <Heading size="small" level="3">
             Tiltaksgjennomføring
           </Heading>
-          <TiltakDetaljerForTilsagn tiltaksgjennomforing={tiltaksgjennomforing} borderWidth={"0"} />
+          <TiltakDetaljerForTilsagn tiltaksgjennomforing={tiltaksgjennomforing} />
           <AvvistDetaljer tilsagn={tilsagn} />
           <Box
             borderWidth="2"
