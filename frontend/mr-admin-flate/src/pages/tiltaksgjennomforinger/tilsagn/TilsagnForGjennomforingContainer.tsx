@@ -29,8 +29,6 @@ export function TilsagnForGjennomforingContainer() {
 
   return (
     <>
-      <OpprettTilsagn tilsagn={tilsagn[0]} />
-      <Heading size="large">Aktive tilsagn</Heading>
       <InfoContainer>
         {tilsagn.length > 0 ? (
           <Tilsagnstabell tilsagn={tilsagn} />
