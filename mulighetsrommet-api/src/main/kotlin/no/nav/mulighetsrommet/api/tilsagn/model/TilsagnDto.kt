@@ -64,6 +64,6 @@ data class TilsagnDto(
         GODKJENT,
         RETURNERT,
         ANNULERT,
-        OPPGJORT
+        OPPGJORT,
     }
 }

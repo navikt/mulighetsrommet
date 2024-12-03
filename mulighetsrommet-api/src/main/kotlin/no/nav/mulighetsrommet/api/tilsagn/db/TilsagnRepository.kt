@@ -284,13 +284,12 @@ class TilsagnRepository(private val db: Database) {
                 slettet = boolean("arrangor_slettet"),
             ),
             beregning = Json.decodeFromString<Prismodell.TilsagnBeregning>(string("beregning")),
-            status = utledStatus(besluttelse, annullertTidspunkt)
+            status = utledStatus(besluttelse, annullertTidspunkt),
         )
     }
 
-    private fun utledStatus(besluttelse: String?, annullertTidspunkt: LocalDateTime?,): TilsagnDto.TilsagnStatus {
-
-        if(annullertTidspunkt != null) {
+    private fun utledStatus(besluttelse: String?, annullertTidspunkt: LocalDateTime?): TilsagnDto.TilsagnStatus {
+        if (annullertTidspunkt != null) {
             return TilsagnDto.TilsagnStatus.ANNULERT
         }
 

@@ -115,8 +115,13 @@ class TilsagnRepositoryTest : FunSpec({
             val besluttetTidspunkt = LocalDateTime.now()
             database.db.transaction {
                 repository.upsert(tilsagn)
-                repository.setBesluttelse(tilsagn.id, BesluttTilsagnRequest.GodkjentTilsagnRequest,
-                    NavAnsattFixture.ansatt1.navIdent, besluttetTidspunkt, it)
+                repository.setBesluttelse(
+                    tilsagn.id,
+                    BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                    NavAnsattFixture.ansatt1.navIdent,
+                    besluttetTidspunkt,
+                    it,
+                )
             }
             repository.get(tilsagn.id) shouldBe TilsagnDto(
                 id = tilsagn.id,
@@ -153,11 +158,16 @@ class TilsagnRepositoryTest : FunSpec({
             val returnertTidspunkt = LocalDateTime.now()
             database.db.transaction {
                 repository.upsert(tilsagn)
-                repository.setBesluttelse(tilsagn.id, BesluttTilsagnRequest.AvvistTilsagnRequest(
-                    aarsaker = listOf(AvvistTilsagnAarsak.FEIL_PERIODE),
-                    forklaring = null,
-                ),
-                    NavAnsattFixture.ansatt1.navIdent, returnertTidspunkt, it)
+                repository.setBesluttelse(
+                    tilsagn.id,
+                    BesluttTilsagnRequest.AvvistTilsagnRequest(
+                        aarsaker = listOf(AvvistTilsagnAarsak.FEIL_PERIODE),
+                        forklaring = null,
+                    ),
+                    NavAnsattFixture.ansatt1.navIdent,
+                    returnertTidspunkt,
+                    it,
+                )
             }
             repository.get(tilsagn.id) shouldBe TilsagnDto(
                 id = tilsagn.id,
@@ -191,7 +201,7 @@ class TilsagnRepositoryTest : FunSpec({
         }
 
         test("Skal få status TIL_GODKJENNING hvis tilsagnet er til godkjenning") {
-                repository.upsert(tilsagn)
+            repository.upsert(tilsagn)
             repository.get(tilsagn.id) shouldBe TilsagnDto(
                 id = tilsagn.id,
                 tiltaksgjennomforing = TilsagnDto.Tiltaksgjennomforing(
