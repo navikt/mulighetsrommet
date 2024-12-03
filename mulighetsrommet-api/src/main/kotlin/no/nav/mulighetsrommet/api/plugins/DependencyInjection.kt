@@ -68,6 +68,7 @@ import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.services.LagretFilterService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.cms.SanityService
+import no.nav.mulighetsrommet.api.tasks.DbSchedulerClient
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -91,6 +92,7 @@ import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationService
+import no.nav.mulighetsrommet.notifications.ScheduleNotification
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
@@ -394,7 +396,7 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakstypeService(get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
-    single { NotificationService(get(), get()) }
+    single { NotificationService(get()) }
     single { ArrangorService(get(), get()) }
     single { RefusjonService(get(), get(), get(), get()) }
     single { UnleashService(appConfig.unleash, get()) }
@@ -414,13 +416,15 @@ private fun services(appConfig: AppConfig) = module {
 }
 
 private fun tasks(config: TaskConfig) = module {
-    single { GenerateValidationReport(config.generateValidationReport, get(), get(), get(), get(), get()) }
-    single { InitialLoadTiltaksgjennomforinger(get(), get(), get(), get()) }
-    single { InitialLoadTiltakstyper(get(), get(), get(), get()) }
-    single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get()) }
+    single { GenerateValidationReport(config.generateValidationReport, get(), get(), get(), get()) }
+    single { InitialLoadTiltaksgjennomforinger(get(), get(), get()) }
+    single { InitialLoadTiltakstyper(get(), get(), get()) }
+    single { ScheduleNotification(get()) }
+    single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get()) }
     single { SynchronizeUtdanninger(config.synchronizeUtdanninger, get(), get()) }
     single { GenerateRefusjonskrav(config.generateRefusjonskrav, get()) }
-    single { JournalforRefusjonskrav(get(), get(), get(), get(), get(), get()) }
+    single { JournalforRefusjonskrav(get(), get(), get(), get(), get()) }
+    single { DbSchedulerClient(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     single {
         val updateTiltaksgjennomforingStatus = UpdateTiltaksgjennomforingStatus(
             get(),
@@ -444,7 +448,6 @@ private fun tasks(config: TaskConfig) = module {
             get(),
         )
         val updateApentForPamelding = UpdateApentForPamelding(config.updateApentForPamelding, get(), get())
-        val notificationService: NotificationService by inject()
         val generateValidationReport: GenerateValidationReport by inject()
         val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
         val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
@@ -452,13 +455,14 @@ private fun tasks(config: TaskConfig) = module {
         val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
         val generateRefusjonskrav: GenerateRefusjonskrav by inject()
         val journalforRefusjonskrav: JournalforRefusjonskrav by inject()
+        val scheduleNotification: ScheduleNotification by inject()
 
         val db: Database by inject()
 
         Scheduler
             .create(
                 db.getDatasource(),
-                notificationService.getScheduledNotificationTask(),
+                scheduleNotification.task,
                 generateValidationReport.task,
                 initialLoadTiltaksgjennomforinger.task,
                 initialLoadTiltakstyper.task,

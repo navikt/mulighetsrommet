@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
-import no.nav.mulighetsrommet.notifications.NotificationService
+import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import org.slf4j.LoggerFactory
@@ -31,7 +31,7 @@ class NavAnsattSyncService(
     private val sanityService: SanityService,
     private val avtaleRepository: AvtaleRepository,
     private val navEnhetService: NavEnhetService,
-    private val notificationService: NotificationService,
+    private val notificationRepository: NotificationRepository,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -123,7 +123,7 @@ class NavAnsattSyncService(
             targets = administrators,
             createdAt = Instant.now(),
         )
-        notificationService.scheduleNotification(notification)
+        notificationRepository.insert(notification)
     }
 
     private fun notifyRelevantAdministratorsForSanityGjennomforing(
@@ -161,7 +161,7 @@ class NavAnsattSyncService(
             targets = administrators,
             createdAt = Instant.now(),
         )
-        notificationService.scheduleNotification(notification)
+        notificationRepository.insert(notification)
     }
 
     private suspend fun upsertSanityAnsatte(ansatte: List<NavAnsattDto>) {

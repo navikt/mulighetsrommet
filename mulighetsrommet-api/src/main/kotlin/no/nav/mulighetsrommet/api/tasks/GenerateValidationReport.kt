@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.tasks
 
-import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.google.cloud.storage.Storage
@@ -14,7 +13,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.responses.ValidationError
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.tasks.executeSuspend
@@ -24,20 +22,17 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.time.Instant
 import java.util.*
 import kotlin.io.path.createTempFile
 import kotlin.io.path.outputStream
 
 class GenerateValidationReport(
     private val config: Config,
-    database: Database,
     private val avtaler: AvtaleRepository,
     private val avtaleValidator: AvtaleValidator,
     private val gjennomforinger: TiltaksgjennomforingRepository,
     private val gjennomforingValidator: TiltaksgjennomforingValidator,
 ) {
-
     data class Config(
         /**
          * Rapport blir lastet opp til respektiv GCP bucket, evt. skrevet som en tmp-fil om ikke [bucketName] er satt.
@@ -54,15 +49,7 @@ class GenerateValidationReport(
             upload(report)
         }
 
-    private val client = SchedulerClient.Builder.create(database.getDatasource(), task).build()
-
     private val storage: Storage = StorageOptions.getDefaultInstance().service
-
-    fun schedule(startTime: Instant = Instant.now()): UUID {
-        val id = UUID.randomUUID()
-        client.scheduleIfNotExists(task.instance(id.toString()), startTime)
-        return id
-    }
 
     private suspend fun upload(report: XSSFWorkbook) {
         if (config.bucketName != null) {

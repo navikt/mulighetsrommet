@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.api.refusjon.task.JournalforRefusjonskrav
 import no.nav.mulighetsrommet.api.responses.*
+import no.nav.mulighetsrommet.api.tasks.DbSchedulerClient
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.Kid
@@ -31,6 +32,7 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 import org.koin.ktor.ext.inject
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
@@ -40,7 +42,7 @@ fun Route.arrangorflateRoutes() {
     val refusjonskrav: RefusjonskravRepository by inject()
     val deltakerRepository: DeltakerRepository by inject()
     val pdl: HentAdressebeskyttetPersonBolkPdlQuery by inject()
-    val journalforRefusjonskrav: JournalforRefusjonskrav by inject()
+    val dbSchedulerClient: DbSchedulerClient by inject()
     val db: Database by inject()
 
     suspend fun RoutingContext.arrangorerMedTilgang(): List<ArrangorDto> {
@@ -110,14 +112,12 @@ fun Route.arrangorflateRoutes() {
 
                 db.transactionSuspend { tx ->
                     refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now(), tx)
-                    refusjonskrav.setBetalingsInformasjon(
-                        id,
-                        request.betalingsinformasjon.kontonummer,
-                        request.betalingsinformasjon.kid,
+
+                    dbSchedulerClient.scheduleJournalforRefusjonskrav(
+                        JournalforRefusjonskrav.TaskInput(krav.id),
+                        Instant.now(),
                         tx,
                     )
-
-                    journalforRefusjonskrav.schedule(krav.id)
                 }
 
                 call.respond(HttpStatusCode.OK)

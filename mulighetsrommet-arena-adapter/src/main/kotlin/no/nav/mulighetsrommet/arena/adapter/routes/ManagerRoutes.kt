@@ -34,7 +34,7 @@ fun Route.managerRoutes() {
     }
 
     get("/arena-tables") {
-        call.respond(ArenaTable.values())
+        call.respond(ArenaTable.entries.toTypedArray())
     }
 
     put("/events/replay") {

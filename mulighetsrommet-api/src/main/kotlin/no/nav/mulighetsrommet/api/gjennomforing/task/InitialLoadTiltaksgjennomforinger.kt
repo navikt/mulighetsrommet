@@ -1,26 +1,21 @@
 package no.nav.mulighetsrommet.api.gjennomforing.task
 
-import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import org.slf4j.LoggerFactory
-import java.time.Instant
 import java.util.*
 
 class InitialLoadTiltaksgjennomforinger(
-    database: Database,
     private val tiltakstyper: TiltakstypeRepository,
     private val gjennomforinger: TiltaksgjennomforingRepository,
     private val gjennomforingProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
@@ -53,18 +48,6 @@ class InitialLoadTiltaksgjennomforinger(
                 )
             }
         }
-
-    private val client = SchedulerClient.Builder
-        .create(database.getDatasource(), task)
-        .serializer(DbSchedulerKotlinSerializer())
-        .build()
-
-    fun schedule(input: TaskInput, startTime: Instant = Instant.now()): UUID {
-        val id = UUID.randomUUID()
-        val instance = task.instance(id.toString(), input)
-        client.scheduleIfNotExists(instance, startTime)
-        return id
-    }
 
     private suspend fun initialLoadTiltaksgjennomforinger(
         tiltakskoder: List<Tiltakskode>,

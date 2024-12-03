@@ -1,52 +1,18 @@
 package no.nav.mulighetsrommet.notifications
 
 import arrow.core.getOrElse
-import com.github.kagkarlsson.scheduler.SchedulerClient
-import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
-import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import org.slf4j.LoggerFactory
-import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
 class NotificationService(
-    database: Database,
     private val notifications: NotificationRepository,
 ) {
-
     private val logger = LoggerFactory.getLogger(javaClass)
-
-    private val handleScheduledNotification: OneTimeTask<ScheduledNotification> = Tasks
-        .oneTime("handle-scheduled-notification", ScheduledNotification::class.java)
-        .execute { instance, _ ->
-            val notification: ScheduledNotification = instance.data
-            notifications.insert(notification)
-        }
-
-    private val client = SchedulerClient.Builder
-        .create(database.getDatasource(), handleScheduledNotification)
-        .serializer(DbSchedulerKotlinSerializer())
-        .build()
-
-    fun getScheduledNotificationTask() = handleScheduledNotification
-
-    /**
-     * Schedules the [notification] to be created at the specified [instant] in time (defaults to [Instant.now]).
-     */
-    fun scheduleNotification(notification: ScheduledNotification, instant: Instant = Instant.now()) {
-        val id = notification.id
-
-        logger.info("Scheduling notification id=$id for time=$instant")
-
-        val instance = handleScheduledNotification.instance(id.toString(), notification)
-        client.scheduleIfNotExists(instance, instant)
-    }
 
     fun getNotifications(userId: NavIdent, filter: NotificationFilter): List<UserNotification> {
         return notifications.getUserNotifications(userId, filter.status)

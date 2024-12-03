@@ -12,10 +12,7 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.notifications.NotificationMetadata
-import no.nav.mulighetsrommet.notifications.NotificationService
-import no.nav.mulighetsrommet.notifications.NotificationType
-import no.nav.mulighetsrommet.notifications.ScheduledNotification
+import no.nav.mulighetsrommet.notifications.*
 import org.intellij.lang.annotations.Language
 import java.time.Instant
 import java.time.LocalDate
@@ -23,7 +20,7 @@ import java.time.LocalDate
 class NotifySluttdatoForAvtalerNarmerSeg(
     config: Config,
     private val db: Database,
-    private val notificationService: NotificationService,
+    private val notifications: NotificationRepository,
 ) {
     data class Config(
         val disabled: Boolean = false,
@@ -67,7 +64,7 @@ class NotifySluttdatoForAvtalerNarmerSeg(
                     ),
                 )
 
-                notificationService.scheduleNotification(notification)
+                notifications.insert(notification)
             }
         }
     }

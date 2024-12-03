@@ -1,12 +1,14 @@
 package no.nav.mulighetsrommet.api.navansatt
 
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
@@ -29,9 +31,8 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.notifications.NotificationService
+import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
-import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.LocalDate
 import java.util.*
 
@@ -64,12 +65,12 @@ class NavAnsattSyncServiceTest : FunSpec({
 
     val avtaleRepository: AvtaleRepository = mockk()
     val navEnhetService: NavEnhetService = mockk()
-    val notificationService: NotificationService = mockk()
     val sanityService: SanityService = mockk(relaxed = true)
     val navAnsattService: NavAnsattService = mockk()
 
     context("should schedule nav_ansatt to be deleted when they are not in the list of ansatte to sync") {
         val ansatte = NavAnsattRepository(database.db)
+        val notifications = NotificationRepository(database.db)
         val today = LocalDate.now()
         val deletionDate = today.plusDays(1)
 
@@ -80,7 +81,7 @@ class NavAnsattSyncServiceTest : FunSpec({
             sanityService = sanityService,
             avtaleRepository = avtaleRepository,
             navEnhetService = navEnhetService,
-            notificationService = notificationService,
+            notificationRepository = notifications,
         )
 
         test("begge finnes i azure => ingen skal slettes") {
@@ -127,6 +128,7 @@ class NavAnsattSyncServiceTest : FunSpec({
 
     context("should delete nav_ansatt when their deletion date matches the provided deletion date") {
         val ansatte = NavAnsattRepository(database.db)
+        val notifications = NotificationRepository(database.db)
 
         val service = NavAnsattSyncService(
             navAnsattService = navAnsattService,
@@ -135,7 +137,7 @@ class NavAnsattSyncServiceTest : FunSpec({
             sanityService = sanityService,
             avtaleRepository = avtaleRepository,
             navEnhetService = navEnhetService,
-            notificationService = notificationService,
+            notificationRepository = notifications,
         )
         every { avtaleRepository.getAvtaleIdsByAdministrator(any()) } returns emptyList()
         every { navEnhetService.hentOverordnetFylkesenhet(any()) } returns null
@@ -163,6 +165,7 @@ class NavAnsattSyncServiceTest : FunSpec({
 
     test("varsler administratorer basert på hovedenhet når avtale ikke lengre har administrator") {
         val ansatte = NavAnsattRepository(database.db)
+        val notifications = NotificationRepository(database.db)
         every { avtaleRepository.getAvtaleIdsByAdministrator(ansatt1.navIdent) } returns listOf(AvtaleFixtures.AFT.id)
         every { avtaleRepository.get(AvtaleFixtures.AFT.id) } returns AvtaleDto(
             id = AvtaleFixtures.AFT.id,
@@ -222,7 +225,6 @@ class NavAnsattSyncServiceTest : FunSpec({
             ),
         )
 
-        every { notificationService.scheduleNotification(any(), any()) } returns Unit
         coEvery { navAnsattService.getNavAnsatteFromAzure() } returns listOf(
             NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(AVTALER_SKRIV)),
         )
@@ -235,15 +237,12 @@ class NavAnsattSyncServiceTest : FunSpec({
             sanityService = sanityService,
             avtaleRepository = avtaleRepository,
             navEnhetService = navEnhetService,
-            notificationService = notificationService,
+            notifications,
         )
         service.synchronizeNavAnsatte(today, deletionDate = today)
 
-        verify(exactly = 1) {
-            val expectedNotification: ScheduledNotification = match {
-                it.type == NotificationType.TASK && it.targets.containsAll(listOf(ansatt2.navIdent))
-            }
-            notificationService.scheduleNotification(expectedNotification, any())
+        notifications.getUserNotifications(userId = ansatt2.navIdent).shouldBeRight().should {
+            it.get(0).type shouldBe NotificationType.TASK
         }
     }
 })

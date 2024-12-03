@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.notifications.NotificationService
+import no.nav.mulighetsrommet.notifications.NotificationRepository
 import java.time.LocalDate
 import java.util.*
 
@@ -70,22 +70,21 @@ class NotifySluttdatoForGjennomforingerNarmerSegTest : FunSpec({
 
     context("notifySluttDatoNarmerSeg") {
         test("skal generere varsler til administratorer når sluttdato på gjennomføring nærmer seg") {
-            val notificationService: NotificationService = mockk(relaxed = true)
+            val notifications: NotificationRepository = mockk(relaxed = true)
             val task = NotifySluttdatoForGjennomforingerNarmerSeg(
                 NotifySluttdatoForGjennomforingerNarmerSeg.Config(disabled = true),
                 database.db,
-                notificationService,
+                notifications,
             )
 
             task.notifySluttDatoNarmerSeg(today = LocalDate.of(2023, 5, 25))
 
             verify(exactly = 1) {
-                notificationService.scheduleNotification(
+                notifications.insert(
                     match {
                         it.targets == nonEmptyListOf(NavAnsattFixture.ansatt1.navIdent) &&
                             it.title == "Gjennomføringen \"Oppfølging 1\" utløper 26.05.2023"
                     },
-                    any(),
                 )
             }
         }

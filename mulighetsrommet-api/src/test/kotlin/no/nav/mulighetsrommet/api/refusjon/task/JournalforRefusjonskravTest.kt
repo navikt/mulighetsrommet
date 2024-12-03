@@ -94,7 +94,6 @@ class JournalforRefusjonskravTest : FunSpec({
 
     test("krav må være godkjent") {
         val task = JournalforRefusjonskrav(
-            database.db,
             refusjonskravRepository = RefusjonskravRepository(database.db),
             tilsagnService,
             dokarkClient,
@@ -110,7 +109,6 @@ class JournalforRefusjonskravTest : FunSpec({
     test("vellykket journalføring setter journalpost_id") {
         val refusjonskravRepository = RefusjonskravRepository(database.db)
         val task = JournalforRefusjonskrav(
-            database.db,
             refusjonskravRepository,
             tilsagnService,
             dokarkClient,

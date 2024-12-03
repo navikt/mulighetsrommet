@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.refusjon.task
 
-import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
@@ -14,17 +13,13 @@ import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravStatus
 import no.nav.mulighetsrommet.api.refusjon.refusjonskravJournalpost
 import no.nav.mulighetsrommet.api.refusjon.toRefusjonskrav
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
-import java.time.Instant
 import java.util.*
 
 class JournalforRefusjonskrav(
-    database: Database,
     private val refusjonskravRepository: RefusjonskravRepository,
     private val tilsagnService: TilsagnService,
     private val dokarkClient: DokarkClient,
@@ -34,28 +29,16 @@ class JournalforRefusjonskrav(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Serializable
-    data class TaskData(
+    data class TaskInput(
         @Serializable(with = UUIDSerializer::class)
         val refusjonskravId: UUID,
     )
 
-    val task: OneTimeTask<TaskData> = Tasks
-        .oneTime(javaClass.simpleName, TaskData::class.java)
+    val task: OneTimeTask<TaskInput> = Tasks
+        .oneTime(javaClass.simpleName, TaskInput::class.java)
         .executeSuspend { inst, _ ->
             journalforRefusjonskrav(inst.data.refusjonskravId)
         }
-
-    private val client = SchedulerClient.Builder
-        .create(database.getDatasource(), task)
-        .serializer(DbSchedulerKotlinSerializer())
-        .build()
-
-    fun schedule(refusjonskravId: UUID, startTime: Instant = Instant.now()): UUID {
-        val id = UUID.randomUUID()
-        val instance = task.instance(id.toString(), TaskData(refusjonskravId))
-        client.scheduleIfNotExists(instance, startTime)
-        return id
-    }
 
     suspend fun journalforRefusjonskrav(id: UUID) {
         logger.info("Journalfører refusjonskrav med id: $id")

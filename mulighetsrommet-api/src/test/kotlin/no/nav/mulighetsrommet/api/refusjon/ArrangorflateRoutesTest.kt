@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.refusjon
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -12,6 +11,7 @@ import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedParty
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
@@ -250,6 +250,13 @@ class ArrangorflateRoutesTest : FunSpec({
                 )
             }
             response.status shouldBe HttpStatusCode.OK
+
+            val journalforingTask = queryOf("select * from scheduled_tasks where task_name = 'JournalforRefusjonskrav'")
+                .map { it.string("task_name") }
+                .asList
+                .let { database.db.run(it) }
+
+            journalforingTask shouldHaveSize 1
         }
     }
 
