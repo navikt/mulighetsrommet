@@ -1,6 +1,7 @@
 import { Heading } from "@navikt/ds-react";
 import * as Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import "highcharts/modules/accessibility";
 import { useRef } from "react";
 import { useSuspenseGjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
 import styles from "./NokkeltallDeltakere.module.scss";
