@@ -52,27 +52,11 @@ interface Props {
 export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtale }: Props) {
   const { data: administratorer } = useTiltaksgjennomforingAdministratorer();
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
-  const [kontaktpersonerQuery, setKontaktpersonerQuery] = useState<string>("");
-  const { data: kontaktpersoner } = useSokNavAnsatt(kontaktpersonerQuery);
+
   const { data: deltakerSummary } = useGjennomforingDeltakerSummary(tiltaksgjennomforing?.id);
 
   const endreStartDatoModalRef = useRef<HTMLDialogElement>(null);
   const endreSluttDatoModalRef = useRef<HTMLDialogElement>(null);
-
-  const kontaktpersonerOption = (navident: string) => {
-    const excludedKontaktpersoner = tiltaksgjennomforing?.kontaktpersoner
-      ?.filter((kontakt) => kontakt.navIdent !== navident)
-      .map((k) => k.navIdent);
-
-    const options = kontaktpersoner
-      ?.filter((kontaktperson) => !excludedKontaktpersoner?.includes(kontaktperson.navIdent))
-      ?.map((kontaktperson) => ({
-        label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navIdent}`,
-        value: kontaktperson.navIdent,
-      }));
-
-    return options || [];
-  };
 
   const {
     register,
@@ -361,19 +345,7 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
                         <XMarkIcon fontSize="1.5rem" />
                       </Button>
                       <div className={styles.kontaktperson_inputs}>
-                        <ControlledSokeSelect
-                          helpText="Bestemmer kontaktperson som veilederene kan hendvende seg til for informasjon om gjennomføringen. Kan gjelde for én eller flere enheter."
-                          size="small"
-                          placeholder="Søk etter kontaktperson"
-                          label={tiltaktekster.kontaktpersonNav.navnLabel}
-                          {...register(`kontaktpersoner.${index}.navIdent`, {
-                            shouldUnregister: true,
-                          })}
-                          onInputChange={(s: string) => {
-                            setKontaktpersonerQuery(s);
-                          }}
-                          options={kontaktpersonerOption(field.navIdent)}
-                        />
+                        <SokKontaktpersonSelect index={index} />
                         <ControlledMultiSelect
                           size="small"
                           velgAlle
@@ -426,5 +398,42 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
         antallDeltakere={deltakerSummary?.antallDeltakere ?? 0}
       />
     </SkjemaDetaljerContainer>
+  );
+}
+
+function SokKontaktpersonSelect({ index }: { index: number }) {
+  const [kontaktpersonerQuery, setKontaktpersonerQuery] = useState<string>("");
+  const { data: kontaktpersoner } = useSokNavAnsatt(kontaktpersonerQuery);
+  const { register, watch } = useFormContext<InferredTiltaksgjennomforingSchema>();
+
+  const kontaktpersonerOption = (selectedIndex: number) => {
+    const excludedKontaktpersoner = watch("kontaktpersoner")
+      ?.filter((_, i) => i !== selectedIndex)
+      .map((k) => k.navIdent);
+
+    const options = kontaktpersoner
+      ?.filter((kontaktperson) => !excludedKontaktpersoner?.includes(kontaktperson.navIdent))
+      ?.map((kontaktperson) => ({
+        label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navIdent}`,
+        value: kontaktperson.navIdent,
+      }));
+
+    return options || [];
+  };
+
+  return (
+    <ControlledSokeSelect
+      helpText="Bestemmer kontaktperson som veilederene kan hendvende seg til for informasjon om gjennomføringen. Kan gjelde for én eller flere enheter."
+      size="small"
+      placeholder="Søk etter kontaktperson"
+      label={tiltaktekster.kontaktpersonNav.navnLabel}
+      {...register(`kontaktpersoner.${index}.navIdent`, {
+        shouldUnregister: true,
+      })}
+      onInputChange={(s: string) => {
+        setKontaktpersonerQuery(s);
+      }}
+      options={kontaktpersonerOption(index)}
+    />
   );
 }
