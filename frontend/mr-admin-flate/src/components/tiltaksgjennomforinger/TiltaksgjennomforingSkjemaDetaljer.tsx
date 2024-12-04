@@ -14,7 +14,6 @@ import { addYear, formaterDato } from "@/utils/Utils";
 import {
   AvtaleDto,
   TiltaksgjennomforingDto,
-  TiltaksgjennomforingKontaktperson,
   TiltaksgjennomforingOppstartstype,
   Tiltakskode,
 } from "@mr/api-client";
