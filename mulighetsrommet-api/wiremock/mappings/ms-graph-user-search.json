@@ -33,6 +33,15 @@
           "givenName": "F_Z994113",
           "surname": "E_Z994113",
           "mail": "F_Z994113.E_Z994113@trygdeetaten.no"
+        },
+        {
+          "id": "ed918d50-8a9f-4dc3-8e18-bf261fa449b7",
+          "streetAddress": "2990",
+          "city": "IT-Avdelingen",
+          "onPremisesSamAccountName": "H869372",
+          "givenName": "Kry",
+          "surname": "Hund",
+          "mail": "kry.hund@trygdeetaten.no"
         }
       ]
     },
