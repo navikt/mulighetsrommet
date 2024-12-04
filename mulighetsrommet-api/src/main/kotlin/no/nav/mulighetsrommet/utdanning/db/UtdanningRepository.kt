@@ -123,6 +123,7 @@ class UtdanningRepository(private val db: Database) {
         val nusKodeKoblingforUtdanningQuery = """
             insert into utdanning_nus_kode(utdanning_id, nus_kode)
             values (:utdanning_id, :nus_kode_id)
+            on conflict do nothing
         """.trimIndent()
 
         queryOf(
