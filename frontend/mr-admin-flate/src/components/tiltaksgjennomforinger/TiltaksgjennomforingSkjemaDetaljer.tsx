@@ -344,7 +344,11 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
                         <XMarkIcon fontSize="1.5rem" />
                       </Button>
                       <div className={styles.kontaktperson_inputs}>
-                        <SokEtterKontaktperson index={index} navEnheter={navEnheterOptions} />
+                        <SokEtterKontaktperson
+                          index={index}
+                          navEnheter={navEnheterOptions}
+                          id={field.id}
+                        />
                       </div>
                     </div>
                   );
@@ -388,12 +392,14 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
 function SokEtterKontaktperson({
   index,
   navEnheter,
+  id,
 }: {
   index: number;
   navEnheter: { label: string; value: string }[];
+  id: string;
 }) {
   const [kontaktpersonerQuery, setKontaktpersonerQuery] = useState<string>("");
-  const { data: kontaktpersoner } = useSokNavAnsatt(kontaktpersonerQuery);
+  const { data: kontaktpersoner } = useSokNavAnsatt(kontaktpersonerQuery, id);
   const { register, watch } = useFormContext<InferredTiltaksgjennomforingSchema>();
 
   const kontaktpersonerOption = (selectedIndex: number) => {
@@ -407,7 +413,6 @@ function SokEtterKontaktperson({
         label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navIdent}`,
         value: kontaktperson.navIdent,
       }));
-
     return options || [];
   };
 
@@ -423,9 +428,7 @@ function SokEtterKontaktperson({
         {...register(`kontaktpersoner.${index}.navIdent`, {
           shouldUnregister: true,
         })}
-        onInputChange={(s: string) => {
-          setKontaktpersonerQuery(s);
-        }}
+        onInputChange={setKontaktpersonerQuery}
         options={kontaktpersonerOption(index)}
       />
       <ControlledMultiSelect
