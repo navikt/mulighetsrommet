@@ -294,6 +294,7 @@ class AvtaleRepositoryTest : FunSpec({
             }
 
             val amoEndring = amoKategorisering.copy(
+                bransje = AmoKategorisering.BransjeOgYrkesrettet.Bransje.HELSE_PLEIE_OG_OMSORG,
                 sertifiseringer = listOf(
                     AmoKategorisering.BransjeOgYrkesrettet.Sertifisering(
                         konseptId = 2,
