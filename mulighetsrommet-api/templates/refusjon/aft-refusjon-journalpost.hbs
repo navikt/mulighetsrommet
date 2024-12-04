@@ -17,11 +17,8 @@
             width: 100%;
             margin-top: 0;
         }
-        h4 {
-            padding-top: 2mm;
-            margin-left: 1mm;
-            font-size: 13px;
-            margin-top: 0;
+        table {
+            font-size: 12px;
         }
         table th {
             width: 25%;
@@ -29,25 +26,29 @@
         }
         table td {
             width: 75%;
-            font-weight: bold;
-        }
-        tr {
-            font-size: 10px;
         }
         .tilsagn-table {
             border: 1px solid #D1D4D8;
             padding: 8px;
             margin-bottom: 20px;
         }
+        .deltaker-liste th {
+            font-weight: bold;
+        }
+        .text-align-right {
+            text-align: right;
+        }
     </style>
 </head>
 <body>
+<div class="text-align-right">Innsendt dato: {{ iso_to_nor_date (now_date) }}</div>
+<h2>Refusjonskrav - {{ refusjon.arrangor.navn }} - {{ refusjon.gjennomforing.navn }}</h2>
 <div class="block line_bottom">
     <table class="block">
         <tbody>
         <tr>
             <th>Refusjonskravperiode:</th>
-            <td>{{ iso_to_nor_date refusjon.beregning.periode.start }} - {{ iso_to_nor_date refusjon.beregning.periode.slutt }}</td>
+            <td>{{ iso_to_nor_date refusjon.beregning.periodeStart }} - {{ iso_to_nor_date refusjon.beregning.periodeSlutt }}</td>
         </tr>
         <tr>
             <th>First for godkjenning:</th>
@@ -85,31 +86,35 @@
             <th>Beløp:</th>
             <td>{{ currency_no beregning.belop }} kr </td>
         </tr>
-        <tr>
-            <th>Utbetalt så langt:</th>
-            <td>TODO</td>
-        </tr>
         </tbody>
     </table>
     {{/each}}
 </div>
 <div class="block line_bottom">
     <h4>Deltakerliste</h4>
-    <table class="block">
-        <th>Navn</th>
-        <th>Fødselsdato</th>
-        <th>Startdato</th>
-        <th>Sluttdato</th>
-        <th>Månedsverk</th>
+    <table class="block deltaker-liste">
+        <thead>
+            <tr>
+                <th>Navn</th>
+                <th>Fødselsdato</th>
+                <th>Startdato i tiltaket</th>
+                <th>Startdato i perioden</th>
+                <th>Sluttdato i perioden</th>
+                <th>Deltakelsesprosent</th>
+                <th>Månedsverk</th>
+            </tr>
+        </thead>
         <tbody>
         {{#each refusjon.deltakelser }}
-        <tr>
-            <td>{{ person.navn }}</td>
-            <td>{{ person.foedselsdato }} {{ person.foedselsaar }}</td>
-            <td>{{ iso_to_nor_date startDato }}</td>
-            <td>{{ iso_to_nor_date sluttDato }}</td>
-            <td>{{ manedsverk }}</td>
-        </tr>
+            <tr>
+                <td>{{ person.navn }}</td>
+                <td>{{ iso_to_nor_date person.fodselsdato }}</td>
+                <td>{{ iso_to_nor_date startDato }}</td>
+                <td>{{ iso_to_nor_date forstePeriodeStartDato }}</td>
+                <td>{{ iso_to_nor_date sistePeriodeSluttDato }}</td>
+                <td>{{ currency_no sistePeriodeDeltakelsesprosent }}</td>
+                <td>{{ formatComma manedsverk }}</td>
+            </tr>
         {{/each}}
         </tbody>
     </table>
@@ -120,7 +125,7 @@
         <tbody>
         <tr>
             <th>Antall månedsverk:</th>
-            <td>{{ refusjon.beregning.antallManedsverk }}</td>
+            <td>{{ formatComma refusjon.beregning.antallManedsverk }}</td>
         </tr>
         <tr>
             <th>Total refusjonskrav:</th>

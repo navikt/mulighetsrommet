@@ -420,7 +420,7 @@ private fun tasks(config: TaskConfig) = module {
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get()) }
     single { SynchronizeUtdanninger(config.synchronizeUtdanninger, get(), get()) }
     single { GenerateRefusjonskrav(config.generateRefusjonskrav, get()) }
-    single { JournalforRefusjonskrav(get(), get(), get(), get(), get(), get()) }
+    single { JournalforRefusjonskrav(get(), get(), get(), get(), get(), get(), get()) }
     single {
         val updateTiltaksgjennomforingStatus = UpdateTiltaksgjennomforingStatus(
             get(),

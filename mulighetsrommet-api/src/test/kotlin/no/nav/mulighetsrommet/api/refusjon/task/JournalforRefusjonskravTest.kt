@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
@@ -96,6 +97,7 @@ class JournalforRefusjonskravTest : FunSpec({
         val task = JournalforRefusjonskrav(
             database.db,
             refusjonskravRepository = RefusjonskravRepository(database.db),
+            tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db),
             tilsagnService,
             dokarkClient,
             deltakerRepository = DeltakerRepository(database.db),
@@ -112,6 +114,7 @@ class JournalforRefusjonskravTest : FunSpec({
         val task = JournalforRefusjonskrav(
             database.db,
             refusjonskravRepository,
+            tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db),
             tilsagnService,
             dokarkClient,
             deltakerRepository = DeltakerRepository(database.db),
