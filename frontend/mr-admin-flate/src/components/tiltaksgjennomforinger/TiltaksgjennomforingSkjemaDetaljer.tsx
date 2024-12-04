@@ -356,10 +356,7 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
                       navIdent: "",
                       navEnheter: [],
                       beskrivelse: "",
-                      epost: "",
-                      navn: "",
-                      mobilnummer: "",
-                    } as TiltaksgjennomforingKontaktperson)
+                    })
                   }
                   knappetekst={
                     <>
