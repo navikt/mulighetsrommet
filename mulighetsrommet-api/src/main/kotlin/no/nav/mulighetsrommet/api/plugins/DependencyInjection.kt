@@ -91,7 +91,6 @@ import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.notifications.NotificationRepository
-import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.ScheduleNotification
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
@@ -396,7 +395,6 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakstypeService(get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
-    single { NotificationService(get()) }
     single { ArrangorService(get(), get()) }
     single { RefusjonService(get(), get(), get(), get()) }
     single { UnleashService(appConfig.unleash, get()) }
