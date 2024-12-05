@@ -22,8 +22,8 @@ export function OpprettTilsagnSkjemaPage() {
   const { data: tilsagn } = useGetTilsagnById();
   const { data: saksbehandler } = useHentAnsatt();
   const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFromUrl();
-  const { data: tilsagner, isLoading } =
-    useHentTilsagnForTiltaksgjennomforing(tiltaksgjennomforingId);
+  const { data, isLoading } = useHentTilsagnForTiltaksgjennomforing(tiltaksgjennomforingId);
+  const aktiveTilsagn = data?.filter((d) => d.besluttelse?.status === "GODKJENT");
 
   const erPaaGjennomforingerForAvtale = useMatch(
     "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
@@ -64,7 +64,7 @@ export function OpprettTilsagnSkjemaPage() {
     },
   ];
 
-  if (!tilsagner && isLoading) {
+  if (!aktiveTilsagn && isLoading) {
     return <Laster tekst="Laster tilsagn" />;
   }
 
@@ -95,8 +95,8 @@ export function OpprettTilsagnSkjemaPage() {
             <Heading size="medium">Aktive tilsagn</Heading>
             <SkjemaContainer>
               <SkjemaContent>
-                {tilsagner && tilsagner.length > 0 ? (
-                  <Tilsagnstabell tilsagn={tilsagner} />
+                {aktiveTilsagn && aktiveTilsagn.length > 0 ? (
+                  <Tilsagnstabell tilsagn={aktiveTilsagn} />
                 ) : (
                   <Alert variant="info">Det finnes ingen tilsagn for dette tiltaket</Alert>
                 )}

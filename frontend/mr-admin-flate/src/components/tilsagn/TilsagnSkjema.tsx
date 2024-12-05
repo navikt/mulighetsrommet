@@ -3,16 +3,7 @@ import { addYear } from "@/utils/Utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ApiError, TilsagnDto, TilsagnRequest, TiltaksgjennomforingDto } from "@mr/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common";
-import {
-  Alert,
-  BodyShort,
-  Button,
-  DatePicker,
-  Heading,
-  HGrid,
-  HStack,
-  Label,
-} from "@navikt/ds-react";
+import { Alert, Button, DatePicker, Heading, HGrid, HStack, Label } from "@navikt/ds-react";
 import { UseMutationResult } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -143,13 +134,13 @@ export function TilsagnSkjema({
             </div>
           </div>
         </div>
-        <BodyShort spacing>
+        <div className={styles.alert}>
           {mutation.error ? (
             <Alert variant="error" size="small">
               Klarte ikke opprette tilsagn
             </Alert>
           ) : null}
-        </BodyShort>
+        </div>
         <HStack gap="2" justify={"space-between"}>
           <Button size="small" type="submit" disabled={mutation.isPending}>
             {mutation.isPending ? "Sender til beslutning" : "Send til beslutning"}

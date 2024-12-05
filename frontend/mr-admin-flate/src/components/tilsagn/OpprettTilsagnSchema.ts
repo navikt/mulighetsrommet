@@ -38,7 +38,9 @@ export const OpprettTilsagnSchema = z
         .min(10, tekster.manglerSluttdato),
     }),
     antallPlasser: z.number().optional().nullable(),
-    kostnadssted: z.string().length(4, tekster.manglerKostnadssted),
+    kostnadssted: z
+      .string({ required_error: tekster.manglerKostnadssted })
+      .length(4, tekster.manglerKostnadssted),
     beregning: TilsagnBeregningSchema,
   })
   .superRefine((data, ctx) => {
