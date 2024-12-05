@@ -12,7 +12,7 @@ import { AvtalestatusTag } from "@/components/statuselementer/AvtalestatusTag";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
-import styles from "./DetaljerAvtalePage.module.scss";
+import styles from "./AvtalePage.module.scss";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const erPaaGjennomforingerForAvtale = useMatch("/avtaler/:avtaleId/tiltaksgjennomforinger");
