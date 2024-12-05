@@ -1,21 +1,20 @@
-import { Alert, Tabs } from "@navikt/ds-react";
-import { useAvtale } from "@/api/avtaler/useAvtale";
-import { Laster } from "@/components/laster/Laster";
-import styles from "./AvtaleInfo.module.scss";
-import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
-import { AvtaleKnapperad } from "./AvtaleKnapperad";
-import { AvtaleDetaljer } from "./AvtaleDetaljer";
-import { useAtom } from "jotai";
-import { avtaleDetaljerTabAtom } from "@/api/atoms";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { AvtalePersonvern } from "./AvtalePersonvern";
-import { InlineErrorBoundary } from "@mr/frontend-common";
-import { InfoContainer } from "@/components/skjema/InfoContainer";
+import { avtaleDetaljerTabAtom } from "@/api/atoms";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { Laster } from "@/components/laster/Laster";
+import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
+import { InfoContainer } from "@/components/skjema/InfoContainer";
 import { Toggles } from "@mr/api-client";
-import { AvtalePrisOgFakturering } from "./AvtalePrisOgFakturering";
+import { InlineErrorBoundary } from "@mr/frontend-common";
+import { Tabs } from "@navikt/ds-react";
+import { useAtom } from "jotai";
 import { useLoaderData } from "react-router-dom";
+import { AvtaleDetaljer } from "./AvtaleDetaljer";
+import styles from "./AvtaleInfo.module.scss";
+import { AvtaleKnapperad } from "./AvtaleKnapperad";
 import { avtaleLoader } from "./avtaleLoader";
+import { AvtalePersonvern } from "./AvtalePersonvern";
+import { AvtalePrisOgFakturering } from "./AvtalePrisOgFakturering";
 
 export function AvtaleInfo() {
   const { data: bruker } = useHentAnsatt();
