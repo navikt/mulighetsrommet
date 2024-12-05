@@ -30,6 +30,8 @@ import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
 import { tiltakstypeLoader, tiltakstyperLoaders } from "./pages/tiltakstyper/tiltakstyperLoaders";
 import { avtaleLoader } from "./pages/avtaler/avtaleLoader";
+import { ArbeidsbenkPage } from "@/pages/arbeidsbenk/ArbeidsbenkPage";
+import { OppgaverPage } from "@/pages/arbeidsbenk/oppgaver/OppgaverPage";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -249,20 +251,45 @@ const router = () =>
             errorElement: <ErrorPage />,
           },
           {
-            path: "notifikasjoner",
-            element: <NotifikasjonerPage />,
+            path: "arbeidsbenk",
+            element: <ArbeidsbenkPage />,
             errorElement: <ErrorPage />,
-            loader: notifikasjonLoader,
+            //element: <Notifikasjonsliste lest={false} />,
             children: [
               {
-                index: true,
-                element: <Notifikasjonsliste lest={false} />,
+                path: "notifikasjoner",
+                element: <NotifikasjonerPage />,
+                loader: notifikasjonLoader,
                 errorElement: <ErrorPage />,
+                children: [
+                  {
+                    index: true,
+                    element: <Notifikasjonsliste lest={false} />,
+                    errorElement: <ErrorPage />,
+                  },
+                  {
+                    path: "tidligere",
+                    element: <Notifikasjonsliste lest={true} />,
+                    errorElement: <ErrorPage />,
+                  },
+                ],
               },
               {
-                path: "tidligere",
-                element: <Notifikasjonsliste lest={true} />,
+                path: "oppgaver",
+                element: <OppgaverPage />,
                 errorElement: <ErrorPage />,
+                children: [
+                  {
+                    index: true,
+                    element: <Notifikasjonsliste lest={false} />,
+                    errorElement: <ErrorPage />,
+                  },
+                  {
+                    path: "fullforte",
+                    element: <Notifikasjonsliste lest={true} />,
+                    errorElement: <ErrorPage />,
+                  },
+                ],
               },
             ],
           },
