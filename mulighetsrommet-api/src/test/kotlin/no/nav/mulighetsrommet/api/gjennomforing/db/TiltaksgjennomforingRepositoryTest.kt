@@ -11,7 +11,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.serialization.json.Json
 import kotliquery.Query
-import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.arrangor.db.ArrangorRepository
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
@@ -38,7 +37,6 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
-import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -103,8 +101,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.startDato shouldBe Oppfolging1.startDato
                 it.sluttDato shouldBe Oppfolging1.sluttDato
                 it.arenaAnsvarligEnhet shouldBe null
-                it.status.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
-                it.apentForInnsok shouldBe true
+                it.status.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
+                it.apentForPamelding shouldBe true
                 it.antallPlasser shouldBe 12
                 it.avtaleId shouldBe Oppfolging1.avtaleId
                 it.administratorer shouldBe listOf(
@@ -357,7 +355,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.get(gjennomforing.id)?.publisert shouldBe false
 
             tiltaksgjennomforinger.setPublisert(gjennomforing.id, true)
-            tiltaksgjennomforinger.avbryt(gjennomforing.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
+            tiltaksgjennomforinger.setAvsluttet(gjennomforing.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
 
             tiltaksgjennomforinger.get(gjennomforing.id)?.publisert shouldBe false
         }
@@ -665,45 +663,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
-    context("Hente tiltaksgjennomføringer som nærmer seg sluttdato") {
-        test("Skal hente gjennomføringer som er 14, 7 eller 1 dag til sluttdato") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val oppfolging14Dager = Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 5, 30),
-                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
-            )
-            val oppfolging7Dager = Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 5, 23),
-                administratorer = emptyList(),
-            )
-            val oppfolging1Dager = Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 5, 17),
-                administratorer = emptyList(),
-            )
-            val oppfolging10Dager = Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 5, 26),
-            )
-            tiltaksgjennomforinger.upsert(oppfolging14Dager)
-            tiltaksgjennomforinger.upsert(oppfolging7Dager)
-            tiltaksgjennomforinger.upsert(oppfolging1Dager)
-            tiltaksgjennomforinger.upsert(oppfolging10Dager)
-
-            val result = tiltaksgjennomforinger.getAllGjennomforingerSomNarmerSegSluttdato(
-                currentDate = LocalDate.of(2023, 5, 16),
-            )
-
-            result.map { Pair(it.id, it.administratorer) } shouldContainExactlyInAnyOrder listOf(
-                Pair(oppfolging14Dager.id, listOf(NavIdent("DD1"))),
-                Pair(oppfolging7Dager.id, listOf()),
-                Pair(oppfolging1Dager.id, listOf()),
-            )
-        }
-    }
-
     test("pagination") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
@@ -734,83 +693,47 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
-    context("Update åpent for innsøk") {
+    context("åpent for påmelding") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
-        test("Skal sette åpent for innsøk til false for tiltak med felles oppstartstype og startdato i dag") {
-            val dagensDatoMock = LocalDate.of(2024, 3, 6)
-            val jobbklubbStartDatoIFremtiden = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
+        test("skal sette åpent for påmelding") {
+            val gjennomforing = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
                 id = UUID.randomUUID(),
-                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-                startDato = LocalDate.of(2024, 5, 1),
-                apentForInnsok = true,
             )
-            tiltaksgjennomforinger.upsert(jobbklubbStartDatoIFremtiden)
+            tiltaksgjennomforinger.upsert(gjennomforing)
 
-            val jobbklubbStartDatoIDag = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
-                id = UUID.randomUUID(),
-                navn = "Jobbklubb 2",
-                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-                startDato = dagensDatoMock,
-                apentForInnsok = true,
-            )
-            tiltaksgjennomforinger.upsert(jobbklubbStartDatoIDag)
-            val jobbklubbStartDatoIDagFraArena = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
-                id = UUID.randomUUID(),
-                navn = "Jobbklubb 2 fra Arena",
-                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-                startDato = dagensDatoMock,
-                apentForInnsok = true,
-            )
-            tiltaksgjennomforinger.upsert(jobbklubbStartDatoIDagFraArena)
-            tiltaksgjennomforinger.setOpphav(jobbklubbStartDatoIDagFraArena.id, ArenaMigrering.Opphav.ARENA)
+            tiltaksgjennomforinger.get(gjennomforing.id).shouldNotBeNull().apentForPamelding shouldBe true
 
-            val jobbklubbStartDatoHarPassert = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
-                id = UUID.randomUUID(),
-                navn = "Jobbklubb 3",
-                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-                startDato = LocalDate.of(2024, 1, 1),
-                apentForInnsok = false,
-            )
-            tiltaksgjennomforinger.upsert(jobbklubbStartDatoHarPassert)
+            tiltaksgjennomforinger.setApentForPamelding(gjennomforing.id, false)
 
-            forAll(
-                row(jobbklubbStartDatoIFremtiden.id, true),
-                row(jobbklubbStartDatoIDag.id, false),
-                row(jobbklubbStartDatoIDagFraArena.id, true),
-                row(jobbklubbStartDatoHarPassert.id, false),
-            ) { id, apentForInnsok ->
-                database.db.transaction { tx ->
-                    tiltaksgjennomforinger.lukkApentForInnsokForTiltakMedStartdatoForDato(
-                        dagensDato = dagensDatoMock,
-                        tx = tx,
-                    )
-                }
-                tiltaksgjennomforinger.get(id)?.apentForInnsok shouldBe apentForInnsok
-            }
+            tiltaksgjennomforinger.get(gjennomforing.id).shouldNotBeNull().apentForPamelding shouldBe false
         }
     }
 
     context("tiltaksgjennomforingstatus") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
-        val dagensDato = LocalDate.now()
+        val dagensDato = LocalDate.of(2024, 6, 1)
         val enManedFrem = dagensDato.plusMonths(1)
         val enManedTilbake = dagensDato.minusMonths(1)
         val toManederFrem = dagensDato.plusMonths(2)
         val toManederTilbake = dagensDato.minusMonths(2)
 
-        test("status AVLYST og AVBRUTT utledes fra avbrutt-tidspunkt") {
+        test("status AVLYST, AVBRUTT, AVSLUTTET utledes fra avsluttet-tidspunkt") {
             forAll(
                 row(enManedTilbake, enManedFrem, enManedTilbake.minusDays(1), TiltaksgjennomforingStatus.AVLYST),
+                row(enManedTilbake, null, enManedTilbake.minusDays(1), TiltaksgjennomforingStatus.AVLYST),
                 row(enManedFrem, toManederFrem, dagensDato, TiltaksgjennomforingStatus.AVLYST),
                 row(dagensDato, toManederFrem, dagensDato, TiltaksgjennomforingStatus.AVBRUTT),
                 row(enManedTilbake, enManedFrem, enManedTilbake.plusDays(3), TiltaksgjennomforingStatus.AVBRUTT),
-                row(enManedFrem, toManederFrem, enManedFrem.plusMonths(2), TiltaksgjennomforingStatus.AVBRUTT),
+                row(enManedTilbake, enManedFrem, enManedFrem, TiltaksgjennomforingStatus.AVBRUTT),
+                row(enManedTilbake, null, enManedFrem, TiltaksgjennomforingStatus.AVBRUTT),
+                row(enManedFrem, toManederFrem, enManedFrem.plusMonths(2), TiltaksgjennomforingStatus.AVSLUTTET),
+                row(enManedTilbake, enManedFrem, enManedFrem.plusDays(1), TiltaksgjennomforingStatus.AVSLUTTET),
             ) { startDato, sluttDato, avbruttDato, expectedStatus ->
                 tiltaksgjennomforinger.upsert(AFT1.copy(startDato = startDato, sluttDato = sluttDato))
 
-                tiltaksgjennomforinger.avbryt(
+                tiltaksgjennomforinger.setAvsluttet(
                     AFT1.id,
                     avbruttDato.atStartOfDay(),
                     AvbruttAarsak.Feilregistrering,
@@ -820,14 +743,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
         }
 
-        test("hvis ikke avbrutt så blir status utledet basert på dagens dato") {
+        test("hvis ikke avsluttet så blir status GJENNOMFORES") {
             forAll(
-                row(toManederTilbake, enManedTilbake, TiltaksgjennomforingStatus.AVSLUTTET),
-                row(enManedTilbake, enManedFrem, TiltaksgjennomforingStatus.GJENNOMFORES),
+                row(toManederTilbake, enManedTilbake, TiltaksgjennomforingStatus.GJENNOMFORES),
                 row(enManedTilbake, null, TiltaksgjennomforingStatus.GJENNOMFORES),
                 row(dagensDato, dagensDato, TiltaksgjennomforingStatus.GJENNOMFORES),
-                row(enManedFrem, toManederFrem, TiltaksgjennomforingStatus.PLANLAGT),
-                row(enManedFrem, null, TiltaksgjennomforingStatus.PLANLAGT),
+                row(enManedFrem, toManederFrem, TiltaksgjennomforingStatus.GJENNOMFORES),
+                row(enManedFrem, null, TiltaksgjennomforingStatus.GJENNOMFORES),
             ) { startDato, sluttDato, status ->
                 tiltaksgjennomforinger.upsert(AFT1.copy(startDato = startDato, sluttDato = sluttDato))
 
@@ -837,64 +759,60 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     }
 
     context("Frikoble kontaktperson fra arrangør") {
-        // Add some data to tiltaksgjennomforing_arrangor_kontaktperson-table
+        val kontaktperson1 = ArrangorKontaktperson(
+            id = UUID.randomUUID(),
+            arrangorId = ArrangorFixtures.underenhet1.id,
+            navn = "Aran Goran",
+            telefon = "",
+            epost = "test@test.no",
+            beskrivelse = "",
+        )
+
+        val kontaktperson2 = ArrangorKontaktperson(
+            id = UUID.randomUUID(),
+            arrangorId = ArrangorFixtures.underenhet1.id,
+            navn = "Gibli Bobli",
+            telefon = "",
+            epost = "test@test.no",
+            beskrivelse = "",
+        )
+
+        val testDomain = MulighetsrommetTestDomain(
+            arrangorKontaktpersoner = listOf(kontaktperson1, kontaktperson2),
+            tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+            avtaler = listOf(AvtaleFixtures.oppfolging),
+            gjennomforinger = listOf(
+                Oppfolging1.copy(arrangorKontaktpersoner = listOf(kontaktperson1.id)),
+                Oppfolging2.copy(arrangorKontaktpersoner = listOf(kontaktperson2.id)),
+            ),
+        )
+
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+
         test("Skal fjerne kontaktperson fra koblingstabell") {
-            tiltaksgjennomforinger.upsert(Oppfolging1)
-            tiltaksgjennomforinger.upsert(Oppfolging2)
+            testDomain.initialize(database.db)
 
-            val arrangorKontaktperson = ArrangorKontaktperson(
-                id = UUID.randomUUID(),
-                arrangorId = ArrangorFixtures.underenhet1.id,
-                navn = "Aran Goran",
-                telefon = "",
-                epost = "test@test.no",
-                beskrivelse = "",
-            )
+            tiltaksgjennomforinger.get(testDomain.gjennomforinger[0].id).shouldNotBeNull().should {
+                it.arrangor.kontaktpersoner.first().id.shouldBe(kontaktperson1.id)
+            }
+            tiltaksgjennomforinger.get(testDomain.gjennomforinger[1].id).shouldNotBeNull().should {
+                it.arrangor.kontaktpersoner.first().id.shouldBe(kontaktperson2.id)
+            }
 
-            val arrangorKontaktperson2 = ArrangorKontaktperson(
-                id = UUID.randomUUID(),
-                arrangorId = ArrangorFixtures.underenhet1.id,
-                navn = "Gibli Bobli",
-                telefon = "",
-                epost = "test@test.no",
-                beskrivelse = "",
-            )
-
-            @Language("PostgreSQL")
-            val upsertKontaktpersonerQuery = """
-                insert into arrangor_kontaktperson(id, navn, telefon, epost, beskrivelse, arrangor_id) values
-                ('${arrangorKontaktperson.id}', '${arrangorKontaktperson.navn}', '${arrangorKontaktperson.telefon}', '${arrangorKontaktperson.epost}', '${arrangorKontaktperson.beskrivelse}', '${arrangorKontaktperson.arrangorId}'),
-                ('${arrangorKontaktperson2.id}', '${arrangorKontaktperson2.navn}', '${arrangorKontaktperson2.telefon}', '${arrangorKontaktperson2.epost}', '${arrangorKontaktperson2.beskrivelse}', '${arrangorKontaktperson2.arrangorId}')
-            """.trimIndent()
-            queryOf(upsertKontaktpersonerQuery).asExecute.let { database.db.run(it) }
-
-            @Language("PostgreSQL")
-            val upsertQuery = """
-             insert into tiltaksgjennomforing_arrangor_kontaktperson(arrangor_kontaktperson_id, tiltaksgjennomforing_id) values
-             ('${arrangorKontaktperson.id}', '${Oppfolging1.id}'),
-             ('${arrangorKontaktperson2.id}', '${Oppfolging2.id}')
-            """.trimIndent()
-            queryOf(upsertQuery).asExecute.let { database.db.run(it) }
-
-            @Language("PostgreSQL")
-            val selectQuery = """
-                select arrangor_kontaktperson_id from tiltaksgjennomforing_arrangor_kontaktperson
-            """.trimIndent()
-
-            val results =
-                queryOf(selectQuery).map { it.uuid("arrangor_kontaktperson_id") }.asList.let { database.db.run(it) }
-            results.size shouldBe 2
             database.db.transaction { tx ->
                 tiltaksgjennomforinger.frikobleKontaktpersonFraGjennomforing(
-                    arrangorKontaktperson.id,
+                    kontaktperson1.id,
                     Oppfolging1.id,
                     tx,
                 )
             }
-            val resultsAfterFrikobling =
-                queryOf(selectQuery).map { it.uuid("arrangor_kontaktperson_id") }.asList.let { database.db.run(it) }
-            resultsAfterFrikobling.size shouldBe 1
+
+            tiltaksgjennomforinger.get(testDomain.gjennomforinger[0].id).shouldNotBeNull().should {
+                it.arrangor.kontaktpersoner.shouldBeEmpty()
+            }
+            tiltaksgjennomforinger.get(testDomain.gjennomforinger[1].id).shouldNotBeNull().should {
+                it.arrangor.kontaktpersoner.first().id.shouldBe(kontaktperson2.id)
+            }
         }
     }
 })

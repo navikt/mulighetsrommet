@@ -90,6 +90,20 @@ export const tiltaksgjennomforingHandlers = [
     return HttpResponse.json(1);
   }),
 
+  http.put<{ id: string }, number>(
+    "*/api/v1/intern/tiltaksgjennomforinger/:id/tilgjengelig-for-veileder",
+    () => {
+      return HttpResponse.text();
+    },
+  ),
+
+  http.put<{ id: string }, number>(
+    "*/api/v1/intern/tiltaksgjennomforinger/:id/apent-for-pamelding",
+    () => {
+      return HttpResponse.text();
+    },
+  ),
+
   http.get<{ id: string }, PaginertTiltaksgjennomforing | undefined>(
     "*/api/v1/intern/tiltaksgjennomforinger/tiltakstype/:id",
     ({ params }) => {

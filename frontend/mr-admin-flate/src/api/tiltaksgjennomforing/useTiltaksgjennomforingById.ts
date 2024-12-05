@@ -7,7 +7,7 @@ export function useTiltaksgjennomforingById() {
   const id = useGetTiltaksgjennomforingIdFromUrl();
 
   return useQuery({
-    queryKey: QueryKeys.tiltaksgjennomforing(id),
+    queryKey: QueryKeys.tiltaksgjennomforing(id!),
     queryFn: () =>
       TiltaksgjennomforingerService.getTiltaksgjennomforing({
         id: id!,

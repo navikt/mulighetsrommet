@@ -8,13 +8,13 @@ import no.nav.mulighetsrommet.api.okonomi.BestillingDto
 import no.nav.mulighetsrommet.api.okonomi.OkonomiClient
 import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.okonomi.Prismodell.TilsagnBeregning
+import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -115,24 +115,33 @@ class TilsagnService(
         }.right()
     }
 
-    fun getAllArrangorflateTilsagn(organisasjonsnummer: Organisasjonsnummer): List<ArrangorflateTilsagn> =
-        tilsagnRepository.getAllArrangorflateTilsagn(organisasjonsnummer)
+    fun slettTilsagn(id: UUID): Either<StatusResponseError, Unit> {
+        val dto = tilsagnRepository.get(id)
+            ?: return NotFound("Fant ikke tilsagn").left()
+
+        if (dto.besluttelse?.status == TilsagnBesluttelseStatus.GODKJENT) {
+            return BadRequest("Kan ikke slette tilsagn som er godkjent").left()
+        }
+
+        return tilsagnRepository.delete(id).right()
+    }
+
+    fun getAllArrangorflateTilsagn(organisasjonsnummer: Organisasjonsnummer): List<ArrangorflateTilsagn> {
+        return tilsagnRepository.getAllArrangorflateTilsagn(organisasjonsnummer)
+    }
 
     fun getArrangorflateTilsagnTilRefusjon(
         gjennomforingId: UUID,
-        periodeStart: LocalDate,
-        periodeSlutt: LocalDate,
-    ): List<ArrangorflateTilsagn> =
-        tilsagnRepository.getArrangorflateTilsagnTilRefusjon(gjennomforingId, periodeStart, periodeSlutt)
+        periode: RefusjonskravPeriode,
+    ): List<ArrangorflateTilsagn> {
+        return tilsagnRepository.getArrangorflateTilsagnTilRefusjon(gjennomforingId, periode)
+    }
 
-    fun getArrangorflateTilsagn(id: UUID): ArrangorflateTilsagn? =
-        tilsagnRepository.getArrangorflateTilsagn(id)
+    fun getArrangorflateTilsagn(id: UUID): ArrangorflateTilsagn? = tilsagnRepository.getArrangorflateTilsagn(id)
 
-    fun getByGjennomforingId(gjennomforingId: UUID): List<TilsagnDto> =
-        tilsagnRepository.getByGjennomforingId(gjennomforingId)
+    fun getByGjennomforingId(gjennomforingId: UUID): List<TilsagnDto> = tilsagnRepository.getByGjennomforingId(gjennomforingId)
 
-    fun get(id: UUID): TilsagnDto? =
-        tilsagnRepository.get(id)
+    fun get(id: UUID): TilsagnDto? = tilsagnRepository.get(id)
 
     private fun lagOkonomiId(tilsagn: TilsagnDto): String {
         return "T-${tilsagn.id}"

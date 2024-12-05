@@ -56,6 +56,7 @@ object AmoKategoriseringRepository {
                 :innhold_elementer
             ) on conflict (${foreignName}_id) do update set
                 kurstype = excluded.kurstype,
+                bransje = excluded.bransje,
                 norskprove = excluded.norskprove,
                 forerkort = excluded.forerkort,
                 innhold_elementer = excluded.innhold_elementer
@@ -135,29 +136,28 @@ object AmoKategoriseringRepository {
         updateSertifiseringer(foreignId, foreignName, emptyList(), tx)
     }
 
-    fun AmoKategorisering.toSqlParameters(tx: Session) =
-        when (this) {
-            is AmoKategorisering.BransjeOgYrkesrettet -> mapOf(
-                "kurstype" to "BRANSJE_OG_YRKESRETTET",
-                "bransje" to bransje.name,
-                "forerkort" to tx.createArrayOf("forerkort_klasse", this.forerkort.map { it.name }),
-                "sertifiseringer" to Json.encodeToString(sertifiseringer),
-                "innhold_elementer" to tx.createArrayOf("amo_innhold_element", this.innholdElementer.map { it.name }),
-            )
-            AmoKategorisering.ForberedendeOpplaeringForVoksne -> mapOf(
-                "kurstype" to "FORBEREDENDE_OPPLAERING_FOR_VOKSNE",
-            )
-            is AmoKategorisering.GrunnleggendeFerdigheter -> mapOf(
-                "kurstype" to "GRUNNLEGGENDE_FERDIGHETER",
-                "innhold_elementer" to tx.createArrayOf("amo_innhold_element", this.innholdElementer.map { it.name }),
-            )
-            is AmoKategorisering.Norskopplaering -> mapOf(
-                "kurstype" to "NORSKOPPLAERING",
-                "norskprove" to norskprove,
-                "innhold_elementer" to tx.createArrayOf("amo_innhold_element", this.innholdElementer.map { it.name }),
-            )
-            AmoKategorisering.Studiespesialisering -> mapOf(
-                "kurstype" to "STUDIESPESIALISERING",
-            )
-        }
+    fun AmoKategorisering.toSqlParameters(tx: Session) = when (this) {
+        is AmoKategorisering.BransjeOgYrkesrettet -> mapOf(
+            "kurstype" to "BRANSJE_OG_YRKESRETTET",
+            "bransje" to bransje.name,
+            "forerkort" to tx.createArrayOf("forerkort_klasse", this.forerkort.map { it.name }),
+            "sertifiseringer" to Json.encodeToString(sertifiseringer),
+            "innhold_elementer" to tx.createArrayOf("amo_innhold_element", this.innholdElementer.map { it.name }),
+        )
+        AmoKategorisering.ForberedendeOpplaeringForVoksne -> mapOf(
+            "kurstype" to "FORBEREDENDE_OPPLAERING_FOR_VOKSNE",
+        )
+        is AmoKategorisering.GrunnleggendeFerdigheter -> mapOf(
+            "kurstype" to "GRUNNLEGGENDE_FERDIGHETER",
+            "innhold_elementer" to tx.createArrayOf("amo_innhold_element", this.innholdElementer.map { it.name }),
+        )
+        is AmoKategorisering.Norskopplaering -> mapOf(
+            "kurstype" to "NORSKOPPLAERING",
+            "norskprove" to norskprove,
+            "innhold_elementer" to tx.createArrayOf("amo_innhold_element", this.innholdElementer.map { it.name }),
+        )
+        AmoKategorisering.Studiespesialisering -> mapOf(
+            "kurstype" to "STUDIESPESIALISERING",
+        )
+    }
 }

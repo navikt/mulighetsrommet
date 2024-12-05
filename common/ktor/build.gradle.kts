@@ -22,7 +22,6 @@ dependencies {
     implementation(libs.ktor.server.callLogging)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.metricsMicrometer)
-    implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.statusPages)
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.authJwt)

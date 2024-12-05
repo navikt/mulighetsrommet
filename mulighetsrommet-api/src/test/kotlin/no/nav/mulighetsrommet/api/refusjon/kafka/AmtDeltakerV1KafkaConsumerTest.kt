@@ -74,7 +74,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             sluttDato = null,
             registrertTidspunkt = amtDeltaker1.registrertDato,
             endretTidspunkt = amtDeltaker1.endretDato,
-            stillingsprosent = amtDeltaker1.prosentStilling?.toDouble(),
+            deltakelsesprosent = amtDeltaker1.prosentStilling?.toDouble(),
             status = amtDeltaker1.status,
         )
         val deltaker2Dbo = deltaker1Dbo.copy(
@@ -127,7 +127,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             deltakere.getAll().shouldBeEmpty()
         }
 
-        test("tolker stillingsprosent som 100 hvis den mangler for forhåndsgodkjente tiltak") {
+        test("tolker deltakelsesprosent som 100 hvis den mangler for forhåndsgodkjente tiltak") {
             val deltakerConsumer = createConsumer()
             deltakerConsumer.consume(
                 amtDeltaker1.id,
@@ -140,10 +140,10 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
 
             deltakere.getAll().shouldContainExactlyInAnyOrder(
                 deltaker1Dbo
-                    .copy(gjennomforingId = AFT1.id, stillingsprosent = 100.0)
+                    .copy(gjennomforingId = AFT1.id, deltakelsesprosent = 100.0)
                     .toDto(),
                 deltaker2Dbo
-                    .copy(gjennomforingId = VTA1.id, stillingsprosent = 100.0)
+                    .copy(gjennomforingId = VTA1.id, deltakelsesprosent = 100.0)
                     .toDto(),
             )
         }
@@ -259,6 +259,6 @@ fun DeltakerDbo.toDto() = DeltakerDto(
     sluttDato = null,
     registrertTidspunkt = registrertTidspunkt,
     endretTidspunkt = endretTidspunkt,
-    stillingsprosent = stillingsprosent,
+    deltakelsesprosent = deltakelsesprosent,
     status = status,
 )

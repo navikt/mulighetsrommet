@@ -1,30 +1,17 @@
-import { Toggles } from "@mr/api-client";
 import { Heading } from "@navikt/ds-react";
 import * as Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import "highcharts/modules/accessibility";
 import { useRef } from "react";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { useSuspenseGjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
 import styles from "./NokkeltallDeltakere.module.scss";
 
 interface Props {
-  tiltaksgjennomforingId: string;
+  gjennomforingId: string;
 }
 
-export function NokkeltallDeltakere(props: Props) {
-  const { data: enableDebug } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_DEBUGGER,
-  );
-
-  if (!enableDebug) {
-    return null;
-  }
-
-  return <NokkeltallDeltakereGraph {...props} />;
-}
-
-function NokkeltallDeltakereGraph({ tiltaksgjennomforingId }: Props) {
-  const { data: deltakerSummary } = useSuspenseGjennomforingDeltakerSummary(tiltaksgjennomforingId);
+export function NokkeltallDeltakere({ gjennomforingId }: Props) {
+  const { data: deltakerSummary } = useSuspenseGjennomforingDeltakerSummary(gjennomforingId);
   const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
 
   const dataArray = deltakerSummary.deltakereByStatus.map(({ status, count }) => ({

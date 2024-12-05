@@ -2,6 +2,9 @@ import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import { AnsattService, NavAnsatt, NavAnsattRolle } from "@mr/api-client";
 import { createBrowserRouter, Outlet, RouterProvider, useLoaderData } from "react-router-dom";
 import { Forside } from "./Forside";
+import IkkeAutentisertApp from "./IkkeAutentisertApp";
+import { IngenLesetilgang } from "./IngenLesetilgang";
+import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
 import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
 import { initializeAmplitude } from "./logging/amplitude";
 import { ErrorPage } from "./pages/ErrorPage";
@@ -24,15 +27,7 @@ import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstyp
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
-import IkkeAutentisertApp from "./IkkeAutentisertApp";
-import { IngenLesetilgang } from "./IngenLesetilgang";
-import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
 import { tiltakstyperLoaders } from "./pages/tiltakstyper/tiltakstyperLoaders";
-import { avtalerLoader } from "./pages/avtaler/avtaleLoaders";
-import {
-  tiltaksgjennomforingerForAvtaleLoader,
-  tiltaksgjennomforingerLoader,
-} from "./pages/tiltaksgjennomforinger/tiltaksgjennomforingLoaders";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -78,7 +73,7 @@ export function App() {
   );
 }
 
-async function loader() {
+async function ansattLoader() {
   const data = await AnsattService.hentInfoOmAnsatt();
   return data;
 }
@@ -90,7 +85,7 @@ const router = () =>
         path: "/",
         element: <App />,
         errorElement: <ErrorPage />,
-        loader: loader,
+        loader: ansattLoader,
         children: [
           {
             path: "tiltakstyper",
@@ -119,7 +114,6 @@ const router = () =>
             path: "avtaler",
             element: <AvtalerPage />,
             errorElement: <ErrorPage />,
-            loader: avtalerLoader,
           },
           {
             path: "avtaler/:avtaleId",
@@ -135,10 +129,6 @@ const router = () =>
                 path: "tiltaksgjennomforinger",
                 element: <TiltaksgjennomforingerForAvtalePage />,
                 errorElement: <ErrorPage />,
-                loader: ({ context }) => {
-                  const { filter } = context;
-                  return tiltaksgjennomforingerForAvtaleLoader();
-                },
               },
             ],
           },
@@ -161,7 +151,6 @@ const router = () =>
             path: "tiltaksgjennomforinger/",
             element: <TiltaksgjennomforingerPage />,
             errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingerLoader,
           },
           {
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId",

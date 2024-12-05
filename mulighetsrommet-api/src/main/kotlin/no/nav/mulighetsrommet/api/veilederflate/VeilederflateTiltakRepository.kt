@@ -3,19 +3,15 @@ package no.nav.mulighetsrommet.api.veilederflate
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.veilederflate.models.EstimertVentetid
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangor
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangorKontaktperson
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateKontaktinfo
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateKontaktinfoTiltaksansvarlig
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakstype
+import no.nav.mulighetsrommet.api.veilederflate.models.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isKursTiltak
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
+import no.nav.mulighetsrommet.domain.dto.Personopplysning
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import org.intellij.lang.annotations.Language
 import java.util.*
 
@@ -38,7 +34,7 @@ class VeilederflateTiltakRepository(private val db: Database) {
         innsatsgruppe: Innsatsgruppe,
         brukersEnheter: List<String>,
         search: String? = null,
-        apentForInnsok: Boolean? = null,
+        apentForPamelding: Boolean? = null,
         sanityTiltakstypeIds: List<UUID>? = null,
         erSykmeldtMedArbeidsgiver: Boolean = false,
     ): List<VeilederflateTiltakGruppe> {
@@ -46,7 +42,7 @@ class VeilederflateTiltakRepository(private val db: Database) {
             "innsatsgruppe" to innsatsgruppe.name,
             "brukers_enheter" to db.createTextArray(brukersEnheter),
             "search" to search?.toFTSPrefixQuery(),
-            "apent_for_innsok" to apentForInnsok,
+            "apent_for_pamelding" to apentForPamelding,
             "sanityTiltakstypeIds" to sanityTiltakstypeIds?.let { db.createUuidArray(it) },
             "er_sykmeldt_med_arbeidsgiver" to erSykmeldtMedArbeidsgiver,
         )
@@ -67,7 +63,7 @@ class VeilederflateTiltakRepository(private val db: Database) {
               and nav_enheter && :brukers_enheter
               and (:search::text is null or fts @@ to_tsquery('norwegian', :search))
               and (:sanityTiltakstypeIds::uuid[] is null or tiltakstype_sanity_id = any(:sanityTiltakstypeIds))
-              and (:apent_for_innsok::boolean is null or apent_for_innsok = :apent_for_innsok)
+              and (:apent_for_pamelding::boolean is null or apent_for_pamelding = :apent_for_pamelding)
         """.trimIndent()
 
         return queryOf(query, parameters)
@@ -89,9 +85,6 @@ class VeilederflateTiltakRepository(private val db: Database) {
             ?.let { Json.decodeFromString<List<VeilederflateArrangorKontaktperson>>(it) }
             ?: emptyList()
 
-        val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
-        val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
-
         val tiltakstypeNavn = string("tiltakstype_navn")
         val tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) }
         val navn = string("navn")
@@ -111,7 +104,7 @@ class VeilederflateTiltakRepository(private val db: Database) {
             tittel = tittel,
             underTittel = underTittel,
             stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
-            apentForInnsok = boolean("apent_for_innsok"),
+            apentForPamelding = boolean("apent_for_pamelding"),
             tiltaksnummer = stringOrNull("tiltaksnummer"),
             oppstart = TiltaksgjennomforingOppstartstype.valueOf(string("oppstart")),
             oppstartsdato = localDate("start_dato"),
@@ -137,17 +130,7 @@ class VeilederflateTiltakRepository(private val db: Database) {
             },
             personvernBekreftet = boolean("personvern_bekreftet"),
             personopplysningerSomKanBehandles = personopplysningerSomKanBehandles,
-            status = TiltaksgjennomforingStatusDto(
-                TiltaksgjennomforingStatus.valueOf(string("status")),
-                avbruttTidspunkt?.let {
-                    requireNotNull(avbruttAarsak)
-                    AvbruttDto(
-                        tidspunkt = avbruttTidspunkt,
-                        aarsak = avbruttAarsak,
-                        beskrivelse = avbruttAarsak.beskrivelse,
-                    )
-                },
-            ),
+            status = TiltaksgjennomforingStatus.valueOf(string("status")),
         )
     }
 }

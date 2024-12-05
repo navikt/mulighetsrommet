@@ -29,6 +29,7 @@ data class TilsagnDto(
     val arrangor: Arrangor,
     val besluttelse: Besluttelse?,
     val tiltaksgjennomforing: Tiltaksgjennomforing,
+    val status: TilsagnStatus,
 ) {
     @Serializable
     data class Arrangor(
@@ -42,6 +43,7 @@ data class TilsagnDto(
     @Serializable
     data class Besluttelse(
         val navIdent: NavIdent,
+        val beslutternavn: String,
         @Serializable(with = LocalDateTimeSerializer::class)
         val tidspunkt: LocalDateTime?,
         val status: TilsagnBesluttelseStatus,
@@ -55,4 +57,13 @@ data class TilsagnDto(
         val id: UUID,
         val antallPlasser: Int,
     )
+
+    @Serializable
+    enum class TilsagnStatus {
+        TIL_GODKJENNING,
+        GODKJENT,
+        RETURNERT,
+        ANNULLERT,
+        OPPGJORT,
+    }
 }

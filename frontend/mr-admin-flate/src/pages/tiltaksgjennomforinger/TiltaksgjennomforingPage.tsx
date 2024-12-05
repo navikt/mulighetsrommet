@@ -3,7 +3,6 @@ import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { Link, Outlet, useLocation, useParams } from "react-router-dom";
-import { ShowOpphavValue } from "@/components/debug/ShowOpphavValue";
 import { Header } from "@/components/detaljside/Header";
 import headerStyles from "@/components/detaljside/Header.module.scss";
 import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
@@ -14,9 +13,10 @@ import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "@/constants";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
-import { TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
-import { TiltaksgjennomforingStatus, Toggles } from "@mr/api-client";
+import { Toggles } from "@mr/api-client";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
+import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 
 function createBrodsmuler(
   tiltaksgjennomforingId: string,
@@ -92,37 +92,31 @@ export function TiltaksgjennomforingPage() {
         <div
           className={classNames(
             headerStyles.header_outer_container,
-            tiltaksgjennomforing?.id
-              ? headerStyles.header_outer_container_forhandsvisningsknapp
-              : null,
+            headerStyles.header_outer_container_forhandsvisningsknapp,
           )}
         >
           <div className={headerStyles.tiltaksnavn_status}>
             <TiltaksgjennomforingIkon />
             <VStack>
               <Heading className={headerStyles.navn} size="large" level="2">
-                {tiltaksgjennomforing?.navn ?? "..."}
+                {tiltaksgjennomforing.navn}
               </Heading>
-              <ShowOpphavValue value={tiltaksgjennomforing?.opphav} />
             </VStack>
-            <TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} showAvbruttAarsak />
+            <GjennomforingStatusMedAarsakTag status={tiltaksgjennomforing.status} />
             <DupliserTiltak tiltaksgjennomforing={tiltaksgjennomforing} />
           </div>
-          {tiltaksgjennomforing?.id &&
-            [TiltaksgjennomforingStatus.GJENNOMFORES, TiltaksgjennomforingStatus.PLANLAGT].includes(
-              tiltaksgjennomforing.status.status,
-            ) && (
-              <div className={headerStyles.forhandsvisningsknapp}>
-                <Lenkeknapp
-                  size="small"
-                  isExternal={true}
-                  variant="secondary"
-                  to={`${PREVIEW_ARBEIDSMARKEDSTILTAK_URL}/tiltak/${tiltaksgjennomforing.id}`}
-                >
-                  Forhåndsvis i Modia
-                </Lenkeknapp>
-              </div>
-            )}
+          {gjennomforingIsAktiv(tiltaksgjennomforing.status.status) && (
+            <div className={headerStyles.forhandsvisningsknapp}>
+              <Lenkeknapp
+                size="small"
+                isExternal={true}
+                variant="secondary"
+                to={`${PREVIEW_ARBEIDSMARKEDSTILTAK_URL}/tiltak/${tiltaksgjennomforing.id}`}
+              >
+                Forhåndsvis i Modia
+              </Lenkeknapp>
+            </div>
+          )}
         </div>
       </Header>
 

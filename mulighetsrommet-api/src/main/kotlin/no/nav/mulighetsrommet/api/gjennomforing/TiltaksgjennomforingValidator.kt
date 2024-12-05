@@ -287,11 +287,11 @@ class TiltaksgjennomforingValidator(
         previous: TiltaksgjennomforingDto,
         avtale: AvtaleDto,
     ) {
-        if (!previous.isAktiv()) {
+        if (previous.status.status != TiltaksgjennomforingStatus.GJENNOMFORES) {
             add(
                 ValidationError.of(
                     TiltaksgjennomforingDbo::navn,
-                    "Du kan ikke gjøre endringer på en gjennomføring som ikke er aktiv",
+                    "Du kan ikke gjøre endringer på en gjennomføring som er ${previous.status.status.name.lowercase()}",
                 ),
             )
         }

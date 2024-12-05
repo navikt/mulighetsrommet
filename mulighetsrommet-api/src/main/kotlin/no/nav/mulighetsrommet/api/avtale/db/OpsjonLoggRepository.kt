@@ -32,7 +32,9 @@ class OpsjonLoggRepository(private val db: Database) {
         ).asExecute.let { tx.run(it) }
     }
 
-    fun insert(entry: OpsjonLoggEntry) = db.transaction { insert(entry, it) }
+    fun insert(entry: OpsjonLoggEntry) = db.transaction {
+        insert(entry, it)
+    }
 
     fun delete(opsjonLoggEntryId: UUID, tx: Session) = query {
         @Language("PostgreSQL")

@@ -1,17 +1,17 @@
 package no.nav.mulighetsrommet.api.refusjon.model
 
-import kotlinx.serialization.Serializable
-import java.time.LocalDateTime
-
-@Serializable
 sealed class RefusjonKravBeregning {
     abstract val input: RefusjonKravBeregningInput
     abstract val output: RefusjonKravBeregningOutput
+
+    @OptIn(ExperimentalStdlibApi::class)
+    fun getDigest(): String {
+        return (input.hashCode() + output.hashCode()).toHexString()
+    }
 }
 
 abstract class RefusjonKravBeregningInput {
-    abstract val periodeStart: LocalDateTime
-    abstract val periodeSlutt: LocalDateTime
+    abstract val periode: RefusjonskravPeriode
 }
 
 abstract class RefusjonKravBeregningOutput {

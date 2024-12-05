@@ -27,7 +27,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
     val navn: String,
     val orgnummer: String,
     val antallPlasser: Int?,
-    val status: TiltaksgjennomforingStatus,
+    val status: ArenaTiltaksgjennomforingStatus,
     val enhet: String,
     val apentForInnsok: Boolean,
     val deltidsprosent: Double,
@@ -48,8 +48,10 @@ data class ArenaMigreringTiltaksgjennomforingDto(
             }
 
             val status = when (tiltaksgjennomforing.status.status) {
-                TiltaksgjennomforingStatus.PLANLAGT, TiltaksgjennomforingStatus.GJENNOMFORES -> TiltaksgjennomforingStatus.GJENNOMFORES
-                else -> tiltaksgjennomforing.status.status
+                TiltaksgjennomforingStatus.GJENNOMFORES -> ArenaTiltaksgjennomforingStatus.GJENNOMFORES
+                TiltaksgjennomforingStatus.AVSLUTTET -> ArenaTiltaksgjennomforingStatus.AVSLUTTET
+                TiltaksgjennomforingStatus.AVBRUTT -> ArenaTiltaksgjennomforingStatus.AVBRUTT
+                TiltaksgjennomforingStatus.AVLYST -> ArenaTiltaksgjennomforingStatus.AVLYST
             }
 
             return ArenaMigreringTiltaksgjennomforingDto(
@@ -65,9 +67,16 @@ data class ArenaMigreringTiltaksgjennomforingDto(
                 status = status,
                 arenaId = arenaId,
                 enhet = enhetsnummer,
-                apentForInnsok = tiltaksgjennomforing.apentForInnsok,
+                apentForInnsok = tiltaksgjennomforing.apentForPamelding,
                 deltidsprosent = tiltaksgjennomforing.deltidsprosent,
             )
         }
     }
+}
+
+enum class ArenaTiltaksgjennomforingStatus {
+    GJENNOMFORES,
+    AVSLUTTET,
+    AVBRUTT,
+    AVLYST,
 }

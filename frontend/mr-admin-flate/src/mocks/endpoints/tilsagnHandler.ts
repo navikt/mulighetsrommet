@@ -1,5 +1,5 @@
+import { AftSatserResponse, TilsagnDto, TilsagnRequest } from "@mr/api-client";
 import { HttpResponse, PathParams, http } from "msw";
-import { TilsagnDto, TilsagnRequest } from "@mr/api-client";
 import { mockTilsagn } from "../fixtures/mock_tilsagn";
 
 export const tilsagnHandlers = [
@@ -28,5 +28,22 @@ export const tilsagnHandlers = [
 
   http.post<PathParams, any, string>("*/api/v1/intern/tilsagn/:tilsagnId/beslutt", async () => {
     return HttpResponse.text("OK");
+  }),
+
+  http.get<PathParams, string, AftSatserResponse>("*/api/v1/intern/tilsagn/aft/sats", () => {
+    return HttpResponse.json([
+      {
+        belop: 20205,
+        startDato: "01-01-2024",
+      },
+      {
+        belop: 19500,
+        startDato: "01-01-2023",
+      },
+    ]);
+  }),
+
+  http.delete<PathParams, any, string>("*/api/v1/intern/tilsagn/:id", () => {
+    return HttpResponse.text("Ok");
   }),
 ];

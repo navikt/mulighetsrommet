@@ -10,11 +10,11 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.api.services.DocumentClass
+import no.nav.mulighetsrommet.api.services.EndretAv
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -90,30 +90,28 @@ class AvtaleService(
                     } else {
                         "Redigerte avtale"
                     }
-                    logEndring(operation, dto, navIdent, tx)
+                    logEndring(operation, dto, EndretAv.NavAnsatt(navIdent), tx)
                     dto
                 }
             }
     }
 
-    private suspend fun syncArrangorerFromBrreg(request: AvtaleRequest): Either<List<ValidationError>, Pair<ArrangorDto, List<ArrangorDto>>> =
-        either {
-            val arrangor = syncArrangorFromBrreg(request.arrangorOrganisasjonsnummer).bind()
-            val underenheter = request.arrangorUnderenheter.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
-                syncArrangorFromBrreg(it).bind()
-            }.bind()
-            Pair(arrangor, underenheter)
-        }
+    private suspend fun syncArrangorerFromBrreg(request: AvtaleRequest): Either<List<ValidationError>, Pair<ArrangorDto, List<ArrangorDto>>> = either {
+        val arrangor = syncArrangorFromBrreg(request.arrangorOrganisasjonsnummer).bind()
+        val underenheter = request.arrangorUnderenheter.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
+            syncArrangorFromBrreg(it).bind()
+        }.bind()
+        Pair(arrangor, underenheter)
+    }
 
-    private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): Either<List<ValidationError>, ArrangorDto> =
-        arrangorService
-            .getOrSyncArrangorFromBrreg(orgnr)
-            .mapLeft {
-                ValidationError.of(
-                    AvtaleRequest::arrangorOrganisasjonsnummer,
-                    "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
-                ).nel()
-            }
+    private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): Either<List<ValidationError>, ArrangorDto> = arrangorService
+        .getOrSyncArrangorFromBrreg(orgnr)
+        .mapLeft {
+            ValidationError.of(
+                AvtaleRequest::arrangorOrganisasjonsnummer,
+                "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
+            ).nel()
+        }
 
     fun getAll(
         filter: AvtaleFilter,
@@ -135,8 +133,6 @@ class AvtaleService(
         return PaginatedResponse.of(pagination, totalCount, items)
     }
 
-    fun getAllAvtalerSomNarmerSegSluttdato(): List<AvtaleNotificationDto> = avtaler.getAllAvtalerSomNarmerSegSluttdato()
-
     fun avbrytAvtale(id: UUID, navIdent: NavIdent, aarsak: AvbruttAarsak?): StatusResponse<Unit> {
         if (aarsak == null) {
             return Either.Left(BadRequest(message = "Årsak mangler"))
@@ -157,48 +153,30 @@ class AvtaleService(
 
         val (_, gjennomforinger) = tiltaksgjennomforinger.getAll(
             avtaleId = id,
-            statuser = listOf(
-                TiltaksgjennomforingStatus.GJENNOMFORES,
-                TiltaksgjennomforingStatus.PLANLAGT,
-            ),
+            statuser = listOf(TiltaksgjennomforingStatus.GJENNOMFORES),
         )
 
-        val (antallAktiveGjennomforinger, antallPlanlagteGjennomforinger) = gjennomforinger.partition { it.status.status == TiltaksgjennomforingStatus.GJENNOMFORES }
-        if (antallAktiveGjennomforinger.isNotEmpty()) {
-            return Either.Left(
-                BadRequest(
-                    message = "Avtalen har ${antallAktiveGjennomforinger.size} ${
-                        if (antallAktiveGjennomforinger.size > 1) "aktive tiltaksgjennomføringer" else "aktiv tiltaksgjennomføring"
-                    } koblet til seg. Du må frikoble ${
-                        if (antallAktiveGjennomforinger.size > 1) "gjennomføringene" else "gjennomføringen"
-                    } før du kan avbryte avtalen.",
-                ),
-            )
-        }
-
-        if (antallPlanlagteGjennomforinger.isNotEmpty()) {
-            return Either.Left(
-                BadRequest(
-                    message = "Avtalen har ${antallPlanlagteGjennomforinger.size} ${
-                        if (antallPlanlagteGjennomforinger.size > 1) "planlagte tiltaksgjennomføringer" else "planlagt tiltaksgjennomføring"
-                    } koblet til seg. Du må flytte eller avslutte ${
-                        if (antallPlanlagteGjennomforinger.size > 1) "gjennomføringene" else "gjennomføringen"
-                    } før du kan avbryte avtalen.",
-                ),
-            )
+        if (gjennomforinger.isNotEmpty()) {
+            val plural = gjennomforinger.size > 1
+            val message = listOf(
+                "Avtalen har",
+                gjennomforinger.size,
+                if (plural) "aktive gjennomføringer" else "aktiv gjennomføring",
+                "og kan derfor ikke avbrytes.",
+            ).joinToString(" ")
+            return Either.Left(BadRequest(message))
         }
 
         db.transaction { tx ->
             avtaler.avbryt(tx, id, LocalDateTime.now(), aarsak)
             val dto = getOrError(id, tx)
-            logEndring("Avtale ble avbrutt", dto, navIdent, tx)
+            logEndring("Avtale ble avbrutt", dto, EndretAv.NavAnsatt(navIdent), tx)
         }
 
         return Either.Right(Unit)
     }
 
-    fun getEndringshistorikk(id: UUID): EndringshistorikkDto =
-        endringshistorikkService.getEndringshistorikk(DocumentClass.AVTALE, id)
+    fun getEndringshistorikk(id: UUID): EndringshistorikkDto = endringshistorikkService.getEndringshistorikk(DocumentClass.AVTALE, id)
 
     private fun getOrError(id: UUID, tx: TransactionalSession): AvtaleDto {
         val dto = avtaler.get(id, tx)
@@ -227,10 +205,16 @@ class AvtaleService(
     private fun logEndring(
         operation: String,
         dto: AvtaleDto,
-        navIdent: NavIdent,
+        endretAv: EndretAv.NavAnsatt,
         tx: TransactionalSession,
     ) {
-        endringshistorikkService.logEndring(tx, DocumentClass.AVTALE, operation, navIdent.value, dto.id) {
+        endringshistorikkService.logEndring(
+            tx,
+            DocumentClass.AVTALE,
+            operation,
+            endretAv,
+            dto.id,
+        ) {
             Json.encodeToJsonElement(dto)
         }
     }
@@ -244,7 +228,12 @@ class AvtaleService(
         return db.transaction { tx ->
             avtaler.frikobleKontaktpersonFraAvtale(kontaktpersonId = kontaktpersonId, avtaleId = avtaleId, tx = tx)
                 .map {
-                    logEndring("Kontaktperson ble fjernet fra avtalen via arrangørsidene", avtale, navIdent, tx)
+                    logEndring(
+                        "Kontaktperson ble fjernet fra avtalen via arrangørsidene",
+                        avtale,
+                        EndretAv.NavAnsatt(navIdent),
+                        tx,
+                    )
                     it
                 }
                 .mapLeft {

@@ -8,15 +8,15 @@ import {
   formaterDato,
   formaterNavEnheter,
 } from "@/utils/Utils";
-import { OpenAPI, PaginertAvtale, SorteringAvtaler } from "@mr/api-client";
+import { OpenAPI, SorteringAvtaler } from "@mr/api-client";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
 import { Alert, Pagination, Table, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { createRef, useEffect, useState } from "react";
-import { useLoaderData } from "react-router-dom";
-import { ShowOpphavValue } from "../debug/ShowOpphavValue";
+import { useAvtaler } from "../../api/avtaler/useAvtaler";
+import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { AvtalestatusTag } from "../statuselementer/AvtalestatusTag";
@@ -33,7 +33,7 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
   const [lasterExcel, setLasterExcel] = useState(false);
   const [excelUrl, setExcelUrl] = useState("");
   const sort = filter.sortering.tableSort;
-  const data = useLoaderData() as PaginertAvtale;
+  const { data, isLoading } = useAvtaler(filter);
 
   const link = createRef<HTMLAnchorElement>();
 
@@ -101,6 +101,10 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
     });
   };
 
+  if (!data || isLoading) {
+    return <Laster size="xlarge" tekst="Laster avtaler..." />;
+  }
+
   const { pagination, data: avtaler } = data;
 
   return (
@@ -165,7 +169,6 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
                         <Lenke to={`/avtaler/${avtale.id}`} data-testid="avtaletabell_tittel">
                           {avtale.navn}
                         </Lenke>
-                        <ShowOpphavValue value={avtale.opphav} />
                       </VStack>
                     </Table.DataCell>
                     <Table.DataCell aria-label={`Avtalenummer: ${avtale?.avtalenummer ?? "N/A"}`}>

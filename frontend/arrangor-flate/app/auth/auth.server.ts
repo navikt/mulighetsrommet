@@ -1,6 +1,6 @@
 import { OpenAPI } from "@mr/api-client";
 import { getToken, parseIdportenToken, requestTokenxOboToken, validateToken } from "@navikt/oasis";
-import { redirectDocument } from "@remix-run/node";
+import { redirectDocument } from "react-router";
 import { v4 as uuidv4 } from "uuid";
 import { hentMiljø, Miljø } from "../services/miljø";
 
@@ -41,10 +41,6 @@ export async function setupOpenApi(request: Request) {
           `${process.env.NAIS_CLUSTER_NAME}:team-mulighetsrommet:mulighetsrommet-api`,
         );
 
-  if (!token) {
-    throw new Error("Fant ingen token");
-  }
-
   setOpenApiHeaders(token);
 }
 
@@ -75,14 +71,16 @@ export async function checkValidToken(request: Request) {
   }
 }
 
-function setOpenApiHeaders(token: string) {
+function setOpenApiHeaders(token?: string) {
   OpenAPI.HEADERS = async () => {
     const headers: Record<string, string> = {};
 
     headers["Accept"] = "application/json";
     headers["Nav-Consumer-Id"] = uuidv4();
 
-    headers["Authorization"] = `Bearer ${token}`;
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
 
     return headers;
   };

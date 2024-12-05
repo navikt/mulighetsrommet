@@ -1,32 +1,26 @@
 import { TiltaksgjennomforingFilter } from "@/api/atoms";
 import { useAdminTiltaksgjennomforinger } from "@/api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
+import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
+import { APPLICATION_NAME } from "@/constants";
 import {
   createQueryParamsForExcelDownloadForTiltaksgjennomforing,
   formaterDato,
   formaterNavEnheter,
 } from "@/utils/Utils";
-import { Alert, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
-import { useAtom, WritableAtom } from "jotai";
-import {
-  OpenAPI,
-  PaginertTiltaksgjennomforing,
-  SorteringTiltaksgjennomforinger,
-} from "@mr/api-client";
-import { TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
+import { OpenAPI, SorteringTiltaksgjennomforinger } from "@mr/api-client";
+import { GjennomforingStatusTag } from "@mr/frontend-common";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
+import { Alert, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
+import { useAtom, WritableAtom } from "jotai";
 import React, { createRef, useEffect, useState } from "react";
 import pageStyles from "../../pages/Page.module.scss";
-import { ShowOpphavValue } from "../debug/ShowOpphavValue";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import styles from "./Tabell.module.scss";
-import { APPLICATION_NAME } from "@/constants";
-import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
-import { useLoaderData } from "react-router-dom";
 
 const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: boolean }) => {
   return skjul ? null : <>{children}</>;
@@ -49,7 +43,7 @@ export function TiltaksgjennomforingsTabell({
   const [lasterExcel, setLasterExcel] = useState(false);
   const [excelUrl, setExcelUrl] = useState("");
   const sort = filter.sortering.tableSort;
-  const data = useLoaderData() as PaginertTiltaksgjennomforing;
+  const { data, isLoading } = useAdminTiltaksgjennomforinger(filter);
   const link = createRef<HTMLAnchorElement>();
 
   async function lastNedFil(filter: TiltaksgjennomforingFilter) {
@@ -118,6 +112,10 @@ export function TiltaksgjennomforingsTabell({
       page: sort.orderBy !== sortKey || sort.direction !== direction ? 1 : filter.page,
     });
   };
+
+  if (!data || isLoading) {
+    return <Laster size="xlarge" tekst="Laster tiltaksgjennomføringer..." />;
+  }
 
   const { pagination, data: tiltaksgjennomforinger } = data;
 
@@ -198,7 +196,6 @@ export function TiltaksgjennomforingsTabell({
                             >
                               {tiltaksgjennomforing.navn}
                             </Lenke>
-                            <ShowOpphavValue value={tiltaksgjennomforing.opphav} />
                           </VStack>
                         </Table.DataCell>
                       </SkjulKolonne>
@@ -267,7 +264,7 @@ export function TiltaksgjennomforingsTabell({
 
                       <SkjulKolonne skjul={!!skjulKolonner?.status}>
                         <Table.DataCell>
-                          <TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} />
+                          <GjennomforingStatusTag status={tiltaksgjennomforing.status.status} />
                         </Table.DataCell>
                       </SkjulKolonne>
                       <Table.DataCell>

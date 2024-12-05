@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.OpsjonsmodellData
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
@@ -37,7 +36,9 @@ import java.util.*
 class AvtaleRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(avtale: AvtaleDbo) = db.transaction { upsert(avtale, it) }
+    fun upsert(avtale: AvtaleDbo) = db.transaction {
+        upsert(avtale, it)
+    }
 
     fun upsert(avtale: AvtaleDbo, tx: Session) {
         logger.info("Lagrer avtale id=${avtale.id}")
@@ -342,7 +343,9 @@ class AvtaleRepository(private val db: Database) {
         queryOf(query, avtale.toSqlParameters(arrangorId)).asExecute.let { tx.run(it) }
     }
 
-    fun get(id: UUID): AvtaleDto? = db.transaction { get(id, it) }
+    fun get(id: UUID): AvtaleDto? = db.transaction {
+        get(id, it)
+    }
 
     fun get(id: UUID, tx: Session): AvtaleDto? {
         @Language("PostgreSQL")
@@ -428,30 +431,6 @@ class AvtaleRepository(private val db: Database) {
         }
     }
 
-    fun getAllAvtalerSomNarmerSegSluttdato(currentDate: LocalDate = LocalDate.now()): List<AvtaleNotificationDto> {
-        val params = mapOf(
-            "currentDate" to currentDate,
-        )
-
-        @Language("PostgreSQL")
-        val query = """
-            select a.id::uuid, a.navn, a.start_dato, a.slutt_dato, array_agg(distinct aa.nav_ident) as administratorer
-            from avtale a
-                     left join avtale_administrator aa on a.id = aa.avtale_id
-            where (:currentDate::timestamp + interval '8' month) = a.slutt_dato
-               or (:currentDate::timestamp + interval '6' month) = a.slutt_dato
-               or (:currentDate::timestamp + interval '3' month) = a.slutt_dato
-               or (:currentDate::timestamp + interval '14' day) = a.slutt_dato
-               or (:currentDate::timestamp + interval '7' day) = a.slutt_dato
-            group by a.id
-        """.trimIndent()
-
-        return queryOf(query, params)
-            .map { it.toAvtaleNotificationDto() }
-            .asList
-            .let { db.run(it) }
-    }
-
     fun setOpphav(id: UUID, opphav: ArenaMigrering.Opphav) {
         @Language("PostgreSQL")
         val query = """
@@ -465,8 +444,9 @@ class AvtaleRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int =
-        db.transaction { avbryt(it, id, tidspunkt, aarsak) }
+    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int = db.transaction {
+        avbryt(it, id, tidspunkt, aarsak)
+    }
 
     fun avbryt(tx: Session, id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
         @Language("PostgreSQL")
@@ -638,20 +618,6 @@ class AvtaleRepository(private val db: Database) {
             opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.aktivertDato },
             amoKategorisering = amoKategorisering,
             utdanningslop = utdanningslop,
-        )
-    }
-
-    private fun Row.toAvtaleNotificationDto(): AvtaleNotificationDto {
-        val administratorer = arrayOrNull<String?>("administratorer")?.asList()?.filterNotNull() ?: emptyList()
-        val startDato = localDate("start_dato")
-        val sluttDato = localDateOrNull("slutt_dato")
-
-        return AvtaleNotificationDto(
-            id = uuid("id"),
-            navn = string("navn"),
-            startDato = startDato,
-            sluttDato = sluttDato,
-            administratorer = administratorer.map { NavIdent(it) },
         )
     }
 

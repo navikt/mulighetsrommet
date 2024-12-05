@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
+import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
@@ -46,7 +47,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforinge
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
-import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForInnsok
+import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateTiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattSyncService
@@ -62,6 +63,7 @@ import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.refusjon.kafka.AmtDeltakerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.refusjon.task.GenerateRefusjonskrav
+import no.nav.mulighetsrommet.api.refusjon.task.JournalforRefusjonskrav
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.services.LagretFilterService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
@@ -92,6 +94,8 @@ import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
+import no.nav.mulighetsrommet.tasks.OpenTelemetrySchedulerListener
+import no.nav.mulighetsrommet.tasks.SlackNotifierSchedulerListener
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
 import no.nav.mulighetsrommet.tokenprovider.M2MTokenProvider
@@ -338,6 +342,13 @@ private fun services(appConfig: AppConfig) = module {
             tokenProvider = cachedTokenProvider.withScope(appConfig.isoppfolgingstilfelleConfig.scope),
         )
     }
+    single {
+        DokarkClient(
+            baseUrl = appConfig.dokark.url,
+            clientEngine = appConfig.engine,
+            tokenProvider = cachedTokenProvider.withScope(appConfig.dokark.scope),
+        )
+    }
     single { EndringshistorikkService(get()) }
     single {
         ArenaAdapterService(
@@ -378,14 +389,12 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
-            get(),
         )
     }
     single { TiltakstypeService(get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
-    single { NotificationService(get(), get(), get()) }
+    single { NotificationService(get(), get()) }
     single { ArrangorService(get(), get()) }
     single { RefusjonService(get(), get(), get(), get()) }
     single { UnleashService(appConfig.unleash, get()) }
@@ -408,25 +417,23 @@ private fun tasks(config: TaskConfig) = module {
     single { GenerateValidationReport(config.generateValidationReport, get(), get(), get(), get(), get()) }
     single { InitialLoadTiltaksgjennomforinger(get(), get(), get(), get()) }
     single { InitialLoadTiltakstyper(get(), get(), get(), get()) }
-    single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get()) }
-    single { SynchronizeUtdanninger(config.synchronizeUtdanninger, get(), get(), get()) }
-    single { GenerateRefusjonskrav(config.generateRefusjonskrav, get(), get()) }
+    single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get()) }
+    single { SynchronizeUtdanninger(config.synchronizeUtdanninger, get(), get()) }
+    single { GenerateRefusjonskrav(config.generateRefusjonskrav, get()) }
+    single { JournalforRefusjonskrav(get(), get(), get(), get(), get(), get()) }
     single {
         val updateTiltaksgjennomforingStatus = UpdateTiltaksgjennomforingStatus(
             get(),
             get(),
-            get(),
         )
-        val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get(), get())
+        val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get())
         val notifySluttdatoForGjennomforingerNarmerSeg = NotifySluttdatoForGjennomforingerNarmerSeg(
             config.notifySluttdatoForGjennomforingerNarmerSeg,
-            get(),
             get(),
             get(),
         )
         val notifySluttdatoForAvtalerNarmerSeg = NotifySluttdatoForAvtalerNarmerSeg(
             config.notifySluttdatoForAvtalerNarmerSeg,
-            get(),
             get(),
             get(),
         )
@@ -436,7 +443,7 @@ private fun tasks(config: TaskConfig) = module {
             get(),
             get(),
         )
-        val updateApentForInnsok = UpdateApentForInnsok(config.updateApentForInnsok, get(), get())
+        val updateApentForPamelding = UpdateApentForPamelding(config.updateApentForPamelding, get(), get())
         val notificationService: NotificationService by inject()
         val generateValidationReport: GenerateValidationReport by inject()
         val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
@@ -444,6 +451,7 @@ private fun tasks(config: TaskConfig) = module {
         val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
         val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
         val generateRefusjonskrav: GenerateRefusjonskrav by inject()
+        val journalforRefusjonskrav: JournalforRefusjonskrav by inject()
 
         val db: Database by inject()
 
@@ -454,7 +462,10 @@ private fun tasks(config: TaskConfig) = module {
                 generateValidationReport.task,
                 initialLoadTiltaksgjennomforinger.task,
                 initialLoadTiltakstyper.task,
+                journalforRefusjonskrav.task,
             )
+            .addSchedulerListener(SlackNotifierSchedulerListener(get()))
+            .addSchedulerListener(OpenTelemetrySchedulerListener())
             .startTasks(
                 synchronizeNorgEnheterTask.task,
                 updateTiltaksgjennomforingStatus.task,
@@ -463,10 +474,11 @@ private fun tasks(config: TaskConfig) = module {
                 notifySluttdatoForGjennomforingerNarmerSeg.task,
                 notifySluttdatoForAvtalerNarmerSeg.task,
                 notifyFailedKafkaEvents.task,
-                updateApentForInnsok.task,
+                updateApentForPamelding.task,
                 generateRefusjonskrav.task,
             )
             .serializer(DbSchedulerKotlinSerializer())
+            .registerShutdownHook()
             .build()
     }
 }

@@ -5,12 +5,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.refusjon.model.DeltakelseManedsverk
-import no.nav.mulighetsrommet.api.refusjon.model.DeltakelsePeriode
-import no.nav.mulighetsrommet.api.refusjon.model.DeltakelsePerioder
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
+import no.nav.mulighetsrommet.api.refusjon.model.*
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class PrismodellTest : FunSpec({
@@ -130,9 +126,9 @@ class PrismodellTest : FunSpec({
     }
 
     context("AFT refusjon beregning") {
-        val periodeStart = LocalDateTime.of(2023, 6, 1, 0, 0, 0)
-        val periodeMidt = LocalDateTime.of(2023, 6, 16, 0, 0, 0)
-        val periodeSlutt = LocalDateTime.of(2023, 7, 1, 0, 0, 0)
+        val periodeStart = LocalDate.of(2023, 6, 1)
+        val periodeMidt = LocalDate.of(2023, 6, 16)
+        val periodeSlutt = LocalDate.of(2023, 7, 1)
 
         test("beløp beregnes fra månedsverk til deltakere og sats") {
             val deltakerId1 = UUID.randomUUID()
@@ -251,7 +247,8 @@ class PrismodellTest : FunSpec({
                     ),
                 ),
             ) { deltakelser, expectedBeregning ->
-                val input = RefusjonKravBeregningAft.Input(periodeStart, periodeSlutt, 100, deltakelser)
+                val periode = RefusjonskravPeriode(periodeStart, periodeSlutt)
+                val input = RefusjonKravBeregningAft.Input(periode, 100, deltakelser)
 
                 val beregning = Prismodell.AFT.beregnRefusjonBelop(input)
 

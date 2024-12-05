@@ -1,4 +1,4 @@
-import { Link, LinkProps, useSearchParams } from "@remix-run/react";
+import { Link, LinkProps, useSearchParams } from "react-router";
 interface Props extends LinkProps {
   tabKey?: string;
 }

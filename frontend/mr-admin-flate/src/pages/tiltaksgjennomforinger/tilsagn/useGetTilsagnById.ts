@@ -7,8 +7,8 @@ export function useGetTilsagnById() {
   const { tilsagnId: id } = useParams();
 
   return useQuery<TilsagnDto, ApiError, TilsagnDto>({
+    queryKey: QueryKeys.getTilsagn(id!),
     queryFn: () => TilsagnService.getTilsagn({ id: id! }),
-    queryKey: QueryKeys.getTilsagn(id),
     enabled: !!id,
   });
 }

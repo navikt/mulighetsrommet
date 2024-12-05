@@ -3,7 +3,7 @@ const TILTAK_GRUPPE_PROD = [
   "eadeb22c-bd89-4298-a5c2-145f112f8e7d", // Arbeidsmarkedsopplæring (gruppe)
   "29c3d3cb-ffbf-4c22-8ffc-fea5d7f6c822", // Arbeidsrettet rehabilitering
   "f9618e97-4510-49e2-b748-29cae84d9019", // Avklaring
-  "3526de0d-ad4c-4b81-b072-a13b3a4b4ed3", // Digitalt oppfølgingstiltak
+  "3526de0d-ad4c-4b81-b072-a13b3a4b4ed3", // Digitalt jobbsøkerkurs
   "73276955-0225-4b1d-8548-b67924aebd4b", // Fag- og yrkesopplæring (gruppe)
   "31e72dd8-ad05-4e81-a7f9-fd4c8f295864", // Jobbklubb
   "5ac48c03-1f4c-4d4b-b862-050caca92080", // Oppfølging
@@ -15,7 +15,7 @@ const TILTAK_GRUPPE_DEV = [
   "8d0d7334-0ef4-4b8f-941e-4b41309163e9", // Arbeidsmarkedsopplæring (gruppe)
   "29c3d3cb-ffbf-4c22-8ffc-fea5d7f6c822", // Arbeidsrettet rehabilitering
   "f9618e97-4510-49e2-b748-29cae84d9019", // Avklaring
-  "3526de0d-ad4c-4b81-b072-a13b3a4b4ed3", // Digitalt oppfølgingstiltak
+  "3526de0d-ad4c-4b81-b072-a13b3a4b4ed3", // Digitalt jobbsøkerkurs
   "7f353dcd-37c2-42f8-bab6-ac2a60669839", // Fag- og yrkesopplæring (gruppe)
   "31e72dd8-ad05-4e81-a7f9-fd4c8f295864", // Jobbklubb
   "9891f5ec-2648-436b-ab31-b46260f3b9e6", // Oppfølging

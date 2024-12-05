@@ -6,11 +6,12 @@ import {
   Toggles,
   VeilederflateTiltakGruppe,
 } from "@mr/api-client";
-import { Alert, BodyShort, Button, Heading, VStack } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import styles from "./PameldingForGruppetiltak.module.scss";
 import { useHentDeltakelseForGjennomforing } from "@/api/queries/useHentDeltakelseForGjennomforing";
 import { useFeatureToggle } from "@/api/feature-toggles";
+import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 
 interface PameldingProps {
   brukerHarRettPaaValgtTiltak: boolean;
@@ -60,7 +61,17 @@ export function PameldingForGruppetiltak({
     );
   }
 
-  if (brukerHarRettPaaValgtTiltak && deltakelserErMigrert) {
+  if (!tiltak.apentForPamelding && deltakelserErMigrert) {
+    return (
+      <Alert variant="info">
+        <HStack align="center" gap="1">
+          Tiltaket er stengt for påmelding <PadlockLockedFillIcon />
+        </HStack>
+      </Alert>
+    );
+  }
+
+  if (brukerHarRettPaaValgtTiltak && deltakelserErMigrert && tiltak.apentForPamelding) {
     const opprettDeltakelseRoute = resolveModiaRoute({
       route: ModiaRoute.ARBEIDSMARKEDSTILTAK_OPPRETT_DELTAKELSE,
       gjennomforingId,

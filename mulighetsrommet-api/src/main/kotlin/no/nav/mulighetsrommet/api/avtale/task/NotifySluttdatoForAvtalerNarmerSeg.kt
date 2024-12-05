@@ -6,27 +6,25 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
-import kotlinx.coroutines.runBlocking
-import no.nav.mulighetsrommet.api.avtale.AvtaleService
+import kotliquery.Row
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
+import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
-import no.nav.mulighetsrommet.slack.SlackNotifier
-import org.slf4j.LoggerFactory
+import org.intellij.lang.annotations.Language
 import java.time.Instant
-import kotlin.jvm.optionals.getOrNull
+import java.time.LocalDate
 
 class NotifySluttdatoForAvtalerNarmerSeg(
     config: Config,
-    notificationService: NotificationService,
-    avtaleService: AvtaleService,
-    slack: SlackNotifier,
+    private val db: Database,
+    private val notificationService: NotificationService,
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
     data class Config(
         val disabled: Boolean = false,
         val cronPattern: String? = null,
@@ -41,40 +39,71 @@ class NotifySluttdatoForAvtalerNarmerSeg(
     }
 
     val task: RecurringTask<Void> = Tasks
-        .recurring("notify-sluttdato-for-avtaler-narmer-seg", config.toSchedule())
-        .onFailure { failure, _ ->
-            val cause = failure.cause.getOrNull()?.message
-            slack.sendMessage(
-                """
-                Klarte ikke opprette notifikasjoner for avtaler som nærmer seg sluttdato.
-                Konsekvensen er at brukere ikke nødvendigvis får med seg at sluttdato nærmer seg for sine avtaler.
-                Detaljer: $cause
-                """.trimIndent(),
-            )
-        }
+        .recurring(javaClass.simpleName, config.toSchedule())
         .execute { _, _ ->
-            logger.info("Oppretter notifikasjoner for avtaler som nærmer seg sluttdato...")
+            notifySluttDatoNarmerSeg(LocalDate.now())
+        }
 
-            runBlocking {
-                val avtaler: List<AvtaleNotificationDto> = avtaleService.getAllAvtalerSomNarmerSegSluttdato()
+    fun notifySluttDatoNarmerSeg(today: LocalDate) {
+        val avtaler = getAllAvtalerSomNarmerSegSluttdato(today)
 
-                avtaler.forEach {
-                    it.administratorer.toNonEmptyListOrNull()?.let { administratorer ->
-                        val notification = ScheduledNotification(
-                            type = NotificationType.NOTIFICATION,
-                            title = "Avtalen \"${it.navn}\" utløper ${
-                                it.sluttDato?.formaterDatoTilEuropeiskDatoformat()
-                            }",
-                            targets = administratorer,
-                            createdAt = Instant.now(),
-                            metadata = NotificationMetadata(
-                                linkText = "Gå til avtalen",
-                                link = "/avtaler/${it.id}",
-                            ),
-                        )
-                        notificationService.scheduleNotification(notification)
-                    } ?: logger.info("Fant ingen administratorer for avtale med id: ${it.id}")
-                }
+        avtaler.forEach { avtale ->
+            avtale.administratorer.toNonEmptyListOrNull()?.let { administratorer ->
+                val title = listOfNotNull(
+                    "Avtalen",
+                    "\"${avtale.navn}\"",
+                    "utløper",
+                    avtale.sluttDato.formaterDatoTilEuropeiskDatoformat(),
+                ).joinToString(" ")
+
+                val notification = ScheduledNotification(
+                    type = NotificationType.NOTIFICATION,
+                    title = title,
+                    targets = administratorer,
+                    createdAt = Instant.now(),
+                    metadata = NotificationMetadata(
+                        linkText = "Gå til avtalen",
+                        link = "/avtaler/${avtale.id}",
+                    ),
+                )
+
+                notificationService.scheduleNotification(notification)
             }
         }
+    }
+
+    fun getAllAvtalerSomNarmerSegSluttdato(
+        today: LocalDate,
+    ): List<AvtaleNotificationDto> = db.useSession { session ->
+        @Language("PostgreSQL")
+        val query = """
+            select avtale.id::uuid,
+                   avtale.navn,
+                   avtale.slutt_dato,
+                   array_agg(distinct nav_ident) as administratorer
+            from avtale
+                     join avtale_administrator on avtale.id = avtale_id
+            where (:today::timestamp + interval '8' month) = avtale.slutt_dato
+               or (:today::timestamp + interval '6' month) = avtale.slutt_dato
+               or (:today::timestamp + interval '3' month) = avtale.slutt_dato
+               or (:today::timestamp + interval '14' day) = avtale.slutt_dato
+               or (:today::timestamp + interval '7' day) = avtale.slutt_dato
+            group by avtale.id
+        """.trimIndent()
+
+        queryOf(query, mapOf("today" to today))
+            .map { it.toAvtaleNotificationDto() }
+            .asList
+            .runWithSession(session)
+    }
+
+    private fun Row.toAvtaleNotificationDto(): AvtaleNotificationDto {
+        val administratorer = array<String>("administratorer").asList().map { NavIdent(it) }
+        return AvtaleNotificationDto(
+            id = uuid("id"),
+            navn = string("navn"),
+            sluttDato = localDate("slutt_dato"),
+            administratorer = administratorer,
+        )
+    }
 }

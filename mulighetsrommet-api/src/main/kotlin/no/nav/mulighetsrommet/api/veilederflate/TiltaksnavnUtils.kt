@@ -8,23 +8,21 @@ object TiltaksnavnUtils {
         navn: String,
         tiltakstypeNavn: String,
         tiltakskode: Tiltakskode,
-    ): Pair<String, String> =
-        if (isKursTiltak(tiltakskode)) {
-            navn to tiltakstypeNavn
-        } else {
-            tiltakstypeNavn to navn
-        }
+    ): Pair<String, String> = if (isKursTiltak(tiltakskode)) {
+        navn to tiltakstypeNavn
+    } else {
+        tiltakstypeNavn to navn
+    }
 
     fun tittelOgUnderTittel(
         navn: String,
         tiltakstypeNavn: String,
         arenaKode: String,
-    ): Pair<String, String> =
-        if (arenaKode in listOf("ENKELAMO", "ENKFAGYRKE")) {
-            navn to tiltakstypeNavn
-        } else {
-            tiltakstypeNavn to navn
-        }
+    ): Pair<String, String> = if (arenaKode in listOf("ENKELAMO", "ENKFAGYRKE")) {
+        navn to tiltakstypeNavn
+    } else {
+        tiltakstypeNavn to navn
+    }
 
     fun String.hosTitleCaseArrangor(arrangor: String?): String {
         val casedArrangor = toTitleCase(arrangor ?: "")

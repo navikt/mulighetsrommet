@@ -1,6 +1,6 @@
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Accordion } from "@navikt/ds-react";
-import { ApentForInnsok, NavEnhet } from "@mr/api-client";
+import { ApentForPamelding, NavEnhet } from "@mr/api-client";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { FilterToggle } from "./FilterToggle";
 import styles from "./Filtermeny.module.scss";
@@ -26,10 +26,10 @@ export function Filtermeny() {
       />
       <Accordion>
         <FilterToggle
-          accordionHeader={<FilterAccordionHeader tittel="Åpent for innsøk" />}
-          value={filter.apentForInnsok}
-          onChange={(apentForInnsok) => {
-            setFilter({ ...filter, apentForInnsok });
+          accordionHeader={<FilterAccordionHeader tittel="Åpent for påmelding" />}
+          value={filter.apentForPamelding}
+          onChange={(apentForPamelding) => {
+            setFilter({ ...filter, apentForPamelding });
           }}
           venstreTekst="Åpent"
           hoyreTekst={
@@ -38,10 +38,10 @@ export function Filtermeny() {
               Stengt
             </>
           }
-          venstreValue={ApentForInnsok.APENT}
-          midtValue={ApentForInnsok.APENT_ELLER_STENGT}
-          hoyreValue={ApentForInnsok.STENGT}
-          accordionIsOpenValue="apen-for-innsok"
+          venstreValue={ApentForPamelding.APENT}
+          midtValue={ApentForPamelding.APENT_ELLER_STENGT}
+          hoyreValue={ApentForPamelding.STENGT}
+          accordionIsOpenValue="apen-for-pamelding"
         />
         <InnsatsgruppeFilter />
         <Tiltakstypefilter antallValgteTiltakstyper={filter.tiltakstyper.length} />

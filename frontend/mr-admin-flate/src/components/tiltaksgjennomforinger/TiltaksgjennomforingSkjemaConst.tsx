@@ -91,7 +91,6 @@ export function defaultTiltaksgjennomforingData(
     },
     arrangorId: defaultArrangor(avtale, tiltaksgjennomforing),
     oppstart: tiltaksgjennomforing?.oppstart || defaultOppstartType(avtale),
-    apentForInnsok: tiltaksgjennomforing?.apentForInnsok ?? true,
     kontaktpersoner: tiltaksgjennomforing?.kontaktpersoner ?? [],
     stedForGjennomforing: tiltaksgjennomforing?.stedForGjennomforing ?? null,
     arrangorKontaktpersoner:

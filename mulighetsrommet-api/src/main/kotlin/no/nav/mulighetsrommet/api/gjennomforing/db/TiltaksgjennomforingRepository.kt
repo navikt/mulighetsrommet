@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.gjennomforing.db
 
-import arrow.core.Either
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
@@ -10,14 +9,13 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRepository
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.domain.dto.*
+import no.nav.mulighetsrommet.api.domain.dto.UtdanningslopDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingKontaktperson
-import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingNotificationDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
-import no.nav.mulighetsrommet.api.responses.StatusResponseError
+import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
@@ -37,8 +35,9 @@ import java.util.*
 class TiltaksgjennomforingRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo) =
-        db.transaction { upsert(tiltaksgjennomforing, it) }
+    fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo) = db.transaction {
+        upsert(tiltaksgjennomforing, it)
+    }
 
     fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo, tx: Session) {
         logger.info("Lagrer tiltaksgjennomføring id=${tiltaksgjennomforing.id}")
@@ -51,7 +50,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 arrangor_id,
                 start_dato,
                 slutt_dato,
-                apent_for_innsok,
                 antall_plasser,
                 avtale_id,
                 oppstart,
@@ -72,7 +70,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :arrangor_id,
                 :start_dato,
                 :slutt_dato,
-                :apent_for_innsok,
                 :antall_plasser,
                 :avtale_id,
                 :oppstart::tiltaksgjennomforing_oppstartstype,
@@ -92,7 +89,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 arrangor_id                        = excluded.arrangor_id,
                 start_dato                         = excluded.start_dato,
                 slutt_dato                         = excluded.slutt_dato,
-                apent_for_innsok                   = excluded.apent_for_innsok,
                 antall_plasser                     = excluded.antall_plasser,
                 avtale_id                          = excluded.avtale_id,
                 oppstart                           = excluded.oppstart,
@@ -301,8 +297,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .asExecute.let { tx.run(it) }
     }
 
-    fun get(id: UUID): TiltaksgjennomforingDto? =
-        db.transaction { get(id, it) }
+    fun get(id: UUID): TiltaksgjennomforingDto? = db.transaction {
+        get(id, it)
+    }
 
     fun get(id: UUID, tx: Session): TiltaksgjennomforingDto? {
         @Language("PostgreSQL")
@@ -411,88 +408,32 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         }
     }
 
-    fun getGjennomforesInPeriodeUtenRefusjonskrav(
-        periodeStart: LocalDateTime,
-        periodeSlutt: LocalDateTime,
-    ): List<TiltaksgjennomforingDto> {
+    fun getGjennomforesInPeriodeUtenRefusjonskrav(periode: RefusjonskravPeriode): List<TiltaksgjennomforingDto> {
         @Language("PostgreSQL")
         val query = """
             select * from tiltaksgjennomforing_admin_dto_view
             where
                 (start_dato <= :periode_slutt) and
                 (slutt_dato >= :periode_start or slutt_dato is null) and
-                (avbrutt_tidspunkt > :periode_start or avbrutt_tidspunkt is null) and
+                (avsluttet_tidspunkt > :periode_start or avsluttet_tidspunkt is null) and
                 not exists (
                     select 1
                     from refusjonskrav
                         join refusjonskrav_beregning_aft ON refusjonskrav.id = refusjonskrav_beregning_aft.refusjonskrav_id
                     where refusjonskrav.gjennomforing_id = tiltaksgjennomforing_admin_dto_view.id
-                    and refusjonskrav_beregning_aft.periode && tsrange(:periode_start, :periode_slutt)
+                    and refusjonskrav_beregning_aft.periode && daterange(:periode_start, :periode_slutt)
                 );
         """.trimIndent()
 
-        return queryOf(query, mapOf("periode_start" to periodeStart, "periode_slutt" to periodeSlutt))
+        return queryOf(query, mapOf("periode_start" to periode.start, "periode_slutt" to periode.slutt))
             .map { it.toTiltaksgjennomforingDto() }
             .asList
             .let { db.run(it) }
     }
 
-    fun getAllByDateIntervalAndNotAvbrutt(
-        dateIntervalStart: LocalDate,
-        dateIntervalEnd: LocalDate,
-        pagination: Pagination,
-    ): List<UUID> {
-        logger.info("Henter alle tiltaksgjennomføringer med start- eller sluttdato mellom $dateIntervalStart og $dateIntervalEnd, og ikke avbrutt")
-
-        @Language("PostgreSQL")
-        val query = """
-            select g.id::uuid
-            from tiltaksgjennomforing g join tiltakstype t on g.tiltakstype_id = t.id
-            where t.tiltakskode is not null and g.avbrutt_tidspunkt is null and (
-                (g.start_dato > :date_interval_start and g.start_dato <= :date_interval_end) or
-                (g.slutt_dato >= :date_interval_start and g.slutt_dato < :date_interval_end))
-            order by g.id
-            limit :limit offset :offset
-        """.trimIndent()
-
-        return queryOf(
-            query,
-            mapOf(
-                "date_interval_start" to dateIntervalStart,
-                "date_interval_end" to dateIntervalEnd,
-            ) + pagination.parameters,
-        )
-            .map { it.uuid("id") }
-            .asList
-            .let { db.run(it) }
+    fun delete(id: UUID): Int = db.useSession {
+        delete(id, it)
     }
-
-    fun getAllGjennomforingerSomNarmerSegSluttdato(currentDate: LocalDate = LocalDate.now()): List<TiltaksgjennomforingNotificationDto> {
-        @Language("PostgreSQL")
-        val query = """
-            select tg.id::uuid,
-                   tg.navn,
-                   tg.start_dato,
-                   tg.slutt_dato,
-                   array_agg(distinct a.nav_ident) as administratorer,
-                   array_agg(e.enhetsnummer) as navEnheter,
-                   tg.tiltaksnummer
-            from tiltaksgjennomforing tg
-                     left join tiltaksgjennomforing_administrator a on a.tiltaksgjennomforing_id = tg.id
-                    left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
-            where (?::timestamp + interval '14' day) = tg.slutt_dato
-               or (?::timestamp + interval '7' day) = tg.slutt_dato
-               or (?::timestamp + interval '1' day) = tg.slutt_dato
-            group by tg.id;
-        """.trimIndent()
-
-        return queryOf(query, currentDate, currentDate, currentDate).map { it.toTiltaksgjennomforingNotificationDto() }
-            .asList
-            .let { db.run(it) }
-    }
-
-    fun delete(id: UUID): Int =
-        db.transaction { delete(id, it) }
 
     fun delete(id: UUID, tx: Session): Int {
         logger.info("Sletter tiltaksgjennomføring id=$id")
@@ -503,10 +444,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where id = ?::uuid
         """.trimIndent()
 
-        return tx.run(queryOf(query, id).asUpdate)
+        return queryOf(query, id).asUpdate.runWithSession(tx)
     }
 
-    fun setOpphav(id: UUID, opphav: ArenaMigrering.Opphav) {
+    fun setOpphav(id: UUID, opphav: ArenaMigrering.Opphav): Int = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing
@@ -514,12 +455,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where id = :id::uuid
         """.trimIndent()
 
-        queryOf(query, mapOf("id" to id, "opphav" to opphav.name))
-            .asUpdate
-            .let { db.run(it) }
+        queryOf(query, mapOf("id" to id, "opphav" to opphav.name)).asUpdate.runWithSession(session)
     }
 
-    fun setPublisert(id: UUID, publisert: Boolean): Int = db.transaction { setPublisert(it, id, publisert) }
+    fun setPublisert(id: UUID, publisert: Boolean): Int = db.useSession {
+        setPublisert(it, id, publisert)
+    }
 
     fun setPublisert(tx: Session, id: UUID, publisert: Boolean): Int {
         logger.info("Setter publisert '$publisert' for gjennomføring med id: $id")
@@ -530,7 +471,22 @@ class TiltaksgjennomforingRepository(private val db: Database) {
            where id = ?::uuid
         """.trimIndent()
 
-        return queryOf(query, publisert, id).asUpdate.let { tx.run(it) }
+        return queryOf(query, publisert, id).asUpdate.runWithSession(tx)
+    }
+
+    fun setApentForPamelding(id: UUID, apentForPamelding: Boolean): Int = db.useSession {
+        setApentForPamelding(it, id, apentForPamelding)
+    }
+
+    fun setApentForPamelding(tx: Session, id: UUID, apentForPamelding: Boolean): Int {
+        @Language("PostgreSQL")
+        val query = """
+           update tiltaksgjennomforing
+           set apent_for_pamelding = ?
+           where id = ?::uuid
+        """.trimIndent()
+
+        return queryOf(query, apentForPamelding, id).asUpdate.runWithSession(tx)
     }
 
     fun setTilgjengeligForArrangorFraOgMedDato(tx: TransactionalSession, id: UUID, date: LocalDate) {
@@ -560,36 +516,39 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return queryOf(query, avtaleId, gjennomforingId).asUpdate.let { tx.run(it) }
     }
 
-    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int = db.transaction {
-        avbryt(it, id, tidspunkt, aarsak)
+    fun setAvsluttet(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak?): Int = db.transaction {
+        setAvsluttet(it, id, tidspunkt, aarsak)
     }
 
-    fun avbryt(tx: Session, id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
-        @Language("PostgreSQL")
-        val query = """
-            update tiltaksgjennomforing set
-                avbrutt_tidspunkt = :tidspunkt,
-                avbrutt_aarsak = :aarsak,
-                publisert = false
-            where id = :id::uuid
-        """.trimIndent()
-
-        return tx.run(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt, "aarsak" to aarsak.name)).asUpdate)
-    }
-
-    fun lukkApentForInnsokForTiltakMedStartdatoForDato(
-        dagensDato: LocalDate,
-        tx: TransactionalSession,
-    ): List<TiltaksgjennomforingDto> {
+    fun setAvsluttet(tx: Session, id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak?): Int {
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing
-            set apent_for_innsok = false
-            where apent_for_innsok = true and oppstart = 'FELLES' and start_dato = ? and opphav = 'MR_ADMIN_FLATE'
-            returning id
+            set avsluttet_tidspunkt = :tidspunkt,
+                avbrutt_aarsak = :aarsak,
+                publisert = false,
+                apent_for_pamelding = false
+            where id = :id::uuid
         """.trimIndent()
 
-        return queryOf(query, dagensDato).map { get(it.uuid("id")) }.asList.let { tx.run(it) }
+        val params = mapOf("id" to id, "tidspunkt" to tidspunkt, "aarsak" to aarsak?.name)
+
+        return queryOf(query, params).asUpdate.runWithSession(tx)
+    }
+
+    fun frikobleKontaktpersonFraGjennomforing(
+        kontaktpersonId: UUID,
+        gjennomforingId: UUID,
+        tx: Session,
+    ) {
+        @Language("PostgreSQL")
+        val query = """
+            delete
+            from tiltaksgjennomforing_arrangor_kontaktperson
+            where arrangor_kontaktperson_id = ?::uuid and tiltaksgjennomforing_id = ?::uuid
+        """.trimIndent()
+
+        queryOf(query, kontaktpersonId, gjennomforingId).asUpdate.runWithSession(tx)
     }
 
     private fun TiltaksgjennomforingDbo.toSqlParameters() = mapOf(
@@ -600,7 +559,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "arrangor_id" to arrangorId,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
-        "apent_for_innsok" to apentForInnsok,
         "antall_plasser" to antallPlasser,
         "avtale_id" to avtaleId,
         "oppstart" to oppstart.name,
@@ -630,11 +588,22 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
 
-        val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
-        val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
-
         val utdanningslop = stringOrNull("utdanningslop_json")?.let {
             Json.decodeFromString<UtdanningslopDto>(it)
+        }
+
+        val status = TiltaksgjennomforingStatus.valueOf(string("status"))
+        val avbrutt = when (status) {
+            TiltaksgjennomforingStatus.AVBRUTT, TiltaksgjennomforingStatus.AVLYST -> {
+                val aarsak = AvbruttAarsak.fromString(string("avbrutt_aarsak"))
+                AvbruttDto(
+                    tidspunkt = localDateTime("avsluttet_tidspunkt"),
+                    aarsak = aarsak,
+                    beskrivelse = aarsak.beskrivelse,
+                )
+            }
+
+            else -> null
         }
 
         return TiltaksgjennomforingDto(
@@ -643,18 +612,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             tiltaksnummer = stringOrNull("tiltaksnummer"),
             startDato = startDato,
             sluttDato = sluttDato,
-            status = TiltaksgjennomforingStatusDto(
-                TiltaksgjennomforingStatus.valueOf(string("status")),
-                avbruttTidspunkt?.let {
-                    requireNotNull(avbruttAarsak)
-                    AvbruttDto(
-                        tidspunkt = avbruttTidspunkt,
-                        aarsak = avbruttAarsak,
-                        beskrivelse = avbruttAarsak.beskrivelse,
-                    )
-                },
-            ),
-            apentForInnsok = boolean("apent_for_innsok"),
+            status = TiltaksgjennomforingStatusDto(status, avbrutt),
+            apentForPamelding = boolean("apent_for_pamelding"),
             antallPlasser = intOrNull("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
             oppstart = TiltaksgjennomforingOppstartstype.valueOf(string("oppstart")),
@@ -705,42 +664,5 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             amoKategorisering = stringOrNull("amo_kategorisering_json")?.let { JsonIgnoreUnknownKeys.decodeFromString(it) },
             utdanningslop = utdanningslop,
         )
-    }
-
-    private fun Row.toTiltaksgjennomforingNotificationDto(): TiltaksgjennomforingNotificationDto {
-        val administratorer = arrayOrNull<String?>("administratorer")
-            ?.asList()
-            ?.filterNotNull()
-            ?.map { NavIdent(it) }
-            ?: emptyList()
-
-        val startDato = localDate("start_dato")
-        val sluttDato = localDateOrNull("slutt_dato")
-        return TiltaksgjennomforingNotificationDto(
-            id = uuid("id"),
-            navn = string("navn"),
-            startDato = startDato,
-            sluttDato = sluttDato,
-            administratorer = administratorer,
-            tiltaksnummer = stringOrNull("tiltaksnummer"),
-        )
-    }
-
-    fun frikobleKontaktpersonFraGjennomforing(
-        kontaktpersonId: UUID,
-        gjennomforingId: UUID,
-        tx: Session,
-    ): Either<StatusResponseError, String> {
-        @Language("PostgreSQL")
-        val query = """
-            delete from tiltaksgjennomforing_arrangor_kontaktperson
-            where arrangor_kontaktperson_id = ?::uuid and tiltaksgjennomforing_id = ?::uuid
-        """.trimIndent()
-
-        queryOf(query, kontaktpersonId, gjennomforingId)
-            .asUpdate
-            .let { tx.run(it) }
-
-        return Either.Right(kontaktpersonId.toString())
     }
 }

@@ -1,4 +1,9 @@
-import { TiltaksgjennomforingStatus, Tiltakskode, TiltakskodeArena, ValidationErrorResponse } from "@mr/api-client";
+import {
+  TiltaksgjennomforingStatus,
+  Tiltakskode,
+  TiltakskodeArena,
+  ValidationErrorResponse,
+} from "@mr/api-client";
 import { shallowEquals } from "./shallow-equals";
 
 export function addOrRemove<T>(array: T[], item: T): T[] {
@@ -16,15 +21,7 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
 }
 
 export function gjennomforingIsAktiv(status: TiltaksgjennomforingStatus): boolean {
-  switch (status) {
-    case TiltaksgjennomforingStatus.PLANLAGT:
-    case TiltaksgjennomforingStatus.GJENNOMFORES:
-      return true;
-    case TiltaksgjennomforingStatus.AVBRUTT:
-    case TiltaksgjennomforingStatus.AVLYST:
-    case TiltaksgjennomforingStatus.AVSLUTTET:
-      return false;
-  }
+  return status === TiltaksgjennomforingStatus.GJENNOMFORES;
 }
 
 export function formaterNOK(tall: number) {

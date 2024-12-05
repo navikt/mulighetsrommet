@@ -141,6 +141,7 @@ spec:
         - host: axsys.prod-fss-pub.nais.io
         - host: pdl-api.prod-fss-pub.nais.io
         - host: api.utdanning.no
+        - host: dokarkiv.prod-fss-pub.nais.io
         - host: xegcworx.apicdn.sanity.io
         - host: xegcworx.api.sanity.io
         # Sanity IPs https://www.sanity.io/docs/api-cdn#5fa01dfe1285

@@ -657,6 +657,22 @@ paths:
         200:
           description: Update for 'tilgjengelig for veileder' was successful
 
+  /api/v1/intern/tiltaksgjennomforinger/{id}/apent-for-pamelding:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    put:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: setApentForPamelding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetApentForPameldingRequest"
+      responses:
+        200:
+          description: OK
+
   /api/v1/intern/tiltaksgjennomforinger/{id}/tilgjengelig-for-arrangor:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -810,7 +826,7 @@ paths:
       operationId: getVeilederTiltaksgjennomforinger
       parameters:
         - $ref: "#/components/parameters/SearchParam"
-        - $ref: "#/components/parameters/ApentForInnsokParam"
+        - $ref: "#/components/parameters/ApentForPameldingParam"
         - $ref: "#/components/parameters/InnsatsgruppeParam"
         - $ref: "#/components/parameters/EnheterParam"
         - $ref: "#/components/parameters/TiltakstyperParam"
@@ -847,7 +863,7 @@ paths:
       operationId: getPreviewTiltaksgjennomforinger
       parameters:
         - $ref: "#/components/parameters/SearchParam"
-        - $ref: "#/components/parameters/ApentForInnsokParam"
+        - $ref: "#/components/parameters/ApentForPameldingParam"
         - $ref: "#/components/parameters/InnsatsgruppeParam"
         - $ref: "#/components/parameters/EnheterParam"
         - $ref: "#/components/parameters/TiltakstyperParam"
@@ -883,7 +899,7 @@ paths:
       operationId: getNavTiltaksgjennomforinger
       parameters:
         - $ref: "#/components/parameters/SearchParam"
-        - $ref: "#/components/parameters/ApentForInnsokParam"
+        - $ref: "#/components/parameters/ApentForPameldingParam"
         - $ref: "#/components/parameters/InnsatsgruppeParam"
         - $ref: "#/components/parameters/EnheterParam"
         - $ref: "#/components/parameters/TiltakstyperParam"
@@ -1164,6 +1180,29 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/NavRegion"
+
+  /api/v1/intern/nav-enheter/kostnadssted:
+    get:
+      tags:
+        - NavEnheter
+      operationId: getKostnadssted
+      parameters:
+        - in: query
+          name: regioner
+          schema:
+            type: array
+            items:
+              type: string
+          description: Hvilke regioner man henter for
+      responses:
+        200:
+          description: Alle kostnadssteder filterert på filter
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NavEnhet"
 
   /api/v1/intern/nav-enheter/{enhetsnummer}/overordnet:
     parameters:
@@ -1738,10 +1777,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TilsagnDto"
-    delete:
+    put:
       tags:
         - Tilsagn
       operationId: annullerTilsagn
+      responses:
+        200:
+          description: OK
+
+    delete:
+      tags:
+        - Tilsagn
+      operationId: slettTilsagn
       responses:
         200:
           description: OK
@@ -1873,7 +1920,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GodkjennRefusjonskravAft"
+              $ref: "#/components/schemas/GodkjennRefusjonskrav"
         required: true
       responses:
         200:
@@ -1995,12 +2042,12 @@ components:
       schema:
         type: string
 
-    ApentForInnsokParam:
+    ApentForPameldingParam:
       in: query
-      name: apentForInnsok
+      name: apentForPamelding
       required: true
       schema:
-        $ref: "#/components/schemas/ApentForInnsok"
+        $ref: "#/components/schemas/ApentForPamelding"
 
     OrgnrParam:
       in: path
@@ -2085,7 +2132,7 @@ components:
       required:
         - norskIdent
 
-    ApentForInnsok:
+    ApentForPamelding:
       type: string
       enum:
         - APENT
@@ -2553,7 +2600,7 @@ components:
           $ref: "#/components/schemas/ArenaNavEnhet"
         status:
           $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
-        apentForInnsok:
+        apentForPamelding:
           type: boolean
         antallPlasser:
           type: integer
@@ -2612,7 +2659,7 @@ components:
         - startDato
         - sluttDato
         - status
-        - apentForInnsok
+        - apentForPamelding
         - administratorer
         - navEnheter
         - oppstart
@@ -2674,8 +2721,6 @@ components:
             type: string
         oppstart:
           $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
-        apentForInnsok:
-          type: boolean
         kontaktpersoner:
           type: array
           items:
@@ -2723,7 +2768,6 @@ components:
         - navRegion
         - navEnheter
         - oppstart
-        - apentForInnsok
         - kontaktpersoner
         - stedForGjennomforing
         - faneinnhold
@@ -2761,7 +2805,6 @@ components:
     TiltaksgjennomforingStatus:
       type: string
       enum:
-        - PLANLAGT
         - GJENNOMFORES
         - AVBRUTT
         - AVLYST
@@ -3461,7 +3504,7 @@ components:
         tiltaksnummer:
           type: string
         status:
-          $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
+          $ref: "#/components/schemas/TiltaksgjennomforingStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -3479,7 +3522,7 @@ components:
           type: string
         stedForGjennomforing:
           type: string
-        apentForInnsok:
+        apentForPamelding:
           type: boolean
         oppstartsdato:
           type: string
@@ -3506,7 +3549,7 @@ components:
         - id
         - tittel
         - underTittel
-        - apentForInnsok
+        - apentForPamelding
         - oppstartsdato
         - arrangor
         - personvernBekreftet
@@ -3522,7 +3565,7 @@ components:
         tiltaksnummer:
           type: string
         status:
-          $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
+          $ref: "#/components/schemas/TiltaksgjennomforingStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -3558,7 +3601,7 @@ components:
         tiltakstype:
           $ref: "#/components/schemas/VeilederflateTiltakstype"
         status:
-          $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
+          $ref: "#/components/schemas/TiltaksgjennomforingStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -3596,7 +3639,7 @@ components:
         tiltaksnummer:
           type: string
         status:
-          $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
+          $ref: "#/components/schemas/TiltaksgjennomforingStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -4110,7 +4153,6 @@ components:
       type: string
       enum:
         - mulighetsrommet-veilederflate.vis-tilbakemelding
-        - mulighetsrommet.admin-flate.enableDebugger
         - mulighetsrommet.admin-flate.opprett-tilsagn
         - mulighetsrommet.tiltakstype.migrering.deltaker
         - mulighetsrommet.tiltakstype.pamelding-info-komet
@@ -4122,6 +4164,14 @@ components:
           type: boolean
       required:
         - publisert
+
+    SetApentForPameldingRequest:
+      type: object
+      properties:
+        apentForPamelding:
+          type: boolean
+      required:
+        - apentForPamelding
 
     SetTilgjengligForArrangorRequest:
       type: object
@@ -4774,6 +4824,8 @@ components:
           required:
             - id
             - antallPlasser
+        status:
+          $ref: "#/components/schemas/TilsagnStatus"
       required:
         - id
         - tiltaksgjennomforingId
@@ -4786,11 +4838,23 @@ components:
         - lopenummer
         - opprettetAv
         - tiltaksgjennomforing
+        - status
+
+    TilsagnStatus:
+      type: string
+      enum:
+        - TIL_GODKJENNING
+        - GODKJENT
+        - RETURNERT
+        - ANNULLERT
+        - OPPGJORT
 
     TilsagnBesluttelseDto:
       type: object
       properties:
         navIdent:
+          type: string
+        beslutternavn:
           type: string
         tidspunkt:
           type: string
@@ -4802,9 +4866,10 @@ components:
           items:
             $ref: "#/components/schemas/TilsagnAvvisningAarsak"
         forklaring:
-            type: string
+          type: string
       required:
         - navIdent
+        - beslutternavn
         - tidspunkt
         - status
 
@@ -5090,11 +5155,14 @@ components:
           type: number
         belop:
           type: integer
+        digest:
+          type: string
       required:
         - periodeStart
         - periodeSlutt
         - antallManedsverk
         - belop
+        - digest
 
     RefusjonKravDeltakelse:
       type: object
@@ -5108,10 +5176,14 @@ components:
         sluttDato:
           type: string
           format: date
-        perioder:
-          type: array
-          items:
-            $ref: "#/components/schemas/RefusjonKravDeltakelsePeriode"
+        forstePeriodeStartDato:
+          type: string
+          format: date
+        sistePeriodeSluttDato:
+          type: string
+          format: date
+        sistePeriodeDeltakelsesprosent:
+          type: number
         manedsverk:
           type: number
         person:
@@ -5120,7 +5192,10 @@ components:
           type: string
       required:
         - id
-        - perioder
+        - startDato
+        - forstePeriodeStartDato
+        - sistePeriodeSluttDato
+        - sistePeriodeDeltakelsesprosent
         - manedsverk
         - person
 
@@ -5136,33 +5211,6 @@ components:
           type: integer
       required:
         - navn
-
-    RefusjonKravDeltakelsePerioder:
-      type: object
-      properties:
-        deltakelseId:
-          type: string
-          format: uuid
-        perioder:
-          type: array
-          items:
-            $ref: "#/components/schemas/RefusjonKravDeltakelsePeriode"
-
-    RefusjonKravDeltakelsePeriode:
-      type: object
-      properties:
-        start:
-          type: string
-          format: date-time
-        slutt:
-          type: string
-          format: date-time
-        stillingsprosent:
-          type: number
-      required:
-        - start
-        - slutt
-        - stillingsprosent
 
     UtdanningslopDbo:
       type: object
@@ -5288,18 +5336,13 @@ components:
         kid:
           type: string
 
-    GodkjennRefusjonskravAft:
+    GodkjennRefusjonskrav:
       type: object
       properties:
-        belop:
-          type: number
-        deltakelser:
-          type: array
-          items:
-            $ref: "#/components/schemas/RefusjonKravDeltakelsePerioder"
+        digest:
+          type: string
         betalingsinformasjon:
           $ref: "#/components/schemas/Betalingsinformasjon"
       required:
-        - belop
-        - deltakelser
+        - digest
         - betalingsinformasjon

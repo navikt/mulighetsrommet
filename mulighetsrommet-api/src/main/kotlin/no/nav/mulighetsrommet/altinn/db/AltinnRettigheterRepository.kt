@@ -9,8 +9,9 @@ import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import org.intellij.lang.annotations.Language
 
 class AltinnRettigheterRepository(private val db: Database) {
-    fun upsertRettighet(personBedriftRettigheter: PersonBedriftRettigheterDbo) =
-        db.transaction { tx -> upsertRettighet(personBedriftRettigheter, tx) }
+    fun upsertRettighet(personBedriftRettigheter: PersonBedriftRettigheterDbo) = db.transaction { tx ->
+        upsertRettighet(personBedriftRettigheter, tx)
+    }
 
     private fun upsertRettighet(personBedriftRettigheter: PersonBedriftRettigheterDbo, tx: Session) {
         @Language("PostgreSQL")

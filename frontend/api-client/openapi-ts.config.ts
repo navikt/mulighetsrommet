@@ -7,11 +7,11 @@ export default defineConfig({
   plugins: [
     "@hey-api/schemas",
     {
-      name: "@hey-api/services",
+      name: "@hey-api/sdk",
       asClass: true,
     },
     {
-      name: "@hey-api/types",
+      name: "@hey-api/typescript",
       enums: "typescript",
     },
   ],

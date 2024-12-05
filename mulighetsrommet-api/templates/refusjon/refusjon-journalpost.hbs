@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Refusjonskrav</title>
+    <meta name="subject" content="Dokumentemne"/>
+    <meta name="author" content="pdfgen"/>
+    <meta name="description" content="Refusjonskrav"/>
+    <style>
+        * {
+            font-family: "Source Sans Pro" !important;
+        }
+        .line_bottom {
+            border-bottom: 1px #CCC solid;
+        }
+        .block {
+            width: 100%;
+            margin-top: 0;
+        }
+        h4 {
+            padding-top: 2mm;
+            margin-left: 1mm;
+            font-size: 13px;
+            margin-top: 0;
+        }
+        table th {
+            width: 25%;
+            font-weight: normal;
+        }
+        table td {
+            width: 75%;
+            font-weight: bold;
+        }
+        tr {
+            font-size: 10px;
+        }
+        .tilsagn-table {
+            border: 1px solid #D1D4D8;
+            padding: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="block line_bottom">
+    <table class="block">
+        <tbody>
+        <tr>
+            <th>Refusjonskravperiode:</th>
+            <td>{{ iso_to_nor_date refusjon.beregning.periode.start }} - {{ iso_to_nor_date refusjon.beregning.periode.slutt }}</td>
+        </tr>
+        <tr>
+            <th>First for godkjenning:</th>
+            <td>{{ iso_to_nor_date refusjon.fristForGodkjenning }}</td>
+        </tr>
+        <tr>
+            <th>Tiltaksnavn:</th>
+            <td>{{ refusjon.gjennomforing.navn }}</td>
+        </tr>
+        <tr>
+            <th>Tiltakstype:</th>
+            <td>{{ refusjon.tiltakstype.navn }}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="block">
+    <h4>Tilsagnsdetaljer</h4>
+    {{#each tilsagn }}
+    <table class="block tilsagn-table">
+        <tbody>
+        <tr>
+            <th>Tilsagnsperiode:</th>
+            <td>{{ iso_to_nor_date periodeStart }} - {{ iso_to_nor_date periodeSlutt }}</td>
+        </tr>
+        <tr>
+            <th>Antall plasser:</th>
+            <td>{{ beregning.antallPlasser }}  </td>
+        </tr>
+        <tr>
+            <th>Sats:</th>
+            <td>{{ currency_no beregning.sats }} kr </td>
+        </tr>
+        <tr>
+            <th>Beløp:</th>
+            <td>{{ currency_no beregning.belop }} kr </td>
+        </tr>
+        <tr>
+            <th>Utbetalt så langt:</th>
+            <td>TODO</td>
+        </tr>
+        </tbody>
+    </table>
+    {{/each}}
+</div>
+<div class="block line_bottom">
+    <h4>Deltakerliste</h4>
+    <table class="block">
+        <th>Navn</th>
+        <th>Fødselsdato</th>
+        <th>Startdato</th>
+        <th>Sluttdato</th>
+        <th>Månedsverk</th>
+        <tbody>
+        {{#each refusjon.deltakelser }}
+        <tr>
+            <td>{{ person.navn }}</td>
+            <td>{{ person.foedselsdato }} {{ person.foedselsaar }}</td>
+            <td>{{ iso_to_nor_date startDato }}</td>
+            <td>{{ iso_to_nor_date sluttDato }}</td>
+            <td>{{ manedsverk }}</td>
+        </tr>
+        {{/each}}
+        </tbody>
+    </table>
+</div>
+<div class="block line_bottom">
+    <h4>Refusjonskrav</h4>
+    <table class="block">
+        <tbody>
+        <tr>
+            <th>Antall månedsverk:</th>
+            <td>{{ refusjon.beregning.antallManedsverk }}</td>
+        </tr>
+        <tr>
+            <th>Total refusjonskrav:</th>
+            <td>{{ currency_no refusjon.beregning.belop }} kr</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="block">
+    <h4>Betalingsinformasjon</h4>
+    <table class="block">
+        <tbody>
+        <tr>
+            <th>Kontonummer:</th>
+            <td>{{ refusjon.betalingsinformasjon.kontonummer }}</td>
+        </tr>
+        <tr>
+            <th>KID-nummer:</th>
+            <td>{{ refusjon.betalingsinformasjon.kid }}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

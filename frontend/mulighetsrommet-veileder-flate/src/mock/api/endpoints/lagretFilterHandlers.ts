@@ -27,7 +27,7 @@ export const lagretFilterHandlers = [
               nokkel: "VARIG_TILPASSET_INNSATS",
               tittel: "Varig tilpasset innsats",
             },
-            apentForInnsok: "APENT_ELLER_STENGT",
+            apentForPamelding: "APENT_ELLER_STENGT",
           },
           sortOrder: 0,
         },

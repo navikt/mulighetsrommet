@@ -139,6 +139,10 @@ app:
     apiKey: dummy
     scope: default
 
+  dokark:
+    url: http://localhost:8090/dokark
+    scope: default
+
   tasks:
     synchronizeNorgEnheter:
       disabled: true
@@ -159,7 +163,7 @@ app:
       disabled: true
       maxRetries: 5
       cronPattern: "0 */15 * ? * MON-FRI"
-    updateApentForInnsok:
+    updateApentForPamelding:
       disabled: true
       cronPattern: "0 */1 * * * *" # Hvert 1 minutt
     generateRefusjonskrav:

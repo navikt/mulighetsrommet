@@ -137,6 +137,13 @@ app:
     apiKey: ${ALTINN_API_KEY}
     scope: ${MASKINPORTEN_SCOPES}
 
+  utdanning:
+    baseurl: https://api.utdanning.no
+
+  dokark:
+    url: https://dokarkiv-q2.dev-fss-pub.nais.io
+    scope: api://dev-fss.teamdokumenthandtering.dokarkiv/.default
+
   tasks:
     synchronizeNorgEnheter:
       delayOfMinutes: 360 # Hver 6. time
@@ -153,7 +160,7 @@ app:
       cronPattern: "0 */15 * ? * MON-FRI"
     generateValidationReport:
       bucketName: mulighetsrommet-api-uploads-dev
-    updateApentForInnsok:
+    updateApentForPamelding:
       disabled: false
       cronPattern: "0 55 23 * * *" # 23.55 hver kveld
     generateRefusjonskrav:
@@ -170,6 +177,3 @@ app:
     token: ${UNLEASH_SERVER_API_TOKEN}
     instanceId: ${NAIS_CLIENT_ID}
     environment: development
-
-  utdanning:
-    baseurl: https://api.utdanning.no

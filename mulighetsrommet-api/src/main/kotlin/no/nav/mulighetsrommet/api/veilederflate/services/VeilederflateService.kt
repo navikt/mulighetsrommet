@@ -5,30 +5,19 @@ import io.ktor.server.plugins.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
-import no.nav.mulighetsrommet.api.domain.dto.*
+import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.services.cms.CacheUsage
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.TiltaksnavnUtils.tittelOgUnderTittel
 import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakRepository
-import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrift
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangor
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangorKontaktperson
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateInnsatsgruppe
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateKontaktinfo
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateKontaktinfoTiltaksansvarlig
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltak
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEgenRegi
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakstype
-import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForInnsok
+import no.nav.mulighetsrommet.api.veilederflate.models.*
+import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForPamelding
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
 import java.util.*
 
 class VeilederflateService(
@@ -72,17 +61,24 @@ class VeilederflateService(
         enheter: NonEmptyList<String>,
         tiltakstypeIds: List<String>? = null,
         innsatsgruppe: Innsatsgruppe,
-        apentForInnsok: ApentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
+        apentForPamelding: ApentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
         search: String? = null,
         erSykmeldtMedArbeidsgiver: Boolean,
         cacheUsage: CacheUsage,
     ): List<VeilederflateTiltak> = coroutineScope {
         val individuelleGjennomforinger = async {
-            hentSanityTiltak(enheter, tiltakstypeIds, innsatsgruppe, apentForInnsok, search, cacheUsage)
+            hentSanityTiltak(enheter, tiltakstypeIds, innsatsgruppe, apentForPamelding, search, cacheUsage)
         }
 
         val gruppeGjennomforinger = async {
-            hentGruppetiltak(enheter, tiltakstypeIds, innsatsgruppe, apentForInnsok, search, erSykmeldtMedArbeidsgiver)
+            hentGruppetiltak(
+                enheter,
+                tiltakstypeIds,
+                innsatsgruppe,
+                apentForPamelding,
+                search,
+                erSykmeldtMedArbeidsgiver,
+            )
         }
 
         (individuelleGjennomforinger.await() + gruppeGjennomforinger.await())
@@ -92,11 +88,11 @@ class VeilederflateService(
         enheter: NonEmptyList<String>,
         tiltakstypeIds: List<String>?,
         innsatsgruppe: Innsatsgruppe,
-        apentForInnsok: ApentForInnsok,
+        apentForPamelding: ApentForPamelding,
         search: String?,
         cacheUsage: CacheUsage,
     ): List<VeilederflateTiltak> {
-        if (apentForInnsok == ApentForInnsok.STENGT) {
+        if (apentForPamelding == ApentForPamelding.STENGT) {
             // Det er foreløpig ikke noe egen funksjonalitet for å markere tiltak som midlertidig stengt i Sanity
             return emptyList()
         }
@@ -124,7 +120,7 @@ class VeilederflateService(
         enheter: NonEmptyList<String>,
         tiltakstypeIds: List<String>?,
         innsatsgruppe: Innsatsgruppe,
-        apentForInnsok: ApentForInnsok,
+        apentForPamelding: ApentForPamelding,
         search: String?,
         erSykmeldtMedArbeidsgiver: Boolean,
     ): List<VeilederflateTiltak> {
@@ -133,10 +129,10 @@ class VeilederflateService(
             sanityTiltakstypeIds = tiltakstypeIds?.map { UUID.fromString(it) },
             innsatsgruppe = innsatsgruppe,
             brukersEnheter = enheter,
-            apentForInnsok = when (apentForInnsok) {
-                ApentForInnsok.APENT -> true
-                ApentForInnsok.STENGT -> false
-                ApentForInnsok.APENT_ELLER_STENGT -> null
+            apentForPamelding = when (apentForPamelding) {
+                ApentForPamelding.APENT -> true
+                ApentForPamelding.STENGT -> false
+                ApentForPamelding.APENT_ELLER_STENGT -> null
             },
             erSykmeldtMedArbeidsgiver = erSykmeldtMedArbeidsgiver,
         )
@@ -211,10 +207,7 @@ class VeilederflateService(
             )
         }
 
-        val status = TiltaksgjennomforingStatusDto(
-            status = TiltaksgjennomforingStatus.GJENNOMFORES,
-            avbrutt = null,
-        )
+        val status = TiltaksgjennomforingStatus.GJENNOMFORES
         val (tittel, underTittel) = tittelOgUnderTittel(
             navn = gjennomforing.tiltaksgjennomforingNavn ?: "",
             tiltakstypeNavn = tiltakstype.navn,

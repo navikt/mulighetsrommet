@@ -4,19 +4,12 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.server.plugins.NotFoundException
 import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
-import no.nav.mulighetsrommet.api.domain.dto.Mutation
-import no.nav.mulighetsrommet.api.domain.dto.SanityEnhet
-import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
-import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforing
-import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforingFields
-import no.nav.mulighetsrommet.api.domain.dto.SanityTiltakstype
-import no.nav.mulighetsrommet.api.domain.dto.SanityTiltakstypeFields
-import no.nav.mulighetsrommet.api.domain.dto.Slug
-import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeRef
+import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.navansatt.SanityNavKontaktperson
 import no.nav.mulighetsrommet.api.navansatt.SanityRedaktor
 import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrift
@@ -128,7 +121,13 @@ class SanityService(
         val params = listOf(SanityParam.of("id", id))
 
         return when (val result = sanityClient.query(query, params, perspective)) {
-            is SanityResponse.Result -> result.decode()
+            is SanityResponse.Result -> {
+                if (result.result == null) {
+                    throw NotFoundException("Fant ikke tiltak med id=$id")
+                } else {
+                    return result.decode()
+                }
+            }
             is SanityResponse.Error -> throw Exception(result.error.toString())
         }
     }
@@ -362,17 +361,13 @@ class SanityService(
         }
     }
 
-    private suspend fun existsInSanity(sanityId: UUID) =
-        isPublished(sanityId) || isDraft(sanityId)
-
-    private suspend fun getSanityId(sanityId: UUID) =
-        if (isPublished(sanityId)) {
-            "$sanityId"
-        } else if (isDraft(sanityId)) {
-            "drafts.$sanityId"
-        } else {
-            null
-        }
+    private suspend fun getSanityId(sanityId: UUID) = if (isPublished(sanityId)) {
+        "$sanityId"
+    } else if (isDraft(sanityId)) {
+        "drafts.$sanityId"
+    } else {
+        null
+    }
 
     private suspend fun isPublished(sanityId: UUID): Boolean {
         val query = """
@@ -495,7 +490,7 @@ class SanityService(
         val mutations = getTiltakByNavIdent(navIdent)
             .map { tiltak ->
                 Mutation.unsetPatch(
-                    id = tiltak._id.toString(),
+                    id = tiltak._id,
                     unset = listOfNotNull(
                         if (kontaktpersonToDelete != null) {
                             "kontaktpersoner[navKontaktperson._ref == \"${kontaktpersonToDelete._id}\"]"

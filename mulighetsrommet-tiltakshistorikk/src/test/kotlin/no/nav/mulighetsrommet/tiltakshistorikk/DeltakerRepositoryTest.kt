@@ -36,6 +36,7 @@ class DeltakerRepositoryTest : FunSpec({
         status = TiltaksgjennomforingStatus.GJENNOMFORES,
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         tilgjengeligForArrangorFraOgMedDato = null,
+        apentForPamelding = true,
     )
     val amtDeltaker = AmtDeltakerV1Dto(
         id = UUID.randomUUID(),

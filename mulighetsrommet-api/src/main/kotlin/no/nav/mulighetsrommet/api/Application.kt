@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api
 
 import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
 import io.ktor.server.plugins.swagger.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.*
@@ -12,15 +14,17 @@ import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.plugins.configureStatusPagesForStatusException
-import no.nav.mulighetsrommet.ktor.startKtorApplication
 import org.koin.ktor.ext.inject
 
 fun main() {
     val (server, app) = loadConfiguration<Config>()
 
-    startKtorApplication(server) {
-        configure(app)
-    }
+    embeddedServer(
+        Netty,
+        port = server.port,
+        host = server.host,
+        module = { configure(app) },
+    ).start(wait = true)
 }
 
 fun Application.configure(config: AppConfig) {
@@ -48,17 +52,15 @@ fun Application.configure(config: AppConfig) {
 
     val scheduler: Scheduler by inject()
 
-    environment.monitor.subscribe(ApplicationStarted) {
+    monitor.subscribe(ApplicationStarted) {
         kafka.enableFailedRecordProcessor()
 
         scheduler.start()
     }
 
-    environment.monitor.subscribe(ApplicationStopPreparing) {
+    monitor.subscribe(ApplicationStopPreparing) {
         kafka.disableFailedRecordProcessor()
         kafka.stopPollingTopicChanges()
-
-        scheduler.stop()
 
         db.close()
     }

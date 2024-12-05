@@ -8,9 +8,14 @@ import {
   VeilederflateTiltakGruppe,
   VeilederTiltakService,
 } from "@mr/api-client";
+import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 
 export function isTiltakGruppe(tiltak: VeilederflateTiltak): tiltak is VeilederflateTiltakGruppe {
   return tiltak.type === "TILTAK_GRUPPE";
+}
+
+export function isTiltakAktivt(gjennomforing: VeilederflateTiltak): boolean {
+  return gjennomforingIsAktiv(gjennomforing.status);
 }
 
 export function isTiltakEgenRegi(

@@ -4,23 +4,20 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDateTime
 import java.util.*
 
-@Serializable
 data class RefusjonskravDto(
-    @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val status: RefusjonskravStatus,
-    @Serializable(with = LocalDateTimeSerializer::class)
     val fristForGodkjenning: LocalDateTime,
     val tiltakstype: Tiltakstype,
     val gjennomforing: Gjennomforing,
     val arrangor: Arrangor,
     val beregning: RefusjonKravBeregning,
     val betalingsinformasjon: Betalingsinformasjon,
+    val journalpostId: String?,
 ) {
     @Serializable
     data class Gjennomforing(
@@ -47,6 +44,5 @@ data class RefusjonskravDto(
     data class Betalingsinformasjon(
         val kontonummer: Kontonummer?,
         val kid: Kid?,
-
     )
 }

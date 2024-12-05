@@ -1,11 +1,9 @@
 package no.nav.mulighetsrommet.api.navenhet
 
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import org.koin.ktor.ext.inject
@@ -23,6 +21,11 @@ fun Route.navEnhetRoutes() {
             call.respond(navEnhetService.hentRegioner())
         }
 
+        get("kostnadssted") {
+            val regioner = call.parameters.getAll("regioner") ?: emptyList()
+            call.respond(navEnhetService.hentKostnadssted(regioner))
+        }
+
         get("{enhetsnummer}/overordnet") {
             val enhetsnummer: String by call.parameters
             val overordnetEnhet =
@@ -36,7 +39,7 @@ fun Route.navEnhetRoutes() {
     }
 }
 
-fun <T : Any> PipelineContext<T, ApplicationCall>.getEnhetFilter(): EnhetFilter {
+fun RoutingContext.getEnhetFilter(): EnhetFilter {
     val statuser = call.parameters.getAll("statuser")
         ?.map { NavEnhetStatus.valueOf(it) }
 

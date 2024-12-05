@@ -1,3 +1,4 @@
+-- touch
 drop view if exists refusjonskrav_aft_view;
 drop view if exists refusjonskrav_admin_dto_view;
 
@@ -11,6 +12,7 @@ select refusjonskrav.id,
        refusjonskrav.godkjent_av_arrangor_tidspunkt,
        refusjonskrav.kontonummer,
        refusjonskrav.kid,
+       refusjonskrav.journalpost_id,
        gjennomforing.id                  as gjennomforing_id,
        gjennomforing.navn                as gjennomforing_navn,
        arrangor.id                       as arrangor_id,
@@ -29,7 +31,7 @@ with deltakelse_perioder as (select refusjonskrav_id,
                                     jsonb_agg(jsonb_build_object(
                                             'start', lower(periode),
                                             'slutt', upper(periode),
-                                            'stillingsprosent', prosent_stilling
+                                            'deltakelsesprosent', deltakelsesprosent
                                               )) as perioder
                              from refusjonskrav_deltakelse_periode
                              group by refusjonskrav_id, deltakelse_id),

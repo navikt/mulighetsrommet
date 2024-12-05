@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.PersonopplysningData
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -28,7 +28,7 @@ sealed class VeilederflateTiltak {
     abstract val tiltakstype: VeilederflateTiltakstype
     abstract val tittel: String
     abstract val underTittel: String
-    abstract val status: TiltaksgjennomforingStatusDto
+    abstract val status: TiltaksgjennomforingStatus
     abstract val beskrivelse: String?
     abstract val faneinnhold: Faneinnhold?
     abstract val kontaktinfo: VeilederflateKontaktinfo
@@ -44,7 +44,7 @@ data class VeilederflateTiltakGruppe(
     override val tiltakstype: VeilederflateTiltakstype,
     override val tittel: String,
     override val underTittel: String,
-    override val status: TiltaksgjennomforingStatusDto,
+    override val status: TiltaksgjennomforingStatus,
     override val beskrivelse: String?,
     override val faneinnhold: Faneinnhold?,
     override val kontaktinfo: VeilederflateKontaktinfo,
@@ -55,7 +55,7 @@ data class VeilederflateTiltakGruppe(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val tiltaksnummer: String?,
-    val apentForInnsok: Boolean,
+    val apentForPamelding: Boolean,
     @Serializable(with = LocalDateSerializer::class)
     val oppstartsdato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
@@ -72,7 +72,7 @@ data class VeilederflateTiltakEnkeltplassAnskaffet(
     override val tiltakstype: VeilederflateTiltakstype,
     override val tittel: String,
     override val underTittel: String,
-    override val status: TiltaksgjennomforingStatusDto,
+    override val status: TiltaksgjennomforingStatus,
     override val beskrivelse: String?,
     override val faneinnhold: Faneinnhold?,
     override val kontaktinfo: VeilederflateKontaktinfo,
@@ -91,7 +91,7 @@ data class VeilederflateTiltakEgenRegi(
     override val tiltakstype: VeilederflateTiltakstype,
     override val tittel: String,
     override val underTittel: String,
-    override val status: TiltaksgjennomforingStatusDto,
+    override val status: TiltaksgjennomforingStatus,
     override val beskrivelse: String?,
     override val faneinnhold: Faneinnhold?,
     override val kontaktinfo: VeilederflateKontaktinfo,
@@ -109,7 +109,7 @@ data class VeilederflateTiltakEnkeltplass(
     override val tiltakstype: VeilederflateTiltakstype,
     override val tittel: String,
     override val underTittel: String,
-    override val status: TiltaksgjennomforingStatusDto,
+    override val status: TiltaksgjennomforingStatus,
     override val beskrivelse: String?,
     override val faneinnhold: Faneinnhold?,
     override val kontaktinfo: VeilederflateKontaktinfo,

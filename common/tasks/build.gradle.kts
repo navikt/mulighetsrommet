@@ -4,6 +4,10 @@ plugins {
 }
 
 dependencies {
+    implementation(projects.common.slack)
+
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.dbScheduler)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.opentelemetry)
+    api(libs.dbScheduler)
 }

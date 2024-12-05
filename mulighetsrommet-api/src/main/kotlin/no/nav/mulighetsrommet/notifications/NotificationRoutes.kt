@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.notifications
 
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -59,7 +58,7 @@ data class SetNotificationStatusRequest(
     )
 }
 
-fun <T : Any> PipelineContext<T, ApplicationCall>.getNotificationFilter(): NotificationFilter {
+fun RoutingContext.getNotificationFilter(): NotificationFilter {
     val status = call.request.queryParameters["status"]
     return NotificationFilter(
         status = status?.let { NotificationStatus.valueOf(it) },

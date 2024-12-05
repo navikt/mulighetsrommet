@@ -180,7 +180,7 @@ export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingFilter = {
   search: "",
   navEnheter: [],
   tiltakstyper: [],
-  statuser: [],
+  statuser: [TiltaksgjennomforingStatus.GJENNOMFORES],
   sortering: {
     sortString: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
     tableSort: {
@@ -237,7 +237,7 @@ export type AvtaleFilter = z.infer<typeof AvtaleFilterSchema>;
 
 export const defaultAvtaleFilter: AvtaleFilter = {
   sok: "",
-  statuser: [],
+  statuser: [Avtalestatus.AKTIV],
   avtaletyper: [],
   navRegioner: [],
   tiltakstyper: [],
@@ -312,5 +312,5 @@ export const avtaleDetaljerTabAtom = atom<
   "detaljer" | "pris-og-fakturering" | "personvern" | "redaksjonelt-innhold"
 >("detaljer");
 
-export const gjennomforingFilterAccordionAtom = atom<string[]>(["status"]);
-export const avtaleFilterAccordionAtom = atom<string[]>(["status"]);
+export const gjennomforingFilterAccordionAtom = atom<string[]>(["navEnhet"]);
+export const avtaleFilterAccordionAtom = atom<string[]>(["region"]);

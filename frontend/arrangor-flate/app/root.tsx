@@ -1,9 +1,8 @@
 import { Arrangor } from "@mr/api-client";
 import { BodyShort, Box, Heading } from "@navikt/ds-react";
-import { LoaderFunction } from "@remix-run/node";
+import { LoaderFunction } from "react-router";
 import {
   isRouteErrorResponse,
-  json,
   Links,
   Meta,
   MetaFunction,
@@ -12,7 +11,7 @@ import {
   ScrollRestoration,
   useLoaderData,
   useRouteError,
-} from "@remix-run/react";
+} from "react-router";
 import parse from "html-react-parser";
 import { ReactNode, useEffect } from "react";
 import { hentArrangortilgangerForBruker } from "./auth/arrangortilgang.server";
@@ -30,10 +29,10 @@ export const loader: LoaderFunction = async ({ request }) => {
   await checkValidToken(request);
   const arrangortilganger = await hentArrangortilgangerForBruker();
 
-  return json({
+  return {
     dekorator: await hentSsrDekoratør(),
     arrangortilganger,
-  });
+  };
 };
 
 export type LoaderData = {

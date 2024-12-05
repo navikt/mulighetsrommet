@@ -204,7 +204,7 @@ function DeltakelserAktive() {
         <ManglerDeltakelserFraTeamTiltakMelding />
       )}
       {data.deltakelser.map((deltakelse) => {
-        return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} />;
+        return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} aktiv />;
       })}
       {data.deltakelser.length === 0 && <IngenFunnetBox title="Brukeren har ingen aktive tiltak" />}
     </Container>
@@ -246,7 +246,7 @@ function DeltakelserHistoriske() {
         <ManglerDeltakelserFraTeamTiltakMelding />
       )}
       {yngreEnn5aar.map((deltakelse) => {
-        return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} />;
+        return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} aktiv={false} />;
       })}
       {yngreEnn5aar.length === 0 && eldreEnn5aar.length === 0 && (
         <IngenFunnetBox title="Brukeren har ingen tidligere tiltak" />
@@ -272,7 +272,7 @@ function DeltakelserHistoriske() {
       {visAlle &&
         eldreEnn5aar.length > 0 &&
         eldreEnn5aar.map((deltakelse) => {
-          return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} />;
+          return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} aktiv={false} />;
         })}
       {data.meldinger.includes(DeltakelserMelding.HENTER_IKKE_DELTAKELSER_FRA_TEAM_TILTAK) && (
         <HenterIkkeDeltakelserFraTeamTiltakMeling />
@@ -294,7 +294,7 @@ function ManglerSisteDeltakelserFraTeamKometMelding() {
             <li>Arbeidsmarkedsopplæring (gruppe)</li>
             <li>Arbeidsrettet rehabilitering</li>
             <li>Avklaring</li>
-            <li>Digitalt oppfølgingstiltak</li>
+            <li>Digitalt jobbsøkerkurs</li>
             <li>Fag- og yrkesopplæring (gruppe)</li>
             <li>Jobbklubb</li>
             <li>Oppfølging</li>

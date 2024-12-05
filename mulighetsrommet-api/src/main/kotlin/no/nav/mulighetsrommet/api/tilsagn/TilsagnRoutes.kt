@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
-import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -59,10 +58,16 @@ fun Route.tilsagnRoutes() {
                 call.respondWithStatusResponse(result)
             }
 
-            delete("/{id}") {
+            put("/{id}") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 call.respondWithStatusResponse(service.annuller(id))
+            }
+
+            delete("/{id}") {
+                val id = call.parameters.getOrFail<UUID>("id")
+
+                call.respondWithStatusResponse(service.slettTilsagn(id))
             }
         }
 

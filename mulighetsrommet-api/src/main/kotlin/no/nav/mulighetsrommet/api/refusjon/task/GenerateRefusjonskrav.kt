@@ -6,17 +6,12 @@ import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import no.nav.mulighetsrommet.api.refusjon.RefusjonService
-import no.nav.mulighetsrommet.slack.SlackNotifier
-import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
 class GenerateRefusjonskrav(
     private val config: Config,
     private val refusjonService: RefusjonService,
-    slackNotifier: SlackNotifier,
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
     data class Config(
         val disabled: Boolean = false,
         val cronPattern: String?,
@@ -31,13 +26,8 @@ class GenerateRefusjonskrav(
     }
 
     val task: RecurringTask<Void> = Tasks
-        .recurring("generate-refusjonskrav", config.toSchedule())
-        .onFailure { failure, _ ->
-            slackNotifier.sendMessage("Klarte ikke generere refusjonskrav. Cause: ${failure.cause.get().message}")
-        }
+        .recurring(javaClass.simpleName, config.toSchedule())
         .execute { _, _ ->
-            logger.info("Genererer refusjonskrav")
-
             val dayInPreviousMonth = LocalDate.now().minusMonths(1)
             runTask(dayInPreviousMonth)
         }

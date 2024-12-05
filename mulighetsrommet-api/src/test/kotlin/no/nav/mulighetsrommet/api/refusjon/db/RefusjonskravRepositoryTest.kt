@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.refusjon.db
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.ktor.http.*
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -41,26 +42,25 @@ class RefusjonskravRepositoryTest : FunSpec({
         val beregning = RefusjonKravBeregningAft(
             input = RefusjonKravBeregningAft.Input(
                 sats = 20_205,
-                periodeStart = LocalDate.of(2023, 1, 1).atStartOfDay(),
-                periodeSlutt = LocalDate.of(2023, 2, 1).atStartOfDay(),
+                periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2023, 1, 1)),
                 deltakelser = setOf(
                     DeltakelsePerioder(
                         deltakelseId = deltakelse1Id,
                         perioder = listOf(
                             DeltakelsePeriode(
-                                start = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-                                slutt = LocalDateTime.of(2023, 1, 10, 0, 0, 0),
-                                stillingsprosent = 100.0,
+                                start = LocalDate.of(2023, 1, 1),
+                                slutt = LocalDate.of(2023, 1, 10),
+                                deltakelsesprosent = 100.0,
                             ),
                             DeltakelsePeriode(
-                                start = LocalDateTime.of(2023, 1, 10, 0, 0, 0),
-                                slutt = LocalDateTime.of(2023, 1, 20, 0, 0, 0),
-                                stillingsprosent = 50.0,
+                                start = LocalDate.of(2023, 1, 10),
+                                slutt = LocalDate.of(2023, 1, 20),
+                                deltakelsesprosent = 50.0,
                             ),
                             DeltakelsePeriode(
-                                start = LocalDateTime.of(2023, 1, 20, 0, 0, 0),
-                                slutt = LocalDateTime.of(2023, 2, 1, 0, 0, 0),
-                                stillingsprosent = 50.0,
+                                start = LocalDate.of(2023, 1, 20),
+                                slutt = LocalDate.of(2023, 2, 1),
+                                deltakelsesprosent = 50.0,
                             ),
                         ),
                     ),
@@ -68,9 +68,9 @@ class RefusjonskravRepositoryTest : FunSpec({
                         deltakelseId = deltakelse2Id,
                         perioder = listOf(
                             DeltakelsePeriode(
-                                start = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-                                slutt = LocalDateTime.of(2023, 2, 1, 0, 0, 0),
-                                stillingsprosent = 100.0,
+                                start = LocalDate.of(2023, 1, 1),
+                                slutt = LocalDate.of(2023, 2, 1),
+                                deltakelsesprosent = 100.0,
                             ),
                         ),
                     ),
@@ -120,6 +120,7 @@ class RefusjonskravRepositoryTest : FunSpec({
                     kontonummer = Kontonummer("11111111111"),
                     kid = Kid("12345"),
                 ),
+                journalpostId = null,
             )
         }
 
@@ -142,11 +143,25 @@ class RefusjonskravRepositoryTest : FunSpec({
             repository.get(krav.id).shouldNotBeNull().status shouldBe RefusjonskravStatus.GODKJENT_AV_ARRANGOR
         }
 
+        test("set journalpost id") {
+            val krav = RefusjonskravDbo(
+                id = UUID.randomUUID(),
+                gjennomforingId = AFT1.id,
+                fristForGodkjenning = LocalDate.of(2024, 10, 1).atStartOfDay(),
+                beregning = beregning,
+                kontonummer = null,
+                kid = null,
+            )
+            repository.upsert(krav)
+
+            repository.setJournalpostId(krav.id, "123")
+        }
+
         test("tillater ikke lagring av overlappende perioder") {
             val periode = DeltakelsePeriode(
-                start = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-                slutt = LocalDateTime.of(2023, 1, 2, 0, 0, 0),
-                stillingsprosent = 100.0,
+                start = LocalDate.of(2023, 1, 1),
+                slutt = LocalDate.of(2023, 1, 2),
+                deltakelsesprosent = 100.0,
             )
             val deltakelse = DeltakelsePerioder(
                 deltakelseId = UUID.randomUUID(),
@@ -158,8 +173,7 @@ class RefusjonskravRepositoryTest : FunSpec({
                 fristForGodkjenning = LocalDate.of(2024, 10, 1).atStartOfDay(),
                 beregning = RefusjonKravBeregningAft(
                     input = RefusjonKravBeregningAft.Input(
-                        periodeStart = LocalDate.of(2023, 1, 1).atStartOfDay(),
-                        periodeSlutt = LocalDate.of(2023, 2, 1).atStartOfDay(),
+                        periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2023, 1, 1)),
                         sats = 20_205,
                         deltakelser = setOf(deltakelse),
                     ),

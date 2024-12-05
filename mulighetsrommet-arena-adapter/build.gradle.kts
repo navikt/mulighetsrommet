@@ -41,6 +41,7 @@ dependencies {
     implementation(projects.common.ktorClients)
     implementation(projects.common.slack)
     implementation(projects.common.metrics)
+    implementation(projects.common.tasks)
 
     // Kotlin
     implementation(libs.kotlinx.coroutines.core)
@@ -60,7 +61,8 @@ dependencies {
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.server.defaultHeaders)
     implementation(libs.ktor.server.metricsMicrometer)
-    testImplementation(libs.ktor.server.tests)
+    implementation(libs.ktor.server.netty)
+    testImplementation(libs.ktor.server.testHost)
 
     // Test
     testImplementation(libs.kotest.junit)
@@ -73,6 +75,4 @@ dependencies {
     // Dependency injection
     implementation(libs.koin.ktor)
     implementation(libs.koin.logger.slf4j)
-
-    implementation(libs.dbScheduler)
 }

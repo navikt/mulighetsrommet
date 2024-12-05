@@ -91,15 +91,13 @@ class AmtDeltakerV1KafkaConsumer(
     private fun AmtDeltakerV1Dto.toDeltakerDbo(): DeltakerDbo {
         val tiltakstype = tiltakstyper.getByGjennomforingId(gjennomforingId)
 
-        val stillingsprosent = when (tiltakstype.tiltakskode) {
-            // Hvis stillingsprosent mangler for AFT/VTA så kan det antas å være 100
+        val deltakelsesprosent = when (tiltakstype.tiltakskode) {
+            // Hvis deltakelsesprosent mangler for AFT/VTA så skal det antas å være 100
             Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET -> {
                 prosentStilling?.toDouble() ?: 100.0
             }
 
-            // TODO: ikke lese inn stillingsprosent for andre tiltakstyper?
-            //  Skal visstnok ikke være relevant for disse, selv om det finnes en del data der per i dag
-            else -> prosentStilling?.toDouble()
+            else -> null
         }
         return DeltakerDbo(
             id = id,
@@ -108,7 +106,7 @@ class AmtDeltakerV1KafkaConsumer(
             sluttDato = sluttDato,
             registrertTidspunkt = registrertDato,
             endretTidspunkt = endretDato,
-            stillingsprosent = stillingsprosent,
+            deltakelsesprosent = deltakelsesprosent,
             status = status,
         )
     }

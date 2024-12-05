@@ -1,25 +1,19 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { ExternalLinkIcon, MenuGridIcon } from "@navikt/aksel-icons";
-import { Dropdown, InternalHeader, Spacer } from "@navikt/ds-react";
-import { Toggles } from "@mr/api-client";
-import { InlineErrorBoundary } from "@mr/frontend-common";
-import { useRef } from "react";
-import { Link } from "react-router-dom";
 import {
   ENDRINGSMELDINGER_URL,
   LOGOUT_AND_SELECT_ACCOUNT_URL,
   PREVIEW_ARBEIDSMARKEDSTILTAK_URL,
   SANITY_STUDIO_URL,
 } from "@/constants";
+import { InlineErrorBoundary } from "@mr/frontend-common";
+import { ExternalLinkIcon, MenuGridIcon } from "@navikt/aksel-icons";
+import { Dropdown, InternalHeader, Spacer } from "@navikt/ds-react";
+import { useRef } from "react";
+import { Link } from "react-router-dom";
 import { Notifikasjonsbjelle } from "../notifikasjoner/Notifikasjonsbjelle";
 import styles from "./AdministratorHeader.module.scss";
 
 export function AdministratorHeader() {
-  const { data: debugIsEnabled } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_DEBUGGER,
-  );
-
   const tiltakstyperLinkRef = useRef<HTMLAnchorElement>(null);
   const avtalerLinkRef = useRef<HTMLAnchorElement>(null);
   const gjennomforingerLinkRef = useRef<HTMLAnchorElement>(null);
@@ -136,18 +130,16 @@ export function AdministratorHeader() {
               </Link>
             </Dropdown.Menu.GroupedList.Item>
           </Dropdown.Menu.GroupedList>
-          {debugIsEnabled ? (
-            <>
-              <Dropdown.Menu.Divider />
-              <Dropdown.Menu.List>
-                <Dropdown.Menu.List.Item as="span" onClick={() => logoutLinkRef.current?.click()}>
-                  <a ref={logoutLinkRef} href={LOGOUT_AND_SELECT_ACCOUNT_URL}>
-                    Logg ut
-                  </a>
-                </Dropdown.Menu.List.Item>
-              </Dropdown.Menu.List>
-            </>
-          ) : null}
+          <>
+            <Dropdown.Menu.Divider />
+            <Dropdown.Menu.List>
+              <Dropdown.Menu.List.Item as="span" onClick={() => logoutLinkRef.current?.click()}>
+                <a ref={logoutLinkRef} href={LOGOUT_AND_SELECT_ACCOUNT_URL}>
+                  Logg ut
+                </a>
+              </Dropdown.Menu.List.Item>
+            </Dropdown.Menu.List>
+          </>
         </Dropdown.Menu>
         <InlineErrorBoundary>
           <Brukernavn />

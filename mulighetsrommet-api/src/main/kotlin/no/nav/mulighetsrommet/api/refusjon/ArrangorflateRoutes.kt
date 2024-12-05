@@ -1,61 +1,49 @@
 package no.nav.mulighetsrommet.api.refusjon
 
 import arrow.core.*
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
+import no.nav.mulighetsrommet.api.clients.dokark.*
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
+import no.nav.mulighetsrommet.api.pdfgen.Pdfgen
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.refusjon.model.*
-import no.nav.mulighetsrommet.api.responses.BadRequest
-import no.nav.mulighetsrommet.api.responses.ValidationError
-import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.refusjon.task.JournalforRefusjonskrav
+import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.model.ArrangorflateTilsagn
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.pdfgen.core.Environment
-import no.nav.pdfgen.core.PDFGenCore
-import no.nav.pdfgen.core.pdf.createPDFA
 import org.koin.ktor.ext.inject
-import org.verapdf.gf.foundry.VeraGreenfieldFoundryProvider
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDateTime
 import java.util.*
 
 fun Route.arrangorflateRoutes() {
-    VeraGreenfieldFoundryProvider.initialise()
-    PDFGenCore.init(Environment())
-
     val tilsagnService: TilsagnService by inject()
     val arrangorService: ArrangorService by inject()
     val refusjonskrav: RefusjonskravRepository by inject()
     val deltakerRepository: DeltakerRepository by inject()
-
     val pdl: HentAdressebeskyttetPersonBolkPdlQuery by inject()
+    val journalforRefusjonskrav: JournalforRefusjonskrav by inject()
+    val db: Database by inject()
 
-    suspend fun <T : Any> PipelineContext<T, ApplicationCall>.arrangorerMedTilgang(): List<ArrangorDto> {
+    suspend fun RoutingContext.arrangorerMedTilgang(): List<ArrangorDto> {
         return call.principal<ArrangorflatePrincipal>()
             ?.organisasjonsnummer
             ?.map {
@@ -67,7 +55,7 @@ fun Route.arrangorflateRoutes() {
             ?: throw StatusException(HttpStatusCode.Unauthorized)
     }
 
-    fun <T : Any> PipelineContext<T, ApplicationCall>.requireTilgangHosArrangor(organisasjonsnummer: Organisasjonsnummer) {
+    fun RoutingContext.requireTilgangHosArrangor(organisasjonsnummer: Organisasjonsnummer) {
         call.principal<ArrangorflatePrincipal>()
             ?.organisasjonsnummer
             ?.find { it == organisasjonsnummer }
@@ -112,24 +100,27 @@ fun Route.arrangorflateRoutes() {
 
             post("/godkjenn-refusjon") {
                 val id = call.parameters.getOrFail<UUID>("id")
-                val request = call.receive<GodkjennRefusjonskravAft>()
-
                 val krav = refusjonskrav.get(id)
                     ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
-                val result = validerGodkjennRefusjonskrav(request, krav.beregning)
-                    .mapLeft { BadRequest(errors = it) }
-                    .map {
-                        refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now())
-                        refusjonskrav.setBetalingsInformasjon(
-                            id,
-                            request.betalingsinformasjon.kontonummer,
-                            request.betalingsinformasjon.kid,
-                        )
-                    }
+                val request = call.receive<GodkjennRefusjonskrav>()
+                validerGodkjennRefusjonskrav(request, krav)
+                    .onLeft { return@post call.respondWithStatusResponse(BadRequest(errors = it).left()) }
 
-                call.respondWithStatusResponse(result)
+                db.transactionSuspend { tx ->
+                    refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now(), tx)
+                    refusjonskrav.setBetalingsInformasjon(
+                        id,
+                        request.betalingsinformasjon.kontonummer,
+                        request.betalingsinformasjon.kid,
+                        tx,
+                    )
+
+                    journalforRefusjonskrav.schedule(krav.id)
+                }
+
+                call.respond(HttpStatusCode.OK)
             }
 
             get("/kvittering") {
@@ -141,26 +132,17 @@ fun Route.arrangorflateRoutes() {
 
                 val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
                     gjennomforingId = krav.gjennomforing.id,
-                    periodeStart = krav.beregning.input.periodeStart.toLocalDate(),
-                    periodeSlutt = krav.beregning.input.periodeSlutt.toLocalDate(),
+                    periode = krav.beregning.input.periode,
                 )
 
-                val oppsummering = toRefusjonskrav(pdl, deltakerRepository, krav)
-                val mapper = ObjectMapper().apply {
-                    registerModule(JavaTimeModule())
-                    disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                    registerKotlinModule()
-                }
-                val dto = RefusjonKravKvitteringDto(oppsummering, tilsagn)
-                val jsonNode: JsonNode = mapper.valueToTree<JsonNode>(dto)
-                val pdfBytes: ByteArray = createPDFA("refusjon-kvittering", "refusjon", jsonNode)
-                    ?: throw Exception("Kunne ikke generere PDF")
+                val refusjonsKravAft = toRefusjonskrav(pdl, deltakerRepository, krav)
+                val pdf = Pdfgen.refusjonKvittering(refusjonsKravAft, tilsagn)
 
                 call.response.headers.append(
                     "Content-Disposition",
                     "attachment; filename=\"kvittering.pdf\"",
                 )
-                call.respondBytes(pdfBytes, contentType = ContentType.Application.Pdf)
+                call.respondBytes(pdf, contentType = ContentType.Application.Pdf)
             }
 
             get("/tilsagn") {
@@ -172,8 +154,7 @@ fun Route.arrangorflateRoutes() {
 
                 val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
                     gjennomforingId = krav.gjennomforing.id,
-                    periodeStart = krav.beregning.input.periodeStart.toLocalDate(),
-                    periodeSlutt = krav.beregning.input.periodeSlutt.toLocalDate(),
+                    periode = krav.beregning.input.periode,
                 )
                 call.respond(tilsagn)
             }
@@ -194,23 +175,20 @@ fun Route.arrangorflateRoutes() {
 }
 
 fun validerGodkjennRefusjonskrav(
-    request: GodkjennRefusjonskravAft,
-    beregning: RefusjonKravBeregning,
-): Either<List<ValidationError>, Unit> =
-    when (beregning) {
-        is RefusjonKravBeregningAft -> {
-            if (beregning.input.deltakelser != request.deltakelser || beregning.output.belop != request.belop) {
-                listOf(
-                    ValidationError.ofCustomLocation(
-                        "info",
-                        "Informasjonen i kravet har endret seg. Vennligst se over på nytt.",
-                    ),
-                ).left()
-            } else {
-                Unit.right()
-            }
-        }
+    request: GodkjennRefusjonskrav,
+    krav: RefusjonskravDto,
+): Either<List<ValidationError>, GodkjennRefusjonskrav> {
+    return if (request.digest != krav.beregning.getDigest()) {
+        listOf(
+            ValidationError.ofCustomLocation(
+                "info",
+                "Informasjonen i kravet har endret seg. Vennligst se over på nytt.",
+            ),
+        ).left()
+    } else {
+        request.right()
     }
+}
 
 fun toRefusjonskravKompakt(krav: RefusjonskravDto) = RefusjonKravKompakt(
     id = krav.id,
@@ -221,8 +199,8 @@ fun toRefusjonskravKompakt(krav: RefusjonskravDto) = RefusjonKravKompakt(
     arrangor = krav.arrangor,
     beregning = krav.beregning.let {
         RefusjonKravKompakt.Beregning(
-            periodeStart = it.input.periodeStart,
-            periodeSlutt = it.input.periodeSlutt,
+            periodeStart = it.input.periode.start,
+            periodeSlutt = it.input.periode.getLastDate(),
             belop = it.output.belop,
         )
     },
@@ -232,7 +210,7 @@ suspend fun toRefusjonskrav(
     pdl: HentAdressebeskyttetPersonBolkPdlQuery,
     deltakerRepository: DeltakerRepository,
     krav: RefusjonskravDto,
-) = when (val beregning = krav.beregning) {
+): RefusjonKravAft = when (val beregning = krav.beregning) {
     is RefusjonKravBeregningAft -> {
         val deltakere = deltakerRepository.getAll(krav.gjennomforing.id)
 
@@ -245,12 +223,18 @@ suspend fun toRefusjonskrav(
             val deltaker = deltakereById.getValue(id)
             val manedsverk = manedsverkById.getValue(id).manedsverk
             val person = personerByNorskIdent[deltaker.norskIdent]
+
+            val forstePeriode = deltakelse.perioder.first()
+            val sistePeriode = deltakelse.perioder.last()
+
             RefusjonKravDeltakelse(
                 id = id,
-                perioder = deltakelse.perioder,
-                manedsverk = manedsverk,
                 startDato = deltaker.startDato,
                 sluttDato = deltaker.startDato,
+                forstePeriodeStartDato = forstePeriode.start,
+                sistePeriodeSluttDato = sistePeriode.slutt.minusDays(1),
+                sistePeriodeDeltakelsesprosent = sistePeriode.deltakelsesprosent,
+                manedsverk = manedsverk,
                 person = person,
                 // TODO data om veileder hos arrangør
                 veileder = null,
@@ -272,10 +256,11 @@ suspend fun toRefusjonskrav(
             arrangor = krav.arrangor,
             deltakelser = deltakelser,
             beregning = RefusjonKravAft.Beregning(
-                periodeStart = beregning.input.periodeStart,
-                periodeSlutt = beregning.input.periodeSlutt,
+                periodeStart = beregning.input.periode.start,
+                periodeSlutt = beregning.input.periode.getLastDate(),
                 antallManedsverk = antallManedsverk,
                 belop = beregning.output.belop,
+                digest = beregning.getDigest(),
             ),
             betalingsinformasjon = krav.betalingsinformasjon,
         )
@@ -333,17 +318,9 @@ private fun toRefusjonskravPerson(person: HentPersonBolkResponse.Person): Refusj
 }
 
 @Serializable
-data class RefusjonKravKvitteringDto(
-    val refusjon: RefusjonKravAft,
-    val tilsagn: List<ArrangorflateTilsagn>,
-)
-
-// Kan bli gjort om til en sealed class for andre etterhvert hvis det trengs
-@Serializable
-data class GodkjennRefusjonskravAft(
-    val belop: Int,
-    val deltakelser: Set<DeltakelsePerioder>,
+data class GodkjennRefusjonskrav(
     val betalingsinformasjon: Betalingsinformasjon,
+    val digest: String,
 ) {
     @Serializable
     data class Betalingsinformasjon(
@@ -351,3 +328,40 @@ data class GodkjennRefusjonskravAft(
         val kid: Kid?,
     )
 }
+
+fun refusjonskravJournalpost(
+    pdf: ByteArray,
+    refusjonskravId: UUID,
+    organisasjonsnummer: Organisasjonsnummer,
+): Journalpost = Journalpost(
+    tittel = "Refusjonskrav",
+    journalposttype = "INNGAAENDE",
+    avsenderMottaker = Journalpost.AvsenderMottaker(
+        id = organisasjonsnummer.value,
+        idType = "ORGNR",
+        navn = null,
+    ),
+    bruker = Journalpost.Bruker(
+        id = organisasjonsnummer.value,
+        idType = "ORGNR",
+    ),
+    tema = "TIL",
+    datoMottatt = LocalDateTime.now().toString(),
+    dokumenter = listOf(
+        Journalpost.Dokument(
+            tittel = "Refusjonskrav",
+            dokumentvarianter = listOf(
+                Journalpost.Dokument.Dokumentvariant(
+                    "PDFA",
+                    pdf,
+                    "ARKIV",
+                ),
+            ),
+        ),
+    ),
+    eksternReferanseId = refusjonskravId.toString(),
+    journalfoerendeEnhet = "9999", // Automatisk journalføring
+    kanal = "NAV_NO", // Påkrevd for INNGAENDE. Se https://confluence.adeo.no/display/BOA/Mottakskanal
+    sak = null,
+    behandlingstema = null,
+)

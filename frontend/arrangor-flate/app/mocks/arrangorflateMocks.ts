@@ -38,14 +38,11 @@ const mockKrav: RefusjonKravAft[] = [
           fodselsdato: "1980-01-01",
           fodselsaar: 1980,
         },
+        startDato: "2024-06-01",
+        forstePeriodeStartDato: "2024-06-01",
+        sistePeriodeSluttDato: "2024-06-30",
+        sistePeriodeDeltakelsesprosent: 30,
         manedsverk: 0.3,
-        perioder: [
-          {
-            start: "2024-06-01",
-            slutt: "2024-07-01",
-            stillingsprosent: 30,
-          },
-        ],
       },
       {
         id: uuid(),
@@ -53,82 +50,19 @@ const mockKrav: RefusjonKravAft[] = [
           navn: "Stian Bjærvik",
           fodselsaar: 1980,
         },
+        startDato: "2024-06-01",
+        forstePeriodeStartDato: "2024-06-01",
+        sistePeriodeSluttDato: "2024-06-30",
+        sistePeriodeDeltakelsesprosent: 100,
         manedsverk: 1,
-        perioder: [
-          {
-            start: "2024-06-01",
-            slutt: "2024-07-01",
-            stillingsprosent: 100,
-          },
-        ],
       },
     ],
     beregning: {
-      periodeStart: "01.06.2024",
-      periodeSlutt: "30.06.2024",
+      periodeStart: "2024-06-01",
+      periodeSlutt: "2024-06-30",
       antallManedsverk: 17.5,
       belop: 308530,
-    },
-  },
-  {
-    type: "AFT",
-    id: uuid(),
-    status: RefusjonskravStatus.KLAR_FOR_GODKJENNING,
-    fristForGodkjenning: "2024-08-01T00:00:00",
-    tiltakstype: {
-      navn: "Arbeidsforberedende trening",
-    },
-    betalingsinformasjon: {
-      kontonummer: "12345678901",
-      kid: "123456789",
-    },
-    gjennomforing: {
-      id: uuid(),
-      navn: "AFT tiltak Moss",
-    },
-    arrangor: {
-      id: uuid(),
-      organisasjonsnummer: "123456789",
-      navn: "Fretex",
-      slettet: false,
-    },
-    deltakelser: [
-      {
-        id: uuid(),
-        person: {
-          navn: "Per Petterson",
-          fodselsdato: "1980-01-01",
-          fodselsaar: 1980,
-        },
-        manedsverk: 0.3,
-        perioder: [
-          {
-            start: "2024-06-01",
-            slutt: "2024-07-01",
-            stillingsprosent: 30,
-          },
-        ],
-      },
-      {
-        id: uuid(),
-        person: {
-          navn: "Stian Bjærvik",
-        },
-        manedsverk: 1,
-        perioder: [
-          {
-            start: "2024-06-01",
-            slutt: "2024-07-01",
-            stillingsprosent: 100,
-          },
-        ],
-      },
-    ],
-    beregning: {
-      periodeStart: "01.06.2024",
-      periodeSlutt: "30.06.2024",
-      antallManedsverk: 1,
-      belop: 18530,
+      digest: "ac6b2cdcbfc885e64121cf4e0ebee5dd",
     },
   },
   {
@@ -161,35 +95,30 @@ const mockKrav: RefusjonKravAft[] = [
           fodselsdato: "1980-01-01",
           fodselsaar: 1980,
         },
+        startDato: "2024-06-01",
+        forstePeriodeStartDato: "2024-06-01",
+        sistePeriodeSluttDato: "2024-06-30",
+        sistePeriodeDeltakelsesprosent: 30,
         manedsverk: 0.3,
-        perioder: [
-          {
-            start: "2024-06-01",
-            slutt: "2024-07-01",
-            stillingsprosent: 30,
-          },
-        ],
       },
       {
         id: uuid(),
         person: {
           navn: "Stian Bjærvik",
         },
+        startDato: "2024-06-01",
+        forstePeriodeStartDato: "2024-06-01",
+        sistePeriodeSluttDato: "2024-06-30",
+        sistePeriodeDeltakelsesprosent: 100,
         manedsverk: 1,
-        perioder: [
-          {
-            start: "2024-06-01",
-            slutt: "2024-07-01",
-            stillingsprosent: 100,
-          },
-        ],
       },
     ],
     beregning: {
-      periodeStart: "01.06.2024",
-      periodeSlutt: "30.06.2024",
+      periodeStart: "2024-06-01",
+      periodeSlutt: "2024-06-30",
       antallManedsverk: 4,
       belop: 85000,
+      digest: "5c25b2ae0d9b5f2c76e4a6065125cbdb",
     },
   },
   {
@@ -222,35 +151,30 @@ const mockKrav: RefusjonKravAft[] = [
           fodselsdato: "1980-01-01",
           fodselsaar: 1980,
         },
+        startDato: "2024-06-01",
+        forstePeriodeStartDato: "2024-06-01",
+        sistePeriodeSluttDato: "2024-06-30",
+        sistePeriodeDeltakelsesprosent: 30,
         manedsverk: 0.3,
-        perioder: [
-          {
-            start: "2024-06-01",
-            slutt: "2024-07-01",
-            stillingsprosent: 30,
-          },
-        ],
       },
       {
         id: uuid(),
         person: {
           navn: "Stian Bjærvik",
         },
+        startDato: "2024-06-01",
+        forstePeriodeStartDato: "2024-06-01",
+        sistePeriodeSluttDato: "2024-06-30",
+        sistePeriodeDeltakelsesprosent: 100,
         manedsverk: 1,
-        perioder: [
-          {
-            start: "2024-06-01",
-            slutt: "2024-07-01",
-            stillingsprosent: 100,
-          },
-        ],
       },
     ],
     beregning: {
-      periodeStart: "01.06.2024",
-      periodeSlutt: "30.06.2024",
+      periodeStart: "2024-06-01",
+      periodeSlutt: "2024-06-30",
       antallManedsverk: 4,
       belop: 85000,
+      digest: "5c25b2ae0d9b5f2c76e4a6065125cbdb",
     },
   },
 ];

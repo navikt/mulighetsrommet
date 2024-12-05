@@ -34,6 +34,7 @@ import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class AvtaleServiceTest : FunSpec({
@@ -183,34 +184,7 @@ class AvtaleServiceTest : FunSpec({
             tiltaksgjennomforinger.upsert(oppfolging2)
 
             avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
-                BadRequest("Avtalen har 2 aktive tiltaksgjennomføringer koblet til seg. Du må frikoble gjennomføringene før du kan avbryte avtalen."),
-            )
-        }
-
-        test("Man skal ikke få avbryte, men få en melding dersom det finnes planlagte gjennomføringer koblet til avtalen") {
-            val avtale = AvtaleFixtures.oppfolging.copy(
-                id = UUID.randomUUID(),
-                navn = "Avtale som eksisterer",
-                startDato = LocalDate.now(),
-                sluttDato = LocalDate.now().plusMonths(1),
-            )
-            avtaleRepository.upsert(avtale)
-            val oppfolging1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                avtaleId = avtale.id,
-                startDato = LocalDate.now().plusDays(1),
-                sluttDato = null,
-            )
-            val oppfolging2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
-                avtaleId = avtale.id,
-                startDato = LocalDate.now().plusDays(1),
-                sluttDato = null,
-            )
-
-            tiltaksgjennomforinger.upsert(oppfolging1)
-            tiltaksgjennomforinger.upsert(oppfolging2)
-
-            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
-                BadRequest("Avtalen har 2 planlagte tiltaksgjennomføringer koblet til seg. Du må flytte eller avslutte gjennomføringene før du kan avbryte avtalen."),
+                BadRequest("Avtalen har 2 aktive gjennomføringer og kan derfor ikke avbrytes."),
             )
         }
 
@@ -228,6 +202,7 @@ class AvtaleServiceTest : FunSpec({
                 sluttDato = LocalDate.now().minusDays(1),
             )
             tiltaksgjennomforinger.upsert(oppfolging1)
+            tiltaksgjennomforinger.setAvsluttet(oppfolging1.id, LocalDateTime.now(), null)
 
             avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeRight()
         }

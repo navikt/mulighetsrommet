@@ -6,27 +6,25 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
-import kotlinx.coroutines.runBlocking
-import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
+import kotliquery.Row
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingNotificationDto
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
+import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
-import no.nav.mulighetsrommet.slack.SlackNotifier
-import org.slf4j.LoggerFactory
+import org.intellij.lang.annotations.Language
 import java.time.Instant
-import kotlin.jvm.optionals.getOrNull
+import java.time.LocalDate
 
 class NotifySluttdatoForGjennomforingerNarmerSeg(
     config: Config,
-    notificationService: NotificationService,
-    tiltaksgjennomforingService: TiltaksgjennomforingService,
-    slack: SlackNotifier,
+    private val db: Database,
+    private val notificationService: NotificationService,
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
     data class Config(
         val disabled: Boolean = false,
         val cronPattern: String? = null,
@@ -41,40 +39,72 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
     }
 
     val task: RecurringTask<Void> = Tasks
-        .recurring("notify-sluttdato-for-tiltaksgjennomforinger-narmer-seg", config.toSchedule())
-        .onFailure { failure, _ ->
-            val cause = failure.cause.getOrNull()?.message
-            slack.sendMessage(
-                """
-                Klarte ikke opprette notifikasjoner for tiltaksgjennomføringer som nærmer seg sluttdato.
-                Konsekvensen er at brukere ikke nødvendigvis får med seg at sluttdato nærmer seg for sine tiltaksgjennomføringer.
-                Detaljer: $cause
-                """.trimIndent(),
-            )
-        }
+        .recurring(javaClass.simpleName, config.toSchedule())
         .execute { _, _ ->
-            logger.info("Oppretter notifikasjoner for tiltaksgjennomføringer som nærmer seg sluttdato...")
+            notifySluttDatoNarmerSeg(today = LocalDate.now())
+        }
 
-            runBlocking {
-                val tiltaksgjennomforinger: List<TiltaksgjennomforingNotificationDto> =
-                    tiltaksgjennomforingService.getAllGjennomforingerSomNarmerSegSluttdato()
-                tiltaksgjennomforinger.forEach {
-                    it.administratorer.toNonEmptyListOrNull()?.let { administratorer ->
-                        val notification = ScheduledNotification(
-                            type = NotificationType.NOTIFICATION,
-                            title = "Gjennomføringen \"${it.navn} ${if (it.tiltaksnummer != null) "(${it.tiltaksnummer})" else ""}\" utløper ${
-                                it.sluttDato?.formaterDatoTilEuropeiskDatoformat()
-                            }",
-                            targets = administratorer,
-                            createdAt = Instant.now(),
-                            metadata = NotificationMetadata(
-                                linkText = "Gå til gjennomføringen",
-                                link = "/tiltaksgjennomforinger/${it.id}",
-                            ),
-                        )
-                        notificationService.scheduleNotification(notification)
-                    } ?: logger.info("Fant ingen administratorer for gjennomføring med id: ${it.id}")
-                }
+    fun notifySluttDatoNarmerSeg(today: LocalDate) {
+        val gjennomforinger = getAllGjennomforingerSomNarmerSegSluttdato(today)
+
+        gjennomforinger.forEach { gjennomforing ->
+            gjennomforing.administratorer.toNonEmptyListOrNull()?.also { administratorer ->
+                val title = listOfNotNull(
+                    "Gjennomføringen",
+                    "\"${gjennomforing.navn}\"",
+                    gjennomforing.tiltaksnummer?.let { "($it)" },
+                    "utløper",
+                    gjennomforing.sluttDato.formaterDatoTilEuropeiskDatoformat(),
+                ).joinToString(" ")
+
+                val notification = ScheduledNotification(
+                    type = NotificationType.NOTIFICATION,
+                    title = title,
+                    targets = administratorer,
+                    createdAt = Instant.now(),
+                    metadata = NotificationMetadata(
+                        linkText = "Gå til gjennomføringen",
+                        link = "/tiltaksgjennomforinger/${gjennomforing.id}",
+                    ),
+                )
+
+                notificationService.scheduleNotification(notification)
             }
         }
+    }
+
+    fun getAllGjennomforingerSomNarmerSegSluttdato(
+        today: LocalDate,
+    ): List<TiltaksgjennomforingNotificationDto> = db.useSession { session ->
+        @Language("PostgreSQL")
+        val query = """
+            select gjennomforing.id::uuid,
+                   gjennomforing.navn,
+                   gjennomforing.slutt_dato,
+                   array_agg(distinct nav_ident) as administratorer,
+                   gjennomforing.tiltaksnummer
+            from tiltaksgjennomforing gjennomforing
+                     join tiltaksgjennomforing_administrator on tiltaksgjennomforing_id = gjennomforing.id
+            where (:today::timestamp + interval '14' day) = gjennomforing.slutt_dato
+               or (:today::timestamp + interval '7' day) = gjennomforing.slutt_dato
+               or (:today::timestamp + interval '1' day) = gjennomforing.slutt_dato
+            group by gjennomforing.id
+        """.trimIndent()
+
+        queryOf(query, mapOf("today" to today))
+            .map { it.toTiltaksgjennomforingNotificationDto() }
+            .asList
+            .runWithSession(session)
+    }
+
+    private fun Row.toTiltaksgjennomforingNotificationDto(): TiltaksgjennomforingNotificationDto {
+        val administratorer = array<String>("administratorer").asList().map { NavIdent(it) }
+        return TiltaksgjennomforingNotificationDto(
+            id = uuid("id"),
+            navn = string("navn"),
+            sluttDato = localDate("slutt_dato"),
+            administratorer = administratorer,
+            tiltaksnummer = stringOrNull("tiltaksnummer"),
+        )
+    }
 }

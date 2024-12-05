@@ -35,29 +35,34 @@ permissions:
   id-token: write
 
 jobs:
+  playwright-version:
+    name: Get playwright version
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: frontend/arrangor-flate
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: get-version
+        run: echo "version=$(cat package.json | jq -r '.devDependencies.playwright' | sed -e 's/^[\^\~]//')" >> "$GITHUB_OUTPUT"
+
   ci:
     name: CI
     runs-on: ubuntu-latest
-    outputs:
-      image: ${{ steps.docker-build-push.outputs.image }}
+    needs: playwright-version
+    container:
+      image: mcr.microsoft.com/playwright:v${{ needs.playwright-version.outputs.version }}-jammy
     steps:
       - uses: actions/checkout@v4
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
-      - name: Bygg applikasjon
-        run: npx turbo run lint typecheck pack --filter=@mr/arrangor-flate
-      - name: Push docker image to GAR
-        uses: nais/docker-build-push@v0
-        id: docker-build-push
-        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-        with:
-          team: team-mulighetsrommet
-          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
-          docker_context: ./frontend/arrangor-flate
-          image_suffix: arrangor-flate
+      - name: Test
+        run: npx turbo run lint typecheck playwright --filter=@mr/arrangor-flate
 
   deploy-til-dev:
     name: Deploy til dev-gcp
@@ -66,11 +71,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Setup frontend
+        uses: ./.github/actions/setup-frontend
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+      - name: Bygg applikasjon
+        run: npx turbo run pack --filter=@mr/arrangor-flate
+      - name: Push docker image to GAR
+        uses: nais/docker-build-push@v0
+        id: docker-build-push
+        with:
+          team: team-mulighetsrommet
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          docker_context: ./frontend/arrangor-flate
+          image_suffix: arrangor-flate
       - uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-gcp
           RESOURCE: frontend/arrangor-flate/.nais/nais-dev.yaml
-          VAR: image=${{ needs.ci.outputs.image }}
+          VAR: image=${{ steps.docker-build-push.outputs.image }}
 
   # TODO Skru på deploy til prod når alt er klart for arrangørflate
   # deploy-til-prod:

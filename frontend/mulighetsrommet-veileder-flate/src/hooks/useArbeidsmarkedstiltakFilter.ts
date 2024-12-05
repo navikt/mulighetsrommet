@@ -1,4 +1,4 @@
-import { ApentForInnsok, Innsatsgruppe, NavEnhet } from "@mr/api-client";
+import { ApentForPamelding, Innsatsgruppe, NavEnhet } from "@mr/api-client";
 import {
   atomWithStorage,
   createJSONStorage,
@@ -26,7 +26,7 @@ export const ArbeidsmarkedstiltakFilterSchema = z.object({
       nokkel: z.string().optional(),
     })
     .array(),
-  apentForInnsok: z.custom<ApentForInnsok>(),
+  apentForPamelding: z.custom<ApentForPamelding>(),
   erSykmeldtMedArbeidsgiver: z.boolean(),
 });
 
@@ -58,7 +58,7 @@ export function useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst() {
 
   const filterHasChanged =
     filter.search !== "" ||
-    filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT ||
+    filter.apentForPamelding !== ApentForPamelding.APENT_ELLER_STENGT ||
     filter.innsatsgruppe?.nokkel !== brukerdata.innsatsgruppe ||
     brukersEnhetFilterHasChanged(filter, brukerdata) ||
     filter.tiltakstyper.length > 0;
@@ -80,7 +80,7 @@ export function useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst() {
 
   const filterHasChanged =
     filter.search !== "" ||
-    filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT ||
+    filter.apentForPamelding !== ApentForPamelding.APENT_ELLER_STENGT ||
     filter.innsatsgruppe?.nokkel !== undefined ||
     filter.navEnheter.length !== 0 ||
     filter.tiltakstyper.length > 0;
@@ -136,7 +136,7 @@ const defaultTiltaksgjennomforingfilter: ArbeidsmarkedstiltakFilter = {
   navEnheter: [],
   innsatsgruppe: undefined,
   tiltakstyper: [],
-  apentForInnsok: ApentForInnsok.APENT_ELLER_STENGT,
+  apentForPamelding: ApentForPamelding.APENT_ELLER_STENGT,
   erSykmeldtMedArbeidsgiver: false,
 };
 

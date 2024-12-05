@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.okonomi.Prismodell
+import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.tilsagn.BesluttTilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.ArrangorflateTilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.AvvistTilsagnAarsak
@@ -18,13 +19,13 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import org.intellij.lang.annotations.Language
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
 class TilsagnRepository(private val db: Database) {
-    fun upsert(dbo: TilsagnDbo) =
-        db.transaction { upsert(dbo, it) }
+    fun upsert(dbo: TilsagnDbo) = db.transaction {
+        upsert(dbo, it)
+    }
 
     fun upsert(dbo: TilsagnDbo, tx: Session) {
         @Language("PostgreSQL")
@@ -71,7 +72,9 @@ class TilsagnRepository(private val db: Database) {
         tx.run(queryOf(query, dbo.toSqlParameters()).asExecute)
     }
 
-    fun get(id: UUID) = db.transaction { get(id, it) }
+    fun get(id: UUID) = db.transaction {
+        get(id, it)
+    }
 
     fun get(id: UUID, tx: Session): TilsagnDto? {
         @Language("PostgreSQL")
@@ -116,23 +119,22 @@ class TilsagnRepository(private val db: Database) {
 
     fun getArrangorflateTilsagnTilRefusjon(
         gjennomforingId: UUID,
-        periodeStart: LocalDate,
-        periodeSlutt: LocalDate,
+        periode: RefusjonskravPeriode,
     ): List<ArrangorflateTilsagn> {
         @Language("PostgreSQL")
         val query = """
             select * from tilsagn_arrangorflate_view
             where gjennomforing_id = :gjennomforing_id::uuid
-            and (:periode_slutt::date is null or periode_start <= :periode_slutt::date)
-            and (:periode_start::date is null or periode_slutt >= :periode_start::date)
+              and (periode_start <= :periode_slutt::date)
+              and (periode_slutt >= :periode_start::date)
         """.trimIndent()
 
         return queryOf(
             query,
             mapOf(
                 "gjennomforing_id" to gjennomforingId,
-                "periode_start" to periodeStart,
-                "periode_slutt" to periodeSlutt,
+                "periode_start" to periode.start,
+                "periode_slutt" to periode.slutt,
             ),
         )
             .map { it.toArrangorflateTilsagn() }
@@ -161,6 +163,15 @@ class TilsagnRepository(private val db: Database) {
         """.trimIndent()
 
         return tx.run(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt)).asUpdate)
+    }
+
+    fun delete(id: UUID) {
+        @Language("PostgreSQL")
+        val query = """
+            delete from tilsagn where id = :id::uuid
+        """.trimIndent()
+
+        db.run(queryOf(query, mapOf("id" to id)).asExecute)
     }
 
     fun setBesluttelse(
@@ -192,7 +203,8 @@ class TilsagnRepository(private val db: Database) {
                 besluttet_av = :nav_ident,
                 besluttet_tidspunkt = :tidspunkt,
                 avvist_aarsaker = :avvist_aarsak::avvist_aarsak_type[],
-                avvist_forklaring = :avvist_forklaring
+                avvist_forklaring = :avvist_forklaring,
+                annullert_tidspunkt = null
             where id = :id::uuid
         """.trimIndent()
 
@@ -235,6 +247,7 @@ class TilsagnRepository(private val db: Database) {
             arrayOrNull<String>("avvist_aarsaker")?.toList()?.map { AvvistTilsagnAarsak.valueOf(it) }
         val avvistForklaring = stringOrNull("avvist_forklaring")
         val besluttelse = stringOrNull("besluttelse")
+        val annullertTidspunkt = localDateTimeOrNull("annullert_tidspunkt")
 
         return TilsagnDto(
             id = uuid("id"),
@@ -252,9 +265,10 @@ class TilsagnRepository(private val db: Database) {
                     aarsaker = avvisteAarsaker,
                     forklaring = avvistForklaring,
                     tidspunkt = localDateTime("besluttet_tidspunkt"),
+                    beslutternavn = string("beslutternavn"),
                 )
             },
-            annullertTidspunkt = localDateTimeOrNull("annullert_tidspunkt"),
+            annullertTidspunkt = annullertTidspunkt,
             lopenummer = int("lopenummer"),
             kostnadssted = NavEnhetDbo(
                 enhetsnummer = string("kostnadssted"),
@@ -270,7 +284,21 @@ class TilsagnRepository(private val db: Database) {
                 slettet = boolean("arrangor_slettet"),
             ),
             beregning = Json.decodeFromString<Prismodell.TilsagnBeregning>(string("beregning")),
+            status = utledStatus(besluttelse, annullertTidspunkt),
         )
+    }
+
+    private fun utledStatus(besluttelse: String?, annullertTidspunkt: LocalDateTime?): TilsagnDto.TilsagnStatus {
+        if (annullertTidspunkt != null) {
+            return TilsagnDto.TilsagnStatus.ANNULLERT
+        }
+
+        return when (besluttelse) {
+            "GODKJENT" -> TilsagnDto.TilsagnStatus.GODKJENT
+            "AVVIST" -> TilsagnDto.TilsagnStatus.RETURNERT
+            null -> TilsagnDto.TilsagnStatus.TIL_GODKJENNING
+            else -> TilsagnDto.TilsagnStatus.OPPGJORT
+        }
     }
 
     private fun Row.toArrangorflateTilsagn(): ArrangorflateTilsagn {

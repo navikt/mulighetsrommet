@@ -12,7 +12,7 @@ object DeltakerFixtures {
         startDato: LocalDate = LocalDate.now(),
         sluttDato: LocalDate = LocalDate.now().plusMonths(1),
         statusType: DeltakerStatus.Type = DeltakerStatus.Type.DELTAR,
-        stillingsprosent: Double = 100.0,
+        deltakelsesprosent: Double = 100.0,
     ) = DeltakerDbo(
         id = UUID.randomUUID(),
         startDato = startDato,
@@ -20,7 +20,7 @@ object DeltakerFixtures {
         gjennomforingId = gjennomforingId,
         registrertTidspunkt = LocalDateTime.now(),
         endretTidspunkt = LocalDateTime.now(),
-        stillingsprosent = stillingsprosent,
+        deltakelsesprosent = deltakelsesprosent,
         status = DeltakerStatus(
             type = statusType,
             aarsak = null,

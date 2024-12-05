@@ -95,7 +95,7 @@ class ArenaAdapterServiceTest :
                 sluttDato = LocalDate.now().plusYears(1),
                 arenaAnsvarligEnhet = null,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                apentForInnsok = true,
+                apentForPamelding = true,
                 antallPlasser = null,
                 avtaleId = null,
                 deltidsprosent = 100.0,
@@ -200,7 +200,7 @@ class ArenaAdapterServiceTest :
                     sluttDato = LocalDate.now().plusYears(1),
                     arenaAnsvarligEnhet = null,
                     avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                    apentForInnsok = true,
+                    apentForPamelding = true,
                     antallPlasser = null,
                     avtaleId = null,
                     deltidsprosent = 100.0,
@@ -243,7 +243,7 @@ class ArenaAdapterServiceTest :
                     sluttDato = LocalDate.of(2024, 1, 1),
                     arenaAnsvarligEnhet = NavEnhetFixtures.TiltakOslo.enhetsnummer,
                     avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-                    apentForInnsok = false,
+                    apentForPamelding = false,
                     antallPlasser = 100,
                     avtaleId = null,
                     deltidsprosent = 1.0,
@@ -264,14 +264,13 @@ class ArenaAdapterServiceTest :
                     it.arrangor.organisasjonsnummer shouldBe ArrangorFixtures.underenhet1.organisasjonsnummer
                     it.startDato shouldBe gjennomforing1.startDato
                     it.sluttDato shouldBe gjennomforing1.sluttDato
-                    it.apentForInnsok shouldBe gjennomforing1.apentForInnsok
                     it.antallPlasser shouldBe gjennomforing1.antallPlasser
                     it.oppstart shouldBe gjennomforing1.oppstart
                     it.deltidsprosent shouldBe gjennomforing1.deltidsprosent
                 }
             }
 
-            test("skal ikke overskrive avbrutt_tidspunkt") {
+            test("skal ikke overskrive avsluttet_tidspunkt") {
                 val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                     startDato = LocalDate.now(),
                     sluttDato = LocalDate.now().plusDays(1),
@@ -293,7 +292,7 @@ class ArenaAdapterServiceTest :
 
                 // Setter den til custom avbrutt tidspunkt for å sjekke at den ikke overskrives med en "fake" en
                 val jan2023 = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
-                gjennomforinger.avbryt(gjennomforing1.id, jan2023, AvbruttAarsak.EndringHosArrangor)
+                gjennomforinger.setAvsluttet(gjennomforing1.id, jan2023, AvbruttAarsak.EndringHosArrangor)
 
                 val arenaDbo = ArenaTiltaksgjennomforingDbo(
                     id = gjennomforing1.id,
@@ -306,7 +305,7 @@ class ArenaAdapterServiceTest :
                     sluttDato = LocalDate.of(2024, 1, 1),
                     arenaAnsvarligEnhet = NavEnhetFixtures.TiltakOslo.enhetsnummer,
                     avslutningsstatus = Avslutningsstatus.AVLYST,
-                    apentForInnsok = false,
+                    apentForPamelding = false,
                     antallPlasser = 100,
                     avtaleId = null,
                     deltidsprosent = 1.0,
@@ -316,13 +315,13 @@ class ArenaAdapterServiceTest :
 
                 service.upsertTiltaksgjennomforing(arenaDbo)
 
-                val avbruttTidspunkt =
-                    Query("select avbrutt_tidspunkt, avbrutt_aarsak from tiltaksgjennomforing where id = '${gjennomforing1.id}'")
-                        .map { it.localDateTime("avbrutt_tidspunkt") to it.string("avbrutt_aarsak") }
+                val avbrutt =
+                    Query("select avsluttet_tidspunkt, avbrutt_aarsak from tiltaksgjennomforing where id = '${gjennomforing1.id}'")
+                        .map { it.localDateTime("avsluttet_tidspunkt") to it.string("avbrutt_aarsak") }
                         .asSingle
                         .let { database.db.run(it) }
 
-                avbruttTidspunkt shouldBe (jan2023 to "ENDRING_HOS_ARRANGOR")
+                avbrutt shouldBe (jan2023 to "ENDRING_HOS_ARRANGOR")
             }
 
             test("skal publisere til kafka når det er endringer fra Arena") {
@@ -354,7 +353,7 @@ class ArenaAdapterServiceTest :
                     sluttDato = LocalDate.now().plusYears(1),
                     arenaAnsvarligEnhet = null,
                     avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                    apentForInnsok = true,
+                    apentForPamelding = true,
                     antallPlasser = null,
                     avtaleId = null,
                     deltidsprosent = 100.0,

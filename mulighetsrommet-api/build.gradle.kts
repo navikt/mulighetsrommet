@@ -83,6 +83,7 @@ dependencies {
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.server.metricsMicrometer)
+    implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.sessions)
     implementation(libs.ktor.server.swagger)
     testImplementation(libs.ktor.server.testHost)
@@ -128,7 +129,4 @@ dependencies {
     testImplementation(libs.assertj.db)
     testImplementation(libs.mockk)
     testImplementation(libs.nav.mockOauth2Server)
-
-    // DB-scheduler
-    implementation(libs.dbScheduler)
 }
