@@ -27,16 +27,14 @@ const queryClient = new QueryClient({
 });
 
 async function enableMocking() {
-  if (import.meta.env.PROD) {
-    return;
-  }
-
   if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
     const worker = await import("./mocks/worker");
 
     return worker.initializeMockServiceWorker().start({
       onUnhandledRequest: "bypass",
     });
+  } else {
+    return;
   }
 }
 
