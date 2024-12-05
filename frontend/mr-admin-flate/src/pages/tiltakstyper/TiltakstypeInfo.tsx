@@ -19,7 +19,7 @@ export function TiltakstypeInfo() {
 
   return (
     <DetaljerContainer>
-      <DetaljerInfoContainer>
+      <DetaljerInfoContainer withBorderRight={false}>
         <Bolk>
           <Metadata header="Tiltakstype" verdi={tiltakstype.navn} />
           <Metadata header="Tiltakskode" verdi={tiltakstype.arenaKode} />
@@ -37,7 +37,7 @@ export function TiltakstypeInfo() {
             <Separator />
             <Bolk aria-label="Sanity-dokument">
               <Metadata
-                header="Sanity dokument"
+                header="Sanity-dokument"
                 verdi={
                   <>
                     <Link target="_blank" to={tiltakstypeSanityUrl}>

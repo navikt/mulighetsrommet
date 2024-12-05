@@ -35,7 +35,6 @@ function createBrodsmuler(
           lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
         }
       : undefined,
-
     {
       tittel: "Tiltaksgjennomføringdetaljer",
       lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}`,

@@ -5,6 +5,7 @@ import { ReactNode, useState } from "react";
 import { formaterDatoTid } from "../../utils/Utils";
 import { CheckmarkButton } from "./CheckmarkButton";
 import styles from "./Notifikasjoner.module.scss";
+import { useRevalidator } from "react-router-dom";
 
 interface NotifikasjonssradProps {
   notifikasjon: UserNotification;
@@ -30,6 +31,7 @@ function tag(type: NotificationType, lest: boolean): ReactNode {
 
 export function Notifikasjonssrad({ notifikasjon, lest }: NotifikasjonssradProps) {
   const { title, description, createdAt, type, metadata } = notifikasjon;
+  const revalidator = useRevalidator();
 
   const [read, setRead] = useState<boolean>(lest);
   const [error, setError] = useState("");
@@ -60,7 +62,15 @@ export function Notifikasjonssrad({ notifikasjon, lest }: NotifikasjonssradProps
           {formaterDatoTid(createdAt)}
         </BodyShort>
         <VStack>
-          <CheckmarkButton id={notifikasjon.id} read={read} setRead={setRead} setError={setError} />
+          <CheckmarkButton
+            id={notifikasjon.id}
+            read={read}
+            setRead={(value) => {
+              setRead(value);
+              revalidator.revalidate();
+            }}
+            setError={setError}
+          />
           {error && (
             <Alert inline variant="error" size="small">
               {error}

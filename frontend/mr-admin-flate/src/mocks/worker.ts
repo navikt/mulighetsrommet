@@ -1,9 +1,7 @@
-import { setupWorker } from "msw/browser";
+import { SetupWorker, setupWorker } from "msw/browser";
 import { apiHandlers } from "./apiHandlers";
 
-export function initializeMockServiceWorker() {
+export function initializeMockServiceWorker(): SetupWorker {
   const worker = setupWorker(...apiHandlers);
-  return worker.start({
-    onUnhandledRequest: "bypass",
-  });
+  return worker;
 }

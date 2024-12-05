@@ -1,26 +1,26 @@
 import { TiltaksgjennomforingFilter } from "@/api/atoms";
 import { useAdminTiltaksgjennomforinger } from "@/api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
+import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
+import { APPLICATION_NAME } from "@/constants";
 import {
   createQueryParamsForExcelDownloadForTiltaksgjennomforing,
   formaterDato,
   formaterNavEnheter,
 } from "@/utils/Utils";
-import { Alert, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
-import { useAtom, WritableAtom } from "jotai";
 import { OpenAPI, SorteringTiltaksgjennomforinger } from "@mr/api-client";
+import { GjennomforingStatusTag } from "@mr/frontend-common";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
+import { Alert, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
+import { useAtom, WritableAtom } from "jotai";
 import React, { createRef, useEffect, useState } from "react";
 import pageStyles from "../../pages/Page.module.scss";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import styles from "./Tabell.module.scss";
-import { APPLICATION_NAME } from "@/constants";
-import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
-import { GjennomforingStatusTag } from "@mr/frontend-common";
 
 const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: boolean }) => {
   return skjul ? null : <>{children}</>;
@@ -191,7 +191,7 @@ export function TiltaksgjennomforingsTabell({
                         >
                           <VStack>
                             <Lenke
-                              to={`${tiltaksgjennomforing?.avtaleId ? `/avtaler/${tiltaksgjennomforing?.avtaleId}/tiltaksgjennomforinger/${tiltaksgjennomforing.id}` : `${tiltaksgjennomforing.id}`} `}
+                              to={`${tiltaksgjennomforing?.avtaleId ? `/avtaler/${tiltaksgjennomforing?.avtaleId}/tiltaksgjennomforinger/${tiltaksgjennomforing.id}` : `${tiltaksgjennomforing.id}`}`}
                               data-testid="tiltaksgjennomforing-tabell_tittel"
                             >
                               {tiltaksgjennomforing.navn}
