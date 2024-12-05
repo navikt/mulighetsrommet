@@ -9,7 +9,7 @@
     "lint": "eslint src --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint src --fix",
     "typecheck": "tsc",
-    "build": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' VITE_FARO_URL=https://telemetry.nav.no/collect vite build",
+    "build": "cross-env VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' VITE_FARO_URL=https://telemetry.nav.no/collect vite build",
     "build:lokal": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' VITE_FARO_URL=http://localhost:1234 vite build",
     "build:demo": "cross-env VITE_MULIGHETSROMMET_API_MOCK=true VITE_FARO_URL=https://telemetry.ekstern.dev.nav.no/collect vite build",
     "preview": "vite preview",
