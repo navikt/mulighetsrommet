@@ -1,37 +1,28 @@
-import { useAvtale } from "@/api/avtaler/useAvtale";
 import { getDisplayName } from "@/api/enhet/helpers";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
 import { OpsjonerRegistrert } from "@/components/avtaler/opsjoner/OpsjonerRegistrert";
+import { opsjonsmodellTilTekst } from "@/components/avtaler/opsjoner/opsjonsmodeller";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
-import { Laster } from "@/components/laster/Laster";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
+import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
 import { DetaljerContainer } from "@/pages/DetaljerContainer";
 import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
 import { ArrangorKontaktinfoContainer } from "@/pages/arrangor/ArrangorKontaktinfoContainer";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { avtaletypeTilTekst, formaterDato } from "@/utils/Utils";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
 import { Avtaletype, NavEnhet } from "@mr/api-client";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { Heading, HelpText, VStack } from "@navikt/ds-react";
 import { Fragment } from "react";
-import { Link } from "react-router-dom";
-import { opsjonsmodellTilTekst } from "@/components/avtaler/opsjoner/opsjonsmodeller";
+import { Link, useLoaderData } from "react-router-dom";
 import styles from "./AvtaleDetaljer.module.scss";
-import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
+import { avtaleLoader } from "./avtaleLoader";
 
 export function AvtaleDetaljer() {
-  const { data: avtale, isPending, error } = useAvtale();
-
-  if (isPending) {
-    return <Laster tekst="Laster avtale..." />;
-  }
-
-  if (error) {
-    return <Alert variant="error">Klarte ikke hente avtaleinformasjon</Alert>;
-  }
+  const avtale = useLoaderData<typeof avtaleLoader>();
 
   function sorterPaRegionsnavn(a: { region: NavEnhet }, b: { region: NavEnhet }) {
     return a.region.navn.localeCompare(b.region.navn);

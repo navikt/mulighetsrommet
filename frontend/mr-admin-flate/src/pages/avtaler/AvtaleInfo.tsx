@@ -14,10 +14,12 @@ import { InfoContainer } from "@/components/skjema/InfoContainer";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { Toggles } from "@mr/api-client";
 import { AvtalePrisOgFakturering } from "./AvtalePrisOgFakturering";
+import { useLoaderData } from "react-router-dom";
+import { avtaleLoader } from "./avtaleLoader";
 
 export function AvtaleInfo() {
   const { data: bruker } = useHentAnsatt();
-  const { data: avtale, isPending, isError } = useAvtale();
+  const avtale = useLoaderData<typeof avtaleLoader>();
 
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 
@@ -25,12 +27,8 @@ export function AvtaleInfo() {
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
   );
 
-  if (!bruker || isPending) {
+  if (!bruker) {
     return <Laster tekst="Laster avtale..." />;
-  }
-
-  if (isError) {
-    return <Alert variant="error">Klarte ikke laste avtale</Alert>;
   }
 
   return (
