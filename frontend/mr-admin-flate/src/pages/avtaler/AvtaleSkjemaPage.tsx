@@ -1,38 +1,26 @@
-import { useLocation, useNavigate } from "react-router-dom";
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { useNavEnheter } from "@/api/enhet/useNavEnheter";
-import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
-import { ContainerLayout } from "@/layouts/ContainerLayout";
-import { inneholderUrl } from "@/utils/Utils";
-import { Header } from "@/components/detaljside/Header";
-import { Laster } from "@/components/laster/Laster";
+import { defaultAvtaleData } from "@/components/avtaler/AvtaleSkjemaConst";
 import { AvtaleSkjemaContainer } from "@/components/avtaler/AvtaleSkjemaContainer";
-import { useAvtale } from "@/api/avtaler/useAvtale";
-import { AvtalestatusTag } from "@/components/statuselementer/AvtalestatusTag";
-import { Heading } from "@navikt/ds-react";
-import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
+import { Header } from "@/components/detaljside/Header";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
+import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { SkjemaContainer } from "@/components/skjema/SkjemaContainer";
 import { SkjemaContent } from "@/components/skjema/SkjemaContent";
-import { defaultAvtaleData } from "@/components/avtaler/AvtaleSkjemaConst";
+import { AvtalestatusTag } from "@/components/statuselementer/AvtalestatusTag";
+import { ContainerLayout } from "@/layouts/ContainerLayout";
+import { inneholderUrl } from "@/utils/Utils";
+import { Heading } from "@navikt/ds-react";
+import { useLoaderData, useLocation, useNavigate } from "react-router-dom";
+import { avtaleSkjemaLoader } from "./avtaleLoader";
 
 export function AvtaleSkjemaPage() {
   const navigate = useNavigate();
-
-  const { data: avtale, isLoading: isAvtaleLoading } = useAvtale();
-  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper();
-  const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
-  const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
+  const data = useLoaderData<typeof avtaleSkjemaLoader>();
   const location = useLocation();
 
   const navigerTilbake = () => {
     navigate(-1);
   };
-
-  if (isAvtaleLoading || isLoadingAnsatt) {
-    return <Laster size="xlarge" tekst={"Laster avtale..."} />;
-  }
-
+  const { avtale, tiltakstyper, navEnheter, ansatt } = data;
   const redigeringsModus = avtale ? inneholderUrl(avtale.id) : false;
 
   const brodsmuler: Array<Brodsmule | undefined> = [
@@ -63,22 +51,19 @@ export function AvtaleSkjemaPage() {
 
       <ContainerLayout>
         <SkjemaContainer>
-          {isLoadingTiltakstyper || isLoadingEnheter ? <Laster /> : null}
           <SkjemaContent>
-            {!tiltakstyper?.data || !ansatt || !enheter ? null : (
-              <AvtaleSkjemaContainer
-                onClose={() => {
-                  navigerTilbake();
-                }}
-                onSuccess={(id) => navigate(`/avtaler/${id}`)}
-                tiltakstyper={tiltakstyper.data}
-                ansatt={ansatt}
-                enheter={enheter}
-                avtale={avtale}
-                defaultValues={defaultAvtaleData(ansatt, location.state?.dupliserAvtale ?? avtale)}
-                redigeringsModus={redigeringsModus}
-              />
-            )}
+            <AvtaleSkjemaContainer
+              onClose={() => {
+                navigerTilbake();
+              }}
+              onSuccess={(id) => navigate(`/avtaler/${id}`)}
+              tiltakstyper={tiltakstyper.data}
+              ansatt={ansatt}
+              enheter={navEnheter}
+              avtale={avtale}
+              defaultValues={defaultAvtaleData(ansatt, location.state?.dupliserAvtale ?? avtale)}
+              redigeringsModus={redigeringsModus}
+            />
           </SkjemaContent>
         </SkjemaContainer>
       </ContainerLayout>

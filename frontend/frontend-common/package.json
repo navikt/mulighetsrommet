@@ -6,7 +6,7 @@
   "module": "index.ts",
   "types": "index.tsx",
   "homepage": "https://github.com/navikt/mulighetsrommet#readme",
-  "dependencies": {
+  "peerDependencies": {
     "@hookform/resolvers": "3.9.1",
     "@mr/api-client": "workspace:*",
     "@tanstack/react-query": "5.62.2",
