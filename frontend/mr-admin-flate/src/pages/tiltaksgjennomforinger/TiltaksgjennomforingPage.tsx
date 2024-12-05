@@ -1,22 +1,22 @@
-import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
-import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
-import classNames from "classnames";
-import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
-import { Link, Outlet, useLocation, useParams } from "react-router-dom";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { Header } from "@/components/detaljside/Header";
 import headerStyles from "@/components/detaljside/Header.module.scss";
 import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
-import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { DupliserTiltak } from "@/components/tiltaksgjennomforinger/DupliserTiltak";
 import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "@/constants";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
-import commonStyles from "../Page.module.scss";
 import { Toggles } from "@mr/api-client";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
+import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
+import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
+import classNames from "classnames";
+import { Link, Outlet, useLocation, useParams } from "react-router-dom";
+import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
+import { Laster } from "../../components/laster/Laster";
+import commonStyles from "../Page.module.scss";
 
 function createBrodsmuler(
   tiltaksgjennomforingId: string,
