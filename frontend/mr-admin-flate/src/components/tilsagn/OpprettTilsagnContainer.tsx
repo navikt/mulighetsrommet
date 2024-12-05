@@ -43,17 +43,19 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing, tilsagn }: Props
   }
 
   return (
-    <SkjemaDetaljerContainer>
-      <SkjemaKolonne>
-        <TilsagnSkjema
-          tiltaksgjennomforing={tiltaksgjennomforing}
-          tilsagn={tilsagn}
-          onSubmit={postData}
-          mutation={mutation}
-          onAvbryt={navigerTilGjennomforing}
-          prismodell={prismodell(tiltaksgjennomforing)}
-        />
-      </SkjemaKolonne>
-    </SkjemaDetaljerContainer>
+    <>
+      <SkjemaDetaljerContainer>
+        <SkjemaKolonne>
+          <TilsagnSkjema
+            tiltaksgjennomforing={tiltaksgjennomforing}
+            tilsagn={tilsagn}
+            onSubmit={postData}
+            mutation={mutation}
+            onAvbryt={navigerTilGjennomforing}
+            prismodell={prismodell(tiltaksgjennomforing)}
+          />
+        </SkjemaKolonne>
+      </SkjemaDetaljerContainer>
+    </>
   );
 }

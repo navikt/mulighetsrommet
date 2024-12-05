@@ -27,12 +27,14 @@ export function TilsagnForGjennomforingContainer() {
   }
 
   return (
-    <InfoContainer>
-      {tilsagn.length > 0 ? (
-        <Tilsagnstabell tilsagn={tilsagn} />
-      ) : (
-        <Alert variant="info">Det finnes ingen tilsagn for dette tiltaket</Alert>
-      )}
-    </InfoContainer>
+    <>
+      <InfoContainer>
+        {tilsagn.length > 0 ? (
+          <Tilsagnstabell tilsagn={tilsagn} />
+        ) : (
+          <Alert variant="info">Det finnes ingen tilsagn for dette tiltaket</Alert>
+        )}
+      </InfoContainer>
+    </>
   );
 }

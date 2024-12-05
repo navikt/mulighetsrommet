@@ -26,7 +26,6 @@ export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
   const [antallPlasser, setAntallPlasser] = useState<number>(defaultAntallPlasser ?? 0);
 
   const periode = watch("periode");
-  const beregning = watch("beregning");
 
   function findSats(): number | undefined {
     if (!periode?.start) {
@@ -107,16 +106,6 @@ export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
         }
         customInput={TextField}
         value={findSats()}
-        valueIsNumericString
-        thousandSeparator=" "
-        suffix=" kr"
-      />
-      <NumericFormat
-        readOnly
-        size="small"
-        label="Beløp"
-        customInput={TextField}
-        value={beregning?.belop ?? ""}
         valueIsNumericString
         thousandSeparator=" "
         suffix=" kr"
