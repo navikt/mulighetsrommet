@@ -1,17 +1,15 @@
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
+import { useTitle } from "@mr/frontend-common";
 import { BellDotFillIcon } from "@navikt/aksel-icons";
 import { Tabs } from "@navikt/ds-react";
-import { useTitle } from "@mr/frontend-common";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLoaderData, useLocation, useNavigate } from "react-router-dom";
 import styles from "../Page.module.scss";
-import { useNotifikasjonerForAnsatt } from "../../api/notifikasjoner/useNotifikasjonerForAnsatt";
-import { NotificationStatus } from "@mr/api-client";
+import { notifikasjonLoader } from "./notifikasjonerLoader";
 
 export function NotifikasjonerPage() {
   const { pathname } = useLocation();
-  const { data: lesteNotifikasjoner } = useNotifikasjonerForAnsatt(NotificationStatus.DONE);
-  const { data: ulesteNotifikasjoner } = useNotifikasjonerForAnsatt(NotificationStatus.NOT_DONE);
+  const { leste, uleste } = useLoaderData<typeof notifikasjonLoader>();
   const navigate = useNavigate();
   useTitle("Notifikasjoner");
 
@@ -26,13 +24,13 @@ export function NotifikasjonerPage() {
         <Tabs.List id="fane_liste" className={styles.list}>
           <Tabs.Tab
             value="nye"
-            label={`Nye notifikasjoner ${ulesteNotifikasjoner?.pagination.totalCount ? `(${ulesteNotifikasjoner?.pagination.totalCount})` : ""}`}
+            label={`Nye notifikasjoner ${uleste?.pagination.totalCount ? `(${uleste?.pagination.totalCount})` : ""}`}
             onClick={() => navigate("/notifikasjoner")}
             aria-controls="panel"
           />
           <Tabs.Tab
             value="tidligere"
-            label={`Tidligere notifikasjoner ${lesteNotifikasjoner?.pagination.totalCount ? `(${lesteNotifikasjoner?.pagination.totalCount})` : ""}`}
+            label={`Tidligere notifikasjoner ${leste?.pagination.totalCount ? `(${leste?.pagination.totalCount})` : ""}`}
             onClick={() => navigate("/notifikasjoner/tidligere")}
             aria-controls="panel"
           />

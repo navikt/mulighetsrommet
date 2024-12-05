@@ -15,6 +15,7 @@ import { AvtalePage } from "./pages/avtaler/AvtalePage";
 import { AvtaleSkjemaPage } from "./pages/avtaler/AvtaleSkjemaPage";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
+import { notifikasjonLoader } from "./pages/notifikasjoner/notifikasjonerLoader";
 import { TiltaksgjennomforingInfo } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingInfo";
 import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingPage";
 import { TiltaksgjennomforingSkjemaPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
@@ -27,7 +28,7 @@ import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstyp
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
-import { tiltakstyperLoaders } from "./pages/tiltakstyper/tiltakstyperLoaders";
+import { tiltakstypeLoader, tiltakstyperLoaders } from "./pages/tiltakstyper/tiltakstyperLoaders";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -97,6 +98,7 @@ const router = () =>
             path: "tiltakstyper/:tiltakstypeId",
             element: <DetaljerTiltakstypePage />,
             errorElement: <ErrorPage />,
+            loader: tiltakstypeLoader,
             children: [
               {
                 index: true,
@@ -247,6 +249,7 @@ const router = () =>
             path: "notifikasjoner",
             element: <NotifikasjonerPage />,
             errorElement: <ErrorPage />,
+            loader: notifikasjonLoader,
             children: [
               {
                 index: true,
