@@ -24,6 +24,7 @@ fun Route.maamRoutes() {
     route("/api/intern/maam") {
         route("/tasks") {
             val dbSchedulerClient: DbSchedulerClient by inject()
+            val generateRefusjonskrav: GenerateRefusjonskrav by inject()
 
             post("generate-validation-report") {
                 val taskId = dbSchedulerClient.scheduleGenerateValidationReport(Instant.now())
@@ -69,8 +70,8 @@ fun Route.maamRoutes() {
 
             post("generate-refusjonskrav") {
                 val (dayInMonth) = call.receive<GenerateRefusjonskravRequest>()
-                val taskId = dbSchedulerClient.scheduleGenerateRefusjonskrav(GenerateRefusjonskrav.TaskInput(dayInMonth), Instant.now())
-                call.respond(HttpStatusCode.OK, GeneralTaskResponse(id = taskId))
+                generateRefusjonskrav.runTask(dayInMonth)
+                call.respond(HttpStatusCode.OK, GeneralTaskResponse(id = "OK"))
             }
         }
 

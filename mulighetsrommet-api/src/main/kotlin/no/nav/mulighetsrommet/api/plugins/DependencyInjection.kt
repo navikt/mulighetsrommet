@@ -422,7 +422,7 @@ private fun tasks(config: TaskConfig) = module {
     single { SynchronizeUtdanninger(config.synchronizeUtdanninger, get(), get()) }
     single { GenerateRefusjonskrav(config.generateRefusjonskrav, get()) }
     single { JournalforRefusjonskrav(get(), get(), get(), get(), get()) }
-    single { DbSchedulerClient(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    single { DbSchedulerClient(get(), get(), get(), get(), get(), get(), get(), get()) }
     single {
         val updateTiltaksgjennomforingStatus = UpdateTiltaksgjennomforingStatus(
             get(),

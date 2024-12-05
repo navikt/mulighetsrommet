@@ -5,9 +5,7 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
-import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.refusjon.RefusjonService
-import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import java.time.LocalDate
 
 class GenerateRefusjonskrav(
@@ -27,20 +25,10 @@ class GenerateRefusjonskrav(
         }
     }
 
-    @Serializable
-    data class TaskInput(
-        @Serializable(with = LocalDateSerializer::class)
-        val dayInMonth: LocalDate,
-    )
-
-    val task: RecurringTask<TaskInput> = Tasks
-        .recurring(javaClass.simpleName, config.toSchedule(), TaskInput::class.java)
-        .execute { inst, _ ->
-            if (inst.data == null) {
-                runTask(LocalDate.now().minusMonths(1))
-            } else {
-                runTask(inst.data.dayInMonth)
-            }
+    val task: RecurringTask<Void> = Tasks
+        .recurring(javaClass.simpleName, config.toSchedule())
+        .execute { _, _ ->
+            runTask(LocalDate.now().minusMonths(1))
         }
 
     fun runTask(dayInMonth: LocalDate) {

@@ -6,7 +6,6 @@ import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import kotliquery.Session
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
-import no.nav.mulighetsrommet.api.refusjon.task.GenerateRefusjonskrav
 import no.nav.mulighetsrommet.api.refusjon.task.JournalforRefusjonskrav
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.database.Database
@@ -28,7 +27,6 @@ class DbSchedulerClient(
     private val generateValidationReport: GenerateValidationReport,
     private val synchronizeNavAnsatte: SynchronizeNavAnsatte,
     private val synchronizeUtdanninger: SynchronizeUtdanninger,
-    private val generateRefusjonskrav: GenerateRefusjonskrav,
     private val scheduleNotification: ScheduleNotification,
 ) {
     fun scheduleJournalforRefusjonskrav(input: JournalforRefusjonskrav.TaskInput, startTime: Instant, tx: Session): String = scheduleIfNotExists(journalforRefusjonskrav.task, input, startTime, input.refusjonskravId, tx)
@@ -50,15 +48,11 @@ class DbSchedulerClient(
     }
 
     fun scheduleSynchronizeNavAnsatte(startTime: Instant): String = database.transaction { tx ->
-        reschedule(synchronizeNavAnsatte.task, null, startTime, tx)
+        reschedule(synchronizeNavAnsatte.task, startTime, tx)
     }
 
     fun scheduleSynchronizeUtdanninger(startTime: Instant): String = database.transaction { tx ->
-        reschedule(synchronizeUtdanninger.task, null, startTime, tx)
-    }
-
-    fun scheduleGenerateRefusjonskrav(input: GenerateRefusjonskrav.TaskInput, startTime: Instant): String = database.transaction { tx ->
-        reschedule(generateRefusjonskrav.task, input, startTime, tx)
+        reschedule(synchronizeUtdanninger.task, startTime, tx)
     }
 
     private fun <T> scheduleIfNotExists(
@@ -75,11 +69,11 @@ class DbSchedulerClient(
         return id.toString()
     }
 
-    private fun <T> reschedule(task: RecurringTask<T>, input: T?, startTime: Instant): String = database.transaction { tx ->
-        reschedule(task, input, startTime, tx)
+    private fun <T> reschedule(task: RecurringTask<T>, startTime: Instant): String = database.transaction { tx ->
+        reschedule(task, startTime, tx)
     }
 
-    private fun <T> reschedule(task: RecurringTask<T>, input: T?, startTime: Instant, tx: Session): String {
+    private fun <T> reschedule(task: RecurringTask<T>, startTime: Instant, tx: Session): String {
         val existingTaskId = task.defaultTaskInstance.id
         val client = getClient(task, tx)
         val existingSchedule = client.getScheduledExecution(task.instance(existingTaskId)).get()
@@ -88,7 +82,7 @@ class DbSchedulerClient(
             throw IllegalArgumentException("Task already running.")
         }
 
-        client.reschedule(task.instance(existingTaskId, input), startTime)
+        client.reschedule(task.instance(existingTaskId), startTime)
         return existingTaskId
     }
 
