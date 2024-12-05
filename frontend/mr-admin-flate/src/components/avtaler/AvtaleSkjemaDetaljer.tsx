@@ -171,7 +171,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 label={avtaletekster.avtaletypeLabel}
                 {...register("avtaletype")}
                 onChange={(e) => {
-                  updateOpsjonsmodell(watchedOpsjonsmodell, e.target.value);
+                  updateOpsjonsmodell(watchedOpsjonsmodell, e.target.value as Avtaletype);
                 }}
                 options={tiltakskode ? avtaletypeOptions(tiltakskode) : []}
               />
