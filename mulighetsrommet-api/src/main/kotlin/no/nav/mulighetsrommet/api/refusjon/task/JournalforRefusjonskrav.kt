@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.refusjon.task
 
-import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
+import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.pdfgen.Pdfgen
 import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
@@ -14,17 +14,15 @@ import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravStatus
 import no.nav.mulighetsrommet.api.refusjon.refusjonskravJournalpost
 import no.nav.mulighetsrommet.api.refusjon.toRefusjonskrav
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
+import no.nav.mulighetsrommet.tasks.transactionalSchedulerClient
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.*
 
 class JournalforRefusjonskrav(
-    database: Database,
     private val refusjonskravRepository: RefusjonskravRepository,
     private val tilsagnService: TilsagnService,
     private val dokarkClient: DokarkClient,
@@ -45,14 +43,10 @@ class JournalforRefusjonskrav(
             journalforRefusjonskrav(inst.data.refusjonskravId)
         }
 
-    private val client = SchedulerClient.Builder
-        .create(database.getDatasource(), task)
-        .serializer(DbSchedulerKotlinSerializer())
-        .build()
-
-    fun schedule(refusjonskravId: UUID, startTime: Instant = Instant.now()): UUID {
+    fun schedule(refusjonskravId: UUID, startTime: Instant, tx: TransactionalSession): UUID {
         val id = UUID.randomUUID()
         val instance = task.instance(id.toString(), TaskData(refusjonskravId))
+        val client = transactionalSchedulerClient(task, tx.connection.underlying)
         client.scheduleIfNotExists(instance, startTime)
         return id
     }

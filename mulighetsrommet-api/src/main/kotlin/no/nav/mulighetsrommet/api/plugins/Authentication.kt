@@ -283,4 +283,4 @@ fun Application.configureAuthentication(
     }
 }
 
-data class ArrangorflatePrincipal(val organisasjonsnummer: List<Organisasjonsnummer>, val principal: JWTPrincipal) : Principal
+data class ArrangorflatePrincipal(val organisasjonsnummer: List<Organisasjonsnummer>, val principal: JWTPrincipal)

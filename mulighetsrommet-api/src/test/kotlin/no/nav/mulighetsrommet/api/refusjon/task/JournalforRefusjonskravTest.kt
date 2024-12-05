@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -94,7 +95,6 @@ class JournalforRefusjonskravTest : FunSpec({
 
     test("krav må være godkjent") {
         val task = JournalforRefusjonskrav(
-            database.db,
             refusjonskravRepository = RefusjonskravRepository(database.db),
             tilsagnService,
             dokarkClient,
@@ -110,7 +110,6 @@ class JournalforRefusjonskravTest : FunSpec({
     test("vellykket journalføring setter journalpost_id") {
         val refusjonskravRepository = RefusjonskravRepository(database.db)
         val task = JournalforRefusjonskrav(
-            database.db,
             refusjonskravRepository,
             tilsagnService,
             dokarkClient,
@@ -130,5 +129,45 @@ class JournalforRefusjonskravTest : FunSpec({
 
         task.journalforRefusjonskrav(krav.id)
         refusjonskravRepository.get(krav.id)?.journalpostId shouldBe "123"
+    }
+
+    test("task scheduleres ikke hvis transaction rulles tilbake") {
+        val refusjonskravRepository = RefusjonskravRepository(database.db)
+        val task = JournalforRefusjonskrav(
+            refusjonskravRepository,
+            tilsagnService,
+            dokarkClient,
+            deltakerRepository = DeltakerRepository(database.db),
+            hentAdressebeskyttetPersonBolkPdlQuery,
+        )
+
+        try {
+            database.db.transaction { tx ->
+                task.schedule(krav.id, Instant.now(), tx)
+                throw Exception("Test")
+            }
+        } catch (_: Throwable) {}
+
+        database.assertThat("scheduled_tasks")
+            .hasNumberOfRows(0)
+    }
+
+    test("task scheduleres hvis transaction går bra") {
+        val refusjonskravRepository = RefusjonskravRepository(database.db)
+        val task = JournalforRefusjonskrav(
+            refusjonskravRepository,
+            tilsagnService,
+            dokarkClient,
+            deltakerRepository = DeltakerRepository(database.db),
+            hentAdressebeskyttetPersonBolkPdlQuery,
+        )
+
+        database.db.transaction { tx ->
+            task.schedule(krav.id, Instant.now(), tx)
+        }
+
+        database.assertThat("scheduled_tasks")
+            .row()
+            .value("task_name").isEqualTo("JournalforRefusjonskrav")
     }
 })

@@ -12,6 +12,7 @@ import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import kotliquery.Query
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedParty
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
@@ -250,6 +251,11 @@ class ArrangorflateRoutesTest : FunSpec({
                 )
             }
             response.status shouldBe HttpStatusCode.OK
+
+            Query("select count(*) from scheduled_tasks where task_name = 'JournalforRefusjonskrav'")
+                .map { 1 }
+                .asList
+                .let { database.db.run(it) } shouldHaveSize 1
         }
     }
 

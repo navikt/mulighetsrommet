@@ -56,6 +56,7 @@ object AmoKategoriseringRepository {
                 :innhold_elementer
             ) on conflict (${foreignName}_id) do update set
                 kurstype = excluded.kurstype,
+                bransje = excluded.bransje,
                 norskprove = excluded.norskprove,
                 forerkort = excluded.forerkort,
                 innhold_elementer = excluded.innhold_elementer

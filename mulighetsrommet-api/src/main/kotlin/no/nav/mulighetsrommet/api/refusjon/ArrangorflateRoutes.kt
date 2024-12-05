@@ -31,6 +31,7 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 import org.koin.ktor.ext.inject
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
@@ -117,7 +118,7 @@ fun Route.arrangorflateRoutes() {
                         tx,
                     )
 
-                    journalforRefusjonskrav.schedule(krav.id)
+                    journalforRefusjonskrav.schedule(krav.id, Instant.now(), tx)
                 }
 
                 call.respond(HttpStatusCode.OK)

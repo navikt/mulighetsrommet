@@ -110,9 +110,12 @@ sealed class SanityResponse {
     data class Result(
         val ms: Int,
         val query: String,
-        val result: JsonElement,
+        val result: JsonElement?,
     ) : SanityResponse() {
         inline fun <reified T> decode(): T {
+            if (result == null) {
+                return null as T
+            }
             return JsonIgnoreUnknownKeys.decodeFromJsonElement(result)
         }
     }

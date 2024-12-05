@@ -19,85 +19,68 @@ import classNames from "classnames";
 import { formaterDato } from "@/utils/Utils";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import styles from "./DeltakelseKort.module.scss";
-import { ReactNode } from "react";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL } from "@/constants";
 import { Link } from "react-router-dom";
 
-type Size = "small" | "medium" | "large";
-
 interface Props {
   deltakelse: Deltakelse;
+  aktiv: boolean;
 }
 
-export function DeltakelseKort({ deltakelse }: Props) {
-  return (
-    <Wrapper size="medium" status={deltakelse.status.type}>
-      <DeltakelseInnhold deltakelse={deltakelse} />
-    </Wrapper>
-  );
-}
-
-function DeltakelseInnhold({ deltakelse }: Props) {
-  if (deltakelse.eierskap === "ARENA") {
-    return <Innhold deltakelse={deltakelse} />;
-  } else if (deltakelse.eierskap === "TEAM_KOMET") {
-    const deltakelseRoute = resolveModiaRoute({
-      route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
-      deltakerId: deltakelse.id,
-    });
-
-    return (
-      <HGrid columns="1fr 20%" align="center">
-        <Innhold deltakelse={deltakelse} />
-        <VStack gap="2">
-          <Button variant="secondary" onClick={deltakelseRoute.navigate} size="small">
-            Gå til deltakelse
-          </Button>
-          <Link
-            to={`/arbeidsmarkedstiltak/tiltak/${deltakelse.gjennomforingId}`}
-            className={styles.tertiary_link}
-          >
-            Gå til tiltak
-          </Link>
-        </VStack>
-      </HGrid>
-    );
-  } else if (deltakelse.eierskap === "TEAM_TILTAK") {
-    const link = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL}/tiltaksgjennomforing/avtale/${deltakelse.id}?part=VEILEDER`;
-    return (
-      <HGrid columns="1fr 20%" align="center">
-        <Innhold deltakelse={deltakelse} />
-        <Lenkeknapp variant="secondary" to={link} size="small">
-          Gå til avtale
-        </Lenkeknapp>
-      </HGrid>
-    );
-  }
-}
-
-function Wrapper({
-  status,
-  size,
-  children,
-}: {
-  status: ArenaDeltakerStatus | GruppetiltakDeltakerStatus | ArbeidsgiverAvtaleStatus;
-  size: Size;
-  children: ReactNode;
-}) {
+export function DeltakelseKort({ deltakelse, aktiv }: Props) {
   return (
     <Box
       background="bg-default"
       borderRadius="medium"
-      padding={size === "small" ? "2" : size === "medium" ? "5" : "8"}
+      padding="5"
       className={classNames(styles.panel, {
-        [styles.utkast]: isUtkast(status),
-        [styles.kladd]: isKladd(status),
+        [styles.utkast]: isUtkast(deltakelse.status.type),
+        [styles.kladd]: isKladd(deltakelse.status.type),
       })}
     >
-      {children}
+      <HGrid columns="1fr 20%" align="center">
+        <Innhold deltakelse={deltakelse} />
+        <Knapper deltakelse={deltakelse} aktiv={aktiv} />
+      </HGrid>
     </Box>
   );
+}
+
+function Knapper({ deltakelse, aktiv }: Props) {
+  switch (deltakelse.eierskap) {
+    case "ARENA":
+      return null;
+    case "TEAM_KOMET": {
+      const deltakelseRoute = resolveModiaRoute({
+        route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
+        deltakerId: deltakelse.id,
+      });
+      return (
+        <VStack gap="2">
+          <Button variant="secondary" onClick={deltakelseRoute.navigate} size="small">
+            Gå til deltakelse
+          </Button>
+          {aktiv && (
+            <Link
+              to={`/arbeidsmarkedstiltak/tiltak/${deltakelse.gjennomforingId}`}
+              className={styles.tertiary_link}
+            >
+              Gå til tiltak
+            </Link>
+          )}
+        </VStack>
+      );
+    }
+    case "TEAM_TILTAK": {
+      const link = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL}/tiltaksgjennomforing/avtale/${deltakelse.id}?part=VEILEDER`;
+      return (
+        <Lenkeknapp variant="secondary" to={link} size="small">
+          Gå til avtale
+        </Lenkeknapp>
+      );
+    }
+  }
 }
 
 function isKladd(
