@@ -1,0 +1,33 @@
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  name: datavarehus-tiltaksgjennomforinger-v1
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
+spec:
+  pool: nav-dev
+  config:
+    cleanupPolicy: compact
+    minimumInSyncReplicas: 2
+    partitions: 2
+    replication: 3
+    # 14 days before compaction (1000 ms × 60 s × 60 m × 24 h × 14 d)
+    minCompactionLagMs: 1209600000
+    # 28 days retention (24 h * 28 d)
+    retentionHours: 672
+  acl:
+    - team: team-mulighetsrommet
+      application: mulighetsrommet-api
+      access: readwrite
+    - team: team-mulighetsrommet
+      application: mulighetsrommet-kafka-manager
+      access: read
+
+    # DVH
+    - team: teamoppfolging
+      application: teamoppfolging-kafka
+      access: read
+    - team: teamoppfolging
+      application: teamoppfolging-kafka-manager
+      access: read
