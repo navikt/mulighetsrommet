@@ -49,7 +49,7 @@ class DatavarehusGjennomforingV1KafkaProducerTest : FunSpec({
         }
     }
 
-    test("publiserer datamodell tilpasset datavarehus til topic når gjennomdøring blir konsumert") {
+    test("publiserer datamodell tilpasset datavarehus når gjennomføring blir konsumert") {
         val domain = MulighetsrommetTestDomain(
             tiltakstyper = listOf(TiltakstypeFixtures.AFT),
             avtaler = listOf(AvtaleFixtures.AFT),
