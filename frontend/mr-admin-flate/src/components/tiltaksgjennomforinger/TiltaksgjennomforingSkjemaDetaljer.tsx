@@ -1,7 +1,24 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { useSokNavAnsatt } from "@/api/ansatt/useSokNavAnsatt";
 import { useTiltaksgjennomforingAdministratorer } from "@/api/ansatt/useTiltaksgjennomforingAdministratorer";
 import { useGjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
+import { TiltaksgjennomforingAmoKategoriseringSkjema } from "@/components/amoKategorisering/TiltaksgjennomforingAmoKategoriseringSkjema";
+import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
+import { InferredTiltaksgjennomforingSchema } from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
+import { FormGroup } from "@/components/skjema/FormGroup";
+import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
+import { SkjemaInputContainer } from "@/components/skjema/SkjemaInputContainer";
+import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
+import { VertikalSeparator } from "@/components/skjema/VertikalSeparator";
 import { addYear, formaterDato } from "@/utils/Utils";
+import {
+  AvtaleDto,
+  TiltaksgjennomforingDto,
+  TiltaksgjennomforingOppstartstype,
+  Tiltakskode,
+} from "@mr/api-client";
+import { ControlledSokeSelect } from "@mr/frontend-common";
+import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import {
   Alert,
@@ -14,35 +31,17 @@ import {
   Switch,
   TextField,
 } from "@navikt/ds-react";
-import {
-  AvtaleDto,
-  TiltaksgjennomforingDto,
-  TiltaksgjennomforingKontaktperson,
-  TiltaksgjennomforingOppstartstype,
-  Tiltakskode,
-} from "@mr/api-client";
-import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useEffect, useRef, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 import { EndreDatoAdvarselModal } from "../modal/EndreDatoAdvarselModal";
-import { InferredTiltaksgjennomforingSchema } from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
-import { FormGroup } from "@/components/skjema/FormGroup";
+import { TiltaksgjennomforingUtdanningslopSkjema } from "../utdanning/TiltaksgjennomforingUtdanningslopSkjema";
 import { SelectOppstartstype } from "./SelectOppstartstype";
 import { TiltaksgjennomforingArrangorSkjema } from "./TiltaksgjennomforingArrangorSkjema";
-import { TiltaksgjennomforingAmoKategoriseringSkjema } from "@/components/amoKategorisering/TiltaksgjennomforingAmoKategoriseringSkjema";
 import styles from "./TiltaksgjennomforingSkjemaDetaljer.module.scss";
-import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
-import { SkjemaInputContainer } from "@/components/skjema/SkjemaInputContainer";
-import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
-import { VertikalSeparator } from "@/components/skjema/VertikalSeparator";
-import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
-import { isKursTiltak } from "@mr/frontend-common/utils/utils";
-import { useSokNavAnsatt } from "@/api/ansatt/useSokNavAnsatt";
-import { TiltaksgjennomforingUtdanningslopSkjema } from "../utdanning/TiltaksgjennomforingUtdanningslopSkjema";
 
 interface Props {
   tiltaksgjennomforing?: TiltaksgjennomforingDto;
@@ -52,27 +51,11 @@ interface Props {
 export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtale }: Props) {
   const { data: administratorer } = useTiltaksgjennomforingAdministratorer();
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
-  const [kontaktpersonerQuery, setKontaktpersonerQuery] = useState<string>("");
-  const { data: kontaktpersoner } = useSokNavAnsatt(kontaktpersonerQuery);
+
   const { data: deltakerSummary } = useGjennomforingDeltakerSummary(tiltaksgjennomforing?.id);
 
   const endreStartDatoModalRef = useRef<HTMLDialogElement>(null);
   const endreSluttDatoModalRef = useRef<HTMLDialogElement>(null);
-
-  const kontaktpersonerOption = (navident: string) => {
-    const excludedKontaktpersoner = tiltaksgjennomforing?.kontaktpersoner
-      ?.filter((kontakt) => kontakt.navIdent !== navident)
-      .map((k) => k.navIdent);
-
-    const options = kontaktpersoner
-      ?.filter((kontaktperson) => !excludedKontaktpersoner?.includes(kontaktperson.navIdent))
-      ?.map((kontaktperson) => ({
-        label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navIdent}`,
-        value: kontaktperson.navIdent,
-      }));
-
-    return options || [];
-  };
 
   const {
     register,
@@ -105,6 +88,7 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
 
   const watchStartDato = watch("startOgSluttDato.startDato");
   const antallDeltakere = deltakerSummary?.antallDeltakere;
+
   useEffect(() => {
     if (
       tiltaksgjennomforing &&
@@ -123,6 +107,7 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
   }, [setValue, watchStartDato]);
 
   const watchSluttDato = watch("startOgSluttDato.sluttDato");
+
   useEffect(() => {
     if (
       tiltaksgjennomforing &&
@@ -145,8 +130,6 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
 
   const minStartdato = new Date(avtale.startDato);
   const maxSluttdato = addYear(minStartdato, 35);
-
-  const valgteNavEnheter = watch("navEnheter");
 
   return (
     <SkjemaDetaljerContainer>
@@ -361,46 +344,23 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
                         <XMarkIcon fontSize="1.5rem" />
                       </Button>
                       <div className={styles.kontaktperson_inputs}>
-                        <ControlledSokeSelect
-                          helpText="Bestemmer kontaktperson som veilederene kan hendvende seg til for informasjon om gjennomføringen. Kan gjelde for én eller flere enheter."
-                          size="small"
-                          placeholder="Søk etter kontaktperson"
-                          label={tiltaktekster.kontaktpersonNav.navnLabel}
-                          {...register(`kontaktpersoner.${index}.navIdent`, {
-                            shouldUnregister: true,
-                          })}
-                          onInputChange={(s: string) => {
-                            setKontaktpersonerQuery(s);
-                          }}
-                          options={kontaktpersonerOption(field.navIdent)}
-                        />
-                        <ControlledMultiSelect
-                          size="small"
-                          velgAlle
-                          placeholder="Velg ett eller flere områder"
-                          label={tiltaktekster.kontaktpersonNav.omradeLabel}
-                          {...register(`kontaktpersoner.${index}.navEnheter`, {
-                            shouldUnregister: true,
-                          })}
-                          options={navEnheterOptions.filter((enhet) =>
-                            valgteNavEnheter.includes(enhet.value),
-                          )}
-                        />
-                        <TextField
-                          size="small"
-                          label={tiltaktekster.kontaktpersonNav.beskrivelseLabel}
-                          placeholder="Unngå personopplysninger"
-                          maxLength={67}
-                          {...register(`kontaktpersoner.${index}.beskrivelse`, {
-                            shouldUnregister: true,
-                          })}
+                        <SokEtterKontaktperson
+                          index={index}
+                          navEnheter={navEnheterOptions}
+                          id={field.id}
                         />
                       </div>
                     </div>
                   );
                 })}
                 <KontaktpersonButton
-                  onClick={() => appendKontaktperson({} as TiltaksgjennomforingKontaktperson)}
+                  onClick={() =>
+                    appendKontaktperson({
+                      navIdent: "",
+                      navEnheter: [],
+                      beskrivelse: "",
+                    })
+                  }
                   knappetekst={
                     <>
                       <PlusIcon aria-label="Legg til ny kontaktperson" /> Legg til ny kontaktperson
@@ -426,5 +386,70 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
         antallDeltakere={deltakerSummary?.antallDeltakere ?? 0}
       />
     </SkjemaDetaljerContainer>
+  );
+}
+
+function SokEtterKontaktperson({
+  index,
+  navEnheter,
+  id,
+}: {
+  index: number;
+  navEnheter: { label: string; value: string }[];
+  id: string;
+}) {
+  const [kontaktpersonerQuery, setKontaktpersonerQuery] = useState<string>("");
+  const { data: kontaktpersoner } = useSokNavAnsatt(kontaktpersonerQuery, id);
+  const { register, watch } = useFormContext<InferredTiltaksgjennomforingSchema>();
+
+  const kontaktpersonerOption = (selectedIndex: number) => {
+    const excludedKontaktpersoner = watch("kontaktpersoner")
+      ?.filter((_, i) => i !== selectedIndex)
+      .map((k) => k.navIdent);
+
+    const options = kontaktpersoner
+      ?.filter((kontaktperson) => !excludedKontaktpersoner?.includes(kontaktperson.navIdent))
+      ?.map((kontaktperson) => ({
+        label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navIdent}`,
+        value: kontaktperson.navIdent,
+      }));
+    return options || [];
+  };
+
+  const valgteNavEnheter = watch("navEnheter");
+
+  return (
+    <>
+      <ControlledSokeSelect
+        helpText="Bestemmer kontaktperson som veilederene kan hendvende seg til for informasjon om gjennomføringen. Kan gjelde for én eller flere enheter."
+        size="small"
+        placeholder="Søk etter kontaktperson"
+        label={tiltaktekster.kontaktpersonNav.navnLabel}
+        {...register(`kontaktpersoner.${index}.navIdent`, {
+          shouldUnregister: true,
+        })}
+        onInputChange={setKontaktpersonerQuery}
+        options={kontaktpersonerOption(index)}
+      />
+      <ControlledMultiSelect
+        size="small"
+        velgAlle
+        placeholder="Velg ett eller flere områder"
+        label={tiltaktekster.kontaktpersonNav.omradeLabel}
+        {...register(`kontaktpersoner.${index}.navEnheter`, {
+          shouldUnregister: true,
+        })}
+        options={navEnheter.filter((enhet) => valgteNavEnheter.includes(enhet.value))}
+      />
+      <TextField
+        size="small"
+        label={tiltaktekster.kontaktpersonNav.beskrivelseLabel}
+        placeholder="Unngå personopplysninger"
+        maxLength={67}
+        {...register(`kontaktpersoner.${index}.beskrivelse`, {
+          shouldUnregister: true,
+        })}
+      />
+    </>
   );
 }

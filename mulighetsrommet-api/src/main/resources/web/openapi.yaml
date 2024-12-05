@@ -4824,6 +4824,8 @@ components:
           required:
             - id
             - antallPlasser
+        status:
+          $ref: "#/components/schemas/TilsagnStatus"
       required:
         - id
         - tiltaksgjennomforingId
@@ -4836,6 +4838,16 @@ components:
         - lopenummer
         - opprettetAv
         - tiltaksgjennomforing
+        - status
+
+    TilsagnStatus:
+      type: string
+      enum:
+        - TIL_GODKJENNING
+        - GODKJENT
+        - RETURNERT
+        - ANNULLERT
+        - OPPGJORT
 
     TilsagnBesluttelseDto:
       type: object

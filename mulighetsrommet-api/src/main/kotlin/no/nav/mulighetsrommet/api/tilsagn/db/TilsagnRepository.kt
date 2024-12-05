@@ -203,7 +203,8 @@ class TilsagnRepository(private val db: Database) {
                 besluttet_av = :nav_ident,
                 besluttet_tidspunkt = :tidspunkt,
                 avvist_aarsaker = :avvist_aarsak::avvist_aarsak_type[],
-                avvist_forklaring = :avvist_forklaring
+                avvist_forklaring = :avvist_forklaring,
+                annullert_tidspunkt = null
             where id = :id::uuid
         """.trimIndent()
 
@@ -246,6 +247,7 @@ class TilsagnRepository(private val db: Database) {
             arrayOrNull<String>("avvist_aarsaker")?.toList()?.map { AvvistTilsagnAarsak.valueOf(it) }
         val avvistForklaring = stringOrNull("avvist_forklaring")
         val besluttelse = stringOrNull("besluttelse")
+        val annullertTidspunkt = localDateTimeOrNull("annullert_tidspunkt")
 
         return TilsagnDto(
             id = uuid("id"),
@@ -266,7 +268,7 @@ class TilsagnRepository(private val db: Database) {
                     beslutternavn = string("beslutternavn"),
                 )
             },
-            annullertTidspunkt = localDateTimeOrNull("annullert_tidspunkt"),
+            annullertTidspunkt = annullertTidspunkt,
             lopenummer = int("lopenummer"),
             kostnadssted = NavEnhetDbo(
                 enhetsnummer = string("kostnadssted"),
@@ -282,7 +284,21 @@ class TilsagnRepository(private val db: Database) {
                 slettet = boolean("arrangor_slettet"),
             ),
             beregning = Json.decodeFromString<Prismodell.TilsagnBeregning>(string("beregning")),
+            status = utledStatus(besluttelse, annullertTidspunkt),
         )
+    }
+
+    private fun utledStatus(besluttelse: String?, annullertTidspunkt: LocalDateTime?): TilsagnDto.TilsagnStatus {
+        if (annullertTidspunkt != null) {
+            return TilsagnDto.TilsagnStatus.ANNULLERT
+        }
+
+        return when (besluttelse) {
+            "GODKJENT" -> TilsagnDto.TilsagnStatus.GODKJENT
+            "AVVIST" -> TilsagnDto.TilsagnStatus.RETURNERT
+            null -> TilsagnDto.TilsagnStatus.TIL_GODKJENNING
+            else -> TilsagnDto.TilsagnStatus.OPPGJORT
+        }
     }
 
     private fun Row.toArrangorflateTilsagn(): ArrangorflateTilsagn {
