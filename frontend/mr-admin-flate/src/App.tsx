@@ -29,8 +29,6 @@ import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
 import { tiltakstypeLoader, tiltakstyperLoaders } from "./pages/tiltakstyper/tiltakstyperLoaders";
-import { avtaleLoader, avtaleSkjemaLoader } from "./pages/avtaler/avtaleLoader";
-import { tiltaksgjennomforingLoader } from "./pages/tiltaksgjennomforinger/tiltaksgjennomforingLoaders";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -123,13 +121,11 @@ const router = () =>
             path: "avtaler/:avtaleId",
             element: <AvtalePage />,
             errorElement: <ErrorPage />,
-            loader: avtaleLoader,
             children: [
               {
                 index: true,
                 element: <AvtaleInfo />,
                 errorElement: <ErrorPage />,
-                loader: avtaleLoader,
               },
               {
                 path: "tiltaksgjennomforinger",
@@ -142,13 +138,11 @@ const router = () =>
             path: "avtaler/:avtaleId/skjema",
             element: <AvtaleSkjemaPage />,
             errorElement: <ErrorPage />,
-            loader: avtaleSkjemaLoader,
           },
           {
             path: "avtaler/skjema",
             element: <AvtaleSkjemaPage />,
             errorElement: <ErrorPage />,
-            loader: avtaleSkjemaLoader,
           },
           {
             path: "tiltaksgjennomforinger/skjema",
@@ -164,7 +158,6 @@ const router = () =>
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId",
             element: <TiltaksgjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingLoader,
             children: [
               {
                 index: true,
@@ -177,7 +170,6 @@ const router = () =>
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId",
             element: <TiltaksgjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingLoader,
             children: [
               {
                 index: true,
@@ -189,7 +181,6 @@ const router = () =>
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn",
             element: <TiltaksgjennomforingPage />,
-            loader: tiltaksgjennomforingLoader,
             errorElement: <ErrorPage />,
             children: [
               {

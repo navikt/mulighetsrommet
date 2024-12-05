@@ -6,19 +6,18 @@ import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/Red
 import { InfoContainer } from "@/components/skjema/InfoContainer";
 import { Toggles } from "@mr/api-client";
 import { InlineErrorBoundary } from "@mr/frontend-common";
-import { Tabs } from "@navikt/ds-react";
+import { Alert, Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { useLoaderData } from "react-router-dom";
 import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import styles from "./AvtaleInfo.module.scss";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
-import { avtaleLoader } from "./avtaleLoader";
 import { AvtalePersonvern } from "./AvtalePersonvern";
 import { AvtalePrisOgFakturering } from "./AvtalePrisOgFakturering";
+import { useAvtale } from "../../api/avtaler/useAvtale";
 
 export function AvtaleInfo() {
   const { data: bruker } = useHentAnsatt();
-  const avtale = useLoaderData<typeof avtaleLoader>();
+  const { data: avtale, isPending, isError } = useAvtale();
 
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 
@@ -26,8 +25,12 @@ export function AvtaleInfo() {
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
   );
 
-  if (!bruker) {
+  if (!bruker || isPending) {
     return <Laster tekst="Laster avtale..." />;
+  }
+
+  if (isError) {
+    return <Alert variant="error">Klarte ikke laste avtale</Alert>;
   }
 
   return (
