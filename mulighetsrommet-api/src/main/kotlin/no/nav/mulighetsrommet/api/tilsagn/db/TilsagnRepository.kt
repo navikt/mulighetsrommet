@@ -253,7 +253,6 @@ class TilsagnRepository(private val db: Database) {
             id = uuid("id"),
             tiltaksgjennomforing = TilsagnDto.Tiltaksgjennomforing(
                 id = uuid("tiltaksgjennomforing_id"),
-                antallPlasser = int("antall_plasser"),
             ),
             periodeSlutt = localDate("periode_slutt"),
             periodeStart = localDate("periode_start"),

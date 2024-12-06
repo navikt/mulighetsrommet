@@ -6,6 +6,7 @@ import { formaterDato } from "../../../utils/Utils";
 import { TilsagnDto } from "@mr/api-client";
 import { useFindAFTSatsForPeriode } from "../../../api/tilsagn/useFindAFTSatsForPeriode";
 import { TilsagnTag } from "./TilsagnTag";
+import { isAftBeregning } from "./tilsagnUtils";
 
 interface Props {
   tilsagn: TilsagnDto;
@@ -32,7 +33,10 @@ export function AFTTilsagnDetaljer({ tilsagn }: Props) {
           <Metadata header="Tilsagnsstatus" verdi={<TilsagnTag tilsagn={tilsagn} />} />
         </Bolk>
         <Bolk>
-          <Metadata header="Antall plasser" verdi={tilsagn.tiltaksgjennomforing.antallPlasser} />
+          <Metadata
+            header="Antall plasser"
+            verdi={isAftBeregning(tilsagn.beregning) ? tilsagn.beregning.antallPlasser : 0}
+          />
           <Metadata
             header="Sats per plass per måned"
             verdi={sats ? formaterNOK(sats) : "Fant ingen sats per plass per måned"}

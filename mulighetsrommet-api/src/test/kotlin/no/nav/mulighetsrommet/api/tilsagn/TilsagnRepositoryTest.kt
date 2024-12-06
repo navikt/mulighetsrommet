@@ -61,7 +61,6 @@ class TilsagnRepositoryTest : FunSpec({
                 id = tilsagn.id,
                 tiltaksgjennomforing = TilsagnDto.Tiltaksgjennomforing(
                     id = AFT1.id,
-                    antallPlasser = AFT1.antallPlasser,
                 ),
                 periodeStart = LocalDate.of(2023, 1, 1),
                 periodeSlutt = LocalDate.of(2023, 2, 1),
@@ -91,7 +90,6 @@ class TilsagnRepositoryTest : FunSpec({
                 id = tilsagn.id,
                 tiltaksgjennomforing = TilsagnDto.Tiltaksgjennomforing(
                     id = AFT1.id,
-                    antallPlasser = AFT1.antallPlasser,
                 ),
                 periodeStart = LocalDate.of(2023, 1, 1),
                 periodeSlutt = LocalDate.of(2023, 2, 1),
@@ -127,7 +125,6 @@ class TilsagnRepositoryTest : FunSpec({
                 id = tilsagn.id,
                 tiltaksgjennomforing = TilsagnDto.Tiltaksgjennomforing(
                     id = AFT1.id,
-                    antallPlasser = AFT1.antallPlasser,
                 ),
                 periodeStart = LocalDate.of(2023, 1, 1),
                 periodeSlutt = LocalDate.of(2023, 2, 1),
@@ -173,7 +170,6 @@ class TilsagnRepositoryTest : FunSpec({
                 id = tilsagn.id,
                 tiltaksgjennomforing = TilsagnDto.Tiltaksgjennomforing(
                     id = AFT1.id,
-                    antallPlasser = AFT1.antallPlasser,
                 ),
                 periodeStart = LocalDate.of(2023, 1, 1),
                 periodeSlutt = LocalDate.of(2023, 2, 1),
@@ -206,7 +202,6 @@ class TilsagnRepositoryTest : FunSpec({
                 id = tilsagn.id,
                 tiltaksgjennomforing = TilsagnDto.Tiltaksgjennomforing(
                     id = AFT1.id,
-                    antallPlasser = AFT1.antallPlasser,
                 ),
                 periodeStart = LocalDate.of(2023, 1, 1),
                 periodeSlutt = LocalDate.of(2023, 2, 1),
@@ -232,7 +227,6 @@ class TilsagnRepositoryTest : FunSpec({
                 id = tilsagn.id,
                 tiltaksgjennomforing = TilsagnDto.Tiltaksgjennomforing(
                     id = AFT1.id,
-                    antallPlasser = AFT1.antallPlasser,
                 ),
                 periodeStart = LocalDate.of(2023, 1, 1),
                 periodeSlutt = LocalDate.of(2023, 2, 1),
