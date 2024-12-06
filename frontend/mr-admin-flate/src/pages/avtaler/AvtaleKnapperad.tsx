@@ -12,11 +12,11 @@ import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface Props {
-  bruker: NavAnsatt;
+  ansatt: NavAnsatt;
   avtale: AvtaleDto;
 }
 
-export function AvtaleKnapperad({ bruker, avtale }: Props) {
+export function AvtaleKnapperad({ ansatt, avtale }: Props) {
   const navigate = useNavigate();
   const advarselModal = useRef<HTMLDialogElement>(null);
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
@@ -43,7 +43,7 @@ export function AvtaleKnapperad({ bruker, avtale }: Props) {
                   if (
                     avtale.administratorer &&
                     avtale.administratorer.length > 0 &&
-                    !avtale.administratorer.map((a) => a.navIdent).includes(bruker.navIdent)
+                    !avtale.administratorer.map((a) => a.navIdent).includes(ansatt.navIdent)
                   ) {
                     advarselModal.current?.showModal();
                   } else {
