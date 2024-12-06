@@ -22,6 +22,7 @@ app:
     clients:
       dvhGjennomforing:
         consumerId: dvh-gjennomforing-consumer
+        consumerGroupId: mulighetsrommet-api.datavarehus-gjennomforing.v1
         consumerTopic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1
         producerTopic: team-mulighetsrommet.datavarehus-tiltaksgjennomforinger-v1
     consumers:

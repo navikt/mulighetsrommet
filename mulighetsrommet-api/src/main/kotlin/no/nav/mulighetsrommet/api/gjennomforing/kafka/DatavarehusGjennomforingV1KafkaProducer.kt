@@ -28,7 +28,7 @@ class DatavarehusGjennomforingV1KafkaProducer(
 
     data class Config(
         val consumerId: String,
-        val consumerGroupId: String? = null,
+        val consumerGroupId: String,
         val consumerTopic: String,
         val producerTopic: String,
     )
