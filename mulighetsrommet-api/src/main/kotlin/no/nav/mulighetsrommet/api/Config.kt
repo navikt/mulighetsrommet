@@ -96,6 +96,7 @@ data class KafkaConsumers(
     val tiltaksgjennomforingerV1: KafkaTopicConsumer.Config,
     val amtDeltakerV1: KafkaTopicConsumer.Config,
     val amtVirksomheterV1: KafkaTopicConsumer.Config,
+    val amtArrangorMeldingV1: KafkaTopicConsumer.Config,
 )
 
 data class AuthProvider(
