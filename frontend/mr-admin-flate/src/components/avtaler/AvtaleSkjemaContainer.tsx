@@ -1,10 +1,9 @@
 import { avtaleDetaljerTabAtom } from "@/api/atoms";
 import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
-import { useHandleApiUpsertResponse } from "@/api/effects";
+import { AvtaleSchema, InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
+import { RedaksjoneltInnholdBunnKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdBunnKnapperad";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Tabs } from "@navikt/ds-react";
-import { useAtom } from "jotai";
 import {
   AvtaleDto,
   AvtaleRequest,
@@ -16,20 +15,21 @@ import {
   UtdanningslopDbo,
   ValidationErrorResponse,
 } from "@mr/api-client";
+import { InlineErrorBoundary } from "@mr/frontend-common";
+import { isValidationError } from "@mr/frontend-common/utils/utils";
+import { Tabs } from "@navikt/ds-react";
+import { useAtom } from "jotai";
 import React, { useCallback } from "react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { Separator } from "../detaljside/Metadata";
-import { AvtaleSchema, InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
+import { Laster } from "../laster/Laster";
+import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
+import { AvtalePersonvernForm } from "./AvtalePersonvernForm";
 import { AvtaleRedaksjoneltInnholdForm } from "./AvtaleRedaksjoneltInnholdForm";
+import styles from "./AvtaleSkjemaContainer.module.scss";
 import { AvtaleSkjemaDetaljer } from "./AvtaleSkjemaDetaljer";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
-import { AvtalePersonvernForm } from "./AvtalePersonvernForm";
-import { Laster } from "../laster/Laster";
-import { InlineErrorBoundary } from "@mr/frontend-common";
-import { RedaksjoneltInnholdBunnKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdBunnKnapperad";
-import styles from "./AvtaleSkjemaContainer.module.scss";
-import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
 
 interface Props {
   onClose: () => void;
@@ -99,7 +99,14 @@ export function AvtaleSkjemaContainer({
       utdanningslop: getUtdanningslop(data),
     };
 
-    mutation.mutate(requestBody);
+    mutation.mutate(requestBody, {
+      onSuccess: handleSuccess,
+      onError: (error) => {
+        if (isValidationError(error)) {
+          handleValidationError(error);
+        }
+      },
+    });
   };
 
   const handleSuccess = useCallback((dto: AvtaleDto) => onSuccess(dto.id), [onSuccess]);
@@ -125,8 +132,6 @@ export function AvtaleSkjemaContainer({
     },
     [form],
   );
-
-  useHandleApiUpsertResponse(mutation, handleSuccess, handleValidationError);
 
   const hasRedaksjoneltInnholdErrors = Boolean(errors?.faneinnhold);
   const hasPersonvernErrors = Boolean(errors?.personvernBekreftet);

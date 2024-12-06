@@ -9,7 +9,9 @@ import { LoaderFunctionArgs } from "react-router-dom";
 
 export async function avtaleLoader({ params }: LoaderFunctionArgs) {
   if (!params.avtaleId) throw Error("Fant ikke avtaleId i route");
-  return await AvtalerService.getAvtale({ id: params.avtaleId });
+  const avtale = await AvtalerService.getAvtale({ id: params.avtaleId });
+  const ansatt = await AnsattService.hentInfoOmAnsatt();
+  return { avtale, ansatt };
 }
 
 export async function avtaleSkjemaLoader({ params }: LoaderFunctionArgs) {
