@@ -165,13 +165,6 @@ private fun kafka(appConfig: AppConfig) = module {
             config.producers.arenaMigreringTiltaksgjennomforinger,
         )
     }
-    single {
-        DatavarehusGjennomforingV1KafkaProducer(
-            config = config.clients.dvhGjennomforing,
-            kafkaProducerClient = producerClient,
-            db = get(),
-        )
-    }
     single { SisteTiltaksgjennomforingerV1KafkaProducer(producerClient, config.producers.tiltaksgjennomforinger) }
     single { SisteTiltakstyperV2KafkaProducer(producerClient, config.producers.tiltakstyper) }
 
@@ -188,6 +181,11 @@ private fun kafka(appConfig: AppConfig) = module {
 
     single {
         val consumers = listOf(
+            DatavarehusGjennomforingV1KafkaProducer(
+                config = config.clients.dvhGjennomforing,
+                kafkaProducerClient = producerClient,
+                db = get(),
+            ),
             SisteTiltaksgjennomforingerV1KafkaConsumer(
                 config = config.consumers.tiltaksgjennomforingerV1,
                 tiltakstyper = get(),
