@@ -43,7 +43,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.DatavarehusGjennomforingV1KafkaProducer
+import no.nav.mulighetsrommet.api.gjennomforing.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadTiltaksgjennomforinger
@@ -181,7 +181,7 @@ private fun kafka(appConfig: AppConfig) = module {
 
     single {
         val consumers = listOf(
-            DatavarehusGjennomforingV1KafkaProducer(
+            DatavarehusTiltakV1KafkaProducer(
                 config = config.clients.dvhGjennomforing,
                 kafkaProducerClient = producerClient,
                 db = get(),
