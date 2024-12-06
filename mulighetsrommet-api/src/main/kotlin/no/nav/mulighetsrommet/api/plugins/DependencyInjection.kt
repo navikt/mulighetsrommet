@@ -59,8 +59,10 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetRepository
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.refusjon.RefusjonService
+import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagRepository
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
+import no.nav.mulighetsrommet.api.refusjon.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.refusjon.kafka.AmtDeltakerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.refusjon.task.GenerateRefusjonskrav
 import no.nav.mulighetsrommet.api.refusjon.task.JournalforRefusjonskrav
@@ -198,6 +200,10 @@ private fun kafka(appConfig: AppConfig) = module {
                 arrangorRepository = get(),
                 brregClient = get(),
             ),
+            AmtArrangorMeldingV1KafkaConsumer(
+                config = config.consumers.amtArrangorMeldingV1,
+                deltakerForslagRepository = get(),
+            ),
         )
         KafkaConsumerOrchestrator(
             consumerPreset = consumerPreset,
@@ -224,6 +230,7 @@ private fun repositories() = module {
     single { UtdanningRepository(get()) }
     single { AltinnRettigheterRepository(get()) }
     single { VeilederflateTiltakRepository(get()) }
+    single { DeltakerForslagRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {

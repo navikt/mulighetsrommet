@@ -1,4 +1,9 @@
-import { RefusjonKravDeltakelse, RefusjonKravDeltakelsePerson } from "@mr/api-client";
+import {
+  ArrangorflateService,
+  RefusjonKravDeltakelse,
+  RefusjonKravDeltakelsePerson,
+  RelevanteForslag,
+} from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Button, GuidePanel, HGrid, SortState, Table, VStack } from "@navikt/ds-react";
 import type { LoaderFunction, MetaFunction } from "react-router";
@@ -22,6 +27,7 @@ export const meta: MetaFunction = () => {
 
 type LoaderData = {
   krav: Refusjonskrav;
+  relevanteForslag: RelevanteForslag[];
   deltakerlisteUrl: string;
 };
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
@@ -34,8 +40,9 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   }
 
   const krav = await loadRefusjonskrav(id);
+  const relevanteForslag = await ArrangorflateService.getRelevanteForslag({ id });
 
-  return { krav, deltakerlisteUrl };
+  return { krav, deltakerlisteUrl, relevanteForslag };
 };
 
 interface DeltakerSortState extends SortState {
@@ -52,7 +59,7 @@ enum DeltakerSortKey {
 
 export default function RefusjonskravBeregning() {
   const orgnr = useOrgnrFromUrl();
-  const { krav, deltakerlisteUrl } = useLoaderData<LoaderData>();
+  const { krav, deltakerlisteUrl, relevanteForslag } = useLoaderData<LoaderData>();
   const [sort, setSort] = useState<DeltakerSortState | undefined>();
 
   const handleSort = (orderBy: string) => {
@@ -74,6 +81,12 @@ export default function RefusjonskravBeregning() {
   const sortedData = sort
     ? sortBy(krav.deltakere, sort.direction, getDeltakerSelector(sort.orderBy))
     : krav.deltakere;
+
+  function harRelevanteForslag(deltakerId: string): boolean {
+    return (
+      (relevanteForslag.find((r) => r.deltakerId === deltakerId)?.antallRelevanteForslag ?? 0) > 0
+    );
+  }
 
   return (
     <>
@@ -117,7 +130,12 @@ export default function RefusjonskravBeregning() {
               const { id, person } = deltaker;
               const fodselsdato = getFormattedFodselsdato(person);
               return (
-                <Table.ExpandableRow key={id} content={null} togglePlacement="right">
+                <Table.ExpandableRow
+                  key={id}
+                  className={harRelevanteForslag(id) ? "bg-surface-warning-moderate" : ""}
+                  content={null}
+                  togglePlacement="right"
+                >
                   <Table.DataCell className="font-bold">{person?.navn}</Table.DataCell>
                   <Table.DataCell className="w-52">{fodselsdato}</Table.DataCell>
                   <Table.DataCell>{formaterDato(deltaker.startDato)}</Table.DataCell>
