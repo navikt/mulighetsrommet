@@ -18,7 +18,7 @@ export async function avtaleSkjemaLoader({ params }: LoaderFunctionArgs) {
     : undefined;
   const tiltakstyper = await TiltakstyperService.getTiltakstyper();
   const ansatt = await AnsattService.hentInfoOmAnsatt();
-  const navEnheter = await NavEnheterService.getEnheter({
+  const enheter = await NavEnheterService.getEnheter({
     statuser: [
       NavEnhetStatus.AKTIV,
       NavEnhetStatus.UNDER_AVVIKLING,
@@ -26,5 +26,5 @@ export async function avtaleSkjemaLoader({ params }: LoaderFunctionArgs) {
     ],
   });
 
-  return { avtale, tiltakstyper, ansatt, navEnheter };
+  return { avtale, tiltakstyper, ansatt, enheter };
 }

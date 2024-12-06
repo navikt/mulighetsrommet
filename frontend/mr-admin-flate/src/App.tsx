@@ -29,6 +29,7 @@ import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
 import { tiltakstypeLoader, tiltakstyperLoaders } from "./pages/tiltakstyper/tiltakstyperLoaders";
+import { avtaleSkjemaLoader } from "./pages/avtaler/avtaleLoader";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -138,11 +139,13 @@ const router = () =>
             path: "avtaler/:avtaleId/skjema",
             element: <AvtaleSkjemaPage />,
             errorElement: <ErrorPage />,
+            loader: avtaleSkjemaLoader,
           },
           {
             path: "avtaler/skjema",
             element: <AvtaleSkjemaPage />,
             errorElement: <ErrorPage />,
+            loader: avtaleSkjemaLoader,
           },
           {
             path: "tiltaksgjennomforinger/skjema",
