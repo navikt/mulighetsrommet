@@ -30,6 +30,9 @@ app:
       amtVirksomheterV1:
         id: amt-virksomheter
         topic: amt.virksomheter-v1
+      amtArrangorMeldingV1:
+        id: amt-arrangor-melding
+        topic: amt.arrangor-melding-v1
 
   auth:
     azure:

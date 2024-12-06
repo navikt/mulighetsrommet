@@ -1879,6 +1879,23 @@ paths:
                 items:
                   $ref: "#/components/schemas/ArrangorflateTilsagn"
 
+  /api/v1/intern/arrangorflate/refusjonskrav/{id}/relevante-forslag:
+    get:
+      tags:
+        - Arrangorflate
+      operationId: getRelevanteForslag
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        200:
+          description: Hent relevante deltakerforslag til deltakere på refusjonskrav
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RelevanteForslag"
+
   /api/v1/intern/arrangorflate/tilsagn/{id}:
     get:
       tags:
@@ -5346,3 +5363,15 @@ components:
       required:
         - digest
         - betalingsinformasjon
+
+    RelevanteForslag:
+      type: object
+      properties:
+        deltakerId:
+          type: string
+          format: uuid
+        antallRelevanteForslag:
+          type: integer
+      required:
+        - deltakerId
+        - antallRelevanteForslag

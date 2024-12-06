@@ -16,6 +16,8 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.pdfgen.Pdfgen
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
+import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
+import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagRepository
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.refusjon.model.*
@@ -27,6 +29,8 @@ import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.domain.dto.amt.Forslag
+import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import org.koin.ktor.ext.inject
 import java.math.BigDecimal
@@ -40,6 +44,7 @@ fun Route.arrangorflateRoutes() {
     val arrangorService: ArrangorService by inject()
     val refusjonskrav: RefusjonskravRepository by inject()
     val deltakerRepository: DeltakerRepository by inject()
+    val deltakerForslagRepository: DeltakerForslagRepository by inject()
     val pdl: HentAdressebeskyttetPersonBolkPdlQuery by inject()
     val journalforRefusjonskrav: JournalforRefusjonskrav by inject()
     val db: Database by inject()
@@ -97,6 +102,28 @@ fun Route.arrangorflateRoutes() {
                 val oppsummering = toRefusjonskrav(pdl, deltakerRepository, krav)
 
                 call.respond(oppsummering)
+            }
+
+            get("/relevante-forslag") {
+                val id = call.parameters.getOrFail<UUID>("id")
+
+                val krav = refusjonskrav.get(id)
+                    ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
+
+                val deltakere = deltakerRepository.getAll(krav.gjennomforing.id)
+                val forslagByDeltakerId = deltakerForslagRepository.get(deltakere.map { it.id })
+
+                val relevanteForslag = deltakere
+                    .map { deltaker ->
+                        val forslag = forslagByDeltakerId[deltaker.id] ?: emptyList()
+                        RelevanteForslag(
+                            deltakerId = deltaker.id,
+                            antallRelevanteForslag = forslag.count { it.relevantForDeltakelse(krav) },
+                        )
+                    }
+
+                call.respond(relevanteForslag)
             }
 
             post("/godkjenn-refusjon") {
@@ -171,6 +198,50 @@ fun Route.arrangorflateRoutes() {
 
                 call.respond(tilsagn)
             }
+        }
+    }
+}
+
+fun DeltakerForslag.relevantForDeltakelse(
+    refusjonskrav: RefusjonskravDto,
+): Boolean = when (refusjonskrav.beregning) {
+    is RefusjonKravBeregningAft -> this.relevantForDeltakelse(refusjonskrav.beregning)
+}
+
+fun DeltakerForslag.relevantForDeltakelse(
+    beregning: RefusjonKravBeregningAft,
+): Boolean {
+    val deltakelser = beregning.input.deltakelser
+        .find { it.deltakelseId == this.deltakerId }
+        ?: return false
+
+    val periode = beregning.input.periode
+    val sisteSluttDato = deltakelser.perioder.maxOf { it.slutt }
+    val forsteStartDato = deltakelser.perioder.minOf { it.start }
+
+    return when (this.endring) {
+        is Forslag.Endring.AvsluttDeltakelse -> {
+            val sluttDato = this.endring.sluttdato
+
+            this.endring.harDeltatt == false || (sluttDato != null && sluttDato.isBefore(sisteSluttDato))
+        }
+        is Forslag.Endring.Deltakelsesmengde -> {
+            this.endring.gyldigFra?.isBefore(sisteSluttDato) ?: true
+        }
+        is Forslag.Endring.ForlengDeltakelse -> {
+            this.endring.sluttdato.isAfter(sisteSluttDato) && this.endring.sluttdato.isBefore(periode.slutt)
+        }
+        is Forslag.Endring.IkkeAktuell -> {
+            true
+        }
+        is Forslag.Endring.Sluttarsak -> {
+            false
+        }
+        is Forslag.Endring.Sluttdato -> {
+            this.endring.sluttdato.isBefore(sisteSluttDato)
+        }
+        is Forslag.Endring.Startdato -> {
+            this.endring.startdato.isAfter(forsteStartDato)
         }
     }
 }
@@ -365,4 +436,11 @@ fun refusjonskravJournalpost(
     kanal = "NAV_NO", // Påkrevd for INNGAENDE. Se https://confluence.adeo.no/display/BOA/Mottakskanal
     sak = null,
     behandlingstema = null,
+)
+
+@Serializable
+data class RelevanteForslag(
+    @Serializable(with = UUIDSerializer::class)
+    val deltakerId: UUID,
+    val antallRelevanteForslag: Int,
 )

@@ -3,9 +3,50 @@ import {
   ArrangorflateTilsagn,
   RefusjonKravAft,
   RefusjonskravStatus,
+  RelevanteForslag,
 } from "@mr/api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import { v4 as uuid } from "uuid";
+
+const mockDeltakelser = [
+  {
+    id: uuid(),
+    person: {
+      navn: "Per Petterson",
+      fodselsdato: "1980-01-01",
+      fodselsaar: 1980,
+    },
+    startDato: "2024-06-01",
+    forstePeriodeStartDato: "2024-06-01",
+    sistePeriodeSluttDato: "2024-06-30",
+    sistePeriodeDeltakelsesprosent: 30,
+    manedsverk: 0.3,
+  },
+  {
+    id: uuid(),
+    person: {
+      navn: "Stian Bjærvik",
+      fodselsaar: 1980,
+    },
+    startDato: "2024-06-01",
+    forstePeriodeStartDato: "2024-06-01",
+    sistePeriodeSluttDato: "2024-06-30",
+    sistePeriodeDeltakelsesprosent: 100,
+    manedsverk: 1,
+  },
+  {
+    id: uuid(),
+    person: {
+      navn: "Donald Duck",
+      fodselsaar: 1980,
+    },
+    startDato: "2024-06-01",
+    forstePeriodeStartDato: "2024-06-01",
+    sistePeriodeSluttDato: "2024-06-30",
+    sistePeriodeDeltakelsesprosent: 100,
+    manedsverk: 1,
+  },
+];
 
 const mockKrav: RefusjonKravAft[] = [
   {
@@ -30,33 +71,7 @@ const mockKrav: RefusjonKravAft[] = [
       navn: "Fretex",
       slettet: false,
     },
-    deltakelser: [
-      {
-        id: uuid(),
-        person: {
-          navn: "Per Petterson",
-          fodselsdato: "1980-01-01",
-          fodselsaar: 1980,
-        },
-        startDato: "2024-06-01",
-        forstePeriodeStartDato: "2024-06-01",
-        sistePeriodeSluttDato: "2024-06-30",
-        sistePeriodeDeltakelsesprosent: 30,
-        manedsverk: 0.3,
-      },
-      {
-        id: uuid(),
-        person: {
-          navn: "Stian Bjærvik",
-          fodselsaar: 1980,
-        },
-        startDato: "2024-06-01",
-        forstePeriodeStartDato: "2024-06-01",
-        sistePeriodeSluttDato: "2024-06-30",
-        sistePeriodeDeltakelsesprosent: 100,
-        manedsverk: 1,
-      },
-    ],
+    deltakelser: mockDeltakelser,
     beregning: {
       periodeStart: "2024-06-01",
       periodeSlutt: "2024-06-30",
@@ -87,32 +102,7 @@ const mockKrav: RefusjonKravAft[] = [
       navn: "Fretex",
       slettet: false,
     },
-    deltakelser: [
-      {
-        id: uuid(),
-        person: {
-          navn: "Per Petterson",
-          fodselsdato: "1980-01-01",
-          fodselsaar: 1980,
-        },
-        startDato: "2024-06-01",
-        forstePeriodeStartDato: "2024-06-01",
-        sistePeriodeSluttDato: "2024-06-30",
-        sistePeriodeDeltakelsesprosent: 30,
-        manedsverk: 0.3,
-      },
-      {
-        id: uuid(),
-        person: {
-          navn: "Stian Bjærvik",
-        },
-        startDato: "2024-06-01",
-        forstePeriodeStartDato: "2024-06-01",
-        sistePeriodeSluttDato: "2024-06-30",
-        sistePeriodeDeltakelsesprosent: 100,
-        manedsverk: 1,
-      },
-    ],
+    deltakelser: mockDeltakelser,
     beregning: {
       periodeStart: "2024-06-01",
       periodeSlutt: "2024-06-30",
@@ -263,6 +253,17 @@ const arrangorer: Arrangor[] = [
   },
 ];
 
+const mockRelevanteForslag: RelevanteForslag[] = [
+  {
+    deltakerId: mockDeltakelser[0].id,
+    antallRelevanteForslag: 1,
+  },
+  {
+    deltakerId: mockDeltakelser[1].id,
+    antallRelevanteForslag: 0,
+  },
+];
+
 export const arrangorflateHandlers = [
   http.get<PathParams, RefusjonKravAft[]>(
     "*/api/v1/intern/arrangorflate/arrangor/:orgnr/refusjonskrav",
@@ -286,6 +287,10 @@ export const arrangorflateHandlers = [
   http.get<PathParams, RefusjonKravAft[]>(
     "*/api/v1/intern/arrangorflate/refusjonskrav/:id/tilsagn",
     () => HttpResponse.json(mockTilsagn),
+  ),
+  http.get<PathParams, RefusjonKravAft[]>(
+    "*/api/v1/intern/arrangorflate/refusjonskrav/:id/relevante-forslag",
+    () => HttpResponse.json(mockRelevanteForslag),
   ),
   http.get<PathParams, RefusjonKravAft[]>(
     "*/api/v1/intern/arrangorflate/arrangor/:orgnr/tilsagn",
