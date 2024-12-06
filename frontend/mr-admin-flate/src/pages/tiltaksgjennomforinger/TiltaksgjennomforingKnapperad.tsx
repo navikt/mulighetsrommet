@@ -15,11 +15,11 @@ import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { SetApentForPameldingModal } from "@/components/tiltaksgjennomforinger/SetApentForPameldingModal";
 
 interface Props {
-  bruker: NavAnsatt;
+  ansatt: NavAnsatt;
   tiltaksgjennomforing: TiltaksgjennomforingDto;
 }
 
-export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: Props) {
+export function TiltaksgjennomforingKnapperad({ ansatt, tiltaksgjennomforing }: Props) {
   const navigate = useNavigate();
   const { mutate } = useMutatePublisert();
   const advarselModal = useRef<HTMLDialogElement>(null);
@@ -65,7 +65,7 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
                     tiltaksgjennomforing.administratorer.length > 0 &&
                     !tiltaksgjennomforing.administratorer
                       .map((a) => a.navIdent)
-                      .includes(bruker.navIdent)
+                      .includes(ansatt.navIdent)
                   ) {
                     advarselModal.current?.showModal();
                   } else {

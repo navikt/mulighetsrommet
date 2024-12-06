@@ -30,6 +30,7 @@ import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
 import { tiltakstypeLoader, tiltakstyperLoaders } from "./pages/tiltakstyper/tiltakstyperLoaders";
 import { avtaleLoader, avtaleSkjemaLoader } from "./pages/avtaler/avtaleLoader";
+import { tiltaksgjennomforingLoader } from "./pages/tiltaksgjennomforinger/tiltaksgjennomforingLoaders";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -105,6 +106,7 @@ const router = () =>
                 index: true,
                 element: <TiltakstypeInfo />,
                 errorElement: <ErrorPage />,
+                loader: tiltakstypeLoader,
               },
               {
                 path: "avtaler",
@@ -153,6 +155,7 @@ const router = () =>
             path: "tiltaksgjennomforinger/skjema",
             element: <TiltaksgjennomforingSkjemaPage />,
             errorElement: <ErrorPage />,
+            loader: tiltaksgjennomforingLoader,
           },
           {
             path: "tiltaksgjennomforinger/",
@@ -163,11 +166,13 @@ const router = () =>
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId",
             element: <TiltaksgjennomforingPage />,
             errorElement: <ErrorPage />,
+            loader: tiltaksgjennomforingLoader,
             children: [
               {
                 index: true,
                 element: <TiltaksgjennomforingInfo />,
                 errorElement: <ErrorPage />,
+                loader: tiltaksgjennomforingLoader,
               },
             ],
           },
@@ -175,11 +180,13 @@ const router = () =>
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId",
             element: <TiltaksgjennomforingPage />,
             errorElement: <ErrorPage />,
+            loader: tiltaksgjennomforingLoader,
             children: [
               {
                 index: true,
                 element: <TiltaksgjennomforingInfo />,
                 errorElement: <ErrorPage />,
+                loader: tiltaksgjennomforingLoader,
               },
             ],
           },
@@ -187,6 +194,7 @@ const router = () =>
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn",
             element: <TiltaksgjennomforingPage />,
             errorElement: <ErrorPage />,
+            loader: tiltaksgjennomforingLoader,
             children: [
               {
                 index: true,
@@ -199,6 +207,7 @@ const router = () =>
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema",
             element: <TiltaksgjennomforingSkjemaPage />,
             errorElement: <ErrorPage />,
+            loader: tiltaksgjennomforingLoader,
           },
           {
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
@@ -219,11 +228,13 @@ const router = () =>
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/skjema",
             element: <TiltaksgjennomforingSkjemaPage />,
             errorElement: <ErrorPage />,
+            loader: tiltaksgjennomforingLoader,
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema",
             element: <TiltaksgjennomforingSkjemaPage />,
             errorElement: <ErrorPage />,
+            loader: tiltaksgjennomforingLoader,
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
@@ -277,13 +288,6 @@ const router = () =>
     ],
     {
       basename,
-      future: {
-        v7_fetcherPersist: true,
-        v7_normalizeFormMethod: true,
-        v7_partialHydration: true,
-        v7_skipActionErrorRevalidation: true,
-        v7_relativeSplatPath: true,
-      },
     },
   );
 

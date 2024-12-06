@@ -1,12 +1,17 @@
+import { useAFTSatser } from "@/api/tilsagn/useAFTSatser";
+import { useBeregnTilsagn } from "@/api/tilsagn/useBeregnTilsagn";
+import {
+  AFTSats,
+  TilsagnBeregning,
+  TilsagnBeregningAFT,
+  ValidationErrorResponse,
+} from "@mr/api-client";
+import { isValidationError } from "@mr/frontend-common/utils/utils";
 import { HStack, TextField } from "@navikt/ds-react";
 import { useEffect, useState } from "react";
 import { DeepPartial, FieldError, FieldErrorsImpl, Merge, useFormContext } from "react-hook-form";
-import { InferredOpprettTilsagnSchema } from "./OpprettTilsagnSchema";
 import { NumericFormat } from "react-number-format";
-import { useBeregnTilsagn } from "@/api/tilsagn/useBeregnTilsagn";
-import { useHandleApiUpsertResponse } from "@/api/effects";
-import { useAFTSatser } from "@/api/tilsagn/useAFTSatser";
-import { AFTSats, TilsagnBeregningAFT } from "@mr/api-client";
+import { InferredOpprettTilsagnSchema } from "./OpprettTilsagnSchema";
 
 interface Props {
   defaultAntallPlasser?: number;
@@ -46,40 +51,48 @@ export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
   useEffect(() => {
     const sats = findSats();
     if (sats && periode?.start && periode.slutt && mutation) {
-      mutation.mutate({
-        type: "AFT",
-        periodeStart: periode.start,
-        periodeSlutt: periode.slutt,
-        sats,
-        antallPlasser,
-      });
+      mutation.mutate(
+        {
+          type: "AFT",
+          periodeStart: periode.start,
+          periodeSlutt: periode.slutt,
+          sats,
+          antallPlasser,
+        },
+        {
+          onSuccess: handleSuccess,
+          onError: (error) => {
+            if (isValidationError(error)) {
+              handleValidationErrors(error);
+            }
+          },
+        },
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [antallPlasser, periode?.start, periode?.slutt, setValue]);
 
-  useHandleApiUpsertResponse(
-    mutation,
-    (response) => {
-      clearErrors();
-      setValue("beregning", response);
-    },
-    (validation) => {
-      setValue("beregning", undefined);
-      validation.errors.forEach((error) => {
-        const name = mapErrorToSchemaPropertyName(error.name);
-        setError(name, { type: "custom", message: error.message });
-      });
+  const handleSuccess = (response: TilsagnBeregning) => {
+    clearErrors();
+    setValue("beregning", response);
+  };
 
-      function mapErrorToSchemaPropertyName(name: string) {
-        const mapping: { [name: string]: string } = {
-          periodeStart: "periode.start",
-          periodeSlutt: "periode.slutt",
-          antallPlasser: "beregning",
-        };
-        return (mapping[name] ?? name) as keyof InferredOpprettTilsagnSchema;
-      }
-    },
-  );
+  const handleValidationErrors = (validation: ValidationErrorResponse) => {
+    setValue("beregning", undefined);
+    validation.errors.forEach((error) => {
+      const name = mapErrorToSchemaPropertyName(error.name);
+      setError(name, { type: "custom", message: error.message });
+    });
+
+    function mapErrorToSchemaPropertyName(name: string) {
+      const mapping: { [name: string]: string } = {
+        periodeStart: "periode.start",
+        periodeSlutt: "periode.slutt",
+        antallPlasser: "beregning",
+      };
+      return (mapping[name] ?? name) as keyof InferredOpprettTilsagnSchema;
+    }
+  };
 
   return (
     <HStack gap="2" align="start">
