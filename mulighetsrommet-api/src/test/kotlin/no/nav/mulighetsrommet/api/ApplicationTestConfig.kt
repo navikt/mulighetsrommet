@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.DatavarehusGjennomforingV1KafkaProducer
+import no.nav.mulighetsrommet.api.gjennomforing.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
@@ -125,7 +125,7 @@ fun createKafkaConfig(): KafkaConfig = KafkaConfig(
     defaultConsumerGroupId = "mulighetsrommet-api-consumer",
     producerId = "mulighetsrommet-api-producer",
     clients = KafkaClients(
-        dvhGjennomforing = DatavarehusGjennomforingV1KafkaProducer.Config(
+        dvhGjennomforing = DatavarehusTiltakV1KafkaProducer.Config(
             consumerId = "dvh-gjennomforing-consumer",
             consumerGroupId = "mulighetsrommet-api.dvh-gjennomforing.v1",
             consumerTopic = "siste-tiltaksgjennomforinger-v1",

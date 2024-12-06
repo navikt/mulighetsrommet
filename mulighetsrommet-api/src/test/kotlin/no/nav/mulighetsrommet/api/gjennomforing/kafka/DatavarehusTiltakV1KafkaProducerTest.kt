@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.model.DatavarehusGjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.DatavarehusTiltakDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
@@ -20,10 +20,10 @@ import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import java.time.LocalDate
 import java.util.*
 
-class DatavarehusGjennomforingV1KafkaProducerTest : FunSpec({
+class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
-    val config = DatavarehusGjennomforingV1KafkaProducer.Config(
+    val config = DatavarehusTiltakV1KafkaProducer.Config(
         consumerId = "id",
         consumerGroupId = "group-id",
         consumerTopic = "consumer-topic",
@@ -33,7 +33,7 @@ class DatavarehusGjennomforingV1KafkaProducerTest : FunSpec({
     test("produserer tombstone-meldinger når tombstones blir konsumert") {
         val producerClient = mockk<KafkaProducerClient<String, String?>>(relaxed = true)
 
-        val producer = DatavarehusGjennomforingV1KafkaProducer(
+        val producer = DatavarehusTiltakV1KafkaProducer(
             config,
             producerClient,
             database.db,
@@ -61,7 +61,7 @@ class DatavarehusGjennomforingV1KafkaProducerTest : FunSpec({
 
         val producerClient = mockk<KafkaProducerClient<String, String?>>(relaxed = true)
 
-        val producer = DatavarehusGjennomforingV1KafkaProducer(
+        val producer = DatavarehusTiltakV1KafkaProducer(
             config,
             producerClient,
             database.db,
@@ -94,7 +94,7 @@ class DatavarehusGjennomforingV1KafkaProducerTest : FunSpec({
                 match { record ->
                     record.topic() == config.producerTopic &&
                         record.key() == AFT1.id.toString() &&
-                        record.value()?.let { Json.decodeFromString<DatavarehusGjennomforingDto>(it) } != null
+                        record.value()?.let { Json.decodeFromString<DatavarehusTiltakDto>(it) } != null
                 },
             )
         }

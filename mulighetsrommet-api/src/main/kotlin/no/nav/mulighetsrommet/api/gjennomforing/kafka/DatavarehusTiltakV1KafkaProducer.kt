@@ -6,7 +6,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.common.kafka.producer.KafkaProducerClient
-import no.nav.mulighetsrommet.api.gjennomforing.db.DatavarehusGjennomforingQueries
+import no.nav.mulighetsrommet.api.gjennomforing.db.DatavarehusTiltakQueries
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.util.*
 
-class DatavarehusGjennomforingV1KafkaProducer(
+class DatavarehusTiltakV1KafkaProducer(
     private val config: Config,
     private val kafkaProducerClient: KafkaProducerClient<String, String?>,
     private val db: Database,
@@ -44,11 +44,11 @@ class DatavarehusGjennomforingV1KafkaProducer(
     }
 
     private fun publishDatavarehusGjennomforing(id: UUID) = db.useSession {
-        val dto = DatavarehusGjennomforingQueries.getDatavarehusGjennomforing(it, id)
+        val dto = DatavarehusTiltakQueries.getDatavarehusGjennomforing(it, id)
 
         val record: ProducerRecord<String, String?> = ProducerRecord(
             config.producerTopic,
-            dto.id.toString(),
+            dto.gjennomforing.id.toString(),
             Json.encodeToString(dto),
         )
 

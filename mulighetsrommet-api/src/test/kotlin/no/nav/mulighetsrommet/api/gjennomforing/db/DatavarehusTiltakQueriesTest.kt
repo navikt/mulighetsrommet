@@ -5,7 +5,9 @@ import io.kotest.data.forAll
 import io.kotest.data.toTable
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -14,7 +16,10 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.GruppeAmo1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.GruppeFagYrke1
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.model.DatavarehusGjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.DatavarehusTiltak
+import no.nav.mulighetsrommet.api.gjennomforing.model.DatavarehusTiltakAmoDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.DatavarehusTiltakDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.DatavarehusTiltakYrkesfagDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
@@ -27,7 +32,7 @@ import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
 import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramType
 import java.util.*
 
-class DatavarehusGjennomforingQueriesTest : FunSpec({
+class DatavarehusTiltakQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     test("henter relevante data om tiltakstype, avtale, og gjennomføring") {
@@ -38,30 +43,29 @@ class DatavarehusGjennomforingQueriesTest : FunSpec({
         )
         domain.initialize(database.db)
 
-        val gjennomforing = database.db.useSession {
-            DatavarehusGjennomforingQueries.getDatavarehusGjennomforing(it, AFT1.id)
+        val tiltak = database.db.useSession {
+            DatavarehusTiltakQueries.getDatavarehusGjennomforing(it, AFT1.id)
         }
 
-        gjennomforing.id shouldBe AFT1.id
-        gjennomforing.navn shouldBe AFT1.navn
-        gjennomforing.startDato shouldBe AFT1.startDato
-        gjennomforing.sluttDato shouldBe AFT1.sluttDato
-        gjennomforing.opprettetTidspunkt.shouldNotBeNull()
-        gjennomforing.oppdatertTidspunkt.shouldNotBeNull()
-        gjennomforing.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
-        gjennomforing.tiltakstype shouldBe DatavarehusGjennomforingDto.Tiltakstype(
-            id = TiltakstypeFixtures.AFT.id,
-            navn = TiltakstypeFixtures.AFT.navn,
-            tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-        )
-        gjennomforing.avtale?.id shouldBe AvtaleFixtures.AFT.id
-        gjennomforing.avtale?.navn shouldBe AvtaleFixtures.AFT.navn
-        gjennomforing.arrangor shouldBe DatavarehusGjennomforingDto.Arrangor(
-            organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
-        )
-        gjennomforing.amoKategorisering.shouldBeNull()
-        gjennomforing.utdanningslop.shouldBeNull()
-        gjennomforing.arena.shouldBeNull()
+        tiltak.shouldBeTypeOf<DatavarehusTiltakDto>().should {
+            it.gjennomforing.id shouldBe AFT1.id
+            it.gjennomforing.navn shouldBe AFT1.navn
+            it.gjennomforing.startDato shouldBe AFT1.startDato
+            it.gjennomforing.sluttDato shouldBe AFT1.sluttDato
+            it.gjennomforing.opprettetTidspunkt.shouldNotBeNull()
+            it.gjennomforing.oppdatertTidspunkt.shouldNotBeNull()
+            it.gjennomforing.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
+            it.tiltakstype shouldBe DatavarehusTiltak.Tiltakstype(
+                id = TiltakstypeFixtures.AFT.id,
+                navn = TiltakstypeFixtures.AFT.navn,
+                tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+            )
+            it.avtale shouldBe DatavarehusTiltak.Avtale(AvtaleFixtures.AFT.id, AvtaleFixtures.AFT.navn)
+            it.arrangor shouldBe DatavarehusTiltak.Arrangor(
+                organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+            )
+            it.arena.shouldBeNull()
+        }
     }
 
     test("henter tiltaksnummer når det finnes i Arena") {
@@ -78,11 +82,11 @@ class DatavarehusGjennomforingQueriesTest : FunSpec({
             }
         }
 
-        val gjennomforing = database.db.useSession {
-            DatavarehusGjennomforingQueries.getDatavarehusGjennomforing(it, AFT1.id)
+        val tiltak = database.db.useSession {
+            DatavarehusTiltakQueries.getDatavarehusGjennomforing(it, AFT1.id)
         }
 
-        gjennomforing.arena shouldBe DatavarehusGjennomforingDto.ArenaData(aar = 2020, lopenummer = 1234)
+        tiltak.arena shouldBe DatavarehusTiltak.ArenaData(aar = 2020, lopenummer = 1234)
     }
 
     test("henter Gruppe AMO med amo-kategorisering") {
@@ -131,12 +135,13 @@ class DatavarehusGjennomforingQueriesTest : FunSpec({
         val table = domain.gjennomforinger.associate { it.id to it.amoKategorisering }.toTable()
 
         table.forAll { id, expectedAmoKategorisering ->
-            val gjennomforing = database.db.useSession {
-                DatavarehusGjennomforingQueries.getDatavarehusGjennomforing(it, id)
+            val tiltak = database.db.useSession {
+                DatavarehusTiltakQueries.getDatavarehusGjennomforing(it, id)
             }
 
-            gjennomforing.utdanningslop.shouldBeNull()
-            gjennomforing.amoKategorisering.shouldNotBeNull().shouldBe(expectedAmoKategorisering)
+            tiltak.shouldBeTypeOf<DatavarehusTiltakAmoDto>().amoKategorisering.shouldNotBeNull().shouldBe(
+                expectedAmoKategorisering,
+            )
         }
     }
 
@@ -200,24 +205,22 @@ class DatavarehusGjennomforingQueriesTest : FunSpec({
         domain.initialize(database.db)
 
         val gjennomforing = database.db.useSession {
-            DatavarehusGjennomforingQueries.getDatavarehusGjennomforing(it, GruppeFagYrke1.id)
+            DatavarehusTiltakQueries.getDatavarehusGjennomforing(it, GruppeFagYrke1.id)
         }
 
-        gjennomforing.id shouldBe GruppeFagYrke1.id
-        gjennomforing.amoKategorisering.shouldBeNull()
-        gjennomforing.utdanningslop.shouldNotBeNull().shouldBe(
-            DatavarehusGjennomforingDto.Utdanningslop(
-                utdanningsprogram = DatavarehusGjennomforingDto.Utdanningslop.Utdanningsprogram(
+        gjennomforing.shouldBeTypeOf<DatavarehusTiltakYrkesfagDto>().utdanningslop.shouldNotBeNull().shouldBe(
+            DatavarehusTiltakYrkesfagDto.Utdanningslop(
+                utdanningsprogram = DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanningsprogram(
                     navn = "Sveiseprogram",
                     nusKoder = listOf("1234", "2345"),
                 ),
                 utdanninger = setOf(
-                    DatavarehusGjennomforingDto.Utdanningslop.Utdanning(
+                    DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanning(
                         navn = "Sveisefag",
                         sluttkompetanse = Utdanning.Sluttkompetanse.FAGBREV,
                         nusKoder = listOf("12345"),
                     ),
-                    DatavarehusGjennomforingDto.Utdanningslop.Utdanning(
+                    DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanning(
                         navn = "Sveisefag under vann",
                         sluttkompetanse = Utdanning.Sluttkompetanse.SVENNEBREV,
                         nusKoder = listOf("23456"),
@@ -236,9 +239,9 @@ class DatavarehusGjennomforingQueriesTest : FunSpec({
         domain.initialize(database.db)
 
         val gjennomforing = database.db.useSession {
-            DatavarehusGjennomforingQueries.getDatavarehusGjennomforing(it, GruppeFagYrke1.id)
+            DatavarehusTiltakQueries.getDatavarehusGjennomforing(it, GruppeFagYrke1.id)
         }
 
-        gjennomforing.utdanningslop.shouldBeNull()
+        gjennomforing.shouldBeTypeOf<DatavarehusTiltakYrkesfagDto>().utdanningslop.shouldBeNull()
     }
 })
