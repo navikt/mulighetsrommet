@@ -1,7 +1,6 @@
+import { Tilsagnstabell } from "@/pages/tiltaksgjennomforinger/tilsagn/Tilsagnstabell";
 import { Alert, Heading, VStack } from "@navikt/ds-react";
-import { useMatch, useParams } from "react-router-dom";
-import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
-import { useTiltaksgjennomforingById } from "../../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
+import { useLoaderData, useMatch, useParams } from "react-router-dom";
 import { Header } from "../../../components/detaljside/Header";
 import { TiltaksgjennomforingIkon } from "../../../components/ikoner/TiltaksgjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "../../../components/navigering/Brodsmuler";
@@ -10,26 +9,21 @@ import { SkjemaContent } from "../../../components/skjema/SkjemaContent";
 import { OpprettTilsagnContainer } from "../../../components/tilsagn/OpprettTilsagnContainer";
 import { ContainerLayout } from "../../../layouts/ContainerLayout";
 import { inneholderUrl } from "../../../utils/Utils";
-import { useGetTilsagnById } from "./useGetTilsagnById";
-import { Tilsagnstabell } from "@/pages/tiltaksgjennomforinger/tilsagn/Tilsagnstabell";
-import { useGetTiltaksgjennomforingIdFromUrl } from "@/hooks/useGetTiltaksgjennomforingIdFromUrl";
-import { useHentTilsagnForTiltaksgjennomforing } from "@/api/tilsagn/useHentTilsagnForTiltaksgjennomforing";
-import { Laster } from "@/components/laster/Laster";
+import { tilsagnLoader } from "./tilsagnLoader";
 
 export function OpprettTilsagnSkjemaPage() {
   const { avtaleId } = useParams();
-  const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
-  const { data: tilsagn } = useGetTilsagnById();
-  const { data: saksbehandler } = useHentAnsatt();
-  const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFromUrl();
-  const { data, isLoading } = useHentTilsagnForTiltaksgjennomforing(tiltaksgjennomforingId);
-  const aktiveTilsagn = data?.filter((d) => d.besluttelse?.status === "GODKJENT");
+  const { tiltaksgjennomforing, tilsagn, tilsagnForGjennomforing, ansatt } =
+    useLoaderData<typeof tilsagnLoader>();
+  const aktiveTilsagn = tilsagnForGjennomforing?.filter(
+    (d) => d.besluttelse?.status === "GODKJENT",
+  );
 
   const erPaaGjennomforingerForAvtale = useMatch(
     "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
   );
   const redigeringsModus = tilsagn && inneholderUrl(tilsagn.id);
-  const godkjenningsModus = Boolean(tilsagn && tilsagn.opprettetAv !== saksbehandler?.navIdent);
+  const godkjenningsModus = Boolean(tilsagn && tilsagn.opprettetAv !== ansatt?.navIdent);
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     { tittel: "Forside", lenke: "/" },
@@ -63,10 +57,6 @@ export function OpprettTilsagnSkjemaPage() {
         : "/tiltaksgjennomforinger/opprett-tilsagn",
     },
   ];
-
-  if (!aktiveTilsagn && isLoading) {
-    return <Laster tekst="Laster tilsagn" />;
-  }
 
   return (
     <main>
