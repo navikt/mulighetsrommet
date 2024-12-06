@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.model.DatavarehusTiltakDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.DatavarehusTiltak
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
@@ -51,7 +51,7 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
         }
     }
 
-    test("publiserer datamodell tilpasset datavarehus når gjennomføring blir konsumert") {
+    test("publiserer datamodell tilpasset datavarehus som JSON når gjennomføring blir konsumert") {
         val domain = MulighetsrommetTestDomain(
             tiltakstyper = listOf(TiltakstypeFixtures.AFT),
             avtaler = listOf(AvtaleFixtures.AFT),
@@ -94,7 +94,7 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
                 match { record ->
                     record.topic() == config.producerTopic &&
                         record.key() == AFT1.id.toString() &&
-                        record.value()?.let { Json.decodeFromString<DatavarehusTiltakDto>(it) } != null
+                        record.value()?.let { Json.decodeFromString<DatavarehusTiltak>(it) } != null
                 },
             )
         }

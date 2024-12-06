@@ -13,6 +13,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
+@Serializable
 sealed class DatavarehusTiltak {
     abstract val tiltakstype: Tiltakstype
     abstract val avtale: Avtale?
