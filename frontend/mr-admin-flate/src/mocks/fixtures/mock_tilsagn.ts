@@ -7,7 +7,6 @@ import {
   TilsagnStatus,
 } from "@mr/api-client";
 import { mockArrangorer } from "./mock_arrangorer";
-import { mockTiltaksgjennomforinger } from "./mock_tiltaksgjennomforinger";
 
 export const mockTilsagn: TilsagnDto[] = [
   {
@@ -24,10 +23,7 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 1,
     periodeStart: "2024-01-05",
     periodeSlutt: "2024-01-06",
-    tiltaksgjennomforing: {
-      id: mockTiltaksgjennomforinger[0].id,
-      antallPlasser: mockTiltaksgjennomforinger[0].antallPlasser || 15,
-    },
+
     opprettetAv: "B123456",
     status: TilsagnStatus.TIL_GODKJENNING,
   },
@@ -45,10 +41,7 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 1,
     periodeStart: "2024-01-03",
     periodeSlutt: "2024-01-04",
-    tiltaksgjennomforing: {
-      id: mockTiltaksgjennomforinger[0].id,
-      antallPlasser: mockTiltaksgjennomforinger[0].antallPlasser || 15,
-    },
+
     opprettetAv: "F123456",
     status: TilsagnStatus.TIL_GODKJENNING,
   },
@@ -66,10 +59,7 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 1,
     periodeStart: "2024-01-01",
     periodeSlutt: "2024-01-02",
-    tiltaksgjennomforing: {
-      id: mockTiltaksgjennomforinger[0].id,
-      antallPlasser: mockTiltaksgjennomforinger[0].antallPlasser || 15,
-    },
+
     opprettetAv: "F123456",
     status: TilsagnStatus.TIL_GODKJENNING,
   },
@@ -87,10 +77,7 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 4,
     periodeStart: "2024-01-01",
     periodeSlutt: "2024-01-02",
-    tiltaksgjennomforing: {
-      id: mockTiltaksgjennomforinger[0].id,
-      antallPlasser: mockTiltaksgjennomforinger[0].antallPlasser || 15,
-    },
+
     opprettetAv: "F123456",
     besluttelse: {
       navIdent: "N12345",
@@ -114,10 +101,7 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 4,
     periodeStart: "2024-01-01",
     periodeSlutt: "2024-01-02",
-    tiltaksgjennomforing: {
-      id: mockTiltaksgjennomforinger[0].id,
-      antallPlasser: mockTiltaksgjennomforinger[0].antallPlasser || 15,
-    },
+
     opprettetAv: "F123456",
     annullertTidspunkt: "2024-05-10",
     status: TilsagnStatus.ANNULLERT,
@@ -136,10 +120,7 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 4,
     periodeStart: "2024-01-01",
     periodeSlutt: "2024-01-02",
-    tiltaksgjennomforing: {
-      id: mockTiltaksgjennomforinger[0].id,
-      antallPlasser: mockTiltaksgjennomforinger[0].antallPlasser || 15,
-    },
+
     opprettetAv: "B123456",
     besluttelse: {
       navIdent: "N12345",
