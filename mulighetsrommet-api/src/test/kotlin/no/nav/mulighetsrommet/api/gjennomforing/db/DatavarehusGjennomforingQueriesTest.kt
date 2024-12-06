@@ -54,8 +54,8 @@ class DatavarehusGjennomforingQueriesTest : FunSpec({
             navn = TiltakstypeFixtures.AFT.navn,
             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         )
-        gjennomforing.avtale.id shouldBe AvtaleFixtures.AFT.id
-        gjennomforing.avtale.navn shouldBe AvtaleFixtures.AFT.navn
+        gjennomforing.avtale?.id shouldBe AvtaleFixtures.AFT.id
+        gjennomforing.avtale?.navn shouldBe AvtaleFixtures.AFT.navn
         gjennomforing.arrangor shouldBe DatavarehusGjennomforingDto.Arrangor(
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
         )
