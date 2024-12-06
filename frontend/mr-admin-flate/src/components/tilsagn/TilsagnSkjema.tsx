@@ -1,5 +1,5 @@
 import { useKostnadssted } from "@/api/enhet/useKostnadssted";
-import { addMonths, addYear } from "@/utils/Utils";
+import { addMonths, addYear, subtractDays } from "@/utils/Utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ApiError, TilsagnDto, TilsagnRequest, TiltaksgjennomforingDto } from "@mr/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common";
@@ -63,7 +63,10 @@ export function TilsagnSkjema({
           kostnadssted: undefined,
           periode: {
             start: tiltaksgjennomforing.startDato,
-            slutt: addMonths(new Date(tiltaksgjennomforing.startDato), 6).toISOString(),
+            slutt: subtractDays(
+              addMonths(new Date(tiltaksgjennomforing.startDato), 6),
+              1,
+            ).toISOString(),
           },
         },
   });
