@@ -1,7 +1,5 @@
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAnnullerTilsagn } from "@/api/tilsagn/useAnnullerTilsagn";
 import { useBesluttTilsagn } from "@/api/tilsagn/useBesluttTilsagn";
-import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Header } from "@/components/detaljside/Header";
 import { Separator } from "@/components/detaljside/Metadata";
 import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
@@ -13,28 +11,26 @@ import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
 import { ActionMenu, Alert, BodyShort, Box, Button, Heading, HStack } from "@navikt/ds-react";
 import { useRef, useState } from "react";
-import { Link, useMatch, useNavigate, useParams } from "react-router-dom";
+import { Link, useLoaderData, useMatch, useNavigate, useParams } from "react-router-dom";
+import { useSlettTilsagn } from "../../../api/tilsagn/useSlettTilsagn";
 import { TiltakDetaljerForTilsagn } from "../../../components/tilsagn/TiltakDetaljerForTilsagn";
 import { AFTTilsagnDetaljer } from "./AFTTilsagnDetaljer";
 import { AvvistDetaljer } from "./AvvistDetaljer";
 import { AvvisTilsagnModal } from "./AvvisTilsagnModal";
-import { TilsagnTag } from "./TilsagnTag";
-import { useGetTilsagnById } from "./useGetTilsagnById";
-import { useSlettTilsagn } from "../../../api/tilsagn/useSlettTilsagn";
 import styles from "./TilsagnDetaljer.module.scss";
+import { tilsagnLoader } from "./tilsagnLoader";
+import { TilsagnTag } from "./TilsagnTag";
 
 export function TilsagnDetaljer() {
   const { avtaleId, tiltaksgjennomforingId } = useParams();
-  const { data: tilsagn } = useGetTilsagnById();
   const besluttMutation = useBesluttTilsagn();
   const annullerMutation = useAnnullerTilsagn();
   const slettMutation = useSlettTilsagn();
-  const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
-  const { data: ansatt } = useHentAnsatt();
   const navigate = useNavigate();
   const annullerModalRef = useRef<HTMLDialogElement>(null);
   const slettTilsagnModalRef = useRef<HTMLDialogElement>(null);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
+  const { tiltaksgjennomforing, tilsagn, ansatt } = useLoaderData<typeof tilsagnLoader>();
 
   const erPaaGjennomforingerForAvtale = useMatch(
     "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",

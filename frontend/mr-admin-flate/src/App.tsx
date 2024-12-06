@@ -31,6 +31,7 @@ import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerF
 import { tiltakstypeLoader, tiltakstyperLoaders } from "./pages/tiltakstyper/tiltakstyperLoaders";
 import { avtaleLoader, avtaleSkjemaLoader } from "./pages/avtaler/avtaleLoader";
 import { tiltaksgjennomforingLoader } from "./pages/tiltaksgjennomforinger/tiltaksgjennomforingLoaders";
+import { tilsagnLoader } from "./pages/tiltaksgjennomforinger/tilsagn/tilsagnLoader";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -213,16 +214,19 @@ const router = () =>
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
             element: <OpprettTilsagnSkjemaPage />,
             errorElement: <ErrorPage />,
+            loader: tilsagnLoader,
           },
           {
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId",
             element: <TilsagnDetaljer />,
             errorElement: <ErrorPage />,
+            loader: tilsagnLoader,
           },
           {
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId/rediger-tilsagn",
             element: <OpprettTilsagnSkjemaPage />,
             errorElement: <ErrorPage />,
+            loader: tilsagnLoader,
           },
           {
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/skjema",
@@ -240,16 +244,19 @@ const router = () =>
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
             element: <OpprettTilsagnSkjemaPage />,
             errorElement: <ErrorPage />,
+            loader: tilsagnLoader,
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId",
             element: <TilsagnDetaljer />,
             errorElement: <ErrorPage />,
+            loader: tilsagnLoader,
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId/rediger-tilsagn",
             element: <OpprettTilsagnSkjemaPage />,
             errorElement: <ErrorPage />,
+            loader: tilsagnLoader,
           },
           {
             path: "arrangorer",
