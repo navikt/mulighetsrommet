@@ -121,6 +121,12 @@ export function addYear(date: Date, numYears: number): Date {
   return newDate;
 }
 
+export function addMonths(date: Date, numOfMonths: number): Date {
+  const newDate = new Date(date);
+  newDate.setMonth(date.getMonth() + numOfMonths);
+  return newDate;
+}
+
 export function subtractMonths(date: Date, numMonths: number): Date {
   const newDate = new Date(date);
   newDate.setMonth(date.getMonth() - numMonths);

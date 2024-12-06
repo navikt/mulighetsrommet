@@ -20,7 +20,7 @@ export function TiltakDetaljerForTilsagn({ tiltaksgjennomforing }: Props) {
         />
         <Metadata header="Tiltaksnummer" verdi={tiltaksgjennomforing.tiltaksnummer} />
         <Metadata header="Startdato" verdi={formaterDato(tiltaksgjennomforing.startDato)} />
-        <Metadata header="Sluttdato" verdi={formaterDato(tiltaksgjennomforing.startDato)} />
+        <Metadata header="Sluttdato" verdi={formaterDato(tiltaksgjennomforing.sluttDato)} />
         <Metadata header="Antall plasser" verdi={tiltaksgjennomforing.antallPlasser} />
         <Metadata
           header="Status"
