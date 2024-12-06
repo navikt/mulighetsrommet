@@ -30,7 +30,7 @@ data class DatavarehusGjennomforingDto(
     val oppdatertTidspunkt: LocalDateTime,
     val status: TiltaksgjennomforingStatus,
     val tiltakstype: Tiltakstype,
-    val avtale: Avtale,
+    val avtale: Avtale?,
     val arrangor: Arrangor,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: Utdanningslop?,

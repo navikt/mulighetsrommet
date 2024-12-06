@@ -188,14 +188,8 @@ object DatavarehusGjennomforingQueries {
     }
 
     private fun Row.toDatavarehusGjennomforingDto(): DatavarehusGjennomforingDto {
-        val arena = stringOrNull("tiltaksnummer")
+        val tiltaksnummer = stringOrNull("tiltaksnummer")
             ?.let { Tiltaksnummer(it) }
-            ?.let {
-                DatavarehusGjennomforingDto.ArenaData(
-                    aar = it.aar,
-                    lopenummer = it.lopenummer,
-                )
-            }
 
         return DatavarehusGjennomforingDto(
             id = uuid("id"),
@@ -210,16 +204,23 @@ object DatavarehusGjennomforingQueries {
                 navn = string("tiltakstype_navn"),
                 tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
             ),
-            avtale = DatavarehusGjennomforingDto.Avtale(
-                id = uuid("avtale_id"),
-                navn = string("avtale_navn"),
-            ),
+            avtale = uuidOrNull("avtale_id")?.let {
+                DatavarehusGjennomforingDto.Avtale(
+                    id = it,
+                    navn = string("avtale_navn"),
+                )
+            },
             arrangor = DatavarehusGjennomforingDto.Arrangor(
                 organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
             ),
+            arena = tiltaksnummer?.let {
+                DatavarehusGjennomforingDto.ArenaData(
+                    aar = it.aar,
+                    lopenummer = it.lopenummer,
+                )
+            },
             amoKategorisering = null,
             utdanningslop = null,
-            arena = arena,
         )
     }
 }
