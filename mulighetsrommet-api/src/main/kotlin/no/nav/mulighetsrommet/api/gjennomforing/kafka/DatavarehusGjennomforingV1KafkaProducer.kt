@@ -10,21 +10,28 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.DatavarehusGjennomforingQueri
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
+import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer.Config
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.util.*
 
 class DatavarehusGjennomforingV1KafkaProducer(
-    consumerConfig: Config,
-    private val producerTopic: String,
+    private val config: Config,
     private val kafkaProducerClient: KafkaProducerClient<String, String?>,
     private val db: Database,
 ) : KafkaTopicConsumer<String, JsonElement>(
-    consumerConfig,
+    Config(config.consumerId, config.consumerTopic, config.consumerGroupId),
     stringDeserializer(),
     JsonElementDeserializer(),
 ) {
+
+    data class Config(
+        val consumerId: String,
+        val consumerGroupId: String? = null,
+        val consumerTopic: String,
+        val producerTopic: String,
+    )
 
     override suspend fun consume(key: String, message: JsonElement) {
         val gjennomforing = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltaksgjennomforingEksternV1Dto?>(message)
@@ -40,7 +47,7 @@ class DatavarehusGjennomforingV1KafkaProducer(
         val dto = DatavarehusGjennomforingQueries.getDatavarehusGjennomforing(it, id)
 
         val record: ProducerRecord<String, String?> = ProducerRecord(
-            producerTopic,
+            config.producerTopic,
             dto.id.toString(),
             Json.encodeToString(dto),
         )
@@ -50,7 +57,7 @@ class DatavarehusGjennomforingV1KafkaProducer(
 
     private fun retractDatavarehusGjennomforing(id: UUID) {
         val record: ProducerRecord<String, String?> = ProducerRecord(
-            producerTopic,
+            config.producerTopic,
             id.toString(),
             null,
         )
