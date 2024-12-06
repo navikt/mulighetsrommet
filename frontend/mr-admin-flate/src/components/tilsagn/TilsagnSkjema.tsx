@@ -1,8 +1,9 @@
 import { useKostnadssted } from "@/api/enhet/useKostnadssted";
-import { addYear } from "@/utils/Utils";
+import { addMonths, addYear } from "@/utils/Utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ApiError, TilsagnDto, TilsagnRequest, TiltaksgjennomforingDto } from "@mr/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, DatePicker, Heading, HGrid, HStack, Label } from "@navikt/ds-react";
 import { UseMutationResult } from "@tanstack/react-query";
 import { useEffect } from "react";
@@ -11,9 +12,8 @@ import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { AFTBeregningSkjema } from "./AFTBeregningSkjema";
 import { FriBeregningSkjema } from "./FriBeregningSkjema";
 import { InferredOpprettTilsagnSchema, OpprettTilsagnSchema } from "./OpprettTilsagnSchema";
-import { TiltakDetaljerForTilsagn } from "./TiltakDetaljerForTilsagn";
 import styles from "./TilsagnSkjema.module.scss";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { TiltakDetaljerForTilsagn } from "./TiltakDetaljerForTilsagn";
 
 interface Props {
   tiltaksgjennomforing: TiltaksgjennomforingDto;
@@ -50,7 +50,22 @@ export function TilsagnSkjema({
             slutt: tilsagn.periodeSlutt,
           },
         }
-      : {},
+      : {
+          id: null,
+          beregning: {
+            antallPlasser: undefined,
+            belop: undefined,
+            periodeStart: undefined,
+            periodeSlutt: undefined,
+            sats: undefined,
+            type: undefined,
+          },
+          kostnadssted: undefined,
+          periode: {
+            start: tiltaksgjennomforing.startDato,
+            slutt: addMonths(new Date(tiltaksgjennomforing.startDato), 6).toISOString(),
+          },
+        },
   });
 
   const { handleSubmit, register, setValue, watch } = form;
@@ -141,13 +156,12 @@ export function TilsagnSkjema({
             </Alert>
           ) : null}
         </div>
-        <HStack gap="2" justify={"space-between"}>
-          <Button size="small" type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? "Sender til beslutning" : "Send til beslutning"}
-          </Button>
-
+        <HStack gap="2" justify={"end"}>
           <Button onClick={onAvbryt} size="small" type="button" variant="primary-neutral">
             Avbryt
+          </Button>
+          <Button size="small" type="submit" disabled={mutation.isPending}>
+            {mutation.isPending ? "Sender til beslutning" : "Send til beslutning"}
           </Button>
         </HStack>
       </form>
