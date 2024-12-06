@@ -8,7 +8,7 @@ import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeseri
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 
 class TestConsumer(id: String, topic: String, group: String? = null) : KafkaTopicConsumer<String?, String?>(
-    Config(id, topic, true, group),
+    Config(id, topic, group),
     stringDeserializer(),
     stringDeserializer(),
 ) {
@@ -20,7 +20,7 @@ class TestConsumer(id: String, topic: String, group: String? = null) : KafkaTopi
 }
 
 class JsonTestConsumer(name: String) : KafkaTopicConsumer<String?, JsonElement>(
-    Config(name, name, true),
+    Config(name, name),
     stringDeserializer(),
     JsonElementDeserializer(),
 ) {
