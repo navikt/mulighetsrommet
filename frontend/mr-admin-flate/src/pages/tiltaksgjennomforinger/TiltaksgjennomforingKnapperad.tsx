@@ -5,7 +5,7 @@ import { NavAnsatt, TiltaksgjennomforingDto, Toggles } from "@mr/api-client";
 import { useTiltaksgjennomforingEndringshistorikk } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingEndringshistorikk";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useRevalidator } from "react-router-dom";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
@@ -22,6 +22,7 @@ interface Props {
 export function TiltaksgjennomforingKnapperad({ ansatt, tiltaksgjennomforing }: Props) {
   const navigate = useNavigate();
   const { mutate } = useMutatePublisert();
+  const revalidate = useRevalidator();
   const advarselModal = useRef<HTMLDialogElement>(null);
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const apentForPameldingModalRef = useRef<HTMLDialogElement>(null);
@@ -30,7 +31,12 @@ export function TiltaksgjennomforingKnapperad({ ansatt, tiltaksgjennomforing }: 
   );
 
   function handleClick(e: React.MouseEvent<HTMLInputElement>) {
-    mutate({ id: tiltaksgjennomforing.id, publisert: e.currentTarget.checked });
+    mutate(
+      { id: tiltaksgjennomforing.id, publisert: e.currentTarget.checked },
+      {
+        onSuccess: revalidate.revalidate,
+      },
+    );
   }
 
   return (
