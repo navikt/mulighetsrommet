@@ -15,7 +15,7 @@ import org.intellij.lang.annotations.Language
 import java.util.*
 
 object DatavarehusTiltakQueries {
-    fun getDatavarehusGjennomforing(session: Session, id: UUID): DatavarehusTiltak {
+    fun getDatavarehusTiltak(session: Session, id: UUID): DatavarehusTiltak {
         @Language("PostgreSQL")
         val query = """
             select gjennomforing.id,
@@ -44,7 +44,7 @@ object DatavarehusTiltakQueries {
         """.trimIndent()
 
         val dto = queryOf(query, id)
-            .map { it.toDatavarehusGjennomforingDto() }
+            .map { it.toDatavarehusTiltakDto() }
             .asSingle
             .runWithSession(session)
             .let { requireNotNull(it) { "Gjennomføring med id=$id finnes ikke" } }
@@ -204,7 +204,7 @@ object DatavarehusTiltakQueries {
         }
     }
 
-    private fun Row.toDatavarehusGjennomforingDto(): DatavarehusTiltakDto {
+    private fun Row.toDatavarehusTiltakDto(): DatavarehusTiltakDto {
         return DatavarehusTiltakDto(
             tiltakstype = DatavarehusTiltak.Tiltakstype(
                 id = uuid("tiltakstype_id"),

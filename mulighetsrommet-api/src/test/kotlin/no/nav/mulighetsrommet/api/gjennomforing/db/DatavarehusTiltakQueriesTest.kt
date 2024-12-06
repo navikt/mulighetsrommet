@@ -44,7 +44,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         domain.initialize(database.db)
 
         val tiltak = database.db.useSession {
-            DatavarehusTiltakQueries.getDatavarehusGjennomforing(it, AFT1.id)
+            DatavarehusTiltakQueries.getDatavarehusTiltak(it, AFT1.id)
         }
 
         tiltak.shouldBeTypeOf<DatavarehusTiltakDto>().should {
@@ -83,7 +83,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         }
 
         val tiltak = database.db.useSession {
-            DatavarehusTiltakQueries.getDatavarehusGjennomforing(it, AFT1.id)
+            DatavarehusTiltakQueries.getDatavarehusTiltak(it, AFT1.id)
         }
 
         tiltak.arena shouldBe DatavarehusTiltak.ArenaData(aar = 2020, lopenummer = 1234)
@@ -136,7 +136,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
         table.forAll { id, expectedAmoKategorisering ->
             val tiltak = database.db.useSession {
-                DatavarehusTiltakQueries.getDatavarehusGjennomforing(it, id)
+                DatavarehusTiltakQueries.getDatavarehusTiltak(it, id)
             }
 
             tiltak.shouldBeTypeOf<DatavarehusTiltakAmoDto>().amoKategorisering.shouldNotBeNull().shouldBe(
@@ -205,7 +205,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         domain.initialize(database.db)
 
         val gjennomforing = database.db.useSession {
-            DatavarehusTiltakQueries.getDatavarehusGjennomforing(it, GruppeFagYrke1.id)
+            DatavarehusTiltakQueries.getDatavarehusTiltak(it, GruppeFagYrke1.id)
         }
 
         gjennomforing.shouldBeTypeOf<DatavarehusTiltakYrkesfagDto>().utdanningslop.shouldNotBeNull().shouldBe(
@@ -239,7 +239,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         domain.initialize(database.db)
 
         val gjennomforing = database.db.useSession {
-            DatavarehusTiltakQueries.getDatavarehusGjennomforing(it, GruppeFagYrke1.id)
+            DatavarehusTiltakQueries.getDatavarehusTiltak(it, GruppeFagYrke1.id)
         }
 
         gjennomforing.shouldBeTypeOf<DatavarehusTiltakYrkesfagDto>().utdanningslop.shouldBeNull()

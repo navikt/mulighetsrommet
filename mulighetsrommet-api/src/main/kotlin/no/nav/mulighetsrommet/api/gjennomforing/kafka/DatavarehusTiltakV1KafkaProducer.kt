@@ -37,14 +37,14 @@ class DatavarehusTiltakV1KafkaProducer(
         val gjennomforing = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltaksgjennomforingEksternV1Dto?>(message)
 
         if (gjennomforing != null) {
-            publishDatavarehusGjennomforing(gjennomforing.id)
+            publishDatavarehusTiltak(gjennomforing.id)
         } else {
-            retractDatavarehusGjennomforing(UUID.fromString(key))
+            retractDatavarehusTiltak(UUID.fromString(key))
         }
     }
 
-    private fun publishDatavarehusGjennomforing(id: UUID) = db.useSession {
-        val dto = DatavarehusTiltakQueries.getDatavarehusGjennomforing(it, id)
+    private fun publishDatavarehusTiltak(id: UUID) = db.useSession {
+        val dto = DatavarehusTiltakQueries.getDatavarehusTiltak(it, id)
 
         val record: ProducerRecord<String, String?> = ProducerRecord(
             config.producerTopic,
@@ -55,7 +55,7 @@ class DatavarehusTiltakV1KafkaProducer(
         kafkaProducerClient.sendSync(record)
     }
 
-    private fun retractDatavarehusGjennomforing(id: UUID) {
+    private fun retractDatavarehusTiltak(id: UUID) {
         val record: ProducerRecord<String, String?> = ProducerRecord(
             config.producerTopic,
             id.toString(),
