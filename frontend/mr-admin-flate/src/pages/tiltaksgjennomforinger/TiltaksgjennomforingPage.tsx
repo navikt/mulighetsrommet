@@ -13,10 +13,9 @@ import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
-import { Link, Outlet, useLocation, useParams } from "react-router-dom";
-import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
-import { Laster } from "../../components/laster/Laster";
+import { Link, Outlet, useLoaderData, useLocation, useParams } from "react-router-dom";
 import commonStyles from "../Page.module.scss";
+import { tiltaksgjennomforingLoader } from "./tiltaksgjennomforingLoaders";
 
 function createBrodsmuler(
   tiltaksgjennomforingId: string,
@@ -49,14 +48,10 @@ export function TiltaksgjennomforingPage() {
   const { pathname } = useLocation();
   const { avtaleId } = useParams();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
-  const { data: tiltaksgjennomforing, isLoading } = useTiltaksgjennomforingById();
+  const { tiltaksgjennomforing } = useLoaderData<typeof tiltaksgjennomforingLoader>();
   const { data: enableOpprettTilsagn } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
   );
-
-  if (!tiltaksgjennomforing && isLoading) {
-    return <Laster tekst="Laster tiltaksgjennomføring" />;
-  }
 
   if (!tiltaksgjennomforing) {
     return (

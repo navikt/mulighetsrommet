@@ -1,6 +1,13 @@
+import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
+import { useUpsertTiltaksgjennomforing } from "@/api/tiltaksgjennomforing/useUpsertTiltaksgjennomforing";
+import { Laster } from "@/components/laster/Laster";
+import { RedaksjoneltInnholdBunnKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdBunnKnapperad";
+import {
+  InferredTiltaksgjennomforingSchema,
+  TiltaksgjennomforingSchema,
+} from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
+import { logEvent } from "@/logging/amplitude";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Tabs } from "@navikt/ds-react";
-import { useAtom } from "jotai";
 import {
   AvtaleDto,
   TiltaksgjennomforingDto,
@@ -8,26 +15,19 @@ import {
   Tiltakskode,
   ValidationErrorResponse,
 } from "@mr/api-client";
+import { InlineErrorBoundary } from "@mr/frontend-common";
+import { isValidationError } from "@mr/frontend-common/utils/utils";
+import { Tabs } from "@navikt/ds-react";
+import { useAtom } from "jotai";
+import React, { useCallback } from "react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
-import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
-import { useHandleApiUpsertResponse } from "@/api/effects";
-import { useUpsertTiltaksgjennomforing } from "@/api/tiltaksgjennomforing/useUpsertTiltaksgjennomforing";
 import { Separator } from "../detaljside/Metadata";
-import styles from "./TiltaksgjennomforingSkjemaContainer.module.scss";
+import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
 import { TiltakgjennomforingRedaksjoneltInnholdForm } from "./TiltaksgjennomforingRedaksjoneltInnholdForm";
-import {
-  InferredTiltaksgjennomforingSchema,
-  TiltaksgjennomforingSchema,
-} from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
+import styles from "./TiltaksgjennomforingSkjemaContainer.module.scss";
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
-import { logEvent } from "@/logging/amplitude";
-import { RedaksjoneltInnholdBunnKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdBunnKnapperad";
-import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
-import React, { useCallback } from "react";
-import { Laster } from "@/components/laster/Laster";
-import { InlineErrorBoundary } from "@mr/frontend-common";
 
 interface Props {
   onClose: () => void;
@@ -91,8 +91,6 @@ export function TiltaksgjennomforingSkjemaContainer({
     [form],
   );
 
-  useHandleApiUpsertResponse(mutation, handleSuccess, handleValidationError);
-
   const postData: SubmitHandler<InferredTiltaksgjennomforingSchema> = async (
     data,
   ): Promise<void> => {
@@ -138,7 +136,14 @@ export function TiltaksgjennomforingSkjemaContainer({
       loggRedaktorEndrerTilgjengeligForArrangor(data.tilgjengeligForArrangorFraOgMedDato);
     }
 
-    mutation.mutate(body);
+    mutation.mutate(body, {
+      onSuccess: handleSuccess,
+      onError: (error) => {
+        if (isValidationError(error)) {
+          handleValidationError(error);
+        }
+      },
+    });
   };
 
   const hasRedaksjoneltInnholdErrors = Boolean(errors?.faneinnhold);

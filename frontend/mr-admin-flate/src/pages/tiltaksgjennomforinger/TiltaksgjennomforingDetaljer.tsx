@@ -1,16 +1,19 @@
 import { getDisplayName } from "@/api/enhet/helpers";
 import { usePollTiltaksnummer } from "@/api/tiltaksgjennomforing/usePollTiltaksnummer";
+import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
 import { Laster } from "@/components/laster/Laster";
 import { tiltaktekster } from "@/components/ledetekster/tiltaksgjennomforingLedetekster";
 import { NokkeltallDeltakere } from "@/components/tiltaksgjennomforinger/NokkeltallDeltakere";
 import { TiltakTilgjengeligForArrangor } from "@/components/tiltaksgjennomforinger/TilgjengeligTiltakForArrangor";
+import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
+import { DetaljerContainer } from "@/pages/DetaljerContainer";
+import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
+import { ArrangorKontaktinfoContainer } from "@/pages/arrangor/ArrangorKontaktinfoContainer";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { Kontaktperson } from "@/pages/tiltaksgjennomforinger/Kontaktperson";
 import { formaterDato, formatertVentetid } from "@/utils/Utils";
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { BodyShort, HelpText, HStack, Tag } from "@navikt/ds-react";
 import {
   AvtaleDto,
   TiltaksgjennomforingDto,
@@ -18,14 +21,11 @@ import {
 } from "@mr/api-client";
 import { useTitle } from "@mr/frontend-common";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
+import { isKursTiltak } from "@mr/frontend-common/utils/utils";
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { BodyShort, HelpText, HStack, Tag } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import styles from "./TiltaksgjennomforingDetaljer.module.scss";
-import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
-import { DetaljerContainer } from "@/pages/DetaljerContainer";
-import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
-import { ArrangorKontaktinfoContainer } from "@/pages/arrangor/ArrangorKontaktinfoContainer";
-import { isKursTiltak } from "@mr/frontend-common/utils/utils";
-import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
 
 interface Props {
   tiltaksgjennomforing: TiltaksgjennomforingDto;
