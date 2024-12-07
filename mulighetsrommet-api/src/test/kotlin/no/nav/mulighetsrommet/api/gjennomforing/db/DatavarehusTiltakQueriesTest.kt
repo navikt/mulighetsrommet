@@ -48,6 +48,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         }
 
         tiltak.shouldBeTypeOf<DatavarehusTiltakDto>().should {
+            it.tiltakskode shouldBe Tiltakskode.ARBEIDSFORBEREDENDE_TRENING
             it.gjennomforing.id shouldBe AFT1.id
             it.gjennomforing.navn shouldBe AFT1.navn
             it.gjennomforing.startDato shouldBe AFT1.startDato
@@ -55,11 +56,6 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             it.gjennomforing.opprettetTidspunkt.shouldNotBeNull()
             it.gjennomforing.oppdatertTidspunkt.shouldNotBeNull()
             it.gjennomforing.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
-            it.tiltakstype shouldBe DatavarehusTiltak.Tiltakstype(
-                id = TiltakstypeFixtures.AFT.id,
-                navn = TiltakstypeFixtures.AFT.navn,
-                tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-            )
             it.avtale shouldBe DatavarehusTiltak.Avtale(AvtaleFixtures.AFT.id, AvtaleFixtures.AFT.navn)
             it.arrangor shouldBe DatavarehusTiltak.Arrangor(
                 organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,

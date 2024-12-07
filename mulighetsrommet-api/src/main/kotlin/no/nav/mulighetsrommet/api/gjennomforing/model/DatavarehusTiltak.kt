@@ -15,19 +15,11 @@ import java.util.*
 
 @Serializable
 sealed class DatavarehusTiltak {
-    abstract val tiltakstype: Tiltakstype
+    abstract val tiltakskode: Tiltakskode
     abstract val avtale: Avtale?
     abstract val gjennomforing: Gjennomforing
     abstract val arrangor: Arrangor
     abstract val arena: ArenaData?
-
-    @Serializable
-    data class Tiltakstype(
-        @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
-        val navn: String,
-        val tiltakskode: Tiltakskode,
-    )
 
     @Serializable
     data class Avtale(
@@ -66,7 +58,7 @@ sealed class DatavarehusTiltak {
 
 @Serializable
 data class DatavarehusTiltakDto(
-    override val tiltakstype: Tiltakstype,
+    override val tiltakskode: Tiltakskode,
     override val avtale: Avtale?,
     override val gjennomforing: Gjennomforing,
     override val arrangor: Arrangor,
@@ -75,7 +67,7 @@ data class DatavarehusTiltakDto(
 
 @Serializable
 data class DatavarehusTiltakAmoDto(
-    override val tiltakstype: Tiltakstype,
+    override val tiltakskode: Tiltakskode,
     override val avtale: Avtale?,
     override val gjennomforing: Gjennomforing,
     override val arrangor: Arrangor,
@@ -85,7 +77,7 @@ data class DatavarehusTiltakAmoDto(
 
 @Serializable
 data class DatavarehusTiltakYrkesfagDto(
-    override val tiltakstype: Tiltakstype,
+    override val tiltakskode: Tiltakskode,
     override val avtale: Avtale?,
     override val gjennomforing: Gjennomforing,
     override val arrangor: Arrangor,

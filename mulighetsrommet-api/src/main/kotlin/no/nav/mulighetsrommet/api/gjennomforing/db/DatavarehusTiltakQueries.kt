@@ -30,8 +30,6 @@ object DatavarehusTiltakQueries {
                            gjennomforing.slutt_dato,
                            gjennomforing.avsluttet_tidspunkt
                    )                            as status,
-                   tiltakstype.id               as tiltakstype_id,
-                   tiltakstype.navn             as tiltakstype_navn,
                    tiltakstype.tiltakskode      as tiltakstype_tiltakskode,
                    avtale.id                    as avtale_id,
                    avtale.navn                  as avtale_navn,
@@ -49,11 +47,11 @@ object DatavarehusTiltakQueries {
             .runWithSession(session)
             .let { requireNotNull(it) { "Gjennomføring med id=$id finnes ikke" } }
 
-        return when (dto.tiltakstype.tiltakskode) {
+        return when (dto.tiltakskode) {
             Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING -> {
                 val utdanningslop = getUtdanningslop(session, id)
                 DatavarehusTiltakYrkesfagDto(
-                    dto.tiltakstype,
+                    dto.tiltakskode,
                     dto.avtale,
                     dto.gjennomforing,
                     dto.arrangor,
@@ -65,7 +63,7 @@ object DatavarehusTiltakQueries {
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> {
                 val amoKategorisering = getAmoKategorisering(session, id)
                 DatavarehusTiltakAmoDto(
-                    dto.tiltakstype,
+                    dto.tiltakskode,
                     dto.avtale,
                     dto.gjennomforing,
                     dto.arrangor,
@@ -206,11 +204,7 @@ object DatavarehusTiltakQueries {
 
     private fun Row.toDatavarehusTiltakDto(): DatavarehusTiltakDto {
         return DatavarehusTiltakDto(
-            tiltakstype = DatavarehusTiltak.Tiltakstype(
-                id = uuid("tiltakstype_id"),
-                navn = string("tiltakstype_navn"),
-                tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
-            ),
+            tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
             avtale = uuidOrNull("avtale_id")?.let {
                 DatavarehusTiltak.Avtale(
                     id = it,
