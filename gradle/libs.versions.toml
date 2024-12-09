@@ -1,12 +1,12 @@
 [versions]
 common-java-modules = "3.2024.11.26_16.35-432a29107830"
-flyway = "11.0.0"
+flyway = "11.0.1"
 hoplite = "2.9.0"
 koin = "4.1.0-Beta1"
 kotest = "5.9.1"
 kotest-testcontainers = "2.0.2"
 kotlin = "2.1.0"
-ktor = "3.0.1"
+ktor = "3.0.2"
 logback = "1.5.12"
 metrics = "4.2.29"
 arrow = "2.0.0"
@@ -36,7 +36,7 @@ assertj-db = "org.assertj:assertj-db:2.0.2"
 
 caffeine = "com.github.ben-manes.caffeine:caffeine:3.1.8"
 pdfgen-core = "no.nav.pdfgen:pdfgen-core:1.1.36"
-verapdf = "org.verapdf:validation-model:1.26.1"
+verapdf = "org.verapdf:validation-model:1.26.2"
 handlebars = "com.github.jknack:handlebars:4.4.0"
 
 dbScheduler = "com.github.kagkarlsson:db-scheduler:15.0.0"
@@ -113,7 +113,7 @@ nav-common-client = { module = "no.nav.common:client", version.ref = "common-jav
 nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2024.11.26_08.36-ad014162ce23"
 nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.1.10"
 
-opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.44.1"
+opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.45.0"
 
 postgresql = "org.postgresql:postgresql:42.7.4"
 
