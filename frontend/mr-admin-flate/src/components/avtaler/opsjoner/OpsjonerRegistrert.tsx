@@ -3,6 +3,7 @@ import { AvtaleDto, OpsjonLoggRegistrert, OpsjonStatus } from "@mr/api-client";
 import { useSlettOpsjon } from "@/api/avtaler/useSlettOpsjon";
 import { formaterDato } from "@/utils/Utils";
 import styles from "./OpsjonerRegistrert.module.scss";
+import { useRevalidator } from "react-router-dom";
 
 interface Props {
   avtale: AvtaleDto;
@@ -11,6 +12,7 @@ interface Props {
 
 export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
   const logg = avtale.opsjonerRegistrert;
+  const revalidator = useRevalidator();
   const mutation = useSlettOpsjon();
 
   function kanSletteOpsjon(opsjon: OpsjonLoggRegistrert): boolean {
@@ -25,6 +27,7 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
       {
         onSuccess: () => {
           mutation.reset();
+          revalidator.revalidate();
         },
       },
     );
