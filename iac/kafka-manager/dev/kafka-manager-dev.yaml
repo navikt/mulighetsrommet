@@ -97,7 +97,7 @@ spec:
               "valueDeserializerType": "STRING"
             },
             {
-              "name": "team-mulighetsrommet.datavarehus-tiltaksgjennomforinger-v1",
+              "name": "team-mulighetsrommet.datavarehus-tiltak-v1",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
               "valueDeserializerType": "STRING"

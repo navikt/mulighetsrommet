@@ -28,7 +28,7 @@ app:
         consumerId: dvh-gjennomforing-consumer
         consumerGroupId: mulighetsrommet-api.datavarehus-gjennomforing.v1
         consumerTopic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1
-        producerTopic: team-mulighetsrommet.datavarehus-tiltaksgjennomforinger-v1
+        producerTopic: team-mulighetsrommet.datavarehus-tiltak-v1
     consumers:
       tiltaksgjennomforingerV1:
         id: siste-tiltaksgjennomforinger
