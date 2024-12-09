@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.gjennomforing.kafka
+package no.nav.mulighetsrommet.api.datavarehus.kafka
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -6,7 +6,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.common.kafka.producer.KafkaProducerClient
-import no.nav.mulighetsrommet.api.gjennomforing.db.DatavarehusTiltakQueries
+import no.nav.mulighetsrommet.api.datavarehus.db.DatavarehusTiltakQueries
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -44,7 +44,7 @@ class DatavarehusTiltakV1KafkaProducer(
     }
 
     private fun publishDatavarehusTiltak(id: UUID) = db.useSession {
-        val dto = DatavarehusTiltakQueries.getDatavarehusTiltak(it, id)
+        val dto = DatavarehusTiltakQueries.get(it, id)
 
         val record: ProducerRecord<String, String?> = ProducerRecord(
             config.producerTopic,

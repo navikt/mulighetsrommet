@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.gjennomforing.kafka
+package no.nav.mulighetsrommet.api.datavarehus.kafka
 
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.mockk
@@ -8,11 +8,11 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltak
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.model.DatavarehusTiltak
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto

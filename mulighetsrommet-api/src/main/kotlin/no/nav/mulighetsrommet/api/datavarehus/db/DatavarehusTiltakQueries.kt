@@ -1,13 +1,13 @@
-package no.nav.mulighetsrommet.api.gjennomforing.db
+package no.nav.mulighetsrommet.api.datavarehus.db
 
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.gjennomforing.model.DatavarehusTiltak
-import no.nav.mulighetsrommet.api.gjennomforing.model.DatavarehusTiltakAmoDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.DatavarehusTiltakDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.DatavarehusTiltakYrkesfagDto
+import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltak
+import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakAmoDto
+import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakDto
+import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakYrkesfagDto
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
@@ -15,7 +15,7 @@ import org.intellij.lang.annotations.Language
 import java.util.*
 
 object DatavarehusTiltakQueries {
-    fun getDatavarehusTiltak(session: Session, id: UUID): DatavarehusTiltak {
+    fun get(session: Session, id: UUID): DatavarehusTiltak {
         @Language("PostgreSQL")
         val query = """
             select gjennomforing.id,
@@ -212,36 +212,34 @@ object DatavarehusTiltakQueries {
         }
     }
 
-    private fun Row.toDatavarehusTiltakDto(): DatavarehusTiltakDto {
-        return DatavarehusTiltakDto(
-            tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
-            avtale = uuidOrNull("avtale_id")?.let {
-                DatavarehusTiltak.Avtale(
-                    id = it,
-                    navn = string("avtale_navn"),
-                    opprettetTidspunkt = localDateTime("avtale_opprettet_tidspunkt"),
-                    oppdatertTidspunkt = localDateTime("avtale_oppdatert_tidspunkt"),
+    private fun Row.toDatavarehusTiltakDto() = DatavarehusTiltakDto(
+        tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
+        avtale = uuidOrNull("avtale_id")?.let {
+            DatavarehusTiltak.Avtale(
+                id = it,
+                navn = string("avtale_navn"),
+                opprettetTidspunkt = localDateTime("avtale_opprettet_tidspunkt"),
+                oppdatertTidspunkt = localDateTime("avtale_oppdatert_tidspunkt"),
+            )
+        },
+        gjennomforing = DatavarehusTiltak.Gjennomforing(
+            id = uuid("id"),
+            navn = string("navn"),
+            startDato = localDate("start_dato"),
+            sluttDato = localDateOrNull("slutt_dato"),
+            opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
+            oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
+            status = TiltaksgjennomforingStatus.valueOf(string("status")),
+            arena = stringOrNull("tiltaksnummer")?.let {
+                val tiltaksnummmer = Tiltaksnummer(it)
+                DatavarehusTiltak.ArenaData(
+                    aar = tiltaksnummmer.aar,
+                    lopenummer = tiltaksnummmer.lopenummer,
                 )
             },
-            gjennomforing = DatavarehusTiltak.Gjennomforing(
-                id = uuid("id"),
-                navn = string("navn"),
-                startDato = localDate("start_dato"),
-                sluttDato = localDateOrNull("slutt_dato"),
-                opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
-                oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
-                status = TiltaksgjennomforingStatus.valueOf(string("status")),
-                arena = stringOrNull("tiltaksnummer")?.let {
-                    val tiltaksnummmer = Tiltaksnummer(it)
-                    DatavarehusTiltak.ArenaData(
-                        aar = tiltaksnummmer.aar,
-                        lopenummer = tiltaksnummmer.lopenummer,
-                    )
-                },
-            ),
-            arrangor = DatavarehusTiltak.Arrangor(
-                organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
-            ),
-        )
-    }
+        ),
+        arrangor = DatavarehusTiltak.Arrangor(
+            organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+        ),
+    )
 }

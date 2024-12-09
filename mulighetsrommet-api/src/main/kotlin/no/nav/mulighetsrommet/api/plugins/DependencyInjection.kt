@@ -39,11 +39,11 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
+import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadTiltaksgjennomforinger

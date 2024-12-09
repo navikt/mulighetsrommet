@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.gjennomforing.db
+package no.nav.mulighetsrommet.api.datavarehus.db
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
@@ -10,6 +10,10 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltak
+import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakAmoDto
+import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakDto
+import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakYrkesfagDto
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -17,10 +21,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.GruppeAmo1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.GruppeFagYrke1
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.model.DatavarehusTiltak
-import no.nav.mulighetsrommet.api.gjennomforing.model.DatavarehusTiltakAmoDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.DatavarehusTiltakDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.DatavarehusTiltakYrkesfagDto
+import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
@@ -47,7 +48,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         domain.initialize(database.db)
 
         val tiltak = database.db.useSession {
-            DatavarehusTiltakQueries.getDatavarehusTiltak(it, AFT1.id)
+            DatavarehusTiltakQueries.get(it, AFT1.id)
         }
 
         tiltak.shouldBeTypeOf<DatavarehusTiltakDto>().should {
@@ -87,7 +88,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         }
 
         val tiltak = database.db.useSession {
-            DatavarehusTiltakQueries.getDatavarehusTiltak(it, AFT1.id)
+            DatavarehusTiltakQueries.get(it, AFT1.id)
         }
 
         tiltak.gjennomforing.arena shouldBe DatavarehusTiltak.ArenaData(aar = 2020, lopenummer = 1234)
@@ -140,7 +141,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
         table.forAll { id, expectedAmoKategorisering ->
             val tiltak = database.db.useSession {
-                DatavarehusTiltakQueries.getDatavarehusTiltak(it, id)
+                DatavarehusTiltakQueries.get(it, id)
             }
 
             tiltak.shouldBeTypeOf<DatavarehusTiltakAmoDto>().amoKategorisering.shouldNotBeNull().shouldBe(
@@ -209,7 +210,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         domain.initialize(database.db)
 
         val gjennomforing = database.db.useSession {
-            DatavarehusTiltakQueries.getDatavarehusTiltak(it, GruppeFagYrke1.id)
+            DatavarehusTiltakQueries.get(it, GruppeFagYrke1.id)
         }
 
         gjennomforing.shouldBeTypeOf<DatavarehusTiltakYrkesfagDto>().utdanningslop.shouldNotBeNull().should {
@@ -259,7 +260,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         domain.initialize(database.db)
 
         val gjennomforing = database.db.useSession {
-            DatavarehusTiltakQueries.getDatavarehusTiltak(it, GruppeFagYrke1.id)
+            DatavarehusTiltakQueries.get(it, GruppeFagYrke1.id)
         }
 
         gjennomforing.shouldBeTypeOf<DatavarehusTiltakYrkesfagDto>().utdanningslop.shouldBeNull()
