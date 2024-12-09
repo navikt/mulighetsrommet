@@ -4830,17 +4830,6 @@ components:
             - organisasjonsnummer
             - navn
             - overordnetEnhet
-        tiltaksgjennomforing:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-            antallPlasser:
-              type: number
-          required:
-            - id
-            - antallPlasser
         status:
           $ref: "#/components/schemas/TilsagnStatus"
       required:
@@ -4854,7 +4843,6 @@ components:
         - arrangor
         - lopenummer
         - opprettetAv
-        - tiltaksgjennomforing
         - status
 
     TilsagnStatus:

@@ -99,6 +99,19 @@ export function TiltaksgjennomforingKnapperad({ ansatt, tiltaksgjennomforing }: 
                   Opprett tilsagn
                 </Dropdown.Menu.GroupedList.Item>
               ) : null}
+              {enableOpprettTilsagn && gjennomforingIsAktiv(tiltaksgjennomforing.status.status) ? (
+                <Dropdown.Menu.GroupedList.Item
+                  onClick={() => {
+                    navigate("opprett-tilsagn", {
+                      state: {
+                        ekstratilsagn: true,
+                      },
+                    });
+                  }}
+                >
+                  Opprett ekstratilsagn
+                </Dropdown.Menu.GroupedList.Item>
+              ) : null}
               {gjennomforingIsAktiv(tiltaksgjennomforing.status.status) && (
                 <Dropdown.Menu.GroupedList.Item onClick={() => avbrytModalRef.current?.showModal()}>
                   Avbryt gjennomføring

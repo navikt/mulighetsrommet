@@ -5,6 +5,14 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 
+enum class AmoKurstype {
+    BRANSJE_OG_YRKESRETTET,
+    NORSKOPPLAERING,
+    GRUNNLEGGENDE_FERDIGHETER,
+    FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+    STUDIESPESIALISERING,
+}
+
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonClassDiscriminator("kurstype")

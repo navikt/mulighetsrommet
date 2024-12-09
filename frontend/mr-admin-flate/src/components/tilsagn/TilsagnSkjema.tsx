@@ -1,5 +1,5 @@
 import { useKostnadssted } from "@/api/enhet/useKostnadssted";
-import { addMonths, addYear } from "@/utils/Utils";
+import { addMonths, addYear, subtractDays } from "@/utils/Utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ApiError, TilsagnDto, TilsagnRequest, TiltaksgjennomforingDto } from "@mr/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common";
@@ -14,6 +14,7 @@ import { FriBeregningSkjema } from "./FriBeregningSkjema";
 import { InferredOpprettTilsagnSchema, OpprettTilsagnSchema } from "./OpprettTilsagnSchema";
 import styles from "./TilsagnSkjema.module.scss";
 import { TiltakDetaljerForTilsagn } from "./TiltakDetaljerForTilsagn";
+import { useLocation } from "react-router-dom";
 
 interface Props {
   tiltaksgjennomforing: TiltaksgjennomforingDto;
@@ -32,11 +33,13 @@ export function TilsagnSkjema({
   mutation,
   prismodell,
 }: Props) {
-  const { data: kostnadssteder } = useKostnadssted(
-    tiltaksgjennomforing.navRegion?.enhetsnummer
-      ? [tiltaksgjennomforing.navRegion.enhetsnummer]
-      : [],
-  );
+  const locationState = useLocation()?.state as { ekstratilsagn?: boolean };
+  const enheterForKostnadssted = locationState?.ekstratilsagn
+    ? []
+    : tiltaksgjennomforing.navRegion?.enhetsnummer
+      ? [tiltaksgjennomforing.navRegion?.enhetsnummer]
+      : [];
+  const { data: kostnadssteder } = useKostnadssted(enheterForKostnadssted);
 
   const form = useForm<InferredOpprettTilsagnSchema>({
     resolver: zodResolver(OpprettTilsagnSchema),
@@ -61,10 +64,15 @@ export function TilsagnSkjema({
             type: undefined,
           },
           kostnadssted: undefined,
-          periode: {
-            start: tiltaksgjennomforing.startDato,
-            slutt: addMonths(new Date(tiltaksgjennomforing.startDato), 6).toISOString(),
-          },
+          periode: !locationState?.ekstratilsagn
+            ? {
+                start: tiltaksgjennomforing.startDato,
+                slutt: subtractDays(
+                  addMonths(new Date(tiltaksgjennomforing.startDato), 6),
+                  1,
+                ).toISOString(),
+              }
+            : {},
         },
   });
 
@@ -116,7 +124,11 @@ export function TilsagnSkjema({
               </div>
               <div className={styles.formGroup}>
                 {prismodell == "AFT" ? (
-                  <AFTBeregningSkjema defaultAntallPlasser={tiltaksgjennomforing.antallPlasser} />
+                  <AFTBeregningSkjema
+                    defaultAntallPlasser={
+                      locationState?.ekstratilsagn ? 0 : tiltaksgjennomforing.antallPlasser
+                    }
+                  />
                 ) : (
                   <FriBeregningSkjema />
                 )}

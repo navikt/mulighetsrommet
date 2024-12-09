@@ -55,7 +55,6 @@ data class TilsagnDto(
     data class Tiltaksgjennomforing(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
-        val antallPlasser: Int,
     )
 
     @Serializable

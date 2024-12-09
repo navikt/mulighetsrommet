@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.utdanning.db
 
+import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
@@ -7,6 +8,7 @@ import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
 import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramMedUtdanninger
 import org.intellij.lang.annotations.Language
+import java.util.*
 
 class UtdanningRepository(private val db: Database) {
 
@@ -64,7 +66,7 @@ class UtdanningRepository(private val db: Database) {
         }
     }
 
-    fun upsertPrograomomrade(session: TransactionalSession, utdanningsprogram: Utdanningsprogram) {
+    fun upsertUtdanningsprogram(session: TransactionalSession, utdanningsprogram: Utdanningsprogram) {
         @Language("PostgreSQL")
         val query = """
             insert into utdanningsprogram (navn, programomradekode, utdanningsprogram_type, nus_koder)
@@ -86,16 +88,7 @@ class UtdanningRepository(private val db: Database) {
     }
 
     fun upsertUtdanning(session: TransactionalSession, utdanning: Utdanning) {
-        @Language("PostgreSQL")
-        val getIdForProgramomradeQuery = """
-            select id from utdanningsprogram where programomradekode = :programomradekode
-        """.trimIndent()
-
-        val programomradeId =
-            queryOf(getIdForProgramomradeQuery, mapOf("programomradekode" to utdanning.utdanningslop.first()))
-                .map { it.uuid("id") }
-                .asSingle
-                .runWithSession(session)
+        val programomradeId = getIdForUtdanningsprogram(session, utdanning.utdanningslop.first())
 
         @Language("PostgreSQL")
         val upsertUtdanning = """
@@ -151,5 +144,31 @@ class UtdanningRepository(private val db: Database) {
                 mapOf("utdanning_id" to utdanning.utdanningId, "nus_kode_id" to nus.kode),
             ).asExecute.runWithSession(session)
         }
+    }
+
+    fun getIdForUtdanningsprogram(session: Session, programomradekode: String): UUID {
+        @Language("PostgreSQL")
+        val query = """
+            select id from utdanningsprogram where programomradekode = ?
+        """.trimIndent()
+
+        return queryOf(query, programomradekode)
+            .map { it.uuid("id") }
+            .asSingle
+            .runWithSession(session)
+            .let { requireNotNull(it) { "Fant ingen utdanningsprogram med kode=$programomradekode" } }
+    }
+
+    fun getIdForUtdanning(session: Session, utdanningId: String): UUID {
+        @Language("PostgreSQL")
+        val query = """
+            select id from utdanning where utdanning_id = ?
+        """.trimIndent()
+
+        return queryOf(query, utdanningId)
+            .map { it.uuid("id") }
+            .asSingle
+            .runWithSession(session)
+            .let { requireNotNull(it) { "Fant ingen utdanning med id=$utdanningId" } }
     }
 }

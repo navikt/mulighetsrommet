@@ -6,6 +6,7 @@ import { TableColumnHeader } from "@navikt/ds-react/Table";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import styles from "./Tilsagnstabell.module.scss";
+import { isAftBeregning } from "./tilsagnUtils";
 
 interface Props {
   tilsagn: TilsagnDto[];
@@ -125,14 +126,15 @@ export function Tilsagnstabell({ tilsagn }: Props) {
       </Table.Header>
       <Table.Body>
         {sortedData.map((tilsagn) => {
-          const { periodeStart, periodeSlutt, kostnadssted, beregning, id, tiltaksgjennomforing } =
-            tilsagn;
+          const { periodeStart, periodeSlutt, kostnadssted, beregning, id } = tilsagn;
+
+          const antallPlasser = getAntallPlasser(beregning);
           return (
             <Table.Row key={id}>
               <Table.DataCell>{formaterDato(periodeStart)}</Table.DataCell>
               <Table.DataCell>{formaterDato(periodeSlutt)}</Table.DataCell>
               <Table.DataCell>{kostnadssted.navn}</Table.DataCell>
-              <Table.DataCell>{tiltaksgjennomforing.antallPlasser}</Table.DataCell>
+              <Table.DataCell>{antallPlasser}</Table.DataCell>
               <Table.DataCell>{formaterNOK(beregning.belop)}</Table.DataCell>
               <Table.DataCell>
                 <TilsagnStatusTag tilsagn={tilsagn} />
@@ -149,6 +151,13 @@ export function Tilsagnstabell({ tilsagn }: Props) {
       </Table.Body>
     </Table>
   );
+}
+
+function getAntallPlasser(beregning: TilsagnDto["beregning"]) {
+  if (isAftBeregning(beregning)) {
+    return beregning.antallPlasser;
+  }
+  return 0;
 }
 
 function besluttelseTilTekst(besluttelse: TilsagnBesluttelseStatus): "Godkjent" | "Returnert" {

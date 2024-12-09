@@ -9,7 +9,7 @@ kotlin = "2.1.0"
 ktor = "3.0.1"
 logback = "1.5.12"
 metrics = "4.2.29"
-arrow = "1.2.4"
+arrow = "2.0.0"
 
 [plugins]
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
@@ -66,7 +66,7 @@ kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0"
 
 kotliquery = "com.github.seratch:kotliquery:1.9.0"
 
-ktlint = "com.pinterest.ktlint:ktlint-cli:1.4.1"
+ktlint = "com.pinterest.ktlint:ktlint-cli:1.5.0"
 
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }

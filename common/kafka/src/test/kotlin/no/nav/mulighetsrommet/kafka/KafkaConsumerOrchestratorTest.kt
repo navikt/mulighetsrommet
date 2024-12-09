@@ -50,11 +50,16 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         database.db.truncateAll()
     }
 
+    val defaultConfig = KafkaConsumerOrchestrator.Config(
+        consumerInitialRunningState = true,
+        consumerRunningStatePollDelay = Long.MAX_VALUE,
+    )
+
     test("should store topics based on provided consumers during setup") {
         val consumer = TestConsumer(id = "1", topic = "foo")
 
         val orchestrator = KafkaConsumerOrchestrator(
-            KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
+            defaultConfig,
             kafka.getConsumerProperties(),
             database.db,
             listOf(consumer),
@@ -74,7 +79,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         val consumer = TestConsumer(id = "1", topic = "foo")
 
         val orchestrator = KafkaConsumerOrchestrator(
-            KafkaConsumerOrchestrator.Config(topicStatePollDelay = 10),
+            KafkaConsumerOrchestrator.Config(consumerInitialRunningState = true, consumerRunningStatePollDelay = 10),
             kafka.getConsumerProperties(),
             database.db,
             listOf(consumer),
@@ -103,7 +108,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         val consumer = spyk(TestConsumer(id = "1", topic))
 
         KafkaConsumerOrchestrator(
-            KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
+            defaultConfig,
             kafka.getConsumerProperties(),
             database.db,
             listOf(consumer),
@@ -129,7 +134,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         val consumer2 = spyk(TestConsumer("2", topic, "group-2"))
 
         KafkaConsumerOrchestrator(
-            KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
+            defaultConfig,
             kafka.getConsumerProperties(),
             database.db,
             listOf(consumer1, consumer2),
@@ -154,7 +159,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         val consumer = spyk(JsonTestConsumer(topic))
 
         KafkaConsumerOrchestrator(
-            KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
+            defaultConfig,
             kafka.getConsumerProperties(),
             database.db,
             listOf(consumer),
@@ -178,7 +183,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         val consumer = spyk(TestConsumer(id = "1", topic))
 
         KafkaConsumerOrchestrator(
-            KafkaConsumerOrchestrator.Config(topicStatePollDelay = Long.MAX_VALUE),
+            defaultConfig,
             kafka.getConsumerProperties(),
             database.db,
             listOf(consumer),
