@@ -5,7 +5,17 @@ import {
   RelevanteForslag,
 } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Alert, Button, GuidePanel, HGrid, List, SortState, Table, VStack } from "@navikt/ds-react";
+import {
+  Alert,
+  Button,
+  GuidePanel,
+  HGrid,
+  List,
+  SortState,
+  Table,
+  Tooltip,
+  VStack,
+} from "@navikt/ds-react";
 import type { LoaderFunction, MetaFunction } from "react-router";
 import { Link, useLoaderData } from "react-router";
 import { useState } from "react";
@@ -20,6 +30,7 @@ import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
 import { LinkWithTabState } from "~/components/LinkWithTabState";
 import { internalNavigation } from "~/internal-navigation";
 import { hentMiljø, Miljø } from "~/services/miljø";
+import { ExclamationmarkTriangleIcon } from "@navikt/aksel-icons";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Refusjon" }, { name: "description", content: "Refusjonsdetaljer" }];
@@ -155,7 +166,14 @@ export default function RefusjonskravBeregning() {
                         : "" // zebra stripes gjøres her fordi den overskriver warning background
                   }
                 >
-                  <Table.DataCell className="font-bold">{person?.navn}</Table.DataCell>
+                  <Table.DataCell className="font-bold">
+                    {hasRelevanteForslag(id) && (
+                      <Tooltip content="Har ubehandlede forslag som påvirker refusjonen">
+                        <ExclamationmarkTriangleIcon fontSize="1.5rem" />
+                      </Tooltip>
+                    )}
+                    {person?.navn}
+                  </Table.DataCell>
                   <Table.DataCell className="w-52">{fodselsdato}</Table.DataCell>
                   <Table.DataCell>{formaterDato(deltaker.startDato)}</Table.DataCell>
                   <Table.DataCell>{formaterDato(deltaker.forstePeriodeStartDato)}</Table.DataCell>
