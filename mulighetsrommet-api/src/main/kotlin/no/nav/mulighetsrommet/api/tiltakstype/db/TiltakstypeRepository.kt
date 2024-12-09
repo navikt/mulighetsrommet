@@ -7,11 +7,7 @@ import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.*
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dto.DeltakerRegistreringInnholdDto
-import no.nav.mulighetsrommet.domain.dto.Innholdselement
-import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeEksternV2Dto
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
+import no.nav.mulighetsrommet.domain.dto.*
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -66,7 +62,7 @@ class TiltakstypeRepository(private val db: Database) {
     fun getEksternTiltakstype(id: UUID): TiltakstypeEksternV2Dto? = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakskode, arena_kode, innsatsgrupper
+            select id, navn, tiltakskode, arena_kode, innsatsgrupper, created_at, updated_at
             from tiltakstype
             where id = ?::uuid
         """.trimIndent()
@@ -274,6 +270,8 @@ class TiltakstypeRepository(private val db: Database) {
             tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
             innsatsgrupper = innsatsgrupper,
             arenaKode = string("arena_kode"),
+            opprettetTidspunkt = localDateTime("created_at"),
+            oppdatertTidspunkt = localDateTime("updated_at"),
             deltakerRegistreringInnhold = deltakerRegistreringInnhold,
         )
     }
