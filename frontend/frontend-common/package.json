@@ -9,7 +9,7 @@
   "peerDependencies": {
     "@hookform/resolvers": "3.9.1",
     "@mr/api-client": "workspace:*",
-    "@tanstack/react-query": "5.62.2",
+    "@tanstack/react-query": "5.62.3",
     "@navikt/aksel-icons": "7.6.0",
     "@navikt/ds-css": "7.6.0",
     "@navikt/ds-react": "7.6.0",
