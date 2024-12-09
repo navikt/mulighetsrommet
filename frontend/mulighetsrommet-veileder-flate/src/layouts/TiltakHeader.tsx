@@ -1,8 +1,7 @@
 import { VeilederflateTiltak } from "@mr/api-client";
 import { isTiltakAktivt } from "@/api/queries/useArbeidsmarkedstiltakById";
 import { GjennomforingStatusTag } from "@mr/frontend-common";
-import { BodyLong, Heading, HStack, VStack } from "@navikt/ds-react";
-import styles from "./TiltakHeader.module.scss";
+import { BodyLong, BodyShort, Heading, HStack, VStack } from "@navikt/ds-react";
 
 interface Props {
   tiltak: VeilederflateTiltak;
@@ -12,26 +11,31 @@ export function TiltakHeader({ tiltak }: Props) {
   const { beskrivelse, tiltakstype } = tiltak;
   return (
     <>
-      <HStack align="center" gap="2" className={styles.tiltaksgjennomforing_title}>
-        <Heading level="1" size="xlarge">
-          <VStack>
-            {tiltak.tittel}
-            <BodyLong size="medium" textColor="subtle">
-              {tiltak.underTittel}
-            </BodyLong>
-          </VStack>
+      <VStack gap="2">
+        <Heading level="2" size="xlarge">
+          <BodyShort spacing size="small" textColor="default">
+            {tiltak.underTittel}
+          </BodyShort>
         </Heading>
-        {!isTiltakAktivt(tiltak) && <GjennomforingStatusTag status={tiltak.status} />}
-      </HStack>
-      {tiltakstype.beskrivelse && (
-        <BodyLong size="large" className={styles.beskrivelse} style={{ whiteSpace: "pre-wrap" }}>
-          {tiltakstype.beskrivelse}
-        </BodyLong>
-      )}
+        <HStack gap={"2"} align="center">
+          <Heading size="large">{tiltak.tittel}</Heading>
+          {isTiltakAktivt(tiltak) && <GjennomforingStatusTag status={tiltak.status} />}
+        </HStack>
+      </VStack>
       {beskrivelse && (
-        <BodyLong style={{ whiteSpace: "pre-wrap" }} textColor="subtle" size="medium">
+        <BodyLong size="large" spacing style={{ whiteSpace: "pre-wrap" }}>
           {beskrivelse}
         </BodyLong>
+      )}
+      {tiltakstype.beskrivelse && (
+        <VStack gap={"0"} style={{ marginTop: "1rem" }}>
+          <Heading level="2" size="small" textColor="subtle">
+            Generell info
+          </Heading>
+          <BodyLong size="large" style={{ whiteSpace: "pre-wrap" }}>
+            {tiltakstype.beskrivelse}
+          </BodyLong>
+        </VStack>
       )}
     </>
   );

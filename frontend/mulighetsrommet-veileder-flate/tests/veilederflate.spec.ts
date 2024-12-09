@@ -58,9 +58,9 @@ test.describe("Tiltaksoversikt", () => {
     await expect(rows).toHaveCount(5);
     await page.getByTestId("filter_sokefelt").fill("Mentor");
     await expect(rows).toHaveCount(1);
-    await expect(
-      page.getByTestId("tiltaksgjennomforing_mentor"),
-    ).toContainText("Mentor");
+    await expect(page.getByTestId("tiltaksgjennomforing_mentor")).toContainText(
+      "Sindres mentorordning med Yoda",
+    );
   });
 
   test("Skal vise 'Nullstill filter'-knapp når man filtrerer på innsatsgruppe", async ({

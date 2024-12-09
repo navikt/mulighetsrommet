@@ -116,8 +116,8 @@ export const tiltakAvklaring: VeilederflateTiltakGruppe = {
 export const tiltakMentor: VeilederflateTiltakEnkeltplass = {
   type: "TILTAK_ENKELTPLASS",
   sanityId: "91205ff2-ec72-4a7f-80b8-1c99d8535a06",
-  tittel: "Mentor",
-  underTittel: "Sindres mentorordning med Yoda",
+  underTittel: "Mentor",
+  tittel: "Sindres mentorordning med Yoda",
   status: TiltaksgjennomforingStatus.GJENNOMFORES,
   oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
   stedForGjennomforing: "Oslo",
@@ -169,7 +169,8 @@ export const tiltakAmoGruppe: VeilederflateTiltakGruppe = {
     ],
   },
   fylke: "0800",
-  beskrivelse: "Beskrivelse av gruppe amo tiltaket på gjennomføringsnivå.",
+  beskrivelse:
+    "Beskrivelse av gruppe amo tiltaket på gjennomføringsnivå. Her kommer det masse spennende informasjon om tiltaket.",
   kontaktinfo: {
     tiltaksansvarlige: [
       {
@@ -348,8 +349,8 @@ export const tiltakVta: VeilederflateTiltakGruppe = {
 export const tiltakJobbklubb: VeilederflateTiltakGruppe = {
   type: "TILTAK_GRUPPE",
   id: "ff887090-1ba8-47a4-a82f-6aaad488994e",
-  tittel: "Jobbklubb (med Lars Monsen)",
-  underTittel: "Jobbklubb",
+  underTittel: "Jobbklubb (med Lars Monsen)",
+  tittel: "Jobbklubb",
   status: TiltaksgjennomforingStatus.GJENNOMFORES,
   stedForGjennomforing: "Kautokeino",
   apentForPamelding: true,

@@ -1,6 +1,10 @@
 import { PropsWithChildren } from "react";
-import styles from "./LokalInformasjonContainer.module.scss";
+import { Box } from "@navikt/ds-react";
 
 export function LokalInformasjonContainer(props: PropsWithChildren) {
-  return <div className={styles.lokal_informasjon_container}>{props.children}</div>;
+  return (
+    <Box background="bg-subtle" padding={"5"}>
+      {props.children}
+    </Box>
+  );
 }

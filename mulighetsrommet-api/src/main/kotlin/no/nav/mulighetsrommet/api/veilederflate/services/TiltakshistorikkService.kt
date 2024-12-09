@@ -11,8 +11,8 @@ import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserRequest
 import no.nav.mulighetsrommet.api.clients.pdl.*
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
-import no.nav.mulighetsrommet.api.veilederflate.TiltaksnavnUtils.hosTitleCaseArrangor
 import no.nav.mulighetsrommet.api.veilederflate.TiltaksnavnUtils.tittelOgUnderTittel
+import no.nav.mulighetsrommet.api.veilederflate.hosTitleCaseArrangor
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.tokenprovider.AccessType
@@ -95,7 +95,6 @@ class TiltakshistorikkService(
         val (tittel) = tittelOgUnderTittel(
             deltakelse.beskrivelse,
             tiltakstype.navn,
-            tiltakstype.arenaKode,
         )
         Deltakelse.DeltakelseArena(
             id = deltakelse.id,
@@ -122,7 +121,6 @@ class TiltakshistorikkService(
         val (tittel) = tittelOgUnderTittel(
             deltakelse.gjennomforing.navn,
             tiltakstype.await().navn,
-            deltakelse.gjennomforing.tiltakskode,
         )
         Deltakelse.DeltakelseGruppetiltak(
             id = deltakelse.id,
