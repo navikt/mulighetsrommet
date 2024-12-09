@@ -19,13 +19,16 @@ sealed class DatavarehusTiltak {
     abstract val avtale: Avtale?
     abstract val gjennomforing: Gjennomforing
     abstract val arrangor: Arrangor
-    abstract val arena: ArenaData?
 
     @Serializable
     data class Avtale(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val navn: String,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val opprettetTidspunkt: LocalDateTime,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val oppdatertTidspunkt: LocalDateTime,
     )
 
     @Serializable
@@ -42,6 +45,7 @@ sealed class DatavarehusTiltak {
         @Serializable(with = LocalDateTimeSerializer::class)
         val oppdatertTidspunkt: LocalDateTime,
         val status: TiltaksgjennomforingStatus,
+        val arena: ArenaData?,
     )
 
     @Serializable
@@ -62,7 +66,6 @@ data class DatavarehusTiltakDto(
     override val avtale: Avtale?,
     override val gjennomforing: Gjennomforing,
     override val arrangor: Arrangor,
-    override val arena: ArenaData?,
 ) : DatavarehusTiltak()
 
 @Serializable
@@ -71,7 +74,6 @@ data class DatavarehusTiltakAmoDto(
     override val avtale: Avtale?,
     override val gjennomforing: Gjennomforing,
     override val arrangor: Arrangor,
-    override val arena: ArenaData?,
     val amoKategorisering: AmoKategorisering?,
 ) : DatavarehusTiltak()
 
@@ -81,7 +83,6 @@ data class DatavarehusTiltakYrkesfagDto(
     override val avtale: Avtale?,
     override val gjennomforing: Gjennomforing,
     override val arrangor: Arrangor,
-    override val arena: ArenaData?,
     val utdanningslop: Utdanningslop?,
 ) : DatavarehusTiltak() {
     @Serializable
@@ -91,15 +92,27 @@ data class DatavarehusTiltakYrkesfagDto(
     ) {
         @Serializable
         data class Utdanningsprogram(
+            @Serializable(with = UUIDSerializer::class)
+            val id: UUID,
             val navn: String,
+            @Serializable(with = LocalDateTimeSerializer::class)
+            val opprettetTidspunkt: LocalDateTime,
+            @Serializable(with = LocalDateTimeSerializer::class)
+            val oppdatertTidspunkt: LocalDateTime,
             val nusKoder: List<String>,
         )
 
         @Serializable
         data class Utdanning(
+            @Serializable(with = UUIDSerializer::class)
+            val id: UUID,
             val navn: String,
-            val nusKoder: List<String>,
             val sluttkompetanse: Sluttkompetanse,
+            @Serializable(with = LocalDateTimeSerializer::class)
+            val opprettetTidspunkt: LocalDateTime,
+            @Serializable(with = LocalDateTimeSerializer::class)
+            val oppdatertTidspunkt: LocalDateTime,
+            val nusKoder: List<String>,
         )
     }
 }

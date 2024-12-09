@@ -33,6 +33,8 @@ object DatavarehusTiltakQueries {
                    tiltakstype.tiltakskode      as tiltakstype_tiltakskode,
                    avtale.id                    as avtale_id,
                    avtale.navn                  as avtale_navn,
+                   avtale.created_at            as avtale_opprettet_tidspunkt,
+                   avtale.updated_at            as avtale_oppdatert_tidspunkt,
                    arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
             from tiltaksgjennomforing gjennomforing
                      join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
@@ -55,7 +57,6 @@ object DatavarehusTiltakQueries {
                     dto.avtale,
                     dto.gjennomforing,
                     dto.arrangor,
-                    dto.arena,
                     utdanningslop,
                 )
             }
@@ -67,7 +68,6 @@ object DatavarehusTiltakQueries {
                     dto.avtale,
                     dto.gjennomforing,
                     dto.arrangor,
-                    dto.arena,
                     amoKategorisering,
                 )
             }
@@ -80,8 +80,10 @@ object DatavarehusTiltakQueries {
         @Language("PostgreSQL")
         val utdanningsprogramQuery = """
             select program.id,
-            program.navn,
-            array_to_json(program.nus_koder) as nus_koder
+                   program.navn,
+                   program.created_at as opprettet_tidspunkt,
+                   program.updated_at as oppdatert_tidspunkt,
+                   array_to_json(program.nus_koder) as nus_koder
             from tiltaksgjennomforing_utdanningsprogram
                     join utdanningsprogram program on utdanningsprogram_id = program.id
             where tiltaksgjennomforing_id = ?
@@ -91,7 +93,10 @@ object DatavarehusTiltakQueries {
         val utdanningsprogram = queryOf(utdanningsprogramQuery, id)
             .map {
                 DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanningsprogram(
+                    id = it.uuid("id"),
                     navn = it.string("navn"),
+                    opprettetTidspunkt = it.localDateTime("opprettet_tidspunkt"),
+                    oppdatertTidspunkt = it.localDateTime("oppdatert_tidspunkt"),
                     nusKoder = Json.decodeFromString(it.string("nus_koder")),
                 )
             }
@@ -107,6 +112,8 @@ object DatavarehusTiltakQueries {
             select utdanning.id,
                    utdanning.navn,
                    utdanning.sluttkompetanse,
+                   utdanning.created_at as opprettet_tidspunkt,
+                   utdanning.updated_at as oppdatert_tidspunkt,
                    jsonb_agg(utdanning_nus_kode.nus_kode) as nus_koder
             from tiltaksgjennomforing_utdanningsprogram
                     join utdanning on tiltaksgjennomforing_utdanningsprogram.utdanning_id = utdanning.id
@@ -118,9 +125,12 @@ object DatavarehusTiltakQueries {
         val utdanninger = queryOf(utdanningerQuery, id)
             .map {
                 DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanning(
+                    id = it.uuid("id"),
                     navn = it.string("navn"),
-                    nusKoder = Json.decodeFromString(it.string("nus_koder")),
                     sluttkompetanse = Utdanning.Sluttkompetanse.valueOf(it.string("sluttkompetanse")),
+                    opprettetTidspunkt = it.localDateTime("opprettet_tidspunkt"),
+                    oppdatertTidspunkt = it.localDateTime("oppdatert_tidspunkt"),
+                    nusKoder = Json.decodeFromString(it.string("nus_koder")),
                 )
             }
             .asList
@@ -209,6 +219,8 @@ object DatavarehusTiltakQueries {
                 DatavarehusTiltak.Avtale(
                     id = it,
                     navn = string("avtale_navn"),
+                    opprettetTidspunkt = localDateTime("avtale_opprettet_tidspunkt"),
+                    oppdatertTidspunkt = localDateTime("avtale_oppdatert_tidspunkt"),
                 )
             },
             gjennomforing = DatavarehusTiltak.Gjennomforing(
@@ -219,17 +231,17 @@ object DatavarehusTiltakQueries {
                 opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
                 oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
                 status = TiltaksgjennomforingStatus.valueOf(string("status")),
+                arena = stringOrNull("tiltaksnummer")?.let {
+                    val tiltaksnummmer = Tiltaksnummer(it)
+                    DatavarehusTiltak.ArenaData(
+                        aar = tiltaksnummmer.aar,
+                        lopenummer = tiltaksnummmer.lopenummer,
+                    )
+                },
             ),
             arrangor = DatavarehusTiltak.Arrangor(
                 organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
             ),
-            arena = stringOrNull("tiltaksnummer")?.let {
-                val tiltaksnummmer = Tiltaksnummer(it)
-                DatavarehusTiltak.ArenaData(
-                    aar = tiltaksnummmer.aar,
-                    lopenummer = tiltaksnummmer.lopenummer,
-                )
-            },
         )
     }
 }

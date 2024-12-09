@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.gjennomforing.db
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.toTable
+import io.kotest.matchers.collections.shouldHaveSingleElement
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -30,7 +31,9 @@ import no.nav.mulighetsrommet.utdanning.model.NusKodeverk
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
 import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramType
+import java.time.LocalDateTime
 import java.util.*
+import kotlin.reflect.full.memberProperties
 
 class DatavarehusTiltakQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
@@ -56,11 +59,16 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             it.gjennomforing.opprettetTidspunkt.shouldNotBeNull()
             it.gjennomforing.oppdatertTidspunkt.shouldNotBeNull()
             it.gjennomforing.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
-            it.avtale shouldBe DatavarehusTiltak.Avtale(AvtaleFixtures.AFT.id, AvtaleFixtures.AFT.navn)
+            it.gjennomforing.arena.shouldBeNull()
+            it.avtale.shouldNotBeNull().should { avtale ->
+                avtale.id shouldBe AvtaleFixtures.AFT.id
+                avtale.navn shouldBe AvtaleFixtures.AFT.navn
+                avtale.opprettetTidspunkt.shouldNotBeNull()
+                avtale.oppdatertTidspunkt.shouldNotBeNull()
+            }
             it.arrangor shouldBe DatavarehusTiltak.Arrangor(
                 organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
             )
-            it.arena.shouldBeNull()
         }
     }
 
@@ -82,7 +90,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             DatavarehusTiltakQueries.getDatavarehusTiltak(it, AFT1.id)
         }
 
-        tiltak.arena shouldBe DatavarehusTiltak.ArenaData(aar = 2020, lopenummer = 1234)
+        tiltak.gjennomforing.arena shouldBe DatavarehusTiltak.ArenaData(aar = 2020, lopenummer = 1234)
     }
 
     test("henter Gruppe AMO med amo-kategorisering") {
@@ -204,26 +212,42 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             DatavarehusTiltakQueries.getDatavarehusTiltak(it, GruppeFagYrke1.id)
         }
 
-        gjennomforing.shouldBeTypeOf<DatavarehusTiltakYrkesfagDto>().utdanningslop.shouldNotBeNull().shouldBe(
-            DatavarehusTiltakYrkesfagDto.Utdanningslop(
-                utdanningsprogram = DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanningsprogram(
-                    navn = "Sveiseprogram",
-                    nusKoder = listOf("1234", "2345"),
-                ),
-                utdanninger = setOf(
+        gjennomforing.shouldBeTypeOf<DatavarehusTiltakYrkesfagDto>().utdanningslop.shouldNotBeNull().should {
+            it.utdanningsprogram.id shouldBe utdanningslop.utdanningsprogram
+            it.utdanningsprogram.navn shouldBe "Sveiseprogram"
+            it.utdanningsprogram.nusKoder shouldBe listOf("1234", "2345")
+            it.utdanningsprogram.opprettetTidspunkt.shouldNotBeNull()
+            it.utdanningsprogram.oppdatertTidspunkt.shouldNotBeNull()
+
+            it.utdanninger.shouldHaveSingleElement { utdanning ->
+                utdanning.equalsIgnoring(
                     DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanning(
+                        id = utdanningslop.utdanninger[0],
                         navn = "Sveisefag",
                         sluttkompetanse = Utdanning.Sluttkompetanse.FAGBREV,
                         nusKoder = listOf("12345"),
+                        opprettetTidspunkt = LocalDateTime.now(),
+                        oppdatertTidspunkt = LocalDateTime.now(),
                     ),
+                    "opprettetTidspunkt",
+                    "oppdatertTidspunkt",
+                )
+            }
+            it.utdanninger.shouldHaveSingleElement { utdanning ->
+                utdanning.equalsIgnoring(
                     DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanning(
+                        id = utdanningslop.utdanninger[1],
                         navn = "Sveisefag under vann",
                         sluttkompetanse = Utdanning.Sluttkompetanse.SVENNEBREV,
                         nusKoder = listOf("23456"),
+                        opprettetTidspunkt = LocalDateTime.now(),
+                        oppdatertTidspunkt = LocalDateTime.now(),
                     ),
-                ),
-            ),
-        )
+                    "opprettetTidspunkt",
+                    "oppdatertTidspunkt",
+                )
+            }
+        }
     }
 
     test("henter Gruppe Fag/Yrke uten informasjon om utdanningsprogram") {
@@ -241,3 +265,21 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         gjennomforing.shouldBeTypeOf<DatavarehusTiltakYrkesfagDto>().utdanningslop.shouldBeNull()
     }
 })
+
+// Extension function to compare data classes excluding specific properties
+inline fun <reified T : Any> T.equalsIgnoring(
+    other: T?,
+    vararg propertiesToExclude: String,
+): Boolean {
+    if (this === other) return true
+    if (other == null) return false
+
+    val properties = T::class.memberProperties
+        .filter { it.name !in propertiesToExclude }
+
+    return properties.all { prop ->
+        val thisValue = prop.get(this)
+        val otherValue = prop.get(other)
+        thisValue == otherValue
+    }
+}
