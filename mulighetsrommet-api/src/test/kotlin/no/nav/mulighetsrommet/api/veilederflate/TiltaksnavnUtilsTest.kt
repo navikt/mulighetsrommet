@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.veilederflate
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
-import no.nav.mulighetsrommet.api.veilederflate.TiltaksnavnUtils.hosTitleCaseArrangor
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
 import java.time.LocalDate

@@ -211,7 +211,6 @@ class VeilederflateService(
         val (tittel, underTittel) = tittelOgUnderTittel(
             navn = gjennomforing.tiltaksgjennomforingNavn ?: "",
             tiltakstypeNavn = tiltakstype.navn,
-            arenaKode = tiltakstypeAdminDto.arenaKode,
         )
 
         val faneinnhold = gjennomforing.faneinnhold?.copy(delMedBruker = gjennomforing.delingMedBruker)
