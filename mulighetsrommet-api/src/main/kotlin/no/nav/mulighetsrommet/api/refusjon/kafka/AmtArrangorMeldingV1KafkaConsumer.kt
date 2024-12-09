@@ -5,6 +5,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagRepository
+import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.domain.dto.amt.Melding
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
@@ -15,6 +16,7 @@ import java.util.*
 class AmtArrangorMeldingV1KafkaConsumer(
     config: Config,
     private val deltakerForslagRepository: DeltakerForslagRepository,
+    private val deltakerRepository: DeltakerRepository,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     config,
     uuidDeserializer(),
@@ -37,7 +39,11 @@ class AmtArrangorMeldingV1KafkaConsumer(
                     is Melding.Forslag.Status.Avvist, is Melding.Forslag.Status.Erstattet,
                     is Melding.Forslag.Status.Godkjent, is Melding.Forslag.Status.Tilbakekalt,
                     -> deltakerForslagRepository.delete(melding.id)
-                    Melding.Forslag.Status.VenterPaSvar -> deltakerForslagRepository.upsert(melding.toForslagDbo())
+                    Melding.Forslag.Status.VenterPaSvar -> {
+                        if (deltakerRepository.get(melding.deltakerId) != null) {
+                            deltakerForslagRepository.upsert(melding.toForslagDbo())
+                        }
+                    }
                 }
             }
             null -> deltakerForslagRepository.delete(key)
@@ -59,5 +65,5 @@ fun Melding.Forslag.Status.toStatus(): DeltakerForslag.Status = when (this) {
     is Melding.Forslag.Status.Erstattet -> DeltakerForslag.Status.ERSTATTET
     is Melding.Forslag.Status.Godkjent -> DeltakerForslag.Status.GODKJENT
     is Melding.Forslag.Status.Tilbakekalt -> DeltakerForslag.Status.TILBAKEKALT
-    Melding.Forslag.Status.VenterPaSvar -> DeltakerForslag.Status.VENTERPASVAR
+    Melding.Forslag.Status.VenterPaSvar -> DeltakerForslag.Status.VENTER_PA_SVAR
 }

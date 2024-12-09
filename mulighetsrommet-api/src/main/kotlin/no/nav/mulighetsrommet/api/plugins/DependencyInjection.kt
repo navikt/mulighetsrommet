@@ -209,6 +209,7 @@ private fun kafka(appConfig: AppConfig) = module {
             AmtArrangorMeldingV1KafkaConsumer(
                 config = config.consumers.amtArrangorMeldingV1,
                 deltakerForslagRepository = get(),
+                deltakerRepository = get(),
             ),
         )
         KafkaConsumerOrchestrator(

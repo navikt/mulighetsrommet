@@ -102,6 +102,6 @@ data class DeltakerForslag(
         AVVIST,
         TILBAKEKALT,
         ERSTATTET,
-        VENTERPASVAR,
+        VENTER_PA_SVAR,
     }
 }
