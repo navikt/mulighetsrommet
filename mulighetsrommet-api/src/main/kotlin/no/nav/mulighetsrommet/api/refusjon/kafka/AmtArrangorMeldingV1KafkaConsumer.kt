@@ -5,8 +5,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagRepository
-import no.nav.mulighetsrommet.domain.dto.amt.EndringFraArrangor
-import no.nav.mulighetsrommet.domain.dto.amt.Forslag
 import no.nav.mulighetsrommet.domain.dto.amt.Melding
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
@@ -31,15 +29,15 @@ class AmtArrangorMeldingV1KafkaConsumer(
         val melding = JsonIgnoreUnknownKeys.decodeFromJsonElement<Melding?>(message)
 
         when (melding) {
-            is EndringFraArrangor -> {
+            is Melding.EndringFraArrangor -> {
                 // Aldri relevant
             }
-            is Forslag -> {
+            is Melding.Forslag -> {
                 when (melding.status) {
-                    is Forslag.Status.Avvist, is Forslag.Status.Erstattet,
-                    is Forslag.Status.Godkjent, is Forslag.Status.Tilbakekalt,
+                    is Melding.Forslag.Status.Avvist, is Melding.Forslag.Status.Erstattet,
+                    is Melding.Forslag.Status.Godkjent, is Melding.Forslag.Status.Tilbakekalt,
                     -> deltakerForslagRepository.delete(melding.id)
-                    Forslag.Status.VenterPaSvar -> deltakerForslagRepository.upsert(melding.toForslagDbo())
+                    Melding.Forslag.Status.VenterPaSvar -> deltakerForslagRepository.upsert(melding.toForslagDbo())
                 }
             }
             null -> deltakerForslagRepository.delete(key)
@@ -47,7 +45,7 @@ class AmtArrangorMeldingV1KafkaConsumer(
     }
 }
 
-fun Forslag.toForslagDbo(): DeltakerForslag {
+fun Melding.Forslag.toForslagDbo(): DeltakerForslag {
     return DeltakerForslag(
         id = this.id,
         deltakerId = this.deltakerId,
@@ -56,10 +54,10 @@ fun Forslag.toForslagDbo(): DeltakerForslag {
     )
 }
 
-fun Forslag.Status.toStatus(): DeltakerForslag.Status = when (this) {
-    is Forslag.Status.Avvist -> DeltakerForslag.Status.AVVIST
-    is Forslag.Status.Erstattet -> DeltakerForslag.Status.ERSTATTET
-    is Forslag.Status.Godkjent -> DeltakerForslag.Status.GODKJENT
-    is Forslag.Status.Tilbakekalt -> DeltakerForslag.Status.TILBAKEKALT
-    Forslag.Status.VenterPaSvar -> DeltakerForslag.Status.VENTERPASVAR
+fun Melding.Forslag.Status.toStatus(): DeltakerForslag.Status = when (this) {
+    is Melding.Forslag.Status.Avvist -> DeltakerForslag.Status.AVVIST
+    is Melding.Forslag.Status.Erstattet -> DeltakerForslag.Status.ERSTATTET
+    is Melding.Forslag.Status.Godkjent -> DeltakerForslag.Status.GODKJENT
+    is Melding.Forslag.Status.Tilbakekalt -> DeltakerForslag.Status.TILBAKEKALT
+    Melding.Forslag.Status.VenterPaSvar -> DeltakerForslag.Status.VENTERPASVAR
 }

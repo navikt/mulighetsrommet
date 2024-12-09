@@ -7,7 +7,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.domain.dto.amt.Forslag
+import no.nav.mulighetsrommet.domain.dto.amt.Melding
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
 import java.util.*
@@ -77,7 +77,7 @@ class DeltakerForslagRepository(private val db: Database) {
 
     private fun Row.toForslagDbo(): DeltakerForslag {
         val endring = string("endring")
-            .let { Json.decodeFromString<Forslag.Endring>(it) }
+            .let { Json.decodeFromString<Melding.Forslag.Endring>(it) }
 
         return DeltakerForslag(
             id = uuid("id"),
@@ -94,7 +94,7 @@ data class DeltakerForslag(
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val deltakerId: UUID,
-    val endring: Forslag.Endring,
+    val endring: Melding.Forslag.Endring,
     val status: Status,
 ) {
     enum class Status {
