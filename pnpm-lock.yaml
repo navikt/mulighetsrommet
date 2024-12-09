@@ -25,8 +25,8 @@ importers:
   frontend/api-client:
     devDependencies:
       '@hey-api/openapi-ts':
-        specifier: 0.58.0
-        version: 0.58.0(typescript@5.7.2)
+        specifier: 0.59.1
+        version: 0.59.1(typescript@5.7.2)
       typescript:
         specifier: 5.7.2
         version: 5.7.2
@@ -1645,6 +1645,9 @@ packages:
   '@codemirror/view@6.35.2':
     resolution: {integrity: sha512-u04R04XFCYCNaHoNRr37WUUAfnxKPwPdqV+370NiO6i85qB1J/qCD/WbbMJsyJfRWhXIJXAe2BG/oTzAggqv4A==}
 
+  '@codemirror/view@6.35.2':
+    resolution: {integrity: sha512-u04R04XFCYCNaHoNRr37WUUAfnxKPwPdqV+370NiO6i85qB1J/qCD/WbbMJsyJfRWhXIJXAe2BG/oTzAggqv4A==}
+
   '@dnd-kit/accessibility@3.1.0':
     resolution: {integrity: sha512-ea7IkhKvlJUv9iSHJOnxinBcoOI3ppGnnL+VDJ75O45Nss6HtZd8IdN8touXPDtASfeI2T2LImb8VOZcL47wjQ==}
     peerDependencies:
@@ -2100,8 +2103,8 @@ packages:
   '@grafana/faro-web-sdk@1.12.2':
     resolution: {integrity: sha512-vrMaeyJUEkXvRsO3POQgVfHkmMjFdXGqRnPRR60WsvYh7bDzd4M5B2n44cPN7qL1+pTG70g3CcCSX6Kfr4c34Q==}
 
-  '@hey-api/openapi-ts@0.58.0':
-    resolution: {integrity: sha512-ynOsoDwtQ3wyknufMbjeOc6GgUfLN50o0y6rtMIWSggb9Rl5VJsqdQZs0b5Z9GW8MU8uYQO9b8gskR4dQ2gqLg==}
+  '@hey-api/openapi-ts@0.59.1':
+    resolution: {integrity: sha512-6/GeQFr4tMNFirkyuaTivYAvBoU5qQtcvbLtGnx2mlGkheBpdrcZQDqtNYpSKIUlGw/czTkzwVA4T8hYSWxcJQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -8996,6 +8999,13 @@ snapshots:
       '@codemirror/view': 6.35.2
       '@lezer/common': 1.2.1
 
+  '@codemirror/autocomplete@6.18.3(@codemirror/language@6.10.6)(@codemirror/state@6.4.1)(@codemirror/view@6.35.2)(@lezer/common@1.2.1)':
+    dependencies:
+      '@codemirror/language': 6.10.6
+      '@codemirror/state': 6.4.1
+      '@codemirror/view': 6.35.2
+      '@lezer/common': 1.2.1
+
   '@codemirror/commands@6.7.1':
     dependencies:
       '@codemirror/language': 6.10.6
@@ -9042,6 +9052,12 @@ snapshots:
       '@codemirror/state': 6.4.1
       '@codemirror/view': 6.35.2
       '@lezer/highlight': 1.2.1
+
+  '@codemirror/view@6.35.2':
+    dependencies:
+      '@codemirror/state': 6.4.1
+      style-mod: 4.1.2
+      w3c-keyname: 2.2.8
 
   '@codemirror/view@6.35.2':
     dependencies:
@@ -9428,7 +9444,7 @@ snapshots:
       ua-parser-js: 1.0.39
       web-vitals: 4.2.3
 
-  '@hey-api/openapi-ts@0.58.0(typescript@5.7.2)':
+  '@hey-api/openapi-ts@0.59.1(typescript@5.7.2)':
     dependencies:
       '@apidevtools/json-schema-ref-parser': 11.7.2
       c12: 2.0.1
