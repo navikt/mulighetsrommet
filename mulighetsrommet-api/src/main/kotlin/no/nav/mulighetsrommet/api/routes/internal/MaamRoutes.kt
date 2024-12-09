@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.routes.internal
 
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -44,9 +43,9 @@ fun Route.maamRoutes() {
 
                 val taskInput = if (input.id != null) {
                     val ids = input.id.split(",").map { UUID.fromString(it.trim()) }
-                    InitialLoadTiltaksgjennomforinger.TaskInput(ids = ids)
+                    InitialLoadTiltaksgjennomforinger.Input(ids = ids)
                 } else if (input.tiltakstyper != null) {
-                    InitialLoadTiltaksgjennomforinger.TaskInput(
+                    InitialLoadTiltaksgjennomforinger.Input(
                         tiltakskoder = input.tiltakstyper,
                         opphav = input.opphav,
                     )

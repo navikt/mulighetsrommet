@@ -1,7 +1,7 @@
 apiVersion: kafka.nais.io/v1
 kind: Topic
 metadata:
-  name: datavarehus-tiltaksgjennomforinger-v1
+  name: datavarehus-tiltak-v1
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet

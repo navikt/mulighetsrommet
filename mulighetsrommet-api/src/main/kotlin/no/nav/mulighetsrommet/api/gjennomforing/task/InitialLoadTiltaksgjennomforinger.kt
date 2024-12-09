@@ -28,17 +28,19 @@ class InitialLoadTiltaksgjennomforinger(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Serializable
-    data class TaskInput(
+    data class Input(
         val ids: List<
             @Serializable(with = UUIDSerializer::class)
             UUID,
             >? = null,
         val opphav: ArenaMigrering.Opphav? = null,
         val tiltakskoder: List<Tiltakskode>? = null,
+        @Serializable(with = UUIDSerializer::class)
+        val avtaleId: UUID? = null,
     )
 
-    val task: OneTimeTask<TaskInput> = Tasks
-        .oneTime(javaClass.simpleName, TaskInput::class.java)
+    val task: OneTimeTask<Input> = Tasks
+        .oneTime(javaClass.simpleName, Input::class.java)
         .executeSuspend { instance, _ ->
             val input = instance.data
 
@@ -46,11 +48,17 @@ class InitialLoadTiltaksgjennomforinger(
 
             if (input.ids != null) {
                 initialLoadTiltaksgjennomforingerByIds(input.ids)
-            } else if (input.tiltakskoder != null) {
+            }
+
+            if (input.tiltakskoder != null) {
                 initialLoadTiltaksgjennomforinger(
                     tiltakskoder = input.tiltakskoder,
                     opphav = input.opphav,
                 )
+            }
+
+            if (input.avtaleId != null) {
+                initialLoadTiltaksgjennomforingerByAvtale(input.avtaleId)
             }
         }
 
@@ -59,8 +67,7 @@ class InitialLoadTiltaksgjennomforinger(
         .serializer(DbSchedulerKotlinSerializer())
         .build()
 
-    fun schedule(input: TaskInput, startTime: Instant = Instant.now()): UUID {
-        val id = UUID.randomUUID()
+    fun schedule(input: Input, id: UUID = UUID.randomUUID(), startTime: Instant = Instant.now()): UUID {
         val instance = task.instance(id.toString(), input)
         client.scheduleIfNotExists(instance, startTime)
         return id
@@ -99,6 +106,12 @@ class InitialLoadTiltaksgjennomforinger(
                 logger.info("Publiserer melding for $id")
                 gjennomforingProducer.publish(gjennomforing.toTiltaksgjennomforingV1Dto())
             }
+        }
+    }
+
+    private fun initialLoadTiltaksgjennomforingerByAvtale(avtaleId: UUID) {
+        gjennomforinger.getAll(avtaleId = avtaleId).items.forEach {
+            gjennomforingProducer.publish(it.toTiltaksgjennomforingV1Dto())
         }
     }
 }

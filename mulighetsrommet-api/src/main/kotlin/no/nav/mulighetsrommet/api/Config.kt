@@ -6,8 +6,8 @@ import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.DatavarehusGjennomforingV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
@@ -83,7 +83,7 @@ data class KafkaConfig(
 )
 
 data class KafkaClients(
-    val dvhGjennomforing: DatavarehusGjennomforingV1KafkaProducer.Config,
+    val dvhGjennomforing: DatavarehusTiltakV1KafkaProducer.Config,
 )
 
 data class KafkaProducers(

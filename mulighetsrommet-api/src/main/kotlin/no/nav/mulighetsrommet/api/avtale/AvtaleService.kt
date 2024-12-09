@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.api.services.DocumentClass
 import no.nav.mulighetsrommet.api.services.EndretAv
@@ -25,6 +26,7 @@ import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 class AvtaleService(
@@ -35,8 +37,10 @@ class AvtaleService(
     private val validator: AvtaleValidator,
     private val endringshistorikkService: EndringshistorikkService,
     private val db: Database,
+    private val gjennomforingPublisher: InitialLoadTiltaksgjennomforinger,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
+
     fun get(id: UUID): AvtaleDto? = avtaler.get(id)
 
     suspend fun upsert(request: AvtaleRequest, navIdent: NavIdent): Either<List<ValidationError>, AvtaleDto> {
@@ -91,9 +95,20 @@ class AvtaleService(
                         "Redigerte avtale"
                     }
                     logEndring(operation, dto, EndretAv.NavAnsatt(navIdent), tx)
+
+                    schedulePublishGjennomforingerForAvtale(dto)
+
                     dto
                 }
             }
+    }
+
+    private fun schedulePublishGjennomforingerForAvtale(dto: AvtaleDto) {
+        gjennomforingPublisher.schedule(
+            input = InitialLoadTiltaksgjennomforinger.Input(avtaleId = dto.id),
+            id = dto.id,
+            startTime = Instant.now().plus(5, ChronoUnit.MINUTES),
+        )
     }
 
     private suspend fun syncArrangorerFromBrreg(request: AvtaleRequest): Either<List<ValidationError>, Pair<ArrangorDto, List<ArrangorDto>>> = either {

@@ -1,18 +1,21 @@
-package no.nav.mulighetsrommet.api.gjennomforing.db
+package no.nav.mulighetsrommet.api.datavarehus.db
 
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.gjennomforing.model.DatavarehusGjennomforingDto
+import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltak
+import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakAmoDto
+import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakDto
+import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakYrkesfagDto
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import org.intellij.lang.annotations.Language
 import java.util.*
 
-object DatavarehusGjennomforingQueries {
-    fun getDatavarehusGjennomforing(session: Session, id: UUID): DatavarehusGjennomforingDto {
+object DatavarehusTiltakQueries {
+    fun get(session: Session, id: UUID): DatavarehusTiltak {
         @Language("PostgreSQL")
         val query = """
             select gjennomforing.id,
@@ -27,11 +30,11 @@ object DatavarehusGjennomforingQueries {
                            gjennomforing.slutt_dato,
                            gjennomforing.avsluttet_tidspunkt
                    )                            as status,
-                   tiltakstype.id               as tiltakstype_id,
-                   tiltakstype.navn             as tiltakstype_navn,
                    tiltakstype.tiltakskode      as tiltakstype_tiltakskode,
                    avtale.id                    as avtale_id,
                    avtale.navn                  as avtale_navn,
+                   avtale.created_at            as avtale_opprettet_tidspunkt,
+                   avtale.updated_at            as avtale_oppdatert_tidspunkt,
                    arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
             from tiltaksgjennomforing gjennomforing
                      join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
@@ -41,32 +44,46 @@ object DatavarehusGjennomforingQueries {
         """.trimIndent()
 
         val dto = queryOf(query, id)
-            .map { it.toDatavarehusGjennomforingDto() }
+            .map { it.toDatavarehusTiltakDto() }
             .asSingle
             .runWithSession(session)
             .let { requireNotNull(it) { "Gjennomføring med id=$id finnes ikke" } }
 
-        return when (dto.tiltakstype.tiltakskode) {
+        return when (dto.tiltakskode) {
             Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING -> {
                 val utdanningslop = getUtdanningslop(session, id)
-                return dto.copy(utdanningslop = utdanningslop)
+                DatavarehusTiltakYrkesfagDto(
+                    dto.tiltakskode,
+                    dto.avtale,
+                    dto.gjennomforing,
+                    dto.arrangor,
+                    utdanningslop,
+                )
             }
 
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> {
                 val amoKategorisering = getAmoKategorisering(session, id)
-                return dto.copy(amoKategorisering = amoKategorisering)
+                DatavarehusTiltakAmoDto(
+                    dto.tiltakskode,
+                    dto.avtale,
+                    dto.gjennomforing,
+                    dto.arrangor,
+                    amoKategorisering,
+                )
             }
 
             else -> dto
         }
     }
 
-    private fun getUtdanningslop(session: Session, id: UUID): DatavarehusGjennomforingDto.Utdanningslop? {
+    private fun getUtdanningslop(session: Session, id: UUID): DatavarehusTiltakYrkesfagDto.Utdanningslop? {
         @Language("PostgreSQL")
         val utdanningsprogramQuery = """
             select program.id,
-            program.navn,
-            array_to_json(program.nus_koder) as nus_koder
+                   program.navn,
+                   program.created_at as opprettet_tidspunkt,
+                   program.updated_at as oppdatert_tidspunkt,
+                   array_to_json(program.nus_koder) as nus_koder
             from tiltaksgjennomforing_utdanningsprogram
                     join utdanningsprogram program on utdanningsprogram_id = program.id
             where tiltaksgjennomforing_id = ?
@@ -75,8 +92,11 @@ object DatavarehusGjennomforingQueries {
 
         val utdanningsprogram = queryOf(utdanningsprogramQuery, id)
             .map {
-                DatavarehusGjennomforingDto.Utdanningslop.Utdanningsprogram(
+                DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanningsprogram(
+                    id = it.uuid("id"),
                     navn = it.string("navn"),
+                    opprettetTidspunkt = it.localDateTime("opprettet_tidspunkt"),
+                    oppdatertTidspunkt = it.localDateTime("oppdatert_tidspunkt"),
                     nusKoder = Json.decodeFromString(it.string("nus_koder")),
                 )
             }
@@ -92,6 +112,8 @@ object DatavarehusGjennomforingQueries {
             select utdanning.id,
                    utdanning.navn,
                    utdanning.sluttkompetanse,
+                   utdanning.created_at as opprettet_tidspunkt,
+                   utdanning.updated_at as oppdatert_tidspunkt,
                    jsonb_agg(utdanning_nus_kode.nus_kode) as nus_koder
             from tiltaksgjennomforing_utdanningsprogram
                     join utdanning on tiltaksgjennomforing_utdanningsprogram.utdanning_id = utdanning.id
@@ -102,17 +124,20 @@ object DatavarehusGjennomforingQueries {
 
         val utdanninger = queryOf(utdanningerQuery, id)
             .map {
-                DatavarehusGjennomforingDto.Utdanningslop.Utdanning(
+                DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanning(
+                    id = it.uuid("id"),
                     navn = it.string("navn"),
-                    nusKoder = Json.decodeFromString(it.string("nus_koder")),
                     sluttkompetanse = Utdanning.Sluttkompetanse.valueOf(it.string("sluttkompetanse")),
+                    opprettetTidspunkt = it.localDateTime("opprettet_tidspunkt"),
+                    oppdatertTidspunkt = it.localDateTime("oppdatert_tidspunkt"),
+                    nusKoder = Json.decodeFromString(it.string("nus_koder")),
                 )
             }
             .asList
             .runWithSession(session)
             .toSet()
 
-        return DatavarehusGjennomforingDto.Utdanningslop(utdanningsprogram, utdanninger)
+        return DatavarehusTiltakYrkesfagDto.Utdanningslop(utdanningsprogram, utdanninger)
     }
 
     private fun getAmoKategorisering(session: Session, id: UUID): AmoKategorisering? {
@@ -187,11 +212,17 @@ object DatavarehusGjennomforingQueries {
         }
     }
 
-    private fun Row.toDatavarehusGjennomforingDto(): DatavarehusGjennomforingDto {
-        val tiltaksnummer = stringOrNull("tiltaksnummer")
-            ?.let { Tiltaksnummer(it) }
-
-        return DatavarehusGjennomforingDto(
+    private fun Row.toDatavarehusTiltakDto() = DatavarehusTiltakDto(
+        tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
+        avtale = uuidOrNull("avtale_id")?.let {
+            DatavarehusTiltak.Avtale(
+                id = it,
+                navn = string("avtale_navn"),
+                opprettetTidspunkt = localDateTime("avtale_opprettet_tidspunkt"),
+                oppdatertTidspunkt = localDateTime("avtale_oppdatert_tidspunkt"),
+            )
+        },
+        gjennomforing = DatavarehusTiltak.Gjennomforing(
             id = uuid("id"),
             navn = string("navn"),
             startDato = localDate("start_dato"),
@@ -199,28 +230,16 @@ object DatavarehusGjennomforingQueries {
             opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
             oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
             status = TiltaksgjennomforingStatus.valueOf(string("status")),
-            tiltakstype = DatavarehusGjennomforingDto.Tiltakstype(
-                id = uuid("tiltakstype_id"),
-                navn = string("tiltakstype_navn"),
-                tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
-            ),
-            avtale = uuidOrNull("avtale_id")?.let {
-                DatavarehusGjennomforingDto.Avtale(
-                    id = it,
-                    navn = string("avtale_navn"),
+            arena = stringOrNull("tiltaksnummer")?.let {
+                val tiltaksnummmer = Tiltaksnummer(it)
+                DatavarehusTiltak.ArenaData(
+                    aar = tiltaksnummmer.aar,
+                    lopenummer = tiltaksnummmer.lopenummer,
                 )
             },
-            arrangor = DatavarehusGjennomforingDto.Arrangor(
-                organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
-            ),
-            arena = tiltaksnummer?.let {
-                DatavarehusGjennomforingDto.ArenaData(
-                    aar = it.aar,
-                    lopenummer = it.lopenummer,
-                )
-            },
-            amoKategorisering = null,
-            utdanningslop = null,
-        )
-    }
+        ),
+        arrangor = DatavarehusTiltak.Arrangor(
+            organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+        ),
+    )
 }
