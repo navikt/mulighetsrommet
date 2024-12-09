@@ -29,7 +29,7 @@ import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.domain.dto.amt.Forslag
+import no.nav.mulighetsrommet.domain.dto.amt.Melding
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import org.koin.ktor.ext.inject
@@ -220,27 +220,27 @@ fun DeltakerForslag.relevantForDeltakelse(
     val forsteStartDato = deltakelser.perioder.minOf { it.start }
 
     return when (this.endring) {
-        is Forslag.Endring.AvsluttDeltakelse -> {
+        is Melding.Forslag.Endring.AvsluttDeltakelse -> {
             val sluttDato = this.endring.sluttdato
 
             this.endring.harDeltatt == false || (sluttDato != null && sluttDato.isBefore(sisteSluttDato))
         }
-        is Forslag.Endring.Deltakelsesmengde -> {
+        is Melding.Forslag.Endring.Deltakelsesmengde -> {
             this.endring.gyldigFra?.isBefore(sisteSluttDato) ?: true
         }
-        is Forslag.Endring.ForlengDeltakelse -> {
+        is Melding.Forslag.Endring.ForlengDeltakelse -> {
             this.endring.sluttdato.isAfter(sisteSluttDato) && this.endring.sluttdato.isBefore(periode.slutt)
         }
-        is Forslag.Endring.IkkeAktuell -> {
+        is Melding.Forslag.Endring.IkkeAktuell -> {
             true
         }
-        is Forslag.Endring.Sluttarsak -> {
+        is Melding.Forslag.Endring.Sluttarsak -> {
             false
         }
-        is Forslag.Endring.Sluttdato -> {
+        is Melding.Forslag.Endring.Sluttdato -> {
             this.endring.sluttdato.isBefore(sisteSluttDato)
         }
-        is Forslag.Endring.Startdato -> {
+        is Melding.Forslag.Endring.Startdato -> {
             this.endring.startdato.isAfter(forsteStartDato)
         }
     }

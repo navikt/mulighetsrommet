@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
-import no.nav.mulighetsrommet.domain.dto.amt.Forslag
+import no.nav.mulighetsrommet.domain.dto.amt.Melding
 import org.junit.jupiter.api.Assertions.*
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -44,7 +44,7 @@ class DeltakerForslagRepositoryTest : FunSpec({
         val forslag = DeltakerForslag(
             id = UUID.randomUUID(),
             deltakerId = deltaker.id,
-            endring = Forslag.Endring.Sluttdato(sluttdato = LocalDate.now()),
+            endring = Melding.Forslag.Endring.Sluttdato(sluttdato = LocalDate.now()),
             status = DeltakerForslag.Status.GODKJENT,
         )
 
