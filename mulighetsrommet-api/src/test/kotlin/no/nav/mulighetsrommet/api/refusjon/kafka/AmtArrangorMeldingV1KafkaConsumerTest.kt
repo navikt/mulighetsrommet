@@ -63,5 +63,14 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
                 """.trimIndent(),
             ),
         )
+
+        arrangorMeldingConsumer.consume(
+            "26b2ef7f-2c33-4468-b9cd-98e935d747cc".toUUID(),
+            Json.parseToJsonElement(
+                """
+                    {"type":"Forslag","id":"fc46cbeb-4932-43f8-8f4c-1f7cc3a92e3e","deltakerId":"459e9f88-5987-4c6d-8332-aecdbbd74285","opprettetAvArrangorAnsattId":"fff9a665-cbde-4dbc-9ef9-deb8681a0d6f","opprettet":"2024-10-25T07:56:17.712116898","begrunnelse":"efwef","endring":{"type":"Deltakelsesmengde","deltakelsesprosent":80,"dagerPerUke":3},"status":{"type":"VenterPaSvar"},"sistEndret":"2024-10-25T07:56:17.712116898","navAnsatt":null}
+                """.trimIndent(),
+            ),
+        )
     }
 })

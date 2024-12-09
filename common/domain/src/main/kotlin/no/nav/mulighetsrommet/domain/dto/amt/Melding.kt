@@ -37,7 +37,7 @@ sealed interface Melding {
                 @Serializable(with = LocalDateSerializer::class)
                 val startdato: LocalDate,
                 @Serializable(with = LocalDateSerializer::class)
-                val sluttdato: LocalDate?,
+                val sluttdato: LocalDate? = null,
             ) : Endring
         }
     }
@@ -53,7 +53,7 @@ sealed interface Melding {
         override val opprettetAvArrangorAnsattId: UUID,
         @Serializable(with = LocalDateTimeSerializer::class)
         override val opprettet: LocalDateTime,
-        val begrunnelse: String?,
+        val begrunnelse: String? = null,
         val endring: Endring,
         val status: Status,
     ) : Melding {
@@ -112,9 +112,9 @@ sealed interface Melding {
             @SerialName("AvsluttDeltakelse")
             data class AvsluttDeltakelse(
                 @Serializable(with = LocalDateSerializer::class)
-                val sluttdato: LocalDate?,
+                val sluttdato: LocalDate? = null,
                 val aarsak: EndringAarsak,
-                val harDeltatt: Boolean?,
+                val harDeltatt: Boolean? = null,
             ) : Endring
 
             @Serializable
@@ -127,9 +127,9 @@ sealed interface Melding {
             @SerialName("Deltakelsesmengde")
             data class Deltakelsesmengde(
                 val deltakelsesprosent: Int,
-                val dagerPerUke: Int?,
+                val dagerPerUke: Int? = null,
                 @Serializable(with = LocalDateSerializer::class)
-                val gyldigFra: LocalDate?,
+                val gyldigFra: LocalDate? = null,
             ) : Endring
 
             @Serializable
@@ -138,7 +138,7 @@ sealed interface Melding {
                 @Serializable(with = LocalDateSerializer::class)
                 val startdato: LocalDate,
                 @Serializable(with = LocalDateSerializer::class)
-                val sluttdato: LocalDate?,
+                val sluttdato: LocalDate? = null,
             ) : Endring
 
             @Serializable
