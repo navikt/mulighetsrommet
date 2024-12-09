@@ -6,7 +6,7 @@ metadata:
   labels:
     team: team-mulighetsrommet
 spec:
-  pool: nav-dev
+  pool: nav-prod
   config:
     cleanupPolicy: compact
     minimumInSyncReplicas: 2
