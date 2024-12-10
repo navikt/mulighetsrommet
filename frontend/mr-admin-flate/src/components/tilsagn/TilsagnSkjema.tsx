@@ -126,7 +126,7 @@ export function TilsagnSkjema({
                 {prismodell == "AFT" ? (
                   <AFTBeregningSkjema
                     defaultAntallPlasser={
-                      locationState?.ekstratilsagn ? 0 : tiltaksgjennomforing.antallPlasser
+                      locationState?.ekstratilsagn ? undefined : tiltaksgjennomforing.antallPlasser
                     }
                   />
                 ) : (
@@ -155,7 +155,7 @@ export function TilsagnSkjema({
             <div className={styles.formContentRight}>
               <Heading size="small">Beløp</Heading>
               <div className={styles.rowSpaceBetween}>
-                <Label size="medium">Total beløp</Label>
+                <Label size="medium">Totalbeløp</Label>
                 {beregning?.belop && <Label size="medium">{formaterNOK(beregning?.belop)}</Label>}
               </div>
             </div>
@@ -169,11 +169,11 @@ export function TilsagnSkjema({
           ) : null}
         </div>
         <HStack gap="2" justify={"end"}>
-          <Button onClick={onAvbryt} size="small" type="button" variant="primary-neutral">
+          <Button onClick={onAvbryt} size="small" type="button" variant="tertiary">
             Avbryt
           </Button>
           <Button size="small" type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? "Sender til beslutning" : "Send til beslutning"}
+            {mutation.isPending ? "Sender til godkjenning" : "Send til godkjenning"}
           </Button>
         </HStack>
       </form>

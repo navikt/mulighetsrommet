@@ -17,14 +17,13 @@ export function AvvistDetaljer({ tilsagn }: Props) {
   const aarsaker = besluttelse?.aarsaker?.map((aarsak) => tilsagnAarsakTilTekst(aarsak)) || [];
 
   return besluttelse?.status === TilsagnBesluttelseStatus.AVVIST && besluttelse?.aarsaker ? (
-    <Alert variant="warning" size="small">
+    <Alert variant="warning" size="small" style={{ marginTop: "1rem" }}>
       <Heading size="xsmall" level="3">
-        Tilsagnet ble returnert av {beslutternavn(besluttelse)}
+        Tilsagnet ble returnert
       </Heading>
       <p>
-        Tilsagnet ble returnert av {beslutternavn(besluttelse)} den{" "}
-        {formaterDato(besluttelse.tidspunkt)} med følgende{" "}
-        {aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
+        {beslutternavn(besluttelse)} returnerte tilsagnet den {formaterDato(besluttelse.tidspunkt)}{" "}
+        med følgende {aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
         <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker))}</b>
         {besluttelse?.forklaring ? (
           <>

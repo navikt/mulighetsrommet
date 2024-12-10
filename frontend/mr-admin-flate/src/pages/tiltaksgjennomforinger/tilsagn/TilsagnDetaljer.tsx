@@ -1,7 +1,6 @@
 import { useAnnullerTilsagn } from "@/api/tilsagn/useAnnullerTilsagn";
 import { useBesluttTilsagn } from "@/api/tilsagn/useBesluttTilsagn";
 import { Header } from "@/components/detaljside/Header";
-import { Separator } from "@/components/detaljside/Metadata";
 import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
 import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
@@ -58,7 +57,7 @@ export function TilsagnDetaljer() {
       lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}`,
     },
     {
-      tittel: "Tilsagn",
+      tittel: "Tilsagnsoversikt",
       lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn`,
     },
     {
@@ -121,14 +120,8 @@ export function TilsagnDetaljer() {
         </Heading>
       </Header>
       <ContainerLayout>
-        <Link to={`/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn`}>
-          Tilbake til tilsagnsoversikt
-        </Link>
         <Box background="bg-default" padding={"5"}>
-          <HStack gap="2" justify={"space-between"}>
-            <Heading size="medium" level="2">
-              Tilsagn
-            </Heading>
+          <HStack gap="2" justify={"end"}>
             {visHandlingerMeny ? (
               <ActionMenu>
                 <ActionMenu.Trigger>
@@ -157,10 +150,7 @@ export function TilsagnDetaljer() {
               </ActionMenu>
             ) : null}
           </HStack>
-          <Separator />
-          <Heading size="small" level="3">
-            Tiltaksgjennomføring
-          </Heading>
+
           <TiltakDetaljerForTilsagn tiltaksgjennomforing={tiltaksgjennomforing} />
           <AvvistDetaljer tilsagn={tilsagn} />
           <Box
@@ -177,7 +167,7 @@ export function TilsagnDetaljer() {
                   <Alert variant="error">Klarte ikke lagre beslutning</Alert>
                 </BodyShort>
               ) : null}
-              <HStack gap="2" justify={"space-between"}>
+              <HStack gap="2" justify={"end"}>
                 {visBesluttKnapp ? (
                   <GodkjennAvvisTilsagnButtons
                     onGodkjennTilsagn={() =>
@@ -244,11 +234,11 @@ function GodkjennAvvisTilsagnButtons({
 }: GodkjennAvvisButtonProps) {
   return (
     <HStack gap="2">
-      <Button size="small" type="button" onClick={onGodkjennTilsagn}>
-        Godkjenn tilsagn
-      </Button>
       <Button variant="secondary" size="small" type="button" onClick={onAvvisTilsagn}>
         Send i retur med forklaring
+      </Button>
+      <Button size="small" type="button" onClick={onGodkjennTilsagn}>
+        Godkjenn tilsagn
       </Button>
     </HStack>
   );

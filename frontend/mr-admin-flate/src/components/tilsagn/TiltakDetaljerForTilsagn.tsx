@@ -12,7 +12,7 @@ export function TiltakDetaljerForTilsagn({ tiltaksgjennomforing }: Props) {
   return (
     <VStack gap="4">
       <Heading size="medium">Tiltaksgjennomføring</Heading>
-      <HGrid columns="2fr 2fr 2fr 1fr 1fr 1fr 1fr">
+      <HGrid columns="2fr 2fr 1fr 1fr 1fr 1fr 1fr">
         <Metadata header="Tiltaksnavn" verdi={tiltaksgjennomforing.navn} />
         <Metadata
           header="Arrangør"
