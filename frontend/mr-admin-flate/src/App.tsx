@@ -211,7 +211,7 @@ const router = () =>
             loader: tiltaksgjennomforingLoader,
           },
           {
-            path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
+            path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/opprett-tilsagn",
             element: <OpprettTilsagnSkjemaPage />,
             errorElement: <ErrorPage />,
             loader: tilsagnLoader,
@@ -241,7 +241,7 @@ const router = () =>
             loader: tiltaksgjennomforingLoader,
           },
           {
-            path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
+            path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/opprett-tilsagn",
             element: <OpprettTilsagnSkjemaPage />,
             errorElement: <ErrorPage />,
             loader: tilsagnLoader,
