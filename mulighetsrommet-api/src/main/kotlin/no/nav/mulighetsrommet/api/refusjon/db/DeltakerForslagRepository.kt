@@ -56,19 +56,20 @@ class DeltakerForslagRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun get(deltakerIds: List<UUID>): Map<UUID, List<DeltakerForslag>> {
+    fun getForslagByGjennomforing(gjennomforingId: UUID): Map<UUID, List<DeltakerForslag>> {
         @Language("PostgreSQL")
         val query = """
-            select
-                id,
-                deltaker_id,
-                endring,
-                status
-            from deltaker_forslag
-            where deltaker_id = any (?)
+        select
+            deltaker.id as deltaker_id,
+            deltaker_forslag.id,
+            deltaker_forslag.endring,
+            deltaker_forslag.status
+        from deltaker
+        inner join deltaker_forslag on deltaker.id = deltaker_forslag.deltaker_id
+        where deltaker.gjennomforing_id = ?::uuid
         """.trimIndent()
 
-        return queryOf(query, db.createUuidArray(deltakerIds))
+        return queryOf(query, gjennomforingId)
             .map { it.toForslagDbo() }
             .asList
             .let { db.run(it) }
