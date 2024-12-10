@@ -11,7 +11,6 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.clients.dokark.*
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.pdfgen.Pdfgen
@@ -29,6 +28,7 @@ import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.domain.dto.amt.Melding
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -415,43 +415,6 @@ data class GodkjennRefusjonskrav(
         val kid: Kid?,
     )
 }
-
-fun refusjonskravJournalpost(
-    pdf: ByteArray,
-    refusjonskravId: UUID,
-    organisasjonsnummer: Organisasjonsnummer,
-): Journalpost = Journalpost(
-    tittel = "Refusjonskrav",
-    journalposttype = "INNGAAENDE",
-    avsenderMottaker = Journalpost.AvsenderMottaker(
-        id = organisasjonsnummer.value,
-        idType = "ORGNR",
-        navn = null,
-    ),
-    bruker = Journalpost.Bruker(
-        id = organisasjonsnummer.value,
-        idType = "ORGNR",
-    ),
-    tema = "TIL",
-    datoMottatt = LocalDateTime.now().toString(),
-    dokumenter = listOf(
-        Journalpost.Dokument(
-            tittel = "Refusjonskrav",
-            dokumentvarianter = listOf(
-                Journalpost.Dokument.Dokumentvariant(
-                    "PDFA",
-                    pdf,
-                    "ARKIV",
-                ),
-            ),
-        ),
-    ),
-    eksternReferanseId = refusjonskravId.toString(),
-    journalfoerendeEnhet = "9999", // Automatisk journalføring
-    kanal = "NAV_NO", // Påkrevd for INNGAENDE. Se https://confluence.adeo.no/display/BOA/Mottakskanal
-    sak = null,
-    behandlingstema = null,
-)
 
 @Serializable
 data class RelevanteForslag(
