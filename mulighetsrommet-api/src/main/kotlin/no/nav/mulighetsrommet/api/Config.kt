@@ -45,6 +45,7 @@ data class AppConfig(
     val poaoTilgang: ServiceClientConfig,
     val arenaAdapter: ServiceClientConfig,
     val tiltakshistorikk: ServiceClientConfig,
+    val pdfgen: ServiceClientConfig,
     val msGraphConfig: ServiceClientConfig,
     val isoppfolgingstilfelleConfig: ServiceClientConfig,
     val norg2: Norg2Config,

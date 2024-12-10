@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.dokark.Journalpost
-import no.nav.mulighetsrommet.api.pdfgen.Pdfgen
+import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
@@ -29,6 +29,7 @@ class JournalforRefusjonskrav(
     private val dokarkClient: DokarkClient,
     private val deltakerRepository: DeltakerRepository,
     private val pdl: HentAdressebeskyttetPersonBolkPdlQuery,
+    private val pdf: PdfGenClient,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -64,7 +65,7 @@ class JournalforRefusjonskrav(
                 periode = krav.beregning.input.periode,
             )
             val refusjonsKravAft = toRefusjonskrav(pdl, deltakerRepository, krav)
-            Pdfgen.refusjonJournalpost(refusjonsKravAft, tilsagn)
+            pdf.refusjonJournalpost(refusjonsKravAft, tilsagn)
         }
 
         val journalpost = refusjonskravJournalpost(pdf, krav.id, krav.arrangor.organisasjonsnummer)
