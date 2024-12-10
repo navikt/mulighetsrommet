@@ -97,15 +97,9 @@ export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
   return (
     <HStack gap="2" align="start">
       <NumericFormat
-        customInput={() => (
-          <TextField
-            size="small"
-            type="number"
-            label="Antall plasser"
-            min={1}
-            error={errors.beregning?.message}
-          />
-        )}
+        label="Antall plasser"
+        customInput={TextField}
+        size="small"
         value={antallPlasser}
         valueIsNumericString
         thousandSeparator
