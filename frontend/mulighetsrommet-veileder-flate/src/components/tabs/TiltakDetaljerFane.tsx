@@ -39,7 +39,7 @@ export function TiltakDetaljerFane({
             Lokal informasjon
           </Heading>
           {tiltaksgjennomforingAlert && (
-            <Alert variant="info" style={{ whiteSpace: "pre-wrap" }}>
+            <Alert variant="info" style={{ whiteSpace: "pre-wrap", margin: "1rem 0" }}>
               {tiltaksgjennomforingAlert}
             </Alert>
           )}

@@ -13,23 +13,23 @@ export function TiltakHeader({ tiltak }: Props) {
     <>
       <VStack gap="2">
         <Heading level="2" size="xlarge">
-          <BodyShort spacing size="small" textColor="default">
+          <BodyShort spacing size="small">
             {tiltak.underTittel}
           </BodyShort>
         </Heading>
         <HStack gap={"2"} align="center">
           <Heading size="large">{tiltak.tittel}</Heading>
-          {isTiltakAktivt(tiltak) && <GjennomforingStatusTag status={tiltak.status} />}
+          {!isTiltakAktivt(tiltak) && <GjennomforingStatusTag status={tiltak.status} />}
         </HStack>
       </VStack>
       {beskrivelse && (
-        <BodyLong size="large" spacing style={{ whiteSpace: "pre-wrap" }}>
+        <BodyLong size="large" spacing style={{ whiteSpace: "pre-wrap", marginTop: "1rem" }}>
           {beskrivelse}
         </BodyLong>
       )}
       {tiltakstype.beskrivelse && (
         <VStack gap={"0"} style={{ marginTop: "1rem" }}>
-          <Heading level="2" size="small" textColor="subtle">
+          <Heading level="2" size="small">
             Generell info
           </Heading>
           <BodyLong size="large" style={{ whiteSpace: "pre-wrap" }}>
