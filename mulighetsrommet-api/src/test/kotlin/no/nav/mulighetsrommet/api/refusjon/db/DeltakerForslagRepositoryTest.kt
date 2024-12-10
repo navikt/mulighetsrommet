@@ -50,10 +50,10 @@ class DeltakerForslagRepositoryTest : FunSpec({
 
         repository.upsert(forslag)
 
-        repository.get(listOf(deltaker.id))[deltaker.id] shouldBe listOf(forslag)
+        repository.getForslagByGjennomforing(TiltaksgjennomforingFixtures.Oppfolging1.id)[deltaker.id] shouldBe listOf(forslag)
 
         repository.delete(forslag.id)
 
-        repository.get(listOf(deltaker.id)).containsKey(deltaker.id) shouldBe false
+        repository.getForslagByGjennomforing(TiltaksgjennomforingFixtures.Oppfolging1.id).containsKey(deltaker.id) shouldBe false
     }
 })

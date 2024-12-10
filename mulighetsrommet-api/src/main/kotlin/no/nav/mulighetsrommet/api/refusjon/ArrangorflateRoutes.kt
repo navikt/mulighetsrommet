@@ -111,14 +111,12 @@ fun Route.arrangorflateRoutes() {
                     ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
-                val deltakere = deltakerRepository.getAll(krav.gjennomforing.id)
-                val forslagByDeltakerId = deltakerForslagRepository.get(deltakere.map { it.id })
+                val forslagByDeltakerId = deltakerForslagRepository.getForslagByGjennomforing(krav.gjennomforing.id)
 
-                val relevanteForslag = deltakere
-                    .map { deltaker ->
-                        val forslag = forslagByDeltakerId[deltaker.id] ?: emptyList()
+                val relevanteForslag = forslagByDeltakerId
+                    .map { (deltakerId, forslag) ->
                         RelevanteForslag(
-                            deltakerId = deltaker.id,
+                            deltakerId = deltakerId,
                             antallRelevanteForslag = forslag.count { it.relevantForDeltakelse(krav) },
                         )
                     }
@@ -133,7 +131,11 @@ fun Route.arrangorflateRoutes() {
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
                 val request = call.receive<GodkjennRefusjonskrav>()
-                validerGodkjennRefusjonskrav(request, krav)
+                validerGodkjennRefusjonskrav(
+                    request,
+                    krav,
+                    deltakerForslagRepository.getForslagByGjennomforing(krav.gjennomforing.id),
+                )
                     .onLeft { return@post call.respondWithStatusResponse(BadRequest(errors = it).left()) }
 
                 db.transactionSuspend { tx ->
@@ -249,8 +251,21 @@ fun DeltakerForslag.relevantForDeltakelse(
 fun validerGodkjennRefusjonskrav(
     request: GodkjennRefusjonskrav,
     krav: RefusjonskravDto,
+    forslagByDeltakerId: Map<UUID, List<DeltakerForslag>>,
 ): Either<List<ValidationError>, GodkjennRefusjonskrav> {
-    return if (request.digest != krav.beregning.getDigest()) {
+    val finnesRelevanteForslag = forslagByDeltakerId
+        .any { (_, forslag) ->
+            forslag.count { it.relevantForDeltakelse(krav) } > 0
+        }
+
+    return if (finnesRelevanteForslag) {
+        listOf(
+            ValidationError.ofCustomLocation(
+                "info",
+                "Det finnes forslag på deltakere som påvirker refusjonen. Disse må godkjennes av Nav først.",
+            ),
+        ).left()
+    } else if (request.digest != krav.beregning.getDigest()) {
         listOf(
             ValidationError.ofCustomLocation(
                 "info",
