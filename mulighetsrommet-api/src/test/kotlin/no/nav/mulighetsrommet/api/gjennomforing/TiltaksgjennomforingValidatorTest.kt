@@ -250,24 +250,6 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         )
     }
 
-    test("kurstittel er påkrevd hvis kurstiltak") {
-        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
-        val jobbklubb = TiltaksgjennomforingFixtures.Jobbklubb1.copy(faneinnhold = null)
-        val gruppeAmo = TiltaksgjennomforingFixtures.GruppeAmo1.copy(
-            faneinnhold = null,
-            amoKategorisering = AmoKategorisering.Studiespesialisering,
-        )
-        val oppfolging = TiltaksgjennomforingFixtures.Oppfolging1
-
-        validator.validate(jobbklubb, null).shouldBeLeft(
-            listOf(ValidationError("faneinnhold.kurstittel", "Du må skrive en kurstittel")),
-        )
-        validator.validate(gruppeAmo, null).shouldBeLeft(
-            listOf(ValidationError("faneinnhold.kurstittel", "Du må skrive en kurstittel")),
-        )
-        validator.validate(oppfolging, null).shouldBeRight()
-    }
-
     test("amoKategorisering er påkrevd for avtale og gjennomføring når tiltakstype er Gruppe AMO") {
         val avtaleUtenAmokategorisering =
             AvtaleFixtures.gruppeAmo.copy(tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id, amoKategorisering = null)

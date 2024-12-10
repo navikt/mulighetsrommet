@@ -8,6 +8,7 @@ import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.api.*
@@ -119,7 +120,7 @@ class AvtaleRoutesTest : FunSpec({
                 row(TiltakstypeFixtures.VTA, HttpStatusCode.OK),
                 row(TiltakstypeFixtures.AFT, HttpStatusCode.OK),
                 row(TiltakstypeFixtures.Oppfolging, HttpStatusCode.OK),
-                row(TiltakstypeFixtures.Jobbklubb, HttpStatusCode.BadRequest),
+                row(TiltakstypeFixtures.Jobbklubb, HttpStatusCode.OK),
             ) { tiltakstype, status ->
                 val response = client.put("/api/v1/intern/avtaler") {
                     val claims = mapOf(

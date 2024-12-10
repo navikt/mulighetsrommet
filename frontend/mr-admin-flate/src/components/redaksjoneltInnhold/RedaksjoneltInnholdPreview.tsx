@@ -1,5 +1,5 @@
 import { useTiltakstypeFaneinnhold } from "@/api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
-import { Alert, BodyLong, BodyShort, Heading, HStack } from "@navikt/ds-react";
+import { Alert, BodyLong, Heading } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
 import { EmbeddedTiltakstype, Faneinnhold } from "@mr/api-client";
 import { InlineErrorBoundary, LokalInformasjonContainer } from "@mr/frontend-common";
@@ -8,7 +8,6 @@ import styles from "../../pages/DetaljerInfo.module.scss";
 import { Laster } from "../laster/Laster";
 import { Lenkeliste } from "../lenker/Lenkeliste";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
-import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 
 interface RedaksjoneltInnholdPreviewProps {
   tiltakstype: EmbeddedTiltakstype;
@@ -31,12 +30,6 @@ function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
   const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakstype.id);
   return (
     <RedaksjoneltInnholdContainer>
-      {isKursTiltak(tiltakstype.tiltakskode) && faneinnhold?.kurstittel && (
-        <HStack align="center" gap="2">
-          <Heading size="small">Kurstittel:</Heading>
-          <BodyShort size="medium">{faneinnhold.kurstittel}</BodyShort>
-        </HStack>
-      )}
       {tiltakstypeSanityData?.beskrivelse && (
         <BodyLong size="large" spacing style={{ whiteSpace: "pre-wrap" }}>
           {tiltakstypeSanityData.beskrivelse}

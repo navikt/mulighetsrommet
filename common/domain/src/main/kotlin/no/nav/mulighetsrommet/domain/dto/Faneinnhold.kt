@@ -16,5 +16,4 @@ data class Faneinnhold(
     val oppskrift: List<JsonObject>? = null,
     val lenker: List<JsonObject>? = null,
     val delMedBruker: String? = null,
-    val kurstittel: String? = null,
 )
