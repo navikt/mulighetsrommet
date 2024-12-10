@@ -28,7 +28,7 @@ export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
     formState: { errors },
   } = useFormContext<DeepPartial<InferredOpprettTilsagnSchema>>();
 
-  const [antallPlasser, setAntallPlasser] = useState<number>(defaultAntallPlasser ?? 0);
+  const [antallPlasser, setAntallPlasser] = useState<number | undefined>(defaultAntallPlasser);
 
   const periode = watch("periode");
 
@@ -50,7 +50,7 @@ export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
 
   useEffect(() => {
     const sats = findSats();
-    if (sats && periode?.start && periode.slutt && mutation) {
+    if (sats && periode?.start && periode.slutt && antallPlasser && mutation) {
       mutation.mutate(
         {
           type: "AFT",
@@ -97,10 +97,15 @@ export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
   return (
     <HStack gap="2" align="start">
       <NumericFormat
-        size="small"
-        error={errors.beregning?.message}
-        label="Antall plasser"
-        customInput={TextField}
+        customInput={() => (
+          <TextField
+            size="small"
+            type="number"
+            label="Antall plasser"
+            min={1}
+            error={errors.beregning?.message}
+          />
+        )}
         value={antallPlasser}
         valueIsNumericString
         thousandSeparator

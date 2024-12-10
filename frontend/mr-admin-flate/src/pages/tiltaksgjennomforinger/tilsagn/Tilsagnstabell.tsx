@@ -1,12 +1,12 @@
 import { formaterDato } from "@/utils/Utils";
-import { TilsagnBesluttelseStatus, TilsagnDto, TilsagnStatus } from "@mr/api-client";
+import { TilsagnDto } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { HelpText, HStack, SortState, Table, Tag } from "@navikt/ds-react";
+import { SortState, Table } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import styles from "./Tilsagnstabell.module.scss";
 import { isAftBeregning } from "./tilsagnUtils";
+import { TilsagnTag } from "./TilsagnTag";
 
 interface Props {
   tilsagn: TilsagnDto[];
@@ -43,48 +43,6 @@ export function Tilsagnstabell({ tilsagn }: Props) {
       return 1;
     }
     return 0;
-  }
-
-  function TilsagnStatusTag(props: { tilsagn: TilsagnDto }) {
-    const { tilsagn } = props;
-    const { status } = tilsagn;
-
-    switch (status) {
-      case TilsagnStatus.GODKJENT:
-        return tilsagn.besluttelse ? (
-          <Tag variant="success">
-            <HStack justify={"space-between"} gap="2" align={"center"}>
-              Godkjent
-              <HelpText>
-                {besluttelseTilTekst(tilsagn.besluttelse.status)} den{" "}
-                {formaterDato(tilsagn.besluttelse.tidspunkt)} av {tilsagn.besluttelse.navIdent}
-              </HelpText>
-            </HStack>
-          </Tag>
-        ) : null;
-      case TilsagnStatus.RETURNERT:
-        return tilsagn.besluttelse ? (
-          <Tag variant="error">
-            <HStack justify={"space-between"} gap="2" align={"center"}>
-              Returnert
-              <HelpText>
-                {besluttelseTilTekst(tilsagn.besluttelse.status)} den{" "}
-                {formaterDato(tilsagn.besluttelse.tidspunkt)} av {tilsagn.besluttelse.navIdent}
-              </HelpText>
-            </HStack>
-          </Tag>
-        ) : null;
-      case TilsagnStatus.OPPGJORT:
-        return <Tag variant="neutral">Oppgjort</Tag>;
-      case TilsagnStatus.ANNULLERT:
-        return (
-          <Tag variant="neutral" className={styles.annullert_tag}>
-            Annullert
-          </Tag>
-        );
-      case TilsagnStatus.TIL_GODKJENNING:
-        return <Tag variant="alt1">Til godkjenning</Tag>;
-    }
   }
 
   const sortedData = [...tilsagn].sort((a, b) => {
@@ -137,7 +95,7 @@ export function Tilsagnstabell({ tilsagn }: Props) {
               <Table.DataCell>{antallPlasser}</Table.DataCell>
               <Table.DataCell>{formaterNOK(beregning.belop)}</Table.DataCell>
               <Table.DataCell>
-                <TilsagnStatusTag tilsagn={tilsagn} />
+                <TilsagnTag tilsagn={tilsagn} />
               </Table.DataCell>
 
               <Table.DataCell>
@@ -158,8 +116,4 @@ function getAntallPlasser(beregning: TilsagnDto["beregning"]) {
     return beregning.antallPlasser;
   }
   return 0;
-}
-
-function besluttelseTilTekst(besluttelse: TilsagnBesluttelseStatus): "Godkjent" | "Returnert" {
-  return besluttelse === "GODKJENT" ? "Godkjent" : "Returnert";
 }
