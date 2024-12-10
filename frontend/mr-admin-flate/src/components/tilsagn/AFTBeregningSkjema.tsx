@@ -28,7 +28,7 @@ export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
     formState: { errors },
   } = useFormContext<DeepPartial<InferredOpprettTilsagnSchema>>();
 
-  const [antallPlasser, setAntallPlasser] = useState<number | undefined>(defaultAntallPlasser);
+  const [antallPlasser, setAntallPlasser] = useState<number | null>(defaultAntallPlasser ?? null);
 
   const periode = watch("periode");
 
@@ -96,22 +96,20 @@ export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
 
   return (
     <HStack gap="2" align="start">
-      <NumericFormat
-        customInput={() => (
-          <TextField
-            size="small"
-            type="number"
-            label="Antall plasser"
-            min={1}
-            error={errors.beregning?.message}
-          />
-        )}
-        value={antallPlasser}
-        valueIsNumericString
-        thousandSeparator
-        onValueChange={(e) => {
-          const n = Number.parseInt(e.value);
-          setAntallPlasser(isNaN(n) ? 0 : n);
+      <TextField
+        size="small"
+        value={antallPlasser ?? ""}
+        type="number"
+        label="Antall plasser"
+        error={
+          (errors.beregning as Merge<FieldError, FieldErrorsImpl<NonNullable<TilsagnBeregningAFT>>>)
+            ?.antallPlasser?.message
+        }
+        onChange={(e) => {
+          const n = Number.parseInt(e.target.value);
+          const a = isNaN(n) ? null : n;
+          setAntallPlasser(a);
+          setValue("beregning.antallPlasser", a ?? undefined);
         }}
       />
       <NumericFormat

@@ -11,7 +11,9 @@ const TilsagnBeregningSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("AFT"),
     sats: z.number(),
-    antallPlasser: z.number(),
+    antallPlasser: z
+      .number({ required_error: "Du må velge antall plasser" })
+      .positive({ message: "Antall plasser må være positivt" }),
     belop: z.number(),
     periodeStart: z
       .string({ required_error: tekster.manglerStartdato })
@@ -37,7 +39,6 @@ export const OpprettTilsagnSchema = z
         .string({ required_error: tekster.manglerSluttdato })
         .min(10, tekster.manglerSluttdato),
     }),
-    antallPlasser: z.number().optional().nullable(),
     kostnadssted: z
       .string({ required_error: tekster.manglerKostnadssted })
       .length(4, tekster.manglerKostnadssted),
