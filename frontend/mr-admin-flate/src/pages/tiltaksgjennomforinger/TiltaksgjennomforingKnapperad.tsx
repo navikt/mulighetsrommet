@@ -1,18 +1,17 @@
-import React, { useRef } from "react";
-import { BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
 import { useMutatePublisert } from "@/api/tiltaksgjennomforing/useMutatePublisert";
-import { NavAnsatt, TiltaksgjennomforingDto, Toggles } from "@mr/api-client";
 import { useTiltaksgjennomforingEndringshistorikk } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingEndringshistorikk";
+import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
-import { useNavigate, useRevalidator } from "react-router-dom";
-import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
+import { SetApentForPameldingModal } from "@/components/tiltaksgjennomforinger/SetApentForPameldingModal";
+import { KnapperadContainer } from "@/pages/KnapperadContainer";
+import { NavAnsatt, TiltaksgjennomforingDto } from "@mr/api-client";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
-import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
-import { KnapperadContainer } from "@/pages/KnapperadContainer";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { SetApentForPameldingModal } from "@/components/tiltaksgjennomforinger/SetApentForPameldingModal";
+import { BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
+import React, { useRef } from "react";
+import { useNavigate, useRevalidator } from "react-router-dom";
 
 interface Props {
   ansatt: NavAnsatt;
@@ -26,9 +25,6 @@ export function TiltaksgjennomforingKnapperad({ ansatt, tiltaksgjennomforing }: 
   const advarselModal = useRef<HTMLDialogElement>(null);
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const apentForPameldingModalRef = useRef<HTMLDialogElement>(null);
-  const { data: enableOpprettTilsagn } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
-  );
 
   function handleClick(e: React.MouseEvent<HTMLInputElement>) {
     mutate(
@@ -90,28 +86,7 @@ export function TiltaksgjennomforingKnapperad({ ansatt, tiltaksgjennomforing }: 
                     : "Åpne for påmelding"}
                 </Dropdown.Menu.GroupedList.Item>
               )}
-              {enableOpprettTilsagn && gjennomforingIsAktiv(tiltaksgjennomforing.status.status) ? (
-                <Dropdown.Menu.GroupedList.Item
-                  onClick={() => {
-                    navigate("opprett-tilsagn");
-                  }}
-                >
-                  Opprett tilsagn
-                </Dropdown.Menu.GroupedList.Item>
-              ) : null}
-              {enableOpprettTilsagn && gjennomforingIsAktiv(tiltaksgjennomforing.status.status) ? (
-                <Dropdown.Menu.GroupedList.Item
-                  onClick={() => {
-                    navigate("opprett-tilsagn", {
-                      state: {
-                        ekstratilsagn: true,
-                      },
-                    });
-                  }}
-                >
-                  Opprett ekstratilsagn
-                </Dropdown.Menu.GroupedList.Item>
-              ) : null}
+
               {gjennomforingIsAktiv(tiltaksgjennomforing.status.status) && (
                 <Dropdown.Menu.GroupedList.Item onClick={() => avbrytModalRef.current?.showModal()}>
                   Avbryt gjennomføring

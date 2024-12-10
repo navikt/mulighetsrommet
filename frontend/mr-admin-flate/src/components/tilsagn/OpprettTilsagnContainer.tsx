@@ -28,12 +28,12 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing, tilsagn }: Props
     };
 
     mutation.mutate(request, {
-      onSuccess: navigerTilGjennomforing,
+      onSuccess: navigerTilTilsagn,
     });
   };
 
-  function navigerTilGjennomforing() {
-    navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`);
+  function navigerTilTilsagn() {
+    navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/tilsagn`);
   }
 
   function prismodell(tiltaksgjennomforing: TiltaksgjennomforingDto): "AFT" | "FRI" {
@@ -51,7 +51,7 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing, tilsagn }: Props
             tilsagn={tilsagn}
             onSubmit={postData}
             mutation={mutation}
-            onAvbryt={navigerTilGjennomforing}
+            onAvbryt={navigerTilTilsagn}
             prismodell={prismodell(tiltaksgjennomforing)}
           />
         </SkjemaKolonne>
