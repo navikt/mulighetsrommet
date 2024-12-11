@@ -34,7 +34,7 @@ class PdfGenClient(
 
         return downloadPdf(
             app = "refusjon",
-            template = "refusjon-kvittering",
+            template = "kvittering",
             body = PdfData(refusjon, tilsagn),
         )
     }
@@ -48,7 +48,7 @@ class PdfGenClient(
 
         return downloadPdf(
             app = "refusjon",
-            template = "refusjon-journalpost",
+            template = "journalpost",
             body = PdfData(refusjon, tilsagn),
         )
     }

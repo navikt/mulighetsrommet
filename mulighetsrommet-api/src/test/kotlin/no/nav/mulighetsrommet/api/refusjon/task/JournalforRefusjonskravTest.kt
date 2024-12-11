@@ -94,7 +94,7 @@ class JournalforRefusjonskravTest : FunSpec({
     val pdl: PdlClient = mockk(relaxed = true)
     val pdf = PdfGenClient(
         clientEngine = createMockEngine(
-            "http://pdfgen/api/v1/genpdf/refusjon/refusjon-journalpost" to {
+            "http://pdfgen/api/v1/genpdf/refusjon/journalpost" to {
                 respond(":)".toByteArray(), HttpStatusCode.OK)
             },
         ),

@@ -83,6 +83,9 @@ services:
       - "8888:8080"
     profiles:
       - dev
+    environment:
+      # Gjør det mulig å benytte mockdata under lokal utvikling
+      DISABLE_PDF_GET: false
     volumes:
       - ./mulighetsrommet-pdfgen/templates:/app/templates
       - ./mulighetsrommet-pdfgen/fonts:/app/fonts

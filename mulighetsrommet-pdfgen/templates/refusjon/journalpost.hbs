@@ -2,10 +2,10 @@
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>Refusjonskvittering</title>
+    <title>Refusjonskrav</title>
     <meta name="subject" content="Dokumentemne"/>
     <meta name="author" content="pdfgen"/>
-    <meta name="description" content="Refusjonskvittering"/>
+    <meta name="description" content="Refusjonskrav"/>
     <style>
         * {
             font-family: "Source Sans Pro" !important;
@@ -47,7 +47,7 @@
         <tbody>
         <tr>
             <th>Refusjonskravperiode:</th>
-            <td>{{ iso_to_nor_date refusjon.beregning.periode.start }} - {{ iso_to_nor_date refusjon.beregning.periode.slutt }}</td>
+            <td>{{ iso_to_nor_date refusjon.beregning.periodeStart }} - {{ iso_to_nor_date refusjon.beregning.periodeSlutt }}</td>
         </tr>
         <tr>
             <th>First for godkjenning:</th>
@@ -92,6 +92,27 @@
         </tbody>
     </table>
     {{/each}}
+</div>
+<div class="block line_bottom">
+    <h4>Deltakerliste</h4>
+    <table class="block">
+        <th>Navn</th>
+        <th>Fødselsdato</th>
+        <th>Startdato</th>
+        <th>Sluttdato</th>
+        <th>Månedsverk</th>
+        <tbody>
+        {{#each refusjon.deltakelser }}
+        <tr>
+            <td>{{ person.navn }}</td>
+            <td>{{ person.foedselsdato }} {{ person.foedselsaar }}</td>
+            <td>{{ iso_to_nor_date startDato }}</td>
+            <td>{{ iso_to_nor_date sluttDato }}</td>
+            <td>{{ manedsverk }}</td>
+        </tr>
+        {{/each}}
+        </tbody>
+    </table>
 </div>
 <div class="block line_bottom">
     <h4>Refusjonskrav</h4>
