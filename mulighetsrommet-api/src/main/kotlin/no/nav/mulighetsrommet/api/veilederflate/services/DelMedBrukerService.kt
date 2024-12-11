@@ -172,7 +172,6 @@ class DelMedBrukerService(
                     val (tittel, underTittel) = tittelOgUnderTittel(
                         tiltak.navn,
                         tiltak.tiltakstypeNavn,
-                        tiltak.tiltakskode,
                     )
 
                     TiltakDeltMedBruker(
@@ -208,7 +207,6 @@ class DelMedBrukerService(
             val (tittel, underTittel) = tittelOgUnderTittel(
                 tiltak.tiltaksgjennomforingNavn ?: "",
                 tiltak.tiltakstype.tiltakstypeNavn,
-                arenaKode,
             )
 
             deltMedBruker.filter { it.sanityId == tiltak._id.toUUID() }.map {

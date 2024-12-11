@@ -40,7 +40,9 @@ class JournalforRefusjonskrav(
     val task: OneTimeTask<TaskData> = Tasks
         .oneTime(javaClass.simpleName, TaskData::class.java)
         .executeSuspend { inst, _ ->
-            journalforRefusjonskrav(inst.data.refusjonskravId)
+            // TODO: Midlertidig avskrudd i påvente av endringer
+            // Vi skal få fagsystem hos dokarkiv
+            // journalforRefusjonskrav(inst.data.refusjonskravId)
         }
 
     fun schedule(refusjonskravId: UUID, startTime: Instant, tx: TransactionalSession): UUID {

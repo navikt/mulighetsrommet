@@ -102,8 +102,8 @@ export function AvtaleSkjemaContainer({
     mutation.mutate(requestBody, {
       onSuccess: handleSuccess,
       onError: (error) => {
-        if (isValidationError(error)) {
-          handleValidationError(error);
+        if (isValidationError(error.body)) {
+          handleValidationError(error.body);
         }
       },
     });

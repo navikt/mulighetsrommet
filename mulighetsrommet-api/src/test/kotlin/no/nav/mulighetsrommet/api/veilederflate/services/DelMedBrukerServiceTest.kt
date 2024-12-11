@@ -196,7 +196,7 @@ class DelMedBrukerServiceTest : FunSpec({
                 it.shouldNotBeNull()
                 it.size shouldBe 3
                 it[0].tittel shouldBe "Oppfølging"
-                it[1].tittel shouldBe "Delt med bruker - Lokalt navn fra Sanity"
+                it[1].tittel shouldBe "Arbeidsmarkedsopplæring (AMO) enkeltplass"
                 it[2].tittel shouldBe "Arbeidstrening"
             }
         }
