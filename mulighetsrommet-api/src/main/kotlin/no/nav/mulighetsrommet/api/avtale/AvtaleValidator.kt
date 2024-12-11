@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.allowedAvtaletypes
@@ -153,10 +152,6 @@ class AvtaleValidator(
                 } else if (utdanninger.utdanninger.isEmpty()) {
                     add(ValidationError.of(AvtaleDbo::utdanningslop, "Du må velge minst ett lærefag"))
                 }
-            }
-
-            if (Tiltakskoder.isKursTiltak(tiltakstype.tiltakskode) && avtale.faneinnhold?.kurstittel.isNullOrBlank()) {
-                add(ValidationError.ofCustomLocation("faneinnhold.kurstittel", "Du må skrive en kurstittel"))
             }
 
             validateNavEnheter(avtale.navEnheter)

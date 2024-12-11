@@ -126,9 +126,6 @@ class TiltaksgjennomforingValidator(
             if (!avtaleHasArrangor) {
                 add(ValidationError.of(TiltaksgjennomforingDbo::arrangorId, "Du må velge en arrangør for avtalen"))
             }
-            if (isKursTiltak(tiltakstype.tiltakskode) && next.faneinnhold?.kurstittel.isNullOrBlank()) {
-                add(ValidationError.ofCustomLocation("faneinnhold.kurstittel", "Du må skrive en kurstittel"))
-            }
 
             if (avtale.tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING) {
                 if (avtale.amoKategorisering == null) {

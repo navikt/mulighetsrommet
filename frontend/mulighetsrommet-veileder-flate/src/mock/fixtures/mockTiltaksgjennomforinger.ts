@@ -189,7 +189,6 @@ export const tiltakAmoGruppe: VeilederflateTiltakGruppe = {
     ],
   },
   faneinnhold: {
-    kurstittel: "Dette er en kurstittel for gruppe amo",
     lenker: [
       {
         lenke: "https://www.google.com",
