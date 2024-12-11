@@ -77,7 +77,6 @@ export function TilsagnSkjema({
   });
 
   const { handleSubmit, register, setValue, watch } = form;
-
   useEffect(() => {
     if (tilsagn) {
       setValue("id", tilsagn.id);

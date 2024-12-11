@@ -62,8 +62,8 @@ export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
         {
           onSuccess: handleSuccess,
           onError: (error) => {
-            if (isValidationError(error)) {
-              handleValidationErrors(error);
+            if (isValidationError(error.body)) {
+              handleValidationErrors(error.body);
             }
           },
         },

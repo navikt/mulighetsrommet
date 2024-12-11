@@ -139,8 +139,8 @@ export function TiltaksgjennomforingSkjemaContainer({
     mutation.mutate(body, {
       onSuccess: handleSuccess,
       onError: (error) => {
-        if (isValidationError(error)) {
-          handleValidationError(error);
+        if (isValidationError(error.body)) {
+          handleValidationError(error.body);
         }
       },
     });

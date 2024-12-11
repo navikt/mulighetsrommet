@@ -67,7 +67,7 @@ class TilsagnValidator(
 
         val errors = buildList {
             if (next.periodeStart.year != next.periodeSlutt.year) {
-                add(ValidationError.of(TilsagnDto::periodeSlutt, "Perioden kan ikke gå over flere år"))
+                add(ValidationError.ofCustomLocation("periode.slutt", "Perioden kan ikke gå over flere år"))
             }
         }
 
