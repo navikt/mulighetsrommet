@@ -11,10 +11,9 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.clients.dokark.*
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
-import no.nav.mulighetsrommet.api.pdfgen.Pdfgen
+import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagRepository
@@ -22,7 +21,9 @@ import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.api.refusjon.task.JournalforRefusjonskrav
-import no.nav.mulighetsrommet.api.responses.*
+import no.nav.mulighetsrommet.api.responses.BadRequest
+import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.Kid
@@ -48,6 +49,7 @@ fun Route.arrangorflateRoutes() {
     val pdl: HentAdressebeskyttetPersonBolkPdlQuery by inject()
     val journalforRefusjonskrav: JournalforRefusjonskrav by inject()
     val db: Database by inject()
+    val pdf: PdfGenClient by inject()
 
     suspend fun RoutingContext.arrangorerMedTilgang(): List<ArrangorDto> {
         return call.principal<ArrangorflatePrincipal>()
@@ -164,9 +166,8 @@ fun Route.arrangorflateRoutes() {
                     gjennomforingId = krav.gjennomforing.id,
                     periode = krav.beregning.input.periode,
                 )
-
                 val refusjonsKravAft = toRefusjonskrav(pdl, deltakerRepository, krav)
-                val pdf = Pdfgen.refusjonKvittering(refusjonsKravAft, tilsagn)
+                val pdf = pdf.getRefusjonKvittering(refusjonsKravAft, tilsagn)
 
                 call.response.headers.append(
                     "Content-Disposition",
@@ -227,21 +228,27 @@ fun DeltakerForslag.relevantForDeltakelse(
 
             this.endring.harDeltatt == false || (sluttDato != null && sluttDato.isBefore(sisteSluttDato))
         }
+
         is Melding.Forslag.Endring.Deltakelsesmengde -> {
             this.endring.gyldigFra?.isBefore(sisteSluttDato) ?: true
         }
+
         is Melding.Forslag.Endring.ForlengDeltakelse -> {
             this.endring.sluttdato.isAfter(sisteSluttDato) && this.endring.sluttdato.isBefore(periode.slutt)
         }
+
         is Melding.Forslag.Endring.IkkeAktuell -> {
             true
         }
+
         is Melding.Forslag.Endring.Sluttarsak -> {
             false
         }
+
         is Melding.Forslag.Endring.Sluttdato -> {
             this.endring.sluttdato.isBefore(sisteSluttDato)
         }
+
         is Melding.Forslag.Endring.Startdato -> {
             this.endring.startdato.isAfter(forsteStartDato)
         }
@@ -415,43 +422,6 @@ data class GodkjennRefusjonskrav(
         val kid: Kid?,
     )
 }
-
-fun refusjonskravJournalpost(
-    pdf: ByteArray,
-    refusjonskravId: UUID,
-    organisasjonsnummer: Organisasjonsnummer,
-): Journalpost = Journalpost(
-    tittel = "Refusjonskrav",
-    journalposttype = "INNGAAENDE",
-    avsenderMottaker = Journalpost.AvsenderMottaker(
-        id = organisasjonsnummer.value,
-        idType = "ORGNR",
-        navn = null,
-    ),
-    bruker = Journalpost.Bruker(
-        id = organisasjonsnummer.value,
-        idType = "ORGNR",
-    ),
-    tema = "TIL",
-    datoMottatt = LocalDateTime.now().toString(),
-    dokumenter = listOf(
-        Journalpost.Dokument(
-            tittel = "Refusjonskrav",
-            dokumentvarianter = listOf(
-                Journalpost.Dokument.Dokumentvariant(
-                    "PDFA",
-                    pdf,
-                    "ARKIV",
-                ),
-            ),
-        ),
-    ),
-    eksternReferanseId = refusjonskravId.toString(),
-    journalfoerendeEnhet = "9999", // Automatisk journalføring
-    kanal = "NAV_NO", // Påkrevd for INNGAENDE. Se https://confluence.adeo.no/display/BOA/Mottakskanal
-    sak = null,
-    behandlingstema = null,
-)
 
 @Serializable
 data class RelevanteForslag(

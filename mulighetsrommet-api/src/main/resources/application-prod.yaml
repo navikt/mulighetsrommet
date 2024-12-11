@@ -118,6 +118,10 @@ app:
     url: http://tiltakshistorikk
     scope: api://prod-gcp.team-mulighetsrommet.tiltakshistorikk/.default
 
+  pdfgen:
+    url: http://pdfgen
+    scope: api://prod-gcp.team-mulighetsrommet.pdfgen/.default
+
   axsys:
     url: https://axsys.prod-fss-pub.nais.io
     scope: api://prod-fss.org.axsys/.default

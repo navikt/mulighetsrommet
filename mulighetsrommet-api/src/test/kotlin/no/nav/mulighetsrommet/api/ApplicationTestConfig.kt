@@ -114,6 +114,10 @@ fun createTestApplicationConfig() = AppConfig(
         url = "isoppfolgingstilfelleConfig",
         scope = "default",
     ),
+    pdfgen = ServiceClientConfig(
+        url = "pdfgen",
+        scope = "default",
+    ),
     dokark = ServiceClientConfig(
         url = "dokark",
         scope = "default",

@@ -97,6 +97,10 @@ app:
     url: http://0.0.0.0:8090 # Wiremock
     scope: mr-tiltakshistorikk
 
+  pdfgen:
+    url: http://localhost:8888
+    scope: default
+
   veilarbvedtaksstotteConfig:
     url: http://localhost:8090/veilarbvedtaksstotte/api
     scope: default
