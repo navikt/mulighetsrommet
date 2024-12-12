@@ -13,17 +13,14 @@ import { tilsagnLoader } from "./tilsagnLoader";
 
 export function OpprettTilsagnSkjemaPage() {
   const { avtaleId } = useParams();
-  const { tiltaksgjennomforing, tilsagn, tilsagnForGjennomforing, ansatt } =
+  const { tiltaksgjennomforing, tilsagn, tilsagnForGjennomforing } =
     useLoaderData<typeof tilsagnLoader>();
-  const aktiveTilsagn = tilsagnForGjennomforing?.filter(
-    (d) => d.besluttelse?.status === "GODKJENT",
-  );
+  const aktiveTilsagn = tilsagnForGjennomforing?.filter((d) => d.status.type === "GODKJENT");
 
   const erPaaGjennomforingerForAvtale = useMatch(
     "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
   );
   const redigeringsModus = tilsagn && inneholderUrl(tilsagn.id);
-  const godkjenningsModus = Boolean(tilsagn && tilsagn.opprettetAv !== ansatt?.navIdent);
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     { tittel: "Forside", lenke: "/" },
@@ -64,7 +61,7 @@ export function OpprettTilsagnSkjemaPage() {
       <Header>
         <TiltaksgjennomforingIkon />
         <Heading size="large" level="2">
-          {godkjenningsModus ? "Godkjenn tilsagn" : "Opprett tilsagn"}
+          Opprett tilsagn
         </Heading>
       </Header>
       <ContainerLayout>
@@ -74,7 +71,6 @@ export function OpprettTilsagnSkjemaPage() {
               {tiltaksgjennomforing ? (
                 <OpprettTilsagnContainer
                   tiltaksgjennomforing={tiltaksgjennomforing}
-                  tilsagnSkalGodkjennes={godkjenningsModus}
                   tilsagn={tilsagn}
                 />
               ) : null}

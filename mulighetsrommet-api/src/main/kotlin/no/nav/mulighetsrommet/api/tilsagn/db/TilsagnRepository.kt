@@ -4,17 +4,14 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
+import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
-import no.nav.mulighetsrommet.api.tilsagn.BesluttTilsagnRequest
-import no.nav.mulighetsrommet.api.tilsagn.model.ArrangorflateTilsagn
-import no.nav.mulighetsrommet.api.tilsagn.model.AvvistTilsagnAarsak
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBesluttelseStatus
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
+import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
@@ -36,36 +33,33 @@ class TilsagnRepository(private val db: Database) {
                 periode_start,
                 periode_slutt,
                 kostnadssted,
-                opprettet_av,
                 arrangor_id,
                 beregning,
-                besluttet_av,
-                besluttet_tidspunkt,
-                besluttelse
+                status_endret_av,
+                status_endret_tidspunkt,
+                status
             ) values (
                 :id::uuid,
                 :tiltaksgjennomforing_id::uuid,
                 :periode_start,
                 :periode_slutt,
                 :kostnadssted,
-                :opprettet_av,
                 :arrangor_id::uuid,
                 :beregning::jsonb,
-                :besluttet_av,
-                :besluttet_tidspunkt,
-                :besluttelse
+                :status_endret_av,
+                :status_endret_tidspunkt,
+                'TIL_GODKJENNING'::tilsagn_status
             )
             on conflict (id) do update set
                 tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
                 periode_start           = excluded.periode_start,
                 periode_slutt           = excluded.periode_slutt,
                 kostnadssted            = excluded.kostnadssted,
-                opprettet_av            = excluded.opprettet_av,
                 arrangor_id             = excluded.arrangor_id,
                 beregning               = excluded.beregning,
-                besluttelse             = excluded.besluttelse,
-                besluttet_av            = excluded.besluttet_av,
-                besluttet_tidspunkt     = excluded.besluttet_tidspunkt
+                status_endret_av        = excluded.status_endret_av,
+                status_endret_tidspunkt = excluded.status_endret_tidspunkt,
+                status                  = excluded.status
             returning *
         """.trimIndent()
 
@@ -155,16 +149,6 @@ class TilsagnRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun setAnnullertTidspunkt(id: UUID, tidspunkt: LocalDateTime, tx: Session): Int {
-        @Language("PostgreSQL")
-        val query = """
-            update tilsagn set annullert_tidspunkt = :tidspunkt
-            where id = :id::uuid
-        """.trimIndent()
-
-        return tx.run(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt)).asUpdate)
-    }
-
     fun delete(id: UUID) {
         @Language("PostgreSQL")
         val query = """
@@ -174,55 +158,144 @@ class TilsagnRepository(private val db: Database) {
         db.run(queryOf(query, mapOf("id" to id)).asExecute)
     }
 
-    fun setBesluttelse(
+    fun besluttGodkjennelse(
         id: UUID,
-        besluttelse: BesluttTilsagnRequest,
         navIdent: NavIdent,
         tidspunkt: LocalDateTime,
-    ): Int = db.transaction { tx ->
-        setBesluttelse(
-            id,
-            besluttelse,
-            navIdent,
-            tidspunkt,
-            tx,
-        )
-    }
-
-    fun setBesluttelse(
-        id: UUID,
-        besluttelse: BesluttTilsagnRequest,
-        navIdent: NavIdent,
-        tidspunkt: LocalDateTime,
-        tx: Session,
-    ): Int {
+        tx: TransactionalSession,
+    ) {
         @Language("PostgreSQL")
         val query = """
             update tilsagn set
-                besluttelse = :besluttelse::tilsagn_besluttelse,
-                besluttet_av = :nav_ident,
-                besluttet_tidspunkt = :tidspunkt,
-                avvist_aarsaker = :avvist_aarsak::avvist_aarsak_type[],
-                avvist_forklaring = :avvist_forklaring,
-                annullert_tidspunkt = null
+                status_besluttet_av = :nav_ident,
+                status_endret_tidspunkt = :tidspunkt,
+                status = 'GODKJENT'::tilsagn_status
             where id = :id::uuid
         """.trimIndent()
 
-        val (aarsak, forklaring) = when (besluttelse) {
-            is BesluttTilsagnRequest.GodkjentTilsagnRequest -> null to null
-            is BesluttTilsagnRequest.AvvistTilsagnRequest -> besluttelse.aarsaker to besluttelse.forklaring
-        }
-
-        return tx.run(
+        tx.run(
             queryOf(
                 query,
                 mapOf(
                     "id" to id,
-                    "besluttelse" to besluttelse.besluttelse.name,
                     "nav_ident" to navIdent.value,
                     "tidspunkt" to tidspunkt,
-                    "avvist_aarsak" to aarsak?.map { it.name }?.let { db.createTextArray(it) },
-                    "avvist_forklaring" to forklaring,
+                ),
+            ).asUpdate,
+        )
+    }
+
+    fun returner(
+        id: UUID,
+        navIdent: NavIdent,
+        tidspunkt: LocalDateTime,
+        aarsaker: List<TilsagnStatusAarsak>,
+        forklaring: String?,
+    ) = db.transaction { tx ->
+        @Language("PostgreSQL")
+        val query = """
+            update tilsagn set
+                status_besluttet_av = :nav_ident,
+                status_endret_tidspunkt = :tidspunkt,
+                status_aarsaker = :status_aarsaker::tilsagn_status_aarsak[],
+                status_forklaring = :status_forklaring,
+                status = 'RETURNERT'::tilsagn_status
+            where id = :id::uuid
+        """.trimIndent()
+
+        tx.run(
+            queryOf(
+                query,
+                mapOf(
+                    "id" to id,
+                    "nav_ident" to navIdent.value,
+                    "tidspunkt" to tidspunkt,
+                    "status_aarsaker" to aarsaker.map { it.name }.let { db.createTextArray(it) },
+                    "status_forklaring" to forklaring,
+                ),
+            ).asUpdate,
+        )
+    }
+
+    fun tilAnnullering(
+        id: UUID,
+        navIdent: NavIdent,
+        tidspunkt: LocalDateTime,
+        aarsaker: List<TilsagnStatusAarsak>,
+        forklaring: String?,
+    ) = db.transaction { tx ->
+        @Language("PostgreSQL")
+        val query = """
+            update tilsagn set
+                status_endret_av = :nav_ident,
+                status_endret_tidspunkt = :tidspunkt,
+                status_aarsaker = :status_aarsaker::tilsagn_status_aarsak[],
+                status_forklaring = :status_forklaring,
+                status = 'TIL_ANNULLERING'::tilsagn_status
+            where id = :id::uuid
+        """.trimIndent()
+
+        tx.run(
+            queryOf(
+                query,
+                mapOf(
+                    "id" to id,
+                    "nav_ident" to navIdent.value,
+                    "tidspunkt" to tidspunkt,
+                    "status_aarsaker" to aarsaker.map { it.name }.let { db.createTextArray(it) },
+                    "status_forklaring" to forklaring,
+                ),
+            ).asUpdate,
+        )
+    }
+
+    fun besluttAnnullering(
+        id: UUID,
+        navIdent: NavIdent,
+        tidspunkt: LocalDateTime,
+    ) = db.transaction { tx ->
+        @Language("PostgreSQL")
+        val query = """
+            update tilsagn set
+                status_besluttet_av = :nav_ident,
+                status_endret_tidspunkt = :tidspunkt,
+                status = 'ANNULLERT'::tilsagn_status
+            where id = :id::uuid
+        """.trimIndent()
+
+        tx.run(
+            queryOf(
+                query,
+                mapOf(
+                    "id" to id,
+                    "nav_ident" to navIdent.value,
+                    "tidspunkt" to tidspunkt,
+                ),
+            ).asUpdate,
+        )
+    }
+
+    fun avbrytAnnullering(
+        id: UUID,
+        navIdent: NavIdent,
+        tidspunkt: LocalDateTime,
+    ) = db.transaction { tx ->
+        @Language("PostgreSQL")
+        val query = """
+            update tilsagn set
+                status_endret_av = :nav_ident
+                status_endret_tidspunkt = :tidspunkt,
+                status = 'GODKJENT'::tilsagn_status
+            where id = :id::uuid
+        """.trimIndent()
+
+        tx.run(
+            queryOf(
+                query,
+                mapOf(
+                    "id" to id,
+                    "nav_ident" to navIdent.value,
+                    "tidspunkt" to tidspunkt,
                 ),
             ).asUpdate,
         )
@@ -234,20 +307,28 @@ class TilsagnRepository(private val db: Database) {
         "periode_start" to periodeStart,
         "periode_slutt" to periodeSlutt,
         "kostnadssted" to kostnadssted,
-        "opprettet_av" to opprettetAv.value,
         "arrangor_id" to arrangorId,
         "beregning" to Json.encodeToString(beregning),
-        "besluttelse" to null,
-        "besluttet_tidspunkt" to null,
-        "besluttet_av" to null,
+        "status_endret_av" to endretAv.value,
+        "status_endret_tidspunkt" to endretTidspunkt,
     )
 
     private fun Row.toTilsagnDto(): TilsagnDto {
-        val avvisteAarsaker =
-            arrayOrNull<String>("avvist_aarsaker")?.toList()?.map { AvvistTilsagnAarsak.valueOf(it) }
-        val avvistForklaring = stringOrNull("avvist_forklaring")
-        val besluttelse = stringOrNull("besluttelse")
-        val annullertTidspunkt = localDateTimeOrNull("annullert_tidspunkt")
+        val aarsaker = arrayOrNull<String>("status_aarsaker")
+            ?.toList()
+            ?.map { TilsagnStatusAarsak.valueOf(it) } ?: emptyList()
+        val forklaring = stringOrNull("status_forklaring")
+
+        val status = toTilsagnStatus(
+            status = Status.valueOf(string("status")),
+            endretAv = NavIdent(string("status_endret_av")),
+            endretTidspunkt = localDateTime("status_endret_tidspunkt"),
+            besluttetAv = stringOrNull("status_besluttet_av")?.let { NavIdent(it) },
+            aarsaker = aarsaker,
+            forklaring = forklaring,
+            besluttetAvNavn = stringOrNull("beslutter_navn"),
+            endretAvNavn = string("endret_av_navn"),
+        )
 
         return TilsagnDto(
             id = uuid("id"),
@@ -256,18 +337,6 @@ class TilsagnRepository(private val db: Database) {
             ),
             periodeSlutt = localDate("periode_slutt"),
             periodeStart = localDate("periode_start"),
-            opprettetAv = NavIdent(string("opprettet_av")),
-            besluttelse = besluttelse?.let {
-                TilsagnDto.Besluttelse(
-                    navIdent = NavIdent(string("besluttet_av")),
-                    status = TilsagnBesluttelseStatus.valueOf(besluttelse),
-                    aarsaker = avvisteAarsaker,
-                    forklaring = avvistForklaring,
-                    tidspunkt = localDateTime("besluttet_tidspunkt"),
-                    beslutternavn = string("beslutternavn"),
-                )
-            },
-            annullertTidspunkt = annullertTidspunkt,
             lopenummer = int("lopenummer"),
             kostnadssted = NavEnhetDbo(
                 enhetsnummer = string("kostnadssted"),
@@ -283,21 +352,8 @@ class TilsagnRepository(private val db: Database) {
                 slettet = boolean("arrangor_slettet"),
             ),
             beregning = Json.decodeFromString<Prismodell.TilsagnBeregning>(string("beregning")),
-            status = utledStatus(besluttelse, annullertTidspunkt),
+            status = status,
         )
-    }
-
-    private fun utledStatus(besluttelse: String?, annullertTidspunkt: LocalDateTime?): TilsagnDto.TilsagnStatus {
-        if (annullertTidspunkt != null) {
-            return TilsagnDto.TilsagnStatus.ANNULLERT
-        }
-
-        return when (besluttelse) {
-            "GODKJENT" -> TilsagnDto.TilsagnStatus.GODKJENT
-            "AVVIST" -> TilsagnDto.TilsagnStatus.RETURNERT
-            null -> TilsagnDto.TilsagnStatus.TIL_GODKJENNING
-            else -> TilsagnDto.TilsagnStatus.OPPGJORT
-        }
     }
 
     private fun Row.toArrangorflateTilsagn(): ArrangorflateTilsagn {
@@ -317,6 +373,58 @@ class TilsagnRepository(private val db: Database) {
                 navn = string("arrangor_navn"),
             ),
             beregning = Json.decodeFromString<Prismodell.TilsagnBeregning>(string("beregning")),
+        )
+    }
+}
+
+enum class Status {
+    TIL_GODKJENNING,
+    GODKJENT,
+    RETURNERT,
+    TIL_ANNULLERING,
+    ANNULLERT,
+}
+
+fun toTilsagnStatus(
+    status: Status,
+    endretAv: NavIdent,
+    endretAvNavn: String,
+    besluttetAv: NavIdent?,
+    besluttetAvNavn: String?,
+    endretTidspunkt: LocalDateTime,
+    aarsaker: List<TilsagnStatusAarsak>,
+    forklaring: String?,
+): TilsagnDto.TilsagnStatus = when (status) {
+    Status.TIL_GODKJENNING -> TilsagnDto.TilsagnStatus.TilGodkjenning(
+        endretAv = endretAv,
+        endretTidspunkt = endretTidspunkt,
+    )
+    Status.GODKJENT -> TilsagnDto.TilsagnStatus.Godkjent
+    Status.RETURNERT -> {
+        requireNotNull(besluttetAv)
+        requireNotNull(besluttetAvNavn)
+        TilsagnDto.TilsagnStatus.Returnert(
+            endretAv = endretAv,
+            endretTidspunkt = endretTidspunkt,
+            returnertAv = besluttetAv,
+            returnertAvNavn = besluttetAvNavn,
+            aarsaker = aarsaker,
+            forklaring = forklaring,
+        )
+    }
+    Status.TIL_ANNULLERING -> TilsagnDto.TilsagnStatus.TilAnnullering(
+        endretAv = endretAv,
+        endretAvNavn = endretAvNavn,
+        endretTidspunkt = endretTidspunkt,
+        aarsaker = aarsaker,
+        forklaring = forklaring,
+    )
+    Status.ANNULLERT -> {
+        requireNotNull(besluttetAv)
+        TilsagnDto.TilsagnStatus.Annullert(
+            endretAv = endretAv,
+            endretTidspunkt = endretTidspunkt,
+            godkjentAv = besluttetAv,
         )
     }
 }

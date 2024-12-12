@@ -95,7 +95,7 @@ export function Tilsagnstabell({ tilsagn }: Props) {
               <Table.DataCell>{antallPlasser}</Table.DataCell>
               <Table.DataCell>{formaterNOK(beregning.belop)}</Table.DataCell>
               <Table.DataCell>
-                <TilsagnTag tilsagn={tilsagn} />
+                <TilsagnTag status={tilsagn.status} />
               </Table.DataCell>
 
               <Table.DataCell>
