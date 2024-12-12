@@ -261,7 +261,6 @@ private fun services(appConfig: AppConfig) = module {
         PdfGenClient(
             clientEngine = appConfig.engine,
             baseUrl = appConfig.pdfgen.url,
-            tokenProvider = cachedTokenProvider.withScope(appConfig.pdfgen.scope),
         )
     }
     single {
@@ -319,7 +318,7 @@ private fun services(appConfig: AppConfig) = module {
     single {
         Norg2Client(
             clientEngine = appConfig.engine,
-            baseUrl = appConfig.norg2.baseUrl,
+            baseUrl = appConfig.norg2.url,
         )
     }
     single {
@@ -329,7 +328,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { SanityService(get()) }
     single {
-        BrregClient(baseUrl = appConfig.brreg.baseUrl, clientEngine = appConfig.engine)
+        BrregClient(clientEngine = appConfig.engine, baseUrl = appConfig.brreg.url)
     }
     single {
         AmtDeltakerClient(
@@ -345,7 +344,7 @@ private fun services(appConfig: AppConfig) = module {
             tokenProvider = cachedTokenProvider.withScope(appConfig.pamOntologi.scope),
         )
     }
-    single { UtdanningClient(config = appConfig.utdanning) }
+    single { UtdanningClient(baseUrl = appConfig.utdanning.url) }
     single {
         AltinnClient(
             baseUrl = appConfig.altinn.url,

@@ -4,7 +4,6 @@ import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
-import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
@@ -23,7 +22,6 @@ import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.mulighetsrommet.unleash.UnleashService
-import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import java.util.*
 
@@ -38,28 +36,28 @@ data class AppConfig(
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityClient.Config,
-    val veilarboppfolgingConfig: ServiceClientConfig,
-    val veilarbvedtaksstotteConfig: ServiceClientConfig,
-    val veilarbdialogConfig: ServiceClientConfig,
-    val amtDeltakerConfig: ServiceClientConfig,
-    val poaoTilgang: ServiceClientConfig,
-    val arenaAdapter: ServiceClientConfig,
-    val tiltakshistorikk: ServiceClientConfig,
-    val pdfgen: ServiceClientConfig,
-    val msGraphConfig: ServiceClientConfig,
-    val isoppfolgingstilfelleConfig: ServiceClientConfig,
-    val norg2: Norg2Config,
+    val veilarboppfolgingConfig: AuthenticatedHttpClientConfig,
+    val veilarbvedtaksstotteConfig: AuthenticatedHttpClientConfig,
+    val veilarbdialogConfig: AuthenticatedHttpClientConfig,
+    val amtDeltakerConfig: AuthenticatedHttpClientConfig,
+    val poaoTilgang: AuthenticatedHttpClientConfig,
+    val arenaAdapter: AuthenticatedHttpClientConfig,
+    val tiltakshistorikk: AuthenticatedHttpClientConfig,
+    val pdfgen: HttpClientConfig,
+    val msGraphConfig: AuthenticatedHttpClientConfig,
+    val isoppfolgingstilfelleConfig: AuthenticatedHttpClientConfig,
+    val norg2: HttpClientConfig,
     val tasks: TaskConfig,
     val slack: SlackConfig,
-    val brreg: BrregClient.Config,
-    val pamOntologi: ServiceClientConfig,
+    val brreg: HttpClientConfig,
+    val pamOntologi: AuthenticatedHttpClientConfig,
     val unleash: UnleashService.Config,
-    val axsys: ServiceClientConfig,
-    val pdl: ServiceClientConfig,
+    val axsys: AuthenticatedHttpClientConfig,
+    val pdl: AuthenticatedHttpClientConfig,
     val engine: HttpClientEngine = CIO.create(),
-    val utdanning: UtdanningClient.Config,
+    val utdanning: HttpClientConfig,
     val altinn: AltinnClient.Config,
-    val dokark: ServiceClientConfig,
+    val dokark: AuthenticatedHttpClientConfig,
 )
 
 data class AuthConfig(
@@ -107,9 +105,13 @@ data class AuthProvider(
     val tokenEndpointUrl: String,
 )
 
-data class ServiceClientConfig(
+data class AuthenticatedHttpClientConfig(
     val url: String,
     val scope: String,
+)
+
+data class HttpClientConfig(
+    val url: String,
 )
 
 data class TaskConfig(
@@ -122,10 +124,6 @@ data class TaskConfig(
     val generateValidationReport: GenerateValidationReport.Config = GenerateValidationReport.Config(),
     val updateApentForPamelding: UpdateApentForPamelding.Config = UpdateApentForPamelding.Config(),
     val generateRefusjonskrav: GenerateRefusjonskrav.Config,
-)
-
-data class Norg2Config(
-    val baseUrl: String,
 )
 
 data class SlackConfig(

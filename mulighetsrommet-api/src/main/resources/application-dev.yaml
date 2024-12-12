@@ -40,6 +40,28 @@ app:
         id: amt-arrangor-melding
         topic: amt.arrangor-melding-v1
 
+  tasks:
+    synchronizeNorgEnheter:
+      delayOfMinutes: 360 # Hver 6. time
+    synchronizeNavAnsatte:
+      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
+    synchronizeUtdanninger:
+      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
+    notifySluttdatoForGjennomforingerNarmerSeg:
+      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
+    notifySluttdatoForAvtalerNarmerSeg:
+      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
+    notifyFailedKafkaEvents:
+      maxRetries: 5
+      cronPattern: "0 */15 * ? * MON-FRI"
+    generateValidationReport:
+      bucketName: mulighetsrommet-api-uploads-dev
+    updateApentForPamelding:
+      disabled: false
+      cronPattern: "0 55 23 * * *" # 23.55 hver kveld
+    generateRefusjonskrav:
+      cronPattern: "0 0 5 7 * *"
+
   auth:
     azure:
       issuer: ${AZURE_OPENID_CONFIG_ISSUER}
@@ -87,6 +109,18 @@ app:
     projectId: ${SANITY_PROJECT_ID}
     token: ${SANITY_AUTH_TOKEN}
 
+  slack:
+    token: ${SLACK_TOKEN}
+    channel: "#team-valp-monitorering-dev"
+    enable: true
+
+  unleash:
+    appName: ${NAIS_APP_NAME}
+    url: ${UNLEASH_SERVER_API_URL}
+    token: ${UNLEASH_SERVER_API_TOKEN}
+    instanceId: ${NAIS_CLIENT_ID}
+    environment: development
+
   veilarbvedtaksstotteConfig:
     url: http://veilarbvedtaksstotte.obo/veilarbvedtaksstotte/api
     scope: api://dev-gcp.obo.veilarbvedtaksstotte/.default
@@ -121,7 +155,6 @@ app:
 
   pdfgen:
     url: http://pdfgen
-    scope: api://dev-gcp.team-mulighetsrommet.pdfgen/.default
 
   axsys:
     url: https://axsys.dev-fss-pub.nais.io
@@ -140,10 +173,10 @@ app:
     scope: api://dev-gcp.teamsykefravr.isoppfolgingstilfelle/.default
 
   norg2:
-    baseUrl: http://norg2.org
+    url: http://norg2.org
 
   brreg:
-    baseUrl: https://data.brreg.no/enhetsregisteret/api
+    url: https://data.brreg.no/enhetsregisteret/api
 
   altinn:
     url: https://platform.tt02.altinn.no
@@ -151,42 +184,8 @@ app:
     scope: ${MASKINPORTEN_SCOPES}
 
   utdanning:
-    baseurl: https://api.utdanning.no
+    url: https://api.utdanning.no
 
   dokark:
     url: https://dokarkiv-q2.dev-fss-pub.nais.io
     scope: api://dev-fss.teamdokumenthandtering.dokarkiv/.default
-
-  tasks:
-    synchronizeNorgEnheter:
-      delayOfMinutes: 360 # Hver 6. time
-    synchronizeNavAnsatte:
-      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
-    synchronizeUtdanninger:
-      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
-    notifySluttdatoForGjennomforingerNarmerSeg:
-      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
-    notifySluttdatoForAvtalerNarmerSeg:
-      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
-    notifyFailedKafkaEvents:
-      maxRetries: 5
-      cronPattern: "0 */15 * ? * MON-FRI"
-    generateValidationReport:
-      bucketName: mulighetsrommet-api-uploads-dev
-    updateApentForPamelding:
-      disabled: false
-      cronPattern: "0 55 23 * * *" # 23.55 hver kveld
-    generateRefusjonskrav:
-      cronPattern: "0 0 5 7 * *"
-
-  slack:
-    token: ${SLACK_TOKEN}
-    channel: "#team-valp-monitorering-dev"
-    enable: true
-
-  unleash:
-    appName: ${NAIS_APP_NAME}
-    url: ${UNLEASH_SERVER_API_URL}
-    token: ${UNLEASH_SERVER_API_TOKEN}
-    instanceId: ${NAIS_CLIENT_ID}
-    environment: development
