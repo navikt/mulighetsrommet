@@ -58,6 +58,7 @@ import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.NavEnheterSyncService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetRepository
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
+import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.refusjon.RefusjonService
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagRepository
@@ -257,6 +258,13 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single {
+        PdfGenClient(
+            clientEngine = appConfig.engine,
+            baseUrl = appConfig.pdfgen.url,
+            tokenProvider = cachedTokenProvider.withScope(appConfig.pdfgen.scope),
+        )
+    }
+    single {
         VeilarbvedtaksstotteClient(
             baseUrl = appConfig.veilarbvedtaksstotteConfig.url,
             tokenProvider = cachedTokenProvider.withScope(appConfig.veilarbvedtaksstotteConfig.scope),
@@ -435,7 +443,7 @@ private fun tasks(config: TaskConfig) = module {
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get()) }
     single { SynchronizeUtdanninger(config.synchronizeUtdanninger, get(), get()) }
     single { GenerateRefusjonskrav(config.generateRefusjonskrav, get()) }
-    single { JournalforRefusjonskrav(get(), get(), get(), get(), get()) }
+    single { JournalforRefusjonskrav(get(), get(), get(), get(), get(), get()) }
     single {
         val updateTiltaksgjennomforingStatus = UpdateTiltaksgjennomforingStatus(
             get(),

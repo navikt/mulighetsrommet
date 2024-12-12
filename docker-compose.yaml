@@ -76,6 +76,22 @@ services:
       POSTGRES_USER: "valp"
       POSTGRES_PASSWORD: "valp"
 
+  pdfgen:
+    image: "ghcr.io/navikt/pdfgen:2.0.61"
+    restart: "always"
+    ports:
+      - "8888:8080"
+    profiles:
+      - dev
+    environment:
+      # Gjør det mulig å benytte mockdata under lokal utvikling
+      DISABLE_PDF_GET: false
+    volumes:
+      - ./mulighetsrommet-pdfgen/templates:/app/templates
+      - ./mulighetsrommet-pdfgen/fonts:/app/fonts
+      - ./mulighetsrommet-pdfgen/data:/app/data
+      - ./mulighetsrommet-pdfgen/resources:/app/resources
+
   # ZooKeeper is used to track the status of nodes in the Kafka cluster and maintain a list of Kafka topics and messages.
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.3

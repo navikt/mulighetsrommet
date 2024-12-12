@@ -111,6 +111,7 @@ spec:
               - tiltaksgjennomforing-read
     outbound:
       rules:
+        - application: pdfgen
         - application: mulighetsrommet-arena-adapter
         - application: tiltakshistorikk
         - application: poao-tilgang

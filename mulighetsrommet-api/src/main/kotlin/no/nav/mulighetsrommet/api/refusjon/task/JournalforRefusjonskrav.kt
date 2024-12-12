@@ -5,21 +5,22 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
-import no.nav.mulighetsrommet.api.pdfgen.Pdfgen
+import no.nav.mulighetsrommet.api.clients.dokark.Journalpost
+import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravAft
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravStatus
-import no.nav.mulighetsrommet.api.refusjon.refusjonskravJournalpost
 import no.nav.mulighetsrommet.api.refusjon.toRefusjonskrav
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.tasks.transactionalSchedulerClient
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
 import java.time.Instant
+import java.time.LocalDateTime
 import java.util.*
 
 class JournalforRefusjonskrav(
@@ -28,6 +29,7 @@ class JournalforRefusjonskrav(
     private val dokarkClient: DokarkClient,
     private val deltakerRepository: DeltakerRepository,
     private val pdl: HentAdressebeskyttetPersonBolkPdlQuery,
+    private val pdf: PdfGenClient,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -55,23 +57,22 @@ class JournalforRefusjonskrav(
 
     suspend fun journalforRefusjonskrav(id: UUID) {
         logger.info("Journalfører refusjonskrav med id: $id")
-        val krav = refusjonskravRepository.get(id)
-        requireNotNull(krav) { "Fant ikke refusjonskrav med id=$id" }
-        require(krav.status == RefusjonskravStatus.GODKJENT_AV_ARRANGOR) { "Krav må være godkjent" }
+
+        val krav = requireNotNull(refusjonskravRepository.get(id)) { "Fant ikke refusjonskrav med id=$id" }
+            .also { require(it.status == RefusjonskravStatus.GODKJENT_AV_ARRANGOR) { "Krav må være godkjent" } }
 
         val pdf = run {
             val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
                 gjennomforingId = krav.gjennomforing.id,
                 periode = krav.beregning.input.periode,
             )
-            val refusjonsKravAft: RefusjonKravAft = toRefusjonskrav(pdl, deltakerRepository, krav)
-            Pdfgen.refusjonJournalpost(refusjonsKravAft, tilsagn)
+            val refusjonsKravAft = toRefusjonskrav(pdl, deltakerRepository, krav)
+            pdf.refusjonJournalpost(refusjonsKravAft, tilsagn)
         }
 
-        dokarkClient.opprettJournalpost(
-            refusjonskravJournalpost(pdf, krav.id, krav.arrangor.organisasjonsnummer),
-            AccessType.M2M,
-        )
+        val journalpost = refusjonskravJournalpost(pdf, krav.id, krav.arrangor.organisasjonsnummer)
+
+        dokarkClient.opprettJournalpost(journalpost, AccessType.M2M)
             .onRight {
                 refusjonskravRepository.setJournalpostId(id, it.journalpostId)
             }
@@ -80,3 +81,40 @@ class JournalforRefusjonskrav(
             }
     }
 }
+
+fun refusjonskravJournalpost(
+    pdf: ByteArray,
+    refusjonskravId: UUID,
+    organisasjonsnummer: Organisasjonsnummer,
+): Journalpost = Journalpost(
+    tittel = "Refusjonskrav",
+    journalposttype = "INNGAAENDE",
+    avsenderMottaker = Journalpost.AvsenderMottaker(
+        id = organisasjonsnummer.value,
+        idType = "ORGNR",
+        navn = null,
+    ),
+    bruker = Journalpost.Bruker(
+        id = organisasjonsnummer.value,
+        idType = "ORGNR",
+    ),
+    tema = "TIL",
+    datoMottatt = LocalDateTime.now().toString(),
+    dokumenter = listOf(
+        Journalpost.Dokument(
+            tittel = "Refusjonskrav",
+            dokumentvarianter = listOf(
+                Journalpost.Dokument.Dokumentvariant(
+                    "PDFA",
+                    pdf,
+                    "ARKIV",
+                ),
+            ),
+        ),
+    ),
+    eksternReferanseId = refusjonskravId.toString(),
+    journalfoerendeEnhet = "9999", // Automatisk journalføring
+    kanal = "NAV_NO", // Påkrevd for INNGAENDE. Se https://confluence.adeo.no/display/BOA/Mottakskanal
+    sak = null,
+    behandlingstema = null,
+)

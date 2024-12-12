@@ -4,6 +4,8 @@ import arrow.core.right
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.ktor.client.engine.mock.*
+import io.ktor.http.*
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -13,6 +15,7 @@ import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
@@ -24,13 +27,13 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.ktor.createMockEngine
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
 class JournalforRefusjonskravTest : FunSpec({
-    val databaseConfig = databaseConfig
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val hovedenhet = ArrangorDto(
@@ -89,18 +92,29 @@ class JournalforRefusjonskravTest : FunSpec({
     }
 
     val pdl: PdlClient = mockk(relaxed = true)
+    val pdf = PdfGenClient(
+        clientEngine = createMockEngine(
+            "http://pdfgen/api/v1/genpdf/refusjon/journalpost" to {
+                respond(":)".toByteArray(), HttpStatusCode.OK)
+            },
+        ),
+        baseUrl = "http://pdfgen",
+        tokenProvider = { "token" },
+    )
     val tilsagnService: TilsagnService = mockk()
     val dokarkClient: DokarkClient = mockk()
-    val hentAdressebeskyttetPersonBolkPdlQuery = HentAdressebeskyttetPersonBolkPdlQuery(pdl)
+
+    fun createTask() = JournalforRefusjonskrav(
+        refusjonskravRepository = RefusjonskravRepository(database.db),
+        tilsagnService = tilsagnService,
+        dokarkClient = dokarkClient,
+        deltakerRepository = DeltakerRepository(database.db),
+        pdl = HentAdressebeskyttetPersonBolkPdlQuery(pdl),
+        pdf = pdf,
+    )
 
     test("krav må være godkjent") {
-        val task = JournalforRefusjonskrav(
-            refusjonskravRepository = RefusjonskravRepository(database.db),
-            tilsagnService,
-            dokarkClient,
-            deltakerRepository = DeltakerRepository(database.db),
-            hentAdressebeskyttetPersonBolkPdlQuery,
-        )
+        val task = createTask()
 
         shouldThrow<Throwable> {
             task.journalforRefusjonskrav(krav.id)
@@ -109,13 +123,8 @@ class JournalforRefusjonskravTest : FunSpec({
 
     test("vellykket journalføring setter journalpost_id") {
         val refusjonskravRepository = RefusjonskravRepository(database.db)
-        val task = JournalforRefusjonskrav(
-            refusjonskravRepository,
-            tilsagnService,
-            dokarkClient,
-            deltakerRepository = DeltakerRepository(database.db),
-            hentAdressebeskyttetPersonBolkPdlQuery,
-        )
+        val task = createTask()
+
         refusjonskravRepository.setGodkjentAvArrangor(krav.id, LocalDateTime.now())
 
         every { tilsagnService.getArrangorflateTilsagnTilRefusjon(any(), any()) } returns emptyList()
@@ -132,35 +141,21 @@ class JournalforRefusjonskravTest : FunSpec({
     }
 
     test("task scheduleres ikke hvis transaction rulles tilbake") {
-        val refusjonskravRepository = RefusjonskravRepository(database.db)
-        val task = JournalforRefusjonskrav(
-            refusjonskravRepository,
-            tilsagnService,
-            dokarkClient,
-            deltakerRepository = DeltakerRepository(database.db),
-            hentAdressebeskyttetPersonBolkPdlQuery,
-        )
+        val task = createTask()
 
-        try {
+        runCatching {
             database.db.transaction { tx ->
                 task.schedule(krav.id, Instant.now(), tx)
                 throw Exception("Test")
             }
-        } catch (_: Throwable) {}
+        }
 
         database.assertThat("scheduled_tasks")
             .hasNumberOfRows(0)
     }
 
     test("task scheduleres hvis transaction går bra") {
-        val refusjonskravRepository = RefusjonskravRepository(database.db)
-        val task = JournalforRefusjonskrav(
-            refusjonskravRepository,
-            tilsagnService,
-            dokarkClient,
-            deltakerRepository = DeltakerRepository(database.db),
-            hentAdressebeskyttetPersonBolkPdlQuery,
-        )
+        val task = createTask()
 
         database.db.transaction { tx ->
             task.schedule(krav.id, Instant.now(), tx)
