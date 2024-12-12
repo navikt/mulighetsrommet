@@ -61,15 +61,15 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             it.gjennomforing.oppdatertTidspunkt.shouldNotBeNull()
             it.gjennomforing.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
             it.gjennomforing.arena.shouldBeNull()
+            it.gjennomforing.arrangor shouldBe DatavarehusTiltak.Arrangor(
+                organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+            )
             it.avtale.shouldNotBeNull().should { avtale ->
                 avtale.id shouldBe AvtaleFixtures.AFT.id
                 avtale.navn shouldBe AvtaleFixtures.AFT.navn
                 avtale.opprettetTidspunkt.shouldNotBeNull()
                 avtale.oppdatertTidspunkt.shouldNotBeNull()
             }
-            it.arrangor shouldBe DatavarehusTiltak.Arrangor(
-                organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
-            )
         }
     }
 

@@ -18,7 +18,6 @@ sealed class DatavarehusTiltak {
     abstract val tiltakskode: Tiltakskode
     abstract val avtale: Avtale?
     abstract val gjennomforing: Gjennomforing
-    abstract val arrangor: Arrangor
 
     @Serializable
     data class Avtale(
@@ -36,6 +35,7 @@ sealed class DatavarehusTiltak {
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val navn: String,
+        val arrangor: Arrangor,
         @Serializable(with = LocalDateSerializer::class)
         val startDato: LocalDate,
         @Serializable(with = LocalDateSerializer::class)
@@ -65,7 +65,6 @@ data class DatavarehusTiltakDto(
     override val tiltakskode: Tiltakskode,
     override val avtale: Avtale?,
     override val gjennomforing: Gjennomforing,
-    override val arrangor: Arrangor,
 ) : DatavarehusTiltak()
 
 @Serializable
@@ -73,7 +72,6 @@ data class DatavarehusTiltakAmoDto(
     override val tiltakskode: Tiltakskode,
     override val avtale: Avtale?,
     override val gjennomforing: Gjennomforing,
-    override val arrangor: Arrangor,
     val amoKategorisering: AmoKategorisering?,
 ) : DatavarehusTiltak()
 
@@ -82,7 +80,6 @@ data class DatavarehusTiltakYrkesfagDto(
     override val tiltakskode: Tiltakskode,
     override val avtale: Avtale?,
     override val gjennomforing: Gjennomforing,
-    override val arrangor: Arrangor,
     val utdanningslop: Utdanningslop?,
 ) : DatavarehusTiltak() {
     @Serializable

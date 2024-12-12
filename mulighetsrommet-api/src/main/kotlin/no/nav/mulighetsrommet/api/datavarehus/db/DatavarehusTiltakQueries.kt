@@ -56,7 +56,6 @@ object DatavarehusTiltakQueries {
                     dto.tiltakskode,
                     dto.avtale,
                     dto.gjennomforing,
-                    dto.arrangor,
                     utdanningslop,
                 )
             }
@@ -67,7 +66,6 @@ object DatavarehusTiltakQueries {
                     dto.tiltakskode,
                     dto.avtale,
                     dto.gjennomforing,
-                    dto.arrangor,
                     amoKategorisering,
                 )
             }
@@ -230,6 +228,9 @@ object DatavarehusTiltakQueries {
             opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
             oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
             status = TiltaksgjennomforingStatus.valueOf(string("status")),
+            arrangor = DatavarehusTiltak.Arrangor(
+                organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+            ),
             arena = stringOrNull("tiltaksnummer")?.let {
                 val tiltaksnummmer = Tiltaksnummer(it)
                 DatavarehusTiltak.ArenaData(
@@ -237,9 +238,6 @@ object DatavarehusTiltakQueries {
                     lopenummer = tiltaksnummmer.lopenummer,
                 )
             },
-        ),
-        arrangor = DatavarehusTiltak.Arrangor(
-            organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
         ),
     )
 }
