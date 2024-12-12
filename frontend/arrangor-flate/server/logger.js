@@ -20,10 +20,6 @@ const transports = [new winston.transports.Console()];
 const logger = winston.createLogger({
   levels,
   format,
-  defaultMeta: {
-    service: "arrangor-flate",
-    env: process.env.NODE_ENV || "development",
-  },
   transports,
   // Enable exception handling
   handleExceptions: true,
