@@ -99,7 +99,6 @@ class JournalforRefusjonskravTest : FunSpec({
             },
         ),
         baseUrl = "http://pdfgen",
-        tokenProvider = { "token" },
     )
     val tilsagnService: TilsagnService = mockk()
     val dokarkClient: DokarkClient = mockk()

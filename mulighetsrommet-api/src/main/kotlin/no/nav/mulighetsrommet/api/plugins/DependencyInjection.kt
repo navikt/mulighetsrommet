@@ -261,7 +261,6 @@ private fun services(appConfig: AppConfig) = module {
         PdfGenClient(
             clientEngine = appConfig.engine,
             baseUrl = appConfig.pdfgen.url,
-            tokenProvider = cachedTokenProvider.withScope(appConfig.pdfgen.scope),
         )
     }
     single {
