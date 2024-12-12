@@ -42,17 +42,11 @@ WHERE tiltakskode IS NOT NULL
 EOF
 }
 
-data "google_bigquery_tables" "tables" {
-  dataset_id = module.mr_api_datastream.dataset_id
-  project    = var.gcp_project["project"]
-}
-
 module "mr_api_tiltaksgjennomforing_view" {
   source              = "../modules/google-bigquery-view"
   deletion_protection = false
   dataset_id          = module.mr_api_datastream.dataset_id
   view_id             = "tiltaksgjennomforing_view"
-  depends_on          = [data.google_bigquery_tables.tables]
   view_schema = jsonencode(
     [
       {
@@ -103,5 +97,44 @@ SELECT
   slutt_dato
 FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tiltaksgjennomforing`
 WHERE slutt_dato is null or slutt_dato >= DATE '2018-01-01'
+EOF
+}
+
+module "mr_api_tiltaksgjennomforing_opphav_antall_opprettet_view" {
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = module.mr_api_datastream.dataset_id
+  view_id             = "tiltaksgjennomforing_opphav_antall_opprettet_view"
+  view_schema = jsonencode(
+    [
+      {
+        mode        = "NULLABLE"
+        name        = "navn"
+        type        = "STRING"
+        description = "Navn på tiltakstype."
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "opphav"
+        type        = "STRING"
+        description = "Hvilket system som gjennomføringen ble opprettet i."
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "antall_opprettet"
+        type        = "INTEGER"
+        description = "Antall gjennomføringer per opphav."
+      },
+    ]
+  )
+  view_query = <<EOF
+select
+    tiltakstype.navn,
+    gjennomforing.opphav,
+    count(*) as antall_opprettet
+from `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tiltaksgjennomforing` gjennomforing
+         join `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tiltakstype` tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
+group by tiltakstype.navn, gjennomforing.opphav
+order by tiltakstype.navn
 EOF
 }
