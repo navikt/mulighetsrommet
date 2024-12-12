@@ -3,7 +3,7 @@ import compression from "compression";
 import express from "express";
 import expressPromBundle from "express-prom-bundle";
 import morgan from "morgan";
-import logger from "./logger/logger";
+import logger from "./logger/logger.js";
 
 const metricsMiddleware = expressPromBundle({ includeMethod: true, includePath: true });
 

@@ -17,7 +17,7 @@ import { renderToPipeableStream } from "react-dom/server";
 import { initializeMockServer } from "./mocks/node";
 import { OpenAPI } from "@mr/api-client";
 import { v4 as uuidv4 } from "uuid";
-import logger from "../logger/logger";
+import logger from "../logger/logger.js";
 
 export const streamTimeout = 5000;
 
