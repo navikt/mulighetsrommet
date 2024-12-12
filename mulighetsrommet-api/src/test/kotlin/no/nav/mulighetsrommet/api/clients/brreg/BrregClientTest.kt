@@ -26,8 +26,8 @@ class BrregClientTest : FunSpec({
     context("sokOverordnetEnhet") {
         test("Søk etter hovedenhet skal returnere en liste med treff") {
             val brregClient = BrregClient(
-                "https://brreg.no",
-                createMockEngine(
+                baseUrl = "https://brreg.no",
+                clientEngine = createMockEngine(
                     "/enheter?navn=Nav" to {
                         respondJson(BrregEmbeddedHovedenheter(BrregHovedenheter(listOf(hovedenhet))))
                     },
@@ -46,8 +46,8 @@ class BrregClientTest : FunSpec({
 
         test("Søk etter hovedenhet skal returnere en tom liste hvis ingen treff") {
             val brregClient = BrregClient(
-                "https://brreg.no",
-                createMockEngine(
+                baseUrl = "https://brreg.no",
+                clientEngine = createMockEngine(
                     "/enheter?navn=Nav" to {
                         respondJson(BrregEmbeddedHovedenheter())
                     },
@@ -61,8 +61,8 @@ class BrregClientTest : FunSpec({
     context("hentUnderenheterForOverordnetEnhet") {
         test("Søk etter underenheter skal returnere en liste med treff") {
             val brregClient = BrregClient(
-                "https://brreg.no",
-                createMockEngine(
+                baseUrl = "https://brreg.no",
+                clientEngine = createMockEngine(
                     "/underenheter?overordnetEnhet=123456789" to {
                         respondJson(BrregEmbeddedUnderenheter(BrregUnderenheter(listOf(underenhet))))
                     },
@@ -82,8 +82,8 @@ class BrregClientTest : FunSpec({
 
         test("Søk etter underenhet skal returnere en tom liste hvis ingen treff") {
             val brregClient = BrregClient(
-                "https://brreg.no",
-                createMockEngine(
+                baseUrl = "https://brreg.no",
+                clientEngine = createMockEngine(
                     "/underenheter?overordnetEnhet=123456789" to {
                         respondJson(BrregEmbeddedHovedenheter())
                     },
@@ -97,8 +97,8 @@ class BrregClientTest : FunSpec({
     context("getHovedenhet") {
         test("hent hovedenhet gitt orgnr") {
             val brregClient = BrregClient(
-                "https://brreg.no",
-                createMockEngine(
+                baseUrl = "https://brreg.no",
+                clientEngine = createMockEngine(
                     "/enheter/123456789" to {
                         respondJson(hovedenhet)
                     },
@@ -119,8 +119,8 @@ class BrregClientTest : FunSpec({
 
         test("hent hovedenhet med underenheter gitt orgnr") {
             val brregClient = BrregClient(
-                "https://brreg.no",
-                createMockEngine(
+                baseUrl = "https://brreg.no",
+                clientEngine = createMockEngine(
                     "/enheter/123456789" to {
                         respondJson(hovedenhet)
                     },
@@ -151,8 +151,8 @@ class BrregClientTest : FunSpec({
     context("getUnderenhet") {
         test("hent underenhet gitt orgnr") {
             val brregClient = BrregClient(
-                "https://brreg.no",
-                createMockEngine(
+                baseUrl = "https://brreg.no",
+                clientEngine = createMockEngine(
                     "/underenheter/123456780" to { respondJson(underenhet) },
                 ),
             )
@@ -170,8 +170,8 @@ class BrregClientTest : FunSpec({
     context("getBrregVirksomhet") {
         test("skal hente hovedenhet med underenheter fra brreg gitt orgnr til hovedenhet") {
             val brregClient = BrregClient(
-                "https://brreg.no",
-                createMockEngine(
+                baseUrl = "https://brreg.no",
+                clientEngine = createMockEngine(
                     "/enheter/123456789" to {
                         respondJson(hovedenhet)
                     },
@@ -200,8 +200,8 @@ class BrregClientTest : FunSpec({
 
         test("skal hente underenhet fra brreg gitt orgnr til underenhet") {
             val brregClient = BrregClient(
-                "https://brreg.no",
-                createMockEngine(
+                baseUrl = "https://brreg.no",
+                clientEngine = createMockEngine(
                     "/enheter/123456780" to {
                         respondError(HttpStatusCode.NotFound)
                     },

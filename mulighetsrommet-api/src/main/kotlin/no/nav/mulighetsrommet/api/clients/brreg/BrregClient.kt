@@ -6,7 +6,6 @@ import arrow.core.left
 import arrow.core.right
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -26,19 +25,12 @@ object OrgnummerUtil {
     }
 }
 
-class BrregClient(
-    private val baseUrl: String,
-    clientEngine: HttpClientEngine,
-) {
+class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
     private val log = LoggerFactory.getLogger(javaClass)
 
     private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
     }
-
-    data class Config(
-        val baseUrl: String,
-    )
 
     suspend fun getBrregVirksomhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregVirksomhetDto> {
         // Sjekker først hovedenhet

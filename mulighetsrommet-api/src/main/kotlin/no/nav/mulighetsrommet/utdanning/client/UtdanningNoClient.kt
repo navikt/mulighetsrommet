@@ -9,15 +9,11 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 
-class UtdanningClient(engine: HttpClientEngine = CIO.create(), val config: Config) {
-    data class Config(
-        val baseUrl: String,
-    )
-
+class UtdanningClient(engine: HttpClientEngine = CIO.create(), val baseUrl: String) {
     private val client: HttpClient = httpJsonClient(engine)
 
     suspend fun getUtdanninger(): List<UtdanningNoProgramomraade> {
-        val response = client.get("${config.baseUrl}/nav_export/programomraader")
+        val response = client.get("$baseUrl/nav_export/programomraader")
         return response.body()
     }
 }
