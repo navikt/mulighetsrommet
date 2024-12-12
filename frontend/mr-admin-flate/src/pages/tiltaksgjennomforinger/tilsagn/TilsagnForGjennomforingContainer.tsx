@@ -1,16 +1,16 @@
 import { Alert, Button, Dropdown } from "@navikt/ds-react";
-import { Link, useNavigate } from "react-router-dom";
-import { useHentTilsagnForTiltaksgjennomforing } from "../../../api/tilsagn/useHentTilsagnForTiltaksgjennomforing";
-import { Laster } from "../../../components/laster/Laster";
-import { InfoContainer } from "../../../components/skjema/InfoContainer";
-import { useGetTiltaksgjennomforingIdFromUrl } from "../../../hooks/useGetTiltaksgjennomforingIdFromUrl";
+import { useNavigate } from "react-router-dom";
+import { useHentTilsagnForTiltaksgjennomforing } from "@/api/tilsagn/useHentTilsagnForTiltaksgjennomforing";
+import { Laster } from "@/components/laster/Laster";
+import { InfoContainer } from "@/components/skjema/InfoContainer";
+import { useGetTiltaksgjennomforingIdFromUrl } from "@/hooks/useGetTiltaksgjennomforingIdFromUrl";
 import { Tilsagnstabell } from "./Tilsagnstabell";
-import { KnapperadContainer } from "../../KnapperadContainer";
+import { KnapperadContainer } from "@/pages/KnapperadContainer";
 import { Toggles } from "@mr/api-client";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
-import { useFeatureToggle } from "../../../api/features/useFeatureToggle";
-import { HarSkrivetilgang } from "../../../components/authActions/HarSkrivetilgang";
-import { useTiltaksgjennomforingById } from "../../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 
 export function TilsagnForGjennomforingContainer() {
   const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFromUrl();
@@ -28,17 +28,6 @@ export function TilsagnForGjennomforingContainer() {
 
   if (!tiltaksgjennomforing || !tilsagn || isLoading) {
     return <Laster tekst="Laster tilsagn" />;
-  }
-
-  if (!tilsagn) {
-    return (
-      <Alert variant="warning">
-        Klarte ikke finne tiltaksgjennomføring
-        <div>
-          <Link to="/">Til forside</Link>
-        </div>
-      </Alert>
-    );
   }
 
   return (
