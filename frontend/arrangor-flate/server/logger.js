@@ -22,7 +22,6 @@ const logger = winston.createLogger({
   format,
   defaultMeta: {
     service: "arrangor-flate",
-    // eslint-disable-next-line no-undef
     env: process.env.NODE_ENV || "development",
   },
   transports,
