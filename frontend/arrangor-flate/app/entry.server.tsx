@@ -10,14 +10,14 @@ import type {
   EntryContext,
   LoaderFunctionArgs,
 } from "react-router";
-import { createReadableStreamFromReadable } from "@react-router/node";
 import { ServerRouter } from "react-router";
+import { createReadableStreamFromReadable } from "@react-router/node";
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import { initializeMockServer } from "./mocks/node";
 import { OpenAPI } from "@mr/api-client";
 import { v4 as uuidv4 } from "uuid";
-import logger from "../logger/logger.js";
+import logger from "../server/logger.js";
 
 export const streamTimeout = 5000;
 
