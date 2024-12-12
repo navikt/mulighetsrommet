@@ -4,7 +4,12 @@
  * For more information, see https://remix.run/file-conventions/entry.server
  */
 import { PassThrough } from "node:stream";
-import type { AppLoadContext, EntryContext } from "react-router";
+import type {
+  ActionFunctionArgs,
+  AppLoadContext,
+  EntryContext,
+  LoaderFunctionArgs,
+} from "react-router";
 import { createReadableStreamFromReadable } from "@react-router/node";
 import { ServerRouter } from "react-router";
 import { isbot } from "isbot";
@@ -12,6 +17,7 @@ import { renderToPipeableStream } from "react-dom/server";
 import { initializeMockServer } from "./mocks/node";
 import { OpenAPI } from "@mr/api-client";
 import { v4 as uuidv4 } from "uuid";
+import logger from "../logger/logger.js";
 
 export const streamTimeout = 5000;
 
@@ -92,8 +98,7 @@ function handleBotRequest(
           // errors encountered during initial shell rendering since they'll
           // reject and get logged in handleDocumentRequest.
           if (shellRendered) {
-            // eslint-disable-next-line no-console
-            console.error(error);
+            logger.error(error);
           }
         },
       },
@@ -139,8 +144,7 @@ function handleBrowserRequest(
           // errors encountered during initial shell rendering since they'll
           // reject and get logged in handleDocumentRequest.
           if (shellRendered) {
-            // eslint-disable-next-line no-console
-            console.error(error);
+            logger.error(error);
           }
         },
       },
@@ -148,4 +152,10 @@ function handleBrowserRequest(
 
     setTimeout(abort, streamTimeout + 1000);
   });
+}
+
+export function handleError(error: unknown, { request }: LoaderFunctionArgs | ActionFunctionArgs) {
+  if (!request.signal.aborted) {
+    logger.error(error);
+  }
 }

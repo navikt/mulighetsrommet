@@ -3,6 +3,8 @@ import compression from "compression";
 import express from "express";
 import expressPromBundle from "express-prom-bundle";
 import morgan from "morgan";
+import logger from "./logger/logger.js";
+
 const metricsMiddleware = expressPromBundle({ includeMethod: true, includePath: true });
 
 const port = process.env.PORT || 3000;
@@ -50,15 +52,19 @@ app.get([`${basePath}/internal/isAlive`, `${basePath}/internal/isReady`], (_, re
 );
 
 app.use(metricsMiddleware);
-app.use(morgan("tiny"));
+
+// Create custom morgan stream that writes to Winston
+const morganStream = {
+  write: (message) => logger.http(message.trim()),
+};
+app.use(morgan("tiny", { stream: morganStream }));
 
 // handle SSR requests
 app.all("*", remixHandler);
 
 app.listen(port, () => {
   const env = process.env.NODE_ENV || "development";
-  // eslint-disable-next-line no-console
-  console.log(
+  logger.info(
     env === "development"
       ? `Server kjører på http://localhost:${port}`
       : `Serveren kjører på port ${port}`,
