@@ -26,7 +26,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
-import no.nav.mulighetsrommet.utdanning.db.UtdanningRepository
+import no.nav.mulighetsrommet.utdanning.db.UtdanningQueries
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import no.nav.mulighetsrommet.utdanning.model.NusKodeverk
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
@@ -152,8 +152,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
     test("henter Gruppe Fag/Yrke med informasjon om utdanningsprogram") {
         val utdanningslop = database.db.transaction { tx ->
-            val repository = UtdanningRepository(database.db)
-            repository.upsertUtdanningsprogram(
+            UtdanningQueries.upsertUtdanningsprogram(
                 tx,
                 Utdanningsprogram(
                     navn = "Sveiseprogram",
@@ -163,7 +162,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 ),
             )
 
-            repository.upsertUtdanning(
+            UtdanningQueries.upsertUtdanning(
                 tx,
                 Utdanning(
                     programomradekode = "BABAN3----",
@@ -173,11 +172,11 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     aktiv = true,
                     utdanningstatus = Utdanning.Status.GYLDIG,
                     utdanningslop = listOf("BABAN3----"),
-                    nusKodeverk = listOf(NusKodeverk("Sveisefag", "12345")),
+                    nusKoder = listOf(NusKodeverk("Sveisefag", "12345")),
                 ),
             )
 
-            repository.upsertUtdanning(
+            UtdanningQueries.upsertUtdanning(
                 tx,
                 Utdanning(
                     programomradekode = "BABAN3----",
@@ -187,15 +186,15 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     aktiv = true,
                     utdanningstatus = Utdanning.Status.GYLDIG,
                     utdanningslop = listOf("BABAN3----"),
-                    nusKodeverk = listOf(NusKodeverk("Sveisefag under vann", "23456")),
+                    nusKoder = listOf(NusKodeverk("Sveisefag under vann", "23456")),
                 ),
             )
 
             UtdanningslopDbo(
-                repository.getIdForUtdanningsprogram(tx, "BABAN3----"),
+                UtdanningQueries.getIdForUtdanningsprogram(tx, "BABAN3----"),
                 listOf(
-                    repository.getIdForUtdanning(tx, "u_sveisefag"),
-                    repository.getIdForUtdanning(tx, "u_sveisefag_under_vann"),
+                    UtdanningQueries.getIdForUtdanning(tx, "u_sveisefag"),
+                    UtdanningQueries.getIdForUtdanning(tx, "u_sveisefag_under_vann"),
                 ),
             )
         }

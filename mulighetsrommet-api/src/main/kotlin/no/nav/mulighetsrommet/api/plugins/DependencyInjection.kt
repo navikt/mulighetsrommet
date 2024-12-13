@@ -106,7 +106,6 @@ import no.nav.mulighetsrommet.tokenprovider.M2MTokenProvider
 import no.nav.mulighetsrommet.tokenprovider.createMaskinportenM2mTokenClient
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
-import no.nav.mulighetsrommet.utdanning.db.UtdanningRepository
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
@@ -235,7 +234,6 @@ private fun repositories() = module {
     single { OpsjonLoggRepository(get()) }
     single { TilsagnRepository(get()) }
     single { RefusjonskravRepository(get()) }
-    single { UtdanningRepository(get()) }
     single { AltinnRettigheterRepository(get()) }
     single { VeilederflateTiltakRepository(get()) }
     single { DeltakerForslagRepository(get()) }

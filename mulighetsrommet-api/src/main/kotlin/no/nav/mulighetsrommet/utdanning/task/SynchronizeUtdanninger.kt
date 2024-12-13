@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.client.UtdanningNoProgramomraade
-import no.nav.mulighetsrommet.utdanning.db.UtdanningRepository
+import no.nav.mulighetsrommet.utdanning.db.UtdanningQueries
 import no.nav.mulighetsrommet.utdanning.model.NusKodeverk
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
@@ -20,7 +20,6 @@ class SynchronizeUtdanninger(
     private val db: Database,
     private val utdanningClient: UtdanningClient,
 ) {
-    private val utdanningRepository = UtdanningRepository(db)
 
     data class Config(
         val disabled: Boolean = false,
@@ -47,8 +46,8 @@ class SynchronizeUtdanninger(
         val (programomrader, utdanninger) = resolveRelevantUtdanninger(allUtdanninger)
 
         db.transaction { tx ->
-            programomrader.forEach { utdanningRepository.upsertUtdanningsprogram(tx, it) }
-            utdanninger.forEach { utdanningRepository.upsertUtdanning(tx, it) }
+            programomrader.forEach { UtdanningQueries.upsertUtdanningsprogram(tx, it) }
+            utdanninger.forEach { UtdanningQueries.upsertUtdanning(tx, it) }
         }
     }
 }

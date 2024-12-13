@@ -3,16 +3,16 @@ package no.nav.mulighetsrommet.utdanning.db
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
 import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramMedUtdanninger
 import org.intellij.lang.annotations.Language
 import java.util.*
 
-class UtdanningRepository(private val db: Database) {
+object UtdanningQueries {
 
-    fun getUtdanningsprogrammer(): List<UtdanningsprogramMedUtdanninger> {
+    fun getUtdanningsprogrammer(session: Session): List<UtdanningsprogramMedUtdanninger> {
         @Language("PostgreSQL")
         val utdanningsprogrammerQuery = """
             select *
@@ -47,7 +47,7 @@ class UtdanningRepository(private val db: Database) {
                 navn = row.string("navn"),
                 nusKoder = row.array<String>("nus_koder").toList(),
             )
-        }.asList.let { db.run(it) }
+        }.asList.runWithSession(session)
 
         val utdanninger = queryOf(utdanningerQuery).map { row ->
             UtdanningsprogramMedUtdanninger.Utdanning(
@@ -56,7 +56,7 @@ class UtdanningRepository(private val db: Database) {
                 programlopStart = row.uuid("programlop_start"),
                 nusKoder = row.array<String>("nusKoder").toList(),
             )
-        }.asList.let { db.run(it) }
+        }.asList.runWithSession(session)
 
         return utdanningsprogrammer.map { utdanningsprogram ->
             UtdanningsprogramMedUtdanninger(
@@ -81,7 +81,7 @@ class UtdanningRepository(private val db: Database) {
             "navn" to utdanningsprogram.navn,
             "programomradekode" to utdanningsprogram.programomradekode,
             "utdanningsprogram_type" to utdanningsprogram.type?.name,
-            "nus_koder" to session.createArrayOf("text", utdanningsprogram.nusKoder),
+            "nus_koder" to utdanningsprogram.nusKoder.let { session.createTextArray(it) },
         )
 
         queryOf(query, params).asExecute.runWithSession(session)
@@ -128,7 +128,7 @@ class UtdanningRepository(private val db: Database) {
                 "sluttkompetanse" to utdanning.sluttkompetanse?.name,
                 "aktiv" to utdanning.aktiv,
                 "utdanningstatus" to utdanning.utdanningstatus.name,
-                "utdanningslop" to db.createTextArray(utdanning.utdanningslop),
+                "utdanningslop" to session.createTextArray(utdanning.utdanningslop),
                 "programlop_start" to programomradeId,
             ),
         ).asExecute.runWithSession(session)
