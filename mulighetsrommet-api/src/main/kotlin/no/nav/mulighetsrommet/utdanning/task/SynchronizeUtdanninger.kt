@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.client.UtdanningNoProgramomraade
 import no.nav.mulighetsrommet.utdanning.db.UtdanningQueries
-import no.nav.mulighetsrommet.utdanning.model.NusKodeverk
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
 import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramType
@@ -129,7 +128,7 @@ private fun toUtdanning(utdanning: UtdanningNoProgramomraade): Utdanning {
             UtdanningNoProgramomraade.Status.UTGAATT -> Utdanning.Status.UTGAATT
         },
         utdanningslop = utdanning.utdanningslop,
-        nusKodeverk = utdanning.nusKodeverk.map { NusKodeverk(navn = it.navn, kode = it.kode) },
+        nusKoder = utdanning.nusKodeverk.map { it.kode },
     )
 }
 

@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.datavarehus.db
 
-import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
@@ -81,7 +80,7 @@ object DatavarehusTiltakQueries {
                    program.navn,
                    program.created_at as opprettet_tidspunkt,
                    program.updated_at as oppdatert_tidspunkt,
-                   array_to_json(program.nus_koder) as nus_koder
+                   program.nus_koder
             from tiltaksgjennomforing_utdanningsprogram
                     join utdanningsprogram program on utdanningsprogram_id = program.id
             where tiltaksgjennomforing_id = ?
@@ -95,7 +94,7 @@ object DatavarehusTiltakQueries {
                     navn = it.string("navn"),
                     opprettetTidspunkt = it.localDateTime("opprettet_tidspunkt"),
                     oppdatertTidspunkt = it.localDateTime("oppdatert_tidspunkt"),
-                    nusKoder = Json.decodeFromString(it.string("nus_koder")),
+                    nusKoder = it.array<String>("nus_koder").toList(),
                 )
             }
             .asSingle
@@ -112,10 +111,9 @@ object DatavarehusTiltakQueries {
                    utdanning.sluttkompetanse,
                    utdanning.created_at as opprettet_tidspunkt,
                    utdanning.updated_at as oppdatert_tidspunkt,
-                   jsonb_agg(utdanning_nus_kode.nus_kode) as nus_koder
+                   utdanning.nus_koder
             from tiltaksgjennomforing_utdanningsprogram
                     join utdanning on tiltaksgjennomforing_utdanningsprogram.utdanning_id = utdanning.id
-                    left join utdanning_nus_kode on utdanning.utdanning_id = utdanning_nus_kode.utdanning_id
             where tiltaksgjennomforing_id = ?
             group by utdanning.id;
         """.trimIndent()
@@ -128,7 +126,7 @@ object DatavarehusTiltakQueries {
                     sluttkompetanse = Utdanning.Sluttkompetanse.valueOf(it.string("sluttkompetanse")),
                     opprettetTidspunkt = it.localDateTime("opprettet_tidspunkt"),
                     oppdatertTidspunkt = it.localDateTime("oppdatert_tidspunkt"),
-                    nusKoder = Json.decodeFromString(it.string("nus_koder")),
+                    nusKoder = it.array<String>("nus_koder").toList(),
                 )
             }
             .asList

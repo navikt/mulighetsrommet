@@ -28,7 +28,6 @@ import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.utdanning.db.UtdanningQueries
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
-import no.nav.mulighetsrommet.utdanning.model.NusKodeverk
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
 import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramType
@@ -172,7 +171,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     aktiv = true,
                     utdanningstatus = Utdanning.Status.GYLDIG,
                     utdanningslop = listOf("BABAN3----"),
-                    nusKoder = listOf(NusKodeverk("Sveisefag", "12345")),
+                    nusKoder = listOf("12345"),
                 ),
             )
 
@@ -186,7 +185,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     aktiv = true,
                     utdanningstatus = Utdanning.Status.GYLDIG,
                     utdanningslop = listOf("BABAN3----"),
-                    nusKoder = listOf(NusKodeverk("Sveisefag under vann", "23456")),
+                    nusKoder = listOf("23456"),
                 ),
             )
 
