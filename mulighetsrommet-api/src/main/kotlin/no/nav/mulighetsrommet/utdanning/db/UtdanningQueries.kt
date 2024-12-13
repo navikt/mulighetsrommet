@@ -3,16 +3,16 @@ package no.nav.mulighetsrommet.utdanning.db
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
 import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramMedUtdanninger
 import org.intellij.lang.annotations.Language
 import java.util.*
 
-class UtdanningRepository(private val db: Database) {
+object UtdanningQueries {
 
-    fun getUtdanningsprogrammer(): List<UtdanningsprogramMedUtdanninger> {
+    fun getUtdanningsprogrammer(session: Session): List<UtdanningsprogramMedUtdanninger> {
         @Language("PostgreSQL")
         val utdanningsprogrammerQuery = """
             select *
@@ -27,17 +27,10 @@ class UtdanningRepository(private val db: Database) {
                 utdanning.id,
                 utdanning.navn,
                 utdanning.programlop_start,
-                coalesce(array_agg(nus_kode_innhold.nus_kode) filter (where nus_kode_innhold.nus_kode is not null), '{}') as nuskoder
-            from
-                utdanning
-                    left join
-                utdanning_nus_kode on utdanning.utdanning_id = utdanning_nus_kode.utdanning_id
-                    left join
-                utdanning_nus_kode_innhold nus_kode_innhold on utdanning_nus_kode.nus_kode = nus_kode_innhold.nus_kode
-            group by
-                utdanning.id, utdanning.navn
-            having
-                coalesce(array_agg(nus_kode_innhold.nus_kode) filter (where nus_kode_innhold.nus_kode is not null), '{}') <> '{}'
+                nus_koder as nusKoder
+            from utdanning
+            where nus_koder <> '{}'
+            group by utdanning.id
             order by utdanning.navn;
         """.trimIndent()
 
@@ -47,7 +40,7 @@ class UtdanningRepository(private val db: Database) {
                 navn = row.string("navn"),
                 nusKoder = row.array<String>("nus_koder").toList(),
             )
-        }.asList.let { db.run(it) }
+        }.asList.runWithSession(session)
 
         val utdanninger = queryOf(utdanningerQuery).map { row ->
             UtdanningsprogramMedUtdanninger.Utdanning(
@@ -56,7 +49,7 @@ class UtdanningRepository(private val db: Database) {
                 programlopStart = row.uuid("programlop_start"),
                 nusKoder = row.array<String>("nusKoder").toList(),
             )
-        }.asList.let { db.run(it) }
+        }.asList.runWithSession(session)
 
         return utdanningsprogrammer.map { utdanningsprogram ->
             UtdanningsprogramMedUtdanninger(
@@ -81,7 +74,7 @@ class UtdanningRepository(private val db: Database) {
             "navn" to utdanningsprogram.navn,
             "programomradekode" to utdanningsprogram.programomradekode,
             "utdanningsprogram_type" to utdanningsprogram.type?.name,
-            "nus_koder" to session.createArrayOf("text", utdanningsprogram.nusKoder),
+            "nus_koder" to session.createTextArray(utdanningsprogram.nusKoder),
         )
 
         queryOf(query, params).asExecute.runWithSession(session)
@@ -92,8 +85,8 @@ class UtdanningRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val upsertUtdanning = """
-            insert into utdanning (utdanning_id, programomradekode, navn, sluttkompetanse, aktiv, utdanningstatus, utdanningslop, programlop_start)
-            values (:utdanning_id, :programomradekode, :navn, :sluttkompetanse::utdanning_sluttkompetanse, :aktiv, :utdanningstatus::utdanning_status, :utdanningslop, :programlop_start::uuid)
+            insert into utdanning (utdanning_id, programomradekode, navn, sluttkompetanse, aktiv, utdanningstatus, utdanningslop, programlop_start, nus_koder)
+            values (:utdanning_id, :programomradekode, :navn, :sluttkompetanse::utdanning_sluttkompetanse, :aktiv, :utdanningstatus::utdanning_status, :utdanningslop, :programlop_start::uuid, :nus_koder)
             on conflict (utdanning_id) do update set
                 programomradekode = excluded.programomradekode,
                 navn = excluded.navn,
@@ -101,22 +94,8 @@ class UtdanningRepository(private val db: Database) {
                 aktiv = excluded.aktiv,
                 utdanningstatus = excluded.utdanningstatus,
                 utdanningslop = excluded.utdanningslop,
-                programlop_start = excluded.programlop_start
-        """.trimIndent()
-
-        @Language("PostgreSQL")
-        val nuskodeInnholdInsertQuery = """
-            insert into utdanning_nus_kode_innhold(title, nus_kode)
-            values(:title, :nus_kode)
-            on conflict (nus_kode) do update set
-                title = excluded.title
-        """.trimIndent()
-
-        @Language("PostgreSQL")
-        val nusKodeKoblingforUtdanningQuery = """
-            insert into utdanning_nus_kode(utdanning_id, nus_kode)
-            values (:utdanning_id, :nus_kode_id)
-            on conflict do nothing
+                programlop_start = excluded.programlop_start,
+                nus_koder = excluded.nus_koder
         """.trimIndent()
 
         queryOf(
@@ -128,22 +107,11 @@ class UtdanningRepository(private val db: Database) {
                 "sluttkompetanse" to utdanning.sluttkompetanse?.name,
                 "aktiv" to utdanning.aktiv,
                 "utdanningstatus" to utdanning.utdanningstatus.name,
-                "utdanningslop" to db.createTextArray(utdanning.utdanningslop),
+                "utdanningslop" to session.createTextArray(utdanning.utdanningslop),
                 "programlop_start" to programomradeId,
+                "nus_koder" to session.createTextArray(utdanning.nusKoder),
             ),
         ).asExecute.runWithSession(session)
-
-        utdanning.nusKodeverk.forEach { nus ->
-            queryOf(
-                nuskodeInnholdInsertQuery,
-                mapOf("title" to nus.navn, "nus_kode" to nus.kode),
-            ).asExecute.runWithSession(session)
-
-            queryOf(
-                nusKodeKoblingforUtdanningQuery,
-                mapOf("utdanning_id" to utdanning.utdanningId, "nus_kode_id" to nus.kode),
-            ).asExecute.runWithSession(session)
-        }
     }
 
     fun getIdForUtdanningsprogram(session: Session, programomradekode: String): UUID {
