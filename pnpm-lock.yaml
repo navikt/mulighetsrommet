@@ -128,13 +128,13 @@ importers:
         specifier: 3.6.0
         version: 3.6.0
       '@react-router/express':
-        specifier: ^7.0.2
+        specifier: 7.0.2
         version: 7.0.2(express@4.21.2)(react-router@7.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.7.2)
       '@react-router/node':
-        specifier: ^7.0.2
+        specifier: 7.0.2
         version: 7.0.2(react-router@7.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.7.2)
       '@react-router/serve':
-        specifier: ^7.0.2
+        specifier: 7.0.2
         version: 7.0.2(react-router@7.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.7.2)
       compression:
         specifier: 1.7.5
@@ -179,23 +179,23 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       react-router:
-        specifier: ^7.0.2
+        specifier: 7.0.2
         version: 7.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       uuid:
         specifier: 11.0.3
         version: 11.0.3
       winston:
-        specifier: ^3.17.0
+        specifier: 3.17.0
         version: 3.17.0
     devDependencies:
       '@playwright/test':
         specifier: 1.49.0
         version: 1.49.0
       '@react-router/dev':
-        specifier: ^7.0.2
+        specifier: 7.0.2
         version: 7.0.2(@react-router/serve@7.0.2(react-router@7.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.7.2))(@types/node@22.10.1)(babel-plugin-macros@3.1.0)(react-router@7.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(sass-embedded@1.82.0)(sass@1.79.3)(terser@5.31.6)(typescript@5.7.2)(vite@6.0.3(@types/node@22.10.1)(jiti@2.3.3)(sass-embedded@1.82.0)(sass@1.79.3)(terser@5.31.6)(yaml@2.6.1))
       '@react-router/fs-routes':
-        specifier: ^7.0.2
+        specifier: 7.0.2
         version: 7.0.2(@react-router/dev@7.0.2(@react-router/serve@7.0.2(react-router@7.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.7.2))(@types/node@22.10.1)(babel-plugin-macros@3.1.0)(react-router@7.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(sass-embedded@1.82.0)(sass@1.79.3)(terser@5.31.6)(typescript@5.7.2)(vite@6.0.3(@types/node@22.10.1)(jiti@2.3.3)(sass-embedded@1.82.0)(sass@1.79.3)(terser@5.31.6)(yaml@2.6.1)))(typescript@5.7.2)
       '@tailwindcss/typography':
         specifier: 0.5.15
@@ -2233,18 +2233,27 @@ packages:
     peerDependencies:
       '@types/react': ^17.0.30 || ^18.0.0
       react: ^17.0.0 || ^18.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@navikt/ds-react@7.6.0':
     resolution: {integrity: sha512-fh7WjNP5Rk8G7HScy03ge71ooeRXryYUvz0puEH5LkVVOz0EzQwDmXMj9PdnQId64PCQwmjZZHehnHim0fWD3A==, tarball: https://npm.pkg.github.com/download/@navikt/ds-react/7.6.0/affcdb539be6ae0510dc2b4e3cfd667a6edee95a}
     peerDependencies:
       '@types/react': '>=17.0.30'
       react: '>=17.0.0 || >19.0.0-rc'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@navikt/ds-react@7.7.0':
     resolution: {integrity: sha512-oNA0McafOTXqOrJdEd/PAH9yRvyNdse0BjoCjaMzfk9pZOQj/5nkOzFbIA6VhL2AJKtsRE30oAJMqzDlAY2m8w==, tarball: https://npm.pkg.github.com/download/@navikt/ds-react/7.7.0/8f2c0df99476e5beb5b606cf4eecf1c5f1056a71}
     peerDependencies:
       '@types/react': '>=17.0.30'
       react: '>=17.0.0 || >19.0.0-rc'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@navikt/ds-tailwind@7.7.0':
     resolution: {integrity: sha512-O6zjfP9neNboIDoff6jTeXRq5ab9rNRqIUZ+p5pSFAK7yXGhhRiZcZpL9DImH7PZMaUn8FYegpkn6pNvTuG2ww==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.7.0/d528b66aba7260d5a2e9d3fb778f90ebfbebeca6}
@@ -2263,6 +2272,9 @@ packages:
       html-react-parser: '>=5.x'
       jsdom: '>=16.x'
       react: '>=17.x'
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@navikt/oasis@3.6.0':
     resolution: {integrity: sha512-g+0plp7xNUo1ZNv0ahL80A96Swu8RRv/pE1ZYAp9t1AGo6RHUicF3PYuyiQH+xtXrdiXQk29KumS+jCqURswlA==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/3.6.0/8e7b3918165b037c18cfbc36ad4aeee04fc0650f}
@@ -9657,8 +9669,9 @@ snapshots:
 
   '@navikt/ds-icons@3.4.3(@types/react@18.3.12)(react@18.3.1)':
     dependencies:
-      '@types/react': 18.3.12
       react: 18.3.1
+    optionalDependencies:
+      '@types/react': 18.3.12
 
   '@navikt/ds-react@7.6.0(@types/react@18.3.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -9666,11 +9679,12 @@ snapshots:
       '@floating-ui/react-dom': 2.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@navikt/aksel-icons': 7.7.0
       '@navikt/ds-tokens': 7.6.0
-      '@types/react': 18.3.13
       clsx: 2.1.1
       date-fns: 3.6.0
       react: 18.3.1
       react-day-picker: 8.10.1(date-fns@3.6.0)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.3.13
     transitivePeerDependencies:
       - react-dom
 
@@ -9680,11 +9694,12 @@ snapshots:
       '@floating-ui/react-dom': 2.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@navikt/aksel-icons': 7.7.0
       '@navikt/ds-tokens': 7.7.0
-      '@types/react': 18.3.12
       clsx: 2.1.1
       date-fns: 3.6.0
       react: 18.3.1
       react-day-picker: 8.10.1(date-fns@3.6.0)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.3.12
     transitivePeerDependencies:
       - react-dom
 
@@ -9694,11 +9709,12 @@ snapshots:
       '@floating-ui/react-dom': 2.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@navikt/aksel-icons': 7.7.0
       '@navikt/ds-tokens': 7.7.0
-      '@types/react': 18.3.13
       clsx: 2.1.1
       date-fns: 3.6.0
       react: 18.3.1
       react-day-picker: 8.10.1(date-fns@3.6.0)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.3.13
     transitivePeerDependencies:
       - react-dom
 
@@ -9713,6 +9729,7 @@ snapshots:
       csp-header: 6.0.0
       html-react-parser: 5.2.0(@types/react@18.3.12)(react@18.3.1)
       jsdom: 25.0.1
+    optionalDependencies:
       react: 18.3.1
 
   '@navikt/oasis@3.6.0':

@@ -11,13 +11,10 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravAft
 import no.nav.mulighetsrommet.api.tilsagn.model.ArrangorflateTilsagn
-import no.nav.mulighetsrommet.tokenprovider.AccessType
-import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 
 class PdfGenClient(
     clientEngine: HttpClientEngine = CIO.create(),
     private val baseUrl: String,
-    private val tokenProvider: TokenProvider,
 ) {
     private val client = HttpClient(clientEngine) {
         install(ContentNegotiation) {
@@ -57,7 +54,6 @@ class PdfGenClient(
         return client
             .post {
                 url("$baseUrl/api/v1/genpdf/$app/$template")
-                bearerAuth(tokenProvider.exchange(AccessType.M2M))
                 contentType(ContentType.Application.Json)
                 setBody(body)
             }

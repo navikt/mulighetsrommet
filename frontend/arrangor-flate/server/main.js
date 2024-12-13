@@ -3,7 +3,7 @@ import compression from "compression";
 import express from "express";
 import expressPromBundle from "express-prom-bundle";
 import morgan from "morgan";
-import logger from "./logger/logger.js";
+import logger from "./logger.js";
 
 const metricsMiddleware = expressPromBundle({ includeMethod: true, includePath: true });
 
@@ -22,7 +22,7 @@ const viteDevServer =
 const remixHandler = createRequestHandler({
   build: viteDevServer
     ? () => viteDevServer.ssrLoadModule("virtual:react-router/server-build")
-    : await import("./build/server/index.js"),
+    : await import("../build/server/index.js"),
   getLoadContext: (req) => ({
     erAutorisert: req.headers.authorization,
   }),
@@ -57,7 +57,7 @@ app.use(metricsMiddleware);
 const morganStream = {
   write: (message) => logger.http(message.trim()),
 };
-app.use(morgan("tiny", { stream: morganStream }));
+app.use(morgan("combined", { stream: morganStream }));
 
 // handle SSR requests
 app.all("*", remixHandler);

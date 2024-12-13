@@ -43,6 +43,33 @@ app:
         id: amt-arrangor-melding
         topic: amt.arrangor-melding-v1
 
+  tasks:
+    synchronizeNorgEnheter:
+      disabled: true
+      delayOfMinutes: 360 # Hver 6. time
+    synchronizeNavAnsatte:
+      disabled: true
+      cronPattern: "0 */1 * * * *" # Hvert 1 minutt
+    synchronizeUtdanninger:
+      disabled: true
+      cronPattern: "0 */1 * * * *" # Hvert 1 minutt
+    notifySluttdatoForGjennomforingerNarmerSeg:
+      disabled: true
+      cronPattern: "0 */1 * * * *" # Hvert 1 minutt
+    notifySluttdatoForAvtalerNarmerSeg:
+      disabled: true
+      cronPattern: "0 */1 * * * *" # Hvert 1 minutt
+    notifyFailedKafkaEvents:
+      disabled: true
+      maxRetries: 5
+      cronPattern: "0 */15 * ? * MON-FRI"
+    updateApentForPamelding:
+      disabled: true
+      cronPattern: "0 */1 * * * *" # Hvert 1 minutt
+    generateRefusjonskrav:
+      disabled: false
+      cronPattern: "0 0 5 7 * *"
+
   auth:
     azure:
       issuer: http://localhost:8081/azure
@@ -88,6 +115,18 @@ app:
     token: ${SANITY_AUTH_TOKEN:-}
     useCdn: false
 
+  slack:
+    token: ${SLACK_TOKEN:-}
+    channel: "#team-valp-monitoring"
+    enable: false
+
+  unleash:
+    appName: mulighetsrommet-api
+    url: http://localhost:8090/unleash
+    token: ""
+    instanceId: mulighetsrommet-api
+    environment: local
+
   arenaAdapter:
     url: http://0.0.0.0:8084
     scope: default
@@ -99,7 +138,6 @@ app:
 
   pdfgen:
     url: http://localhost:8888
-    scope: default
 
   veilarbvedtaksstotteConfig:
     url: http://localhost:8090/veilarbvedtaksstotte/api
@@ -142,10 +180,10 @@ app:
     scope: default
 
   norg2:
-    baseUrl: http://localhost:8090/norg2
+    url: http://localhost:8090/norg2
 
   brreg:
-    baseUrl: https://data.brreg.no/enhetsregisteret/api
+    url: https://data.brreg.no/enhetsregisteret/api
 
   altinn:
     url: http://localhost:8090/altinn
@@ -156,44 +194,5 @@ app:
     url: http://localhost:8090/dokark
     scope: default
 
-  tasks:
-    synchronizeNorgEnheter:
-      disabled: true
-      delayOfMinutes: 360 # Hver 6. time
-    synchronizeNavAnsatte:
-      disabled: true
-      cronPattern: "0 */1 * * * *" # Hvert 1 minutt
-    synchronizeUtdanninger:
-      disabled: true
-      cronPattern: "0 */1 * * * *" # Hvert 1 minutt
-    notifySluttdatoForGjennomforingerNarmerSeg:
-      disabled: true
-      cronPattern: "0 */1 * * * *" # Hvert 1 minutt
-    notifySluttdatoForAvtalerNarmerSeg:
-      disabled: true
-      cronPattern: "0 */1 * * * *" # Hvert 1 minutt
-    notifyFailedKafkaEvents:
-      disabled: true
-      maxRetries: 5
-      cronPattern: "0 */15 * ? * MON-FRI"
-    updateApentForPamelding:
-      disabled: true
-      cronPattern: "0 */1 * * * *" # Hvert 1 minutt
-    generateRefusjonskrav:
-      disabled: false
-      cronPattern: "0 0 5 7 * *"
-
-  slack:
-    token: ${SLACK_TOKEN:-}
-    channel: "#team-valp-monitoring"
-    enable: false
-
-  unleash:
-    appName: mulighetsrommet-api
-    url: http://localhost:8090/unleash
-    token: ""
-    instanceId: mulighetsrommet-api
-    environment: local
-
   utdanning:
-    baseurl: https://api.utdanning.no
+    url: https://api.utdanning.no
