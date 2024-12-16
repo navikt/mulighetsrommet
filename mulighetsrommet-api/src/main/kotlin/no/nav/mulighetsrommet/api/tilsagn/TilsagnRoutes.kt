@@ -10,6 +10,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
@@ -19,6 +20,7 @@ import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningInput
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBesluttelseStatus
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -47,59 +49,10 @@ fun Route.tilsagnRoutes() {
             val gjennomforingId: UUID by call.queryParameters
 
             val gjennomforing = gjennomforinger.get(gjennomforingId) ?: return@get call.respond(HttpStatusCode.NotFound)
+
             val tilsagn = service.getByGjennomforingId(gjennomforingId).lastOrNull()
 
-            val defaults = when (gjennomforing.tiltakstype.tiltakskode) {
-                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET -> {
-                    val lastDayOfYear = LocalDate.now().withMonth(12).withDayOfMonth(31)
-                    val periodeStart = listOfNotNull(
-                        gjennomforing.startDato,
-                        tilsagn?.periodeSlutt?.plusDays(1),
-                    ).max()
-
-                    val forhandsgodkjentTilsagnPeriodeSlutt = periodeStart.plusMonths(6).minusDays(1)
-                    val periodeSlutt = listOfNotNull(
-                        gjennomforing.sluttDato,
-                        forhandsgodkjentTilsagnPeriodeSlutt,
-                        lastDayOfYear,
-                    ).min()
-
-                    val beregningInput = TilsagnBeregningInput.AFT(
-                        periodeStart = periodeStart,
-                        periodeSlutt = periodeSlutt,
-                        antallPlasser = gjennomforing.antallPlasser,
-                    )
-                    val beregning = service.tilsagnBeregning(input = beregningInput).getOrNull()
-
-                    TilsagnDefaults(
-                        periodeStart = periodeStart,
-                        periodeSlutt = periodeSlutt,
-                        antallPlasser = gjennomforing.antallPlasser,
-                        beregning = beregning,
-                        kostnadssted = null,
-                    )
-                }
-
-                else -> {
-                    val firstDayOfMonth = LocalDate.now().withDayOfMonth(1)
-                    val periodeStart = listOfNotNull(
-                        gjennomforing.startDato,
-                        tilsagn?.periodeSlutt?.plusDays(1),
-                        firstDayOfMonth,
-                    ).max()
-
-                    val lastDayOfMonth = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth())
-                    val periodeSlutt = listOfNotNull(gjennomforing.sluttDato, lastDayOfMonth).min()
-
-                    TilsagnDefaults(
-                        periodeStart = periodeStart,
-                        periodeSlutt = periodeSlutt,
-                        antallPlasser = gjennomforing.antallPlasser,
-                        kostnadssted = null,
-                        beregning = null,
-                    )
-                }
-            }
+            val defaults = resolveTilsagnDefaults(gjennomforing, tilsagn, service)
 
             call.respond(HttpStatusCode.OK, defaults)
         }
@@ -248,3 +201,59 @@ data class AFTSats(
     val startDato: LocalDate,
     val belop: Int,
 )
+
+private fun resolveTilsagnDefaults(
+    gjennomforing: TiltaksgjennomforingDto,
+    tilsagn: TilsagnDto?,
+    service: TilsagnService,
+) = when (gjennomforing.tiltakstype.tiltakskode) {
+    Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET -> {
+        val lastDayOfYear = LocalDate.now().withMonth(12).withDayOfMonth(31)
+        val periodeStart = listOfNotNull(
+            gjennomforing.startDato,
+            tilsagn?.periodeSlutt?.plusDays(1),
+        ).max()
+
+        val forhandsgodkjentTilsagnPeriodeSlutt = periodeStart.plusMonths(6).minusDays(1)
+        val periodeSlutt = listOfNotNull(
+            gjennomforing.sluttDato,
+            forhandsgodkjentTilsagnPeriodeSlutt,
+            lastDayOfYear,
+        ).min()
+
+        val beregningInput = TilsagnBeregningInput.AFT(
+            periodeStart = periodeStart,
+            periodeSlutt = periodeSlutt,
+            antallPlasser = gjennomforing.antallPlasser,
+        )
+        val beregning = service.tilsagnBeregning(input = beregningInput).getOrNull()
+
+        TilsagnDefaults(
+            periodeStart = periodeStart,
+            periodeSlutt = periodeSlutt,
+            antallPlasser = gjennomforing.antallPlasser,
+            beregning = beregning,
+            kostnadssted = null,
+        )
+    }
+
+    else -> {
+        val firstDayOfMonth = LocalDate.now().withDayOfMonth(1)
+        val periodeStart = listOfNotNull(
+            gjennomforing.startDato,
+            tilsagn?.periodeSlutt?.plusDays(1),
+            firstDayOfMonth,
+        ).max()
+
+        val lastDayOfMonth = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth())
+        val periodeSlutt = listOfNotNull(gjennomforing.sluttDato, lastDayOfMonth).min()
+
+        TilsagnDefaults(
+            periodeStart = periodeStart,
+            periodeSlutt = periodeSlutt,
+            antallPlasser = gjennomforing.antallPlasser,
+            kostnadssted = null,
+            beregning = null,
+        )
+    }
+}
