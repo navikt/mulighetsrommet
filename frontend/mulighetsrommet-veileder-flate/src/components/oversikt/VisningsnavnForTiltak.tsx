@@ -17,9 +17,9 @@ export function VisningsnavnForTiltak({ tittel, underTittel, noLink = false }: P
       })}
     >
       <BodyShort textColor="default" weight="semibold" size="small">
-        {underTittel}
+        {tittel}
       </BodyShort>
-      <BodyShort size="small">{tittel}</BodyShort>
+      <BodyShort size="small">{underTittel}</BodyShort>
     </div>
   );
 }

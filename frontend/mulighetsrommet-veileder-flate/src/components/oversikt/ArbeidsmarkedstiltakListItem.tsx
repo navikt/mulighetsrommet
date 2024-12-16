@@ -49,7 +49,7 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Pr
         harDeltMedBruker: styles.list_element_border,
       })}
       id={`list_element_${index}`}
-      data-testid={`tiltaksgjennomforing_${kebabCase(tiltak.underTittel)}`}
+      data-testid={`tiltaksgjennomforing_${kebabCase(tiltak.tittel)}`}
     >
       <Lenke to={`../tiltak/${id}${paginationUrl}`}>
         {datoSidenSistDelt ? (
