@@ -4987,8 +4987,11 @@ components:
             $ref: "#/components/schemas/TilsagnAvvisningAarsak"
         forklaring:
           type: string
+          nullable: true
       required:
         - besluttelse
+        - aarsaker
+        - forklaring
 
     TilsagnTilAnnulleringRequest:
       type: object
@@ -5012,6 +5015,7 @@ components:
       type: string
       enum:
         - FEIL_REGISTRERING
+        - GJENNOMFORING_AVBRYTES
         - FEIL_ANNET
 
     TilsagnAvvisningAarsak:
