@@ -86,13 +86,9 @@ class VeilederflateTiltakRepository(private val db: Database) {
             ?: emptyList()
 
         val tiltakstypeNavn = string("tiltakstype_navn")
-        val tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) }
         val navn = string("navn")
-        val (tittel, underTittel) = if (isKursTiltak(tiltakskode)) {
-            navn to tiltakstypeNavn
-        } else {
-            tiltakstypeNavn to navn
-        }
+        val tittel = tiltakstypeNavn
+        val underTittel = navn
 
         return VeilederflateTiltakGruppe(
             id = uuid("id"),
