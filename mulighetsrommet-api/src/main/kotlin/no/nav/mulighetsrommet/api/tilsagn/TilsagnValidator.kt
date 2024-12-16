@@ -60,7 +60,7 @@ class TilsagnValidator(
 
         val errors = buildList {
             if (next.periodeStart.year != next.periodeSlutt.year) {
-                add(ValidationError.ofCustomLocation("periode.slutt", "Perioden kan ikke gå over flere år"))
+                add(ValidationError.ofCustomLocation("periode.slutt", "Tilsagnsperioden kan ikke vare utover årsskiftet"))
             }
         }
 
@@ -77,7 +77,7 @@ class TilsagnValidator(
     private fun validateAFTTilsagnBeregningInput(input: TilsagnBeregningInput.AFT): Either<List<ValidationError>, TilsagnBeregningInput> = either {
         val errors = buildList {
             if (input.periodeStart.year != input.periodeSlutt.year) {
-                add(ValidationError.of(TilsagnBeregningInput.AFT::periodeSlutt, "Perioden kan ikke gå over flere år"))
+                add(ValidationError.of(TilsagnBeregningInput.AFT::periodeSlutt, "Tilsagnsperioden kan ikke vare utover årsskiftet"))
             }
             if (input.periodeStart.isAfter(input.periodeSlutt)) {
                 add(ValidationError.of(TilsagnBeregningInput.AFT::periodeSlutt, "Slutt kan ikke være før start"))
