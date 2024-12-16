@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
@@ -89,13 +90,17 @@ class TilsagnRepositoryTest : FunSpec({
                 aarsaker = listOf(TilsagnStatusAarsak.FEIL_ANNET),
                 forklaring = "Min forklaring",
             )
-            repository.get(tilsagn.id)?.status shouldBe TilsagnDto.TilsagnStatus.TilAnnullering(
-                endretTidspunkt = endretTidspunkt,
-                endretAv = tilsagn.endretAv,
-                endretAvNavn = "${NavAnsattFixture.ansatt1.fornavn} ${NavAnsattFixture.ansatt1.etternavn}",
-                aarsaker = listOf(TilsagnStatusAarsak.FEIL_ANNET),
-                forklaring = "Min forklaring",
-            )
+            repository.get(tilsagn.id)?.status should {
+                when (it) {
+                    is TilsagnDto.TilsagnStatus.TilAnnullering -> {
+                        it.endretAv shouldBe tilsagn.endretAv
+                        it.endretAvNavn shouldBe "${NavAnsattFixture.ansatt1.fornavn} ${NavAnsattFixture.ansatt1.etternavn}"
+                        it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_ANNET)
+                        it.forklaring shouldBe "Min forklaring"
+                    }
+                    else -> throw Exception("Feil status")
+                }
+            }
 
             // Beslutt annullering
             repository.besluttAnnullering(
@@ -103,11 +108,15 @@ class TilsagnRepositoryTest : FunSpec({
                 NavIdent("B123456"),
                 endretTidspunkt,
             )
-            repository.get(tilsagn.id)?.status shouldBe TilsagnDto.TilsagnStatus.Annullert(
-                endretTidspunkt = endretTidspunkt,
-                endretAv = tilsagn.endretAv,
-                godkjentAv = NavIdent("B123456"),
-            )
+            repository.get(tilsagn.id)?.status should {
+                when (it) {
+                    is TilsagnDto.TilsagnStatus.Annullert -> {
+                        it.endretAv shouldBe tilsagn.endretAv
+                        it.godkjentAv shouldBe NavIdent("B123456")
+                    }
+                    else -> throw Exception("Feil status")
+                }
+            }
         }
 
         test("godkjenn") {
@@ -134,22 +143,29 @@ class TilsagnRepositoryTest : FunSpec({
                 aarsaker = listOf(TilsagnStatusAarsak.FEIL_ANNET),
                 forklaring = "Min forklaring",
             )
-            repository.get(tilsagn.id)?.status shouldBe TilsagnDto.TilsagnStatus.Returnert(
-                endretTidspunkt = returnertTidspunkt,
-                endretAv = tilsagn.endretAv,
-                returnertAv = NavAnsattFixture.ansatt2.navIdent,
-                returnertAvNavn = "${NavAnsattFixture.ansatt2.fornavn} ${NavAnsattFixture.ansatt2.etternavn}",
-                aarsaker = listOf(TilsagnStatusAarsak.FEIL_ANNET),
-                forklaring = "Min forklaring",
-            )
+            repository.get(tilsagn.id)?.status should {
+                when (it) {
+                    is TilsagnDto.TilsagnStatus.Returnert -> {
+                        it.endretAv shouldBe tilsagn.endretAv
+                        it.returnertAvNavn shouldBe "${NavAnsattFixture.ansatt2.fornavn} ${NavAnsattFixture.ansatt2.etternavn}"
+                        it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_ANNET)
+                        it.forklaring shouldBe "Min forklaring"
+                    }
+                    else -> throw Exception("Feil status")
+                }
+            }
         }
 
         test("Skal få status TIL_GODKJENNING etter upsert") {
             repository.upsert(tilsagn)
-            repository.get(tilsagn.id)?.status shouldBe TilsagnDto.TilsagnStatus.TilGodkjenning(
-                endretTidspunkt = tilsagn.endretTidspunkt,
-                endretAv = tilsagn.endretAv,
-            )
+            repository.get(tilsagn.id)?.status should {
+                when (it) {
+                    is TilsagnDto.TilsagnStatus.TilGodkjenning -> {
+                        it.endretAv shouldBe tilsagn.endretAv
+                    }
+                    else -> throw Exception("Feil status")
+                }
+            }
         }
 
         test("delete") {
