@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.okonomi.Prismodell.TilsagnBeregning
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningInput
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBesluttelseStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -30,15 +29,9 @@ class TilsagnValidator(
                 .nel()
                 .left()
 
-        if (previous?.besluttelse?.status == TilsagnBesluttelseStatus.GODKJENT) {
+        if (previous != null && previous.status !is TilsagnDto.TilsagnStatus.Returnert) {
             return ValidationError
-                .of(TilsagnDto::id, "Tilsagnet er godkjent og kan ikke endres.")
-                .nel()
-                .left()
-        }
-        if (previous?.annullertTidspunkt != null) {
-            return ValidationError
-                .of(TilsagnDto::id, "Tilsagnet er annullert og kan ikke endres.")
+                .of(TilsagnDto::id, "Tilsagnet kan ikke endres.")
                 .nel()
                 .left()
         }

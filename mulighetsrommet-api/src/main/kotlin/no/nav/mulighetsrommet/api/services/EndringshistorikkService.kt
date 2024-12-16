@@ -25,7 +25,6 @@ sealed class EndretAv(val id: String) {
 class EndringshistorikkService(
     private val db: Database,
 ) {
-
     fun getEndringshistorikk(documentClass: DocumentClass, id: UUID): EndringshistorikkDto {
         @Language("PostgreSQL")
         val statement = """
@@ -38,7 +37,7 @@ class EndringshistorikkService(
                        else null
                        end           as user_name
             from ${documentClass.table}
-                     left join nav_ansatt na on user_id = na.nav_ident
+                left join nav_ansatt na on user_id = na.nav_ident
             where document_id = :document_id
             order by sys_period desc;
         """.trimIndent()

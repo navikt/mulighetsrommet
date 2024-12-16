@@ -16,14 +16,15 @@ import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.NotFound
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
-import no.nav.mulighetsrommet.api.tilsagn.model.AvvistTilsagnAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningInput
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBesluttelseStatus
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 fun Route.tilsagnRoutes() {
@@ -58,10 +59,12 @@ fun Route.tilsagnRoutes() {
                 call.respondWithStatusResponse(result)
             }
 
-            put("/{id}") {
+            post("/{id}/til-annullering") {
+                val request = call.receive<TilAnnulleringRequest>()
                 val id = call.parameters.getOrFail<UUID>("id")
+                val navIdent = getNavIdent()
 
-                call.respondWithStatusResponse(service.annuller(id))
+                call.respondWithStatusResponse(service.tilAnnullering(id, navIdent, request))
             }
 
             delete("/{id}") {
@@ -129,7 +132,8 @@ data class TilsagnRequest(
         periodeSlutt = periodeSlutt,
         kostnadssted = kostnadssted,
         beregning = beregning,
-        opprettetAv = opprettetAv,
+        endretAv = opprettetAv,
+        endretTidspunkt = LocalDateTime.now(),
         arrangorId = arrangorId,
     )
 }
@@ -140,7 +144,6 @@ data class TilsagnRequest(
 sealed class BesluttTilsagnRequest(
     val besluttelse: TilsagnBesluttelseStatus,
 ) {
-
     @Serializable
     @SerialName("GODKJENT")
     data object GodkjentTilsagnRequest : BesluttTilsagnRequest(
@@ -150,12 +153,18 @@ sealed class BesluttTilsagnRequest(
     @Serializable
     @SerialName("AVVIST")
     data class AvvistTilsagnRequest(
-        val aarsaker: List<AvvistTilsagnAarsak>,
+        val aarsaker: List<TilsagnStatusAarsak>?,
         val forklaring: String?,
     ) : BesluttTilsagnRequest(
         besluttelse = TilsagnBesluttelseStatus.AVVIST,
     )
 }
+
+@Serializable
+data class TilAnnulleringRequest(
+    val aarsaker: List<TilsagnStatusAarsak>,
+    val forklaring: String?,
+)
 
 @Serializable
 data class AFTSats(

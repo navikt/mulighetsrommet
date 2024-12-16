@@ -10,7 +10,6 @@ import { useOpprettTilsagn } from "./useOpprettTilsagn";
 interface Props {
   tiltaksgjennomforing: TiltaksgjennomforingDto;
   tilsagn?: TilsagnDto;
-  tilsagnSkalGodkjennes: boolean;
 }
 
 export function OpprettTilsagnContainer({ tiltaksgjennomforing, tilsagn }: Props) {

@@ -34,7 +34,7 @@ export function AFTTilsagnDetaljer({ tilsagn }: Props) {
           <Bolk>
             <Metadata header="Dato fra" verdi={formaterDato(tilsagn.periodeStart)} />
             <Metadata header="Dato til" verdi={formaterDato(tilsagn.periodeSlutt)} />
-            <Metadata header="Tilsagnsstatus" verdi={<TilsagnTag tilsagn={tilsagn} />} />
+            <Metadata header="Tilsagnsstatus" verdi={<TilsagnTag status={tilsagn.status} />} />
           </Bolk>
           <Bolk>
             <Metadata

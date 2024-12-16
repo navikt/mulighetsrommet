@@ -1777,14 +1777,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TilsagnDto"
-    put:
-      tags:
-        - Tilsagn
-      operationId: annullerTilsagn
-      responses:
-        200:
-          description: OK
-
     delete:
       tags:
         - Tilsagn
@@ -1792,6 +1784,26 @@ paths:
       responses:
         200:
           description: OK
+
+  /api/v1/intern/tilsagn/{id}/til-annullering:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    post:
+      tags:
+        - Tilsagn
+      operationId: tilAnnullering
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TilsagnTilAnnulleringRequest"
+      responses:
+        200:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
 
   /api/v1/intern/tilsagn/{id}/beslutt:
     parameters:
@@ -4798,15 +4810,8 @@ components:
           $ref: "#/components/schemas/NavEnhet"
         beregning:
           $ref: "#/components/schemas/TilsagnBeregning"
-        besluttelse:
-          $ref: "#/components/schemas/TilsagnBesluttelseDto"
-        annullertTidspunkt:
-          type: string
-          format: date-time
         lopenummer:
           type: integer
-        opprettetAv:
-          type: string
         arrangor:
           type: object
           properties:
@@ -4837,43 +4842,122 @@ components:
         - belop
         - arrangor
         - lopenummer
-        - opprettetAv
         - status
 
     TilsagnStatus:
-      type: string
-      enum:
-        - TIL_GODKJENNING
-        - GODKJENT
-        - RETURNERT
-        - ANNULLERT
-        - OPPGJORT
+      oneOf:
+        - $ref: "#/components/schemas/TilsagnStatusTilGodkjenning"
+        - $ref: "#/components/schemas/TilsagnStatusGodkjent"
+        - $ref: "#/components/schemas/TilsagnStatusReturnert"
+        - $ref: "#/components/schemas/TilsagnStatusTilAnnullering"
+        - $ref: "#/components/schemas/TilsagnStatusAnnullert"
 
-    TilsagnBesluttelseDto:
+    TilsagnStatusTilGodkjenning:
       type: object
       properties:
-        navIdent:
+        type:
           type: string
-        beslutternavn:
+          enum:
+            - 'TIL_GODKJENNING'
+        endretAv:
           type: string
-        tidspunkt:
+        endretTidspunkt:
           type: string
           format: date-time
-        status:
-          $ref: "#/components/schemas/TilsagnBesluttelseStatus"
+      required:
+        - endretAv
+        - endretTidspunkt
+        - type
+
+    TilsagnStatusGodkjent:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - 'GODKJENT'
+      required:
+        - type
+
+    TilsagnStatusReturnert:
+      type: object
+      properties:
+        endretAv:
+          type: string
+        type:
+          type: string
+          enum:
+            - 'RETURNERT'
+        returnertAv:
+          type: string
+        returnertAvNavn:
+          type: string
         aarsaker:
           type: array
           items:
             $ref: "#/components/schemas/TilsagnAvvisningAarsak"
         forklaring:
           type: string
+        endretTidspunkt:
+          type: string
+          format: date-time
       required:
-        - navIdent
-        - beslutternavn
-        - tidspunkt
-        - status
+        - returnertAv
+        - returnertAvNavn
+        - aarsaker
+        - endretTidspunkt
+        - endretAv
+        - type
 
-    TilsagnBesluttelseStatus:
+    TilsagnStatusTilAnnullering:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - 'TIL_ANNULLERING'
+        endretAv:
+          type: string
+        endretAvNavn:
+          type: string
+        endretTidspunkt:
+          type: string
+          format: date-time
+        aarsaker:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnTilAnnulleringAarsak"
+        forklaring:
+          type: string
+      required:
+        - endretAv
+        - endretAvNavn
+        - endretTidspunkt
+        - aarsaker
+        - forklaring
+        - type
+
+    TilsagnStatusAnnullert:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - 'ANNULLERT'
+        endretAv:
+          type: string
+        godkjentAv:
+          type: string
+        endretTidspunkt:
+          type: string
+          format: date-time
+      required:
+        - type
+        - endretAv
+        - godkjentAv
+        - endretTidspunkt
+
+    TilsagnStatusBesluttelse:
       type: string
       enum:
         - GODKJENT
@@ -4888,7 +4972,7 @@ components:
       type: object
       properties:
         besluttelse:
-          $ref: "#/components/schemas/TilsagnBesluttelseStatus"
+          $ref: "#/components/schemas/TilsagnStatusBesluttelse"
       required:
         - besluttelse
 
@@ -4896,11 +4980,23 @@ components:
       type: object
       properties:
         besluttelse:
-          $ref: "#/components/schemas/TilsagnBesluttelseStatus"
+          $ref: "#/components/schemas/TilsagnStatusBesluttelse"
         aarsaker:
           type: array
           items:
             $ref: "#/components/schemas/TilsagnAvvisningAarsak"
+        forklaring:
+          type: string
+      required:
+        - besluttelse
+
+    TilsagnTilAnnulleringRequest:
+      type: object
+      properties:
+        aarsaker:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnTilAnnulleringAarsak"
         forklaring:
           type: string
       required:
@@ -4911,6 +5007,12 @@ components:
       oneOf:
         - $ref: "#/components/schemas/TilsagnBeregningAFT"
         - $ref: "#/components/schemas/TilsagnBeregningFri"
+
+    TilsagnTilAnnulleringAarsak:
+      type: string
+      enum:
+        - FEIL_REGISTRERING
+        - FEIL_ANNET
 
     TilsagnAvvisningAarsak:
       type: string

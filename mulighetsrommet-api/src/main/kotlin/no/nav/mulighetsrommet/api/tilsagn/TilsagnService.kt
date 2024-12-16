@@ -71,55 +71,102 @@ class TilsagnService(
         val tilsagn = tilsagnRepository.get(id)
             ?: return NotFound("Fant ikke tilsagn").left()
 
-        if (tilsagn.opprettetAv == navIdent) {
-            return Forbidden("Kan ikke beslutte eget tilsagn").left()
-        }
-
-        if (tilsagn.besluttelse != null) {
-            return BadRequest("Tilsagn allerede besluttet").left()
-        }
-
-        if (tilsagn.annullertTidspunkt != null) {
-            return BadRequest("Tilsagn er annullert").left()
-        }
-
-        when (besluttelse) {
-            is BesluttTilsagnRequest.GodkjentTilsagnRequest -> Unit
-            is BesluttTilsagnRequest.AvvistTilsagnRequest -> {
-                if (besluttelse.aarsaker.contains(AvvistTilsagnAarsak.FEIL_ANNET) && besluttelse.forklaring.isNullOrBlank()) {
-                    return BadRequest("Forklaring må oppgis når årsak er 'Annet' ved avvist tilsagn").left()
+        return when (tilsagn.status) {
+            is TilsagnDto.TilsagnStatus.Annullert, is TilsagnDto.TilsagnStatus.Godkjent, is TilsagnDto.TilsagnStatus.Returnert ->
+                BadRequest("Tilsagnet kan ikke besluttes fordi det har status ${tilsagn.status.javaClass.simpleName}").left()
+            is TilsagnDto.TilsagnStatus.TilGodkjenning -> {
+                when (besluttelse) {
+                    BesluttTilsagnRequest.GodkjentTilsagnRequest -> godkjennTilsagn(tilsagn, navIdent)
+                    is BesluttTilsagnRequest.AvvistTilsagnRequest -> returnerTilsagn(tilsagn, besluttelse, navIdent)
+                }
+            }
+            is TilsagnDto.TilsagnStatus.TilAnnullering -> {
+                when (besluttelse.besluttelse) {
+                    TilsagnBesluttelseStatus.GODKJENT -> annullerTilsagn(tilsagn, navIdent)
+                    TilsagnBesluttelseStatus.AVVIST -> avvisAnnullering(tilsagn, navIdent)
                 }
             }
         }
+    }
+
+    private suspend fun godkjennTilsagn(tilsagn: TilsagnDto, navIdent: NavIdent): StatusResponse<Unit> {
+        require(tilsagn.status is TilsagnDto.TilsagnStatus.TilGodkjenning)
+        if (navIdent == tilsagn.status.endretAv) {
+            return Forbidden("Kan ikke beslutte eget tilsagn").left()
+        }
 
         return db.transactionSuspend { tx ->
-            tilsagnRepository.setBesluttelse(tilsagn.id, besluttelse, navIdent, LocalDateTime.now(), tx)
-
-            when (besluttelse) {
-                is BesluttTilsagnRequest.GodkjentTilsagnRequest -> lagOgSendBestilling(tilsagn)
-                is BesluttTilsagnRequest.AvvistTilsagnRequest -> Unit
-            }
+            tilsagnRepository.besluttGodkjennelse(
+                tilsagn.id,
+                navIdent,
+                LocalDateTime.now(),
+                tx,
+            )
+            lagOgSendBestilling(tilsagn)
         }.right()
     }
 
-    suspend fun annuller(id: UUID): StatusResponse<Unit> {
+    private fun returnerTilsagn(tilsagn: TilsagnDto, besluttelse: BesluttTilsagnRequest.AvvistTilsagnRequest, navIdent: NavIdent): StatusResponse<Unit> {
+        require(tilsagn.status is TilsagnDto.TilsagnStatus.TilGodkjenning)
+        if (navIdent == tilsagn.status.endretAv) {
+            return Forbidden("Kan ikke beslutte eget tilsagn").left()
+        }
+        if (besluttelse.aarsaker.isNullOrEmpty()) {
+            return BadRequest(message = "Årsaker er påkrevd").left()
+        }
+        tilsagnRepository.returner(
+            tilsagn.id,
+            navIdent,
+            LocalDateTime.now(),
+            besluttelse.aarsaker,
+            besluttelse.forklaring,
+        )
+        return Unit.right()
+    }
+
+    private fun annullerTilsagn(tilsagn: TilsagnDto, navIdent: NavIdent): StatusResponse<Unit> {
+        require(tilsagn.status is TilsagnDto.TilsagnStatus.TilAnnullering)
+        if (navIdent == tilsagn.status.endretAv) {
+            return Forbidden("Kan ikke beslutte eget tilsagn").left()
+        }
+
+        tilsagnRepository.besluttAnnullering(
+            tilsagn.id,
+            navIdent,
+            LocalDateTime.now(),
+        )
+        return Unit.right()
+    }
+
+    private fun avvisAnnullering(tilsagn: TilsagnDto, navIdent: NavIdent): StatusResponse<Unit> {
+        require(tilsagn.status is TilsagnDto.TilsagnStatus.TilAnnullering)
+        if (navIdent == tilsagn.status.endretAv) {
+            return Forbidden("Kan ikke beslutte eget tilsagn").left()
+        }
+        tilsagnRepository.avbrytAnnullering(
+            tilsagn.id,
+            navIdent,
+            LocalDateTime.now(),
+        )
+        return Unit.right()
+    }
+
+    fun tilAnnullering(id: UUID, navIdent: NavIdent, request: TilAnnulleringRequest): StatusResponse<Unit> {
         val dto = tilsagnRepository.get(id)
             ?: return NotFound("Fant ikke tilsagn").left()
+        if (dto.status !is TilsagnDto.TilsagnStatus.Godkjent) {
+            return BadRequest("Kan bare annullere godkjente tilsagn").left()
+        }
 
-        return db.transactionSuspend { tx ->
-            tilsagnRepository.setAnnullertTidspunkt(id, LocalDateTime.now(), tx)
-
-            if (dto.besluttelse?.status == TilsagnBesluttelseStatus.GODKJENT) {
-                OkonomiClient.annullerOrder(lagOkonomiId(dto))
-            }
-        }.right()
+        tilsagnRepository.tilAnnullering(id, navIdent, LocalDateTime.now(), request.aarsaker, request.forklaring)
+        return Unit.right()
     }
 
     fun slettTilsagn(id: UUID): Either<StatusResponseError, Unit> {
         val dto = tilsagnRepository.get(id)
             ?: return NotFound("Fant ikke tilsagn").left()
 
-        if (dto.besluttelse?.status == TilsagnBesluttelseStatus.GODKJENT) {
+        if (dto.status !is TilsagnDto.TilsagnStatus.Returnert) {
             return BadRequest("Kan ikke slette tilsagn som er godkjent").left()
         }
 
