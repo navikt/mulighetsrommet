@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.client.UtdanningNoProgramomraade
-import no.nav.mulighetsrommet.utdanning.db.UtdanningRepository
+import no.nav.mulighetsrommet.utdanning.db.UtdanningQueries
 
 class SynchronizeUtdanningerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
@@ -56,8 +56,6 @@ class SynchronizeUtdanningerTest : FunSpec({
     )
 
     context("Synchronize utdanninger") {
-        val utdanningRepository = UtdanningRepository(database.db)
-
         test("Skal synkronisere programområder og utdanninger") {
             val synchronizeUtdanninger = SynchronizeUtdanninger(
                 db = database.db,
@@ -72,7 +70,7 @@ class SynchronizeUtdanningerTest : FunSpec({
 
             synchronizeUtdanninger.syncUtdanninger()
 
-            val programomraderMedUtdanninger = utdanningRepository.getUtdanningsprogrammer()
+            val programomraderMedUtdanninger = database.db.useSession { UtdanningQueries.getUtdanningsprogrammer(it) }
 
             programomraderMedUtdanninger should {
                 it.size shouldBe 1
@@ -115,7 +113,7 @@ class SynchronizeUtdanningerTest : FunSpec({
 
             synchronizeUtdanninger.syncUtdanninger()
 
-            val programomraderMedUtdanninger = utdanningRepository.getUtdanningsprogrammer()
+            val programomraderMedUtdanninger = database.db.useSession { UtdanningQueries.getUtdanningsprogrammer(it) }
 
             programomraderMedUtdanninger should {
                 it.size shouldBe 1

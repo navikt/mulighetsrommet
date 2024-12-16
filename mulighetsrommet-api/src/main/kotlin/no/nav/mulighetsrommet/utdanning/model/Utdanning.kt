@@ -19,7 +19,7 @@ data class Utdanning(
     val aktiv: Boolean,
     val utdanningstatus: Status,
     val utdanningslop: List<String>,
-    val nusKodeverk: List<NusKodeverk>,
+    val nusKoder: List<String>,
 ) {
     @Serializable
     enum class Sluttkompetanse {
@@ -43,9 +43,3 @@ enum class UtdanningsprogramType {
     YRKESFAGLIG,
     STUDIEFORBEREDENDE,
 }
-
-@Serializable
-data class NusKodeverk(
-    val navn: String,
-    val kode: String,
-)
