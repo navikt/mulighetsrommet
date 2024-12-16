@@ -119,7 +119,7 @@ export default function RefusjonskravBeregning() {
         {deltakereMedRelevanteForslag.length > 0 && (
           <Alert variant="warning">
             Det finnes ubehandlede forslag som påvirker refusjonen på følgende personer. Disse må
-            først godkjennes av Nav veileder før refusjonskravet oppdaterer seg.
+            først godkjennes av Nav-veileder før refusjonskravet oppdaterer seg.
             <List>
               {deltakereMedRelevanteForslag.map((deltaker) => (
                 <List.Item key={deltaker.id}>{deltaker.person.navn}</List.Item>
