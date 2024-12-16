@@ -50,17 +50,6 @@ fun Route.tilsagnRoutes() {
             val gjennomforing = gjennomforinger.get(gjennomforingId) ?: return@get call.respond(HttpStatusCode.NotFound)
             val tilsagn = service.getByGjennomforingId(gjennomforingId).lastOrNull()
 
-            @Serializable
-            data class TilsagnDefaults(
-                @Serializable(with = LocalDateSerializer::class)
-                val periodeStart: LocalDate,
-                @Serializable(with = LocalDateSerializer::class)
-                val periodeSlutt: LocalDate,
-                val antallPlasser: Int,
-                val kostnadssted: String?,
-                val beregning: Prismodell.TilsagnBeregning?,
-            )
-
             val defaults = when (gjennomforing.tiltakstype.tiltakskode) {
                 Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET -> {
                     val lastDayOfYear = LocalDate.now().withMonth(12).withDayOfMonth(31)
@@ -185,6 +174,17 @@ fun Route.tilsagnRoutes() {
         }
     }
 }
+
+@Serializable
+data class TilsagnDefaults(
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeStart: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeSlutt: LocalDate,
+    val antallPlasser: Int,
+    val kostnadssted: String?,
+    val beregning: Prismodell.TilsagnBeregning?,
+)
 
 @Serializable
 data class TilsagnRequest(

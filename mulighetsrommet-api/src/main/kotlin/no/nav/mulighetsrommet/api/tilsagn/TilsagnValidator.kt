@@ -83,20 +83,20 @@ class TilsagnValidator(
         val errors = buildList {
             if (input.periodeStart.year != input.periodeSlutt.year) {
                 add(
-                    ValidationError.of(
-                        TilsagnBeregningInput.AFT::periodeSlutt,
+                    ValidationError.ofCustomLocation(
+                        "periodeSlutt",
                         "Tilsagnsperioden kan ikke vare utover årsskiftet",
                     ),
                 )
             }
             if (input.periodeStart.isAfter(input.periodeSlutt)) {
-                add(ValidationError.of(TilsagnBeregningInput.AFT::periodeSlutt, "Slutt kan ikke være før start"))
+                add(ValidationError.ofCustomLocation("periodeSlutt", "Slutt kan ikke være før start"))
             }
             if (input.antallPlasser <= 0) {
-                add(ValidationError.of(TilsagnBeregningInput.AFT::antallPlasser, "Antall plasser kan ikke være 0"))
+                add(ValidationError.ofCustomLocation("beregning.antallPlasser", "Antall plasser kan ikke være 0"))
             }
             if (Prismodell.AFT.findSats(input.periodeStart) != Prismodell.AFT.findSats(input.periodeSlutt)) {
-                add(ValidationError.of(TilsagnBeregningInput.AFT::periodeSlutt, "Periode går over flere satser"))
+                add(ValidationError.ofCustomLocation("periodeSlutt", "Periode går over flere satser"))
             }
         }
 

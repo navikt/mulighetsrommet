@@ -54,7 +54,7 @@ export function AFTBeregningSkjema() {
     setValue("beregning", undefined);
 
     validation.errors.forEach((error) => {
-      const name = `beregning.${error.name}` as keyof InferredOpprettTilsagnSchema;
+      const name = error.name as keyof InferredOpprettTilsagnSchema;
       setError(name, { type: "custom", message: error.message });
     });
   };

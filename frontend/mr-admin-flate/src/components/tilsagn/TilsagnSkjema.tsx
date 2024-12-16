@@ -1,17 +1,10 @@
 import { useKostnadssted } from "@/api/enhet/useKostnadssted";
 import { addYear } from "@/utils/Utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  ApiError,
-  TilsagnDefaults,
-  TilsagnDto,
-  TilsagnRequest,
-  TiltaksgjennomforingDto,
-} from "@mr/api-client";
+import { ApiError, TilsagnDto, TiltaksgjennomforingDto } from "@mr/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, DatePicker, Heading, HGrid, HStack, Label } from "@navikt/ds-react";
-import { UseMutationResult } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
@@ -20,48 +13,35 @@ import { FriBeregningSkjema } from "./FriBeregningSkjema";
 import { InferredOpprettTilsagnSchema, OpprettTilsagnSchema } from "./OpprettTilsagnSchema";
 import styles from "./TilsagnSkjema.module.scss";
 import { TiltakDetaljerForTilsagn } from "./TiltakDetaljerForTilsagn";
-import { useLocation } from "react-router-dom";
 
 interface Props {
-  tiltaksgjennomforing: TiltaksgjennomforingDto;
+  gjennomforing: TiltaksgjennomforingDto;
   tilsagn?: TilsagnDto;
   onSubmit: (data: InferredOpprettTilsagnSchema) => void;
   onAvbryt?: () => void;
-  mutation: UseMutationResult<TilsagnDto, ApiError, TilsagnRequest, unknown>;
+  isPending: boolean;
+  error?: null | ApiError;
   prismodell: "AFT" | "FRI";
-  defaults: TilsagnDefaults;
+  defaultValues: Partial<InferredOpprettTilsagnSchema>;
+  defaultKostnadssteder: string[];
 }
 
 export function TilsagnSkjema({
-  tiltaksgjennomforing,
+  gjennomforing,
   tilsagn,
   onSubmit,
   onAvbryt,
-  mutation,
+  isPending,
   prismodell,
-  defaults,
+  defaultValues,
+  error,
+  defaultKostnadssteder,
 }: Props) {
-  const locationState = useLocation()?.state as { ekstratilsagn?: boolean };
-  const erEkstratilsagn = locationState?.ekstratilsagn;
-
-  const enheterForKostnadssted = erEkstratilsagn
-    ? []
-    : tiltaksgjennomforing.navRegion?.enhetsnummer
-      ? [tiltaksgjennomforing.navRegion?.enhetsnummer]
-      : [];
-  const { data: kostnadssteder } = useKostnadssted(enheterForKostnadssted);
+  const { data: kostnadssteder } = useKostnadssted(defaultKostnadssteder);
 
   const form = useForm<InferredOpprettTilsagnSchema>({
     resolver: zodResolver(OpprettTilsagnSchema),
-    defaultValues: tilsagn
-      ? {
-          id: tilsagn.id,
-          beregning: tilsagn.beregning,
-          kostnadssted: tilsagn.kostnadssted.enhetsnummer,
-          periodeStart: tilsagn.periodeStart,
-          periodeSlutt: tilsagn.periodeSlutt,
-        }
-      : defaults,
+    defaultValues: defaultValues,
   });
 
   const { handleSubmit, register, setValue, watch } = form;
@@ -80,7 +60,7 @@ export function TilsagnSkjema({
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <TiltakDetaljerForTilsagn tiltaksgjennomforing={tiltaksgjennomforing} />
+        <TiltakDetaljerForTilsagn tiltaksgjennomforing={gjennomforing} />
         <div className={styles.formContainer}>
           <div className={styles.formHeader}>
             <Heading size="medium">Tilsagn</Heading>
@@ -92,7 +72,7 @@ export function TilsagnSkjema({
                   <HGrid columns={2} gap={"2"}>
                     <ControlledDateInput
                       label="Dato fra"
-                      fromDate={new Date(tiltaksgjennomforing.startDato)}
+                      fromDate={new Date(gjennomforing.startDato)}
                       toDate={addYear(new Date(), 50)}
                       format="iso-string"
                       {...register("periodeStart")}
@@ -100,7 +80,7 @@ export function TilsagnSkjema({
                     />
                     <ControlledDateInput
                       label="Dato til"
-                      fromDate={new Date(tiltaksgjennomforing.startDato)}
+                      fromDate={new Date(gjennomforing.startDato)}
                       toDate={addYear(new Date(), 50)}
                       format="iso-string"
                       {...register("periodeSlutt")}
@@ -141,7 +121,7 @@ export function TilsagnSkjema({
           </div>
         </div>
         <div className={styles.alert}>
-          {mutation.error ? (
+          {error ? (
             <Alert variant="error" size="small">
               Klarte ikke opprette tilsagn
             </Alert>
@@ -151,8 +131,8 @@ export function TilsagnSkjema({
           <Button onClick={onAvbryt} size="small" type="button" variant="tertiary">
             Avbryt
           </Button>
-          <Button size="small" type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? "Sender til godkjenning" : "Send til godkjenning"}
+          <Button size="small" type="submit" disabled={isPending}>
+            {isPending ? "Sender til godkjenning" : "Send til godkjenning"}
           </Button>
         </HStack>
       </form>

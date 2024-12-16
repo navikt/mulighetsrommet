@@ -38,7 +38,10 @@ export const OpprettTilsagnSchema = z
       .string({ required_error: tekster.manglerSluttdato })
       .min(10, tekster.manglerSluttdato),
     kostnadssted: z
-      .string({ required_error: tekster.manglerKostnadssted })
+      .string({
+        invalid_type_error: tekster.manglerKostnadssted,
+        required_error: tekster.manglerKostnadssted,
+      })
       .length(4, tekster.manglerKostnadssted),
     beregning: TilsagnBeregningSchema,
   })

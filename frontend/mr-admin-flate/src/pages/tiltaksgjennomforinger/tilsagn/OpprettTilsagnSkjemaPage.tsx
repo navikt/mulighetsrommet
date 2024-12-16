@@ -1,14 +1,14 @@
 import { Tilsagnstabell } from "@/pages/tiltaksgjennomforinger/tilsagn/Tilsagnstabell";
 import { Alert, Heading, VStack } from "@navikt/ds-react";
 import { useLoaderData, useMatch, useParams } from "react-router-dom";
-import { Header } from "../../../components/detaljside/Header";
-import { TiltaksgjennomforingIkon } from "../../../components/ikoner/TiltaksgjennomforingIkon";
-import { Brodsmule, Brodsmuler } from "../../../components/navigering/Brodsmuler";
-import { SkjemaContainer } from "../../../components/skjema/SkjemaContainer";
-import { SkjemaContent } from "../../../components/skjema/SkjemaContent";
-import { OpprettTilsagnContainer } from "../../../components/tilsagn/OpprettTilsagnContainer";
-import { ContainerLayout } from "../../../layouts/ContainerLayout";
-import { inneholderUrl } from "../../../utils/Utils";
+import { Header } from "@/components/detaljside/Header";
+import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
+import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
+import { SkjemaContainer } from "@/components/skjema/SkjemaContainer";
+import { SkjemaContent } from "@/components/skjema/SkjemaContent";
+import { OpprettTilsagnContainer } from "@/components/tilsagn/OpprettTilsagnContainer";
+import { ContainerLayout } from "@/layouts/ContainerLayout";
+import { inneholderUrl } from "@/utils/Utils";
 import { tilsagnLoader } from "./tilsagnLoader";
 
 export function OpprettTilsagnSkjemaPage() {
