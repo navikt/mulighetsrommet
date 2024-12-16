@@ -14,11 +14,11 @@ export function TiltakHeader({ tiltak }: Props) {
       <VStack gap="2">
         <Heading level="2" size="xlarge">
           <BodyShort spacing size="small">
-            {tiltak.underTittel}
+            {tiltak.tittel}
           </BodyShort>
         </Heading>
         <HStack gap={"2"} align="center">
-          <Heading size="large">{tiltak.tittel}</Heading>
+          <Heading size="large">{tiltak.underTittel}</Heading>
           {!isTiltakAktivt(tiltak) && <GjennomforingStatusTag status={tiltak.status} />}
         </HStack>
       </VStack>
@@ -30,7 +30,7 @@ export function TiltakHeader({ tiltak }: Props) {
       {tiltakstype.beskrivelse && (
         <VStack gap={"0"} style={{ marginTop: "1rem" }}>
           <Heading level="2" size="small">
-            Generell info
+            Generell informasjon
           </Heading>
           <BodyLong size="large" style={{ whiteSpace: "pre-wrap" }}>
             {tiltakstype.beskrivelse}

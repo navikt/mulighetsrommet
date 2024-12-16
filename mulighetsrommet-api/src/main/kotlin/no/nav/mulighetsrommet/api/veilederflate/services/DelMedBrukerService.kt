@@ -7,7 +7,6 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.services.cms.CacheUsage
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.veilederflate.TiltaksnavnUtils.tittelOgUnderTittel
 import no.nav.mulighetsrommet.api.veilederflate.models.DelMedBrukerDbo
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
@@ -169,10 +168,8 @@ class DelMedBrukerService(
             .let { db.run(it) }
             .flatMap { (id, tiltak) ->
                 deltMedBruker.filter { it.tiltaksgjennomforingId == id }.map {
-                    val (tittel, underTittel) = tittelOgUnderTittel(
-                        tiltak.navn,
-                        tiltak.tiltakstypeNavn,
-                    )
+                    val underTittel = tiltak.navn
+                    val tittel = tiltak.tiltakstypeNavn
 
                     TiltakDeltMedBruker(
                         tittel = tittel,
@@ -204,10 +201,8 @@ class DelMedBrukerService(
         return tiltakFraSanity.map { tiltak ->
             val arenaKode = tiltakstyper.getValue(UUID.fromString(tiltak.tiltakstype._id)).arenaKode
 
-            val (tittel, underTittel) = tittelOgUnderTittel(
-                tiltak.tiltaksgjennomforingNavn ?: "",
-                tiltak.tiltakstype.tiltakstypeNavn,
-            )
+            val underTittel = tiltak.tiltaksgjennomforingNavn ?: ""
+            val tittel = tiltak.tiltakstype.tiltakstypeNavn
 
             deltMedBruker.filter { it.sanityId == tiltak._id.toUUID() }.map {
                 TiltakDeltMedBruker(
