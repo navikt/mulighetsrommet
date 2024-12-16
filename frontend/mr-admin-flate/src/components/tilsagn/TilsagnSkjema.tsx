@@ -1,7 +1,13 @@
 import { useKostnadssted } from "@/api/enhet/useKostnadssted";
-import { addMonths, addYear, subtractDays } from "@/utils/Utils";
+import { addYear } from "@/utils/Utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ApiError, TilsagnDto, TilsagnRequest, TiltaksgjennomforingDto } from "@mr/api-client";
+import {
+  ApiError,
+  TilsagnDefaults,
+  TilsagnDto,
+  TilsagnRequest,
+  TiltaksgjennomforingDto,
+} from "@mr/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, DatePicker, Heading, HGrid, HStack, Label } from "@navikt/ds-react";
@@ -23,6 +29,7 @@ interface Props {
   onAvbryt?: () => void;
   mutation: UseMutationResult<TilsagnDto, ApiError, TilsagnRequest, unknown>;
   prismodell: "AFT" | "FRI";
+  defaults: TilsagnDefaults;
 }
 
 export function TilsagnSkjema({
@@ -32,9 +39,12 @@ export function TilsagnSkjema({
   onAvbryt,
   mutation,
   prismodell,
+  defaults,
 }: Props) {
   const locationState = useLocation()?.state as { ekstratilsagn?: boolean };
-  const enheterForKostnadssted = locationState?.ekstratilsagn
+  const erEkstratilsagn = locationState?.ekstratilsagn;
+
+  const enheterForKostnadssted = erEkstratilsagn
     ? []
     : tiltaksgjennomforing.navRegion?.enhetsnummer
       ? [tiltaksgjennomforing.navRegion?.enhetsnummer]
@@ -48,32 +58,10 @@ export function TilsagnSkjema({
           id: tilsagn.id,
           beregning: tilsagn.beregning,
           kostnadssted: tilsagn.kostnadssted.enhetsnummer,
-          periode: {
-            start: tilsagn.periodeStart,
-            slutt: tilsagn.periodeSlutt,
-          },
+          periodeStart: tilsagn.periodeStart,
+          periodeSlutt: tilsagn.periodeSlutt,
         }
-      : {
-          id: null,
-          beregning: {
-            antallPlasser: undefined,
-            belop: undefined,
-            periodeStart: undefined,
-            periodeSlutt: undefined,
-            sats: undefined,
-            type: undefined,
-          },
-          kostnadssted: undefined,
-          periode: !locationState?.ekstratilsagn
-            ? {
-                start: tiltaksgjennomforing.startDato,
-                slutt: subtractDays(
-                  addMonths(new Date(tiltaksgjennomforing.startDato), 6),
-                  1,
-                ).toISOString(),
-              }
-            : {},
-        },
+      : defaults,
   });
 
   const { handleSubmit, register, setValue, watch } = form;
@@ -82,8 +70,8 @@ export function TilsagnSkjema({
       setValue("id", tilsagn.id);
       setValue("kostnadssted", tilsagn?.kostnadssted.enhetsnummer);
       setValue("beregning", tilsagn.beregning);
-      setValue("periode.start", tilsagn.periodeStart);
-      setValue("periode.slutt", tilsagn.periodeSlutt);
+      setValue("periodeStart", tilsagn.periodeStart);
+      setValue("periodeSlutt", tilsagn.periodeSlutt);
     }
   }, [kostnadssteder, tilsagn, setValue]);
 
@@ -107,7 +95,7 @@ export function TilsagnSkjema({
                       fromDate={new Date(tiltaksgjennomforing.startDato)}
                       toDate={addYear(new Date(), 50)}
                       format="iso-string"
-                      {...register("periode.start")}
+                      {...register("periodeStart")}
                       size="small"
                     />
                     <ControlledDateInput
@@ -115,22 +103,14 @@ export function TilsagnSkjema({
                       fromDate={new Date(tiltaksgjennomforing.startDato)}
                       toDate={addYear(new Date(), 50)}
                       format="iso-string"
-                      {...register("periode.slutt")}
+                      {...register("periodeSlutt")}
                       size="small"
                     />
                   </HGrid>
                 </DatePicker>
               </div>
               <div className={styles.formGroup}>
-                {prismodell == "AFT" ? (
-                  <AFTBeregningSkjema
-                    defaultAntallPlasser={
-                      locationState?.ekstratilsagn ? undefined : tiltaksgjennomforing.antallPlasser
-                    }
-                  />
-                ) : (
-                  <FriBeregningSkjema />
-                )}
+                {prismodell == "AFT" ? <AFTBeregningSkjema /> : <FriBeregningSkjema />}
               </div>
               <div className={styles.formGroup}>
                 <ControlledSokeSelect

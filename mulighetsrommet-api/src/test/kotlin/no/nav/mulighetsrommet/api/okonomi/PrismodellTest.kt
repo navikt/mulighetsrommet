@@ -66,16 +66,6 @@ class PrismodellTest : FunSpec({
                 periodeSlutt = LocalDate.of(2024, 2, 28),
             ) shouldBe 19599
         }
-        test("feil sats kaster exception") {
-            shouldThrow<IllegalArgumentException> {
-                Prismodell.AFT.beregnTilsagnBelop(
-                    sats = 15,
-                    antallPlasser = 1,
-                    periodeStart = LocalDate.of(2023, 2, 1),
-                    periodeSlutt = LocalDate.of(2023, 2, 28),
-                )
-            }
-        }
         test("tom periode kaster exception") {
             shouldThrow<IllegalArgumentException> {
                 Prismodell.AFT.beregnTilsagnBelop(

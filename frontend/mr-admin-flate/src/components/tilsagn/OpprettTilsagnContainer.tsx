@@ -6,6 +6,7 @@ import { SkjemaKolonne } from "../skjema/SkjemaKolonne";
 import { InferredOpprettTilsagnSchema } from "./OpprettTilsagnSchema";
 import { TilsagnSkjema } from "./TilsagnSkjema";
 import { useOpprettTilsagn } from "./useOpprettTilsagn";
+import { useTilsagnDefaults } from "@/api/tilsagn/useTilsagnDefaults";
 
 interface Props {
   tiltaksgjennomforing: TiltaksgjennomforingDto;
@@ -14,13 +15,16 @@ interface Props {
 
 export function OpprettTilsagnContainer({ tiltaksgjennomforing, tilsagn }: Props) {
   const navigate = useNavigate();
+
+  const defaults = useTilsagnDefaults(tiltaksgjennomforing.id);
+
   const mutation = useOpprettTilsagn();
 
   const postData: SubmitHandler<InferredOpprettTilsagnSchema> = async (data): Promise<void> => {
     const request: TilsagnRequest = {
       id: data.id || window.crypto.randomUUID(),
-      periodeStart: data.periode.start,
-      periodeSlutt: data.periode.slutt,
+      periodeStart: data.periodeStart,
+      periodeSlutt: data.periodeSlutt,
       kostnadssted: data.kostnadssted,
       beregning: data.beregning,
       tiltaksgjennomforingId: tiltaksgjennomforing.id,
@@ -47,6 +51,7 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing, tilsagn }: Props
         <SkjemaKolonne>
           <TilsagnSkjema
             tiltaksgjennomforing={tiltaksgjennomforing}
+            defaults={defaults.data}
             tilsagn={tilsagn}
             onSubmit={postData}
             mutation={mutation}

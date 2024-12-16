@@ -1763,6 +1763,27 @@ paths:
               schema:
                 $ref: "#/components/schemas/TilsagnBeregning"
 
+  /api/v1/intern/tilsagn/defaults:
+    parameters:
+      - name: gjennomforingId
+        in: query
+        description: Id til tilsagnets gjennomføring
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - Tilsagn
+      operationId: getTilsagnDefaults
+      responses:
+        200:
+          description: Standardverdier for neste tilsagn
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TilsagnDefaults"
+
   /api/v1/intern/tilsagn/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -5003,6 +5024,29 @@ components:
         - besluttelse
         - aarsaker
 
+    TilsagnDefaults:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        periodeStart:
+          type: string
+          format: date
+        periodeSlutt:
+          type: string
+          format: date
+        antallPlasser:
+          type: integer
+        kostnadssted:
+          type: string
+        beregning:
+          $ref: "#/components/schemas/TilsagnBeregning"
+      required:
+        - periodeStart
+        - periodeSlutt
+        - antallPlasser
+
     TilsagnBeregning:
       oneOf:
         - $ref: "#/components/schemas/TilsagnBeregningAFT"
@@ -5082,13 +5126,10 @@ components:
           format: date
         antallPlasser:
           type: integer
-        sats:
-          type: integer
       required:
         - type
         - periodeStart
         - periodeSlutt
-        - sats
         - antallPlasser
 
     TilsagnBeregningInputFri:

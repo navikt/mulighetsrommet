@@ -31,25 +31,23 @@ const TilsagnBeregningSchema = z.discriminatedUnion("type", [
 export const OpprettTilsagnSchema = z
   .object({
     id: z.string().optional().nullable(),
-    periode: z.object({
-      start: z
-        .string({ required_error: tekster.manglerStartdato })
-        .min(10, tekster.manglerStartdato),
-      slutt: z
-        .string({ required_error: tekster.manglerSluttdato })
-        .min(10, tekster.manglerSluttdato),
-    }),
+    periodeStart: z
+      .string({ required_error: tekster.manglerStartdato })
+      .min(10, tekster.manglerStartdato),
+    periodeSlutt: z
+      .string({ required_error: tekster.manglerSluttdato })
+      .min(10, tekster.manglerSluttdato),
     kostnadssted: z
       .string({ required_error: tekster.manglerKostnadssted })
       .length(4, tekster.manglerKostnadssted),
     beregning: TilsagnBeregningSchema,
   })
   .superRefine((data, ctx) => {
-    if (data.periode.slutt < data.periode.start) {
+    if (data.periodeSlutt < data.periodeStart) {
       ctx.addIssue({
         code: ZodIssueCode.custom,
         message: "Sluttdato kan ikke være før startdato",
-        path: ["periode.slutt"],
+        path: ["periodeSlutt"],
       });
     }
     if (!data.beregning) {
