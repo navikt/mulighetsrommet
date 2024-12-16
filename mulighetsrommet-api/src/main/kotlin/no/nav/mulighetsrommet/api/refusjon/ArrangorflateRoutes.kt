@@ -269,7 +269,7 @@ fun validerGodkjennRefusjonskrav(
         listOf(
             ValidationError.ofCustomLocation(
                 "info",
-                "Det finnes forslag på deltakere som påvirker refusjonen. Disse må godkjennes av Nav først.",
+                "Det finnes forslag på deltakere som påvirker refusjonen. Disse må behandles av Nav før refusjonskravet kan sendes inn.",
             ),
         ).left()
     } else if (request.digest != krav.beregning.getDigest()) {
