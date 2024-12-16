@@ -8,6 +8,12 @@ import { Link, useParams } from "react-router-dom";
 import { isAftBeregning } from "./tilsagnUtils";
 import { TilsagnTag } from "./TilsagnTag";
 
+interface TabellData extends TilsagnDto {
+  antallPlasser: number;
+  navnForKostnadssted: string;
+  belop: number;
+}
+
 interface Props {
   tilsagn: TilsagnDto[];
 }
@@ -36,23 +42,40 @@ export function Tilsagnstabell({ tilsagn }: Props) {
   };
 
   function comparator<T>(a: T, b: T, orderBy: keyof T): number {
-    if (b[orderBy] == null || b[orderBy] < a[orderBy]) {
+    const aValue = a[orderBy];
+    const bValue = b[orderBy];
+    if (bValue == null) {
       return -1;
     }
-    if (b[orderBy] > a[orderBy]) {
+
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return bValue - aValue;
+    }
+
+    if (bValue < aValue) {
+      return -1;
+    }
+    if (bValue > aValue) {
       return 1;
     }
     return 0;
   }
 
-  const sortedData = [...tilsagn].sort((a, b) => {
-    if (sort) {
-      return sort.direction === "ascending"
-        ? comparator(b, a, sort.orderBy)
-        : comparator(a, b, sort.orderBy);
-    }
-    return 1;
-  });
+  const sortedData: TabellData[] = [...tilsagn]
+    .map((tilsagn) => ({
+      ...tilsagn,
+      antallPlasser: getAntallPlasser(tilsagn.beregning),
+      navnForKostnadssted: tilsagn.kostnadssted.navn,
+      belop: tilsagn.beregning.belop,
+    }))
+    .sort((a, b) => {
+      if (sort) {
+        return sort.direction === "ascending"
+          ? comparator(b, a, sort.orderBy)
+          : comparator(a, b, sort.orderBy);
+      }
+      return 1;
+    });
 
   return (
     <Table
@@ -67,16 +90,16 @@ export function Tilsagnstabell({ tilsagn }: Props) {
           <TableColumnHeader sortKey="periodeSlutt" sortable>
             Periodeslutt
           </TableColumnHeader>
-          <TableColumnHeader sortKey="kostnadssted.navn" sortable>
+          <TableColumnHeader sortKey="navnForKostnadssted" sortable>
             Kostnadssted
           </TableColumnHeader>
-          <TableColumnHeader sortKey="tiltaksgjennomforing.antallPlasser" sortable>
+          <TableColumnHeader sortKey="antallPlasser" sortable align="right">
             Antall plasser
           </TableColumnHeader>
-          <TableColumnHeader sortKey="beregning.belop" sortable>
+          <TableColumnHeader sortKey="belop" sortable align="right">
             Beløp
           </TableColumnHeader>
-          <TableColumnHeader sortKey={"status"} sortable>
+          <TableColumnHeader sortKey={"status"} sortable align="right">
             Status
           </TableColumnHeader>
           <TableColumnHeader></TableColumnHeader>
@@ -92,9 +115,9 @@ export function Tilsagnstabell({ tilsagn }: Props) {
               <Table.DataCell>{formaterDato(periodeStart)}</Table.DataCell>
               <Table.DataCell>{formaterDato(periodeSlutt)}</Table.DataCell>
               <Table.DataCell>{kostnadssted.navn}</Table.DataCell>
-              <Table.DataCell>{antallPlasser}</Table.DataCell>
-              <Table.DataCell>{formaterNOK(beregning.belop)}</Table.DataCell>
-              <Table.DataCell>
+              <Table.DataCell align="right">{antallPlasser}</Table.DataCell>
+              <Table.DataCell align="right">{formaterNOK(beregning.belop)}</Table.DataCell>
+              <Table.DataCell align="right">
                 <TilsagnTag tilsagn={tilsagn} />
               </Table.DataCell>
 
