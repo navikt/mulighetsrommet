@@ -1,9 +1,11 @@
 .detaljer_info_container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   flex-grow: 1;
   flex-basis: 0;
-  padding: 1rem;
   display: flex;
   flex-direction: column;
+  padding: 1rem;
 
   &.border_right {
     border-right: 1px solid var(--a-border-divider);
