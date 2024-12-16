@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.BadRequest
-import no.nav.mulighetsrommet.api.responses.NotFound
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningInput
@@ -39,7 +38,7 @@ fun Route.tilsagnRoutes() {
         get("/{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
 
-            val result = service.get(id) ?: NotFound()
+            val result = service.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
 
             call.respond(result)
         }
