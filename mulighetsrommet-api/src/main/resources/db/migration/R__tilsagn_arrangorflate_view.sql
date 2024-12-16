@@ -17,5 +17,5 @@ from tilsagn
     inner join tiltakstype on tiltakstype.id = tiltaksgjennomforing.tiltakstype_id
     inner join arrangor on arrangor.id = tilsagn.arrangor_id
 where
-    tilsagn.status = 'GODKJENT'
+    tilsagn.status in ('GODKJENT', 'TIL_ANNULLERING')
 
