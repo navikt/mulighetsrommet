@@ -119,6 +119,27 @@ class TilsagnRepositoryTest : FunSpec({
             }
         }
 
+        test("avbryt annullering") {
+            repository.upsert(tilsagn)
+            val endretTidspunkt = LocalDateTime.now()
+
+            // Send til annullering
+            repository.tilAnnullering(
+                tilsagn.id,
+                tilsagn.endretAv,
+                endretTidspunkt,
+                aarsaker = listOf(TilsagnStatusAarsak.FEIL_ANNET),
+                forklaring = "Min forklaring",
+            )
+            // Avbryt annullering
+            repository.avbrytAnnullering(
+                tilsagn.id,
+                NavIdent("B123456"),
+                endretTidspunkt,
+            )
+            repository.get(tilsagn.id)?.status shouldBe TilsagnDto.TilsagnStatus.Godkjent
+        }
+
         test("godkjenn") {
             val besluttetTidspunkt = LocalDateTime.of(2024, 12, 12, 0, 0)
             repository.upsert(tilsagn)

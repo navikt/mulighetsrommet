@@ -73,6 +73,8 @@ function tilsagnAarsakTilTekst(
       return "Annet";
     case TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING:
       return "Feilregistrering";
+    case TilsagnTilAnnulleringAarsak.GJENNOMFORING_AVBRYTES:
+      return "Tiltaksgjennomføring skal avbrytes";
     case TilsagnTilAnnulleringAarsak.FEIL_ANNET:
       return "Annet";
   }

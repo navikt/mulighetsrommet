@@ -24,7 +24,7 @@ export function TilAnnulleringModal({ open, onClose, onConfirm }: Props) {
   function validate() {
     const validationErrors: ValidationErrors = {};
     if (valgteAarsaker.length === 0) {
-      validationErrors.aarsak = "Du må velge minst én årsak for retur av tilsagnet";
+      validationErrors.aarsak = "Du må velge minst én årsak for annullering av tilsagnet";
     }
 
     if (valgteAarsaker.includes(TilsagnTilAnnulleringAarsak.FEIL_ANNET) && !forklaring) {
@@ -71,6 +71,9 @@ export function TilAnnulleringModal({ open, onClose, onConfirm }: Props) {
                 error={errors?.aarsak}
               >
                 <Checkbox value="FEIL_REGISTRERING">Feilregistrering</Checkbox>
+                <Checkbox value="GJENNOMFORING_AVBRYTES">
+                  Tiltaksgjennomføring skal avbrytes
+                </Checkbox>
                 <Checkbox value="FEIL_ANNET">Annet</Checkbox>
               </CheckboxGroup>
               <Textarea
@@ -95,7 +98,7 @@ export function TilAnnulleringModal({ open, onClose, onConfirm }: Props) {
               validate();
             }}
           >
-            Annuller med forklaring
+            Send til godkjenning
           </Button>
         </Modal.Footer>
       </form>

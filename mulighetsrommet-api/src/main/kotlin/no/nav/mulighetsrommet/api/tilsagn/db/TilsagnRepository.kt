@@ -283,7 +283,7 @@ class TilsagnRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             update tilsagn set
-                status_endret_av = :nav_ident
+                status_endret_av = :nav_ident,
                 status_endret_tidspunkt = :tidspunkt,
                 status = 'GODKJENT'::tilsagn_status
             where id = :id::uuid

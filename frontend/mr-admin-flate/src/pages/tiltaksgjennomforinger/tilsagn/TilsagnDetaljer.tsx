@@ -197,24 +197,53 @@ export function TilsagnDetaljer() {
               ) : null}
               <HStack gap="2" justify={"end"}>
                 {visBesluttKnapp && tilsagn.status.type === "TIL_GODKJENNING" && (
-                  <BesluttButtons
-                    titleGodkjenn="Godkjenn tilsagn"
-                    titleAvvis="Send i retur med forklaring"
-                    onGodkjenn={() =>
-                      besluttTilsagn({ besluttelse: TilsagnStatusBesluttelse.GODKJENT })
-                    }
-                    onAvvis={() => setAvvisModalOpen(true)}
-                  />
+                  <HStack gap="2">
+                    <Button
+                      variant="secondary"
+                      size="small"
+                      type="button"
+                      onClick={() => setAvvisModalOpen(true)}
+                    >
+                      Send i return
+                    </Button>
+                    <Button
+                      size="small"
+                      type="button"
+                      onClick={() =>
+                        besluttTilsagn({ besluttelse: TilsagnStatusBesluttelse.GODKJENT })
+                      }
+                    >
+                      Godkjenn tilsagn
+                    </Button>
+                  </HStack>
                 )}
                 {visBesluttKnapp && tilsagn.status.type === "TIL_ANNULLERING" && (
-                  <BesluttButtons
-                    titleGodkjenn="Annuller tilsagn"
-                    titleAvvis="Avvis annullering"
-                    onGodkjenn={() =>
-                      besluttTilsagn({ besluttelse: TilsagnStatusBesluttelse.GODKJENT })
-                    }
-                    onAvvis={() => besluttTilsagn({ besluttelse: TilsagnStatusBesluttelse.AVVIST })}
-                  />
+                  <HStack gap="2">
+                    <Button
+                      variant="secondary"
+                      size="small"
+                      type="button"
+                      onClick={() =>
+                        besluttTilsagn({
+                          besluttelse: TilsagnStatusBesluttelse.AVVIST,
+                          aarsaker: [],
+                          forklaring: null,
+                        })
+                      }
+                    >
+                      Send i return
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="danger"
+                      type="button"
+                      onClick={() =>
+                        besluttTilsagn({ besluttelse: TilsagnStatusBesluttelse.GODKJENT })
+                      }
+                    >
+                      Bekreft annullering
+                    </Button>
+                  </HStack>
                 )}
               </HStack>
               <TilAnnulleringModal
@@ -251,25 +280,5 @@ export function TilsagnDetaljer() {
         </Box>
       </ContainerLayout>
     </main>
-  );
-}
-
-interface BesluttButtonProps {
-  titleGodkjenn: string;
-  titleAvvis: string;
-  onGodkjenn: () => void;
-  onAvvis: () => void;
-}
-
-function BesluttButtons({ titleGodkjenn, titleAvvis, onGodkjenn, onAvvis }: BesluttButtonProps) {
-  return (
-    <HStack gap="2">
-      <Button variant="secondary" size="small" type="button" onClick={onAvvis}>
-        {titleAvvis}
-      </Button>
-      <Button size="small" type="button" onClick={onGodkjenn}>
-        {titleGodkjenn}
-      </Button>
-    </HStack>
   );
 }

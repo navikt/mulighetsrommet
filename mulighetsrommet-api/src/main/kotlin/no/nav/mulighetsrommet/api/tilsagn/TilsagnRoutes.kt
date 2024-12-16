@@ -153,7 +153,7 @@ sealed class BesluttTilsagnRequest(
     @Serializable
     @SerialName("AVVIST")
     data class AvvistTilsagnRequest(
-        val aarsaker: List<TilsagnStatusAarsak>?,
+        val aarsaker: List<TilsagnStatusAarsak>,
         val forklaring: String?,
     ) : BesluttTilsagnRequest(
         besluttelse = TilsagnBesluttelseStatus.AVVIST,
