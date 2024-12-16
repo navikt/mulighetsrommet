@@ -209,7 +209,6 @@ class VeilederflateService(
         val status = TiltaksgjennomforingStatus.GJENNOMFORES
         val tittel = tiltakstype.navn
         val underTittel = gjennomforing.tiltaksgjennomforingNavn ?: ""
-        
         val faneinnhold = gjennomforing.faneinnhold?.copy(delMedBruker = gjennomforing.delingMedBruker)
         val kontaktinfo = VeilederflateKontaktinfo(tiltaksansvarlige)
         val fylke = gjennomforing.fylke ?: ""

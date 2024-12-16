@@ -33,11 +33,8 @@ class TilsagnRepositoryTest : FunSpec({
     )
 
     beforeEach {
-        domain.initialize(database.db)
-    }
-
-    afterEach {
         database.db.truncateAll()
+        domain.initialize(database.db)
     }
 
     context("CRUD") {
