@@ -30,7 +30,7 @@ export function TiltakHeader({ tiltak }: Props) {
       {tiltakstype.beskrivelse && (
         <VStack gap={"0"} style={{ marginTop: "1rem" }}>
           <Heading level="2" size="small">
-            Generell info
+            Generell informasjon
           </Heading>
           <BodyLong size="large" style={{ whiteSpace: "pre-wrap" }}>
             {tiltakstype.beskrivelse}
