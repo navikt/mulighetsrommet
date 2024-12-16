@@ -50,7 +50,8 @@ fun Route.tilsagnRoutes() {
 
             val gjennomforing = gjennomforinger.get(gjennomforingId) ?: return@get call.respond(HttpStatusCode.NotFound)
 
-            val tilsagn = service.getByGjennomforingId(gjennomforingId).lastOrNull()
+            val byGjennomforingId = service.getByGjennomforingId(gjennomforingId)
+            val tilsagn = byGjennomforingId.firstOrNull()
 
             val defaults = resolveTilsagnDefaults(gjennomforing, tilsagn, service)
 
@@ -208,13 +209,13 @@ private fun resolveTilsagnDefaults(
     service: TilsagnService,
 ) = when (gjennomforing.tiltakstype.tiltakskode) {
     Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET -> {
-        val lastDayOfYear = LocalDate.now().withMonth(12).withDayOfMonth(31)
         val periodeStart = listOfNotNull(
             gjennomforing.startDato,
             tilsagn?.periodeSlutt?.plusDays(1),
         ).max()
 
         val forhandsgodkjentTilsagnPeriodeSlutt = periodeStart.plusMonths(6).minusDays(1)
+        val lastDayOfYear = periodeStart.withMonth(12).withDayOfMonth(31)
         val periodeSlutt = listOfNotNull(
             gjennomforing.sluttDato,
             forhandsgodkjentTilsagnPeriodeSlutt,
@@ -238,14 +239,14 @@ private fun resolveTilsagnDefaults(
     }
 
     else -> {
-        val firstDayOfMonth = LocalDate.now().withDayOfMonth(1)
+        val firstDayOfCurrentMonth = LocalDate.now().withDayOfMonth(1)
         val periodeStart = listOfNotNull(
             gjennomforing.startDato,
             tilsagn?.periodeSlutt?.plusDays(1),
-            firstDayOfMonth,
+            firstDayOfCurrentMonth,
         ).max()
 
-        val lastDayOfMonth = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth())
+        val lastDayOfMonth = periodeStart.with(TemporalAdjusters.lastDayOfMonth())
         val periodeSlutt = listOfNotNull(gjennomforing.sluttDato, lastDayOfMonth).min()
 
         TilsagnDefaults(
