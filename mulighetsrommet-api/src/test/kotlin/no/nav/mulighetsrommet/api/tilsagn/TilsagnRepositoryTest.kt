@@ -83,13 +83,16 @@ class TilsagnRepositoryTest : FunSpec({
             val endretTidspunkt = LocalDateTime.now()
 
             // Send til annullering
-            repository.tilAnnullering(
-                tilsagn.id,
-                tilsagn.endretAv,
-                endretTidspunkt,
-                aarsaker = listOf(TilsagnStatusAarsak.FEIL_ANNET),
-                forklaring = "Min forklaring",
-            )
+            database.db.transaction { tx ->
+                repository.tilAnnullering(
+                    tilsagn.id,
+                    tilsagn.endretAv,
+                    endretTidspunkt,
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_ANNET),
+                    forklaring = "Min forklaring",
+                    tx,
+                )
+            }
             repository.get(tilsagn.id)?.status should {
                 when (it) {
                     is TilsagnDto.TilsagnStatus.TilAnnullering -> {
@@ -103,11 +106,14 @@ class TilsagnRepositoryTest : FunSpec({
             }
 
             // Beslutt annullering
-            repository.besluttAnnullering(
-                tilsagn.id,
-                NavIdent("B123456"),
-                endretTidspunkt,
-            )
+            database.db.transaction { tx ->
+                repository.besluttAnnullering(
+                    tilsagn.id,
+                    NavIdent("B123456"),
+                    endretTidspunkt,
+                    tx,
+                )
+            }
             repository.get(tilsagn.id)?.status should {
                 when (it) {
                     is TilsagnDto.TilsagnStatus.Annullert -> {
@@ -124,19 +130,23 @@ class TilsagnRepositoryTest : FunSpec({
             val endretTidspunkt = LocalDateTime.now()
 
             // Send til annullering
-            repository.tilAnnullering(
-                tilsagn.id,
-                tilsagn.endretAv,
-                endretTidspunkt,
-                aarsaker = listOf(TilsagnStatusAarsak.FEIL_ANNET),
-                forklaring = "Min forklaring",
-            )
-            // Avbryt annullering
-            repository.avbrytAnnullering(
-                tilsagn.id,
-                NavIdent("B123456"),
-                endretTidspunkt,
-            )
+            database.db.transaction { tx ->
+                repository.tilAnnullering(
+                    tilsagn.id,
+                    tilsagn.endretAv,
+                    endretTidspunkt,
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_ANNET),
+                    forklaring = "Min forklaring",
+                    tx,
+                )
+                // Avbryt annullering
+                repository.avbrytAnnullering(
+                    tilsagn.id,
+                    NavIdent("B123456"),
+                    endretTidspunkt,
+                    tx,
+                )
+            }
             repository.get(tilsagn.id)?.status shouldBe TilsagnDto.TilsagnStatus.Godkjent
         }
 
@@ -157,13 +167,16 @@ class TilsagnRepositoryTest : FunSpec({
         test("returner") {
             val returnertTidspunkt = LocalDateTime.of(2024, 12, 12, 0, 0)
             repository.upsert(tilsagn)
-            repository.returner(
-                tilsagn.id,
-                NavAnsattFixture.ansatt2.navIdent,
-                returnertTidspunkt,
-                aarsaker = listOf(TilsagnStatusAarsak.FEIL_ANNET),
-                forklaring = "Min forklaring",
-            )
+            database.db.transaction { tx ->
+                repository.returner(
+                    tilsagn.id,
+                    NavAnsattFixture.ansatt2.navIdent,
+                    returnertTidspunkt,
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_ANNET),
+                    forklaring = "Min forklaring",
+                    tx,
+                )
+            }
             repository.get(tilsagn.id)?.status should {
                 when (it) {
                     is TilsagnDto.TilsagnStatus.Returnert -> {

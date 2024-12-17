@@ -5,6 +5,7 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -14,6 +15,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepositor
 import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.Forbidden
+import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -37,6 +39,7 @@ class TilsagnServiceTest : FunSpec({
     afterEach {
         database.db.truncateAll()
     }
+    val endringshistorikkService: EndringshistorikkService = mockk(relaxed = true)
 
     context("beslutt") {
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
@@ -44,6 +47,7 @@ class TilsagnServiceTest : FunSpec({
             tilsagnRepository = TilsagnRepository(database.db),
             tiltaksgjennomforingRepository,
             validator = TilsagnValidator(tiltaksgjennomforingRepository),
+            endringshistorikkService = endringshistorikkService,
             db = database.db,
         )
         val tilsagn = TilsagnRequest(
@@ -96,6 +100,7 @@ class TilsagnServiceTest : FunSpec({
             tilsagnRepository = TilsagnRepository(database.db),
             tiltaksgjennomforingRepository,
             validator = TilsagnValidator(tiltaksgjennomforingRepository),
+            endringshistorikkService = endringshistorikkService,
             db = database.db,
         )
         val tilsagn = TilsagnRequest(

@@ -3,6 +3,10 @@ package no.nav.mulighetsrommet.api.tilsagn
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
+import kotliquery.TransactionalSession
+import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.okonomi.BestillingDto
 import no.nav.mulighetsrommet.api.okonomi.OkonomiClient
@@ -10,6 +14,9 @@ import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.okonomi.Prismodell.TilsagnBeregning
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.responses.*
+import no.nav.mulighetsrommet.api.services.DocumentClass
+import no.nav.mulighetsrommet.api.services.EndretAv
+import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.database.Database
@@ -22,6 +29,7 @@ class TilsagnService(
     private val tilsagnRepository: TilsagnRepository,
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val validator: TilsagnValidator,
+    private val endringshistorikkService: EndringshistorikkService,
     private val db: Database,
 ) {
     suspend fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<ValidationError>, TilsagnDto> {
@@ -32,8 +40,18 @@ class TilsagnService(
                 db.transactionSuspend { tx ->
                     tilsagnRepository.upsert(it, tx)
 
-                    val dto = tilsagnRepository.get(it.id, tx)
-                    requireNotNull(dto) { "Fant ikke tilsagn etter upsert id=${it.id}" }
+                    val dto = getOrError(it.id, tx)
+
+                    logEndring(
+                        if (previous == null) {
+                            "Opprettet tilsagn"
+                        } else {
+                            "Redigerte tilsagn"
+                        },
+                        dto,
+                        EndretAv.NavAnsatt(navIdent),
+                        tx,
+                    )
 
                     dto
                 }
@@ -103,6 +121,7 @@ class TilsagnService(
                 tx,
             )
             lagOgSendBestilling(tilsagn)
+            logEndring("Tilsagn godkjent", getOrError(tilsagn.id, tx), EndretAv.NavAnsatt(navIdent), tx)
         }.right()
     }
 
@@ -111,16 +130,22 @@ class TilsagnService(
         if (navIdent == tilsagn.status.endretAv) {
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
-        if (besluttelse.aarsaker.isNullOrEmpty()) {
+        if (besluttelse.aarsaker.isEmpty()) {
             return BadRequest(message = "Årsaker er påkrevd").left()
         }
-        tilsagnRepository.returner(
-            tilsagn.id,
-            navIdent,
-            LocalDateTime.now(),
-            besluttelse.aarsaker,
-            besluttelse.forklaring,
-        )
+
+        db.transaction { tx ->
+            tilsagnRepository.returner(
+                tilsagn.id,
+                navIdent,
+                LocalDateTime.now(),
+                besluttelse.aarsaker,
+                besluttelse.forklaring,
+                tx,
+            )
+            logEndring("Tilsagn returnert", getOrError(tilsagn.id, tx), EndretAv.NavAnsatt(navIdent), tx)
+        }
+
         return Unit.right()
     }
 
@@ -130,11 +155,16 @@ class TilsagnService(
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
-        tilsagnRepository.besluttAnnullering(
-            tilsagn.id,
-            navIdent,
-            LocalDateTime.now(),
-        )
+        db.transaction { tx ->
+            tilsagnRepository.besluttAnnullering(
+                tilsagn.id,
+                navIdent,
+                LocalDateTime.now(),
+                tx,
+            )
+            logEndring("Tilsagn annullert", getOrError(tilsagn.id, tx), EndretAv.NavAnsatt(navIdent), tx)
+        }
+
         return Unit.right()
     }
 
@@ -143,11 +173,17 @@ class TilsagnService(
         if (navIdent == tilsagn.status.endretAv) {
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
-        tilsagnRepository.avbrytAnnullering(
-            tilsagn.id,
-            navIdent,
-            LocalDateTime.now(),
-        )
+
+        db.transaction { tx ->
+            tilsagnRepository.avbrytAnnullering(
+                tilsagn.id,
+                navIdent,
+                LocalDateTime.now(),
+                tx,
+            )
+            logEndring("Annullering avvist", getOrError(tilsagn.id, tx), EndretAv.NavAnsatt(navIdent), tx)
+        }
+
         return Unit.right()
     }
 
@@ -158,7 +194,11 @@ class TilsagnService(
             return BadRequest("Kan bare annullere godkjente tilsagn").left()
         }
 
-        tilsagnRepository.tilAnnullering(id, navIdent, LocalDateTime.now(), request.aarsaker, request.forklaring)
+        db.transaction { tx ->
+            tilsagnRepository.tilAnnullering(id, navIdent, LocalDateTime.now(), request.aarsaker, request.forklaring, tx)
+            logEndring("Sendt til annullering", getOrError(id, tx), EndretAv.NavAnsatt(navIdent), tx)
+        }
+
         return Unit.right()
     }
 
@@ -209,5 +249,29 @@ class TilsagnService(
                 belop = tilsagn.beregning.belop,
             ),
         )
+    }
+
+    fun getEndringshistorikk(id: UUID): EndringshistorikkDto = endringshistorikkService.getEndringshistorikk(DocumentClass.TILSAGN, id)
+
+    private fun logEndring(
+        operation: String,
+        dto: TilsagnDto,
+        endretAv: EndretAv,
+        tx: TransactionalSession,
+    ) {
+        endringshistorikkService.logEndring(
+            tx,
+            DocumentClass.TILSAGN,
+            operation,
+            endretAv,
+            dto.id,
+        ) {
+            Json.encodeToJsonElement(dto)
+        }
+    }
+
+    private fun getOrError(id: UUID, tx: TransactionalSession): TilsagnDto {
+        val dto = tilsagnRepository.get(id, tx)
+        return requireNotNull(dto) { "Tilsagn med id=$id finnes ikke" }
     }
 }

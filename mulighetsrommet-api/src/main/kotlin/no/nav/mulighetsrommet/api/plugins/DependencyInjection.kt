@@ -429,7 +429,7 @@ private fun services(appConfig: AppConfig) = module {
     single { TilsagnValidator(get()) }
     single { OpsjonLoggService(get(), get(), get(), get(), get()) }
     single { LagretFilterService(get()) }
-    single { TilsagnService(get(), get(), get(), get()) }
+    single { TilsagnService(get(), get(), get(), get(), get()) }
     single { AltinnRettigheterService(get(), get()) }
 }
 

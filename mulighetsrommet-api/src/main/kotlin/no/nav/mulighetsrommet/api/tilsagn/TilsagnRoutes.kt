@@ -31,12 +31,20 @@ fun Route.tilsagnRoutes() {
     val service: TilsagnService by inject()
 
     route("tilsagn") {
-        get("/{id}") {
-            val id = call.parameters.getOrFail<UUID>("id")
+        route("/{id}") {
+            get {
+                val id = call.parameters.getOrFail<UUID>("id")
 
-            val result = service.get(id) ?: NotFound()
+                val result = service.get(id) ?: NotFound()
 
-            call.respond(result)
+                call.respond(result)
+            }
+
+            get("/historikk") {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val historikk = service.getEndringshistorikk(id)
+                call.respond(historikk)
+            }
         }
 
         post("/beregn") {

@@ -1785,6 +1785,27 @@ paths:
         200:
           description: OK
 
+  /api/v1/intern/tilsagn/{id}/historikk:
+    get:
+      tags:
+        - Tilsagn
+      operationId: getTilsagnEndringshistorikk
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID for tilsagn
+      responses:
+        200:
+          description: Endringshistorikken for tilsagn
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Endringshistorikk"
+
   /api/v1/intern/tilsagn/{id}/til-annullering:
     parameters:
       - $ref: "#/components/parameters/ID"

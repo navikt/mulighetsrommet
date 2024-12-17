@@ -25,6 +25,8 @@ import { TilsagnTag } from "./TilsagnTag";
 import { useTilsagnTilAnnullering } from "@/api/tilsagn/useTilsagnTilAnnullering";
 import { TilAnnulleringModal } from "./TilAnnulleringModal";
 import { AvvistAlert, TilAnnulleringAlert } from "./AarsakerAlert";
+import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
+import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 
 export function TilsagnDetaljer() {
   const { avtaleId, tiltaksgjennomforingId } = useParams();
@@ -35,7 +37,8 @@ export function TilsagnDetaljer() {
   const [tilAnnulleringModalOpen, setTilAnnulleringModalOpen] = useState<boolean>(false);
   const slettTilsagnModalRef = useRef<HTMLDialogElement>(null);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
-  const { tiltaksgjennomforing, tilsagn, ansatt } = useLoaderData<typeof tilsagnLoader>();
+  const { tiltaksgjennomforing, tilsagn, ansatt, historikk } =
+    useLoaderData<typeof tilsagnLoader>();
 
   const erPaaGjennomforingerForAvtale = useMatch(
     "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
@@ -137,6 +140,9 @@ export function TilsagnDetaljer() {
       <ContainerLayout>
         <Box background="bg-default" padding={"5"}>
           <HStack gap="2" justify={"end"}>
+            <EndringshistorikkPopover>
+              <ViewEndringshistorikk historikk={historikk} />
+            </EndringshistorikkPopover>
             {visHandlingerMeny ? (
               <ActionMenu>
                 <ActionMenu.Trigger>
