@@ -1,11 +1,10 @@
 import { useKostnadssted } from "@/api/enhet/useKostnadssted";
 import { addYear } from "@/utils/Utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ApiError, TilsagnDto, TiltaksgjennomforingDto } from "@mr/api-client";
+import { ApiError, TiltaksgjennomforingDto } from "@mr/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, DatePicker, Heading, HGrid, HStack, Label } from "@navikt/ds-react";
-import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { AFTBeregningSkjema } from "./AFTBeregningSkjema";
@@ -16,7 +15,6 @@ import { TiltakDetaljerForTilsagn } from "./TiltakDetaljerForTilsagn";
 
 interface Props {
   gjennomforing: TiltaksgjennomforingDto;
-  tilsagn?: TilsagnDto;
   onSubmit: (data: InferredOpprettTilsagnSchema) => void;
   onAvbryt?: () => void;
   isPending: boolean;
@@ -28,7 +26,6 @@ interface Props {
 
 export function TilsagnSkjema({
   gjennomforing,
-  tilsagn,
   onSubmit,
   onAvbryt,
   isPending,
@@ -44,16 +41,7 @@ export function TilsagnSkjema({
     defaultValues: defaultValues,
   });
 
-  const { handleSubmit, register, setValue, watch } = form;
-  useEffect(() => {
-    if (tilsagn) {
-      setValue("id", tilsagn.id);
-      setValue("kostnadssted", tilsagn?.kostnadssted.enhetsnummer);
-      setValue("beregning", tilsagn.beregning);
-      setValue("periodeStart", tilsagn.periodeStart);
-      setValue("periodeSlutt", tilsagn.periodeSlutt);
-    }
-  }, [kostnadssteder, tilsagn, setValue]);
+  const { handleSubmit, register, watch } = form;
 
   const beregning = watch("beregning");
 
