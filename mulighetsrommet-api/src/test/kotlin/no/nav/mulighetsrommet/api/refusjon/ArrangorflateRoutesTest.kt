@@ -22,16 +22,21 @@ import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.refusjon.db.DeltakerDbo
+import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
+import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag.Status
+import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravAft
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
+import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.domain.dto.amt.EndringAarsak
+import no.nav.mulighetsrommet.domain.dto.amt.Melding
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -59,6 +64,20 @@ class ArrangorflateRoutesTest : FunSpec({
         poststed = "Oslo",
         overordnetEnhet = hovedenhet.organisasjonsnummer,
     )
+    val deltaker = DeltakerDbo(
+        id = UUID.randomUUID(),
+        gjennomforingId = TiltaksgjennomforingFixtures.AFT1.id,
+        startDato = TiltaksgjennomforingFixtures.AFT1.startDato,
+        sluttDato = TiltaksgjennomforingFixtures.AFT1.sluttDato,
+        registrertTidspunkt = TiltaksgjennomforingFixtures.AFT1.startDato.atStartOfDay(),
+        endretTidspunkt = LocalDateTime.now(),
+        deltakelsesprosent = 100.0,
+        status = DeltakerStatus(
+            type = DeltakerStatus.Type.DELTAR,
+            aarsak = null,
+            opprettetDato = LocalDateTime.now(),
+        ),
+    )
     val krav = RefusjonskravDbo(
         id = UUID.randomUUID(),
         gjennomforingId = TiltaksgjennomforingFixtures.AFT1.id,
@@ -67,11 +86,27 @@ class ArrangorflateRoutesTest : FunSpec({
             input = RefusjonKravBeregningAft.Input(
                 periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2024, 8, 1)),
                 sats = 20205,
-                deltakelser = emptySet(),
+                deltakelser = setOf(
+                    DeltakelsePerioder(
+                        deltakelseId = deltaker.id,
+                        perioder = listOf(
+                            DeltakelsePeriode(
+                                start = LocalDate.of(2024, 8, 1),
+                                slutt = LocalDate.of(2024, 8, 31),
+                                deltakelsesprosent = 100.0,
+                            ),
+                        ),
+                    ),
+                ),
             ),
             output = RefusjonKravBeregningAft.Output(
                 belop = 0,
-                deltakelser = emptySet(),
+                deltakelser = setOf(
+                    DeltakelseManedsverk(
+                        deltakelseId = deltaker.id,
+                        manedsverk = 1.0,
+                    ),
+                ),
             ),
         ),
         kontonummer = Kontonummer("12312312312"),
@@ -89,7 +124,7 @@ class ArrangorflateRoutesTest : FunSpec({
             ),
         ),
         gjennomforinger = listOf(TiltaksgjennomforingFixtures.AFT1.copy(arrangorId = barnevernsNembda.id)),
-        deltakere = emptyList(),
+        deltakere = listOf(deltaker),
         arrangorer = listOf(hovedenhet, barnevernsNembda),
         refusjonskrav = listOf(krav),
     )
@@ -289,6 +324,42 @@ class ArrangorflateRoutesTest : FunSpec({
                 )
             }
             response.status shouldBe HttpStatusCode.OK
+        }
+    }
+
+    test("ikke lov å godkjenne når det finnes relevante forslag") {
+        val deltakerForslagRepository = DeltakerForslagRepository(database.db)
+        deltakerForslagRepository.upsert(
+            DeltakerForslag(
+                id = UUID.randomUUID(),
+                deltakerId = deltaker.id,
+                endring = Melding.Forslag.Endring.AvsluttDeltakelse(
+                    aarsak = EndringAarsak.Syk,
+                    harDeltatt = false,
+                ),
+                status = Status.VENTER_PA_SVAR,
+            ),
+        )
+        withTestApplication(appConfig()) {
+            val client = createClient {
+                install(ContentNegotiation) {
+                    json()
+                }
+            }
+            val response = client.post("/api/v1/intern/arrangorflate/refusjonskrav/${krav.id}/godkjenn-refusjon") {
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
+                contentType(ContentType.Application.Json)
+                setBody(
+                    GodkjennRefusjonskrav(
+                        digest = krav.beregning.getDigest(),
+                        betalingsinformasjon = GodkjennRefusjonskrav.Betalingsinformasjon(
+                            kontonummer = Kontonummer("12312312312"),
+                            kid = null,
+                        ),
+                    ),
+                )
+            }
+            response.status shouldBe HttpStatusCode.BadRequest
         }
     }
 })

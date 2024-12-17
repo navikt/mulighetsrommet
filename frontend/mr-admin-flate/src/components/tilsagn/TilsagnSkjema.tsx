@@ -1,67 +1,57 @@
 import { useKostnadssted } from "@/api/enhet/useKostnadssted";
 import { addYear } from "@/utils/Utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ApiError, TilsagnDto, TilsagnRequest, TiltaksgjennomforingDto } from "@mr/api-client";
+import { ApiError, TilsagnDto, TiltaksgjennomforingDto } from "@mr/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, DatePicker, Heading, HGrid, HStack, Label } from "@navikt/ds-react";
-import { UseMutationResult } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { AFTBeregningSkjema } from "./AFTBeregningSkjema";
 import { FriBeregningSkjema } from "./FriBeregningSkjema";
 import { InferredOpprettTilsagnSchema, OpprettTilsagnSchema } from "./OpprettTilsagnSchema";
-import { TiltakDetaljerForTilsagn } from "./TiltakDetaljerForTilsagn";
 import styles from "./TilsagnSkjema.module.scss";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { TiltakDetaljerForTilsagn } from "./TiltakDetaljerForTilsagn";
 
 interface Props {
-  tiltaksgjennomforing: TiltaksgjennomforingDto;
+  gjennomforing: TiltaksgjennomforingDto;
   tilsagn?: TilsagnDto;
   onSubmit: (data: InferredOpprettTilsagnSchema) => void;
   onAvbryt?: () => void;
-  mutation: UseMutationResult<TilsagnDto, ApiError, TilsagnRequest, unknown>;
+  isPending: boolean;
+  error?: null | ApiError;
   prismodell: "AFT" | "FRI";
+  defaultValues: Partial<InferredOpprettTilsagnSchema>;
+  defaultKostnadssteder: string[];
 }
 
 export function TilsagnSkjema({
-  tiltaksgjennomforing,
+  gjennomforing,
   tilsagn,
   onSubmit,
   onAvbryt,
-  mutation,
+  isPending,
   prismodell,
+  defaultValues,
+  error,
+  defaultKostnadssteder,
 }: Props) {
-  const { data: kostnadssteder } = useKostnadssted(
-    tiltaksgjennomforing.navRegion?.enhetsnummer
-      ? [tiltaksgjennomforing.navRegion.enhetsnummer]
-      : [],
-  );
+  const { data: kostnadssteder } = useKostnadssted(defaultKostnadssteder);
 
   const form = useForm<InferredOpprettTilsagnSchema>({
     resolver: zodResolver(OpprettTilsagnSchema),
-    defaultValues: tilsagn
-      ? {
-          id: tilsagn.id,
-          beregning: tilsagn.beregning,
-          kostnadssted: tilsagn.kostnadssted.enhetsnummer,
-          periode: {
-            start: tilsagn.periodeStart,
-            slutt: tilsagn.periodeSlutt,
-          },
-        }
-      : {},
+    defaultValues: defaultValues,
   });
 
   const { handleSubmit, register, setValue, watch } = form;
-
   useEffect(() => {
     if (tilsagn) {
       setValue("id", tilsagn.id);
       setValue("kostnadssted", tilsagn?.kostnadssted.enhetsnummer);
       setValue("beregning", tilsagn.beregning);
-      setValue("periode.start", tilsagn.periodeStart);
-      setValue("periode.slutt", tilsagn.periodeSlutt);
+      setValue("periodeStart", tilsagn.periodeStart);
+      setValue("periodeSlutt", tilsagn.periodeSlutt);
     }
   }, [kostnadssteder, tilsagn, setValue]);
 
@@ -70,7 +60,7 @@ export function TilsagnSkjema({
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <TiltakDetaljerForTilsagn tiltaksgjennomforing={tiltaksgjennomforing} />
+        <TiltakDetaljerForTilsagn tiltaksgjennomforing={gjennomforing} />
         <div className={styles.formContainer}>
           <div className={styles.formHeader}>
             <Heading size="medium">Tilsagn</Heading>
@@ -82,29 +72,25 @@ export function TilsagnSkjema({
                   <HGrid columns={2} gap={"2"}>
                     <ControlledDateInput
                       label="Dato fra"
-                      fromDate={new Date(tiltaksgjennomforing.startDato)}
+                      fromDate={new Date(gjennomforing.startDato)}
                       toDate={addYear(new Date(), 50)}
                       format="iso-string"
-                      {...register("periode.start")}
+                      {...register("periodeStart")}
                       size="small"
                     />
                     <ControlledDateInput
                       label="Dato til"
-                      fromDate={new Date(tiltaksgjennomforing.startDato)}
+                      fromDate={new Date(gjennomforing.startDato)}
                       toDate={addYear(new Date(), 50)}
                       format="iso-string"
-                      {...register("periode.slutt")}
+                      {...register("periodeSlutt")}
                       size="small"
                     />
                   </HGrid>
                 </DatePicker>
               </div>
               <div className={styles.formGroup}>
-                {prismodell == "AFT" ? (
-                  <AFTBeregningSkjema defaultAntallPlasser={tiltaksgjennomforing.antallPlasser} />
-                ) : (
-                  <FriBeregningSkjema />
-                )}
+                {prismodell == "AFT" ? <AFTBeregningSkjema /> : <FriBeregningSkjema />}
               </div>
               <div className={styles.formGroup}>
                 <ControlledSokeSelect
@@ -128,26 +114,25 @@ export function TilsagnSkjema({
             <div className={styles.formContentRight}>
               <Heading size="small">Beløp</Heading>
               <div className={styles.rowSpaceBetween}>
-                <Label size="medium">Total beløp</Label>
+                <Label size="medium">Totalbeløp</Label>
                 {beregning?.belop && <Label size="medium">{formaterNOK(beregning?.belop)}</Label>}
               </div>
             </div>
           </div>
         </div>
         <div className={styles.alert}>
-          {mutation.error ? (
+          {error ? (
             <Alert variant="error" size="small">
               Klarte ikke opprette tilsagn
             </Alert>
           ) : null}
         </div>
-        <HStack gap="2" justify={"space-between"}>
-          <Button size="small" type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? "Sender til beslutning" : "Send til beslutning"}
-          </Button>
-
-          <Button onClick={onAvbryt} size="small" type="button" variant="primary-neutral">
+        <HStack gap="2" justify={"end"}>
+          <Button onClick={onAvbryt} size="small" type="button" variant="tertiary">
             Avbryt
+          </Button>
+          <Button size="small" type="submit" disabled={isPending}>
+            {isPending ? "Sender til godkjenning" : "Send til godkjenning"}
           </Button>
         </HStack>
       </form>

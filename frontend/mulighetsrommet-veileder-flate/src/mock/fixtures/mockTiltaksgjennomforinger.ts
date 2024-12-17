@@ -15,8 +15,8 @@ export const tiltakAvklaring: VeilederflateTiltakGruppe = {
   tiltaksnummer: "123123",
   id: "f4cea25b-c372-4d4c-8106-535ab10cd586",
   oppstartsdato: "2024-01-01",
-  tittel: "Avklaring - Fredrikstad med ganske langt navn som strekker seg bortover",
-  underTittel: "Avklaring",
+  tittel: "Avklaring",
+  underTittel: "Avklaring - Fredrikstad med ganske langt navn som strekker seg bortover",
   status: TiltaksgjennomforingStatus.GJENNOMFORES,
   oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
   estimertVentetid: {
@@ -148,8 +148,8 @@ export const tiltakAmoGruppe: VeilederflateTiltakGruppe = {
   personvernBekreftet: true,
   personopplysningerSomKanBehandles: [],
   tiltaksnummer: "2024/123",
-  tittel: "Kurs i overlevelsesteknikk",
-  underTittel: "Gruppe AMO",
+  tittel: "Gruppe AMO",
+  underTittel: "Kurs i overlevelsesteknikk",
   stedForGjennomforing: "2050 JESSHEIM",
   apentForPamelding: true,
   tiltakstype: mockTiltakstyper.gruppe_amo,
@@ -169,7 +169,8 @@ export const tiltakAmoGruppe: VeilederflateTiltakGruppe = {
     ],
   },
   fylke: "0800",
-  beskrivelse: "Beskrivelse av gruppe amo tiltaket på gjennomføringsnivå.",
+  beskrivelse:
+    "Beskrivelse av gruppe amo tiltaket på gjennomføringsnivå. Her kommer det masse spennende informasjon om tiltaket.",
   kontaktinfo: {
     tiltaksansvarlige: [
       {
@@ -188,7 +189,6 @@ export const tiltakAmoGruppe: VeilederflateTiltakGruppe = {
     ],
   },
   faneinnhold: {
-    kurstittel: "Dette er en kurstittel for gruppe amo",
     lenker: [
       {
         lenke: "https://www.google.com",
@@ -348,8 +348,8 @@ export const tiltakVta: VeilederflateTiltakGruppe = {
 export const tiltakJobbklubb: VeilederflateTiltakGruppe = {
   type: "TILTAK_GRUPPE",
   id: "ff887090-1ba8-47a4-a82f-6aaad488994e",
-  tittel: "Jobbklubb (med Lars Monsen)",
-  underTittel: "Jobbklubb",
+  underTittel: "Jobbklubb (med Lars Monsen)",
+  tittel: "Jobbklubb",
   status: TiltaksgjennomforingStatus.GJENNOMFORES,
   stedForGjennomforing: "Kautokeino",
   apentForPamelding: true,

@@ -122,7 +122,8 @@ Følgende steg kan benyttes til å generere opp et token:
          "groups": [
            "52bb9196-b071-4cc7-9472-be4942d33c4b",
            "48026f54-6259-4c35-a148-bc4257bcaf03",
-           "279039a0-39fd-4860-afdd-a1a2ccaa6323"
+           "279039a0-39fd-4860-afdd-a1a2ccaa6323",
+           "b00ba197-c90a-4ff9-966e-6c9cf1c882bf"
          ]
        }
        ```

@@ -11,22 +11,27 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.clients.dokark.*
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
-import no.nav.mulighetsrommet.api.pdfgen.Pdfgen
+import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
+import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
+import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagRepository
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.api.refusjon.task.JournalforRefusjonskrav
-import no.nav.mulighetsrommet.api.responses.*
+import no.nav.mulighetsrommet.api.responses.BadRequest
+import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.domain.dto.amt.Melding
+import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import org.koin.ktor.ext.inject
 import java.math.BigDecimal
@@ -40,9 +45,11 @@ fun Route.arrangorflateRoutes() {
     val arrangorService: ArrangorService by inject()
     val refusjonskrav: RefusjonskravRepository by inject()
     val deltakerRepository: DeltakerRepository by inject()
+    val deltakerForslagRepository: DeltakerForslagRepository by inject()
     val pdl: HentAdressebeskyttetPersonBolkPdlQuery by inject()
     val journalforRefusjonskrav: JournalforRefusjonskrav by inject()
     val db: Database by inject()
+    val pdf: PdfGenClient by inject()
 
     suspend fun RoutingContext.arrangorerMedTilgang(): List<ArrangorDto> {
         return call.principal<ArrangorflatePrincipal>()
@@ -99,6 +106,26 @@ fun Route.arrangorflateRoutes() {
                 call.respond(oppsummering)
             }
 
+            get("/relevante-forslag") {
+                val id = call.parameters.getOrFail<UUID>("id")
+
+                val krav = refusjonskrav.get(id)
+                    ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
+
+                val forslagByDeltakerId = deltakerForslagRepository.getForslagByGjennomforing(krav.gjennomforing.id)
+
+                val relevanteForslag = forslagByDeltakerId
+                    .map { (deltakerId, forslag) ->
+                        RelevanteForslag(
+                            deltakerId = deltakerId,
+                            antallRelevanteForslag = forslag.count { it.relevantForDeltakelse(krav) },
+                        )
+                    }
+
+                call.respond(relevanteForslag)
+            }
+
             post("/godkjenn-refusjon") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val krav = refusjonskrav.get(id)
@@ -106,7 +133,11 @@ fun Route.arrangorflateRoutes() {
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
                 val request = call.receive<GodkjennRefusjonskrav>()
-                validerGodkjennRefusjonskrav(request, krav)
+                validerGodkjennRefusjonskrav(
+                    request,
+                    krav,
+                    deltakerForslagRepository.getForslagByGjennomforing(krav.gjennomforing.id),
+                )
                     .onLeft { return@post call.respondWithStatusResponse(BadRequest(errors = it).left()) }
 
                 db.transactionSuspend { tx ->
@@ -135,9 +166,8 @@ fun Route.arrangorflateRoutes() {
                     gjennomforingId = krav.gjennomforing.id,
                     periode = krav.beregning.input.periode,
                 )
-
                 val refusjonsKravAft = toRefusjonskrav(pdl, deltakerRepository, krav)
-                val pdf = Pdfgen.refusjonKvittering(refusjonsKravAft, tilsagn)
+                val pdf = pdf.getRefusjonKvittering(refusjonsKravAft, tilsagn)
 
                 call.response.headers.append(
                     "Content-Disposition",
@@ -175,11 +205,74 @@ fun Route.arrangorflateRoutes() {
     }
 }
 
+fun DeltakerForslag.relevantForDeltakelse(
+    refusjonskrav: RefusjonskravDto,
+): Boolean = when (refusjonskrav.beregning) {
+    is RefusjonKravBeregningAft -> this.relevantForDeltakelse(refusjonskrav.beregning)
+}
+
+fun DeltakerForslag.relevantForDeltakelse(
+    beregning: RefusjonKravBeregningAft,
+): Boolean {
+    val deltakelser = beregning.input.deltakelser
+        .find { it.deltakelseId == this.deltakerId }
+        ?: return false
+
+    val periode = beregning.input.periode
+    val sisteSluttDato = deltakelser.perioder.maxOf { it.slutt }
+    val forsteStartDato = deltakelser.perioder.minOf { it.start }
+
+    return when (this.endring) {
+        is Melding.Forslag.Endring.AvsluttDeltakelse -> {
+            val sluttDato = this.endring.sluttdato
+
+            this.endring.harDeltatt == false || (sluttDato != null && sluttDato.isBefore(sisteSluttDato))
+        }
+
+        is Melding.Forslag.Endring.Deltakelsesmengde -> {
+            this.endring.gyldigFra?.isBefore(sisteSluttDato) ?: true
+        }
+
+        is Melding.Forslag.Endring.ForlengDeltakelse -> {
+            this.endring.sluttdato.isAfter(sisteSluttDato) && this.endring.sluttdato.isBefore(periode.slutt)
+        }
+
+        is Melding.Forslag.Endring.IkkeAktuell -> {
+            true
+        }
+
+        is Melding.Forslag.Endring.Sluttarsak -> {
+            false
+        }
+
+        is Melding.Forslag.Endring.Sluttdato -> {
+            this.endring.sluttdato.isBefore(sisteSluttDato)
+        }
+
+        is Melding.Forslag.Endring.Startdato -> {
+            this.endring.startdato.isAfter(forsteStartDato)
+        }
+    }
+}
+
 fun validerGodkjennRefusjonskrav(
     request: GodkjennRefusjonskrav,
     krav: RefusjonskravDto,
+    forslagByDeltakerId: Map<UUID, List<DeltakerForslag>>,
 ): Either<List<ValidationError>, GodkjennRefusjonskrav> {
-    return if (request.digest != krav.beregning.getDigest()) {
+    val finnesRelevanteForslag = forslagByDeltakerId
+        .any { (_, forslag) ->
+            forslag.count { it.relevantForDeltakelse(krav) } > 0
+        }
+
+    return if (finnesRelevanteForslag) {
+        listOf(
+            ValidationError.ofCustomLocation(
+                "info",
+                "Det finnes forslag på deltakere som påvirker refusjonen. Disse må behandles av Nav før refusjonskravet kan sendes inn.",
+            ),
+        ).left()
+    } else if (request.digest != krav.beregning.getDigest()) {
         listOf(
             ValidationError.ofCustomLocation(
                 "info",
@@ -330,39 +423,9 @@ data class GodkjennRefusjonskrav(
     )
 }
 
-fun refusjonskravJournalpost(
-    pdf: ByteArray,
-    refusjonskravId: UUID,
-    organisasjonsnummer: Organisasjonsnummer,
-): Journalpost = Journalpost(
-    tittel = "Refusjonskrav",
-    journalposttype = "INNGAAENDE",
-    avsenderMottaker = Journalpost.AvsenderMottaker(
-        id = organisasjonsnummer.value,
-        idType = "ORGNR",
-        navn = null,
-    ),
-    bruker = Journalpost.Bruker(
-        id = organisasjonsnummer.value,
-        idType = "ORGNR",
-    ),
-    tema = "TIL",
-    datoMottatt = LocalDateTime.now().toString(),
-    dokumenter = listOf(
-        Journalpost.Dokument(
-            tittel = "Refusjonskrav",
-            dokumentvarianter = listOf(
-                Journalpost.Dokument.Dokumentvariant(
-                    "PDFA",
-                    pdf,
-                    "ARKIV",
-                ),
-            ),
-        ),
-    ),
-    eksternReferanseId = refusjonskravId.toString(),
-    journalfoerendeEnhet = "9999", // Automatisk journalføring
-    kanal = "NAV_NO", // Påkrevd for INNGAENDE. Se https://confluence.adeo.no/display/BOA/Mottakskanal
-    sak = null,
-    behandlingstema = null,
+@Serializable
+data class RelevanteForslag(
+    @Serializable(with = UUIDSerializer::class)
+    val deltakerId: UUID,
+    val antallRelevanteForslag: Int,
 )

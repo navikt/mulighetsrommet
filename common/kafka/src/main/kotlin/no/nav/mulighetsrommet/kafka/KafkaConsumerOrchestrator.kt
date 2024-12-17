@@ -30,9 +30,14 @@ class KafkaConsumerOrchestrator(
 
     data class Config(
         /**
+         * Whether consumer clients starts in a running state or not.
+         */
+        val consumerInitialRunningState: Boolean = false,
+
+        /**
          * Frequency in milliseconds of how often the [Topic.running] state should be polled.
          */
-        val topicStatePollDelay: Long = 10_000,
+        val consumerRunningStatePollDelay: Long = 10_000,
     )
 
     private data class Consumer(
@@ -45,12 +50,12 @@ class KafkaConsumerOrchestrator(
 
         validateConsumers(consumers)
 
-        resetTopics(consumers)
+        resetTopics(config, consumers)
 
         consumerClients = consumers.associate { consumer ->
             val topicConfig = toTopicConfig(consumer)
             val client = toKafkaConsumerClient(consumer, consumerPreset, topicConfig)
-            consumer.config.id to Consumer(topicConfig, client)
+            consumer.getConsumerId() to Consumer(topicConfig, client)
         }
 
         val topicConfigs = consumerClients.map { it.value.topicConfig }
@@ -61,7 +66,7 @@ class KafkaConsumerOrchestrator(
             .withConsumerConfigs(findConsumerConfigsWithStoreOnFailure(topicConfigs))
             .build()
 
-        topicPoller = Poller(config.topicStatePollDelay) {
+        topicPoller = Poller(config.consumerRunningStatePollDelay) {
             updateClientRunningState()
         }
 
@@ -102,7 +107,7 @@ class KafkaConsumerOrchestrator(
             .withLogging()
             .withStoreOnFailure(kafkaConsumerRepository)
             .withConsumerConfig(
-                consumer.config.topic,
+                consumer.getConsumerTopic(),
                 consumer.keyDeserializer,
                 consumer.valueDeserializer,
                 Consumer { event ->
@@ -125,7 +130,7 @@ class KafkaConsumerOrchestrator(
             return p2
         }
 
-        val consumerClientPreset = consumer.config.consumerGroupId
+        val consumerClientPreset = consumer.getConsumerGroupId()
             ?.let { withConsumerGroupId(consumerPreset, it) }
             ?: consumerPreset
 
@@ -150,26 +155,28 @@ class KafkaConsumerOrchestrator(
         }
     }
 
-    private fun resetTopics(consumers: List<KafkaTopicConsumer<*, *>>) {
+    private fun resetTopics(config: Config, consumers: List<KafkaTopicConsumer<*, *>>) {
         val currentTopics = topicRepository.getAll()
 
         val topics = consumers.map { consumer ->
-            val (id, topic, initialRunningState) = consumer.config
+            val id = consumer.getConsumerId()
 
             val running = currentTopics.firstOrNull { it.id == id }
                 ?.running
-                ?: initialRunningState
+                ?: config.consumerInitialRunningState
 
-            Topic(id = id, topic = topic, type = TopicType.CONSUMER, running = running)
+            Topic(id = id, topic = consumer.getConsumerTopic(), type = TopicType.CONSUMER, running = running)
         }
         topicRepository.setAll(topics)
     }
 
-    private fun getUpdatedTopicsOnly(updated: List<Topic>, current: List<Topic>) = updated.filter { x -> current.any { y -> y.id == x.id && y.running != x.running } }
+    private fun getUpdatedTopicsOnly(updated: List<Topic>, current: List<Topic>) = updated.filter { x ->
+        current.any { y -> y.id == x.id && y.running != x.running }
+    }
 }
 
 private fun validateConsumers(consumers: List<KafkaTopicConsumer<*, *>>) {
-    require(consumers.distinctBy { it.config.id }.size == consumers.size) {
+    require(consumers.distinctBy { it.getConsumerId() }.size == consumers.size) {
         "Each consumer must have a unique 'id'. At least two consumers share the same 'id'."
     }
 }

@@ -12,6 +12,7 @@ import {
   RegistrerOpsjonSchema,
 } from "./RegistrerOpsjonSchema";
 import { RegistrerOpsjonSkjema } from "./RegistrerOpsjonSkjema";
+import { useRevalidator } from "react-router-dom";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
@@ -20,6 +21,7 @@ interface Props {
 
 export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
   const mutation = useRegistrerOpsjon();
+  const revalidator = useRevalidator();
   const form = useForm<InferredRegistrerOpsjonSchema>({
     resolver: zodResolver(RegistrerOpsjonSchema),
     defaultValues: {},
@@ -57,6 +59,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
     reset();
     mutation.reset();
     modalRef?.current?.close();
+    revalidator.revalidate();
   }
 
   function sluttDatoErLikEllerPassererMaksVarighet(): boolean {

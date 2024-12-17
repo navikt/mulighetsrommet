@@ -96,7 +96,7 @@ export const action: ActionFunction = async ({ request }) => {
       // Remix revaliderer loader data ved actions, så når denne feilmeldingen vises skal allerede kravet
       // være oppdatert. Det kan hende vi i fremtiden vil vise _hva_ som har endret seg også, men det
       // får vi ta senere.
-      return { errors: [apiError.body.errors] };
+      return { errors: apiError.body.errors };
     }
     throw e;
   }

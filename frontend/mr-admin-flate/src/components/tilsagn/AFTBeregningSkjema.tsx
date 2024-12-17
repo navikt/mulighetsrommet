@@ -1,111 +1,82 @@
-import { HStack, TextField } from "@navikt/ds-react";
-import { useEffect, useState } from "react";
-import { DeepPartial, FieldError, FieldErrorsImpl, Merge, useFormContext } from "react-hook-form";
-import { InferredOpprettTilsagnSchema } from "./OpprettTilsagnSchema";
-import { NumericFormat } from "react-number-format";
 import { useBeregnTilsagn } from "@/api/tilsagn/useBeregnTilsagn";
-import { useHandleApiUpsertResponse } from "@/api/effects";
-import { useAFTSatser } from "@/api/tilsagn/useAFTSatser";
-import { AFTSats, TilsagnBeregningAFT } from "@mr/api-client";
+import { TilsagnBeregning, TilsagnBeregningAFT, ValidationErrorResponse } from "@mr/api-client";
+import { isValidationError } from "@mr/frontend-common/utils/utils";
+import { HStack, TextField } from "@navikt/ds-react";
+import { useEffect } from "react";
+import { DeepPartial, FieldError, FieldErrorsImpl, Merge, useFormContext } from "react-hook-form";
+import { NumericFormat } from "react-number-format";
+import { InferredOpprettTilsagnSchema } from "./OpprettTilsagnSchema";
 
-interface Props {
-  defaultAntallPlasser?: number;
-}
-
-export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
-  const { data: satser } = useAFTSatser();
-  const mutation = useBeregnTilsagn();
+export function AFTBeregningSkjema() {
+  const beregnTilsagn = useBeregnTilsagn();
   const {
     setError,
     clearErrors,
     watch,
     setValue,
     formState: { errors },
+    register,
   } = useFormContext<DeepPartial<InferredOpprettTilsagnSchema>>();
 
-  const [antallPlasser, setAntallPlasser] = useState<number>(defaultAntallPlasser ?? 0);
+  const periodeStart = watch("periodeStart");
+  const periodeSlutt = watch("periodeSlutt");
 
-  const periode = watch("periode");
-
-  function findSats(): number | undefined {
-    if (!periode?.start) {
-      return;
-    }
-    const periodeStart = new Date(periode.start);
-    const filteredData =
-      satser
-        ?.filter((sats: AFTSats) => new Date(sats.startDato) <= periodeStart)
-        ?.sort(
-          (a: AFTSats, b: AFTSats) =>
-            new Date(b.startDato).getTime() - new Date(a.startDato).getTime(),
-        ) ?? [];
-
-    return filteredData[0]?.belop;
-  }
+  const beregning = watch("beregning") as TilsagnBeregningAFT | undefined;
 
   useEffect(() => {
-    const sats = findSats();
-    if (sats && periode?.start && periode.slutt && mutation) {
-      mutation.mutate({
-        type: "AFT",
-        periodeStart: periode.start,
-        periodeSlutt: periode.slutt,
-        sats,
-        antallPlasser,
-      });
+    if (periodeStart && periodeSlutt && beregning?.antallPlasser) {
+      beregnTilsagn.mutate(
+        {
+          type: "AFT",
+          periodeStart,
+          periodeSlutt,
+          antallPlasser: beregning.antallPlasser,
+        },
+        {
+          onSuccess: setBeregning,
+          onError: (error) => {
+            if (isValidationError(error.body)) {
+              handleBeregningValidationErrors(error.body);
+            }
+          },
+        },
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [antallPlasser, periode?.start, periode?.slutt, setValue]);
+  }, [beregning?.antallPlasser, periodeStart, periodeSlutt, setValue]);
 
-  useHandleApiUpsertResponse(
-    mutation,
-    (response) => {
-      clearErrors();
-      setValue("beregning", response);
-    },
-    (validation) => {
-      setValue("beregning", undefined);
-      validation.errors.forEach((error) => {
-        const name = mapErrorToSchemaPropertyName(error.name);
-        setError(name, { type: "custom", message: error.message });
-      });
+  const setBeregning = (response: TilsagnBeregning) => {
+    clearErrors();
+    setValue("beregning", response);
+  };
 
-      function mapErrorToSchemaPropertyName(name: string) {
-        const mapping: { [name: string]: string } = {
-          periodeStart: "periode.start",
-          periodeSlutt: "periode.slutt",
-          antallPlasser: "beregning",
-        };
-        return (mapping[name] ?? name) as keyof InferredOpprettTilsagnSchema;
-      }
-    },
-  );
+  const handleBeregningValidationErrors = (validation: ValidationErrorResponse) => {
+    setValue("beregning", undefined);
+
+    validation.errors.forEach((error) => {
+      const name = error.name as keyof InferredOpprettTilsagnSchema;
+      setError(name, { type: "custom", message: error.message });
+    });
+  };
 
   return (
     <HStack gap="2" align="start">
-      <NumericFormat
+      <TextField
         size="small"
-        error={errors.beregning?.message}
+        type="number"
         label="Antall plasser"
-        customInput={TextField}
-        value={antallPlasser}
-        valueIsNumericString
-        thousandSeparator
-        onValueChange={(e) => {
-          const n = Number.parseInt(e.value);
-          setAntallPlasser(isNaN(n) ? 0 : n);
-        }}
+        error={
+          (errors.beregning as Merge<FieldError, FieldErrorsImpl<NonNullable<TilsagnBeregningAFT>>>)
+            ?.antallPlasser?.message
+        }
+        {...register("beregning.antallPlasser", { valueAsNumber: true })}
       />
       <NumericFormat
         readOnly
         size="small"
         label="Sats"
-        error={
-          (errors.beregning as Merge<FieldError, FieldErrorsImpl<NonNullable<TilsagnBeregningAFT>>>)
-            ?.sats?.message
-        }
         customInput={TextField}
-        value={findSats()}
+        value={beregning?.sats}
         valueIsNumericString
         thousandSeparator=" "
         suffix=" kr"

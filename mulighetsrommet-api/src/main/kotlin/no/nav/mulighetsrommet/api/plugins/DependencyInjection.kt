@@ -39,6 +39,7 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
+import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
@@ -57,10 +58,13 @@ import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.NavEnheterSyncService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetRepository
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
+import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.refusjon.RefusjonService
+import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagRepository
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
+import no.nav.mulighetsrommet.api.refusjon.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.refusjon.kafka.AmtDeltakerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.refusjon.task.GenerateRefusjonskrav
 import no.nav.mulighetsrommet.api.refusjon.task.JournalforRefusjonskrav
@@ -102,7 +106,6 @@ import no.nav.mulighetsrommet.tokenprovider.M2MTokenProvider
 import no.nav.mulighetsrommet.tokenprovider.createMaskinportenM2mTokenClient
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
-import no.nav.mulighetsrommet.utdanning.db.UtdanningRepository
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
@@ -180,6 +183,11 @@ private fun kafka(appConfig: AppConfig) = module {
 
     single {
         val consumers = listOf(
+            DatavarehusTiltakV1KafkaProducer(
+                config = config.clients.dvhGjennomforing,
+                kafkaProducerClient = producerClient,
+                db = get(),
+            ),
             SisteTiltaksgjennomforingerV1KafkaConsumer(
                 config = config.consumers.tiltaksgjennomforingerV1,
                 tiltakstyper = get(),
@@ -197,6 +205,11 @@ private fun kafka(appConfig: AppConfig) = module {
                 config = config.consumers.amtVirksomheterV1,
                 arrangorRepository = get(),
                 brregClient = get(),
+            ),
+            AmtArrangorMeldingV1KafkaConsumer(
+                config = config.consumers.amtArrangorMeldingV1,
+                deltakerForslagRepository = get(),
+                deltakerRepository = get(),
             ),
         )
         KafkaConsumerOrchestrator(
@@ -221,9 +234,9 @@ private fun repositories() = module {
     single { OpsjonLoggRepository(get()) }
     single { TilsagnRepository(get()) }
     single { RefusjonskravRepository(get()) }
-    single { UtdanningRepository(get()) }
     single { AltinnRettigheterRepository(get()) }
     single { VeilederflateTiltakRepository(get()) }
+    single { DeltakerForslagRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -240,6 +253,12 @@ private fun services(appConfig: AppConfig) = module {
             baseUrl = appConfig.veilarboppfolgingConfig.url,
             tokenProvider = cachedTokenProvider.withScope(appConfig.veilarboppfolgingConfig.scope),
             clientEngine = appConfig.engine,
+        )
+    }
+    single {
+        PdfGenClient(
+            clientEngine = appConfig.engine,
+            baseUrl = appConfig.pdfgen.url,
         )
     }
     single {
@@ -297,7 +316,7 @@ private fun services(appConfig: AppConfig) = module {
     single {
         Norg2Client(
             clientEngine = appConfig.engine,
-            baseUrl = appConfig.norg2.baseUrl,
+            baseUrl = appConfig.norg2.url,
         )
     }
     single {
@@ -307,7 +326,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { SanityService(get()) }
     single {
-        BrregClient(baseUrl = appConfig.brreg.baseUrl, clientEngine = appConfig.engine)
+        BrregClient(clientEngine = appConfig.engine, baseUrl = appConfig.brreg.url)
     }
     single {
         AmtDeltakerClient(
@@ -323,7 +342,7 @@ private fun services(appConfig: AppConfig) = module {
             tokenProvider = cachedTokenProvider.withScope(appConfig.pamOntologi.scope),
         )
     }
-    single { UtdanningClient(config = appConfig.utdanning) }
+    single { UtdanningClient(baseUrl = appConfig.utdanning.url) }
     single {
         AltinnClient(
             baseUrl = appConfig.altinn.url,
@@ -371,6 +390,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
+            get(),
         )
     }
     single { TiltakshistorikkService(get(), get(), get(), get(), get()) }
@@ -404,12 +424,12 @@ private fun services(appConfig: AppConfig) = module {
         ) { runBlocking { cachedTokenProvider.withScope(appConfig.axsys.scope).exchange(AccessType.M2M) } }
     }
     single { AvtaleValidator(get(), get(), get(), get(), get()) }
-    single { TiltaksgjennomforingValidator(get(), get(), get(), get()) }
+    single { TiltaksgjennomforingValidator(get(), get()) }
     single { OpsjonLoggValidator() }
     single { TilsagnValidator(get()) }
     single { OpsjonLoggService(get(), get(), get(), get(), get()) }
     single { LagretFilterService(get()) }
-    single { TilsagnService(get(), get(), get(), get()) }
+    single { TilsagnService(get(), get(), get(), get(), get()) }
     single { AltinnRettigheterService(get(), get()) }
 }
 
@@ -420,7 +440,7 @@ private fun tasks(config: TaskConfig) = module {
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get()) }
     single { SynchronizeUtdanninger(config.synchronizeUtdanninger, get(), get()) }
     single { GenerateRefusjonskrav(config.generateRefusjonskrav, get()) }
-    single { JournalforRefusjonskrav(get(), get(), get(), get(), get()) }
+    single { JournalforRefusjonskrav(get(), get(), get(), get(), get(), get()) }
     single {
         val updateTiltaksgjennomforingStatus = UpdateTiltaksgjennomforingStatus(
             get(),

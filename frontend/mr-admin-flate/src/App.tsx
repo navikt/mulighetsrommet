@@ -29,10 +29,12 @@ import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
 import { tiltakstypeLoader, tiltakstyperLoaders } from "./pages/tiltakstyper/tiltakstyperLoaders";
-import { avtaleLoader } from "./pages/avtaler/avtaleLoader";
 import { ArbeidsbenkPage } from "@/pages/arbeidsbenk/ArbeidsbenkPage";
 import { OppgaverPage } from "@/pages/arbeidsbenk/oppgaver/OppgaverPage";
 import { arbeidsbenkLoader } from "@/pages/arbeidsbenk/arbeidsbenkLoader";
+import { avtaleLoader, avtaleSkjemaLoader } from "./pages/avtaler/avtaleLoader";
+import { tiltaksgjennomforingLoader } from "./pages/tiltaksgjennomforinger/tiltaksgjennomforingLoaders";
+import { tilsagnLoader } from "./pages/tiltaksgjennomforinger/tilsagn/tilsagnLoader";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -108,6 +110,7 @@ const router = () =>
                 index: true,
                 element: <TiltakstypeInfo />,
                 errorElement: <ErrorPage />,
+                loader: tiltakstypeLoader,
               },
               {
                 path: "avtaler",
@@ -144,16 +147,19 @@ const router = () =>
             path: "avtaler/:avtaleId/skjema",
             element: <AvtaleSkjemaPage />,
             errorElement: <ErrorPage />,
+            loader: avtaleSkjemaLoader,
           },
           {
             path: "avtaler/skjema",
             element: <AvtaleSkjemaPage />,
             errorElement: <ErrorPage />,
+            loader: avtaleSkjemaLoader,
           },
           {
             path: "tiltaksgjennomforinger/skjema",
             element: <TiltaksgjennomforingSkjemaPage />,
             errorElement: <ErrorPage />,
+            loader: tiltaksgjennomforingLoader,
           },
           {
             path: "tiltaksgjennomforinger/",
@@ -164,11 +170,13 @@ const router = () =>
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId",
             element: <TiltaksgjennomforingPage />,
             errorElement: <ErrorPage />,
+            loader: tiltaksgjennomforingLoader,
             children: [
               {
                 index: true,
                 element: <TiltaksgjennomforingInfo />,
                 errorElement: <ErrorPage />,
+                loader: tiltaksgjennomforingLoader,
               },
             ],
           },
@@ -176,11 +184,13 @@ const router = () =>
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId",
             element: <TiltaksgjennomforingPage />,
             errorElement: <ErrorPage />,
+            loader: tiltaksgjennomforingLoader,
             children: [
               {
                 index: true,
                 element: <TiltaksgjennomforingInfo />,
                 errorElement: <ErrorPage />,
+                loader: tiltaksgjennomforingLoader,
               },
             ],
           },
@@ -188,6 +198,7 @@ const router = () =>
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn",
             element: <TiltaksgjennomforingPage />,
             errorElement: <ErrorPage />,
+            loader: tiltaksgjennomforingLoader,
             children: [
               {
                 index: true,
@@ -200,46 +211,55 @@ const router = () =>
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema",
             element: <TiltaksgjennomforingSkjemaPage />,
             errorElement: <ErrorPage />,
+            loader: tiltaksgjennomforingLoader,
           },
           {
-            path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
+            path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/opprett-tilsagn",
             element: <OpprettTilsagnSkjemaPage />,
             errorElement: <ErrorPage />,
+            loader: tilsagnLoader,
           },
           {
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId",
             element: <TilsagnDetaljer />,
             errorElement: <ErrorPage />,
+            loader: tilsagnLoader,
           },
           {
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId/rediger-tilsagn",
             element: <OpprettTilsagnSkjemaPage />,
             errorElement: <ErrorPage />,
+            loader: tilsagnLoader,
           },
           {
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/skjema",
             element: <TiltaksgjennomforingSkjemaPage />,
             errorElement: <ErrorPage />,
+            loader: tiltaksgjennomforingLoader,
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema",
             element: <TiltaksgjennomforingSkjemaPage />,
             errorElement: <ErrorPage />,
+            loader: tiltaksgjennomforingLoader,
           },
           {
-            path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
+            path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/opprett-tilsagn",
             element: <OpprettTilsagnSkjemaPage />,
             errorElement: <ErrorPage />,
+            loader: tilsagnLoader,
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId",
             element: <TilsagnDetaljer />,
             errorElement: <ErrorPage />,
+            loader: tilsagnLoader,
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId/rediger-tilsagn",
             element: <OpprettTilsagnSkjemaPage />,
             errorElement: <ErrorPage />,
+            loader: tilsagnLoader,
           },
           {
             path: "arrangorer",
@@ -304,13 +324,6 @@ const router = () =>
     ],
     {
       basename,
-      future: {
-        v7_fetcherPersist: true,
-        v7_normalizeFormMethod: true,
-        v7_partialHydration: true,
-        v7_skipActionErrorRevalidation: true,
-        v7_relativeSplatPath: true,
-      },
     },
   );
 

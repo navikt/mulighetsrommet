@@ -1763,6 +1763,27 @@ paths:
               schema:
                 $ref: "#/components/schemas/TilsagnBeregning"
 
+  /api/v1/intern/tilsagn/defaults:
+    parameters:
+      - name: gjennomforingId
+        in: query
+        description: Id til tilsagnets gjennomføring
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - Tilsagn
+      operationId: getTilsagnDefaults
+      responses:
+        200:
+          description: Standardverdier for neste tilsagn
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TilsagnDefaults"
+
   /api/v1/intern/tilsagn/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -1777,14 +1798,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TilsagnDto"
-    put:
-      tags:
-        - Tilsagn
-      operationId: annullerTilsagn
-      responses:
-        200:
-          description: OK
-
     delete:
       tags:
         - Tilsagn
@@ -1792,6 +1805,47 @@ paths:
       responses:
         200:
           description: OK
+
+  /api/v1/intern/tilsagn/{id}/historikk:
+    get:
+      tags:
+        - Tilsagn
+      operationId: getTilsagnEndringshistorikk
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID for tilsagn
+      responses:
+        200:
+          description: Endringshistorikken for tilsagn
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Endringshistorikk"
+
+  /api/v1/intern/tilsagn/{id}/til-annullering:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    post:
+      tags:
+        - Tilsagn
+      operationId: tilAnnullering
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TilsagnTilAnnulleringRequest"
+      responses:
+        200:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
 
   /api/v1/intern/tilsagn/{id}/beslutt:
     parameters:
@@ -1878,6 +1932,23 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ArrangorflateTilsagn"
+
+  /api/v1/intern/arrangorflate/refusjonskrav/{id}/relevante-forslag:
+    get:
+      tags:
+        - Arrangorflate
+      operationId: getRelevanteForslag
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        200:
+          description: Hent relevante deltakerforslag til deltakere på refusjonskrav
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RelevanteForslag"
 
   /api/v1/intern/arrangorflate/tilsagn/{id}:
     get:
@@ -3732,8 +3803,6 @@ components:
             $ref: "#/components/schemas/Lenke"
         delMedBruker:
           type: string
-        kurstittel:
-          type: string
 
     FaneinnholdRequest:
       type: object
@@ -3759,9 +3828,6 @@ components:
           type: string
           nullable: true
         delMedBruker:
-          type: string
-          nullable: true
-        kurstittel:
           type: string
           nullable: true
 
@@ -4786,15 +4852,8 @@ components:
           $ref: "#/components/schemas/NavEnhet"
         beregning:
           $ref: "#/components/schemas/TilsagnBeregning"
-        besluttelse:
-          $ref: "#/components/schemas/TilsagnBesluttelseDto"
-        annullertTidspunkt:
-          type: string
-          format: date-time
         lopenummer:
           type: integer
-        opprettetAv:
-          type: string
         arrangor:
           type: object
           properties:
@@ -4813,17 +4872,6 @@ components:
             - organisasjonsnummer
             - navn
             - overordnetEnhet
-        tiltaksgjennomforing:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-            antallPlasser:
-              type: number
-          required:
-            - id
-            - antallPlasser
         status:
           $ref: "#/components/schemas/TilsagnStatus"
       required:
@@ -4836,44 +4884,122 @@ components:
         - belop
         - arrangor
         - lopenummer
-        - opprettetAv
-        - tiltaksgjennomforing
         - status
 
     TilsagnStatus:
-      type: string
-      enum:
-        - TIL_GODKJENNING
-        - GODKJENT
-        - RETURNERT
-        - ANNULLERT
-        - OPPGJORT
+      oneOf:
+        - $ref: "#/components/schemas/TilsagnStatusTilGodkjenning"
+        - $ref: "#/components/schemas/TilsagnStatusGodkjent"
+        - $ref: "#/components/schemas/TilsagnStatusReturnert"
+        - $ref: "#/components/schemas/TilsagnStatusTilAnnullering"
+        - $ref: "#/components/schemas/TilsagnStatusAnnullert"
 
-    TilsagnBesluttelseDto:
+    TilsagnStatusTilGodkjenning:
       type: object
       properties:
-        navIdent:
+        type:
           type: string
-        beslutternavn:
+          enum:
+            - 'TIL_GODKJENNING'
+        endretAv:
           type: string
-        tidspunkt:
+        endretTidspunkt:
           type: string
           format: date-time
-        status:
-          $ref: "#/components/schemas/TilsagnBesluttelseStatus"
+      required:
+        - endretAv
+        - endretTidspunkt
+        - type
+
+    TilsagnStatusGodkjent:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - 'GODKJENT'
+      required:
+        - type
+
+    TilsagnStatusReturnert:
+      type: object
+      properties:
+        endretAv:
+          type: string
+        type:
+          type: string
+          enum:
+            - 'RETURNERT'
+        returnertAv:
+          type: string
+        returnertAvNavn:
+          type: string
         aarsaker:
           type: array
           items:
             $ref: "#/components/schemas/TilsagnAvvisningAarsak"
         forklaring:
           type: string
+        endretTidspunkt:
+          type: string
+          format: date-time
       required:
-        - navIdent
-        - beslutternavn
-        - tidspunkt
-        - status
+        - returnertAv
+        - returnertAvNavn
+        - aarsaker
+        - endretTidspunkt
+        - endretAv
+        - type
 
-    TilsagnBesluttelseStatus:
+    TilsagnStatusTilAnnullering:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - 'TIL_ANNULLERING'
+        endretAv:
+          type: string
+        endretAvNavn:
+          type: string
+        endretTidspunkt:
+          type: string
+          format: date-time
+        aarsaker:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnTilAnnulleringAarsak"
+        forklaring:
+          type: string
+      required:
+        - endretAv
+        - endretAvNavn
+        - endretTidspunkt
+        - aarsaker
+        - forklaring
+        - type
+
+    TilsagnStatusAnnullert:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - 'ANNULLERT'
+        endretAv:
+          type: string
+        godkjentAv:
+          type: string
+        endretTidspunkt:
+          type: string
+          format: date-time
+      required:
+        - type
+        - endretAv
+        - godkjentAv
+        - endretTidspunkt
+
+    TilsagnStatusBesluttelse:
       type: string
       enum:
         - GODKJENT
@@ -4888,7 +5014,7 @@ components:
       type: object
       properties:
         besluttelse:
-          $ref: "#/components/schemas/TilsagnBesluttelseStatus"
+          $ref: "#/components/schemas/TilsagnStatusBesluttelse"
       required:
         - besluttelse
 
@@ -4896,21 +5022,66 @@ components:
       type: object
       properties:
         besluttelse:
-          $ref: "#/components/schemas/TilsagnBesluttelseStatus"
+          $ref: "#/components/schemas/TilsagnStatusBesluttelse"
         aarsaker:
           type: array
           items:
             $ref: "#/components/schemas/TilsagnAvvisningAarsak"
         forklaring:
           type: string
+          nullable: true
       required:
         - besluttelse
         - aarsaker
+        - forklaring
+
+    TilsagnTilAnnulleringRequest:
+      type: object
+      properties:
+        aarsaker:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnTilAnnulleringAarsak"
+        forklaring:
+          type: string
+      required:
+        - besluttelse
+        - aarsaker
+
+    TilsagnDefaults:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        periodeStart:
+          type: string
+          format: date
+        periodeSlutt:
+          type: string
+          format: date
+        antallPlasser:
+          type: integer
+        kostnadssted:
+          type: string
+        beregning:
+          $ref: "#/components/schemas/TilsagnBeregning"
+      required:
+        - periodeStart
+        - periodeSlutt
+        - antallPlasser
 
     TilsagnBeregning:
       oneOf:
         - $ref: "#/components/schemas/TilsagnBeregningAFT"
         - $ref: "#/components/schemas/TilsagnBeregningFri"
+
+    TilsagnTilAnnulleringAarsak:
+      type: string
+      enum:
+        - FEIL_REGISTRERING
+        - GJENNOMFORING_AVBRYTES
+        - FEIL_ANNET
 
     TilsagnAvvisningAarsak:
       type: string
@@ -4980,13 +5151,10 @@ components:
           format: date
         antallPlasser:
           type: integer
-        sats:
-          type: integer
       required:
         - type
         - periodeStart
         - periodeSlutt
-        - sats
         - antallPlasser
 
     TilsagnBeregningInputFri:
@@ -5346,3 +5514,15 @@ components:
       required:
         - digest
         - betalingsinformasjon
+
+    RelevanteForslag:
+      type: object
+      properties:
+        deltakerId:
+          type: string
+          format: uuid
+        antallRelevanteForslag:
+          type: integer
+      required:
+        - deltakerId
+        - antallRelevanteForslag

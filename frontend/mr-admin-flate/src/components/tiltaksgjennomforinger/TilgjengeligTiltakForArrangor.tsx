@@ -1,13 +1,13 @@
+import { useSetTilgjengeligForArrangor } from "@/api/tiltaksgjennomforing/useSetTilgjengeligForArrangor";
+import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
+import { formaterDato, max, subtractDays, subtractMonths } from "@/utils/Utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ApiError, TiltaksgjennomforingDto } from "@mr/api-client";
+import { isValidationError } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, Heading, HStack, Modal } from "@navikt/ds-react";
 import { useRef } from "react";
-import { formaterDato, max, subtractDays, subtractMonths } from "@/utils/Utils";
-import { TiltaksgjennomforingDto } from "@mr/api-client";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
-import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useSetTilgjengeligForArrangor } from "@/api/tiltaksgjennomforing/useSetTilgjengeligForArrangor";
-import { useHandleApiUpsertResponse } from "@/api/effects";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 
 interface Props {
@@ -33,28 +33,31 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
     },
   });
 
-  const setTilgjengeligForArrangor = useSetTilgjengeligForArrangor();
+  const setTilgjengeligForArrangorMutation = useSetTilgjengeligForArrangor();
 
-  useHandleApiUpsertResponse(
-    setTilgjengeligForArrangor,
-    () => {
-      modalRef.current?.close();
-    },
-    (validation) => {
-      validation.errors.forEach((error) => {
+  const onSuccess = () => {
+    modalRef.current?.close();
+  };
+
+  const onError = (error: ApiError) => {
+    if (isValidationError(error)) {
+      error.errors.forEach((error) => {
         form.setError(error.name as keyof InferredEditTilgjengeligForArrangorSchema, {
           type: "custom",
           message: error.message,
         });
       });
-    },
-  );
+    }
+  };
 
   const submit = form.handleSubmit(async (values) => {
-    setTilgjengeligForArrangor.mutate({
-      id: gjennomforing.id,
-      tilgjengeligForArrangorDato: values.tilgjengeligForArrangorFraOgMedDato!,
-    });
+    setTilgjengeligForArrangorMutation.mutate(
+      {
+        id: gjennomforing.id,
+        tilgjengeligForArrangorDato: values.tilgjengeligForArrangorFraOgMedDato!,
+      },
+      { onSuccess, onError },
+    );
   });
 
   const cancel = () => {

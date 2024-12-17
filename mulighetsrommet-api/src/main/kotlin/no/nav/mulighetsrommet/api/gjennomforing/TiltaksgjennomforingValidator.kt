@@ -11,21 +11,17 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.responses.ValidationError
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isKursTiltak
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
-import no.nav.mulighetsrommet.unleash.UnleashService
 import java.time.LocalDate
 
 class TiltaksgjennomforingValidator(
-    private val tiltakstyper: TiltakstypeService,
     private val avtaler: AvtaleRepository,
     private val arrangorer: ArrangorRepository,
-    private val unleashService: UnleashService,
 ) {
     private val maksAntallTegnStedForGjennomforing = 100
 
@@ -34,9 +30,6 @@ class TiltaksgjennomforingValidator(
         previous: TiltaksgjennomforingDto?,
     ): Either<List<ValidationError>, TiltaksgjennomforingDbo> = either {
         var next = dbo
-
-        val tiltakstype = tiltakstyper.getById(next.tiltakstypeId)
-            ?: raise(ValidationError.of(TiltaksgjennomforingDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
 
         val avtale = avtaler.get(next.avtaleId)
             ?: raise(ValidationError.of(TiltaksgjennomforingDbo::avtaleId, "Avtalen finnes ikke").nel())
@@ -125,9 +118,6 @@ class TiltaksgjennomforingValidator(
             }
             if (!avtaleHasArrangor) {
                 add(ValidationError.of(TiltaksgjennomforingDbo::arrangorId, "Du må velge en arrangør for avtalen"))
-            }
-            if (isKursTiltak(tiltakstype.tiltakskode) && next.faneinnhold?.kurstittel.isNullOrBlank()) {
-                add(ValidationError.ofCustomLocation("faneinnhold.kurstittel", "Du må skrive en kurstittel"))
             }
 
             if (avtale.tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING) {

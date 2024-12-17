@@ -2,6 +2,7 @@ import { useSetApentForPamelding } from "@/api/tiltaksgjennomforing/useSetApentF
 import { TiltaksgjennomforingDto } from "@mr/api-client";
 import { Alert, Button, Modal, Switch } from "@navikt/ds-react";
 import { RefObject } from "react";
+import { useRevalidator } from "react-router-dom";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
@@ -10,6 +11,7 @@ interface Props {
 
 export function SetApentForPameldingModal({ modalRef, gjennomforing }: Props) {
   const { mutate } = useSetApentForPamelding(gjennomforing.id);
+  const revalidator = useRevalidator();
 
   return (
     <Modal ref={modalRef} header={{ heading: "Åpent for påmelding" }}>
@@ -32,7 +34,7 @@ export function SetApentForPameldingModal({ modalRef, gjennomforing }: Props) {
 
           <Switch
             checked={gjennomforing.apentForPamelding}
-            onChange={(e) => mutate(e.target.checked)}
+            onChange={(e) => mutate(e.target.checked, { onSuccess: revalidator.revalidate })}
           >
             Åpent for påmelding
           </Switch>

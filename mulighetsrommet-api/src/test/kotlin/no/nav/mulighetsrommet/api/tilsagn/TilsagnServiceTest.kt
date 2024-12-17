@@ -5,6 +5,7 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -14,8 +15,9 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepositor
 import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.Forbidden
+import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
-import no.nav.mulighetsrommet.api.tilsagn.model.AvvistTilsagnAarsak
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import java.time.LocalDate
@@ -37,6 +39,7 @@ class TilsagnServiceTest : FunSpec({
     afterEach {
         database.db.truncateAll()
     }
+    val endringshistorikkService: EndringshistorikkService = mockk(relaxed = true)
 
     context("beslutt") {
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
@@ -44,6 +47,7 @@ class TilsagnServiceTest : FunSpec({
             tilsagnRepository = TilsagnRepository(database.db),
             tiltaksgjennomforingRepository,
             validator = TilsagnValidator(tiltaksgjennomforingRepository),
+            endringshistorikkService = endringshistorikkService,
             db = database.db,
         )
         val tilsagn = TilsagnRequest(
@@ -72,19 +76,6 @@ class TilsagnServiceTest : FunSpec({
                 Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
-        test("kan ikke beslutte annullerte") {
-            service.upsert(tilsagn, NavAnsattFixture.ansatt1.navIdent).shouldBeRight()
-
-            service.annuller(tilsagn.id).shouldBeRight()
-
-            service.beslutt(
-                id = tilsagn.id,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
-                navIdent = NavAnsattFixture.ansatt2.navIdent,
-            ) shouldBe
-                BadRequest("Tilsagn er annullert").left()
-        }
-
         test("kan ikke beslutte to ganger") {
             service.upsert(tilsagn, NavAnsattFixture.ansatt1.navIdent).shouldBeRight()
 
@@ -99,7 +90,7 @@ class TilsagnServiceTest : FunSpec({
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
                 navIdent = NavAnsattFixture.ansatt2.navIdent,
             ) shouldBe
-                BadRequest("Tilsagn allerede besluttet").left()
+                BadRequest("Tilsagnet kan ikke besluttes fordi det har status Godkjent").left()
         }
     }
 
@@ -109,6 +100,7 @@ class TilsagnServiceTest : FunSpec({
             tilsagnRepository = TilsagnRepository(database.db),
             tiltaksgjennomforingRepository,
             validator = TilsagnValidator(tiltaksgjennomforingRepository),
+            endringshistorikkService = endringshistorikkService,
             db = database.db,
         )
         val tilsagn = TilsagnRequest(
@@ -132,13 +124,14 @@ class TilsagnServiceTest : FunSpec({
             service.beslutt(
                 id = tilsagn.id,
                 besluttelse = BesluttTilsagnRequest.AvvistTilsagnRequest(
-                    aarsaker = listOf(AvvistTilsagnAarsak.FEIL_PERIODE),
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_PERIODE),
                     forklaring = null,
                 ),
-                navIdent = NavAnsattFixture.ansatt1.navIdent,
-            )
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
+            ).shouldBeRight()
 
             service.slettTilsagn(tilsagn.id).shouldBeRight()
+            service.get(tilsagn.id) shouldBe null
         }
 
         test("kan ikke slette tilsagn når det er godkjent") {

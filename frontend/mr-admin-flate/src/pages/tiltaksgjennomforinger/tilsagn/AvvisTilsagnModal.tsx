@@ -1,7 +1,7 @@
 import {
   AvvistTilsagnRequest,
   TilsagnAvvisningAarsak,
-  TilsagnBesluttelseStatus,
+  TilsagnStatusBesluttelse,
 } from "@mr/api-client";
 import { Button, Checkbox, CheckboxGroup, Heading, HGrid, Modal, Textarea } from "@navikt/ds-react";
 import { useState } from "react";
@@ -44,7 +44,7 @@ export function AvvisTilsagnModal({ open, onClose, onConfirm }: Props) {
       return;
     } else {
       onConfirm({
-        besluttelse: TilsagnBesluttelseStatus.AVVIST,
+        besluttelse: TilsagnStatusBesluttelse.AVVIST,
         aarsaker: valgteAarsaker,
         forklaring,
       });

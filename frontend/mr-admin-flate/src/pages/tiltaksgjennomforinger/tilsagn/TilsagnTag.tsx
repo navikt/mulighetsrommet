@@ -1,32 +1,28 @@
-import { TilsagnDto, TilsagnBesluttelseStatus } from "@mr/api-client";
+import { TilsagnStatus } from "@mr/api-client";
 import { Tag } from "@navikt/ds-react";
+import styles from "./TilsagnTag.module.scss";
 
-export function TilsagnTag(props: { tilsagn: TilsagnDto }) {
-  const { tilsagn } = props;
+export function TilsagnTag(props: { status: TilsagnStatus }) {
+  const { status } = props;
 
-  if (tilsagn?.besluttelse?.status === TilsagnBesluttelseStatus.GODKJENT) {
-    return (
-      <Tag variant="success" size="small">
-        Godkjent
-      </Tag>
-    );
-  } else if (tilsagn?.besluttelse?.status === TilsagnBesluttelseStatus.AVVIST) {
-    return (
-      <Tag variant="warning" size="small">
-        Returnert
-      </Tag>
-    );
-  } else if (tilsagn?.annullertTidspunkt) {
-    return (
-      <Tag variant="neutral" size="small">
-        Annullert
-      </Tag>
-    );
-  } else {
-    return (
-      <Tag variant="info" size="small">
-        Til beslutning
-      </Tag>
-    );
+  switch (status.type) {
+    case "TIL_GODKJENNING":
+      return <Tag variant="alt1">Til godkjenning</Tag>;
+    case "GODKJENT":
+      return <Tag variant="success">Godkjent</Tag>;
+    case "RETURNERT":
+      return <Tag variant="error">Returnert</Tag>;
+    case "TIL_ANNULLERING":
+      return (
+        <Tag variant="neutral" className={styles.til_annullering_tag}>
+          Til annullering
+        </Tag>
+      );
+    case "ANNULLERT":
+      return (
+        <Tag variant="neutral" className={styles.annullert_tag}>
+          Annullert
+        </Tag>
+      );
   }
 }

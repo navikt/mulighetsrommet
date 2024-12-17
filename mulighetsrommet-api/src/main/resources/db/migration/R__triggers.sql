@@ -71,14 +71,6 @@ create trigger set_timestamp
     for each row
 execute procedure trigger_set_timestamp();
 
-drop trigger if exists set_timestamp on utdanning_nus_kode_innhold;
-
-create trigger set_timestamp
-    before update
-    on utdanning_nus_kode_innhold
-    for each row
-execute procedure trigger_set_timestamp();
-
 drop trigger if exists set_timestamp on avtale_opsjon_logg;
 
 create trigger set_timestamp

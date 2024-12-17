@@ -1,7 +1,5 @@
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { avtaleDetaljerTabAtom } from "@/api/atoms";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { Laster } from "@/components/laster/Laster";
 import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
 import { InfoContainer } from "@/components/skjema/InfoContainer";
 import { Toggles } from "@mr/api-client";
@@ -17,18 +15,13 @@ import { AvtalePersonvern } from "./AvtalePersonvern";
 import { AvtalePrisOgFakturering } from "./AvtalePrisOgFakturering";
 
 export function AvtaleInfo() {
-  const { data: bruker } = useHentAnsatt();
-  const avtale = useLoaderData<typeof avtaleLoader>();
+  const { avtale, ansatt } = useLoaderData<typeof avtaleLoader>();
 
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 
   const { data: enableOpprettTilsagn } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
   );
-
-  if (!bruker) {
-    return <Laster tekst="Laster avtale..." />;
-  }
 
   return (
     <InfoContainer dataTestId="avtale_info-container">
@@ -54,7 +47,7 @@ export function AvtaleInfo() {
               onClick={() => setActiveTab("redaksjonelt-innhold")}
             />
           </div>
-          <AvtaleKnapperad bruker={bruker} avtale={avtale} />
+          <AvtaleKnapperad ansatt={ansatt} avtale={avtale} />
         </Tabs.List>
         <Tabs.Panel value="detaljer">
           <InlineErrorBoundary>

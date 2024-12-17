@@ -8,10 +8,11 @@ import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { useTitle } from "@mr/frontend-common";
 import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
-import { Link, Outlet, useLoaderData, useLocation, useMatch } from "react-router-dom";
+import { Link, Outlet, useLocation, useMatch } from "react-router-dom";
+import { useAvtale } from "../../api/avtaler/useAvtale";
 import commonStyles from "../Page.module.scss";
 import styles from "./AvtalePage.module.scss";
-import { avtaleLoader } from "./avtaleLoader";
+import { Laster } from "../../components/laster/Laster";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const erPaaGjennomforingerForAvtale = useMatch("/avtaler/:avtaleId/tiltaksgjennomforinger");
@@ -31,9 +32,18 @@ function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
 export function AvtalePage() {
   const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
-  const avtale = useLoaderData<typeof avtaleLoader>();
-  useTitle(`Avtale ${avtale?.navn ? `- ${avtale.navn}` : ""}`);
+  const { data: avtale, isPending } = useAvtale();
+
   const brodsmuler = useAvtaleBrodsmuler(avtale?.id);
+  useTitle(`Avtale ${avtale?.navn ? `- ${avtale.navn}` : ""}`);
+
+  if (isPending) {
+    return (
+      <main>
+        <Laster tekst="Laster avtale" />
+      </main>
+    );
+  }
 
   if (!avtale) {
     return (

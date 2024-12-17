@@ -12,7 +12,7 @@ export function TiltakDetaljerForTilsagn({ tiltaksgjennomforing }: Props) {
   return (
     <VStack gap="4">
       <Heading size="medium">Tiltaksgjennomføring</Heading>
-      <HGrid columns="2fr 2fr 2fr 1fr 1fr 1fr 1fr">
+      <HGrid columns="2fr 2fr 1fr 1fr 1fr 1fr 1fr">
         <Metadata header="Tiltaksnavn" verdi={tiltaksgjennomforing.navn} />
         <Metadata
           header="Arrangør"
@@ -20,7 +20,7 @@ export function TiltakDetaljerForTilsagn({ tiltaksgjennomforing }: Props) {
         />
         <Metadata header="Tiltaksnummer" verdi={tiltaksgjennomforing.tiltaksnummer} />
         <Metadata header="Startdato" verdi={formaterDato(tiltaksgjennomforing.startDato)} />
-        <Metadata header="Sluttdato" verdi={formaterDato(tiltaksgjennomforing.startDato)} />
+        <Metadata header="Sluttdato" verdi={formaterDato(tiltaksgjennomforing.sluttDato) || "-"} />
         <Metadata header="Antall plasser" verdi={tiltaksgjennomforing.antallPlasser} />
         <Metadata
           header="Status"

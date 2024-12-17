@@ -15,14 +15,23 @@ import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { Avtaletype, NavEnhet } from "@mr/api-client";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Heading, HelpText, VStack } from "@navikt/ds-react";
+import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
 import { Fragment } from "react";
-import { Link, useLoaderData } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useAvtale } from "../../api/avtaler/useAvtale";
+import { Laster } from "../../components/laster/Laster";
 import styles from "./AvtaleDetaljer.module.scss";
-import { avtaleLoader } from "./avtaleLoader";
 
 export function AvtaleDetaljer() {
-  const avtale = useLoaderData<typeof avtaleLoader>();
+  const { data: avtale, isPending, error } = useAvtale();
+
+  if (isPending) {
+    return <Laster tekst="Laster avtale..." />;
+  }
+
+  if (error) {
+    return <Alert variant="error">Klarte ikke hente avtaleinformasjon</Alert>;
+  }
 
   function sorterPaRegionsnavn(a: { region: NavEnhet }, b: { region: NavEnhet }) {
     return a.region.navn.localeCompare(b.region.navn);

@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.tilsagn.model
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.okonomi.Prismodell
@@ -20,14 +21,10 @@ data class TilsagnDto(
     val periodeStart: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val periodeSlutt: LocalDate,
-    val opprettetAv: NavIdent,
     val kostnadssted: NavEnhetDbo,
     val beregning: Prismodell.TilsagnBeregning,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val annullertTidspunkt: LocalDateTime?,
     val lopenummer: Int,
     val arrangor: Arrangor,
-    val besluttelse: Besluttelse?,
     val tiltaksgjennomforing: Tiltaksgjennomforing,
     val status: TilsagnStatus,
 ) {
@@ -41,29 +38,55 @@ data class TilsagnDto(
     )
 
     @Serializable
-    data class Besluttelse(
-        val navIdent: NavIdent,
-        val beslutternavn: String,
-        @Serializable(with = LocalDateTimeSerializer::class)
-        val tidspunkt: LocalDateTime?,
-        val status: TilsagnBesluttelseStatus,
-        val aarsaker: List<AvvistTilsagnAarsak>?,
-        val forklaring: String?,
-    )
-
-    @Serializable
     data class Tiltaksgjennomforing(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
-        val antallPlasser: Int,
     )
 
     @Serializable
-    enum class TilsagnStatus {
-        TIL_GODKJENNING,
-        GODKJENT,
-        RETURNERT,
-        ANNULLERT,
-        OPPGJORT,
+    sealed class TilsagnStatus {
+        @Serializable
+        @SerialName("TIL_GODKJENNING")
+        data class TilGodkjenning(
+            val endretAv: NavIdent,
+            @Serializable(with = LocalDateTimeSerializer::class)
+            val endretTidspunkt: LocalDateTime,
+        ) : TilsagnStatus()
+
+        @Serializable
+        @SerialName("GODKJENT")
+        data object Godkjent : TilsagnStatus()
+
+        @Serializable
+        @SerialName("RETURNERT")
+        data class Returnert(
+            val endretAv: NavIdent,
+            val returnertAv: NavIdent,
+            val returnertAvNavn: String,
+            val aarsaker: List<TilsagnStatusAarsak>,
+            val forklaring: String?,
+            @Serializable(with = LocalDateTimeSerializer::class)
+            val endretTidspunkt: LocalDateTime,
+        ) : TilsagnStatus()
+
+        @Serializable
+        @SerialName("TIL_ANNULLERING")
+        data class TilAnnullering(
+            val endretAv: NavIdent,
+            val endretAvNavn: String,
+            @Serializable(with = LocalDateTimeSerializer::class)
+            val endretTidspunkt: LocalDateTime,
+            val aarsaker: List<TilsagnStatusAarsak>,
+            val forklaring: String?,
+        ) : TilsagnStatus()
+
+        @Serializable
+        @SerialName("ANNULLERT")
+        data class Annullert(
+            val endretAv: NavIdent,
+            val godkjentAv: NavIdent,
+            @Serializable(with = LocalDateTimeSerializer::class)
+            val endretTidspunkt: LocalDateTime,
+        ) : TilsagnStatus()
     }
 }

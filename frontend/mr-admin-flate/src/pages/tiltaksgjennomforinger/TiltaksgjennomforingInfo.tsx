@@ -1,36 +1,22 @@
-import { Alert, Tabs } from "@navikt/ds-react";
-import { useAvtale } from "@/api/avtaler/useAvtale";
-import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
-import { Laster } from "@/components/laster/Laster";
-import styles from "./TiltaksgjennomforingInfo.module.scss";
-import { TiltaksgjennomforingDetaljer } from "./TiltaksgjennomforingDetaljer";
-import { TiltaksgjennomforingKnapperad } from "./TiltaksgjennomforingKnapperad";
-import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
-import { useAtom } from "jotai";
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { InlineErrorBoundary } from "@mr/frontend-common";
+import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
 import { InfoContainer } from "@/components/skjema/InfoContainer";
+import { InlineErrorBoundary } from "@mr/frontend-common";
+import { Alert, Tabs } from "@navikt/ds-react";
+import { useAtom } from "jotai";
+import { useLoaderData } from "react-router-dom";
+import { TiltaksgjennomforingDetaljer } from "./TiltaksgjennomforingDetaljer";
+import styles from "./TiltaksgjennomforingInfo.module.scss";
+import { TiltaksgjennomforingKnapperad } from "./TiltaksgjennomforingKnapperad";
+import { tiltaksgjennomforingLoader } from "./tiltaksgjennomforingLoaders";
 
 export function TiltaksgjennomforingInfo() {
-  const { data: bruker } = useHentAnsatt();
-
-  const {
-    data: tiltaksgjennomforing,
-    isError: isErrorTiltaksgjennomforing,
-    isPending: isLoadingTiltaksgjennomforing,
-  } = useTiltaksgjennomforingById();
-
+  const { tiltaksgjennomforing, ansatt, avtale } =
+    useLoaderData<typeof tiltaksgjennomforingLoader>();
   const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
 
-  const { data: avtale, isLoading: isLoadingAvtale } = useAvtale(tiltaksgjennomforing?.avtaleId);
-
-  if (!bruker || isLoadingTiltaksgjennomforing || isLoadingAvtale) {
-    return <Laster tekst="Laster informasjon om tiltaksgjennomføring..." />;
-  }
-
-  if (isErrorTiltaksgjennomforing) {
-    return <Alert variant="error">Klarte ikke hente informasjon om tiltaksgjennomføring</Alert>;
+  if (!tiltaksgjennomforing) {
+    return <Alert variant="warning">Fant ingen tiltaksgjennomføring</Alert>;
   }
 
   return (
@@ -46,7 +32,7 @@ export function TiltaksgjennomforingInfo() {
             />
           </div>
           <TiltaksgjennomforingKnapperad
-            bruker={bruker}
+            ansatt={ansatt}
             tiltaksgjennomforing={tiltaksgjennomforing}
           />
         </Tabs.List>

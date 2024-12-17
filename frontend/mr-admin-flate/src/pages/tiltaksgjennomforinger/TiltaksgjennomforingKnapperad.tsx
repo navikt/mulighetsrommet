@@ -1,36 +1,38 @@
-import React, { useRef } from "react";
-import { BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
 import { useMutatePublisert } from "@/api/tiltaksgjennomforing/useMutatePublisert";
-import { NavAnsatt, TiltaksgjennomforingDto, Toggles } from "@mr/api-client";
 import { useTiltaksgjennomforingEndringshistorikk } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingEndringshistorikk";
+import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
-import { useNavigate } from "react-router-dom";
-import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
+import { SetApentForPameldingModal } from "@/components/tiltaksgjennomforinger/SetApentForPameldingModal";
+import { KnapperadContainer } from "@/pages/KnapperadContainer";
+import { NavAnsatt, TiltaksgjennomforingDto } from "@mr/api-client";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
-import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
-import { KnapperadContainer } from "@/pages/KnapperadContainer";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { SetApentForPameldingModal } from "@/components/tiltaksgjennomforinger/SetApentForPameldingModal";
+import { BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
+import React, { useRef } from "react";
+import { useNavigate, useRevalidator } from "react-router-dom";
 
 interface Props {
-  bruker: NavAnsatt;
+  ansatt: NavAnsatt;
   tiltaksgjennomforing: TiltaksgjennomforingDto;
 }
 
-export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: Props) {
+export function TiltaksgjennomforingKnapperad({ ansatt, tiltaksgjennomforing }: Props) {
   const navigate = useNavigate();
   const { mutate } = useMutatePublisert();
+  const revalidate = useRevalidator();
   const advarselModal = useRef<HTMLDialogElement>(null);
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const apentForPameldingModalRef = useRef<HTMLDialogElement>(null);
-  const { data: enableOpprettTilsagn } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
-  );
 
   function handleClick(e: React.MouseEvent<HTMLInputElement>) {
-    mutate({ id: tiltaksgjennomforing.id, publisert: e.currentTarget.checked });
+    mutate(
+      { id: tiltaksgjennomforing.id, publisert: e.currentTarget.checked },
+      {
+        onSuccess: revalidate.revalidate,
+      },
+    );
   }
 
   return (
@@ -65,7 +67,7 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
                     tiltaksgjennomforing.administratorer.length > 0 &&
                     !tiltaksgjennomforing.administratorer
                       .map((a) => a.navIdent)
-                      .includes(bruker.navIdent)
+                      .includes(ansatt.navIdent)
                   ) {
                     advarselModal.current?.showModal();
                   } else {
@@ -84,15 +86,7 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
                     : "Åpne for påmelding"}
                 </Dropdown.Menu.GroupedList.Item>
               )}
-              {enableOpprettTilsagn && gjennomforingIsAktiv(tiltaksgjennomforing.status.status) ? (
-                <Dropdown.Menu.GroupedList.Item
-                  onClick={() => {
-                    navigate("opprett-tilsagn");
-                  }}
-                >
-                  Opprett tilsagn
-                </Dropdown.Menu.GroupedList.Item>
-              ) : null}
+
               {gjennomforingIsAktiv(tiltaksgjennomforing.status.status) && (
                 <Dropdown.Menu.GroupedList.Item onClick={() => avbrytModalRef.current?.showModal()}>
                   Avbryt gjennomføring

@@ -26,7 +26,9 @@ export function capitalizeEveryWord(text: string = "", ignoreWords: string[] = [
     ?.join(" ");
 }
 
-export function formaterDato(dato: string | Date): string {
+export function formaterDato(dato: string | Date | undefined | null): string {
+  if (!dato) return "";
+
   const result = new Date(dato).toLocaleString("no-NO", {
     year: "numeric",
     month: "2-digit",
@@ -118,6 +120,12 @@ export function validEmail(email: string | undefined): boolean {
 export function addYear(date: Date, numYears: number): Date {
   const newDate = new Date(date);
   newDate.setFullYear(date.getFullYear() + numYears);
+  return newDate;
+}
+
+export function addMonths(date: Date, numOfMonths: number): Date {
+  const newDate = new Date(date);
+  newDate.setMonth(date.getMonth() + numOfMonths);
   return newDate;
 }
 

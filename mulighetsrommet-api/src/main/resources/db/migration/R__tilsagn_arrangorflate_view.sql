@@ -17,6 +17,5 @@ from tilsagn
     inner join tiltakstype on tiltakstype.id = tiltaksgjennomforing.tiltakstype_id
     inner join arrangor on arrangor.id = tilsagn.arrangor_id
 where
-    tilsagn.annullert_tidspunkt is null and
-    tilsagn.besluttet_tidspunkt is not null
+    tilsagn.status in ('GODKJENT', 'TIL_ANNULLERING')
 

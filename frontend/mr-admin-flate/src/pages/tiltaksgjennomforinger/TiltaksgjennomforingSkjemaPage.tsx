@@ -1,29 +1,24 @@
-import { Alert, Heading } from "@navikt/ds-react";
-import { useLocation, useMatch, useNavigate, useParams } from "react-router-dom";
-import { useAvtale } from "@/api/avtaler/useAvtale";
-import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
-import { ContainerLayout } from "@/layouts/ContainerLayout";
-import { avtaleHarRegioner, inneholderUrl } from "@/utils/Utils";
 import { Header } from "@/components/detaljside/Header";
-import { Laster } from "@/components/laster/Laster";
-import { TiltaksgjennomforingSkjemaContainer } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaContainer";
-import { ErrorMeldinger } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaErrors";
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
+import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { SkjemaContainer } from "@/components/skjema/SkjemaContainer";
 import { SkjemaContent } from "@/components/skjema/SkjemaContent";
 import { defaultTiltaksgjennomforingData } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
+import { TiltaksgjennomforingSkjemaContainer } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaContainer";
+import { ErrorMeldinger } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaErrors";
+import { ContainerLayout } from "@/layouts/ContainerLayout";
+import { avtaleHarRegioner, inneholderUrl } from "@/utils/Utils";
 import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
+import { Alert, Heading } from "@navikt/ds-react";
+import { useLoaderData, useLocation, useMatch, useNavigate, useParams } from "react-router-dom";
+import { tiltaksgjennomforingLoader } from "./tiltaksgjennomforingLoaders";
 
 export function TiltaksgjennomforingSkjemaPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { avtaleId } = useParams();
-  const { data: tiltaksgjennomforing, isLoading: tiltaksgjennomforingLoading } =
-    useTiltaksgjennomforingById();
-  const { data: avtale, isLoading: avtaleIsLoading } = useAvtale(tiltaksgjennomforing?.avtaleId);
-  const { data: ansatt, isPending: isPendingAnsatt } = useHentAnsatt();
+  const { tiltaksgjennomforing, avtale, ansatt } =
+    useLoaderData<typeof tiltaksgjennomforingLoader>();
   const erPaaGjennomforingerForAvtale = useMatch(
     "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema",
   );
@@ -35,10 +30,6 @@ export function TiltaksgjennomforingSkjemaPage() {
   };
 
   const isError = !avtale || !avtaleHarRegioner(avtale);
-
-  if (avtaleIsLoading || tiltaksgjennomforingLoading || isPendingAnsatt) {
-    return <Laster size="xlarge" tekst={"Laster tiltaksgjennomføring..."} />;
-  }
 
   let content = null;
   if (isError) {

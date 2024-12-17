@@ -1,10 +1,10 @@
 import { useDeleteArrangorKontaktperson } from "@/api/arrangor/useDeleteArrangorKontaktperson";
 import { useUpsertArrangorKontaktperson } from "@/api/arrangor/useUpsertArrangorKontaktperson";
-import { useHandleApiUpsertResponse } from "@/api/effects";
 import { SkjemaInputContainer } from "@/components/skjema/SkjemaInputContainer";
 import { validEmail } from "@/utils/Utils";
-import { ArrangorKontaktperson, ArrangorKontaktpersonAnsvar } from "@mr/api-client";
+import { ApiError, ArrangorKontaktperson, ArrangorKontaktpersonAnsvar } from "@mr/api-client";
 import { resolveErrorMessage } from "@mr/frontend-common/components/error-handling/errors";
+import { isValidationError } from "@mr/frontend-common/utils/utils";
 import { Button, HGrid, TextField, UNSAFE_Combobox } from "@navikt/ds-react";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -61,20 +61,6 @@ export function ArrangorKontaktpersonSkjema({
     }
   }
 
-  useHandleApiUpsertResponse(
-    putMutation,
-    () => {
-      putMutation.reset();
-      onSubmit();
-    },
-    (validation) => {
-      const errors = validation.errors.reduce((errors: Record<string, string>, error) => {
-        return { ...errors, [error.name]: error.message };
-      }, {});
-      setState({ ...state, errors });
-    },
-  );
-
   function opprettEllerLagreKontaktperson() {
     setState({
       ...state,
@@ -99,6 +85,16 @@ export function ArrangorKontaktpersonSkjema({
       {
         onSuccess: (kontaktperson) => {
           onOpprettSuccess(kontaktperson);
+          putMutation.reset();
+          onSubmit();
+        },
+        onError: (error: ApiError) => {
+          if (isValidationError(error)) {
+            const errors = error.errors.reduce((errors: Record<string, string>, error) => {
+              return { ...errors, [error.name]: error.message };
+            }, {});
+            setState({ ...state, errors });
+          }
         },
       },
     );

@@ -1,9 +1,9 @@
+import { PortableTextTypedObject } from "@mr/api-client";
+import { LokalInformasjonContainer } from "@mr/frontend-common";
 import { Alert, BodyLong, Heading } from "@navikt/ds-react";
+import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
 import styles from "./TiltakDetaljerFane.module.scss";
 import { TiltakDetaljerFaneContainer } from "./TiltakDetaljerFaneContainer";
-import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
-import { LokalInformasjonContainer } from "@mr/frontend-common";
-import { PortableTextTypedObject } from "@mr/api-client";
 
 interface DetaljerFaneProps {
   tiltaksgjennomforingAlert?: string;
@@ -25,15 +25,12 @@ export function TiltakDetaljerFane({
         !!tiltaksgjennomforingAlert || !!tiltakstypeAlert || !!tiltaksgjennomforing || !!tiltakstype
       }
     >
-      <Heading level="2" size="small">
-        Generell informasjon
-      </Heading>
       {tiltakstypeAlert && (
         <Alert variant="info" style={{ whiteSpace: "pre-wrap" }}>
           {tiltakstypeAlert}
         </Alert>
       )}
-      <BodyLong as="div" size="small">
+      <BodyLong as="div" size="large">
         <RedaksjoneltInnhold value={tiltakstype} />
       </BodyLong>
       {(tiltaksgjennomforing || tiltaksgjennomforingAlert) && (
@@ -42,11 +39,11 @@ export function TiltakDetaljerFane({
             Lokal informasjon
           </Heading>
           {tiltaksgjennomforingAlert && (
-            <Alert variant="info" style={{ whiteSpace: "pre-wrap" }}>
+            <Alert variant="info" style={{ whiteSpace: "pre-wrap", margin: "1rem 0" }}>
               {tiltaksgjennomforingAlert}
             </Alert>
           )}
-          <BodyLong as="div" textColor="subtle" size="small">
+          <BodyLong as="div" size="large">
             <RedaksjoneltInnhold value={tiltaksgjennomforing} />
           </BodyLong>
         </LokalInformasjonContainer>

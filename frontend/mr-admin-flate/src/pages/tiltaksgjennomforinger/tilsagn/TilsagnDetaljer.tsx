@@ -1,40 +1,44 @@
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { useAnnullerTilsagn } from "@/api/tilsagn/useAnnullerTilsagn";
 import { useBesluttTilsagn } from "@/api/tilsagn/useBesluttTilsagn";
-import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Header } from "@/components/detaljside/Header";
-import { Separator } from "@/components/detaljside/Metadata";
 import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
 import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
-import { BesluttTilsagnRequest, NavAnsattRolle, TilsagnBesluttelseStatus } from "@mr/api-client";
+import {
+  BesluttTilsagnRequest,
+  NavAnsattRolle,
+  TilsagnStatusBesluttelse,
+  TilsagnTilAnnulleringRequest,
+} from "@mr/api-client";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
-import { PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
+import { EraserIcon, PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
 import { ActionMenu, Alert, BodyShort, Box, Button, Heading, HStack } from "@navikt/ds-react";
 import { useRef, useState } from "react";
-import { Link, useMatch, useNavigate, useParams } from "react-router-dom";
+import { Link, useLoaderData, useMatch, useNavigate, useParams } from "react-router-dom";
+import { useSlettTilsagn } from "../../../api/tilsagn/useSlettTilsagn";
 import { TiltakDetaljerForTilsagn } from "../../../components/tilsagn/TiltakDetaljerForTilsagn";
 import { AFTTilsagnDetaljer } from "./AFTTilsagnDetaljer";
-import { AvvistDetaljer } from "./AvvistDetaljer";
 import { AvvisTilsagnModal } from "./AvvisTilsagnModal";
-import { TilsagnTag } from "./TilsagnTag";
-import { useGetTilsagnById } from "./useGetTilsagnById";
-import { useSlettTilsagn } from "../../../api/tilsagn/useSlettTilsagn";
 import styles from "./TilsagnDetaljer.module.scss";
+import { tilsagnLoader } from "./tilsagnLoader";
+import { TilsagnTag } from "./TilsagnTag";
+import { useTilsagnTilAnnullering } from "@/api/tilsagn/useTilsagnTilAnnullering";
+import { TilAnnulleringModal } from "./TilAnnulleringModal";
+import { AvvistAlert, TilAnnulleringAlert } from "./AarsakerAlert";
+import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
+import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 
 export function TilsagnDetaljer() {
   const { avtaleId, tiltaksgjennomforingId } = useParams();
-  const { data: tilsagn } = useGetTilsagnById();
   const besluttMutation = useBesluttTilsagn();
-  const annullerMutation = useAnnullerTilsagn();
+  const tilAnnulleringMutation = useTilsagnTilAnnullering();
   const slettMutation = useSlettTilsagn();
-  const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
-  const { data: ansatt } = useHentAnsatt();
   const navigate = useNavigate();
-  const annullerModalRef = useRef<HTMLDialogElement>(null);
+  const [tilAnnulleringModalOpen, setTilAnnulleringModalOpen] = useState<boolean>(false);
   const slettTilsagnModalRef = useRef<HTMLDialogElement>(null);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
+  const { tiltaksgjennomforing, tilsagn, ansatt, historikk } =
+    useLoaderData<typeof tilsagnLoader>();
 
   const erPaaGjennomforingerForAvtale = useMatch(
     "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
@@ -62,7 +66,7 @@ export function TilsagnDetaljer() {
       lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}`,
     },
     {
-      tittel: "Tilsagn",
+      tittel: "Tilsagnsoversikt",
       lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn`,
     },
     {
@@ -71,7 +75,7 @@ export function TilsagnDetaljer() {
     },
   ];
 
-  function navigerTilGjennomforing() {
+  function navigerTilTilsagnTabell() {
     navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn`);
   }
 
@@ -85,34 +89,43 @@ export function TilsagnDetaljer() {
           },
         },
         {
-          onSuccess: navigerTilGjennomforing,
+          onSuccess: navigerTilTilsagnTabell,
         },
       );
     }
   }
 
-  function annullerTilsagn() {
+  function tilAnnullering(request: TilsagnTilAnnulleringRequest) {
     if (tilsagn) {
-      annullerMutation.mutate({ id: tilsagn.id }, { onSuccess: navigerTilGjennomforing });
+      tilAnnulleringMutation.mutate(
+        {
+          id: tilsagn.id,
+          aarsaker: request.aarsaker,
+          forklaring: request.forklaring,
+        },
+        { onSuccess: navigerTilTilsagnTabell },
+      );
     }
   }
 
   function slettTilsagn() {
     if (tilsagn) {
-      slettMutation.mutate({ id: tilsagn.id }, { onSuccess: navigerTilGjennomforing });
+      slettMutation.mutate({ id: tilsagn.id }, { onSuccess: navigerTilTilsagnTabell });
     }
   }
-
-  const visBesluttKnapp =
-    !tilsagn?.besluttelse &&
-    ansatt?.navIdent !== tilsagn?.opprettetAv &&
-    ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER);
 
   if (!tiltaksgjennomforing || !tilsagn) {
     return <Laster tekst="Laster tilsagn..." />;
   }
 
-  const visHandlingerMeny = tilsagn.besluttelse?.status === TilsagnBesluttelseStatus.AVVIST;
+  const visBesluttKnapp =
+    (tilsagn.status.type === "TIL_GODKJENNING" || tilsagn.status.type === "TIL_ANNULLERING") &&
+    ansatt?.navIdent !== tilsagn.status.endretAv &&
+    ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER);
+
+  const visHandlingerMeny =
+    tilsagn.status.type === "RETURNERT" || tilsagn.status.type === "GODKJENT";
+
   return (
     <main>
       <Brodsmuler brodsmuler={brodsmuler} />
@@ -120,19 +133,16 @@ export function TilsagnDetaljer() {
         <TiltaksgjennomforingIkon />
         <Heading size="large" level="2">
           <HStack gap="2" align={"center"}>
-            Tilsagn for {tiltaksgjennomforing.navn} <TilsagnTag tilsagn={tilsagn} />
+            Tilsagn for {tiltaksgjennomforing.navn} <TilsagnTag status={tilsagn.status} />
           </HStack>
         </Heading>
       </Header>
       <ContainerLayout>
-        <Link to={`/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn`}>
-          Tilbake til tilsagnsoversikt
-        </Link>
         <Box background="bg-default" padding={"5"}>
-          <HStack gap="2" justify={"space-between"}>
-            <Heading size="medium" level="2">
-              Tilsagn
-            </Heading>
+          <HStack gap="2" justify={"end"}>
+            <EndringshistorikkPopover>
+              <ViewEndringshistorikk historikk={historikk} />
+            </EndringshistorikkPopover>
             {visHandlingerMeny ? (
               <ActionMenu>
                 <ActionMenu.Trigger>
@@ -141,32 +151,42 @@ export function TilsagnDetaljer() {
                   </Button>
                 </ActionMenu.Trigger>
                 <ActionMenu.Content>
-                  {tilsagn.besluttelse?.status === TilsagnBesluttelseStatus.AVVIST ? (
-                    <ActionMenu.Item icon={<PencilFillIcon />}>
-                      <Link className={styles.link_without_underline} to="./rediger-tilsagn">
-                        Rediger tilsagn
-                      </Link>
-                    </ActionMenu.Item>
-                  ) : null}
-                  {tilsagn.besluttelse?.status === TilsagnBesluttelseStatus.AVVIST ? (
-                    <ActionMenu.Item
-                      variant="danger"
-                      onSelect={() => slettTilsagnModalRef.current?.showModal()}
-                      icon={<TrashIcon />}
-                    >
-                      Slett tilsagn
-                    </ActionMenu.Item>
-                  ) : null}
+                  {tilsagn.status.type === "RETURNERT" && (
+                    <>
+                      <ActionMenu.Item icon={<PencilFillIcon />}>
+                        <Link className={styles.link_without_underline} to="./rediger-tilsagn">
+                          Rediger tilsagn
+                        </Link>
+                      </ActionMenu.Item>
+                      <ActionMenu.Item
+                        variant="danger"
+                        onSelect={() => slettTilsagnModalRef.current?.showModal()}
+                        icon={<TrashIcon />}
+                      >
+                        Slett tilsagn
+                      </ActionMenu.Item>
+                    </>
+                  )}
+                  {tilsagn.status.type === "GODKJENT" && (
+                    <>
+                      <ActionMenu.Item
+                        variant="danger"
+                        onSelect={() => setTilAnnulleringModalOpen(true)}
+                        icon={<EraserIcon />}
+                      >
+                        Annuller tilsagn
+                      </ActionMenu.Item>
+                    </>
+                  )}
                 </ActionMenu.Content>
               </ActionMenu>
             ) : null}
           </HStack>
-          <Separator />
-          <Heading size="small" level="3">
-            Tiltaksgjennomføring
-          </Heading>
           <TiltakDetaljerForTilsagn tiltaksgjennomforing={tiltaksgjennomforing} />
-          <AvvistDetaljer tilsagn={tilsagn} />
+          {tilsagn.status.type === "RETURNERT" && <AvvistAlert status={tilsagn.status} />}
+          {tilsagn.status.type === "TIL_ANNULLERING" && (
+            <TilAnnulleringAlert status={tilsagn.status} />
+          )}
           <Box
             borderWidth="2"
             borderColor="border-subtle"
@@ -181,29 +201,61 @@ export function TilsagnDetaljer() {
                   <Alert variant="error">Klarte ikke lagre beslutning</Alert>
                 </BodyShort>
               ) : null}
-              <HStack gap="2" justify={"space-between"}>
-                {visBesluttKnapp ? (
-                  <GodkjennAvvisTilsagnButtons
-                    onGodkjennTilsagn={() =>
-                      besluttTilsagn({ besluttelse: TilsagnBesluttelseStatus.GODKJENT })
-                    }
-                    onAvvisTilsagn={() => setAvvisModalOpen(true)}
-                  />
-                ) : null}
+              <HStack gap="2" justify={"end"}>
+                {visBesluttKnapp && tilsagn.status.type === "TIL_GODKJENNING" && (
+                  <HStack gap="2">
+                    <Button
+                      variant="secondary"
+                      size="small"
+                      type="button"
+                      onClick={() => setAvvisModalOpen(true)}
+                    >
+                      Send i return
+                    </Button>
+                    <Button
+                      size="small"
+                      type="button"
+                      onClick={() =>
+                        besluttTilsagn({ besluttelse: TilsagnStatusBesluttelse.GODKJENT })
+                      }
+                    >
+                      Godkjenn tilsagn
+                    </Button>
+                  </HStack>
+                )}
+                {visBesluttKnapp && tilsagn.status.type === "TIL_ANNULLERING" && (
+                  <HStack gap="2">
+                    <Button
+                      variant="secondary"
+                      size="small"
+                      type="button"
+                      onClick={() =>
+                        besluttTilsagn({
+                          besluttelse: TilsagnStatusBesluttelse.AVVIST,
+                          aarsaker: [],
+                          forklaring: null,
+                        })
+                      }
+                    >
+                      Send i return
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="danger"
+                      type="button"
+                      onClick={() =>
+                        besluttTilsagn({ besluttelse: TilsagnStatusBesluttelse.GODKJENT })
+                      }
+                    >
+                      Bekreft annullering
+                    </Button>
+                  </HStack>
+                )}
               </HStack>
-              <VarselModal
-                headingIconType="warning"
-                headingText="Annuller tilsagn?"
-                modalRef={annullerModalRef}
-                handleClose={() => annullerModalRef.current?.close()}
-                body={null}
-                primaryButton={
-                  <Button variant="danger" onClick={annullerTilsagn} icon={<TrashFillIcon />}>
-                    Ja, jeg vil annullere
-                  </Button>
-                }
-                secondaryButton
-                secondaryButtonHandleAction={() => annullerModalRef.current?.close()}
+              <TilAnnulleringModal
+                open={tilAnnulleringModalOpen}
+                onClose={() => setTilAnnulleringModalOpen(false)}
+                onConfirm={(validatedData) => tilAnnullering(validatedData)}
               />
               <AvvisTilsagnModal
                 open={avvisModalOpen}
@@ -234,26 +286,5 @@ export function TilsagnDetaljer() {
         </Box>
       </ContainerLayout>
     </main>
-  );
-}
-
-interface GodkjennAvvisButtonProps {
-  onGodkjennTilsagn: () => void;
-  onAvvisTilsagn: () => void;
-}
-
-function GodkjennAvvisTilsagnButtons({
-  onGodkjennTilsagn,
-  onAvvisTilsagn,
-}: GodkjennAvvisButtonProps) {
-  return (
-    <HStack gap="2">
-      <Button size="small" type="button" onClick={onGodkjennTilsagn}>
-        Godkjenn tilsagn
-      </Button>
-      <Button variant="secondary" size="small" type="button" onClick={onAvvisTilsagn}>
-        Send i retur med forklaring
-      </Button>
-    </HStack>
   );
 }

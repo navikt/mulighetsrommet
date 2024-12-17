@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.okonomi.Prismodell.TilsagnBeregning
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningInput
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBesluttelseStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -30,15 +29,9 @@ class TilsagnValidator(
                 .nel()
                 .left()
 
-        if (previous?.besluttelse?.status == TilsagnBesluttelseStatus.GODKJENT) {
+        if (previous != null && previous.status !is TilsagnDto.TilsagnStatus.Returnert) {
             return ValidationError
-                .of(TilsagnDto::id, "Tilsagnet er godkjent og kan ikke endres.")
-                .nel()
-                .left()
-        }
-        if (previous?.annullertTidspunkt != null) {
-            return ValidationError
-                .of(TilsagnDto::id, "Tilsagnet er annullert og kan ikke endres.")
+                .of(TilsagnDto::id, "Tilsagnet kan ikke endres.")
                 .nel()
                 .left()
         }
@@ -67,7 +60,12 @@ class TilsagnValidator(
 
         val errors = buildList {
             if (next.periodeStart.year != next.periodeSlutt.year) {
-                add(ValidationError.of(TilsagnDto::periodeSlutt, "Perioden kan ikke gå over flere år"))
+                add(
+                    ValidationError.of(
+                        TilsagnRequest::periodeSlutt,
+                        "Tilsagnsperioden kan ikke vare utover årsskiftet",
+                    ),
+                )
             }
         }
 
@@ -84,19 +82,21 @@ class TilsagnValidator(
     private fun validateAFTTilsagnBeregningInput(input: TilsagnBeregningInput.AFT): Either<List<ValidationError>, TilsagnBeregningInput> = either {
         val errors = buildList {
             if (input.periodeStart.year != input.periodeSlutt.year) {
-                add(ValidationError.of(TilsagnBeregningInput.AFT::periodeSlutt, "Perioden kan ikke gå over flere år"))
+                add(
+                    ValidationError.ofCustomLocation(
+                        "periodeSlutt",
+                        "Tilsagnsperioden kan ikke vare utover årsskiftet",
+                    ),
+                )
             }
             if (input.periodeStart.isAfter(input.periodeSlutt)) {
-                add(ValidationError.of(TilsagnBeregningInput.AFT::periodeSlutt, "Slutt kan ikke være før start"))
+                add(ValidationError.ofCustomLocation("periodeSlutt", "Slutt kan ikke være før start"))
             }
             if (input.antallPlasser <= 0) {
-                add(ValidationError.of(TilsagnBeregningInput.AFT::antallPlasser, "Antall plasser kan ikke være 0"))
-            }
-            if (Prismodell.AFT.findSats(input.periodeStart) != input.sats) {
-                add(ValidationError.ofCustomLocation("beregning.sats", "Feil sats for valgt periode"))
+                add(ValidationError.ofCustomLocation("beregning.antallPlasser", "Antall plasser kan ikke være 0"))
             }
             if (Prismodell.AFT.findSats(input.periodeStart) != Prismodell.AFT.findSats(input.periodeSlutt)) {
-                add(ValidationError.of(TilsagnBeregningInput.AFT::periodeStart, "Periode går over flere satser"))
+                add(ValidationError.ofCustomLocation("periodeSlutt", "Periode går over flere satser"))
             }
         }
 
