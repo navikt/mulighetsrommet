@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.responses.Forbidden
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import java.time.LocalDate
@@ -63,6 +64,7 @@ class TilsagnServiceTest : FunSpec({
                 antallPlasser = 2,
                 sats = 4,
             ),
+            type = TilsagnType.TILSAGN,
         )
 
         test("kan ikke beslutte egne") {
@@ -96,8 +98,9 @@ class TilsagnServiceTest : FunSpec({
 
     context("slett tilsagn") {
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+        val tilsagnRepository = TilsagnRepository(database.db)
         val service = TilsagnService(
-            tilsagnRepository = TilsagnRepository(database.db),
+            tilsagnRepository = tilsagnRepository,
             tiltaksgjennomforingRepository,
             validator = TilsagnValidator(tiltaksgjennomforingRepository),
             endringshistorikkService = endringshistorikkService,
@@ -116,6 +119,7 @@ class TilsagnServiceTest : FunSpec({
                 antallPlasser = 2,
                 sats = 4,
             ),
+            type = TilsagnType.TILSAGN,
         )
 
         test("kan bare slette tilsagn når det er avvist") {
@@ -131,7 +135,7 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight()
 
             service.slettTilsagn(tilsagn.id).shouldBeRight()
-            service.get(tilsagn.id) shouldBe null
+            tilsagnRepository.get(tilsagn.id) shouldBe null
         }
 
         test("kan ikke slette tilsagn når det er godkjent") {

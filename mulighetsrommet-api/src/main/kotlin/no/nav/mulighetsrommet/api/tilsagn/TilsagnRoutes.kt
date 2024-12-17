@@ -18,10 +18,8 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningInput
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBesluttelseStatus
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
+import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
+import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
@@ -34,6 +32,7 @@ import java.util.*
 
 fun Route.tilsagnRoutes() {
     val service: TilsagnService by inject()
+    val tilsagn: TilsagnRepository by inject()
     val gjennomforinger: TiltaksgjennomforingService by inject()
 
     route("tilsagn") {
@@ -41,7 +40,7 @@ fun Route.tilsagnRoutes() {
             get {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val result = service.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
+                val result = tilsagn.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
 
                 call.respond(result)
             }
@@ -58,10 +57,9 @@ fun Route.tilsagnRoutes() {
 
             val gjennomforing = gjennomforinger.get(gjennomforingId) ?: return@get call.respond(HttpStatusCode.NotFound)
 
-            val byGjennomforingId = service.getByGjennomforingId(gjennomforingId)
-            val tilsagn = byGjennomforingId.firstOrNull()
+            val sisteTilsagn = tilsagn.getAll(type = TilsagnType.TILSAGN, gjennomforingId).firstOrNull()
 
-            val defaults = resolveTilsagnDefaults(gjennomforing, tilsagn, service)
+            val defaults = resolveTilsagnDefaults(gjennomforing, sisteTilsagn, service)
 
             call.respond(HttpStatusCode.OK, defaults)
         }
@@ -126,9 +124,9 @@ fun Route.tilsagnRoutes() {
     route("/tiltaksgjennomforinger/{id}/tilsagn") {
         authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
             get {
-                val tiltaksgjennomforingId = call.parameters.getOrFail<UUID>("id")
+                val id = call.parameters.getOrFail<UUID>("id")
 
-                val result = service.getByGjennomforingId(tiltaksgjennomforingId)
+                val result = tilsagn.getAll(gjennomforingId = id)
 
                 call.respond(result)
             }
@@ -138,6 +136,7 @@ fun Route.tilsagnRoutes() {
 
 @Serializable
 data class TilsagnDefaults(
+    val type: TilsagnType,
     @Serializable(with = LocalDateSerializer::class)
     val periodeStart: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
@@ -159,6 +158,7 @@ data class TilsagnRequest(
     val periodeSlutt: LocalDate,
     val kostnadssted: String,
     val beregning: Prismodell.TilsagnBeregning,
+    val type: TilsagnType,
 ) {
     fun toDbo(
         opprettetAv: NavIdent,
@@ -173,6 +173,7 @@ data class TilsagnRequest(
         endretAv = opprettetAv,
         endretTidspunkt = LocalDateTime.now(),
         arrangorId = arrangorId,
+        type = type,
     )
 }
 
@@ -238,6 +239,7 @@ private fun resolveTilsagnDefaults(
         val beregning = service.tilsagnBeregning(input = beregningInput).getOrNull()
 
         TilsagnDefaults(
+            type = TilsagnType.TILSAGN,
             periodeStart = periodeStart,
             periodeSlutt = periodeSlutt,
             antallPlasser = gjennomforing.antallPlasser,
@@ -258,6 +260,7 @@ private fun resolveTilsagnDefaults(
         val periodeSlutt = listOfNotNull(gjennomforing.sluttDato, lastDayOfMonth).min()
 
         TilsagnDefaults(
+            type = TilsagnType.TILSAGN,
             periodeStart = periodeStart,
             periodeSlutt = periodeSlutt,
             antallPlasser = gjennomforing.antallPlasser,

@@ -1,4 +1,5 @@
 import z, { ZodIssueCode } from "zod";
+import { TilsagnType } from "@mr/api-client";
 
 const tekster = {
   manglerStartdato: "Du må velge en startdato",
@@ -31,6 +32,7 @@ const TilsagnBeregningSchema = z.discriminatedUnion("type", [
 export const OpprettTilsagnSchema = z
   .object({
     id: z.string().optional().nullable(),
+    type: z.nativeEnum(TilsagnType),
     periodeStart: z
       .string({ required_error: tekster.manglerStartdato })
       .min(10, tekster.manglerStartdato),
