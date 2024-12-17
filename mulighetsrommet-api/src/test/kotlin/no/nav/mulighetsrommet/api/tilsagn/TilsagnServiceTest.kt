@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.responses.Forbidden
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import java.time.LocalDate
@@ -63,6 +64,7 @@ class TilsagnServiceTest : FunSpec({
                 antallPlasser = 2,
                 sats = 4,
             ),
+            type = TilsagnType.TILSAGN,
         )
 
         test("kan ikke beslutte egne") {
@@ -116,6 +118,7 @@ class TilsagnServiceTest : FunSpec({
                 antallPlasser = 2,
                 sats = 4,
             ),
+            type = TilsagnType.TILSAGN,
         )
 
         test("kan bare slette tilsagn når det er avvist") {

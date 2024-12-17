@@ -18,10 +18,7 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningInput
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBesluttelseStatus
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
+import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
@@ -159,6 +156,7 @@ data class TilsagnRequest(
     val periodeSlutt: LocalDate,
     val kostnadssted: String,
     val beregning: Prismodell.TilsagnBeregning,
+    val type: TilsagnType,
 ) {
     fun toDbo(
         opprettetAv: NavIdent,
@@ -173,6 +171,7 @@ data class TilsagnRequest(
         endretAv = opprettetAv,
         endretTidspunkt = LocalDateTime.now(),
         arrangorId = arrangorId,
+        type = type,
     )
 }
 

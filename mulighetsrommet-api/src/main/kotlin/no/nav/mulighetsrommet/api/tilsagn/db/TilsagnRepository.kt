@@ -11,7 +11,10 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
-import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.api.tilsagn.model.ArrangorflateTilsagn
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
@@ -37,7 +40,8 @@ class TilsagnRepository(private val db: Database) {
                 beregning,
                 status_endret_av,
                 status_endret_tidspunkt,
-                status
+                status,
+                type
             ) values (
                 :id::uuid,
                 :tiltaksgjennomforing_id::uuid,
@@ -48,7 +52,8 @@ class TilsagnRepository(private val db: Database) {
                 :beregning::jsonb,
                 :status_endret_av,
                 :status_endret_tidspunkt,
-                'TIL_GODKJENNING'::tilsagn_status
+                'TIL_GODKJENNING'::tilsagn_status,
+                :type::tilsagn_type
             )
             on conflict (id) do update set
                 tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
@@ -59,11 +64,24 @@ class TilsagnRepository(private val db: Database) {
                 beregning               = excluded.beregning,
                 status_endret_av        = excluded.status_endret_av,
                 status_endret_tidspunkt = excluded.status_endret_tidspunkt,
-                status                  = excluded.status
-            returning *
+                status                  = excluded.status,
+                type                    = excluded.type
         """.trimIndent()
 
-        tx.run(queryOf(query, dbo.toSqlParameters()).asExecute)
+        val params = mapOf(
+            "id" to dbo.id,
+            "tiltaksgjennomforing_id" to dbo.tiltaksgjennomforingId,
+            "periode_start" to dbo.periodeStart,
+            "periode_slutt" to dbo.periodeSlutt,
+            "kostnadssted" to dbo.kostnadssted,
+            "arrangor_id" to dbo.arrangorId,
+            "beregning" to Json.encodeToString<Prismodell.TilsagnBeregning>(dbo.beregning),
+            "status_endret_av" to dbo.endretAv.value,
+            "status_endret_tidspunkt" to dbo.endretTidspunkt,
+            "type" to dbo.type.name,
+        )
+
+        tx.run(queryOf(query, params).asExecute)
     }
 
     fun get(id: UUID) = db.transaction {
@@ -305,18 +323,6 @@ class TilsagnRepository(private val db: Database) {
         )
     }
 
-    private fun TilsagnDbo.toSqlParameters() = mapOf(
-        "id" to id,
-        "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
-        "periode_start" to periodeStart,
-        "periode_slutt" to periodeSlutt,
-        "kostnadssted" to kostnadssted,
-        "arrangor_id" to arrangorId,
-        "beregning" to Json.encodeToString(beregning),
-        "status_endret_av" to endretAv.value,
-        "status_endret_tidspunkt" to endretTidspunkt,
-    )
-
     private fun Row.toTilsagnDto(): TilsagnDto {
         val aarsaker = arrayOrNull<String>("status_aarsaker")
             ?.toList()
@@ -357,6 +363,7 @@ class TilsagnRepository(private val db: Database) {
             ),
             beregning = Json.decodeFromString<Prismodell.TilsagnBeregning>(string("beregning")),
             status = status,
+            type = TilsagnType.valueOf(string("type")),
         )
     }
 
@@ -403,6 +410,7 @@ fun toTilsagnStatus(
         endretAv = endretAv,
         endretTidspunkt = endretTidspunkt,
     )
+
     Status.GODKJENT -> TilsagnDto.TilsagnStatus.Godkjent
     Status.RETURNERT -> {
         requireNotNull(besluttetAv)
@@ -416,6 +424,7 @@ fun toTilsagnStatus(
             forklaring = forklaring,
         )
     }
+
     Status.TIL_ANNULLERING -> TilsagnDto.TilsagnStatus.TilAnnullering(
         endretAv = endretAv,
         endretAvNavn = endretAvNavn,
@@ -423,6 +432,7 @@ fun toTilsagnStatus(
         aarsaker = aarsaker,
         forklaring = forklaring,
     )
+
     Status.ANNULLERT -> {
         requireNotNull(besluttetAv)
         TilsagnDto.TilsagnStatus.Annullert(

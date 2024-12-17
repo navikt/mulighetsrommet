@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 
 class TilsagnValidator(
-    val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
+    private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
 ) {
     fun validate(
         request: TilsagnRequest,
