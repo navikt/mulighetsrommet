@@ -13,6 +13,9 @@ export async function tilsagnLoader({ params }: LoaderFunctionArgs) {
       })
     : undefined;
   const ansatt = await AnsattService.hentInfoOmAnsatt();
+  const historikk = tilsagnId
+    ? await TilsagnService.getTilsagnEndringshistorikk({ id: tilsagnId })
+    : { entries: [] };
 
-  return { tiltaksgjennomforing, tilsagn, tilsagnForGjennomforing, ansatt };
+  return { tiltaksgjennomforing, tilsagn, tilsagnForGjennomforing, ansatt, historikk };
 }

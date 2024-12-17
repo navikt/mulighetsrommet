@@ -191,7 +191,8 @@ class TilsagnRepository(private val db: Database) {
         tidspunkt: LocalDateTime,
         aarsaker: List<TilsagnStatusAarsak>,
         forklaring: String?,
-    ) = db.transaction { tx ->
+        tx: Session,
+    ) {
         @Language("PostgreSQL")
         val query = """
             update tilsagn set
@@ -223,7 +224,8 @@ class TilsagnRepository(private val db: Database) {
         tidspunkt: LocalDateTime,
         aarsaker: List<TilsagnStatusAarsak>,
         forklaring: String?,
-    ) = db.transaction { tx ->
+        tx: Session,
+    ) {
         @Language("PostgreSQL")
         val query = """
             update tilsagn set
@@ -253,7 +255,8 @@ class TilsagnRepository(private val db: Database) {
         id: UUID,
         navIdent: NavIdent,
         tidspunkt: LocalDateTime,
-    ) = db.transaction { tx ->
+        tx: Session,
+    ) {
         @Language("PostgreSQL")
         val query = """
             update tilsagn set
@@ -279,7 +282,8 @@ class TilsagnRepository(private val db: Database) {
         id: UUID,
         navIdent: NavIdent,
         tidspunkt: LocalDateTime,
-    ) = db.transaction { tx ->
+        tx: Session,
+    ) {
         @Language("PostgreSQL")
         val query = """
             update tilsagn set

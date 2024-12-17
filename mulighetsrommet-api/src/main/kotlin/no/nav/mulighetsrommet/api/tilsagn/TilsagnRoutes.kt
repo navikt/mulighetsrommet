@@ -37,12 +37,20 @@ fun Route.tilsagnRoutes() {
     val gjennomforinger: TiltaksgjennomforingService by inject()
 
     route("tilsagn") {
-        get("/{id}") {
-            val id = call.parameters.getOrFail<UUID>("id")
+        route("/{id}") {
+            get {
+                val id = call.parameters.getOrFail<UUID>("id")
 
-            val result = service.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
+                val result = service.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
 
-            call.respond(result)
+                call.respond(result)
+            }
+
+            get("/historikk") {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val historikk = service.getEndringshistorikk(id)
+                call.respond(historikk)
+            }
         }
 
         get("/defaults") {
