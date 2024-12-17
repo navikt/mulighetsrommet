@@ -102,15 +102,22 @@ class TilsagnRepository(private val db: Database) {
         )
     }
 
-    fun getByGjennomforingId(gjennomforingId: UUID): List<TilsagnDto> {
+    fun getAll(type: TilsagnType? = null, gjennomforingId: UUID? = null): List<TilsagnDto> {
         @Language("PostgreSQL")
         val query = """
-            select * from tilsagn_admin_dto_view
-            where tiltaksgjennomforing_id = :gjennomforing_id::uuid
+            select *
+            from tilsagn_admin_dto_view
+            where (:type::tilsagn_type is null or type = :type)
+              and (:gjennomforing_id::uuid is null or tiltaksgjennomforing_id = :gjennomforing_id)
             order by lopenummer desc
         """.trimIndent()
 
-        return queryOf(query, mapOf("gjennomforing_id" to gjennomforingId))
+        val params = mapOf(
+            "type" to type?.name,
+            "gjennomforing_id" to gjennomforingId,
+        )
+
+        return queryOf(query, params)
             .map { it.toTilsagnDto() }
             .asList
             .let { db.run(it) }

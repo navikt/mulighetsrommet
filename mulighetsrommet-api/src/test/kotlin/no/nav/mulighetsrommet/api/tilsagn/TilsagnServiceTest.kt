@@ -94,8 +94,9 @@ class TilsagnServiceTest : FunSpec({
 
     context("slett tilsagn") {
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+        val tilsagnRepository = TilsagnRepository(database.db)
         val service = TilsagnService(
-            tilsagnRepository = TilsagnRepository(database.db),
+            tilsagnRepository = tilsagnRepository,
             tiltaksgjennomforingRepository,
             validator = TilsagnValidator(tiltaksgjennomforingRepository),
             db = database.db,
@@ -129,7 +130,7 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight()
 
             service.slettTilsagn(tilsagn.id).shouldBeRight()
-            service.get(tilsagn.id) shouldBe null
+            tilsagnRepository.get(tilsagn.id) shouldBe null
         }
 
         test("kan ikke slette tilsagn når det er godkjent") {

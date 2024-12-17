@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
+import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -31,13 +32,14 @@ import java.util.*
 
 fun Route.tilsagnRoutes() {
     val service: TilsagnService by inject()
+    val tilsagn: TilsagnRepository by inject()
     val gjennomforinger: TiltaksgjennomforingService by inject()
 
     route("tilsagn") {
         get("/{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
 
-            val result = service.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
+            val result = tilsagn.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
 
             call.respond(result)
         }
@@ -47,10 +49,9 @@ fun Route.tilsagnRoutes() {
 
             val gjennomforing = gjennomforinger.get(gjennomforingId) ?: return@get call.respond(HttpStatusCode.NotFound)
 
-            val byGjennomforingId = service.getByGjennomforingId(gjennomforingId)
-            val tilsagn = byGjennomforingId.firstOrNull()
+            val sisteTilsagn = tilsagn.getAll(gjennomforingId).firstOrNull()
 
-            val defaults = resolveTilsagnDefaults(gjennomforing, tilsagn, service)
+            val defaults = resolveTilsagnDefaults(gjennomforing, sisteTilsagn, service)
 
             call.respond(HttpStatusCode.OK, defaults)
         }
@@ -115,9 +116,9 @@ fun Route.tilsagnRoutes() {
     route("/tiltaksgjennomforinger/{id}/tilsagn") {
         authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
             get {
-                val tiltaksgjennomforingId = call.parameters.getOrFail<UUID>("id")
+                val id = call.parameters.getOrFail<UUID>("id")
 
-                val result = service.getByGjennomforingId(tiltaksgjennomforingId)
+                val result = tilsagn.getAll(gjennomforingId = id)
 
                 call.respond(result)
             }
