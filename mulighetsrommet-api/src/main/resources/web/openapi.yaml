@@ -4797,6 +4797,8 @@ components:
         tiltaksgjennomforingId:
           type: string
           format: uuid
+        type:
+          $ref: "#/components/schemas/TilsagnType"
         periodeStart:
           type: string
           format: date
@@ -4810,10 +4812,17 @@ components:
       required:
         - id
         - tiltaksgjennomforingId
+        - type
         - periodeStart
         - periodeSlutt
         - kostnadssted
         - beregning
+
+    TilsagnType:
+      type: string
+      enum:
+        - TILSAGN
+        - EKSTRATILSAGN
 
     TilsagnDto:
       type: object
@@ -4853,6 +4862,8 @@ components:
             - overordnetEnhet
         status:
           $ref: "#/components/schemas/TilsagnStatus"
+        type:
+          $ref: "#/components/schemas/TilsagnType"
       required:
         - id
         - tiltaksgjennomforingId

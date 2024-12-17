@@ -2,6 +2,7 @@ import {
   ApiError,
   TilsagnDto,
   TilsagnRequest,
+  TilsagnType,
   TiltaksgjennomforingDto,
   Tiltakskode,
 } from "@mr/api-client";
@@ -29,6 +30,7 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing, tilsagn }: Props
   const postData: SubmitHandler<InferredOpprettTilsagnSchema> = async (data): Promise<void> => {
     const request: TilsagnRequest = {
       id: data.id || window.crypto.randomUUID(),
+      type: data.type,
       periodeStart: data.periodeStart,
       periodeSlutt: data.periodeSlutt,
       kostnadssted: data.kostnadssted,
@@ -95,7 +97,13 @@ function OpprettTilsagnSkjema(props: TilsagnSkjemaProps) {
 }
 
 function OpprettEkstratilsagnSkjema(props: TilsagnSkjemaProps) {
-  return <TilsagnSkjema defaultValues={{}} defaultKostnadssteder={[]} {...props} />;
+  return (
+    <TilsagnSkjema
+      defaultValues={{ type: TilsagnType.EKSTRATILSAGN }}
+      defaultKostnadssteder={[]}
+      {...props}
+    />
+  );
 }
 
 interface RedigerTilsagnSkjemaProps extends TilsagnSkjemaProps {
@@ -105,6 +113,7 @@ interface RedigerTilsagnSkjemaProps extends TilsagnSkjemaProps {
 function RedigerTilsagnSkjema(props: RedigerTilsagnSkjemaProps) {
   const defaults = {
     id: props.tilsagn.id,
+    type: props.tilsagn.type,
     beregning: props.tilsagn.beregning,
     kostnadssted: props.tilsagn.kostnadssted.enhetsnummer,
     periodeStart: props.tilsagn.periodeStart,
