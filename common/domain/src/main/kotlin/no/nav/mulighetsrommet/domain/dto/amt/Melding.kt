@@ -153,6 +153,10 @@ sealed interface Melding {
             data class Sluttarsak(
                 val aarsak: EndringAarsak,
             ) : Endring
+
+            @Serializable
+            @SerialName("FjernOppstartsdato")
+            data object FjernOppstartsdato : Endring
         }
 
         @Serializable

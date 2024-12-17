@@ -252,6 +252,8 @@ fun DeltakerForslag.relevantForDeltakelse(
         is Melding.Forslag.Endring.Startdato -> {
             this.endring.startdato.isAfter(forsteStartDato)
         }
+
+        Melding.Forslag.Endring.FjernOppstartsdato -> true
     }
 }
 
