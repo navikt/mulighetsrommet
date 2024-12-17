@@ -57,7 +57,7 @@ fun Route.tilsagnRoutes() {
 
             val gjennomforing = gjennomforinger.get(gjennomforingId) ?: return@get call.respond(HttpStatusCode.NotFound)
 
-            val sisteTilsagn = tilsagn.getAll(gjennomforingId).firstOrNull()
+            val sisteTilsagn = tilsagn.getAll(type = TilsagnType.TILSAGN, gjennomforingId).firstOrNull()
 
             val defaults = resolveTilsagnDefaults(gjennomforing, sisteTilsagn, service)
 
@@ -136,6 +136,7 @@ fun Route.tilsagnRoutes() {
 
 @Serializable
 data class TilsagnDefaults(
+    val type: TilsagnType,
     @Serializable(with = LocalDateSerializer::class)
     val periodeStart: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
@@ -238,6 +239,7 @@ private fun resolveTilsagnDefaults(
         val beregning = service.tilsagnBeregning(input = beregningInput).getOrNull()
 
         TilsagnDefaults(
+            type = TilsagnType.TILSAGN,
             periodeStart = periodeStart,
             periodeSlutt = periodeSlutt,
             antallPlasser = gjennomforing.antallPlasser,
@@ -258,6 +260,7 @@ private fun resolveTilsagnDefaults(
         val periodeSlutt = listOfNotNull(gjennomforing.sluttDato, lastDayOfMonth).min()
 
         TilsagnDefaults(
+            type = TilsagnType.TILSAGN,
             periodeStart = periodeStart,
             periodeSlutt = periodeSlutt,
             antallPlasser = gjennomforing.antallPlasser,

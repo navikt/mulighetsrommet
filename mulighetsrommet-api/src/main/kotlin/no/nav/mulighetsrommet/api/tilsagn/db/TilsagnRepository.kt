@@ -107,8 +107,8 @@ class TilsagnRepository(private val db: Database) {
         val query = """
             select *
             from tilsagn_admin_dto_view
-            where (:type::tilsagn_type is null or type = :type)
-              and (:gjennomforing_id::uuid is null or tiltaksgjennomforing_id = :gjennomforing_id)
+            where (:type::tilsagn_type is null or type = :type::tilsagn_type)
+              and (:gjennomforing_id::uuid is null or tiltaksgjennomforing_id = :gjennomforing_id::uuid)
             order by lopenummer desc
         """.trimIndent()
 
