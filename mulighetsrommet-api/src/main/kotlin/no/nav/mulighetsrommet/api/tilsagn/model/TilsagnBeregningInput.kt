@@ -15,7 +15,6 @@ sealed class TilsagnBeregningInput {
         @Serializable(with = LocalDateSerializer::class)
         val periodeSlutt: LocalDate,
         val antallPlasser: Int,
-        val sats: Int,
     ) : TilsagnBeregningInput()
 
     @Serializable

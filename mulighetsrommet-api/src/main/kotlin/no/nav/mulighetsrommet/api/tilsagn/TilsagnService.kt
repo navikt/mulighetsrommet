@@ -69,15 +69,16 @@ class TilsagnService(
     }
 
     private fun aftTilsagnBeregning(input: TilsagnBeregningInput.AFT): TilsagnBeregning.AFT {
+        val sats = Prismodell.AFT.findSats(input.periodeStart)
         val belop = Prismodell.AFT.beregnTilsagnBelop(
-            sats = input.sats,
+            sats = sats,
             antallPlasser = input.antallPlasser,
             periodeStart = input.periodeStart,
             periodeSlutt = input.periodeSlutt,
         )
 
         return TilsagnBeregning.AFT(
-            sats = input.sats,
+            sats = sats,
             antallPlasser = input.antallPlasser,
             periodeStart = input.periodeStart,
             periodeSlutt = input.periodeSlutt,

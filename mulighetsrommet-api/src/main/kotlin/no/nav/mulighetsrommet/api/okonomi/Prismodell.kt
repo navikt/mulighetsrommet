@@ -40,9 +40,6 @@ object Prismodell {
             require(periodeStart.year == periodeSlutt.year) {
                 "perioden må være innen et år"
             }
-            require(sats == findSats(periodeStart)) {
-                "feil sats"
-            }
             require(findSats(periodeStart) == findSats(periodeSlutt)) {
                 "periode går over flere satser"
             }
