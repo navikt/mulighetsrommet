@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
@@ -42,6 +43,7 @@ import java.util.*
 
 fun Route.arrangorflateRoutes() {
     val tilsagnService: TilsagnService by inject()
+    val tilsagnRepository: TilsagnRepository by inject()
     val arrangorService: ArrangorService by inject()
     val refusjonskrav: RefusjonskravRepository by inject()
     val deltakerRepository: DeltakerRepository by inject()
@@ -89,7 +91,8 @@ fun Route.arrangorflateRoutes() {
             get("/tilsagn") {
                 val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
                 requireTilgangHosArrangor(orgnr)
-                call.respond(tilsagnService.getAllArrangorflateTilsagn(orgnr))
+
+                call.respond(tilsagnRepository.getAllArrangorflateTilsagn(orgnr))
             }
         }
 
@@ -195,7 +198,7 @@ fun Route.arrangorflateRoutes() {
             get {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val tilsagn = tilsagnService.getArrangorflateTilsagn(id)
+                val tilsagn = tilsagnRepository.getArrangorflateTilsagn(id)
                     ?: throw NotFoundException("Fant ikke tilsagn")
                 requireTilgangHosArrangor(tilsagn.arrangor.organisasjonsnummer)
 

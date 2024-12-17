@@ -18,10 +18,12 @@ import no.nav.mulighetsrommet.api.services.DocumentClass
 import no.nav.mulighetsrommet.api.services.EndretAv
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
-import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.api.tilsagn.model.ArrangorflateTilsagn
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningInput
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBesluttelseStatus
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import java.time.LocalDateTime
 import java.util.*
 
@@ -83,12 +85,14 @@ class TilsagnService(
         return when (tilsagn.status) {
             is TilsagnDto.TilsagnStatus.Annullert, is TilsagnDto.TilsagnStatus.Godkjent, is TilsagnDto.TilsagnStatus.Returnert ->
                 BadRequest("Tilsagnet kan ikke besluttes fordi det har status ${tilsagn.status.javaClass.simpleName}").left()
+
             is TilsagnDto.TilsagnStatus.TilGodkjenning -> {
                 when (besluttelse) {
                     BesluttTilsagnRequest.GodkjentTilsagnRequest -> godkjennTilsagn(tilsagn, navIdent)
                     is BesluttTilsagnRequest.AvvistTilsagnRequest -> returnerTilsagn(tilsagn, besluttelse, navIdent)
                 }
             }
+
             is TilsagnDto.TilsagnStatus.TilAnnullering -> {
                 when (besluttelse.besluttelse) {
                     TilsagnBesluttelseStatus.GODKJENT -> annullerTilsagn(tilsagn, navIdent)
@@ -116,7 +120,11 @@ class TilsagnService(
         }.right()
     }
 
-    private fun returnerTilsagn(tilsagn: TilsagnDto, besluttelse: BesluttTilsagnRequest.AvvistTilsagnRequest, navIdent: NavIdent): StatusResponse<Unit> {
+    private fun returnerTilsagn(
+        tilsagn: TilsagnDto,
+        besluttelse: BesluttTilsagnRequest.AvvistTilsagnRequest,
+        navIdent: NavIdent,
+    ): StatusResponse<Unit> {
         require(tilsagn.status is TilsagnDto.TilsagnStatus.TilGodkjenning)
         if (navIdent == tilsagn.status.endretAv) {
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
@@ -204,22 +212,12 @@ class TilsagnService(
         return tilsagnRepository.delete(id).right()
     }
 
-    fun getAllArrangorflateTilsagn(organisasjonsnummer: Organisasjonsnummer): List<ArrangorflateTilsagn> {
-        return tilsagnRepository.getAllArrangorflateTilsagn(organisasjonsnummer)
-    }
-
     fun getArrangorflateTilsagnTilRefusjon(
         gjennomforingId: UUID,
         periode: RefusjonskravPeriode,
     ): List<ArrangorflateTilsagn> {
         return tilsagnRepository.getArrangorflateTilsagnTilRefusjon(gjennomforingId, periode)
     }
-
-    fun getArrangorflateTilsagn(id: UUID): ArrangorflateTilsagn? = tilsagnRepository.getArrangorflateTilsagn(id)
-
-    fun getByGjennomforingId(gjennomforingId: UUID): List<TilsagnDto> = tilsagnRepository.getByGjennomforingId(gjennomforingId)
-
-    fun get(id: UUID): TilsagnDto? = tilsagnRepository.get(id)
 
     private fun lagOkonomiId(tilsagn: TilsagnDto): String {
         return "T-${tilsagn.id}"
