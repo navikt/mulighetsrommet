@@ -14,8 +14,8 @@ import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
 import { AvtalePage } from "./pages/avtaler/AvtalePage";
 import { AvtaleSkjemaPage } from "./pages/avtaler/AvtaleSkjemaPage";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
-import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
-import { notifikasjonLoader } from "./pages/notifikasjoner/notifikasjonerLoader";
+import { NotifikasjonerPage } from "@/pages/arbeidsbenk/notifikasjoner/NotifikasjonerPage";
+import { notifikasjonLoader } from "@/pages/arbeidsbenk/notifikasjoner/notifikasjonerLoader";
 import { TiltaksgjennomforingInfo } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingInfo";
 import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingPage";
 import { TiltaksgjennomforingSkjemaPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
@@ -32,6 +32,7 @@ import { tiltakstypeLoader, tiltakstyperLoaders } from "./pages/tiltakstyper/til
 import { avtaleLoader } from "./pages/avtaler/avtaleLoader";
 import { ArbeidsbenkPage } from "@/pages/arbeidsbenk/ArbeidsbenkPage";
 import { OppgaverPage } from "@/pages/arbeidsbenk/oppgaver/OppgaverPage";
+import { arbeidsbenkLoader } from "@/pages/arbeidsbenk/arbeidsbenkLoader";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -254,6 +255,7 @@ const router = () =>
             path: "arbeidsbenk",
             element: <ArbeidsbenkPage />,
             errorElement: <ErrorPage />,
+            loader: arbeidsbenkLoader,
             //element: <Notifikasjonsliste lest={false} />,
             children: [
               {

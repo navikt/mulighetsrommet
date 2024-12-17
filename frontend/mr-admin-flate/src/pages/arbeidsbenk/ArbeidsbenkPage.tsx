@@ -5,10 +5,13 @@ import { BellDotFillIcon } from "@navikt/aksel-icons";
 import { Tabs } from "@navikt/ds-react";
 import { Outlet, useLoaderData, useLocation, useNavigate } from "react-router-dom";
 import styles from "../Page.module.scss";
+import { arbeidsbenkLoader } from "@/pages/arbeidsbenk/arbeidsbenkLoader";
 
 export function ArbeidsbenkPage() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const { notifikasjoner } = useLoaderData<typeof arbeidsbenkLoader>();
+
   useTitle("Arbeidsbenk");
 
   return (
@@ -25,13 +28,13 @@ export function ArbeidsbenkPage() {
         <Tabs.List id="fane_liste" className={styles.list}>
           <Tabs.Tab
             value="oppgaver"
-            label={`Oppgaver (3)`}
+            label={`Oppgaver`}
             onClick={() => navigate("/arbeidsbenk/oppgaver")}
             aria-controls="panel"
           />
           <Tabs.Tab
             value="notifikasjoner"
-            label={`Notifikasjoner (5)`}
+            label={`Notifikasjoner ${notifikasjoner ? `(${notifikasjoner})` : ""}`}
             onClick={() => navigate("/arbeidsbenk/notifikasjoner")}
             aria-controls="panel"
           />
