@@ -17,6 +17,7 @@ import java.util.*
 data class TilsagnDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
+    val type: TilsagnType,
     @Serializable(with = LocalDateSerializer::class)
     val periodeStart: LocalDate,
     @Serializable(with = LocalDateSerializer::class)

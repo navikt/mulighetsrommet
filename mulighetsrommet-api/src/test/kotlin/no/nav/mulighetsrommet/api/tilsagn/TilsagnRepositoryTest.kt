@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.tilsagn.model.ArrangorflateTilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -51,6 +52,7 @@ class TilsagnRepositoryTest : FunSpec({
             beregning = Prismodell.TilsagnBeregning.Fri(123),
             endretAv = NavAnsattFixture.ansatt1.navIdent,
             endretTidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
+            type = TilsagnType.TILSAGN,
         )
 
         test("upsert and get") {
@@ -75,6 +77,7 @@ class TilsagnRepositoryTest : FunSpec({
                     endretAv = NavAnsattFixture.ansatt1.navIdent,
                     endretTidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
                 ),
+                type = TilsagnType.TILSAGN,
             )
         }
 
@@ -98,6 +101,7 @@ class TilsagnRepositoryTest : FunSpec({
                         it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_ANNET)
                         it.forklaring shouldBe "Min forklaring"
                     }
+
                     else -> throw Exception("Feil status")
                 }
             }
@@ -114,6 +118,7 @@ class TilsagnRepositoryTest : FunSpec({
                         it.endretAv shouldBe tilsagn.endretAv
                         it.godkjentAv shouldBe NavIdent("B123456")
                     }
+
                     else -> throw Exception("Feil status")
                 }
             }
@@ -172,6 +177,7 @@ class TilsagnRepositoryTest : FunSpec({
                         it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_ANNET)
                         it.forklaring shouldBe "Min forklaring"
                     }
+
                     else -> throw Exception("Feil status")
                 }
             }
@@ -184,6 +190,7 @@ class TilsagnRepositoryTest : FunSpec({
                     is TilsagnDto.TilsagnStatus.TilGodkjenning -> {
                         it.endretAv shouldBe tilsagn.endretAv
                     }
+
                     else -> throw Exception("Feil status")
                 }
             }

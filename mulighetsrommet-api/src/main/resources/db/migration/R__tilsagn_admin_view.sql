@@ -15,6 +15,7 @@ select
     tilsagn.status_endret_tidspunkt,
     tilsagn.status_forklaring,
     tilsagn.status_aarsaker,
+    tilsagn.type,
     concat(nav_ansatt_beslutter.fornavn, ' ', nav_ansatt_beslutter.etternavn) as beslutter_navn,
     concat(nav_ansatt_endret_av.fornavn, ' ', nav_ansatt_endret_av.etternavn) as endret_av_navn,
     nav_enhet.navn                    as kostnadssted_navn,
