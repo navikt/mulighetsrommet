@@ -74,7 +74,9 @@ export function TilsagnForGjennomforingContainer() {
         {tilsagn.length > 0 ? (
           <TilsagnTabell tilsagn={tilsagn} />
         ) : (
-          <Alert variant="info">Det finnes ingen tilsagn for dette tiltaket</Alert>
+          <Alert style={{ marginTop: "1rem" }} variant="info">
+            Det finnes ingen tilsagn for dette tiltaket
+          </Alert>
         )}
       </InfoContainer>
     </>
