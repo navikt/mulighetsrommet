@@ -42,17 +42,7 @@ class TilsagnService(
 
                     val dto = getOrError(it.id, tx)
 
-                    logEndring(
-                        if (previous == null) {
-                            "Opprettet tilsagn"
-                        } else {
-                            "Redigerte tilsagn"
-                        },
-                        dto,
-                        EndretAv.NavAnsatt(navIdent),
-                        tx,
-                    )
-
+                    logEndring("Sendt til godkjenning", dto, EndretAv.NavAnsatt(navIdent), tx)
                     dto
                 }
             }
