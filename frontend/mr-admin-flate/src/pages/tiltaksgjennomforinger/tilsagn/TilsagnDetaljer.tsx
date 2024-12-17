@@ -210,7 +210,7 @@ export function TilsagnDetaljer() {
                       type="button"
                       onClick={() => setAvvisModalOpen(true)}
                     >
-                      Send i return
+                      Send i retur
                     </Button>
                     <Button
                       size="small"
@@ -237,7 +237,7 @@ export function TilsagnDetaljer() {
                         })
                       }
                     >
-                      Send i return
+                      Send i retur
                     </Button>
                     <Button
                       size="small"
