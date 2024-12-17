@@ -33,7 +33,7 @@ data class TiltaksgjennomforingDto(
     val arenaAnsvarligEnhet: ArenaNavEnhet?,
     val status: TiltaksgjennomforingStatusDto,
     val apentForPamelding: Boolean,
-    val antallPlasser: Int?,
+    val antallPlasser: Int,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,
     val administratorer: List<Administrator>,
