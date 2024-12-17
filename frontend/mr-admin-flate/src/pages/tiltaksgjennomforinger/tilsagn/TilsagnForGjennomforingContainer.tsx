@@ -4,13 +4,13 @@ import { useHentTilsagnForTiltaksgjennomforing } from "@/api/tilsagn/useHentTils
 import { Laster } from "@/components/laster/Laster";
 import { InfoContainer } from "@/components/skjema/InfoContainer";
 import { useGetTiltaksgjennomforingIdFromUrl } from "@/hooks/useGetTiltaksgjennomforingIdFromUrl";
-import { Tilsagnstabell } from "./Tilsagnstabell";
 import { KnapperadContainer } from "@/pages/KnapperadContainer";
 import { Toggles } from "@mr/api-client";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
+import { TilsagnTabell } from "./TilsagnTabell";
 
 export function TilsagnForGjennomforingContainer() {
   const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFromUrl();
@@ -72,9 +72,11 @@ export function TilsagnForGjennomforingContainer() {
           </HarSkrivetilgang>
         </KnapperadContainer>
         {tilsagn.length > 0 ? (
-          <Tilsagnstabell tilsagn={tilsagn} />
+          <TilsagnTabell tilsagn={tilsagn} />
         ) : (
-          <Alert variant="info">Det finnes ingen tilsagn for dette tiltaket</Alert>
+          <Alert style={{ marginTop: "1rem" }} variant="info">
+            Det finnes ingen tilsagn for dette tiltaket
+          </Alert>
         )}
       </InfoContainer>
     </>

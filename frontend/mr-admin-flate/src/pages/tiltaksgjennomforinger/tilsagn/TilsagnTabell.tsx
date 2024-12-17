@@ -22,7 +22,7 @@ interface ScopedSortState extends SortState {
   orderBy: keyof TilsagnDto;
 }
 
-export function Tilsagnstabell({ tilsagn }: Props) {
+export function TilsagnTabell({ tilsagn }: Props) {
   const { tiltaksgjennomforingId } = useParams();
 
   const [sort, setSort] = useState<ScopedSortState>();

@@ -1,4 +1,3 @@
-import { Tilsagnstabell } from "@/pages/tiltaksgjennomforinger/tilsagn/Tilsagnstabell";
 import { Alert, Heading, VStack } from "@navikt/ds-react";
 import { useLoaderData, useMatch, useParams } from "react-router-dom";
 import { Header } from "@/components/detaljside/Header";
@@ -10,6 +9,7 @@ import { OpprettTilsagnContainer } from "@/components/tilsagn/OpprettTilsagnCont
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { inneholderUrl } from "@/utils/Utils";
 import { tilsagnLoader } from "./tilsagnLoader";
+import { TilsagnTabell } from "./TilsagnTabell";
 
 export function OpprettTilsagnSkjemaPage() {
   const { avtaleId } = useParams();
@@ -82,7 +82,7 @@ export function OpprettTilsagnSkjemaPage() {
             <SkjemaContainer>
               <SkjemaContent>
                 {aktiveTilsagn && aktiveTilsagn.length > 0 ? (
-                  <Tilsagnstabell tilsagn={aktiveTilsagn} />
+                  <TilsagnTabell tilsagn={aktiveTilsagn} />
                 ) : (
                   <Alert variant="info">Det finnes ingen tilsagn for dette tiltaket</Alert>
                 )}
