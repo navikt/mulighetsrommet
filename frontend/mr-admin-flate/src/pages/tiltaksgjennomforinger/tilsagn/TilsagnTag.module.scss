@@ -5,8 +5,23 @@
   border-color: var(--a-text-danger);
 }
 
+.annullert_tag:hover {
+  text-decoration: none;
+}
+
 .til_annullering_tag {
   background-color: white;
   color: var(--a-text-danger);
   border-color: var(--a-text-danger);
+}
+
+.annullert_aarsak_list li {
+  padding-left: .5rem;
+  margin-left: .5rem;
+}
+
+.annullert_aarsak_list li::marker {
+  content: "•";
+  color: var(--a-text-danger);
+  font-size: 1.2rem;
 }

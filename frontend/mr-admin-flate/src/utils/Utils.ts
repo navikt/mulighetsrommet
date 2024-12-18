@@ -7,6 +7,8 @@ import {
   ForerkortKlasse,
   InnholdElement,
   Kurstype,
+  TilsagnAvvisningAarsak,
+  TilsagnTilAnnulleringAarsak,
 } from "@mr/api-client";
 import { AvtaleFilter, TiltaksgjennomforingFilter } from "@/api/atoms";
 
@@ -373,4 +375,27 @@ export function getPublisertStatus(statuser: string[] = []): boolean | null {
   if (statuser.every((status) => status === "ikke-publisert")) return false;
 
   return null;
+}
+
+export function tilsagnAarsakTilTekst(
+  aarsak: TilsagnAvvisningAarsak | TilsagnTilAnnulleringAarsak,
+): string {
+  switch (aarsak) {
+    case TilsagnAvvisningAarsak.FEIL_PERIODE:
+      return "Feil periode";
+    case TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER:
+      return "Feil antall plasser";
+    case TilsagnAvvisningAarsak.FEIL_KOSTNADSSTED:
+      return "Feil kostnadssted";
+    case TilsagnAvvisningAarsak.FEIL_BELOP:
+      return "Feil beløp";
+    case TilsagnAvvisningAarsak.FEIL_ANNET:
+      return "Annet";
+    case TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING:
+      return "Feilregistrering";
+    case TilsagnTilAnnulleringAarsak.GJENNOMFORING_AVBRYTES:
+      return "Tiltaksgjennomføring skal avbrytes";
+    case TilsagnTilAnnulleringAarsak.FEIL_ANNET:
+      return "Annet";
+  }
 }

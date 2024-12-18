@@ -4989,11 +4989,19 @@ components:
         endretTidspunkt:
           type: string
           format: date-time
+        aarsaker:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnTilAnnulleringAarsak"
+        forklaring:
+          type: string
       required:
         - type
         - endretAv
         - godkjentAv
         - endretTidspunkt
+        - aarsaker
+        - forklaring
 
     TilsagnStatusBesluttelse:
       type: string

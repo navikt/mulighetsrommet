@@ -1,11 +1,6 @@
-import {
-  TilsagnAvvisningAarsak,
-  TilsagnStatusReturnert,
-  TilsagnStatusTilAnnullering,
-  TilsagnTilAnnulleringAarsak,
-} from "@mr/api-client";
+import { TilsagnStatusReturnert, TilsagnStatusTilAnnullering } from "@mr/api-client";
 import { Alert, Heading } from "@navikt/ds-react";
-import { formaterDato } from "../../../utils/Utils";
+import { formaterDato, tilsagnAarsakTilTekst } from "../../../utils/Utils";
 
 export function AvvistAlert({ status }: { status: TilsagnStatusReturnert }) {
   const aarsaker = status?.aarsaker?.map((aarsak) => tilsagnAarsakTilTekst(aarsak)) || [];
@@ -55,29 +50,6 @@ export function TilAnnulleringAlert({ status }: { status: TilsagnStatusTilAnnull
       </p>
     </Alert>
   );
-}
-
-function tilsagnAarsakTilTekst(
-  aarsak: TilsagnAvvisningAarsak | TilsagnTilAnnulleringAarsak,
-): string {
-  switch (aarsak) {
-    case TilsagnAvvisningAarsak.FEIL_PERIODE:
-      return "Feil periode";
-    case TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER:
-      return "Feil antall plasser";
-    case TilsagnAvvisningAarsak.FEIL_KOSTNADSSTED:
-      return "Feil kostnadssted";
-    case TilsagnAvvisningAarsak.FEIL_BELOP:
-      return "Feil beløp";
-    case TilsagnAvvisningAarsak.FEIL_ANNET:
-      return "Annet";
-    case TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING:
-      return "Feilregistrering";
-    case TilsagnTilAnnulleringAarsak.GJENNOMFORING_AVBRYTES:
-      return "Tiltaksgjennomføring skal avbrytes";
-    case TilsagnTilAnnulleringAarsak.FEIL_ANNET:
-      return "Annet";
-  }
 }
 
 function joinWithCommaAndOg(aarsaker: string[]): string {

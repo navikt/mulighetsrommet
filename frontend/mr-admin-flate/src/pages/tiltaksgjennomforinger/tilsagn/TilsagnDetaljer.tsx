@@ -27,6 +27,8 @@ import { TilAnnulleringModal } from "./TilAnnulleringModal";
 import { AvvistAlert, TilAnnulleringAlert } from "./AarsakerAlert";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
+import { isAftBeregning, isFriBeregning } from "./tilsagnUtils";
+import { FriTilsagnDetaljer } from "./FriTilsagnDetaljer";
 
 export function TilsagnDetaljer() {
   const { avtaleId, tiltaksgjennomforingId } = useParams();
@@ -194,7 +196,8 @@ export function TilsagnDetaljer() {
             borderRadius={"medium"}
             padding={"2"}
           >
-            <AFTTilsagnDetaljer tilsagn={tilsagn} />
+            {isAftBeregning(tilsagn.beregning) && <AFTTilsagnDetaljer tilsagn={tilsagn} />}
+            {isFriBeregning(tilsagn.beregning) && <FriTilsagnDetaljer tilsagn={tilsagn} />}
             <div>
               {besluttMutation.error ? (
                 <BodyShort spacing>
@@ -237,7 +240,7 @@ export function TilsagnDetaljer() {
                         })
                       }
                     >
-                      Send i retur
+                      Avslå annullering
                     </Button>
                     <Button
                       size="small"
