@@ -21,7 +21,7 @@ interface DelemodalProps {
 }
 
 function overskrift(tiltak: VeilederflateTiltak): string {
-  return `Tiltak gjennom Nav: ${tiltak.tittel}`;
+  return `Tiltak gjennom Nav: ${tiltak.tiltakstype.navn}`;
 }
 
 export function Delemodal({

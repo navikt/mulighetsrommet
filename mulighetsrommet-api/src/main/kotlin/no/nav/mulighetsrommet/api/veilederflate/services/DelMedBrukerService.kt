@@ -168,12 +168,8 @@ class DelMedBrukerService(
             .let { db.run(it) }
             .flatMap { (id, tiltak) ->
                 deltMedBruker.filter { it.tiltaksgjennomforingId == id }.map {
-                    val underTittel = tiltak.navn
-                    val tittel = tiltak.tiltakstypeNavn
-
                     TiltakDeltMedBruker(
-                        tittel = tittel,
-                        underTittel = underTittel,
+                        navn = tiltak.navn,
                         createdAt = it.createdAt!!,
                         dialogId = it.dialogId,
                         tiltakId = id,
@@ -201,13 +197,9 @@ class DelMedBrukerService(
         return tiltakFraSanity.map { tiltak ->
             val arenaKode = tiltakstyper.getValue(UUID.fromString(tiltak.tiltakstype._id)).arenaKode
 
-            val underTittel = tiltak.tiltaksgjennomforingNavn ?: ""
-            val tittel = tiltak.tiltakstype.tiltakstypeNavn
-
             deltMedBruker.filter { it.sanityId == tiltak._id.toUUID() }.map {
                 TiltakDeltMedBruker(
-                    tittel = tittel,
-                    underTittel = underTittel,
+                    navn = tiltak.tiltaksgjennomforingNavn ?: "",
                     createdAt = it.createdAt!!,
                     dialogId = it.dialogId,
                     tiltakId = tiltak._id.toUUID(),
@@ -247,8 +239,7 @@ private fun Row.toDelMedBruker(): DelMedBrukerDbo = DelMedBrukerDbo(
 
 @Serializable
 data class TiltakDeltMedBruker(
-    val tittel: String,
-    val underTittel: String,
+    val navn: String,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
     val dialogId: String,
