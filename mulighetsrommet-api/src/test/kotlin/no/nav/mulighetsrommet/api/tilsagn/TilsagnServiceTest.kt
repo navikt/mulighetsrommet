@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.Forbidden
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
@@ -51,20 +50,14 @@ class TilsagnServiceTest : FunSpec({
             endringshistorikkService = endringshistorikkService,
             db = database.db,
         )
-        val tilsagn = TilsagnRequest(
+        val tilsagn = AftTilsagnRequest(
             id = UUID.randomUUID(),
-            tiltaksgjennomforingId = AFT1.id,
+            gjennomforingId = AFT1.id,
             periodeStart = LocalDate.of(2023, 1, 1),
             periodeSlutt = LocalDate.of(2023, 2, 1),
             kostnadssted = Gjovik.enhetsnummer,
-            beregning = Prismodell.TilsagnBeregning.AFT(
-                belop = 123,
-                periodeStart = LocalDate.of(2023, 1, 1),
-                periodeSlutt = LocalDate.of(2023, 2, 1),
-                antallPlasser = 2,
-                sats = 4,
-            ),
-            type = TilsagnType.TILSAGN,
+            antallPlasser = 2,
+            tilsagnType = TilsagnType.TILSAGN,
         )
 
         test("kan ikke beslutte egne") {
@@ -106,20 +99,14 @@ class TilsagnServiceTest : FunSpec({
             endringshistorikkService = endringshistorikkService,
             db = database.db,
         )
-        val tilsagn = TilsagnRequest(
+        val tilsagn = AftTilsagnRequest(
             id = UUID.randomUUID(),
-            tiltaksgjennomforingId = AFT1.id,
+            gjennomforingId = AFT1.id,
             periodeStart = LocalDate.of(2023, 1, 1),
             periodeSlutt = LocalDate.of(2023, 2, 1),
             kostnadssted = Gjovik.enhetsnummer,
-            beregning = Prismodell.TilsagnBeregning.AFT(
-                belop = 123,
-                periodeStart = LocalDate.of(2023, 1, 1),
-                periodeSlutt = LocalDate.of(2023, 2, 1),
-                antallPlasser = 2,
-                sats = 4,
-            ),
-            type = TilsagnType.TILSAGN,
+            antallPlasser = 2,
+            tilsagnType = TilsagnType.TILSAGN,
         )
 
         test("kan bare slette tilsagn når det er avvist") {

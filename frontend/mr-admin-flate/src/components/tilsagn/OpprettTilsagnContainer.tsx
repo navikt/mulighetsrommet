@@ -1,18 +1,9 @@
-import {
-  ApiError,
-  TilsagnDto,
-  TilsagnRequest,
-  TilsagnType,
-  TiltaksgjennomforingDto,
-  Tiltakskode,
-} from "@mr/api-client";
-import { SubmitHandler } from "react-hook-form";
+import { TilsagnDto, TilsagnType, TiltaksgjennomforingDto, Tiltakskode } from "@mr/api-client";
 import { Location, useLocation, useNavigate } from "react-router-dom";
 import { SkjemaDetaljerContainer } from "../skjema/SkjemaDetaljerContainer";
 import { SkjemaKolonne } from "../skjema/SkjemaKolonne";
-import { InferredOpprettTilsagnSchema } from "./OpprettTilsagnSchema";
-import { TilsagnSkjema } from "./TilsagnSkjema";
-import { useOpprettTilsagn } from "./useOpprettTilsagn";
+import { InferredTilsagnSchemaAft } from "./OpprettTilsagnSchema";
+import { TilsagnSkjemaAft } from "./TilsagnSkjemaAft";
 import { useTilsagnDefaults } from "@/api/tilsagn/useTilsagnDefaults";
 
 interface Props {
@@ -26,33 +17,14 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing, tilsagn }: Props
 
   const erEkstratilsagn = location.state?.ekstratilsagn ?? false;
 
-  const mutation = useOpprettTilsagn();
-  const postData: SubmitHandler<InferredOpprettTilsagnSchema> = async (data): Promise<void> => {
-    const request: TilsagnRequest = {
-      id: data.id || window.crypto.randomUUID(),
-      type: data.type,
-      periodeStart: data.periodeStart,
-      periodeSlutt: data.periodeSlutt,
-      kostnadssted: data.kostnadssted,
-      beregning: data.beregning,
-      tiltaksgjennomforingId: tiltaksgjennomforing.id,
-    };
-
-    mutation.mutate(request, {
-      onSuccess: navigerTilTilsagn,
-    });
-  };
-
   function navigerTilTilsagn() {
     navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/tilsagn`);
   }
 
   const skjemaProps = {
     gjennomforing: tiltaksgjennomforing,
-    onSubmit: postData,
+    onSuccess: navigerTilTilsagn,
     onAvbryt: navigerTilTilsagn,
-    isPending: mutation.isPending,
-    error: mutation.error,
     prismodell: prismodell(tiltaksgjennomforing),
   };
 
@@ -79,10 +51,8 @@ function prismodell(tiltaksgjennomforing: TiltaksgjennomforingDto): "AFT" | "FRI
 
 interface TilsagnSkjemaProps {
   gjennomforing: TiltaksgjennomforingDto;
-  onSubmit: (data: InferredOpprettTilsagnSchema) => void;
+  onSuccess: () => void;
   onAvbryt: () => void;
-  isPending: boolean;
-  error: null | ApiError;
   prismodell: "AFT" | "FRI";
 }
 
@@ -92,13 +62,17 @@ function OpprettTilsagnSkjema(props: TilsagnSkjemaProps) {
     ? [props.gjennomforing.navRegion.enhetsnummer]
     : [];
   return (
-    <TilsagnSkjema defaultValues={defaults.data} defaultKostnadssteder={kostnadssted} {...props} />
+    <TilsagnSkjemaAft
+      defaultValues={{ ...defaults.data, type: TilsagnType.TILSAGN }}
+      defaultKostnadssteder={kostnadssted}
+      {...props}
+    />
   );
 }
 
 function OpprettEkstratilsagnSkjema(props: TilsagnSkjemaProps) {
   return (
-    <TilsagnSkjema
+    <TilsagnSkjemaAft
       defaultValues={{ type: TilsagnType.EKSTRATILSAGN }}
       defaultKostnadssteder={[]}
       {...props}
@@ -110,15 +84,22 @@ interface RedigerTilsagnSkjemaProps extends TilsagnSkjemaProps {
   tilsagn: TilsagnDto;
 }
 
-function RedigerTilsagnSkjema(props: RedigerTilsagnSkjemaProps) {
-  const defaults = {
-    id: props.tilsagn.id,
-    type: props.tilsagn.type,
-    beregning: props.tilsagn.beregning,
-    kostnadssted: props.tilsagn.kostnadssted.enhetsnummer,
-    periodeStart: props.tilsagn.periodeStart,
-    periodeSlutt: props.tilsagn.periodeSlutt,
+function RedigerTilsagnSkjema({ tilsagn, ...props }: RedigerTilsagnSkjemaProps) {
+  if (tilsagn.beregning.type === "FRI") {
+    throw new Error("FRI ikke støttet enda");
+  }
+
+  const { input, output } = tilsagn.beregning;
+
+  const defaults: InferredTilsagnSchemaAft = {
+    id: tilsagn.id,
+    type: tilsagn.type,
+    periodeStart: tilsagn.periodeStart,
+    periodeSlutt: tilsagn.periodeSlutt,
+    kostnadssted: tilsagn.kostnadssted.enhetsnummer,
+    sats: output.sats,
+    antallPlasser: input.antallPlasser,
   };
 
-  return <TilsagnSkjema defaultValues={defaults} defaultKostnadssteder={[]} {...props} />;
+  return <TilsagnSkjemaAft defaultValues={defaults} defaultKostnadssteder={[]} {...props} />;
 }

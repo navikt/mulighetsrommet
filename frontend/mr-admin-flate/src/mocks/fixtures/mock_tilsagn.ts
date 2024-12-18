@@ -4,13 +4,19 @@ import {
   TilsagnAvvisningAarsak,
   TilsagnDto,
   TilsagnTilAnnulleringAarsak,
+  TilsagnType,
 } from "@mr/api-client";
 import { mockArrangorer } from "./mock_arrangorer";
 
 export const mockTilsagn: TilsagnDto[] = [
   {
     arrangor: mockArrangorer.data[0],
-    beregning: { type: "FRI", belop: 14000 },
+    type: TilsagnType.TILSAGN,
+    beregning: {
+      type: "FRI",
+      input: { type: "FRI", belop: 14000 },
+      output: { type: "FRI", belop: 14000 },
+    },
     id: "10e393b0-1b7c-4c68-9a42-b541b2f114b8",
     kostnadssted: {
       enhetsnummer: "0300",
@@ -30,7 +36,12 @@ export const mockTilsagn: TilsagnDto[] = [
   },
   {
     arrangor: mockArrangorer.data[0],
-    beregning: { type: "FRI", belop: 14000 },
+    type: TilsagnType.TILSAGN,
+    beregning: {
+      type: "FRI",
+      input: { type: "FRI", belop: 14000 },
+      output: { type: "FRI", belop: 14000 },
+    },
     id: "fd1825aa-1951-4de2-9b72-12d22f121e92",
     kostnadssted: {
       enhetsnummer: "0300",
@@ -56,27 +67,12 @@ export const mockTilsagn: TilsagnDto[] = [
   },
   {
     arrangor: mockArrangorer.data[0],
-    beregning: { type: "FRI", belop: 67000 },
-    id: "aaad5bed-00dc-4437-9b43-b09eced228d7",
-    kostnadssted: {
-      enhetsnummer: "0300",
-      navn: "Nav Oslo",
-      overordnetEnhet: null,
-      status: NavEnhetStatus.AKTIV,
-      type: NavEnhetType.TILTAK,
+    type: TilsagnType.TILSAGN,
+    beregning: {
+      type: "FRI",
+      input: { type: "FRI", belop: 14000 },
+      output: { type: "FRI", belop: 14000 },
     },
-    lopenummer: 1,
-    periodeStart: "2024-01-01",
-    periodeSlutt: "2024-01-02",
-    status: {
-      endretAv: "F123456",
-      type: "TIL_GODKJENNING",
-      endretTidspunkt: "2024-01-01T22:00:00",
-    },
-  },
-  {
-    arrangor: mockArrangorer.data[0],
-    beregning: { type: "FRI", belop: 67000 },
     id: "3ac22799-6af6-47c7-a3f4-bb4eaa7bad07",
     kostnadssted: {
       enhetsnummer: "0300",
@@ -94,7 +90,12 @@ export const mockTilsagn: TilsagnDto[] = [
   },
   {
     arrangor: mockArrangorer.data[0],
-    beregning: { type: "FRI", belop: 67000 },
+    type: TilsagnType.TILSAGN,
+    beregning: {
+      type: "FRI",
+      input: { type: "FRI", belop: 14000 },
+      output: { type: "FRI", belop: 14000 },
+    },
     id: "c7cd1ac0-34cd-46f2-b441-6d8c7318ee05",
     kostnadssted: {
       enhetsnummer: "0300",
@@ -120,7 +121,12 @@ export const mockTilsagn: TilsagnDto[] = [
   },
   {
     arrangor: mockArrangorer.data[0],
-    beregning: { type: "FRI", belop: 67000 },
+    type: TilsagnType.TILSAGN,
+    beregning: {
+      type: "FRI",
+      input: { type: "FRI", belop: 14000 },
+      output: { type: "FRI", belop: 14000 },
+    },
     id: "5950e714-95bc-4d4c-b52e-c75fde749056",
     kostnadssted: {
       enhetsnummer: "0300",

@@ -1,21 +1,22 @@
-import { TilsagnDto } from "@mr/api-client";
+import { TilsagnBeregningAft, TilsagnDto } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { HStack, Heading } from "@navikt/ds-react";
-import { useFindAFTSatsForPeriode } from "../../../api/tilsagn/useFindAFTSatsForPeriode";
-import { Bolk } from "../../../components/detaljside/Bolk";
-import { Metadata } from "../../../components/detaljside/Metadata";
-import { formaterDato } from "../../../utils/Utils";
+import { Heading, HStack } from "@navikt/ds-react";
+import { Bolk } from "@/components/detaljside/Bolk";
+import { Metadata } from "@/components/detaljside/Metadata";
+import { formaterDato } from "@/utils/Utils";
 import { DetaljerInfoContainer } from "../../DetaljerInfoContainer";
 import { TilsagnTag } from "./TilsagnTag";
-import { isAftBeregning } from "./tilsagnUtils";
 
 interface Props {
   tilsagn: TilsagnDto;
 }
-export function AFTTilsagnDetaljer({ tilsagn }: Props) {
-  const { findSats } = useFindAFTSatsForPeriode();
 
-  const sats = findSats(new Date(tilsagn.periodeStart));
+export function AFTTilsagnDetaljer({ tilsagn }: Props) {
+  if (tilsagn.beregning.type !== "AFT") {
+    throw new Error("Forventet AFT-tilsagn");
+  }
+
+  const beregning: TilsagnBeregningAft = tilsagn.beregning;
 
   return (
     <>
@@ -40,13 +41,10 @@ export function AFTTilsagnDetaljer({ tilsagn }: Props) {
             />
           </Bolk>
           <Bolk>
-            <Metadata
-              header="Antall plasser"
-              verdi={isAftBeregning(tilsagn.beregning) ? tilsagn.beregning.antallPlasser : 0}
-            />
+            <Metadata header="Antall plasser" verdi={beregning.input.antallPlasser} />
             <Metadata
               header="Sats per plass per måned"
-              verdi={sats ? formaterNOK(sats) : "Fant ingen sats per plass per måned"}
+              verdi={formaterNOK(beregning.output.sats)}
             />
           </Bolk>
           <Bolk>
@@ -61,7 +59,7 @@ export function AFTTilsagnDetaljer({ tilsagn }: Props) {
             Beløp
           </Heading>
           <Bolk>
-            <Metadata header="Totalbeløp" verdi={formaterNOK(tilsagn.beregning.belop)} />
+            <Metadata header="Totalbeløp" verdi={formaterNOK(tilsagn.beregning.output.belop)} />
           </Bolk>
         </DetaljerInfoContainer>
       </HStack>

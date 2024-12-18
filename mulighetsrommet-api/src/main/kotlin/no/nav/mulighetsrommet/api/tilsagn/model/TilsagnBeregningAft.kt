@@ -2,14 +2,21 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft.Input
+import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft.Output
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import java.time.LocalDate
 
 @Serializable
-sealed class TilsagnBeregningInput {
+@SerialName("AFT")
+data class TilsagnBeregningAft(
+    override val input: Input,
+    override val output: Output,
+) : TilsagnBeregning() {
+
     @Serializable
     @SerialName("AFT")
-    data class AFT(
+    data class Input(
         @Serializable(with = LocalDateSerializer::class)
         val periodeStart: LocalDate,
         @Serializable(with = LocalDateSerializer::class)
@@ -18,6 +25,9 @@ sealed class TilsagnBeregningInput {
     ) : TilsagnBeregningInput()
 
     @Serializable
-    @SerialName("FRI")
-    data class Fri(val belop: Int) : TilsagnBeregningInput()
+    @SerialName("AFT")
+    data class Output(
+        val sats: Int,
+        override val belop: Int,
+    ) : TilsagnBeregningOutput()
 }

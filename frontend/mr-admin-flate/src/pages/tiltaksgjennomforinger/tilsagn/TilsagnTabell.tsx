@@ -1,5 +1,5 @@
 import { formaterDato } from "@/utils/Utils";
-import { TilsagnDto } from "@mr/api-client";
+import { TilsagnBeregning, TilsagnDto } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { SortState, Table } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
@@ -9,7 +9,7 @@ import { isAftBeregning } from "./tilsagnUtils";
 import { TilsagnTag } from "./TilsagnTag";
 
 interface TabellData extends TilsagnDto {
-  antallPlasser: number;
+  antallPlasser: number | null;
   navnForKostnadssted: string;
   belop: number;
 }
@@ -66,7 +66,7 @@ export function TilsagnTabell({ tilsagn }: Props) {
       ...tilsagn,
       antallPlasser: getAntallPlasser(tilsagn.beregning),
       navnForKostnadssted: tilsagn.kostnadssted.navn,
-      belop: tilsagn.beregning.belop,
+      belop: tilsagn.beregning.output.belop,
     }))
     .sort((a, b) => {
       if (sort) {
@@ -116,7 +116,7 @@ export function TilsagnTabell({ tilsagn }: Props) {
               <Table.DataCell>{formaterDato(periodeSlutt)}</Table.DataCell>
               <Table.DataCell>{kostnadssted.navn}</Table.DataCell>
               <Table.DataCell align="right">{antallPlasser}</Table.DataCell>
-              <Table.DataCell align="right">{formaterNOK(beregning.belop)}</Table.DataCell>
+              <Table.DataCell align="right">{formaterNOK(beregning.output.belop)}</Table.DataCell>
               <Table.DataCell align="right">
                 <TilsagnTag status={tilsagn.status} />
               </Table.DataCell>
@@ -134,9 +134,6 @@ export function TilsagnTabell({ tilsagn }: Props) {
   );
 }
 
-function getAntallPlasser(beregning: TilsagnDto["beregning"]) {
-  if (isAftBeregning(beregning)) {
-    return beregning.antallPlasser;
-  }
-  return 0;
+function getAntallPlasser(beregning: TilsagnBeregning) {
+  return isAftBeregning(beregning) ? beregning.input.antallPlasser : null;
 }

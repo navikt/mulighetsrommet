@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.tilsagn.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -18,7 +17,7 @@ data class ArrangorflateTilsagn(
     val periodeStart: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val periodeSlutt: LocalDate,
-    val beregning: Prismodell.TilsagnBeregning,
+    val beregning: TilsagnBeregning,
     val arrangor: Arrangor,
 ) {
     @Serializable

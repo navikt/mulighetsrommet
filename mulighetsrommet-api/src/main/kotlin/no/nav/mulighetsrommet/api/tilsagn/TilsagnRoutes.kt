@@ -17,16 +17,13 @@ import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.temporal.TemporalAdjusters
 import java.util.*
 
@@ -59,7 +56,7 @@ fun Route.tilsagnRoutes() {
 
             val sisteTilsagn = tilsagn.getAll(type = TilsagnType.TILSAGN, gjennomforingId).firstOrNull()
 
-            val defaults = resolveTilsagnDefaults(gjennomforing, sisteTilsagn, service)
+            val defaults = resolveTilsagnDefaults(gjennomforing, sisteTilsagn)
 
             call.respond(HttpStatusCode.OK, defaults)
         }
@@ -68,6 +65,7 @@ fun Route.tilsagnRoutes() {
             val request = call.receive<TilsagnBeregningInput>()
 
             val result = service.tilsagnBeregning(request)
+                .map { it.output }
                 .mapLeft { BadRequest(errors = it) }
 
             call.respondWithStatusResponse(result)
@@ -75,7 +73,7 @@ fun Route.tilsagnRoutes() {
 
         authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
             put {
-                val request = call.receive<TilsagnRequest>()
+                val request = call.receive<AftTilsagnRequest>()
                 val navIdent = getNavIdent()
 
                 val result = service.upsert(request, navIdent)
@@ -136,46 +134,33 @@ fun Route.tilsagnRoutes() {
 
 @Serializable
 data class TilsagnDefaults(
-    val type: TilsagnType,
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID?,
+    @Serializable(with = UUIDSerializer::class)
+    val gjennomforingId: UUID?,
+    val tilsagnType: TilsagnType?,
     @Serializable(with = LocalDateSerializer::class)
-    val periodeStart: LocalDate,
+    val periodeStart: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
-    val periodeSlutt: LocalDate,
-    val antallPlasser: Int,
+    val periodeSlutt: LocalDate?,
     val kostnadssted: String?,
-    val beregning: Prismodell.TilsagnBeregning?,
+    val antallPlasser: Int?,
 )
 
 @Serializable
-data class TilsagnRequest(
+data class AftTilsagnRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
-    val tiltaksgjennomforingId: UUID,
+    val gjennomforingId: UUID,
+    val tilsagnType: TilsagnType,
     @Serializable(with = LocalDateSerializer::class)
     val periodeStart: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val periodeSlutt: LocalDate,
     val kostnadssted: String,
-    val beregning: Prismodell.TilsagnBeregning,
-    val type: TilsagnType,
-) {
-    fun toDbo(
-        opprettetAv: NavIdent,
-        arrangorId: UUID,
-    ) = TilsagnDbo(
-        id = id,
-        tiltaksgjennomforingId = tiltaksgjennomforingId,
-        periodeStart = periodeStart,
-        periodeSlutt = periodeSlutt,
-        kostnadssted = kostnadssted,
-        beregning = beregning,
-        endretAv = opprettetAv,
-        endretTidspunkt = LocalDateTime.now(),
-        arrangorId = arrangorId,
-        type = type,
-    )
-}
+    val antallPlasser: Int,
+)
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -215,7 +200,6 @@ data class AFTSats(
 private fun resolveTilsagnDefaults(
     gjennomforing: TiltaksgjennomforingDto,
     tilsagn: TilsagnDto?,
-    service: TilsagnService,
 ) = when (gjennomforing.tiltakstype.tiltakskode) {
     Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET -> {
         val periodeStart = listOfNotNull(
@@ -231,19 +215,13 @@ private fun resolveTilsagnDefaults(
             lastDayOfYear,
         ).min()
 
-        val beregningInput = TilsagnBeregningInput.AFT(
-            periodeStart = periodeStart,
-            periodeSlutt = periodeSlutt,
-            antallPlasser = gjennomforing.antallPlasser,
-        )
-        val beregning = service.tilsagnBeregning(input = beregningInput).getOrNull()
-
         TilsagnDefaults(
-            type = TilsagnType.TILSAGN,
+            id = null,
+            gjennomforingId = gjennomforing.id,
+            tilsagnType = TilsagnType.TILSAGN,
             periodeStart = periodeStart,
             periodeSlutt = periodeSlutt,
             antallPlasser = gjennomforing.antallPlasser,
-            beregning = beregning,
             kostnadssted = null,
         )
     }
@@ -260,12 +238,13 @@ private fun resolveTilsagnDefaults(
         val periodeSlutt = listOfNotNull(gjennomforing.sluttDato, lastDayOfMonth).min()
 
         TilsagnDefaults(
-            type = TilsagnType.TILSAGN,
+            id = null,
+            gjennomforingId = gjennomforing.id,
+            tilsagnType = TilsagnType.TILSAGN,
             periodeStart = periodeStart,
             periodeSlutt = periodeSlutt,
             antallPlasser = gjennomforing.antallPlasser,
             kostnadssted = null,
-            beregning = null,
         )
     }
 }
