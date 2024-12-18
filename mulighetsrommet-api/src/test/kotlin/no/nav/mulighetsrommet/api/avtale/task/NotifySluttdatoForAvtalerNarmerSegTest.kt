@@ -8,7 +8,7 @@ import io.mockk.verify
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.notifications.NotificationService
+import no.nav.mulighetsrommet.notifications.NotificationTask
 import java.time.LocalDate
 import java.util.*
 
@@ -86,17 +86,17 @@ class NotifySluttdatoForAvtalerNarmerSegTest : FunSpec({
 
     context("notifySluttDatoNarmerSeg") {
         test("skal generere varsler til administratorer når sluttdato på gjennomføring nærmer seg") {
-            val notificationService: NotificationService = mockk(relaxed = true)
+            val notificationTask: NotificationTask = mockk(relaxed = true)
             val task = NotifySluttdatoForAvtalerNarmerSeg(
                 NotifySluttdatoForAvtalerNarmerSeg.Config(disabled = true),
                 database.db,
-                notificationService,
+                notificationTask,
             )
 
             task.notifySluttDatoNarmerSeg(today = LocalDate.of(2023, 5, 1))
 
             verify(exactly = 1) {
-                notificationService.scheduleNotification(
+                notificationTask.scheduleNotification(
                     match {
                         it.targets == nonEmptyListOf(NavAnsattFixture.ansatt1.navIdent) &&
                             it.title == "Avtalen \"Avtalenavn\" utløper 01.01.2024"

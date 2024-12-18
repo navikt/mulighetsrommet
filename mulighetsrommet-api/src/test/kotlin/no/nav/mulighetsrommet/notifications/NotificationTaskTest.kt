@@ -20,7 +20,7 @@ import java.time.temporal.ChronoUnit
 import java.util.*
 import kotlin.time.Duration.Companion.seconds
 
-class NotificationServiceTest : FunSpec({
+class NotificationTaskTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
     val domain = MulighetsrommetTestDomain()
 
@@ -31,14 +31,14 @@ class NotificationServiceTest : FunSpec({
     val user1 = NavAnsattFixture.ansatt1.navIdent
     val user2 = NavAnsattFixture.ansatt2.navIdent
 
-    context("NotificationService") {
+    context("NotificationTask") {
         val notifications = NotificationRepository(database.db)
 
-        val service = NotificationService(database.db, notifications)
+        val task = NotificationTask(database.db, notifications)
 
         beforeEach {
             val scheduler = Scheduler
-                .create(database.db.getDatasource(), service.getScheduledNotificationTask())
+                .create(database.db.getDatasource(), task.task)
                 .serializer(DbSchedulerKotlinSerializer())
                 .build()
 
@@ -76,7 +76,7 @@ class NotificationServiceTest : FunSpec({
         }
 
         test("scheduled notification should eventually be created for all targets") {
-            service.scheduleNotification(notification, now)
+            task.scheduleNotification(notification, now)
 
             notifications.getAll() shouldBeRight listOf()
 
