@@ -4836,6 +4836,39 @@ components:
     TilsagnRequest:
       oneOf:
         - $ref: "#/components/schemas/AftTilsagnRequest"
+        - $ref: "#/components/schemas/FriTilsagnRequest"
+
+    FriTilsagnRequest:
+      type: object
+      properties:
+        type:
+          const: FRI
+        id:
+          type: string
+          format: uuid
+        gjennomforingId:
+          type: string
+          format: uuid
+        tilsagnType:
+          $ref: "#/components/schemas/TilsagnType"
+        periodeStart:
+          type: string
+          format: date
+        periodeSlutt:
+          type: string
+          format: date
+        kostnadssted:
+          type: string
+        belop:
+          type: integer
+      required:
+        - id
+        - gjennomforingId
+        - tilsagnType
+        - periodeStart
+        - periodeSlutt
+        - kostnadssted
+        - belop
 
     AftTilsagnRequest:
       type: object

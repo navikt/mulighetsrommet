@@ -3,24 +3,26 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { TilsagnRequest, TiltaksgjennomforingDto } from "@mr/api-client";
 import { Button, Heading, HGrid, HStack, TextField } from "@navikt/ds-react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { ControlledDateInput } from "../skjema/ControlledDateInput";
-import { InferredTilsagnSchemaAft, TilsagnSchemaAft } from "./OpprettTilsagnSchema";
-import styles from "./TilsagnSkjema.module.scss";
-import { TiltakDetaljerForTilsagn } from "./TiltakDetaljerForTilsagn";
-import { TilsagnBeregningPreview } from "@/components/tilsagn/TilsagnBeregningPreview";
+import styles from "./FriTilsagnSkjema.module.scss";
 import { VelgKostnadssted } from "@/components/tilsagn/VelgKostnadssted";
 import { isValidationError } from "@mr/frontend-common/utils/utils";
 import { useOpprettTilsagn } from "@/api/tilsagn/useOpprettTilsagn";
+import { TiltakDetaljerForTilsagn } from "@/components/tilsagn/TiltakDetaljerForTilsagn";
+import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
+import {
+  FriTilsagnSchema,
+  InferredFriTilsagn,
+} from "@/components/tilsagn/prismodell/fri/FriTilsagnSchema";
 
 interface Props {
   gjennomforing: TiltaksgjennomforingDto;
   onSuccess: () => void;
   onAvbryt: () => void;
-  defaultValues: Partial<InferredTilsagnSchemaAft>;
+  defaultValues: Partial<InferredFriTilsagn>;
   defaultKostnadssteder: string[];
 }
 
-export function TilsagnSkjemaAft({
+export function FriTilsagnSkjema({
   gjennomforing,
   onSuccess,
   onAvbryt,
@@ -29,30 +31,28 @@ export function TilsagnSkjemaAft({
 }: Props) {
   const mutation = useOpprettTilsagn();
 
-  const form = useForm<InferredTilsagnSchemaAft>({
-    resolver: zodResolver(TilsagnSchemaAft),
+  const form = useForm<InferredFriTilsagn>({
+    resolver: zodResolver(FriTilsagnSchema),
     defaultValues: defaultValues,
   });
 
   const {
     handleSubmit,
     register,
-    watch,
-    setValue,
     setError,
     formState: { errors },
   } = form;
 
-  const postData: SubmitHandler<InferredTilsagnSchemaAft> = async (data): Promise<void> => {
+  const postData: SubmitHandler<InferredFriTilsagn> = async (data): Promise<void> => {
     const request: TilsagnRequest = {
-      type: "AFT",
+      type: "FRI",
       id: data.id || window.crypto.randomUUID(),
       gjennomforingId: gjennomforing.id,
       tilsagnType: data.type,
       periodeStart: data.periodeStart,
       periodeSlutt: data.periodeSlutt,
       kostnadssted: data.kostnadssted,
-      antallPlasser: data.antallPlasser,
+      belop: data.belop,
     };
 
     mutation.mutate(request, {
@@ -60,15 +60,13 @@ export function TilsagnSkjemaAft({
       onError: (error) => {
         if (isValidationError(error.body)) {
           error.body.errors.forEach((error) => {
-            const name = error.name as keyof InferredTilsagnSchemaAft;
+            const name = error.name as keyof InferredFriTilsagn;
             setError(name, { type: "custom", message: error.message });
           });
         }
       },
     });
   };
-
-  const values = watch();
 
   return (
     <FormProvider {...form}>
@@ -101,43 +99,18 @@ export function TilsagnSkjemaAft({
                 </HGrid>
               </div>
               <div className={styles.formGroup}>
-                <HGrid columns={2}>
-                  <TextField
-                    size="small"
-                    type="number"
-                    label="Antall plasser"
-                    style={{ width: "180px" }}
-                    error={errors.antallPlasser?.message}
-                    {...register("antallPlasser", { valueAsNumber: true })}
-                  />
-                  <TextField
-                    size="small"
-                    type="number"
-                    label="Sats"
-                    style={{ width: "180px" }}
-                    readOnly={true}
-                    error={errors.sats?.message}
-                    {...register("sats", { valueAsNumber: true })}
-                  />
-                </HGrid>
+                <TextField
+                  size="small"
+                  type="number"
+                  label="Beløp"
+                  style={{ width: "180px" }}
+                  error={errors.belop?.message}
+                  {...register("belop", { valueAsNumber: true })}
+                />
               </div>
               <div className={styles.formGroup}>
                 <VelgKostnadssted defaultKostnadssteder={defaultKostnadssteder} />
               </div>
-            </div>
-            <div className={styles.formContentRight}>
-              <TilsagnBeregningPreview
-                input={{
-                  type: "AFT",
-                  periodeStart: values.periodeStart,
-                  periodeSlutt: values.periodeSlutt,
-                  antallPlasser: values.antallPlasser,
-                }}
-                onTilsagnBeregnet={(beregning) => {
-                  const sats = beregning.type === "AFT" ? beregning.sats : 0;
-                  setValue("sats", sats);
-                }}
-              />
             </div>
           </div>
         </div>

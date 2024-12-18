@@ -5,7 +5,7 @@ import { TiltaksgjennomforingIkon } from "@/components/ikoner/Tiltaksgjennomfori
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { SkjemaContainer } from "@/components/skjema/SkjemaContainer";
 import { SkjemaContent } from "@/components/skjema/SkjemaContent";
-import { OpprettTilsagnContainer } from "@/components/tilsagn/OpprettTilsagnContainer";
+import { TilsagnSkjemaContainer } from "@/components/tilsagn/TilsagnSkjemaContainer";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { inneholderUrl } from "@/utils/Utils";
 import { tilsagnLoader } from "./tilsagnLoader";
@@ -69,7 +69,7 @@ export function OpprettTilsagnSkjemaPage() {
         <VStack gap={"8"}>
           <SkjemaContainer>
             <SkjemaContent>
-              <OpprettTilsagnContainer
+              <TilsagnSkjemaContainer
                 tiltaksgjennomforing={tiltaksgjennomforing}
                 tilsagn={tilsagn}
               />

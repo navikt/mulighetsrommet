@@ -1,24 +1,24 @@
-import { ApiError, TilsagnBeregningInput, TilsagnBeregningOutput } from "@mr/api-client";
+import { ApiError, TilsagnBeregningInputAft, TilsagnBeregningOutput } from "@mr/api-client";
 import { formaterNOK, isValidationError } from "@mr/frontend-common/utils/utils";
 import { Heading, Label } from "@navikt/ds-react";
-import styles from "./TilsagnSkjema.module.scss";
+import styles from "./AftTilsagnSkjema.module.scss";
 import { useBeregnTilsagn } from "@/api/tilsagn/useBeregnTilsagn";
 import { useEffect, useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
-import { InferredTilsagnSchemaAft } from "@/components/tilsagn/OpprettTilsagnSchema";
+import { InferredAftTilsagn } from "@/components/tilsagn/prismodell/aft/AftTilsagnSchema";
 
 interface Props {
-  input: TilsagnBeregningInput;
+  input: TilsagnBeregningInputAft;
   onTilsagnBeregnet?: (output: TilsagnBeregningOutput) => void;
 }
 
-export function TilsagnBeregningPreview(props: Props) {
+export function AftTilsagnBeregningPreview(props: Props) {
   const { input, onTilsagnBeregnet } = props;
   const { mutate: beregnTilsagn } = useBeregnTilsagn();
 
   const [beregning, setBeregning] = useState<TilsagnBeregningOutput | null>(null);
 
-  const { setError } = useFormContext<DeepPartial<InferredTilsagnSchemaAft>>();
+  const { setError } = useFormContext<DeepPartial<InferredAftTilsagn>>();
 
   function handleTilsagnBeregnet(beregning: TilsagnBeregningOutput) {
     setBeregning(beregning);
@@ -28,7 +28,7 @@ export function TilsagnBeregningPreview(props: Props) {
   function setValidationErrors(error: ApiError) {
     if (isValidationError(error.body)) {
       error.body.errors.forEach((error) => {
-        const name = error.name as keyof InferredTilsagnSchemaAft;
+        const name = error.name as keyof InferredAftTilsagn;
         setError(name, { type: "custom", message: error.message });
       });
     }

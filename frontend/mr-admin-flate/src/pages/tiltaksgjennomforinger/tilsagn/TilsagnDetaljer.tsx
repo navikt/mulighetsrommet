@@ -15,8 +15,8 @@ import { EraserIcon, PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/ak
 import { ActionMenu, Alert, BodyShort, Box, Button, Heading, HStack } from "@navikt/ds-react";
 import { useRef, useState } from "react";
 import { Link, useLoaderData, useMatch, useNavigate, useParams } from "react-router-dom";
-import { useSlettTilsagn } from "../../../api/tilsagn/useSlettTilsagn";
-import { TiltakDetaljerForTilsagn } from "../../../components/tilsagn/TiltakDetaljerForTilsagn";
+import { useSlettTilsagn } from "@/api/tilsagn/useSlettTilsagn";
+import { TiltakDetaljerForTilsagn } from "@/components/tilsagn/TiltakDetaljerForTilsagn";
 import { AFTTilsagnDetaljer } from "./AFTTilsagnDetaljer";
 import { AvvisTilsagnModal } from "./AvvisTilsagnModal";
 import styles from "./TilsagnDetaljer.module.scss";
