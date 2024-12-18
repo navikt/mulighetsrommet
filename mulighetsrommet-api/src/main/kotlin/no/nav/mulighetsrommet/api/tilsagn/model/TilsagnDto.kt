@@ -88,6 +88,8 @@ data class TilsagnDto(
             val godkjentAv: NavIdent,
             @Serializable(with = LocalDateTimeSerializer::class)
             val endretTidspunkt: LocalDateTime,
+            val aarsaker: List<TilsagnStatusAarsak>,
+            val forklaring: String?,
         ) : TilsagnStatus()
     }
 }

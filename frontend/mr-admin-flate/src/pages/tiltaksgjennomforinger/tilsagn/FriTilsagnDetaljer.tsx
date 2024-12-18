@@ -1,22 +1,17 @@
 import { TilsagnDto } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { HStack, Heading } from "@navikt/ds-react";
-import { useFindAFTSatsForPeriode } from "../../../api/tilsagn/useFindAFTSatsForPeriode";
 import { Bolk } from "../../../components/detaljside/Bolk";
 import { Metadata } from "../../../components/detaljside/Metadata";
 import { formaterDato } from "../../../utils/Utils";
 import { DetaljerInfoContainer } from "../../DetaljerInfoContainer";
 import { TilsagnTag } from "./TilsagnTag";
-import { isAftBeregning } from "./tilsagnUtils";
 
 interface Props {
   tilsagn: TilsagnDto;
 }
-export function AFTTilsagnDetaljer({ tilsagn }: Props) {
-  const { findSats } = useFindAFTSatsForPeriode();
 
-  const sats = findSats(new Date(tilsagn.periodeStart));
-
+export function FriTilsagnDetaljer({ tilsagn }: Props) {
   return (
     <>
       <HStack justify={"space-between"} align={"baseline"} padding={"5"}>
@@ -29,7 +24,7 @@ export function AFTTilsagnDetaljer({ tilsagn }: Props) {
       <HStack padding="5">
         <DetaljerInfoContainer withBorderRight>
           <Heading size="small" level="4">
-            Periode og plasser
+            Periode
           </Heading>
           <Bolk>
             <Metadata header="Dato fra" verdi={formaterDato(tilsagn.periodeStart)} />
@@ -37,16 +32,6 @@ export function AFTTilsagnDetaljer({ tilsagn }: Props) {
             <Metadata
               header="Tilsagnsstatus"
               verdi={<TilsagnTag expandable status={tilsagn.status} />}
-            />
-          </Bolk>
-          <Bolk>
-            <Metadata
-              header="Antall plasser"
-              verdi={isAftBeregning(tilsagn.beregning) ? tilsagn.beregning.antallPlasser : 0}
-            />
-            <Metadata
-              header="Sats per plass per måned"
-              verdi={sats ? formaterNOK(sats) : "Fant ingen sats per plass per måned"}
             />
           </Bolk>
           <Bolk>

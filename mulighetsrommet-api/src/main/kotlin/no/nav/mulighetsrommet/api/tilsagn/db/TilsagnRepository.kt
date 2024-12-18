@@ -417,7 +417,6 @@ fun toTilsagnStatus(
         endretAv = endretAv,
         endretTidspunkt = endretTidspunkt,
     )
-
     Status.GODKJENT -> TilsagnDto.TilsagnStatus.Godkjent
     Status.RETURNERT -> {
         requireNotNull(besluttetAv)
@@ -431,7 +430,6 @@ fun toTilsagnStatus(
             forklaring = forklaring,
         )
     }
-
     Status.TIL_ANNULLERING -> TilsagnDto.TilsagnStatus.TilAnnullering(
         endretAv = endretAv,
         endretAvNavn = endretAvNavn,
@@ -439,13 +437,14 @@ fun toTilsagnStatus(
         aarsaker = aarsaker,
         forklaring = forklaring,
     )
-
     Status.ANNULLERT -> {
         requireNotNull(besluttetAv)
         TilsagnDto.TilsagnStatus.Annullert(
             endretAv = endretAv,
             endretTidspunkt = endretTidspunkt,
             godkjentAv = besluttetAv,
+            aarsaker = aarsaker,
+            forklaring = forklaring,
         )
     }
 }

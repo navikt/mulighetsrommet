@@ -123,6 +123,8 @@ class TilsagnRepositoryTest : FunSpec({
                     is TilsagnDto.TilsagnStatus.Annullert -> {
                         it.endretAv shouldBe tilsagn.endretAv
                         it.godkjentAv shouldBe NavIdent("B123456")
+                        it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_ANNET)
+                        it.forklaring shouldBe "Min forklaring"
                     }
 
                     else -> throw Exception("Feil status")
