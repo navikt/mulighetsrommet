@@ -1,18 +1,17 @@
-import { addYear } from "@/utils/Utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TilsagnRequest, TiltaksgjennomforingDto } from "@mr/api-client";
-import { Button, Heading, HGrid, HStack, TextField } from "@navikt/ds-react";
+import { Button, Heading, HStack, TextField } from "@navikt/ds-react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import styles from "./FriTilsagnSkjema.module.scss";
-import { VelgKostnadssted } from "@/components/tilsagn/VelgKostnadssted";
+import { VelgKostnadssted } from "@/components/tilsagn/prismodell/VelgKostnadssted";
 import { isValidationError } from "@mr/frontend-common/utils/utils";
 import { useOpprettTilsagn } from "@/api/tilsagn/useOpprettTilsagn";
 import { TiltakDetaljerForTilsagn } from "@/components/tilsagn/TiltakDetaljerForTilsagn";
-import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import {
   FriTilsagnSchema,
   InferredFriTilsagn,
 } from "@/components/tilsagn/prismodell/fri/FriTilsagnSchema";
+import { VelgPeriode } from "@/components/tilsagn/prismodell/VelgPeriode";
 
 interface Props {
   gjennomforing: TiltaksgjennomforingDto;
@@ -79,24 +78,7 @@ export function FriTilsagnSkjema({
           <div className={styles.formContent}>
             <div className={styles.formContentLeft}>
               <div className={styles.formGroup}>
-                <HGrid columns={2}>
-                  <ControlledDateInput
-                    label="Dato fra"
-                    fromDate={new Date(gjennomforing.startDato)}
-                    toDate={addYear(new Date(), 50)}
-                    format="iso-string"
-                    {...register("periodeStart")}
-                    size="small"
-                  />
-                  <ControlledDateInput
-                    label="Dato til"
-                    fromDate={new Date(gjennomforing.startDato)}
-                    toDate={addYear(new Date(), 50)}
-                    format="iso-string"
-                    {...register("periodeSlutt")}
-                    size="small"
-                  />
-                </HGrid>
+                <VelgPeriode startDato={gjennomforing.startDato} />
               </div>
               <div className={styles.formGroup}>
                 <TextField

@@ -1,7 +1,6 @@
 import { useKostnadssted } from "@/api/enhet/useKostnadssted";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useFormContext } from "react-hook-form";
-import { InferredTilsagnSchemaAft } from "./OpprettTilsagnSchema";
 
 interface Props {
   defaultKostnadssteder: string[];
@@ -10,7 +9,7 @@ interface Props {
 export function VelgKostnadssted({ defaultKostnadssteder }: Props) {
   const { data: kostnadssteder } = useKostnadssted(defaultKostnadssteder);
 
-  const { register } = useFormContext<InferredTilsagnSchemaAft>();
+  const { register } = useFormContext<{ kostnadssted: string }>();
 
   return (
     <ControlledSokeSelect
