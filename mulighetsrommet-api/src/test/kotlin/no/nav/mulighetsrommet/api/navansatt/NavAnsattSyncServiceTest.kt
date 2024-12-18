@@ -29,7 +29,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.notifications.NotificationService
+import no.nav.mulighetsrommet.notifications.NotificationTask
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.LocalDate
@@ -64,7 +64,7 @@ class NavAnsattSyncServiceTest : FunSpec({
 
     val avtaleRepository: AvtaleRepository = mockk()
     val navEnhetService: NavEnhetService = mockk()
-    val notificationService: NotificationService = mockk()
+    val notificationTask: NotificationTask = mockk()
     val sanityService: SanityService = mockk(relaxed = true)
     val navAnsattService: NavAnsattService = mockk()
 
@@ -80,7 +80,7 @@ class NavAnsattSyncServiceTest : FunSpec({
             sanityService = sanityService,
             avtaleRepository = avtaleRepository,
             navEnhetService = navEnhetService,
-            notificationService = notificationService,
+            notificationTask = notificationTask,
         )
 
         test("begge finnes i azure => ingen skal slettes") {
@@ -135,7 +135,7 @@ class NavAnsattSyncServiceTest : FunSpec({
             sanityService = sanityService,
             avtaleRepository = avtaleRepository,
             navEnhetService = navEnhetService,
-            notificationService = notificationService,
+            notificationTask = notificationTask,
         )
         every { avtaleRepository.getAvtaleIdsByAdministrator(any()) } returns emptyList()
         every { navEnhetService.hentOverordnetFylkesenhet(any()) } returns null
@@ -222,7 +222,7 @@ class NavAnsattSyncServiceTest : FunSpec({
             ),
         )
 
-        every { notificationService.scheduleNotification(any(), any()) } returns Unit
+        every { notificationTask.scheduleNotification(any(), any()) } returns Unit
         coEvery { navAnsattService.getNavAnsatteFromAzure() } returns listOf(
             NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(AVTALER_SKRIV)),
         )
@@ -235,7 +235,7 @@ class NavAnsattSyncServiceTest : FunSpec({
             sanityService = sanityService,
             avtaleRepository = avtaleRepository,
             navEnhetService = navEnhetService,
-            notificationService = notificationService,
+            notificationTask = notificationTask,
         )
         service.synchronizeNavAnsatte(today, deletionDate = today)
 
@@ -243,7 +243,7 @@ class NavAnsattSyncServiceTest : FunSpec({
             val expectedNotification: ScheduledNotification = match {
                 it.type == NotificationType.TASK && it.targets.containsAll(listOf(ansatt2.navIdent))
             }
-            notificationService.scheduleNotification(expectedNotification, any())
+            notificationTask.scheduleNotification(expectedNotification, any())
         }
     }
 })
