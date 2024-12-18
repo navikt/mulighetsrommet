@@ -207,8 +207,7 @@ class VeilederflateService(
         }
 
         val status = TiltaksgjennomforingStatus.GJENNOMFORES
-        val tittel = tiltakstype.navn
-        val underTittel = gjennomforing.tiltaksgjennomforingNavn ?: ""
+        val navn = gjennomforing.tiltaksgjennomforingNavn ?: ""
         val faneinnhold = gjennomforing.faneinnhold?.copy(delMedBruker = gjennomforing.delingMedBruker)
         val kontaktinfo = VeilederflateKontaktinfo(tiltaksansvarlige)
         val fylke = gjennomforing.fylke ?: ""
@@ -229,8 +228,7 @@ class VeilederflateService(
                     oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
                     sanityId = sanityId,
                     tiltakstype = tiltakstype,
-                    tittel = tittel,
-                    underTittel = underTittel,
+                    navn = navn,
                     stedForGjennomforing = stedForGjennomforing,
                     fylke = fylke,
                     enheter = enheter,
@@ -246,8 +244,7 @@ class VeilederflateService(
                 oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
                 sanityId = sanityId,
                 tiltakstype = tiltakstype,
-                tittel = tittel,
-                underTittel = underTittel,
+                navn = navn,
                 stedForGjennomforing = stedForGjennomforing,
                 fylke = fylke,
                 enheter = enheter,
@@ -262,8 +259,7 @@ class VeilederflateService(
                 oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
                 sanityId = sanityId,
                 tiltakstype = tiltakstype,
-                tittel = tittel,
-                underTittel = underTittel,
+                navn = navn,
                 stedForGjennomforing = stedForGjennomforing,
                 fylke = fylke,
                 enheter = enheter,

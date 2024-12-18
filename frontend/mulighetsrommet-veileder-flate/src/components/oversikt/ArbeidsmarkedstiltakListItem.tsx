@@ -49,7 +49,7 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Pr
         harDeltMedBruker: styles.list_element_border,
       })}
       id={`list_element_${index}`}
-      data-testid={`tiltaksgjennomforing_${kebabCase(tiltak.tittel)}`}
+      data-testid={`tiltaksgjennomforing_${kebabCase(tiltak.tiltakstype.navn)}`}
     >
       <Lenke to={`../tiltak/${id}${paginationUrl}`}>
         {datoSidenSistDelt ? (
@@ -70,7 +70,7 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Pr
 
           <div className={classNames(styles.flex, styles.navn)}>
             <VStack>
-              <VisningsnavnForTiltak tittel={tiltak.tittel} underTittel={tiltak.underTittel} />
+              <VisningsnavnForTiltak tiltakstypeNavn={tiltak.tiltakstype.navn} navn={tiltak.navn} />
             </VStack>
           </div>
 

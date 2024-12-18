@@ -84,20 +84,14 @@ class VeilederflateTiltakRepository(private val db: Database) {
             ?.let { Json.decodeFromString<List<VeilederflateArrangorKontaktperson>>(it) }
             ?: emptyList()
 
-        val tiltakstypeNavn = string("tiltakstype_navn")
-        val navn = string("navn")
-        val tittel = tiltakstypeNavn
-        val underTittel = navn
-
         return VeilederflateTiltakGruppe(
             id = uuid("id"),
             tiltakstype = VeilederflateTiltakstype(
                 sanityId = uuid("tiltakstype_sanity_id").toString(),
-                navn = tiltakstypeNavn,
+                navn = string("tiltakstype_navn"),
                 tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) },
             ),
-            tittel = tittel,
-            underTittel = underTittel,
+            navn = string("navn"),
             stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
             apentForPamelding = boolean("apent_for_pamelding"),
             tiltaksnummer = stringOrNull("tiltaksnummer"),

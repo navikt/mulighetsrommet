@@ -3545,9 +3545,7 @@ components:
         id:
           type: string
           format: uuid
-        tittel:
-          type: string
-        underTittel:
+        navn:
           type: string
         stedForGjennomforing:
           type: string
@@ -3576,8 +3574,7 @@ components:
         - kontaktinfo
         - oppstart
         - id
-        - tittel
-        - underTittel
+        - navn
         - apentForPamelding
         - oppstartsdato
         - arrangor
@@ -3605,9 +3602,7 @@ components:
           const: LOPENDE
         sanityId:
           type: string
-        tittel:
-          type: string
-        underTittel:
+        navn:
           type: string
         stedForGjennomforing:
           type: string
@@ -3619,8 +3614,7 @@ components:
         - kontaktinfo
         - oppstart
         - sanityId
-        - tittel
-        - underTittel
+        - navn
 
     VeilederflateTiltakEnkeltplass:
       type: object
@@ -3641,9 +3635,7 @@ components:
           const: LOPENDE
         sanityId:
           type: string
-        tittel:
-          type: string
-        underTittel:
+        navn:
           type: string
         stedForGjennomforing:
           type: string
@@ -3655,8 +3647,7 @@ components:
         - kontaktinfo
         - oppstart
         - sanityId
-        - tittel
-        - underTittel
+        - navn
 
     VeilederflateTiltakEnkeltplassAnskaffet:
       type: object
@@ -3679,9 +3670,7 @@ components:
           const: LOPENDE
         sanityId:
           type: string
-        tittel:
-          type: string
-        underTittel:
+        navn:
           type: string
         stedForGjennomforing:
           type: string
@@ -3695,8 +3684,7 @@ components:
         - kontaktinfo
         - oppstart
         - sanityId
-        - tittel
-        - underTittel
+        - navn
         - arrangor
 
     RegelverkLenke:
@@ -4568,9 +4556,7 @@ components:
     TiltakDeltMedBruker:
       type: object
       properties:
-        tittel:
-          type: string
-        underTittel:
+        navn:
           type: string
         tiltakstype:
           $ref: "#/components/schemas/TiltakDeltMedBrukerTiltakstype"
@@ -4582,8 +4568,7 @@ components:
         tiltakId:
           type: string
       required:
-        - tittel
-        - underTittel
+        - navn
         - tiltakstype
         - createdAt
         - dialogId

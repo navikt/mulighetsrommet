@@ -195,9 +195,9 @@ class DelMedBrukerServiceTest : FunSpec({
             delMedBruker.should {
                 it.shouldNotBeNull()
                 it.size shouldBe 3
-                it[0].tittel shouldBe "Oppfølging"
-                it[1].tittel shouldBe "Arbeidsmarkedsopplæring (AMO) enkeltplass"
-                it[2].tittel shouldBe "Arbeidstrening"
+                it[0].tiltakstype.navn shouldBe "Oppfølging"
+                it[1].tiltakstype.navn shouldBe "Arbeidsmarkedsopplæring (AMO) enkeltplass"
+                it[2].tiltakstype.navn shouldBe "Arbeidstrening"
             }
         }
     }
