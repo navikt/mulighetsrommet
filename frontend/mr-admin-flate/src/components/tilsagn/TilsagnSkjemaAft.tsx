@@ -10,7 +10,7 @@ import { TiltakDetaljerForTilsagn } from "./TiltakDetaljerForTilsagn";
 import { TilsagnBeregningPreview } from "@/components/tilsagn/TilsagnBeregningPreview";
 import { VelgKostnadssted } from "@/components/tilsagn/VelgKostnadssted";
 import { isValidationError } from "@mr/frontend-common/utils/utils";
-import { useOpprettTilsagn } from "@/components/tilsagn/useOpprettTilsagn";
+import { useOpprettTilsagn } from "@/api/tilsagn/useOpprettTilsagn";
 
 interface Props {
   gjennomforing: TiltaksgjennomforingDto;
