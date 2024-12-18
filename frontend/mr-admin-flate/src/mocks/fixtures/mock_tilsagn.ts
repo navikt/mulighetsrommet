@@ -111,7 +111,10 @@ export const mockTilsagn: TilsagnDto[] = [
       godkjentAv: "N12345",
       type: "ANNULLERT",
       endretTidspunkt: "2024-01-01T22:00:00",
-      aarsaker: [TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING, TilsagnTilAnnulleringAarsak.FEIL_ANNET],
+      aarsaker: [
+        TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
+        TilsagnTilAnnulleringAarsak.FEIL_ANNET,
+      ],
       forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
     },
   },

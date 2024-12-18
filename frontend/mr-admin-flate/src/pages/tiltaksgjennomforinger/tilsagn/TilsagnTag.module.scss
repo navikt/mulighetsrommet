@@ -14,3 +14,14 @@
   color: var(--a-text-danger);
   border-color: var(--a-text-danger);
 }
+
+.annullert_aarsak_list li {
+  padding-left: .5rem;
+  margin-left: .5rem;
+}
+
+.annullert_aarsak_list li::marker {
+  content: "•";
+  color: var(--a-text-danger);
+  font-size: 1.2rem;
+}

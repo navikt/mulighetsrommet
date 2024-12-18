@@ -53,9 +53,9 @@ export function TilsagnTag(props: Props) {
 function ExpandedAnnullert({ status }: { status: TilsagnStatusAnnullert }) {
   return (
     <VStack>
-      <List as="ul" size="small" title="Årsaker">
+      <List as="ul" size="small" title="Årsaker" className={styles.annullert_aarsak_list}>
         {status.aarsaker.map((aarsak) => (
-          <List.Item>{tilsagnAarsakTilTekst(aarsak)}</List.Item>
+          <li>{tilsagnAarsakTilTekst(aarsak)}</li>
         ))}
       </List>
       {status.forklaring && <BodyLong>{status.forklaring}</BodyLong>}
