@@ -34,10 +34,7 @@ export function TilsagnForGjennomforingContainer() {
     <>
       <InfoContainer>
         <KnapperadContainer>
-          <HarSkrivetilgang
-            ressurs="Tiltaksgjennomføring"
-            condition={gjennomforingIsAktiv(tiltaksgjennomforing.status.status)}
-          >
+          <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
             <Dropdown>
               <Button size="small" as={Dropdown.Toggle}>
                 Handlinger
