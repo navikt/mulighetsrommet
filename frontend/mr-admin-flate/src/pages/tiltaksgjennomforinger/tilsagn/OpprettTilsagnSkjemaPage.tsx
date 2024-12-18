@@ -13,6 +13,7 @@ import { TilsagnTabell } from "./TilsagnTabell";
 
 export function OpprettTilsagnSkjemaPage() {
   const { avtaleId } = useParams();
+
   const { tiltaksgjennomforing, tilsagn, tilsagnForGjennomforing } =
     useLoaderData<typeof tilsagnLoader>();
   const aktiveTilsagn = tilsagnForGjennomforing?.filter((d) => d.status.type === "GODKJENT");
@@ -43,14 +44,14 @@ export function OpprettTilsagnSkjemaPage() {
       ? {
           tittel: "Tiltaksgjennomføringdetaljer",
           lenke: avtaleId
-            ? `/avtaler/${avtaleId}/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}`
-            : `/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}`,
+            ? `/avtaler/${avtaleId}/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`
+            : `/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`,
         }
       : undefined,
     {
       tittel: redigeringsModus ? "Opprett tilsagn" : "Opprett tilsagn",
       lenke: redigeringsModus
-        ? `/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}/opprett-tilsagn`
+        ? `/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/opprett-tilsagn`
         : "/tiltaksgjennomforinger/opprett-tilsagn",
     },
   ];
@@ -68,12 +69,10 @@ export function OpprettTilsagnSkjemaPage() {
         <VStack gap={"8"}>
           <SkjemaContainer>
             <SkjemaContent>
-              {tiltaksgjennomforing ? (
-                <OpprettTilsagnContainer
-                  tiltaksgjennomforing={tiltaksgjennomforing}
-                  tilsagn={tilsagn}
-                />
-              ) : null}
+              <OpprettTilsagnContainer
+                tiltaksgjennomforing={tiltaksgjennomforing}
+                tilsagn={tilsagn}
+              />
             </SkjemaContent>
           </SkjemaContainer>
 
