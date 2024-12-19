@@ -133,6 +133,7 @@ fun Route.tilsagnRoutes() {
         }
     }
 
+    // endre til en getAll med gjennomforingId, statuser osv
     route("/tiltaksgjennomforinger/{id}/tilsagn") {
         authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
             get {

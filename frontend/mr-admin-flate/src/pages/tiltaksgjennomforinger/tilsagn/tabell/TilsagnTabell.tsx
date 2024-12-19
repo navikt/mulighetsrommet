@@ -5,8 +5,8 @@ import { SortState, Table } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { isAftBeregning } from "./tilsagnUtils";
-import { TilsagnTag } from "./TilsagnTag";
+import { isAftBeregning } from "@/pages/tiltaksgjennomforinger/tilsagn/tilsagnUtils";
+import { TilsagnTag } from "@/pages/tiltaksgjennomforinger/tilsagn/TilsagnTag";
 
 interface TabellData extends TilsagnDto {
   antallPlasser: number | null;

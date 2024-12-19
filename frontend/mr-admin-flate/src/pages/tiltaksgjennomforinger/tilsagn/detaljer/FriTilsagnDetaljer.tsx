@@ -1,11 +1,11 @@
 import { TilsagnDto } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { HStack, Heading } from "@navikt/ds-react";
-import { Bolk } from "../../../components/detaljside/Bolk";
-import { Metadata } from "../../../components/detaljside/Metadata";
-import { formaterDato } from "../../../utils/Utils";
-import { DetaljerInfoContainer } from "../../DetaljerInfoContainer";
-import { TilsagnTag } from "./TilsagnTag";
+import { Heading, HStack } from "@navikt/ds-react";
+import { Bolk } from "@/components/detaljside/Bolk";
+import { Metadata } from "@/components/detaljside/Metadata";
+import { formaterDato } from "@/utils/Utils";
+import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
+import { TilsagnTag } from "@/pages/tiltaksgjennomforinger/tilsagn/TilsagnTag";
 
 interface Props {
   tilsagn: TilsagnDto;
@@ -46,7 +46,7 @@ export function FriTilsagnDetaljer({ tilsagn }: Props) {
             Beløp
           </Heading>
           <Bolk>
-            <Metadata header="Totalbeløp" verdi={formaterNOK(tilsagn.beregning.belop)} />
+            <Metadata header="Totalbeløp" verdi={formaterNOK(tilsagn.beregning.output.belop)} />
           </Bolk>
         </DetaljerInfoContainer>
       </HStack>

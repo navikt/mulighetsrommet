@@ -1,32 +1,15 @@
 import { Alert, Button, Dropdown } from "@navikt/ds-react";
-import { useNavigate } from "react-router-dom";
-import { Laster } from "@/components/laster/Laster";
+import { useLoaderData, useNavigate } from "react-router-dom";
 import { InfoContainer } from "@/components/skjema/InfoContainer";
-import { useGetTiltaksgjennomforingIdFromUrl } from "@/hooks/useGetTiltaksgjennomforingIdFromUrl";
 import { KnapperadContainer } from "@/pages/KnapperadContainer";
-import { Toggles } from "@mr/api-client";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
-import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { TilsagnTabell } from "./TilsagnTabell";
-import { useTilsagnForTiltaksgjennomforing } from "@/api/tilsagn/useTilsagnForTiltaksgjennomforing";
+import { tilsagnForGjennomforingLoader } from "@/pages/tiltaksgjennomforinger/tilsagn/tabell/tilsagnForGjennomforingLoader";
 
 export function TilsagnForGjennomforingContainer() {
-  const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFromUrl();
-  const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
-  const { data: tilsagn, isLoading } = useTilsagnForTiltaksgjennomforing(tiltaksgjennomforingId);
-  const { data: enableOpprettTilsagn } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
-  );
+  const { tilsagnForGjennomforing } = useLoaderData<typeof tilsagnForGjennomforingLoader>();
+
   const navigate = useNavigate();
-
-  if (!enableOpprettTilsagn) {
-    return null;
-  }
-
-  if (!tiltaksgjennomforing || !tilsagn || isLoading) {
-    return <Laster tekst="Laster tilsagn" />;
-  }
 
   return (
     <>
@@ -41,18 +24,14 @@ export function TilsagnForGjennomforingContainer() {
                 <Dropdown.Menu.GroupedList>
                   <Dropdown.Menu.GroupedList.Item
                     onClick={() => {
-                      navigate("opprett-tilsagn");
+                      navigate("opprett-tilsagn?type=TILSAGN");
                     }}
                   >
                     Opprett tilsagn
                   </Dropdown.Menu.GroupedList.Item>
                   <Dropdown.Menu.GroupedList.Item
                     onClick={() => {
-                      navigate("opprett-tilsagn", {
-                        state: {
-                          ekstratilsagn: true,
-                        },
-                      });
+                      navigate("opprett-tilsagn?type=EKSTRATILSAGN");
                     }}
                   >
                     Opprett ekstratilsagn
@@ -62,8 +41,8 @@ export function TilsagnForGjennomforingContainer() {
             </Dropdown>
           </HarSkrivetilgang>
         </KnapperadContainer>
-        {tilsagn.length > 0 ? (
-          <TilsagnTabell tilsagn={tilsagn} />
+        {tilsagnForGjennomforing.length > 0 ? (
+          <TilsagnTabell tilsagn={tilsagnForGjennomforing} />
         ) : (
           <Alert style={{ marginTop: "1rem" }} variant="info">
             Det finnes ingen tilsagn for dette tiltaket

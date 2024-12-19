@@ -4,8 +4,8 @@ import { Heading, HStack } from "@navikt/ds-react";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata } from "@/components/detaljside/Metadata";
 import { formaterDato } from "@/utils/Utils";
-import { DetaljerInfoContainer } from "../../DetaljerInfoContainer";
-import { TilsagnTag } from "./TilsagnTag";
+import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
+import { TilsagnTag } from "@/pages/tiltaksgjennomforinger/tilsagn/TilsagnTag";
 
 interface Props {
   tilsagn: TilsagnDto;
