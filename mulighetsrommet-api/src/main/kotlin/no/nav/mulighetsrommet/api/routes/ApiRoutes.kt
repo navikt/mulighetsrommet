@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.veilederflate.routes.brukerRoutes
 import no.nav.mulighetsrommet.api.veilederflate.routes.delMedBrukerRoutes
 import no.nav.mulighetsrommet.api.veilederflate.routes.veilederRoutes
 import no.nav.mulighetsrommet.notifications.notificationRoutes
+import no.nav.mulighetsrommet.oppgaver.oppgaverRoutes
 import no.nav.mulighetsrommet.utdanning.utdanningRoutes
 
 fun Route.apiRoutes() {
@@ -65,6 +66,7 @@ fun Route.adminflateRoutes() {
     janzzRoutes()
     tilsagnRoutes()
     utdanningRoutes()
+    oppgaverRoutes()
 }
 
 fun Route.veilederflateRoutes() {

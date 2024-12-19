@@ -35,6 +35,7 @@ import { arbeidsbenkLoader } from "@/pages/arbeidsbenk/arbeidsbenkLoader";
 import { avtaleLoader, avtaleSkjemaLoader } from "./pages/avtaler/avtaleLoader";
 import { tiltaksgjennomforingLoader } from "./pages/tiltaksgjennomforinger/tiltaksgjennomforingLoaders";
 import { tilsagnLoader } from "./pages/tiltaksgjennomforinger/tilsagn/tilsagnLoader";
+import { oppgaverLoader } from "@/pages/arbeidsbenk/oppgaver/oppgaverLoader";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -299,6 +300,7 @@ const router = () =>
               {
                 path: "oppgaver",
                 element: <OppgaverPage />,
+                loader: oppgaverLoader,
                 errorElement: <ErrorPage />,
                 children: [
                   {

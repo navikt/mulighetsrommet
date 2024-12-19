@@ -2043,6 +2043,40 @@ paths:
                 items:
                   $ref: "#/components/schemas/UtdanningsprogramMedUtdanninger"
 
+  /api/v1/intern/oppgaver:
+    get:
+      tags:
+        - Oppgaver
+      operationId: getOppgaver
+      parameters:
+        - in: query
+          name: oppgavetyper
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/OppgaveType"
+
+          description: Typer for oppgaver
+
+        - in: query
+          name: tiltakstyper
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Tiltakskode"
+
+          description: Tiltakstyper for oppgaver
+
+      responses:
+        200:
+          description: Notifications for the user that is currently signed in.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Oppgave"
+
 components:
   securitySchemes:
     bearerAuth:
@@ -2599,6 +2633,12 @@ components:
       enum:
         - DONE
         - NOT_DONE
+
+    OppgaveType:
+      type: string
+      enum:
+        - TILSAGN_TIL_BESLUTNING,
+        - TILSAGN_TIL_ANNULLERING,
 
     SorteringAvtaler:
       type: string
@@ -4043,6 +4083,36 @@ components:
           type: integer
       required:
         - notDoneCount
+
+    Oppgave:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/OppgaveType"
+        title:
+          type: string
+        description:
+          type: string
+        tiltakstype:
+          $ref: "#/components/schemas/Tiltakskode"
+        link:
+          type: object
+          properties:
+            linkText:
+              type: string
+            link:
+              type: string
+
+          required:
+            - linkText
+            - link
+
+      required:
+        - type
+        - title
+        - tiltakstype
+        - link
+
 
     AvbrytGjennomforingAarsak:
       type: string
