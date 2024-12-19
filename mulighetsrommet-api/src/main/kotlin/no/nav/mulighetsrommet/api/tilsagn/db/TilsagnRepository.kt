@@ -255,6 +255,7 @@ class TilsagnRepository(private val db: Database) {
         val query = """
             update tilsagn set
                 status_endret_av = :nav_ident,
+                status_besluttet_av = null,
                 status_endret_tidspunkt = :tidspunkt,
                 status_aarsaker = :status_aarsaker::tilsagn_status_aarsak[],
                 status_forklaring = :status_forklaring,

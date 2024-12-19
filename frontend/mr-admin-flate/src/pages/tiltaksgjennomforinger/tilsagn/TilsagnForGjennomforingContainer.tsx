@@ -1,6 +1,5 @@
 import { Alert, Button, Dropdown } from "@navikt/ds-react";
 import { useNavigate } from "react-router-dom";
-import { useHentTilsagnForTiltaksgjennomforing } from "@/api/tilsagn/useHentTilsagnForTiltaksgjennomforing";
 import { Laster } from "@/components/laster/Laster";
 import { InfoContainer } from "@/components/skjema/InfoContainer";
 import { useGetTiltaksgjennomforingIdFromUrl } from "@/hooks/useGetTiltaksgjennomforingIdFromUrl";
@@ -11,12 +10,12 @@ import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { TilsagnTabell } from "./TilsagnTabell";
+import { useTilsagnForTiltaksgjennomforing } from "@/api/tilsagn/useTilsagnForTiltaksgjennomforing";
 
 export function TilsagnForGjennomforingContainer() {
   const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFromUrl();
   const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
-  const { data: tilsagn, isLoading } =
-    useHentTilsagnForTiltaksgjennomforing(tiltaksgjennomforingId);
+  const { data: tilsagn, isLoading } = useTilsagnForTiltaksgjennomforing(tiltaksgjennomforingId);
   const { data: enableOpprettTilsagn } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
   );
@@ -44,28 +43,24 @@ export function TilsagnForGjennomforingContainer() {
               </Button>
               <Dropdown.Menu>
                 <Dropdown.Menu.GroupedList>
-                  {gjennomforingIsAktiv(tiltaksgjennomforing.status.status) ? (
-                    <Dropdown.Menu.GroupedList.Item
-                      onClick={() => {
-                        navigate("opprett-tilsagn");
-                      }}
-                    >
-                      Opprett tilsagn
-                    </Dropdown.Menu.GroupedList.Item>
-                  ) : null}
-                  {gjennomforingIsAktiv(tiltaksgjennomforing.status.status) ? (
-                    <Dropdown.Menu.GroupedList.Item
-                      onClick={() => {
-                        navigate("opprett-tilsagn", {
-                          state: {
-                            ekstratilsagn: true,
-                          },
-                        });
-                      }}
-                    >
-                      Opprett ekstratilsagn
-                    </Dropdown.Menu.GroupedList.Item>
-                  ) : null}
+                  <Dropdown.Menu.GroupedList.Item
+                    onClick={() => {
+                      navigate("opprett-tilsagn");
+                    }}
+                  >
+                    Opprett tilsagn
+                  </Dropdown.Menu.GroupedList.Item>
+                  <Dropdown.Menu.GroupedList.Item
+                    onClick={() => {
+                      navigate("opprett-tilsagn", {
+                        state: {
+                          ekstratilsagn: true,
+                        },
+                      });
+                    }}
+                  >
+                    Opprett ekstratilsagn
+                  </Dropdown.Menu.GroupedList.Item>
                 </Dropdown.Menu.GroupedList>
               </Dropdown.Menu>
             </Dropdown>

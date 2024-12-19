@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { TilsagnService } from "@mr/api-client";
 import { QueryKeys } from "../QueryKeys";
 
-export function useHentTilsagnForTiltaksgjennomforing(tiltaksgjennomforingId?: string) {
+export function useTilsagnForTiltaksgjennomforing(tiltaksgjennomforingId?: string) {
   return useQuery({
     queryFn: () =>
       TilsagnService.tilsagnByTiltaksgjennomforing({

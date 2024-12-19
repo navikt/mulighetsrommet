@@ -4,6 +4,7 @@ import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
 import kotliquery.TransactionalSession
+import no.nav.mulighetsrommet.api.arrangorflate.toRefusjonskrav
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.dokark.Journalpost
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
@@ -11,7 +12,6 @@ import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuer
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravStatus
-import no.nav.mulighetsrommet.api.refusjon.toRefusjonskrav
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer

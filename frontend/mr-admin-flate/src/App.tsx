@@ -32,6 +32,8 @@ import { tiltakstypeLoader, tiltakstyperLoaders } from "./pages/tiltakstyper/til
 import { avtaleLoader, avtaleSkjemaLoader } from "./pages/avtaler/avtaleLoader";
 import { tiltaksgjennomforingLoader } from "./pages/tiltaksgjennomforinger/tiltaksgjennomforingLoaders";
 import { tilsagnLoader } from "./pages/tiltaksgjennomforinger/tilsagn/tilsagnLoader";
+import { RefusjonskravForGjennomforingContainer } from "./pages/tiltaksgjennomforinger/refusjonskrav/RefusjonskravForGjennomforingContainer";
+import { refusjonskravForGjennomforingLoader } from "./pages/tiltaksgjennomforinger/refusjonskrav/refusjonskravForGjennomforingLoader";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -201,6 +203,20 @@ const router = () =>
                 index: true,
                 element: <TilsagnForGjennomforingContainer />,
                 errorElement: <ErrorPage />,
+              },
+            ],
+          },
+          {
+            path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/refusjonskrav",
+            element: <TiltaksgjennomforingPage />,
+            errorElement: <ErrorPage />,
+            loader: tiltaksgjennomforingLoader,
+            children: [
+              {
+                index: true,
+                element: <RefusjonskravForGjennomforingContainer />,
+                errorElement: <ErrorPage />,
+                loader: refusjonskravForGjennomforingLoader,
               },
             ],
           },

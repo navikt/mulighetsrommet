@@ -21,6 +21,7 @@ function createBrodsmuler(
   tiltaksgjennomforingId: string,
   avtaleId?: string,
   tilsagn?: boolean,
+  refusjonskrav?: boolean,
 ): Array<Brodsmule | undefined> {
   return [
     { tittel: "Forside", lenke: "/" },
@@ -40,6 +41,12 @@ function createBrodsmuler(
     },
     tilsagn
       ? { tittel: "Tilsagn", lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn` }
+      : undefined,
+    refusjonskrav
+      ? {
+          tittel: "Refusjonskrav",
+          lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}/refusjonskrav`,
+        }
       : undefined,
   ];
 }
@@ -69,6 +76,8 @@ export function TiltaksgjennomforingPage() {
       return "tilsagn";
     } else if (pathname.includes("deltakere")) {
       return "poc";
+    } else if (pathname.includes("refusjonskrav")) {
+      return "refusjonskrav";
     } else {
       return "gjennomforing";
     }
@@ -78,6 +87,7 @@ export function TiltaksgjennomforingPage() {
     tiltaksgjennomforing.id,
     avtaleId,
     currentTab() === "tilsagn",
+    currentTab() === "refusjonskrav",
   );
 
   return (
@@ -126,14 +136,28 @@ export function TiltaksgjennomforingPage() {
             aria-controls="panel"
           />
           {enableOpprettTilsagn ? (
-            <Tabs.Tab
-              value="tilsagn"
-              label="Tilsagn"
-              onClick={() =>
-                navigateAndReplaceUrl(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/tilsagn`)
-              }
-              aria-controls="panel"
-            />
+            <>
+              <Tabs.Tab
+                value="tilsagn"
+                label="Tilsagn"
+                onClick={() =>
+                  navigateAndReplaceUrl(
+                    `/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/tilsagn`,
+                  )
+                }
+                aria-controls="panel"
+              />
+              <Tabs.Tab
+                value="refusjonskrav"
+                label="Refusjonskrav"
+                onClick={() =>
+                  navigateAndReplaceUrl(
+                    `/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/refusjonskrav`,
+                  )
+                }
+                aria-controls="panel"
+              />
+            </>
           ) : null}
         </Tabs.List>
         <ContainerLayout>

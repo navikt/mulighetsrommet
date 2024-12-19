@@ -28,4 +28,22 @@ data class RefusjonKravKompakt(
         val periodeSlutt: LocalDate,
         val belop: Int,
     )
+
+    companion object {
+        fun fromRefusjonskravDto(krav: RefusjonskravDto) = RefusjonKravKompakt(
+            id = krav.id,
+            status = krav.status,
+            fristForGodkjenning = krav.fristForGodkjenning,
+            tiltakstype = krav.tiltakstype,
+            gjennomforing = krav.gjennomforing,
+            arrangor = krav.arrangor,
+            beregning = krav.beregning.let {
+                Beregning(
+                    periodeStart = it.input.periode.start,
+                    periodeSlutt = it.input.periode.getLastDate(),
+                    belop = it.output.belop,
+                )
+            },
+        )
+    }
 }

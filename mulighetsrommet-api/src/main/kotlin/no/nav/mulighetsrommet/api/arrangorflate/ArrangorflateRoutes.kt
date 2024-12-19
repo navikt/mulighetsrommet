@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.refusjon
+package no.nav.mulighetsrommet.api.arrangorflate
 
 import arrow.core.*
 import io.ktor.http.*
@@ -15,6 +15,8 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
+import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
+import no.nav.mulighetsrommet.api.refusjon.HentPersonBolkResponse
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagRepository
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
@@ -83,7 +85,7 @@ fun Route.arrangorflateRoutes() {
                 requireTilgangHosArrangor(orgnr)
 
                 val krav = refusjonskrav.getByArrangorIds(orgnr)
-                    .map { toRefusjonskravKompakt(it) }
+                    .map { RefusjonKravKompakt.fromRefusjonskravDto(it) }
 
                 call.respond(krav)
             }
@@ -288,22 +290,6 @@ fun validerGodkjennRefusjonskrav(
         request.right()
     }
 }
-
-fun toRefusjonskravKompakt(krav: RefusjonskravDto) = RefusjonKravKompakt(
-    id = krav.id,
-    status = krav.status,
-    fristForGodkjenning = krav.fristForGodkjenning,
-    tiltakstype = krav.tiltakstype,
-    gjennomforing = krav.gjennomforing,
-    arrangor = krav.arrangor,
-    beregning = krav.beregning.let {
-        RefusjonKravKompakt.Beregning(
-            periodeStart = it.input.periode.start,
-            periodeSlutt = it.input.periode.getLastDate(),
-            belop = it.output.belop,
-        )
-    },
-)
 
 suspend fun toRefusjonskrav(
     pdl: HentAdressebeskyttetPersonBolkPdlQuery,
