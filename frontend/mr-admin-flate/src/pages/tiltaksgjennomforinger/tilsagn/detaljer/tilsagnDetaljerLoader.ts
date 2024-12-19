@@ -18,7 +18,7 @@ export async function tilsagnDetaljerLoader({ params }: LoaderFunctionArgs) {
       id: tiltaksgjennomforingId,
     }),
     TilsagnService.getTilsagn({ id: tilsagnId }),
-    await TilsagnService.getTilsagnEndringshistorikk({ id: tilsagnId }),
+    TilsagnService.getTilsagnEndringshistorikk({ id: tilsagnId }),
   ]);
 
   return { ansatt, gjennomforing, tilsagn, historikk };
