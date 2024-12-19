@@ -88,8 +88,7 @@ from (values ('arbeidsutproving', 'AVKLARING'::tiltakskode),
              ('kartlegge-arbeidsplassen', 'AVKLARING'::tiltakskode),
              ('kartlegge-delta-tiltak', 'AVKLARING'::tiltakskode),
              ('kartlegge-grunnleggende-ferdigheter', 'AVKLARING'::tiltakskode),
-             ('oppfolging-arbeidsplassen', 'AVKLARING'::tiltakskode),
-             ('veiledning-arbeidsgiver', 'AVKLARING'::tiltakskode)) as t(innholdskode, tiltakskode)
+             ('oppfolging-arbeidsplassen', 'AVKLARING'::tiltakskode)) as t(innholdskode, tiltakskode)
 where exists (select 1 from tiltakstype where tiltakskode = 'AVKLARING')
 on conflict (innholdskode, tiltakskode) do nothing;
 
