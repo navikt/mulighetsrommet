@@ -5,7 +5,6 @@ import { InfoContainer } from "@/components/skjema/InfoContainer";
 import { useGetTiltaksgjennomforingIdFromUrl } from "@/hooks/useGetTiltaksgjennomforingIdFromUrl";
 import { KnapperadContainer } from "@/pages/KnapperadContainer";
 import { Toggles } from "@mr/api-client";
-import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
