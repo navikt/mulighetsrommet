@@ -26,8 +26,7 @@ export function RedigerTilsagn({ tilsagn, ...props }: Props) {
         <AftTilsagnSkjema
           defaultValues={{
             ...tilsagnDefaults,
-            sats: tilsagn.beregning.output.sats,
-            antallPlasser: tilsagn.beregning.input.antallPlasser,
+            beregning: tilsagn.beregning.input,
           }}
           defaultKostnadssteder={kostnadssted}
           {...props}
@@ -39,7 +38,7 @@ export function RedigerTilsagn({ tilsagn, ...props }: Props) {
         <FriTilsagnSkjema
           defaultValues={{
             ...tilsagnDefaults,
-            belop: tilsagn.beregning.output.belop,
+            beregning: tilsagn.beregning.input,
           }}
           defaultKostnadssteder={kostnadssted}
           {...props}

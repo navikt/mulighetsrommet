@@ -32,7 +32,7 @@ class TilsagnValidator(
             if (next.periodeStart.year != next.periodeSlutt.year) {
                 add(
                     ValidationError.of(
-                        AftTilsagnRequest::periodeSlutt,
+                        TilsagnRequest::periodeSlutt,
                         "Tilsagnsperioden kan ikke vare utover årsskiftet",
                     ),
                 )

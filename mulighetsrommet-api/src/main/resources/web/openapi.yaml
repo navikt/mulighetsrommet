@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
 
 paths:
   /api/v1/intern/bruker:
@@ -1789,6 +1789,12 @@ paths:
         schema:
           type: string
           format: uuid
+      - name: type
+        in: query
+        description: Tilsagnstype
+        required: true
+        schema:
+          $ref: "#/components/schemas/TilsagnType"
     get:
       tags:
         - Tilsagn
@@ -4820,7 +4826,7 @@ components:
         gjennomforingId:
           type: string
           format: uuid
-        tilsagnType:
+        type:
           $ref: "#/components/schemas/TilsagnType"
         periodeStart:
           type: string
@@ -4832,24 +4838,19 @@ components:
           type: string
         antallPlasser:
           type: integer
+        beregning:
+          $ref: "#/components/schemas/TilsagnBeregningInput"
 
     TilsagnRequest:
-      oneOf:
-        - $ref: "#/components/schemas/AftTilsagnRequest"
-        - $ref: "#/components/schemas/FriTilsagnRequest"
-
-    FriTilsagnRequest:
       type: object
       properties:
-        type:
-          const: FRI
         id:
           type: string
           format: uuid
         gjennomforingId:
           type: string
           format: uuid
-        tilsagnType:
+        type:
           $ref: "#/components/schemas/TilsagnType"
         periodeStart:
           type: string
@@ -4859,48 +4860,16 @@ components:
           format: date
         kostnadssted:
           type: string
-        belop:
-          type: integer
+        beregning:
+          $ref: "#/components/schemas/TilsagnBeregningInput"
       required:
         - id
         - gjennomforingId
-        - tilsagnType
+        - type
         - periodeStart
         - periodeSlutt
         - kostnadssted
-        - belop
-
-    AftTilsagnRequest:
-      type: object
-      properties:
-        type:
-          const: AFT
-        id:
-          type: string
-          format: uuid
-        gjennomforingId:
-          type: string
-          format: uuid
-        tilsagnType:
-          $ref: "#/components/schemas/TilsagnType"
-        periodeStart:
-          type: string
-          format: date
-        periodeSlutt:
-          type: string
-          format: date
-        kostnadssted:
-          type: string
-        antallPlasser:
-          type: integer
-      required:
-        - id
-        - gjennomforingId
-        - tilsagnType
-        - periodeStart
-        - periodeSlutt
-        - kostnadssted
-        - antallPlasser
+        - beregning
 
     TilsagnType:
       type: string
@@ -5187,12 +5156,15 @@ components:
         periodeSlutt:
           type: string
           format: date
+        sats:
+          type: integer
         antallPlasser:
           type: integer
       required:
         - type
         - periodeStart
         - periodeSlutt
+        - sats
         - antallPlasser
 
     TilsagnBeregningOutputAft:
@@ -5200,12 +5172,10 @@ components:
       properties:
         type:
           const: AFT
-        sats:
-          type: integer
         belop:
           type: integer
       required:
-        - sats
+        - type
         - belop
 
     TilsagnBeregningFri:

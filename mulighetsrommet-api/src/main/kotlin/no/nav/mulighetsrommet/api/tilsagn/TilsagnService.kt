@@ -29,26 +29,23 @@ class TilsagnService(
     private val endringshistorikkService: EndringshistorikkService,
     private val db: Database,
 ) {
-    suspend fun upsert(request: AftTilsagnRequest, navIdent: NavIdent): Either<List<ValidationError>, TilsagnDto> {
+    suspend fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<ValidationError>, TilsagnDto> {
         val gjennomforing = tiltaksgjennomforingRepository.get(request.gjennomforingId)
             ?: return ValidationError
-                .of(AftTilsagnRequest::gjennomforingId, "Tiltaksgjennomforingen finnes ikke")
+                .of(TilsagnRequest::gjennomforingId, "Tiltaksgjennomforingen finnes ikke")
                 .nel()
                 .left()
 
         val previous = tilsagnRepository.get(request.id)
 
-        val beregningInput = TilsagnBeregningAft.Input(
-            request.periodeStart,
-            request.periodeSlutt,
-            request.antallPlasser,
-        )
+        val beregningInput = request.beregning
+
         return tilsagnBeregning(beregningInput)
             .map { beregning ->
                 TilsagnDbo(
                     id = request.id,
                     tiltaksgjennomforingId = request.gjennomforingId,
-                    type = request.tilsagnType,
+                    type = request.type,
                     periodeStart = request.periodeStart,
                     periodeSlutt = request.periodeSlutt,
                     kostnadssted = request.kostnadssted,
@@ -85,16 +82,14 @@ class TilsagnService(
     }
 
     private fun aftTilsagnBeregning(input: TilsagnBeregningAft.Input): TilsagnBeregningAft {
-        val sats = Prismodell.AFT.findSats(input.periodeStart)
-
         val belop = Prismodell.AFT.beregnTilsagnBelop(
-            sats = sats,
+            sats = input.sats,
             antallPlasser = input.antallPlasser,
             periodeStart = input.periodeStart,
             periodeSlutt = input.periodeSlutt,
         )
 
-        val output = TilsagnBeregningAft.Output(sats = sats, belop = belop)
+        val output = TilsagnBeregningAft.Output(belop = belop)
         return TilsagnBeregningAft(input, output)
     }
 

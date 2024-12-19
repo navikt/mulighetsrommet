@@ -5,25 +5,27 @@ import { FriTilsagnSkjema } from "@/components/tilsagn/prismodell/fri/FriTilsagn
 
 interface Props {
   gjennomforing: TiltaksgjennomforingDto;
+  type: TilsagnType;
   onSuccess: () => void;
   onAvbryt: () => void;
 }
 
 export function OpprettTilsagn(props: Props) {
-  const defaults = useTilsagnDefaults(props.gjennomforing.id);
+  const defaults = useTilsagnDefaults(props.gjennomforing.id, props.type);
 
   const kostnadssted = props.gjennomforing.navRegion?.enhetsnummer
     ? [props.gjennomforing.navRegion.enhetsnummer]
     : [];
-
-  const defaultValues = { ...defaults.data, type: TilsagnType.TILSAGN };
 
   switch (props.gjennomforing.tiltakstype.tiltakskode) {
     case Tiltakskode.ARBEIDSFORBEREDENDE_TRENING:
     case Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET:
       return (
         <AftTilsagnSkjema
-          defaultValues={defaultValues}
+          defaultValues={{
+            ...defaults.data,
+            beregning: { ...defaults.data.beregning, type: "AFT" },
+          }}
           defaultKostnadssteder={kostnadssted}
           {...props}
         />
@@ -32,7 +34,10 @@ export function OpprettTilsagn(props: Props) {
     default:
       return (
         <FriTilsagnSkjema
-          defaultValues={defaultValues}
+          defaultValues={{
+            ...defaults.data,
+            beregning: { ...defaults.data.beregning, type: "FRI" },
+          }}
           defaultKostnadssteder={kostnadssted}
           {...props}
         />

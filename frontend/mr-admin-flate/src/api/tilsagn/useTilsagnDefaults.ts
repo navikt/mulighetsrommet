@@ -1,9 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { TilsagnService } from "@mr/api-client";
+import { TilsagnService, TilsagnType } from "@mr/api-client";
 
-export function useTilsagnDefaults(gjennomforingId: string) {
+export function useTilsagnDefaults(gjennomforingId: string, type: TilsagnType) {
   return useSuspenseQuery({
-    queryFn: () => TilsagnService.getTilsagnDefaults({ gjennomforingId }),
+    queryFn: () => TilsagnService.getTilsagnDefaults({ gjennomforingId , type }),
     queryKey: ["tilsagn", "defaults", gjennomforingId],
   });
 }

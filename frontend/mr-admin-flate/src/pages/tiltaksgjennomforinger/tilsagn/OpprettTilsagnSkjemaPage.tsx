@@ -10,6 +10,7 @@ import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { inneholderUrl } from "@/utils/Utils";
 import { tilsagnLoader } from "./tilsagnLoader";
 import { TilsagnTabell } from "./TilsagnTabell";
+import { TiltakDetaljerForTilsagn } from "@/components/tilsagn/TiltakDetaljerForTilsagn";
 
 export function OpprettTilsagnSkjemaPage() {
   const { avtaleId } = useParams();
@@ -69,6 +70,8 @@ export function OpprettTilsagnSkjemaPage() {
         <VStack gap={"8"}>
           <SkjemaContainer>
             <SkjemaContent>
+              <TiltakDetaljerForTilsagn tiltaksgjennomforing={tiltaksgjennomforing} />
+
               <TilsagnSkjemaContainer
                 tiltaksgjennomforing={tiltaksgjennomforing}
                 tilsagn={tilsagn}
@@ -76,18 +79,18 @@ export function OpprettTilsagnSkjemaPage() {
             </SkjemaContent>
           </SkjemaContainer>
 
-          <div>
-            <Heading size="medium">Aktive tilsagn</Heading>
-            <SkjemaContainer>
-              <SkjemaContent>
+          <SkjemaContainer>
+            <SkjemaContent>
+              <VStack gap="4">
+                <Heading size="medium">Aktive tilsagn</Heading>
                 {aktiveTilsagn && aktiveTilsagn.length > 0 ? (
                   <TilsagnTabell tilsagn={aktiveTilsagn} />
                 ) : (
                   <Alert variant="info">Det finnes ingen tilsagn for dette tiltaket</Alert>
                 )}
-              </SkjemaContent>
-            </SkjemaContainer>
-          </div>
+              </VStack>
+            </SkjemaContent>
+          </SkjemaContainer>
         </VStack>
       </ContainerLayout>
     </main>

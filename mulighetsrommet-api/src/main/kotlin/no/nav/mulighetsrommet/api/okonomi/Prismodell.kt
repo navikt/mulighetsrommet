@@ -12,6 +12,7 @@ import kotlin.streams.asSequence
 object Prismodell {
     object AFT {
         val satser: Map<LocalDate, Int> = mapOf(
+            LocalDate.of(2025, 1, 1) to 20705,
             LocalDate.of(2024, 1, 1) to 20205,
             LocalDate.of(2023, 1, 1) to 19500,
         )

@@ -42,10 +42,7 @@ export function AFTTilsagnDetaljer({ tilsagn }: Props) {
           </Bolk>
           <Bolk>
             <Metadata header="Antall plasser" verdi={beregning.input.antallPlasser} />
-            <Metadata
-              header="Sats per plass per måned"
-              verdi={formaterNOK(beregning.output.sats)}
-            />
+            <Metadata header="Sats per plass per måned" verdi={formaterNOK(beregning.input.sats)} />
           </Bolk>
           <Bolk>
             <Metadata

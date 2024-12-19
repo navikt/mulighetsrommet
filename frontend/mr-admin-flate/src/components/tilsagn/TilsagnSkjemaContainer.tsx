@@ -1,8 +1,7 @@
-import { TilsagnDto, TiltaksgjennomforingDto } from "@mr/api-client";
+import { TilsagnDto, TilsagnType, TiltaksgjennomforingDto } from "@mr/api-client";
 import { Location, useLocation, useNavigate } from "react-router-dom";
 import { RedigerTilsagn } from "@/components/tilsagn/RedigerTilsagn";
 import { OpprettTilsagn } from "@/components/tilsagn/OpprettTilsagn";
-import { OpprettEkstratilsagn } from "@/components/tilsagn/OpprettEkstratilsagn";
 
 interface Props {
   tiltaksgjennomforing: TiltaksgjennomforingDto;
@@ -14,7 +13,7 @@ export function TilsagnSkjemaContainer({ tiltaksgjennomforing, tilsagn }: Props)
 
   const location = useLocation() as Location<{ ekstratilsagn?: boolean }>;
 
-  const erEkstratilsagn = location.state?.ekstratilsagn ?? false;
+  const type = location.state?.ekstratilsagn ? TilsagnType.EKSTRATILSAGN : TilsagnType.TILSAGN;
 
   function navigerTilTilsagn() {
     navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/tilsagn`);
@@ -28,9 +27,7 @@ export function TilsagnSkjemaContainer({ tiltaksgjennomforing, tilsagn }: Props)
 
   return tilsagn ? (
     <RedigerTilsagn tilsagn={tilsagn} {...props} />
-  ) : erEkstratilsagn ? (
-    <OpprettEkstratilsagn {...props} />
   ) : (
-    <OpprettTilsagn {...props} />
+    <OpprettTilsagn type={type} {...props} />
   );
 }

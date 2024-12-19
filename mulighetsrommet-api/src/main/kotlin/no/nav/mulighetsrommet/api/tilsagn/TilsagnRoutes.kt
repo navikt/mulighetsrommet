@@ -51,12 +51,26 @@ fun Route.tilsagnRoutes() {
 
         get("/defaults") {
             val gjennomforingId: UUID by call.queryParameters
+            val type: TilsagnType by call.queryParameters
 
             val gjennomforing = gjennomforinger.get(gjennomforingId) ?: return@get call.respond(HttpStatusCode.NotFound)
 
-            val sisteTilsagn = tilsagn.getAll(type = TilsagnType.TILSAGN, gjennomforingId).firstOrNull()
+            val defaults = when (type) {
+                TilsagnType.TILSAGN -> {
+                    val sisteTilsagn = tilsagn.getAll(type = TilsagnType.TILSAGN, gjennomforingId).firstOrNull()
+                    resolveTilsagnDefaults(gjennomforing, sisteTilsagn)
+                }
 
-            val defaults = resolveTilsagnDefaults(gjennomforing, sisteTilsagn)
+                TilsagnType.EKSTRATILSAGN -> TilsagnDefaults(
+                    id = null,
+                    gjennomforingId = gjennomforing.id,
+                    type = TilsagnType.EKSTRATILSAGN,
+                    periodeStart = null,
+                    periodeSlutt = null,
+                    kostnadssted = null,
+                    beregning = null,
+                )
+            }
 
             call.respond(HttpStatusCode.OK, defaults)
         }
@@ -73,7 +87,7 @@ fun Route.tilsagnRoutes() {
 
         authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
             put {
-                val request = call.receive<AftTilsagnRequest>()
+                val request = call.receive<TilsagnRequest>()
                 val navIdent = getNavIdent()
 
                 val result = service.upsert(request, navIdent)
@@ -138,28 +152,29 @@ data class TilsagnDefaults(
     val id: UUID?,
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID?,
-    val tilsagnType: TilsagnType?,
+    val type: TilsagnType?,
     @Serializable(with = LocalDateSerializer::class)
     val periodeStart: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val periodeSlutt: LocalDate?,
     val kostnadssted: String?,
-    val antallPlasser: Int?,
+    val beregning: TilsagnBeregningInput?,
 )
 
+// TODO: benytt TilsagnDefaults (modell med bare nullable) i begge tilfeller og valider at feltene ikke er null i stedet. Da kan vi gjøre all validering i backend!
 @Serializable
-data class AftTilsagnRequest(
+data class TilsagnRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
-    val tilsagnType: TilsagnType,
+    val type: TilsagnType,
     @Serializable(with = LocalDateSerializer::class)
     val periodeStart: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val periodeSlutt: LocalDate,
     val kostnadssted: String,
-    val antallPlasser: Int,
+    val beregning: TilsagnBeregningInput,
 )
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -215,14 +230,21 @@ private fun resolveTilsagnDefaults(
             lastDayOfYear,
         ).min()
 
+        val sats = Prismodell.AFT.findSats(periodeStart)
+
         TilsagnDefaults(
             id = null,
             gjennomforingId = gjennomforing.id,
-            tilsagnType = TilsagnType.TILSAGN,
+            type = TilsagnType.TILSAGN,
             periodeStart = periodeStart,
             periodeSlutt = periodeSlutt,
-            antallPlasser = gjennomforing.antallPlasser,
             kostnadssted = null,
+            beregning = TilsagnBeregningAft.Input(
+                periodeStart = periodeStart,
+                periodeSlutt = periodeSlutt,
+                sats = sats,
+                antallPlasser = gjennomforing.antallPlasser,
+            ),
         )
     }
 
@@ -240,11 +262,11 @@ private fun resolveTilsagnDefaults(
         TilsagnDefaults(
             id = null,
             gjennomforingId = gjennomforing.id,
-            tilsagnType = TilsagnType.TILSAGN,
+            type = TilsagnType.TILSAGN,
             periodeStart = periodeStart,
             periodeSlutt = periodeSlutt,
-            antallPlasser = gjennomforing.antallPlasser,
             kostnadssted = null,
+            beregning = null,
         )
     }
 }

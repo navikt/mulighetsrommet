@@ -21,13 +21,13 @@ data class TilsagnBeregningAft(
         val periodeStart: LocalDate,
         @Serializable(with = LocalDateSerializer::class)
         val periodeSlutt: LocalDate,
+        val sats: Int,
         val antallPlasser: Int,
     ) : TilsagnBeregningInput()
 
     @Serializable
     @SerialName("AFT")
     data class Output(
-        val sats: Int,
         override val belop: Int,
     ) : TilsagnBeregningOutput()
 }
