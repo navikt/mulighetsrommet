@@ -29,12 +29,7 @@ export function TilsagnSkjema(props: Props) {
     defaultValues: defaultValues,
   });
 
-  const {
-    handleSubmit,
-    watch,
-    setError,
-    formState: { errors },
-  } = form;
+  const { handleSubmit, setError } = form;
 
   const postData: SubmitHandler<InferredTilsagn> = async (data): Promise<void> => {
     const request: TilsagnRequest = {
@@ -62,16 +57,6 @@ export function TilsagnSkjema(props: Props) {
           <div className={styles.formHeader}>
             <Heading size="medium">Tilsagn</Heading>
           </div>
-          <pre>{JSON.stringify(watch(), null, 2)}</pre>
-          <pre>
-            {JSON.stringify(
-              Object.entries(errors).map(([name, error]) => ({
-                [name]: { type: error?.type, message: error?.message },
-              })),
-              null,
-              2,
-            )}
-          </pre>
           <div className={styles.formContent}>
             <div className={styles.formContentLeft}>
               <div className={styles.formGroup}>
