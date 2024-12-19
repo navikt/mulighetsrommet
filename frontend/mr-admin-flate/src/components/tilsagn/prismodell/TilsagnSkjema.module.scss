@@ -7,6 +7,7 @@
   border-radius: 4px;
   padding: var(--a-spacing-4);
   margin-top: var(--a-spacing-8);
+  margin-bottom: var(--a-spacing-2);
 }
 
 .formContent {
@@ -35,8 +36,4 @@
 .rowSpaceBetween {
   display: flex;
   justify-content: space-between;
-}
-
-.alert {
-  padding: var(--a-spacing-2);
 }

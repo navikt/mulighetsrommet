@@ -5,22 +5,21 @@ import { TiltaksgjennomforingIkon } from "@/components/ikoner/Tiltaksgjennomfori
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { SkjemaContainer } from "@/components/skjema/SkjemaContainer";
 import { SkjemaContent } from "@/components/skjema/SkjemaContent";
-import { OpprettTilsagnContainer } from "@/components/tilsagn/OpprettTilsagnContainer";
+import { TilsagnSkjemaContainer } from "@/components/tilsagn/TilsagnSkjemaContainer";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
-import { inneholderUrl } from "@/utils/Utils";
-import { tilsagnLoader } from "./tilsagnLoader";
-import { TilsagnTabell } from "./TilsagnTabell";
+import { TilsagnTabell } from "../tabell/TilsagnTabell";
+import { TiltakDetaljerForTilsagn } from "@/components/tilsagn/TiltakDetaljerForTilsagn";
+import { opprettTilsagnLoader } from "@/pages/tiltaksgjennomforinger/tilsagn/opprett/opprettTilsagnLoader";
 
 export function OpprettTilsagnSkjemaPage() {
   const { avtaleId } = useParams();
-  const { tiltaksgjennomforing, tilsagn, tilsagnForGjennomforing } =
-    useLoaderData<typeof tilsagnLoader>();
-  const aktiveTilsagn = tilsagnForGjennomforing?.filter((d) => d.status.type === "GODKJENT");
+
+  const { gjennomforing, defaults, godkjenteTilsagn } =
+    useLoaderData<typeof opprettTilsagnLoader>();
 
   const erPaaGjennomforingerForAvtale = useMatch(
     "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
   );
-  const redigeringsModus = tilsagn && inneholderUrl(tilsagn.id);
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     { tittel: "Forside", lenke: "/" },
@@ -39,19 +38,9 @@ export function OpprettTilsagnSkjemaPage() {
           lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
         }
       : undefined,
-    redigeringsModus
-      ? {
-          tittel: "Tiltaksgjennomføringdetaljer",
-          lenke: avtaleId
-            ? `/avtaler/${avtaleId}/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}`
-            : `/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}`,
-        }
-      : undefined,
     {
-      tittel: redigeringsModus ? "Opprett tilsagn" : "Opprett tilsagn",
-      lenke: redigeringsModus
-        ? `/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}/opprett-tilsagn`
-        : "/tiltaksgjennomforinger/opprett-tilsagn",
+      tittel: "Opprett tilsagn",
+      lenke: "/tiltaksgjennomforinger/opprett-tilsagn",
     },
   ];
 
@@ -68,27 +57,24 @@ export function OpprettTilsagnSkjemaPage() {
         <VStack gap={"8"}>
           <SkjemaContainer>
             <SkjemaContent>
-              {tiltaksgjennomforing ? (
-                <OpprettTilsagnContainer
-                  tiltaksgjennomforing={tiltaksgjennomforing}
-                  tilsagn={tilsagn}
-                />
-              ) : null}
+              <TiltakDetaljerForTilsagn tiltaksgjennomforing={gjennomforing} />
+
+              <TilsagnSkjemaContainer tiltaksgjennomforing={gjennomforing} defaults={defaults} />
             </SkjemaContent>
           </SkjemaContainer>
 
-          <div>
-            <Heading size="medium">Aktive tilsagn</Heading>
-            <SkjemaContainer>
-              <SkjemaContent>
-                {aktiveTilsagn && aktiveTilsagn.length > 0 ? (
-                  <TilsagnTabell tilsagn={aktiveTilsagn} />
+          <SkjemaContainer>
+            <SkjemaContent>
+              <VStack gap="4">
+                <Heading size="medium">Aktive tilsagn</Heading>
+                {godkjenteTilsagn.length > 0 ? (
+                  <TilsagnTabell tilsagn={godkjenteTilsagn} />
                 ) : (
                   <Alert variant="info">Det finnes ingen tilsagn for dette tiltaket</Alert>
                 )}
-              </SkjemaContent>
-            </SkjemaContainer>
-          </div>
+              </VStack>
+            </SkjemaContent>
+          </SkjemaContainer>
         </VStack>
       </ContainerLayout>
     </main>

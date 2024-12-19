@@ -184,11 +184,17 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
     },
     beregning: {
       type: "AFT",
-      periodeStart: "2024-06-01",
-      periodeSlutt: "2024-12-31",
-      belop: 195700,
-      antallPlasser: 20,
-      sats: 20205,
+      input: {
+        type: "AFT",
+        periodeStart: "2024-06-01",
+        periodeSlutt: "2024-12-31",
+        antallPlasser: 20,
+        sats: 20205,
+      },
+      output: {
+        type: "AFT",
+        belop: 195700,
+      },
     },
     gjennomforing: {
       navn: "Amo tiltak Halden",
@@ -208,11 +214,17 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
     },
     beregning: {
       type: "AFT",
-      periodeStart: "2024-08-01",
-      periodeSlutt: "2024-08-31",
-      belop: 50000,
-      antallPlasser: 2,
-      sats: 20205,
+      input: {
+        type: "AFT",
+        periodeStart: "2024-08-01",
+        periodeSlutt: "2024-08-31",
+        antallPlasser: 2,
+        sats: 20205,
+      },
+      output: {
+        type: "AFT",
+        belop: 50000,
+      },
     },
     gjennomforing: {
       navn: "Amo tiltak Halden",
@@ -232,11 +244,17 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
     },
     beregning: {
       type: "AFT",
-      periodeStart: "2024-08-01",
-      periodeSlutt: "2024-08-31",
-      belop: 50000,
-      antallPlasser: 2,
-      sats: 20205,
+      input: {
+        type: "AFT",
+        periodeStart: "2024-08-01",
+        periodeSlutt: "2024-08-31",
+        antallPlasser: 2,
+        sats: 20205,
+      },
+      output: {
+        type: "AFT",
+        belop: 50000,
+      },
     },
     gjennomforing: {
       navn: "Amo tiltak Halden",

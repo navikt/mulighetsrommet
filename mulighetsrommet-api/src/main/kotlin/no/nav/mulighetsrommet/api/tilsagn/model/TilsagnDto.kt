@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
-import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
@@ -23,7 +22,7 @@ data class TilsagnDto(
     @Serializable(with = LocalDateSerializer::class)
     val periodeSlutt: LocalDate,
     val kostnadssted: NavEnhetDbo,
-    val beregning: Prismodell.TilsagnBeregning,
+    val beregning: TilsagnBeregning,
     val lopenummer: Int,
     val arrangor: Arrangor,
     val tiltaksgjennomforing: Tiltaksgjennomforing,

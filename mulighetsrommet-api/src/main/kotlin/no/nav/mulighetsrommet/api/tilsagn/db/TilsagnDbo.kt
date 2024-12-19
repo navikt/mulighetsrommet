@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.tilsagn.db
 
-import no.nav.mulighetsrommet.api.okonomi.Prismodell
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import java.time.LocalDate
@@ -13,7 +13,7 @@ data class TilsagnDbo(
     val periodeStart: LocalDate,
     val periodeSlutt: LocalDate,
     val kostnadssted: String,
-    val beregning: Prismodell.TilsagnBeregning,
+    val beregning: TilsagnBeregning,
     val arrangorId: UUID,
     val endretAv: NavIdent,
     val endretTidspunkt: LocalDateTime,

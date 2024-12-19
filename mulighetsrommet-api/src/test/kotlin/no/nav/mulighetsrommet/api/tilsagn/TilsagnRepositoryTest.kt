@@ -10,14 +10,10 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
-import no.nav.mulighetsrommet.api.tilsagn.model.ArrangorflateTilsagn
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -49,7 +45,7 @@ class TilsagnRepositoryTest : FunSpec({
             periodeSlutt = LocalDate.of(2023, 2, 1),
             kostnadssted = Gjovik.enhetsnummer,
             arrangorId = ArrangorFixtures.underenhet1.id,
-            beregning = Prismodell.TilsagnBeregning.Fri(123),
+            beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
             endretAv = NavAnsattFixture.ansatt1.navIdent,
             endretTidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
             type = TilsagnType.TILSAGN,
@@ -72,7 +68,7 @@ class TilsagnRepositoryTest : FunSpec({
                     organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                     slettet = ArrangorFixtures.underenhet1.slettetDato != null,
                 ),
-                beregning = Prismodell.TilsagnBeregning.Fri(123),
+                beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
                 status = TilsagnDto.TilsagnStatus.TilGodkjenning(
                     endretAv = NavAnsattFixture.ansatt1.navIdent,
                     endretTidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
@@ -243,7 +239,7 @@ class TilsagnRepositoryTest : FunSpec({
                         id = ArrangorFixtures.underenhet1.id,
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                     ),
-                    beregning = Prismodell.TilsagnBeregning.Fri(123),
+                    beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
                 ),
             )
             repository.getArrangorflateTilsagn(tilsagn.id)?.id shouldBe tilsagn.id
@@ -278,7 +274,7 @@ class TilsagnRepositoryTest : FunSpec({
                         id = ArrangorFixtures.underenhet1.id,
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                     ),
-                    beregning = Prismodell.TilsagnBeregning.Fri(123),
+                    beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
                 ),
             )
         }

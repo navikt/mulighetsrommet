@@ -18,13 +18,13 @@ export function TilsagnDetaljer({ tilsagn }: Props) {
   const beregningDetaljer =
     tilsagn.beregning.type === "AFT"
       ? [
-          { key: "Antall plasser", value: String(tilsagn.beregning.antallPlasser) },
-          { key: "Sats", value: formaterNOK(tilsagn.beregning.sats) },
-          { key: "Beløp", value: formaterNOK(tilsagn.beregning.belop) },
+          { key: "Antall plasser", value: String(tilsagn.beregning.input.antallPlasser) },
+          { key: "Sats", value: formaterNOK(tilsagn.beregning.input.sats) },
+          { key: "Beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
           { key: "Utbetalt så langt", value: "TODO" },
         ]
       : [
-          { key: "Beløp", value: formaterNOK(tilsagn.beregning.belop) },
+          { key: "Beløp", value: formaterNOK(tilsagn.beregning.output.belop) },
           { key: "Utbetalt så langt", value: "TODO" },
         ];
 
