@@ -43,7 +43,7 @@ class RefusjonService(
 
     fun recalculateRefusjonskravForGjennomforing(id: UUID) = db.transaction { tx ->
         refusjonskravRepository
-            .getByGjennomforing(id, status = RefusjonskravStatus.KLAR_FOR_GODKJENNING)
+            .getByGjennomforing(id, statuser = listOf(RefusjonskravStatus.KLAR_FOR_GODKJENNING))
             .mapNotNull { gjeldendeKrav ->
                 val nyttKrav = when (gjeldendeKrav.beregning) {
                     is RefusjonKravBeregningAft -> createRefusjonskravAft(

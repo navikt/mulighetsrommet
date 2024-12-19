@@ -1745,6 +1745,23 @@ paths:
                 items:
                   $ref: "#/components/schemas/TilsagnDto"
 
+  /api/v1/intern/tiltaksgjennomforinger/{tiltaksgjennomforingId}/refusjonskrav:
+    parameters:
+      - $ref: "#/components/parameters/tiltaksgjennomforingId"
+    get:
+      tags:
+        - Refusjonskrav
+      operationId: refusjonskravByTiltaksgjennomforing
+      responses:
+        200:
+          description: RefusjonKravKompakt
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RefusjonKravKompakt"
+
   /api/v1/intern/tilsagn/beregn:
     post:
       tags:

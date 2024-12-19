@@ -178,7 +178,7 @@ class RefusjonskravRepository(private val db: Database) {
             .runWithSession(tx)
     }
 
-    fun get(id: UUID) = db.transaction {
+    fun get(id: UUID): RefusjonskravDto? = db.transaction {
         get(id, it)
     }
 
@@ -218,19 +218,24 @@ class RefusjonskravRepository(private val db: Database) {
         )
     }
 
-    fun getByGjennomforing(id: UUID, status: RefusjonskravStatus): List<RefusjonskravDto> = db.useSession {
-        getByGjennomforing(it, id, status)
+    fun getByGjennomforing(id: UUID, statuser: List<RefusjonskravStatus>): List<RefusjonskravDto> = db.useSession {
+        getByGjennomforing(it, id, statuser)
     }
 
-    fun getByGjennomforing(tx: Session, id: UUID, status: RefusjonskravStatus): List<RefusjonskravDto> {
+    fun getByGjennomforing(tx: Session, id: UUID, statuser: List<RefusjonskravStatus>): List<RefusjonskravDto> {
         @Language("PostgreSQL")
         val query = """
             select *
             from refusjonskrav_aft_view
-            where gjennomforing_id = :id::uuid and status = :status::refusjonskrav_status
+            where
+                gjennomforing_id = :id::uuid
+                and (:statuser::refusjonskrav_status[] is null or status = any(:statuser))
         """.trimIndent()
 
-        val params = mapOf("id" to id, "status" to status.name)
+        val params = mapOf(
+            "id" to id,
+            "statuser" to statuser.ifEmpty { null }?.let { tx.createArrayOf("refusjonskrav_status", it.map { it.name }) },
+        )
 
         return queryOf(query, params)
             .map { it.toRefusjonsKravAft() }
