@@ -15,7 +15,8 @@ import { TilsagnRequest } from "@mr/api-client";
 export function RedigerTilsagnSkjemaPage() {
   const { avtaleId } = useParams();
 
-  const { gjennomforing, tilsagn, godkjenteTilsagn } = useLoaderData<typeof redigerTilsagnLoader>();
+  const { avtale, gjennomforing, tilsagn, godkjenteTilsagn } =
+    useLoaderData<typeof redigerTilsagnLoader>();
 
   const erPaaGjennomforingerForAvtale = useMatch(
     "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/rediger-tilsagn",
@@ -76,7 +77,11 @@ export function RedigerTilsagnSkjemaPage() {
             <SkjemaContent>
               <TiltakDetaljerForTilsagn tiltaksgjennomforing={gjennomforing} />
 
-              <TilsagnSkjemaContainer tiltaksgjennomforing={gjennomforing} defaults={defaults} />
+              <TilsagnSkjemaContainer
+                avtale={avtale}
+                gjennomforing={gjennomforing}
+                defaults={defaults}
+              />
             </SkjemaContent>
           </SkjemaContainer>
 

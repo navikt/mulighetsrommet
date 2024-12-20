@@ -3,7 +3,7 @@ import { HGrid, TextField } from "@navikt/ds-react";
 import { TilsagnSkjema } from "@/components/tilsagn/prismodell/TilsagnSkjema";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
 import { DeepPartial, useFormContext } from "react-hook-form";
-import { useFindAFTSatsForPeriode } from "@/api/tilsagn/useFindAFTSatsForPeriode";
+import { useFindForhandsgodkjentSats } from "@/api/tilsagn/useFindForhandsgodkjentSats";
 import { useEffect } from "react";
 import { TilsagnBeregningPreview } from "@/components/tilsagn/prismodell/TilsagnBeregningPreview";
 
@@ -21,13 +21,13 @@ export function AftTilsagnSkjema(props: Props) {
   return (
     <TilsagnSkjema
       {...props}
-      beregningInput={<BeregningInputSkjema />}
+      beregningInput={<BeregningInputSkjema gjennomforing={props.gjennomforing} />}
       beregningOutput={<BeregningOutputPreview />}
     />
   );
 }
 
-function BeregningInputSkjema() {
+function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
   const {
     register,
     watch,
@@ -38,10 +38,12 @@ function BeregningInputSkjema() {
   const periodeStart = watch("periodeStart");
   const periodeSlutt = watch("periodeSlutt");
 
-  const { findSats } = useFindAFTSatsForPeriode();
-  const sats = findSats(new Date(periodeStart));
+  // TODO: gjøre avtaleId påkrevd
+  const sats = useFindForhandsgodkjentSats(gjennomforing.avtaleId!, periodeStart);
   useEffect(() => {
-    setValue("beregning.sats", sats ?? 0);
+    // FIXME: Satt til 0 for at validering og beregning ikke skal stoppe opp. Kan det gjøres på en bedre måte?
+    const pris = sats?.pris ?? 0;
+    setValue("beregning.sats", pris);
   }, [sats, setValue]);
 
   useEffect(() => {

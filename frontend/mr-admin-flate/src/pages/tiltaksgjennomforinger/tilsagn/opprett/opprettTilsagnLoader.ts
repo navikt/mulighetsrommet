@@ -1,6 +1,7 @@
 import {
-  TilsagnStatus,
+  AvtalerService,
   TilsagnService,
+  TilsagnStatus,
   TilsagnType,
   TiltaksgjennomforingerService,
 } from "@mr/api-client";
@@ -25,5 +26,8 @@ export async function opprettTilsagnLoader({ params, request }: LoaderFunctionAr
     }),
   ]);
 
-  return { gjennomforing, defaults, godkjenteTilsagn };
+  // TODO: utled fra url, eller embed prismodell direkte i gjennomføring? Da slipper vi fossefall-requester
+  const avtale = await AvtalerService.getAvtale({ id: gjennomforing.avtaleId! });
+
+  return { avtale, gjennomforing, defaults, godkjenteTilsagn };
 }

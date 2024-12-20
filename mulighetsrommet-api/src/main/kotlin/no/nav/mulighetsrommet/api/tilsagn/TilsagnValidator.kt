@@ -5,7 +5,6 @@ import arrow.core.left
 import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.right
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
@@ -14,9 +13,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningInput
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
 
-class TilsagnValidator(
-    private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
-) {
+class TilsagnValidator {
     fun validate(
         next: TilsagnDbo,
         previous: TilsagnDto?,
@@ -64,6 +61,9 @@ class TilsagnValidator(
             }
             if (input.antallPlasser <= 0) {
                 add(ValidationError.ofCustomLocation("beregning.antallPlasser", "Antall plasser kan ikke være 0"))
+            }
+            if (Prismodell.AFT.findSats(input.periodeStart) == null) {
+                add(ValidationError.ofCustomLocation("periodeStart", "Sats mangler for valgt periode"))
             }
             if (Prismodell.AFT.findSats(input.periodeStart) != Prismodell.AFT.findSats(input.periodeSlutt)) {
                 add(ValidationError.ofCustomLocation("periodeSlutt", "Periode går over flere satser"))

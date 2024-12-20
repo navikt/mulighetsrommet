@@ -1898,20 +1898,27 @@ paths:
               schema:
                 type: string
 
-  /api/v1/intern/tilsagn/aft/sats:
+  /api/v1/intern/prismodell/satser:
     get:
       tags:
-        - AFT satser
-      operationId: aftSatser
+        - Prismodell
+      parameters:
+        - in: query
+          name: avtaleId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      operationId: getAvtalteSatser
       responses:
         200:
-          description: AFT satser
+          description: Avtalte satser for avtale
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/AFTSats"
+                  $ref: "#/components/schemas/AvtaltSats"
 
   /api/v1/intern/arrangorflate/arrangor/{orgnr}/refusjonskrav:
     get:
@@ -5231,17 +5238,24 @@ components:
         - type
         - belop
 
-    AFTSats:
+    AvtaltSats:
       type: object
       properties:
-        startDato:
+        periodeStart:
           type: string
           format: date
-        belop:
+        periodeSlutt:
+          type: string
+          format: date
+        pris:
           type: integer
+        valuta:
+          type: string
       required:
-        - startDato
-        - belop
+        - periodeStart
+        - periodeSlutt
+        - pris
+        - valuta
 
     RefusjonskravStatus:
       type: string

@@ -9,21 +9,65 @@ import java.math.RoundingMode
 import java.time.LocalDate
 import kotlin.streams.asSequence
 
+data class ForhandsgodkjentSats(
+    val periode: RefusjonskravPeriode,
+    val belop: Int,
+)
+
 object Prismodell {
+    object VTA {
+        val satser: List<ForhandsgodkjentSats> = listOf(
+            ForhandsgodkjentSats(
+                periode = RefusjonskravPeriode(
+                    LocalDate.of(2025, 1, 1),
+                    LocalDate.of(2026, 1, 1),
+                ),
+                belop = 16000,
+            ),
+            ForhandsgodkjentSats(
+                periode = RefusjonskravPeriode(
+                    LocalDate.of(2024, 1, 1),
+                    LocalDate.of(2025, 1, 1),
+                ),
+                belop = 12000,
+            ),
+        )
+    }
+
     object AFT {
-        val satser: Map<LocalDate, Int> = mapOf(
-            LocalDate.of(2025, 1, 1) to 20705,
-            LocalDate.of(2024, 1, 1) to 20205,
-            LocalDate.of(2023, 1, 1) to 19500,
+        val satser: List<ForhandsgodkjentSats> = listOf(
+            ForhandsgodkjentSats(
+                periode = RefusjonskravPeriode(
+                    LocalDate.of(2026, 1, 1),
+                    LocalDate.of(2027, 1, 1),
+                ),
+                belop = 30000,
+            ),
+            ForhandsgodkjentSats(
+                periode = RefusjonskravPeriode(
+                    LocalDate.of(2025, 1, 1),
+                    LocalDate.of(2026, 1, 1),
+                ),
+                belop = 20705,
+            ),
+            ForhandsgodkjentSats(
+                periode = RefusjonskravPeriode(
+                    LocalDate.of(2024, 1, 1),
+                    LocalDate.of(2025, 1, 1),
+                ),
+                belop = 20205,
+            ),
+            ForhandsgodkjentSats(
+                periode = RefusjonskravPeriode(
+                    LocalDate.of(2023, 1, 1),
+                    LocalDate.of(2024, 1, 1),
+                ),
+                belop = 19500,
+            ),
         )
 
-        fun findSats(periodeStart: LocalDate): Int {
-            val sats = satser
-                .filter { !it.key.isAfter(periodeStart) }
-                .maxByOrNull { it.key }
-            return requireNotNull(sats?.value) {
-                "sats mangler for periode med start $periodeStart"
-            }
+        fun findSats(periodeStart: LocalDate): Int? {
+            return satser.firstOrNull { periodeStart in it.periode }?.belop
         }
 
         fun beregnTilsagnBelop(

@@ -14,7 +14,7 @@ import { opprettTilsagnLoader } from "@/pages/tiltaksgjennomforinger/tilsagn/opp
 export function OpprettTilsagnSkjemaPage() {
   const { avtaleId } = useParams();
 
-  const { gjennomforing, defaults, godkjenteTilsagn } =
+  const { avtale, gjennomforing, defaults, godkjenteTilsagn } =
     useLoaderData<typeof opprettTilsagnLoader>();
 
   const erPaaGjennomforingerForAvtale = useMatch(
@@ -59,7 +59,11 @@ export function OpprettTilsagnSkjemaPage() {
             <SkjemaContent>
               <TiltakDetaljerForTilsagn tiltaksgjennomforing={gjennomforing} />
 
-              <TilsagnSkjemaContainer tiltaksgjennomforing={gjennomforing} defaults={defaults} />
+              <TilsagnSkjemaContainer
+                avtale={avtale}
+                gjennomforing={gjennomforing}
+                defaults={defaults}
+              />
             </SkjemaContent>
           </SkjemaContainer>
 

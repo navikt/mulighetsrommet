@@ -5,7 +5,12 @@ import { tekster } from "@/components/tilsagn/prismodell/Tekster";
 const TilsagnBeregningSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("AFT"),
-    sats: z.number(),
+    sats: z
+      .number({
+        invalid_type_error: "Sats mangler",
+        required_error: "Sats er påkrevd",
+      })
+      .positive({ message: "Sats må være positivt" }),
     periodeStart: z
       .string({ required_error: tekster.manglerStartdato })
       .min(10, tekster.manglerStartdato),

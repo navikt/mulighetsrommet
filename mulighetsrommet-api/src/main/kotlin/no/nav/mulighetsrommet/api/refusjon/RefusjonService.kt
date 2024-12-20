@@ -69,9 +69,13 @@ class RefusjonService(
 
         val deltakere = getDeltakelser(gjennomforingId, periode)
 
+        // TODO: burde også verifisere at start og slutt har samme pris
+        val sats = Prismodell.AFT.findSats(periode.start)
+            ?: throw IllegalStateException("Sats mangler for periode $periode")
+
         val input = RefusjonKravBeregningAft.Input(
             periode = periode,
-            sats = Prismodell.AFT.findSats(periode.start),
+            sats = sats,
             deltakelser = deltakere,
         )
 

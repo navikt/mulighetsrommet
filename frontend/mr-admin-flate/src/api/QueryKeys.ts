@@ -50,6 +50,6 @@ export const QueryKeys = {
   besluttTilsagn: () => ["beslutt-tilsagn"],
   annullerTilsagn: () => ["annuller-tilsagn"],
   slettTilsagn: () => ["slett-tilsagn"],
-  aftSatser: () => ["aftSatser"],
+  avtalteSatser: (avtaleId: string) => ["satser", avtaleId],
   utdanninger: () => ["utdanninger"],
 };

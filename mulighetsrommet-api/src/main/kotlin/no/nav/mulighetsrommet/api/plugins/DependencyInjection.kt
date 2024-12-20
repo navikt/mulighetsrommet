@@ -425,7 +425,7 @@ private fun services(appConfig: AppConfig) = module {
     single { AvtaleValidator(get(), get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get()) }
     single { OpsjonLoggValidator() }
-    single { TilsagnValidator(get()) }
+    single { TilsagnValidator() }
     single { OpsjonLoggService(get(), get(), get(), get(), get()) }
     single { LagretFilterService(get()) }
     single { TilsagnService(get(), get(), get(), get(), get()) }
