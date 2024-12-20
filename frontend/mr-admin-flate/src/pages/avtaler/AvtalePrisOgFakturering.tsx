@@ -1,29 +1,33 @@
-import { useAvtale } from "@/api/avtaler/useAvtale";
-import { useAFTSatser } from "@/api/tilsagn/useAFTSatser";
-import { Laster } from "@/components/laster/Laster";
-import { DetaljerContainer } from "@/pages/DetaljerContainer";
-import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
-import { AFTSats, Tiltakskode } from "@mr/api-client";
-import { Alert, BodyShort, Box, Heading, HStack, Label, Select, VStack } from "@navikt/ds-react";
+import { useAvtalteSatser } from "@/api/tilsagn/useAvtalteSatser";
+import { Avtaletype } from "@mr/api-client";
+import {
+  BodyShort,
+  Box,
+  Heading,
+  HStack,
+  Label,
+  Select,
+  TextField,
+  VStack,
+} from "@navikt/ds-react";
 import { useState } from "react";
+import { avtaleLoader } from "@/pages/avtaler/avtaleLoader";
+import { useLoaderData } from "react-router-dom";
+import { DateInput } from "@/components/skjema/DateInput";
+import { SkjemaInputContainer } from "@/components/skjema/SkjemaInputContainer";
+import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
 
 export function AvtalePrisOgFakturering() {
-  const { data: avtale, isPending, error } = useAvtale();
+  const { avtale } = useLoaderData<typeof avtaleLoader>();
+
+  // TOOD: rename "AFT" til "FORHANDSGODKJENT"
   const [prismodell, setPrismodell] = useState<string>(
-    avtale?.tiltakstype.tiltakskode === Tiltakskode.ARBEIDSFORBEREDENDE_TRENING ? "AFT" : "FRI",
+    avtale.avtaletype === Avtaletype.FORHAANDSGODKJENT ? "AFT" : "FRI",
   );
 
-  if (isPending) {
-    return <Laster tekst="Laster avtale..." />;
-  }
-
-  if (error) {
-    return <Alert variant="error">Klarte ikke hente avtaleinformasjon</Alert>;
-  }
-
   return (
-    <DetaljerContainer>
-      <DetaljerInfoContainer>
+    <SkjemaDetaljerContainer>
+      <SkjemaInputContainer>
         <Box
           background="surface-subtle"
           borderColor="border-subtle"
@@ -47,31 +51,51 @@ export function AvtalePrisOgFakturering() {
               <option value={"AFT"}>Standardpris per tiltaksplass per måned</option>
               <option value={"FRI"}>Fri prismodell</option>
             </Select>
-            {prismodell === "AFT" && <AFTPrisOgFakturering />}
+            {prismodell === "AFT" && <ForhandsgodkjentAvtalePrismodell avtaleId={avtale.id} />}
           </VStack>
         </Box>
-      </DetaljerInfoContainer>
-    </DetaljerContainer>
+      </SkjemaInputContainer>
+    </SkjemaDetaljerContainer>
   );
 }
 
-function AFTPrisOgFakturering() {
-  const { data: satser } = useAFTSatser();
+interface ForhandsgodkjentAvtalePrismodellProps {
+  avtaleId: string;
+}
 
-  function findSats(): number | undefined {
-    return satser?.sort(
-      (a: AFTSats, b: AFTSats) => new Date(b.startDato).getTime() - new Date(a.startDato).getTime(),
-    )[0]?.belop;
-  }
+function ForhandsgodkjentAvtalePrismodell({ avtaleId }: ForhandsgodkjentAvtalePrismodellProps) {
+  const { data: satser } = useAvtalteSatser(avtaleId);
+
+  if (!satser) return null;
 
   return (
-    <HStack gap="4">
-      <Select readOnly label="Valuta" size="small">
-        <option value={undefined}>NOK</option>
-      </Select>
-      <Select readOnly label="Pris" size="small">
-        <option value={undefined}>{`${findSats()} kr`}</option>
-      </Select>
-    </HStack>
+    <VStack gap="4">
+      {satser.map((sats) => (
+        <HStack key={sats.periodeStart} gap="4">
+          <Select readOnly label="Valuta" size="small">
+            <option value={undefined}>NOK</option>
+          </Select>
+          <TextField readOnly label="Pris" size="small" value={sats.pris} />
+          <DateInput
+            label="Gjelder fra"
+            readOnly={true}
+            onChange={() => {}}
+            fromDate={new Date(sats.periodeStart)}
+            toDate={new Date(sats.periodeSlutt)}
+            format={"iso-string"}
+            value={sats.periodeStart}
+          />
+          <DateInput
+            label="Gjelder til"
+            readOnly={true}
+            onChange={() => {}}
+            fromDate={new Date(sats.periodeStart)}
+            toDate={new Date(sats.periodeSlutt)}
+            format={"iso-string"}
+            value={sats.periodeSlutt}
+          />
+        </HStack>
+      ))}
+    </VStack>
   );
 }

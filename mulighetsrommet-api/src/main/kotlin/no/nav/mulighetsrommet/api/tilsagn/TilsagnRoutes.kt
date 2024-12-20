@@ -9,8 +9,10 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
+import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.okonomi.ForhandsgodkjentSats
 import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
@@ -31,6 +33,7 @@ fun Route.tilsagnRoutes() {
     val service: TilsagnService by inject()
     val tilsagn: TilsagnRepository by inject()
     val gjennomforinger: TiltaksgjennomforingService by inject()
+    val avtaler: AvtaleRepository by inject()
 
     route("tilsagn") {
         get {
@@ -132,17 +135,33 @@ fun Route.tilsagnRoutes() {
                 call.respondWithStatusResponse(service.beslutt(id, request, navIdent))
             }
         }
+    }
 
-        get("/aft/sats") {
-            call.respond(
-                Prismodell.AFT.satser.map {
-                    AFTSats(
-                        startDato = it.key,
-                        belop = it.value,
-                    )
-                },
+    get("/prismodell/satser") {
+        val avtaleId: UUID by call.queryParameters
+
+        val avtale = avtaler.get(avtaleId)
+            ?: return@get call.respond(HttpStatusCode.NotFound, "Fant ikke avtale=$avtaleId")
+
+        fun toAvtaltSats(it: ForhandsgodkjentSats) = AvtaltSats(
+            periodeStart = it.periode.start,
+            periodeSlutt = it.periode.getLastDate(),
+            pris = it.belop,
+            valuta = "NOK",
+        )
+
+        val satser = when (avtale.tiltakstype.tiltakskode) {
+            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING -> Prismodell.AFT.satser.map(::toAvtaltSats)
+
+            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET -> Prismodell.VTA.satser.map(::toAvtaltSats)
+
+            else -> return@get call.respond(
+                HttpStatusCode.BadRequest,
+                "Det finnes ingen avtalte satser for avtale=$avtaleId",
             )
         }
+
+        call.respond(satser)
     }
 }
 
@@ -206,10 +225,13 @@ data class TilAnnulleringRequest(
 )
 
 @Serializable
-data class AFTSats(
+data class AvtaltSats(
     @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate,
-    val belop: Int,
+    val periodeStart: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeSlutt: LocalDate,
+    val pris: Int,
+    val valuta: String,
 )
 
 private fun resolveTilsagnDefaults(
@@ -230,7 +252,14 @@ private fun resolveTilsagnDefaults(
             lastDayOfYear,
         ).min()
 
-        val sats = Prismodell.AFT.findSats(periodeStart)
+        val beregning = Prismodell.AFT.findSats(periodeStart)?.let { sats ->
+            TilsagnBeregningAft.Input(
+                periodeStart = periodeStart,
+                periodeSlutt = periodeSlutt,
+                sats = sats,
+                antallPlasser = gjennomforing.antallPlasser,
+            )
+        }
 
         TilsagnDefaults(
             id = null,
@@ -239,12 +268,7 @@ private fun resolveTilsagnDefaults(
             periodeStart = periodeStart,
             periodeSlutt = periodeSlutt,
             kostnadssted = null,
-            beregning = TilsagnBeregningAft.Input(
-                periodeStart = periodeStart,
-                periodeSlutt = periodeSlutt,
-                sats = sats,
-                antallPlasser = gjennomforing.antallPlasser,
-            ),
+            beregning = beregning,
         )
     }
 

@@ -36,4 +36,8 @@ data class RefusjonskravPeriode(
     fun getLastDate(): LocalDate {
         return slutt.minusDays(1)
     }
+
+    operator fun contains(date: LocalDate): Boolean {
+        return date == start || date.isAfter(start) && date.isBefore(slutt)
+    }
 }

@@ -41,11 +41,10 @@ class TilsagnServiceTest : FunSpec({
     val endringshistorikkService: EndringshistorikkService = mockk(relaxed = true)
 
     context("beslutt") {
-        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val service = TilsagnService(
             tilsagnRepository = TilsagnRepository(database.db),
-            tiltaksgjennomforingRepository,
-            validator = TilsagnValidator(tiltaksgjennomforingRepository),
+            tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db),
+            validator = TilsagnValidator(),
             endringshistorikkService = endringshistorikkService,
             db = database.db,
         )
@@ -89,12 +88,11 @@ class TilsagnServiceTest : FunSpec({
     }
 
     context("slett tilsagn") {
-        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val tilsagnRepository = TilsagnRepository(database.db)
         val service = TilsagnService(
             tilsagnRepository = tilsagnRepository,
-            tiltaksgjennomforingRepository,
-            validator = TilsagnValidator(tiltaksgjennomforingRepository),
+            tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(db = database.db),
+            validator = TilsagnValidator(),
             endringshistorikkService = endringshistorikkService,
             db = database.db,
         )
