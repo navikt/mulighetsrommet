@@ -5140,13 +5140,13 @@ components:
 
     TilsagnBeregningInput:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningInputAft"
-        - $ref: "#/components/schemas/TilsagnBeregningInputFri"
+        - $ref: "#/components/schemas/TilsagnBeregningAftInput"
+        - $ref: "#/components/schemas/TilsagnBeregningFriInput"
 
     TilsagnBeregningOutput:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningOutputAft"
-        - $ref: "#/components/schemas/TilsagnBeregningOutputFri"
+        - $ref: "#/components/schemas/TilsagnBeregningAftOutput"
+        - $ref: "#/components/schemas/TilsagnBeregningFriOutput"
 
     TilsagnBeregningAft:
       type: object
@@ -5154,15 +5154,15 @@ components:
         type:
           const: AFT
         input:
-          $ref: "#/components/schemas/TilsagnBeregningInputAft"
+          $ref: "#/components/schemas/TilsagnBeregningAftInput"
         output:
-          $ref: "#/components/schemas/TilsagnBeregningOutputAft"
+          $ref: "#/components/schemas/TilsagnBeregningAftOutput"
       required:
         - type
         - input
         - output
 
-    TilsagnBeregningInputAft:
+    TilsagnBeregningAftInput:
       type: object
       properties:
         type:
@@ -5184,7 +5184,7 @@ components:
         - sats
         - antallPlasser
 
-    TilsagnBeregningOutputAft:
+    TilsagnBeregningAftOutput:
       type: object
       properties:
         type:
@@ -5201,15 +5201,15 @@ components:
         type:
           const: FRI
         input:
-          $ref: "#/components/schemas/TilsagnBeregningInputFri"
+          $ref: "#/components/schemas/TilsagnBeregningFriInput"
         output:
-          $ref: "#/components/schemas/TilsagnBeregningOutputFri"
+          $ref: "#/components/schemas/TilsagnBeregningFriOutput"
       required:
         - type
         - input
         - output
 
-    TilsagnBeregningInputFri:
+    TilsagnBeregningFriInput:
       type: object
       properties:
         type:
@@ -5220,7 +5220,7 @@ components:
         - type
         - belop
 
-    TilsagnBeregningOutputFri:
+    TilsagnBeregningFriOutput:
       type: object
       properties:
         type:
