@@ -55,7 +55,9 @@ export function TilsagnSkjema(props: Props) {
       <form onSubmit={handleSubmit(postData)}>
         <div className={styles.formContainer}>
           <div className={styles.formHeader}>
-            <Heading size="medium">Tilsagn</Heading>
+            <Heading size="medium" level="3">
+              Tilsagn
+            </Heading>
           </div>
           <div className={styles.formContent}>
             <div className={styles.formContentLeft}>
