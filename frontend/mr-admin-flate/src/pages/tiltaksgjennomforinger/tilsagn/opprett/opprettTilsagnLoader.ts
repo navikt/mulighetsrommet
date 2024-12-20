@@ -19,7 +19,10 @@ export async function opprettTilsagnLoader({ params, request }: LoaderFunctionAr
   const [gjennomforing, defaults, godkjenteTilsagn] = await Promise.all([
     TiltaksgjennomforingerService.getTiltaksgjennomforing({ id: gjennomforingId }),
     TilsagnService.getTilsagnDefaults({ gjennomforingId, type }),
-    TilsagnService.getAll({ gjennomforingId, statuser: [TilsagnStatus.GODKJENT] }),
+    TilsagnService.getAll({
+      gjennomforingId,
+      statuser: [TilsagnStatus.GODKJENT, TilsagnStatus.TIL_GODKJENNING],
+    }),
   ]);
 
   return { gjennomforing, defaults, godkjenteTilsagn };

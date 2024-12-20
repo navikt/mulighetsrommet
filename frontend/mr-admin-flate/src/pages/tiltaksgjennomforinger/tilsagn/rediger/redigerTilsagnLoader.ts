@@ -15,7 +15,10 @@ export async function redigerTilsagnLoader({ params }: LoaderFunctionArgs) {
   const [gjennomforing, tilsagn, godkjenteTilsagn] = await Promise.all([
     TiltaksgjennomforingerService.getTiltaksgjennomforing({ id: gjennomforingId }),
     TilsagnService.getTilsagn({ id: tilsagnId }),
-    TilsagnService.getAll({ gjennomforingId, statuser: [TilsagnStatus.GODKJENT] }),
+    TilsagnService.getAll({
+      gjennomforingId,
+      statuser: [TilsagnStatus.GODKJENT, TilsagnStatus.TIL_GODKJENNING],
+    }),
   ]);
 
   return { gjennomforing, tilsagn, godkjenteTilsagn };
