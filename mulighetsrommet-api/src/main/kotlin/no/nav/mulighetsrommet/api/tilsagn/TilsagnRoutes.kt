@@ -57,7 +57,9 @@ fun Route.tilsagnRoutes() {
 
             val defaults = when (type) {
                 TilsagnType.TILSAGN -> {
-                    val sisteTilsagn = tilsagn.getAll(type = TilsagnType.TILSAGN, gjennomforingId).firstOrNull()
+                    val sisteTilsagn = tilsagn
+                        .getAll(type = TilsagnType.TILSAGN, gjennomforingId = gjennomforingId)
+                        .firstOrNull()
                     resolveTilsagnDefaults(gjennomforing, sisteTilsagn)
                 }
 
