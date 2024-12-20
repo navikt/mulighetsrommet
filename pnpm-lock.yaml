@@ -295,7 +295,7 @@ importers:
     dependencies:
       '@hookform/resolvers':
         specifier: 3.9.1
-        version: 3.9.1(react-hook-form@7.54.0(react@18.3.1))
+        version: 3.9.1(react-hook-form@7.54.1(react@18.3.1))
       '@mr/api-client':
         specifier: workspace:*
         version: link:../api-client
@@ -309,8 +309,8 @@ importers:
         specifier: 7.8.0
         version: 7.8.0(@types/react@18.3.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-query':
-        specifier: 5.62.3
-        version: 5.62.3(react@18.3.1)
+        specifier: 5.62.7
+        version: 5.62.7(react@18.3.1)
       classnames:
         specifier: 2.5.1
         version: 2.5.1
@@ -320,9 +320,6 @@ importers:
       focus-trap-react:
         specifier: 10.3.1
         version: 10.3.1(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      lodash.isequal:
-        specifier: 4.5.0
-        version: 4.5.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -333,20 +330,20 @@ importers:
         specifier: 4.1.2
         version: 4.1.2(react@18.3.1)
       react-hook-form:
-        specifier: 7.54.0
-        version: 7.54.0(react@18.3.1)
+        specifier: 7.54.1
+        version: 7.54.1(react@18.3.1)
       react-router-dom:
         specifier: 7.0.2
         version: 7.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-select:
-        specifier: 5.8.3
-        version: 5.8.3(@types/react@18.3.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 5.9.0
+        version: 5.9.0(@types/react@18.3.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       use-resize-observer:
         specifier: 9.1.0
         version: 9.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       zod:
-        specifier: 3.23.8
-        version: 3.23.8
+        specifier: 3.24.1
+        version: 3.24.1
     devDependencies:
       '@types/react':
         specifier: 18.3.13
@@ -420,9 +417,6 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
-      react-error-boundary:
-        specifier: 4.1.2
-        version: 4.1.2(react@18.3.1)
       react-hook-form:
         specifier: 7.54.1
         version: 7.54.1(react@18.3.1)
@@ -2227,6 +2221,9 @@ packages:
     peerDependencies:
       '@types/react': '>=17.0.30'
       react: '>=17.0.0 || >19.0.0-rc'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@navikt/ds-tailwind@7.8.0':
     resolution: {integrity: sha512-UiHBHJKKDFo41pdjQwaDeZrkucxIwEKipmijeImq627XvRc4bphwCxssOSW5eRX9L3Bgs6EPU2yKCMI09VuNUw==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.8.0/842cc51dd966bcb7c173643b9fe393d773964526}
@@ -2242,6 +2239,9 @@ packages:
       html-react-parser: '>=5.x'
       jsdom: '>=16.x'
       react: '>=17.x'
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@navikt/oasis@3.6.0':
     resolution: {integrity: sha512-g+0plp7xNUo1ZNv0ahL80A96Swu8RRv/pE1ZYAp9t1AGo6RHUicF3PYuyiQH+xtXrdiXQk29KumS+jCqURswlA==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/3.6.0/8e7b3918165b037c18cfbc36ad4aeee04fc0650f}
@@ -2856,9 +2856,6 @@ packages:
     peerDependencies:
       eslint: ^8.57.0 || ^9.0.0
 
-  '@tanstack/query-core@5.62.3':
-    resolution: {integrity: sha512-Jp/nYoz8cnO7kqhOlSv8ke/0MJRJVGuZ0P/JO9KQ+f45mpN90hrerzavyTKeSoT/pOzeoOUkv1Xd0wPsxAWXfg==}
-
   '@tanstack/query-core@5.62.7':
     resolution: {integrity: sha512-fgpfmwatsrUal6V+8EC2cxZIQVl9xvL7qYa03gsdsCy985UTUlS4N+/3hCzwR0PclYDqisca2AqR1BVgJGpUDA==}
 
@@ -2869,11 +2866,6 @@ packages:
     resolution: {integrity: sha512-wxXsdTZJRs//hMtJMU5aNlUaTclRFPqLvDNeWbRj8YpGD3aoo4zyu53W55W2DY16+ycg3fti21uCW4N9oyj91w==}
     peerDependencies:
       '@tanstack/react-query': ^5.62.7
-      react: ^18 || ^19
-
-  '@tanstack/react-query@5.62.3':
-    resolution: {integrity: sha512-y2zDNKuhgiuMgsKkqd4AcsLIBiCfEO8U11AdrtAUihmLbRNztPrlcZqx2lH1GacZsx+y1qRRbCcJLYTtF1vKsw==}
-    peerDependencies:
       react: ^18 || ^19
 
   '@tanstack/react-query@5.62.7':
@@ -5314,9 +5306,6 @@ packages:
   lodash.debounce@4.0.8:
     resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
 
-  lodash.isequal@4.5.0:
-    resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
-
   lodash.isplainobject@4.0.6:
     resolution: {integrity: sha512-oSXzaWypCMHkPC3NvBEaPHf0KsA5mvPrOPgQWDsbg8n7orZ290M0BmC/jgRZ4vcJ6DTAhjrsSYgdsW/F+MFOBA==}
 
@@ -6301,12 +6290,6 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
-
-  react-hook-form@7.54.0:
-    resolution: {integrity: sha512-PS05+UQy/IdSbJNojBypxAo9wllhHgGmyr8/dyGQcPoiMf3e7Dfb9PWYVRco55bLbxH9S+1yDDJeTdlYCSxO3A==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      react: ^16.8.0 || ^17 || ^18 || ^19
 
   react-hook-form@7.54.1:
     resolution: {integrity: sha512-PUNzFwQeQ5oHiiTUO7GO/EJXGEtuun2Y1A59rLnZBBj+vNEOWt/3ERTiG1/zt7dVeJEM+4vDX/7XQ/qanuvPMg==}
@@ -8002,9 +7985,6 @@ packages:
   zip-stream@6.0.1:
     resolution: {integrity: sha512-zK7YHHz4ZXpW89AHXUPbQVGKI7uvkd3hzusTdotCg1UxyaVtg0zFJSTfW/Dq5f7OBBVnq6cZIaC8Ti4hb6dtCA==}
     engines: {node: '>= 14'}
-
-  zod@3.23.8:
-    resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
 
   zod@3.24.1:
     resolution: {integrity: sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==}
@@ -9704,10 +9684,6 @@ snapshots:
     transitivePeerDependencies:
       - magicast
 
-  '@hookform/resolvers@3.9.1(react-hook-form@7.54.0(react@18.3.1))':
-    dependencies:
-      react-hook-form: 7.54.0(react@18.3.1)
-
   '@hookform/resolvers@3.9.1(react-hook-form@7.54.1(react@18.3.1))':
     dependencies:
       react-hook-form: 7.54.1(react@18.3.1)
@@ -9835,11 +9811,12 @@ snapshots:
       '@floating-ui/react-dom': 2.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@navikt/aksel-icons': 7.8.0
       '@navikt/ds-tokens': 7.8.0
-      '@types/react': 18.3.12
       clsx: 2.1.1
       date-fns: 3.6.0
       react: 18.3.1
       react-day-picker: 8.10.1(date-fns@3.6.0)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.3.12
     transitivePeerDependencies:
       - react-dom
 
@@ -9849,11 +9826,12 @@ snapshots:
       '@floating-ui/react-dom': 2.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@navikt/aksel-icons': 7.8.0
       '@navikt/ds-tokens': 7.8.0
-      '@types/react': 18.3.13
       clsx: 2.1.1
       date-fns: 3.6.0
       react: 18.3.1
       react-day-picker: 8.10.1(date-fns@3.6.0)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.3.13
     transitivePeerDependencies:
       - react-dom
 
@@ -9866,6 +9844,7 @@ snapshots:
       csp-header: 6.0.0
       html-react-parser: 5.2.1(@types/react@18.3.12)(react@18.3.1)
       jsdom: 25.0.1
+    optionalDependencies:
       react: 18.3.1
 
   '@navikt/oasis@3.6.0':
@@ -10704,8 +10683,6 @@ snapshots:
       - supports-color
       - typescript
 
-  '@tanstack/query-core@5.62.3': {}
-
   '@tanstack/query-core@5.62.7': {}
 
   '@tanstack/query-devtools@5.61.4': {}
@@ -10714,11 +10691,6 @@ snapshots:
     dependencies:
       '@tanstack/query-devtools': 5.61.4
       '@tanstack/react-query': 5.62.7(react@18.3.1)
-      react: 18.3.1
-
-  '@tanstack/react-query@5.62.3(react@18.3.1)':
-    dependencies:
-      '@tanstack/query-core': 5.62.3
       react: 18.3.1
 
   '@tanstack/react-query@5.62.7(react@18.3.1)':
@@ -13476,8 +13448,6 @@ snapshots:
 
   lodash.debounce@4.0.8: {}
 
-  lodash.isequal@4.5.0: {}
-
   lodash.isplainobject@4.0.6: {}
 
   lodash.merge@4.6.2: {}
@@ -14584,10 +14554,6 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.12
 
-  react-hook-form@7.54.0(react@18.3.1):
-    dependencies:
-      react: 18.3.1
-
   react-hook-form@7.54.1(react@18.3.1):
     dependencies:
       react: 18.3.1
@@ -14748,23 +14714,6 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       react-transition-group: 4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       use-isomorphic-layout-effect: 1.1.2(@types/react@18.3.12)(react@18.3.1)
-    transitivePeerDependencies:
-      - '@types/react'
-      - supports-color
-
-  react-select@5.8.3(@types/react@18.3.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      '@babel/runtime': 7.26.0
-      '@emotion/cache': 11.13.5
-      '@emotion/react': 11.14.0(@types/react@18.3.13)(react@18.3.1)
-      '@floating-ui/dom': 1.6.12
-      '@types/react-transition-group': 4.4.11
-      memoize-one: 6.0.0
-      prop-types: 15.8.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      react-transition-group: 4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      use-isomorphic-layout-effect: 1.1.2(@types/react@18.3.13)(react@18.3.1)
     transitivePeerDependencies:
       - '@types/react'
       - supports-color
@@ -16145,12 +16094,6 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.12
 
-  use-isomorphic-layout-effect@1.1.2(@types/react@18.3.13)(react@18.3.1):
-    dependencies:
-      react: 18.3.1
-    optionalDependencies:
-      '@types/react': 18.3.13
-
   use-isomorphic-layout-effect@1.2.0(@types/react@18.3.12)(react@18.3.1):
     dependencies:
       react: 18.3.1
@@ -16549,8 +16492,6 @@ snapshots:
       archiver-utils: 5.0.2
       compress-commons: 6.0.2
       readable-stream: 4.5.2
-
-  zod@3.23.8: {}
 
   zod@3.24.1: {}
 
