@@ -19,8 +19,8 @@ export function FriTilsagnSkjema(props: Props) {
   return (
     <TilsagnSkjema
       {...props}
-      renderBeregningInput={() => <BeregningInputSkjema />}
-      renderBeregningOutput={() => <BeregningOutputPreview />}
+      beregningInput={<BeregningInputSkjema />}
+      beregningOutput={<BeregningOutputPreview />}
     />
   );
 }

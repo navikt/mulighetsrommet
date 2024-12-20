@@ -98,25 +98,31 @@ class TilsagnRepository(private val db: Database) {
         )
     }
 
-    fun getAll(type: TilsagnType? = null, gjennomforingId: UUID? = null): List<TilsagnDto> {
+    fun getAll(
+        type: TilsagnType? = null,
+        gjennomforingId: UUID? = null,
+        statuser: List<TilsagnStatus>? = null,
+    ): List<TilsagnDto> = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
             select *
             from tilsagn_admin_dto_view
             where (:type::tilsagn_type is null or type = :type::tilsagn_type)
               and (:gjennomforing_id::uuid is null or tiltaksgjennomforing_id = :gjennomforing_id::uuid)
+              and (:statuser::tilsagn_status[] is null or status = any(:statuser))
             order by lopenummer desc
         """.trimIndent()
 
         val params = mapOf(
             "type" to type?.name,
             "gjennomforing_id" to gjennomforingId,
+            "statuser" to statuser?.let { session.createArrayOf("tilsagn_status", statuser) },
         )
 
-        return queryOf(query, params)
+        queryOf(query, params)
             .map { it.toTilsagnDto() }
             .asList
-            .let { db.run(it) }
+            .runWithSession(session)
     }
 
     fun getAllArrangorflateTilsagn(organisasjonsnummer: Organisasjonsnummer): List<ArrangorflateTilsagn> {
@@ -334,7 +340,7 @@ class TilsagnRepository(private val db: Database) {
         val forklaring = stringOrNull("status_forklaring")
 
         val status = toTilsagnStatus(
-            status = Status.valueOf(string("status")),
+            status = TilsagnStatus.valueOf(string("status")),
             endretAv = NavIdent(string("status_endret_av")),
             endretTidspunkt = localDateTime("status_endret_tidspunkt"),
             besluttetAv = stringOrNull("status_besluttet_av")?.let { NavIdent(it) },
@@ -392,16 +398,8 @@ class TilsagnRepository(private val db: Database) {
     }
 }
 
-enum class Status {
-    TIL_GODKJENNING,
-    GODKJENT,
-    RETURNERT,
-    TIL_ANNULLERING,
-    ANNULLERT,
-}
-
 fun toTilsagnStatus(
-    status: Status,
+    status: TilsagnStatus,
     endretAv: NavIdent,
     endretAvNavn: String,
     besluttetAv: NavIdent?,
@@ -410,12 +408,14 @@ fun toTilsagnStatus(
     aarsaker: List<TilsagnStatusAarsak>,
     forklaring: String?,
 ): TilsagnDto.TilsagnStatus = when (status) {
-    Status.TIL_GODKJENNING -> TilsagnDto.TilsagnStatus.TilGodkjenning(
+    TilsagnStatus.TIL_GODKJENNING -> TilsagnDto.TilsagnStatus.TilGodkjenning(
         endretAv = endretAv,
         endretTidspunkt = endretTidspunkt,
     )
-    Status.GODKJENT -> TilsagnDto.TilsagnStatus.Godkjent
-    Status.RETURNERT -> {
+
+    TilsagnStatus.GODKJENT -> TilsagnDto.TilsagnStatus.Godkjent
+
+    TilsagnStatus.RETURNERT -> {
         requireNotNull(besluttetAv)
         requireNotNull(besluttetAvNavn)
         TilsagnDto.TilsagnStatus.Returnert(
@@ -427,14 +427,16 @@ fun toTilsagnStatus(
             forklaring = forklaring,
         )
     }
-    Status.TIL_ANNULLERING -> TilsagnDto.TilsagnStatus.TilAnnullering(
+
+    TilsagnStatus.TIL_ANNULLERING -> TilsagnDto.TilsagnStatus.TilAnnullering(
         endretAv = endretAv,
         endretAvNavn = endretAvNavn,
         endretTidspunkt = endretTidspunkt,
         aarsaker = aarsaker,
         forklaring = forklaring,
     )
-    Status.ANNULLERT -> {
+
+    TilsagnStatus.ANNULLERT -> {
         requireNotNull(besluttetAv)
         TilsagnDto.TilsagnStatus.Annullert(
             endretAv = endretAv,

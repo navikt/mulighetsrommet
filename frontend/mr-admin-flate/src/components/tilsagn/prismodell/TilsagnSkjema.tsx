@@ -15,8 +15,8 @@ interface Props {
   onAvbryt: () => void;
   defaultValues: DeepPartial<InferredTilsagn>;
   defaultKostnadssteder: string[];
-  renderBeregningInput: () => JSX.Element;
-  renderBeregningOutput: () => JSX.Element;
+  beregningInput: JSX.Element;
+  beregningOutput: JSX.Element;
 }
 
 export function TilsagnSkjema(props: Props) {
@@ -62,12 +62,12 @@ export function TilsagnSkjema(props: Props) {
               <div className={styles.formGroup}>
                 <VelgPeriode startDato={gjennomforing.startDato} />
               </div>
-              <div className={styles.formGroup}>{props.renderBeregningInput()}</div>
+              <div className={styles.formGroup}>{props.beregningInput}</div>
               <div className={styles.formGroup}>
                 <VelgKostnadssted defaultKostnadssteder={defaultKostnadssteder} />
               </div>
             </div>
-            <div className={styles.formContentRight}>{props.renderBeregningOutput()}</div>
+            <div className={styles.formContentRight}>{props.beregningOutput}</div>
           </div>
         </div>
         <HStack gap="2" justify={"end"}>

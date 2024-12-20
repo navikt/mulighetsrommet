@@ -33,6 +33,16 @@ fun Route.tilsagnRoutes() {
     val gjennomforinger: TiltaksgjennomforingService by inject()
 
     route("tilsagn") {
+        get {
+            val gjennomforingId: UUID? by call.queryParameters
+            val status = call.queryParameters.getAll("statuser")
+                ?.map { TilsagnStatus.valueOf(it) }
+
+            val result = tilsagn.getAll(gjennomforingId = gjennomforingId, statuser = status)
+
+            call.respond(result)
+        }
+
         route("/{id}") {
             get {
                 val id = call.parameters.getOrFail<UUID>("id")
@@ -57,7 +67,9 @@ fun Route.tilsagnRoutes() {
 
             val defaults = when (type) {
                 TilsagnType.TILSAGN -> {
-                    val sisteTilsagn = tilsagn.getAll(type = TilsagnType.TILSAGN, gjennomforingId).firstOrNull()
+                    val sisteTilsagn = tilsagn
+                        .getAll(type = TilsagnType.TILSAGN, gjennomforingId = gjennomforingId)
+                        .firstOrNull()
                     resolveTilsagnDefaults(gjennomforing, sisteTilsagn)
                 }
 
@@ -130,19 +142,6 @@ fun Route.tilsagnRoutes() {
                     )
                 },
             )
-        }
-    }
-
-    // endre til en getAll med gjennomforingId, statuser osv
-    route("/tiltaksgjennomforinger/{id}/tilsagn") {
-        authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
-            get {
-                val id = call.parameters.getOrFail<UUID>("id")
-
-                val result = tilsagn.getAll(gjennomforingId = id)
-
-                call.respond(result)
-            }
         }
     }
 }
