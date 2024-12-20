@@ -76,22 +76,14 @@ class TilsagnRepositoryTest : FunSpec({
             )
         }
 
-        test("get all by status") {
+        test("get all") {
             repository.upsert(tilsagn)
 
             repository.getAll(statuser = listOf(TilsagnStatus.TIL_GODKJENNING)).shouldHaveSize(1)
             repository.getAll(statuser = listOf(TilsagnStatus.TIL_ANNULLERING)).shouldHaveSize(0)
-        }
-
-        test("get all by gjennomforing") {
-            repository.upsert(tilsagn)
 
             repository.getAll(gjennomforingId = AFT1.id).shouldHaveSize(1)
             repository.getAll(gjennomforingId = UUID.randomUUID()).shouldHaveSize(0)
-        }
-
-        test("get all by type") {
-            repository.upsert(tilsagn)
 
             repository.getAll(type = TilsagnType.TILSAGN).shouldHaveSize(1)
             repository.getAll(type = TilsagnType.EKSTRATILSAGN).shouldHaveSize(0)
