@@ -29,9 +29,6 @@ export function AFTTilsagnDetaljer({ tilsagn }: Props) {
       </HStack>
       <HStack padding="5">
         <DetaljerInfoContainer withBorderRight>
-          <Heading size="small" level="4">
-            Periode og plasser
-          </Heading>
           <Bolk>
             <Metadata header="Dato fra" verdi={formaterDato(tilsagn.periodeStart)} />
             <Metadata header="Dato til" verdi={formaterDato(tilsagn.periodeSlutt)} />
