@@ -17,7 +17,7 @@ export async function redigerTilsagnLoader({ params }: LoaderFunctionArgs) {
     TilsagnService.getTilsagn({ id: tilsagnId }),
     TilsagnService.getAll({
       gjennomforingId,
-      statuser: [TilsagnStatus.GODKJENT, TilsagnStatus.TIL_GODKJENNING],
+      statuser: [TilsagnStatus.GODKJENT, TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.RETURNERT],
     }),
   ]);
 

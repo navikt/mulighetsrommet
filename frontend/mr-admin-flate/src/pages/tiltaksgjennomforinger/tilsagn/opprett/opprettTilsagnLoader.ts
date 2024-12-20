@@ -21,7 +21,7 @@ export async function opprettTilsagnLoader({ params, request }: LoaderFunctionAr
     TilsagnService.getTilsagnDefaults({ gjennomforingId, type }),
     TilsagnService.getAll({
       gjennomforingId,
-      statuser: [TilsagnStatus.GODKJENT, TilsagnStatus.TIL_GODKJENNING],
+      statuser: [TilsagnStatus.GODKJENT, TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.RETURNERT],
     }),
   ]);
 
