@@ -5,7 +5,7 @@ import { PaginertTiltakstype, SorteringTiltakstyper } from "@mr/api-client";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { Alert, Table } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData } from "react-router";
 import { TiltakstypestatusTag } from "../statuselementer/TiltakstypestatusTag";
 import styles from "./Tabell.module.scss";
 

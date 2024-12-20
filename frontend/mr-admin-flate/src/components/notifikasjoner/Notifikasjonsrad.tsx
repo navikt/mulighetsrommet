@@ -5,7 +5,7 @@ import { ReactNode, useState } from "react";
 import { formaterDatoTid } from "../../utils/Utils";
 import { CheckmarkButton } from "./CheckmarkButton";
 import styles from "./Notifikasjoner.module.scss";
-import { useRevalidator } from "react-router-dom";
+import { useRevalidator } from "react-router";
 
 interface NotifikasjonssradProps {
   notifikasjon: UserNotification;

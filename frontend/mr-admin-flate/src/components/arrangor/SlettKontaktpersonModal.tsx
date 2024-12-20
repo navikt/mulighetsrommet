@@ -2,7 +2,7 @@ import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Button, Heading, Table, VStack } from "@navikt/ds-react";
 import { UseMutationResult } from "@tanstack/react-query";
 import { ArrangorKontaktperson, DokumentKoblingForKontaktperson } from "@mr/api-client";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { useDeleteArrangorKontaktperson } from "@/api/arrangor/useDeleteArrangorKontaktperson";
 import { useKoblingerTilDokumenterForKontaktpersonHosArrangor } from "@/api/arrangor/useKoblingerTilDokumenterForKontaktpersonHosArrangor";
 import { useFrikobleArrangorKontaktpersonFraAvtale } from "@/api/avtaler/useFrikobleArrangorKontaktpersonFraAvtale";

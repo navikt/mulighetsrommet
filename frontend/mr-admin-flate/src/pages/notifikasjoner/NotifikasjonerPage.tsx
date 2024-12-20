@@ -3,7 +3,7 @@ import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { useTitle } from "@mr/frontend-common";
 import { BellDotFillIcon } from "@navikt/aksel-icons";
 import { Tabs } from "@navikt/ds-react";
-import { Outlet, useLoaderData, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLoaderData, useLocation, useNavigate } from "react-router";
 import styles from "../Page.module.scss";
 import { notifikasjonLoader } from "./notifikasjonerLoader";
 

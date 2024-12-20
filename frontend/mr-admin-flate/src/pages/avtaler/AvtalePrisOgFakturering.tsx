@@ -12,7 +12,7 @@ import {
 } from "@navikt/ds-react";
 import { useState } from "react";
 import { avtaleLoader } from "@/pages/avtaler/avtaleLoader";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData } from "react-router";
 import { DateInput } from "@/components/skjema/DateInput";
 import { SkjemaInputContainer } from "@/components/skjema/SkjemaInputContainer";
 import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";

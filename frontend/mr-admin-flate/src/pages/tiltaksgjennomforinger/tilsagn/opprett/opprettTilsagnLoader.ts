@@ -5,7 +5,7 @@ import {
   TilsagnType,
   TiltaksgjennomforingerService,
 } from "@mr/api-client";
-import { LoaderFunctionArgs } from "react-router-dom";
+import { LoaderFunctionArgs } from "react-router";
 
 export async function opprettTilsagnLoader({ params, request }: LoaderFunctionArgs) {
   const { tiltaksgjennomforingId: gjennomforingId } = params;

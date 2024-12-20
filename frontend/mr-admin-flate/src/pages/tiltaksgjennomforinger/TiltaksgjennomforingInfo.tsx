@@ -4,7 +4,7 @@ import { InfoContainer } from "@/components/skjema/InfoContainer";
 import { InlineErrorBoundary } from "@mr/frontend-common";
 import { Alert, Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData } from "react-router";
 import { TiltaksgjennomforingDetaljer } from "./TiltaksgjennomforingDetaljer";
 import styles from "./TiltaksgjennomforingInfo.module.scss";
 import { TiltaksgjennomforingKnapperad } from "./TiltaksgjennomforingKnapperad";

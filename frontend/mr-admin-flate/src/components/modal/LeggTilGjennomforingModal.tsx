@@ -3,7 +3,7 @@ import { useSetAvtaleForGjennomforing } from "@/api/tiltaksgjennomforing/useSetA
 import { useState } from "react";
 import { AvtaleDto, TiltaksgjennomforingDto } from "@mr/api-client";
 import { TiltaksgjennomforingerListe } from "../tiltaksgjennomforinger/TiltaksgjennomforingerListe";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { RedaksjoneltInnholdModalContainer } from "@/components/modal/RedaksjoneltInnholdModalContainer";
 import { RedaksjoneltInnholdModalBody } from "@/components/modal/RedaksjoneltInnholdModalBody";
 

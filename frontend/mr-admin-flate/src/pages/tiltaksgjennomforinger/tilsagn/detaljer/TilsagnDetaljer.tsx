@@ -13,7 +13,7 @@ import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { EraserIcon, PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
 import { ActionMenu, Alert, BodyShort, Box, Button, Heading, HStack } from "@navikt/ds-react";
 import { useRef, useState } from "react";
-import { Link, useLoaderData, useMatch, useNavigate, useParams } from "react-router-dom";
+import { Link, useLoaderData, useMatch, useNavigate, useParams } from "react-router";
 import { useSlettTilsagn } from "@/api/tilsagn/useSlettTilsagn";
 import { TiltakDetaljerForTilsagn } from "@/components/tilsagn/TiltakDetaljerForTilsagn";
 import { AFTTilsagnDetaljer } from "./AFTTilsagnDetaljer";

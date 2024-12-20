@@ -9,7 +9,7 @@ import { AvtalestatusTag } from "@/components/statuselementer/AvtalestatusTag";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { inneholderUrl } from "@/utils/Utils";
 import { Heading } from "@navikt/ds-react";
-import { useLoaderData, useLocation, useNavigate } from "react-router-dom";
+import { useLoaderData, useLocation, useNavigate } from "react-router";
 import { avtaleSkjemaLoader } from "./avtaleLoader";
 
 export function AvtaleSkjemaPage() {

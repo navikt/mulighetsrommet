@@ -1,4 +1,4 @@
-import { useRouteError } from "react-router-dom";
+import { useRouteError } from "react-router";
 import { BodyShort, Heading } from "@navikt/ds-react";
 
 export function ErrorPage() {

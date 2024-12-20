@@ -5,7 +5,7 @@ import {
   NavEnhetStatus,
   TiltakstyperService,
 } from "@mr/api-client";
-import { LoaderFunctionArgs } from "react-router-dom";
+import { LoaderFunctionArgs } from "react-router";
 
 export async function avtaleLoader({ params }: LoaderFunctionArgs) {
   if (!params.avtaleId) throw Error("Fant ikke avtaleId i route");

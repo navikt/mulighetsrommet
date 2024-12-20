@@ -1,5 +1,5 @@
 import { Alert } from "@navikt/ds-react";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData } from "react-router";
 import { Laster } from "@/components/laster/Laster";
 import { InfoContainer } from "@/components/skjema/InfoContainer";
 import { Toggles } from "@mr/api-client";

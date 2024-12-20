@@ -7,7 +7,7 @@ import { Notifikasjonssrad } from "./Notifikasjonsrad";
 import { ReloadAppErrorBoundary } from "@mr/frontend-common/components/error-handling/ErrorBoundary";
 import { Button, HStack } from "@navikt/ds-react";
 import { useMutateNotifikasjoner } from "../../api/notifikasjoner/useMutateNotifikasjoner";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "../../api/QueryKeys";
 

@@ -2,7 +2,7 @@ import { ErrorBoundary, FallbackProps } from "react-error-boundary";
 import { ApiError } from "@mr/api-client";
 import { Alert, BodyShort, Heading } from "@navikt/ds-react";
 import { PropsWithChildren } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { PORTEN_URL } from "../../../mr-admin-flate/src/constants";
 import { resolveErrorMessage } from "./errors";
 

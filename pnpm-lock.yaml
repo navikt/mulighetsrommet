@@ -69,7 +69,7 @@ importers:
       react-icons:
         specifier: 5.4.0
         version: 5.4.0(react@18.3.1)
-      react-router-dom:
+      react-router:
         specifier: 7.0.2
         version: 7.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       uuid:
@@ -332,7 +332,7 @@ importers:
       react-hook-form:
         specifier: 7.54.1
         version: 7.54.1(react@18.3.1)
-      react-router-dom:
+      react-router:
         specifier: 7.0.2
         version: 7.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-select:
@@ -423,7 +423,7 @@ importers:
       react-number-format:
         specifier: 5.4.2
         version: 5.4.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react-router-dom:
+      react-router:
         specifier: 7.0.2
         version: 7.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-select:
@@ -611,7 +611,7 @@ importers:
       react-markdown:
         specifier: 9.0.1
         version: 9.0.1(@types/react@18.3.13)(react@18.3.1)
-      react-router-dom:
+      react-router:
         specifier: 7.0.2
         version: 7.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       uuid:
@@ -6386,13 +6386,6 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
-
-  react-router-dom@7.0.2:
-    resolution: {integrity: sha512-VJOQ+CDWFDGaWdrG12Nl+d7yHtLaurNgAQZVgaIy7/Xd+DojgmYLosFfZdGz1wpxmjJIAkAMVTKWcvkx1oggAw==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      react: '>=18'
-      react-dom: '>=18'
 
   react-router@7.0.2:
     resolution: {integrity: sha512-m5AcPfTRUcjwmhBzOJGEl6Y7+Crqyju0+TgTQxoS4SO+BkWbhOrcfZNq6wSWdl2BBbJbsAoBUb8ZacOFT+/JlA==}
@@ -14659,12 +14652,6 @@ snapshots:
       use-sidecar: 1.1.2(@types/react@18.3.12)(react@18.3.1)
     optionalDependencies:
       '@types/react': 18.3.12
-
-  react-router-dom@7.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      react-router: 7.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
 
   react-router@7.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:

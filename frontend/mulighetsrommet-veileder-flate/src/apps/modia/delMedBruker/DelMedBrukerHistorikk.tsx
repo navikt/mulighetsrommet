@@ -6,7 +6,7 @@ import { formaterDato } from "../../../utils/Utils";
 import { ModiaRoute, navigateToModiaApp } from "../ModiaRoute";
 import { useDeltMedBrukerHistorikk } from "../hooks/useDeltMedBrukerHistorikk";
 import { IngenFunnetBox } from "../views/Landingsside";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import styles from "./DelMedBrukerHistorikk.module.scss";
 
 function sortOnCreatedAt(a: TiltakDeltMedBruker, b: TiltakDeltMedBruker) {

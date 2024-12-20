@@ -1,5 +1,5 @@
 import { Alert, Button, Dropdown } from "@navikt/ds-react";
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router";
 import { InfoContainer } from "@/components/skjema/InfoContainer";
 import { KnapperadContainer } from "@/pages/KnapperadContainer";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";

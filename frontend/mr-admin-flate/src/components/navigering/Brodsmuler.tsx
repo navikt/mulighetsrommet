@@ -1,5 +1,5 @@
 import { ArrowRightIcon } from "@navikt/aksel-icons";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import styles from "./Brodsmuler.module.scss";
 
 type Id = string;

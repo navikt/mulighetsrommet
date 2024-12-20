@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 
 export function useGetTiltaksgjennomforingIdFromUrl(): string | undefined {
   const { tiltaksgjennomforingId } = useParams<{

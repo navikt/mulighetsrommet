@@ -20,7 +20,7 @@ import {
 } from "@navikt/ds-react";
 import { ReactNode, Suspense, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router";
 import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
 import { DeltakelseKort } from "../historikk/DeltakelseKort";
 import styles from "./Landingsside.module.scss";
