@@ -16,7 +16,7 @@ import { useRef, useState } from "react";
 import { Link, useLoaderData, useMatch, useNavigate, useParams } from "react-router";
 import { useSlettTilsagn } from "@/api/tilsagn/useSlettTilsagn";
 import { TiltakDetaljerForTilsagn } from "@/components/tilsagn/TiltakDetaljerForTilsagn";
-import { AFTTilsagnDetaljer } from "./AFTTilsagnDetaljer";
+import { TilsagnDetaljerForhandsgodkjent } from "./TilsagnDetaljerForhandsgodkjent";
 import { AvvisTilsagnModal } from "../AvvisTilsagnModal";
 import styles from "../TilsagnDetaljer.module.scss";
 import { tilsagnDetaljerLoader } from "./tilsagnDetaljerLoader";
@@ -27,10 +27,10 @@ import { AvvistAlert, TilAnnulleringAlert } from "../AarsakerAlert";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import {
-  isAftBeregning,
-  isFriBeregning,
+  isTilsagnForhandsgodkjent,
+  isTilsagnFri,
 } from "@/pages/tiltaksgjennomforinger/tilsagn/tilsagnUtils";
-import { FriTilsagnDetaljer } from "@/pages/tiltaksgjennomforinger/tilsagn/detaljer/FriTilsagnDetaljer";
+import { TilsagnDetaljerFri } from "@/pages/tiltaksgjennomforinger/tilsagn/detaljer/TilsagnDetaljerFri";
 
 export function TilsagnDetaljer() {
   const { gjennomforing, tilsagn, ansatt, historikk } =
@@ -195,8 +195,8 @@ export function TilsagnDetaljer() {
             borderRadius={"medium"}
             padding={"2"}
           >
-            {isAftBeregning(tilsagn.beregning) && <AFTTilsagnDetaljer tilsagn={tilsagn} />}
-            {isFriBeregning(tilsagn.beregning) && <FriTilsagnDetaljer tilsagn={tilsagn} />}
+            {isTilsagnForhandsgodkjent(tilsagn) && <TilsagnDetaljerForhandsgodkjent tilsagn={tilsagn} />}
+            {isTilsagnFri(tilsagn) && <TilsagnDetaljerFri tilsagn={tilsagn} />}
             <div>
               {besluttMutation.error ? (
                 <BodyShort spacing>

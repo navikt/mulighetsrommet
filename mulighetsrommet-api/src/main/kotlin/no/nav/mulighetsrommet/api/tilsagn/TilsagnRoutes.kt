@@ -253,7 +253,7 @@ private fun resolveTilsagnDefaults(
         ).min()
 
         val beregning = Prismodell.AFT.findSats(periodeStart)?.let { sats ->
-            TilsagnBeregningAft.Input(
+            TilsagnBeregningForhandsgodkjent.Input(
                 periodeStart = periodeStart,
                 periodeSlutt = periodeSlutt,
                 sats = sats,
