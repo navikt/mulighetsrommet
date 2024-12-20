@@ -195,7 +195,9 @@ export function TilsagnDetaljer() {
             borderRadius={"medium"}
             padding={"2"}
           >
-            {isTilsagnForhandsgodkjent(tilsagn) && <TilsagnDetaljerForhandsgodkjent tilsagn={tilsagn} />}
+            {isTilsagnForhandsgodkjent(tilsagn) && (
+              <TilsagnDetaljerForhandsgodkjent tilsagn={tilsagn} />
+            )}
             {isTilsagnFri(tilsagn) && <TilsagnDetaljerFri tilsagn={tilsagn} />}
             <div>
               {besluttMutation.error ? (
