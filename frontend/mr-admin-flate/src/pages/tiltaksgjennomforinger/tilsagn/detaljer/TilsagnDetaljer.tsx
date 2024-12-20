@@ -15,22 +15,28 @@ import { EraserIcon, PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/ak
 import { ActionMenu, Alert, BodyShort, Box, Button, Heading, HStack } from "@navikt/ds-react";
 import { useRef, useState } from "react";
 import { Link, useLoaderData, useMatch, useNavigate, useParams } from "react-router-dom";
-import { useSlettTilsagn } from "../../../api/tilsagn/useSlettTilsagn";
-import { TiltakDetaljerForTilsagn } from "../../../components/tilsagn/TiltakDetaljerForTilsagn";
+import { useSlettTilsagn } from "@/api/tilsagn/useSlettTilsagn";
+import { TiltakDetaljerForTilsagn } from "@/components/tilsagn/TiltakDetaljerForTilsagn";
 import { AFTTilsagnDetaljer } from "./AFTTilsagnDetaljer";
-import { AvvisTilsagnModal } from "./AvvisTilsagnModal";
-import styles from "./TilsagnDetaljer.module.scss";
-import { tilsagnLoader } from "./tilsagnLoader";
-import { TilsagnTag } from "./TilsagnTag";
+import { AvvisTilsagnModal } from "../AvvisTilsagnModal";
+import styles from "../TilsagnDetaljer.module.scss";
+import { tilsagnDetaljerLoader } from "./tilsagnDetaljerLoader";
+import { TilsagnTag } from "../TilsagnTag";
 import { useTilsagnTilAnnullering } from "@/api/tilsagn/useTilsagnTilAnnullering";
-import { TilAnnulleringModal } from "./TilAnnulleringModal";
-import { AvvistAlert, TilAnnulleringAlert } from "./AarsakerAlert";
+import { TilAnnulleringModal } from "../TilAnnulleringModal";
+import { AvvistAlert, TilAnnulleringAlert } from "../AarsakerAlert";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
-import { isAftBeregning, isFriBeregning } from "./tilsagnUtils";
-import { FriTilsagnDetaljer } from "./FriTilsagnDetaljer";
+import {
+  isAftBeregning,
+  isFriBeregning,
+} from "@/pages/tiltaksgjennomforinger/tilsagn/tilsagnUtils";
+import { FriTilsagnDetaljer } from "@/pages/tiltaksgjennomforinger/tilsagn/detaljer/FriTilsagnDetaljer";
 
 export function TilsagnDetaljer() {
+  const { gjennomforing, tilsagn, ansatt, historikk } =
+    useLoaderData<typeof tilsagnDetaljerLoader>();
+
   const { avtaleId, tiltaksgjennomforingId } = useParams();
   const besluttMutation = useBesluttTilsagn();
   const tilAnnulleringMutation = useTilsagnTilAnnullering();
@@ -39,8 +45,6 @@ export function TilsagnDetaljer() {
   const [tilAnnulleringModalOpen, setTilAnnulleringModalOpen] = useState<boolean>(false);
   const slettTilsagnModalRef = useRef<HTMLDialogElement>(null);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
-  const { tiltaksgjennomforing, tilsagn, ansatt, historikk } =
-    useLoaderData<typeof tilsagnLoader>();
 
   const erPaaGjennomforingerForAvtale = useMatch(
     "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
@@ -116,7 +120,7 @@ export function TilsagnDetaljer() {
     }
   }
 
-  if (!tiltaksgjennomforing || !tilsagn) {
+  if (!gjennomforing || !tilsagn) {
     return <Laster tekst="Laster tilsagn..." />;
   }
 
@@ -135,7 +139,7 @@ export function TilsagnDetaljer() {
         <TiltaksgjennomforingIkon />
         <Heading size="large" level="2">
           <HStack gap="2" align={"center"}>
-            Tilsagn for {tiltaksgjennomforing.navn} <TilsagnTag status={tilsagn.status} />
+            Tilsagn for {gjennomforing.navn} <TilsagnTag status={tilsagn.status} />
           </HStack>
         </Heading>
       </Header>
@@ -184,7 +188,7 @@ export function TilsagnDetaljer() {
               </ActionMenu>
             ) : null}
           </HStack>
-          <TiltakDetaljerForTilsagn tiltaksgjennomforing={tiltaksgjennomforing} />
+          <TiltakDetaljerForTilsagn tiltaksgjennomforing={gjennomforing} />
           {tilsagn.status.type === "RETURNERT" && <AvvistAlert status={tilsagn.status} />}
           {tilsagn.status.type === "TIL_ANNULLERING" && (
             <TilAnnulleringAlert status={tilsagn.status} />

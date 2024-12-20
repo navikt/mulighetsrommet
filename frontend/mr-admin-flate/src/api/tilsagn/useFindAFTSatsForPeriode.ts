@@ -1,6 +1,7 @@
 import { AFTSats } from "@mr/api-client";
 import { useAFTSatser } from "./useAFTSatser";
 
+// TODO: forenkle denne og gjenbruk
 export function useFindAFTSatsForPeriode() {
   const { data: satser } = useAFTSatser();
 

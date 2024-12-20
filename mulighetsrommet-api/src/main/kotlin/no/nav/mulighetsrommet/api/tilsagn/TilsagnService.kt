@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.right
+import arrow.core.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
@@ -11,17 +9,14 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepositor
 import no.nav.mulighetsrommet.api.okonomi.BestillingDto
 import no.nav.mulighetsrommet.api.okonomi.OkonomiClient
 import no.nav.mulighetsrommet.api.okonomi.Prismodell
-import no.nav.mulighetsrommet.api.okonomi.Prismodell.TilsagnBeregning
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.api.services.DocumentClass
 import no.nav.mulighetsrommet.api.services.EndretAv
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
+import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
-import no.nav.mulighetsrommet.api.tilsagn.model.ArrangorflateTilsagn
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningInput
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBesluttelseStatus
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
+import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import java.time.LocalDateTime
@@ -35,14 +30,40 @@ class TilsagnService(
     private val db: Database,
 ) {
     suspend fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<ValidationError>, TilsagnDto> {
+        val gjennomforing = tiltaksgjennomforingRepository.get(request.gjennomforingId)
+            ?: return ValidationError
+                .of(TilsagnRequest::gjennomforingId, "Tiltaksgjennomforingen finnes ikke")
+                .nel()
+                .left()
+
         val previous = tilsagnRepository.get(request.id)
 
-        return validator.validate(request, previous, navIdent)
-            .map {
-                db.transactionSuspend { tx ->
-                    tilsagnRepository.upsert(it, tx)
+        val beregningInput = request.beregning
 
-                    val dto = getOrError(it.id, tx)
+        return tilsagnBeregning(beregningInput)
+            .map { beregning ->
+                TilsagnDbo(
+                    id = request.id,
+                    tiltaksgjennomforingId = request.gjennomforingId,
+                    type = request.type,
+                    periodeStart = request.periodeStart,
+                    periodeSlutt = request.periodeSlutt,
+                    kostnadssted = request.kostnadssted,
+                    beregning = beregning,
+                    endretAv = navIdent,
+                    // TODO: flytt til db
+                    endretTidspunkt = LocalDateTime.now(),
+                    arrangorId = gjennomforing.arrangor.id,
+                )
+            }
+            .flatMap { dbo ->
+                validator.validate(dbo, previous)
+            }
+            .map { dbo ->
+                db.transactionSuspend { tx ->
+                    tilsagnRepository.upsert(dbo, tx)
+
+                    val dto = getOrError(dbo.id, tx)
 
                     logEndring("Sendt til godkjenning", dto, EndretAv.NavAnsatt(navIdent), tx)
                     dto
@@ -54,28 +75,22 @@ class TilsagnService(
         return validator.validateBeregningInput(input)
             .map {
                 when (input) {
-                    is TilsagnBeregningInput.AFT -> aftTilsagnBeregning(input)
-                    is TilsagnBeregningInput.Fri -> TilsagnBeregning.Fri(input.belop)
+                    is TilsagnBeregningAft.Input -> aftTilsagnBeregning(input)
+                    is TilsagnBeregningFri.Input -> TilsagnBeregningFri(input, TilsagnBeregningFri.Output(input.belop))
                 }
             }
     }
 
-    private fun aftTilsagnBeregning(input: TilsagnBeregningInput.AFT): TilsagnBeregning.AFT {
-        val sats = Prismodell.AFT.findSats(input.periodeStart)
+    private fun aftTilsagnBeregning(input: TilsagnBeregningAft.Input): TilsagnBeregningAft {
         val belop = Prismodell.AFT.beregnTilsagnBelop(
-            sats = sats,
+            sats = input.sats,
             antallPlasser = input.antallPlasser,
             periodeStart = input.periodeStart,
             periodeSlutt = input.periodeSlutt,
         )
 
-        return TilsagnBeregning.AFT(
-            sats = sats,
-            antallPlasser = input.antallPlasser,
-            periodeStart = input.periodeStart,
-            periodeSlutt = input.periodeSlutt,
-            belop = belop,
-        )
+        val output = TilsagnBeregningAft.Output(belop = belop)
+        return TilsagnBeregningAft(input, output)
     }
 
     suspend fun beslutt(id: UUID, besluttelse: BesluttTilsagnRequest, navIdent: NavIdent): StatusResponse<Unit> {
@@ -194,7 +209,14 @@ class TilsagnService(
         }
 
         db.transaction { tx ->
-            tilsagnRepository.tilAnnullering(id, navIdent, LocalDateTime.now(), request.aarsaker, request.forklaring, tx)
+            tilsagnRepository.tilAnnullering(
+                id,
+                navIdent,
+                LocalDateTime.now(),
+                request.aarsaker,
+                request.forklaring,
+                tx,
+            )
             logEndring("Sendt til annullering", getOrError(id, tx), EndretAv.NavAnsatt(navIdent), tx)
         }
 
@@ -235,7 +257,7 @@ class TilsagnService(
                 periodeSlutt = tilsagn.periodeSlutt,
                 organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
                 kostnadSted = tilsagn.kostnadssted,
-                belop = tilsagn.beregning.belop,
+                belop = tilsagn.beregning.output.belop,
             ),
         )
     }

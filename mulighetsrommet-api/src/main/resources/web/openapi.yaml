@@ -1778,7 +1778,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TilsagnBeregning"
+                $ref: "#/components/schemas/TilsagnBeregningOutput"
 
   /api/v1/intern/tilsagn/defaults:
     parameters:
@@ -1789,6 +1789,12 @@ paths:
         schema:
           type: string
           format: uuid
+      - name: type
+        in: query
+        description: Tilsagnstype
+        required: true
+        schema:
+          $ref: "#/components/schemas/TilsagnType"
     get:
       tags:
         - Tilsagn
@@ -4811,13 +4817,37 @@ components:
               - id
               - status
 
+    TilsagnDefaults:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        gjennomforingId:
+          type: string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/TilsagnType"
+        periodeStart:
+          type: string
+          format: date
+        periodeSlutt:
+          type: string
+          format: date
+        kostnadssted:
+          type: string
+        antallPlasser:
+          type: integer
+        beregning:
+          $ref: "#/components/schemas/TilsagnBeregningInput"
+
     TilsagnRequest:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        tiltaksgjennomforingId:
+        gjennomforingId:
           type: string
           format: uuid
         type:
@@ -4831,10 +4861,10 @@ components:
         kostnadssted:
           type: string
         beregning:
-          $ref: "#/components/schemas/TilsagnBeregning"
+          $ref: "#/components/schemas/TilsagnBeregningInput"
       required:
         - id
-        - tiltaksgjennomforingId
+        - gjennomforingId
         - type
         - periodeStart
         - periodeSlutt
@@ -4898,6 +4928,7 @@ components:
         - arrangor
         - lopenummer
         - status
+        - type
 
     TilsagnStatus:
       oneOf:
@@ -4913,7 +4944,7 @@ components:
         type:
           type: string
           enum:
-            - 'TIL_GODKJENNING'
+            - "TIL_GODKJENNING"
         endretAv:
           type: string
         endretTidspunkt:
@@ -4930,7 +4961,7 @@ components:
         type:
           type: string
           enum:
-            - 'GODKJENT'
+            - "GODKJENT"
       required:
         - type
 
@@ -4942,7 +4973,7 @@ components:
         type:
           type: string
           enum:
-            - 'RETURNERT'
+            - "RETURNERT"
         returnertAv:
           type: string
         returnertAvNavn:
@@ -4970,7 +5001,7 @@ components:
         type:
           type: string
           enum:
-            - 'TIL_ANNULLERING'
+            - "TIL_ANNULLERING"
         endretAv:
           type: string
         endretAvNavn:
@@ -4998,7 +5029,7 @@ components:
         type:
           type: string
           enum:
-            - 'ANNULLERT'
+            - "ANNULLERT"
         endretAv:
           type: string
         godkjentAv:
@@ -5069,34 +5100,6 @@ components:
         - besluttelse
         - aarsaker
 
-    TilsagnDefaults:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        periodeStart:
-          type: string
-          format: date
-        periodeSlutt:
-          type: string
-          format: date
-        antallPlasser:
-          type: integer
-        kostnadssted:
-          type: string
-        beregning:
-          $ref: "#/components/schemas/TilsagnBeregning"
-      required:
-        - periodeStart
-        - periodeSlutt
-        - antallPlasser
-
-    TilsagnBeregning:
-      oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningAFT"
-        - $ref: "#/components/schemas/TilsagnBeregningFri"
-
     TilsagnTilAnnulleringAarsak:
       type: string
       enum:
@@ -5113,78 +5116,98 @@ components:
         - FEIL_BELOP
         - FEIL_ANNET
 
-    TilsagnBeregningAFT:
+    TilsagnBeregning:
+      oneOf:
+        - $ref: "#/components/schemas/TilsagnBeregningAft"
+        - $ref: "#/components/schemas/TilsagnBeregningFri"
+
+    TilsagnBeregningInput:
+      oneOf:
+        - $ref: "#/components/schemas/TilsagnBeregningInputAft"
+        - $ref: "#/components/schemas/TilsagnBeregningInputFri"
+
+    TilsagnBeregningOutput:
+      oneOf:
+        - $ref: "#/components/schemas/TilsagnBeregningOutputAft"
+        - $ref: "#/components/schemas/TilsagnBeregningOutputFri"
+
+    TilsagnBeregningAft:
       type: object
       properties:
         type:
-          type: string
-          enum:
-            - AFT
-        sats:
-          type: integer
-        antallPlasser:
-          type: integer
-        belop:
-          type: integer
+          const: AFT
+        input:
+          $ref: "#/components/schemas/TilsagnBeregningInputAft"
+        output:
+          $ref: "#/components/schemas/TilsagnBeregningOutputAft"
+      required:
+        - type
+        - input
+        - output
+
+    TilsagnBeregningInputAft:
+      type: object
+      properties:
+        type:
+          const: AFT
         periodeStart:
           type: string
           format: date
         periodeSlutt:
           type: string
           format: date
+        sats:
+          type: integer
+        antallPlasser:
+          type: integer
       required:
         - type
-        - sats
-        - antallPlasser
-        - belop
         - periodeStart
         - periodeSlutt
+        - sats
+        - antallPlasser
+
+    TilsagnBeregningOutputAft:
+      type: object
+      properties:
+        type:
+          const: AFT
+        belop:
+          type: integer
+      required:
+        - type
+        - belop
 
     TilsagnBeregningFri:
       type: object
       properties:
         type:
-          type: string
-          enum:
-            - FRI
+          const: FRI
+        input:
+          $ref: "#/components/schemas/TilsagnBeregningInputFri"
+        output:
+          $ref: "#/components/schemas/TilsagnBeregningOutputFri"
+      required:
+        - type
+        - input
+        - output
+
+    TilsagnBeregningInputFri:
+      type: object
+      properties:
+        type:
+          const: FRI
         belop:
           type: integer
       required:
         - type
         - belop
 
-    TilsagnBeregningInput:
-      oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningInputAFT"
-        - $ref: "#/components/schemas/TilsagnBeregningInputFri"
-
-    TilsagnBeregningInputAFT:
-      properties:
-        type:
-          type: string
-          enum:
-            - AFT
-        periodeStart:
-          type: string
-          format: date
-        periodeSlutt:
-          type: string
-          format: date
-        antallPlasser:
-          type: integer
-      required:
-        - type
-        - periodeStart
-        - periodeSlutt
-        - antallPlasser
-
-    TilsagnBeregningInputFri:
+    TilsagnBeregningOutputFri:
       type: object
       properties:
         type:
-          type: string
-          enum:
-            - FRI
+          const: FRI
         belop:
           type: integer
       required:

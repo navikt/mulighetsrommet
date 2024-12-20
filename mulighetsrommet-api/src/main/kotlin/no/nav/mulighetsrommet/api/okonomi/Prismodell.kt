@@ -1,11 +1,8 @@
 package no.nav.mulighetsrommet.api.okonomi
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.refusjon.model.DeltakelseManedsverk
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
-import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import java.lang.Math.addExact
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -15,6 +12,7 @@ import kotlin.streams.asSequence
 object Prismodell {
     object AFT {
         val satser: Map<LocalDate, Int> = mapOf(
+            LocalDate.of(2025, 1, 1) to 20705,
             LocalDate.of(2024, 1, 1) to 20205,
             LocalDate.of(2023, 1, 1) to 19500,
         )
@@ -105,26 +103,5 @@ object Prismodell {
                 deltakelser = manedsverk,
             )
         }
-    }
-
-    @Serializable
-    sealed class TilsagnBeregning {
-        abstract val belop: Int
-
-        @Serializable
-        @SerialName("AFT")
-        data class AFT(
-            override val belop: Int,
-            val sats: Int,
-            val antallPlasser: Int,
-            @Serializable(with = LocalDateSerializer::class)
-            val periodeStart: LocalDate,
-            @Serializable(with = LocalDateSerializer::class)
-            val periodeSlutt: LocalDate,
-        ) : TilsagnBeregning()
-
-        @Serializable
-        @SerialName("FRI")
-        data class Fri(override val belop: Int) : TilsagnBeregning()
     }
 }

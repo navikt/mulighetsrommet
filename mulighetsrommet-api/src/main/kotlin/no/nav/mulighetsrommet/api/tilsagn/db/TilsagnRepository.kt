@@ -9,12 +9,8 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
-import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
-import no.nav.mulighetsrommet.api.tilsagn.model.ArrangorflateTilsagn
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
@@ -75,7 +71,7 @@ class TilsagnRepository(private val db: Database) {
             "periode_slutt" to dbo.periodeSlutt,
             "kostnadssted" to dbo.kostnadssted,
             "arrangor_id" to dbo.arrangorId,
-            "beregning" to Json.encodeToString<Prismodell.TilsagnBeregning>(dbo.beregning),
+            "beregning" to Json.encodeToString<TilsagnBeregning>(dbo.beregning),
             "status_endret_av" to dbo.endretAv.value,
             "status_endret_tidspunkt" to dbo.endretTidspunkt,
             "type" to dbo.type.name,
@@ -369,7 +365,7 @@ class TilsagnRepository(private val db: Database) {
                 navn = string("arrangor_navn"),
                 slettet = boolean("arrangor_slettet"),
             ),
-            beregning = Json.decodeFromString<Prismodell.TilsagnBeregning>(string("beregning")),
+            beregning = Json.decodeFromString<TilsagnBeregning>(string("beregning")),
             status = status,
             type = TilsagnType.valueOf(string("type")),
         )
@@ -391,7 +387,7 @@ class TilsagnRepository(private val db: Database) {
                 organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
                 navn = string("arrangor_navn"),
             ),
-            beregning = Json.decodeFromString<Prismodell.TilsagnBeregning>(string("beregning")),
+            beregning = Json.decodeFromString<TilsagnBeregning>(string("beregning")),
         )
     }
 }

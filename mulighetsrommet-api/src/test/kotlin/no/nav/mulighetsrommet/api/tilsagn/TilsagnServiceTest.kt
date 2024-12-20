@@ -12,11 +12,11 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.Forbidden
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -28,9 +28,7 @@ class TilsagnServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
-        gjennomforinger = listOf(
-            AFT1,
-        ),
+        gjennomforinger = listOf(AFT1),
     )
 
     beforeEach {
@@ -53,18 +51,12 @@ class TilsagnServiceTest : FunSpec({
         )
         val tilsagn = TilsagnRequest(
             id = UUID.randomUUID(),
-            tiltaksgjennomforingId = AFT1.id,
+            gjennomforingId = AFT1.id,
+            type = TilsagnType.TILSAGN,
             periodeStart = LocalDate.of(2023, 1, 1),
             periodeSlutt = LocalDate.of(2023, 2, 1),
             kostnadssted = Gjovik.enhetsnummer,
-            beregning = Prismodell.TilsagnBeregning.AFT(
-                belop = 123,
-                periodeStart = LocalDate.of(2023, 1, 1),
-                periodeSlutt = LocalDate.of(2023, 2, 1),
-                antallPlasser = 2,
-                sats = 4,
-            ),
-            type = TilsagnType.TILSAGN,
+            beregning = TilsagnBeregningFri.Input(belop = 0),
         )
 
         test("kan ikke beslutte egne") {
@@ -108,18 +100,12 @@ class TilsagnServiceTest : FunSpec({
         )
         val tilsagn = TilsagnRequest(
             id = UUID.randomUUID(),
-            tiltaksgjennomforingId = AFT1.id,
+            gjennomforingId = AFT1.id,
+            type = TilsagnType.TILSAGN,
             periodeStart = LocalDate.of(2023, 1, 1),
             periodeSlutt = LocalDate.of(2023, 2, 1),
             kostnadssted = Gjovik.enhetsnummer,
-            beregning = Prismodell.TilsagnBeregning.AFT(
-                belop = 123,
-                periodeStart = LocalDate.of(2023, 1, 1),
-                periodeSlutt = LocalDate.of(2023, 2, 1),
-                antallPlasser = 2,
-                sats = 4,
-            ),
-            type = TilsagnType.TILSAGN,
+            beregning = TilsagnBeregningFri.Input(belop = 0),
         )
 
         test("kan bare slette tilsagn når det er avvist") {

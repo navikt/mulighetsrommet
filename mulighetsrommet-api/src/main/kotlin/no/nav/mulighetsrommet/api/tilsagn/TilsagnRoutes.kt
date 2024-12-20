@@ -17,16 +17,13 @@ import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.temporal.TemporalAdjusters
 import java.util.*
 
@@ -54,12 +51,26 @@ fun Route.tilsagnRoutes() {
 
         get("/defaults") {
             val gjennomforingId: UUID by call.queryParameters
+            val type: TilsagnType by call.queryParameters
 
             val gjennomforing = gjennomforinger.get(gjennomforingId) ?: return@get call.respond(HttpStatusCode.NotFound)
 
-            val sisteTilsagn = tilsagn.getAll(type = TilsagnType.TILSAGN, gjennomforingId).firstOrNull()
+            val defaults = when (type) {
+                TilsagnType.TILSAGN -> {
+                    val sisteTilsagn = tilsagn.getAll(type = TilsagnType.TILSAGN, gjennomforingId).firstOrNull()
+                    resolveTilsagnDefaults(gjennomforing, sisteTilsagn)
+                }
 
-            val defaults = resolveTilsagnDefaults(gjennomforing, sisteTilsagn, service)
+                TilsagnType.EKSTRATILSAGN -> TilsagnDefaults(
+                    id = null,
+                    gjennomforingId = gjennomforing.id,
+                    type = TilsagnType.EKSTRATILSAGN,
+                    periodeStart = null,
+                    periodeSlutt = null,
+                    kostnadssted = null,
+                    beregning = null,
+                )
+            }
 
             call.respond(HttpStatusCode.OK, defaults)
         }
@@ -68,6 +79,7 @@ fun Route.tilsagnRoutes() {
             val request = call.receive<TilsagnBeregningInput>()
 
             val result = service.tilsagnBeregning(request)
+                .map { it.output }
                 .mapLeft { BadRequest(errors = it) }
 
             call.respondWithStatusResponse(result)
@@ -121,6 +133,7 @@ fun Route.tilsagnRoutes() {
         }
     }
 
+    // endre til en getAll med gjennomforingId, statuser osv
     route("/tiltaksgjennomforinger/{id}/tilsagn") {
         authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
             get {
@@ -136,46 +149,34 @@ fun Route.tilsagnRoutes() {
 
 @Serializable
 data class TilsagnDefaults(
-    val type: TilsagnType,
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID?,
+    @Serializable(with = UUIDSerializer::class)
+    val gjennomforingId: UUID?,
+    val type: TilsagnType?,
     @Serializable(with = LocalDateSerializer::class)
-    val periodeStart: LocalDate,
+    val periodeStart: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
-    val periodeSlutt: LocalDate,
-    val antallPlasser: Int,
+    val periodeSlutt: LocalDate?,
     val kostnadssted: String?,
-    val beregning: Prismodell.TilsagnBeregning?,
+    val beregning: TilsagnBeregningInput?,
 )
 
+// TODO: benytt TilsagnDefaults (modell med bare nullable) i begge tilfeller og valider at feltene ikke er null i stedet. Da kan vi gjøre all validering i backend!
 @Serializable
 data class TilsagnRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
-    val tiltaksgjennomforingId: UUID,
+    val gjennomforingId: UUID,
+    val type: TilsagnType,
     @Serializable(with = LocalDateSerializer::class)
     val periodeStart: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val periodeSlutt: LocalDate,
     val kostnadssted: String,
-    val beregning: Prismodell.TilsagnBeregning,
-    val type: TilsagnType,
-) {
-    fun toDbo(
-        opprettetAv: NavIdent,
-        arrangorId: UUID,
-    ) = TilsagnDbo(
-        id = id,
-        tiltaksgjennomforingId = tiltaksgjennomforingId,
-        periodeStart = periodeStart,
-        periodeSlutt = periodeSlutt,
-        kostnadssted = kostnadssted,
-        beregning = beregning,
-        endretAv = opprettetAv,
-        endretTidspunkt = LocalDateTime.now(),
-        arrangorId = arrangorId,
-        type = type,
-    )
-}
+    val beregning: TilsagnBeregningInput,
+)
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -215,7 +216,6 @@ data class AFTSats(
 private fun resolveTilsagnDefaults(
     gjennomforing: TiltaksgjennomforingDto,
     tilsagn: TilsagnDto?,
-    service: TilsagnService,
 ) = when (gjennomforing.tiltakstype.tiltakskode) {
     Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET -> {
         val periodeStart = listOfNotNull(
@@ -231,20 +231,21 @@ private fun resolveTilsagnDefaults(
             lastDayOfYear,
         ).min()
 
-        val beregningInput = TilsagnBeregningInput.AFT(
-            periodeStart = periodeStart,
-            periodeSlutt = periodeSlutt,
-            antallPlasser = gjennomforing.antallPlasser,
-        )
-        val beregning = service.tilsagnBeregning(input = beregningInput).getOrNull()
+        val sats = Prismodell.AFT.findSats(periodeStart)
 
         TilsagnDefaults(
+            id = null,
+            gjennomforingId = gjennomforing.id,
             type = TilsagnType.TILSAGN,
             periodeStart = periodeStart,
             periodeSlutt = periodeSlutt,
-            antallPlasser = gjennomforing.antallPlasser,
-            beregning = beregning,
             kostnadssted = null,
+            beregning = TilsagnBeregningAft.Input(
+                periodeStart = periodeStart,
+                periodeSlutt = periodeSlutt,
+                sats = sats,
+                antallPlasser = gjennomforing.antallPlasser,
+            ),
         )
     }
 
@@ -260,10 +261,11 @@ private fun resolveTilsagnDefaults(
         val periodeSlutt = listOfNotNull(gjennomforing.sluttDato, lastDayOfMonth).min()
 
         TilsagnDefaults(
+            id = null,
+            gjennomforingId = gjennomforing.id,
             type = TilsagnType.TILSAGN,
             periodeStart = periodeStart,
             periodeSlutt = periodeSlutt,
-            antallPlasser = gjennomforing.antallPlasser,
             kostnadssted = null,
             beregning = null,
         )

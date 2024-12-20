@@ -21,9 +21,9 @@ import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/Tiltaks
 import { TiltaksgjennomforingSkjemaPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
 import { TiltaksgjennomforingerForAvtalePage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerForAvtalePage";
 import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
-import { OpprettTilsagnSkjemaPage } from "./pages/tiltaksgjennomforinger/tilsagn/OpprettTilsagnSkjemaPage";
-import { TilsagnDetaljer } from "./pages/tiltaksgjennomforinger/tilsagn/TilsagnDetaljer";
-import { TilsagnForGjennomforingContainer } from "./pages/tiltaksgjennomforinger/tilsagn/TilsagnForGjennomforingContainer";
+import { OpprettTilsagnSkjemaPage } from "./pages/tiltaksgjennomforinger/tilsagn/opprett/OpprettTilsagnSkjemaPage";
+import { TilsagnDetaljer } from "./pages/tiltaksgjennomforinger/tilsagn/detaljer/TilsagnDetaljer";
+import { TilsagnForGjennomforingContainer } from "./pages/tiltaksgjennomforinger/tilsagn/tabell/TilsagnForGjennomforingContainer";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
@@ -31,7 +31,11 @@ import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerF
 import { tiltakstypeLoader, tiltakstyperLoaders } from "./pages/tiltakstyper/tiltakstyperLoaders";
 import { avtaleLoader, avtaleSkjemaLoader } from "./pages/avtaler/avtaleLoader";
 import { tiltaksgjennomforingLoader } from "./pages/tiltaksgjennomforinger/tiltaksgjennomforingLoaders";
-import { tilsagnLoader } from "./pages/tiltaksgjennomforinger/tilsagn/tilsagnLoader";
+import { tilsagnDetaljerLoader } from "./pages/tiltaksgjennomforinger/tilsagn/detaljer/tilsagnDetaljerLoader";
+import { redigerTilsagnLoader } from "@/pages/tiltaksgjennomforinger/tilsagn/rediger/redigerTilsagnLoader";
+import { opprettTilsagnLoader } from "@/pages/tiltaksgjennomforinger/tilsagn/opprett/opprettTilsagnLoader";
+import { RedigerTilsagnSkjemaPage } from "@/pages/tiltaksgjennomforinger/tilsagn/rediger/RedigerTilsagnSkjemaPage";
+import { tilsagnForGjennomforingLoader } from "@/pages/tiltaksgjennomforinger/tilsagn/tabell/tilsagnForGjennomforingLoader";
 import { RefusjonskravForGjennomforingContainer } from "./pages/tiltaksgjennomforinger/refusjonskrav/RefusjonskravForGjennomforingContainer";
 import { refusjonskravForGjennomforingLoader } from "./pages/tiltaksgjennomforinger/refusjonskrav/refusjonskravForGjennomforingLoader";
 
@@ -202,6 +206,7 @@ const router = () =>
               {
                 index: true,
                 element: <TilsagnForGjennomforingContainer />,
+                loader: tilsagnForGjennomforingLoader,
                 errorElement: <ErrorPage />,
               },
             ],
@@ -230,19 +235,19 @@ const router = () =>
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/opprett-tilsagn",
             element: <OpprettTilsagnSkjemaPage />,
             errorElement: <ErrorPage />,
-            loader: tilsagnLoader,
+            loader: opprettTilsagnLoader,
           },
           {
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId",
             element: <TilsagnDetaljer />,
             errorElement: <ErrorPage />,
-            loader: tilsagnLoader,
+            loader: tilsagnDetaljerLoader,
           },
           {
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId/rediger-tilsagn",
-            element: <OpprettTilsagnSkjemaPage />,
+            element: <RedigerTilsagnSkjemaPage />,
             errorElement: <ErrorPage />,
-            loader: tilsagnLoader,
+            loader: redigerTilsagnLoader,
           },
           {
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/skjema",
@@ -260,19 +265,19 @@ const router = () =>
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/opprett-tilsagn",
             element: <OpprettTilsagnSkjemaPage />,
             errorElement: <ErrorPage />,
-            loader: tilsagnLoader,
+            loader: opprettTilsagnLoader,
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId",
             element: <TilsagnDetaljer />,
             errorElement: <ErrorPage />,
-            loader: tilsagnLoader,
+            loader: tilsagnDetaljerLoader,
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId/rediger-tilsagn",
-            element: <OpprettTilsagnSkjemaPage />,
+            element: <RedigerTilsagnSkjemaPage />,
             errorElement: <ErrorPage />,
-            loader: tilsagnLoader,
+            loader: redigerTilsagnLoader,
           },
           {
             path: "arrangorer",
