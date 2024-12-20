@@ -8,7 +8,7 @@ import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { useTitle } from "@mr/frontend-common";
 import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
-import { Link, Outlet, useLocation, useMatch } from "react-router-dom";
+import { Link, Outlet, useLocation, useMatch } from "react-router";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import commonStyles from "../Page.module.scss";
 import styles from "./AvtalePage.module.scss";

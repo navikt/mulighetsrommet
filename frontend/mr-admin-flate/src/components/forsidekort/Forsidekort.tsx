@@ -1,5 +1,5 @@
 import { BodyShort, Heading } from "@navikt/ds-react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 import styles from "./Forsidekort.module.scss";
 import { logEvent } from "@/logging/amplitude";

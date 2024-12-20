@@ -3,7 +3,7 @@ import { AvtaleDto, OpsjonLoggRegistrert, OpsjonStatus } from "@mr/api-client";
 import { useSlettOpsjon } from "@/api/avtaler/useSlettOpsjon";
 import { formaterDato } from "@/utils/Utils";
 import styles from "./OpsjonerRegistrert.module.scss";
-import { useRevalidator } from "react-router-dom";
+import { useRevalidator } from "react-router";
 
 interface Props {
   avtale: AvtaleDto;

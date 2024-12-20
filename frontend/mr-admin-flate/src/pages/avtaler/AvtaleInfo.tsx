@@ -6,7 +6,7 @@ import { Toggles } from "@mr/api-client";
 import { InlineErrorBoundary } from "@mr/frontend-common";
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData } from "react-router";
 import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import styles from "./AvtaleInfo.module.scss";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";

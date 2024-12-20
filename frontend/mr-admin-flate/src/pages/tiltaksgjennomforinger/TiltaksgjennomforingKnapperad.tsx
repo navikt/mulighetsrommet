@@ -11,7 +11,7 @@ import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
 import React, { useRef } from "react";
-import { useNavigate, useRevalidator } from "react-router-dom";
+import { useNavigate, useRevalidator } from "react-router";
 
 interface Props {
   ansatt: NavAnsatt;

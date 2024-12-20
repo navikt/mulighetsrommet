@@ -10,7 +10,7 @@ import { avbrytAvtaleAarsakToString } from "@/utils/Utils";
 import { BodyShort, Button, Radio } from "@navikt/ds-react";
 import { AvbrytAvtaleAarsak, AvtaleDto } from "@mr/api-client";
 import { RefObject, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import z from "zod";
 import style from "./AvbrytGjennomforingAvtaleModal.module.scss";
 

@@ -6,7 +6,7 @@ import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { useTitle } from "@mr/frontend-common";
 import { Alert, Heading, Tabs } from "@navikt/ds-react";
-import { Link, Outlet, useLoaderData, useLocation, useMatch } from "react-router-dom";
+import { Link, Outlet, useLoaderData, useLocation, useMatch } from "react-router";
 import commonStyles from "../Page.module.scss";
 import { tiltakstypeLoader } from "./tiltakstyperLoaders";
 

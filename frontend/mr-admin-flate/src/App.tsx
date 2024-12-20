@@ -1,6 +1,6 @@
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import { AnsattService, NavAnsatt, NavAnsattRolle } from "@mr/api-client";
-import { createBrowserRouter, Outlet, RouterProvider, useLoaderData } from "react-router-dom";
+import { createBrowserRouter, Outlet, RouterProvider, useLoaderData } from "react-router";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
 import { IngenLesetilgang } from "./IngenLesetilgang";

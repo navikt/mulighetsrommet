@@ -9,7 +9,7 @@ import { InlineErrorBoundary } from "@mr/frontend-common";
 import { ExternalLinkIcon, MenuGridIcon } from "@navikt/aksel-icons";
 import { Dropdown, InternalHeader, Spacer } from "@navikt/ds-react";
 import { useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { Notifikasjonsbjelle } from "../notifikasjoner/Notifikasjonsbjelle";
 import styles from "./AdministratorHeader.module.scss";
 

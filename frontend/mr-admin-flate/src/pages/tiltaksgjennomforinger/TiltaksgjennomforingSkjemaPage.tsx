@@ -10,7 +10,7 @@ import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { avtaleHarRegioner, inneholderUrl } from "@/utils/Utils";
 import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 import { Alert, Heading } from "@navikt/ds-react";
-import { useLoaderData, useLocation, useMatch, useNavigate, useParams } from "react-router-dom";
+import { useLoaderData, useLocation, useMatch, useNavigate, useParams } from "react-router";
 import { tiltaksgjennomforingLoader } from "./tiltaksgjennomforingLoaders";
 
 export function TiltaksgjennomforingSkjemaPage() {

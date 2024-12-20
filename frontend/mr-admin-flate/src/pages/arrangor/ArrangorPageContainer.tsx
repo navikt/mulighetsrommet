@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router";
 import { ArrangorPage } from "./ArrangorPage";
 
 export function ArrangorPageContainer() {

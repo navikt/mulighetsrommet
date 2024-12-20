@@ -1,5 +1,5 @@
 import { Alert, Heading, VStack } from "@navikt/ds-react";
-import { useLoaderData, useMatch, useParams } from "react-router-dom";
+import { useLoaderData, useMatch, useParams } from "react-router";
 import { Header } from "@/components/detaljside/Header";
 import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";

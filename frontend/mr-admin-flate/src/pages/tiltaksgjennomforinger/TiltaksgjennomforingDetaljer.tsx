@@ -24,7 +24,7 @@ import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { BodyShort, HelpText, HStack, Tag } from "@navikt/ds-react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import styles from "./TiltaksgjennomforingDetaljer.module.scss";
 
 interface Props {

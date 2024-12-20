@@ -8,7 +8,7 @@ import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { Alert, BodyShort, Button, Radio } from "@navikt/ds-react";
 import { AvbrytGjennomforingAarsak, TiltaksgjennomforingDto } from "@mr/api-client";
 import { RefObject, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import z from "zod";
 
 export const AvbrytGjennomforingModalSchema = z

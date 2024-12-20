@@ -4,7 +4,7 @@ import { DemoImageHeader } from "@/components/DemoImageHeader";
 import { ArbeidsmarkedstiltakDetaljerSuspense } from "@/components/suspense/ArbeidsmarkedstiltakDetaljerSuspense";
 import { AppContainer } from "@/layouts/AppContainer";
 import "@navikt/ds-css";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router";
 import "./polyfill";
 import { Landingsside } from "./views/Landingsside";
 import { ModiaArbeidsmarkedstiltakDetaljer } from "./views/ModiaArbeidsmarkedstiltakDetaljer";

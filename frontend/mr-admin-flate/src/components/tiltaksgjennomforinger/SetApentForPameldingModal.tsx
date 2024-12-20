@@ -2,7 +2,7 @@ import { useSetApentForPamelding } from "@/api/tiltaksgjennomforing/useSetApentF
 import { TiltaksgjennomforingDto } from "@mr/api-client";
 import { Alert, Button, Modal, Switch } from "@navikt/ds-react";
 import { RefObject } from "react";
-import { useRevalidator } from "react-router-dom";
+import { useRevalidator } from "react-router";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;

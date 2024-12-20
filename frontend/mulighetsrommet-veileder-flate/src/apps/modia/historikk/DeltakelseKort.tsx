@@ -21,7 +21,7 @@ import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import styles from "./DeltakelseKort.module.scss";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL } from "@/constants";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 interface Props {
   deltakelse: Deltakelse;

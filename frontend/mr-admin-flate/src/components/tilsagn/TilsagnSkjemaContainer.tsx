@@ -1,5 +1,5 @@
 import { AvtaleDto, Avtaletype, TilsagnType, TiltaksgjennomforingDto } from "@mr/api-client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
 import { DeepPartial } from "react-hook-form";
 import { AftTilsagnSkjema } from "@/components/tilsagn/prismodell/aft/AftTilsagnSkjema";

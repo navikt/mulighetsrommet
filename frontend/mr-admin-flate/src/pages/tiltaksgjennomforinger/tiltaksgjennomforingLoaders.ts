@@ -1,5 +1,5 @@
 import { AnsattService, AvtalerService, TiltaksgjennomforingerService } from "@mr/api-client";
-import { LoaderFunctionArgs } from "react-router-dom";
+import { LoaderFunctionArgs } from "react-router";
 
 export async function tiltaksgjennomforingLoader({ params }: LoaderFunctionArgs) {
   const tiltaksgjennomforing = params.tiltaksgjennomforingId

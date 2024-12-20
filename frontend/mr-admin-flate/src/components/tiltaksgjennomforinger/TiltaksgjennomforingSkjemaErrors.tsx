@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { AvtaleDto } from "@mr/api-client";
 import { BodyShort } from "@navikt/ds-react";
 import { avtaleHarRegioner } from "../../utils/Utils";
