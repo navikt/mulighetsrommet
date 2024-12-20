@@ -1,12 +1,12 @@
+import { TilsagnTag } from "@/pages/tiltaksgjennomforinger/tilsagn/TilsagnTag";
+import { isTilsagnForhandsgodkjent } from "@/pages/tiltaksgjennomforinger/tilsagn/tilsagnUtils";
 import { formaterDato } from "@/utils/Utils";
-import { TilsagnBeregning, TilsagnDto } from "@mr/api-client";
+import { TilsagnDto } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { SortState, Table } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
 import { useState } from "react";
 import { Link, useParams } from "react-router";
-import { isAftBeregning } from "@/pages/tiltaksgjennomforinger/tilsagn/tilsagnUtils";
-import { TilsagnTag } from "@/pages/tiltaksgjennomforinger/tilsagn/TilsagnTag";
 
 interface TabellData extends TilsagnDto {
   antallPlasser: number | null;
@@ -64,7 +64,7 @@ export function TilsagnTabell({ tilsagn }: Props) {
   const sortedData: TabellData[] = [...tilsagn]
     .map((tilsagn) => ({
       ...tilsagn,
-      antallPlasser: getAntallPlasser(tilsagn.beregning),
+      antallPlasser: getAntallPlasser(tilsagn),
       navnForKostnadssted: tilsagn.kostnadssted.navn,
       belop: tilsagn.beregning.output.belop,
     }))
@@ -109,13 +109,12 @@ export function TilsagnTabell({ tilsagn }: Props) {
         {sortedData.map((tilsagn) => {
           const { periodeStart, periodeSlutt, kostnadssted, beregning, id } = tilsagn;
 
-          const antallPlasser = getAntallPlasser(beregning);
           return (
             <Table.Row key={id}>
               <Table.DataCell>{formaterDato(periodeStart)}</Table.DataCell>
               <Table.DataCell>{formaterDato(periodeSlutt)}</Table.DataCell>
               <Table.DataCell>{kostnadssted.navn}</Table.DataCell>
-              <Table.DataCell align="right">{antallPlasser}</Table.DataCell>
+              <Table.DataCell align="right">{getAntallPlasser(tilsagn)}</Table.DataCell>
               <Table.DataCell align="right">{formaterNOK(beregning.output.belop)}</Table.DataCell>
               <Table.DataCell align="right">
                 <TilsagnTag status={tilsagn.status} />
@@ -134,6 +133,6 @@ export function TilsagnTabell({ tilsagn }: Props) {
   );
 }
 
-function getAntallPlasser(beregning: TilsagnBeregning) {
-  return isAftBeregning(beregning) ? beregning.input.antallPlasser : null;
+function getAntallPlasser(tilsagn: TilsagnDto) {
+  return isTilsagnForhandsgodkjent(tilsagn) ? tilsagn.beregning.input.antallPlasser : null;
 }

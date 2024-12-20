@@ -5142,38 +5142,38 @@ components:
 
     TilsagnBeregning:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningAft"
+        - $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjent"
         - $ref: "#/components/schemas/TilsagnBeregningFri"
 
     TilsagnBeregningInput:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningAftInput"
+        - $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjentInput"
         - $ref: "#/components/schemas/TilsagnBeregningFriInput"
 
     TilsagnBeregningOutput:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningAftOutput"
+        - $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjentOutput"
         - $ref: "#/components/schemas/TilsagnBeregningFriOutput"
 
-    TilsagnBeregningAft:
+    TilsagnBeregningForhandsgodkjent:
       type: object
       properties:
         type:
-          const: AFT
+          const: FORHANDSGODKJENT
         input:
-          $ref: "#/components/schemas/TilsagnBeregningAftInput"
+          $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjentInput"
         output:
-          $ref: "#/components/schemas/TilsagnBeregningAftOutput"
+          $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjentOutput"
       required:
         - type
         - input
         - output
 
-    TilsagnBeregningAftInput:
+    TilsagnBeregningForhandsgodkjentInput:
       type: object
       properties:
         type:
-          const: AFT
+          const: FORHANDSGODKJENT
         periodeStart:
           type: string
           format: date
@@ -5191,11 +5191,11 @@ components:
         - sats
         - antallPlasser
 
-    TilsagnBeregningAftOutput:
+    TilsagnBeregningForhandsgodkjentOutput:
       type: object
       properties:
         type:
-          const: AFT
+          const: FORHANDSGODKJENT
         belop:
           type: integer
       required:

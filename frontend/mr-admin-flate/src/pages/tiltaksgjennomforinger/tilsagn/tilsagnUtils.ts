@@ -1,9 +1,13 @@
-import { TilsagnBeregning, TilsagnBeregningAft, TilsagnBeregningFri } from "@mr/api-client";
+import { TilsagnBeregningForhandsgodkjent, TilsagnBeregningFri, TilsagnDto } from "@mr/api-client";
 
-export function isAftBeregning(beregning: TilsagnBeregning): beregning is TilsagnBeregningAft {
-  return beregning.type === "AFT";
+export function isTilsagnForhandsgodkjent(
+  tilsagn: TilsagnDto,
+): tilsagn is TilsagnDto & { beregning: TilsagnBeregningForhandsgodkjent } {
+  return tilsagn.beregning.type === "FORHANDSGODKJENT";
 }
 
-export function isFriBeregning(beregning: TilsagnBeregning): beregning is TilsagnBeregningFri {
-  return beregning.type === "FRI";
+export function isTilsagnFri(
+  tilsagn: TilsagnDto,
+): tilsagn is TilsagnDto & { beregning: TilsagnBeregningFri } {
+  return tilsagn.beregning.type === "FRI";
 }

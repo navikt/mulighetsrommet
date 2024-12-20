@@ -4,7 +4,7 @@ import { tekster } from "@/components/tilsagn/prismodell/Tekster";
 
 const TilsagnBeregningSchema = z.discriminatedUnion("type", [
   z.object({
-    type: z.literal("AFT"),
+    type: z.literal("FORHANDSGODKJENT"),
     sats: z
       .number({
         invalid_type_error: "Sats mangler",

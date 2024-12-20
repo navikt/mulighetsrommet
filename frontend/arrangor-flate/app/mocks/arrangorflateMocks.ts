@@ -183,16 +183,16 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
       navn: "Fretex",
     },
     beregning: {
-      type: "AFT",
+      type: "FORHANDSGODKJENT",
       input: {
-        type: "AFT",
+        type: "FORHANDSGODKJENT",
         periodeStart: "2024-06-01",
         periodeSlutt: "2024-12-31",
         antallPlasser: 20,
         sats: 20205,
       },
       output: {
-        type: "AFT",
+        type: "FORHANDSGODKJENT",
         belop: 195700,
       },
     },
@@ -213,16 +213,16 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
       navn: "Fretex",
     },
     beregning: {
-      type: "AFT",
+      type: "FORHANDSGODKJENT",
       input: {
-        type: "AFT",
+        type: "FORHANDSGODKJENT",
         periodeStart: "2024-08-01",
         periodeSlutt: "2024-08-31",
         antallPlasser: 2,
         sats: 20205,
       },
       output: {
-        type: "AFT",
+        type: "FORHANDSGODKJENT",
         belop: 50000,
       },
     },
@@ -243,16 +243,16 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
       navn: "Fretex",
     },
     beregning: {
-      type: "AFT",
+      type: "FORHANDSGODKJENT",
       input: {
-        type: "AFT",
+        type: "FORHANDSGODKJENT",
         periodeStart: "2024-08-01",
         periodeSlutt: "2024-08-31",
         antallPlasser: 2,
         sats: 20205,
       },
       output: {
-        type: "AFT",
+        type: "FORHANDSGODKJENT",
         belop: 50000,
       },
     },

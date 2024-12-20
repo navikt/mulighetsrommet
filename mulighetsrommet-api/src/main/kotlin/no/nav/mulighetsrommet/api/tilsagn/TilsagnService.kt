@@ -75,13 +75,13 @@ class TilsagnService(
         return validator.validateBeregningInput(input)
             .map {
                 when (input) {
-                    is TilsagnBeregningAft.Input -> aftTilsagnBeregning(input)
+                    is TilsagnBeregningForhandsgodkjent.Input -> aftTilsagnBeregning(input)
                     is TilsagnBeregningFri.Input -> TilsagnBeregningFri(input, TilsagnBeregningFri.Output(input.belop))
                 }
             }
     }
 
-    private fun aftTilsagnBeregning(input: TilsagnBeregningAft.Input): TilsagnBeregningAft {
+    private fun aftTilsagnBeregning(input: TilsagnBeregningForhandsgodkjent.Input): TilsagnBeregningForhandsgodkjent {
         val belop = Prismodell.AFT.beregnTilsagnBelop(
             sats = input.sats,
             antallPlasser = input.antallPlasser,
@@ -89,8 +89,8 @@ class TilsagnService(
             periodeSlutt = input.periodeSlutt,
         )
 
-        val output = TilsagnBeregningAft.Output(belop = belop)
-        return TilsagnBeregningAft(input, output)
+        val output = TilsagnBeregningForhandsgodkjent.Output(belop = belop)
+        return TilsagnBeregningForhandsgodkjent(input, output)
     }
 
     suspend fun beslutt(id: UUID, besluttelse: BesluttTilsagnRequest, navIdent: NavIdent): StatusResponse<Unit> {

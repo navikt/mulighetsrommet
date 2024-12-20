@@ -1,7 +1,7 @@
 import { ArrangorflateTilsagn } from "@mr/api-client";
-import { Definisjonsliste, Definition } from "../Definisjonsliste";
-import { formaterDato } from "~/utils";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { formaterDato } from "~/utils";
+import { Definisjonsliste, Definition } from "../Definisjonsliste";
 
 interface Props {
   tilsagn: ArrangorflateTilsagn;
@@ -16,7 +16,7 @@ export function TilsagnDetaljer({ tilsagn }: Props) {
   ];
 
   const beregningDetaljer =
-    tilsagn.beregning.type === "AFT"
+    tilsagn.beregning.type === "FORHANDSGODKJENT"
       ? [
           { key: "Antall plasser", value: String(tilsagn.beregning.input.antallPlasser) },
           { key: "Sats", value: formaterNOK(tilsagn.beregning.input.sats) },

@@ -15,7 +15,7 @@ interface Props {
   defaultKostnadssteder: string[];
 }
 
-export function FriTilsagnSkjema(props: Props) {
+export function TilsagnSkjemaFri(props: Props) {
   return (
     <TilsagnSkjema
       {...props}

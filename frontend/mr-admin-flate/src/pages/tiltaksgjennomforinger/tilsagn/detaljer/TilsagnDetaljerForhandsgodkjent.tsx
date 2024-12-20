@@ -1,23 +1,17 @@
-import { TilsagnBeregningAft, TilsagnDto } from "@mr/api-client";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Heading, HStack } from "@navikt/ds-react";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata } from "@/components/detaljside/Metadata";
-import { formaterDato } from "@/utils/Utils";
 import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
 import { TilsagnTag } from "@/pages/tiltaksgjennomforinger/tilsagn/TilsagnTag";
+import { formaterDato } from "@/utils/Utils";
+import { TilsagnBeregningForhandsgodkjent, TilsagnDto } from "@mr/api-client";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { Heading, HStack } from "@navikt/ds-react";
 
 interface Props {
-  tilsagn: TilsagnDto;
+  tilsagn: TilsagnDto & { beregning: TilsagnBeregningForhandsgodkjent };
 }
 
-export function AFTTilsagnDetaljer({ tilsagn }: Props) {
-  if (tilsagn.beregning.type !== "AFT") {
-    throw new Error("Forventet AFT-tilsagn");
-  }
-
-  const beregning: TilsagnBeregningAft = tilsagn.beregning;
-
+export function TilsagnDetaljerForhandsgodkjent({ tilsagn }: Props) {
   return (
     <>
       <HStack justify={"space-between"} align={"baseline"} padding={"5"}>
@@ -38,8 +32,11 @@ export function AFTTilsagnDetaljer({ tilsagn }: Props) {
             />
           </Bolk>
           <Bolk>
-            <Metadata header="Antall plasser" verdi={beregning.input.antallPlasser} />
-            <Metadata header="Sats per plass per måned" verdi={formaterNOK(beregning.input.sats)} />
+            <Metadata header="Antall plasser" verdi={tilsagn.beregning.input.antallPlasser} />
+            <Metadata
+              header="Sats per plass per måned"
+              verdi={formaterNOK(tilsagn.beregning.input.sats)}
+            />
           </Bolk>
           <Bolk>
             <Metadata
