@@ -1,7 +1,6 @@
 import { useBesluttTilsagn } from "@/api/tilsagn/useBesluttTilsagn";
 import { Header } from "@/components/detaljside/Header";
 import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
-import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import {
@@ -118,10 +117,6 @@ export function TilsagnDetaljer() {
     if (tilsagn) {
       slettMutation.mutate({ id: tilsagn.id }, { onSuccess: navigerTilTilsagnTabell });
     }
-  }
-
-  if (!gjennomforing || !tilsagn) {
-    return <Laster tekst="Laster tilsagn..." />;
   }
 
   const visBesluttKnapp =
