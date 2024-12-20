@@ -1727,14 +1727,22 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TilsagnDto"
-
-  /api/v1/intern/tiltaksgjennomforinger/{tiltaksgjennomforingId}/tilsagn:
-    parameters:
-      - $ref: "#/components/parameters/tiltaksgjennomforingId"
     get:
       tags:
         - Tilsagn
-      operationId: tilsagnByTiltaksgjennomforing
+      operationId: getAll
+      parameters:
+        - name: gjennomforingId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: statuser
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/TilsagnStatus"
       responses:
         200:
           description: TiltagnDto
@@ -4914,7 +4922,7 @@ components:
             - navn
             - overordnetEnhet
         status:
-          $ref: "#/components/schemas/TilsagnStatus"
+          $ref: "#/components/schemas/TilsagnStatusDto"
         type:
           $ref: "#/components/schemas/TilsagnType"
       required:
@@ -4931,6 +4939,15 @@ components:
         - type
 
     TilsagnStatus:
+      type: string
+      enum:
+        - TIL_GODKJENNING
+        - GODKJENT
+        - RETURNERT
+        - TIL_ANNULLERING
+        - ANNULLERT
+
+    TilsagnStatusDto:
       oneOf:
         - $ref: "#/components/schemas/TilsagnStatusTilGodkjenning"
         - $ref: "#/components/schemas/TilsagnStatusGodkjent"

@@ -1,10 +1,10 @@
-import { TilsagnService, TiltaksgjennomforingerService } from "@mr/api-client";
+import { TilsagnService, TilsagnStatus, TiltaksgjennomforingerService } from "@mr/api-client";
 import { LoaderFunctionArgs } from "react-router-dom";
 
 export async function redigerTilsagnLoader({ params }: LoaderFunctionArgs) {
-  const { tiltaksgjennomforingId, tilsagnId } = params;
+  const { tiltaksgjennomforingId: gjennomforingId, tilsagnId } = params;
 
-  if (!tiltaksgjennomforingId) {
+  if (!gjennomforingId) {
     throw new Error("tiltaksgjennomforingId is missing");
   }
 
@@ -12,18 +12,11 @@ export async function redigerTilsagnLoader({ params }: LoaderFunctionArgs) {
     throw new Error("tilsagnId is missing");
   }
 
-  const [gjennomforing, tilsagn, alleTilsagn] = await Promise.all([
-    TiltaksgjennomforingerService.getTiltaksgjennomforing({
-      id: tiltaksgjennomforingId,
-    }),
+  const [gjennomforing, tilsagn, godkjenteTilsagn] = await Promise.all([
+    TiltaksgjennomforingerService.getTiltaksgjennomforing({ id: gjennomforingId }),
     TilsagnService.getTilsagn({ id: tilsagnId }),
-    TilsagnService.tilsagnByTiltaksgjennomforing({
-      tiltaksgjennomforingId,
-    }),
+    TilsagnService.getAll({ gjennomforingId, statuser: [TilsagnStatus.GODKJENT] }),
   ]);
-
-  // TODO: get by status og flytt til backend....
-  const godkjenteTilsagn = alleTilsagn.filter((d) => d.status.type === "GODKJENT");
 
   return { gjennomforing, tilsagn, godkjenteTilsagn };
 }

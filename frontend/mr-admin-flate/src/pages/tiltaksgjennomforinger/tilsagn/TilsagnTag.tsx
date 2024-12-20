@@ -1,11 +1,11 @@
-import { TilsagnStatus, TilsagnStatusAnnullert } from "@mr/api-client";
+import { TilsagnStatus, TilsagnStatusAnnullert, TilsagnStatusDto } from "@mr/api-client";
 import { BodyLong, List, Tag, VStack } from "@navikt/ds-react";
 import styles from "./TilsagnTag.module.scss";
 import { useState } from "react";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
 
 interface Props {
-  status: TilsagnStatus;
+  status: TilsagnStatusDto;
   expandable?: boolean;
 }
 
@@ -14,19 +14,19 @@ export function TilsagnTag(props: Props) {
   const [expandLabel, setExpandLabel] = useState<boolean>(false);
 
   switch (status.type) {
-    case "TIL_GODKJENNING":
+    case TilsagnStatus.TIL_GODKJENNING:
       return <Tag variant="alt1">Til godkjenning</Tag>;
-    case "GODKJENT":
+    case TilsagnStatus.GODKJENT:
       return <Tag variant="success">Godkjent</Tag>;
-    case "RETURNERT":
+    case TilsagnStatus.RETURNERT:
       return <Tag variant="error">Returnert</Tag>;
-    case "TIL_ANNULLERING":
+    case TilsagnStatus.TIL_ANNULLERING:
       return (
         <Tag variant="neutral" className={styles.til_annullering_tag}>
           Til annullering
         </Tag>
       );
-    case "ANNULLERT": {
+    case TilsagnStatus.ANNULLERT: {
       const annullertLabel = expandable ? "Annullert..." : "Annullert";
       return (
         <Tag
