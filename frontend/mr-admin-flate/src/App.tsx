@@ -38,6 +38,8 @@ import { RedigerTilsagnSkjemaPage } from "@/pages/tiltaksgjennomforinger/tilsagn
 import { tilsagnForGjennomforingLoader } from "@/pages/tiltaksgjennomforinger/tilsagn/tabell/tilsagnForGjennomforingLoader";
 import { RefusjonskravForGjennomforingContainer } from "./pages/tiltaksgjennomforinger/refusjonskrav/RefusjonskravForGjennomforingContainer";
 import { refusjonskravForGjennomforingLoader } from "./pages/tiltaksgjennomforinger/refusjonskrav/refusjonskravForGjennomforingLoader";
+import { RefusjonskravDetaljer } from "./pages/tiltaksgjennomforinger/refusjonskrav/detaljer/RefusjonskravDetaljer";
+import { refusjonskravDetaljerLoader } from "./pages/tiltaksgjennomforinger/refusjonskrav/detaljer/refusjonskravDetaljerLoader";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -250,6 +252,12 @@ const router = () =>
             loader: redigerTilsagnLoader,
           },
           {
+            path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/refusjonskrav/:refusjonskravId",
+            element: <RefusjonskravDetaljer />,
+            errorElement: <ErrorPage />,
+            loader: refusjonskravDetaljerLoader,
+          },
+          {
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/skjema",
             element: <TiltaksgjennomforingSkjemaPage />,
             errorElement: <ErrorPage />,
@@ -278,6 +286,12 @@ const router = () =>
             element: <RedigerTilsagnSkjemaPage />,
             errorElement: <ErrorPage />,
             loader: redigerTilsagnLoader,
+          },
+          {
+            path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/refusjonskrav/:refusjonskravId",
+            element: <RefusjonskravDetaljer />,
+            errorElement: <ErrorPage />,
+            loader: refusjonskravDetaljerLoader,
           },
           {
             path: "arrangorer",

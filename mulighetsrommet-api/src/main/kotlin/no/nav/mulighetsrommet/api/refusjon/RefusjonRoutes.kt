@@ -14,6 +14,18 @@ import java.util.*
 fun Route.refusjonRoutes() {
     val refusjonskravRepository: RefusjonskravRepository by inject()
 
+    route("/refusjonskrav/{id}") {
+        get {
+            val id = call.parameters.getOrFail<UUID>("id")
+
+            val krav = refusjonskravRepository.get(id)
+                ?.let { RefusjonKravKompakt.fromRefusjonskravDto(it) }
+                ?: return@get call.respond(HttpStatusCode.NotFound)
+
+            call.respond(krav)
+        }
+    }
+
     route("/tiltaksgjennomforinger/{id}/refusjonskrav") {
         authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
             get {

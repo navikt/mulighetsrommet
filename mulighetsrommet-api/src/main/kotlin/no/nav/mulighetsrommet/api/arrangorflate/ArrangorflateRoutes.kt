@@ -53,7 +53,7 @@ fun Route.arrangorflateRoutes() {
     val pdl: HentAdressebeskyttetPersonBolkPdlQuery by inject()
     val journalforRefusjonskrav: JournalforRefusjonskrav by inject()
     val db: Database by inject()
-    val pdf: PdfGenClient by inject()
+    val pdfClient: PdfGenClient by inject()
 
     suspend fun RoutingContext.arrangorerMedTilgang(): List<ArrangorDto> {
         return call.principal<ArrangorflatePrincipal>()
@@ -172,7 +172,7 @@ fun Route.arrangorflateRoutes() {
                     periode = krav.beregning.input.periode,
                 )
                 val refusjonsKravAft = toRefusjonskrav(pdl, deltakerRepository, krav)
-                val pdf = pdf.getRefusjonKvittering(refusjonsKravAft, tilsagn)
+                val pdf = pdfClient.getRefusjonKvittering(refusjonsKravAft, tilsagn)
 
                 call.response.headers.append(
                     "Content-Disposition",
