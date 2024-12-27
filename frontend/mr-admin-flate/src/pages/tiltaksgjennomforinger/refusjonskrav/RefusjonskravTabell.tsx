@@ -3,6 +3,7 @@ import { RefusjonKravKompakt, RefusjonskravStatus } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Table, Tag } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
+import { Link, useParams } from "react-router";
 import { ReactNode } from "react";
 
 interface Props {
@@ -10,6 +11,8 @@ interface Props {
 }
 
 export function RefusjonskravTabell({ refusjonskrav }: Props) {
+  const { tiltaksgjennomforingId } = useParams();
+
   return (
     <Table>
       <Table.Header>
@@ -26,6 +29,7 @@ export function RefusjonskravTabell({ refusjonskrav }: Props) {
           <TableColumnHeader sortKey={"status"} sortable align="right">
             Status
           </TableColumnHeader>
+          <TableColumnHeader></TableColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>
@@ -39,6 +43,11 @@ export function RefusjonskravTabell({ refusjonskrav }: Props) {
               <Table.DataCell align="right">{formaterNOK(beregning.belop)}</Table.DataCell>
               <Table.DataCell align="right">
                 <RefusjonskravStatusTag status={status} />
+              </Table.DataCell>
+              <Table.DataCell>
+                <Link to={`/tiltaksgjennomforinger/${tiltaksgjennomforingId}/refusjonskrav/${id}`}>
+                  Detaljer
+                </Link>
               </Table.DataCell>
             </Table.Row>
           );
