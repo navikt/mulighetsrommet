@@ -11,7 +11,6 @@ import { FilterAccordionHeader } from "./components/filter/accordionHeader/Filte
 import { GjennomforingStatusTag } from "./components/gjennomforing/GjennomforingStatusTag";
 import { GjennomforingStatusMedAarsakTag } from "./components/gjennomforing/GjennomforingStatusMedAarsakTag";
 import { FilterSkeleton } from "./components/skeleton/FilterSkeleton";
-import { Drawer } from "./components/drawer/Drawer";
 import {
   InlineErrorBoundary,
   InlineFallback,
@@ -40,7 +39,6 @@ export {
   FilterTagsContainer,
   FilterAccordionHeader,
   FilterSkeleton,
-  Drawer,
   ReloadAppErrorBoundary,
   InlineErrorBoundary,
   InlineFallback,
