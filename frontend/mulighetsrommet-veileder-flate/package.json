@@ -63,7 +63,7 @@
     "dotenv": "16.4.7",
     "msw": "2.7.0",
     "playwright": "1.49.1",
-    "rollup-plugin-visualizer": "5.13.0",
+    "rollup-plugin-visualizer": "5.13.1",
     "sass-embedded": "1.83.0",
     "typescript": "5.7.2",
     "vite": "6.0.6",
