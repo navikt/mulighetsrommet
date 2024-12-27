@@ -82,7 +82,7 @@ const NavKontaktpersonInfo = ({ kontaktinfo }: NavKontaktpersonInfoProps) => {
 };
 
 interface Props {
-  modalRef: RefObject<HTMLDialogElement | null>;
+  modalRef: RefObject<HTMLDialogElement>;
   epost: string;
 }
 

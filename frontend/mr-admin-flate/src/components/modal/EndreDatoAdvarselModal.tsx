@@ -3,7 +3,7 @@ import { RefObject } from "react";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 
 interface Props {
-  modalRef: RefObject<HTMLDialogElement | null>;
+  modalRef: RefObject<HTMLDialogElement>;
   onCancel: () => void;
   antallDeltakere: number;
 }

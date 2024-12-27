@@ -9,7 +9,7 @@ import {
 } from "@navikt/aksel-icons";
 
 interface Props {
-  modalRef: RefObject<HTMLDialogElement | null>;
+  modalRef: RefObject<HTMLDialogElement>;
   open?: boolean;
   handleClose: () => void;
   headingIconType?: "warning" | "error" | "info";

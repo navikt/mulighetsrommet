@@ -15,7 +15,7 @@ import { RegistrerOpsjonSkjema } from "./RegistrerOpsjonSkjema";
 import { useRevalidator } from "react-router";
 
 interface Props {
-  modalRef: RefObject<HTMLDialogElement | null>;
+  modalRef: RefObject<HTMLDialogElement>;
   avtale: AvtaleDto;
 }
 
@@ -119,7 +119,7 @@ function SluttDatoErLikEllerPassererMaksVarighetModal({
   modalRef,
   avtale,
 }: {
-  modalRef: RefObject<HTMLDialogElement | null>;
+  modalRef: RefObject<HTMLDialogElement>;
   avtale: AvtaleDto;
 }) {
   return (

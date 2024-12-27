@@ -8,7 +8,6 @@ import { isValidationError } from "@mr/frontend-common/utils/utils";
 import { useOpprettTilsagn } from "@/api/tilsagn/useOpprettTilsagn";
 import { VelgPeriode } from "@/components/tilsagn/prismodell/VelgPeriode";
 import { InferredTilsagn, TilsagnSchema } from "@/components/tilsagn/prismodell/TilsagnSchema";
-import { JSX } from "react";
 
 interface Props {
   gjennomforing: TiltaksgjennomforingDto;
