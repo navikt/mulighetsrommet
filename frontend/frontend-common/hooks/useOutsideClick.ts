@@ -1,7 +1,7 @@
 import React from "react";
 
 export function useOutsideClick(callback: () => void) {
-  const ref = React.useRef<any>();
+  const ref = React.useRef<any>(null);
 
   React.useEffect(() => {
     const handleClick = (event: MouseEvent) => {

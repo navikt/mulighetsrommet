@@ -15,7 +15,7 @@ import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 interface Props {
   onClose: () => void;
   kontaktperson: ArrangorKontaktperson;
-  modalRef: RefObject<HTMLDialogElement>;
+  modalRef: RefObject<HTMLDialogElement | null>;
 }
 
 export function SlettKontaktpersonModal({ onClose, kontaktperson, modalRef }: Props) {
