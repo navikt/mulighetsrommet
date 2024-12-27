@@ -10,7 +10,7 @@ import styles from "./ArrangorKontaktpersonerModal.module.scss";
 
 interface Props {
   arrangorId: string;
-  modalRef: RefObject<HTMLDialogElement>;
+  modalRef: RefObject<HTMLDialogElement | null>;
   onOpprettSuccess: (kontaktperson: ArrangorKontaktperson) => void;
 }
 
