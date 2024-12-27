@@ -5,7 +5,7 @@ import { RefObject } from "react";
 import { useRevalidator } from "react-router";
 
 interface Props {
-  modalRef: RefObject<HTMLDialogElement | null>;
+  modalRef: RefObject<HTMLDialogElement>;
   gjennomforing: TiltaksgjennomforingDto;
 }
 
