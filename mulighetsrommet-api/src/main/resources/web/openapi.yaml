@@ -1770,6 +1770,21 @@ paths:
                 items:
                   $ref: "#/components/schemas/RefusjonKravKompakt"
 
+  /api/v1/intern/refusjonskrav/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Refusjonskrav
+      operationId: getRefusjonskrav
+      responses:
+        200:
+          description: RefusjonKravKompakt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefusjonKravKompakt"
+
   /api/v1/intern/tilsagn/beregn:
     post:
       tags:
