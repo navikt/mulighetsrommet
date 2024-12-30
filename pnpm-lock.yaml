@@ -324,8 +324,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       react-error-boundary:
-        specifier: 4.1.2
-        version: 4.1.2(react@18.3.1)
+        specifier: 5.0.0
+        version: 5.0.0(react@18.3.1)
       react-hook-form:
         specifier: 7.54.1
         version: 7.54.1(react@18.3.1)
@@ -600,8 +600,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       react-error-boundary:
-        specifier: 4.1.2
-        version: 4.1.2(react@18.3.1)
+        specifier: 5.0.0
+        version: 5.0.0(react@18.3.1)
       react-joyride:
         specifier: 2.9.3
         version: 2.9.3(@types/react@18.3.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2243,9 +2243,6 @@ packages:
       html-react-parser: '>=5.x'
       jsdom: '>=16.x'
       react: '>=17.x'
-    peerDependenciesMeta:
-      react:
-        optional: true
 
   '@navikt/oasis@3.6.0':
     resolution: {integrity: sha512-g+0plp7xNUo1ZNv0ahL80A96Swu8RRv/pE1ZYAp9t1AGo6RHUicF3PYuyiQH+xtXrdiXQk29KumS+jCqURswlA==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/3.6.0/8e7b3918165b037c18cfbc36ad4aeee04fc0650f}
@@ -6381,8 +6378,8 @@ packages:
     peerDependencies:
       react: ^18.3.1
 
-  react-error-boundary@4.1.2:
-    resolution: {integrity: sha512-GQDxZ5Jd+Aq/qUxbCm1UtzmL/s++V7zKgE8yMktJiCQXCCFZnMZh9ng+6/Ne6PjNSXH0L9CjeOEREfRnq6Duag==}
+  react-error-boundary@5.0.0:
+    resolution: {integrity: sha512-tnjAxG+IkpLephNcePNA7v6F/QpWLH8He65+DmedchDwg162JZqx4NmbXj0mlAYVVEd81OW7aFhmbsScYfiAFQ==}
     peerDependencies:
       react: '>=16.13.1'
 
@@ -9980,7 +9977,6 @@ snapshots:
       csp-header: 6.0.0
       html-react-parser: 5.2.1(@types/react@18.3.12)(react@18.3.1)
       jsdom: 25.0.1
-    optionalDependencies:
       react: 18.3.1
 
   '@navikt/oasis@3.6.0':
@@ -14753,7 +14749,7 @@ snapshots:
       react: 18.3.1
       scheduler: 0.23.2
 
-  react-error-boundary@4.1.2(react@18.3.1):
+  react-error-boundary@5.0.0(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.26.0
       react: 18.3.1
