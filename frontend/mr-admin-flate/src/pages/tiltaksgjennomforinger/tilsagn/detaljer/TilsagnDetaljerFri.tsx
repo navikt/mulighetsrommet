@@ -1,17 +1,17 @@
+import { Bolk } from "@/components/detaljside/Bolk";
+import { Metadata } from "@/components/detaljside/Metadata";
+import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
+import { TilsagnTag } from "@/pages/tiltaksgjennomforinger/tilsagn/TilsagnTag";
+import { formaterDato } from "@/utils/Utils";
 import { TilsagnDto } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Heading, HStack } from "@navikt/ds-react";
-import { Bolk } from "@/components/detaljside/Bolk";
-import { Metadata } from "@/components/detaljside/Metadata";
-import { formaterDato } from "@/utils/Utils";
-import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
-import { TilsagnTag } from "@/pages/tiltaksgjennomforinger/tilsagn/TilsagnTag";
 
 interface Props {
   tilsagn: TilsagnDto;
 }
 
-export function FriTilsagnDetaljer({ tilsagn }: Props) {
+export function TilsagnDetaljerFri({ tilsagn }: Props) {
   return (
     <>
       <HStack justify={"space-between"} align={"baseline"} padding={"5"}>

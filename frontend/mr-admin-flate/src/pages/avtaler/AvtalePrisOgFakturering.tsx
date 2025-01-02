@@ -17,12 +17,13 @@ import { DateInput } from "@/components/skjema/DateInput";
 import { SkjemaInputContainer } from "@/components/skjema/SkjemaInputContainer";
 import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
 
+type Prismodell = "FORHANDSGODKJENT" | "FRI";
+
 export function AvtalePrisOgFakturering() {
   const { avtale } = useLoaderData<typeof avtaleLoader>();
 
-  // TOOD: rename "AFT" til "FORHANDSGODKJENT"
-  const [prismodell, setPrismodell] = useState<string>(
-    avtale.avtaletype === Avtaletype.FORHAANDSGODKJENT ? "AFT" : "FRI",
+  const [prismodell, setPrismodell] = useState<Prismodell>(
+    avtale.avtaletype === Avtaletype.FORHAANDSGODKJENT ? "FORHANDSGODKJENT" : "FRI",
   );
 
   return (
@@ -46,12 +47,14 @@ export function AvtalePrisOgFakturering() {
               label="Prismodell"
               size="small"
               value={prismodell}
-              onChange={(e) => setPrismodell(e.target.value)}
+              onChange={(e) => setPrismodell(e.target.value as Prismodell)}
             >
-              <option value={"AFT"}>Standardpris per tiltaksplass per måned</option>
+              <option value={"FORHANDSGODKJENT"}>Standardpris per tiltaksplass per måned</option>
               <option value={"FRI"}>Fri prismodell</option>
             </Select>
-            {prismodell === "AFT" && <ForhandsgodkjentAvtalePrismodell avtaleId={avtale.id} />}
+            {prismodell === "FORHANDSGODKJENT" && (
+              <ForhandsgodkjentAvtalePrismodell avtaleId={avtale.id} />
+            )}
           </VStack>
         </Box>
       </SkjemaInputContainer>

@@ -8,7 +8,7 @@ import arrow.core.right
 import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAft
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningForhandsgodkjent
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningInput
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
@@ -41,12 +41,12 @@ class TilsagnValidator {
 
     fun validateBeregningInput(input: TilsagnBeregningInput): Either<List<ValidationError>, TilsagnBeregningInput> = either {
         return when (input) {
-            is TilsagnBeregningAft.Input -> validateAFTTilsagnBeregningInput(input)
+            is TilsagnBeregningForhandsgodkjent.Input -> validateAFTTilsagnBeregningInput(input)
             is TilsagnBeregningFri.Input -> input.right()
         }
     }
 
-    private fun validateAFTTilsagnBeregningInput(input: TilsagnBeregningAft.Input): Either<List<ValidationError>, TilsagnBeregningInput> = either {
+    private fun validateAFTTilsagnBeregningInput(input: TilsagnBeregningForhandsgodkjent.Input): Either<List<ValidationError>, TilsagnBeregningInput> = either {
         val errors = buildList {
             if (input.periodeStart.year != input.periodeSlutt.year) {
                 add(
