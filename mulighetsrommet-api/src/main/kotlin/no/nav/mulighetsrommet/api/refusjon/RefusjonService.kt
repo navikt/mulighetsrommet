@@ -1,11 +1,11 @@
 package no.nav.mulighetsrommet.api.refusjon
 
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.refusjon.model.*
+import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
@@ -70,7 +70,7 @@ class RefusjonService(
         val deltakere = getDeltakelser(gjennomforingId, periode)
 
         // TODO: burde også verifisere at start og slutt har samme pris
-        val sats = Prismodell.AFT.findSats(periode.start)
+        val sats = ForhandsgodkjenteSatser.findSats(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, periode.start)
             ?: throw IllegalStateException("Sats mangler for periode $periode")
 
         val input = RefusjonKravBeregningAft.Input(

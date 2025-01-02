@@ -1,6 +1,7 @@
-package no.nav.mulighetsrommet.api.okonomi
+package no.nav.mulighetsrommet.api.tilsagn.model
 
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import java.time.LocalDate
 
 data class ForhandsgodkjentSats(
@@ -8,7 +9,21 @@ data class ForhandsgodkjentSats(
     val belop: Int,
 )
 
-object Prismodell {
+object ForhandsgodkjenteSatser {
+
+    fun satser(tiltakskode: Tiltakskode): List<ForhandsgodkjentSats> {
+        return when (tiltakskode) {
+            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING -> AFT.satser
+            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET -> VTA.satser
+            else -> emptyList()
+        }
+    }
+
+    fun findSats(tiltakskode: Tiltakskode, periodeStart: LocalDate): Int? {
+        val satser = satser(tiltakskode)
+        return satser.firstOrNull { periodeStart in it.periode }?.belop
+    }
+
     object VTA {
         val satser: List<ForhandsgodkjentSats> = listOf(
             ForhandsgodkjentSats(
@@ -59,9 +74,5 @@ object Prismodell {
                 belop = 19500,
             ),
         )
-
-        fun findSats(periodeStart: LocalDate): Int? {
-            return satser.firstOrNull { periodeStart in it.periode }?.belop
-        }
     }
 }
