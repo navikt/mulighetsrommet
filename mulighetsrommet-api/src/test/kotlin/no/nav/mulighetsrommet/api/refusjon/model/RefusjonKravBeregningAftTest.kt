@@ -1,14 +1,14 @@
-package no.nav.mulighetsrommet.api.okonomi
+package no.nav.mulighetsrommet.api.refusjon.model
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.refusjon.model.*
 import java.time.LocalDate
 import java.util.*
 
-class PrismodellTest : FunSpec({
+class RefusjonKravBeregningAftTest : FunSpec({
+
     context("AFT refusjon beregning") {
         val periodeStart = LocalDate.of(2023, 6, 1)
         val periodeMidt = LocalDate.of(2023, 6, 16)
@@ -134,9 +134,9 @@ class PrismodellTest : FunSpec({
                 val periode = RefusjonskravPeriode(periodeStart, periodeSlutt)
                 val input = RefusjonKravBeregningAft.Input(periode, 100, deltakelser)
 
-                val beregning = Prismodell.AFT.beregnRefusjonBelop(input)
+                val beregning = RefusjonKravBeregningAft.beregn(input)
 
-                beregning shouldBe expectedBeregning
+                beregning.output shouldBe expectedBeregning
             }
         }
     }

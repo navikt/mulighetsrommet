@@ -79,9 +79,7 @@ class RefusjonService(
             deltakelser = deltakere,
         )
 
-        val output = Prismodell.AFT.beregnRefusjonBelop(input)
-
-        val beregning = RefusjonKravBeregningAft(input, output)
+        val beregning = RefusjonKravBeregningAft.beregn(input)
 
         val forrigeKrav = refusjonskravRepository.getSisteGodkjenteRefusjonskrav(gjennomforingId)
 
