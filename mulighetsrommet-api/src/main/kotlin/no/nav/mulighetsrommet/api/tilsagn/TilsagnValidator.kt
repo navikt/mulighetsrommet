@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningInput
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
 
-class TilsagnValidator {
+object TilsagnValidator {
     fun validate(
         next: TilsagnDbo,
         previous: TilsagnDto?,
