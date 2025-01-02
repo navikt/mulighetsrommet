@@ -12,7 +12,8 @@ import no.nav.mulighetsrommet.api.avtale.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.OpsjonsmodellData
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.domain.dto.*
+import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
+import no.nav.mulighetsrommet.api.domain.dto.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.responses.StatusResponseError
@@ -63,7 +64,8 @@ class AvtaleRepository(private val db: Database) {
                 faneinnhold,
                 personvern_bekreftet,
                 opsjonsmodell,
-                opsjon_custom_opsjonsmodell_navn
+                opsjon_custom_opsjonsmodell_navn,
+                prismodell
             ) values (
                 :id::uuid,
                 :navn,
@@ -82,7 +84,8 @@ class AvtaleRepository(private val db: Database) {
                 :faneinnhold::jsonb,
                 :personvern_bekreftet,
                 :opsjonsmodell::opsjonsmodell,
-                :opsjonCustomOpsjonsmodellNavn
+                :opsjonCustomOpsjonsmodellNavn,
+                :prismodell::avtale_prismodell
             ) on conflict (id) do update set
                 navn                        = excluded.navn,
                 tiltakstype_id              = excluded.tiltakstype_id,
@@ -100,7 +103,8 @@ class AvtaleRepository(private val db: Database) {
                 faneinnhold                 = excluded.faneinnhold,
                 personvern_bekreftet        = excluded.personvern_bekreftet,
                 opsjonsmodell               = excluded.opsjonsmodell,
-                opsjon_custom_opsjonsmodell_navn = excluded.opsjon_custom_opsjonsmodell_navn
+                opsjon_custom_opsjonsmodell_navn = excluded.opsjon_custom_opsjonsmodell_navn,
+                prismodell                  = excluded.prismodell
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -506,6 +510,7 @@ class AvtaleRepository(private val db: Database) {
         "personvern_bekreftet" to personvernBekreftet,
         "opsjonsmodell" to opsjonsmodell?.name,
         "opsjonCustomOpsjonsmodellNavn" to customOpsjonsmodellNavn,
+        "prismodell" to prismodell?.name,
     )
 
     private fun ArenaAvtaleDbo.toSqlParameters(arrangorId: UUID): Map<String, Any?> {
@@ -618,6 +623,7 @@ class AvtaleRepository(private val db: Database) {
             opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.aktivertDato },
             amoKategorisering = amoKategorisering,
             utdanningslop = utdanningslop,
+            prismodell = stringOrNull("prismodell")?.let { Prismodell.valueOf(it) },
         )
     }
 

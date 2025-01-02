@@ -201,6 +201,7 @@ class NavAnsattSyncServiceTest : FunSpec({
             amoKategorisering = null,
             opsjonerRegistrert = emptyList(),
             utdanningslop = null,
+            prismodell = null,
         )
 
         every { navEnhetService.hentOverordnetFylkesenhet(any()) } returns

@@ -31,4 +31,5 @@ data class AvtaleDbo(
     val opsjonsmodell: Opsjonsmodell?,
     val customOpsjonsmodellNavn: String?,
     val utdanningslop: UtdanningslopDbo?,
+    val prismodell: Prismodell?,
 )

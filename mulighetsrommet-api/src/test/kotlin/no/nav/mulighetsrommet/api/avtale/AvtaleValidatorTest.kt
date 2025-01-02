@@ -109,6 +109,7 @@ class AvtaleValidatorTest : FunSpec({
         opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
         utdanningslop = null,
+        prismodell = null,
     )
 
     lateinit var navEnheterService: NavEnhetService
@@ -487,6 +488,7 @@ class AvtaleValidatorTest : FunSpec({
                 opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
                 customOpsjonsmodellNavn = null,
                 utdanningslop = null,
+                prismodell = null,
             )
 
             avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))

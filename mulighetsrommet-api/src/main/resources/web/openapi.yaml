@@ -2472,6 +2472,8 @@ components:
             $ref: "#/components/schemas/OpsjonLoggRegistrert"
         utdanningslop:
           $ref: "#/components/schemas/Utdanningslop"
+        prismodell:
+          $ref: "#/components/schemas/Prismodell"
       required:
         - id
         - tiltakstype
@@ -2559,6 +2561,9 @@ components:
         utdanningslop:
           $ref: "#/components/schemas/UtdanningslopDbo"
           nullable: true
+        prismodell:
+          $ref: "#/components/schemas/Prismodell"
+          nullable: true
       required:
         - id
         - navn
@@ -2580,6 +2585,13 @@ components:
         - amoKategorisering
         - opsjonsmodellData
         - utdanningslop
+        - prismodell
+
+    Prismodell:
+      type: string
+      enum:
+        - FORHANDSGODKJENT
+        - FRI
 
     EmbeddedTiltakstype:
       type: object
