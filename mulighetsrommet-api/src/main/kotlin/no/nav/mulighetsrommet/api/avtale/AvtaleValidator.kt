@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatofo
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.Prismodell
 import no.nav.mulighetsrommet.domain.dto.allowedAvtaletypes
 import no.nav.mulighetsrommet.unleash.UnleashService
 
@@ -92,6 +93,7 @@ class AvtaleValidator(
                     }
                 }
             }
+
             if (currentAvtale?.opsjonerRegistrert?.isNotEmpty() == true && avtale.avtaletype != currentAvtale.avtaletype) {
                 add(
                     ValidationError.of(
@@ -133,6 +135,24 @@ class AvtaleValidator(
             } else {
                 if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && avtale.opsjonsmodell != Opsjonsmodell.AVTALE_VALGFRI_SLUTTDATO && avtale.sluttDato == null) {
                     add(ValidationError.of(AvtaleDbo::sluttDato, "Du må legge inn sluttdato for avtalen"))
+                }
+            }
+
+            if (avtale.prismodell != null) {
+                if (avtale.avtaletype == Avtaletype.Forhaandsgodkjent && avtale.prismodell != Prismodell.FORHANDSGODKJENT) {
+                    add(
+                        ValidationError.of(
+                            AvtaleDbo::prismodell,
+                            "Prismodellen må være forhåndsgodkjent",
+                        ),
+                    )
+                } else if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && avtale.prismodell == Prismodell.FORHANDSGODKJENT) {
+                    add(
+                        ValidationError.of(
+                            AvtaleDbo::prismodell,
+                            "Prismodellen kan ikke være forhåndsgodkjent",
+                        ),
+                    )
                 }
             }
 
