@@ -25,7 +25,6 @@ import java.util.*
 class TilsagnService(
     private val tilsagnRepository: TilsagnRepository,
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
-    private val validator: TilsagnValidator,
     private val endringshistorikkService: EndringshistorikkService,
     private val db: Database,
 ) {
@@ -57,7 +56,7 @@ class TilsagnService(
                 )
             }
             .flatMap { dbo ->
-                validator.validate(dbo, previous)
+                TilsagnValidator.validate(dbo, previous)
             }
             .map { dbo ->
                 db.transactionSuspend { tx ->
@@ -72,7 +71,7 @@ class TilsagnService(
     }
 
     fun tilsagnBeregning(input: TilsagnBeregningInput): Either<List<ValidationError>, TilsagnBeregning> {
-        return validator.validateBeregningInput(input)
+        return TilsagnValidator.validateBeregningInput(input)
             .map {
                 when (input) {
                     is TilsagnBeregningForhandsgodkjent.Input -> aftTilsagnBeregning(input)
