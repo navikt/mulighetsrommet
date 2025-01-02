@@ -3,11 +3,9 @@ package no.nav.mulighetsrommet.api.okonomi
 import no.nav.mulighetsrommet.api.refusjon.model.DeltakelseManedsverk
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
-import java.lang.Math.addExact
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDate
-import kotlin.streams.asSequence
 
 data class ForhandsgodkjentSats(
     val periode: RefusjonskravPeriode,
@@ -68,38 +66,6 @@ object Prismodell {
 
         fun findSats(periodeStart: LocalDate): Int? {
             return satser.firstOrNull { periodeStart in it.periode }?.belop
-        }
-
-        fun beregnTilsagnBelop(
-            sats: Int,
-            antallPlasser: Int,
-            periodeStart: LocalDate,
-            periodeSlutt: LocalDate,
-        ): Int {
-            require(!periodeStart.isAfter(periodeSlutt)) {
-                "periodeSlutt kan ikke være før periodeStart"
-            }
-            require(periodeStart.year == periodeSlutt.year) {
-                "perioden må være innen et år"
-            }
-            require(findSats(periodeStart) == findSats(periodeSlutt)) {
-                "periode går over flere satser"
-            }
-            return periodeStart.datesUntil(periodeSlutt.plusDays(1))
-                .asSequence()
-                .groupBy { it.month }
-                .map { (_, datesInMonth) ->
-                    val fractionOfMonth = datesInMonth.size.toBigDecimal()
-                        .divide(datesInMonth[0].lengthOfMonth().toBigDecimal(), 2, RoundingMode.HALF_UP)
-
-                    val value = fractionOfMonth
-                        .multiply(sats.toBigDecimal())
-                        .multiply(antallPlasser.toBigDecimal())
-                        .setScale(0, RoundingMode.HALF_EVEN)
-
-                    value.intValueExact()
-                }
-                .reduce { acc: Int, s: Int -> addExact(acc, s) }
         }
 
         fun beregnRefusjonBelop(input: RefusjonKravBeregningAft.Input): RefusjonKravBeregningAft.Output {

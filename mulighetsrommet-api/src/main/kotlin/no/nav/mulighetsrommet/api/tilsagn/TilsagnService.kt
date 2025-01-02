@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.okonomi.BestillingDto
 import no.nav.mulighetsrommet.api.okonomi.OkonomiClient
-import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.api.services.DocumentClass
@@ -74,22 +73,10 @@ class TilsagnService(
         return TilsagnValidator.validateBeregningInput(input)
             .map {
                 when (input) {
-                    is TilsagnBeregningForhandsgodkjent.Input -> aftTilsagnBeregning(input)
-                    is TilsagnBeregningFri.Input -> TilsagnBeregningFri(input, TilsagnBeregningFri.Output(input.belop))
+                    is TilsagnBeregningForhandsgodkjent.Input -> TilsagnBeregningForhandsgodkjent.beregn(input)
+                    is TilsagnBeregningFri.Input -> TilsagnBeregningFri.beregn(input)
                 }
             }
-    }
-
-    private fun aftTilsagnBeregning(input: TilsagnBeregningForhandsgodkjent.Input): TilsagnBeregningForhandsgodkjent {
-        val belop = Prismodell.AFT.beregnTilsagnBelop(
-            sats = input.sats,
-            antallPlasser = input.antallPlasser,
-            periodeStart = input.periodeStart,
-            periodeSlutt = input.periodeSlutt,
-        )
-
-        val output = TilsagnBeregningForhandsgodkjent.Output(belop = belop)
-        return TilsagnBeregningForhandsgodkjent(input, output)
     }
 
     suspend fun beslutt(id: UUID, besluttelse: BesluttTilsagnRequest, navIdent: NavIdent): StatusResponse<Unit> {
