@@ -5,7 +5,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -16,13 +16,12 @@ import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import java.time.LocalDate
 
 class UpdateApentForPameldingTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     context("steng påmelding for tiltak med felles oppstart") {
         val startDato = LocalDate.now()
@@ -51,21 +50,21 @@ class UpdateApentForPameldingTest : FunSpec({
         val service = TiltaksgjennomforingService(
             database.db,
             mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true),
-            NotificationRepository(database.db),
+            NotificationRepository(database.db.db),
             mockk<TiltaksgjennomforingValidator>(),
-            EndringshistorikkService(database.db),
+            EndringshistorikkService(database.db.db),
             mockk<NavAnsattService>(relaxed = true),
         )
 
         val updateApentForPamelding = UpdateApentForPamelding(
             config = UpdateApentForPamelding.Config(disabled = true),
-            db = database.db,
+            db = database.db.db,
             tiltaksgjennomforingService = service,
         )
 
         beforeEach {
             database.run {
-                domain.setup()
+                domain.setup(it)
             }
         }
 

@@ -3,16 +3,15 @@ package no.nav.mulighetsrommet.api.navenhet
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.concurrent.TimeUnit
 
 class NavEnhetService(
-    private val db: Database,
+    private val db: ApiDatabase,
 ) {
     val cache: Cache<String, NavEnhetDbo> = Caffeine.newBuilder()
         .expireAfterWrite(12, TimeUnit.HOURS)

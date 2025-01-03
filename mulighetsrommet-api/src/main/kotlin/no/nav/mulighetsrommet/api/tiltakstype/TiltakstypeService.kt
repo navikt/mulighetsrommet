@@ -2,10 +2,9 @@ package no.nav.mulighetsrommet.api.tiltakstype
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.utils.CacheUtils
@@ -13,7 +12,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class TiltakstypeService(
-    private val db: Database,
+    private val db: ApiDatabase,
     /**
      * Alle kjent gruppetiltak har foreløpig blitt migrert.
      * Denne står fortsatt åpen for konfigurasjon for fremtidige tiltak (bl.a. IPS/AMS).

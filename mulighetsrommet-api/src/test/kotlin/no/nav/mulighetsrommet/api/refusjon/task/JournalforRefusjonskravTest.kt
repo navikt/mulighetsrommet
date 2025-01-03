@@ -10,7 +10,7 @@ import io.ktor.http.*
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.ktor.createMockEngine
@@ -34,7 +33,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class JournalforRefusjonskravTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val hovedenhet = ArrangorDto(
         id = UUID.randomUUID(),
@@ -146,8 +145,8 @@ class JournalforRefusjonskravTest : FunSpec({
         val task = createTask()
 
         assertThrows<Exception>("Test") {
-            database.run {
-                task.schedule(krav.id, Instant.now(), this)
+            database.run { tx ->
+                task.schedule(krav.id, Instant.now(), tx)
                 throw Exception("Test")
             }
         }
@@ -159,8 +158,8 @@ class JournalforRefusjonskravTest : FunSpec({
     test("task scheduleres hvis transaction går bra") {
         val task = createTask()
 
-        database.run {
-            task.schedule(krav.id, Instant.now(), this)
+        database.run { tx ->
+            task.schedule(krav.id, Instant.now(), tx)
         }
 
         database.assertThat("scheduled_tasks")

@@ -2,8 +2,8 @@ package no.nav.mulighetsrommet.api.navansatt
 
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.Serializable
-import kotliquery.TransactionalSession
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.domain.dto.Slug
@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.api.navenhet.EnhetFilter
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.services.cms.SanityService
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationTask
 import no.nav.mulighetsrommet.notifications.NotificationType
@@ -25,7 +24,7 @@ import java.time.LocalDate
 import java.util.*
 
 class NavAnsattSyncService(
-    private val db: Database,
+    private val db: ApiDatabase,
     private val navAnsattService: NavAnsattService,
     private val sanityService: SanityService,
     private val navEnhetService: NavEnhetService,
@@ -83,7 +82,7 @@ class NavAnsattSyncService(
         }
     }
 
-    private fun TransactionalSession.notifyRelevantAdministrators(
+    private fun QueryContext.notifyRelevantAdministrators(
         avtale: AvtaleDto,
         hovedenhet: NavAnsattDto.Hovedenhet,
     ) {
@@ -121,7 +120,7 @@ class NavAnsattSyncService(
         notificationTask.scheduleNotification(notification)
     }
 
-    private fun TransactionalSession.notifyRelevantAdministratorsForSanityGjennomforing(
+    private fun QueryContext.notifyRelevantAdministratorsForSanityGjennomforing(
         tiltak: SanityTiltaksgjennomforing,
         hovedenhet: NavAnsattDto.Hovedenhet,
     ) {

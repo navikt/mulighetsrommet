@@ -6,24 +6,22 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import org.intellij.lang.annotations.Language
 import java.util.*
 
-object AmoKategoriseringQueries {
+class AmoKategoriseringQueries(private val session: Session) {
 
-    context(Session)
     fun upsert(dbo: TiltaksgjennomforingDbo) {
-        return if (dbo.amoKategorisering == null) {
+        if (dbo.amoKategorisering == null) {
             delete(dbo.id, ForeignIdType.GJENNOMFORING)
         } else {
             upsert(dbo.amoKategorisering, dbo.id, ForeignIdType.GJENNOMFORING)
         }
     }
 
-    context(Session)
     fun upsert(dbo: AvtaleDbo) {
-        return if (dbo.amoKategorisering == null) {
+        if (dbo.amoKategorisering == null) {
             delete(dbo.id, ForeignIdType.AVTALE)
         } else {
             upsert(dbo.amoKategorisering, dbo.id, ForeignIdType.AVTALE)
@@ -35,8 +33,7 @@ object AmoKategoriseringQueries {
         GJENNOMFORING,
     }
 
-    context(Session)
-    private fun upsert(amoKategorisering: AmoKategorisering, foreignId: UUID, foreignIdType: ForeignIdType) {
+    private fun upsert(amoKategorisering: AmoKategorisering, foreignId: UUID, foreignIdType: ForeignIdType) = with(session) {
         val foreignName = when (foreignIdType) {
             ForeignIdType.AVTALE -> "avtale"
             ForeignIdType.GJENNOMFORING -> "tiltaksgjennomforing"
@@ -75,12 +72,11 @@ object AmoKategoriseringQueries {
         }
     }
 
-    context(Session)
     private fun updateSertifiseringer(
         foreignId: UUID,
         foreignName: String,
         sertifiseringer: List<AmoKategorisering.BransjeOgYrkesrettet.Sertifisering>,
-    ) {
+    ) = with(session) {
         @Language("PostgreSQL")
         val upsertSertifiseringer = """
         insert into amo_sertifisering (
@@ -120,8 +116,7 @@ object AmoKategoriseringQueries {
         )
     }
 
-    context(Session)
-    private fun delete(foreignId: UUID, foreignIdType: ForeignIdType) {
+    private fun delete(foreignId: UUID, foreignIdType: ForeignIdType) = with(session) {
         val foreignName = when (foreignIdType) {
             ForeignIdType.AVTALE -> "avtale"
             ForeignIdType.GJENNOMFORING -> "tiltaksgjennomforing"
@@ -137,14 +132,13 @@ object AmoKategoriseringQueries {
         updateSertifiseringer(foreignId, foreignName, emptyList())
     }
 
-    context(Session)
     private fun AmoKategorisering.toSqlParameters() = when (this) {
         is AmoKategorisering.BransjeOgYrkesrettet -> mapOf(
             "kurstype" to "BRANSJE_OG_YRKESRETTET",
             "bransje" to bransje.name,
-            "forerkort" to createArrayOf("forerkort_klasse", forerkort.map { it.name }),
+            "forerkort" to session.createArrayOf("forerkort_klasse", forerkort.map { it.name }),
             "sertifiseringer" to Json.encodeToString(sertifiseringer),
-            "innhold_elementer" to createArrayOf("amo_innhold_element", innholdElementer.map { it.name }),
+            "innhold_elementer" to session.createArrayOf("amo_innhold_element", innholdElementer.map { it.name }),
         )
 
         AmoKategorisering.ForberedendeOpplaeringForVoksne -> mapOf(
@@ -153,13 +147,13 @@ object AmoKategoriseringQueries {
 
         is AmoKategorisering.GrunnleggendeFerdigheter -> mapOf(
             "kurstype" to "GRUNNLEGGENDE_FERDIGHETER",
-            "innhold_elementer" to createArrayOf("amo_innhold_element", innholdElementer.map { it.name }),
+            "innhold_elementer" to session.createArrayOf("amo_innhold_element", innholdElementer.map { it.name }),
         )
 
         is AmoKategorisering.Norskopplaering -> mapOf(
             "kurstype" to "NORSKOPPLAERING",
             "norskprove" to norskprove,
-            "innhold_elementer" to createArrayOf("amo_innhold_element", innholdElementer.map { it.name }),
+            "innhold_elementer" to session.createArrayOf("amo_innhold_element", innholdElementer.map { it.name }),
         )
 
         AmoKategorisering.Studiespesialisering -> mapOf(

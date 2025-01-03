@@ -3,9 +3,8 @@ package no.nav.mulighetsrommet.api.refusjon.kafka
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.amt.Melding
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
@@ -15,7 +14,7 @@ import java.util.*
 
 class AmtArrangorMeldingV1KafkaConsumer(
     config: Config,
-    private val db: Database,
+    private val db: ApiDatabase,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     config,
     uuidDeserializer(),

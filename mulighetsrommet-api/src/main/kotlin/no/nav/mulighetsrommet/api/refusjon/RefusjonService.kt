@@ -1,17 +1,16 @@
 package no.nav.mulighetsrommet.api.refusjon
 
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
 import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import java.time.LocalDate
 import java.util.*
 
 class RefusjonService(
-    private val db: Database,
+    private val db: ApiDatabase,
 ) {
     fun genererRefusjonskravForMonth(dayInMonth: LocalDate): List<RefusjonskravDto> = db.tx {
         val periode = RefusjonskravPeriode.fromDayInMonth(dayInMonth)

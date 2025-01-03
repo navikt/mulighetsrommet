@@ -16,10 +16,9 @@ import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import org.intellij.lang.annotations.Language
 import java.util.*
 
-object VeilederflateTiltakQueries {
+class VeilederflateTiltakQueries(private val session: Session) {
 
-    context(Session)
-    fun get(id: UUID): VeilederflateTiltakGruppe? {
+    fun get(id: UUID): VeilederflateTiltakGruppe? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -30,7 +29,6 @@ object VeilederflateTiltakQueries {
         return single(queryOf(query, id)) { it.toVeilederflateTiltaksgjennomforing() }
     }
 
-    context(Session)
     fun getAll(
         innsatsgruppe: Innsatsgruppe,
         brukersEnheter: List<String>,
@@ -38,7 +36,7 @@ object VeilederflateTiltakQueries {
         apentForPamelding: Boolean? = null,
         sanityTiltakstypeIds: List<UUID>? = null,
         erSykmeldtMedArbeidsgiver: Boolean = false,
-    ): List<VeilederflateTiltakGruppe> {
+    ): List<VeilederflateTiltakGruppe> = with(session) {
         val parameters = mapOf(
             "innsatsgruppe" to innsatsgruppe.name,
             "brukers_enheter" to createTextArray(brukersEnheter),

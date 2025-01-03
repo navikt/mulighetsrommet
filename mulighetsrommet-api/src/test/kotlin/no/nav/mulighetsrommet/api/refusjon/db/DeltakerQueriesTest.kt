@@ -41,11 +41,11 @@ class DeltakerQueriesTest : FunSpec({
         gjennomforingId = TiltaksgjennomforingFixtures.Oppfolging2.id,
     )
 
-    val queries = DeltakerQueries
-
     test("CRUD") {
-        database.runAndRollback {
-            domain.setup()
+        database.runAndRollback { session ->
+            domain.setup(session)
+
+            val queries = DeltakerQueries(session)
 
             queries.upsert(deltaker1)
             queries.upsert(deltaker2)
@@ -70,8 +70,10 @@ class DeltakerQueriesTest : FunSpec({
     }
 
     test("get by tiltaksgjennomforing") {
-        database.runAndRollback {
-            domain.setup()
+        database.runAndRollback { session ->
+            domain.setup(session)
+
+            val queries = DeltakerQueries(session)
 
             queries.upsert(deltaker1)
             queries.upsert(deltaker2)

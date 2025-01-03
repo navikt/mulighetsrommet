@@ -16,6 +16,10 @@ class Database(val config: DatabaseConfig) : Closeable {
 
     private val dataSource: HikariDataSource
 
+//    @PublishedApi
+//    internal val session: Session
+//        get() = sessionOf(dataSource, strict = true)
+
     val session: Session
         get() = sessionOf(dataSource, strict = true)
 

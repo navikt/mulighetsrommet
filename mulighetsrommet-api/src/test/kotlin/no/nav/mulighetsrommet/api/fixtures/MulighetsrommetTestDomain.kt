@@ -1,7 +1,8 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import kotliquery.TransactionalSession
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
@@ -43,9 +44,27 @@ data class MulighetsrommetTestDomain(
     val gjennomforinger: List<TiltaksgjennomforingDbo> = listOf(),
     val deltakere: List<DeltakerDbo> = listOf(),
     val refusjonskrav: List<RefusjonskravDbo> = listOf(),
-    val additionalSetup: (TransactionalSession.() -> Unit)? = null,
+    val additionalSetup: (QueryContext.() -> Unit)? = null,
 ) {
-    fun initialize(database: Database) = database.tx {
+    fun initialize(database: Database) = database.transaction { session ->
+        val context = QueryContext(session)
+
+        with(context) {
+            enheter.forEach { Queries.enhet.upsert(it) }
+            ansatte.forEach { Queries.ansatt.upsert(it) }
+            arrangorer.forEach { Queries.arrangor.upsert(it) }
+            arrangorKontaktpersoner.forEach { Queries.arrangor.upsertKontaktperson(it) }
+            tiltakstyper.forEach { Queries.tiltakstype.upsert(it) }
+            avtaler.forEach { Queries.avtale.upsert(it) }
+            gjennomforinger.forEach { Queries.gjennomforing.upsert(it) }
+            deltakere.forEach { Queries.deltaker.upsert(it) }
+            refusjonskrav.forEach { Queries.refusjonskrav.upsert(it) }
+        }
+
+        additionalSetup?.invoke(context)
+    }
+
+    fun initialize(database: ApiDatabase) = database.tx {
         enheter.forEach { Queries.enhet.upsert(it) }
         ansatte.forEach { Queries.ansatt.upsert(it) }
         arrangorer.forEach { Queries.arrangor.upsert(it) }
@@ -59,31 +78,35 @@ data class MulighetsrommetTestDomain(
         additionalSetup?.invoke(this)
     }
 
-    context(TransactionalSession)
-    fun setup(): MulighetsrommetTestDomain {
-        enheter.forEach { Queries.enhet.upsert(it) }
-        ansatte.forEach { Queries.ansatt.upsert(it) }
-        arrangorer.forEach { Queries.arrangor.upsert(it) }
-        arrangorKontaktpersoner.forEach { Queries.arrangor.upsertKontaktperson(it) }
-        tiltakstyper.forEach { Queries.tiltakstype.upsert(it) }
-        avtaler.forEach { Queries.avtale.upsert(it) }
-        gjennomforinger.forEach { Queries.gjennomforing.upsert(it) }
-        deltakere.forEach { Queries.deltaker.upsert(it) }
-        refusjonskrav.forEach { Queries.refusjonskrav.upsert(it) }
+    fun setup(session: TransactionalSession): MulighetsrommetTestDomain {
+        val context = QueryContext(session)
 
-        additionalSetup?.invoke(this@TransactionalSession)
+        with(context) {
+            enheter.forEach { Queries.enhet.upsert(it) }
+            ansatte.forEach { Queries.ansatt.upsert(it) }
+            arrangorer.forEach { Queries.arrangor.upsert(it) }
+            arrangorKontaktpersoner.forEach { Queries.arrangor.upsertKontaktperson(it) }
+            tiltakstyper.forEach { Queries.tiltakstype.upsert(it) }
+            avtaler.forEach { Queries.avtale.upsert(it) }
+            gjennomforinger.forEach { Queries.gjennomforing.upsert(it) }
+            deltakere.forEach { Queries.deltaker.upsert(it) }
+            refusjonskrav.forEach { Queries.refusjonskrav.upsert(it) }
+        }
+
+        additionalSetup?.invoke(context)
 
         return this
     }
 
-    context(TransactionalSession)
-    fun teardown(): MulighetsrommetTestDomain {
-        deltakere.forEach { Queries.deltaker.delete(it.id) }
-        gjennomforinger.forEach { Queries.gjennomforing.delete(it.id) }
-        avtaler.forEach { Queries.avtale.delete(it.id) }
-        arrangorer.forEach { Queries.arrangor.delete(it.organisasjonsnummer.value) }
-        arrangorKontaktpersoner.forEach { Queries.arrangor.deleteKontaktperson(it.id) }
-        ansatte.forEach { Queries.ansatt.getByNavIdent(it.navIdent) }
+    fun teardown(session: TransactionalSession): MulighetsrommetTestDomain {
+        with(QueryContext(session)) {
+            deltakere.forEach { Queries.deltaker.delete(it.id) }
+            gjennomforinger.forEach { Queries.gjennomforing.delete(it.id) }
+            avtaler.forEach { Queries.avtale.delete(it.id) }
+            arrangorer.forEach { Queries.arrangor.delete(it.organisasjonsnummer.value) }
+            arrangorKontaktpersoner.forEach { Queries.arrangor.deleteKontaktperson(it.id) }
+            ansatte.forEach { Queries.ansatt.getByNavIdent(it.navIdent) }
+        }
 
         return this
     }

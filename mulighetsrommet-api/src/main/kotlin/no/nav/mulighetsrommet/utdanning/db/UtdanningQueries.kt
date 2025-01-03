@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.utdanning.db
 
 import kotliquery.Session
-import kotliquery.TransactionalSession
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.withTransaction
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
@@ -10,10 +10,9 @@ import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramMedUtdanninger
 import org.intellij.lang.annotations.Language
 import java.util.*
 
-object UtdanningQueries {
+class UtdanningQueries(private val session: Session) {
 
-    context(Session)
-    fun getUtdanningsprogrammer(): List<UtdanningsprogramMedUtdanninger> {
+    fun getUtdanningsprogrammer(): List<UtdanningsprogramMedUtdanninger> = with(session) {
         @Language("PostgreSQL")
         val utdanningsprogrammerQuery = """
             select *
@@ -60,8 +59,7 @@ object UtdanningQueries {
         }
     }
 
-    context(TransactionalSession)
-    fun upsertUtdanningsprogram(utdanningsprogram: Utdanningsprogram) {
+    fun upsertUtdanningsprogram(utdanningsprogram: Utdanningsprogram) = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
             insert into utdanningsprogram (navn, programomradekode, utdanningsprogram_type, nus_koder)
@@ -82,8 +80,7 @@ object UtdanningQueries {
         execute(queryOf(query, params))
     }
 
-    context(TransactionalSession)
-    fun upsertUtdanning(utdanning: Utdanning) {
+    fun upsertUtdanning(utdanning: Utdanning) = withTransaction(session) {
         val programomradeId = getIdForUtdanningsprogram(utdanning.utdanningslop.first())
 
         @Language("PostgreSQL")
@@ -116,8 +113,7 @@ object UtdanningQueries {
         execute(queryOf(upsertUtdanning, params))
     }
 
-    context(Session)
-    fun getIdForUtdanningsprogram(programomradekode: String): UUID {
+    fun getIdForUtdanningsprogram(programomradekode: String): UUID = with(session) {
         @Language("PostgreSQL")
         val query = """
             select id from utdanningsprogram where programomradekode = ?
@@ -127,8 +123,7 @@ object UtdanningQueries {
             .let { requireNotNull(it) { "Fant ingen utdanningsprogram med kode=$programomradekode" } }
     }
 
-    context(Session)
-    fun getIdForUtdanning(utdanningId: String): UUID {
+    fun getIdForUtdanning(utdanningId: String): UUID = with(session) {
         @Language("PostgreSQL")
         val query = """
             select id from utdanning where utdanning_id = ?

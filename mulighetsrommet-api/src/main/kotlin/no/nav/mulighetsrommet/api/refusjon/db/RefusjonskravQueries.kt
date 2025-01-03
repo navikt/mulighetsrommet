@@ -3,9 +3,9 @@ package no.nav.mulighetsrommet.api.refusjon.db
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
-import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.refusjon.model.*
+import no.nav.mulighetsrommet.api.withTransaction
 import no.nav.mulighetsrommet.database.createEnumArray
 import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
@@ -14,10 +14,9 @@ import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*
 
-object RefusjonskravQueries {
+class RefusjonskravQueries(private val session: Session) {
 
-    context(TransactionalSession)
-    fun upsert(dbo: RefusjonskravDbo) {
+    fun upsert(dbo: RefusjonskravDbo) = withTransaction(session) {
         @Language("PostgreSQL")
         val refusjonskravQuery = """
             insert into refusjonskrav (id, gjennomforing_id, frist_for_godkjenning, kontonummer, kid)
@@ -46,11 +45,10 @@ object RefusjonskravQueries {
         }
     }
 
-    context(TransactionalSession)
     private fun upsertRefusjonskravBeregningAft(
         id: UUID,
         beregning: RefusjonKravBeregningAft,
-    ) {
+    ) = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
             insert into refusjonskrav_beregning_aft (refusjonskrav_id, periode, sats, belop)
@@ -121,8 +119,7 @@ object RefusjonskravQueries {
         batchPreparedNamedStatement(insertManedsverkQuery, manedsverk)
     }
 
-    context(Session)
-    fun setGodkjentAvArrangor(id: UUID, tidspunkt: LocalDateTime) {
+    fun setGodkjentAvArrangor(id: UUID, tidspunkt: LocalDateTime) = with(session) {
         @Language("PostgreSQL")
         val query = """
             update refusjonskrav
@@ -133,8 +130,7 @@ object RefusjonskravQueries {
         execute(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt)))
     }
 
-    context(Session)
-    fun setBetalingsInformasjon(id: UUID, kontonummer: Kontonummer, kid: Kid?) {
+    fun setBetalingsInformasjon(id: UUID, kontonummer: Kontonummer, kid: Kid?) = with(session) {
         @Language("PostgreSQL")
         val query = """
             update refusjonskrav
@@ -151,8 +147,7 @@ object RefusjonskravQueries {
         execute(queryOf(query, params))
     }
 
-    context(Session)
-    fun setJournalpostId(id: UUID, journalpostId: String) {
+    fun setJournalpostId(id: UUID, journalpostId: String) = with(session) {
         @Language("PostgreSQL")
         val query = """
             update refusjonskrav
@@ -165,8 +160,7 @@ object RefusjonskravQueries {
         execute(queryOf(query, params))
     }
 
-    context(Session)
-    fun get(id: UUID): RefusjonskravDto? {
+    fun get(id: UUID): RefusjonskravDto? = with(session) {
         @Language("PostgreSQL")
         val refusjonskravQuery = """
             select *
@@ -177,10 +171,9 @@ object RefusjonskravQueries {
         return single(queryOf(refusjonskravQuery, id)) { it.toRefusjonsKravAft() }
     }
 
-    context(Session)
     fun getByArrangorIds(
         organisasjonsnummer: Organisasjonsnummer,
-    ): List<RefusjonskravDto> {
+    ): List<RefusjonskravDto> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select * from refusjonskrav_aft_view
@@ -191,8 +184,7 @@ object RefusjonskravQueries {
         return list(queryOf(query, organisasjonsnummer.value)) { it.toRefusjonsKravAft() }
     }
 
-    context(Session)
-    fun getByGjennomforing(id: UUID, statuser: List<RefusjonskravStatus>? = null): List<RefusjonskravDto> {
+    fun getByGjennomforing(id: UUID, statuser: List<RefusjonskravStatus>? = null): List<RefusjonskravDto> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -210,8 +202,7 @@ object RefusjonskravQueries {
         return list(queryOf(query, params)) { it.toRefusjonsKravAft() }
     }
 
-    context(Session)
-    fun getSisteGodkjenteRefusjonskrav(gjennomforingId: UUID): RefusjonskravDto? {
+    fun getSisteGodkjenteRefusjonskrav(gjennomforingId: UUID): RefusjonskravDto? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *

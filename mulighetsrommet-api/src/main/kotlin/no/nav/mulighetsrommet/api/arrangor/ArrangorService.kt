@@ -4,19 +4,18 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.right
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.db.DokumentKoblingForKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import org.slf4j.LoggerFactory
 import java.util.*
 
 class ArrangorService(
-    private val db: Database,
+    private val db: ApiDatabase,
     private val brregClient: BrregClient,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)

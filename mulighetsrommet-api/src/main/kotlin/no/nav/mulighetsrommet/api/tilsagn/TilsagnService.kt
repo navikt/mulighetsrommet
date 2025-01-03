@@ -4,7 +4,7 @@ import arrow.core.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.okonomi.BestillingDto
@@ -29,7 +29,7 @@ class TilsagnService(
 ) {
     suspend fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<ValidationError>, TilsagnDto> {
         val gjennomforing = db.session {
-            Queries.gjennomforing.get(request.gjennomforingId)
+            QueryContext(this).Queries.gjennomforing.get(request.gjennomforingId)
         } ?: return ValidationError
             .of(TilsagnRequest::gjennomforingId, "Tiltaksgjennomforingen finnes ikke")
             .nel()
@@ -241,7 +241,7 @@ class TilsagnService(
     }
 
     private suspend fun lagOgSendBestilling(tilsagn: TilsagnDto) = db.session {
-        val gjennomforing = Queries.gjennomforing.get(tilsagn.tiltaksgjennomforing.id)
+        val gjennomforing = QueryContext(this).Queries.gjennomforing.get(tilsagn.tiltaksgjennomforing.id)
         requireNotNull(gjennomforing) { "Fant ikke gjennomforing til tilsagn" }
         requireNotNull(gjennomforing.avtaleId) { "Fant ikke avtale til gjennomforingen" }
 

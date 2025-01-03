@@ -9,7 +9,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
@@ -24,7 +24,6 @@ import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.NotFound
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
@@ -36,7 +35,7 @@ import java.util.*
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient as BrregClient1
 
 class AvtaleServiceTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val validator = mockk<AvtaleValidator>()
 
@@ -62,9 +61,9 @@ class AvtaleServiceTest : FunSpec({
     ) = AvtaleService(
         database.db,
         ArrangorService(database.db, brregClient),
-        NotificationRepository(database.db),
+        NotificationRepository(database.db.db),
         validator,
-        EndringshistorikkService(database.db),
+        EndringshistorikkService(database.db.db),
         gjennomforingPublisher,
     )
 

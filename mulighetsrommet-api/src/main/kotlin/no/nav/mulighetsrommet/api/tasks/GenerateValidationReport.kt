@@ -7,13 +7,12 @@ import com.google.cloud.storage.Storage
 import com.google.cloud.storage.StorageOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.responses.ValidationError
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.tasks.executeSuspend
@@ -30,7 +29,7 @@ import kotlin.io.path.outputStream
 
 class GenerateValidationReport(
     private val config: Config,
-    private val db: Database,
+    private val db: ApiDatabase,
     private val avtaleValidator: AvtaleValidator,
     private val gjennomforingValidator: TiltaksgjennomforingValidator,
 ) {

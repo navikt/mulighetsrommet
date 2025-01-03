@@ -3,17 +3,16 @@ package no.nav.mulighetsrommet.api.tiltakstype.task
 import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.*
 
 class InitialLoadTiltakstyper(
-    private val db: Database,
+    private val db: ApiDatabase,
     private val tiltakstypeProducer: SisteTiltakstyperV2KafkaProducer,
     private val sanityService: SanityService,
 ) {

@@ -9,10 +9,9 @@ import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import org.intellij.lang.annotations.Language
 import java.util.*
 
-object DeltakerQueries {
+class DeltakerQueries(private val session: Session) {
 
-    context(Session)
-    fun upsert(deltaker: DeltakerDbo) {
+    fun upsert(deltaker: DeltakerDbo) = with(session) {
         @Language("PostgreSQL")
         val query = """
             insert into deltaker (id,
@@ -63,8 +62,7 @@ object DeltakerQueries {
         execute(queryOf(query, params))
     }
 
-    context(Session)
-    fun setNorskIdent(deltakerId: UUID, norskIdent: NorskIdent) {
+    fun setNorskIdent(deltakerId: UUID, norskIdent: NorskIdent) = with(session) {
         @Language("PostgreSQL")
         val query = """
             update deltaker
@@ -80,8 +78,7 @@ object DeltakerQueries {
         execute(queryOf(query, params))
     }
 
-    context(Session)
-    fun get(id: UUID): DeltakerDto? {
+    fun get(id: UUID): DeltakerDto? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select id,
@@ -102,8 +99,7 @@ object DeltakerQueries {
         return single(queryOf(query, id)) { it.toDeltakerDto() }
     }
 
-    context(Session)
-    fun getAll(tiltaksgjennomforingId: UUID? = null): List<DeltakerDto> {
+    fun getAll(tiltaksgjennomforingId: UUID? = null): List<DeltakerDto> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select id,
@@ -126,8 +122,7 @@ object DeltakerQueries {
         return list(queryOf(query, params)) { it.toDeltakerDto() }
     }
 
-    context(Session)
-    fun delete(id: UUID) {
+    fun delete(id: UUID) = with(session) {
         @Language("PostgreSQL")
         val query = """
             delete

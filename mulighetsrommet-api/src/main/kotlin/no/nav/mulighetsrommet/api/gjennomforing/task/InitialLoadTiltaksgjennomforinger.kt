@@ -4,9 +4,8 @@ import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
@@ -19,7 +18,7 @@ import java.time.Instant
 import java.util.*
 
 class InitialLoadTiltaksgjennomforinger(
-    private val db: Database,
+    private val db: ApiDatabase,
     private val gjennomforingProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)

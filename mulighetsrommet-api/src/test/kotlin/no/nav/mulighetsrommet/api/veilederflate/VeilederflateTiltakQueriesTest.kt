@@ -5,7 +5,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotliquery.Query
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -16,14 +16,11 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.ArbeidsrettetRehabilitering
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import java.util.*
 
 class VeilederflateTiltakQueriesTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
-
-    val queries = VeilederflateTiltakQueries
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     context("getAll") {
         val oppfolgingSanityId = UUID.randomUUID()
@@ -35,17 +32,19 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.AFT),
             gjennomforinger = listOf(Oppfolging1, AFT1),
         ) {
-            execute(Query("update tiltakstype set sanity_id = '$oppfolgingSanityId' where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
-            execute(Query("update tiltakstype set sanity_id = '$arbeidstreningSanityId' where id = '${TiltakstypeFixtures.AFT.id}'"))
-            execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.VARIG_TILPASSET_INNSATS}'::innsatsgruppe]"))
+            session.execute(Query("update tiltakstype set sanity_id = '$oppfolgingSanityId' where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
+            session.execute(Query("update tiltakstype set sanity_id = '$arbeidstreningSanityId' where id = '${TiltakstypeFixtures.AFT.id}'"))
+            session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.VARIG_TILPASSET_INNSATS}'::innsatsgruppe]"))
 
             Queries.gjennomforing.setPublisert(Oppfolging1.id, true)
             Queries.gjennomforing.setPublisert(AFT1.id, true)
         }
 
         test("skal filtrere basert på om tiltaket er publisert") {
-            database.runAndRollback {
-                domain.setup()
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = VeilederflateTiltakQueries(session)
 
                 queries.getAll(
                     brukersEnheter = listOf("0502"),
@@ -69,11 +68,13 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         }
 
         test("skal filtrere basert på innsatsgruppe") {
-            database.runAndRollback {
-                domain.setup()
+            database.runAndRollback { session ->
+                domain.setup(session)
 
-                execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.SPESIELT_TILPASSET_INNSATS}'::innsatsgruppe] where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
-                execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.STANDARD_INNSATS}'::innsatsgruppe, '${Innsatsgruppe.SPESIELT_TILPASSET_INNSATS}'::innsatsgruppe] where id = '${TiltakstypeFixtures.AFT.id}'"))
+                val queries = VeilederflateTiltakQueries(session)
+
+                session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.SPESIELT_TILPASSET_INNSATS}'::innsatsgruppe] where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
+                session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.STANDARD_INNSATS}'::innsatsgruppe, '${Innsatsgruppe.SPESIELT_TILPASSET_INNSATS}'::innsatsgruppe] where id = '${TiltakstypeFixtures.AFT.id}'"))
 
                 queries.getAll(
                     innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS,
@@ -90,8 +91,10 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         }
 
         test("skal filtrere på brukers enheter") {
-            database.runAndRollback {
-                domain.setup()
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = VeilederflateTiltakQueries(session)
 
                 Queries.gjennomforing.upsert(Oppfolging1.copy(navEnheter = listOf("0400", "0502")))
                 Queries.gjennomforing.upsert(AFT1.copy(navEnheter = listOf("0400", "0300")))
@@ -123,8 +126,10 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         }
 
         test("skal filtrere basert på tiltakstype sanity Id") {
-            database.runAndRollback {
-                domain.setup()
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = VeilederflateTiltakQueries(session)
 
                 queries.getAll(
                     sanityTiltakstypeIds = null,
@@ -151,8 +156,10 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         }
 
         test("skal filtrere basert fritekst i navn") {
-            database.runAndRollback {
-                domain.setup()
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = VeilederflateTiltakQueries(session)
 
                 Queries.gjennomforing.upsert(Oppfolging1.copy(sluttDato = null, navn = "Oppfølging hos Erik"))
                 Queries.gjennomforing.upsert(AFT1.copy(navn = "AFT hos Frank"))
@@ -192,8 +199,10 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         }
 
         test("skal filtrere basert på apent_for_pamelding") {
-            database.runAndRollback {
-                domain.setup()
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = VeilederflateTiltakQueries(session)
 
                 Queries.gjennomforing.setApentForPamelding(AFT1.id, false)
 
@@ -229,15 +238,17 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             avtaler = listOf(AvtaleFixtures.ArbeidsrettetRehabilitering),
             gjennomforinger = listOf(ArbeidsrettetRehabilitering),
         ) {
-            execute(Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.ArbeidsrettetRehabilitering.id}'"))
-            execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.VARIG_TILPASSET_INNSATS}'::innsatsgruppe]"))
+            session.execute(Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.ArbeidsrettetRehabilitering.id}'"))
+            session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.VARIG_TILPASSET_INNSATS}'::innsatsgruppe]"))
 
             Queries.gjennomforing.setPublisert(ArbeidsrettetRehabilitering.id, true)
         }
 
         test("skal ta med ARR hvis sykmeldt med SITUASJONSBESTEMT_INNSATS") {
-            database.runAndRollback {
-                domain.setup()
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = VeilederflateTiltakQueries(session)
 
                 // Riktig innsatsgruppe
                 queries.getAll(

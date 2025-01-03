@@ -9,14 +9,13 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.verify
 import kotliquery.Query
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.services.cms.SanityService
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
@@ -30,7 +29,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class ArenaAdapterServiceTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createArenaAdapterService(
         tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer = mockk(relaxed = true),
@@ -40,7 +39,7 @@ class ArenaAdapterServiceTest : FunSpec({
         tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
         sanityService = sanityService,
         arrangorService = mockk(relaxed = true),
-        endringshistorikk = EndringshistorikkService(database.db),
+        endringshistorikk = EndringshistorikkService(database.db.db),
     )
 
     context("avtaler") {
@@ -325,7 +324,7 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(arenaDbo)
 
             val avbrutt = database.run {
-                single(Query("select avsluttet_tidspunkt, avbrutt_aarsak from tiltaksgjennomforing where id = '${gjennomforing1.id}'")) {
+                session.single(Query("select avsluttet_tidspunkt, avbrutt_aarsak from tiltaksgjennomforing where id = '${gjennomforing1.id}'")) {
                     it.localDateTime("avsluttet_tidspunkt") to it.string("avbrutt_aarsak")
                 }
             }

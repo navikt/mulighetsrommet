@@ -6,7 +6,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.refusjon.model.*
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
@@ -23,7 +22,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class RefusjonServiceTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     afterEach {
         database.truncateAll()
@@ -42,7 +41,7 @@ class RefusjonServiceTest : FunSpec({
             )
 
             database.run {
-                domain.setup()
+                domain.setup(it)
             }
 
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
@@ -69,7 +68,7 @@ class RefusjonServiceTest : FunSpec({
             )
 
             database.run {
-                domain.setup()
+                domain.setup(it)
             }
 
             val krav = service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
@@ -111,7 +110,7 @@ class RefusjonServiceTest : FunSpec({
             )
 
             database.run {
-                domain.setup()
+                domain.setup(it)
             }
 
             val krav = service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1)).first()
@@ -326,7 +325,7 @@ class RefusjonServiceTest : FunSpec({
             val kravId = UUID.randomUUID()
 
             database.run {
-                domain.setup()
+                domain.setup(it)
             }
 
             database.run {
@@ -377,7 +376,7 @@ class RefusjonServiceTest : FunSpec({
             val kravId = UUID.randomUUID()
 
             database.run {
-                domain.setup()
+                domain.setup(it)
             }
 
             database.run {

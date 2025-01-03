@@ -3,22 +3,22 @@ package no.nav.mulighetsrommet.api.avtale
 import arrow.core.Either
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import kotliquery.TransactionalSession
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.DocumentClass
 import no.nav.mulighetsrommet.api.services.EndretAv
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
-import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.api.withTransaction
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.util.*
 
 class OpsjonLoggService(
-    private val db: Database,
+    private val db: ApiDatabase,
     private val endringshistorikkService: EndringshistorikkService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -63,14 +63,14 @@ class OpsjonLoggService(
         return avtale.sluttDato
     }
 
-    private fun TransactionalSession.loggEndring(
+    private fun QueryContext.loggEndring(
         endretAv: EndretAv.NavAnsatt,
         operation: String,
         avtaleId: UUID,
         opsjon: OpsjonLoggEntry,
-    ) {
+    ) = withTransaction(session) {
         endringshistorikkService.logEndring(
-            tx = this@TransactionalSession,
+            tx = this,
             documentClass = DocumentClass.AVTALE,
             operation = operation,
             user = endretAv,

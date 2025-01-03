@@ -24,10 +24,10 @@ class NavEnhetQueriesTest : FunSpec({
         overordnetEnhet = overordnetEnhet,
     )
 
-    val queries = NavEnhetQueries
-
     test("CRUD") {
-        database.runAndRollback {
+        database.runAndRollback { session ->
+            val queries = NavEnhetQueries(session)
+
             val overordnetEnhet = createEnhet("1200", null, Norg2Type.FYLKE)
             val underenhet1 = createEnhet("1", overordnetEnhet.enhetsnummer, Norg2Type.LOKAL)
             val underenhet2 = createEnhet("2", overordnetEnhet.enhetsnummer, Norg2Type.LOKAL)
@@ -88,7 +88,9 @@ class NavEnhetQueriesTest : FunSpec({
     }
 
     test("kostnadssted") {
-        database.runAndRollback {
+        database.runAndRollback { session ->
+            val queries = NavEnhetQueries(session)
+
             queries.upsert(createEnhet(enhet = "0200", type = Norg2Type.FYLKE, overordnetEnhet = null))
             queries.upsert(createEnhet(enhet = "0106", type = Norg2Type.LOKAL, overordnetEnhet = "0200"))
             queries.upsert(createEnhet(enhet = "0101", type = Norg2Type.LOKAL, overordnetEnhet = "0200"))
@@ -100,7 +102,7 @@ class NavEnhetQueriesTest : FunSpec({
                 values ('0106', '0200'), ('0101', '0200'), ('0200', '0200')
                 on conflict do nothing;
             """.trimIndent()
-            execute(queryOf(setKostnadssteder))
+            session.execute(queryOf(setKostnadssteder))
 
             queries.getKostnadssted(listOf("0200"))
                 .map { it.enhetsnummer } shouldContainExactlyInAnyOrder listOf(
