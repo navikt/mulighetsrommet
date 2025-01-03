@@ -3,10 +3,11 @@ package no.nav.mulighetsrommet.api.gjennomforing.kafka
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
+import no.nav.mulighetsrommet.api.Queries
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.model.ArenaMigreringTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
@@ -15,8 +16,8 @@ import java.util.*
 
 class SisteTiltaksgjennomforingerV1KafkaConsumer(
     config: Config,
+    private val db: Database,
     private val tiltakstyper: TiltakstypeService,
-    private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val arenaMigreringTiltaksgjennomforingProducer: ArenaMigreringTiltaksgjennomforingerV1KafkaProducer,
     private val arenaAdapterClient: ArenaAdapterClient,
 ) : KafkaTopicConsumer<String, JsonElement>(
@@ -33,13 +34,13 @@ class SisteTiltaksgjennomforingerV1KafkaConsumer(
         }
     }
 
-    private suspend fun publishMigrertGjennomforing(id: UUID) {
+    private suspend fun publishMigrertGjennomforing(id: UUID): Unit = db.session {
         val arenaGjennomforing = arenaAdapterClient.hentArenadata(id)
 
-        val gjennomforing = tiltaksgjennomforingRepository.get(id)
+        val gjennomforing = Queries.gjennomforing.get(id)
         requireNotNull(gjennomforing)
 
-        val endretTidspunkt = tiltaksgjennomforingRepository.getUpdatedAt(id)
+        val endretTidspunkt = Queries.gjennomforing.getUpdatedAt(id)
         requireNotNull(endretTidspunkt)
 
         val migrertGjennomforing = ArenaMigreringTiltaksgjennomforingDto.from(

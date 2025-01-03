@@ -7,20 +7,21 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.arrangor.db.ArrangorRepository
+import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.api.arrangor.db.DokumentKoblingForKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorTil
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.responses.*
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.*
 
 fun Route.arrangorRoutes() {
-    val arrangorRepository: ArrangorRepository by inject()
+    val db: Database by inject()
     val arrangorService: ArrangorService by inject()
 
     route("arrangorer") {
@@ -28,7 +29,7 @@ fun Route.arrangorRoutes() {
             val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
 
             if (isUtenlandskOrgnr(orgnr)) {
-                val virksomhet = arrangorRepository.get(orgnr)
+                val virksomhet = db.tx { Queries.arrangor.get(orgnr) }
                 return@post if (virksomhet != null) {
                     call.respond(virksomhet)
                 } else {
@@ -45,25 +46,33 @@ fun Route.arrangorRoutes() {
         get {
             val filter = getArrangorFilter()
             val pagination = getPaginationParams()
-            val (totalCount, items) = arrangorRepository.getAll(
-                til = filter.til,
-                sok = filter.sok,
-                sortering = filter.sortering,
-                pagination = pagination,
-            )
+
+            val (totalCount, items) = db.session {
+                Queries.arrangor.getAll(
+                    til = filter.til,
+                    sok = filter.sok,
+                    sortering = filter.sortering,
+                    pagination = pagination,
+                )
+            }
+
             call.respond(PaginatedResponse.of(pagination, totalCount, items))
         }
 
         get("{id}") {
             val id: UUID by call.parameters
 
-            call.respond(arrangorRepository.getById(id))
+            val arrangor = db.session { Queries.arrangor.getById(id) }
+
+            call.respond(arrangor)
         }
 
         get("hovedenhet/{id}") {
             val id: UUID by call.parameters
 
-            call.respond(arrangorRepository.getHovedenhetBy(id))
+            val arrangor = db.tx { Queries.arrangor.getHovedenhetById(id) }
+
+            call.respond(arrangor)
         }
 
         get("{id}/kontaktpersoner") {
@@ -86,13 +95,29 @@ fun Route.arrangorRoutes() {
         get("kontaktperson/{id}") {
             val id: UUID by call.parameters
 
-            call.respondWithStatusResponse(arrangorService.hentKoblingerForKontaktperson(id))
+            val koblinger = db.session { arrangorService.hentKoblingerForKontaktperson(id) }
+
+            call.respond(koblinger)
         }
 
         delete("kontaktperson/{id}") {
             val id: UUID by call.parameters
 
-            call.respondWithStatusResponse(arrangorService.deleteKontaktperson(id))
+            db.session {
+                val (gjennomforinger, avtaler) = Queries.arrangor.koblingerTilKontaktperson(id)
+
+                if (gjennomforinger.isNotEmpty<DokumentKoblingForKontaktperson>()) {
+                    return@session call.respond(HttpStatusCode.BadRequest, "Kontaktpersonen er i bruk.")
+                }
+
+                if (avtaler.isNotEmpty<DokumentKoblingForKontaktperson>()) {
+                    return@session call.respond(HttpStatusCode.BadRequest, "Kontaktpersonen er i bruk.")
+                }
+
+                Queries.arrangor.deleteKontaktperson(id)
+            }
+
+            call.respond(HttpStatusCode.OK)
         }
     }
 }

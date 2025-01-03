@@ -1,21 +1,16 @@
 package no.nav.mulighetsrommet.api.navenhet.db
 
 import kotliquery.Row
+import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.utils.DatabaseUtils
-import no.nav.mulighetsrommet.database.utils.QueryResult
-import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.database.createTextArray
 import org.intellij.lang.annotations.Language
-import org.slf4j.LoggerFactory
 
-class NavEnhetRepository(private val db: Database) {
-    private val logger = LoggerFactory.getLogger(javaClass)
+object NavEnhetQueries {
 
-    fun upsert(enhet: NavEnhetDbo): QueryResult<NavEnhetDbo> = query {
-        logger.info("Lagrer enhet med enhetsnummer=${enhet.enhetsnummer}")
-
+    context(Session)
+    fun upsert(enhet: NavEnhetDbo) {
         @Language("PostgreSQL")
         val query = """
             insert into nav_enhet(navn, enhetsnummer, status, type, overordnet_enhet)
@@ -26,48 +21,45 @@ class NavEnhetRepository(private val db: Database) {
                                 status          = excluded.status,
                                 type            = excluded.type,
                                 overordnet_enhet = excluded.overordnet_enhet
-            returning *
         """.trimIndent()
 
-        queryOf(query, enhet.toSqlParameters())
-            .map { it.toEnhetDbo() }
-            .asSingle
-            .let { db.run(it)!! }
+        val params = mapOf(
+            "navn" to enhet.navn,
+            "enhetsnummer" to enhet.enhetsnummer,
+            "status" to enhet.status.name,
+            "type" to enhet.type.name,
+            "overordnet_enhet" to enhet.overordnetEnhet,
+        )
+
+        execute(queryOf(query, params))
     }
 
+    context(Session)
     fun getAll(
         statuser: List<NavEnhetStatus>? = null,
         typer: List<Norg2Type>? = null,
         overordnetEnhet: String? = null,
     ): List<NavEnhetDbo> {
-        logger.info("Henter enheter med status: ${statuser?.joinToString(", ")}")
-
         val parameters = mapOf(
-            "statuser" to statuser?.let { items -> db.createTextArray(items.map { it.name }) },
-            "typer" to typer?.let { items -> db.createTextArray(items.map { it.name }) },
+            "statuser" to statuser?.map { it.name }?.let { createTextArray(it) },
+            "typer" to typer?.map { it.name }?.let { createTextArray(it) },
             "overordnet_enhet" to overordnetEnhet,
-        )
-
-        val where = DatabaseUtils.andWhereParameterNotNull(
-            statuser to "e.status = any(:statuser)",
-            typer to "e.type = any(:typer)",
-            overordnetEnhet to "e.overordnet_enhet = :overordnet_enhet",
         )
 
         @Language("PostgreSQL")
         val query = """
             select distinct e.navn, e.enhetsnummer, e.status, e.type, e.overordnet_enhet
             from nav_enhet e
-            $where
+            where (:statuser::text[] is null or e.status = any(:statuser))
+              and (:typer::text[] is null or e.type = any(:typer))
+              and (:overordnet_enhet::text is null or e.overordnet_enhet = :overordnet_enhet)
             order by e.navn
         """.trimIndent()
 
-        return queryOf(query, parameters)
-            .map { it.toEnhetDbo() }
-            .asList
-            .let { db.run(it) }
+        return list(queryOf(query, parameters)) { it.toEnhetDbo() }
     }
 
+    context(Session)
     fun get(enhet: String): NavEnhetDbo? {
         @Language("PostgreSQL")
         val query = """
@@ -76,17 +68,13 @@ class NavEnhetRepository(private val db: Database) {
             where enhetsnummer = ?
         """.trimIndent()
 
-        return queryOf(query, enhet)
-            .map { it.toEnhetDbo() }
-            .asSingle
-            .let { db.run(it) }
+        return single(queryOf(query, enhet)) { it.toEnhetDbo() }
     }
 
+    context(Session)
     fun deleteWhereEnhetsnummer(enhetsnummerForSletting: List<String>) {
-        logger.info("Sletter enheter med enhetsnummer: $enhetsnummerForSletting")
-
         val parameters = mapOf(
-            "ider" to db.createTextArray(enhetsnummerForSletting),
+            "ider" to createTextArray(enhetsnummerForSletting),
         )
 
         @Language("PostgreSQL")
@@ -94,11 +82,10 @@ class NavEnhetRepository(private val db: Database) {
             delete from nav_enhet where enhetsnummer = any(:ider::text[])
         """.trimIndent()
 
-        queryOf(delete, parameters)
-            .asExecute
-            .let { db.run(it) }
+        execute(queryOf(delete, parameters))
     }
 
+    context(Session)
     fun getKostnadssted(regioner: List<String>): List<NavEnhetDbo> {
         @Language("PostgreSQL")
         val query = """
@@ -110,23 +97,16 @@ class NavEnhetRepository(private val db: Database) {
                 nav_enhet.overordnet_enhet
             from nav_enhet
                 inner join kostnadssted on kostnadssted.enhetsnummer = nav_enhet.enhetsnummer
-            ${if (regioner.isNotEmpty()) "where kostnadssted.region = any(:regioner)" else ""}
+            where (:regioner::text[] is null or kostnadssted.region = any(:regioner))
         """.trimIndent()
 
-        return queryOf(query, mapOf("regioner" to db.createTextArray(regioner)))
-            .map { it.toEnhetDbo() }
-            .asList
-            .let { db.run(it) }
+        val params = mapOf(
+            "regioner" to regioner.takeIf { it.isNotEmpty() }?.let { createTextArray(it) },
+        )
+
+        return list(queryOf(query, params)) { it.toEnhetDbo() }
     }
 }
-
-private fun NavEnhetDbo.toSqlParameters() = mapOf(
-    "navn" to navn,
-    "enhetsnummer" to enhetsnummer,
-    "status" to status.name,
-    "type" to type.name,
-    "overordnet_enhet" to overordnetEnhet,
-)
 
 private fun Row.toEnhetDbo() = NavEnhetDbo(
     navn = string("navn"),

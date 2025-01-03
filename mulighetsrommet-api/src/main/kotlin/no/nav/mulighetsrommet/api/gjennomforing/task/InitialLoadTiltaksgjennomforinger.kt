@@ -4,9 +4,8 @@ import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.Queries
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -20,9 +19,7 @@ import java.time.Instant
 import java.util.*
 
 class InitialLoadTiltaksgjennomforinger(
-    database: Database,
-    private val tiltakstyper: TiltakstypeRepository,
-    private val gjennomforinger: TiltaksgjennomforingRepository,
+    private val db: Database,
     private val gjennomforingProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -63,7 +60,7 @@ class InitialLoadTiltaksgjennomforinger(
         }
 
     private val client = SchedulerClient.Builder
-        .create(database.getDatasource(), task)
+        .create(db.getDatasource(), task)
         .serializer(DbSchedulerKotlinSerializer())
         .build()
 
@@ -76,13 +73,13 @@ class InitialLoadTiltaksgjennomforinger(
     private suspend fun initialLoadTiltaksgjennomforinger(
         tiltakskoder: List<Tiltakskode>,
         opphav: ArenaMigrering.Opphav?,
-    ) {
-        val tiltakstypeIder = tiltakskoder.map { tiltakstyper.getByTiltakskode(it).id }
+    ): Unit = db.session {
+        val tiltakstypeIder = tiltakskoder.map { Queries.tiltakstype.getByTiltakskode(it).id }
 
         val total = paginateFanOut(
             { pagination: Pagination ->
                 logger.info("Henter gjennomføringer pagination=$pagination")
-                val result = gjennomforinger.getAll(
+                val result = Queries.gjennomforing.getAll(
                     pagination = pagination,
                     opphav = opphav,
                     tiltakstypeIder = tiltakstypeIder,
@@ -96,9 +93,9 @@ class InitialLoadTiltaksgjennomforinger(
         logger.info("Antall relastet på topic: $total")
     }
 
-    private fun initialLoadTiltaksgjennomforingerByIds(ids: List<UUID>) {
+    private fun initialLoadTiltaksgjennomforingerByIds(ids: List<UUID>) = db.session {
         ids.forEach { id ->
-            val gjennomforing = gjennomforinger.get(id)
+            val gjennomforing = Queries.gjennomforing.get(id)
             if (gjennomforing == null) {
                 logger.info("Sender tombstone for id $id")
                 gjennomforingProducer.retract(id)
@@ -109,8 +106,8 @@ class InitialLoadTiltaksgjennomforinger(
         }
     }
 
-    private fun initialLoadTiltaksgjennomforingerByAvtale(avtaleId: UUID) {
-        gjennomforinger.getAll(avtaleId = avtaleId).items.forEach {
+    private fun initialLoadTiltaksgjennomforingerByAvtale(avtaleId: UUID) = db.session {
+        Queries.gjennomforing.getAll(avtaleId = avtaleId).items.forEach {
             gjennomforingProducer.publish(it.toTiltaksgjennomforingV1Dto())
         }
     }

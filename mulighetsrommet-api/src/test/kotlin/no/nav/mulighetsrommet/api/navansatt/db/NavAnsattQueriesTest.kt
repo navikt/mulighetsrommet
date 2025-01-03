@@ -1,26 +1,25 @@
-package no.nav.mulighetsrommet.api.navansatt.db
-
-import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
+import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattQueries
+import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetRepository
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import java.util.*
 
-class NavAnsattRepositoryTest : FunSpec({
+class NavAnsattQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
-    context("NavAnsattRepository") {
-        val enheter = NavEnhetRepository(database.db)
-        val ansatte = NavAnsattRepository(database.db)
+    val queries = NavAnsattQueries
 
+    context("NavAnsattQueries") {
         val enhet1 = NavEnhetDbo(
             enhetsnummer = "1000",
             navn = "Andeby",
@@ -37,10 +36,12 @@ class NavAnsattRepositoryTest : FunSpec({
             overordnetEnhet = null,
         )
 
-        beforeAny {
-            enheter.upsert(enhet1).shouldBeRight()
-            enheter.upsert(enhet2).shouldBeRight()
-        }
+        MulighetsrommetTestDomain(
+            enheter = listOf(enhet1, enhet2),
+            ansatte = listOf(),
+            arrangorer = listOf(),
+            avtaler = listOf(),
+        ).initialize(database.db)
 
         fun toDto(ansatt: NavAnsattDbo, enhet: NavEnhetDbo) = ansatt.run {
             NavAnsattDto(
@@ -96,59 +97,65 @@ class NavAnsattRepositoryTest : FunSpec({
         )
 
         test("CRUD") {
-            ansatte.upsert(ansatt1)
+            database.runAndRollback {
+                queries.upsert(ansatt1)
 
-            ansatte.getByAzureId(ansatt1.azureId) shouldBe toDto(ansatt1, enhet1)
-            ansatte.getByNavIdent(ansatt1.navIdent) shouldBe toDto(ansatt1, enhet1)
+                queries.getByAzureId(ansatt1.azureId) shouldBe toDto(ansatt1, enhet1)
+                queries.getByNavIdent(ansatt1.navIdent) shouldBe toDto(ansatt1, enhet1)
 
-            ansatte.deleteByAzureId(ansatt1.azureId)
+                queries.deleteByAzureId(ansatt1.azureId)
 
-            ansatte.getByAzureId(ansatt1.azureId) shouldBe null
-            ansatte.getByNavIdent(ansatt1.navIdent) shouldBe null
+                queries.getByAzureId(ansatt1.azureId) shouldBe null
+                queries.getByNavIdent(ansatt1.navIdent) shouldBe null
+            }
         }
 
         test("hent ansatte gitt rolle") {
-            ansatte.upsert(ansatt1)
-            ansatte.upsert(ansatt2)
-            ansatte.upsert(ansatt3)
+            database.runAndRollback {
+                queries.upsert(ansatt1)
+                queries.upsert(ansatt2)
+                queries.upsert(ansatt3)
 
-            ansatte.getAll(
-                roller = listOf(NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
-            ) shouldContainExactlyInAnyOrder listOf(
-                toDto(ansatt1, enhet1),
-                toDto(ansatt3, enhet1),
-            )
-            ansatte.getAll(
-                roller = listOf(NavAnsattRolle.KONTAKTPERSON),
-            ) shouldContainExactlyInAnyOrder listOf(
-                toDto(ansatt2, enhet2),
-                toDto(ansatt3, enhet1),
-            )
-            ansatte.getAll(
-                roller = listOf(NavAnsattRolle.KONTAKTPERSON, NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
-            ) shouldContainExactlyInAnyOrder listOf(
-                toDto(ansatt3, enhet1),
-            )
+                queries.getAll(
+                    roller = listOf(NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
+                ) shouldContainExactlyInAnyOrder listOf(
+                    toDto(ansatt1, enhet1),
+                    toDto(ansatt3, enhet1),
+                )
+                queries.getAll(
+                    roller = listOf(NavAnsattRolle.KONTAKTPERSON),
+                ) shouldContainExactlyInAnyOrder listOf(
+                    toDto(ansatt2, enhet2),
+                    toDto(ansatt3, enhet1),
+                )
+                queries.getAll(
+                    roller = listOf(NavAnsattRolle.KONTAKTPERSON, NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
+                ) shouldContainExactlyInAnyOrder listOf(
+                    toDto(ansatt3, enhet1),
+                )
+            }
         }
 
         test("hent ansatte gitt hovedenhet") {
-            ansatte.upsert(ansatt1)
-            ansatte.upsert(ansatt2)
-            ansatte.upsert(ansatt3)
+            database.runAndRollback {
+                queries.upsert(ansatt1)
+                queries.upsert(ansatt2)
+                queries.upsert(ansatt3)
 
-            ansatte.getAll(hovedenhetIn = listOf()) shouldBe listOf()
-            ansatte.getAll(hovedenhetIn = listOf("1000")) shouldContainExactlyInAnyOrder listOf(
-                toDto(ansatt1, enhet1),
-                toDto(ansatt3, enhet1),
-            )
-            ansatte.getAll(hovedenhetIn = listOf("2000")) shouldContainExactlyInAnyOrder listOf(
-                toDto(ansatt2, enhet2),
-            )
-            ansatte.getAll(hovedenhetIn = listOf("1000", "2000")) shouldContainExactlyInAnyOrder listOf(
-                toDto(ansatt2, enhet2),
-                toDto(ansatt1, enhet1),
-                toDto(ansatt3, enhet1),
-            )
+                queries.getAll(hovedenhetIn = listOf()) shouldBe listOf()
+                queries.getAll(hovedenhetIn = listOf("1000")) shouldContainExactlyInAnyOrder listOf(
+                    toDto(ansatt1, enhet1),
+                    toDto(ansatt3, enhet1),
+                )
+                queries.getAll(hovedenhetIn = listOf("2000")) shouldContainExactlyInAnyOrder listOf(
+                    toDto(ansatt2, enhet2),
+                )
+                queries.getAll(hovedenhetIn = listOf("1000", "2000")) shouldContainExactlyInAnyOrder listOf(
+                    toDto(ansatt2, enhet2),
+                    toDto(ansatt1, enhet1),
+                    toDto(ansatt3, enhet1),
+                )
+            }
         }
     }
 })

@@ -9,6 +9,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.Queries
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravAft
@@ -21,9 +22,6 @@ import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.refusjon.HentPersonBolkResponse
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
-import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagRepository
-import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
-import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.refusjon.model.DeltakerDto
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravDto
@@ -52,22 +50,18 @@ fun Route.arrangorflateRoutes() {
     val tilsagnService: TilsagnService by inject()
     val tilsagnRepository: TilsagnRepository by inject()
     val arrangorService: ArrangorService by inject()
-    val refusjonskrav: RefusjonskravRepository by inject()
-    val deltakerRepository: DeltakerRepository by inject()
-    val deltakerForslagRepository: DeltakerForslagRepository by inject()
     val pdl: HentAdressebeskyttetPersonBolkPdlQuery by inject()
     val journalforRefusjonskrav: JournalforRefusjonskrav by inject()
     val db: Database by inject()
     val pdfClient: PdfGenClient by inject()
 
-    suspend fun RoutingContext.arrangorerMedTilgang(): List<ArrangorDto> {
-        return call.principal<ArrangorflatePrincipal>()
+    suspend fun RoutingContext.arrangorerMedTilgang(): List<ArrangorDto> = db.session {
+        call.principal<ArrangorflatePrincipal>()
             ?.organisasjonsnummer
             ?.map {
-                arrangorService.getOrSyncArrangorFromBrreg(it)
-                    .getOrElse {
-                        throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
-                    }
+                arrangorService.getOrSyncArrangorFromBrreg(it).getOrElse {
+                    throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
+                }
             }
             ?: throw StatusException(HttpStatusCode.Unauthorized)
     }
@@ -87,16 +81,21 @@ fun Route.arrangorflateRoutes() {
         route("/arrangor/{orgnr}") {
             get("/refusjonskrav") {
                 val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+
                 requireTilgangHosArrangor(orgnr)
 
-                val krav = refusjonskrav.getByArrangorIds(orgnr)
-                    .map { ArrFlateRefusjonKravKompakt.fromRefusjonskravDto(it) }
+                val krav = db.session {
+                    Queries.refusjonskrav.getByArrangorIds(orgnr).map {
+                        ArrFlateRefusjonKravKompakt.fromRefusjonskravDto(it)
+                    }
+                }
 
                 call.respond(krav)
             }
 
             get("/tilsagn") {
                 val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+
                 requireTilgangHosArrangor(orgnr)
 
                 call.respond(tilsagnRepository.getAllArrangorflateTilsagn(orgnr))
@@ -107,11 +106,13 @@ fun Route.arrangorflateRoutes() {
             get {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val krav = refusjonskrav.get(id)
-                    ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                val krav = db.session {
+                    Queries.refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                }
+
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
-                val oppsummering = toRefusjonskrav(pdl, deltakerRepository, krav)
+                val oppsummering = toRefusjonskrav(db, pdl, krav)
 
                 call.respond(oppsummering)
             }
@@ -119,11 +120,15 @@ fun Route.arrangorflateRoutes() {
             get("/relevante-forslag") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val krav = refusjonskrav.get(id)
-                    ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                val krav = db.session {
+                    Queries.refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                }
+
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
-                val forslagByDeltakerId = deltakerForslagRepository.getForslagByGjennomforing(krav.gjennomforing.id)
+                val forslagByDeltakerId = db.session {
+                    Queries.deltakerForslag.getForslagByGjennomforing(krav.gjennomforing.id)
+                }
 
                 val relevanteForslag = forslagByDeltakerId
                     .map { (deltakerId, forslag) ->
@@ -138,28 +143,35 @@ fun Route.arrangorflateRoutes() {
 
             post("/godkjenn-refusjon") {
                 val id = call.parameters.getOrFail<UUID>("id")
-                val krav = refusjonskrav.get(id)
-                    ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+
+                val krav = db.session {
+                    Queries.refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                }
+
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
                 val request = call.receive<GodkjennRefusjonskrav>()
+
+                val forslagByDeltakerId = db.session {
+                    Queries.deltakerForslag.getForslagByGjennomforing(krav.gjennomforing.id)
+                }
+
                 validerGodkjennRefusjonskrav(
                     request,
                     krav,
-                    deltakerForslagRepository.getForslagByGjennomforing(krav.gjennomforing.id),
-                )
-                    .onLeft { return@post call.respondWithStatusResponse(BadRequest(errors = it).left()) }
+                    forslagByDeltakerId,
+                ).onLeft {
+                    return@post call.respondWithStatusResponse(BadRequest(errors = it).left())
+                }
 
-                db.transactionSuspend { tx ->
-                    refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now(), tx)
-                    refusjonskrav.setBetalingsInformasjon(
+                db.tx {
+                    Queries.refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now())
+                    Queries.refusjonskrav.setBetalingsInformasjon(
                         id,
                         request.betalingsinformasjon.kontonummer,
                         request.betalingsinformasjon.kid,
-                        tx,
                     )
-
-                    journalforRefusjonskrav.schedule(krav.id, Instant.now(), tx)
+                    journalforRefusjonskrav.schedule(krav.id, Instant.now(), this)
                 }
 
                 call.respond(HttpStatusCode.OK)
@@ -168,35 +180,41 @@ fun Route.arrangorflateRoutes() {
             get("/kvittering") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val krav = refusjonskrav.get(id)
-                    ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                val krav = db.session {
+                    Queries.refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                }
+
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
                 val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
                     gjennomforingId = krav.gjennomforing.id,
                     periode = krav.beregning.input.periode,
                 )
-                val refusjonsKravAft = toRefusjonskrav(pdl, deltakerRepository, krav)
-                val pdf = pdfClient.getRefusjonKvittering(refusjonsKravAft, tilsagn)
+                val refusjonsKravAft = toRefusjonskrav(db, pdl, krav)
+                val pdfContent = pdfClient.getRefusjonKvittering(refusjonsKravAft, tilsagn)
 
                 call.response.headers.append(
                     "Content-Disposition",
                     "attachment; filename=\"kvittering.pdf\"",
                 )
-                call.respondBytes(pdf, contentType = ContentType.Application.Pdf)
+
+                call.respondBytes(pdfContent, contentType = ContentType.Application.Pdf)
             }
 
             get("/tilsagn") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val krav = refusjonskrav.get(id)
-                    ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                val krav = db.session {
+                    Queries.refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                }
+
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
                 val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
                     gjennomforingId = krav.gjennomforing.id,
                     periode = krav.beregning.input.periode,
                 )
+
                 call.respond(tilsagn)
             }
         }
@@ -297,12 +315,12 @@ fun validerGodkjennRefusjonskrav(
 }
 
 suspend fun toRefusjonskrav(
+    db: Database,
     pdl: HentAdressebeskyttetPersonBolkPdlQuery,
-    deltakerRepository: DeltakerRepository,
     krav: RefusjonskravDto,
 ): ArrFlateRefusjonKravAft = when (val beregning = krav.beregning) {
     is RefusjonKravBeregningAft -> {
-        val deltakere = deltakerRepository.getAll(krav.gjennomforing.id)
+        val deltakere = db.session { Queries.deltaker.getAll(krav.gjennomforing.id) }
 
         val deltakereById = deltakere.associateBy { it.id }
         val personerByNorskIdent: Map<NorskIdent, RefusjonKravDeltakelse.Person> = getPersoner(pdl, deltakere)

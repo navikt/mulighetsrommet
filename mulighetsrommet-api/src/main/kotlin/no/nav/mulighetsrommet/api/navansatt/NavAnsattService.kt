@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.navansatt
 
 import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
+import no.nav.mulighetsrommet.api.Queries
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRepository
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
 import no.nav.mulighetsrommet.database.Database
@@ -16,28 +16,27 @@ class NavAnsattService(
     private val roles: List<AdGruppeNavAnsattRolleMapping>,
     private val db: Database,
     private val microsoftGraphClient: MicrosoftGraphClient,
-    private val navAnsattRepository: NavAnsattRepository,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun getOrSynchronizeNavAnsatt(azureId: UUID, accessType: AccessType): NavAnsattDto {
-        return navAnsattRepository.getByAzureId(azureId) ?: run {
+    suspend fun getOrSynchronizeNavAnsatt(azureId: UUID, accessType: AccessType): NavAnsattDto = db.session {
+        Queries.ansatt.getByAzureId(azureId) ?: run {
             logger.info("Fant ikke NavAnsatt for azureId=$azureId i databasen, forsøker Azure AD i stedet")
             val ansatt = getNavAnsattFromAzure(azureId, accessType)
-            navAnsattRepository.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
+            Queries.ansatt.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
             ansatt
         }
     }
 
-    fun getNavAnsatte(filter: NavAnsattFilter): List<NavAnsattDto> {
-        return navAnsattRepository.getAll(roller = filter.roller)
+    fun getNavAnsatte(filter: NavAnsattFilter): List<NavAnsattDto> = db.session {
+        Queries.ansatt.getAll(roller = filter.roller)
     }
 
-    suspend fun addUserToKontaktpersoner(navIdent: NavIdent) {
+    suspend fun addUserToKontaktpersoner(navIdent: NavIdent): Unit = db.tx {
         val kontaktPersonGruppeId = roles.find { it.rolle == NavAnsattRolle.KONTAKTPERSON }?.adGruppeId
         requireNotNull(kontaktPersonGruppeId)
 
-        val ansatt = navAnsattRepository.getByNavIdent(navIdent)
+        val ansatt = Queries.ansatt.getByNavIdent(navIdent)
             ?: microsoftGraphClient.getNavAnsattByNavIdent(navIdent, AccessType.M2M)?.let {
                 NavAnsattDto.fromAzureAdNavAnsatt(it, roller = emptySet())
             }
@@ -49,15 +48,13 @@ class NavAnsattService(
             return
         }
 
-        db.transactionSuspend { tx ->
-            val dbo = NavAnsattDbo.fromNavAnsattDto(ansatt).copy(
-                roller = ansatt.roller.plus(NavAnsattRolle.KONTAKTPERSON),
-            )
+        val dbo = NavAnsattDbo.fromNavAnsattDto(ansatt).copy(
+            roller = ansatt.roller.plus(NavAnsattRolle.KONTAKTPERSON),
+        )
 
-            navAnsattRepository.upsert(dbo, tx)
+        Queries.ansatt.upsert(dbo)
 
-            microsoftGraphClient.addToGroup(ansatt.azureId, kontaktPersonGruppeId)
-        }
+        microsoftGraphClient.addToGroup(ansatt.azureId, kontaktPersonGruppeId)
     }
 
     suspend fun getNavAnsattFromAzureSok(query: String): List<NavAnsattDto> {

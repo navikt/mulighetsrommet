@@ -1,0 +1,263 @@
+package no.nav.mulighetsrommet.api.veilederflate
+
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
+import kotliquery.Query
+import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.ArbeidsrettetRehabilitering
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging1
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
+import java.util.*
+
+class VeilederflateTiltakQueriesTest : FunSpec({
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+
+    val queries = VeilederflateTiltakQueries
+
+    context("getAll") {
+        val oppfolgingSanityId = UUID.randomUUID()
+        val arbeidstreningSanityId = UUID.randomUUID()
+
+        val domain = MulighetsrommetTestDomain(
+            enheter = listOf(Innlandet, Gjovik, Oslo),
+            tiltakstyper = listOf(TiltakstypeFixtures.AFT, TiltakstypeFixtures.Oppfolging),
+            avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.AFT),
+            gjennomforinger = listOf(Oppfolging1, AFT1),
+        ) {
+            execute(Query("update tiltakstype set sanity_id = '$oppfolgingSanityId' where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
+            execute(Query("update tiltakstype set sanity_id = '$arbeidstreningSanityId' where id = '${TiltakstypeFixtures.AFT.id}'"))
+            execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.VARIG_TILPASSET_INNSATS}'::innsatsgruppe]"))
+
+            Queries.gjennomforing.setPublisert(Oppfolging1.id, true)
+            Queries.gjennomforing.setPublisert(AFT1.id, true)
+        }
+
+        test("skal filtrere basert på om tiltaket er publisert") {
+            database.runAndRollback {
+                domain.setup()
+
+                queries.getAll(
+                    brukersEnheter = listOf("0502"),
+                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                ) shouldHaveSize 2
+
+                Queries.gjennomforing.setPublisert(Oppfolging1.id, false)
+
+                queries.getAll(
+                    brukersEnheter = listOf("0502"),
+                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                ) shouldHaveSize 1
+
+                Queries.gjennomforing.setPublisert(AFT1.id, false)
+
+                queries.getAll(
+                    brukersEnheter = listOf("0502"),
+                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                ) shouldHaveSize 0
+            }
+        }
+
+        test("skal filtrere basert på innsatsgruppe") {
+            database.runAndRollback {
+                domain.setup()
+
+                execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.SPESIELT_TILPASSET_INNSATS}'::innsatsgruppe] where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
+                execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.STANDARD_INNSATS}'::innsatsgruppe, '${Innsatsgruppe.SPESIELT_TILPASSET_INNSATS}'::innsatsgruppe] where id = '${TiltakstypeFixtures.AFT.id}'"))
+
+                queries.getAll(
+                    innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS,
+                    brukersEnheter = listOf("0502"),
+                ).should {
+                    it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
+                }
+
+                queries.getAll(
+                    innsatsgruppe = Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+                    brukersEnheter = listOf("0502"),
+                ) shouldHaveSize 2
+            }
+        }
+
+        test("skal filtrere på brukers enheter") {
+            database.runAndRollback {
+                domain.setup()
+
+                Queries.gjennomforing.upsert(Oppfolging1.copy(navEnheter = listOf("0400", "0502")))
+                Queries.gjennomforing.upsert(AFT1.copy(navEnheter = listOf("0400", "0300")))
+
+                queries.getAll(
+                    brukersEnheter = listOf("0502"),
+                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                ).should {
+                    it.shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
+                }
+
+                queries.getAll(
+                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    brukersEnheter = listOf("0300"),
+                ).should {
+                    it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
+                }
+
+                queries.getAll(
+                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    brukersEnheter = listOf("0502", "0300"),
+                ) shouldHaveSize 2
+
+                queries.getAll(
+                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    brukersEnheter = listOf("0400"),
+                ) shouldHaveSize 2
+            }
+        }
+
+        test("skal filtrere basert på tiltakstype sanity Id") {
+            database.runAndRollback {
+                domain.setup()
+
+                queries.getAll(
+                    sanityTiltakstypeIds = null,
+                    brukersEnheter = listOf("0502"),
+                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                ) shouldHaveSize 2
+
+                queries.getAll(
+                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    sanityTiltakstypeIds = listOf(oppfolgingSanityId),
+                    brukersEnheter = listOf("0502"),
+                ).should {
+                    it.shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
+                }
+
+                queries.getAll(
+                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    sanityTiltakstypeIds = listOf(arbeidstreningSanityId),
+                    brukersEnheter = listOf("0502"),
+                ).should {
+                    it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
+                }
+            }
+        }
+
+        test("skal filtrere basert fritekst i navn") {
+            database.runAndRollback {
+                domain.setup()
+
+                Queries.gjennomforing.upsert(Oppfolging1.copy(sluttDato = null, navn = "Oppfølging hos Erik"))
+                Queries.gjennomforing.upsert(AFT1.copy(navn = "AFT hos Frank"))
+
+                queries.getAll(
+                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    brukersEnheter = listOf("0502"),
+                    search = "erik",
+                ).should {
+                    it.shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
+                }
+
+                queries.getAll(
+                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    brukersEnheter = listOf("0502"),
+                    search = "frank aft",
+                ).should {
+                    it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
+                }
+
+                queries.getAll(
+                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    brukersEnheter = listOf("0502"),
+                    search = "aft erik",
+                ).should {
+                    it shouldHaveSize 0
+                }
+
+                queries.getAll(
+                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    brukersEnheter = listOf("0502"),
+                    search = "af",
+                ).should {
+                    it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
+                }
+            }
+        }
+
+        test("skal filtrere basert på apent_for_pamelding") {
+            database.runAndRollback {
+                domain.setup()
+
+                Queries.gjennomforing.setApentForPamelding(AFT1.id, false)
+
+                queries.getAll(
+                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    apentForPamelding = true,
+                    brukersEnheter = listOf("0502"),
+                ).should {
+                    it.shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
+                }
+
+                queries.getAll(
+                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    apentForPamelding = false,
+                    brukersEnheter = listOf("0502"),
+                ).should {
+                    it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
+                }
+
+                queries.getAll(
+                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    apentForPamelding = null,
+                    brukersEnheter = listOf("0502"),
+                ) shouldHaveSize 2
+            }
+        }
+    }
+
+    context("sykemeldt med arbeidsgiver") {
+        val domain = MulighetsrommetTestDomain(
+            enheter = listOf(Innlandet, Gjovik),
+            tiltakstyper = listOf(TiltakstypeFixtures.ArbeidsrettetRehabilitering),
+            avtaler = listOf(AvtaleFixtures.ArbeidsrettetRehabilitering),
+            gjennomforinger = listOf(ArbeidsrettetRehabilitering),
+        ) {
+            execute(Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.ArbeidsrettetRehabilitering.id}'"))
+            execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.VARIG_TILPASSET_INNSATS}'::innsatsgruppe]"))
+
+            Queries.gjennomforing.setPublisert(ArbeidsrettetRehabilitering.id, true)
+        }
+
+        test("skal ta med ARR hvis sykmeldt med SITUASJONSBESTEMT_INNSATS") {
+            database.runAndRollback {
+                domain.setup()
+
+                // Riktig innsatsgruppe
+                queries.getAll(
+                    innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                    brukersEnheter = listOf("0502"),
+                ).size shouldBe 1
+
+                // Feil innsatsgruppe
+                queries.getAll(
+                    innsatsgruppe = Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+                    brukersEnheter = listOf("0502"),
+                ).size shouldBe 0
+
+                // Feil innsatsgruppe men sykmeldt
+                queries.getAll(
+                    innsatsgruppe = Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+                    brukersEnheter = listOf("0502"),
+                    erSykmeldtMedArbeidsgiver = true,
+                ).size shouldBe 1
+            }
+        }
+    }
+})

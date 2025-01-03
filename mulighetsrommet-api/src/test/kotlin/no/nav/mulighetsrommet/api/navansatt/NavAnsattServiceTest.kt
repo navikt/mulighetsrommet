@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRepository
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle.KONTAKTPERSON
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
@@ -58,18 +57,17 @@ class NavAnsattServiceTest : FunSpec({
     coEvery { msGraph.getGroupMembers(tiltaksadministrasjon.adGruppeId) } returns listOf(ansatt1, ansatt2)
     coEvery { msGraph.getGroupMembers(kontaktperson.adGruppeId) } returns listOf(ansatt2)
 
-    fun navAnsattService(
+    fun createNavAnsattService(
         roles: List<AdGruppeNavAnsattRolleMapping>,
     ) = NavAnsattService(
         roles = roles,
         db = database.db,
         microsoftGraphClient = msGraph,
-        navAnsattRepository = NavAnsattRepository(database.db),
     )
 
     context("getNavAnsattFromAzure") {
         test("should get NavAnsatt with roles filtered by the configured roles") {
-            val service = navAnsattService(listOf(tiltaksadministrasjon))
+            val service = createNavAnsattService(listOf(tiltaksadministrasjon))
 
             val azureId = UUID.randomUUID()
 
@@ -89,7 +87,7 @@ class NavAnsattServiceTest : FunSpec({
         }
 
         test("should fail when the requested NavAnsatt does not have any of the configured roles") {
-            val service = navAnsattService(listOf(kontaktperson))
+            val service = createNavAnsattService(listOf(kontaktperson))
 
             val azureId = UUID.randomUUID()
 
@@ -130,7 +128,7 @@ class NavAnsattServiceTest : FunSpec({
                 ),
             ) { roles, ansatteMedRoller ->
                 runBlocking {
-                    val service = navAnsattService(roles)
+                    val service = createNavAnsattService(roles)
 
                     val resolvedAnsatte = service.getNavAnsatteFromAzure()
 
@@ -147,7 +145,7 @@ class NavAnsattServiceTest : FunSpec({
             )
             coEvery { msGraph.getGroupMembers(id) } returns listOf(ansatt1, ansatt2)
 
-            val service = navAnsattService(roles)
+            val service = createNavAnsattService(roles)
 
             val resolvedAnsatte = service.getNavAnsatteFromAzure()
 

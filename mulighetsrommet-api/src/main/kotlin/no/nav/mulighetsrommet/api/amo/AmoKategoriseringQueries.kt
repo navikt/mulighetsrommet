@@ -10,20 +10,23 @@ import no.nav.mulighetsrommet.domain.dto.*
 import org.intellij.lang.annotations.Language
 import java.util.*
 
-object AmoKategoriseringRepository {
-    fun upsert(dbo: TiltaksgjennomforingDbo, tx: Session) {
+object AmoKategoriseringQueries {
+
+    context(Session)
+    fun upsert(dbo: TiltaksgjennomforingDbo) {
         return if (dbo.amoKategorisering == null) {
-            delete(dbo.id, ForeignIdType.GJENNOMFORING, tx)
+            delete(dbo.id, ForeignIdType.GJENNOMFORING)
         } else {
-            upsert(dbo.amoKategorisering, dbo.id, ForeignIdType.GJENNOMFORING, tx)
+            upsert(dbo.amoKategorisering, dbo.id, ForeignIdType.GJENNOMFORING)
         }
     }
 
-    fun upsert(dbo: AvtaleDbo, tx: Session) {
+    context(Session)
+    fun upsert(dbo: AvtaleDbo) {
         return if (dbo.amoKategorisering == null) {
-            delete(dbo.id, ForeignIdType.AVTALE, tx)
+            delete(dbo.id, ForeignIdType.AVTALE)
         } else {
-            upsert(dbo.amoKategorisering, dbo.id, ForeignIdType.AVTALE, tx)
+            upsert(dbo.amoKategorisering, dbo.id, ForeignIdType.AVTALE)
         }
     }
 
@@ -32,7 +35,8 @@ object AmoKategoriseringRepository {
         GJENNOMFORING,
     }
 
-    private fun upsert(amoKategorisering: AmoKategorisering, foreignId: UUID, foreignIdType: ForeignIdType, tx: Session) {
+    context(Session)
+    private fun upsert(amoKategorisering: AmoKategorisering, foreignId: UUID, foreignIdType: ForeignIdType) {
         val foreignName = when (foreignIdType) {
             ForeignIdType.AVTALE -> "avtale"
             ForeignIdType.GJENNOMFORING -> "tiltaksgjennomforing"
@@ -62,23 +66,20 @@ object AmoKategoriseringRepository {
                 innhold_elementer = excluded.innhold_elementer
         """.trimIndent()
 
-        tx.run(
-            queryOf(
-                query,
-                mutableMapOf("${foreignName}_id" to foreignId).plus(amoKategorisering.toSqlParameters(tx)),
-            ).asExecute,
-        )
+        val params = mutableMapOf("${foreignName}_id" to foreignId) + (amoKategorisering.toSqlParameters())
+
+        execute(queryOf(query, params))
 
         if (amoKategorisering is AmoKategorisering.BransjeOgYrkesrettet) {
-            updateSertifiseringer(foreignId, foreignName, amoKategorisering.sertifiseringer, tx)
+            updateSertifiseringer(foreignId, foreignName, amoKategorisering.sertifiseringer)
         }
     }
 
+    context(Session)
     private fun updateSertifiseringer(
         foreignId: UUID,
         foreignName: String,
         sertifiseringer: List<AmoKategorisering.BransjeOgYrkesrettet.Sertifisering>,
-        tx: Session,
     ) {
         @Language("PostgreSQL")
         val upsertSertifiseringer = """
@@ -106,21 +107,21 @@ object AmoKategoriseringRepository {
             where ${foreignName}_id = ? and not (konsept_id = any (?))
         """.trimIndent()
 
-        tx.batchPreparedStatement(
+        batchPreparedStatement(
             upsertSertifiseringer,
             sertifiseringer.map { s -> listOf(s.konseptId, s.label) },
         )
-        tx.batchPreparedStatement(
+        batchPreparedStatement(
             upsertJoinTable,
             sertifiseringer.map { s -> listOf(foreignId, s.konseptId) },
         )
-        tx.run(
-            queryOf(deleteJoins, foreignId, tx.createArrayOf("bigint", sertifiseringer.map { it.konseptId }))
-                .asExecute,
+        execute(
+            queryOf(deleteJoins, foreignId, createArrayOf("bigint", sertifiseringer.map { it.konseptId })),
         )
     }
 
-    private fun delete(foreignId: UUID, foreignIdType: ForeignIdType, tx: Session) {
+    context(Session)
+    private fun delete(foreignId: UUID, foreignIdType: ForeignIdType) {
         val foreignName = when (foreignIdType) {
             ForeignIdType.AVTALE -> "avtale"
             ForeignIdType.GJENNOMFORING -> "tiltaksgjennomforing"
@@ -131,31 +132,36 @@ object AmoKategoriseringRepository {
             delete from ${foreignName}_amo_kategorisering where ${foreignName}_id = ?::uuid
         """.trimIndent()
 
-        tx.run(queryOf(query, foreignId).asUpdate)
+        update(queryOf(query, foreignId))
 
-        updateSertifiseringer(foreignId, foreignName, emptyList(), tx)
+        updateSertifiseringer(foreignId, foreignName, emptyList())
     }
 
-    fun AmoKategorisering.toSqlParameters(tx: Session) = when (this) {
+    context(Session)
+    private fun AmoKategorisering.toSqlParameters() = when (this) {
         is AmoKategorisering.BransjeOgYrkesrettet -> mapOf(
             "kurstype" to "BRANSJE_OG_YRKESRETTET",
             "bransje" to bransje.name,
-            "forerkort" to tx.createArrayOf("forerkort_klasse", this.forerkort.map { it.name }),
+            "forerkort" to createArrayOf("forerkort_klasse", forerkort.map { it.name }),
             "sertifiseringer" to Json.encodeToString(sertifiseringer),
-            "innhold_elementer" to tx.createArrayOf("amo_innhold_element", this.innholdElementer.map { it.name }),
+            "innhold_elementer" to createArrayOf("amo_innhold_element", innholdElementer.map { it.name }),
         )
+
         AmoKategorisering.ForberedendeOpplaeringForVoksne -> mapOf(
             "kurstype" to "FORBEREDENDE_OPPLAERING_FOR_VOKSNE",
         )
+
         is AmoKategorisering.GrunnleggendeFerdigheter -> mapOf(
             "kurstype" to "GRUNNLEGGENDE_FERDIGHETER",
-            "innhold_elementer" to tx.createArrayOf("amo_innhold_element", this.innholdElementer.map { it.name }),
+            "innhold_elementer" to createArrayOf("amo_innhold_element", innholdElementer.map { it.name }),
         )
+
         is AmoKategorisering.Norskopplaering -> mapOf(
             "kurstype" to "NORSKOPPLAERING",
             "norskprove" to norskprove,
-            "innhold_elementer" to tx.createArrayOf("amo_innhold_element", this.innholdElementer.map { it.name }),
+            "innhold_elementer" to createArrayOf("amo_innhold_element", innholdElementer.map { it.name }),
         )
+
         AmoKategorisering.Studiespesialisering -> mapOf(
             "kurstype" to "STUDIESPESIALISERING",
         )

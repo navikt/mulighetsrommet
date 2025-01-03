@@ -6,16 +6,15 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.amt.Melding
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
 import java.util.*
 
-class DeltakerForslagRepository(private val db: Database) {
-    fun upsert(forslag: DeltakerForslag) = db.transaction { upsert(forslag, it) }
+object DeltakerForslagQueries {
 
-    fun upsert(forslag: DeltakerForslag, tx: Session) {
+    context(Session)
+    fun upsert(forslag: DeltakerForslag) {
         @Language("PostgreSQL")
         val query = """
             insert into deltaker_forslag (
@@ -41,9 +40,10 @@ class DeltakerForslagRepository(private val db: Database) {
             "status" to forslag.status.name,
         )
 
-        queryOf(query, params).asExecute.runWithSession(tx)
+        execute(queryOf(query, params))
     }
 
+    context(Session)
     fun delete(id: UUID) {
         @Language("PostgreSQL")
         val query = """
@@ -51,11 +51,10 @@ class DeltakerForslagRepository(private val db: Database) {
             where id = ?::uuid
         """.trimIndent()
 
-        queryOf(query, id)
-            .asExecute
-            .let { db.run(it) }
+        execute(queryOf(query, id))
     }
 
+    context(Session)
     fun getForslagByGjennomforing(gjennomforingId: UUID): Map<UUID, List<DeltakerForslag>> {
         @Language("PostgreSQL")
         val query = """
@@ -69,24 +68,21 @@ class DeltakerForslagRepository(private val db: Database) {
         where deltaker.gjennomforing_id = ?::uuid
         """.trimIndent()
 
-        return queryOf(query, gjennomforingId)
-            .map { it.toForslagDbo() }
-            .asList
-            .let { db.run(it) }
+        return list(queryOf(query, gjennomforingId)) { it.toForslagDbo() }
             .groupBy { it.deltakerId }
     }
+}
 
-    private fun Row.toForslagDbo(): DeltakerForslag {
-        val endring = string("endring")
-            .let { Json.decodeFromString<Melding.Forslag.Endring>(it) }
+private fun Row.toForslagDbo(): DeltakerForslag {
+    val endring = string("endring")
+        .let { Json.decodeFromString<Melding.Forslag.Endring>(it) }
 
-        return DeltakerForslag(
-            id = uuid("id"),
-            deltakerId = uuid("deltaker_id"),
-            endring = endring,
-            status = DeltakerForslag.Status.valueOf(string("status")),
-        )
-    }
+    return DeltakerForslag(
+        id = uuid("id"),
+        deltakerId = uuid("deltaker_id"),
+        endring = endring,
+        status = DeltakerForslag.Status.valueOf(string("status")),
+    )
 }
 
 @Serializable

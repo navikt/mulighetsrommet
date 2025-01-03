@@ -8,7 +8,6 @@ import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.api.*
@@ -29,12 +28,10 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.*
 
 class AvtaleRoutesTest : FunSpec({
-    val databaseConfig = databaseConfig
-
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
-        enheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Oslo),
+        enheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Oslo),
         avtaler = emptyList(),
     )
 

@@ -14,22 +14,18 @@ import kotlinx.serialization.json.Json
 import kotliquery.Query
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedParty
+import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.GodkjennRefusjonskrav
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravAft
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponseDokument
-import no.nav.mulighetsrommet.api.createAuthConfig
-import no.nav.mulighetsrommet.api.createTestApplicationConfig
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag.Status
-import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
 import no.nav.mulighetsrommet.api.refusjon.model.*
-import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
@@ -45,7 +41,6 @@ import java.time.LocalDateTime
 import java.util.*
 
 class ArrangorflateRoutesTest : FunSpec({
-    val databaseConfig = databaseConfig
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val identMedTilgang = NorskIdent("01010199988")
@@ -287,10 +282,12 @@ class ArrangorflateRoutesTest : FunSpec({
             }
             response.status shouldBe HttpStatusCode.OK
 
-            Query("select count(*) from scheduled_tasks where task_name = 'JournalforRefusjonskrav'")
-                .map { 1 }
-                .asList
-                .let { database.db.run(it) } shouldHaveSize 1
+            val count = database.run {
+                single(Query("select count(*) from scheduled_tasks where task_name = 'JournalforRefusjonskrav'")) {
+                    it.int("count")
+                }
+            }
+            count shouldBe 1
         }
     }
 
@@ -328,18 +325,20 @@ class ArrangorflateRoutesTest : FunSpec({
     }
 
     test("ikke lov å godkjenne når det finnes relevante forslag") {
-        val deltakerForslagRepository = DeltakerForslagRepository(database.db)
-        deltakerForslagRepository.upsert(
-            DeltakerForslag(
-                id = UUID.randomUUID(),
-                deltakerId = deltaker.id,
-                endring = Melding.Forslag.Endring.AvsluttDeltakelse(
-                    aarsak = EndringAarsak.Syk,
-                    harDeltatt = false,
+        database.run {
+            Queries.deltakerForslag.upsert(
+                DeltakerForslag(
+                    id = UUID.randomUUID(),
+                    deltakerId = deltaker.id,
+                    endring = Melding.Forslag.Endring.AvsluttDeltakelse(
+                        aarsak = EndringAarsak.Syk,
+                        harDeltatt = false,
+                    ),
+                    status = Status.VENTER_PA_SVAR,
                 ),
-                status = Status.VENTER_PA_SVAR,
-            ),
-        )
+            )
+        }
+
         withTestApplication(appConfig()) {
             val client = createClient {
                 install(ContentNegotiation) {

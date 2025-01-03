@@ -7,7 +7,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.arrangor.db.ArrangorRepository
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.*
 import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
@@ -16,8 +15,7 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
+import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.*
@@ -150,10 +148,10 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     fun createTiltakshistorikkService() = TiltakshistorikkService(
         pdlClient = pdlClient,
+        tiltakstypeService = TiltakstypeService(database.db),
         amtDeltakerClient = amtDeltakerClient,
         tiltakshistorikkClient = tiltakshistorikkClient,
-        arrangorService = ArrangorService(mockk(), ArrangorRepository(database.db)),
-        tiltakstypeRepository = TiltakstypeRepository(database.db),
+        arrangorService = ArrangorService(database.db, mockk()),
     )
 
     coEvery { pdlClient.hentHistoriskeIdenter(any(), any()) } returns listOf(

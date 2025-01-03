@@ -12,7 +12,7 @@ import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.mulighetsrommet.api.arrangor.db.ArrangorRepository
+import no.nav.mulighetsrommet.api.Queries
 import no.nav.mulighetsrommet.api.arrangor.model.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -53,15 +53,13 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
             poststed = "Andeby",
         )
 
-        val arrangorRepository = ArrangorRepository(database.db)
-
         val brregClient: BrregClient = mockk()
         coEvery { brregClient.getBrregVirksomhet(amtVirksomhet.organisasjonsnummer) } returns virksomhetDto.right()
         coEvery { brregClient.getBrregVirksomhet(amtUnderenhet.organisasjonsnummer) } returns underenhetDto.right()
 
         val virksomhetConsumer = AmtVirksomheterV1KafkaConsumer(
             config = KafkaTopicConsumer.Config(id = "virksomheter", topic = "virksomheter"),
-            arrangorRepository = arrangorRepository,
+            db = database.db,
             brregClient = brregClient,
         )
 
@@ -69,31 +67,40 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
             virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer.value, Json.encodeToJsonElement(amtVirksomhet))
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer.value, Json.encodeToJsonElement(amtUnderenhet))
 
-            arrangorRepository.getAll().items.shouldBeEmpty()
+            database.run {
+                Queries.arrangor.getAll().items.shouldBeEmpty()
+            }
         }
 
         test("oppdaterer bare virksomheter som er lagret i databasen") {
-            arrangorRepository.upsert(virksomhetDto.copy(navn = "Kiwi", postnummer = "9999", poststed = "Gåseby"))
+            database.run {
+                Queries.arrangor.upsert(virksomhetDto.copy(navn = "Kiwi", postnummer = "9999", poststed = "Gåseby"))
+            }
 
             virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer.value, Json.encodeToJsonElement(amtVirksomhet))
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer.value, Json.encodeToJsonElement(amtUnderenhet))
 
-            arrangorRepository.getAll().should {
-                it.items.shouldHaveSize(1)
-                it.items[0].navn shouldBe "REMA 1000 AS"
-                it.items[0].postnummer shouldBe "1000"
-                it.items[0].poststed shouldBe "Andeby"
+            database.run {
+                Queries.arrangor.getAll().should {
+                    it.items.shouldHaveSize(1)
+                    it.items[0].navn shouldBe "REMA 1000 AS"
+                    it.items[0].postnummer shouldBe "1000"
+                    it.items[0].poststed shouldBe "Andeby"
+                }
             }
         }
 
         test("delete virksomheter for tombstone messages") {
-            arrangorRepository.upsert(underenhetDto)
-
-            arrangorRepository.get(underenhetDto.organisasjonsnummer).shouldNotBeNull()
+            database.run {
+                Queries.arrangor.upsert(underenhetDto)
+                Queries.arrangor.get(underenhetDto.organisasjonsnummer).shouldNotBeNull()
+            }
 
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer.value, JsonNull)
 
-            arrangorRepository.get(underenhetDto.organisasjonsnummer) shouldBe null
+            database.run {
+                Queries.arrangor.get(underenhetDto.organisasjonsnummer) shouldBe null
+            }
         }
     }
 })

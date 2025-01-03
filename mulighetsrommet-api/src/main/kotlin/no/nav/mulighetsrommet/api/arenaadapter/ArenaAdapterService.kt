@@ -3,18 +3,16 @@ package no.nav.mulighetsrommet.api.arenaadapter
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
+import no.nav.mulighetsrommet.api.Queries
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.services.DocumentClass
 import no.nav.mulighetsrommet.api.services.EndretAv
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.services.cms.SanityService
-import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskoder
@@ -27,9 +25,6 @@ import java.util.*
 
 class ArenaAdapterService(
     private val db: Database,
-    private val tiltakstyper: TiltakstypeRepository,
-    private val avtaler: AvtaleRepository,
-    private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
     private val sanityService: SanityService,
     private val arrangorService: ArrangorService,
@@ -37,32 +32,30 @@ class ArenaAdapterService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleDto {
+    suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleDto = db.tx {
         syncArrangorFromBrreg(Organisasjonsnummer(avtale.arrangorOrganisasjonsnummer))
 
-        return db.transaction { tx ->
-            val previous = avtaler.get(avtale.id)
-            if (previous?.toArenaAvtaleDbo() == avtale) {
-                return@transaction previous
-            }
-
-            avtaler.upsertArenaAvtale(tx, avtale)
-
-            val next = avtaler.get(avtale.id, tx)!!
-
-            logUpdateAvtale(tx, next)
-
-            next
+        val previous = Queries.avtale.get(avtale.id)
+        if (previous?.toArenaAvtaleDbo() == avtale) {
+            return@tx previous
         }
+
+        Queries.avtale.upsertArenaAvtale(avtale)
+
+        val next = requireNotNull(Queries.avtale.get(avtale.id))
+
+        logUpdateAvtale(next)
+
+        next
     }
 
-    suspend fun upsertTiltaksgjennomforing(arenaGjennomforing: ArenaTiltaksgjennomforingDbo): UUID? {
-        val tiltakstype = tiltakstyper.get(arenaGjennomforing.tiltakstypeId)
+    suspend fun upsertTiltaksgjennomforing(arenaGjennomforing: ArenaTiltaksgjennomforingDbo): UUID? = db.session {
+        val tiltakstype = Queries.tiltakstype.get(arenaGjennomforing.tiltakstypeId)
             ?: throw IllegalStateException("Ukjent tiltakstype id=${arenaGjennomforing.tiltakstypeId}")
 
         syncArrangorFromBrreg(Organisasjonsnummer(arenaGjennomforing.arrangorOrganisasjonsnummer))
 
-        return if (Tiltakskoder.isEgenRegiTiltak(tiltakstype.arenaKode)) {
+        if (Tiltakskoder.isEgenRegiTiltak(tiltakstype.arenaKode)) {
             upsertEgenRegiTiltak(tiltakstype, arenaGjennomforing)
         } else {
             upsertGruppetiltak(tiltakstype, arenaGjennomforing)
@@ -90,53 +83,51 @@ class ArenaAdapterService(
         }
     }
 
-    private suspend fun upsertGruppetiltak(
+    private fun upsertGruppetiltak(
         tiltakstype: TiltakstypeDto,
         arenaGjennomforing: ArenaTiltaksgjennomforingDbo,
-    ) {
+    ): Unit = db.tx {
         require(Tiltakskoder.isGruppetiltak(tiltakstype.arenaKode)) {
             "Gjennomføringer er ikke støttet for tiltakstype ${tiltakstype.arenaKode}"
         }
 
-        val previous = requireNotNull(tiltaksgjennomforinger.get(arenaGjennomforing.id)) {
+        val previous = requireNotNull(Queries.gjennomforing.get(arenaGjennomforing.id)) {
             "Alle gruppetiltak har blitt migrert. Forventet å finne gjennomføring i databasen."
         }
 
         if (!hasRelevantChanges(arenaGjennomforing, previous)) {
             logger.info("Gjennomføring hadde ingen endringer")
-            return
+            return@tx
         }
 
-        db.transactionSuspend { tx ->
-            tiltaksgjennomforinger.updateArenaData(
-                arenaGjennomforing.id,
-                arenaGjennomforing.tiltaksnummer,
-                arenaGjennomforing.arenaAnsvarligEnhet,
-                tx,
-            )
+        Queries.gjennomforing.updateArenaData(
+            arenaGjennomforing.id,
+            arenaGjennomforing.tiltaksnummer,
+            arenaGjennomforing.arenaAnsvarligEnhet,
+        )
 
-            val next = requireNotNull(tiltaksgjennomforinger.get(arenaGjennomforing.id, tx)) {
-                "Gjennomføring burde ikke være null siden den nettopp ble lagt til"
-            }
-
-            if (previous.tiltaksnummer == null) {
-                logTiltaksnummerHentetFraArena(tx, next)
-            } else {
-                logUpdateGjennomforing(tx, next)
-            }
-
-            tiltaksgjennomforingKafkaProducer.publish(next.toTiltaksgjennomforingV1Dto())
+        val next = requireNotNull(Queries.gjennomforing.get(arenaGjennomforing.id)) {
+            "Gjennomføring burde ikke være null siden den nettopp ble lagt til"
         }
+
+        if (previous.tiltaksnummer == null) {
+            logTiltaksnummerHentetFraArena(next)
+        } else {
+            logUpdateGjennomforing(next)
+        }
+
+        tiltaksgjennomforingKafkaProducer.publish(next.toTiltaksgjennomforingV1Dto())
     }
 
     private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer) {
-        arrangorService.getOrSyncArrangorFromBrreg(orgnr).onLeft { error ->
-            if (error == BrregError.NotFound) {
-                logger.warn("Virksomhet mer orgnr=$orgnr finnes ikke i brreg. Er dette en utenlandsk arrangør?")
-            }
+        arrangorService.getOrSyncArrangorFromBrreg(orgnr)
+            .onLeft { error ->
+                if (error == BrregError.NotFound) {
+                    logger.warn("Virksomhet mer orgnr=$orgnr finnes ikke i brreg. Er dette en utenlandsk arrangør?")
+                }
 
-            throw IllegalArgumentException("Klarte ikke hente virksomhet med orgnr=$orgnr fra brreg: $error")
-        }
+                throw IllegalArgumentException("Klarte ikke hente virksomhet med orgnr=$orgnr fra brreg: $error")
+            }
     }
 
     private fun hasRelevantChanges(
@@ -146,9 +137,9 @@ class ArenaAdapterService(
         return arenaGjennomforing.tiltaksnummer != current.tiltaksnummer || arenaGjennomforing.arenaAnsvarligEnhet != current.arenaAnsvarligEnhet?.enhetsnummer
     }
 
-    private fun logUpdateAvtale(tx: TransactionalSession, dto: AvtaleDto) {
+    private fun TransactionalSession.logUpdateAvtale(dto: AvtaleDto) {
         endringshistorikk.logEndring(
-            tx,
+            this@TransactionalSession,
             DocumentClass.AVTALE,
             "Endret i Arena",
             EndretAv.Arena,
@@ -156,9 +147,9 @@ class ArenaAdapterService(
         ) { Json.encodeToJsonElement(dto) }
     }
 
-    private fun logUpdateGjennomforing(tx: TransactionalSession, dto: TiltaksgjennomforingDto) {
+    private fun TransactionalSession.logUpdateGjennomforing(dto: TiltaksgjennomforingDto) {
         endringshistorikk.logEndring(
-            tx,
+            this@TransactionalSession,
             DocumentClass.TILTAKSGJENNOMFORING,
             "Endret i Arena",
             EndretAv.Arena,
@@ -166,9 +157,9 @@ class ArenaAdapterService(
         ) { Json.encodeToJsonElement(dto) }
     }
 
-    private fun logTiltaksnummerHentetFraArena(tx: TransactionalSession, dto: TiltaksgjennomforingDto) {
+    private fun TransactionalSession.logTiltaksnummerHentetFraArena(dto: TiltaksgjennomforingDto) {
         endringshistorikk.logEndring(
-            tx,
+            this@TransactionalSession,
             DocumentClass.TILTAKSGJENNOMFORING,
             "Oppdatert med tiltaksnummer fra Arena",
             EndretAv.System,

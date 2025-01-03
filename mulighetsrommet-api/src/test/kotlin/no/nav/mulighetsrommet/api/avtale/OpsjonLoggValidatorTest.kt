@@ -10,11 +10,7 @@ import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
-import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.domain.dto.Websaknummer
+import no.nav.mulighetsrommet.domain.dto.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -75,8 +71,7 @@ class OpsjonLoggValidatorTest : FunSpec({
             status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST,
             registrertAv = NavIdent("M123456"),
         )
-        val validator = OpsjonLoggValidator()
-        validator.validate(entry, avtaleUtenOpsjonsmodell).shouldBeLeft().shouldContainAll(
+        OpsjonLoggValidator.validate(entry, avtaleUtenOpsjonsmodell).shouldBeLeft().shouldContainAll(
             ValidationError.of(OpsjonsmodellData::opsjonsmodell, "Kan ikke registrer opsjon uten en opsjonsmodell"),
         )
     }
@@ -99,8 +94,7 @@ class OpsjonLoggValidatorTest : FunSpec({
             registrertAv = NavIdent("M123456"),
         )
 
-        val validator = OpsjonLoggValidator()
-        validator.validate(entry, avtale2Pluss1).shouldBeLeft().shouldContainAll(
+        OpsjonLoggValidator.validate(entry, avtale2Pluss1).shouldBeLeft().shouldContainAll(
             ValidationError.of(
                 OpsjonLoggEntry::sluttdato,
                 "Ny sluttdato er forbi maks varighet av avtalen",
@@ -126,8 +120,7 @@ class OpsjonLoggValidatorTest : FunSpec({
             registrertAv = NavIdent("M123456"),
         )
 
-        val validator = OpsjonLoggValidator()
-        validator.validate(entry, avtale2Pluss1).shouldBeLeft().shouldContainAll(
+        OpsjonLoggValidator.validate(entry, avtale2Pluss1).shouldBeLeft().shouldContainAll(
             ValidationError.of(
                 OpsjonLoggEntry::forrigeSluttdato,
                 "Forrige sluttdato må være satt",
@@ -162,8 +155,7 @@ class OpsjonLoggValidatorTest : FunSpec({
             registrertAv = NavIdent("M123456"),
         )
 
-        val validator = OpsjonLoggValidator()
-        validator.validate(entry, avtale2Pluss1).shouldBeLeft().shouldContainAll(
+        OpsjonLoggValidator.validate(entry, avtale2Pluss1).shouldBeLeft().shouldContainAll(
             ValidationError.of(
                 OpsjonLoggEntry::status,
                 "Kan ikke utløse opsjon for avtale som har en opsjon som ikke skal utløses",
@@ -189,7 +181,6 @@ class OpsjonLoggValidatorTest : FunSpec({
             registrertAv = NavIdent("M123456"),
         )
 
-        val validator = OpsjonLoggValidator()
-        validator.validate(entry, avtale2Pluss1).shouldBeRight()
+        OpsjonLoggValidator.validate(entry, avtale2Pluss1).shouldBeRight()
     }
 })

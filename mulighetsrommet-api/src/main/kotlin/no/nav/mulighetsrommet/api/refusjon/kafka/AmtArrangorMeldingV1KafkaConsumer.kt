@@ -3,9 +3,9 @@ package no.nav.mulighetsrommet.api.refusjon.kafka
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
+import no.nav.mulighetsrommet.api.Queries
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
-import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagRepository
-import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.amt.Melding
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
@@ -15,8 +15,7 @@ import java.util.*
 
 class AmtArrangorMeldingV1KafkaConsumer(
     config: Config,
-    private val deltakerForslagRepository: DeltakerForslagRepository,
-    private val deltakerRepository: DeltakerRepository,
+    private val db: Database,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     config,
     uuidDeserializer(),
@@ -24,23 +23,29 @@ class AmtArrangorMeldingV1KafkaConsumer(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    override suspend fun consume(key: UUID, message: JsonElement) {
+    override suspend fun consume(key: UUID, message: JsonElement): Unit = db.tx {
         logger.info("Konsumerer arrangor-melding med id=$key")
 
         when (val melding = JsonIgnoreUnknownKeys.decodeFromJsonElement<Melding?>(message)) {
             is Melding.Forslag -> {
                 when (melding.status) {
-                    is Melding.Forslag.Status.Avvist, is Melding.Forslag.Status.Erstattet,
-                    is Melding.Forslag.Status.Godkjent, is Melding.Forslag.Status.Tilbakekalt,
-                    -> deltakerForslagRepository.delete(melding.id)
+                    is Melding.Forslag.Status.Avvist,
+                    is Melding.Forslag.Status.Erstattet,
+                    is Melding.Forslag.Status.Godkjent,
+                    is Melding.Forslag.Status.Tilbakekalt,
+                    -> {
+                        Queries.deltakerForslag.delete(melding.id)
+                    }
+
                     Melding.Forslag.Status.VenterPaSvar -> {
-                        if (deltakerRepository.get(melding.deltakerId) != null) {
-                            deltakerForslagRepository.upsert(melding.toForslagDbo())
+                        if (Queries.deltaker.get(melding.deltakerId) != null) {
+                            Queries.deltakerForslag.upsert(melding.toForslagDbo())
                         }
                     }
                 }
             }
-            null -> deltakerForslagRepository.delete(key)
+
+            null -> Queries.deltakerForslag.delete(key)
         }
     }
 }

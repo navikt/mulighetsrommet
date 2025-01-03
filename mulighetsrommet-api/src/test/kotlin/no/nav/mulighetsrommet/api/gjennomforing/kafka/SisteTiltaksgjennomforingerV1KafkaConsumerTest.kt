@@ -6,16 +6,15 @@ import io.mockk.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.KafkaProducerClient
+import no.nav.mulighetsrommet.api.Queries
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.model.ArenaMigreringTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.ArenaTiltaksgjennomforingDto
@@ -33,19 +32,28 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
             ),
         )
 
-        val gjennomforinger = TiltaksgjennomforingRepository(database.db)
-
         MulighetsrommetTestDomain(
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
             avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1),
         ).initialize(database.db)
 
-        val gjennomforing = gjennomforinger.get(TiltaksgjennomforingFixtures.Oppfolging1.id)
-        gjennomforing.shouldNotBeNull()
+        val (gjennomforing, endretTidspunkt) = database.run {
+            val tiltak = Queries.gjennomforing.get(TiltaksgjennomforingFixtures.Oppfolging1.id).shouldNotBeNull()
+            val ts = Queries.gjennomforing.getUpdatedAt(TiltaksgjennomforingFixtures.Oppfolging1.id).shouldNotBeNull()
+            Pair(tiltak, ts)
+        }
 
-        val endretTidspunkt = gjennomforinger.getUpdatedAt(gjennomforing.id)
-        endretTidspunkt.shouldNotBeNull()
+        fun createConsumer(
+            tiltakstyper: TiltakstypeService,
+            arenaAdapterClient: ArenaAdapterClient,
+        ) = SisteTiltaksgjennomforingerV1KafkaConsumer(
+            KafkaTopicConsumer.Config(id = "id", topic = "topic"),
+            database.db,
+            tiltakstyper,
+            producer,
+            arenaAdapterClient,
+        )
 
         afterEach {
             clearAllMocks()
@@ -55,18 +63,9 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
             val arenaAdapterClient = mockk<ArenaAdapterClient>()
             coEvery { arenaAdapterClient.hentArenadata(gjennomforing.id) } returns null
 
-            val tiltakstyper = TiltakstypeService(
-                TiltakstypeRepository(database.db),
-                enabledTiltakskoder = emptyList(),
-            )
+            val tiltakstyper = TiltakstypeService(database.db, enabledTiltakskoder = emptyList())
 
-            val consumer = SisteTiltaksgjennomforingerV1KafkaConsumer(
-                KafkaTopicConsumer.Config(id = "id", topic = "topic"),
-                tiltakstyper,
-                gjennomforinger,
-                producer,
-                arenaAdapterClient,
-            )
+            val consumer = createConsumer(tiltakstyper, arenaAdapterClient)
 
             consumer.consume(
                 gjennomforing.id.toString(),
@@ -81,18 +80,9 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
             val arenaAdapterClient = mockk<ArenaAdapterClient>()
             coEvery { arenaAdapterClient.hentArenadata(gjennomforing.id) } returns null
 
-            val tiltakstyper = TiltakstypeService(
-                TiltakstypeRepository(database.db),
-                listOf(Tiltakskode.OPPFOLGING),
-            )
+            val tiltakstyper = TiltakstypeService(database.db, listOf(Tiltakskode.OPPFOLGING))
 
-            val consumer = SisteTiltaksgjennomforingerV1KafkaConsumer(
-                KafkaTopicConsumer.Config(id = "id", topic = "topic"),
-                tiltakstyper,
-                gjennomforinger,
-                producer,
-                arenaAdapterClient,
-            )
+            val consumer = createConsumer(tiltakstyper, arenaAdapterClient)
 
             consumer.consume(
                 gjennomforing.id.toString(),
@@ -111,18 +101,9 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
                 status = "AVSLU",
             )
 
-            val tiltakstyper = TiltakstypeService(
-                TiltakstypeRepository(database.db),
-                enabledTiltakskoder = listOf(Tiltakskode.OPPFOLGING),
-            )
+            val tiltakstyper = TiltakstypeService(database.db, listOf(Tiltakskode.OPPFOLGING))
 
-            val consumer = SisteTiltaksgjennomforingerV1KafkaConsumer(
-                KafkaTopicConsumer.Config(id = "id", topic = "topic"),
-                tiltakstyper,
-                gjennomforinger,
-                producer,
-                arenaAdapterClient,
-            )
+            val consumer = createConsumer(tiltakstyper, arenaAdapterClient)
 
             consumer.consume(
                 gjennomforing.id.toString(),

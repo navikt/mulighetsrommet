@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.api.domain.dto.SanityTiltakstype
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
@@ -77,10 +76,10 @@ class DelMedBrukerServiceTest : FunSpec({
         }
 
         test("insert med tiltaksgjennomforingId") {
-            MulighetsrommetTestDomain().initialize(database.db)
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1),
+            ).initialize(database.db)
 
-            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-            tiltaksgjennomforingRepository.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
             val request = DelMedBrukerDbo(
                 id = "123",
                 norskIdent = NorskIdent("12345678910"),
@@ -104,7 +103,10 @@ class DelMedBrukerServiceTest : FunSpec({
         }
 
         test("Hent Del med bruker-historikk fra database og Sanity") {
-            MulighetsrommetTestDomain().initialize(database.db)
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1.copy(navn = "Delt med bruker - tabell")),
+            ).initialize(database.db)
+
             val sanityGjennomforingIdForEnkeltplass = UUID.randomUUID()
             val sanityGjennomforingIdForArbeidstrening = UUID.randomUUID()
             val enkeltAmoSanityId = UUID.randomUUID()
@@ -156,8 +158,6 @@ class DelMedBrukerServiceTest : FunSpec({
                 ),
             )
 
-            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-            tiltaksgjennomforingRepository.upsert(TiltaksgjennomforingFixtures.Oppfolging1.copy(navn = "Delt med bruker - tabell"))
             val request1 = DelMedBrukerDbo(
                 id = "123",
                 norskIdent = NorskIdent("12345678910"),

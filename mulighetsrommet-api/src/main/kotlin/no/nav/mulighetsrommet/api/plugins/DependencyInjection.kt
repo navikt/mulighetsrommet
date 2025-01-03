@@ -17,14 +17,10 @@ import no.nav.mulighetsrommet.api.TaskConfig
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterService
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.arrangor.db.ArrangorRepository
 import no.nav.mulighetsrommet.api.arrangor.kafka.AmtVirksomheterV1KafkaConsumer
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtale.OpsjonLoggService
-import no.nav.mulighetsrommet.api.avtale.OpsjonLoggValidator
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
-import no.nav.mulighetsrommet.api.avtale.db.OpsjonLoggRepository
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
@@ -42,7 +38,6 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingValidator
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
@@ -52,18 +47,13 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateTiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattSyncService
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRepository
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.NavEnheterSyncService
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetRepository
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.refusjon.RefusjonService
-import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagRepository
-import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
-import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.refusjon.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.refusjon.kafka.AmtDeltakerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.refusjon.task.GenerateRefusjonskrav
@@ -77,11 +67,9 @@ import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.veilederflate.VeilederJoyrideRepository
-import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakRepository
 import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.TiltakshistorikkService
@@ -189,26 +177,25 @@ private fun kafka(appConfig: AppConfig) = module {
             ),
             SisteTiltaksgjennomforingerV1KafkaConsumer(
                 config = config.consumers.tiltaksgjennomforingerV1,
+                db = get(),
                 tiltakstyper = get(),
                 arenaAdapterClient = get(),
                 arenaMigreringTiltaksgjennomforingProducer = get(),
-                tiltaksgjennomforingRepository = get(),
             ),
             AmtDeltakerV1KafkaConsumer(
                 config = config.consumers.amtDeltakerV1,
                 tiltakstyper = get(),
-                deltakere = get(),
+                db = get(),
                 refusjonService = get(),
             ),
             AmtVirksomheterV1KafkaConsumer(
                 config = config.consumers.amtVirksomheterV1,
-                arrangorRepository = get(),
+                db = get(),
                 brregClient = get(),
             ),
             AmtArrangorMeldingV1KafkaConsumer(
                 config = config.consumers.amtArrangorMeldingV1,
-                deltakerForslagRepository = get(),
-                deltakerRepository = get(),
+                db = get(),
             ),
         )
         KafkaConsumerOrchestrator(
@@ -220,22 +207,11 @@ private fun kafka(appConfig: AppConfig) = module {
 }
 
 private fun repositories() = module {
-    single { AvtaleRepository(get()) }
-    single { TiltaksgjennomforingRepository(get()) }
-    single { TiltakstypeRepository(get()) }
-    single { NavEnhetRepository(get()) }
-    single { DeltakerRepository(get()) }
     single { NotificationRepository(get()) }
-    single { NavAnsattRepository(get()) }
-    single { ArrangorRepository(get()) }
     single { KafkaConsumerRepositoryImpl(get()) }
     single { VeilederJoyrideRepository(get()) }
-    single { OpsjonLoggRepository(get()) }
     single { TilsagnRepository(get()) }
-    single { RefusjonskravRepository(get()) }
     single { AltinnRettigheterRepository(get()) }
-    single { VeilederflateTiltakRepository(get()) }
-    single { DeltakerForslagRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -375,15 +351,10 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
-            get(),
-            get(),
         )
     }
     single {
         AvtaleService(
-            get(),
-            get(),
             get(),
             get(),
             get(),
@@ -395,13 +366,12 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakshistorikkService(get(), get(), get(), get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
     single { BrukerService(get(), get(), get(), get(), get(), get()) }
-    single { NavAnsattService(appConfig.auth.roles, get(), get(), get()) }
-    single { NavAnsattSyncService(get(), get(), get(), get(), get(), get(), get()) }
+    single { NavAnsattService(appConfig.auth.roles, get(), get()) }
+    single { NavAnsattSyncService(get(), get(), get(), get(), get()) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get(), get(), get()) }
     single {
         TiltaksgjennomforingService(
-            get(),
             get(),
             get(),
             get(),
@@ -414,30 +384,29 @@ private fun services(appConfig: AppConfig) = module {
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
     single { ArrangorService(get(), get()) }
-    single { RefusjonService(get(), get(), get(), get()) }
+    single { RefusjonService(get()) }
     single { UnleashService(appConfig.unleash, get()) }
     single<AxsysClient> {
         AxsysV2ClientImpl(
             appConfig.axsys.url,
         ) { runBlocking { cachedTokenProvider.withScope(appConfig.axsys.scope).exchange(AccessType.M2M) } }
     }
-    single { AvtaleValidator(get(), get(), get(), get(), get(), get()) }
-    single { TiltaksgjennomforingValidator(get(), get(), get()) }
-    single { OpsjonLoggValidator() }
-    single { OpsjonLoggService(get(), get(), get(), get(), get()) }
+    single { AvtaleValidator(get(), get(), get(), get()) }
+    single { TiltaksgjennomforingValidator(get()) }
+    single { OpsjonLoggService(get(), get()) }
     single { LagretFilterService(get()) }
-    single { TilsagnService(get(), get(), get(), get()) }
+    single { TilsagnService(get(), get(), get()) }
     single { AltinnRettigheterService(get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
-    single { GenerateValidationReport(config.generateValidationReport, get(), get(), get(), get(), get()) }
-    single { InitialLoadTiltaksgjennomforinger(get(), get(), get(), get()) }
-    single { InitialLoadTiltakstyper(get(), get(), get(), get()) }
+    single { GenerateValidationReport(config.generateValidationReport, get(), get(), get()) }
+    single { InitialLoadTiltaksgjennomforinger(get(), get()) }
+    single { InitialLoadTiltakstyper(get(), get(), get()) }
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get()) }
     single { SynchronizeUtdanninger(config.synchronizeUtdanninger, get(), get()) }
     single { GenerateRefusjonskrav(config.generateRefusjonskrav, get()) }
-    single { JournalforRefusjonskrav(get(), get(), get(), get(), get(), get()) }
+    single { JournalforRefusjonskrav(get(), get(), get(), get(), get()) }
     single { NotificationTask(get(), get()) }
     single {
         val updateTiltaksgjennomforingStatus = UpdateTiltaksgjennomforingStatus(
