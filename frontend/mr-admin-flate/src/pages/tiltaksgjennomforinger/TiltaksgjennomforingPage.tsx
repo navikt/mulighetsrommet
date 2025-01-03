@@ -56,8 +56,9 @@ export function TiltaksgjennomforingPage() {
   const { avtaleId } = useParams();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { tiltaksgjennomforing } = useLoaderData<typeof tiltaksgjennomforingLoader>();
-  const { data: enableOpprettTilsagn } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
+  const { data: enableOkonomi } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
+    tiltaksgjennomforing ? [tiltaksgjennomforing.tiltakstype.tiltakskode] : [],
   );
 
   if (!tiltaksgjennomforing) {
@@ -135,7 +136,7 @@ export function TiltaksgjennomforingPage() {
             }
             aria-controls="panel"
           />
-          {enableOpprettTilsagn ? (
+          {enableOkonomi ? (
             <>
               <Tabs.Tab
                 value="tilsagn"

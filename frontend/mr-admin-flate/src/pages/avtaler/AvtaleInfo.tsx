@@ -19,8 +19,9 @@ export function AvtaleInfo() {
 
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 
-  const { data: enableOpprettTilsagn } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
+  const { data: enableOkonomi } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
+    [avtale.tiltakstype.tiltakskode],
   );
 
   return (
@@ -29,7 +30,7 @@ export function AvtaleInfo() {
         <Tabs.List className={styles.tabslist}>
           <div>
             <Tabs.Tab label="Detaljer" value="detaljer" onClick={() => setActiveTab("detaljer")} />
-            {enableOpprettTilsagn && (
+            {enableOkonomi && (
               <Tabs.Tab
                 label="Pris og fakturering"
                 value="pris-og-fakturering"
@@ -54,7 +55,7 @@ export function AvtaleInfo() {
             <AvtaleDetaljer />
           </InlineErrorBoundary>
         </Tabs.Panel>
-        {enableOpprettTilsagn && (
+        {enableOkonomi && (
           <Tabs.Panel value="pris-og-fakturering">
             <InlineErrorBoundary>
               <AvtalePrisOgFaktureringDetaljer />

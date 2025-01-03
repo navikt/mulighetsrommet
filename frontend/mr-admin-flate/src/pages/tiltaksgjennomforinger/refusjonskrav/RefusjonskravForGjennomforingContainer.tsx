@@ -10,7 +10,7 @@ import { refusjonskravForGjennomforingLoader } from "./refusjonskravForGjennomfo
 export function RefusjonskravForGjennomforingContainer() {
   const { refusjonskrav } = useLoaderData<typeof refusjonskravForGjennomforingLoader>();
   const { data: enableOpprettTilsagn } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
   );
 
   if (!enableOpprettTilsagn) {
