@@ -1,12 +1,12 @@
 package no.nav.mulighetsrommet.api.avtale.db
 
-import arrow.core.Either
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
+import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRepository
+import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.OpsjonsmodellData
@@ -16,8 +16,8 @@ import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
 import no.nav.mulighetsrommet.api.domain.dto.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
-import no.nav.mulighetsrommet.api.responses.StatusResponseError
-import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.createTextArray
+import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -29,21 +29,14 @@ import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
-import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class AvtaleRepository(private val db: Database) {
-    private val logger = LoggerFactory.getLogger(javaClass)
+object AvtaleQueries {
 
-    fun upsert(avtale: AvtaleDbo) = db.transaction {
-        upsert(avtale, it)
-    }
-
-    fun upsert(avtale: AvtaleDbo, tx: Session) {
-        logger.info("Lagrer avtale id=${avtale.id}")
-
+    context(TransactionalSession)
+    fun upsert(avtale: AvtaleDbo) {
         @Language("PostgreSQL")
         val query = """
             insert into avtale (
@@ -134,6 +127,13 @@ class AvtaleRepository(private val db: Database) {
         """.trimIndent()
 
         @Language("PostgreSQL")
+        val setArrangorUnderenhet = """
+             insert into avtale_arrangor_underenhet (avtale_id, arrangor_id)
+             values (?::uuid, ?::uuid)
+             on conflict (avtale_id, arrangor_id) do nothing
+        """.trimIndent()
+
+        @Language("PostgreSQL")
         val deleteUnderenheter = """
              delete from avtale_arrangor_underenhet
              where avtale_id = ?::uuid and not (arrangor_id = any (?))
@@ -141,11 +141,8 @@ class AvtaleRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val upsertArrangorKontaktperson = """
-            insert into avtale_arrangor_kontaktperson (
-                arrangor_kontaktperson_id,
-                avtale_id
-            )
-            values (:arrangor_kontaktperson_id::uuid, :avtale_id::uuid)
+            insert into avtale_arrangor_kontaktperson (avtale_id, arrangor_kontaktperson_id)
+            values (?::uuid, ?::uuid)
             on conflict do nothing
         """.trimIndent()
 
@@ -157,11 +154,8 @@ class AvtaleRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val upsertPersonopplysninger = """
-            insert into avtale_personopplysning (
-                personopplysning,
-                avtale_id
-            )
-            values (:personopplysning::personopplysning, :avtale_id::uuid)
+            insert into avtale_personopplysning (avtale_id, personopplysning)
+            values (?::uuid, ?::personopplysning)
             on conflict do nothing
         """.trimIndent()
 
@@ -187,119 +181,56 @@ class AvtaleRepository(private val db: Database) {
             values(:avtale_id::uuid, :utdanning_id::uuid, :utdanningsprogram_id::uuid)
         """.trimIndent()
 
-        tx.run(queryOf(query, avtale.toSqlParameters()).asExecute)
+        execute(queryOf(query, avtale.toSqlParameters()))
 
-        avtale.administratorer.forEach { administrator ->
-            queryOf(
-                upsertAdministrator,
-                avtale.id,
-                administrator.value,
-            ).asExecute.let { tx.run(it) }
-        }
+        batchPreparedStatement(upsertAdministrator, avtale.administratorer.map { listOf(avtale.id, it.value) })
+        execute(queryOf(deleteAdministratorer, avtale.id, createTextArray(avtale.administratorer.map { it.value })))
 
-        queryOf(
-            deleteAdministratorer,
-            avtale.id,
-            db.createTextArray(avtale.administratorer.map { it.value }),
-        ).asExecute.let { tx.run(it) }
+        batchPreparedStatement(upsertEnhet, avtale.navEnheter.map { listOf(avtale.id, it) })
+        execute(queryOf(deleteEnheter, avtale.id, createTextArray(avtale.navEnheter)))
 
-        avtale.navEnheter.forEach { enhet ->
-            queryOf(
-                upsertEnhet,
-                avtale.id,
-                enhet,
-            ).asExecute.let { tx.run(it) }
-        }
+        batchPreparedStatement(setArrangorUnderenhet, avtale.arrangorUnderenheter.map { listOf(avtale.id, it) })
+        execute(queryOf(deleteUnderenheter, avtale.id, createUuidArray(avtale.arrangorUnderenheter)))
 
-        queryOf(
-            deleteEnheter,
-            avtale.id,
-            db.createTextArray(avtale.navEnheter),
-        ).asExecute.let { tx.run(it) }
-
-        avtale.arrangorUnderenheter.forEach { underenhet ->
-            setArrangorUnderenhet(tx, avtale.id, underenhet)
-        }
-
-        queryOf(
-            deleteUnderenheter,
-            avtale.id,
-            db.createUuidArray(avtale.arrangorUnderenheter),
-        ).asExecute.let { tx.run(it) }
-
-        avtale.arrangorKontaktpersoner.forEach { person ->
-            tx.run(
-                queryOf(
-                    upsertArrangorKontaktperson,
-                    mapOf(
-                        "avtale_id" to avtale.id,
-                        "arrangor_kontaktperson_id" to person,
-                    ),
-                ).asExecute,
-            )
-        }
-
-        tx.run(
-            queryOf(
-                deleteArrangorKontaktpersoner,
-                avtale.id,
-                db.createUuidArray(avtale.arrangorKontaktpersoner),
-            ).asExecute,
+        batchPreparedStatement(
+            upsertArrangorKontaktperson,
+            avtale.arrangorKontaktpersoner.map { listOf(avtale.id, it) },
         )
+        execute(queryOf(deleteArrangorKontaktpersoner, avtale.id, createUuidArray(avtale.arrangorKontaktpersoner)))
 
-        avtale.personopplysninger.forEach { p ->
-            tx.run(
-                queryOf(
-                    upsertPersonopplysninger,
-                    mapOf(
-                        "avtale_id" to avtale.id,
-                        "personopplysning" to p.name,
-                    ),
-                ).asExecute,
-            )
-        }
-
-        tx.run(
+        batchPreparedStatement(
+            upsertPersonopplysninger,
+            avtale.personopplysninger.map { listOf<Any>(avtale.id, it.name) },
+        )
+        execute(
             queryOf(
                 deletePersonopplysninger,
                 avtale.id,
-                db.createArrayOf("personopplysning", avtale.personopplysninger),
-            ).asExecute,
+                createArrayOf("personopplysning", avtale.personopplysninger),
+            ),
         )
 
-        AmoKategoriseringRepository.upsert(avtale, tx)
+        AmoKategoriseringQueries.upsert(avtale)
 
-        tx.run(queryOf(deleteUtdanningslop, avtale.id).asExecute)
+        execute(queryOf(deleteUtdanningslop, avtale.id))
+
         avtale.utdanningslop?.let { utdanningslop ->
-            utdanningslop.utdanninger.forEach {
-                tx.run(
-                    queryOf(
-                        insertUtdanningslop,
-                        mapOf(
-                            "avtale_id" to avtale.id,
-                            "utdanningsprogram_id" to utdanningslop.utdanningsprogram,
-                            "utdanning_id" to it,
-                        ),
-                    ).asExecute,
+            val utdanninger = utdanningslop.utdanninger.map {
+                mapOf(
+                    "avtale_id" to avtale.id,
+                    "utdanningsprogram_id" to utdanningslop.utdanningsprogram,
+                    "utdanning_id" to it,
                 )
             }
+            batchPreparedNamedStatement(insertUtdanningslop, utdanninger)
         }
     }
 
-    fun upsertArenaAvtale(avtale: ArenaAvtaleDbo): Unit = db.transaction {
-        upsertArenaAvtale(it, avtale)
-    }
-
-    fun upsertArenaAvtale(tx: Session, avtale: ArenaAvtaleDbo) {
-        logger.info("Lagrer avtale fra Arena id=${avtale.id}")
-
-        val arrangorId = queryOf(
-            "select id from arrangor where organisasjonsnummer = ?",
-            avtale.arrangorOrganisasjonsnummer,
-        )
-            .map { it.uuid("id") }
-            .asSingle
-            .let { requireNotNull(db.run(it)) }
+    context(TransactionalSession)
+    fun upsertArenaAvtale(avtale: ArenaAvtaleDbo) {
+        val arrangorId = single(
+            queryOf("select id from arrangor where organisasjonsnummer = ?", avtale.arrangorOrganisasjonsnummer),
+        ) { it.uuid("id") }.let { requireNotNull(it) }
 
         @Language("PostgreSQL")
         val query = """
@@ -344,14 +275,11 @@ class AvtaleRepository(private val db: Database) {
                                            opphav                   = coalesce(avtale.opphav, excluded.opphav)
         """.trimIndent()
 
-        queryOf(query, avtale.toSqlParameters(arrangorId)).asExecute.let { tx.run(it) }
+        execute(queryOf(query, avtale.toSqlParameters(arrangorId)))
     }
 
-    fun get(id: UUID): AvtaleDto? = db.transaction {
-        get(id, it)
-    }
-
-    fun get(id: UUID, tx: Session): AvtaleDto? {
+    context(Session)
+    fun get(id: UUID): AvtaleDto? {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -359,13 +287,10 @@ class AvtaleRepository(private val db: Database) {
             where id = ?::uuid
         """.trimIndent()
 
-        return tx.run(
-            queryOf(query, id)
-                .map { it.toAvtaleDto() }
-                .asSingle,
-        )
+        return single(queryOf(query, id)) { it.toAvtaleDto() }
     }
 
+    context(Session)
     fun getAll(
         pagination: Pagination = Pagination.all(),
         tiltakstypeIder: List<UUID> = emptyList(),
@@ -382,11 +307,11 @@ class AvtaleRepository(private val db: Database) {
             "search" to search?.toFTSPrefixQuery(),
             "search_arrangor" to search?.trim()?.let { "%$it%" },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
-            "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { db.createUuidArray(it) },
-            "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { db.createUuidArray(it) },
-            "nav_enheter" to navRegioner.ifEmpty { null }?.let { db.createTextArray(it) },
-            "avtaletyper" to avtaletyper.ifEmpty { null }?.let { db.createArrayOf("avtaletype", it) },
-            "statuser" to statuser.ifEmpty { null }?.let { db.createArrayOf("text", statuser) },
+            "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { createUuidArray(it) },
+            "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { createUuidArray(it) },
+            "nav_enheter" to navRegioner.ifEmpty { null }?.let { createTextArray(it) },
+            "avtaletyper" to avtaletyper.ifEmpty { null }?.let { createArrayOf("avtaletype", it) },
+            "statuser" to statuser.ifEmpty { null }?.let { createTextArray(statuser) },
             "personvern_bekreftet" to personvernBekreftet,
         )
 
@@ -428,13 +353,12 @@ class AvtaleRepository(private val db: Database) {
             offset :offset
         """.trimIndent()
 
-        return db.useSession { session ->
-            queryOf(query, parameters + pagination.parameters)
-                .mapPaginated { it.toAvtaleDto() }
-                .runWithSession(session)
-        }
+        return queryOf(query, parameters + pagination.parameters)
+            .mapPaginated { it.toAvtaleDto() }
+            .runWithSession(this@Session)
     }
 
+    context(Session)
     fun setOpphav(id: UUID, opphav: ArenaMigrering.Opphav) {
         @Language("PostgreSQL")
         val query = """
@@ -443,16 +367,11 @@ class AvtaleRepository(private val db: Database) {
             where id = :id::uuid
         """.trimIndent()
 
-        queryOf(query, mapOf("id" to id, "opphav" to opphav.name))
-            .asUpdate
-            .let { db.run(it) }
+        update(queryOf(query, mapOf("id" to id, "opphav" to opphav.name)))
     }
 
-    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int = db.transaction {
-        avbryt(it, id, tidspunkt, aarsak)
-    }
-
-    fun avbryt(tx: Session, id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
+    context(Session)
+    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
         @Language("PostgreSQL")
         val query = """
             update avtale set
@@ -461,34 +380,60 @@ class AvtaleRepository(private val db: Database) {
             where id = :id::uuid
         """.trimIndent()
 
-        return tx.run(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt, "aarsak" to aarsak.name)).asUpdate)
+        val params = mapOf("id" to id, "tidspunkt" to tidspunkt, "aarsak" to aarsak.name)
+
+        return update(queryOf(query, params))
     }
 
-    private fun setArrangorUnderenhet(tx: Session, avtaleId: UUID, arrangorId: UUID) {
+    context(Session)
+    fun delete(id: UUID) {
         @Language("PostgreSQL")
         val query = """
-             insert into avtale_arrangor_underenhet (avtale_id, arrangor_id)
-             values (?::uuid, ?::uuid)
-             on conflict (avtale_id, arrangor_id) do nothing
-        """.trimIndent()
-
-        queryOf(query, avtaleId, arrangorId)
-            .asExecute
-            .let { tx.run(it) }
-    }
-
-    fun delete(tx: Session, id: UUID) {
-        logger.info("Sletter avtale id=$id")
-
-        @Language("PostgreSQL")
-        val query = """
-            delete from avtale
+            delete
+            from avtale
             where id = ?::uuid
         """.trimIndent()
 
-        queryOf(query, id)
-            .asUpdate
-            .let { tx.run(it) }
+        execute(queryOf(query, id))
+    }
+
+    context(Session)
+    fun frikobleKontaktpersonFraAvtale(
+        kontaktpersonId: UUID,
+        avtaleId: UUID,
+    ) {
+        @Language("PostgreSQL")
+        val query = """
+            delete
+            from avtale_arrangor_kontaktperson
+            where arrangor_kontaktperson_id = ?::uuid and avtale_id = ?::uuid
+        """.trimIndent()
+
+        execute(queryOf(query, kontaktpersonId, avtaleId))
+    }
+
+    context(Session)
+    fun getAvtaleIdsByAdministrator(navIdent: NavIdent): List<UUID> {
+        @Language("PostgreSQL")
+        val query = """
+            select avtale_id
+            from avtale_administrator
+            where nav_ident = ?
+        """.trimIndent()
+
+        return list(queryOf(query, navIdent.value)) { it.uuid("avtale_id") }
+    }
+
+    context(Session)
+    fun oppdaterSluttdato(avtaleId: UUID, sluttDato: LocalDate) {
+        @Language("PostgreSQL")
+        val query = """
+            update avtale
+            set slutt_dato = ?
+            where id = ?::uuid
+            """
+
+        update(queryOf(query, sluttDato, avtaleId))
     }
 
     private fun AvtaleDbo.toSqlParameters() = mapOf(
@@ -625,55 +570,5 @@ class AvtaleRepository(private val db: Database) {
             utdanningslop = utdanningslop,
             prismodell = stringOrNull("prismodell")?.let { Prismodell.valueOf(it) },
         )
-    }
-
-    fun frikobleKontaktpersonFraAvtale(
-        kontaktpersonId: UUID,
-        avtaleId: UUID,
-        tx: Session,
-    ): Either<StatusResponseError, String> {
-        @Language("PostgreSQL")
-        val query = """
-            delete from avtale_arrangor_kontaktperson where arrangor_kontaktperson_id = ?::uuid and avtale_id = ?::uuid
-        """.trimIndent()
-
-        queryOf(query, kontaktpersonId, avtaleId)
-            .asUpdate
-            .let { tx.run(it) }
-
-        return Either.Right(kontaktpersonId.toString())
-    }
-
-    fun getAvtaleIdsByAdministrator(navIdent: NavIdent): List<UUID> {
-        @Language("PostgreSQL")
-        val query = """
-            select avtale_id from avtale_administrator where nav_ident = ?
-        """.trimIndent()
-
-        return queryOf(query, navIdent.value)
-            .map {
-                it.uuid("avtale_id")
-            }
-            .asList
-            .let { db.run(it) }
-    }
-
-    fun oppdaterSluttdato(avtaleId: UUID, nySluttdato: LocalDate, tx: Session? = null) {
-        @Language("PostgreSQL")
-        val query = """
-            update avtale
-            set slutt_dato = :nySluttdato
-            where id = :avtaleId::uuid
-            """
-
-        queryOf(
-            query,
-            mapOf(
-                "nySluttdato" to nySluttdato,
-                "avtaleId" to avtaleId,
-            ),
-        ).asUpdate.let {
-            tx?.run(it) ?: db.run(it)
-        }
     }
 }

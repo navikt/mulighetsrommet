@@ -1,24 +1,20 @@
 package no.nav.mulighetsrommet.api.tiltakstype.db
 
+import kotliquery.Query
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
-import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.utils.*
+import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.*
 import org.intellij.lang.annotations.Language
-import org.slf4j.LoggerFactory
 import java.util.*
 
-class TiltakstypeRepository(private val db: Database) {
+object TiltakstypeQueries {
 
-    private val logger = LoggerFactory.getLogger(javaClass)
-
+    context(Session)
     fun upsert(tiltakstype: TiltakstypeDbo) {
-        logger.info("Lagrer tiltakstype id=${tiltakstype.id}")
-
         @Language("PostgreSQL")
         val query = """
             insert into tiltakstype (
@@ -45,9 +41,10 @@ class TiltakstypeRepository(private val db: Database) {
                               slutt_dato = excluded.slutt_dato
         """.trimIndent()
 
-        queryOf(query, tiltakstype.toSqlParameters()).asExecute.let { db.run(it) }
+        execute(queryOf(query, tiltakstype.toSqlParameters()))
     }
 
+    context(Session)
     fun get(id: UUID): TiltakstypeDto? {
         @Language("PostgreSQL")
         val query = """
@@ -55,11 +52,12 @@ class TiltakstypeRepository(private val db: Database) {
             from tiltakstype_admin_dto_view
             where id = ?::uuid
         """.trimIndent()
-        val queryResult = queryOf(query, id).map { it.toTiltakstypeDto() }.asSingle
-        return db.run(queryResult)
+
+        return single(queryOf(query, id)) { it.toTiltakstypeDto() }
     }
 
-    fun getEksternTiltakstype(id: UUID): TiltakstypeEksternV2Dto? = db.useSession { session ->
+    context(Session)
+    fun getEksternTiltakstype(id: UUID): TiltakstypeEksternV2Dto? {
         @Language("PostgreSQL")
         val query = """
             select id, navn, tiltakskode, arena_kode, innsatsgrupper, created_at, updated_at
@@ -67,13 +65,12 @@ class TiltakstypeRepository(private val db: Database) {
             where id = ?::uuid
         """.trimIndent()
 
-        val deltakerRegistreringInnhold = getDeltakerregistreringInnhold(id, session)
+        val deltakerRegistreringInnhold = getDeltakerregistreringInnhold(id)
 
-        queryOf(query, id)
-            .map { it.tiltakstypeEksternDto(deltakerRegistreringInnhold) }
-            .asSingle.runWithSession(session)
+        return single(queryOf(query, id)) { it.tiltakstypeEksternDto(deltakerRegistreringInnhold) }
     }
 
+    context(Session)
     fun getByTiltakskode(tiltakskode: Tiltakskode): TiltakstypeDto {
         @Language("PostgreSQL")
         val query = """
@@ -81,12 +78,15 @@ class TiltakstypeRepository(private val db: Database) {
             from tiltakstype_admin_dto_view
             where tiltakskode = ?::tiltakskode
         """.trimIndent()
-        val queryResult = queryOf(query, tiltakskode.name).map { it.toTiltakstypeDto() }.asSingle
-        return requireNotNull(db.run(queryResult)) {
+
+        val tiltakstype = single(queryOf(query, tiltakskode.name)) { it.toTiltakstypeDto() }
+
+        return requireNotNull(tiltakstype) {
             "Det finnes ingen tiltakstype for tiltakskode $tiltakskode"
         }
     }
 
+    context(Session)
     fun getByArenaTiltakskode(arenaTiltakskode: String): TiltakstypeDto {
         @Language("PostgreSQL")
         val query = """
@@ -94,12 +94,15 @@ class TiltakstypeRepository(private val db: Database) {
             from tiltakstype_admin_dto_view
             where arena_kode = ?
         """.trimIndent()
-        val queryResult = queryOf(query, arenaTiltakskode).map { it.toTiltakstypeDto() }.asSingle
-        return requireNotNull(db.run(queryResult)) {
+
+        val tiltakstype = single(queryOf(query, arenaTiltakskode)) { it.toTiltakstypeDto() }
+
+        return requireNotNull(tiltakstype) {
             "Det finnes ingen tiltakstype med arena_kode $arenaTiltakskode"
         }
     }
 
+    context(Session)
     fun getBySanityId(sanityId: UUID): TiltakstypeDto {
         @Language("PostgreSQL")
         val query = """
@@ -107,12 +110,15 @@ class TiltakstypeRepository(private val db: Database) {
             from tiltakstype_admin_dto_view
             where sanity_id = ?::uuid
         """.trimIndent()
-        val queryResult = queryOf(query, sanityId).map { it.toTiltakstypeDto() }.asSingle
-        return requireNotNull(db.run(queryResult)) {
+
+        val tiltakstype = single(queryOf(query, sanityId)) { it.toTiltakstypeDto() }
+
+        return requireNotNull(tiltakstype) {
             "Det finnes ingen tiltakstype med sanity_id=$sanityId"
         }
     }
 
+    context(Session)
     fun getByGjennomforingId(gjennomforingId: UUID): TiltakstypeDto {
         @Language("PostgreSQL")
         val query = """
@@ -121,38 +127,33 @@ class TiltakstypeRepository(private val db: Database) {
             join tiltaksgjennomforing g on g.tiltakstype_id = t.id
             where g.id = ?::uuid
         """.trimIndent()
-        val queryResult = queryOf(query, gjennomforingId).map { it.toTiltakstypeDto() }.asSingle
-        return requireNotNull(db.run(queryResult)) {
+
+        val tiltakstype = single(queryOf(query, gjennomforingId)) { it.toTiltakstypeDto() }
+
+        return requireNotNull(tiltakstype) {
             "Det finnes ingen tiltakstype for gjennomforing med id=$gjennomforingId"
         }
     }
 
-    fun getAll(
-        pagination: Pagination = Pagination.all(),
-    ): PaginatedResult<TiltakstypeDto> {
+    context(Session)
+    fun getAll(): List<TiltakstypeDto> {
         @Language("PostgreSQL")
         val query = """
             select *, count(*) over() as total_count
             from tiltakstype_admin_dto_view
-            order by navn asc
-            limit :limit
-            offset :offset
+            order by navn
         """.trimIndent()
 
-        return db.useSession { session ->
-            queryOf(query, pagination.parameters)
-                .mapPaginated { it.toTiltakstypeDto() }
-                .runWithSession(session)
-        }
+        return list(Query(query)) { it.toTiltakstypeDto() }
     }
 
+    context(Session)
     fun getAllSkalMigreres(
-        pagination: Pagination = Pagination.all(),
         statuser: List<TiltakstypeStatus> = emptyList(),
         sortering: String? = null,
-    ): PaginatedResult<TiltakstypeDto> {
+    ): List<TiltakstypeDto> {
         val parameters = mapOf(
-            "statuser" to statuser.ifEmpty { null }?.let { db.createArrayOf("text", statuser) },
+            "statuser" to statuser.ifEmpty { null }?.let { createTextArray(statuser) },
         )
 
         val order = when (sortering) {
@@ -172,18 +173,13 @@ class TiltakstypeRepository(private val db: Database) {
             where tiltakskode is not null
               and (:statuser::text[] is null or status = any(:statuser))
             order by $order
-            limit :limit
-            offset :offset
         """.trimIndent()
 
-        return db.useSession { session ->
-            queryOf(query, parameters + pagination.parameters)
-                .mapPaginated { it.toTiltakstypeDto() }
-                .runWithSession(session)
-        }
+        return list(queryOf(query, parameters)) { it.toTiltakstypeDto() }
     }
 
-    private fun getDeltakerregistreringInnhold(id: UUID, session: Session): DeltakerRegistreringInnholdDto? {
+    context(Session)
+    private fun getDeltakerregistreringInnhold(id: UUID): DeltakerRegistreringInnholdDto? {
         @Language("PostgreSQL")
         val query = """
            select tiltakstype.deltaker_registrering_ledetekst, element.innholdskode, element.tekst
@@ -193,20 +189,17 @@ class TiltakstypeRepository(private val db: Database) {
            where tiltakstype.id = ?::uuid and tiltakstype.deltaker_registrering_ledetekst is not null;
         """.trimIndent()
 
-        val result = queryOf(query, id)
-            .map {
-                val ledetekst = it.string("deltaker_registrering_ledetekst")
-                val tekst = it.stringOrNull("tekst")
-                val innholdskode = it.stringOrNull("innholdskode")
-                val innholdselement = if (tekst != null && innholdskode != null) {
-                    Innholdselement(tekst = tekst, innholdskode = innholdskode)
-                } else {
-                    null
-                }
-                Pair(ledetekst, innholdselement)
+        val result = list(queryOf(query, id)) {
+            val ledetekst = it.string("deltaker_registrering_ledetekst")
+            val tekst = it.stringOrNull("tekst")
+            val innholdskode = it.stringOrNull("innholdskode")
+            val innholdselement = if (tekst != null && innholdskode != null) {
+                Innholdselement(tekst = tekst, innholdskode = innholdskode)
+            } else {
+                null
             }
-            .asList
-            .runWithSession(session)
+            Pair(ledetekst, innholdselement)
+        }
 
         if (result.isEmpty()) return null
 
@@ -217,16 +210,16 @@ class TiltakstypeRepository(private val db: Database) {
         )
     }
 
-    fun delete(id: UUID): QueryResult<Int> = query {
-        logger.info("Sletter tiltakstype id=$id")
-
+    context(Session)
+    fun delete(id: UUID): Int {
         @Language("PostgreSQL")
         val query = """
-            delete from tiltakstype
+            delete
+            from tiltakstype
             where id = ?::uuid
         """.trimIndent()
 
-        queryOf(query, id).asUpdate.let { db.run(it) }
+        return update(queryOf(query, id))
     }
 
     private fun TiltakstypeDbo.toSqlParameters() = mapOf(

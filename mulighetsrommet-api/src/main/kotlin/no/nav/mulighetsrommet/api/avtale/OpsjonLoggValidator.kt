@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.responses.ValidationError
 
-class OpsjonLoggValidator {
+object OpsjonLoggValidator {
     fun validate(entry: OpsjonLoggEntry, avtale: AvtaleDto): Either<List<ValidationError>, OpsjonLoggEntry> = either {
         val opsjonsmodellData = avtale.opsjonsmodellData
             ?: raise(

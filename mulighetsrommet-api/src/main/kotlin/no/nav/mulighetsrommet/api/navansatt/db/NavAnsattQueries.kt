@@ -4,19 +4,16 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
-import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.utils.DatabaseUtils
+import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.*
 
-class NavAnsattRepository(private val db: Database) {
-    fun upsert(ansatt: NavAnsattDbo) = db.transaction { tx ->
-        upsert(ansatt, tx)
-    }
+object NavAnsattQueries {
 
-    fun upsert(ansatt: NavAnsattDbo, tx: Session) {
+    context(Session)
+    fun upsert(ansatt: NavAnsattDbo) {
         @Language("PostgreSQL")
         val query = """
             insert into nav_ansatt(nav_ident, fornavn, etternavn, hovedenhet, azure_id, mobilnummer, epost, roller, skal_slettes_dato)
@@ -30,29 +27,29 @@ class NavAnsattRepository(private val db: Database) {
                               epost             = excluded.epost,
                               roller            = excluded.roller,
                               skal_slettes_dato = excluded.skal_slettes_dato
-            returning *
         """.trimIndent()
 
-        tx.run(queryOf(query, ansatt.toSqlParameters()).asExecute)
+        val params = mapOf(
+            "nav_ident" to ansatt.navIdent.value,
+            "fornavn" to ansatt.fornavn,
+            "etternavn" to ansatt.etternavn,
+            "hovedenhet" to ansatt.hovedenhet,
+            "azure_id" to ansatt.azureId,
+            "mobilnummer" to ansatt.mobilnummer,
+            "epost" to ansatt.epost,
+            "roller" to createArrayOf("nav_ansatt_rolle", ansatt.roller),
+            "skal_slettes_dato" to ansatt.skalSlettesDato,
+        )
+
+        execute(queryOf(query, params))
     }
 
+    context(Session)
     fun getAll(
         roller: List<NavAnsattRolle>? = null,
         hovedenhetIn: List<String>? = null,
         skalSlettesDatoLte: LocalDate? = null,
     ): List<NavAnsattDto> {
-        val params = mapOf(
-            "roller" to roller?.let { db.createTextArray(it.map { rolle -> rolle.name }) },
-            "hovedenhet" to hovedenhetIn?.let { enheter -> db.createTextArray(enheter) },
-            "skal_slettes_dato" to skalSlettesDatoLte,
-        )
-
-        val where = DatabaseUtils.andWhereParameterNotNull(
-            roller to "roller @> :roller::nav_ansatt_rolle[]",
-            hovedenhetIn to "hovedenhet = any(:hovedenhet)",
-            skalSlettesDatoLte to "skal_slettes_dato <= :skal_slettes_dato",
-        )
-
         @Language("PostgreSQL")
         val query = """
             select nav_ident,
@@ -67,16 +64,22 @@ class NavAnsattRepository(private val db: Database) {
                    skal_slettes_dato
             from nav_ansatt
                      join nav_enhet ne on nav_ansatt.hovedenhet = ne.enhetsnummer
-            $where
+            where (:roller::nav_ansatt_rolle[] is null or roller @> :roller)
+              and (:hovedenhet::text[] is null or hovedenhet = any(:hovedenhet))
+              and (:skal_slettes_dato::date is null or skal_slettes_dato <= :skal_slettes_dato)
             order by fornavn, etternavn
         """.trimIndent()
 
-        return queryOf(query, params)
-            .map { it.toNavAnsattDto() }
-            .asList
-            .let { db.run(it) }
+        val params = mapOf(
+            "roller" to roller?.map { it.name }?.let { createArrayOf("nav_ansatt_rolle", it) },
+            "hovedenhet" to hovedenhetIn?.let { createTextArray(it) },
+            "skal_slettes_dato" to skalSlettesDatoLte,
+        )
+
+        return list(queryOf(query, params)) { it.toNavAnsattDto() }
     }
 
+    context(Session)
     fun getByNavIdent(navIdent: NavIdent): NavAnsattDto? {
         @Language("PostgreSQL")
         val query = """
@@ -92,15 +95,13 @@ class NavAnsattRepository(private val db: Database) {
                    skal_slettes_dato
             from nav_ansatt
                      join nav_enhet ne on nav_ansatt.hovedenhet = ne.enhetsnummer
-            where nav_ident = :nav_ident
+            where nav_ident = ?
         """.trimIndent()
 
-        return queryOf(query, mapOf("nav_ident" to navIdent.value))
-            .map { it.toNavAnsattDto() }
-            .asSingle
-            .let { db.run(it) }
+        return single(queryOf(query, navIdent.value)) { it.toNavAnsattDto() }
     }
 
+    context(Session)
     fun getByAzureId(azureId: UUID): NavAnsattDto? {
         @Language("PostgreSQL")
         val query = """
@@ -116,38 +117,22 @@ class NavAnsattRepository(private val db: Database) {
                    skal_slettes_dato
             from nav_ansatt
                      join nav_enhet ne on nav_ansatt.hovedenhet = ne.enhetsnummer
-            where azure_id = :azure_id::uuid
+            where azure_id = ?::uuid
         """.trimIndent()
 
-        return queryOf(query, mapOf("azure_id" to azureId))
-            .map { it.toNavAnsattDto() }
-            .asSingle
-            .let { db.run(it) }
+        return single(queryOf(query, azureId)) { it.toNavAnsattDto() }
     }
 
-    fun deleteByAzureId(azureId: UUID, tx: Session? = null): Int {
+    context(Session)
+    fun deleteByAzureId(azureId: UUID): Int {
         @Language("PostgreSQL")
         val query = """
             delete from nav_ansatt
-            where azure_id = :azure_id::uuid
+            where azure_id = ?::uuid
         """.trimIndent()
 
-        val update = queryOf(query, mapOf("azure_id" to azureId)).asUpdate
-
-        return tx?.run(update) ?: db.run(update)
+        return update(queryOf(query, azureId))
     }
-
-    private fun NavAnsattDbo.toSqlParameters() = mapOf(
-        "nav_ident" to navIdent.value,
-        "fornavn" to fornavn,
-        "etternavn" to etternavn,
-        "hovedenhet" to hovedenhet,
-        "azure_id" to azureId,
-        "mobilnummer" to mobilnummer,
-        "epost" to epost,
-        "roller" to db.createArrayOf("nav_ansatt_rolle", roller),
-        "skal_slettes_dato" to skalSlettesDato,
-    )
 
     private fun Row.toNavAnsattDto() = NavAnsattDto(
         navIdent = NavIdent(string("nav_ident")),

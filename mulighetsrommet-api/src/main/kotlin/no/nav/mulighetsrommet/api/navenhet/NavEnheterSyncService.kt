@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.navenhet
 
 import io.ktor.http.*
+import no.nav.mulighetsrommet.api.Queries
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Response
@@ -9,9 +10,9 @@ import no.nav.mulighetsrommet.api.domain.dto.EnhetSlug
 import no.nav.mulighetsrommet.api.domain.dto.FylkeRef
 import no.nav.mulighetsrommet.api.domain.dto.SanityEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetRepository
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.services.cms.SanityService
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 
@@ -43,9 +44,9 @@ val NAV_EGNE_ANSATTE_TIL_FYLKE_MAP = mapOf(
 )
 
 class NavEnheterSyncService(
+    private val db: Database,
     private val norg2Client: Norg2Client,
     private val sanityService: SanityService,
-    private val enhetRepository: NavEnhetRepository,
     private val slackNotifier: SlackNotifier,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -66,11 +67,11 @@ class NavEnheterSyncService(
         }
     }
 
-    private fun lagreEnheter(enheter: List<Norg2Response>) {
+    private fun lagreEnheter(enheter: List<Norg2Response>) = db.session {
         logger.info("Lagrer ${enheter.size} enheter til database")
 
         enheter.forEach {
-            enhetRepository.upsert(
+            Queries.enhet.upsert(
                 NavEnhetDbo(
                     navn = it.enhet.navn,
                     enhetsnummer = it.enhet.enhetNr,

@@ -4,8 +4,8 @@ import arrow.core.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
+import no.nav.mulighetsrommet.api.Queries
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.okonomi.BestillingDto
 import no.nav.mulighetsrommet.api.okonomi.OkonomiClient
@@ -23,17 +23,17 @@ import java.time.LocalDateTime
 import java.util.*
 
 class TilsagnService(
-    private val tilsagnRepository: TilsagnRepository,
-    private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
-    private val endringshistorikkService: EndringshistorikkService,
     private val db: Database,
+    private val tilsagnRepository: TilsagnRepository,
+    private val endringshistorikkService: EndringshistorikkService,
 ) {
     suspend fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<ValidationError>, TilsagnDto> {
-        val gjennomforing = tiltaksgjennomforingRepository.get(request.gjennomforingId)
-            ?: return ValidationError
-                .of(TilsagnRequest::gjennomforingId, "Tiltaksgjennomforingen finnes ikke")
-                .nel()
-                .left()
+        val gjennomforing = db.session {
+            Queries.gjennomforing.get(request.gjennomforingId)
+        } ?: return ValidationError
+            .of(TilsagnRequest::gjennomforingId, "Tiltaksgjennomforingen finnes ikke")
+            .nel()
+            .left()
 
         val previous = tilsagnRepository.get(request.id)
 
@@ -240,8 +240,8 @@ class TilsagnService(
         return "T-${tilsagn.id}"
     }
 
-    private suspend fun lagOgSendBestilling(tilsagn: TilsagnDto) {
-        val gjennomforing = tiltaksgjennomforingRepository.get(tilsagn.tiltaksgjennomforing.id)
+    private suspend fun lagOgSendBestilling(tilsagn: TilsagnDto) = db.session {
+        val gjennomforing = Queries.gjennomforing.get(tilsagn.tiltaksgjennomforing.id)
         requireNotNull(gjennomforing) { "Fant ikke gjennomforing til tilsagn" }
         requireNotNull(gjennomforing.avtaleId) { "Fant ikke avtale til gjennomforingen" }
 

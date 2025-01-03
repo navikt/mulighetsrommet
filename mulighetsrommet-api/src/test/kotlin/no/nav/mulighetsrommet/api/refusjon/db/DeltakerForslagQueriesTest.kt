@@ -1,20 +1,21 @@
 package no.nav.mulighetsrommet.api.refusjon.db
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldBe
+import io.kotest.matchers.maps.shouldContainExactly
+import io.kotest.matchers.maps.shouldNotContainKey
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.Melding
-import org.junit.jupiter.api.Assertions.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class DeltakerForslagRepositoryTest : FunSpec({
+class DeltakerForslagQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
+
     val deltaker = DeltakerDbo(
         id = UUID.randomUUID(),
         gjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
@@ -35,25 +36,32 @@ class DeltakerForslagRepositoryTest : FunSpec({
         deltakere = listOf(deltaker),
     )
 
-    beforeEach {
-        domain.initialize(database.db)
-    }
+    val queries = DeltakerForslagQueries
 
     test("crud") {
-        val repository = DeltakerForslagRepository(database.db)
-        val forslag = DeltakerForslag(
-            id = UUID.randomUUID(),
-            deltakerId = deltaker.id,
-            endring = Melding.Forslag.Endring.Sluttdato(sluttdato = LocalDate.now()),
-            status = DeltakerForslag.Status.GODKJENT,
-        )
+        database.runAndRollback {
+            domain.setup()
 
-        repository.upsert(forslag)
+            val forslag = DeltakerForslag(
+                id = UUID.randomUUID(),
+                deltakerId = deltaker.id,
+                endring = Melding.Forslag.Endring.Sluttdato(sluttdato = LocalDate.now()),
+                status = DeltakerForslag.Status.GODKJENT,
+            )
 
-        repository.getForslagByGjennomforing(TiltaksgjennomforingFixtures.Oppfolging1.id)[deltaker.id] shouldBe listOf(forslag)
+            queries.upsert(forslag)
 
-        repository.delete(forslag.id)
+            val forslagEtterUpsert = queries.getForslagByGjennomforing(
+                TiltaksgjennomforingFixtures.Oppfolging1.id,
+            )
+            forslagEtterUpsert shouldContainExactly mapOf(deltaker.id to listOf(forslag))
 
-        repository.getForslagByGjennomforing(TiltaksgjennomforingFixtures.Oppfolging1.id).containsKey(deltaker.id) shouldBe false
+            queries.delete(forslag.id)
+
+            val forslagEtterDelete = queries.getForslagByGjennomforing(
+                TiltaksgjennomforingFixtures.Oppfolging1.id,
+            )
+            forslagEtterDelete shouldNotContainKey deltaker.id
+        }
     }
 })

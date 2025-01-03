@@ -3,10 +3,11 @@ package no.nav.mulighetsrommet.api.refusjon.kafka
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
+import no.nav.mulighetsrommet.api.Queries
 import no.nav.mulighetsrommet.api.refusjon.RefusjonService
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerDbo
-import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
@@ -23,8 +24,8 @@ import java.util.*
 class AmtDeltakerV1KafkaConsumer(
     config: Config,
     private val relevantDeltakerSluttDatoPeriod: Period = Period.ofMonths(3),
+    private val db: Database,
     private val tiltakstyper: TiltakstypeService,
-    private val deltakere: DeltakerRepository,
     private val refusjonService: RefusjonService,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     config,
@@ -33,7 +34,7 @@ class AmtDeltakerV1KafkaConsumer(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    override suspend fun consume(key: UUID, message: JsonElement) {
+    override suspend fun consume(key: UUID, message: JsonElement) = db.tx {
         logger.info("Konsumerer deltaker med id=$key")
 
         val deltaker = JsonIgnoreUnknownKeys.decodeFromJsonElement<AmtDeltakerV1Dto?>(message)
@@ -41,20 +42,20 @@ class AmtDeltakerV1KafkaConsumer(
         when {
             deltaker == null -> {
                 logger.info("Mottok tombstone for deltaker deltakerId=$key, sletter deltakeren")
-                deltakere.delete(key)
+                Queries.deltaker.delete(key)
             }
 
             deltaker.status.type == DeltakerStatus.Type.FEILREGISTRERT -> {
                 logger.info("Sletter deltaker deltakerId=$key fordi den var feilregistrert")
-                deltakere.delete(key)
+                Queries.deltaker.delete(key)
             }
 
             else -> {
                 logger.info("Lagrer deltaker deltakerId=$key")
-                deltakere.upsert(deltaker.toDeltakerDbo())
+                Queries.deltaker.upsert(deltaker.toDeltakerDbo())
 
                 if (isRelevantForRefusjonskrav(deltaker)) {
-                    deltakere.setNorskIdent(deltaker.id, NorskIdent(deltaker.personIdent))
+                    Queries.deltaker.setNorskIdent(deltaker.id, NorskIdent(deltaker.personIdent))
 
                     refusjonService.recalculateRefusjonskravForGjennomforing(deltaker.gjennomforingId)
                 }

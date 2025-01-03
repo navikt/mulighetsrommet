@@ -9,6 +9,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import no.nav.mulighetsrommet.api.Queries
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltak
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakAmoDto
@@ -21,12 +22,10 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.GruppeAmo1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.GruppeFagYrke1
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
-import no.nav.mulighetsrommet.utdanning.db.UtdanningQueries
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
@@ -38,16 +37,19 @@ import kotlin.reflect.full.memberProperties
 class DatavarehusTiltakQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
+    val queries = DatavarehusTiltakQueries
+
     test("henter relevante data om tiltakstype, avtale, og gjennomføring") {
         val domain = MulighetsrommetTestDomain(
             tiltakstyper = listOf(TiltakstypeFixtures.AFT),
             avtaler = listOf(AvtaleFixtures.AFT),
             gjennomforinger = listOf(AFT1),
         )
-        domain.initialize(database.db)
 
-        val tiltak = database.db.useSession {
-            DatavarehusTiltakQueries.get(it, AFT1.id)
+        val tiltak = database.runAndRollback {
+            domain.setup()
+
+            queries.getTiltak(AFT1.id)
         }
 
         tiltak.shouldBeTypeOf<DatavarehusTiltakDto>().should {
@@ -78,16 +80,13 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             avtaler = listOf(AvtaleFixtures.AFT),
             gjennomforinger = listOf(AFT1),
         )
-        domain.initialize(database.db)
 
-        TiltaksgjennomforingRepository(database.db).also { repository ->
-            database.db.useSession {
-                repository.updateArenaData(AFT1.id, tiltaksnummer = "2020#1234", arenaAnsvarligEnhet = null, it)
-            }
-        }
+        val tiltak = database.runAndRollback {
+            domain.setup()
 
-        val tiltak = database.db.useSession {
-            DatavarehusTiltakQueries.get(it, AFT1.id)
+            Queries.gjennomforing.updateArenaData(AFT1.id, tiltaksnummer = "2020#1234", arenaAnsvarligEnhet = null)
+
+            queries.getTiltak(AFT1.id)
         }
 
         tiltak.gjennomforing.arena shouldBe DatavarehusTiltak.ArenaData(aar = 2020, lopenummer = 1234)
@@ -134,25 +133,28 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 ),
             ),
         )
-        domain.initialize(database.db)
 
         val table = domain.gjennomforinger.associate { it.id to it.amoKategorisering }.toTable()
 
-        table.forAll { id, expectedAmoKategorisering ->
-            val tiltak = database.db.useSession {
-                DatavarehusTiltakQueries.get(it, id)
-            }
+        database.runAndRollback {
+            domain.setup()
 
-            tiltak.shouldBeTypeOf<DatavarehusTiltakAmoDto>().amoKategorisering.shouldNotBeNull().shouldBe(
-                expectedAmoKategorisering,
-            )
+            table.forAll { id, expectedAmoKategorisering ->
+                val tiltak = queries.getTiltak(id)
+
+                tiltak.shouldBeTypeOf<DatavarehusTiltakAmoDto>().amoKategorisering.shouldNotBeNull().shouldBe(
+                    expectedAmoKategorisering,
+                )
+            }
         }
     }
 
     test("henter Gruppe Fag/Yrke med informasjon om utdanningsprogram") {
-        val utdanningslop = database.db.transaction { tx ->
-            UtdanningQueries.upsertUtdanningsprogram(
-                tx,
+        val domain = MulighetsrommetTestDomain(
+            tiltakstyper = listOf(TiltakstypeFixtures.GruppeFagOgYrkesopplaering),
+            avtaler = listOf(AvtaleFixtures.gruppeFagYrke),
+        ) {
+            Queries.utdanning.upsertUtdanningsprogram(
                 Utdanningsprogram(
                     navn = "Sveiseprogram",
                     nusKoder = listOf("1234", "2345"),
@@ -161,8 +163,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 ),
             )
 
-            UtdanningQueries.upsertUtdanning(
-                tx,
+            Queries.utdanning.upsertUtdanning(
                 Utdanning(
                     programomradekode = "BABAN3----",
                     utdanningId = "u_sveisefag",
@@ -175,8 +176,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 ),
             )
 
-            UtdanningQueries.upsertUtdanning(
-                tx,
+            Queries.utdanning.upsertUtdanning(
                 Utdanning(
                     programomradekode = "BABAN3----",
                     utdanningId = "u_sveisefag_under_vann",
@@ -189,62 +189,57 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 ),
             )
 
-            UtdanningslopDbo(
-                UtdanningQueries.getIdForUtdanningsprogram(tx, "BABAN3----"),
+            val utdanningslop = UtdanningslopDbo(
+                Queries.utdanning.getIdForUtdanningsprogram("BABAN3----"),
                 listOf(
-                    UtdanningQueries.getIdForUtdanning(tx, "u_sveisefag"),
-                    UtdanningQueries.getIdForUtdanning(tx, "u_sveisefag_under_vann"),
+                    Queries.utdanning.getIdForUtdanning("u_sveisefag"),
+                    Queries.utdanning.getIdForUtdanning("u_sveisefag_under_vann"),
                 ),
             )
+
+            Queries.gjennomforing.upsert(GruppeFagYrke1.copy(utdanningslop = utdanningslop))
         }
 
-        val domain = MulighetsrommetTestDomain(
-            tiltakstyper = listOf(TiltakstypeFixtures.GruppeFagOgYrkesopplaering),
-            avtaler = listOf(AvtaleFixtures.gruppeFagYrke),
-            gjennomforinger = listOf(
-                GruppeFagYrke1.copy(utdanningslop = utdanningslop),
-            ),
-        )
-        domain.initialize(database.db)
+        database.runAndRollback {
+            domain.setup()
 
-        val gjennomforing = database.db.useSession {
-            DatavarehusTiltakQueries.get(it, GruppeFagYrke1.id)
-        }
+            val gjennomforing = queries.getTiltak(GruppeFagYrke1.id)
 
-        gjennomforing.shouldBeTypeOf<DatavarehusTiltakYrkesfagDto>().utdanningslop.shouldNotBeNull().should {
-            it.utdanningsprogram.id shouldBe utdanningslop.utdanningsprogram
-            it.utdanningsprogram.navn shouldBe "Sveiseprogram"
-            it.utdanningsprogram.nusKoder shouldBe listOf("1234", "2345")
-            it.utdanningsprogram.opprettetTidspunkt.shouldNotBeNull()
-            it.utdanningsprogram.oppdatertTidspunkt.shouldNotBeNull()
+            gjennomforing.shouldBeTypeOf<DatavarehusTiltakYrkesfagDto>().utdanningslop.shouldNotBeNull().should {
+                it.utdanningsprogram.id shouldBe Queries.utdanning.getIdForUtdanningsprogram("BABAN3----")
+                it.utdanningsprogram.navn shouldBe "Sveiseprogram"
+                it.utdanningsprogram.nusKoder shouldBe listOf("1234", "2345")
+                it.utdanningsprogram.opprettetTidspunkt.shouldNotBeNull()
+                it.utdanningsprogram.oppdatertTidspunkt.shouldNotBeNull()
 
-            it.utdanninger.shouldHaveSingleElement { utdanning ->
-                utdanning.equalsIgnoring(
-                    DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanning(
-                        id = utdanningslop.utdanninger[0],
-                        navn = "Sveisefag",
-                        sluttkompetanse = Utdanning.Sluttkompetanse.FAGBREV,
-                        nusKoder = listOf("12345"),
-                        opprettetTidspunkt = LocalDateTime.now(),
-                        oppdatertTidspunkt = LocalDateTime.now(),
-                    ),
-                    "opprettetTidspunkt",
-                    "oppdatertTidspunkt",
-                )
-            }
-            it.utdanninger.shouldHaveSingleElement { utdanning ->
-                utdanning.equalsIgnoring(
-                    DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanning(
-                        id = utdanningslop.utdanninger[1],
-                        navn = "Sveisefag under vann",
-                        sluttkompetanse = Utdanning.Sluttkompetanse.SVENNEBREV,
-                        nusKoder = listOf("23456"),
-                        opprettetTidspunkt = LocalDateTime.now(),
-                        oppdatertTidspunkt = LocalDateTime.now(),
-                    ),
-                    "opprettetTidspunkt",
-                    "oppdatertTidspunkt",
-                )
+                it.utdanninger.shouldHaveSingleElement { utdanning ->
+                    utdanning.equalsIgnoring(
+                        DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanning(
+                            id = Queries.utdanning.getIdForUtdanning("u_sveisefag"),
+                            navn = "Sveisefag",
+                            sluttkompetanse = Utdanning.Sluttkompetanse.FAGBREV,
+                            nusKoder = listOf("12345"),
+                            opprettetTidspunkt = LocalDateTime.now(),
+                            oppdatertTidspunkt = LocalDateTime.now(),
+                        ),
+                        "opprettetTidspunkt",
+                        "oppdatertTidspunkt",
+                    )
+                }
+                it.utdanninger.shouldHaveSingleElement { utdanning ->
+                    utdanning.equalsIgnoring(
+                        DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanning(
+                            id = Queries.utdanning.getIdForUtdanning("u_sveisefag_under_vann"),
+                            navn = "Sveisefag under vann",
+                            sluttkompetanse = Utdanning.Sluttkompetanse.SVENNEBREV,
+                            nusKoder = listOf("23456"),
+                            opprettetTidspunkt = LocalDateTime.now(),
+                            oppdatertTidspunkt = LocalDateTime.now(),
+                        ),
+                        "opprettetTidspunkt",
+                        "oppdatertTidspunkt",
+                    )
+                }
             }
         }
     }
@@ -255,13 +250,14 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             avtaler = listOf(AvtaleFixtures.gruppeFagYrke),
             gjennomforinger = listOf(GruppeFagYrke1),
         )
-        domain.initialize(database.db)
 
-        val gjennomforing = database.db.useSession {
-            DatavarehusTiltakQueries.get(it, GruppeFagYrke1.id)
+        database.runAndRollback {
+            domain.setup()
+
+            val gjennomforing = queries.getTiltak(GruppeFagYrke1.id)
+
+            gjennomforing.shouldBeTypeOf<DatavarehusTiltakYrkesfagDto>().utdanningslop.shouldBeNull()
         }
-
-        gjennomforing.shouldBeTypeOf<DatavarehusTiltakYrkesfagDto>().utdanningslop.shouldBeNull()
     }
 })
 

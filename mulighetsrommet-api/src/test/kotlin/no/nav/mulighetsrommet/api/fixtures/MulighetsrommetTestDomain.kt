@@ -1,23 +1,16 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import io.kotest.assertions.arrow.core.shouldBeRight
-import no.nav.mulighetsrommet.api.arrangor.db.ArrangorRepository
+import kotliquery.TransactionalSession
+import no.nav.mulighetsrommet.api.Queries
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRepository
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetRepository
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerDbo
-import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
-import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeDbo
-import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.Database
 
 data class MulighetsrommetTestDomain(
@@ -37,6 +30,8 @@ data class MulighetsrommetTestDomain(
         TiltakstypeFixtures.AFT,
         TiltakstypeFixtures.EnkelAmo,
         TiltakstypeFixtures.GruppeFagOgYrkesopplaering,
+        TiltakstypeFixtures.GruppeAmo,
+        TiltakstypeFixtures.DigitalOppfolging,
     ),
     val avtaler: List<AvtaleDbo> = listOf(
         AvtaleFixtures.oppfolging,
@@ -48,39 +43,48 @@ data class MulighetsrommetTestDomain(
     val gjennomforinger: List<TiltaksgjennomforingDbo> = listOf(),
     val deltakere: List<DeltakerDbo> = listOf(),
     val refusjonskrav: List<RefusjonskravDbo> = listOf(),
+    val additionalSetup: (TransactionalSession.() -> Unit)? = null,
 ) {
-    fun initialize(database: Database) {
-        NavEnhetRepository(database).also { repository ->
-            enheter.forEach { repository.upsert(it).shouldBeRight() }
-        }
+    fun initialize(database: Database) = database.tx {
+        enheter.forEach { Queries.enhet.upsert(it) }
+        ansatte.forEach { Queries.ansatt.upsert(it) }
+        arrangorer.forEach { Queries.arrangor.upsert(it) }
+        arrangorKontaktpersoner.forEach { Queries.arrangor.upsertKontaktperson(it) }
+        tiltakstyper.forEach { Queries.tiltakstype.upsert(it) }
+        avtaler.forEach { Queries.avtale.upsert(it) }
+        gjennomforinger.forEach { Queries.gjennomforing.upsert(it) }
+        deltakere.forEach { Queries.deltaker.upsert(it) }
+        refusjonskrav.forEach { Queries.refusjonskrav.upsert(it) }
 
-        NavAnsattRepository(database).also { repository ->
-            ansatte.forEach { repository.upsert(it) }
-        }
+        additionalSetup?.invoke(this)
+    }
 
-        ArrangorRepository(database).also { repository ->
-            arrangorer.forEach { repository.upsert(it) }
-            arrangorKontaktpersoner.forEach { repository.upsertKontaktperson(it) }
-        }
+    context(TransactionalSession)
+    fun setup(): MulighetsrommetTestDomain {
+        enheter.forEach { Queries.enhet.upsert(it) }
+        ansatte.forEach { Queries.ansatt.upsert(it) }
+        arrangorer.forEach { Queries.arrangor.upsert(it) }
+        arrangorKontaktpersoner.forEach { Queries.arrangor.upsertKontaktperson(it) }
+        tiltakstyper.forEach { Queries.tiltakstype.upsert(it) }
+        avtaler.forEach { Queries.avtale.upsert(it) }
+        gjennomforinger.forEach { Queries.gjennomforing.upsert(it) }
+        deltakere.forEach { Queries.deltaker.upsert(it) }
+        refusjonskrav.forEach { Queries.refusjonskrav.upsert(it) }
 
-        TiltakstypeRepository(database).also { repository ->
-            tiltakstyper.forEach { repository.upsert(it) }
-        }
+        additionalSetup?.invoke(this@TransactionalSession)
 
-        AvtaleRepository(database).also { repository ->
-            avtaler.forEach { repository.upsert(it) }
-        }
+        return this
+    }
 
-        TiltaksgjennomforingRepository(database).also { repository ->
-            gjennomforinger.forEach { repository.upsert(it) }
-        }
+    context(TransactionalSession)
+    fun teardown(): MulighetsrommetTestDomain {
+        deltakere.forEach { Queries.deltaker.delete(it.id) }
+        gjennomforinger.forEach { Queries.gjennomforing.delete(it.id) }
+        avtaler.forEach { Queries.avtale.delete(it.id) }
+        arrangorer.forEach { Queries.arrangor.delete(it.organisasjonsnummer.value) }
+        arrangorKontaktpersoner.forEach { Queries.arrangor.deleteKontaktperson(it.id) }
+        ansatte.forEach { Queries.ansatt.getByNavIdent(it.navIdent) }
 
-        DeltakerRepository(database).also { repository ->
-            deltakere.forEach { repository.upsert(it) }
-        }
-
-        RefusjonskravRepository(database).also { repository ->
-            refusjonskrav.forEach { repository.upsert(it) }
-        }
+        return this
     }
 }

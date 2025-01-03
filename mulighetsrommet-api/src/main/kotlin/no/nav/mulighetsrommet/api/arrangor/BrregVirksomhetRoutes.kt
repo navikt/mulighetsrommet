@@ -1,10 +1,9 @@
 package no.nav.mulighetsrommet.api.arrangor
 
-import io.ktor.server.application.*
 import io.ktor.server.plugins.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import no.nav.mulighetsrommet.api.arrangor.db.ArrangorRepository
+import no.nav.mulighetsrommet.api.Queries
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
@@ -13,11 +12,12 @@ import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.NotFound
 import no.nav.mulighetsrommet.api.responses.ServerError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import org.koin.ktor.ext.inject
 
 fun Route.brregVirksomhetRoutes() {
-    val arrangorRepository: ArrangorRepository by inject()
+    val db: Database by inject()
     val brregClient: BrregClient by inject()
 
     route("virksomhet") {
@@ -30,10 +30,13 @@ fun Route.brregVirksomhetRoutes() {
 
             val response = brregClient.sokOverordnetEnhet(sok)
                 .map { hovedenheter ->
-                    // Kombinerer resultat med utenlandske virksomheter siden de ikke finnes i brreg
-                    hovedenheter + arrangorRepository.getAll(sok = sok, utenlandsk = true).items.map { virksomhet ->
-                        toBrregVirksomhetDto(virksomhet)
+                    val utenlandskeVirksomheter = db.session {
+                        Queries.arrangor.getAll(sok = sok, utenlandsk = true).items.map {
+                            toBrregVirksomhetDto(it)
+                        }
                     }
+                    // Kombinerer resultat med utenlandske virksomheter siden de ikke finnes i brreg
+                    hovedenheter + utenlandskeVirksomheter
                 }
                 .mapLeft { toStatusResponseError(it) }
 
@@ -45,9 +48,13 @@ fun Route.brregVirksomhetRoutes() {
 
             val response = brregClient.getUnderenheterForOverordnetEnhet(orgnr)
                 .map { underenheter ->
+                    val slettedeVirksomheter = db.session {
+                        Queries.arrangor.getAll(overordnetEnhetOrgnr = orgnr, slettet = true).items.map {
+                            toBrregVirksomhetDto(it)
+                        }
+                    }
                     // Kombinerer resultat med virksomheter som er slettet fra brreg for å støtte avtaler/gjennomføringer som henger etter
-                    underenheter + arrangorRepository.getAll(overordnetEnhetOrgnr = orgnr, slettet = true).items
-                        .map { virksomhet -> toBrregVirksomhetDto(virksomhet) }
+                    underenheter + slettedeVirksomheter
                 }
                 .mapLeft { toStatusResponseError(it) }
 

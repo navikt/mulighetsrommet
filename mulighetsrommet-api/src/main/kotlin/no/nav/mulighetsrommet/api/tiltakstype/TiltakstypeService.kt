@@ -2,9 +2,10 @@ package no.nav.mulighetsrommet.api.tiltakstype
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import no.nav.mulighetsrommet.api.Queries
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
-import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.utils.CacheUtils
@@ -12,7 +13,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class TiltakstypeService(
-    private val tiltakstypeRepository: TiltakstypeRepository,
+    private val db: Database,
     /**
      * Alle kjent gruppetiltak har foreløpig blitt migrert.
      * Denne står fortsatt åpen for konfigurasjon for fremtidige tiltak (bl.a. IPS/AMS).
@@ -32,7 +33,7 @@ class TiltakstypeService(
 
     private val cacheBySanityId: Cache<UUID, TiltakstypeDto> = Caffeine.newBuilder()
         .expireAfterWrite(30, TimeUnit.MINUTES)
-        .maximumSize(500)
+        .maximumSize(200)
         .recordStats()
         .build()
 
@@ -42,33 +43,52 @@ class TiltakstypeService(
         .recordStats()
         .build()
 
+    private val cacheByTiltakskode: Cache<String, TiltakstypeDto> = Caffeine.newBuilder()
+        .expireAfterWrite(12, TimeUnit.HOURS)
+        .maximumSize(200)
+        .recordStats()
+        .build()
+
     fun isEnabled(tiltakskode: Tiltakskode?) = enabledTiltakskoder.contains(tiltakskode)
 
+    // TODO fjerne paginering?
     fun getAll(
         filter: TiltakstypeFilter,
         pagination: Pagination,
-    ): PaginatedResponse<TiltakstypeDto> {
-        val (totalCount, items) = tiltakstypeRepository.getAllSkalMigreres(
-            pagination = pagination,
+    ): PaginatedResponse<TiltakstypeDto> = db.session {
+        val items = Queries.tiltakstype.getAllSkalMigreres(
             sortering = filter.sortering,
         )
 
-        return PaginatedResponse.of(pagination, totalCount, items)
+        PaginatedResponse.of(pagination, items.size, items)
     }
 
-    fun getById(id: UUID): TiltakstypeDto? {
-        return tiltakstypeRepository.get(id)
+    // TODO inline?
+    fun getById(id: UUID): TiltakstypeDto? = db.session {
+        Queries.tiltakstype.get(id)
     }
 
     fun getBySanityId(sanityId: UUID): TiltakstypeDto {
         return CacheUtils.tryCacheFirstNotNull(cacheBySanityId, sanityId) {
-            tiltakstypeRepository.getBySanityId(sanityId)
+            db.session { Queries.tiltakstype.getBySanityId(sanityId) }
         }
     }
 
     fun getByGjennomforingId(gjennomforingId: UUID): TiltakstypeDto {
         return CacheUtils.tryCacheFirstNotNull(cacheByGjennomforingId, gjennomforingId) {
-            tiltakstypeRepository.getByGjennomforingId(gjennomforingId)
+            db.session { Queries.tiltakstype.getByGjennomforingId(gjennomforingId) }
+        }
+    }
+
+    fun getByTiltakskode(tiltakskode: Tiltakskode): TiltakstypeDto {
+        return CacheUtils.tryCacheFirstNotNull(cacheByTiltakskode, tiltakskode.name) {
+            db.session { Queries.tiltakstype.getByTiltakskode(tiltakskode) }
+        }
+    }
+
+    fun getByArenaTiltakskode(arenaKode: String): TiltakstypeDto {
+        return CacheUtils.tryCacheFirstNotNull(cacheByTiltakskode, arenaKode) {
+            db.session { Queries.tiltakstype.getByArenaTiltakskode(arenaKode) }
         }
     }
 }

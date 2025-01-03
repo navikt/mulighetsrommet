@@ -4,15 +4,16 @@ import arrow.core.NonEmptyList
 import io.ktor.server.plugins.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import no.nav.mulighetsrommet.api.Queries
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.services.cms.CacheUsage
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakRepository
 import no.nav.mulighetsrommet.api.veilederflate.models.*
 import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForPamelding
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
@@ -20,8 +21,8 @@ import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import java.util.*
 
 class VeilederflateService(
+    private val db: Database,
     private val sanityService: SanityService,
-    private val veilederflateTiltakRepository: VeilederflateTiltakRepository,
     private val tiltakstypeService: TiltakstypeService,
     private val navEnhetService: NavEnhetService,
 ) {
@@ -122,8 +123,8 @@ class VeilederflateService(
         apentForPamelding: ApentForPamelding,
         search: String?,
         erSykmeldtMedArbeidsgiver: Boolean,
-    ): List<VeilederflateTiltak> {
-        return veilederflateTiltakRepository.getAll(
+    ): List<VeilederflateTiltak> = db.session {
+        return Queries.veilderTiltak.getAll(
             search = search,
             sanityTiltakstypeIds = tiltakstypeIds?.map { UUID.fromString(it) },
             innsatsgruppe = innsatsgruppe,
@@ -140,8 +141,8 @@ class VeilederflateService(
     suspend fun hentTiltaksgjennomforing(
         id: UUID,
         sanityPerspective: SanityPerspective,
-    ): VeilederflateTiltak {
-        return veilederflateTiltakRepository.get(id)
+    ): VeilederflateTiltak = db.session {
+        return Queries.veilderTiltak.get(id)
             ?.let { gjennomforing ->
                 val hentTiltakstyper = hentTiltakstyper()
                 val sanityTiltakstype = hentTiltakstyper

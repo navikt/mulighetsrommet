@@ -1,16 +1,18 @@
 package no.nav.mulighetsrommet.api.refusjon.db
 
 import kotliquery.Row
+import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.refusjon.model.DeltakerDto
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import org.intellij.lang.annotations.Language
 import java.util.*
 
-class DeltakerRepository(private val db: Database) {
-    fun upsert(deltaker: DeltakerDbo) = db.useSession { session ->
+object DeltakerQueries {
+
+    context(Session)
+    fun upsert(deltaker: DeltakerDbo) {
         @Language("PostgreSQL")
         val query = """
             insert into deltaker (id,
@@ -58,10 +60,11 @@ class DeltakerRepository(private val db: Database) {
             "status_opprettet_tidspunkt" to deltaker.status.opprettetDato,
         )
 
-        queryOf(query, params).asExecute.runWithSession(session)
+        execute(queryOf(query, params))
     }
 
-    fun setNorskIdent(deltakerId: UUID, norskIdent: NorskIdent) = db.useSession { session ->
+    context(Session)
+    fun setNorskIdent(deltakerId: UUID, norskIdent: NorskIdent) {
         @Language("PostgreSQL")
         val query = """
             update deltaker
@@ -74,10 +77,11 @@ class DeltakerRepository(private val db: Database) {
             "norsk_ident" to norskIdent.value,
         )
 
-        queryOf(query, params).asExecute.runWithSession(session)
+        execute(queryOf(query, params))
     }
 
-    fun get(id: UUID): DeltakerDto? = db.useSession { session ->
+    context(Session)
+    fun get(id: UUID): DeltakerDto? {
         @Language("PostgreSQL")
         val query = """
             select id,
@@ -92,18 +96,14 @@ class DeltakerRepository(private val db: Database) {
                    status_aarsak,
                    status_opprettet_tidspunkt
             from deltaker
-            where id = :id::uuid
+            where id = ?::uuid
         """.trimIndent()
 
-        val params = mapOf("id" to id)
-
-        queryOf(query, params)
-            .map { it.toDeltakerDto() }
-            .asSingle
-            .runWithSession(session)
+        return single(queryOf(query, id)) { it.toDeltakerDto() }
     }
 
-    fun getAll(tiltaksgjennomforingId: UUID? = null): List<DeltakerDto> = db.useSession { session ->
+    context(Session)
+    fun getAll(tiltaksgjennomforingId: UUID? = null): List<DeltakerDto> {
         @Language("PostgreSQL")
         val query = """
             select id,
@@ -123,12 +123,10 @@ class DeltakerRepository(private val db: Database) {
 
         val params = mapOf("gjennomforing_id" to tiltaksgjennomforingId)
 
-        queryOf(query, params)
-            .map { it.toDeltakerDto() }
-            .asList
-            .runWithSession(session)
+        return list(queryOf(query, params)) { it.toDeltakerDto() }
     }
 
+    context(Session)
     fun delete(id: UUID) {
         @Language("PostgreSQL")
         val query = """
@@ -137,24 +135,22 @@ class DeltakerRepository(private val db: Database) {
             where id = ?::uuid
         """.trimIndent()
 
-        queryOf(query, id)
-            .asExecute
-            .let { db.run(it) }
+        execute(queryOf(query, id))
     }
-
-    private fun Row.toDeltakerDto() = DeltakerDto(
-        id = uuid("id"),
-        gjennomforingId = uuid("gjennomforing_id"),
-        norskIdent = stringOrNull("norsk_ident")?.let { NorskIdent(it) },
-        startDato = localDateOrNull("start_dato"),
-        sluttDato = localDateOrNull("slutt_dato"),
-        registrertTidspunkt = localDateTime("registrert_tidspunkt"),
-        endretTidspunkt = localDateTime("endret_tidspunkt"),
-        deltakelsesprosent = doubleOrNull("deltakelsesprosent"),
-        status = DeltakerStatus(
-            type = DeltakerStatus.Type.valueOf(string("status_type")),
-            aarsak = stringOrNull("status_aarsak")?.let { DeltakerStatus.Aarsak.valueOf(it) },
-            opprettetDato = localDateTime("status_opprettet_tidspunkt"),
-        ),
-    )
 }
+
+private fun Row.toDeltakerDto() = DeltakerDto(
+    id = uuid("id"),
+    gjennomforingId = uuid("gjennomforing_id"),
+    norskIdent = stringOrNull("norsk_ident")?.let { NorskIdent(it) },
+    startDato = localDateOrNull("start_dato"),
+    sluttDato = localDateOrNull("slutt_dato"),
+    registrertTidspunkt = localDateTime("registrert_tidspunkt"),
+    endretTidspunkt = localDateTime("endret_tidspunkt"),
+    deltakelsesprosent = doubleOrNull("deltakelsesprosent"),
+    status = DeltakerStatus(
+        type = DeltakerStatus.Type.valueOf(string("status_type")),
+        aarsak = stringOrNull("status_aarsak")?.let { DeltakerStatus.Aarsak.valueOf(it) },
+        opprettetDato = localDateTime("status_opprettet_tidspunkt"),
+    ),
+)

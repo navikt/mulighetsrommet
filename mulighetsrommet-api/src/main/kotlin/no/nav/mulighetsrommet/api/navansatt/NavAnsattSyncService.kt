@@ -2,12 +2,12 @@ package no.nav.mulighetsrommet.api.navansatt
 
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
+import kotliquery.TransactionalSession
+import no.nav.mulighetsrommet.api.Queries
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.domain.dto.Slug
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRepository
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
 import no.nav.mulighetsrommet.api.navenhet.EnhetFilter
@@ -25,51 +25,47 @@ import java.time.LocalDate
 import java.util.*
 
 class NavAnsattSyncService(
-    private val navAnsattService: NavAnsattService,
     private val db: Database,
-    private val navAnsattRepository: NavAnsattRepository,
+    private val navAnsattService: NavAnsattService,
     private val sanityService: SanityService,
-    private val avtaleRepository: AvtaleRepository,
     private val navEnhetService: NavEnhetService,
     private val notificationTask: NotificationTask,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun synchronizeNavAnsatte(today: LocalDate, deletionDate: LocalDate) {
+    suspend fun synchronizeNavAnsatte(today: LocalDate, deletionDate: LocalDate): Unit = db.session {
         val ansatteToUpsert = navAnsattService.getNavAnsatteFromAzure()
 
         logger.info("Oppdaterer ${ansatteToUpsert.size} NavAnsatt fra Azure")
         ansatteToUpsert.forEach { ansatt ->
-            navAnsattRepository.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
+            Queries.ansatt.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
         }
         upsertSanityAnsatte(ansatteToUpsert)
 
         val ansatteAzureIds = ansatteToUpsert.map { it.azureId }
-        val ansatteToScheduleForDeletion = navAnsattRepository.getAll().filter { ansatt ->
+        val ansatteToScheduleForDeletion = Queries.ansatt.getAll().filter { ansatt ->
             ansatt.azureId !in ansatteAzureIds && ansatt.skalSlettesDato == null
         }
         ansatteToScheduleForDeletion.forEach { ansatt ->
             logger.info("Oppdaterer NavAnsatt med dato for sletting azureId=${ansatt.azureId} dato=$deletionDate")
             val ansattToDelete = ansatt.copy(roller = emptySet(), skalSlettesDato = deletionDate)
-            navAnsattRepository.upsert(NavAnsattDbo.fromNavAnsattDto(ansattToDelete))
+            Queries.ansatt.upsert(NavAnsattDbo.fromNavAnsattDto(ansattToDelete))
         }
 
-        val ansatteToDelete = navAnsattRepository.getAll(skalSlettesDatoLte = today)
+        val ansatteToDelete = Queries.ansatt.getAll(skalSlettesDatoLte = today)
         ansatteToDelete.forEach { ansatt ->
             logger.info("Sletter NavAnsatt fordi vi har passert dato for sletting azureId=${ansatt.azureId} dato=${ansatt.skalSlettesDato}")
             deleteNavAnsatt(ansatt)
         }
     }
 
-    private suspend fun deleteNavAnsatt(ansatt: NavAnsattDto) {
-        val avtaleIds = avtaleRepository.getAvtaleIdsByAdministrator(ansatt.navIdent)
+    private suspend fun deleteNavAnsatt(ansatt: NavAnsattDto): Unit = db.tx {
+        val avtaleIds = Queries.avtale.getAvtaleIdsByAdministrator(ansatt.navIdent)
         val gjennomforinger = sanityService.getTiltakByNavIdent(ansatt.navIdent)
 
-        db.transactionSuspend { tx ->
-            navAnsattRepository.deleteByAzureId(ansatt.azureId, tx)
-            sanityService.removeNavIdentFromTiltaksgjennomforinger(ansatt.navIdent)
-            sanityService.deleteNavIdent(ansatt.navIdent)
-        }
+        Queries.ansatt.deleteByAzureId(ansatt.azureId)
+        sanityService.removeNavIdentFromTiltaksgjennomforinger(ansatt.navIdent)
+        sanityService.deleteNavIdent(ansatt.navIdent)
 
         gjennomforinger
             .forEach { gjennomforing ->
@@ -79,16 +75,15 @@ class NavAnsattSyncService(
                 )
             }
 
-        avtaleIds
-            .forEach {
-                val avtale = requireNotNull(avtaleRepository.get(it))
-                if (avtale.administratorer.isEmpty()) {
-                    notifyRelevantAdministrators(avtale, ansatt.hovedenhet)
-                }
+        avtaleIds.forEach {
+            val avtale = requireNotNull(Queries.avtale.get(it))
+            if (avtale.administratorer.isEmpty()) {
+                notifyRelevantAdministrators(avtale, ansatt.hovedenhet)
             }
+        }
     }
 
-    private fun notifyRelevantAdministrators(
+    private fun TransactionalSession.notifyRelevantAdministrators(
         avtale: AvtaleDto,
         hovedenhet: NavAnsattDto.Hovedenhet,
     ) {
@@ -104,7 +99,7 @@ class NavAnsattSyncService(
             .map { it.enhetsnummer }
             .plus(region.enhetsnummer)
 
-        val administrators = navAnsattRepository
+        val administrators = Queries.ansatt
             .getAll(
                 roller = listOf(NavAnsattRolle.AVTALER_SKRIV),
                 hovedenhetIn = potentialAdministratorHovedenheter,
@@ -126,7 +121,7 @@ class NavAnsattSyncService(
         notificationTask.scheduleNotification(notification)
     }
 
-    private fun notifyRelevantAdministratorsForSanityGjennomforing(
+    private fun TransactionalSession.notifyRelevantAdministratorsForSanityGjennomforing(
         tiltak: SanityTiltaksgjennomforing,
         hovedenhet: NavAnsattDto.Hovedenhet,
     ) {
@@ -142,7 +137,7 @@ class NavAnsattSyncService(
             .map { it.enhetsnummer }
             .plus(region.enhetsnummer)
 
-        val administrators = navAnsattRepository
+        val administrators = Queries.ansatt
             .getAll(
                 roller = listOf(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV),
                 hovedenhetIn = potentialAdministratorHovedenheter,

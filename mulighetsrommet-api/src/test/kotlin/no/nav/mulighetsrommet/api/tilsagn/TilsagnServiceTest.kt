@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.Forbidden
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
@@ -41,10 +40,9 @@ class TilsagnServiceTest : FunSpec({
     val endringshistorikkService: EndringshistorikkService = mockk(relaxed = true)
 
     fun createTilsagnService() = TilsagnService(
-        tilsagnRepository = TilsagnRepository(database.db),
-        tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(db = database.db),
-        endringshistorikkService = endringshistorikkService,
         db = database.db,
+        tilsagnRepository = TilsagnRepository(database.db),
+        endringshistorikkService = endringshistorikkService,
     )
 
     context("beslutt") {

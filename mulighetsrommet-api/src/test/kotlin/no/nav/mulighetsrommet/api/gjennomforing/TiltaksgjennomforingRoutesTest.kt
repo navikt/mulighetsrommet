@@ -16,7 +16,6 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.fixtures.*
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
@@ -28,6 +27,7 @@ import java.util.*
 
 class TiltaksgjennomforingRoutesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
+
     val oauth = MockOAuth2Server()
 
     beforeSpec {
@@ -56,7 +56,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
 
     context("opprett og les gjennomføring") {
         val domain = MulighetsrommetTestDomain(
-            enheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Oslo, NavEnhetFixtures.Sagene),
+            enheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Oslo, NavEnhetFixtures.Sagene),
             arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
             avtaler = listOf(
                 AvtaleFixtures.oppfolging.copy(
@@ -248,32 +248,33 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
     }
 
     context("avbryt gjennomføring") {
+        val avsluttetGjennomforingId = UUID.randomUUID()
+        val aktivGjennomforingId = UUID.randomUUID()
+
         val domain = MulighetsrommetTestDomain(
             avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(
                 TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                    id = aktivGjennomforingId,
                     startDato = LocalDate.now(),
                     sluttDato = LocalDate.now(),
                 ),
                 TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                    id = UUID.randomUUID(),
+                    id = avsluttetGjennomforingId,
                 ),
             ),
-        )
-
-        val avsluttetGjennomforingId = domain.gjennomforinger[1].id
-        val aktivGjennomforingId = domain.gjennomforinger[0].id
-
-        beforeAny {
-            val gjennomforinger = TiltaksgjennomforingRepository(database.db)
-
-            domain.initialize(database.db)
-
-            gjennomforinger.setAvsluttet(
+        ) {
+            Queries.gjennomforing.setAvsluttet(
                 avsluttetGjennomforingId,
                 LocalDateTime.now(),
                 AvbruttAarsak.Feilregistrering,
             )
+        }
+
+        beforeAny {
+            database.run {
+                domain.setup()
+            }
         }
 
         afterContainer {
@@ -377,8 +378,6 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
         }
 
         test("avbryter gjennomføring") {
-            val gjennomforinger = TiltaksgjennomforingRepository(database.db)
-
             withTestApplication(appConfig()) {
                 val client = createClient {
                     install(ContentNegotiation) {
@@ -386,23 +385,24 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                     }
                 }
 
-                val response = client
-                    .put("/api/v1/intern/tiltaksgjennomforinger/$aktivGjennomforingId/avbryt") {
-                        val claims = mapOf(
-                            "NAVident" to "ABC123",
-                            "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
-                        )
-                        bearerAuth(oauth.issueToken(claims = claims).serialize())
-                        contentType(ContentType.Application.Json)
-                        setBody(AvbrytRequest(aarsak = AvbruttAarsak.Feilregistrering))
-                    }
+                val response = client.put("/api/v1/intern/tiltaksgjennomforinger/$aktivGjennomforingId/avbryt") {
+                    val claims = mapOf(
+                        "NAVident" to "ABC123",
+                        "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
+                    )
+                    bearerAuth(oauth.issueToken(claims = claims).serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(AvbrytRequest(aarsak = AvbruttAarsak.Feilregistrering))
+                }
 
                 response.status shouldBe HttpStatusCode.OK
                 response.bodyAsText().shouldBeEmpty()
 
-                gjennomforinger.get(aktivGjennomforingId).shouldNotBeNull().should {
-                    it.status.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
-                    it.status.avbrutt?.aarsak shouldBe AvbruttAarsak.Feilregistrering
+                database.run {
+                    Queries.gjennomforing.get(aktivGjennomforingId).shouldNotBeNull().should {
+                        it.status.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
+                        it.status.avbrutt?.aarsak shouldBe AvbruttAarsak.Feilregistrering
+                    }
                 }
             }
         }

@@ -14,6 +14,7 @@ import io.mockk.verify
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.mulighetsrommet.api.Queries
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
@@ -21,10 +22,8 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolgi
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.refusjon.RefusjonService
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerDbo
-import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.model.DeltakerDto
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
@@ -44,16 +43,14 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
     ): AmtDeltakerV1KafkaConsumer {
         return AmtDeltakerV1KafkaConsumer(
             config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
+            db = database.db,
             relevantDeltakerSluttDatoPeriod = period,
-            tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db)),
-            deltakere = DeltakerRepository(database.db),
+            tiltakstyper = TiltakstypeService(database.db),
             refusjonService = refusjonService,
         )
     }
 
     context("konsumering av deltakere") {
-        val deltakere = DeltakerRepository(database.db)
-
         val amtDeltaker1 = createAmtDeltakerV1Dto(
             gjennomforingId = Oppfolging1.id,
             status = DeltakerStatus.Type.VENTER_PA_OPPSTART,
@@ -93,27 +90,35 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         }
 
         test("lagrer deltakere fra topic") {
-            val deltakerConsumer = createConsumer()
+            database.run {
+                val deltakerConsumer = createConsumer()
 
-            deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
-            deltakerConsumer.consume(amtDeltaker2.id, Json.encodeToJsonElement(amtDeltaker2))
+                deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
+                deltakerConsumer.consume(amtDeltaker2.id, Json.encodeToJsonElement(amtDeltaker2))
 
-            deltakere.getAll().shouldContainExactlyInAnyOrder(deltaker1Dbo.toDto(), deltaker2Dbo.toDto())
+                Queries.deltaker.getAll().shouldContainExactlyInAnyOrder(deltaker1Dbo.toDto(), deltaker2Dbo.toDto())
+            }
         }
 
         test("delete deltakere for tombstone messages") {
-            val deltakerConsumer = createConsumer()
-            deltakere.upsert(deltaker1Dbo)
+            database.run {
+                Queries.deltaker.upsert(deltaker1Dbo)
+            }
 
+            val deltakerConsumer = createConsumer()
             deltakerConsumer.consume(amtDeltaker1.id, JsonNull)
 
-            deltakere.getAll().shouldBeEmpty()
+            database.run {
+                Queries.deltaker.getAll().shouldBeEmpty()
+            }
         }
 
         test("sletter deltakere med status FEILREGISTRERT") {
-            val deltakerConsumer = createConsumer()
-            deltakere.upsert(deltaker1Dbo)
+            database.run {
+                Queries.deltaker.upsert(deltaker1Dbo)
+            }
 
+            val deltakerConsumer = createConsumer()
             val feilregistrertDeltaker1 = amtDeltaker1.copy(
                 status = DeltakerStatus(
                     type = DeltakerStatus.Type.FEILREGISTRERT,
@@ -123,34 +128,36 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             )
             deltakerConsumer.consume(feilregistrertDeltaker1.id, Json.encodeToJsonElement(feilregistrertDeltaker1))
 
-            deltakere.getAll().shouldBeEmpty()
+            database.run {
+                Queries.deltaker.getAll().shouldBeEmpty()
+            }
         }
 
         test("tolker deltakelsesprosent som 100 hvis den mangler for forhåndsgodkjente tiltak") {
-            val deltakerConsumer = createConsumer()
-            deltakerConsumer.consume(
-                amtDeltaker1.id,
-                Json.encodeToJsonElement(amtDeltaker1.copy(gjennomforingId = AFT1.id)),
-            )
-            deltakerConsumer.consume(
-                amtDeltaker2.id,
-                Json.encodeToJsonElement(amtDeltaker2.copy(gjennomforingId = VTA1.id)),
-            )
+            database.run {
+                val deltakerConsumer = createConsumer()
+                deltakerConsumer.consume(
+                    amtDeltaker1.id,
+                    Json.encodeToJsonElement(amtDeltaker1.copy(gjennomforingId = AFT1.id)),
+                )
+                deltakerConsumer.consume(
+                    amtDeltaker2.id,
+                    Json.encodeToJsonElement(amtDeltaker2.copy(gjennomforingId = VTA1.id)),
+                )
 
-            deltakere.getAll().shouldContainExactlyInAnyOrder(
-                deltaker1Dbo
-                    .copy(gjennomforingId = AFT1.id, deltakelsesprosent = 100.0)
-                    .toDto(),
-                deltaker2Dbo
-                    .copy(gjennomforingId = VTA1.id, deltakelsesprosent = 100.0)
-                    .toDto(),
-            )
+                Queries.deltaker.getAll().shouldContainExactlyInAnyOrder(
+                    deltaker1Dbo
+                        .copy(gjennomforingId = AFT1.id, deltakelsesprosent = 100.0)
+                        .toDto(),
+                    deltaker2Dbo
+                        .copy(gjennomforingId = VTA1.id, deltakelsesprosent = 100.0)
+                        .toDto(),
+                )
+            }
         }
     }
 
     context("deltakelser for refusjonskrav") {
-        val deltakere = DeltakerRepository(database.db)
-
         val refusjonService: RefusjonService = mockk()
 
         val amtDeltaker1 = createAmtDeltakerV1Dto(
@@ -176,43 +183,47 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         }
 
         test("lagrer fødselsnummer på deltakere i AFT med relevant status") {
-            val deltakerConsumer = createConsumer(refusjonService = refusjonService)
+            database.run {
+                val deltakerConsumer = createConsumer(refusjonService = refusjonService)
 
-            forAll(
-                row(DeltakerStatus.Type.VENTER_PA_OPPSTART, null),
-                row(DeltakerStatus.Type.IKKE_AKTUELL, null),
-                row(DeltakerStatus.Type.DELTAR, NorskIdent("12345678910")),
-                row(DeltakerStatus.Type.FULLFORT, NorskIdent("12345678910")),
-                row(DeltakerStatus.Type.HAR_SLUTTET, NorskIdent("12345678910")),
-                row(DeltakerStatus.Type.AVBRUTT, NorskIdent("12345678910")),
-            ) { status, expectedNorskIdent ->
-                val deltaker = amtDeltaker1.copy(
-                    status = amtDeltaker1.status.copy(type = status),
-                )
-                deltakerConsumer.consume(deltaker.id, Json.encodeToJsonElement(deltaker))
+                forAll(
+                    row(DeltakerStatus.Type.VENTER_PA_OPPSTART, null),
+                    row(DeltakerStatus.Type.IKKE_AKTUELL, null),
+                    row(DeltakerStatus.Type.DELTAR, NorskIdent("12345678910")),
+                    row(DeltakerStatus.Type.FULLFORT, NorskIdent("12345678910")),
+                    row(DeltakerStatus.Type.HAR_SLUTTET, NorskIdent("12345678910")),
+                    row(DeltakerStatus.Type.AVBRUTT, NorskIdent("12345678910")),
+                ) { status, expectedNorskIdent ->
+                    val deltaker = amtDeltaker1.copy(
+                        status = amtDeltaker1.status.copy(type = status),
+                    )
+                    deltakerConsumer.consume(deltaker.id, Json.encodeToJsonElement(deltaker))
 
-                deltakere.get(deltaker.id).shouldNotBeNull().norskIdent shouldBe expectedNorskIdent
+                    Queries.deltaker.get(deltaker.id).shouldNotBeNull().norskIdent shouldBe expectedNorskIdent
+                }
             }
         }
 
         test("lagrer ikke fødselsnummer når deltakelsen har en sluttdato før konfigurert periode") {
-            val deltakerConsumer = createConsumer(
-                period = Period.ofDays(1),
-                refusjonService = refusjonService,
-            )
-
-            forAll(
-                row(LocalDate.now().minusDays(2), null),
-                row(LocalDate.now().minusDays(1), NorskIdent("12345678910")),
-                row(LocalDate.now(), NorskIdent("12345678910")),
-            ) { sluttDato, expectedNorskIdent ->
-                val deltaker = amtDeltaker1.copy(
-                    startDato = LocalDate.now().minusMonths(1),
-                    sluttDato = sluttDato,
+            database.run {
+                val deltakerConsumer = createConsumer(
+                    period = Period.ofDays(1),
+                    refusjonService = refusjonService,
                 )
-                deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(deltaker))
 
-                deltakere.get(deltaker.id).shouldNotBeNull().norskIdent.shouldBe(expectedNorskIdent)
+                forAll(
+                    row(LocalDate.now().minusDays(2), null),
+                    row(LocalDate.now().minusDays(1), NorskIdent("12345678910")),
+                    row(LocalDate.now(), NorskIdent("12345678910")),
+                ) { sluttDato, expectedNorskIdent ->
+                    val deltaker = amtDeltaker1.copy(
+                        startDato = LocalDate.now().minusMonths(1),
+                        sluttDato = sluttDato,
+                    )
+                    deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(deltaker))
+
+                    Queries.deltaker.get(deltaker.id).shouldNotBeNull().norskIdent.shouldBe(expectedNorskIdent)
+                }
             }
         }
 
