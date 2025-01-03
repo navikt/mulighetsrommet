@@ -1,4 +1,8 @@
-import { ArrangorflateService, RefusjonKravKompakt, RefusjonskravStatus } from "@mr/api-client";
+import {
+  ArrangorflateService,
+  ArrFlateRefusjonKravKompakt,
+  RefusjonskravStatus,
+} from "@mr/api-client";
 import { Tabs } from "@navikt/ds-react";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { useLoaderData } from "react-router";
@@ -33,7 +37,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 export default function TilsagnDetaljer() {
   const [currentTab, setTab] = useTabState("forside-tab", "aktive");
   const { krav, tilsagn } = useLoaderData<typeof loader>();
-  const historiske: RefusjonKravKompakt[] = krav.filter(
+  const historiske: ArrFlateRefusjonKravKompakt[] = krav.filter(
     (k) => k.status === RefusjonskravStatus.GODKJENT_AV_ARRANGOR,
   );
   const aktive = krav.filter((k) => k.status !== RefusjonskravStatus.GODKJENT_AV_ARRANGOR);
