@@ -86,8 +86,7 @@ export function App() {
 }
 
 async function ansattLoader() {
-  const data = await AnsattService.hentInfoOmAnsatt();
-  return data;
+  return AnsattService.hentInfoOmAnsatt();
 }
 
 const router = () =>
