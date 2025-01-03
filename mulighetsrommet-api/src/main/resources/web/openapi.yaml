@@ -1919,12 +1919,13 @@ paths:
         - Prismodell
       parameters:
         - in: query
-          name: avtaleId
+          name: tiltakstype
           required: true
           schema:
+            $ref: "#/components/schemas/Tiltakskode"
             type: string
             format: uuid
-      operationId: getAvtalteSatser
+      operationId: getForhandsgodkjenteSatser
       responses:
         200:
           description: Avtalte satser for avtale

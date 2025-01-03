@@ -55,7 +55,7 @@ data class AvtaleRequest(
     val opsjonsmodellData: OpsjonsmodellData?,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo?,
-    val prismodell: Prismodell?,
+    val prismodell: Prismodell? = null,
 )
 
 @Serializable

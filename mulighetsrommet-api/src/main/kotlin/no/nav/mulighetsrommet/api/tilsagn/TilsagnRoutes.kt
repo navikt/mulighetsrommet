@@ -136,25 +136,19 @@ fun Route.tilsagnRoutes() {
     }
 
     get("/prismodell/satser") {
-        val avtaleId: UUID by call.queryParameters
+        val tiltakstype: Tiltakskode by call.queryParameters
 
-        val avtale = avtaler.get(avtaleId)
-            ?: return@get call.respond(HttpStatusCode.NotFound, "Fant ikke avtale=$avtaleId")
-
-        fun toAvtaltSats(it: ForhandsgodkjentSats) = AvtaltSats(
-            periodeStart = it.periode.start,
-            periodeSlutt = it.periode.getLastDate(),
-            pris = it.belop,
-            valuta = "NOK",
-        )
-
-        val satser = ForhandsgodkjenteSatser.satser(avtale.tiltakstype.tiltakskode).map(::toAvtaltSats)
+        val satser = ForhandsgodkjenteSatser.satser(tiltakstype).map {
+            AvtaltSats(
+                periodeStart = it.periode.start,
+                periodeSlutt = it.periode.getLastDate(),
+                pris = it.belop,
+                valuta = "NOK",
+            )
+        }
 
         if (satser.isEmpty()) {
-            return@get call.respond(
-                HttpStatusCode.BadRequest,
-                "Det finnes ingen avtalte satser for avtale=$avtaleId",
-            )
+            return@get call.respond(HttpStatusCode.BadRequest, "Det finnes ingen avtalte satser for $tiltakstype")
         }
 
         call.respond(satser)
