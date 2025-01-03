@@ -1,4 +1,4 @@
-import { GetAvtalteSatserResponse, TilsagnDto, TilsagnRequest } from "@mr/api-client";
+import { GetForhandsgodkjenteSatserResponse, TilsagnDto, TilsagnRequest } from "@mr/api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import { mockTilsagn } from "../fixtures/mock_tilsagn";
 
@@ -30,7 +30,7 @@ export const tilsagnHandlers = [
     return HttpResponse.text("OK");
   }),
 
-  http.get<PathParams, string, GetAvtalteSatserResponse>(
+  http.get<PathParams, string, GetForhandsgodkjenteSatserResponse>(
     "*/api/v1/intern/prismodell/satser",
     () => {
       return HttpResponse.json([

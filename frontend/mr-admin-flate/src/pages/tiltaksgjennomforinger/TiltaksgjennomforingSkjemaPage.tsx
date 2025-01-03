@@ -11,14 +11,14 @@ import { avtaleHarRegioner, inneholderUrl } from "@/utils/Utils";
 import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 import { Alert, Heading } from "@navikt/ds-react";
 import { useLoaderData, useLocation, useMatch, useNavigate, useParams } from "react-router";
-import { tiltaksgjennomforingLoader } from "./tiltaksgjennomforingLoaders";
+import { tiltaksgjennomforingSkjemaLoader } from "./tiltaksgjennomforingLoaders";
 
 export function TiltaksgjennomforingSkjemaPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { avtaleId } = useParams();
   const { tiltaksgjennomforing, avtale, ansatt } =
-    useLoaderData<typeof tiltaksgjennomforingLoader>();
+    useLoaderData<typeof tiltaksgjennomforingSkjemaLoader>();
   const erPaaGjennomforingerForAvtale = useMatch(
     "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema",
   );

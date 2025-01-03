@@ -12,6 +12,7 @@ import {
   NavEnhet,
   Tiltakskode,
   TiltakstypeDto,
+  Toggles,
   UtdanningslopDbo,
   ValidationErrorResponse,
 } from "@mr/api-client";
@@ -30,6 +31,8 @@ import { AvtaleRedaksjoneltInnholdForm } from "./AvtaleRedaksjoneltInnholdForm";
 import styles from "./AvtaleSkjemaContainer.module.scss";
 import { AvtaleSkjemaDetaljer } from "./AvtaleSkjemaDetaljer";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { AvtalePrisOgFakturering } from "@/pages/avtaler/AvtalePrisOgFakturering";
 
 interface Props {
   onClose: () => void;
@@ -68,6 +71,11 @@ export function AvtaleSkjemaContainer({
 
   const watchedTiltakstype: EmbeddedTiltakstype | undefined = watch("tiltakstype");
 
+  const { data: enableOkonomi } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
+    watchedTiltakstype ? [watchedTiltakstype.tiltakskode] : [],
+  );
+
   const postData: SubmitHandler<InferredAvtaleSchema> = async (data): Promise<void> => {
     const requestBody: AvtaleRequest = {
       id: avtale?.id ?? uuidv4(),
@@ -97,6 +105,7 @@ export function AvtaleSkjemaContainer({
         customOpsjonsmodellNavn: data?.opsjonsmodellData?.customOpsjonsmodellNavn || null,
       },
       utdanningslop: getUtdanningslop(data),
+      prismodell: data.prismodell,
     };
 
     mutation.mutate(requestBody, {
@@ -133,8 +142,6 @@ export function AvtaleSkjemaContainer({
     [form],
   );
 
-  const hasRedaksjoneltInnholdErrors = Boolean(errors?.faneinnhold);
-  const hasPersonvernErrors = Boolean(errors?.personvernBekreftet);
   const hasDetaljerErrors = Object.keys(errors).some(
     (e) => e !== "faneinnhold" && e !== "personvernBekreftet",
   );
@@ -151,17 +158,25 @@ export function AvtaleSkjemaContainer({
                 label="Detaljer"
                 hasError={hasDetaljerErrors}
               />
+              {enableOkonomi && (
+                <TabWithErrorBorder
+                  onClick={() => setActiveTab("pris-og-fakturering")}
+                  value="pris-og-fakturering"
+                  label="Pris og fakturering"
+                  hasError={Boolean(errors.prismodell)}
+                />
+              )}
               <TabWithErrorBorder
                 onClick={() => setActiveTab("personvern")}
                 value="personvern"
                 label="Personvern"
-                hasError={hasPersonvernErrors}
+                hasError={Boolean(errors.personvernBekreftet)}
               />
               <TabWithErrorBorder
                 label="Redaksjonelt innhold"
                 value="redaksjonelt-innhold"
                 onClick={() => setActiveTab("redaksjonelt-innhold")}
-                hasError={hasRedaksjoneltInnholdErrors}
+                hasError={Boolean(errors.faneinnhold)}
               />
             </div>
             <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus} onClose={onClose} />
@@ -174,10 +189,17 @@ export function AvtaleSkjemaContainer({
               enheter={props.enheter}
             />
           </Tabs.Panel>
+          {enableOkonomi && (
+            <Tabs.Panel value="pris-og-fakturering">
+              <InlineErrorBoundary>
+                <AvtalePrisOgFakturering tiltakstype={watchedTiltakstype} />
+              </InlineErrorBoundary>
+            </Tabs.Panel>
+          )}
           <Tabs.Panel value="personvern">
             <InlineErrorBoundary>
               <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
-                <AvtalePersonvernForm tiltakstypeId={watchedTiltakstype?.id} />
+                <AvtalePersonvernForm tiltakstype={watchedTiltakstype} />
               </React.Suspense>
             </InlineErrorBoundary>
           </Tabs.Panel>

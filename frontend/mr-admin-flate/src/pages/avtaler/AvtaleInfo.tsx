@@ -12,15 +12,16 @@ import styles from "./AvtaleInfo.module.scss";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
 import { avtaleLoader } from "./avtaleLoader";
 import { AvtalePersonvern } from "./AvtalePersonvern";
-import { AvtalePrisOgFakturering } from "./AvtalePrisOgFakturering";
+import { AvtalePrisOgFaktureringDetaljer } from "@/pages/avtaler/AvtalePrisOgFaktureringDetaljer";
 
 export function AvtaleInfo() {
   const { avtale, ansatt } = useLoaderData<typeof avtaleLoader>();
 
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 
-  const { data: enableOpprettTilsagn } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
+  const { data: enableOkonomi } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
+    [avtale.tiltakstype.tiltakskode],
   );
 
   return (
@@ -29,7 +30,7 @@ export function AvtaleInfo() {
         <Tabs.List className={styles.tabslist}>
           <div>
             <Tabs.Tab label="Detaljer" value="detaljer" onClick={() => setActiveTab("detaljer")} />
-            {enableOpprettTilsagn && (
+            {enableOkonomi && (
               <Tabs.Tab
                 label="Pris og fakturering"
                 value="pris-og-fakturering"
@@ -54,28 +55,28 @@ export function AvtaleInfo() {
             <AvtaleDetaljer />
           </InlineErrorBoundary>
         </Tabs.Panel>
-        {enableOpprettTilsagn && (
+        {enableOkonomi && (
           <Tabs.Panel value="pris-og-fakturering">
             <InlineErrorBoundary>
-              <AvtalePrisOgFakturering />
+              <AvtalePrisOgFaktureringDetaljer />
             </InlineErrorBoundary>
           </Tabs.Panel>
         )}
-        <Tabs.Panel value="redaksjonelt-innhold">
-          <InlineErrorBoundary>
-            <RedaksjoneltInnholdPreview
-              tiltakstype={avtale.tiltakstype}
-              beskrivelse={avtale.beskrivelse}
-              faneinnhold={avtale.faneinnhold}
-            />
-          </InlineErrorBoundary>
-        </Tabs.Panel>
         <Tabs.Panel value="personvern">
           <InlineErrorBoundary>
             <AvtalePersonvern />
           </InlineErrorBoundary>
         </Tabs.Panel>
       </Tabs>
+      <Tabs.Panel value="redaksjonelt-innhold">
+        <InlineErrorBoundary>
+          <RedaksjoneltInnholdPreview
+            tiltakstype={avtale.tiltakstype}
+            beskrivelse={avtale.beskrivelse}
+            faneinnhold={avtale.faneinnhold}
+          />
+        </InlineErrorBoundary>
+      </Tabs.Panel>
     </InfoContainer>
   );
 }

@@ -16,6 +16,9 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRepository
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto.Hovedenhet
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetRepository
@@ -29,15 +32,14 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.*
-import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.util.*
 
 class AvtaleValidatorTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
-    val unleash: UnleashService = mockk(relaxed = true)
-    coEvery { unleash.isEnabled(any()) } returns true
+    val navAnsatte: NavAnsattRepository = mockk(relaxed = true)
+    coEvery { navAnsatte.getByNavIdent(any()) } returns null
 
     val domain = MulighetsrommetTestDomain(
         enheter = listOf(
@@ -109,6 +111,7 @@ class AvtaleValidatorTest : FunSpec({
         opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
         utdanningslop = null,
+        prismodell = null,
     )
 
     lateinit var navEnheterService: NavEnhetService
@@ -134,7 +137,7 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("should accumulate errors when dbo has multiple issues") {
-        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
 
         val dbo = avtaleDbo.copy(
             startDato = LocalDate.of(2023, 1, 1),
@@ -153,7 +156,7 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("Avtalenavn må være minst 5 tegn når avtalen er opprettet i Admin-flate") {
-        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
 
         val dbo = avtaleDbo.copy(navn = "Avt")
 
@@ -165,7 +168,7 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("Avtalens startdato må være før eller lik som sluttdato") {
-        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
 
         val dagensDato = LocalDate.now()
         val dbo = avtaleDbo.copy(startDato = dagensDato, sluttDato = dagensDato)
@@ -180,7 +183,7 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("Avtalens lengde er maks 5 år for ikke AFT/VTA") {
-        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
 
         val dagensDato = LocalDate.now()
         val dbo = avtaleDbo.copy(startDato = dagensDato, sluttDato = dagensDato.plusYears(5))
@@ -200,7 +203,7 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("Avtalens sluttdato være lik eller etter startdato") {
-        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
 
         val dagensDato = LocalDate.now()
         val dbo = avtaleDbo.copy(startDato = dagensDato, sluttDato = dagensDato.minusDays(5))
@@ -214,7 +217,7 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("skal validere at Nav-enheter må være koblet til Nav-fylke") {
-        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
 
         val dbo = avtaleDbo.copy(
             navEnheter = listOf("0300", "0502"),
@@ -236,7 +239,7 @@ class AvtaleValidatorTest : FunSpec({
             amoKategorisering = AmoKategorisering.Studiespesialisering,
         )
 
-        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
 
         validator.validate(forhaandsgodkjent, null).shouldBeRight()
         validator.validate(rammeAvtale, null).shouldBeLeft(
@@ -251,7 +254,7 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("amoKategorisering er påkrevd hvis gruppe amo") {
-        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
         val gruppeAmo = AvtaleFixtures.gruppeAmo.copy(amoKategorisering = null)
         validator.validate(gruppeAmo, null).shouldBeLeft(
             listOf(ValidationError("amoKategorisering.kurstype", "Du må velge en kurstype")),
@@ -268,7 +271,7 @@ class AvtaleValidatorTest : FunSpec({
             amoKategorisering = AmoKategorisering.Studiespesialisering,
         )
 
-        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
 
         validator.validate(forhaandsgodkjent, null).shouldBeRight()
         validator.validate(rammeAvtale, null).shouldBeLeft(
@@ -297,7 +300,7 @@ class AvtaleValidatorTest : FunSpec({
             opsjonMaksVarighet = LocalDate.now(),
         )
 
-        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
 
         validator.validate(rammeAvtale, null).shouldBeLeft(
             listOf(
@@ -323,7 +326,7 @@ class AvtaleValidatorTest : FunSpec({
             amoKategorisering = AmoKategorisering.Studiespesialisering,
         )
 
-        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
 
         validator.validate(aft, null).shouldBeLeft(
             listOf(
@@ -362,7 +365,7 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("Websak-referanse må være med når avtalen er avtale eller rammeavtale") {
-        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
 
         val rammeavtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Rammeavtale, websaknummer = null)
         validator.validate(rammeavtale, null).shouldBeLeft(
@@ -383,7 +386,7 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("arrangørens underenheter må tilhøre hovedenhet i Brreg") {
-        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
 
         val avtale1 = AvtaleFixtures.oppfolging.copy(
             arrangorId = ArrangorFixtures.Fretex.hovedenhet.id,
@@ -408,7 +411,7 @@ class AvtaleValidatorTest : FunSpec({
         arrangorer.upsert(ArrangorFixtures.Fretex.hovedenhet.copy(slettetDato = LocalDate.of(2024, 1, 1)))
         arrangorer.upsert(ArrangorFixtures.Fretex.underenhet1.copy(slettetDato = LocalDate.of(2024, 1, 1)))
 
-        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
 
         val avtale1 = AvtaleFixtures.oppfolging.copy(
             arrangorId = ArrangorFixtures.Fretex.hovedenhet.id,
@@ -433,7 +436,7 @@ class AvtaleValidatorTest : FunSpec({
             utdanningslop = null,
         )
 
-        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
 
         validator.validate(avtaleMedEndringer, null).shouldBeLeft(
             listOf(
@@ -451,7 +454,7 @@ class AvtaleValidatorTest : FunSpec({
             ),
         )
 
-        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
 
         validator.validate(avtaleMedEndringer, null).shouldBeLeft(
             listOf(
@@ -487,12 +490,13 @@ class AvtaleValidatorTest : FunSpec({
                 opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
                 customOpsjonsmodellNavn = null,
                 utdanningslop = null,
+                prismodell = null,
             )
 
             avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
             avtaler.setOpphav(avtaleDbo.id, ArenaMigrering.Opphav.ARENA)
 
-            val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+            val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
 
             val previous = avtaler.get(avtaleDbo.id)
             validator.validate(avtaleMedEndringer, previous).shouldBeRight()
@@ -529,7 +533,7 @@ class AvtaleValidatorTest : FunSpec({
 
             val previous = avtaler.get(avtaleDbo.id)
 
-            val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+            val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
 
             validator.validate(
                 avtaleDbo.copy(
@@ -573,7 +577,7 @@ class AvtaleValidatorTest : FunSpec({
 
             val previous = avtaler.get(AvtaleFixtures.oppfolging.id)
 
-            val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+            val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
 
             validator.validate(
                 AvtaleFixtures.oppfolging.copy(
@@ -612,7 +616,7 @@ class AvtaleValidatorTest : FunSpec({
                     gjennomforing.copy(arrangorId = ArrangorFixtures.underenhet2.id),
                 )
 
-                val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+                val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
 
                 val dbo = avtaleDbo.copy(
                     tiltakstypeId = TiltakstypeFixtures.AFT.id,
@@ -645,7 +649,7 @@ class AvtaleValidatorTest : FunSpec({
                     gjennomforing.copy(navRegion = "0400"),
                 )
 
-                val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+                val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
 
                 val dbo = avtaleDbo.copy(
                     navEnheter = listOf("0400"),
@@ -655,5 +659,30 @@ class AvtaleValidatorTest : FunSpec({
                 validator.validate(dbo, previous).shouldBeRight()
             }
         }
+    }
+
+    test("Slettede administratorer valideres") {
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, navAnsatte)
+        coEvery { navAnsatte.getByNavIdent(any()) } returns NavAnsattDto(
+            azureId = UUID.randomUUID(),
+            navIdent = NavIdent("DD1"),
+            fornavn = "F",
+            etternavn = "E",
+            hovedenhet = Hovedenhet(enhetsnummer = "0234", "Oslo"),
+            mobilnummer = "123",
+            epost = "e",
+            roller = emptySet(),
+            skalSlettesDato = LocalDate.now(),
+        )
+
+        val dbo = avtaleDbo.copy(
+            navEnheter = listOf("0400"),
+            administratorer = listOf(NavIdent("DD1")),
+        )
+
+        validator.validate(dbo, null).shouldBeLeft()
+            .shouldContainExactlyInAnyOrder(
+                ValidationError("administratorer", "Administratorene med Nav ident DD1 er slettet og må fjernes"),
+            )
     }
 })

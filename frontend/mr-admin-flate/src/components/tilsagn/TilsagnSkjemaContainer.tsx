@@ -1,9 +1,9 @@
+import { TilsagnSkjemaForhandsgodkjent } from "@/components/tilsagn/prismodell/TilsagnSkjemaForhandsgodkjent";
+import { TilsagnSkjemaFri } from "@/components/tilsagn/prismodell/TilsagnSkjemaFri";
 import { AvtaleDto, Avtaletype, TilsagnType, TiltaksgjennomforingDto } from "@mr/api-client";
 import { useNavigate } from "react-router";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
 import { DeepPartial } from "react-hook-form";
-import { AftTilsagnSkjema } from "@/components/tilsagn/prismodell/aft/AftTilsagnSkjema";
-import { FriTilsagnSkjema } from "@/components/tilsagn/prismodell/fri/FriTilsagnSkjema";
 
 interface Props {
   avtale: AvtaleDto;
@@ -30,10 +30,10 @@ export function TilsagnSkjemaContainer({ avtale, gjennomforing, defaults }: Prop
   switch (avtale.avtaletype) {
     case Avtaletype.FORHAANDSGODKJENT:
       return (
-        <AftTilsagnSkjema
+        <TilsagnSkjemaForhandsgodkjent
           defaultValues={{
             ...defaults,
-            beregning: { ...defaults.beregning, type: "AFT" },
+            beregning: { ...defaults.beregning, type: "FORHANDSGODKJENT" },
           }}
           {...props}
         />
@@ -41,7 +41,7 @@ export function TilsagnSkjemaContainer({ avtale, gjennomforing, defaults }: Prop
 
     default:
       return (
-        <FriTilsagnSkjema
+        <TilsagnSkjemaFri
           defaultValues={{
             ...defaults,
             beregning: { ...defaults.beregning, type: "FRI" },

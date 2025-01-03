@@ -43,14 +43,15 @@ data class AvtaleDto(
     val antallPlasser: Int?,
     val opphav: ArenaMigrering.Opphav,
     val kontorstruktur: List<Kontorstruktur>,
-    val beskrivelse: String? = null,
-    val faneinnhold: Faneinnhold? = null,
+    val beskrivelse: String?,
+    val faneinnhold: Faneinnhold?,
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
     val amoKategorisering: AmoKategorisering?,
-    val opsjonsmodellData: OpsjonsmodellData? = null,
+    val opsjonsmodellData: OpsjonsmodellData?,
     val opsjonerRegistrert: List<OpsjonLoggRegistrert>?,
     val utdanningslop: UtdanningslopDto?,
+    val prismodell: Prismodell?,
 ) {
     @Serializable
     data class Tiltakstype(
@@ -127,6 +128,7 @@ data class AvtaleDto(
         opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
         customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
         utdanningslop = utdanningslop?.toDbo(),
+        prismodell = prismodell,
     )
 
     fun toArenaAvtaleDbo() = ArenaAvtaleDbo(

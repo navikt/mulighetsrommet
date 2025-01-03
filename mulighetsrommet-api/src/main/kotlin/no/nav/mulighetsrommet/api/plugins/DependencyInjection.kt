@@ -75,7 +75,6 @@ import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.TilsagnValidator
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
@@ -423,12 +422,11 @@ private fun services(appConfig: AppConfig) = module {
         ) { runBlocking { cachedTokenProvider.withScope(appConfig.axsys.scope).exchange(AccessType.M2M) } }
     }
     single { AvtaleValidator(get(), get(), get(), get(), get()) }
-    single { TiltaksgjennomforingValidator(get(), get()) }
+    single { TiltaksgjennomforingValidator(get(), get(), get()) }
     single { OpsjonLoggValidator() }
-    single { TilsagnValidator() }
     single { OpsjonLoggService(get(), get(), get(), get(), get()) }
     single { LagretFilterService(get()) }
-    single { TilsagnService(get(), get(), get(), get(), get()) }
+    single { TilsagnService(get(), get(), get(), get()) }
     single { AltinnRettigheterService(get(), get()) }
 }
 

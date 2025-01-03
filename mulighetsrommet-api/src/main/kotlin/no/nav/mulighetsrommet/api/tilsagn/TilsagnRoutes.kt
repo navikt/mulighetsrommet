@@ -12,8 +12,6 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
-import no.nav.mulighetsrommet.api.okonomi.ForhandsgodkjentSats
-import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -93,7 +91,7 @@ fun Route.tilsagnRoutes() {
         post("/beregn") {
             val request = call.receive<TilsagnBeregningInput>()
 
-            val result = service.tilsagnBeregning(request)
+            val result = service.beregnTilsagn(request)
                 .map { it.output }
                 .mapLeft { BadRequest(errors = it) }
 
@@ -138,27 +136,19 @@ fun Route.tilsagnRoutes() {
     }
 
     get("/prismodell/satser") {
-        val avtaleId: UUID by call.queryParameters
+        val tiltakstype: Tiltakskode by call.queryParameters
 
-        val avtale = avtaler.get(avtaleId)
-            ?: return@get call.respond(HttpStatusCode.NotFound, "Fant ikke avtale=$avtaleId")
-
-        fun toAvtaltSats(it: ForhandsgodkjentSats) = AvtaltSats(
-            periodeStart = it.periode.start,
-            periodeSlutt = it.periode.getLastDate(),
-            pris = it.belop,
-            valuta = "NOK",
-        )
-
-        val satser = when (avtale.tiltakstype.tiltakskode) {
-            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING -> Prismodell.AFT.satser.map(::toAvtaltSats)
-
-            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET -> Prismodell.VTA.satser.map(::toAvtaltSats)
-
-            else -> return@get call.respond(
-                HttpStatusCode.BadRequest,
-                "Det finnes ingen avtalte satser for avtale=$avtaleId",
+        val satser = ForhandsgodkjenteSatser.satser(tiltakstype).map {
+            AvtaltSats(
+                periodeStart = it.periode.start,
+                periodeSlutt = it.periode.getLastDate(),
+                pris = it.belop,
+                valuta = "NOK",
             )
+        }
+
+        if (satser.isEmpty()) {
+            return@get call.respond(HttpStatusCode.BadRequest, "Det finnes ingen avtalte satser for $tiltakstype")
         }
 
         call.respond(satser)
@@ -252,14 +242,15 @@ private fun resolveTilsagnDefaults(
             lastDayOfYear,
         ).min()
 
-        val beregning = Prismodell.AFT.findSats(periodeStart)?.let { sats ->
-            TilsagnBeregningAft.Input(
-                periodeStart = periodeStart,
-                periodeSlutt = periodeSlutt,
-                sats = sats,
-                antallPlasser = gjennomforing.antallPlasser,
-            )
-        }
+        val beregning = ForhandsgodkjenteSatser.findSats(gjennomforing.tiltakstype.tiltakskode, periodeStart)
+            ?.let { sats ->
+                TilsagnBeregningForhandsgodkjent.Input(
+                    periodeStart = periodeStart,
+                    periodeSlutt = periodeSlutt,
+                    sats = sats,
+                    antallPlasser = gjennomforing.antallPlasser,
+                )
+            }
 
         TilsagnDefaults(
             id = null,

@@ -26,7 +26,7 @@ class ByTiltakskodeStrategy : Strategy {
         return context.getByName(TILTAKSKODER_PARAM)
             .map { parseTiltakskoder(it) }
             .map { requestedTiltakskoder ->
-                enabledTiltakskoder.containsAll(requestedTiltakskoder)
+                requestedTiltakskoder.isNotEmpty() && enabledTiltakskoder.containsAll(requestedTiltakskoder)
             }
             .orElse(false)
     }

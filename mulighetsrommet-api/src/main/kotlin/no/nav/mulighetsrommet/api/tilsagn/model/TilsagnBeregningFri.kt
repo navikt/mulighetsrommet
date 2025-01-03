@@ -21,4 +21,10 @@ data class TilsagnBeregningFri(
     data class Output(
         override val belop: Int,
     ) : TilsagnBeregningOutput()
+
+    companion object {
+        fun beregn(input: Input): TilsagnBeregningFri {
+            return TilsagnBeregningFri(input, Output(input.belop))
+        }
+    }
 }

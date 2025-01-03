@@ -38,16 +38,19 @@ class TilsagnServiceTest : FunSpec({
     afterEach {
         database.db.truncateAll()
     }
+
     val endringshistorikkService: EndringshistorikkService = mockk(relaxed = true)
 
+    fun createTilsagnService() = TilsagnService(
+        tilsagnRepository = TilsagnRepository(database.db),
+        tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(db = database.db),
+        endringshistorikkService = endringshistorikkService,
+        db = database.db,
+    )
+
     context("beslutt") {
-        val service = TilsagnService(
-            tilsagnRepository = TilsagnRepository(database.db),
-            tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db),
-            validator = TilsagnValidator(),
-            endringshistorikkService = endringshistorikkService,
-            db = database.db,
-        )
+        val service = createTilsagnService()
+
         val tilsagn = TilsagnRequest(
             id = UUID.randomUUID(),
             gjennomforingId = AFT1.id,
@@ -89,13 +92,8 @@ class TilsagnServiceTest : FunSpec({
 
     context("slett tilsagn") {
         val tilsagnRepository = TilsagnRepository(database.db)
-        val service = TilsagnService(
-            tilsagnRepository = tilsagnRepository,
-            tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(db = database.db),
-            validator = TilsagnValidator(),
-            endringshistorikkService = endringshistorikkService,
-            db = database.db,
-        )
+        val service = createTilsagnService()
+
         val tilsagn = TilsagnRequest(
             id = UUID.randomUUID(),
             gjennomforingId = AFT1.id,

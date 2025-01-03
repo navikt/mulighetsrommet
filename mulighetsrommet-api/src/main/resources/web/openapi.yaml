@@ -1919,12 +1919,13 @@ paths:
         - Prismodell
       parameters:
         - in: query
-          name: avtaleId
+          name: tiltakstype
           required: true
           schema:
+            $ref: "#/components/schemas/Tiltakskode"
             type: string
             format: uuid
-      operationId: getAvtalteSatser
+      operationId: getForhandsgodkjenteSatser
       responses:
         200:
           description: Avtalte satser for avtale
@@ -2472,6 +2473,8 @@ components:
             $ref: "#/components/schemas/OpsjonLoggRegistrert"
         utdanningslop:
           $ref: "#/components/schemas/Utdanningslop"
+        prismodell:
+          $ref: "#/components/schemas/Prismodell"
       required:
         - id
         - tiltakstype
@@ -2559,6 +2562,9 @@ components:
         utdanningslop:
           $ref: "#/components/schemas/UtdanningslopDbo"
           nullable: true
+        prismodell:
+          $ref: "#/components/schemas/Prismodell"
+          nullable: true
       required:
         - id
         - navn
@@ -2580,6 +2586,13 @@ components:
         - amoKategorisering
         - opsjonsmodellData
         - utdanningslop
+        - prismodell
+
+    Prismodell:
+      type: string
+      enum:
+        - FORHANDSGODKJENT
+        - FRI
 
     EmbeddedTiltakstype:
       type: object
@@ -4260,8 +4273,8 @@ components:
       type: string
       enum:
         - mulighetsrommet-veilederflate.vis-tilbakemelding
-        - mulighetsrommet.admin-flate.opprett-tilsagn
         - mulighetsrommet.tiltakstype.migrering.deltaker
+        - mulighetsrommet.tiltakstype.migrering.okonomi
         - mulighetsrommet.tiltakstype.pamelding-info-komet
 
     PublisertRequest:
@@ -5157,38 +5170,38 @@ components:
 
     TilsagnBeregning:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningAft"
+        - $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjent"
         - $ref: "#/components/schemas/TilsagnBeregningFri"
 
     TilsagnBeregningInput:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningAftInput"
+        - $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjentInput"
         - $ref: "#/components/schemas/TilsagnBeregningFriInput"
 
     TilsagnBeregningOutput:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningAftOutput"
+        - $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjentOutput"
         - $ref: "#/components/schemas/TilsagnBeregningFriOutput"
 
-    TilsagnBeregningAft:
+    TilsagnBeregningForhandsgodkjent:
       type: object
       properties:
         type:
-          const: AFT
+          const: FORHANDSGODKJENT
         input:
-          $ref: "#/components/schemas/TilsagnBeregningAftInput"
+          $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjentInput"
         output:
-          $ref: "#/components/schemas/TilsagnBeregningAftOutput"
+          $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjentOutput"
       required:
         - type
         - input
         - output
 
-    TilsagnBeregningAftInput:
+    TilsagnBeregningForhandsgodkjentInput:
       type: object
       properties:
         type:
-          const: AFT
+          const: FORHANDSGODKJENT
         periodeStart:
           type: string
           format: date
@@ -5206,11 +5219,11 @@ components:
         - sats
         - antallPlasser
 
-    TilsagnBeregningAftOutput:
+    TilsagnBeregningForhandsgodkjentOutput:
       type: object
       properties:
         type:
-          const: AFT
+          const: FORHANDSGODKJENT
         belop:
           type: integer
       required:

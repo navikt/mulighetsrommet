@@ -10,24 +10,24 @@ import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRepository
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.Prismodell
 import no.nav.mulighetsrommet.domain.dto.allowedAvtaletypes
-import no.nav.mulighetsrommet.unleash.UnleashService
 
 class AvtaleValidator(
     private val tiltakstyper: TiltakstypeService,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val navEnheterService: NavEnhetService,
     private val arrangorer: ArrangorRepository,
-    private val unleashService: UnleashService,
+    private val navAnsatte: NavAnsattRepository,
 ) {
     private val opsjonsmodellerUtenValidering =
         listOf(Opsjonsmodell.AVTALE_UTEN_OPSJONSMODELL, Opsjonsmodell.AVTALE_VALGFRI_SLUTTDATO)
@@ -92,6 +92,7 @@ class AvtaleValidator(
                     }
                 }
             }
+
             if (currentAvtale?.opsjonerRegistrert?.isNotEmpty() == true && avtale.avtaletype != currentAvtale.avtaletype) {
                 add(
                     ValidationError.of(
@@ -136,6 +137,24 @@ class AvtaleValidator(
                 }
             }
 
+            if (avtale.prismodell != null) {
+                if (avtale.avtaletype == Avtaletype.Forhaandsgodkjent && avtale.prismodell != Prismodell.FORHANDSGODKJENT) {
+                    add(
+                        ValidationError.of(
+                            AvtaleDbo::prismodell,
+                            "Prismodellen må være forhåndsgodkjent",
+                        ),
+                    )
+                } else if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && avtale.prismodell == Prismodell.FORHANDSGODKJENT) {
+                    add(
+                        ValidationError.of(
+                            AvtaleDbo::prismodell,
+                            "Prismodellen kan ikke være forhåndsgodkjent",
+                        ),
+                    )
+                }
+            }
+
             if (tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING && avtale.amoKategorisering == null) {
                 add(ValidationError.ofCustomLocation("amoKategorisering.kurstype", "Du må velge en kurstype"))
             }
@@ -155,11 +174,12 @@ class AvtaleValidator(
             }
 
             validateNavEnheter(avtale.navEnheter)
+            validateAdministratorer(avtale)
 
             if (currentAvtale == null) {
                 validateCreateAvtale(avtale)
             } else {
-                validateUpdateAvtale(avtale, currentAvtale, tiltakstype)
+                validateUpdateAvtale(avtale, currentAvtale)
             }
         }
 
@@ -206,7 +226,6 @@ class AvtaleValidator(
     private fun MutableList<ValidationError>.validateUpdateAvtale(
         avtale: AvtaleDbo,
         currentAvtale: AvtaleDto,
-        tiltakstype: TiltakstypeDto,
     ) {
         val (numGjennomforinger, gjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = avtale.id)
 
@@ -272,6 +291,29 @@ class AvtaleValidator(
                     }
                 }
             }
+        }
+    }
+
+    private fun MutableList<ValidationError>.validateAdministratorer(
+        next: AvtaleDbo,
+    ) {
+        val slettedeNavIdenter = next.administratorer
+            .mapNotNull {
+                val ansatt = navAnsatte.getByNavIdent(it)
+                if (ansatt?.skalSlettesDato != null) {
+                    ansatt.navIdent.value
+                } else {
+                    null
+                }
+            }
+
+        if (slettedeNavIdenter.isNotEmpty()) {
+            add(
+                ValidationError.of(
+                    AvtaleDbo::administratorer,
+                    "Administratorene med Nav ident " + slettedeNavIdenter.joinToString(", ") + " er slettet og må fjernes",
+                ),
+            )
         }
     }
 

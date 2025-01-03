@@ -21,6 +21,7 @@ select avtale.id,
        avtale.personvern_bekreftet,
        avtale.avbrutt_aarsak,
        avtale.arena_ansvarlig_enhet                     as arena_nav_enhet_enhetsnummer,
+       avtale.prismodell,
        arena_nav_enhet.navn                             as arena_nav_enhet_navn,
        case
            when avtale.avbrutt_tidspunkt is not null then 'AVBRUTT'

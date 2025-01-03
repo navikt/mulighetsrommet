@@ -6,9 +6,9 @@ import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.okonomi.BestillingDto
 import no.nav.mulighetsrommet.api.okonomi.OkonomiClient
-import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.api.services.DocumentClass
@@ -25,7 +25,6 @@ import java.util.*
 class TilsagnService(
     private val tilsagnRepository: TilsagnRepository,
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
-    private val validator: TilsagnValidator,
     private val endringshistorikkService: EndringshistorikkService,
     private val db: Database,
 ) {
@@ -40,7 +39,8 @@ class TilsagnService(
 
         val beregningInput = request.beregning
 
-        return tilsagnBeregning(beregningInput)
+        return validateGjennomforingBeregningInput(gjennomforing, beregningInput)
+            .flatMap { beregnTilsagn(beregningInput) }
             .map { beregning ->
                 TilsagnDbo(
                     id = request.id,
@@ -57,7 +57,7 @@ class TilsagnService(
                 )
             }
             .flatMap { dbo ->
-                validator.validate(dbo, previous)
+                TilsagnValidator.validate(dbo, previous)
             }
             .map { dbo ->
                 db.transactionSuspend { tx ->
@@ -71,26 +71,14 @@ class TilsagnService(
             }
     }
 
-    fun tilsagnBeregning(input: TilsagnBeregningInput): Either<List<ValidationError>, TilsagnBeregning> {
-        return validator.validateBeregningInput(input)
+    fun beregnTilsagn(input: TilsagnBeregningInput): Either<List<ValidationError>, TilsagnBeregning> {
+        return TilsagnValidator.validateBeregningInput(input)
             .map {
                 when (input) {
-                    is TilsagnBeregningAft.Input -> aftTilsagnBeregning(input)
-                    is TilsagnBeregningFri.Input -> TilsagnBeregningFri(input, TilsagnBeregningFri.Output(input.belop))
+                    is TilsagnBeregningForhandsgodkjent.Input -> TilsagnBeregningForhandsgodkjent.beregn(input)
+                    is TilsagnBeregningFri.Input -> TilsagnBeregningFri.beregn(input)
                 }
             }
-    }
-
-    private fun aftTilsagnBeregning(input: TilsagnBeregningAft.Input): TilsagnBeregningAft {
-        val belop = Prismodell.AFT.beregnTilsagnBelop(
-            sats = input.sats,
-            antallPlasser = input.antallPlasser,
-            periodeStart = input.periodeStart,
-            periodeSlutt = input.periodeSlutt,
-        )
-
-        val output = TilsagnBeregningAft.Output(belop = belop)
-        return TilsagnBeregningAft(input, output)
     }
 
     suspend fun beslutt(id: UUID, besluttelse: BesluttTilsagnRequest, navIdent: NavIdent): StatusResponse<Unit> {
@@ -270,6 +258,20 @@ class TilsagnService(
     }
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto = endringshistorikkService.getEndringshistorikk(DocumentClass.TILSAGN, id)
+
+    private fun validateGjennomforingBeregningInput(
+        gjennomforing: TiltaksgjennomforingDto,
+        input: TilsagnBeregningInput,
+    ): Either<List<ValidationError>, TilsagnBeregningInput> {
+        return when (input) {
+            is TilsagnBeregningForhandsgodkjent.Input -> TilsagnValidator.validateForhandsgodkjentSats(
+                gjennomforing.tiltakstype.tiltakskode,
+                input,
+            )
+
+            else -> input.right()
+        }
+    }
 
     private fun logEndring(
         operation: String,
