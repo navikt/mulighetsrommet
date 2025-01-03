@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRepository
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isKursTiltak
@@ -22,6 +23,7 @@ import java.time.LocalDate
 class TiltaksgjennomforingValidator(
     private val avtaler: AvtaleRepository,
     private val arrangorer: ArrangorRepository,
+    private val navAnsatte: NavAnsattRepository,
 ) {
     private val maksAntallTegnStedForGjennomforing = 100
 
@@ -175,6 +177,9 @@ class TiltaksgjennomforingValidator(
                     }
                 }
             }
+            validateKontaktpersoner(next)
+            validateAdministratorer(next)
+
             next = validateOrResetTilgjengeligForArrangorDato(next)
 
             if (previous == null) {
@@ -185,6 +190,52 @@ class TiltaksgjennomforingValidator(
         }
 
         return errors.takeIf { it.isNotEmpty() }?.left() ?: next.right()
+    }
+
+    private fun MutableList<ValidationError>.validateKontaktpersoner(
+        next: TiltaksgjennomforingDbo,
+    ) {
+        val slettedeNavIdenter = next.kontaktpersoner
+            .mapNotNull {
+                val ansatt = navAnsatte.getByNavIdent(it.navIdent)
+                if (ansatt?.skalSlettesDato != null) {
+                    ansatt.navIdent.value
+                } else {
+                    null
+                }
+            }
+
+        if (slettedeNavIdenter.isNotEmpty()) {
+            add(
+                ValidationError.of(
+                    TiltaksgjennomforingDbo::kontaktpersoner,
+                    "Kontaktpersonene med Nav ident " + slettedeNavIdenter.joinToString(", ") + " er slettet og må fjernes",
+                ),
+            )
+        }
+    }
+
+    private fun MutableList<ValidationError>.validateAdministratorer(
+        next: TiltaksgjennomforingDbo,
+    ) {
+        val slettedeNavIdenter = next.administratorer
+            .mapNotNull {
+                val ansatt = navAnsatte.getByNavIdent(it)
+                if (ansatt?.skalSlettesDato != null) {
+                    ansatt.navIdent.value
+                } else {
+                    null
+                }
+            }
+
+        if (slettedeNavIdenter.isNotEmpty()) {
+            add(
+                ValidationError.of(
+                    TiltaksgjennomforingDbo::administratorer,
+                    "Administratorene med Nav ident " + slettedeNavIdenter.joinToString(", ") + " er slettet og må fjernes",
+                ),
+            )
+        }
     }
 
     private fun validateOrResetTilgjengeligForArrangorDato(
