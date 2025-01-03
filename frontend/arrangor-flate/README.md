@@ -17,8 +17,7 @@ For dette trenger man et access token definert i `VITE_MULIGHETSROMMET_API_AUTH_
 4. Legg inn dette i optional claims (pid kan du velge selv men påkrevd)
 ```json
 {
- "pid": "11830348931",
- "aud": "mulighetsrommet-api"
+ "pid": "11830348931"
 }
 ```
 5. Legg `access_token` verdien inn i env variabelen din

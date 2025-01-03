@@ -260,16 +260,19 @@ fun Application.configureAuthentication(
             verifier(tokenxJwkProvider, auth.tokenx.issuer) {
                 withAudience(auth.tokenx.audience)
             }
+
             validate { credentials ->
-                credentials["pid"] ?: return@validate null
-                val norskIdent = credentials["pid"]?.let {
-                    runCatching { NorskIdent(it) }.getOrNull()
-                } ?: return@validate null
+                val pid = credentials["pid"] ?: run {
+                    application.log.warn("'pid' claim is missing from token")
+                    return@validate null
+                }
+
+                val norskIdent = runCatching { NorskIdent(pid) }
+                    .onFailure { application.log.warn("Failed to parse 'pid' claim as NorskIdent") }
+                    .getOrElse { return@validate null }
 
                 val organisasjonsnummer = altinnRettigheterService.getRettigheter(norskIdent)
-                    .filter {
-                        it.rettigheter.contains(AltinnRessurs.TILTAK_ARRANGOR_REFUSJON)
-                    }
+                    .filter { AltinnRessurs.TILTAK_ARRANGOR_REFUSJON in it.rettigheter }
                     .map { it.organisasjonsnummer }
 
                 // TILTAK_ARRANGOR_REFUSJON rettighet hos minst én bedrift
