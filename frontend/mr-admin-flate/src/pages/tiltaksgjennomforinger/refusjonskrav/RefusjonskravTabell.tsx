@@ -1,10 +1,10 @@
 import { formaterDato } from "@/utils/Utils";
-import { RefusjonKravKompakt, RefusjonskravStatus } from "@mr/api-client";
+import { RefusjonKravKompakt } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Table, Tag } from "@navikt/ds-react";
+import { Table } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
 import { Link, useParams } from "react-router";
-import { ReactNode } from "react";
+import { RefusjonskravStatusTag } from "./RefusjonskravStatusTag";
 
 interface Props {
   refusjonskrav: RefusjonKravKompakt[];
@@ -12,6 +12,21 @@ interface Props {
 
 export function RefusjonskravTabell({ refusjonskrav }: Props) {
   const { tiltaksgjennomforingId } = useParams();
+
+  function formaterKostnadsteder(
+    kostnadsteder: {
+      navn: string;
+      enhetsnummer: string;
+    }[],
+  ) {
+    const liste = [...kostnadsteder];
+    if (!liste) return "";
+
+    const forsteEnhet = liste.shift();
+    if (!forsteEnhet) return "";
+
+    return `${forsteEnhet?.navn} ${liste.length > 0 ? `+ ${liste.length}` : ""}`;
+  }
 
   return (
     <Table>
@@ -39,7 +54,16 @@ export function RefusjonskravTabell({ refusjonskrav }: Props) {
           return (
             <Table.Row key={id}>
               <Table.DataCell>{`${formaterDato(beregning.periodeStart)}-${formaterDato(beregning.periodeSlutt)}`}</Table.DataCell>
-              <Table.DataCell>kostnadsted</Table.DataCell>
+              <Table.DataCell
+                aria-label={`Kostnadsteder: ${krav.kostnadsteder
+                  .map((enhet) => enhet?.navn)
+                  .join(", ")}`}
+                title={`Kostnadsteder: ${krav.kostnadsteder
+                  .map((enhet) => enhet?.navn)
+                  .join(", ")}`}
+              >
+                {formaterKostnadsteder(krav.kostnadsteder)}
+              </Table.DataCell>
               <Table.DataCell align="right">{formaterNOK(beregning.belop)}</Table.DataCell>
               <Table.DataCell align="right">
                 <RefusjonskravStatusTag status={status} />
@@ -55,15 +79,4 @@ export function RefusjonskravTabell({ refusjonskrav }: Props) {
       </Table.Body>
     </Table>
   );
-}
-
-function RefusjonskravStatusTag({ status }: { status: RefusjonskravStatus }): ReactNode {
-  switch (status) {
-    case RefusjonskravStatus.GODKJENT_AV_ARRANGOR:
-      return <Tag variant="neutral">Godkjent</Tag>;
-    case RefusjonskravStatus.KLAR_FOR_GODKJENNING:
-      return <Tag variant="alt1">Klar for innsending</Tag>;
-    case RefusjonskravStatus.NARMER_SEG_FRIST:
-      return <Tag variant="warning">Nærmer seg frist</Tag>;
-  }
 }

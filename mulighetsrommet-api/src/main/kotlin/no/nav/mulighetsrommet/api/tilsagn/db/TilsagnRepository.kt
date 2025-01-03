@@ -138,6 +138,31 @@ class TilsagnRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun getTilsagnTilRefusjon(
+        gjennomforingId: UUID,
+        periode: RefusjonskravPeriode,
+    ): List<TilsagnDto> {
+        @Language("PostgreSQL")
+        val query = """
+            select * from tilsagn_admin_dto_view
+            where tiltaksgjennomforing_id = :gjennomforing_id::uuid
+              and (periode_start <= :periode_slutt::date)
+              and (periode_slutt >= :periode_start::date)
+        """.trimIndent()
+
+        return queryOf(
+            query,
+            mapOf(
+                "gjennomforing_id" to gjennomforingId,
+                "periode_start" to periode.start,
+                "periode_slutt" to periode.slutt,
+            ),
+        )
+            .map { it.toTilsagnDto() }
+            .asList
+            .let { db.run(it) }
+    }
+
     fun getArrangorflateTilsagnTilRefusjon(
         gjennomforingId: UUID,
         periode: RefusjonskravPeriode,

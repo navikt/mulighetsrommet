@@ -2,9 +2,14 @@ import { Header } from "@/components/detaljside/Header";
 import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
-import { Box, Heading, HStack } from "@navikt/ds-react";
+import { Heading, HStack } from "@navikt/ds-react";
 import { useLoaderData, useMatch, useParams } from "react-router";
 import { refusjonskravDetaljerLoader } from "./refusjonskravDetaljerLoader";
+import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
+import { Bolk } from "@/components/detaljside/Bolk";
+import { Metadata } from "@/components/detaljside/Metadata";
+import { formaterDato } from "@/utils/Utils";
+import { RefusjonskravStatusTag } from "../RefusjonskravStatusTag";
 
 export function RefusjonskravDetaljer() {
   const { gjennomforing, refusjonskrav } = useLoaderData<typeof refusjonskravDetaljerLoader>();
@@ -57,17 +62,23 @@ export function RefusjonskravDetaljer() {
         </Heading>
       </Header>
       <ContainerLayout>
-        <Box background="bg-default" padding={"5"}>
-          <Box
-            borderWidth="2"
-            borderColor="border-subtle"
-            marginBlock={"4 10"}
-            borderRadius={"medium"}
-            padding={"2"}
-          >
-            {refusjonskrav.status}
-          </Box>
-        </Box>
+        <HStack padding="5">
+          <DetaljerInfoContainer withBorderRight>
+            <Bolk>
+              <Metadata
+                header="Refusjonskravperiode"
+                verdi={`${formaterDato(refusjonskrav.beregning.periodeStart)} - ${formaterDato(refusjonskrav.beregning.periodeSlutt)}`}
+              />
+              <Metadata
+                header="Status"
+                verdi={<RefusjonskravStatusTag status={refusjonskrav.status} />}
+              />
+            </Bolk>
+            <Bolk>
+              <Metadata header="Beløp" verdi={refusjonskrav.beregning.belop} />
+            </Bolk>
+          </DetaljerInfoContainer>
+        </HStack>
       </ContainerLayout>
     </main>
   );

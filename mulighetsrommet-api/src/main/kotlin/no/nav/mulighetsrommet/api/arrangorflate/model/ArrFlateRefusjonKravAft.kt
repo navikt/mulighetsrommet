@@ -1,6 +1,8 @@
-package no.nav.mulighetsrommet.api.refusjon.model
+package no.nav.mulighetsrommet.api.arrangorflate.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravDto
+import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravStatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -9,7 +11,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-data class RefusjonKravAft(
+data class ArrFlateRefusjonKravAft(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val status: RefusjonskravStatus,
