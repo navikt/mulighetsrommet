@@ -199,6 +199,7 @@ class NavAnsattSyncServiceTest : FunSpec({
             administratorer = emptyList(),
             kontorstruktur = emptyList(),
             amoKategorisering = null,
+            opsjonsmodellData = null,
             opsjonerRegistrert = emptyList(),
             utdanningslop = null,
             prismodell = null,
