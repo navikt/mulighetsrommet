@@ -11,6 +11,9 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravAft
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravKompakt
+import no.nav.mulighetsrommet.api.arrangorflate.model.RefusjonKravDeltakelse
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
@@ -21,7 +24,9 @@ import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagRepository
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
-import no.nav.mulighetsrommet.api.refusjon.model.*
+import no.nav.mulighetsrommet.api.refusjon.model.DeltakerDto
+import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
+import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravDto
 import no.nav.mulighetsrommet.api.refusjon.task.JournalforRefusjonskrav
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -85,7 +90,7 @@ fun Route.arrangorflateRoutes() {
                 requireTilgangHosArrangor(orgnr)
 
                 val krav = refusjonskrav.getByArrangorIds(orgnr)
-                    .map { RefusjonKravKompakt.fromRefusjonskravDto(it) }
+                    .map { ArrFlateRefusjonKravKompakt.fromRefusjonskravDto(it) }
 
                 call.respond(krav)
             }
@@ -295,7 +300,7 @@ suspend fun toRefusjonskrav(
     pdl: HentAdressebeskyttetPersonBolkPdlQuery,
     deltakerRepository: DeltakerRepository,
     krav: RefusjonskravDto,
-): RefusjonKravAft = when (val beregning = krav.beregning) {
+): ArrFlateRefusjonKravAft = when (val beregning = krav.beregning) {
     is RefusjonKravBeregningAft -> {
         val deltakere = deltakerRepository.getAll(krav.gjennomforing.id)
 
@@ -332,7 +337,7 @@ suspend fun toRefusjonskrav(
             .setScale(2, RoundingMode.HALF_UP)
             .toDouble()
 
-        RefusjonKravAft(
+        ArrFlateRefusjonKravAft(
             id = krav.id,
             status = krav.status,
             fristForGodkjenning = krav.fristForGodkjenning,
@@ -340,7 +345,7 @@ suspend fun toRefusjonskrav(
             gjennomforing = krav.gjennomforing,
             arrangor = krav.arrangor,
             deltakelser = deltakelser,
-            beregning = RefusjonKravAft.Beregning(
+            beregning = ArrFlateRefusjonKravAft.Beregning(
                 periodeStart = beregning.input.periode.start,
                 periodeSlutt = beregning.input.periode.getLastDate(),
                 antallManedsverk = antallManedsverk,

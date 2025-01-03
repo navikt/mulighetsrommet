@@ -1950,7 +1950,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/RefusjonKravKompakt"
+                  $ref: "#/components/schemas/ArrFlateRefusjonKravKompakt"
 
   /api/v1/intern/arrangorflate/arrangor/{orgnr}/tilsagn:
     get:
@@ -5280,6 +5280,26 @@ components:
         - GODKJENT_AV_ARRANGOR
 
     RefusjonKravKompakt:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/RefusjonskravStatus"
+        beregning:
+          $ref: "#/components/schemas/RefusjonKravKompaktBeregning"
+        kostnadsteder:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavEnhet"
+      required:
+        - id
+        - status
+        - beregning
+        - kostnadsteder
+
+    ArrFlateRefusjonKravKompakt:
       type: object
       properties:
         id:

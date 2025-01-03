@@ -234,6 +234,13 @@ class TilsagnService(
         return tilsagnRepository.delete(id).right()
     }
 
+    fun getTilsagnTilRefusjon(
+        gjennomforingId: UUID,
+        periode: RefusjonskravPeriode,
+    ): List<TilsagnDto> {
+        return tilsagnRepository.getTilsagnTilRefusjon(gjennomforingId, periode)
+    }
+
     fun getArrangorflateTilsagnTilRefusjon(
         gjennomforingId: UUID,
         periode: RefusjonskravPeriode,
