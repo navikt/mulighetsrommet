@@ -2,7 +2,7 @@ import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
 import { InfoContainer } from "@/components/skjema/InfoContainer";
 import { InlineErrorBoundary } from "@mr/frontend-common";
-import { Alert, Tabs } from "@navikt/ds-react";
+import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { useLoaderData } from "react-router";
 import { TiltaksgjennomforingDetaljer } from "./TiltaksgjennomforingDetaljer";
@@ -13,11 +13,8 @@ import { tiltaksgjennomforingLoader } from "./tiltaksgjennomforingLoaders";
 export function TiltaksgjennomforingInfo() {
   const { tiltaksgjennomforing, ansatt, avtale } =
     useLoaderData<typeof tiltaksgjennomforingLoader>();
-  const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
 
-  if (!tiltaksgjennomforing) {
-    return <Alert variant="warning">Fant ingen tiltaksgjennomføring</Alert>;
-  }
+  const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
 
   return (
     <InfoContainer dataTestId="tiltaksgjennomforing_info-container">

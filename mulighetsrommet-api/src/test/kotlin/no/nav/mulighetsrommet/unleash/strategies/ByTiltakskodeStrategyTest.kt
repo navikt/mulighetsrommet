@@ -23,6 +23,11 @@ class ByTiltakskodeStrategyTest : FunSpec({
             mutableMapOf(ByTiltakskodeStrategy.TILTAKSKODER_PARAM to "ARBEIDSFORBEREDENDE_TRENING"),
             createContext(emptyMap()),
         ) shouldBe false
+
+        strategy.isEnabled(
+            mutableMapOf(ByTiltakskodeStrategy.TILTAKSKODER_PARAM to "ARBEIDSFORBEREDENDE_TRENING"),
+            createContext(mapOf(ByTiltakskodeStrategy.TILTAKSKODER_PARAM to "")),
+        ) shouldBe false
     }
 
     test("Skal returnere false når ikke alle tiltakskoder ikke matcher") {

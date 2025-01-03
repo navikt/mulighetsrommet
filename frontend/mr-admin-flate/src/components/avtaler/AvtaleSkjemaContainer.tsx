@@ -56,10 +56,6 @@ export function AvtaleSkjemaContainer({
 }: Props) {
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 
-  const { data: enableOpprettTilsagn } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
-  );
-
   const mutation = useUpsertAvtale();
 
   const form = useForm<InferredAvtaleSchema>({
@@ -74,6 +70,11 @@ export function AvtaleSkjemaContainer({
   } = form;
 
   const watchedTiltakstype: EmbeddedTiltakstype | undefined = watch("tiltakstype");
+
+  const { data: enableOkonomi } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
+    watchedTiltakstype ? [watchedTiltakstype.tiltakskode] : [],
+  );
 
   const postData: SubmitHandler<InferredAvtaleSchema> = async (data): Promise<void> => {
     const requestBody: AvtaleRequest = {
@@ -157,7 +158,7 @@ export function AvtaleSkjemaContainer({
                 label="Detaljer"
                 hasError={hasDetaljerErrors}
               />
-              {enableOpprettTilsagn && (
+              {enableOkonomi && (
                 <TabWithErrorBorder
                   onClick={() => setActiveTab("pris-og-fakturering")}
                   value="pris-og-fakturering"
@@ -188,7 +189,7 @@ export function AvtaleSkjemaContainer({
               enheter={props.enheter}
             />
           </Tabs.Panel>
-          {enableOpprettTilsagn && (
+          {enableOkonomi && (
             <Tabs.Panel value="pris-og-fakturering">
               <InlineErrorBoundary>
                 <AvtalePrisOgFakturering tiltakstype={watchedTiltakstype} />

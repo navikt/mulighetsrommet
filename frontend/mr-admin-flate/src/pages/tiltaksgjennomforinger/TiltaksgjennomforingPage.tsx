@@ -11,9 +11,9 @@ import { Toggles } from "@mr/api-client";
 import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
-import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
+import { Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
-import { Link, Outlet, useLoaderData, useLocation, useParams } from "react-router";
+import { Outlet, useLoaderData, useLocation, useParams } from "react-router";
 import commonStyles from "../Page.module.scss";
 import { tiltaksgjennomforingLoader } from "./tiltaksgjennomforingLoaders";
 
@@ -56,20 +56,10 @@ export function TiltaksgjennomforingPage() {
   const { avtaleId } = useParams();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { tiltaksgjennomforing } = useLoaderData<typeof tiltaksgjennomforingLoader>();
-  const { data: enableOpprettTilsagn } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
+  const { data: enableOkonomi } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
+    [tiltaksgjennomforing.tiltakstype.tiltakskode],
   );
-
-  if (!tiltaksgjennomforing) {
-    return (
-      <Alert variant="warning">
-        Klarte ikke finne tiltaksgjennomføring
-        <div>
-          <Link to="/">Til forside</Link>
-        </div>
-      </Alert>
-    );
-  }
 
   const currentTab = () => {
     if (pathname.includes("tilsagn")) {
@@ -135,7 +125,7 @@ export function TiltaksgjennomforingPage() {
             }
             aria-controls="panel"
           />
-          {enableOpprettTilsagn ? (
+          {enableOkonomi ? (
             <>
               <Tabs.Tab
                 value="tilsagn"

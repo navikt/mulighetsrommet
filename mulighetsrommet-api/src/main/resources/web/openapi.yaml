@@ -4273,8 +4273,8 @@ components:
       type: string
       enum:
         - mulighetsrommet-veilederflate.vis-tilbakemelding
-        - mulighetsrommet.admin-flate.opprett-tilsagn
         - mulighetsrommet.tiltakstype.migrering.deltaker
+        - mulighetsrommet.tiltakstype.migrering.okonomi
         - mulighetsrommet.tiltakstype.pamelding-info-komet
 
     PublisertRequest:

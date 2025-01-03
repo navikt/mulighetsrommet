@@ -30,7 +30,10 @@ import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
 import { tiltakstypeLoader, tiltakstyperLoaders } from "./pages/tiltakstyper/tiltakstyperLoaders";
 import { avtaleLoader, avtaleSkjemaLoader } from "./pages/avtaler/avtaleLoader";
-import { tiltaksgjennomforingLoader } from "./pages/tiltaksgjennomforinger/tiltaksgjennomforingLoaders";
+import {
+  tiltaksgjennomforingLoader,
+  tiltaksgjennomforingSkjemaLoader,
+} from "./pages/tiltaksgjennomforinger/tiltaksgjennomforingLoaders";
 import { tilsagnDetaljerLoader } from "./pages/tiltaksgjennomforinger/tilsagn/detaljer/tilsagnDetaljerLoader";
 import { redigerTilsagnLoader } from "@/pages/tiltaksgjennomforinger/tilsagn/rediger/redigerTilsagnLoader";
 import { opprettTilsagnLoader } from "@/pages/tiltaksgjennomforinger/tilsagn/opprett/opprettTilsagnLoader";
@@ -86,8 +89,7 @@ export function App() {
 }
 
 async function ansattLoader() {
-  const data = await AnsattService.hentInfoOmAnsatt();
-  return data;
+  return AnsattService.hentInfoOmAnsatt();
 }
 
 const router = () =>
@@ -164,7 +166,7 @@ const router = () =>
             path: "tiltaksgjennomforinger/skjema",
             element: <TiltaksgjennomforingSkjemaPage />,
             errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingLoader,
+            loader: tiltaksgjennomforingSkjemaLoader,
           },
           {
             path: "tiltaksgjennomforinger/",
@@ -231,7 +233,7 @@ const router = () =>
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema",
             element: <TiltaksgjennomforingSkjemaPage />,
             errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingLoader,
+            loader: tiltaksgjennomforingSkjemaLoader,
           },
           {
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/opprett-tilsagn",
@@ -261,13 +263,13 @@ const router = () =>
             path: "avtaler/:avtaleId/tiltaksgjennomforinger/skjema",
             element: <TiltaksgjennomforingSkjemaPage />,
             errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingLoader,
+            loader: tiltaksgjennomforingSkjemaLoader,
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema",
             element: <TiltaksgjennomforingSkjemaPage />,
             errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingLoader,
+            loader: tiltaksgjennomforingSkjemaLoader,
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/opprett-tilsagn",
