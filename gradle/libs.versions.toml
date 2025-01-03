@@ -32,7 +32,7 @@ logging = [
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 arrow-core-serialization = { module = "io.arrow-kt:arrow-core-serialization", version.ref = "arrow" }
 
-assertj-db = "org.assertj:assertj-db:2.0.2"
+assertj-db = "org.assertj:assertj-db:3.0.0"
 
 caffeine = "com.github.ben-manes.caffeine:caffeine:3.1.8"
 
