@@ -51,6 +51,7 @@ data class AvtaleDto(
     val opsjonsmodellData: OpsjonsmodellData? = null,
     val opsjonerRegistrert: List<OpsjonLoggRegistrert>?,
     val utdanningslop: UtdanningslopDto?,
+    val prismodell: Prismodell?,
 ) {
     @Serializable
     data class Tiltakstype(
@@ -127,6 +128,7 @@ data class AvtaleDto(
         opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
         customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
         utdanningslop = utdanningslop?.toDbo(),
+        prismodell = prismodell,
     )
 
     fun toArenaAvtaleDbo() = ArenaAvtaleDbo(

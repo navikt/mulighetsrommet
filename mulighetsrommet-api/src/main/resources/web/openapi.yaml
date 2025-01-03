@@ -1919,12 +1919,13 @@ paths:
         - Prismodell
       parameters:
         - in: query
-          name: avtaleId
+          name: tiltakstype
           required: true
           schema:
+            $ref: "#/components/schemas/Tiltakskode"
             type: string
             format: uuid
-      operationId: getAvtalteSatser
+      operationId: getForhandsgodkjenteSatser
       responses:
         200:
           description: Avtalte satser for avtale
@@ -2472,6 +2473,8 @@ components:
             $ref: "#/components/schemas/OpsjonLoggRegistrert"
         utdanningslop:
           $ref: "#/components/schemas/Utdanningslop"
+        prismodell:
+          $ref: "#/components/schemas/Prismodell"
       required:
         - id
         - tiltakstype
@@ -2559,6 +2562,9 @@ components:
         utdanningslop:
           $ref: "#/components/schemas/UtdanningslopDbo"
           nullable: true
+        prismodell:
+          $ref: "#/components/schemas/Prismodell"
+          nullable: true
       required:
         - id
         - navn
@@ -2580,6 +2586,13 @@ components:
         - amoKategorisering
         - opsjonsmodellData
         - utdanningslop
+        - prismodell
+
+    Prismodell:
+      type: string
+      enum:
+        - FORHANDSGODKJENT
+        - FRI
 
     EmbeddedTiltakstype:
       type: object

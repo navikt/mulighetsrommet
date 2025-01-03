@@ -18,8 +18,8 @@ import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
 import { Fragment } from "react";
 import { Link } from "react-router";
-import { useAvtale } from "../../api/avtaler/useAvtale";
-import { Laster } from "../../components/laster/Laster";
+import { useAvtale } from "@/api/avtaler/useAvtale";
+import { Laster } from "@/components/laster/Laster";
 import styles from "./AvtaleDetaljer.module.scss";
 
 export function AvtaleDetaljer() {

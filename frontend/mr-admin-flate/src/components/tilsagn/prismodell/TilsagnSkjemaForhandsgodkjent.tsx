@@ -38,8 +38,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
   const periodeStart = watch("periodeStart");
   const periodeSlutt = watch("periodeSlutt");
 
-  // TODO: gjøre avtaleId påkrevd
-  const sats = useFindForhandsgodkjentSats(gjennomforing.avtaleId!, periodeStart);
+  const sats = useFindForhandsgodkjentSats(gjennomforing.tiltakstype.tiltakskode, periodeStart);
   useEffect(() => {
     // FIXME: Satt til 0 for at validering og beregning ikke skal stoppe opp. Kan det gjøres på en bedre måte?
     const pris = sats?.pris ?? 0;

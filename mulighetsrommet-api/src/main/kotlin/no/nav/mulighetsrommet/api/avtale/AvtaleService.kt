@@ -73,6 +73,7 @@ class AvtaleService(
                         opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
                         customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
                         utdanningslop = utdanningslop,
+                        prismodell = prismodell,
                     )
                 }
                 validator.validate(dbo, previous)

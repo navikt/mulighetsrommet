@@ -12,7 +12,7 @@ import styles from "./AvtaleInfo.module.scss";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
 import { avtaleLoader } from "./avtaleLoader";
 import { AvtalePersonvern } from "./AvtalePersonvern";
-import { AvtalePrisOgFakturering } from "./AvtalePrisOgFakturering";
+import { AvtalePrisOgFaktureringDetaljer } from "@/pages/avtaler/AvtalePrisOgFaktureringDetaljer";
 
 export function AvtaleInfo() {
   const { avtale, ansatt } = useLoaderData<typeof avtaleLoader>();
@@ -57,25 +57,25 @@ export function AvtaleInfo() {
         {enableOpprettTilsagn && (
           <Tabs.Panel value="pris-og-fakturering">
             <InlineErrorBoundary>
-              <AvtalePrisOgFakturering />
+              <AvtalePrisOgFaktureringDetaljer />
             </InlineErrorBoundary>
           </Tabs.Panel>
         )}
-        <Tabs.Panel value="redaksjonelt-innhold">
-          <InlineErrorBoundary>
-            <RedaksjoneltInnholdPreview
-              tiltakstype={avtale.tiltakstype}
-              beskrivelse={avtale.beskrivelse}
-              faneinnhold={avtale.faneinnhold}
-            />
-          </InlineErrorBoundary>
-        </Tabs.Panel>
         <Tabs.Panel value="personvern">
           <InlineErrorBoundary>
             <AvtalePersonvern />
           </InlineErrorBoundary>
         </Tabs.Panel>
       </Tabs>
+      <Tabs.Panel value="redaksjonelt-innhold">
+        <InlineErrorBoundary>
+          <RedaksjoneltInnholdPreview
+            tiltakstype={avtale.tiltakstype}
+            beskrivelse={avtale.beskrivelse}
+            faneinnhold={avtale.faneinnhold}
+          />
+        </InlineErrorBoundary>
+      </Tabs.Panel>
     </InfoContainer>
   );
 }

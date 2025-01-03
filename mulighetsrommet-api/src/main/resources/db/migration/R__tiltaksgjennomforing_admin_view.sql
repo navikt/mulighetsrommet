@@ -123,8 +123,7 @@ from tiltaksgjennomforing gjennomforing
                                            'innholdElementer', k.innhold_elementer
                                    ) as amo_kategorisering_json
                             from tiltaksgjennomforing_amo_kategorisering k
-                            where tiltaksgjennomforing_id = gjennomforing.id
-    ) on true
+                            where tiltaksgjennomforing_id = gjennomforing.id) on true
          left join lateral (select jsonb_build_object(
                                            'utdanningsprogram',
                                            json_build_object('id', up.id, 'navn', up.navn),
