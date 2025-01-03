@@ -13,10 +13,9 @@ import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import org.intellij.lang.annotations.Language
 import java.util.*
 
-object DatavarehusTiltakQueries {
+class DatavarehusTiltakQueries(private val session: Session) {
 
-    context(Session)
-    fun getTiltak(id: UUID): DatavarehusTiltak {
+    fun getTiltak(id: UUID): DatavarehusTiltak = with(session) {
         @Language("PostgreSQL")
         val query = """
             select gjennomforing.id,
@@ -72,8 +71,7 @@ object DatavarehusTiltakQueries {
         }
     }
 
-    context(Session)
-    private fun getUtdanningslop(id: UUID): DatavarehusTiltakYrkesfagDto.Utdanningslop? {
+    private fun getUtdanningslop(id: UUID): DatavarehusTiltakYrkesfagDto.Utdanningslop? = with(session) {
         @Language("PostgreSQL")
         val utdanningsprogramQuery = """
             select program.id,
@@ -129,8 +127,7 @@ object DatavarehusTiltakQueries {
         return DatavarehusTiltakYrkesfagDto.Utdanningslop(utdanningsprogram, utdanninger.toSet())
     }
 
-    context(Session)
-    private fun getAmoKategorisering(id: UUID): AmoKategorisering? {
+    private fun getAmoKategorisering(id: UUID): AmoKategorisering? = with(session) {
         @Language("PostgreSQL")
         val sertifiseringQuery = """
             select s.label,

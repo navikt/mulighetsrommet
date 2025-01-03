@@ -27,8 +27,6 @@ class RefusjonskravQueriesTest : FunSpec({
         gjennomforinger = listOf(AFT1),
     )
 
-    val queries = RefusjonskravQueries
-
     context("CRUD") {
         val deltakelse1Id = UUID.randomUUID()
         val deltakelse2Id = UUID.randomUUID()
@@ -79,8 +77,10 @@ class RefusjonskravQueriesTest : FunSpec({
         )
 
         test("upsert and get") {
-            database.runAndRollback {
-                domain.setup()
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = RefusjonskravQueries(session)
 
                 val frist = LocalDate.of(2024, 10, 1).atStartOfDay()
                 val krav = RefusjonskravDbo(
@@ -122,8 +122,10 @@ class RefusjonskravQueriesTest : FunSpec({
         }
 
         test("godkjenn refusjonskrav") {
-            database.runAndRollback {
-                domain.setup()
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = RefusjonskravQueries(session)
 
                 val krav = RefusjonskravDbo(
                     id = UUID.randomUUID(),
@@ -147,8 +149,10 @@ class RefusjonskravQueriesTest : FunSpec({
         }
 
         test("set journalpost id") {
-            database.runAndRollback {
-                domain.setup()
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = RefusjonskravQueries(session)
 
                 val krav = RefusjonskravDbo(
                     id = UUID.randomUUID(),
@@ -165,8 +169,10 @@ class RefusjonskravQueriesTest : FunSpec({
         }
 
         test("tillater ikke lagring av overlappende perioder") {
-            database.runAndRollback {
-                domain.setup()
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = RefusjonskravQueries(session)
 
                 val periode = DeltakelsePeriode(
                     start = LocalDate.of(2023, 1, 1),

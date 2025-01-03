@@ -2,8 +2,8 @@ package no.nav.mulighetsrommet.api.arenaadapter
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import kotliquery.TransactionalSession
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.services.EndretAv
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
-import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.api.withTransaction
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory
 import java.util.*
 
 class ArenaAdapterService(
-    private val db: Database,
+    private val db: ApiDatabase,
     private val tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
     private val sanityService: SanityService,
     private val arrangorService: ArrangorService,
@@ -137,9 +137,9 @@ class ArenaAdapterService(
         return arenaGjennomforing.tiltaksnummer != current.tiltaksnummer || arenaGjennomforing.arenaAnsvarligEnhet != current.arenaAnsvarligEnhet?.enhetsnummer
     }
 
-    private fun TransactionalSession.logUpdateAvtale(dto: AvtaleDto) {
+    private fun QueryContext.logUpdateAvtale(dto: AvtaleDto) = withTransaction(session) {
         endringshistorikk.logEndring(
-            this@TransactionalSession,
+            this,
             DocumentClass.AVTALE,
             "Endret i Arena",
             EndretAv.Arena,
@@ -147,9 +147,9 @@ class ArenaAdapterService(
         ) { Json.encodeToJsonElement(dto) }
     }
 
-    private fun TransactionalSession.logUpdateGjennomforing(dto: TiltaksgjennomforingDto) {
+    private fun QueryContext.logUpdateGjennomforing(dto: TiltaksgjennomforingDto) = withTransaction(session) {
         endringshistorikk.logEndring(
-            this@TransactionalSession,
+            this,
             DocumentClass.TILTAKSGJENNOMFORING,
             "Endret i Arena",
             EndretAv.Arena,
@@ -157,9 +157,9 @@ class ArenaAdapterService(
         ) { Json.encodeToJsonElement(dto) }
     }
 
-    private fun TransactionalSession.logTiltaksnummerHentetFraArena(dto: TiltaksgjennomforingDto) {
+    private fun QueryContext.logTiltaksnummerHentetFraArena(dto: TiltaksgjennomforingDto) = withTransaction(session) {
         endringshistorikk.logEndring(
-            this@TransactionalSession,
+            this,
             DocumentClass.TILTAKSGJENNOMFORING,
             "Oppdatert med tiltaksnummer fra Arena",
             EndretAv.System,

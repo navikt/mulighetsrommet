@@ -14,10 +14,10 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import no.nav.mulighetsrommet.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -26,7 +26,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingRoutesTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val oauth = MockOAuth2Server()
 
@@ -273,7 +273,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
 
         beforeAny {
             database.run {
-                domain.setup()
+                domain.setup(it)
             }
         }
 

@@ -1,33 +1,90 @@
 package no.nav.mulighetsrommet.api
 
+import kotlinx.coroutines.delay
+import kotliquery.Session
+import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.arrangor.db.ArrangorQueries
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleQueries
 import no.nav.mulighetsrommet.api.avtale.db.OpsjonLoggQueries
 import no.nav.mulighetsrommet.api.datavarehus.db.DatavarehusTiltakQueries
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingQueries
+import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattQueries
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetQueries
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagQueries
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerQueries
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravQueries
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakQueries
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.utdanning.db.UtdanningQueries
+import javax.sql.DataSource
 
-object Queries {
-    val enhet = NavEnhetQueries
-    val ansatt = NavAnsattQueries
-    val arrangor = ArrangorQueries
-    val tiltakstype = TiltakstypeQueries
-    val avtale = AvtaleQueries
-    val opsjoner = OpsjonLoggQueries
-    val gjennomforing = TiltaksgjennomforingQueries
-    val deltaker = DeltakerQueries
-    val deltakerForslag = DeltakerForslagQueries
-    val refusjonskrav = RefusjonskravQueries
-    val utdanning = UtdanningQueries
+inline fun <R> withTransaction(receiver: Session, block: TransactionalSession.() -> R): R {
+    return if (receiver is TransactionalSession) {
+        receiver.block()
+    } else {
+        receiver.transaction { it.block() }
+    }
+}
 
-    val dvh = DatavarehusTiltakQueries
+class QueryContext(val session: Session) {
+    val Queries = Qs()
 
-    val veilderTiltak = VeilederflateTiltakQueries
+    inner class Qs {
+        val enhet = NavEnhetQueries(session)
+        val ansatt = NavAnsattQueries(session)
+        val arrangor = ArrangorQueries(session)
+        val tiltakstype = TiltakstypeQueries(session)
+        val avtale = AvtaleQueries(session)
+        val opsjoner = OpsjonLoggQueries(session)
+        val gjennomforing = TiltaksgjennomforingQueries(session)
+        val deltaker = DeltakerQueries(session)
+        val deltakerForslag = DeltakerForslagQueries(session)
+        val refusjonskrav = RefusjonskravQueries(session)
+        val utdanning = UtdanningQueries(session)
+
+        val dvh = DatavarehusTiltakQueries(session)
+
+        val veilderTiltak = VeilederflateTiltakQueries(session)
+    }
+}
+
+suspend fun bar(db: ApiDatabase, ansatt: NavAnsattDbo) {
+    db.session {
+        Queries.ansatt.upsert(ansatt)
+        foo(this)
+    }
+}
+
+suspend fun foo(queries: QueryContext): List<NavAnsattDto> {
+    delay(100)
+    return queries.Queries.ansatt.getAll()
+}
+
+class ApiDatabase(
+    @PublishedApi
+    internal val db: Database,
+) {
+
+    fun getDatasource(): DataSource = db.getDatasource()
+
+    inline fun <T> session(
+        operation: QueryContext.() -> T,
+    ): T {
+        return db.session.use { session ->
+            operation(QueryContext(session))
+        }
+    }
+
+    inline fun <T> tx(
+        operation: QueryContext.() -> T,
+    ): T {
+        return db.session.use { session ->
+            session.transaction {
+                operation(QueryContext(it))
+            }
+        }
+    }
 }

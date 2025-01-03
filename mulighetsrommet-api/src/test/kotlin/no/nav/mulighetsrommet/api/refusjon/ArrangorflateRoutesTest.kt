@@ -12,6 +12,7 @@ import io.ktor.http.content.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import kotliquery.Query
+import no.nav.mulighetsrommet.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedParty
 import no.nav.mulighetsrommet.api.*
@@ -26,7 +27,6 @@ import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag.Status
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
 import no.nav.mulighetsrommet.api.refusjon.model.*
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
@@ -41,7 +41,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class ArrangorflateRoutesTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val identMedTilgang = NorskIdent("01010199988")
     val hovedenhet = ArrangorDto(
@@ -283,7 +283,7 @@ class ArrangorflateRoutesTest : FunSpec({
             response.status shouldBe HttpStatusCode.OK
 
             val count = database.run {
-                single(Query("select count(*) from scheduled_tasks where task_name = 'JournalforRefusjonskrav'")) {
+                session.single(Query("select count(*) from scheduled_tasks where task_name = 'JournalforRefusjonskrav'")) {
                     it.int("count")
                 }
             }

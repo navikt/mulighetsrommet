@@ -4,7 +4,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
-import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
@@ -16,6 +15,7 @@ import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
 import no.nav.mulighetsrommet.api.domain.dto.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
+import no.nav.mulighetsrommet.api.withTransaction
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
@@ -33,10 +33,9 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-object AvtaleQueries {
+class AvtaleQueries(private val session: Session) {
 
-    context(TransactionalSession)
-    fun upsert(avtale: AvtaleDbo) {
+    fun upsert(avtale: AvtaleDbo) = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
             insert into avtale (
@@ -210,7 +209,7 @@ object AvtaleQueries {
             ),
         )
 
-        AmoKategoriseringQueries.upsert(avtale)
+        AmoKategoriseringQueries(this).upsert(avtale)
 
         execute(queryOf(deleteUtdanningslop, avtale.id))
 
@@ -226,8 +225,7 @@ object AvtaleQueries {
         }
     }
 
-    context(TransactionalSession)
-    fun upsertArenaAvtale(avtale: ArenaAvtaleDbo) {
+    fun upsertArenaAvtale(avtale: ArenaAvtaleDbo) = withTransaction(session) {
         val arrangorId = single(
             queryOf("select id from arrangor where organisasjonsnummer = ?", avtale.arrangorOrganisasjonsnummer),
         ) { it.uuid("id") }.let { requireNotNull(it) }
@@ -278,8 +276,7 @@ object AvtaleQueries {
         execute(queryOf(query, avtale.toSqlParameters(arrangorId)))
     }
 
-    context(Session)
-    fun get(id: UUID): AvtaleDto? {
+    fun get(id: UUID): AvtaleDto? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -290,7 +287,6 @@ object AvtaleQueries {
         return single(queryOf(query, id)) { it.toAvtaleDto() }
     }
 
-    context(Session)
     fun getAll(
         pagination: Pagination = Pagination.all(),
         tiltakstypeIder: List<UUID> = emptyList(),
@@ -302,7 +298,7 @@ object AvtaleQueries {
         arrangorIds: List<UUID> = emptyList(),
         administratorNavIdent: NavIdent? = null,
         personvernBekreftet: Boolean? = null,
-    ): PaginatedResult<AvtaleDto> {
+    ): PaginatedResult<AvtaleDto> = with(session) {
         val parameters = mapOf(
             "search" to search?.toFTSPrefixQuery(),
             "search_arrangor" to search?.trim()?.let { "%$it%" },
@@ -355,11 +351,10 @@ object AvtaleQueries {
 
         return queryOf(query, parameters + pagination.parameters)
             .mapPaginated { it.toAvtaleDto() }
-            .runWithSession(this@Session)
+            .runWithSession(this)
     }
 
-    context(Session)
-    fun setOpphav(id: UUID, opphav: ArenaMigrering.Opphav) {
+    fun setOpphav(id: UUID, opphav: ArenaMigrering.Opphav) = with(session) {
         @Language("PostgreSQL")
         val query = """
             update avtale
@@ -370,8 +365,7 @@ object AvtaleQueries {
         update(queryOf(query, mapOf("id" to id, "opphav" to opphav.name)))
     }
 
-    context(Session)
-    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
+    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
             update avtale set
@@ -385,8 +379,7 @@ object AvtaleQueries {
         return update(queryOf(query, params))
     }
 
-    context(Session)
-    fun delete(id: UUID) {
+    fun delete(id: UUID) = with(session) {
         @Language("PostgreSQL")
         val query = """
             delete
@@ -397,11 +390,10 @@ object AvtaleQueries {
         execute(queryOf(query, id))
     }
 
-    context(Session)
     fun frikobleKontaktpersonFraAvtale(
         kontaktpersonId: UUID,
         avtaleId: UUID,
-    ) {
+    ) = with(session) {
         @Language("PostgreSQL")
         val query = """
             delete
@@ -412,8 +404,7 @@ object AvtaleQueries {
         execute(queryOf(query, kontaktpersonId, avtaleId))
     }
 
-    context(Session)
-    fun getAvtaleIdsByAdministrator(navIdent: NavIdent): List<UUID> {
+    fun getAvtaleIdsByAdministrator(navIdent: NavIdent): List<UUID> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select avtale_id
@@ -424,8 +415,7 @@ object AvtaleQueries {
         return list(queryOf(query, navIdent.value)) { it.uuid("avtale_id") }
     }
 
-    context(Session)
-    fun oppdaterSluttdato(avtaleId: UUID, sluttDato: LocalDate) {
+    fun oppdaterSluttdato(avtaleId: UUID, sluttDato: LocalDate) = with(session) {
         @Language("PostgreSQL")
         val query = """
             update avtale

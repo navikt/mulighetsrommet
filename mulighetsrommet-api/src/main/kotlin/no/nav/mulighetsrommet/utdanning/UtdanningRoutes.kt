@@ -2,12 +2,11 @@ package no.nav.mulighetsrommet.utdanning
 
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.mulighetsrommet.api.Queries
-import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.api.ApiDatabase
 import org.koin.ktor.ext.inject
 
 fun Route.utdanningRoutes() {
-    val db: Database by inject()
+    val db: ApiDatabase by inject()
 
     route("utdanninger") {
         get {

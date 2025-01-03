@@ -103,8 +103,7 @@ class TilsagnRepositoryTest : FunSpec({
             val endretTidspunkt = LocalDateTime.now()
 
             // Send til annullering
-            database.run {
-                val tx = this
+            database.run { tx ->
                 repository.tilAnnullering(
                     tilsagn.id,
                     tilsagn.endretAv,
@@ -128,8 +127,7 @@ class TilsagnRepositoryTest : FunSpec({
             }
 
             // Beslutt annullering
-            database.run {
-                val tx = this
+            database.run { tx ->
                 repository.besluttAnnullering(
                     tilsagn.id,
                     NavIdent("B123456"),
@@ -156,8 +154,7 @@ class TilsagnRepositoryTest : FunSpec({
             val endretTidspunkt = LocalDateTime.now()
 
             // Send til annullering
-            database.run {
-                val tx = this
+            database.run { tx ->
                 repository.tilAnnullering(
                     tilsagn.id,
                     tilsagn.endretAv,
@@ -180,8 +177,7 @@ class TilsagnRepositoryTest : FunSpec({
         test("godkjenn") {
             val besluttetTidspunkt = LocalDateTime.of(2024, 12, 12, 0, 0)
             repository.upsert(tilsagn)
-            database.run {
-                val tx = this
+            database.run { tx ->
                 repository.besluttGodkjennelse(
                     tilsagn.id,
                     NavIdent("B123456"),
@@ -195,8 +191,7 @@ class TilsagnRepositoryTest : FunSpec({
         test("returner") {
             val returnertTidspunkt = LocalDateTime.of(2024, 12, 12, 0, 0)
             repository.upsert(tilsagn)
-            database.run {
-                val tx = this
+            database.run { tx ->
                 repository.returner(
                     tilsagn.id,
                     NavAnsattFixture.ansatt2.navIdent,
@@ -239,8 +234,7 @@ class TilsagnRepositoryTest : FunSpec({
 
         test("get by arrangor_ids") {
             repository.upsert(tilsagn)
-            database.run {
-                val tx = this
+            database.run { tx ->
                 repository.besluttGodkjennelse(
                     tilsagn.id,
                     NavIdent("B123456"),
@@ -272,8 +266,7 @@ class TilsagnRepositoryTest : FunSpec({
 
         test("get til refusjon") {
             repository.upsert(tilsagn)
-            database.run {
-                val tx = this
+            database.run { tx ->
                 repository.besluttGodkjennelse(
                     tilsagn.id,
                     NavIdent("B123456"),

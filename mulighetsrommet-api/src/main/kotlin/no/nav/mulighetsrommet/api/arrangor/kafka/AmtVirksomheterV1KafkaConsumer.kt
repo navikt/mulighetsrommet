@@ -2,11 +2,10 @@ package no.nav.mulighetsrommet.api.arrangor.kafka
 
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
-import kotliquery.Session
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
@@ -15,7 +14,7 @@ import org.slf4j.LoggerFactory
 
 class AmtVirksomheterV1KafkaConsumer(
     config: Config,
-    private val db: Database,
+    private val db: ApiDatabase,
     private val brregClient: BrregClient,
 ) : KafkaTopicConsumer<String, JsonElement>(
     config,
@@ -38,8 +37,7 @@ class AmtVirksomheterV1KafkaConsumer(
         }
     }
 
-    context(Session)
-    private suspend fun updateVirksomhet(amtVirksomhet: AmtVirksomhetV1Dto) {
+    private suspend fun QueryContext.updateVirksomhet(amtVirksomhet: AmtVirksomhetV1Dto) {
         brregClient.getBrregVirksomhet(amtVirksomhet.organisasjonsnummer)
             .onRight { virksomhet ->
                 Queries.arrangor.upsert(virksomhet)
@@ -50,8 +48,7 @@ class AmtVirksomheterV1KafkaConsumer(
             }
     }
 
-    context(Session)
-    private fun shouldIgnoreMessage(key: String): Boolean {
+    private fun QueryContext.shouldIgnoreMessage(key: String): Boolean {
         return Queries.arrangor.get(Organisasjonsnummer(key)) == null
     }
 }

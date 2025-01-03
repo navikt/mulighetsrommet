@@ -21,11 +21,11 @@ import java.util.*
 class TiltakstypeQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
-    val queries = TiltakstypeQueries
-
     context("CRUD") {
         test("upsert and get") {
-            database.runAndRollback {
+            database.runAndRollback { session ->
+                val queries = TiltakstypeQueries(session)
+
                 queries.upsert(TiltakstypeFixtures.Arbeidstrening)
                 queries.upsert(TiltakstypeFixtures.Oppfolging)
 
@@ -53,7 +53,9 @@ class TiltakstypeQueriesTest : FunSpec({
         )
 
         test("returnerer bare tiltak som skal migreres") {
-            database.runAndRollback {
+            database.runAndRollback { session ->
+                val queries = TiltakstypeQueries(session)
+
                 queries.upsert(tiltakstypeStarterIFremtiden)
                 queries.upsert(tiltakstypeHarStartet)
                 queries.upsert(tiltakstypeErAvsluttet)
@@ -68,7 +70,9 @@ class TiltakstypeQueriesTest : FunSpec({
         }
 
         test("filtrering på status") {
-            database.runAndRollback {
+            database.runAndRollback { session ->
+                val queries = TiltakstypeQueries(session)
+
                 queries.upsert(tiltakstypeStarterIFremtiden)
                 queries.upsert(tiltakstypeHarStartet)
                 queries.upsert(tiltakstypeErAvsluttet)
@@ -92,7 +96,9 @@ class TiltakstypeQueriesTest : FunSpec({
 
     context("Strukturert innhold for deltakerregistrering") {
         test("Skal hente ut korrekt strukturert innhold for tiltakstype som har strukturert innhold") {
-            database.runAndRollback {
+            database.runAndRollback { session ->
+                val queries = TiltakstypeQueries(session)
+
                 queries.upsert(TiltakstypeFixtures.Oppfolging)
                 queries.upsert(TiltakstypeFixtures.VTA)
                 queries.upsert(TiltakstypeFixtures.AFT)
@@ -117,7 +123,7 @@ class TiltakstypeQueriesTest : FunSpec({
                     insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
                     values('kartlegge-helse', '${Tiltakskode.OPPFOLGING.name}');
                 """.trimIndent()
-                execute(queryOf(query))
+                session.execute(queryOf(query))
 
                 queries.getEksternTiltakstype(TiltakstypeFixtures.Oppfolging.id).shouldNotBeNull().should {
                     it.navn shouldBe "Oppfølging"
@@ -128,7 +134,9 @@ class TiltakstypeQueriesTest : FunSpec({
         }
 
         test("Skal støtte å hente tiltaktype som bare har ledetekst, men ingen innholdselementer") {
-            database.runAndRollback {
+            database.runAndRollback { session ->
+                val queries = TiltakstypeQueries(session)
+
                 queries.upsert(TiltakstypeFixtures.VTA)
 
                 @Language("PostgreSQL")
@@ -137,7 +145,7 @@ class TiltakstypeQueriesTest : FunSpec({
                 set deltaker_registrering_ledetekst = 'VTA er kjempebra'
                 where tiltakskode = '${Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET.name}';
                 """.trimIndent()
-                execute(queryOf(query))
+                session.execute(queryOf(query))
 
                 queries.getEksternTiltakstype(TiltakstypeFixtures.VTA.id).shouldNotBeNull().should {
                     it.navn shouldBe "Varig tilrettelagt arbeid i skjermet virksomhet"
@@ -148,7 +156,9 @@ class TiltakstypeQueriesTest : FunSpec({
         }
 
         test("Skal kunne hente tiltakstype uten strukturert innhold for deltakerregistrering") {
-            database.runAndRollback {
+            database.runAndRollback { session ->
+                val queries = TiltakstypeQueries(session)
+
                 queries.upsert(TiltakstypeFixtures.AFT)
 
                 queries.getEksternTiltakstype(TiltakstypeFixtures.AFT.id).shouldNotBeNull().should {
@@ -159,7 +169,9 @@ class TiltakstypeQueriesTest : FunSpec({
     }
 
     test("getBySanityId krasjer ikke") {
-        database.runAndRollback {
+        database.runAndRollback { session ->
+            val queries = TiltakstypeQueries(session)
+
             queries.upsert(TiltakstypeFixtures.Oppfolging)
 
             val sanityId = UUID.randomUUID()
@@ -170,7 +182,7 @@ class TiltakstypeQueriesTest : FunSpec({
                 set sanity_id = '$sanityId'
                 where tiltakskode = '${Tiltakskode.OPPFOLGING.name}';
             """.trimIndent()
-            execute(queryOf(query))
+            session.execute(queryOf(query))
 
             queries.getBySanityId(sanityId).id shouldBe TiltakstypeFixtures.Oppfolging.id
         }

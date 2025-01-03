@@ -20,8 +20,7 @@ class EndringshistorikkServiceTest : FunSpec({
 
         val endringshistorikk = EndringshistorikkService(database.db)
 
-        database.run {
-            val tx = this
+        database.run { tx ->
             endringshistorikk.logEndring(
                 tx,
                 DocumentClass.AVTALE,
@@ -85,8 +84,7 @@ class EndringshistorikkServiceTest : FunSpec({
 
         val endringshistorikk = EndringshistorikkService(database.db)
 
-        database.run {
-            val tx = this
+        database.run { tx ->
             endringshistorikk.logEndring(
                 tx,
                 DocumentClass.AVTALE,

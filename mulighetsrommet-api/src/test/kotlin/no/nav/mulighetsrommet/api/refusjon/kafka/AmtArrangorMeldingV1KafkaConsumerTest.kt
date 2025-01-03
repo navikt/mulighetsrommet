@@ -3,14 +3,13 @@ package no.nav.mulighetsrommet.api.refusjon.kafka
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.amt.EndringAarsak
 import no.nav.mulighetsrommet.domain.dto.amt.Melding
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -18,7 +17,7 @@ import no.nav.mulighetsrommet.utils.toUUID
 import java.util.*
 
 class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createArrangorMeldingConsumer() = AmtArrangorMeldingV1KafkaConsumer(
         config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),

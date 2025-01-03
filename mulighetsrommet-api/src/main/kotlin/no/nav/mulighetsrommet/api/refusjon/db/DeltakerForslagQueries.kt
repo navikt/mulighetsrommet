@@ -11,10 +11,9 @@ import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
 import java.util.*
 
-object DeltakerForslagQueries {
+class DeltakerForslagQueries(private val session: Session) {
 
-    context(Session)
-    fun upsert(forslag: DeltakerForslag) {
+    fun upsert(forslag: DeltakerForslag) = with(session) {
         @Language("PostgreSQL")
         val query = """
             insert into deltaker_forslag (
@@ -43,8 +42,7 @@ object DeltakerForslagQueries {
         execute(queryOf(query, params))
     }
 
-    context(Session)
-    fun delete(id: UUID) {
+    fun delete(id: UUID) = with(session) {
         @Language("PostgreSQL")
         val query = """
             delete from deltaker_forslag
@@ -54,8 +52,7 @@ object DeltakerForslagQueries {
         execute(queryOf(query, id))
     }
 
-    context(Session)
-    fun getForslagByGjennomforing(gjennomforingId: UUID): Map<UUID, List<DeltakerForslag>> {
+    fun getForslagByGjennomforing(gjennomforingId: UUID): Map<UUID, List<DeltakerForslag>> = with(session) {
         @Language("PostgreSQL")
         val query = """
         select

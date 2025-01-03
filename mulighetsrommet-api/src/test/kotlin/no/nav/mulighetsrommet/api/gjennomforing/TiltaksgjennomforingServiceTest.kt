@@ -11,6 +11,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.*
+import no.nav.mulighetsrommet.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -20,7 +21,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforinge
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.EndretAv
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
@@ -29,14 +29,14 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 class TiltaksgjennomforingServiceTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer = mockk(relaxed = true)
     val validator = mockk<TiltaksgjennomforingValidator>()
 
     fun createService(
-        notifications: NotificationRepository = NotificationRepository(database.db),
-        endringshistorikk: EndringshistorikkService = EndringshistorikkService(database.db),
+        notifications: NotificationRepository = NotificationRepository(database.db.db),
+        endringshistorikk: EndringshistorikkService = EndringshistorikkService(database.db.db),
     ): TiltaksgjennomforingService = TiltaksgjennomforingService(
         database.db,
         tiltaksgjennomforingKafkaProducer,
@@ -64,7 +64,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     val bertilNavIdent = NavIdent("B123456")
 
     context("Upsert gjennomføring") {
-        val notifications = spyk(NotificationRepository(database.db))
+        val notifications = spyk(NotificationRepository(database.db.db))
         val tiltaksgjennomforingService = createService(notifications)
 
         test("Man skal ikke få lov til å opprette gjennomføring dersom det oppstår valideringsfeil") {
@@ -167,7 +167,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
             every { tiltaksgjennomforingKafkaProducer.publish(any()) } returns Unit
 
-            val endringshistorikk = spyk(EndringshistorikkService(database.db))
+            val endringshistorikk = spyk(EndringshistorikkService(database.db.db))
             val tiltaksgjennomforingService = createService(endringshistorikk = endringshistorikk)
 
             tiltaksgjennomforingService.setAvsluttet(

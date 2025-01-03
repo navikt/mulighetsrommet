@@ -1,12 +1,11 @@
 package no.nav.mulighetsrommet.api.navansatt
 
 import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
@@ -14,7 +13,7 @@ import java.util.*
 
 class NavAnsattService(
     private val roles: List<AdGruppeNavAnsattRolleMapping>,
-    private val db: Database,
+    private val db: ApiDatabase,
     private val microsoftGraphClient: MicrosoftGraphClient,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)

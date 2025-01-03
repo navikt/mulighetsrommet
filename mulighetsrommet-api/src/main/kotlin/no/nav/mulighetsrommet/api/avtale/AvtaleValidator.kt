@@ -4,7 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
@@ -23,7 +22,7 @@ import no.nav.mulighetsrommet.unleash.Toggle
 import no.nav.mulighetsrommet.unleash.UnleashService
 
 class AvtaleValidator(
-    private val db: Database,
+    private val db: ApiDatabase,
     private val tiltakstyper: TiltakstypeService,
     private val navEnheterService: NavEnhetService,
     private val unleash: UnleashService,
@@ -31,9 +30,9 @@ class AvtaleValidator(
     private val opsjonsmodellerUtenValidering =
         listOf(Opsjonsmodell.AVTALE_UTEN_OPSJONSMODELL, Opsjonsmodell.AVTALE_VALGFRI_SLUTTDATO)
 
-    fun validate(avtale: AvtaleDbo, currentAvtale: AvtaleDto?): Either<List<ValidationError>, AvtaleDbo> = db.session {
+    fun validate(avtale: AvtaleDbo, currentAvtale: AvtaleDto?): Either<List<ValidationError>, AvtaleDbo> {
         val tiltakstype = tiltakstyper.getById(avtale.tiltakstypeId)
-            ?: return@session ValidationError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel().left()
+            ?: return ValidationError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel().left()
 
         val errors = buildList {
             if (avtale.navn.length < 5 && currentAvtale?.opphav != ArenaMigrering.Opphav.ARENA) {
@@ -176,7 +175,7 @@ class AvtaleValidator(
             }
         }
 
-        errors.takeIf { it.isNotEmpty() }?.left() ?: avtale.right()
+        return errors.takeIf { it.isNotEmpty() }?.left() ?: avtale.right()
     }
 
     private fun MutableList<ValidationError>.validateCreateAvtale(

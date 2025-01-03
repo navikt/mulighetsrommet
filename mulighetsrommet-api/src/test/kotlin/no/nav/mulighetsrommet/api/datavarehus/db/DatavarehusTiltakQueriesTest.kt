@@ -9,7 +9,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltak
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakAmoDto
@@ -22,7 +22,6 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.GruppeAmo1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.GruppeFagYrke1
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
@@ -35,9 +34,7 @@ import java.util.*
 import kotlin.reflect.full.memberProperties
 
 class DatavarehusTiltakQueriesTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
-
-    val queries = DatavarehusTiltakQueries
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     test("henter relevante data om tiltakstype, avtale, og gjennomføring") {
         val domain = MulighetsrommetTestDomain(
@@ -46,8 +43,10 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             gjennomforinger = listOf(AFT1),
         )
 
-        val tiltak = database.runAndRollback {
-            domain.setup()
+        val tiltak = database.runAndRollback { session ->
+            domain.setup(session)
+
+            val queries = DatavarehusTiltakQueries(session)
 
             queries.getTiltak(AFT1.id)
         }
@@ -81,8 +80,10 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             gjennomforinger = listOf(AFT1),
         )
 
-        val tiltak = database.runAndRollback {
-            domain.setup()
+        val tiltak = database.runAndRollback { session ->
+            domain.setup(session)
+
+            val queries = DatavarehusTiltakQueries(session)
 
             Queries.gjennomforing.updateArenaData(AFT1.id, tiltaksnummer = "2020#1234", arenaAnsvarligEnhet = null)
 
@@ -136,8 +137,10 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
         val table = domain.gjennomforinger.associate { it.id to it.amoKategorisering }.toTable()
 
-        database.runAndRollback {
-            domain.setup()
+        database.runAndRollback { session ->
+            domain.setup(session)
+
+            val queries = DatavarehusTiltakQueries(session)
 
             table.forAll { id, expectedAmoKategorisering ->
                 val tiltak = queries.getTiltak(id)
@@ -200,8 +203,10 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             Queries.gjennomforing.upsert(GruppeFagYrke1.copy(utdanningslop = utdanningslop))
         }
 
-        database.runAndRollback {
-            domain.setup()
+        database.runAndRollback { session ->
+            domain.setup(session)
+
+            val queries = DatavarehusTiltakQueries(session)
 
             val gjennomforing = queries.getTiltak(GruppeFagYrke1.id)
 
@@ -251,8 +256,10 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             gjennomforinger = listOf(GruppeFagYrke1),
         )
 
-        database.runAndRollback {
-            domain.setup()
+        database.runAndRollback { session ->
+            domain.setup(session)
+
+            val queries = DatavarehusTiltakQueries(session)
 
             val gjennomforing = queries.getTiltak(GruppeFagYrke1.id)
 

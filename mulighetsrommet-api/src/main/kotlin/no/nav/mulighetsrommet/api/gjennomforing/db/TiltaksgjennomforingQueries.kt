@@ -4,7 +4,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
-import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
@@ -16,6 +15,7 @@ import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
+import no.nav.mulighetsrommet.api.withTransaction
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
@@ -32,10 +32,9 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-object TiltaksgjennomforingQueries {
+class TiltaksgjennomforingQueries(private val session: Session) {
 
-    context(TransactionalSession)
-    fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo) {
+    fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo) = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
             insert into tiltaksgjennomforing (
@@ -242,7 +241,7 @@ object TiltaksgjennomforingQueries {
             ),
         )
 
-        AmoKategoriseringQueries.upsert(tiltaksgjennomforing)
+        AmoKategoriseringQueries(this).upsert(tiltaksgjennomforing)
 
         execute(queryOf(deleteUtdanningslop, tiltaksgjennomforing.id))
 
@@ -258,8 +257,7 @@ object TiltaksgjennomforingQueries {
         }
     }
 
-    context(Session)
-    fun updateArenaData(id: UUID, tiltaksnummer: String, arenaAnsvarligEnhet: String?) {
+    fun updateArenaData(id: UUID, tiltaksnummer: String, arenaAnsvarligEnhet: String?) = with(session) {
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing set
@@ -272,8 +270,7 @@ object TiltaksgjennomforingQueries {
         execute(queryOf(query, params))
     }
 
-    context(Session)
-    fun get(id: UUID): TiltaksgjennomforingDto? {
+    fun get(id: UUID): TiltaksgjennomforingDto? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -284,8 +281,7 @@ object TiltaksgjennomforingQueries {
         return single(queryOf(query, id)) { it.toTiltaksgjennomforingDto() }
     }
 
-    context(Session)
-    fun getUpdatedAt(id: UUID): LocalDateTime? {
+    fun getUpdatedAt(id: UUID): LocalDateTime? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select updated_at from tiltaksgjennomforing where id = ?::uuid
@@ -294,7 +290,6 @@ object TiltaksgjennomforingQueries {
         return single(queryOf(query, id)) { it.localDateTimeOrNull("updated_at") }
     }
 
-    context(Session)
     fun getAll(
         pagination: Pagination = Pagination.all(),
         search: String? = null,
@@ -309,7 +304,7 @@ object TiltaksgjennomforingQueries {
         administratorNavIdent: NavIdent? = null,
         opphav: ArenaMigrering.Opphav? = null,
         publisert: Boolean? = null,
-    ): PaginatedResult<TiltaksgjennomforingDto> {
+    ): PaginatedResult<TiltaksgjennomforingDto> = with(session) {
         val parameters = mapOf(
             "search" to search?.toFTSPrefixQuery(),
             "search_arrangor" to search?.trim()?.let { "%$it%" },
@@ -371,11 +366,10 @@ object TiltaksgjennomforingQueries {
 
         return queryOf(query, parameters + pagination.parameters)
             .mapPaginated { it.toTiltaksgjennomforingDto() }
-            .runWithSession(this@Session)
+            .runWithSession(this)
     }
 
-    context(Session)
-    fun getGjennomforesInPeriodeUtenRefusjonskrav(periode: RefusjonskravPeriode): List<TiltaksgjennomforingDto> {
+    fun getGjennomforesInPeriodeUtenRefusjonskrav(periode: RefusjonskravPeriode): List<TiltaksgjennomforingDto> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select * from tiltaksgjennomforing_admin_dto_view
@@ -397,8 +391,7 @@ object TiltaksgjennomforingQueries {
         return list(queryOf(query, params)) { it.toTiltaksgjennomforingDto() }
     }
 
-    context(Session)
-    fun delete(id: UUID): Int {
+    fun delete(id: UUID): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
             delete from tiltaksgjennomforing
@@ -408,8 +401,7 @@ object TiltaksgjennomforingQueries {
         return update(queryOf(query, id))
     }
 
-    context(Session)
-    fun setOpphav(id: UUID, opphav: ArenaMigrering.Opphav): Int {
+    fun setOpphav(id: UUID, opphav: ArenaMigrering.Opphav): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing
@@ -420,8 +412,7 @@ object TiltaksgjennomforingQueries {
         return update(queryOf(query, opphav.name, id))
     }
 
-    context(Session)
-    fun setPublisert(id: UUID, publisert: Boolean): Int {
+    fun setPublisert(id: UUID, publisert: Boolean): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
            update tiltaksgjennomforing
@@ -432,8 +423,7 @@ object TiltaksgjennomforingQueries {
         return update(queryOf(query, publisert, id))
     }
 
-    context(Session)
-    fun setApentForPamelding(id: UUID, apentForPamelding: Boolean): Int {
+    fun setApentForPamelding(id: UUID, apentForPamelding: Boolean): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
            update tiltaksgjennomforing
@@ -444,8 +434,7 @@ object TiltaksgjennomforingQueries {
         return update(queryOf(query, apentForPamelding, id))
     }
 
-    context(Session)
-    fun setTilgjengeligForArrangorFraOgMedDato(id: UUID, date: LocalDate): Int {
+    fun setTilgjengeligForArrangorFraOgMedDato(id: UUID, date: LocalDate): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing
@@ -456,8 +445,7 @@ object TiltaksgjennomforingQueries {
         return update(queryOf(query, date, id))
     }
 
-    context(Session)
-    fun setAvtaleId(gjennomforingId: UUID, avtaleId: UUID?): Int {
+    fun setAvtaleId(gjennomforingId: UUID, avtaleId: UUID?): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing
@@ -468,8 +456,7 @@ object TiltaksgjennomforingQueries {
         return update(queryOf(query, avtaleId, gjennomforingId))
     }
 
-    context(Session)
-    fun setAvsluttet(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak?): Int {
+    fun setAvsluttet(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak?): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing
@@ -485,8 +472,7 @@ object TiltaksgjennomforingQueries {
         return update(queryOf(query, params))
     }
 
-    context(Session)
-    fun frikobleKontaktpersonFraGjennomforing(kontaktpersonId: UUID, gjennomforingId: UUID) {
+    fun frikobleKontaktpersonFraGjennomforing(kontaktpersonId: UUID, gjennomforingId: UUID) = with(session) {
         @Language("PostgreSQL")
         val query = """
             delete

@@ -7,10 +7,9 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.database.createTextArray
 import org.intellij.lang.annotations.Language
 
-object NavEnhetQueries {
+class NavEnhetQueries(private val session: Session) {
 
-    context(Session)
-    fun upsert(enhet: NavEnhetDbo) {
+    fun upsert(enhet: NavEnhetDbo) = with(session) {
         @Language("PostgreSQL")
         val query = """
             insert into nav_enhet(navn, enhetsnummer, status, type, overordnet_enhet)
@@ -34,12 +33,11 @@ object NavEnhetQueries {
         execute(queryOf(query, params))
     }
 
-    context(Session)
     fun getAll(
         statuser: List<NavEnhetStatus>? = null,
         typer: List<Norg2Type>? = null,
         overordnetEnhet: String? = null,
-    ): List<NavEnhetDbo> {
+    ): List<NavEnhetDbo> = with(session) {
         val parameters = mapOf(
             "statuser" to statuser?.map { it.name }?.let { createTextArray(it) },
             "typer" to typer?.map { it.name }?.let { createTextArray(it) },
@@ -59,8 +57,7 @@ object NavEnhetQueries {
         return list(queryOf(query, parameters)) { it.toEnhetDbo() }
     }
 
-    context(Session)
-    fun get(enhet: String): NavEnhetDbo? {
+    fun get(enhet: String): NavEnhetDbo? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select navn, enhetsnummer, status, type, overordnet_enhet
@@ -71,8 +68,7 @@ object NavEnhetQueries {
         return single(queryOf(query, enhet)) { it.toEnhetDbo() }
     }
 
-    context(Session)
-    fun deleteWhereEnhetsnummer(enhetsnummerForSletting: List<String>) {
+    fun deleteWhereEnhetsnummer(enhetsnummerForSletting: List<String>) = with(session) {
         val parameters = mapOf(
             "ider" to createTextArray(enhetsnummerForSletting),
         )
@@ -85,8 +81,7 @@ object NavEnhetQueries {
         execute(queryOf(delete, parameters))
     }
 
-    context(Session)
-    fun getKostnadssted(regioner: List<String>): List<NavEnhetDbo> {
+    fun getKostnadssted(regioner: List<String>): List<NavEnhetDbo> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select

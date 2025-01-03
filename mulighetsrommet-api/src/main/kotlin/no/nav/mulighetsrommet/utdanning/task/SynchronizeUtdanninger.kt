@@ -5,8 +5,7 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
-import no.nav.mulighetsrommet.api.Queries
-import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.client.UtdanningNoProgramomraade
@@ -16,7 +15,7 @@ import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramType
 
 class SynchronizeUtdanninger(
     config: Config,
-    private val db: Database,
+    private val db: ApiDatabase,
     private val utdanningClient: UtdanningClient,
 ) {
 

@@ -3,12 +3,12 @@ package no.nav.mulighetsrommet.api.arrangor.db
 import kotlinx.serialization.Serializable
 import kotliquery.Row
 import kotliquery.Session
-import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorTil
 import no.nav.mulighetsrommet.api.arrangor.model.BrregVirksomhetDto
+import no.nav.mulighetsrommet.api.withTransaction
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
@@ -17,11 +17,10 @@ import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
 import java.util.*
 
-object ArrangorQueries {
+class ArrangorQueries(private val session: Session) {
 
     /** Upserter kun enheten og tar ikke hensyn til underenheter */
-    context(Session)
-    fun upsert(arrangor: ArrangorDto) {
+    fun upsert(arrangor: ArrangorDto) = with(session) {
         @Language("PostgreSQL")
         val query = """
             insert into arrangor(id, organisasjonsnummer, navn, overordnet_enhet, slettet_dato, postnummer, poststed)
@@ -52,8 +51,7 @@ object ArrangorQueries {
     }
 
     /** Upserter kun enheten og tar ikke hensyn til underenheter */
-    context(Session)
-    fun upsert(brregVirksomhet: BrregVirksomhetDto) {
+    fun upsert(brregVirksomhet: BrregVirksomhetDto) = with(session) {
         @Language("PostgreSQL")
         val query = """
             insert into arrangor(organisasjonsnummer, navn, overordnet_enhet, slettet_dato, postnummer, poststed)
@@ -79,7 +77,6 @@ object ArrangorQueries {
         execute(queryOf(query, params))
     }
 
-    context(Session)
     fun getAll(
         til: ArrangorTil? = null,
         sok: String? = null,
@@ -88,7 +85,7 @@ object ArrangorQueries {
         utenlandsk: Boolean? = null,
         pagination: Pagination = Pagination.all(),
         sortering: String? = null,
-    ): PaginatedResult<ArrangorDto> {
+    ): PaginatedResult<ArrangorDto> = with(session) {
         val order = when (sortering) {
             "navn-ascending" -> "arrangor.navn asc"
             "navn-descending" -> "arrangor.navn desc"
@@ -132,11 +129,10 @@ object ArrangorQueries {
 
         return queryOf(query, params + pagination.parameters)
             .mapPaginated { it.toVirksomhetDto() }
-            .runWithSession(this@Session)
+            .runWithSession(this)
     }
 
-    context(Session)
-    fun get(orgnr: Organisasjonsnummer): ArrangorDto? {
+    fun get(orgnr: Organisasjonsnummer): ArrangorDto? = with(session) {
         @Language("PostgreSQL")
         val selectHovedenhet = """
             select
@@ -171,8 +167,7 @@ object ArrangorQueries {
         }
     }
 
-    context(Session)
-    fun getById(id: UUID): ArrangorDto {
+    fun getById(id: UUID): ArrangorDto = with(session) {
         @Language("PostgreSQL")
         val query = """
             select
@@ -194,8 +189,7 @@ object ArrangorQueries {
         }
     }
 
-    context(TransactionalSession)
-    fun getHovedenhetById(id: UUID): ArrangorDto {
+    fun getHovedenhetById(id: UUID): ArrangorDto = withTransaction(session) {
         val arrangor = getById(id)
 
         @Language("PostgreSQL")
@@ -220,8 +214,7 @@ object ArrangorQueries {
         return arrangor.copy(underenheter = underenheter)
     }
 
-    context(Session)
-    fun delete(orgnr: String) {
+    fun delete(orgnr: String) = with(session) {
         @Language("PostgreSQL")
         val query = """
             delete from arrangor where organisasjonsnummer = ?
@@ -230,8 +223,7 @@ object ArrangorQueries {
         execute(queryOf(query, orgnr))
     }
 
-    context(Session)
-    fun upsertKontaktperson(kontaktperson: ArrangorKontaktperson) {
+    fun upsertKontaktperson(kontaktperson: ArrangorKontaktperson) = with(session) {
         @Language("PostgreSQL")
         val query = """
             insert into arrangor_kontaktperson(id, arrangor_id, navn, telefon, epost, beskrivelse, ansvarlig_for)
@@ -260,8 +252,7 @@ object ArrangorQueries {
         execute(queryOf(query, params))
     }
 
-    context(Session)
-    fun koblingerTilKontaktperson(kontaktpersonId: UUID): Pair<List<DokumentKoblingForKontaktperson>, List<DokumentKoblingForKontaktperson>> {
+    fun koblingerTilKontaktperson(kontaktpersonId: UUID): Pair<List<DokumentKoblingForKontaktperson>, List<DokumentKoblingForKontaktperson>> = with(session) {
         @Language("PostgreSQL")
         val gjennomforingQuery = """
             select tg.navn, tg.id
@@ -287,8 +278,7 @@ object ArrangorQueries {
         return gjennomforinger to avtaler
     }
 
-    context(Session)
-    fun deleteKontaktperson(id: UUID) {
+    fun deleteKontaktperson(id: UUID) = with(session) {
         @Language("PostgreSQL")
         val query = """
             delete from arrangor_kontaktperson where id = ?
@@ -297,8 +287,7 @@ object ArrangorQueries {
         execute(queryOf(query, id))
     }
 
-    context(Session)
-    fun getKontaktpersoner(arrangorId: UUID): List<ArrangorKontaktperson> {
+    fun getKontaktpersoner(arrangorId: UUID): List<ArrangorKontaktperson> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select

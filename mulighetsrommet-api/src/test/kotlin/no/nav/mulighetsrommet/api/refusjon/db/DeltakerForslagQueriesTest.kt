@@ -36,11 +36,11 @@ class DeltakerForslagQueriesTest : FunSpec({
         deltakere = listOf(deltaker),
     )
 
-    val queries = DeltakerForslagQueries
-
     test("crud") {
-        database.runAndRollback {
-            domain.setup()
+        database.runAndRollback { session ->
+            domain.setup(session)
+
+            val queries = DeltakerForslagQueries(session)
 
             val forslag = DeltakerForslag(
                 id = UUID.randomUUID(),

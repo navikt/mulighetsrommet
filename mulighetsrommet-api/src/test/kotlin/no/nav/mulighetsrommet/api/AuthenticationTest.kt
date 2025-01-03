@@ -222,7 +222,7 @@ class AuthenticationTest : FunSpec({
             insert into altinn_person_rettighet (norsk_ident, organisasjonsnummer, rettighet, expiry)
             values('$personMedRettighet', '123456789', 'TILTAK_ARRANGOR_REFUSJON', '3000-01-01') on conflict do nothing;
         """.trimIndent()
-        database.run { execute(queryOf(query)) }
+        database.run { it.execute(queryOf(query)) }
 
         val requestWithoutBearerToken = { _: HttpRequestBuilder -> }
         val requestWithWrongAudience = { request: HttpRequestBuilder ->

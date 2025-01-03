@@ -4,8 +4,8 @@ import arrow.core.Either
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import kotliquery.TransactionalSession
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
@@ -17,7 +17,7 @@ import no.nav.mulighetsrommet.api.routes.v1.EksternTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.services.DocumentClass
 import no.nav.mulighetsrommet.api.services.EndretAv
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
-import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.api.withTransaction
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
@@ -33,7 +33,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingService(
-    private val db: Database,
+    private val db: ApiDatabase,
     private val tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
     private val notificationRepository: NotificationRepository,
     private val validator: TiltaksgjennomforingValidator,
@@ -218,12 +218,12 @@ class TiltaksgjennomforingService(
         )
     }
 
-    private fun TransactionalSession.getOrError(id: UUID): TiltaksgjennomforingDto {
+    private fun QueryContext.getOrError(id: UUID): TiltaksgjennomforingDto {
         val gjennomforing = Queries.gjennomforing.get(id)
         return requireNotNull(gjennomforing) { "Gjennomføringen med id=$id finnes ikke" }
     }
 
-    private fun TransactionalSession.dispatchNotificationToNewAdministrators(
+    private fun QueryContext.dispatchNotificationToNewAdministrators(
         dbo: TiltaksgjennomforingDbo,
         navIdent: NavIdent,
     ) {
@@ -239,16 +239,16 @@ class TiltaksgjennomforingService(
             targets = administratorsToNotify,
             createdAt = Instant.now(),
         )
-        notificationRepository.insert(notification, this@TransactionalSession)
+        notificationRepository.insert(notification, session)
     }
 
-    private fun TransactionalSession.logEndring(
+    private fun QueryContext.logEndring(
         operation: String,
         dto: TiltaksgjennomforingDto,
         endretAv: EndretAv,
-    ) {
+    ) = withTransaction(session) {
         documentHistoryService.logEndring(
-            this@TransactionalSession,
+            this,
             DocumentClass.TILTAKSGJENNOMFORING,
             operation,
             endretAv,

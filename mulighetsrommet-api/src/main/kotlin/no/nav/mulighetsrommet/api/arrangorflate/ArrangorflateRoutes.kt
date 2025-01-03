@@ -9,7 +9,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.Queries
+import kotliquery.TransactionalSession
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravAft
@@ -31,7 +32,6 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
@@ -52,7 +52,7 @@ fun Route.arrangorflateRoutes() {
     val arrangorService: ArrangorService by inject()
     val pdl: HentAdressebeskyttetPersonBolkPdlQuery by inject()
     val journalforRefusjonskrav: JournalforRefusjonskrav by inject()
-    val db: Database by inject()
+    val db: ApiDatabase by inject()
     val pdfClient: PdfGenClient by inject()
 
     suspend fun RoutingContext.arrangorerMedTilgang(): List<ArrangorDto> = db.session {
@@ -171,7 +171,7 @@ fun Route.arrangorflateRoutes() {
                         request.betalingsinformasjon.kontonummer,
                         request.betalingsinformasjon.kid,
                     )
-                    journalforRefusjonskrav.schedule(krav.id, Instant.now(), this)
+                    journalforRefusjonskrav.schedule(krav.id, Instant.now(), session as TransactionalSession)
                 }
 
                 call.respond(HttpStatusCode.OK)
@@ -315,7 +315,7 @@ fun validerGodkjennRefusjonskrav(
 }
 
 suspend fun toRefusjonskrav(
-    db: Database,
+    db: ApiDatabase,
     pdl: HentAdressebeskyttetPersonBolkPdlQuery,
     krav: RefusjonskravDto,
 ): ArrFlateRefusjonKravAft = when (val beregning = krav.beregning) {

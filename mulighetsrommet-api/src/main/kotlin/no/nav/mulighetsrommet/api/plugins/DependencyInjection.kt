@@ -11,6 +11,7 @@ import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.altinn.db.AltinnRettigheterRepository
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.TaskConfig
@@ -125,9 +126,11 @@ fun slack(slack: SlackConfig): Module = module(createdAtStart = true) {
 }
 
 private fun db(config: DatabaseConfig) = module {
+    val database = Database(config)
     single<Database>(createdAtStart = true) {
-        Database(config)
+        database
     }
+    single<ApiDatabase> { ApiDatabase(database) }
 }
 
 private fun kafka(appConfig: AppConfig) = module {

@@ -3,11 +3,10 @@ package no.nav.mulighetsrommet.api.refusjon.kafka
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.refusjon.RefusjonService
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
@@ -24,7 +23,7 @@ import java.util.*
 class AmtDeltakerV1KafkaConsumer(
     config: Config,
     private val relevantDeltakerSluttDatoPeriod: Period = Period.ofMonths(3),
-    private val db: Database,
+    private val db: ApiDatabase,
     private val tiltakstyper: TiltakstypeService,
     private val refusjonService: RefusjonService,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
@@ -34,7 +33,7 @@ class AmtDeltakerV1KafkaConsumer(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    override suspend fun consume(key: UUID, message: JsonElement) = db.tx {
+    override suspend fun consume(key: UUID, message: JsonElement): Unit = db.tx {
         logger.info("Konsumerer deltaker med id=$key")
 
         val deltaker = JsonIgnoreUnknownKeys.decodeFromJsonElement<AmtDeltakerV1Dto?>(message)

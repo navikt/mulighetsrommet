@@ -9,10 +9,9 @@ import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.intellij.lang.annotations.Language
 import java.util.*
 
-object OpsjonLoggQueries {
+class OpsjonLoggQueries(private val session: Session) {
 
-    context(Session)
-    fun insert(entry: OpsjonLoggEntry) {
+    fun insert(entry: OpsjonLoggEntry) = with(session) {
         @Language("PostgreSQL")
         val query = """
             insert into avtale_opsjon_logg(avtale_id, sluttdato, forrige_sluttdato, status, registrert_av)
@@ -30,8 +29,7 @@ object OpsjonLoggQueries {
         execute(queryOf(query, params))
     }
 
-    context(Session)
-    fun delete(opsjonLoggEntryId: UUID) {
+    fun delete(opsjonLoggEntryId: UUID) = with(session) {
         @Language("PostgreSQL")
         val deleteOpsjonLoggEntryQuery = """
             delete from avtale_opsjon_logg where id = ?
@@ -40,8 +38,7 @@ object OpsjonLoggQueries {
         execute(queryOf(deleteOpsjonLoggEntryQuery, opsjonLoggEntryId))
     }
 
-    context(Session)
-    fun get(avtaleId: UUID): List<OpsjonLoggEntry> {
+    fun get(avtaleId: UUID): List<OpsjonLoggEntry> = with(session) {
         @Language("PostgreSQL")
         val getSisteOpsjonerQuery = """
             select *

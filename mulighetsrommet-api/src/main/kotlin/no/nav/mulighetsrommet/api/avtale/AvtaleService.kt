@@ -4,8 +4,8 @@ import arrow.core.*
 import arrow.core.raise.either
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import kotliquery.TransactionalSession
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.api.services.DocumentClass
 import no.nav.mulighetsrommet.api.services.EndretAv
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
-import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.api.withTransaction
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.notifications.NotificationRepository
@@ -28,7 +28,7 @@ import java.time.temporal.ChronoUnit
 import java.util.*
 
 class AvtaleService(
-    private val db: Database,
+    private val db: ApiDatabase,
     private val arrangorService: ArrangorService,
     private val notificationRepository: NotificationRepository,
     private val validator: AvtaleValidator,
@@ -184,7 +184,7 @@ class AvtaleService(
         )
     }
 
-    private suspend fun TransactionalSession.syncArrangorerFromBrreg(
+    private suspend fun QueryContext.syncArrangorerFromBrreg(
         request: AvtaleRequest,
     ): Either<List<ValidationError>, Pair<ArrangorDto, List<ArrangorDto>>> = either {
         val arrangor = syncArrangorFromBrreg(request.arrangorOrganisasjonsnummer).bind()
@@ -205,15 +205,15 @@ class AvtaleService(
             ).nel()
         }
 
-    private fun TransactionalSession.getOrError(id: UUID): AvtaleDto {
+    private fun QueryContext.getOrError(id: UUID): AvtaleDto {
         val dto = Queries.avtale.get(id)
         return requireNotNull(dto) { "Avtale med id=$id finnes ikke" }
     }
 
-    private fun TransactionalSession.dispatchNotificationToNewAdministrators(
+    private fun QueryContext.dispatchNotificationToNewAdministrators(
         dbo: AvtaleDbo,
         navIdent: NavIdent,
-    ) {
+    ) = withTransaction(session) {
         val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
 
         val administratorsToNotify =
@@ -225,16 +225,16 @@ class AvtaleService(
             targets = administratorsToNotify,
             createdAt = Instant.now(),
         )
-        notificationRepository.insert(notification, this@TransactionalSession)
+        notificationRepository.insert(notification, this)
     }
 
-    private fun TransactionalSession.logEndring(
+    private fun QueryContext.logEndring(
         operation: String,
         dto: AvtaleDto,
         endretAv: EndretAv.NavAnsatt,
-    ) {
+    ) = withTransaction(session) {
         endringshistorikkService.logEndring(
-            this@TransactionalSession,
+            this,
             DocumentClass.AVTALE,
             operation,
             endretAv,

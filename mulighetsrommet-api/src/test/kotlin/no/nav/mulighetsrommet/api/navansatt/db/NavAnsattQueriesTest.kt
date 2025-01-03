@@ -1,12 +1,11 @@
+package no.nav.mulighetsrommet.api.navansatt.db
+
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattQueries
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
@@ -16,8 +15,6 @@ import java.util.*
 
 class NavAnsattQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
-
-    val queries = NavAnsattQueries
 
     context("NavAnsattQueries") {
         val enhet1 = NavEnhetDbo(
@@ -97,7 +94,9 @@ class NavAnsattQueriesTest : FunSpec({
         )
 
         test("CRUD") {
-            database.runAndRollback {
+            database.runAndRollback { session ->
+                val queries = NavAnsattQueries(session)
+
                 queries.upsert(ansatt1)
 
                 queries.getByAzureId(ansatt1.azureId) shouldBe toDto(ansatt1, enhet1)
@@ -111,7 +110,9 @@ class NavAnsattQueriesTest : FunSpec({
         }
 
         test("hent ansatte gitt rolle") {
-            database.runAndRollback {
+            database.runAndRollback { session ->
+                val queries = NavAnsattQueries(session)
+
                 queries.upsert(ansatt1)
                 queries.upsert(ansatt2)
                 queries.upsert(ansatt3)
@@ -137,7 +138,9 @@ class NavAnsattQueriesTest : FunSpec({
         }
 
         test("hent ansatte gitt hovedenhet") {
-            database.runAndRollback {
+            database.runAndRollback { session ->
+                val queries = NavAnsattQueries(session)
+
                 queries.upsert(ansatt1)
                 queries.upsert(ansatt2)
                 queries.upsert(ansatt3)

@@ -11,10 +11,9 @@ import no.nav.mulighetsrommet.domain.dto.*
 import org.intellij.lang.annotations.Language
 import java.util.*
 
-object TiltakstypeQueries {
+class TiltakstypeQueries(private val session: Session) {
 
-    context(Session)
-    fun upsert(tiltakstype: TiltakstypeDbo) {
+    fun upsert(tiltakstype: TiltakstypeDbo) = with(session) {
         @Language("PostgreSQL")
         val query = """
             insert into tiltakstype (
@@ -44,8 +43,7 @@ object TiltakstypeQueries {
         execute(queryOf(query, tiltakstype.toSqlParameters()))
     }
 
-    context(Session)
-    fun get(id: UUID): TiltakstypeDto? {
+    fun get(id: UUID): TiltakstypeDto? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -56,8 +54,7 @@ object TiltakstypeQueries {
         return single(queryOf(query, id)) { it.toTiltakstypeDto() }
     }
 
-    context(Session)
-    fun getEksternTiltakstype(id: UUID): TiltakstypeEksternV2Dto? {
+    fun getEksternTiltakstype(id: UUID): TiltakstypeEksternV2Dto? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select id, navn, tiltakskode, arena_kode, innsatsgrupper, created_at, updated_at
@@ -70,8 +67,7 @@ object TiltakstypeQueries {
         return single(queryOf(query, id)) { it.tiltakstypeEksternDto(deltakerRegistreringInnhold) }
     }
 
-    context(Session)
-    fun getByTiltakskode(tiltakskode: Tiltakskode): TiltakstypeDto {
+    fun getByTiltakskode(tiltakskode: Tiltakskode): TiltakstypeDto = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -86,8 +82,7 @@ object TiltakstypeQueries {
         }
     }
 
-    context(Session)
-    fun getByArenaTiltakskode(arenaTiltakskode: String): TiltakstypeDto {
+    fun getByArenaTiltakskode(arenaTiltakskode: String): TiltakstypeDto = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -102,8 +97,7 @@ object TiltakstypeQueries {
         }
     }
 
-    context(Session)
-    fun getBySanityId(sanityId: UUID): TiltakstypeDto {
+    fun getBySanityId(sanityId: UUID): TiltakstypeDto = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -118,8 +112,7 @@ object TiltakstypeQueries {
         }
     }
 
-    context(Session)
-    fun getByGjennomforingId(gjennomforingId: UUID): TiltakstypeDto {
+    fun getByGjennomforingId(gjennomforingId: UUID): TiltakstypeDto = with(session) {
         @Language("PostgreSQL")
         val query = """
             select t.*
@@ -135,8 +128,7 @@ object TiltakstypeQueries {
         }
     }
 
-    context(Session)
-    fun getAll(): List<TiltakstypeDto> {
+    fun getAll(): List<TiltakstypeDto> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *, count(*) over() as total_count
@@ -147,11 +139,10 @@ object TiltakstypeQueries {
         return list(Query(query)) { it.toTiltakstypeDto() }
     }
 
-    context(Session)
     fun getAllSkalMigreres(
         statuser: List<TiltakstypeStatus> = emptyList(),
         sortering: String? = null,
-    ): List<TiltakstypeDto> {
+    ): List<TiltakstypeDto> = with(session) {
         val parameters = mapOf(
             "statuser" to statuser.ifEmpty { null }?.let { createTextArray(statuser) },
         )
@@ -178,8 +169,7 @@ object TiltakstypeQueries {
         return list(queryOf(query, parameters)) { it.toTiltakstypeDto() }
     }
 
-    context(Session)
-    private fun getDeltakerregistreringInnhold(id: UUID): DeltakerRegistreringInnholdDto? {
+    private fun getDeltakerregistreringInnhold(id: UUID): DeltakerRegistreringInnholdDto? = with(session) {
         @Language("PostgreSQL")
         val query = """
            select tiltakstype.deltaker_registrering_ledetekst, element.innholdskode, element.tekst
@@ -210,8 +200,7 @@ object TiltakstypeQueries {
         )
     }
 
-    context(Session)
-    fun delete(id: UUID): Int {
+    fun delete(id: UUID): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
             delete

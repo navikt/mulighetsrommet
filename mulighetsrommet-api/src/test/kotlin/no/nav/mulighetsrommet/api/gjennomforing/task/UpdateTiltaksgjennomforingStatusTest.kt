@@ -7,7 +7,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifyAll
-import no.nav.mulighetsrommet.api.Queries
+import no.nav.mulighetsrommet.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus.*
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
@@ -24,16 +23,16 @@ import java.time.LocalDate
 import java.util.*
 
 class UpdateTiltaksgjennomforingStatusTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createTask(
         producer: SisteTiltaksgjennomforingerV1KafkaProducer = mockk(relaxed = true),
     ) = UpdateTiltaksgjennomforingStatus(
-        database.db,
+        database.db.db,
         TiltaksgjennomforingService(
             db = database.db,
             tiltaksgjennomforingKafkaProducer = producer,
-            notificationRepository = NotificationRepository(database.db),
+            notificationRepository = NotificationRepository(database.db.db),
             validator = mockk(relaxed = true),
             documentHistoryService = mockk(relaxed = true),
             navAnsattService = mockk(relaxed = true),
@@ -68,13 +67,13 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
 
         beforeEach {
             database.run {
-                domain.setup()
+                domain.setup(it)
             }
         }
 
         afterEach {
             database.run {
-                domain.teardown()
+                domain.teardown(it)
             }
         }
 
@@ -222,13 +221,13 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
 
         beforeEach {
             database.run {
-                domain.setup()
+                domain.setup(it)
             }
         }
 
         afterEach {
             database.run {
-                domain.teardown()
+                domain.teardown(it)
             }
         }
 

@@ -10,10 +10,9 @@ import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.*
 
-object NavAnsattQueries {
+class NavAnsattQueries(private val session: Session) {
 
-    context(Session)
-    fun upsert(ansatt: NavAnsattDbo) {
+    fun upsert(ansatt: NavAnsattDbo) = with(session) {
         @Language("PostgreSQL")
         val query = """
             insert into nav_ansatt(nav_ident, fornavn, etternavn, hovedenhet, azure_id, mobilnummer, epost, roller, skal_slettes_dato)
@@ -44,12 +43,11 @@ object NavAnsattQueries {
         execute(queryOf(query, params))
     }
 
-    context(Session)
     fun getAll(
         roller: List<NavAnsattRolle>? = null,
         hovedenhetIn: List<String>? = null,
         skalSlettesDatoLte: LocalDate? = null,
-    ): List<NavAnsattDto> {
+    ): List<NavAnsattDto> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select nav_ident,
@@ -79,8 +77,7 @@ object NavAnsattQueries {
         return list(queryOf(query, params)) { it.toNavAnsattDto() }
     }
 
-    context(Session)
-    fun getByNavIdent(navIdent: NavIdent): NavAnsattDto? {
+    fun getByNavIdent(navIdent: NavIdent): NavAnsattDto? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select nav_ident,
@@ -101,8 +98,7 @@ object NavAnsattQueries {
         return single(queryOf(query, navIdent.value)) { it.toNavAnsattDto() }
     }
 
-    context(Session)
-    fun getByAzureId(azureId: UUID): NavAnsattDto? {
+    fun getByAzureId(azureId: UUID): NavAnsattDto? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select nav_ident,
@@ -123,8 +119,7 @@ object NavAnsattQueries {
         return single(queryOf(query, azureId)) { it.toNavAnsattDto() }
     }
 
-    context(Session)
-    fun deleteByAzureId(azureId: UUID): Int {
+    fun deleteByAzureId(azureId: UUID): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
             delete from nav_ansatt
