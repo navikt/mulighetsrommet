@@ -36,7 +36,7 @@ class FlywayDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpe
     }
 
     override suspend fun afterSpec(spec: Spec) {
-        delegate?.truncateAll()
+        truncateAll()
         delegate?.close()
     }
 
@@ -44,15 +44,15 @@ class FlywayDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpe
         val table = Table(db.getDatasource(), tableName)
         return Assertions.assertThat(table)
     }
-}
 
-fun Database.truncateAll() {
-    val tableNames =
-        queryOf("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'")
-            .map { it.string("table_name") }
-            .asList
-            .let { run(it) }
-    tableNames.forEach {
-        run(queryOf("truncate table $it restart identity cascade").asExecute)
+    fun truncateAll() {
+        val tableNames =
+            queryOf("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'")
+                .map { it.string("table_name") }
+                .asList
+                .let { db.run(it) }
+        tableNames.forEach {
+            db.run(queryOf("truncate table $it restart identity cascade").asExecute)
+        }
     }
 }

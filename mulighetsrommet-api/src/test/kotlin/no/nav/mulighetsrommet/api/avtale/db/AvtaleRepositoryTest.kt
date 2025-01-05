@@ -33,7 +33,6 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetRepository
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
@@ -78,7 +77,7 @@ class AvtaleRepositoryTest : FunSpec({
         }
 
         afterEach {
-            database.db.truncateAll()
+            database.truncateAll()
         }
 
         test("Upsert av Arena-avtaler") {
@@ -331,7 +330,7 @@ class AvtaleRepositoryTest : FunSpec({
         }
 
         afterEach {
-            database.db.truncateAll()
+            database.truncateAll()
         }
 
         test("fritekstsøk på avtalenavn og avtalenummer") {
@@ -748,7 +747,7 @@ class AvtaleRepositoryTest : FunSpec({
         }
 
         afterEach {
-            database.db.truncateAll()
+            database.truncateAll()
         }
 
         test("Sortering på navn fra a-å sorterer korrekt med æøå til slutt") {

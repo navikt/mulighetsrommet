@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -21,7 +20,7 @@ class TiltakEventProcessorTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     afterEach {
-        database.db.truncateAll()
+        database.truncateAll()
     }
 
     context("handleEvent") {

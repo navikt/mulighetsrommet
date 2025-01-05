@@ -7,14 +7,13 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import org.intellij.lang.annotations.Language
 
 class NavEnhetRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     beforeEach {
-        database.db.truncateAll()
+        database.truncateAll()
     }
 
     fun createEnhet(
