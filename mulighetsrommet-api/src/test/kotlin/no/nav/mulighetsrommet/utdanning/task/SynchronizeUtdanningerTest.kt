@@ -15,10 +15,6 @@ class SynchronizeUtdanningerTest : FunSpec({
 
     val utdanningClient: UtdanningClient = mockk(relaxed = true)
 
-    afterTest {
-        database.truncateAll()
-    }
-
     fun createTask() = SynchronizeUtdanninger(
         db = database.db,
         utdanningClient = utdanningClient,
