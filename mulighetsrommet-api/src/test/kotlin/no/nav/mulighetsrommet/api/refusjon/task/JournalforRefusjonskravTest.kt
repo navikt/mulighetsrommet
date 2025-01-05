@@ -86,7 +86,6 @@ class JournalforRefusjonskravTest : FunSpec({
     )
 
     beforeEach {
-        database.truncateAll()
         domain.initialize(database.db)
     }
 

@@ -130,7 +130,6 @@ class ArrangorflateRoutesTest : FunSpec({
     }
 
     beforeEach {
-        database.truncateAll()
         domain.initialize(database.db)
     }
 
