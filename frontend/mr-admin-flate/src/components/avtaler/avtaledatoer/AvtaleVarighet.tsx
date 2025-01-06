@@ -61,9 +61,6 @@ export function AvtaleVarighet({
     }
   }, [antallOpsjonerUtlost, opsjonsmodell, startDato, sluttDatoFraDato, setValue]);
 
-  const maksVarighetAar = opsjonsmodell?.maksVarighetAar ?? 5;
-  const maksVarighetDato = kalkulerMaksDato(new Date(startDato!), maksVarighetAar);
-
   const gjeldendeOpsjonsmodeller = hentModeller(avtaletype);
 
   return (
@@ -129,7 +126,7 @@ export function AvtaleVarighet({
             label={avtaletekster.sluttdatoLabel(false)}
             readOnly={readonly}
             fromDate={sluttDatoFraDato}
-            toDate={maksVarighetDato}
+            toDate={sluttDatoTilDato}
             {...register("startOgSluttDato.sluttDato")}
             format={"iso-string"}
             invalidDatoEtterPeriode={`Avtaleperioden kan ikke vare lenger enn ${maksAar} år`}
@@ -139,7 +136,7 @@ export function AvtaleVarighet({
             label={avtaletekster.maksVarighetLabel}
             readOnly={readonly}
             fromDate={sluttDatoFraDato}
-            toDate={maksVarighetDato}
+            toDate={sluttDatoTilDato}
             {...register("opsjonsmodellData.opsjonMaksVarighet")}
             format={"iso-string"}
           />
