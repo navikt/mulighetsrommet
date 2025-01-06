@@ -21,6 +21,8 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.Prismodell
 import no.nav.mulighetsrommet.domain.dto.allowedAvtaletypes
+import no.nav.mulighetsrommet.unleash.Toggle
+import no.nav.mulighetsrommet.unleash.UnleashService
 
 class AvtaleValidator(
     private val tiltakstyper: TiltakstypeService,
