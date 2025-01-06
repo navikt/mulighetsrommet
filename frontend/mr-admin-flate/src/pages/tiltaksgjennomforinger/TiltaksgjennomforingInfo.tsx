@@ -1,7 +1,7 @@
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
 import { InfoContainer } from "@/components/skjema/InfoContainer";
-import { InlineErrorBoundary } from "@mr/frontend-common";
+import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { useLoaderData } from "react-router";

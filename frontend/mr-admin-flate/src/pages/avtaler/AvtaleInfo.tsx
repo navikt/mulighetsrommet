@@ -3,7 +3,7 @@ import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
 import { InfoContainer } from "@/components/skjema/InfoContainer";
 import { Toggles } from "@mr/api-client";
-import { InlineErrorBoundary } from "@mr/frontend-common";
+import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { useLoaderData } from "react-router";

@@ -15,7 +15,7 @@ import {
   Tiltakskode,
   ValidationErrorResponse,
 } from "@mr/api-client";
-import { InlineErrorBoundary } from "@mr/frontend-common";
+import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { isValidationError } from "@mr/frontend-common/utils/utils";
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";

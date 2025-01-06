@@ -23,7 +23,7 @@ import {
   Toggles,
   VeilederflateTiltakstype,
 } from "@mr/api-client";
-import { InlineErrorBoundary, TilbakemeldingsLenke, useTitle } from "@mr/frontend-common";
+import { TilbakemeldingsLenke, useTitle } from "@mr/frontend-common";
 import { Chat2Icon } from "@navikt/aksel-icons";
 import { Alert, Button } from "@navikt/ds-react";
 import { useAtomValue } from "jotai";
@@ -37,6 +37,7 @@ import { VisibleWhenToggledOn } from "@/components/toggles/VisibleWhenToggledOn"
 import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import { PameldingKometApnerSnart } from "../pamelding/PameldingKometApnerSnart";
+import { ArbeidsmarkedstiltakErrorBoundary } from "@/ErrorBoundary";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -147,9 +148,9 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
             )}
 
             {isTiltakGruppe(tiltak) && tiltak.personvernBekreftet ? (
-              <InlineErrorBoundary>
+              <ArbeidsmarkedstiltakErrorBoundary>
                 <PersonvernContainer tiltak={tiltak} />
-              </InlineErrorBoundary>
+              </ArbeidsmarkedstiltakErrorBoundary>
             ) : null}
 
             <LenkeListe lenker={tiltak.faneinnhold?.lenker} />

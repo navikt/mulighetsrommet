@@ -3,7 +3,6 @@ import classNames from "classnames";
 import { Filter } from "../filter/Filter";
 import { ToolbarButtonRow } from "../toolbar/toolbarButtonRow/ToolbarButtonRow";
 import styles from "./FilterAndTableLayout.module.scss";
-import { InlineErrorBoundary } from "../error-handling/ErrorBoundary";
 import { OversiktSkeleton } from "../skeleton/OversiktSkeleton";
 import { FilterContainer } from "../filter/FilterContainer";
 
@@ -35,29 +34,23 @@ export function FilterAndTableLayout({
           setFilterOpen={setFilterOpen}
           filterOpen={filterOpen}
           filterTab={
-            <InlineErrorBoundary>
-              <FilterContainer title="Filter" onClose={() => setFilterOpen(false)}>
-                {filter}
-              </FilterContainer>
-            </InlineErrorBoundary>
+            <FilterContainer title="Filter" onClose={() => setFilterOpen(false)}>
+              {filter}
+            </FilterContainer>
           }
           lagredeFilterTab={
             lagredeFilter ? (
-              <InlineErrorBoundary>
-                <FilterContainer title="Lagrede filter" onClose={() => setFilterOpen(false)}>
-                  {lagredeFilter}
-                </FilterContainer>
-              </InlineErrorBoundary>
+              <FilterContainer title="Lagrede filter" onClose={() => setFilterOpen(false)}>
+                {lagredeFilter}
+              </FilterContainer>
             ) : null
           }
         />
 
-        <InlineErrorBoundary>
-          <ToolbarButtonRow>
-            <div className={styles.button_row_left}>{nullstillFilterButton}</div>
-            <div className={styles.button_row_right}>{buttons}</div>
-          </ToolbarButtonRow>
-        </InlineErrorBoundary>
+        <ToolbarButtonRow>
+          <div className={styles.button_row_left}>{nullstillFilterButton}</div>
+          <div className={styles.button_row_right}>{buttons}</div>
+        </ToolbarButtonRow>
 
         <div
           className={classNames(
@@ -65,10 +58,8 @@ export function FilterAndTableLayout({
             !filterOpen && styles.tags_and_table_container_filter_hidden,
           )}
         >
-          <InlineErrorBoundary>
-            {tags}
-            {table}
-          </InlineErrorBoundary>
+          {tags}
+          {table}
         </div>
       </div>
     </Suspense>

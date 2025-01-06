@@ -7,7 +7,7 @@ import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { ViewTiltakDetaljer } from "@/layouts/ViewTiltakDetaljer";
 import { Alert } from "@navikt/ds-react";
 import { Innsatsgruppe, NavEnhetStatus, NavEnhetType } from "@mr/api-client";
-import { InlineErrorBoundary } from "@/ErrorBoundary";
+import { ArbeidsmarkedstiltakErrorBoundary } from "@/ErrorBoundary";
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
 
@@ -50,9 +50,9 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
               }}
             />
             {isTiltakGruppe(tiltak) && tiltak.personvernBekreftet ? (
-              <InlineErrorBoundary>
+              <ArbeidsmarkedstiltakErrorBoundary>
                 <PersonvernContainer tiltak={tiltak} />
-              </InlineErrorBoundary>
+              </ArbeidsmarkedstiltakErrorBoundary>
             ) : null}
             <LenkeListe lenker={tiltak.faneinnhold?.lenker} />
           </>
