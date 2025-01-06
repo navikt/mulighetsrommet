@@ -21,6 +21,8 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.Prismodell
 import no.nav.mulighetsrommet.domain.dto.allowedAvtaletypes
+import no.nav.mulighetsrommet.unleash.Toggle
+import no.nav.mulighetsrommet.unleash.UnleashService
 
 class AvtaleValidator(
     private val tiltakstyper: TiltakstypeService,
@@ -28,6 +30,7 @@ class AvtaleValidator(
     private val navEnheterService: NavEnhetService,
     private val arrangorer: ArrangorRepository,
     private val navAnsatte: NavAnsattRepository,
+    private val unleash: UnleashService,
 ) {
     private val opsjonsmodellerUtenValidering =
         listOf(Opsjonsmodell.AVTALE_UTEN_OPSJONSMODELL, Opsjonsmodell.AVTALE_VALGFRI_SLUTTDATO)
@@ -121,22 +124,21 @@ class AvtaleValidator(
                 }
             }
 
-            if (avtale.prismodell != null) {
-                if (avtale.avtaletype == Avtaletype.Forhaandsgodkjent && avtale.prismodell != Prismodell.FORHANDSGODKJENT) {
-                    add(
-                        ValidationError.of(
-                            AvtaleDbo::prismodell,
-                            "Prismodellen må være forhåndsgodkjent",
-                        ),
-                    )
+            if (unleash.isEnabledForTiltakstype(Toggle.MIGRERING_OKONOMI, tiltakstype.tiltakskode!!)) {
+                if (avtale.prismodell == null) {
+                    add(ValidationError.of(AvtaleDbo::prismodell, "Du må velge en prismodell"))
+                } else if (avtale.avtaletype == Avtaletype.Forhaandsgodkjent && avtale.prismodell != Prismodell.FORHANDSGODKJENT) {
+                    add(ValidationError.of(AvtaleDbo::prismodell, "Prismodellen må være forhåndsgodkjent"))
                 } else if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && avtale.prismodell == Prismodell.FORHANDSGODKJENT) {
-                    add(
-                        ValidationError.of(
-                            AvtaleDbo::prismodell,
-                            "Prismodellen kan ikke være forhåndsgodkjent",
-                        ),
-                    )
+                    add(ValidationError.of(AvtaleDbo::prismodell, "Prismodellen kan ikke være forhåndsgodkjent"))
                 }
+            } else if (avtale.prismodell != null) {
+                add(
+                    ValidationError.of(
+                        AvtaleDbo::prismodell,
+                        "Prismodell kan foreløpig ikke velges for tiltakstypen ${tiltakstype.tiltakskode}",
+                    ),
+                )
             }
 
             if (tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING && avtale.amoKategorisering == null) {

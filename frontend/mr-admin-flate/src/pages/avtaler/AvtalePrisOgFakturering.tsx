@@ -1,7 +1,7 @@
 import { Alert, HStack, Select, TextField, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
-import { EmbeddedTiltakstype, Prismodell, Tiltakskode } from "@mr/api-client";
+import { Avtaletype, EmbeddedTiltakstype, Prismodell, Tiltakskode } from "@mr/api-client";
 import { DetaljerContainer } from "@/pages/DetaljerContainer";
 import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
 import { Metadata } from "@/components/detaljside/Metadata";
@@ -27,13 +27,17 @@ export function AvtalePrisOgFakturering({ tiltakstype }: Props) {
   }
 
   const prismodell = watch("prismodell");
+  const avtaletype = watch("avtaletype");
 
   return (
     <DetaljerContainer>
       <FormGroup>
         <Metadata header={avtaletekster.tiltakstypeLabel} verdi={tiltakstype.navn} />
 
-        <SelectPrismodell />
+        <SelectPrismodell
+          readOnly={avtaletype === Avtaletype.FORHAANDSGODKJENT}
+          options={resolvePrismodellOptions(avtaletype)}
+        />
 
         {prismodell === Prismodell.FORHANDSGODKJENT && (
           <ForhandsgodkjentAvtalePrismodell tiltakstype={tiltakstype.tiltakskode} />
@@ -43,7 +47,17 @@ export function AvtalePrisOgFakturering({ tiltakstype }: Props) {
   );
 }
 
-function SelectPrismodell() {
+interface SelectPrismodellProps {
+  readOnly?: boolean;
+  options: Option[];
+}
+
+interface Option {
+  value: string;
+  label: string;
+}
+
+function SelectPrismodell(props: SelectPrismodellProps) {
   const {
     register,
     formState: { errors },
@@ -51,17 +65,31 @@ function SelectPrismodell() {
 
   return (
     <Select
-      label="Prismodell"
+      label={avtaletekster.prismodell.label}
       size="small"
       error={errors.prismodell?.message}
+      readOnly={props.readOnly}
       {...register("prismodell")}
     >
-      <option value={Prismodell.FORHANDSGODKJENT}>
-        {avtaletekster.prismodell.beskrivelse(Prismodell.FORHANDSGODKJENT)}
-      </option>
-      <option value={Prismodell.FRI}>{avtaletekster.prismodell.beskrivelse(Prismodell.FRI)}</option>
+      {props.options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
     </Select>
   );
+}
+
+function resolvePrismodellOptions(avtaletype: Avtaletype): Option[] {
+  if (avtaletype === Avtaletype.FORHAANDSGODKJENT) {
+    return [toOption(Prismodell.FORHANDSGODKJENT)];
+  } else {
+    return [toOption(Prismodell.FRI)];
+  }
+}
+
+function toOption(prismodell: Prismodell): Option {
+  return { value: prismodell, label: avtaletekster.prismodell.beskrivelse(prismodell) };
 }
 
 interface ForhandsgodkjentAvtalePrismodellProps {

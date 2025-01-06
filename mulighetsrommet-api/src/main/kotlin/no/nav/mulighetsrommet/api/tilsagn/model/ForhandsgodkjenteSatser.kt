@@ -31,14 +31,14 @@ object ForhandsgodkjenteSatser {
                     LocalDate.of(2025, 1, 1),
                     LocalDate.of(2026, 1, 1),
                 ),
-                belop = 16000,
+                belop = 16_848,
             ),
             ForhandsgodkjentSats(
                 periode = RefusjonskravPeriode(
                     LocalDate.of(2024, 1, 1),
                     LocalDate.of(2025, 1, 1),
                 ),
-                belop = 12000,
+                belop = 16_231,
             ),
         )
     }
@@ -47,31 +47,17 @@ object ForhandsgodkjenteSatser {
         val satser: List<ForhandsgodkjentSats> = listOf(
             ForhandsgodkjentSats(
                 periode = RefusjonskravPeriode(
-                    LocalDate.of(2026, 1, 1),
-                    LocalDate.of(2027, 1, 1),
-                ),
-                belop = 30000,
-            ),
-            ForhandsgodkjentSats(
-                periode = RefusjonskravPeriode(
                     LocalDate.of(2025, 1, 1),
                     LocalDate.of(2026, 1, 1),
                 ),
-                belop = 20705,
+                belop = 20_975,
             ),
             ForhandsgodkjentSats(
                 periode = RefusjonskravPeriode(
                     LocalDate.of(2024, 1, 1),
                     LocalDate.of(2025, 1, 1),
                 ),
-                belop = 20205,
-            ),
-            ForhandsgodkjentSats(
-                periode = RefusjonskravPeriode(
-                    LocalDate.of(2023, 1, 1),
-                    LocalDate.of(2024, 1, 1),
-                ),
-                belop = 19500,
+                belop = 20_205,
             ),
         )
     }

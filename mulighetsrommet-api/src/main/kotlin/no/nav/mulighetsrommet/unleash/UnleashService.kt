@@ -5,6 +5,7 @@ import io.getunleash.Unleash
 import io.getunleash.UnleashContext
 import io.getunleash.util.UnleashConfig
 import no.nav.common.client.axsys.AxsysClient
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
 import no.nav.mulighetsrommet.unleash.strategies.ByNavIdentStrategy
 import no.nav.mulighetsrommet.unleash.strategies.ByTiltakskodeStrategy
@@ -37,6 +38,10 @@ class UnleashService(config: Config, axsysClient: AxsysClient) {
         )
     }
 
+    fun isEnabled(feature: String): Boolean {
+        return unleash.isEnabled(feature)
+    }
+
     fun isEnabled(feature: String, context: FeatureToggleContext): Boolean {
         val ctx = UnleashContext.builder()
             .userId(context.userId)
@@ -47,7 +52,10 @@ class UnleashService(config: Config, axsysClient: AxsysClient) {
         return unleash.isEnabled(feature, ctx)
     }
 
-    fun isEnabled(feature: String): Boolean {
-        return unleash.isEnabled(feature)
+    fun isEnabledForTiltakstype(toggle: Toggle, vararg tiltakskoder: Tiltakskode): Boolean {
+        val ctx = UnleashContext.builder()
+            .addProperty(ByTiltakskodeStrategy.TILTAKSKODER_PARAM, tiltakskoder.joinToString(",") { it.name })
+            .build()
+        return unleash.isEnabled(toggle.featureName, ctx)
     }
 }
