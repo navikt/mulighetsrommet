@@ -421,7 +421,7 @@ private fun services(appConfig: AppConfig) = module {
             appConfig.axsys.url,
         ) { runBlocking { cachedTokenProvider.withScope(appConfig.axsys.scope).exchange(AccessType.M2M) } }
     }
-    single { AvtaleValidator(get(), get(), get(), get(), get()) }
+    single { AvtaleValidator(get(), get(), get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get(), get()) }
     single { OpsjonLoggValidator() }
     single { OpsjonLoggService(get(), get(), get(), get(), get()) }
