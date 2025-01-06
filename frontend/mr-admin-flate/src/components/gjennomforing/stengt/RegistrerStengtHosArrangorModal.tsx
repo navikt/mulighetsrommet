@@ -6,7 +6,7 @@ import { Button, Modal } from "@navikt/ds-react";
 import { RefObject, useState } from "react";
 
 interface Props {
-  modalRef: RefObject<HTMLDialogElement>;
+  modalRef: RefObject<HTMLDialogElement | null>;
   gjennomforing: GjennomforingDto;
 }
 

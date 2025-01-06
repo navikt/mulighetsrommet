@@ -127,7 +127,7 @@ interface ILeseRad {
   kontaktperson: ArrangorKontaktperson;
   setRedigerKontaktperson: (kontaktpersonId: ArrangorKontaktperson | undefined) => void;
   setSlettKontaktperson: (kontaktperson: ArrangorKontaktperson | undefined) => void;
-  modalRef: RefObject<HTMLDialogElement>;
+  modalRef: RefObject<HTMLDialogElement | null>;
 }
 
 function LeseRad({

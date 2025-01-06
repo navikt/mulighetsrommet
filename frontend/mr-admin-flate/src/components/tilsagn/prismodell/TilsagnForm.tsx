@@ -9,6 +9,7 @@ import { Alert, Button, Heading, HStack, TextField } from "@navikt/ds-react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
+import { ReactElement } from "react";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -16,8 +17,8 @@ interface Props {
   onAvbryt: () => void;
   defaultValues: DeepPartial<InferredTilsagn>;
   defaultKostnadssteder: string[];
-  beregningInput: JSX.Element;
-  beregningOutput: JSX.Element;
+  beregningInput: ReactElement;
+  beregningOutput: ReactElement;
 }
 
 export function TilsagnForm(props: Props) {
