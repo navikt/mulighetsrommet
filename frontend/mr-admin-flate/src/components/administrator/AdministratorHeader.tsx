@@ -5,7 +5,7 @@ import {
   PREVIEW_ARBEIDSMARKEDSTILTAK_URL,
   SANITY_STUDIO_URL,
 } from "@/constants";
-import { InlineErrorBoundary } from "@mr/frontend-common";
+import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { ExternalLinkIcon, MenuGridIcon } from "@navikt/aksel-icons";
 import { Dropdown, InternalHeader, Spacer } from "@navikt/ds-react";
 import { useRef } from "react";

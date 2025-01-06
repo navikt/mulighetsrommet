@@ -4,12 +4,12 @@ import { Laster } from "@/components/laster/Laster";
 import { EmptyState } from "./EmptyState";
 import styles from "./Notifikasjoner.module.scss";
 import { Notifikasjonssrad } from "./Notifikasjonsrad";
-import { ReloadAppErrorBoundary } from "@mr/frontend-common/components/error-handling/ErrorBoundary";
 import { Button, HStack } from "@navikt/ds-react";
 import { useMutateNotifikasjoner } from "@/api/notifikasjoner/useMutateNotifikasjoner";
 import { useNavigate } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { QueryKeys } from "../../api/QueryKeys";
+import { QueryKeys } from "@/api/QueryKeys";
+import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 
 interface Props {
   lest: boolean;

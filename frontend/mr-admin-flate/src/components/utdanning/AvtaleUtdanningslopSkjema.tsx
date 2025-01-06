@@ -5,7 +5,7 @@ import { useUtdanningsprogrammer } from "@/api/utdanning/useUtdanningsprogrammer
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { InferredAvtaleSchema } from "../redaksjoneltInnhold/AvtaleSchema";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
-import { ReloadAppErrorBoundary } from "@mr/frontend-common";
+import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { Laster } from "../laster/Laster";
 
 export function AvtaleUtdanningslopSkjema() {

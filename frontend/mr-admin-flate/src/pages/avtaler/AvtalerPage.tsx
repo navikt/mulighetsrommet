@@ -4,12 +4,7 @@ import { AvtaleTabell } from "@/components/tabell/AvtaleTabell";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { MainContainer } from "@/layouts/MainContainer";
-import {
-  LagredeFilterOversikt,
-  ReloadAppErrorBoundary,
-  useTitle,
-  useOpenFilterWhenThreshold,
-} from "@mr/frontend-common";
+import { LagredeFilterOversikt, useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
 import { AvtaleFiltertags } from "@/components/filter/AvtaleFiltertags";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { Brodsmuler } from "@/components/navigering/Brodsmuler";
@@ -20,6 +15,7 @@ import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
 import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
 import { LagretDokumenttype } from "@mr/api-client";
 import { useAtom } from "jotai/index";
+import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 
 export function AvtalerPage() {
   useTitle("Avtaler");

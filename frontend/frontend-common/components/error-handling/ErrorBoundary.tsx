@@ -3,18 +3,41 @@ import { ApiError } from "@mr/api-client";
 import { Alert, BodyShort, Heading } from "@navikt/ds-react";
 import { PropsWithChildren } from "react";
 import { Link } from "react-router";
-import { PORTEN_URL } from "../../../mr-admin-flate/src/constants";
 import { resolveErrorMessage } from "./errors";
 
-export function ReloadAppErrorBoundary(props: PropsWithChildren) {
-  return <ErrorBoundary FallbackComponent={ReloadAppFallback}>{props.children} </ErrorBoundary>;
+interface DefaultErrorBoundaryProps extends PropsWithChildren {
+  portenUrl: string;
 }
 
-export function InlineErrorBoundary(props: PropsWithChildren) {
-  return <ErrorBoundary FallbackComponent={InlineFallback}>{props.children} </ErrorBoundary>;
+export function ReloadAppErrorBoundary(props: DefaultErrorBoundaryProps) {
+  return (
+    <ErrorBoundary
+      fallbackRender={(fallbackProps) => (
+        <ReloadAppFallback portenUrl={props.portenUrl} {...fallbackProps} />
+      )}
+    >
+      {props.children}
+    </ErrorBoundary>
+  );
 }
 
-export function InlineFallback({ error }: FallbackProps) {
+export function InlineErrorBoundary(props: DefaultErrorBoundaryProps) {
+  return (
+    <ErrorBoundary
+      fallbackRender={(fallbackProps) => (
+        <InlineFallback portenUrl={props.portenUrl} {...fallbackProps} />
+      )}
+    >
+      {props.children}
+    </ErrorBoundary>
+  );
+}
+
+interface DefaultErrorFallbackProps extends FallbackProps {
+  portenUrl: string;
+}
+
+function InlineFallback({ error, portenUrl }: DefaultErrorFallbackProps) {
   const heading = error instanceof ApiError ? resolveErrorMessage(error) : error.message;
 
   return (
@@ -24,14 +47,14 @@ export function InlineFallback({ error }: FallbackProps) {
           {heading || "Det oppsto dessverre en feil"}
         </Heading>
         <BodyShort>
-          Hvis problemet vedvarer opprett en sak via <a href={PORTEN_URL}>Porten</a>.
+          Hvis problemet vedvarer opprett en sak via <a href={portenUrl}>Porten</a>.
         </BodyShort>
       </Alert>
     </div>
   );
 }
 
-export function ReloadAppFallback({ error }: FallbackProps) {
+function ReloadAppFallback({ error, portenUrl }: DefaultErrorFallbackProps) {
   const heading = error instanceof ApiError ? resolveErrorMessage(error) : error.message;
 
   return (
@@ -41,7 +64,7 @@ export function ReloadAppFallback({ error }: FallbackProps) {
           {heading || "Det oppsto dessverre en feil"}
         </Heading>
         <BodyShort>
-          Hvis problemet vedvarer opprett en sak via <a href={PORTEN_URL}>Porten</a>.
+          Hvis problemet vedvarer opprett en sak via <a href={portenUrl}>Porten</a>.
         </BodyShort>
         <Link to="/" reloadDocument className="error-link">
           Ta meg til forsiden og prøv igjen

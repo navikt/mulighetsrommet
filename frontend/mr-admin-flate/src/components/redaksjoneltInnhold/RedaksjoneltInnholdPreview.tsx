@@ -2,12 +2,13 @@ import { useTiltakstypeFaneinnhold } from "@/api/tiltaksgjennomforing/useTiltaks
 import { Alert, BodyLong, Heading } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
 import { EmbeddedTiltakstype, Faneinnhold } from "@mr/api-client";
-import { InlineErrorBoundary, LokalInformasjonContainer } from "@mr/frontend-common";
+import { LokalInformasjonContainer } from "@mr/frontend-common";
 import React from "react";
 import styles from "../../pages/DetaljerInfo.module.scss";
 import { Laster } from "../laster/Laster";
 import { Lenkeliste } from "../lenker/Lenkeliste";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
+import { InlineErrorBoundary } from "@/ErrorBoundary";
 
 interface RedaksjoneltInnholdPreviewProps {
   tiltakstype: EmbeddedTiltakstype;

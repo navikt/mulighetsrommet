@@ -1,9 +1,4 @@
-import {
-  LagredeFilterOversikt,
-  ReloadAppErrorBoundary,
-  useTitle,
-  useOpenFilterWhenThreshold,
-} from "@mr/frontend-common";
+import { LagredeFilterOversikt, useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
 import { TiltaksgjennomforingsTabell } from "@/components/tabell/TiltaksgjennomforingsTabell";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
@@ -20,6 +15,7 @@ import { useState } from "react";
 import { NullstillKnappForTiltaksgjennomforinger } from "@/pages/tiltaksgjennomforinger/NullstillKnappForTiltaksgjennomforinger";
 import { LagretDokumenttype } from "@mr/api-client";
 import { useAtom } from "jotai/index";
+import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 
 export function TiltaksgjennomforingerPage() {
   useTitle("Tiltaksgjennomføringer");
