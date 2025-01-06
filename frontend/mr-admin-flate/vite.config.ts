@@ -15,9 +15,12 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        api: 'modern-compiler',
+        api: "modern-compiler",
       },
     },
+  },
+  resolve: {
+    dedupe: await dedupeDependencies("@mr/frontend-common"),
   },
   build: {
     manifest: "asset-manifest.json",
@@ -29,3 +32,16 @@ export default defineConfig({
     include: ["./src/**/*.test.?(c|m)[jt]s?(x)"],
   },
 });
+
+async function dedupeDependencies(lib: string) {
+  const projectPackageJson = (await import("./package.json", { with: { type: "json" } }))
+    .default as { dependencies?: object };
+  const projectDependencies = Object.keys(projectPackageJson.dependencies ?? {});
+
+  const libPackageJson = (await import(`${lib}/package.json`, { with: { type: "json" } }))
+    .default as { dependencies?: object };
+
+  return Object.keys(libPackageJson.dependencies ?? {}).filter((p) =>
+    projectDependencies.includes(p),
+  );
+}
