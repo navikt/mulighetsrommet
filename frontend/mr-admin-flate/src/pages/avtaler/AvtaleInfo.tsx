@@ -67,16 +67,16 @@ export function AvtaleInfo() {
             <AvtalePersonvern />
           </InlineErrorBoundary>
         </Tabs.Panel>
+        <Tabs.Panel value="redaksjonelt-innhold">
+          <InlineErrorBoundary>
+            <RedaksjoneltInnholdPreview
+              tiltakstype={avtale.tiltakstype}
+              beskrivelse={avtale.beskrivelse}
+              faneinnhold={avtale.faneinnhold}
+            />
+          </InlineErrorBoundary>
+        </Tabs.Panel>
       </Tabs>
-      <Tabs.Panel value="redaksjonelt-innhold">
-        <InlineErrorBoundary>
-          <RedaksjoneltInnholdPreview
-            tiltakstype={avtale.tiltakstype}
-            beskrivelse={avtale.beskrivelse}
-            faneinnhold={avtale.faneinnhold}
-          />
-        </InlineErrorBoundary>
-      </Tabs.Panel>
     </InfoContainer>
   );
 }
