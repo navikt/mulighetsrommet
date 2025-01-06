@@ -33,7 +33,7 @@ export const opsjonsmodeller: Opsjonsmodell[] = [
   {
     value: OpsjonsmodellKey.ANNET,
     label: "Annen opsjonsmodell",
-    maksVarighetAar: 5,
+    maksVarighetAar: null,
     initialSluttdatoEkstraAar: undefined,
     kreverMaksVarighet: true,
   },
