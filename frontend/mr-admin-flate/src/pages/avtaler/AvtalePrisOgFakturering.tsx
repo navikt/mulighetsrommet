@@ -65,7 +65,7 @@ function SelectPrismodell(props: SelectPrismodellProps) {
 
   return (
     <Select
-      label="Prismodell"
+      label={avtaletekster.prismodell.label}
       size="small"
       error={errors.prismodell?.message}
       readOnly={props.readOnly}

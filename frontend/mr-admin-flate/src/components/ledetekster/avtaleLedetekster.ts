@@ -40,7 +40,7 @@ export const avtaletekster = {
     beskrivelse: (prismodell: Prismodell): string => {
       switch (prismodell) {
         case Prismodell.FORHANDSGODKJENT:
-          return "Standardpris per tiltaksplass per måned";
+          return "Fast sats per tiltaksplass per måned";
         case Prismodell.FRI:
           return "Fri prismodell";
       }
