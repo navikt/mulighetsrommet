@@ -16,6 +16,7 @@ import {
   NavEnhetType,
   OpsjonsmodellKey,
   OpsjonStatus,
+  Prismodell,
   Tiltakskode,
   TiltakstypeDto,
 } from "@mr/api-client";
@@ -54,23 +55,44 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   const watchedTiltakstype = watch("tiltakstype");
   const tiltakskode = watchedTiltakstype?.tiltakskode;
 
-  function updateOpsjonsmodell(opsjonsmodell?: OpsjonsmodellKey, avtaletype?: Avtaletype) {
+  const watchedOpsjonsmodell = watch("opsjonsmodellData.opsjonsmodell");
+
+  function handleChangeTiltakstype(
+    currentTiltakskode?: Tiltakskode,
+    nextTiltakskode?: Tiltakskode,
+  ) {
+    if (nextTiltakskode !== currentTiltakskode) {
+      setValue("amoKategorisering", null);
+      setValue("utdanningslop", null);
+    }
+
+    const options = nextTiltakskode ? getAvtaletypeOptions(nextTiltakskode) : [];
+    const avtaletype = options.length === 1 ? options[0].value : undefined;
+    setValue("avtaletype", avtaletype);
+    handleChangeAvtaletype(avtaletype);
+  }
+
+  function handleChangeAvtaletype(avtaletype?: Avtaletype) {
     if (avtaletype === Avtaletype.FORHAANDSGODKJENT) {
       setValue("opsjonsmodellData", {
         opsjonsmodell: OpsjonsmodellKey.AVTALE_VALGFRI_SLUTTDATO,
         customOpsjonsmodellNavn: null,
         opsjonMaksVarighet: null,
       });
-    } else if (!opsjonsmodell) {
+    } else if (!watchedOpsjonsmodell) {
       setValue("opsjonsmodellData", {
         opsjonsmodell: undefined,
         customOpsjonsmodellNavn: null,
         opsjonMaksVarighet: null,
       });
     }
-  }
 
-  const watchedOpsjonsmodell = watch("opsjonsmodellData.opsjonsmodell");
+    if (avtaletype === Avtaletype.FORHAANDSGODKJENT) {
+      setValue("prismodell", Prismodell.FORHANDSGODKJENT);
+    } else {
+      setValue("prismodell", null);
+    }
+  }
 
   const navRegionerOptions = enheter
     .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
@@ -79,9 +101,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
       label: enhet.navn,
     }));
 
-  const opsjonsmodell = opsjonsmodeller.find(
-    (m) => m.value === watch("opsjonsmodellData.opsjonsmodell"),
-  );
   const antallOpsjonerUtlost = (
     avtale?.opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLØST) || []
   ).length;
@@ -141,19 +160,8 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 label={avtaletekster.tiltakstypeLabel}
                 {...register("tiltakstype")}
                 onChange={(event) => {
-                  setValue("amoKategorisering", null);
-                  const options = (event.target.value as { tiltakskode: string })?.tiltakskode
-                    ? avtaletypeOptions(
-                        (event.target.value as { tiltakskode: Tiltakskode }).tiltakskode,
-                      )
-                    : [];
-                  const avtaletype = options[0]?.value;
-                  if (options.length === 1) {
-                    setValue("avtaletype", avtaletype);
-                  } else {
-                    setValue("avtaletype", undefined);
-                  }
-                  updateOpsjonsmodell(watchedOpsjonsmodell, avtaletype);
+                  const nextTiltakskode = event.target?.value?.tiltakskode ?? undefined;
+                  handleChangeTiltakstype(tiltakskode, nextTiltakskode);
                 }}
                 options={tiltakstyper.map((tiltakstype) => ({
                   value: {
@@ -171,9 +179,9 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 label={avtaletekster.avtaletypeLabel}
                 {...register("avtaletype")}
                 onChange={(e) => {
-                  updateOpsjonsmodell(watchedOpsjonsmodell, e.target.value as Avtaletype);
+                  handleChangeAvtaletype(e.target.value);
                 }}
-                options={tiltakskode ? avtaletypeOptions(tiltakskode) : []}
+                options={tiltakskode ? getAvtaletypeOptions(tiltakskode) : []}
               />
             </HGrid>
             {tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ? (
@@ -184,7 +192,10 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             ) : null}
           </FormGroup>
 
-          <AvtaleDatoContainer avtale={avtale} opsjonsmodell={opsjonsmodell} />
+          <AvtaleDatoContainer
+            avtale={avtale}
+            opsjonsmodell={opsjonsmodeller.find((m) => m.value === watchedOpsjonsmodell)}
+          />
 
           {tiltakskode && erAnskaffetTiltak(tiltakskode) && (
             <>
@@ -266,7 +277,7 @@ function velgAlleLokaleUnderenheter(
   return getLokaleUnderenheterAsSelectOptions(regioner, enheter).map((option) => option.value);
 }
 
-function avtaletypeOptions(tiltakskode: Tiltakskode): { value: Avtaletype; label: string }[] {
+function getAvtaletypeOptions(tiltakskode: Tiltakskode): { value: Avtaletype; label: string }[] {
   const forhaandsgodkjent = {
     value: Avtaletype.FORHAANDSGODKJENT,
     label: avtaletypeTilTekst(Avtaletype.FORHAANDSGODKJENT),

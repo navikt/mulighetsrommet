@@ -105,7 +105,7 @@ export function AvtaleSkjemaContainer({
         customOpsjonsmodellNavn: data?.opsjonsmodellData?.customOpsjonsmodellNavn || null,
       },
       utdanningslop: getUtdanningslop(data),
-      prismodell: data.prismodell,
+      prismodell: enableOkonomi ? data.prismodell : null,
     };
 
     mutation.mutate(requestBody, {
