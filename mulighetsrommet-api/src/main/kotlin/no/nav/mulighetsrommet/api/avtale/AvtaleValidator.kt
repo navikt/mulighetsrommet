@@ -49,22 +49,6 @@ class AvtaleValidator(
                 if (avtale.sluttDato.isBefore(avtale.startDato)) {
                     add(ValidationError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
                 }
-                if (
-                    // Unntak for de som ikke er tatt over fra arena siden man ikke får endre avtaletype på de
-                    !listOf(
-                        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-                        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-                    ).contains(tiltakstype.tiltakskode) &&
-                    Avtaletype.Forhaandsgodkjent != avtale.avtaletype &&
-                    avtale.startDato.plusYears(5).isBefore(avtale.sluttDato)
-                ) {
-                    add(
-                        ValidationError.of(
-                            AvtaleDbo::sluttDato,
-                            "Avtaleperioden kan ikke vare lenger enn 5 år for anskaffede tiltak",
-                        ),
-                    )
-                }
             }
 
             if (Avtaletype.Forhaandsgodkjent != avtale.avtaletype && !opsjonsmodellerUtenValidering.contains(avtale.opsjonsmodell)) {
