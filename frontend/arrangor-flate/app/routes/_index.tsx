@@ -1,9 +1,9 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "react-router";
-import { redirect } from "react-router";
-import { hentArrangortilgangerForBruker } from "../auth/arrangortilgang.server";
-import { checkValidToken, setupOpenApi } from "../auth/auth.server";
+import { redirect, redirectDocument } from "react-router";
 import { internalNavigation } from "../internal-navigation";
 import { getCurrentTab } from "../utils/currentTab";
+import { ArrangorflateService } from "@mr/api-client-v2";
+import { apiHeaders } from "~/auth/auth.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -24,18 +24,20 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  await checkValidToken(request);
-  await setupOpenApi(request);
   const url = new URL(request.url);
   const currentTab = getCurrentTab(request);
   const { orgnr } = params;
-  const arrangorer = await hentArrangortilgangerForBruker();
+  const { data: arrangorer } = await ArrangorflateService.getArrangorerInnloggetBrukerHarTilgangTil(
+    {
+      headers: await apiHeaders(request),
+    },
+  );
 
-  if (!orgnr && arrangorer.length > 0 && url.pathname === "/") {
+  if (!orgnr && arrangorer && arrangorer.length > 0 && url.pathname === "/") {
     return redirect(
       `${internalNavigation(arrangorer[0].organisasjonsnummer).refusjonskravliste}?forside-tab=${currentTab}`,
     );
   }
 
-  return null;
+  throw redirectDocument("/oauth2/login");
 }

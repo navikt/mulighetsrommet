@@ -1,4 +1,4 @@
-import { Arrangor } from "@mr/api-client";
+import { Arrangor, ArrangorflateService } from "@mr/api-client-v2";
 import { BodyShort, Box, Heading } from "@navikt/ds-react";
 import { LoaderFunction } from "react-router";
 import {
@@ -14,20 +14,20 @@ import {
 } from "react-router";
 import parse from "html-react-parser";
 import { ReactNode, useEffect } from "react";
-import { hentArrangortilgangerForBruker } from "./auth/arrangortilgang.server";
-import { checkValidToken, setupOpenApi } from "./auth/auth.server";
 import { Header } from "./components/Header";
 import css from "./root.module.css";
 import { Dekoratørfragmenter, hentSsrDekoratør } from "./services/dekoratør/dekorator.server";
 import useInjectDecoratorScript from "./services/dekoratør/useInjectScript";
 import "./tailwind.css";
+import { apiHeaders } from "./auth/auth.server";
 
 export const meta: MetaFunction = () => [{ title: "Refusjoner" }];
 
 export const loader: LoaderFunction = async ({ request }) => {
-  await setupOpenApi(request);
-  await checkValidToken(request);
-  const arrangortilganger = await hentArrangortilgangerForBruker();
+  const { data: arrangortilganger } =
+    await ArrangorflateService.getArrangorerInnloggetBrukerHarTilgangTil({
+      headers: await apiHeaders(request),
+    });
 
   return {
     dekorator: await hentSsrDekoratør(),

@@ -1,9 +1,10 @@
 import {
   ArrangorflateService,
+  RefusjonKravAft,
   RefusjonKravDeltakelse,
   RefusjonKravDeltakelsePerson,
   RelevanteForslag,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import {
   Alert,
@@ -19,30 +20,27 @@ import {
 import type { LoaderFunction, MetaFunction } from "react-router";
 import { Link, useLoaderData } from "react-router";
 import { useState } from "react";
-import { checkValidToken } from "~/auth/auth.server";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { PageHeader } from "~/components/PageHeader";
 import { GenerelleDetaljer } from "~/components/refusjonskrav/GenerelleDetaljer";
-import { Refusjonskrav } from "~/domene/domene";
-import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { formaterDato, useOrgnrFromUrl } from "~/utils";
 import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
 import { LinkWithTabState } from "~/components/LinkWithTabState";
 import { internalNavigation } from "~/internal-navigation";
 import { hentMiljø, Miljø } from "~/services/miljø";
 import { ExclamationmarkTriangleIcon } from "@navikt/aksel-icons";
+import { apiHeaders } from "~/auth/auth.server";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Refusjon" }, { name: "description", content: "Refusjonsdetaljer" }];
 };
 
 type LoaderData = {
-  krav: Refusjonskrav;
+  krav: RefusjonKravAft;
   relevanteForslag: RelevanteForslag[];
   deltakerlisteUrl: string;
 };
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
-  await checkValidToken(request);
   const deltakerlisteUrl = deltakerOversiktLenke(hentMiljø());
 
   const { id } = params;
@@ -50,8 +48,17 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     throw Error("Mangler id");
   }
 
-  const krav = await loadRefusjonskrav(id);
-  const relevanteForslag = await ArrangorflateService.getRelevanteForslag({ id });
+  const { data: krav } = await ArrangorflateService.getRefusjonkrav({
+    path: { id },
+    headers: await apiHeaders(request),
+  });
+  const { data: relevanteForslag } = await ArrangorflateService.getRelevanteForslag({
+    path: { id },
+    headers: await apiHeaders(request),
+  });
+  if (!krav || !relevanteForslag) {
+    throw Error("Fant ikke refusjonskrav");
+  }
 
   return { krav, deltakerlisteUrl, relevanteForslag };
 };
@@ -90,8 +97,8 @@ export default function RefusjonskravBeregning() {
   };
 
   const sortedData = sort
-    ? sortBy(krav.deltakere, sort.direction, getDeltakerSelector(sort.orderBy))
-    : krav.deltakere;
+    ? sortBy(krav.deltakelser, sort.direction, getDeltakerSelector(sort.orderBy))
+    : krav.deltakelser;
 
   function hasRelevanteForslag(id: string): boolean {
     return (relevanteForslag.find((r) => r.deltakerId === id)?.antallRelevanteForslag ?? 0) > 0;
@@ -122,7 +129,7 @@ export default function RefusjonskravBeregning() {
             først godkjennes av Nav-veileder før refusjonskravet oppdaterer seg.
             <List>
               {deltakereMedRelevanteForslag.map((deltaker) => (
-                <List.Item key={deltaker.id}>{deltaker.person.navn}</List.Item>
+                <List.Item key={deltaker.id}>{deltaker.person?.navn}</List.Item>
               ))}
             </List>
           </Alert>
