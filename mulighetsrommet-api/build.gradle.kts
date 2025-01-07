@@ -10,12 +10,6 @@ plugins {
     alias(libs.plugins.shadow)
 }
 
-tasks.withType<KotlinCompile> {
-    compilerOptions {
-        freeCompilerArgs.add("-Xcontext-receivers")
-    }
-}
-
 application {
     mainClass.set("no.nav.mulighetsrommet.api.ApplicationKt")
 }

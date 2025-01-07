@@ -7,14 +7,12 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
+import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
-import no.nav.mulighetsrommet.api.services.DocumentClass
-import no.nav.mulighetsrommet.api.services.EndretAv
-import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
-import no.nav.mulighetsrommet.api.withTransaction
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
@@ -28,7 +26,6 @@ class ArenaAdapterService(
     private val tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
     private val sanityService: SanityService,
     private val arrangorService: ArrangorService,
-    private val endringshistorikk: EndringshistorikkService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -137,9 +134,8 @@ class ArenaAdapterService(
         return arenaGjennomforing.tiltaksnummer != current.tiltaksnummer || arenaGjennomforing.arenaAnsvarligEnhet != current.arenaAnsvarligEnhet?.enhetsnummer
     }
 
-    private fun QueryContext.logUpdateAvtale(dto: AvtaleDto) = withTransaction(session) {
-        endringshistorikk.logEndring(
-            this,
+    private fun QueryContext.logUpdateAvtale(dto: AvtaleDto) {
+        Queries.endringshistorikk.logEndring(
             DocumentClass.AVTALE,
             "Endret i Arena",
             EndretAv.Arena,
@@ -147,9 +143,8 @@ class ArenaAdapterService(
         ) { Json.encodeToJsonElement(dto) }
     }
 
-    private fun QueryContext.logUpdateGjennomforing(dto: TiltaksgjennomforingDto) = withTransaction(session) {
-        endringshistorikk.logEndring(
-            this,
+    private fun QueryContext.logUpdateGjennomforing(dto: TiltaksgjennomforingDto) {
+        Queries.endringshistorikk.logEndring(
             DocumentClass.TILTAKSGJENNOMFORING,
             "Endret i Arena",
             EndretAv.Arena,
@@ -157,9 +152,8 @@ class ArenaAdapterService(
         ) { Json.encodeToJsonElement(dto) }
     }
 
-    private fun QueryContext.logTiltaksnummerHentetFraArena(dto: TiltaksgjennomforingDto) = withTransaction(session) {
-        endringshistorikk.logEndring(
-            this,
+    private fun QueryContext.logTiltaksnummerHentetFraArena(dto: TiltaksgjennomforingDto) {
+        Queries.endringshistorikk.logEndring(
             DocumentClass.TILTAKSGJENNOMFORING,
             "Oppdatert med tiltaksnummer fra Arena",
             EndretAv.System,

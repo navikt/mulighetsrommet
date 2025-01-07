@@ -11,15 +11,12 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
+import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.responses.*
-import no.nav.mulighetsrommet.api.services.DocumentClass
-import no.nav.mulighetsrommet.api.services.EndretAv
-import no.nav.mulighetsrommet.api.services.EndringshistorikkService
-import no.nav.mulighetsrommet.api.withTransaction
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.dto.*
-import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
@@ -30,9 +27,7 @@ import java.util.*
 class AvtaleService(
     private val db: ApiDatabase,
     private val arrangorService: ArrangorService,
-    private val notificationRepository: NotificationRepository,
     private val validator: AvtaleValidator,
-    private val endringshistorikkService: EndringshistorikkService,
     private val gjennomforingPublisher: InitialLoadTiltaksgjennomforinger,
 ) {
     fun get(id: UUID): AvtaleDto? = db.session {
@@ -174,7 +169,9 @@ class AvtaleService(
         )
     }
 
-    fun getEndringshistorikk(id: UUID): EndringshistorikkDto = endringshistorikkService.getEndringshistorikk(DocumentClass.AVTALE, id)
+    fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
+        Queries.endringshistorikk.getEndringshistorikk(DocumentClass.AVTALE, id)
+    }
 
     private fun schedulePublishGjennomforingerForAvtale(dto: AvtaleDto) {
         gjennomforingPublisher.schedule(
@@ -213,7 +210,7 @@ class AvtaleService(
     private fun QueryContext.dispatchNotificationToNewAdministrators(
         dbo: AvtaleDbo,
         navIdent: NavIdent,
-    ) = withTransaction(session) {
+    ) {
         val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
 
         val administratorsToNotify =
@@ -225,16 +222,15 @@ class AvtaleService(
             targets = administratorsToNotify,
             createdAt = Instant.now(),
         )
-        notificationRepository.insert(notification, this)
+        Queries.notifications.insert(notification)
     }
 
     private fun QueryContext.logEndring(
         operation: String,
         dto: AvtaleDto,
         endretAv: EndretAv.NavAnsatt,
-    ) = withTransaction(session) {
-        endringshistorikkService.logEndring(
-            this,
+    ) {
+        Queries.endringshistorikk.logEndring(
             DocumentClass.AVTALE,
             operation,
             endretAv,

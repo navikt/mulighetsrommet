@@ -18,7 +18,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforinge
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus.*
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
-import no.nav.mulighetsrommet.notifications.NotificationRepository
 import java.time.LocalDate
 import java.util.*
 
@@ -28,13 +27,11 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
     fun createTask(
         producer: SisteTiltaksgjennomforingerV1KafkaProducer = mockk(relaxed = true),
     ) = UpdateTiltaksgjennomforingStatus(
-        database.db.db,
+        database.db,
         TiltaksgjennomforingService(
             db = database.db,
             tiltaksgjennomforingKafkaProducer = producer,
-            notificationRepository = NotificationRepository(database.db.db),
             validator = mockk(relaxed = true),
-            documentHistoryService = mockk(relaxed = true),
             navAnsattService = mockk(relaxed = true),
         ),
     )

@@ -1,17 +1,15 @@
 package no.nav.mulighetsrommet.api.veilederflate
 
+import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.veilederflate.models.JoyrideType
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederJoyrideDto
-import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.utils.QueryResult
-import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.intellij.lang.annotations.Language
 
-class VeilederJoyrideRepository(private val db: Database) {
+class VeilederJoyrideQueries(private val session: Session) {
 
-    fun upsert(data: VeilederJoyrideDto): QueryResult<Unit> = query {
+    fun upsert(dto: VeilederJoyrideDto) {
         @Language("PostgreSQL")
         val query = """
             insert into veileder_joyride(
@@ -21,7 +19,13 @@ class VeilederJoyrideRepository(private val db: Database) {
                 set fullfort = excluded.fullfort
         """.trimIndent()
 
-        queryOf(query, data.toSqlParameters()).asExecute.let { db.run(it) }
+        val params = mapOf(
+            "nav_ident" to dto.navIdent.value,
+            "fullfort" to dto.fullfort,
+            "type" to dto.type.name,
+        )
+
+        session.execute(queryOf(query, params))
     }
 
     fun harFullfortJoyride(navIdent: NavIdent, type: JoyrideType): Boolean {
@@ -35,12 +39,6 @@ class VeilederJoyrideRepository(private val db: Database) {
             select fullfort from veileder_joyride where nav_ident = :nav_ident and type = :type::joyride_type
         """.trimIndent()
 
-        return queryOf(query, params).map { it.boolean("fullfort") }.asSingle.let { db.run(it) } ?: false
+        return session.single(queryOf(query, params)) { it.boolean("fullfort") } ?: false
     }
-
-    private fun VeilederJoyrideDto.toSqlParameters() = mapOf(
-        "nav_ident" to navIdent.value,
-        "fullfort" to fullfort,
-        "type" to type.name,
-    )
 }

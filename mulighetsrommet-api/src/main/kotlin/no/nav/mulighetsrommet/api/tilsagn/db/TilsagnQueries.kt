@@ -4,26 +4,22 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
-import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.tilsagn.model.*
-import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.createEnumArray
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*
 
-class TilsagnRepository(private val db: Database) {
-    fun upsert(dbo: TilsagnDbo) = db.transaction {
-        upsert(dbo, it)
-    }
+class TilsagnQueries(private val session: Session) {
 
-    fun upsert(dbo: TilsagnDbo, tx: Session) {
+    fun upsert(dbo: TilsagnDbo) {
         @Language("PostgreSQL")
         val query = """
             insert into tilsagn (
@@ -77,32 +73,24 @@ class TilsagnRepository(private val db: Database) {
             "type" to dbo.type.name,
         )
 
-        tx.run(queryOf(query, params).asExecute)
+        session.execute(queryOf(query, params))
     }
 
-    fun get(id: UUID) = db.transaction {
-        get(id, it)
-    }
-
-    fun get(id: UUID, tx: Session): TilsagnDto? {
+    fun get(id: UUID): TilsagnDto? {
         @Language("PostgreSQL")
         val query = """
             select * from tilsagn_admin_dto_view
             where id = :id::uuid
         """.trimIndent()
 
-        return tx.run(
-            queryOf(query, mapOf("id" to id))
-                .map { it.toTilsagnDto() }
-                .asSingle,
-        )
+        return session.single(queryOf(query, mapOf("id" to id))) { it.toTilsagnDto() }
     }
 
     fun getAll(
         type: TilsagnType? = null,
         gjennomforingId: UUID? = null,
         statuser: List<TilsagnStatus>? = null,
-    ): List<TilsagnDto> = db.useSession { session ->
+    ): List<TilsagnDto> {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -119,23 +107,17 @@ class TilsagnRepository(private val db: Database) {
             "statuser" to statuser?.let { session.createArrayOf("tilsagn_status", statuser) },
         )
 
-        queryOf(query, params)
-            .map { it.toTilsagnDto() }
-            .asList
-            .runWithSession(session)
+        return session.list(queryOf(query, params)) { it.toTilsagnDto() }
     }
 
     fun getAllArrangorflateTilsagn(organisasjonsnummer: Organisasjonsnummer): List<ArrangorflateTilsagn> {
         @Language("PostgreSQL")
         val query = """
             select * from tilsagn_arrangorflate_view
-            where arrangor_organisasjonsnummer = :organisasjonsnummer
+            where arrangor_organisasjonsnummer = ?
         """.trimIndent()
 
-        return queryOf(query, mapOf("organisasjonsnummer" to organisasjonsnummer.value))
-            .map { it.toArrangorflateTilsagn() }
-            .asList
-            .let { db.run(it) }
+        return session.list(queryOf(query, organisasjonsnummer.value)) { it.toArrangorflateTilsagn() }
     }
 
     fun getTilsagnTilRefusjon(
@@ -150,17 +132,13 @@ class TilsagnRepository(private val db: Database) {
               and (periode_slutt >= :periode_start::date)
         """.trimIndent()
 
-        return queryOf(
-            query,
-            mapOf(
-                "gjennomforing_id" to gjennomforingId,
-                "periode_start" to periode.start,
-                "periode_slutt" to periode.slutt,
-            ),
+        val params = mapOf(
+            "gjennomforing_id" to gjennomforingId,
+            "periode_start" to periode.start,
+            "periode_slutt" to periode.slutt,
         )
-            .map { it.toTilsagnDto() }
-            .asList
-            .let { db.run(it) }
+
+        return session.list(queryOf(query, params)) { it.toTilsagnDto() }
     }
 
     fun getArrangorflateTilsagnTilRefusjon(
@@ -175,17 +153,13 @@ class TilsagnRepository(private val db: Database) {
               and (periode_slutt >= :periode_start::date)
         """.trimIndent()
 
-        return queryOf(
-            query,
-            mapOf(
-                "gjennomforing_id" to gjennomforingId,
-                "periode_start" to periode.start,
-                "periode_slutt" to periode.slutt,
-            ),
+        val params = mapOf(
+            "gjennomforing_id" to gjennomforingId,
+            "periode_start" to periode.start,
+            "periode_slutt" to periode.slutt,
         )
-            .map { it.toArrangorflateTilsagn() }
-            .asList
-            .let { db.run(it) }
+
+        return session.list(queryOf(query, params)) { it.toArrangorflateTilsagn() }
     }
 
     fun getArrangorflateTilsagn(id: UUID): ArrangorflateTilsagn? {
@@ -195,26 +169,22 @@ class TilsagnRepository(private val db: Database) {
             where id = ?::uuid
         """.trimIndent()
 
-        return queryOf(query, id)
-            .map { it.toArrangorflateTilsagn() }
-            .asSingle
-            .let { db.run(it) }
+        return session.single(queryOf(query, id)) { it.toArrangorflateTilsagn() }
     }
 
     fun delete(id: UUID) {
         @Language("PostgreSQL")
         val query = """
-            delete from tilsagn where id = :id::uuid
+            delete from tilsagn where id = ?
         """.trimIndent()
 
-        db.run(queryOf(query, mapOf("id" to id)).asExecute)
+        session.execute(queryOf(query, id))
     }
 
     fun besluttGodkjennelse(
         id: UUID,
         navIdent: NavIdent,
         tidspunkt: LocalDateTime,
-        tx: TransactionalSession,
     ) {
         @Language("PostgreSQL")
         val query = """
@@ -225,16 +195,13 @@ class TilsagnRepository(private val db: Database) {
             where id = :id::uuid
         """.trimIndent()
 
-        tx.run(
-            queryOf(
-                query,
-                mapOf(
-                    "id" to id,
-                    "nav_ident" to navIdent.value,
-                    "tidspunkt" to tidspunkt,
-                ),
-            ).asUpdate,
+        val params = mapOf(
+            "id" to id,
+            "nav_ident" to navIdent.value,
+            "tidspunkt" to tidspunkt,
         )
+
+        session.execute(queryOf(query, params))
     }
 
     fun returner(
@@ -243,31 +210,27 @@ class TilsagnRepository(private val db: Database) {
         tidspunkt: LocalDateTime,
         aarsaker: List<TilsagnStatusAarsak>,
         forklaring: String?,
-        tx: Session,
     ) {
         @Language("PostgreSQL")
         val query = """
             update tilsagn set
                 status_besluttet_av = :nav_ident,
                 status_endret_tidspunkt = :tidspunkt,
-                status_aarsaker = :status_aarsaker::tilsagn_status_aarsak[],
+                status_aarsaker = :status_aarsaker,
                 status_forklaring = :status_forklaring,
                 status = 'RETURNERT'::tilsagn_status
             where id = :id::uuid
         """.trimIndent()
 
-        tx.run(
-            queryOf(
-                query,
-                mapOf(
-                    "id" to id,
-                    "nav_ident" to navIdent.value,
-                    "tidspunkt" to tidspunkt,
-                    "status_aarsaker" to aarsaker.map { it.name }.let { db.createTextArray(it) },
-                    "status_forklaring" to forklaring,
-                ),
-            ).asUpdate,
+        val params = mapOf(
+            "id" to id,
+            "nav_ident" to navIdent.value,
+            "tidspunkt" to tidspunkt,
+            "status_aarsaker" to session.createEnumArray("tilsagn_status_aarsak", aarsaker),
+            "status_forklaring" to forklaring,
         )
+
+        session.execute(queryOf(query, params))
     }
 
     fun tilAnnullering(
@@ -276,7 +239,6 @@ class TilsagnRepository(private val db: Database) {
         tidspunkt: LocalDateTime,
         aarsaker: List<TilsagnStatusAarsak>,
         forklaring: String?,
-        tx: Session,
     ) {
         @Language("PostgreSQL")
         val query = """
@@ -290,25 +252,21 @@ class TilsagnRepository(private val db: Database) {
             where id = :id::uuid
         """.trimIndent()
 
-        tx.run(
-            queryOf(
-                query,
-                mapOf(
-                    "id" to id,
-                    "nav_ident" to navIdent.value,
-                    "tidspunkt" to tidspunkt,
-                    "status_aarsaker" to aarsaker.map { it.name }.let { db.createTextArray(it) },
-                    "status_forklaring" to forklaring,
-                ),
-            ).asUpdate,
+        val params = mapOf(
+            "id" to id,
+            "nav_ident" to navIdent.value,
+            "tidspunkt" to tidspunkt,
+            "status_aarsaker" to session.createEnumArray("tilsagn_status_aarsak", aarsaker),
+            "status_forklaring" to forklaring,
         )
+
+        session.execute(queryOf(query, params))
     }
 
     fun besluttAnnullering(
         id: UUID,
         navIdent: NavIdent,
         tidspunkt: LocalDateTime,
-        tx: Session,
     ) {
         @Language("PostgreSQL")
         val query = """
@@ -319,23 +277,19 @@ class TilsagnRepository(private val db: Database) {
             where id = :id::uuid
         """.trimIndent()
 
-        tx.run(
-            queryOf(
-                query,
-                mapOf(
-                    "id" to id,
-                    "nav_ident" to navIdent.value,
-                    "tidspunkt" to tidspunkt,
-                ),
-            ).asUpdate,
+        val params = mapOf(
+            "id" to id,
+            "nav_ident" to navIdent.value,
+            "tidspunkt" to tidspunkt,
         )
+
+        session.execute(queryOf(query, params))
     }
 
     fun avbrytAnnullering(
         id: UUID,
         navIdent: NavIdent,
         tidspunkt: LocalDateTime,
-        tx: Session,
     ) {
         @Language("PostgreSQL")
         val query = """
@@ -346,16 +300,13 @@ class TilsagnRepository(private val db: Database) {
             where id = :id::uuid
         """.trimIndent()
 
-        tx.run(
-            queryOf(
-                query,
-                mapOf(
-                    "id" to id,
-                    "nav_ident" to navIdent.value,
-                    "tidspunkt" to tidspunkt,
-                ),
-            ).asUpdate,
+        val params = mapOf(
+            "id" to id,
+            "nav_ident" to navIdent.value,
+            "tidspunkt" to tidspunkt,
         )
+
+        session.execute(queryOf(query, params))
     }
 
     private fun Row.toTilsagnDto(): TilsagnDto {

@@ -3,10 +3,12 @@ package no.nav.mulighetsrommet.api
 import kotlinx.coroutines.delay
 import kotliquery.Session
 import kotliquery.TransactionalSession
+import no.nav.mulighetsrommet.altinn.db.AltinnRettigheterQueries
 import no.nav.mulighetsrommet.api.arrangor.db.ArrangorQueries
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleQueries
 import no.nav.mulighetsrommet.api.avtale.db.OpsjonLoggQueries
 import no.nav.mulighetsrommet.api.datavarehus.db.DatavarehusTiltakQueries
+import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkQueries
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingQueries
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattQueries
@@ -15,9 +17,12 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetQueries
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagQueries
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerQueries
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravQueries
+import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeQueries
+import no.nav.mulighetsrommet.api.veilederflate.VeilederJoyrideQueries
 import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakQueries
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.notifications.NotificationQueries
 import no.nav.mulighetsrommet.utdanning.db.UtdanningQueries
 import javax.sql.DataSource
 
@@ -30,6 +35,7 @@ inline fun <R> withTransaction(receiver: Session, block: TransactionalSession.()
 }
 
 class QueryContext(val session: Session) {
+    @Suppress("ktlint:standard:property-naming")
     val Queries = Qs()
 
     inner class Qs {
@@ -44,10 +50,14 @@ class QueryContext(val session: Session) {
         val deltakerForslag = DeltakerForslagQueries(session)
         val refusjonskrav = RefusjonskravQueries(session)
         val utdanning = UtdanningQueries(session)
-
         val dvh = DatavarehusTiltakQueries(session)
+        val altinnRettigheter = AltinnRettigheterQueries(session)
+        val tilsagn = TilsagnQueries(session)
+        val notifications = NotificationQueries(session)
+        val endringshistorikk = EndringshistorikkQueries(session)
 
         val veilderTiltak = VeilederflateTiltakQueries(session)
+        val veilederJoyride = VeilederJoyrideQueries(session)
     }
 }
 

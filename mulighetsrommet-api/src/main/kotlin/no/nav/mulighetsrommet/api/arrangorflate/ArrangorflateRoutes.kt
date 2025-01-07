@@ -31,7 +31,6 @@ import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
@@ -48,7 +47,6 @@ import java.util.*
 
 fun Route.arrangorflateRoutes() {
     val tilsagnService: TilsagnService by inject()
-    val tilsagnRepository: TilsagnRepository by inject()
     val arrangorService: ArrangorService by inject()
     val pdl: HentAdressebeskyttetPersonBolkPdlQuery by inject()
     val journalforRefusjonskrav: JournalforRefusjonskrav by inject()
@@ -98,7 +96,11 @@ fun Route.arrangorflateRoutes() {
 
                 requireTilgangHosArrangor(orgnr)
 
-                call.respond(tilsagnRepository.getAllArrangorflateTilsagn(orgnr))
+                val tilsagn = db.session {
+                    Queries.tilsagn.getAllArrangorflateTilsagn(orgnr)
+                }
+
+                call.respond(tilsagn)
             }
         }
 
@@ -223,8 +225,10 @@ fun Route.arrangorflateRoutes() {
             get {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val tilsagn = tilsagnRepository.getArrangorflateTilsagn(id)
-                    ?: throw NotFoundException("Fant ikke tilsagn")
+                val tilsagn = db.session {
+                    Queries.tilsagn.getArrangorflateTilsagn(id) ?: throw NotFoundException("Fant ikke tilsagn")
+                }
+
                 requireTilgangHosArrangor(tilsagn.arrangor.organisasjonsnummer)
 
                 call.respond(tilsagn)
