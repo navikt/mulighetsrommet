@@ -15,11 +15,9 @@ import { createReadableStreamFromReadable } from "@react-router/node";
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import { initializeMockServer } from "./mocks/node";
-import { client } from "@mr/api-client-v2";
+import { OpenAPI } from "@mr/api-client";
 import { v4 as uuidv4 } from "uuid";
 import logger from "../server/logger.js";
-import { hentMiljø, Miljø } from "./services/miljø";
-import { checkValidToken, oboExchange } from "./auth/auth.server";
 
 export const streamTimeout = 5000;
 
@@ -29,26 +27,24 @@ if (process.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
   initializeMockServer();
 }
 
-client.setConfig({
-  baseUrl: process.env.VITE_MULIGHETSROMMET_API_BASE ?? "http://localhost:3000",
-});
+function setupOpenAPIClient({ base, token }: { base: string; token?: string }) {
+  OpenAPI.BASE = base;
+  OpenAPI.HEADERS = async () => {
+    const headers: Record<string, string> = {};
 
-client.interceptors.request.use(async (request) => {
-  await checkValidToken(request);
+    headers["Accept"] = "application/json";
+    headers["Nav-Consumer-Id"] = uuidv4();
 
-  const token =
-    hentMiljø() === Miljø.Lokalt
-      ? process.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN
-      : await oboExchange(
-          request,
-          `${process.env.NAIS_CLUSTER_NAME}:team-mulighetsrommet:mulighetsrommet-api`,
-        );
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
 
-  request.headers.set("Accept", "application/json");
-  request.headers.set("Nav-Consumer-Id", uuidv4());
-  request.headers.set("Authorization", `Bearer ${token}`);
+    return headers;
+  };
+}
 
-  return request;
+setupOpenAPIClient({
+  base: process.env.VITE_MULIGHETSROMMET_API_BASE ?? "http://localhost:3000",
 });
 
 export default function handleRequest(

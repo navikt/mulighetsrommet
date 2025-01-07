@@ -1,22 +1,21 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { Refusjonskrav } from "~/domene/domene";
 import { Definisjonsliste } from "../Definisjonsliste";
 import { formaterDato } from "../../utils";
-import { RefusjonKravAft } from "@mr/api-client-v2";
 
 interface Props {
-  krav: RefusjonKravAft;
+  krav: Refusjonskrav;
 }
 
 export function RefusjonDetaljer({ krav }: Props) {
+  const { refusjonskravperiode } = krav.detaljer;
+
   return (
     <>
       <Definisjonsliste
         title="Refusjonskrav"
         definitions={[
-          {
-            key: "Refusjonskravperiode",
-            value: `${formaterDato(krav.beregning.periodeStart)} - ${formaterDato(krav.beregning.periodeSlutt)}`,
-          },
+          { key: "Refusjonskravperiode", value: refusjonskravperiode },
           { key: "Frist for innsending", value: formaterDato(krav.fristForGodkjenning) },
         ]}
       />

@@ -1,4 +1,4 @@
-import { ArrFlateRefusjonKravKompakt, RefusjonskravStatus } from "@mr/api-client-v2";
+import { ArrFlateRefusjonKravKompakt, RefusjonskravStatus } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, Table, Tag } from "@navikt/ds-react";
 import React, { ReactNode } from "react";

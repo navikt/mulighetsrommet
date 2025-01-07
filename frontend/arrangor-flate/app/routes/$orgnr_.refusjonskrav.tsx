@@ -2,12 +2,13 @@ import {
   ArrangorflateService,
   ArrFlateRefusjonKravKompakt,
   RefusjonskravStatus,
-} from "@mr/api-client-v2";
+} from "@mr/api-client";
 import { Tabs } from "@navikt/ds-react";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { useLoaderData } from "react-router";
 import { RefusjonskravTable } from "~/components/refusjonskrav/RefusjonskravTable";
 import { TilsagnTable } from "~/components/tilsagn/TilsagnTable";
+import { checkValidToken, setupOpenApi } from "../auth/auth.server";
 import { PageHeader } from "../components/PageHeader";
 import { useTabState } from "../hooks/useTabState";
 
@@ -20,18 +21,15 @@ export const meta: MetaFunction = () => {
 
 export type Tabs = "aktive" | "historiske" | "tilsagnsoversikt";
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  await checkValidToken(request);
+  await setupOpenApi(request);
   const { orgnr } = params;
   if (!orgnr) {
     throw new Error("Mangler orgnr");
   }
-  const { data: krav } = await ArrangorflateService.getAllRefusjonKrav({ path: { orgnr } });
-  const { data: tilsagn } = await ArrangorflateService.getAllArrangorflateTilsagn({
-    path: { orgnr },
-  });
-  if (!krav || !tilsagn) {
-    throw new Error("Error");
-  }
+  const krav = await ArrangorflateService.getAllRefusjonKrav({ orgnr });
+  const tilsagn = await ArrangorflateService.getAllArrangorflateTilsagn({ orgnr });
 
   return { krav, tilsagn };
 }

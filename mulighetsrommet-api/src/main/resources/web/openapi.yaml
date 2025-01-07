@@ -2050,12 +2050,6 @@ paths:
       responses:
         200:
           description: Godkjenn et refusjonskrav
-        400:
-          description: Respons med valideringsfeil
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationErrorResponse"
 
   /api/v1/intern/arrangorflate/refusjonskrav/{id}/kvittering:
     parameters:

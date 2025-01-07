@@ -1,37 +1,42 @@
-import { ArrangorflateService, ArrangorflateTilsagn, RefusjonKravAft } from "@mr/api-client-v2";
+import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
 import { Button, VStack } from "@navikt/ds-react";
 import { LoaderFunction } from "react-router";
 import { useLoaderData, useParams } from "react-router";
+import { checkValidToken } from "~/auth/auth.server";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { PageHeader } from "~/components/PageHeader";
 import { RefusjonskravDetaljer } from "~/components/refusjonskrav/RefusjonskravDetaljer";
 import { Separator } from "~/components/Separator";
+import { Refusjonskrav } from "~/domene/domene";
+import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { internalNavigation } from "../internal-navigation";
 import { useOrgnrFromUrl } from "../utils";
 import { LinkWithTabState } from "../components/LinkWithTabState";
 
 type RefusjonskavKvitteringData = {
-  krav: RefusjonKravAft;
+  krav: Refusjonskrav;
   tilsagn: ArrangorflateTilsagn[];
 };
 
-export const loader: LoaderFunction = async ({ params }): Promise<RefusjonskavKvitteringData> => {
+export const loader: LoaderFunction = async ({
+  request,
+  params,
+}): Promise<RefusjonskavKvitteringData> => {
+  await checkValidToken(request);
+
   const { id } = params;
   if (!id) {
     throw Error("Mangler id");
   }
 
   const [krav, tilsagn] = await Promise.all([
-    ArrangorflateService.getRefusjonkrav({ path: { id } }),
-    ArrangorflateService.getArrangorflateTilsagnTilRefusjon({ path: { id } }),
+    loadRefusjonskrav(id),
+    ArrangorflateService.getArrangorflateTilsagnTilRefusjon({ id }),
   ]);
-  if (!krav?.data || !tilsagn.data) {
-    throw Error("Fant ikke refusjonskrav");
-  }
 
-  return { krav: krav.data, tilsagn: tilsagn.data };
+  return { krav, tilsagn };
 };
 
 export default function RefusjonskravKvittering() {

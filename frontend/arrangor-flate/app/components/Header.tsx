@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import css from "../root.module.css";
 import { Arrangorvelger } from "./arrangorvelger/Arrangorvelger";
-import { Arrangor } from "@mr/api-client-v2";
+import { Arrangor } from "@mr/api-client";
 
 interface Props {
   arrangorer: Arrangor[];
