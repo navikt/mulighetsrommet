@@ -4,7 +4,7 @@ import {
   RefusjonKravAft,
   RefusjonskravStatus,
   RelevanteForslag,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { http, HttpResponse, PathParams } from "msw";
 import { v4 as uuid } from "uuid";
 

@@ -1,5 +1,4 @@
-import { ApiError, ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
-import { isValidationError } from "@mr/frontend-common/utils/utils";
+import { ArrangorflateService, ArrangorflateTilsagn, RefusjonKravAft } from "@mr/api-client-v2";
 import { Button, Checkbox, ErrorSummary, Heading, TextField, VStack } from "@navikt/ds-react";
 import {
   ActionFunction,
@@ -9,20 +8,17 @@ import {
   useActionData,
   useLoaderData,
 } from "react-router";
-import { checkValidToken } from "~/auth/auth.server";
 import { Definisjon } from "~/components/Definisjon";
 import { PageHeader } from "~/components/PageHeader";
 import { RefusjonskravDetaljer } from "~/components/refusjonskrav/RefusjonskravDetaljer";
-import { Refusjonskrav } from "~/domene/domene";
 import { FormError, getOrError, getOrThrowError } from "~/form/form-helpers";
 import { internalNavigation } from "~/internal-navigation";
-import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { useOrgnrFromUrl } from "~/utils";
 import { getCurrentTab } from "~/utils/currentTab";
 import { Separator } from "../components/Separator";
 
 type BekreftRefusjonskravData = {
-  krav: Refusjonskrav;
+  krav: RefusjonKravAft;
   tilsagn: ArrangorflateTilsagn[];
 };
 
@@ -30,23 +26,21 @@ interface ActionData {
   errors?: FormError[];
 }
 
-export const loader: LoaderFunction = async ({
-  request,
-  params,
-}): Promise<BekreftRefusjonskravData> => {
-  await checkValidToken(request);
-
+export const loader: LoaderFunction = async ({ params }): Promise<BekreftRefusjonskravData> => {
   const { id } = params;
   if (!id) {
     throw Error("Mangler id");
   }
 
   const [krav, tilsagn] = await Promise.all([
-    loadRefusjonskrav(id),
-    ArrangorflateService.getArrangorflateTilsagnTilRefusjon({ id }),
+    ArrangorflateService.getRefusjonkrav({ path: { id } }),
+    ArrangorflateService.getArrangorflateTilsagnTilRefusjon({ path: { id } }),
   ]);
+  if (!krav?.data || !tilsagn?.data) {
+    throw Error("Fant ikke refusjonskrav");
+  }
 
-  return { krav, tilsagn };
+  return { krav: krav.data, tilsagn: tilsagn.data };
 };
 
 export const action: ActionFunction = async ({ request }) => {
@@ -75,30 +69,26 @@ export const action: ActionFunction = async ({ request }) => {
     };
   }
 
-  try {
-    await ArrangorflateService.godkjennRefusjonskrav({
-      id: refusjonskravId,
-      requestBody: {
-        digest: refusjonskravDigest,
-        betalingsinformasjon: {
-          kontonummer: kontonummer.toString(),
-          kid: kid,
-        },
+  const { error } = await ArrangorflateService.godkjennRefusjonskrav({
+    path: { id: refusjonskravId },
+    body: {
+      digest: refusjonskravDigest,
+      betalingsinformasjon: {
+        kontonummer: kontonummer.toString(),
+        kid: kid,
       },
-    });
+    },
+  });
 
+  if (!error) {
     return redirect(
       `${internalNavigation(orgnr).kvittering(refusjonskravId)}?forside-tab=${currentTab}`,
     );
-  } catch (e) {
-    const apiError = e as ApiError;
-    if (apiError.status === 400 && isValidationError(apiError.body)) {
-      // Remix revaliderer loader data ved actions, så når denne feilmeldingen vises skal allerede kravet
-      // være oppdatert. Det kan hende vi i fremtiden vil vise _hva_ som har endret seg også, men det
-      // får vi ta senere.
-      return { errors: apiError.body.errors };
-    }
-    throw e;
+  } else {
+    // Remix revaliderer loader data ved actions, så når denne feilmeldingen vises skal allerede kravet
+    // være oppdatert. Det kan hende vi i fremtiden vil vise _hva_ som har endret seg også, men det
+    // får vi ta senere.
+    return { errors: error.errors };
   }
 };
 

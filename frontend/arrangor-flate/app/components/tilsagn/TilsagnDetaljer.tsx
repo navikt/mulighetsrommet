@@ -1,4 +1,4 @@
-import { ArrangorflateTilsagn } from "@mr/api-client";
+import { ArrangorflateTilsagn } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { formaterDato } from "~/utils";
 import { Definisjonsliste, Definition } from "../Definisjonsliste";

@@ -2,7 +2,7 @@ import {
   Betalingsinformasjon,
   RefusjonKravAftBeregning,
   RefusjonKravDeltakelse,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 
 export interface Refusjonskrav {
   id: string;

@@ -1,7 +1,7 @@
 import { Select } from "@navikt/ds-react";
 import { useNavigate } from "react-router";
 import { useOrgnrFromUrl } from "../../utils";
-import { Arrangor } from "@mr/api-client";
+import { Arrangor } from "@mr/api-client-v2";
 
 interface Props {
   arrangorer: Arrangor[];
