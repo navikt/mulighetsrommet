@@ -12,7 +12,6 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
@@ -24,7 +23,7 @@ class TiltakstypeRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     afterContainer {
-        database.db.truncateAll()
+        database.truncateAll()
     }
 
     context("CRUD") {

@@ -31,7 +31,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingKontak
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -72,7 +71,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     }
 
     afterEach {
-        database.db.truncateAll()
+        database.truncateAll()
     }
 
     context("CRUD") {

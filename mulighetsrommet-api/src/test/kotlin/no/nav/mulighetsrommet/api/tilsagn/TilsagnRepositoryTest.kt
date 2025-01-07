@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -30,7 +29,7 @@ class TilsagnRepositoryTest : FunSpec({
     )
 
     beforeEach {
-        database.db.truncateAll()
+        database.truncateAll()
         domain.initialize(database.db)
     }
 

@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus.*
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
@@ -75,7 +74,7 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
         }
 
         afterEach {
-            database.db.truncateAll()
+            database.truncateAll()
         }
 
         test("forsøker ikke å avslutte gjennomføringer før sluttDato er passert") {
@@ -217,7 +216,7 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
         }
 
         afterEach {
-            database.db.truncateAll()
+            database.truncateAll()
         }
 
         test("avpubliserer og stenger gjennomføring for påmelding") {

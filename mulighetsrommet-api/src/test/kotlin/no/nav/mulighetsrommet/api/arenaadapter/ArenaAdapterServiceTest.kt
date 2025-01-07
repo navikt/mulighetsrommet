@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
@@ -53,7 +52,7 @@ class ArenaAdapterServiceTest :
             )
 
             afterEach {
-                database.db.truncateAll()
+                database.truncateAll()
 
                 clearAllMocks()
             }
@@ -110,7 +109,7 @@ class ArenaAdapterServiceTest :
             }
 
             afterEach {
-                database.db.truncateAll()
+                database.truncateAll()
 
                 clearAllMocks()
             }
@@ -181,7 +180,7 @@ class ArenaAdapterServiceTest :
             }
 
             afterEach {
-                database.db.truncateAll()
+                database.truncateAll()
 
                 clearAllMocks()
             }

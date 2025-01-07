@@ -5,7 +5,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
@@ -73,7 +72,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         }
 
         afterEach {
-            database.db.truncateAll()
+            database.truncateAll()
         }
 
         test("upsert deltakere from topic") {

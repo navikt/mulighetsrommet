@@ -31,7 +31,6 @@ import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
 import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
@@ -136,7 +135,7 @@ class ArrangorflateRoutesTest : FunSpec({
     }
 
     beforeEach {
-        database.db.truncateAll()
+        database.truncateAll()
         domain.initialize(database.db)
     }
 

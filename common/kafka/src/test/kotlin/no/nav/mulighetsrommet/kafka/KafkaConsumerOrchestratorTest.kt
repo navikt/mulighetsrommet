@@ -14,7 +14,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.testcontainers.containers.KafkaContainer
@@ -47,7 +46,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
     }
 
     afterEach {
-        database.db.truncateAll()
+        database.truncateAll()
     }
 
     val defaultConfig = KafkaConsumerOrchestrator.Config(

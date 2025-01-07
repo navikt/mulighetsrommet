@@ -34,7 +34,6 @@ import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.ArenaTimestampFormatter
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
@@ -52,7 +51,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     afterEach {
-        database.db.truncateAll()
+        database.truncateAll()
     }
 
     val tiltakshistorikkStartDate = LocalDateTime.now().minus(Period.ofYears(5))

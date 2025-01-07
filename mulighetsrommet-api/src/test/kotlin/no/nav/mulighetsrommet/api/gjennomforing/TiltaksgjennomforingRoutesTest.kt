@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -82,7 +81,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
         }
 
         afterContainer {
-            database.db.truncateAll()
+            database.truncateAll()
         }
 
         test("401 Unauthorized for uautentisert kall for PUT av tiltaksgjennomføring") {
@@ -197,7 +196,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
         }
 
         afterContainer {
-            database.db.truncateAll()
+            database.truncateAll()
         }
 
         test("får ikke endre avtale på anskaffede tiltak") {
@@ -278,7 +277,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
         }
 
         afterContainer {
-            database.db.truncateAll()
+            database.truncateAll()
         }
 
         test("not found når gjennomføring ikke finnes") {

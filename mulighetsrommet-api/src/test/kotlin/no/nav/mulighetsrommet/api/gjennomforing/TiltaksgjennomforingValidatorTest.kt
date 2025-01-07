@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
@@ -126,7 +125,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     }
 
     afterTest {
-        database.db.truncateAll()
+        database.truncateAll()
     }
 
     test("should fail when avtale does not exist") {
