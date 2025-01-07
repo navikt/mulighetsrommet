@@ -10,7 +10,6 @@ import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
-import no.nav.mulighetsrommet.altinn.db.AltinnRettigheterRepository
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.SlackConfig
@@ -46,6 +45,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadTiltaksgjennomfo
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateTiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.api.lagretfilter.LagretFilterService
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
@@ -59,18 +59,14 @@ import no.nav.mulighetsrommet.api.refusjon.kafka.AmtArrangorMeldingV1KafkaConsum
 import no.nav.mulighetsrommet.api.refusjon.kafka.AmtDeltakerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.refusjon.task.GenerateRefusjonskrav
 import no.nav.mulighetsrommet.api.refusjon.task.JournalforRefusjonskrav
-import no.nav.mulighetsrommet.api.services.EndringshistorikkService
-import no.nav.mulighetsrommet.api.services.LagretFilterService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
-import no.nav.mulighetsrommet.api.veilederflate.VeilederJoyrideRepository
 import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.TiltakshistorikkService
@@ -79,9 +75,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
-import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
 import no.nav.mulighetsrommet.metrics.Metrikker
-import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationTask
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
@@ -111,7 +105,6 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
         modules(
             db(appConfig.database),
             kafka(appConfig),
-            repositories(),
             services(appConfig),
             tasks(appConfig.tasks),
             slack(appConfig.slack),
@@ -207,14 +200,6 @@ private fun kafka(appConfig: AppConfig) = module {
             consumers = consumers,
         )
     }
-}
-
-private fun repositories() = module {
-    single { NotificationRepository(get()) }
-    single { KafkaConsumerRepositoryImpl(get()) }
-    single { VeilederJoyrideRepository(get()) }
-    single { TilsagnRepository(get()) }
-    single { AltinnRettigheterRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -346,10 +331,8 @@ private fun services(appConfig: AppConfig) = module {
             tokenProvider = cachedTokenProvider.withScope(appConfig.dokark.scope),
         )
     }
-    single { EndringshistorikkService(get()) }
     single {
         ArenaAdapterService(
-            get(),
             get(),
             get(),
             get(),
@@ -358,8 +341,6 @@ private fun services(appConfig: AppConfig) = module {
     }
     single {
         AvtaleService(
-            get(),
-            get(),
             get(),
             get(),
             get(),
@@ -379,8 +360,6 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
-            get(),
         )
     }
     single { TiltakstypeService(get()) }
@@ -396,9 +375,9 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { AvtaleValidator(get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get()) }
-    single { OpsjonLoggService(get(), get()) }
+    single { OpsjonLoggService(get()) }
     single { LagretFilterService(get()) }
-    single { TilsagnService(get(), get(), get()) }
+    single { TilsagnService(get()) }
     single { AltinnRettigheterService(get(), get()) }
 }
 
@@ -410,7 +389,7 @@ private fun tasks(config: TaskConfig) = module {
     single { SynchronizeUtdanninger(config.synchronizeUtdanninger, get(), get()) }
     single { GenerateRefusjonskrav(config.generateRefusjonskrav, get()) }
     single { JournalforRefusjonskrav(get(), get(), get(), get(), get()) }
-    single { NotificationTask(get(), get()) }
+    single { NotificationTask(get()) }
     single {
         val updateTiltaksgjennomforingStatus = UpdateTiltaksgjennomforingStatus(
             get(),
@@ -429,7 +408,6 @@ private fun tasks(config: TaskConfig) = module {
         )
         val notifyFailedKafkaEvents = NotifyFailedKafkaEvents(
             config.notifyFailedKafkaEvents,
-            get(),
             get(),
             get(),
         )

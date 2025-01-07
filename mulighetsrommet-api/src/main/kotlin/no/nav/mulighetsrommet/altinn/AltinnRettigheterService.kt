@@ -1,31 +1,39 @@
 package no.nav.mulighetsrommet.altinn
 
-import no.nav.mulighetsrommet.altinn.db.AltinnRettigheterRepository
 import no.nav.mulighetsrommet.altinn.db.BedriftRettigheterDbo
 import no.nav.mulighetsrommet.altinn.db.PersonBedriftRettigheterDbo
 import no.nav.mulighetsrommet.altinn.model.BedriftRettigheter
+import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import java.time.Duration
 import java.time.LocalDateTime
 
 class AltinnRettigheterService(
+    private val db: ApiDatabase,
     private val altinnClient: AltinnClient,
-    private val altinnRettigheterRepository: AltinnRettigheterRepository,
 ) {
     private val rolleExpiryDuration = Duration.ofDays(1)
 
-    suspend fun getRettigheter(norskIdent: NorskIdent): List<BedriftRettigheter> {
-        val bedriftRettigheter = altinnRettigheterRepository.getRettigheter(norskIdent)
-        return if (bedriftRettigheter.isEmpty() || bedriftRettigheter.any { it.rettigheter.any { it.expiry.isBefore(LocalDateTime.now()) } }) {
+    suspend fun getRettigheter(norskIdent: NorskIdent): List<BedriftRettigheter> = db.session {
+        val bedriftRettigheter = Queries.altinnRettigheter.getRettigheter(norskIdent)
+        return if (bedriftRettigheter.isEmpty() || anyExpiredBefore(bedriftRettigheter, LocalDateTime.now())) {
             syncRettigheter(norskIdent)
         } else {
             bedriftRettigheter.map { it.toBedriftRettigheter() }
         }
     }
 
-    private suspend fun syncRettigheter(norskIdent: NorskIdent): List<BedriftRettigheter> {
+    private fun anyExpiredBefore(bedriftRettigheter: List<BedriftRettigheterDbo>, now: LocalDateTime): Boolean {
+        return bedriftRettigheter.any { (_, rettigheter) ->
+            rettigheter.any { rettighet -> rettighet.expiry.isBefore(now) }
+        }
+    }
+
+    private suspend fun QueryContext.syncRettigheter(norskIdent: NorskIdent): List<BedriftRettigheter> {
         val rettigheter = altinnClient.hentRettigheter(norskIdent)
-        altinnRettigheterRepository.upsertRettighet(
+
+        Queries.altinnRettigheter.upsertRettighet(
             PersonBedriftRettigheterDbo(
                 norskIdent = norskIdent,
                 bedriftRettigheter = rettigheter,
@@ -38,6 +46,6 @@ class AltinnRettigheterService(
 }
 
 fun BedriftRettigheterDbo.toBedriftRettigheter() = BedriftRettigheter(
-    organisasjonsnummer = this.organisasjonsnummer,
-    rettigheter = this.rettigheter.map { it.rettighet },
+    organisasjonsnummer = organisasjonsnummer,
+    rettigheter = rettigheter.map { it.rettighet },
 )

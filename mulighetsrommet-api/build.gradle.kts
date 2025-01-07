@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.openapitools.generator.gradle.plugin.tasks.ValidateTask
 
 plugins {
@@ -8,12 +7,6 @@ plugins {
     alias(libs.plugins.flyway)
     alias(libs.plugins.openapi.generator)
     alias(libs.plugins.shadow)
-}
-
-tasks.withType<KotlinCompile> {
-    compilerOptions {
-        freeCompilerArgs.add("-Xcontext-receivers")
-    }
 }
 
 application {

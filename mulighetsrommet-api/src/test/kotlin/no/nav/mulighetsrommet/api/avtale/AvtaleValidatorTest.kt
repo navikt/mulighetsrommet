@@ -457,7 +457,7 @@ class AvtaleValidatorTest : FunSpec({
                 )
             }
 
-            val opsjonLoggService = OpsjonLoggService(database.db, mockk(relaxed = true))
+            val opsjonLoggService = OpsjonLoggService(database.db)
             opsjonLoggService.lagreOpsjonLoggEntry(
                 OpsjonLoggEntry(
                     avtaleId = avtaleDbo.id,

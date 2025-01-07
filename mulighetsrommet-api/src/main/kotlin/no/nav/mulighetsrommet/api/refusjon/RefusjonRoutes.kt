@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravDto
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravStatus
-import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
+import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -20,21 +20,24 @@ import java.util.*
 
 fun Route.refusjonRoutes() {
     val db: ApiDatabase by inject()
-    val tilsagnRepository: TilsagnRepository by inject()
+    val tilsagnService: TilsagnService by inject()
+
+    fun toRefusjonskravKompakt(krav: RefusjonskravDto): RefusjonKravKompakt {
+        val kostnadsteder = tilsagnService
+            .getTilsagnTilRefusjon(krav.gjennomforing.id, krav.beregning.input.periode)
+            .map { it.kostnadssted }
+        return RefusjonKravKompakt.fromRefusjonskravDto(krav, kostnadsteder)
+    }
 
     route("/refusjonskrav/{id}") {
         get {
             val id = call.parameters.getOrFail<UUID>("id")
 
             val krav = db.session {
-                val krav = Queries.refusjonskrav.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
-                val kostnadsteder = tilsagnRepository
-                    .getTilsagnTilRefusjon(krav.gjennomforing.id, krav.beregning.input.periode)
-                    .map { it.kostnadssted }
-                RefusjonKravKompakt.fromRefusjonskravDto(krav, kostnadsteder)
+                Queries.refusjonskrav.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
             }
 
-            call.respond(krav)
+            call.respond(toRefusjonskravKompakt(krav))
         }
     }
 
@@ -43,14 +46,11 @@ fun Route.refusjonRoutes() {
             get {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val krav = db.session {
-                    Queries.refusjonskrav.getByGjennomforing(id).map { krav ->
-                        val kostnadsteder = tilsagnRepository
-                            .getTilsagnTilRefusjon(krav.gjennomforing.id, krav.beregning.input.periode)
-                            .map { it.kostnadssted }
-                        RefusjonKravKompakt.fromRefusjonskravDto(krav, kostnadsteder)
-                    }
+                val kravForGjennomforing = db.session {
+                    Queries.refusjonskrav.getByGjennomforing(id)
                 }
+
+                val krav = kravForGjennomforing.map(::toRefusjonskravKompakt)
 
                 call.respond(krav)
             }

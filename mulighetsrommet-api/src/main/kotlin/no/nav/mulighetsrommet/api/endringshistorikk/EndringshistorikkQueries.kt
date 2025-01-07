@@ -1,30 +1,14 @@
-package no.nav.mulighetsrommet.api.services
+package no.nav.mulighetsrommet.api.endringshistorikk
 
 import kotlinx.serialization.json.JsonElement
-import kotliquery.TransactionalSession
+import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
-import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*
 
-const val TILTAKSADMINISTRASJON_SYSTEM_BRUKER = "System"
-
-const val ARENA_SYSTEM_BRUKER = "Arena"
-
-sealed class EndretAv(val id: String) {
-    class NavAnsatt(navIdent: NavIdent) : EndretAv(navIdent.value)
-
-    data object System : EndretAv(TILTAKSADMINISTRASJON_SYSTEM_BRUKER)
-
-    data object Arena : EndretAv(ARENA_SYSTEM_BRUKER)
-}
-
-class EndringshistorikkService(
-    private val db: Database,
-) {
+class EndringshistorikkQueries(private val session: Session) {
     fun getEndringshistorikk(documentClass: DocumentClass, id: UUID): EndringshistorikkDto {
         @Language("PostgreSQL")
         val statement = """
@@ -46,29 +30,25 @@ class EndringshistorikkService(
             "document_id" to id,
         )
 
-        val entries = queryOf(statement, params)
-            .map {
-                val userId = it.string("user_id")
+        val entries = session.list(queryOf(statement, params)) {
+            val userId = it.string("user_id")
 
-                val editedBy = it.stringOrNull("user_name")
-                    ?.let { navn -> EndringshistorikkDto.NavAnsatt(userId, navn) }
-                    ?: EndringshistorikkDto.Systembruker(userId)
+            val editedBy = it.stringOrNull("user_name")
+                ?.let { navn -> EndringshistorikkDto.NavAnsatt(userId, navn) }
+                ?: EndringshistorikkDto.Systembruker(userId)
 
-                EndringshistorikkDto.Entry(
-                    id = it.uuid("document_id"),
-                    operation = it.string("operation"),
-                    editedAt = it.localDateTime("edited_at"),
-                    editedBy = editedBy,
-                )
-            }
-            .asList
-            .let { db.run(it) }
+            EndringshistorikkDto.Entry(
+                id = it.uuid("document_id"),
+                operation = it.string("operation"),
+                editedAt = it.localDateTime("edited_at"),
+                editedBy = editedBy,
+            )
+        }
 
         return EndringshistorikkDto(entries = entries)
     }
 
     fun logEndring(
-        tx: TransactionalSession,
         documentClass: DocumentClass,
         operation: String,
         user: EndretAv,
@@ -95,12 +75,6 @@ class EndringshistorikkService(
             "timestamp" to timestamp,
         )
 
-        tx.run(queryOf(statement, params).asExecute)
+        session.execute(queryOf(statement, params))
     }
-}
-
-enum class DocumentClass(val table: String) {
-    AVTALE("avtale_endringshistorikk"),
-    TILTAKSGJENNOMFORING("tiltaksgjennomforing_endringshistorikk"),
-    TILSAGN("tilsagn_endringshistorikk"),
 }

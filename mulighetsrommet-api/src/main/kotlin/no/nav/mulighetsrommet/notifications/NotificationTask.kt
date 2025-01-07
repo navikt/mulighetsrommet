@@ -3,14 +3,13 @@ package no.nav.mulighetsrommet.notifications
 import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
-import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import org.slf4j.LoggerFactory
 import java.time.Instant
 
 class NotificationTask(
-    database: Database,
-    private val notifications: NotificationRepository,
+    private val db: ApiDatabase,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -18,11 +17,11 @@ class NotificationTask(
         .oneTime("handle-scheduled-notification", ScheduledNotification::class.java)
         .execute { instance, _ ->
             val notification: ScheduledNotification = instance.data
-            notifications.insert(notification)
+            db.session { Queries.notifications.insert(notification) }
         }
 
     private val client = SchedulerClient.Builder
-        .create(database.getDatasource(), task)
+        .create(db.getDatasource(), task)
         .serializer(DbSchedulerKotlinSerializer())
         .build()
 

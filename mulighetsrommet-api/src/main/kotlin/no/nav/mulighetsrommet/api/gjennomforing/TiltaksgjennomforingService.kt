@@ -7,6 +7,8 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
+import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
@@ -14,17 +16,12 @@ import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.routes.v1.EksternTiltaksgjennomforingFilter
-import no.nav.mulighetsrommet.api.services.DocumentClass
-import no.nav.mulighetsrommet.api.services.EndretAv
-import no.nav.mulighetsrommet.api.services.EndringshistorikkService
-import no.nav.mulighetsrommet.api.withTransaction
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
-import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
@@ -35,9 +32,7 @@ import java.util.*
 class TiltaksgjennomforingService(
     private val db: ApiDatabase,
     private val tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
-    private val notificationRepository: NotificationRepository,
     private val validator: TiltaksgjennomforingValidator,
-    private val documentHistoryService: EndringshistorikkService,
     private val navAnsattService: NavAnsattService,
 ) {
 
@@ -196,8 +191,8 @@ class TiltaksgjennomforingService(
         tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
     }
 
-    fun getEndringshistorikk(id: UUID): EndringshistorikkDto {
-        return documentHistoryService.getEndringshistorikk(DocumentClass.TILTAKSGJENNOMFORING, id)
+    fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
+        return Queries.endringshistorikk.getEndringshistorikk(DocumentClass.TILTAKSGJENNOMFORING, id)
     }
 
     fun frikobleKontaktpersonFraGjennomforing(
@@ -239,16 +234,15 @@ class TiltaksgjennomforingService(
             targets = administratorsToNotify,
             createdAt = Instant.now(),
         )
-        notificationRepository.insert(notification, session)
+        Queries.notifications.insert(notification)
     }
 
     private fun QueryContext.logEndring(
         operation: String,
         dto: TiltaksgjennomforingDto,
         endretAv: EndretAv,
-    ) = withTransaction(session) {
-        documentHistoryService.logEndring(
-            this,
+    ) {
+        Queries.endringshistorikk.logEndring(
             DocumentClass.TILTAKSGJENNOMFORING,
             operation,
             endretAv,

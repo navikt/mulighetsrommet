@@ -12,12 +12,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingValidator
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
-import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.notifications.NotificationRepository
 import java.time.LocalDate
 
 class UpdateApentForPameldingTest : FunSpec({
@@ -48,17 +43,15 @@ class UpdateApentForPameldingTest : FunSpec({
         }
 
         val service = TiltaksgjennomforingService(
-            database.db,
-            mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true),
-            NotificationRepository(database.db.db),
-            mockk<TiltaksgjennomforingValidator>(),
-            EndringshistorikkService(database.db.db),
-            mockk<NavAnsattService>(relaxed = true),
+            db = database.db,
+            tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
+            validator = mockk(),
+            navAnsattService = mockk(relaxed = true),
         )
 
         val updateApentForPamelding = UpdateApentForPamelding(
             config = UpdateApentForPamelding.Config(disabled = true),
-            db = database.db.db,
+            db = database.db,
             tiltaksgjennomforingService = service,
         )
 

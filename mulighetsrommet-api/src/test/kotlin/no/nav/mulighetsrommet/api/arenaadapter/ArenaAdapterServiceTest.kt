@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
-import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
@@ -39,7 +38,6 @@ class ArenaAdapterServiceTest : FunSpec({
         tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
         sanityService = sanityService,
         arrangorService = mockk(relaxed = true),
-        endringshistorikk = EndringshistorikkService(database.db.db),
     )
 
     context("avtaler") {

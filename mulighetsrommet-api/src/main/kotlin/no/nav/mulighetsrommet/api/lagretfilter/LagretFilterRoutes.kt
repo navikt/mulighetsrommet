@@ -1,7 +1,6 @@
-package no.nav.mulighetsrommet.api.routes.v1
+package no.nav.mulighetsrommet.api.lagretfilter
 
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -9,8 +8,6 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.services.LagretFilterService
-import no.nav.mulighetsrommet.api.services.UpsertFilterEntry
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -23,15 +20,13 @@ fun Route.lagretFilterRoutes() {
         get("mine/{dokumenttype}") {
             val navIdent = getNavIdent()
             val dokumenttype = call.parameters.getOrFail("dokumenttype")
-            lagretFilterService.getLagredeFiltereForBruker(
+
+            val filter = lagretFilterService.getLagredeFiltereForBruker(
                 navIdent.value,
-                UpsertFilterEntry.FilterDokumentType.valueOf(dokumenttype),
+                FilterDokumentType.valueOf(dokumenttype),
             )
-                .onRight {
-                    call.respond(it)
-                }.onLeft {
-                    call.respondText("Klarte ikke hente lagrede filter", status = HttpStatusCode.InternalServerError)
-                }
+
+            call.respond(filter)
         }
 
         post {
@@ -53,12 +48,12 @@ data class LagretFilterRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
-    val type: UpsertFilterEntry.FilterDokumentType,
+    val type: FilterDokumentType,
     val filter: JsonElement,
     val sortOrder: Int,
 ) {
-    fun toLagretFilter(id: UUID?, brukerId: NavIdent): UpsertFilterEntry {
-        return UpsertFilterEntry(
+    fun toLagretFilter(id: UUID?, brukerId: NavIdent): LagretFilterUpsert {
+        return LagretFilterUpsert(
             id = id,
             brukerId = brukerId.value,
             navn = navn,

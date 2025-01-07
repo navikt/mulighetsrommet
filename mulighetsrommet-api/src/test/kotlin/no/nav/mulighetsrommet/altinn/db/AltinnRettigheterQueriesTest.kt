@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.altinn.db
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldBe
+import io.kotest.matchers.collections.shouldContainExactly
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
 import no.nav.mulighetsrommet.altinn.model.BedriftRettigheter
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import java.time.LocalDateTime
 
-class AltinnRettigheterRepositoryTest : FunSpec({
+class AltinnRettigheterQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val norskIdent1 = NorskIdent("12345678901")
@@ -39,22 +39,23 @@ class AltinnRettigheterRepositoryTest : FunSpec({
     )
 
     test("CRUD") {
-        val altinnRettigheterRepository = AltinnRettigheterRepository(database.db)
-        altinnRettigheterRepository.upsertRettighet(rettighet1)
-        altinnRettigheterRepository.upsertRettighet(rettighet2)
+        database.runAndRollback {
+            val queries = AltinnRettigheterQueries(it)
 
-        altinnRettigheterRepository.getRettigheter(norskIdent1) shouldBe rettighet1
-            .bedriftRettigheter
-            .map {
+            queries.upsertRettighet(rettighet1)
+            queries.upsertRettighet(rettighet2)
+
+            queries.getRettigheter(norskIdent1) shouldContainExactly listOf(
                 BedriftRettigheterDbo(
-                    it.organisasjonsnummer,
-                    it.rettigheter.map { ressurs ->
+                    underenhet1.organisasjonsnummer,
+                    listOf(
                         RettighetDbo(
-                            rettighet = ressurs,
+                            rettighet = AltinnRessurs.TILTAK_ARRANGOR_REFUSJON,
                             expiry = LocalDateTime.of(2024, 1, 1, 0, 0),
-                        )
-                    },
-                )
-            }
+                        ),
+                    ),
+                ),
+            )
+        }
     }
 })

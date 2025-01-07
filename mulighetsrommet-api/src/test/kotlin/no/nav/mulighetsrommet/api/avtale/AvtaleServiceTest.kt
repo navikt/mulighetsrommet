@@ -5,6 +5,10 @@ import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -23,16 +27,13 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadTiltaksgjennomfo
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.NotFound
 import no.nav.mulighetsrommet.api.responses.ValidationError
-import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
-import no.nav.mulighetsrommet.api.clients.brreg.BrregClient as BrregClient1
 
 class AvtaleServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -61,14 +62,12 @@ class AvtaleServiceTest : FunSpec({
     ) = AvtaleService(
         database.db,
         ArrangorService(database.db, brregClient),
-        NotificationRepository(database.db.db),
         validator,
-        EndringshistorikkService(database.db.db),
         gjennomforingPublisher,
     )
 
     context("Upsert avtale") {
-        val brregClient = mockk<BrregClient1>()
+        val brregClient = mockk<BrregClient>()
         val gjennomforingPublisher = mockk<InitialLoadTiltaksgjennomforinger>(relaxed = true)
         val avtaleService = createAvtaleService(brregClient, gjennomforingPublisher)
 
@@ -215,7 +214,9 @@ class AvtaleServiceTest : FunSpec({
             val avtale = AvtaleFixtures.avtaleRequest.copy(administratorer = listOf(identAnsatt1))
             avtaleService.upsert(avtale, identAnsatt1)
 
-            database.assertThat("user_notification").isEmpty
+            database.run {
+                Queries.notifications.getAll().shouldBeEmpty()
+            }
         }
 
         test("Bare nye administratorer får notification når man endrer gjennomføring") {
@@ -225,10 +226,11 @@ class AvtaleServiceTest : FunSpec({
             val avtale = AvtaleFixtures.avtaleRequest.copy(administratorer = listOf(identAnsatt2))
             avtaleService.upsert(avtale, identAnsatt1)
 
-            database.assertThat("user_notification")
-                .hasNumberOfRows(1)
-                .column("user_id")
-                .containsValues(identAnsatt2.value)
+            database.run {
+                Queries.notifications.getAll().shouldHaveSize(1).first().should {
+                    it.user shouldBe identAnsatt2
+                }
+            }
         }
     }
 })

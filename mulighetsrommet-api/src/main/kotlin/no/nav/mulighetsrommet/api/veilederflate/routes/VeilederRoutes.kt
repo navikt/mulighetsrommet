@@ -1,15 +1,15 @@
 package no.nav.mulighetsrommet.api.veilederflate.routes
 
-import io.ktor.server.application.*
+import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.veilederflate.VeilederJoyrideRepository
 import no.nav.mulighetsrommet.api.veilederflate.models.JoyrideType
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederJoyrideDto
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederJoyrideRequest
@@ -19,8 +19,8 @@ import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
 
 fun Route.veilederRoutes() {
+    val db: ApiDatabase by inject()
     val microsoftGraphClient: MicrosoftGraphClient by inject()
-    val veilederJoyrideRepository: VeilederJoyrideRepository by inject()
 
     get("/veileder/me") {
         val azureId = getNavAnsattAzureId()
@@ -36,30 +36,33 @@ fun Route.veilederRoutes() {
                 navn = ansatt.hovedenhetNavn,
             ),
         )
+
         call.respond(veileder)
     }
 
     route("joyride") {
         post("lagre") {
             val request = call.receive<VeilederJoyrideRequest>()
-            veilederJoyrideRepository.upsert(
-                VeilederJoyrideDto(
-                    navIdent = getNavIdent(),
-                    fullfort = request.fullfort,
-                    type = request.joyrideType,
-                ),
+
+            val dto = VeilederJoyrideDto(
+                navIdent = getNavIdent(),
+                fullfort = request.fullfort,
+                type = request.joyrideType,
             )
-            call.respondText("ok")
+            db.session { Queries.veilederJoyride.upsert(dto) }
+
+            call.respond(HttpStatusCode.OK)
         }
 
         get("{type}/har-fullfort") {
-            val type = call.parameters.getOrFail("type")
-            call.respond(
-                veilederJoyrideRepository.harFullfortJoyride(
-                    navIdent = getNavIdent(),
-                    type = JoyrideType.valueOf(type),
-                ),
-            )
+            val navIdent = getNavIdent()
+            val type = call.parameters.getOrFail("type").let { JoyrideType.valueOf(it) }
+
+            val fullfort = db.session {
+                Queries.veilederJoyride.harFullfortJoyride(navIdent, type)
+            }
+
+            call.respond(fullfort)
         }
     }
 }
