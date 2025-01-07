@@ -47,14 +47,15 @@ class TiltaksgjennomforingService(
     ): Either<List<ValidationError>, TiltaksgjennomforingDto> {
         val previous = tiltaksgjennomforinger.get(request.id)
         return validator.validate(request.toDbo(), previous)
+            .onRight { dbo ->
+                dbo.kontaktpersoner.forEach {
+                    navAnsattService.addUserToKontaktpersoner(it.navIdent)
+                }
+            }
             .map { dbo ->
                 db.transactionSuspend { tx ->
                     if (previous?.toTiltaksgjennomforingDbo() == dbo) {
                         return@transactionSuspend previous
-                    }
-
-                    dbo.kontaktpersoner.forEach {
-                        navAnsattService.addUserToKontaktpersoner(it.navIdent, tx)
                     }
 
                     tiltaksgjennomforinger.upsert(dbo, tx)

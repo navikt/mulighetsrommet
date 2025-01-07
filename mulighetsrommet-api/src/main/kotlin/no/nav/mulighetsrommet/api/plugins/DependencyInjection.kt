@@ -395,7 +395,7 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakshistorikkService(get(), get(), get(), get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
     single { BrukerService(get(), get(), get(), get(), get(), get()) }
-    single { NavAnsattService(appConfig.auth.roles, get(), get()) }
+    single { NavAnsattService(appConfig.auth.roles, get(), get(), get()) }
     single { NavAnsattSyncService(get(), get(), get(), get(), get(), get(), get()) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get(), get(), get()) }
