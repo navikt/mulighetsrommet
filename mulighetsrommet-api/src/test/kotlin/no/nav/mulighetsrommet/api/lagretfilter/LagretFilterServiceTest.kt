@@ -5,8 +5,8 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 
 class LagretFilterServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
