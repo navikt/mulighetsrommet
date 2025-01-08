@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet
+package no.nav.mulighetsrommet.database.kotest.extensions
 
 import io.kotest.core.listeners.AfterSpecListener
 import io.kotest.core.listeners.BeforeSpecListener
