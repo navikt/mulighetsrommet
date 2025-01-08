@@ -13,9 +13,7 @@ export async function apiHeaders(request: Request): Promise<Record<string, strin
           request,
           `${process.env.NAIS_CLUSTER_NAME}:team-mulighetsrommet:mulighetsrommet-api`,
         );
-  if (!token) {
-    throw Error("Klarte ikke hente token");
-  }
+
   return {
     Accept: "application/json",
     "Nav-Consumer-Id": uuidv4(),
