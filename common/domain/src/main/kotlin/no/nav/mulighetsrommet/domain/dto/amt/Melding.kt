@@ -17,6 +17,30 @@ sealed interface Melding {
     val opprettet: LocalDateTime
 
     @Serializable
+    @SerialName("Vurdering")
+    data class Vurdering(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
+        @Serializable(with = UUIDSerializer::class)
+        override val deltakerId: UUID,
+        @Serializable(with = UUIDSerializer::class)
+        override val opprettetAvArrangorAnsattId: UUID,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        override val opprettet: LocalDateTime,
+        val vurderingstype: Vurderingstype,
+        val begrunnelse: String?,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val gyldigFra: LocalDateTime,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val gyldigTil: LocalDateTime?,
+    ) : Melding {
+        enum class Vurderingstype {
+            OPPFYLLER_KRAVENE,
+            OPPFYLLER_IKKE_KRAVENE,
+        }
+    }
+
+    @Serializable
     @SerialName("EndringFraArrangor")
     data class EndringFraArrangor(
         @Serializable(with = UUIDSerializer::class)
