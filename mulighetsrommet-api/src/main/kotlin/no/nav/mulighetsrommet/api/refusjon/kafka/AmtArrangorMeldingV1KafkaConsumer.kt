@@ -27,13 +27,7 @@ class AmtArrangorMeldingV1KafkaConsumer(
     override suspend fun consume(key: UUID, message: JsonElement) {
         logger.info("Konsumerer arrangor-melding med id=$key")
 
-        logger.debug("arrangor-melding: {}", message)
-        val melding = JsonIgnoreUnknownKeys.decodeFromJsonElement<Melding?>(message)
-
-        when (melding) {
-            is Melding.EndringFraArrangor, is Melding.Vurdering -> {
-                // Aldri relevant
-            }
+        when (val melding = JsonIgnoreUnknownKeys.decodeFromJsonElement<Melding?>(message)) {
             is Melding.Forslag -> {
                 when (melding.status) {
                     is Melding.Forslag.Status.Avvist, is Melding.Forslag.Status.Erstattet,
