@@ -31,7 +31,7 @@ class AmtArrangorMeldingV1KafkaConsumer(
         val melding = JsonIgnoreUnknownKeys.decodeFromJsonElement<Melding?>(message)
 
         when (melding) {
-            is Melding.EndringFraArrangor -> {
+            is Melding.EndringFraArrangor, is Melding.Vurdering -> {
                 // Aldri relevant
             }
             is Melding.Forslag -> {
