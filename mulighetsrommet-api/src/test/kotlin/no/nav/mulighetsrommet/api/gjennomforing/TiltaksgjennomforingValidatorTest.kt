@@ -128,7 +128,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
     test("should fail when tiltakstype does not match with avtale") {
         database.run {
-            Queries.avtale.upsert(avtale.copy(tiltakstypeId = TiltakstypeFixtures.AFT.id))
+            queries.avtale.upsert(avtale.copy(tiltakstypeId = TiltakstypeFixtures.AFT.id))
         }
 
         createValidator().validate(gjennomforing, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
@@ -146,8 +146,8 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     test("kan ikke opprette på ikke Aktiv avtale") {
         val id = UUID.randomUUID()
         database.run {
-            Queries.avtale.upsert(avtale.copy(id = id))
-            Queries.avtale.avbryt(id, LocalDateTime.now(), AvbruttAarsak.BudsjettHensyn)
+            queries.avtale.upsert(avtale.copy(id = id))
+            queries.avtale.avbryt(id, LocalDateTime.now(), AvbruttAarsak.BudsjettHensyn)
         }
 
         val dbo = gjennomforing.copy(avtaleId = id)
@@ -158,7 +158,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
         val id2 = UUID.randomUUID()
         database.run {
-            Queries.avtale.upsert(avtale.copy(id = id2, sluttDato = LocalDate.now().minusDays(1)))
+            queries.avtale.upsert(avtale.copy(id = id2, sluttDato = LocalDate.now().minusDays(1)))
         }
 
         val dbo2 = gjennomforing.copy(avtaleId = id2)
@@ -181,7 +181,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     test("skal returnere en ny verdi for 'tilgjengelig for arrangør'-dato når datoen er utenfor gyldig tidsrom") {
         val startDato = LocalDate.now().plusMonths(1)
         val dbo = gjennomforing.copy(startDato = startDato)
-        database.run { Queries.gjennomforing.upsert(dbo) }
+        database.run { queries.gjennomforing.upsert(dbo) }
 
         val beforeAllowedDato = startDato.minusMonths(3)
         createValidator().validate(gjennomforing.copy(tilgjengeligForArrangorFraOgMedDato = beforeAllowedDato), null)
@@ -231,7 +231,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id,
             amoKategorisering = null,
         )
-        database.run { Queries.avtale.upsert(avtaleUtenAmokategorisering) }
+        database.run { queries.avtale.upsert(avtaleUtenAmokategorisering) }
 
         val gruppeAmo = TiltaksgjennomforingFixtures.GruppeAmo1.copy(
             amoKategorisering = null,
@@ -251,7 +251,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id,
             amoKategorisering = AmoKategorisering.Studiespesialisering,
         )
-        database.run { Queries.avtale.upsert(avtaleMedAmokategorisering) }
+        database.run { queries.avtale.upsert(avtaleMedAmokategorisering) }
 
         val gruppeAmo = TiltaksgjennomforingFixtures.GruppeAmo1.copy(
             amoKategorisering = null,
@@ -287,7 +287,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
     test("arrangøren må være aktiv i Brreg") {
         database.run {
-            Queries.arrangor.upsert(ArrangorFixtures.underenhet1.copy(slettetDato = LocalDate.of(2024, 1, 1)))
+            queries.arrangor.upsert(ArrangorFixtures.underenhet1.copy(slettetDato = LocalDate.of(2024, 1, 1)))
         }
 
         createValidator().validate(gjennomforing, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
@@ -338,23 +338,23 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
     context("when gjennomføring already exists") {
         beforeEach {
-            database.run { Queries.gjennomforing.upsert(gjennomforing.copy(administratorer = listOf())) }
+            database.run { queries.gjennomforing.upsert(gjennomforing.copy(administratorer = listOf())) }
         }
 
         afterEach {
-            database.run { Queries.gjennomforing.delete(gjennomforing.id) }
+            database.run { queries.gjennomforing.delete(gjennomforing.id) }
         }
 
         val validator = createValidator()
 
         test("Skal godta endringer for antall plasser selv om gjennomføringen er aktiv") {
-            val previous = database.run { Queries.gjennomforing.get(gjennomforing.id) }
+            val previous = database.run { queries.gjennomforing.get(gjennomforing.id) }
 
             validator.validate(gjennomforing.copy(antallPlasser = 15), previous).shouldBeRight()
         }
 
         test("Skal godta endringer for startdato selv om gjennomføringen er aktiv, men startdato skal ikke kunne settes til før avtaledatoen") {
-            val previous = database.run { Queries.gjennomforing.get(gjennomforing.id) }
+            val previous = database.run { queries.gjennomforing.get(gjennomforing.id) }
 
             validator.validate(gjennomforing.copy(startDato = LocalDate.now().plusDays(5)), previous)
                 .shouldBeRight()
@@ -368,8 +368,8 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
         test("Skal godta endringer for sluttdato frem i tid selv om gjennomføringen er aktiv") {
             val previous = database.run {
-                Queries.avtale.upsert(avtale.copy(startDato = LocalDate.now().minusDays(3)))
-                Queries.gjennomforing.get(gjennomforing.id)
+                queries.avtale.upsert(avtale.copy(startDato = LocalDate.now().minusDays(3)))
+                queries.gjennomforing.get(gjennomforing.id)
             }
 
             validator.validate(gjennomforing.copy(sluttDato = avtaleSluttDato.plusDays(5)), previous)
@@ -393,8 +393,8 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
         test("skal godta endringer selv om avtale er avbrutt") {
             val previous = database.run {
-                Queries.avtale.avbryt(avtale.id, LocalDateTime.now(), AvbruttAarsak.BudsjettHensyn)
-                Queries.gjennomforing.get(gjennomforing.id)
+                queries.avtale.avbryt(avtale.id, LocalDateTime.now(), AvbruttAarsak.BudsjettHensyn)
+                queries.gjennomforing.get(gjennomforing.id)
             }
 
             validator.validate(gjennomforing, previous).shouldBeRight()
@@ -402,12 +402,12 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
         test("should fail when is avbrutt") {
             val previous = database.run {
-                Queries.gjennomforing.setAvsluttet(
+                queries.gjennomforing.setAvsluttet(
                     gjennomforing.id,
                     LocalDateTime.now(),
                     AvbruttAarsak.Feilregistrering,
                 )
-                Queries.gjennomforing.get(gjennomforing.id)
+                queries.gjennomforing.get(gjennomforing.id)
             }
 
             validator.validate(gjennomforing, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
@@ -417,9 +417,9 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
         test("should fail when is avsluttet") {
             val previous = database.run {
-                Queries.gjennomforing.upsert(gjennomforing.copy(sluttDato = LocalDate.now().minusDays(2)))
-                Queries.gjennomforing.setAvsluttet(gjennomforing.id, LocalDateTime.now(), null)
-                Queries.gjennomforing.get(gjennomforing.id)
+                queries.gjennomforing.upsert(gjennomforing.copy(sluttDato = LocalDate.now().minusDays(2)))
+                queries.gjennomforing.setAvsluttet(gjennomforing.id, LocalDateTime.now(), null)
+                queries.gjennomforing.get(gjennomforing.id)
             }
 
             validator.validate(gjennomforing, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
@@ -433,7 +433,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
         test("Slettede kontaktpersoner valideres") {
             database.run {
-                Queries.ansatt.upsert(NavAnsattFixture.ansatt2.copy(skalSlettesDato = LocalDate.now()))
+                queries.ansatt.upsert(NavAnsattFixture.ansatt2.copy(skalSlettesDato = LocalDate.now()))
             }
 
             val dbo = gjennomforing.copy(
@@ -453,7 +453,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
         test("Slettede administratorer valideres") {
             database.run {
-                Queries.ansatt.upsert(NavAnsattFixture.ansatt1.copy(skalSlettesDato = LocalDate.now()))
+                queries.ansatt.upsert(NavAnsattFixture.ansatt1.copy(skalSlettesDato = LocalDate.now()))
             }
 
             val dbo = gjennomforing.copy(administratorer = listOf(NavAnsattFixture.ansatt1.navIdent))

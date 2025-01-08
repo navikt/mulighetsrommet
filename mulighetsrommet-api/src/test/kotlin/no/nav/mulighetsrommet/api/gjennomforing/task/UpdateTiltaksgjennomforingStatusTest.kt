@@ -81,13 +81,13 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             task.oppdaterTiltaksgjennomforingStatus(today = LocalDate.of(2023, 1, 31))
 
             database.run {
-                Queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
                     it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
                 }
-                Queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
                     it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
                 }
-                Queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
                     it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
                 }
             }
@@ -102,13 +102,13 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             task.oppdaterTiltaksgjennomforingStatus(today = LocalDate.of(2023, 2, 1))
 
             database.run {
-                Queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
                     it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
                 }
-                Queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
                     it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
                 }
-                Queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
                     it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
                 }
             }
@@ -134,13 +134,13 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             task.oppdaterTiltaksgjennomforingStatus(today = LocalDate.of(2023, 3, 1))
 
             database.run {
-                Queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
                     it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
                 }
-                Queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
                     it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
                 }
-                Queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
                     it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
                 }
             }
@@ -161,19 +161,19 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
 
         test("forsøker ikke å avslutte gjennomføringer som allerede er avsluttet, avlyst eller avbrutt") {
             database.run {
-                Queries.gjennomforing.setAvsluttet(
+                queries.gjennomforing.setAvsluttet(
                     gjennomforing1.id,
                     LocalDate.of(2024, 1, 1).atStartOfDay(),
                     AvbruttAarsak.Feilregistrering,
                 )
 
-                Queries.gjennomforing.setAvsluttet(
+                queries.gjennomforing.setAvsluttet(
                     gjennomforing2.id,
                     LocalDate.of(2022, 12, 31).atStartOfDay(),
                     AvbruttAarsak.Feilregistrering,
                 )
 
-                Queries.gjennomforing.setAvsluttet(
+                queries.gjennomforing.setAvsluttet(
                     gjennomforing3.id,
                     LocalDate.of(2023, 1, 1).atStartOfDay(),
                     AvbruttAarsak.Feilregistrering,
@@ -186,14 +186,14 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             task.oppdaterTiltaksgjennomforingStatus(today = LocalDate.of(2024, 1, 2))
 
             database.run {
-                Queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
                     it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
                 }
-                Queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
                     it.status.status.shouldBe(AVLYST)
                     it.status.avbrutt.shouldNotBeNull().aarsak.shouldBe(AvbruttAarsak.Feilregistrering)
                 }
-                Queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
                     it.status.status.shouldBe(AVBRUTT)
                     it.status.avbrutt.shouldNotBeNull().aarsak.shouldBe(AvbruttAarsak.Feilregistrering)
                 }
@@ -230,14 +230,14 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
 
         test("avpubliserer og stenger gjennomføring for påmelding") {
             database.run {
-                Queries.gjennomforing.setPublisert(gjennomforing.id, true)
-                Queries.gjennomforing.setApentForPamelding(gjennomforing.id, true)
+                queries.gjennomforing.setPublisert(gjennomforing.id, true)
+                queries.gjennomforing.setApentForPamelding(gjennomforing.id, true)
             }
 
             createTask().oppdaterTiltaksgjennomforingStatus(today = LocalDate.of(2023, 2, 1))
 
             database.run {
-                Queries.gjennomforing.get(gjennomforing.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(gjennomforing.id).shouldNotBeNull().should {
                     it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
                     it.publisert.shouldBe(false)
                     it.apentForPamelding.shouldBe(false)

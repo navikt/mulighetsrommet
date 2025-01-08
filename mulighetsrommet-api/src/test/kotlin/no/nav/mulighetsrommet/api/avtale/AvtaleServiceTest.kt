@@ -133,7 +133,7 @@ class AvtaleServiceTest : FunSpec({
                 sluttDato = LocalDate.of(2023, 6, 1),
             )
 
-            database.run { Queries.avtale.upsert(avtale) }
+            database.run { queries.avtale.upsert(avtale) }
 
             avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
                 BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."),
@@ -159,9 +159,9 @@ class AvtaleServiceTest : FunSpec({
             )
 
             database.run {
-                Queries.avtale.upsert(avtale)
-                Queries.gjennomforing.upsert(oppfolging1)
-                Queries.gjennomforing.upsert(oppfolging2)
+                queries.avtale.upsert(avtale)
+                queries.gjennomforing.upsert(oppfolging1)
+                queries.gjennomforing.upsert(oppfolging2)
             }
 
             avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
@@ -183,9 +183,9 @@ class AvtaleServiceTest : FunSpec({
             )
 
             database.run {
-                Queries.avtale.upsert(avtale)
-                Queries.gjennomforing.upsert(oppfolging1)
-                Queries.gjennomforing.setAvsluttet(oppfolging1.id, LocalDateTime.now(), null)
+                queries.avtale.upsert(avtale)
+                queries.gjennomforing.upsert(oppfolging1)
+                queries.gjennomforing.setAvsluttet(oppfolging1.id, LocalDateTime.now(), null)
             }
 
             avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeRight()
@@ -198,7 +198,7 @@ class AvtaleServiceTest : FunSpec({
             )
 
             database.run {
-                Queries.avtale.upsert(avtale)
+                queries.avtale.upsert(avtale)
             }
 
             avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering)
@@ -215,7 +215,7 @@ class AvtaleServiceTest : FunSpec({
             avtaleService.upsert(avtale, identAnsatt1)
 
             database.run {
-                Queries.notifications.getAll().shouldBeEmpty()
+                queries.notifications.getAll().shouldBeEmpty()
             }
         }
 
@@ -227,7 +227,7 @@ class AvtaleServiceTest : FunSpec({
             avtaleService.upsert(avtale, identAnsatt1)
 
             database.run {
-                Queries.notifications.getAll().shouldHaveSize(1).first().should {
+                queries.notifications.getAll().shouldHaveSize(1).first().should {
                     it.user shouldBe identAnsatt2
                 }
             }

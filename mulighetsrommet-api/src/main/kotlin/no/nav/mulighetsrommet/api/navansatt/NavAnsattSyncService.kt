@@ -37,21 +37,21 @@ class NavAnsattSyncService(
 
         logger.info("Oppdaterer ${ansatteToUpsert.size} NavAnsatt fra Azure")
         ansatteToUpsert.forEach { ansatt ->
-            Queries.ansatt.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
+            queries.ansatt.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
         }
         upsertSanityAnsatte(ansatteToUpsert)
 
         val ansatteAzureIds = ansatteToUpsert.map { it.azureId }
-        val ansatteToScheduleForDeletion = Queries.ansatt.getAll().filter { ansatt ->
+        val ansatteToScheduleForDeletion = queries.ansatt.getAll().filter { ansatt ->
             ansatt.azureId !in ansatteAzureIds && ansatt.skalSlettesDato == null
         }
         ansatteToScheduleForDeletion.forEach { ansatt ->
             logger.info("Oppdaterer NavAnsatt med dato for sletting azureId=${ansatt.azureId} dato=$deletionDate")
             val ansattToDelete = ansatt.copy(roller = emptySet(), skalSlettesDato = deletionDate)
-            Queries.ansatt.upsert(NavAnsattDbo.fromNavAnsattDto(ansattToDelete))
+            queries.ansatt.upsert(NavAnsattDbo.fromNavAnsattDto(ansattToDelete))
         }
 
-        val ansatteToDelete = Queries.ansatt.getAll(skalSlettesDatoLte = today)
+        val ansatteToDelete = queries.ansatt.getAll(skalSlettesDatoLte = today)
         ansatteToDelete.forEach { ansatt ->
             logger.info("Sletter NavAnsatt fordi vi har passert dato for sletting azureId=${ansatt.azureId} dato=${ansatt.skalSlettesDato}")
             deleteNavAnsatt(ansatt)
@@ -59,10 +59,10 @@ class NavAnsattSyncService(
     }
 
     private suspend fun deleteNavAnsatt(ansatt: NavAnsattDto): Unit = db.tx {
-        val avtaleIds = Queries.avtale.getAvtaleIdsByAdministrator(ansatt.navIdent)
+        val avtaleIds = queries.avtale.getAvtaleIdsByAdministrator(ansatt.navIdent)
         val gjennomforinger = sanityService.getTiltakByNavIdent(ansatt.navIdent)
 
-        Queries.ansatt.deleteByAzureId(ansatt.azureId)
+        queries.ansatt.deleteByAzureId(ansatt.azureId)
         sanityService.removeNavIdentFromTiltaksgjennomforinger(ansatt.navIdent)
         sanityService.deleteNavIdent(ansatt.navIdent)
 
@@ -75,7 +75,7 @@ class NavAnsattSyncService(
             }
 
         avtaleIds.forEach {
-            val avtale = requireNotNull(Queries.avtale.get(it))
+            val avtale = requireNotNull(queries.avtale.get(it))
             if (avtale.administratorer.isEmpty()) {
                 notifyRelevantAdministrators(avtale, ansatt.hovedenhet)
             }
@@ -98,7 +98,7 @@ class NavAnsattSyncService(
             .map { it.enhetsnummer }
             .plus(region.enhetsnummer)
 
-        val administrators = Queries.ansatt
+        val administrators = queries.ansatt
             .getAll(
                 roller = listOf(NavAnsattRolle.AVTALER_SKRIV),
                 hovedenhetIn = potentialAdministratorHovedenheter,
@@ -136,7 +136,7 @@ class NavAnsattSyncService(
             .map { it.enhetsnummer }
             .plus(region.enhetsnummer)
 
-        val administrators = Queries.ansatt
+        val administrators = queries.ansatt
             .getAll(
                 roller = listOf(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV),
                 hovedenhetIn = potentialAdministratorHovedenheter,

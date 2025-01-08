@@ -33,14 +33,14 @@ class AmtVirksomheterV1KafkaConsumer(
             updateVirksomhet(amtVirksomhet)
         } else {
             logger.info("Mottok tombstone for virksomhet med orgnr=$key, sletter virksomheten")
-            Queries.arrangor.delete(key)
+            queries.arrangor.delete(key)
         }
     }
 
     private suspend fun QueryContext.updateVirksomhet(amtVirksomhet: AmtVirksomhetV1Dto) {
         brregClient.getBrregVirksomhet(amtVirksomhet.organisasjonsnummer)
             .onRight { virksomhet ->
-                Queries.arrangor.upsert(virksomhet)
+                queries.arrangor.upsert(virksomhet)
             }
             .onLeft { error ->
                 logger.error("Error when syncing orgnr: ${amtVirksomhet.organisasjonsnummer} from brreg in AmtVirksomhetV1TopicConsumer")
@@ -49,6 +49,6 @@ class AmtVirksomheterV1KafkaConsumer(
     }
 
     private fun QueryContext.shouldIgnoreMessage(key: String): Boolean {
-        return Queries.arrangor.get(Organisasjonsnummer(key)) == null
+        return queries.arrangor.get(Organisasjonsnummer(key)) == null
     }
 }

@@ -121,7 +121,7 @@ class JournalforRefusjonskravTest : FunSpec({
         val task = createTask()
 
         database.run {
-            Queries.refusjonskrav.setGodkjentAvArrangor(krav.id, LocalDateTime.now())
+            queries.refusjonskrav.setGodkjentAvArrangor(krav.id, LocalDateTime.now())
         }
 
         every { tilsagnService.getArrangorflateTilsagnTilRefusjon(any(), any()) } returns emptyList()
@@ -136,7 +136,7 @@ class JournalforRefusjonskravTest : FunSpec({
         task.journalforRefusjonskrav(krav.id)
 
         database.run {
-            Queries.refusjonskrav.get(krav.id).shouldNotBeNull().journalpostId shouldBe "123"
+            queries.refusjonskrav.get(krav.id).shouldNotBeNull().journalpostId shouldBe "123"
         }
     }
 

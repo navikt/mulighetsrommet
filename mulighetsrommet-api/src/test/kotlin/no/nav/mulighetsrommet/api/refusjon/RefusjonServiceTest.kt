@@ -47,7 +47,7 @@ class RefusjonServiceTest : FunSpec({
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
             database.run {
-                Queries.refusjonskrav.getByArrangorIds(organisasjonsnummer).shouldHaveSize(0)
+                queries.refusjonskrav.getByArrangorIds(organisasjonsnummer).shouldHaveSize(0)
             }
         }
 
@@ -119,12 +119,12 @@ class RefusjonServiceTest : FunSpec({
             krav.betalingsinformasjon.kid shouldBe null
 
             database.run {
-                Queries.refusjonskrav.setBetalingsInformasjon(
+                queries.refusjonskrav.setBetalingsInformasjon(
                     id = krav.id,
                     kontonummer = Kontonummer("12345678901"),
                     kid = Kid("12345678901"),
                 )
-                Queries.refusjonskrav.setGodkjentAvArrangor(krav.id, LocalDateTime.now())
+                queries.refusjonskrav.setGodkjentAvArrangor(krav.id, LocalDateTime.now())
             }
 
             val sisteKrav = service.genererRefusjonskravForMonth(LocalDate.of(2024, 2, 1)).first()
@@ -265,14 +265,14 @@ class RefusjonServiceTest : FunSpec({
             domain.initialize(database.db)
 
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1)).shouldHaveSize(1)
-            database.run { Queries.refusjonskrav.getByArrangorIds(organisasjonsnummer).shouldHaveSize(1) }
+            database.run { queries.refusjonskrav.getByArrangorIds(organisasjonsnummer).shouldHaveSize(1) }
 
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 2, 1)).shouldHaveSize(1)
-            database.run { Queries.refusjonskrav.getByArrangorIds(organisasjonsnummer).shouldHaveSize(2) }
+            database.run { queries.refusjonskrav.getByArrangorIds(organisasjonsnummer).shouldHaveSize(2) }
 
             // Februar finnes allerede så ingen nye
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 2, 1)).shouldHaveSize(0)
-            database.run { Queries.refusjonskrav.getByArrangorIds(organisasjonsnummer).shouldHaveSize(2) }
+            database.run { queries.refusjonskrav.getByArrangorIds(organisasjonsnummer).shouldHaveSize(2) }
         }
 
         test("deltaker med startDato lik periodeSlutt blir ikke med i kravet") {
@@ -334,19 +334,19 @@ class RefusjonServiceTest : FunSpec({
                     gjennomforingId = AFT1.id,
                     periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2024, 6, 1)),
                 )
-                Queries.refusjonskrav.upsert(krav)
+                queries.refusjonskrav.upsert(krav)
                 krav.beregning.output.shouldBeTypeOf<RefusjonKravBeregningAft.Output>().belop shouldBe 20205
 
                 val updatedDeltaker = domain.deltakere[0].copy(
                     sluttDato = LocalDate.of(2024, 6, 15),
                 )
-                Queries.deltaker.upsert(updatedDeltaker)
+                queries.deltaker.upsert(updatedDeltaker)
             }
 
             service.recalculateRefusjonskravForGjennomforing(AFT1.id)
 
             database.run {
-                val krav = Queries.refusjonskrav.get(kravId).shouldNotBeNull()
+                val krav = queries.refusjonskrav.get(kravId).shouldNotBeNull()
                 krav.beregning.output.shouldBeTypeOf<RefusjonKravBeregningAft.Output>().should {
                     it.belop shouldBe 10102
                     it.deltakelser shouldBe setOf(
@@ -385,21 +385,21 @@ class RefusjonServiceTest : FunSpec({
                     gjennomforingId = AFT1.id,
                     periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2024, 6, 1)),
                 )
-                Queries.refusjonskrav.upsert(krav)
+                queries.refusjonskrav.upsert(krav)
                 krav.beregning.output.shouldBeTypeOf<RefusjonKravBeregningAft.Output>().belop shouldBe 20205
 
                 val updatedDeltaker = domain.deltakere[0].copy(
                     sluttDato = LocalDate.of(2024, 6, 15),
                 )
-                Queries.deltaker.upsert(updatedDeltaker)
+                queries.deltaker.upsert(updatedDeltaker)
 
-                Queries.refusjonskrav.setGodkjentAvArrangor(kravId, LocalDateTime.now())
+                queries.refusjonskrav.setGodkjentAvArrangor(kravId, LocalDateTime.now())
             }
 
             service.recalculateRefusjonskravForGjennomforing(AFT1.id)
 
             database.run {
-                val krav = Queries.refusjonskrav.get(kravId).shouldNotBeNull()
+                val krav = queries.refusjonskrav.get(kravId).shouldNotBeNull()
                 krav.beregning.output.shouldBeTypeOf<RefusjonKravBeregningAft.Output>().should {
                     it.belop shouldBe 20205
                     it.deltakelser shouldBe setOf(

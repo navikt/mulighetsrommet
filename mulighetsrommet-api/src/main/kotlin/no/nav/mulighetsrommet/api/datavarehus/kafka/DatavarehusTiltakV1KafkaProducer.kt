@@ -43,7 +43,7 @@ class DatavarehusTiltakV1KafkaProducer(
     }
 
     private fun publishDatavarehusTiltak(id: UUID) = db.session {
-        val dto = Queries.dvh.getTiltak(id)
+        val dto = queries.dvh.getTiltak(id)
 
         val record: ProducerRecord<String, String?> = ProducerRecord(
             config.producerTopic,

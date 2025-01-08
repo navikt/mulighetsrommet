@@ -21,7 +21,7 @@ class ArrangorService(
     private val log = LoggerFactory.getLogger(javaClass)
 
     suspend fun getOrSyncArrangorFromBrreg(orgnr: Organisasjonsnummer): Either<BrregError, ArrangorDto> {
-        return db.session { Queries.arrangor.get(orgnr)?.right() } ?: syncArrangorFromBrreg(orgnr)
+        return db.session { queries.arrangor.get(orgnr)?.right() } ?: syncArrangorFromBrreg(orgnr)
     }
 
     private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): Either<BrregError, ArrangorDto> {
@@ -36,25 +36,25 @@ class ArrangorService(
             }
             .map { virksomhet ->
                 db.tx {
-                    Queries.arrangor.upsert(virksomhet)
-                    Queries.arrangor.get(virksomhet.organisasjonsnummer)!!
+                    queries.arrangor.upsert(virksomhet)
+                    queries.arrangor.get(virksomhet.organisasjonsnummer)!!
                 }
             }
     }
 
     // TODO inline
     fun upsertKontaktperson(kontaktperson: ArrangorKontaktperson) = db.session {
-        Queries.arrangor.upsertKontaktperson(kontaktperson)
+        queries.arrangor.upsertKontaktperson(kontaktperson)
     }
 
     // TODO inline
     fun hentKontaktpersoner(arrangorId: UUID): List<ArrangorKontaktperson> = db.session {
-        Queries.arrangor.getKontaktpersoner(arrangorId)
+        queries.arrangor.getKontaktpersoner(arrangorId)
     }
 
     // TODO inline
     fun hentKoblingerForKontaktperson(kontaktpersonId: UUID): KoblingerForKontaktperson = db.session {
-        val (gjennomforinger, avtaler) = Queries.arrangor.koblingerTilKontaktperson(kontaktpersonId)
+        val (gjennomforinger, avtaler) = queries.arrangor.koblingerTilKontaktperson(kontaktpersonId)
         KoblingerForKontaktperson(
             gjennomforinger = gjennomforinger,
             avtaler = avtaler,

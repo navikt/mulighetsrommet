@@ -82,10 +82,9 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
         val tiltak = database.runAndRollback { session ->
             domain.setup(session)
+            queries.gjennomforing.updateArenaData(AFT1.id, tiltaksnummer = "2020#1234", arenaAnsvarligEnhet = null)
 
             val queries = DatavarehusTiltakQueries(session)
-
-            Queries.gjennomforing.updateArenaData(AFT1.id, tiltaksnummer = "2020#1234", arenaAnsvarligEnhet = null)
 
             queries.getTiltak(AFT1.id)
         }
@@ -157,7 +156,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             tiltakstyper = listOf(TiltakstypeFixtures.GruppeFagOgYrkesopplaering),
             avtaler = listOf(AvtaleFixtures.gruppeFagYrke),
         ) {
-            Queries.utdanning.upsertUtdanningsprogram(
+            queries.utdanning.upsertUtdanningsprogram(
                 Utdanningsprogram(
                     navn = "Sveiseprogram",
                     nusKoder = listOf("1234", "2345"),
@@ -166,7 +165,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 ),
             )
 
-            Queries.utdanning.upsertUtdanning(
+            queries.utdanning.upsertUtdanning(
                 Utdanning(
                     programomradekode = "BABAN3----",
                     utdanningId = "u_sveisefag",
@@ -179,7 +178,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 ),
             )
 
-            Queries.utdanning.upsertUtdanning(
+            queries.utdanning.upsertUtdanning(
                 Utdanning(
                     programomradekode = "BABAN3----",
                     utdanningId = "u_sveisefag_under_vann",
@@ -193,25 +192,27 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             )
 
             val utdanningslop = UtdanningslopDbo(
-                Queries.utdanning.getIdForUtdanningsprogram("BABAN3----"),
+                queries.utdanning.getIdForUtdanningsprogram("BABAN3----"),
                 listOf(
-                    Queries.utdanning.getIdForUtdanning("u_sveisefag"),
-                    Queries.utdanning.getIdForUtdanning("u_sveisefag_under_vann"),
+                    queries.utdanning.getIdForUtdanning("u_sveisefag"),
+                    queries.utdanning.getIdForUtdanning("u_sveisefag_under_vann"),
                 ),
             )
 
-            Queries.gjennomforing.upsert(GruppeFagYrke1.copy(utdanningslop = utdanningslop))
+            queries.gjennomforing.upsert(GruppeFagYrke1.copy(utdanningslop = utdanningslop))
         }
 
         database.runAndRollback { session ->
             domain.setup(session)
+            val idForUtdanningsprogram = queries.utdanning.getIdForUtdanningsprogram("BABAN3----")
+            val idForUtdanning = queries.utdanning.getIdForUtdanning("u_sveisefag_under_vann")
 
             val queries = DatavarehusTiltakQueries(session)
 
             val gjennomforing = queries.getTiltak(GruppeFagYrke1.id)
 
             gjennomforing.shouldBeTypeOf<DatavarehusTiltakYrkesfagDto>().utdanningslop.shouldNotBeNull().should {
-                it.utdanningsprogram.id shouldBe Queries.utdanning.getIdForUtdanningsprogram("BABAN3----")
+                it.utdanningsprogram.id shouldBe idForUtdanningsprogram
                 it.utdanningsprogram.navn shouldBe "Sveiseprogram"
                 it.utdanningsprogram.nusKoder shouldBe listOf("1234", "2345")
                 it.utdanningsprogram.opprettetTidspunkt.shouldNotBeNull()
@@ -220,7 +221,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 it.utdanninger.shouldHaveSingleElement { utdanning ->
                     utdanning.equalsIgnoring(
                         DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanning(
-                            id = Queries.utdanning.getIdForUtdanning("u_sveisefag"),
+                            id = this.queries.utdanning.getIdForUtdanning("u_sveisefag"),
                             navn = "Sveisefag",
                             sluttkompetanse = Utdanning.Sluttkompetanse.FAGBREV,
                             nusKoder = listOf("12345"),
@@ -234,7 +235,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 it.utdanninger.shouldHaveSingleElement { utdanning ->
                     utdanning.equalsIgnoring(
                         DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanning(
-                            id = Queries.utdanning.getIdForUtdanning("u_sveisefag_under_vann"),
+                            id = idForUtdanning,
                             navn = "Sveisefag under vann",
                             sluttkompetanse = Utdanning.Sluttkompetanse.SVENNEBREV,
                             nusKoder = listOf("23456"),

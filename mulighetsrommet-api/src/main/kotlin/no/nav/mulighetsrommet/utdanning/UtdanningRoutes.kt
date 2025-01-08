@@ -11,7 +11,7 @@ fun Route.utdanningRoutes() {
     route("utdanninger") {
         get {
             val utdanninger = db.session {
-                Queries.utdanning.getUtdanningsprogrammer()
+                queries.utdanning.getUtdanningsprogrammer()
             }
             call.respond(utdanninger)
         }

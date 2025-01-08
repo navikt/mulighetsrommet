@@ -327,7 +327,7 @@ class ArrangorflateRoutesTest : FunSpec({
 
     test("ikke lov å godkjenne når det finnes relevante forslag") {
         database.run {
-            Queries.deltakerForslag.upsert(
+            queries.deltakerForslag.upsert(
                 DeltakerForslag(
                     id = UUID.randomUUID(),
                     deltakerId = deltaker.id,

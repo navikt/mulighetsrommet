@@ -83,7 +83,7 @@ fun Route.arrangorflateRoutes() {
                 requireTilgangHosArrangor(orgnr)
 
                 val krav = db.session {
-                    Queries.refusjonskrav.getByArrangorIds(orgnr).map {
+                    queries.refusjonskrav.getByArrangorIds(orgnr).map {
                         ArrFlateRefusjonKravKompakt.fromRefusjonskravDto(it)
                     }
                 }
@@ -97,7 +97,7 @@ fun Route.arrangorflateRoutes() {
                 requireTilgangHosArrangor(orgnr)
 
                 val tilsagn = db.session {
-                    Queries.tilsagn.getAllArrangorflateTilsagn(orgnr)
+                    queries.tilsagn.getAllArrangorflateTilsagn(orgnr)
                 }
 
                 call.respond(tilsagn)
@@ -109,7 +109,7 @@ fun Route.arrangorflateRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 val krav = db.session {
-                    Queries.refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                    queries.refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
                 }
 
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
@@ -123,13 +123,13 @@ fun Route.arrangorflateRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 val krav = db.session {
-                    Queries.refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                    queries.refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
                 }
 
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
 
                 val forslagByDeltakerId = db.session {
-                    Queries.deltakerForslag.getForslagByGjennomforing(krav.gjennomforing.id)
+                    queries.deltakerForslag.getForslagByGjennomforing(krav.gjennomforing.id)
                 }
 
                 val relevanteForslag = forslagByDeltakerId
@@ -147,7 +147,7 @@ fun Route.arrangorflateRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 val krav = db.session {
-                    Queries.refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                    queries.refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
                 }
 
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
@@ -155,7 +155,7 @@ fun Route.arrangorflateRoutes() {
                 val request = call.receive<GodkjennRefusjonskrav>()
 
                 val forslagByDeltakerId = db.session {
-                    Queries.deltakerForslag.getForslagByGjennomforing(krav.gjennomforing.id)
+                    queries.deltakerForslag.getForslagByGjennomforing(krav.gjennomforing.id)
                 }
 
                 validerGodkjennRefusjonskrav(
@@ -167,8 +167,8 @@ fun Route.arrangorflateRoutes() {
                 }
 
                 db.tx {
-                    Queries.refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now())
-                    Queries.refusjonskrav.setBetalingsInformasjon(
+                    queries.refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now())
+                    queries.refusjonskrav.setBetalingsInformasjon(
                         id,
                         request.betalingsinformasjon.kontonummer,
                         request.betalingsinformasjon.kid,
@@ -183,7 +183,7 @@ fun Route.arrangorflateRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 val krav = db.session {
-                    Queries.refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                    queries.refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
                 }
 
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
@@ -207,7 +207,7 @@ fun Route.arrangorflateRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 val krav = db.session {
-                    Queries.refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                    queries.refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
                 }
 
                 requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
@@ -226,7 +226,7 @@ fun Route.arrangorflateRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 val tilsagn = db.session {
-                    Queries.tilsagn.getArrangorflateTilsagn(id) ?: throw NotFoundException("Fant ikke tilsagn")
+                    queries.tilsagn.getArrangorflateTilsagn(id) ?: throw NotFoundException("Fant ikke tilsagn")
                 }
 
                 requireTilgangHosArrangor(tilsagn.arrangor.organisasjonsnummer)
@@ -324,7 +324,7 @@ suspend fun toRefusjonskrav(
     krav: RefusjonskravDto,
 ): ArrFlateRefusjonKravAft = when (val beregning = krav.beregning) {
     is RefusjonKravBeregningAft -> {
-        val deltakere = db.session { Queries.deltaker.getAll(krav.gjennomforing.id) }
+        val deltakere = db.session { queries.deltaker.getAll(krav.gjennomforing.id) }
 
         val deltakereById = deltakere.associateBy { it.id }
         val personerByNorskIdent: Map<NorskIdent, RefusjonKravDeltakelse.Person> = getPersoner(pdl, deltakere)

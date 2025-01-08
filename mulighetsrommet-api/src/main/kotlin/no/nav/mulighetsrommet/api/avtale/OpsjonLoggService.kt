@@ -21,12 +21,12 @@ class OpsjonLoggService(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     fun lagreOpsjonLoggEntry(entry: OpsjonLoggEntry): Either<List<ValidationError>, Unit> = db.tx {
-        val avtale = requireNotNull(Queries.avtale.get(entry.avtaleId))
+        val avtale = requireNotNull(queries.avtale.get(entry.avtaleId))
         OpsjonLoggValidator.validate(entry, avtale).map {
             if (entry.sluttdato != null) {
-                Queries.avtale.oppdaterSluttdato(entry.avtaleId, entry.sluttdato)
+                queries.avtale.oppdaterSluttdato(entry.avtaleId, entry.sluttdato)
             }
-            Queries.opsjoner.insert(entry)
+            queries.opsjoner.insert(entry)
             loggEndring(
                 EndretAv.NavAnsatt(entry.registrertAv),
                 getEndringsmeldingstekst(entry),
@@ -37,15 +37,15 @@ class OpsjonLoggService(
     }
 
     fun delete(opsjonLoggEntryId: UUID, avtaleId: UUID, slettesAv: NavIdent): Unit = db.tx {
-        val opsjoner = Queries.opsjoner.get(avtaleId)
-        val avtale = requireNotNull(Queries.avtale.get(avtaleId))
+        val opsjoner = queries.opsjoner.get(avtaleId)
+        val avtale = requireNotNull(queries.avtale.get(avtaleId))
 
         logger.info("Fjerner opsjon med id: '$opsjonLoggEntryId' for avtale med id: '$avtaleId'")
         kalkulerNySluttdato(opsjoner, avtale)?.let {
-            Queries.avtale.oppdaterSluttdato(avtaleId, it)
+            queries.avtale.oppdaterSluttdato(avtaleId, it)
         }
 
-        Queries.opsjoner.delete(opsjonLoggEntryId)
+        queries.opsjoner.delete(opsjonLoggEntryId)
         loggEndring(EndretAv.NavAnsatt(slettesAv), "Opsjon slettet", avtaleId, opsjoner.first())
     }
 
@@ -66,7 +66,7 @@ class OpsjonLoggService(
         avtaleId: UUID,
         opsjon: OpsjonLoggEntry,
     ) {
-        Queries.endringshistorikk.logEndring(
+        queries.endringshistorikk.logEndring(
             documentClass = DocumentClass.AVTALE,
             operation = operation,
             user = endretAv,

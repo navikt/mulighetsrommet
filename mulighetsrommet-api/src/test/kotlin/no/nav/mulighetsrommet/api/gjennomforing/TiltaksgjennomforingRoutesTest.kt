@@ -264,7 +264,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 ),
             ),
         ) {
-            Queries.gjennomforing.setAvsluttet(
+            queries.gjennomforing.setAvsluttet(
                 avsluttetGjennomforingId,
                 LocalDateTime.now(),
                 AvbruttAarsak.Feilregistrering,
@@ -399,7 +399,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 response.bodyAsText().shouldBeEmpty()
 
                 database.run {
-                    Queries.gjennomforing.get(aktivGjennomforingId).shouldNotBeNull().should {
+                    queries.gjennomforing.get(aktivGjennomforingId).shouldNotBeNull().should {
                         it.status.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
                         it.status.avbrutt?.aarsak shouldBe AvbruttAarsak.Feilregistrering
                     }

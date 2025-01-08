@@ -22,7 +22,7 @@ fun Route.notificationRoutes() {
             val filter = getNotificationFilter()
 
             val notifications = db.session {
-                Queries.notifications.getUserNotifications(userId, filter.status)
+                queries.notifications.getUserNotifications(userId, filter.status)
             }
 
             call.respond(PaginatedResponse.of(notifications))
@@ -32,7 +32,7 @@ fun Route.notificationRoutes() {
             val userId = getNavIdent()
 
             val summary = db.session {
-                Queries.notifications.getUserNotificationSummary(userId)
+                queries.notifications.getUserNotificationSummary(userId)
             }
 
             call.respond(summary)
@@ -48,7 +48,7 @@ fun Route.notificationRoutes() {
                         NotificationStatus.DONE -> LocalDateTime.now()
                         NotificationStatus.NOT_DONE -> null
                     }
-                    Queries.notifications.setNotificationDoneAt(it.id, userId, doneAt)
+                    queries.notifications.setNotificationDoneAt(it.id, userId, doneAt)
                 }
             }
 

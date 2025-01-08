@@ -106,7 +106,7 @@ class TilsagnServiceTest : FunSpec({
             service.slettTilsagn(tilsagn.id).shouldBeRight()
 
             database.run {
-                Queries.tilsagn.get(tilsagn.id) shouldBe null
+                queries.tilsagn.get(tilsagn.id) shouldBe null
             }
         }
 

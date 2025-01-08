@@ -33,18 +33,18 @@ class AmtArrangorMeldingV1KafkaConsumer(
                     is Melding.Forslag.Status.Godkjent,
                     is Melding.Forslag.Status.Tilbakekalt,
                     -> {
-                        Queries.deltakerForslag.delete(melding.id)
+                        queries.deltakerForslag.delete(melding.id)
                     }
 
                     Melding.Forslag.Status.VenterPaSvar -> {
-                        if (Queries.deltaker.get(melding.deltakerId) != null) {
-                            Queries.deltakerForslag.upsert(melding.toForslagDbo())
+                        if (queries.deltaker.get(melding.deltakerId) != null) {
+                            queries.deltakerForslag.upsert(melding.toForslagDbo())
                         }
                     }
                 }
             }
 
-            null -> Queries.deltakerForslag.delete(key)
+            null -> queries.deltakerForslag.delete(key)
         }
     }
 }

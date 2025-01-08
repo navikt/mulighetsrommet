@@ -30,7 +30,7 @@ fun Route.brregVirksomhetRoutes() {
             val response = brregClient.sokOverordnetEnhet(sok)
                 .map { hovedenheter ->
                     val utenlandskeVirksomheter = db.session {
-                        Queries.arrangor.getAll(sok = sok, utenlandsk = true).items.map {
+                        queries.arrangor.getAll(sok = sok, utenlandsk = true).items.map {
                             toBrregVirksomhetDto(it)
                         }
                     }
@@ -48,7 +48,7 @@ fun Route.brregVirksomhetRoutes() {
             val response = brregClient.getUnderenheterForOverordnetEnhet(orgnr)
                 .map { underenheter ->
                     val slettedeVirksomheter = db.session {
-                        Queries.arrangor.getAll(overordnetEnhetOrgnr = orgnr, slettet = true).items.map {
+                        queries.arrangor.getAll(overordnetEnhetOrgnr = orgnr, slettet = true).items.map {
                             toBrregVirksomhetDto(it)
                         }
                     }

@@ -40,7 +40,7 @@ class TiltaksgjennomforingService(
         request: TiltaksgjennomforingRequest,
         navIdent: NavIdent,
     ): Either<List<ValidationError>, TiltaksgjennomforingDto> = db.tx {
-        val previous = Queries.gjennomforing.get(request.id)
+        val previous = queries.gjennomforing.get(request.id)
         validator.validate(request.toDbo(), previous)
             .onRight { dbo ->
                 dbo.kontaktpersoner.forEach {
@@ -52,7 +52,7 @@ class TiltaksgjennomforingService(
                     return@map previous
                 }
 
-                Queries.gjennomforing.upsert(dbo)
+                queries.gjennomforing.upsert(dbo)
 
                 val dto = getOrError(dbo.id)
 
@@ -71,14 +71,14 @@ class TiltaksgjennomforingService(
 
     // TODO inline
     fun get(id: UUID): TiltaksgjennomforingDto? = db.session {
-        Queries.gjennomforing.get(id)
+        queries.gjennomforing.get(id)
     }
 
     fun getAll(
         pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
     ): PaginatedResponse<TiltaksgjennomforingDto> = db.session {
-        Queries.gjennomforing.getAll(
+        queries.gjennomforing.getAll(
             pagination,
             search = filter.search,
             navEnheter = filter.navEnheter,
@@ -96,14 +96,14 @@ class TiltaksgjennomforingService(
     }
 
     fun getEkstern(id: UUID): TiltaksgjennomforingEksternV1Dto? = db.session {
-        Queries.gjennomforing.get(id)?.toTiltaksgjennomforingV1Dto()
+        queries.gjennomforing.get(id)?.toTiltaksgjennomforingV1Dto()
     }
 
     fun getAllEkstern(
         pagination: Pagination,
         filter: EksternTiltaksgjennomforingFilter,
     ): PaginatedResponse<TiltaksgjennomforingEksternV1Dto> = db.session {
-        Queries.gjennomforing
+        queries.gjennomforing
             .getAll(
                 pagination,
                 arrangorOrgnr = filter.arrangorOrgnr,
@@ -115,7 +115,7 @@ class TiltaksgjennomforingService(
     }
 
     fun setPublisert(id: UUID, publisert: Boolean, navIdent: NavIdent): Unit = db.tx {
-        Queries.gjennomforing.setPublisert(id, publisert)
+        queries.gjennomforing.setPublisert(id, publisert)
         val dto = getOrError(id)
         val operation = if (publisert) {
             "Tiltak publisert"
@@ -138,7 +138,7 @@ class TiltaksgjennomforingService(
                 gjennomforing.startDato,
             )
             .map {
-                Queries.gjennomforing.setTilgjengeligForArrangorFraOgMedDato(
+                queries.gjennomforing.setTilgjengeligForArrangorFraOgMedDato(
                     id,
                     tilgjengeligForArrangorDato,
                 )
@@ -150,7 +150,7 @@ class TiltaksgjennomforingService(
     }
 
     fun setAvtale(id: UUID, avtaleId: UUID?, navIdent: NavIdent): Unit = db.tx {
-        Queries.gjennomforing.setAvtaleId(id, avtaleId)
+        queries.gjennomforing.setAvtaleId(id, avtaleId)
         val dto = getOrError(id)
         logEndring("Endret avtale", dto, EndretAv.NavAnsatt(navIdent))
     }
@@ -161,7 +161,7 @@ class TiltaksgjennomforingService(
         avsluttetAarsak: AvbruttAarsak?,
         endretAv: EndretAv,
     ): Unit = db.tx {
-        Queries.gjennomforing.setAvsluttet(id, avsluttetTidspunkt, avsluttetAarsak)
+        queries.gjennomforing.setAvsluttet(id, avsluttetTidspunkt, avsluttetAarsak)
 
         val dto = getOrError(id)
         val operation = when (dto.status.status) {
@@ -178,7 +178,7 @@ class TiltaksgjennomforingService(
     }
 
     fun setApentForPamelding(id: UUID, apentForPamelding: Boolean, bruker: EndretAv) = db.tx {
-        Queries.gjennomforing.setApentForPamelding(id, apentForPamelding)
+        queries.gjennomforing.setApentForPamelding(id, apentForPamelding)
 
         val dto = getOrError(id)
         val operation = if (apentForPamelding) {
@@ -192,7 +192,7 @@ class TiltaksgjennomforingService(
     }
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
-        return Queries.endringshistorikk.getEndringshistorikk(DocumentClass.TILTAKSGJENNOMFORING, id)
+        return queries.endringshistorikk.getEndringshistorikk(DocumentClass.TILTAKSGJENNOMFORING, id)
     }
 
     fun frikobleKontaktpersonFraGjennomforing(
@@ -200,7 +200,7 @@ class TiltaksgjennomforingService(
         gjennomforingId: UUID,
         navIdent: NavIdent,
     ): Unit = db.tx {
-        Queries.gjennomforing.frikobleKontaktpersonFraGjennomforing(
+        queries.gjennomforing.frikobleKontaktpersonFraGjennomforing(
             kontaktpersonId = kontaktpersonId,
             gjennomforingId = gjennomforingId,
         )
@@ -214,7 +214,7 @@ class TiltaksgjennomforingService(
     }
 
     private fun QueryContext.getOrError(id: UUID): TiltaksgjennomforingDto {
-        val gjennomforing = Queries.gjennomforing.get(id)
+        val gjennomforing = queries.gjennomforing.get(id)
         return requireNotNull(gjennomforing) { "Gjennomføringen med id=$id finnes ikke" }
     }
 
@@ -234,7 +234,7 @@ class TiltaksgjennomforingService(
             targets = administratorsToNotify,
             createdAt = Instant.now(),
         )
-        Queries.notifications.insert(notification)
+        queries.notifications.insert(notification)
     }
 
     private fun QueryContext.logEndring(
@@ -242,7 +242,7 @@ class TiltaksgjennomforingService(
         dto: TiltaksgjennomforingDto,
         endretAv: EndretAv,
     ) {
-        Queries.endringshistorikk.logEndring(
+        queries.endringshistorikk.logEndring(
             DocumentClass.TILTAKSGJENNOMFORING,
             operation,
             endretAv,

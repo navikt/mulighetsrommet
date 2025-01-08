@@ -55,7 +55,7 @@ class TiltakstypeService(
         filter: TiltakstypeFilter,
         pagination: Pagination,
     ): PaginatedResponse<TiltakstypeDto> = db.session {
-        val items = Queries.tiltakstype.getAllSkalMigreres(
+        val items = queries.tiltakstype.getAllSkalMigreres(
             sortering = filter.sortering,
         )
 
@@ -64,30 +64,30 @@ class TiltakstypeService(
 
     // TODO inline?
     fun getById(id: UUID): TiltakstypeDto? = db.session {
-        Queries.tiltakstype.get(id)
+        queries.tiltakstype.get(id)
     }
 
     fun getBySanityId(sanityId: UUID): TiltakstypeDto {
         return CacheUtils.tryCacheFirstNotNull(cacheBySanityId, sanityId) {
-            db.session { Queries.tiltakstype.getBySanityId(sanityId) }
+            db.session { queries.tiltakstype.getBySanityId(sanityId) }
         }
     }
 
     fun getByGjennomforingId(gjennomforingId: UUID): TiltakstypeDto {
         return CacheUtils.tryCacheFirstNotNull(cacheByGjennomforingId, gjennomforingId) {
-            db.session { Queries.tiltakstype.getByGjennomforingId(gjennomforingId) }
+            db.session { queries.tiltakstype.getByGjennomforingId(gjennomforingId) }
         }
     }
 
     fun getByTiltakskode(tiltakskode: Tiltakskode): TiltakstypeDto {
         return CacheUtils.tryCacheFirstNotNull(cacheByTiltakskode, tiltakskode.name) {
-            db.session { Queries.tiltakstype.getByTiltakskode(tiltakskode) }
+            db.session { queries.tiltakstype.getByTiltakskode(tiltakskode) }
         }
     }
 
     fun getByArenaTiltakskode(arenaKode: String): TiltakstypeDto {
         return CacheUtils.tryCacheFirstNotNull(cacheByTiltakskode, arenaKode) {
-            db.session { Queries.tiltakstype.getByArenaTiltakskode(arenaKode) }
+            db.session { queries.tiltakstype.getByArenaTiltakskode(arenaKode) }
         }
     }
 }

@@ -38,8 +38,8 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
         ).initialize(database.db)
 
         val (gjennomforing, endretTidspunkt) = database.run {
-            val tiltak = Queries.gjennomforing.get(TiltaksgjennomforingFixtures.Oppfolging1.id).shouldNotBeNull()
-            val ts = Queries.gjennomforing.getUpdatedAt(TiltaksgjennomforingFixtures.Oppfolging1.id).shouldNotBeNull()
+            val tiltak = queries.gjennomforing.get(TiltaksgjennomforingFixtures.Oppfolging1.id).shouldNotBeNull()
+            val ts = queries.gjennomforing.getUpdatedAt(TiltaksgjennomforingFixtures.Oppfolging1.id).shouldNotBeNull()
             Pair(tiltak, ts)
         }
 

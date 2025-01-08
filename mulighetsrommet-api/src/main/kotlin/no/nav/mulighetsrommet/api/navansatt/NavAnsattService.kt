@@ -19,23 +19,23 @@ class NavAnsattService(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun getOrSynchronizeNavAnsatt(azureId: UUID, accessType: AccessType): NavAnsattDto = db.session {
-        Queries.ansatt.getByAzureId(azureId) ?: run {
+        queries.ansatt.getByAzureId(azureId) ?: run {
             logger.info("Fant ikke NavAnsatt for azureId=$azureId i databasen, forsøker Azure AD i stedet")
             val ansatt = getNavAnsattFromAzure(azureId, accessType)
-            Queries.ansatt.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
+            queries.ansatt.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
             ansatt
         }
     }
 
     fun getNavAnsatte(filter: NavAnsattFilter): List<NavAnsattDto> = db.session {
-        Queries.ansatt.getAll(roller = filter.roller)
+        queries.ansatt.getAll(roller = filter.roller)
     }
 
     suspend fun addUserToKontaktpersoner(navIdent: NavIdent): Unit = db.tx {
         val kontaktPersonGruppeId = roles.find { it.rolle == NavAnsattRolle.KONTAKTPERSON }?.adGruppeId
         requireNotNull(kontaktPersonGruppeId)
 
-        val ansatt = Queries.ansatt.getByNavIdent(navIdent)
+        val ansatt = queries.ansatt.getByNavIdent(navIdent)
             ?: microsoftGraphClient.getNavAnsattByNavIdent(navIdent, AccessType.M2M)?.let {
                 NavAnsattDto.fromAzureAdNavAnsatt(it, roller = emptySet())
             }
@@ -51,7 +51,7 @@ class NavAnsattService(
             roller = ansatt.roller.plus(NavAnsattRolle.KONTAKTPERSON),
         )
 
-        Queries.ansatt.upsert(dbo)
+        queries.ansatt.upsert(dbo)
 
         microsoftGraphClient.addToGroup(ansatt.azureId, kontaktPersonGruppeId)
     }

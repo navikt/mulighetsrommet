@@ -38,7 +38,7 @@ fun Route.tilsagnRoutes() {
                 ?.map { TilsagnStatus.valueOf(it) }
 
             val result = db.session {
-                Queries.tilsagn.getAll(gjennomforingId = gjennomforingId, statuser = status)
+                queries.tilsagn.getAll(gjennomforingId = gjennomforingId, statuser = status)
             }
 
             call.respond(result)
@@ -49,7 +49,7 @@ fun Route.tilsagnRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 val result = db.session {
-                    Queries.tilsagn.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
+                    queries.tilsagn.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
                 }
 
                 call.respond(result)
@@ -71,7 +71,7 @@ fun Route.tilsagnRoutes() {
             val defaults = when (type) {
                 TilsagnType.TILSAGN -> {
                     val sisteTilsagn = db.session {
-                        Queries.tilsagn
+                        queries.tilsagn
                             .getAll(type = TilsagnType.TILSAGN, gjennomforingId = gjennomforingId)
                             .firstOrNull()
                     }

@@ -16,7 +16,7 @@ class AltinnRettigheterService(
     private val rolleExpiryDuration = Duration.ofDays(1)
 
     suspend fun getRettigheter(norskIdent: NorskIdent): List<BedriftRettigheter> = db.session {
-        val bedriftRettigheter = Queries.altinnRettigheter.getRettigheter(norskIdent)
+        val bedriftRettigheter = queries.altinnRettigheter.getRettigheter(norskIdent)
         return if (bedriftRettigheter.isEmpty() || anyExpiredBefore(bedriftRettigheter, LocalDateTime.now())) {
             syncRettigheter(norskIdent)
         } else {
@@ -33,7 +33,7 @@ class AltinnRettigheterService(
     private suspend fun QueryContext.syncRettigheter(norskIdent: NorskIdent): List<BedriftRettigheter> {
         val rettigheter = altinnClient.hentRettigheter(norskIdent)
 
-        Queries.altinnRettigheter.upsertRettighet(
+        queries.altinnRettigheter.upsertRettighet(
             PersonBedriftRettigheterDbo(
                 norskIdent = norskIdent,
                 bedriftRettigheter = rettigheter,

@@ -36,10 +36,10 @@ class SisteTiltaksgjennomforingerV1KafkaConsumer(
     private suspend fun publishMigrertGjennomforing(id: UUID): Unit = db.session {
         val arenaGjennomforing = arenaAdapterClient.hentArenadata(id)
 
-        val gjennomforing = Queries.gjennomforing.get(id)
+        val gjennomforing = queries.gjennomforing.get(id)
         requireNotNull(gjennomforing)
 
-        val endretTidspunkt = Queries.gjennomforing.getUpdatedAt(id)
+        val endretTidspunkt = queries.gjennomforing.getUpdatedAt(id)
         requireNotNull(endretTidspunkt)
 
         val migrertGjennomforing = ArenaMigreringTiltaksgjennomforingDto.from(

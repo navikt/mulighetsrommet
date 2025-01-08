@@ -78,10 +78,10 @@ class NotificationTaskTest : FunSpec({
             task.scheduleNotification(notification, now)
 
             database.run {
-                Queries.notifications.getAll().shouldBeEmpty()
+                queries.notifications.getAll().shouldBeEmpty()
 
                 eventually(30.seconds) {
-                    Queries.notifications.getAll() shouldContainExactlyInAnyOrder listOf(
+                    queries.notifications.getAll() shouldContainExactlyInAnyOrder listOf(
                         notification.asUserNotification(user1),
                         notification.asUserNotification(user2),
                     )

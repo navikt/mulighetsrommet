@@ -80,7 +80,7 @@ class NavAnsattSyncServiceTest : FunSpec({
             service.synchronizeNavAnsatte(today, deletionDate)
 
             database.run {
-                Queries.ansatt.getAll() shouldContainExactlyInAnyOrder listOf(
+                queries.ansatt.getAll() shouldContainExactlyInAnyOrder listOf(
                     NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(TILTAKADMINISTRASJON_GENERELL)),
                     NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(TILTAKADMINISTRASJON_GENERELL)),
                 )
@@ -95,7 +95,7 @@ class NavAnsattSyncServiceTest : FunSpec({
             service.synchronizeNavAnsatte(today, deletionDate)
 
             database.run {
-                Queries.ansatt.getAll() shouldContainExactlyInAnyOrder listOf(
+                queries.ansatt.getAll() shouldContainExactlyInAnyOrder listOf(
                     NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf()).copy(
                         skalSlettesDato = deletionDate,
                     ),
@@ -109,7 +109,7 @@ class NavAnsattSyncServiceTest : FunSpec({
             service.synchronizeNavAnsatte(today, deletionDate)
 
             database.run {
-                Queries.ansatt.getAll() shouldContainExactlyInAnyOrder listOf(
+                queries.ansatt.getAll() shouldContainExactlyInAnyOrder listOf(
                     NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf()).copy(
                         skalSlettesDato = deletionDate,
                     ),
@@ -133,7 +133,7 @@ class NavAnsattSyncServiceTest : FunSpec({
             service.synchronizeNavAnsatte(today, deletionDate = today)
 
             database.run {
-                Queries.ansatt.getAll() shouldContainExactlyInAnyOrder listOf(
+                queries.ansatt.getAll() shouldContainExactlyInAnyOrder listOf(
                     NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(KONTAKTPERSON)),
                 )
             }
@@ -144,7 +144,7 @@ class NavAnsattSyncServiceTest : FunSpec({
             service.synchronizeNavAnsatte(today, deletionDate = today)
 
             database.run {
-                Queries.ansatt.getAll().shouldBeEmpty()
+                queries.ansatt.getAll().shouldBeEmpty()
             }
         }
     }

@@ -70,7 +70,7 @@ class NavEnheterSyncService(
         logger.info("Lagrer ${enheter.size} enheter til database")
 
         enheter.forEach {
-            Queries.enhet.upsert(
+            queries.enhet.upsert(
                 NavEnhetDbo(
                     navn = it.enhet.navn,
                     enhetsnummer = it.enhet.enhetNr,

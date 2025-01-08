@@ -32,14 +32,14 @@ class ArenaAdapterService(
     suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleDto = db.tx {
         syncArrangorFromBrreg(Organisasjonsnummer(avtale.arrangorOrganisasjonsnummer))
 
-        val previous = Queries.avtale.get(avtale.id)
+        val previous = queries.avtale.get(avtale.id)
         if (previous?.toArenaAvtaleDbo() == avtale) {
             return@tx previous
         }
 
-        Queries.avtale.upsertArenaAvtale(avtale)
+        queries.avtale.upsertArenaAvtale(avtale)
 
-        val next = requireNotNull(Queries.avtale.get(avtale.id))
+        val next = requireNotNull(queries.avtale.get(avtale.id))
 
         logUpdateAvtale(next)
 
@@ -47,7 +47,7 @@ class ArenaAdapterService(
     }
 
     suspend fun upsertTiltaksgjennomforing(arenaGjennomforing: ArenaTiltaksgjennomforingDbo): UUID? = db.session {
-        val tiltakstype = Queries.tiltakstype.get(arenaGjennomforing.tiltakstypeId)
+        val tiltakstype = queries.tiltakstype.get(arenaGjennomforing.tiltakstypeId)
             ?: throw IllegalStateException("Ukjent tiltakstype id=${arenaGjennomforing.tiltakstypeId}")
 
         syncArrangorFromBrreg(Organisasjonsnummer(arenaGjennomforing.arrangorOrganisasjonsnummer))
@@ -88,7 +88,7 @@ class ArenaAdapterService(
             "Gjennomføringer er ikke støttet for tiltakstype ${tiltakstype.arenaKode}"
         }
 
-        val previous = requireNotNull(Queries.gjennomforing.get(arenaGjennomforing.id)) {
+        val previous = requireNotNull(queries.gjennomforing.get(arenaGjennomforing.id)) {
             "Alle gruppetiltak har blitt migrert. Forventet å finne gjennomføring i databasen."
         }
 
@@ -97,13 +97,13 @@ class ArenaAdapterService(
             return@tx
         }
 
-        Queries.gjennomforing.updateArenaData(
+        queries.gjennomforing.updateArenaData(
             arenaGjennomforing.id,
             arenaGjennomforing.tiltaksnummer,
             arenaGjennomforing.arenaAnsvarligEnhet,
         )
 
-        val next = requireNotNull(Queries.gjennomforing.get(arenaGjennomforing.id)) {
+        val next = requireNotNull(queries.gjennomforing.get(arenaGjennomforing.id)) {
             "Gjennomføring burde ikke være null siden den nettopp ble lagt til"
         }
 
@@ -135,7 +135,7 @@ class ArenaAdapterService(
     }
 
     private fun QueryContext.logUpdateAvtale(dto: AvtaleDto) {
-        Queries.endringshistorikk.logEndring(
+        queries.endringshistorikk.logEndring(
             DocumentClass.AVTALE,
             "Endret i Arena",
             EndretAv.Arena,
@@ -144,7 +144,7 @@ class ArenaAdapterService(
     }
 
     private fun QueryContext.logUpdateGjennomforing(dto: TiltaksgjennomforingDto) {
-        Queries.endringshistorikk.logEndring(
+        queries.endringshistorikk.logEndring(
             DocumentClass.TILTAKSGJENNOMFORING,
             "Endret i Arena",
             EndretAv.Arena,
@@ -153,7 +153,7 @@ class ArenaAdapterService(
     }
 
     private fun QueryContext.logTiltaksnummerHentetFraArena(dto: TiltaksgjennomforingDto) {
-        Queries.endringshistorikk.logEndring(
+        queries.endringshistorikk.logEndring(
             DocumentClass.TILTAKSGJENNOMFORING,
             "Oppdatert med tiltaksnummer fra Arena",
             EndretAv.System,

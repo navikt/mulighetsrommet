@@ -17,7 +17,7 @@ class NotificationTask(
         .oneTime("handle-scheduled-notification", ScheduledNotification::class.java)
         .execute { instance, _ ->
             val notification: ScheduledNotification = instance.data
-            db.session { Queries.notifications.insert(notification) }
+            db.session { queries.notifications.insert(notification) }
         }
 
     private val client = SchedulerClient.Builder

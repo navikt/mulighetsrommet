@@ -181,7 +181,7 @@ class AvtaleValidator(
     private fun MutableList<ValidationError>.validateCreateAvtale(
         avtale: AvtaleDbo,
     ) = db.session {
-        val hovedenhet = Queries.arrangor.getById(avtale.arrangorId)
+        val hovedenhet = queries.arrangor.getById(avtale.arrangorId)
 
         if (hovedenhet.slettetDato != null) {
             add(
@@ -193,7 +193,7 @@ class AvtaleValidator(
         }
 
         avtale.arrangorUnderenheter.forEach { underenhetId ->
-            val underenhet = Queries.arrangor.getById(underenhetId)
+            val underenhet = queries.arrangor.getById(underenhetId)
 
             if (underenhet.slettetDato != null) {
                 add(
@@ -219,7 +219,7 @@ class AvtaleValidator(
         avtale: AvtaleDbo,
         currentAvtale: AvtaleDto,
     ) = db.session {
-        val (numGjennomforinger, gjennomforinger) = Queries.gjennomforing.getAll(avtaleId = avtale.id)
+        val (numGjennomforinger, gjennomforinger) = queries.gjennomforing.getAll(avtaleId = avtale.id)
 
         /**
          * Når avtalen har blitt godkjent så skal alle datafelter som påvirker økonomien, påmelding, osv. være låst.
@@ -241,7 +241,7 @@ class AvtaleValidator(
             gjennomforinger.forEach { gjennomforing ->
                 val arrangorId = gjennomforing.arrangor.id
                 if (arrangorId !in avtale.arrangorUnderenheter) {
-                    val arrangor = Queries.arrangor.getById(arrangorId)
+                    val arrangor = queries.arrangor.getById(arrangorId)
                     add(
                         ValidationError.of(
                             AvtaleDbo::arrangorUnderenheter,
@@ -291,7 +291,7 @@ class AvtaleValidator(
     ) {
         val slettedeNavIdenter = db.session {
             next.administratorer.mapNotNull { ident ->
-                Queries.ansatt.getByNavIdent(ident)?.takeIf { it.skalSlettesDato != null }?.navIdent?.value
+                queries.ansatt.getByNavIdent(ident)?.takeIf { it.skalSlettesDato != null }?.navIdent?.value
             }
         }
 

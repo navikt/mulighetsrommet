@@ -37,10 +37,10 @@ class InitialLoadTiltakstyper(
     }
 
     private suspend fun initialLoadTiltakstyper() = db.tx {
-        Queries.tiltakstype.getAll().forEach { tiltakstype ->
+        queries.tiltakstype.getAll().forEach { tiltakstype ->
             val tiltakskode = tiltakstype.tiltakskode
             if (tiltakskode != null) {
-                val eksternDto = requireNotNull(Queries.tiltakstype.getEksternTiltakstype(tiltakstype.id)) {
+                val eksternDto = requireNotNull(queries.tiltakstype.getEksternTiltakstype(tiltakstype.id)) {
                     "Klarte ikke hente ekstern tiltakstype for tiltakskode $tiltakskode"
                 }
 
