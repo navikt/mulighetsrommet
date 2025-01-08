@@ -107,7 +107,7 @@ class GenerateValidationReport(
 
     private suspend fun validateAvtaler(): Map<AvtaleDto, List<ValidationError>> = db.session {
         buildMap {
-            paginateFanOut({ pagination -> Queries.avtale.getAll(pagination).items }) {
+            paginateFanOut({ pagination -> queries.avtale.getAll(pagination).items }) {
                 avtaleValidator.validate(it.toDbo(), it).onLeft { validationErrors ->
                     put(it, validationErrors)
                 }
@@ -133,7 +133,7 @@ class GenerateValidationReport(
     private suspend fun validateGjennomforinger(): Map<TiltaksgjennomforingDto, List<ValidationError>> = db.session {
         buildMap {
             paginateFanOut({ pagination ->
-                Queries.gjennomforing.getAll(
+                queries.gjennomforing.getAll(
                     pagination,
                     sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
                 ).items

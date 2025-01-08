@@ -67,20 +67,20 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer.value, Json.encodeToJsonElement(amtUnderenhet))
 
             database.run {
-                Queries.arrangor.getAll().items.shouldBeEmpty()
+                queries.arrangor.getAll().items.shouldBeEmpty()
             }
         }
 
         test("oppdaterer bare virksomheter som er lagret i databasen") {
             database.run {
-                Queries.arrangor.upsert(virksomhetDto.copy(navn = "Kiwi", postnummer = "9999", poststed = "Gåseby"))
+                queries.arrangor.upsert(virksomhetDto.copy(navn = "Kiwi", postnummer = "9999", poststed = "Gåseby"))
             }
 
             virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer.value, Json.encodeToJsonElement(amtVirksomhet))
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer.value, Json.encodeToJsonElement(amtUnderenhet))
 
             database.run {
-                Queries.arrangor.getAll().should {
+                queries.arrangor.getAll().should {
                     it.items.shouldHaveSize(1)
                     it.items[0].navn shouldBe "REMA 1000 AS"
                     it.items[0].postnummer shouldBe "1000"
@@ -91,14 +91,14 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
 
         test("delete virksomheter for tombstone messages") {
             database.run {
-                Queries.arrangor.upsert(underenhetDto)
-                Queries.arrangor.get(underenhetDto.organisasjonsnummer).shouldNotBeNull()
+                queries.arrangor.upsert(underenhetDto)
+                queries.arrangor.get(underenhetDto.organisasjonsnummer).shouldNotBeNull()
             }
 
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer.value, JsonNull)
 
             database.run {
-                Queries.arrangor.get(underenhetDto.organisasjonsnummer) shouldBe null
+                queries.arrangor.get(underenhetDto.organisasjonsnummer) shouldBe null
             }
         }
     }

@@ -31,11 +31,11 @@ class AvtaleService(
     private val gjennomforingPublisher: InitialLoadTiltaksgjennomforinger,
 ) {
     fun get(id: UUID): AvtaleDto? = db.session {
-        Queries.avtale.get(id)
+        queries.avtale.get(id)
     }
 
     suspend fun upsert(request: AvtaleRequest, navIdent: NavIdent): Either<List<ValidationError>, AvtaleDto> = db.tx {
-        val previous = Queries.avtale.get(request.id)
+        val previous = queries.avtale.get(request.id)
         syncArrangorerFromBrreg(request)
             .flatMap { (arrangor, underenheter) ->
                 val dbo = request.run {
@@ -74,7 +74,7 @@ class AvtaleService(
                     return@map previous
                 }
 
-                Queries.avtale.upsert(dbo)
+                queries.avtale.upsert(dbo)
 
                 dispatchNotificationToNewAdministrators(dbo, navIdent)
 
@@ -97,7 +97,7 @@ class AvtaleService(
         filter: AvtaleFilter,
         pagination: Pagination,
     ): PaginatedResponse<AvtaleDto> = db.session {
-        val (totalCount, items) = Queries.avtale.getAll(
+        val (totalCount, items) = queries.avtale.getAll(
             pagination = pagination,
             tiltakstypeIder = filter.tiltakstypeIder,
             search = filter.search,
@@ -117,7 +117,7 @@ class AvtaleService(
         if (aarsak == null) {
             return@tx Either.Left(BadRequest(message = "Årsak mangler"))
         }
-        val avtale = Queries.avtale.get(id) ?: return@tx Either.Left(NotFound("Avtalen finnes ikke"))
+        val avtale = queries.avtale.get(id) ?: return@tx Either.Left(NotFound("Avtalen finnes ikke"))
 
         if (aarsak is AvbruttAarsak.Annet && aarsak.name.length > 100) {
             return@tx Either.Left(BadRequest(message = "Beskrivelse kan ikke inneholde mer enn 100 tegn"))
@@ -131,7 +131,7 @@ class AvtaleService(
             return@tx Either.Left(BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
         }
 
-        val (_, gjennomforinger) = Queries.gjennomforing.getAll(
+        val (_, gjennomforinger) = queries.gjennomforing.getAll(
             avtaleId = id,
             statuser = listOf(TiltaksgjennomforingStatus.GJENNOMFORES),
         )
@@ -147,7 +147,7 @@ class AvtaleService(
             return@tx Either.Left(BadRequest(message))
         }
 
-        Queries.avtale.avbryt(id, LocalDateTime.now(), aarsak)
+        queries.avtale.avbryt(id, LocalDateTime.now(), aarsak)
         val dto = getOrError(id)
         logEndring("Avtale ble avbrutt", dto, EndretAv.NavAnsatt(navIdent))
 
@@ -159,7 +159,7 @@ class AvtaleService(
         avtaleId: UUID,
         navIdent: NavIdent,
     ): Unit = db.tx {
-        Queries.avtale.frikobleKontaktpersonFraAvtale(kontaktpersonId = kontaktpersonId, avtaleId = avtaleId)
+        queries.avtale.frikobleKontaktpersonFraAvtale(kontaktpersonId = kontaktpersonId, avtaleId = avtaleId)
 
         val avtale = getOrError(avtaleId)
         logEndring(
@@ -170,7 +170,7 @@ class AvtaleService(
     }
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
-        Queries.endringshistorikk.getEndringshistorikk(DocumentClass.AVTALE, id)
+        queries.endringshistorikk.getEndringshistorikk(DocumentClass.AVTALE, id)
     }
 
     private fun schedulePublishGjennomforingerForAvtale(dto: AvtaleDto) {
@@ -203,7 +203,7 @@ class AvtaleService(
         }
 
     private fun QueryContext.getOrError(id: UUID): AvtaleDto {
-        val dto = Queries.avtale.get(id)
+        val dto = queries.avtale.get(id)
         return requireNotNull(dto) { "Avtale med id=$id finnes ikke" }
     }
 
@@ -222,7 +222,7 @@ class AvtaleService(
             targets = administratorsToNotify,
             createdAt = Instant.now(),
         )
-        Queries.notifications.insert(notification)
+        queries.notifications.insert(notification)
     }
 
     private fun QueryContext.logEndring(
@@ -230,7 +230,7 @@ class AvtaleService(
         dto: AvtaleDto,
         endretAv: EndretAv.NavAnsatt,
     ) {
-        Queries.endringshistorikk.logEndring(
+        queries.endringshistorikk.logEndring(
             DocumentClass.AVTALE,
             operation,
             endretAv,

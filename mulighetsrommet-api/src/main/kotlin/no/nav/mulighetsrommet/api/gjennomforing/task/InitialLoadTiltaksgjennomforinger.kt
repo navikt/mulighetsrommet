@@ -73,12 +73,12 @@ class InitialLoadTiltaksgjennomforinger(
         tiltakskoder: List<Tiltakskode>,
         opphav: ArenaMigrering.Opphav?,
     ): Unit = db.session {
-        val tiltakstypeIder = tiltakskoder.map { Queries.tiltakstype.getByTiltakskode(it).id }
+        val tiltakstypeIder = tiltakskoder.map { queries.tiltakstype.getByTiltakskode(it).id }
 
         val total = paginateFanOut(
             { pagination: Pagination ->
                 logger.info("Henter gjennomføringer pagination=$pagination")
-                val result = Queries.gjennomforing.getAll(
+                val result = queries.gjennomforing.getAll(
                     pagination = pagination,
                     opphav = opphav,
                     tiltakstypeIder = tiltakstypeIder,
@@ -94,7 +94,7 @@ class InitialLoadTiltaksgjennomforinger(
 
     private fun initialLoadTiltaksgjennomforingerByIds(ids: List<UUID>) = db.session {
         ids.forEach { id ->
-            val gjennomforing = Queries.gjennomforing.get(id)
+            val gjennomforing = queries.gjennomforing.get(id)
             if (gjennomforing == null) {
                 logger.info("Sender tombstone for id $id")
                 gjennomforingProducer.retract(id)
@@ -106,7 +106,7 @@ class InitialLoadTiltaksgjennomforinger(
     }
 
     private fun initialLoadTiltaksgjennomforingerByAvtale(avtaleId: UUID) = db.session {
-        Queries.gjennomforing.getAll(avtaleId = avtaleId).items.forEach {
+        queries.gjennomforing.getAll(avtaleId = avtaleId).items.forEach {
             gjennomforingProducer.publish(it.toTiltaksgjennomforingV1Dto())
         }
     }

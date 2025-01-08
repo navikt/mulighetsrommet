@@ -123,7 +123,7 @@ class VeilederflateService(
         search: String?,
         erSykmeldtMedArbeidsgiver: Boolean,
     ): List<VeilederflateTiltak> = db.session {
-        return Queries.veilderTiltak.getAll(
+        return queries.veilderTiltak.getAll(
             search = search,
             sanityTiltakstypeIds = tiltakstypeIds?.map { UUID.fromString(it) },
             innsatsgruppe = innsatsgruppe,
@@ -141,7 +141,7 @@ class VeilederflateService(
         id: UUID,
         sanityPerspective: SanityPerspective,
     ): VeilederflateTiltak = db.session {
-        return Queries.veilderTiltak.get(id)
+        return queries.veilderTiltak.get(id)
             ?.let { gjennomforing ->
                 val hentTiltakstyper = hentTiltakstyper()
                 val sanityTiltakstype = hentTiltakstyper

@@ -343,8 +343,8 @@ class AvtaleValidatorTest : FunSpec({
 
     test("arrangøren må være aktiv i Brreg") {
         database.run {
-            Queries.arrangor.upsert(ArrangorFixtures.Fretex.hovedenhet.copy(slettetDato = LocalDate.of(2024, 1, 1)))
-            Queries.arrangor.upsert(ArrangorFixtures.Fretex.underenhet1.copy(slettetDato = LocalDate.of(2024, 1, 1)))
+            queries.arrangor.upsert(ArrangorFixtures.Fretex.hovedenhet.copy(slettetDato = LocalDate.of(2024, 1, 1)))
+            queries.arrangor.upsert(ArrangorFixtures.Fretex.underenhet1.copy(slettetDato = LocalDate.of(2024, 1, 1)))
         }
 
         val avtale1 = AvtaleFixtures.oppfolging.copy(
@@ -446,7 +446,7 @@ class AvtaleValidatorTest : FunSpec({
     context("når avtalen allerede eksisterer") {
         test("Skal ikke kunne endre opsjonsmodell eller avtaletype når opsjon er registrert") {
             database.run {
-                Queries.avtale.upsert(
+                queries.avtale.upsert(
                     avtaleDbo.copy(
                         avtaletype = Avtaletype.Rammeavtale,
                         opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN_PLUSS_EN,
@@ -468,7 +468,7 @@ class AvtaleValidatorTest : FunSpec({
                 ),
             )
 
-            val previous = database.run { Queries.avtale.get(avtaleDbo.id) }
+            val previous = database.run { queries.avtale.get(avtaleDbo.id) }
             val avtale = avtaleDbo.copy(
                 avtaletype = Avtaletype.Avtale,
                 opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
@@ -503,7 +503,7 @@ class AvtaleValidatorTest : FunSpec({
                     startDato = avtaleDbo.startDato.plusDays(4),
                 )
 
-                val previous = database.run { Queries.avtale.get(avtaleDbo.id) }
+                val previous = database.run { queries.avtale.get(avtaleDbo.id) }
                 val formatertDato = startDatoForGjennomforing.formaterDatoTilEuropeiskDatoformat()
 
                 createValidator().validate(dbo, previous).shouldBeLeft() shouldContainExactlyInAnyOrder listOf(
@@ -532,7 +532,7 @@ class AvtaleValidatorTest : FunSpec({
                     navEnheter = listOf("0400"),
                 )
 
-                val previous = database.run { Queries.avtale.get(avtaleDbo.id) }
+                val previous = database.run { queries.avtale.get(avtaleDbo.id) }
 
                 createValidator().validate(dbo, previous).shouldBeRight()
             }

@@ -251,7 +251,7 @@ fun Route.tiltaksgjennomforingRoutes() {
             val id: UUID by call.parameters
 
             val deltakereForGjennomforing = db.session {
-                Queries.deltaker.getAll(tiltaksgjennomforingId = id)
+                queries.deltaker.getAll(tiltaksgjennomforingId = id)
             }
 
             val deltakereByStatus = deltakereForGjennomforing

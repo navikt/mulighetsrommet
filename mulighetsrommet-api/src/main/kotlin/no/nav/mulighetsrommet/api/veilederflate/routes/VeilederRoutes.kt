@@ -49,7 +49,7 @@ fun Route.veilederRoutes() {
                 fullfort = request.fullfort,
                 type = request.joyrideType,
             )
-            db.session { Queries.veilederJoyride.upsert(dto) }
+            db.session { queries.veilederJoyride.upsert(dto) }
 
             call.respond(HttpStatusCode.OK)
         }
@@ -59,7 +59,7 @@ fun Route.veilederRoutes() {
             val type = call.parameters.getOrFail("type").let { JoyrideType.valueOf(it) }
 
             val fullfort = db.session {
-                Queries.veilederJoyride.harFullfortJoyride(navIdent, type)
+                queries.veilederJoyride.harFullfortJoyride(navIdent, type)
             }
 
             call.respond(fullfort)

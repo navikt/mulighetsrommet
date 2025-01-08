@@ -67,7 +67,7 @@ class SynchronizeUtdanningerTest : FunSpec({
 
             synchronizeUtdanninger.syncUtdanninger()
 
-            val programomraderMedUtdanninger = database.run { Queries.utdanning.getUtdanningsprogrammer() }
+            val programomraderMedUtdanninger = database.run { queries.utdanning.getUtdanningsprogrammer() }
 
             programomraderMedUtdanninger should {
                 it.size shouldBe 1
@@ -106,7 +106,7 @@ class SynchronizeUtdanningerTest : FunSpec({
 
             synchronizeUtdanninger.syncUtdanninger()
 
-            val programomraderMedUtdanninger = database.run { Queries.utdanning.getUtdanningsprogrammer() }
+            val programomraderMedUtdanninger = database.run { queries.utdanning.getUtdanningsprogrammer() }
 
             programomraderMedUtdanninger should {
                 it.size shouldBe 1

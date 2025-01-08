@@ -28,7 +28,7 @@ fun Route.arrangorRoutes() {
             val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
 
             if (isUtenlandskOrgnr(orgnr)) {
-                val virksomhet = db.tx { Queries.arrangor.get(orgnr) }
+                val virksomhet = db.tx { queries.arrangor.get(orgnr) }
                 return@post if (virksomhet != null) {
                     call.respond(virksomhet)
                 } else {
@@ -47,7 +47,7 @@ fun Route.arrangorRoutes() {
             val pagination = getPaginationParams()
 
             val (totalCount, items) = db.session {
-                Queries.arrangor.getAll(
+                queries.arrangor.getAll(
                     til = filter.til,
                     sok = filter.sok,
                     sortering = filter.sortering,
@@ -61,7 +61,7 @@ fun Route.arrangorRoutes() {
         get("{id}") {
             val id: UUID by call.parameters
 
-            val arrangor = db.session { Queries.arrangor.getById(id) }
+            val arrangor = db.session { queries.arrangor.getById(id) }
 
             call.respond(arrangor)
         }
@@ -69,7 +69,7 @@ fun Route.arrangorRoutes() {
         get("hovedenhet/{id}") {
             val id: UUID by call.parameters
 
-            val arrangor = db.tx { Queries.arrangor.getHovedenhetById(id) }
+            val arrangor = db.tx { queries.arrangor.getHovedenhetById(id) }
 
             call.respond(arrangor)
         }
@@ -103,7 +103,7 @@ fun Route.arrangorRoutes() {
             val id: UUID by call.parameters
 
             db.session {
-                val (gjennomforinger, avtaler) = Queries.arrangor.koblingerTilKontaktperson(id)
+                val (gjennomforinger, avtaler) = queries.arrangor.koblingerTilKontaktperson(id)
 
                 if (gjennomforinger.isNotEmpty<DokumentKoblingForKontaktperson>()) {
                     return@session call.respond(HttpStatusCode.BadRequest, "Kontaktpersonen er i bruk.")
@@ -113,7 +113,7 @@ fun Route.arrangorRoutes() {
                     return@session call.respond(HttpStatusCode.BadRequest, "Kontaktpersonen er i bruk.")
                 }
 
-                Queries.arrangor.deleteKontaktperson(id)
+                queries.arrangor.deleteKontaktperson(id)
             }
 
             call.respond(HttpStatusCode.OK)

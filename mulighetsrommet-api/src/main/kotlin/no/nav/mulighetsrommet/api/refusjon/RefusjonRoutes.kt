@@ -34,7 +34,7 @@ fun Route.refusjonRoutes() {
             val id = call.parameters.getOrFail<UUID>("id")
 
             val krav = db.session {
-                Queries.refusjonskrav.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
+                queries.refusjonskrav.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
             }
 
             call.respond(toRefusjonskravKompakt(krav))
@@ -47,7 +47,7 @@ fun Route.refusjonRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 val kravForGjennomforing = db.session {
-                    Queries.refusjonskrav.getByGjennomforing(id)
+                    queries.refusjonskrav.getByGjennomforing(id)
                 }
 
                 val krav = kravForGjennomforing.map(::toRefusjonskravKompakt)

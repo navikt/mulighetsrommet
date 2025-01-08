@@ -145,7 +145,7 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
         )
 
         val forslag = database.run {
-            Queries.deltakerForslag.getForslagByGjennomforing(TiltaksgjennomforingFixtures.AFT1.id)
+            queries.deltakerForslag.getForslagByGjennomforing(TiltaksgjennomforingFixtures.AFT1.id)
         }
 
         forslag shouldBe mapOf(

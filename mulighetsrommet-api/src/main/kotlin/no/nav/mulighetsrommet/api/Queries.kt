@@ -35,10 +35,9 @@ inline fun <R> withTransaction(receiver: Session, block: TransactionalSession.()
 }
 
 class QueryContext(val session: Session) {
-    @Suppress("ktlint:standard:property-naming")
-    val Queries = Qs()
+    val queries by lazy { Queries() }
 
-    inner class Qs {
+    inner class Queries {
         val enhet = NavEnhetQueries(session)
         val ansatt = NavAnsattQueries(session)
         val arrangor = ArrangorQueries(session)
@@ -63,14 +62,14 @@ class QueryContext(val session: Session) {
 
 suspend fun bar(db: ApiDatabase, ansatt: NavAnsattDbo) {
     db.session {
-        Queries.ansatt.upsert(ansatt)
+        queries.ansatt.upsert(ansatt)
         foo(this)
     }
 }
 
 suspend fun foo(queries: QueryContext): List<NavAnsattDto> {
     delay(100)
-    return queries.Queries.ansatt.getAll()
+    return queries.queries.ansatt.getAll()
 }
 
 class ApiDatabase(

@@ -15,7 +15,7 @@ class RefusjonService(
     fun genererRefusjonskravForMonth(dayInMonth: LocalDate): List<RefusjonskravDto> = db.tx {
         val periode = RefusjonskravPeriode.fromDayInMonth(dayInMonth)
 
-        Queries.gjennomforing
+        queries.gjennomforing
             .getGjennomforesInPeriodeUtenRefusjonskrav(periode)
             .mapNotNull { gjennomforing ->
                 val krav = when (gjennomforing.tiltakstype.tiltakskode) {
@@ -31,13 +31,13 @@ class RefusjonService(
                 krav?.takeIf { it.beregning.output.belop > 0 }
             }
             .map { krav ->
-                Queries.refusjonskrav.upsert(krav)
-                requireNotNull(Queries.refusjonskrav.get(krav.id)) { "Refusjonskrav forventet siden det nettopp ble opprettet" }
+                queries.refusjonskrav.upsert(krav)
+                requireNotNull(queries.refusjonskrav.get(krav.id)) { "Refusjonskrav forventet siden det nettopp ble opprettet" }
             }
     }
 
     fun recalculateRefusjonskravForGjennomforing(id: UUID) = db.tx {
-        Queries.refusjonskrav
+        queries.refusjonskrav
             .getByGjennomforing(id, statuser = listOf(RefusjonskravStatus.KLAR_FOR_GODKJENNING))
             .mapNotNull { gjeldendeKrav ->
                 val nyttKrav = when (gjeldendeKrav.beregning) {
@@ -51,7 +51,7 @@ class RefusjonService(
                 nyttKrav.takeIf { it.beregning != gjeldendeKrav.beregning }
             }
             .forEach { krav ->
-                Queries.refusjonskrav.upsert(krav)
+                queries.refusjonskrav.upsert(krav)
             }
     }
 
@@ -77,7 +77,7 @@ class RefusjonService(
         val beregning = RefusjonKravBeregningAft.beregn(input)
 
         val forrigeKrav = db.session {
-            Queries.refusjonskrav.getSisteGodkjenteRefusjonskrav(gjennomforingId)
+            queries.refusjonskrav.getSisteGodkjenteRefusjonskrav(gjennomforingId)
         }
 
         return RefusjonskravDbo(
@@ -95,7 +95,7 @@ class RefusjonService(
         periode: RefusjonskravPeriode,
     ): Set<DeltakelsePerioder> {
         val deltakelser = db.session {
-            Queries.deltaker.getAll(gjennomforingId)
+            queries.deltaker.getAll(gjennomforingId)
         }
 
         return deltakelser

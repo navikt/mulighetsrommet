@@ -50,30 +50,30 @@ data class MulighetsrommetTestDomain(
         val context = QueryContext(session)
 
         with(context) {
-            enheter.forEach { Queries.enhet.upsert(it) }
-            ansatte.forEach { Queries.ansatt.upsert(it) }
-            arrangorer.forEach { Queries.arrangor.upsert(it) }
-            arrangorKontaktpersoner.forEach { Queries.arrangor.upsertKontaktperson(it) }
-            tiltakstyper.forEach { Queries.tiltakstype.upsert(it) }
-            avtaler.forEach { Queries.avtale.upsert(it) }
-            gjennomforinger.forEach { Queries.gjennomforing.upsert(it) }
-            deltakere.forEach { Queries.deltaker.upsert(it) }
-            refusjonskrav.forEach { Queries.refusjonskrav.upsert(it) }
+            enheter.forEach { queries.enhet.upsert(it) }
+            ansatte.forEach { queries.ansatt.upsert(it) }
+            arrangorer.forEach { queries.arrangor.upsert(it) }
+            arrangorKontaktpersoner.forEach { queries.arrangor.upsertKontaktperson(it) }
+            tiltakstyper.forEach { queries.tiltakstype.upsert(it) }
+            avtaler.forEach { queries.avtale.upsert(it) }
+            gjennomforinger.forEach { queries.gjennomforing.upsert(it) }
+            deltakere.forEach { queries.deltaker.upsert(it) }
+            refusjonskrav.forEach { queries.refusjonskrav.upsert(it) }
         }
 
         additionalSetup?.invoke(context)
     }
 
     fun initialize(database: ApiDatabase) = database.tx {
-        enheter.forEach { Queries.enhet.upsert(it) }
-        ansatte.forEach { Queries.ansatt.upsert(it) }
-        arrangorer.forEach { Queries.arrangor.upsert(it) }
-        arrangorKontaktpersoner.forEach { Queries.arrangor.upsertKontaktperson(it) }
-        tiltakstyper.forEach { Queries.tiltakstype.upsert(it) }
-        avtaler.forEach { Queries.avtale.upsert(it) }
-        gjennomforinger.forEach { Queries.gjennomforing.upsert(it) }
-        deltakere.forEach { Queries.deltaker.upsert(it) }
-        refusjonskrav.forEach { Queries.refusjonskrav.upsert(it) }
+        enheter.forEach { queries.enhet.upsert(it) }
+        ansatte.forEach { queries.ansatt.upsert(it) }
+        arrangorer.forEach { queries.arrangor.upsert(it) }
+        arrangorKontaktpersoner.forEach { queries.arrangor.upsertKontaktperson(it) }
+        tiltakstyper.forEach { queries.tiltakstype.upsert(it) }
+        avtaler.forEach { queries.avtale.upsert(it) }
+        gjennomforinger.forEach { queries.gjennomforing.upsert(it) }
+        deltakere.forEach { queries.deltaker.upsert(it) }
+        refusjonskrav.forEach { queries.refusjonskrav.upsert(it) }
 
         additionalSetup?.invoke(this)
     }
@@ -82,15 +82,15 @@ data class MulighetsrommetTestDomain(
         val context = QueryContext(session)
 
         with(context) {
-            enheter.forEach { Queries.enhet.upsert(it) }
-            ansatte.forEach { Queries.ansatt.upsert(it) }
-            arrangorer.forEach { Queries.arrangor.upsert(it) }
-            arrangorKontaktpersoner.forEach { Queries.arrangor.upsertKontaktperson(it) }
-            tiltakstyper.forEach { Queries.tiltakstype.upsert(it) }
-            avtaler.forEach { Queries.avtale.upsert(it) }
-            gjennomforinger.forEach { Queries.gjennomforing.upsert(it) }
-            deltakere.forEach { Queries.deltaker.upsert(it) }
-            refusjonskrav.forEach { Queries.refusjonskrav.upsert(it) }
+            enheter.forEach { queries.enhet.upsert(it) }
+            ansatte.forEach { queries.ansatt.upsert(it) }
+            arrangorer.forEach { queries.arrangor.upsert(it) }
+            arrangorKontaktpersoner.forEach { queries.arrangor.upsertKontaktperson(it) }
+            tiltakstyper.forEach { queries.tiltakstype.upsert(it) }
+            avtaler.forEach { queries.avtale.upsert(it) }
+            gjennomforinger.forEach { queries.gjennomforing.upsert(it) }
+            deltakere.forEach { queries.deltaker.upsert(it) }
+            refusjonskrav.forEach { queries.refusjonskrav.upsert(it) }
         }
 
         additionalSetup?.invoke(context)
@@ -100,12 +100,12 @@ data class MulighetsrommetTestDomain(
 
     fun teardown(session: TransactionalSession): MulighetsrommetTestDomain {
         with(QueryContext(session)) {
-            deltakere.forEach { Queries.deltaker.delete(it.id) }
-            gjennomforinger.forEach { Queries.gjennomforing.delete(it.id) }
-            avtaler.forEach { Queries.avtale.delete(it.id) }
-            arrangorer.forEach { Queries.arrangor.delete(it.organisasjonsnummer.value) }
-            arrangorKontaktpersoner.forEach { Queries.arrangor.deleteKontaktperson(it.id) }
-            ansatte.forEach { Queries.ansatt.getByNavIdent(it.navIdent) }
+            deltakere.forEach { queries.deltaker.delete(it.id) }
+            gjennomforinger.forEach { queries.gjennomforing.delete(it.id) }
+            avtaler.forEach { queries.avtale.delete(it.id) }
+            arrangorer.forEach { queries.arrangor.delete(it.organisasjonsnummer.value) }
+            arrangorKontaktpersoner.forEach { queries.arrangor.deleteKontaktperson(it.id) }
+            ansatte.forEach { queries.ansatt.getByNavIdent(it.navIdent) }
         }
 
         return this

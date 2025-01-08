@@ -21,7 +21,7 @@ class NavEnhetService(
 
     fun hentEnhet(enhetsnummer: String): NavEnhetDbo? = db.session {
         CacheUtils.tryCacheFirstNullable(cache, enhetsnummer) {
-            Queries.enhet.get(enhetsnummer)
+            queries.enhet.get(enhetsnummer)
         }
     }
 
@@ -40,7 +40,7 @@ class NavEnhetService(
     }
 
     fun hentAlleEnheter(filter: EnhetFilter): List<NavEnhetDbo> = db.session {
-        Queries.enhet.getAll(filter.statuser, filter.typer, filter.overordnetEnhet)
+        queries.enhet.getAll(filter.statuser, filter.typer, filter.overordnetEnhet)
     }
 
     fun hentRegioner(): List<NavRegionDto> {
@@ -71,7 +71,7 @@ class NavEnhetService(
     }
 
     fun hentKostnadssted(regioner: List<String>): List<NavEnhetDbo> = db.session {
-        Queries.enhet.getKostnadssted(regioner)
+        queries.enhet.getKostnadssted(regioner)
     }
 
     @Serializable

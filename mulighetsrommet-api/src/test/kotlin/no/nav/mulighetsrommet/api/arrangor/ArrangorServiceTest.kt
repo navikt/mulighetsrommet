@@ -53,7 +53,7 @@ class ArrangorServiceTest : FunSpec({
             arrangorService.getOrSyncArrangorFromBrreg(hovedenhet.organisasjonsnummer).shouldBeRight()
 
             database.run {
-                Queries.arrangor.get(hovedenhet.organisasjonsnummer).shouldNotBeNull().should {
+                queries.arrangor.get(hovedenhet.organisasjonsnummer).shouldNotBeNull().should {
                     it.id.shouldNotBeNull()
                     it.navn shouldBe "Testbedriften AS"
                     it.organisasjonsnummer shouldBe Organisasjonsnummer("123456789")
@@ -61,7 +61,7 @@ class ArrangorServiceTest : FunSpec({
                     it.poststed shouldBe "Oslo"
                     it.underenheter.shouldBeNull()
                 }
-                Queries.arrangor.get(underenhet.organisasjonsnummer).shouldBeNull()
+                queries.arrangor.get(underenhet.organisasjonsnummer).shouldBeNull()
             }
         }
 
@@ -72,11 +72,11 @@ class ArrangorServiceTest : FunSpec({
             arrangorService.getOrSyncArrangorFromBrreg(underenhet.organisasjonsnummer).shouldBeRight()
 
             database.run {
-                Queries.arrangor.get(hovedenhet.organisasjonsnummer).shouldNotBeNull().should {
+                queries.arrangor.get(hovedenhet.organisasjonsnummer).shouldNotBeNull().should {
                     it.navn shouldBe "Testbedriften AS"
                     it.organisasjonsnummer shouldBe Organisasjonsnummer("123456789")
                 }
-                Queries.arrangor.get(underenhet.organisasjonsnummer).shouldNotBeNull().should {
+                queries.arrangor.get(underenhet.organisasjonsnummer).shouldNotBeNull().should {
                     it.navn shouldBe "Underenhet til Testbedriften AS"
                     it.organisasjonsnummer shouldBe Organisasjonsnummer("234567891")
                 }
@@ -98,7 +98,7 @@ class ArrangorServiceTest : FunSpec({
             arrangorService.getOrSyncArrangorFromBrreg(orgnr).shouldBeRight()
 
             database.run {
-                Queries.arrangor.get(orgnr).shouldNotBeNull().should {
+                queries.arrangor.get(orgnr).shouldNotBeNull().should {
                     it.navn shouldBe "Slettet bedrift"
                     it.organisasjonsnummer shouldBe orgnr
                     it.slettetDato shouldBe LocalDate.of(2020, 1, 1)
@@ -115,7 +115,7 @@ class ArrangorServiceTest : FunSpec({
             arrangorService.getOrSyncArrangorFromBrreg(orgnr) shouldBeLeft BrregError.NotFound
 
             database.run {
-                Queries.arrangor.get(orgnr) shouldBe null
+                queries.arrangor.get(orgnr) shouldBe null
             }
         }
     }

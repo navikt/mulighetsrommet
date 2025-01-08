@@ -44,8 +44,8 @@ class SynchronizeUtdanninger(
         val (programomrader, utdanninger) = resolveRelevantUtdanninger(allUtdanninger)
 
         db.tx {
-            programomrader.forEach { Queries.utdanning.upsertUtdanningsprogram(it) }
-            utdanninger.forEach { Queries.utdanning.upsertUtdanning(it) }
+            programomrader.forEach { queries.utdanning.upsertUtdanningsprogram(it) }
+            utdanninger.forEach { queries.utdanning.upsertUtdanning(it) }
         }
     }
 }

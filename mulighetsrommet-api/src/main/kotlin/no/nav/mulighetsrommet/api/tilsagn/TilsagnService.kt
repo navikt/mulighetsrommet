@@ -23,13 +23,13 @@ class TilsagnService(
     private val db: ApiDatabase,
 ) {
     fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<ValidationError>, TilsagnDto> = db.tx {
-        val gjennomforing = Queries.gjennomforing.get(request.gjennomforingId)
+        val gjennomforing = queries.gjennomforing.get(request.gjennomforingId)
             ?: return ValidationError
                 .of(TilsagnRequest::gjennomforingId, "Tiltaksgjennomforingen finnes ikke")
                 .nel()
                 .left()
 
-        val previous = Queries.tilsagn.get(request.id)
+        val previous = queries.tilsagn.get(request.id)
 
         val beregningInput = request.beregning
 
@@ -54,7 +54,7 @@ class TilsagnService(
                 TilsagnValidator.validate(dbo, previous)
             }
             .map { dbo ->
-                Queries.tilsagn.upsert(dbo)
+                queries.tilsagn.upsert(dbo)
 
                 val dto = getOrError(dbo.id)
 
@@ -74,7 +74,7 @@ class TilsagnService(
     }
 
     suspend fun beslutt(id: UUID, besluttelse: BesluttTilsagnRequest, navIdent: NavIdent): StatusResponse<TilsagnDto> = db.session {
-        val tilsagn = Queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
+        val tilsagn = queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
 
         return when (tilsagn.status) {
             is TilsagnDto.TilsagnStatus.Annullert, is TilsagnDto.TilsagnStatus.Godkjent, is TilsagnDto.TilsagnStatus.Returnert ->
@@ -103,7 +103,7 @@ class TilsagnService(
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
-        Queries.tilsagn.besluttGodkjennelse(tilsagn.id, navIdent, LocalDateTime.now())
+        queries.tilsagn.besluttGodkjennelse(tilsagn.id, navIdent, LocalDateTime.now())
         lagOgSendBestilling(tilsagn)
 
         val dto = getOrError(tilsagn.id)
@@ -124,7 +124,7 @@ class TilsagnService(
             return BadRequest(message = "Årsaker er påkrevd").left()
         }
 
-        Queries.tilsagn.returner(
+        queries.tilsagn.returner(
             tilsagn.id,
             navIdent,
             LocalDateTime.now(),
@@ -144,7 +144,7 @@ class TilsagnService(
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
-        Queries.tilsagn.besluttAnnullering(tilsagn.id, navIdent, LocalDateTime.now())
+        queries.tilsagn.besluttAnnullering(tilsagn.id, navIdent, LocalDateTime.now())
 
         val dto = getOrError(tilsagn.id)
         logEndring("Tilsagn annullert", dto, EndretAv.NavAnsatt(navIdent))
@@ -158,7 +158,7 @@ class TilsagnService(
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
-        Queries.tilsagn.avbrytAnnullering(tilsagn.id, navIdent, LocalDateTime.now())
+        queries.tilsagn.avbrytAnnullering(tilsagn.id, navIdent, LocalDateTime.now())
 
         val dto = getOrError(tilsagn.id)
         logEndring("Annullering avvist", dto, EndretAv.NavAnsatt(navIdent))
@@ -170,13 +170,13 @@ class TilsagnService(
         navIdent: NavIdent,
         request: TilAnnulleringRequest,
     ): StatusResponse<TilsagnDto> = db.tx {
-        val tilsagn = Queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
+        val tilsagn = queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
 
         if (tilsagn.status !is TilsagnDto.TilsagnStatus.Godkjent) {
             return BadRequest("Kan bare annullere godkjente tilsagn").left()
         }
 
-        Queries.tilsagn.tilAnnullering(
+        queries.tilsagn.tilAnnullering(
             id,
             navIdent,
             LocalDateTime.now(),
@@ -190,31 +190,31 @@ class TilsagnService(
     }
 
     fun slettTilsagn(id: UUID): StatusResponse<Unit> = db.tx {
-        val tilsagn = Queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
+        val tilsagn = queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
 
         if (tilsagn.status !is TilsagnDto.TilsagnStatus.Returnert) {
             return BadRequest("Kan ikke slette tilsagn som er godkjent").left()
         }
 
-        Queries.tilsagn.delete(id).right()
+        queries.tilsagn.delete(id).right()
     }
 
     fun getAll() = db.session {
-        Queries.tilsagn.getAll()
+        queries.tilsagn.getAll()
     }
 
     fun getTilsagnTilRefusjon(
         gjennomforingId: UUID,
         periode: RefusjonskravPeriode,
     ): List<TilsagnDto> = db.session {
-        return Queries.tilsagn.getTilsagnTilRefusjon(gjennomforingId, periode)
+        return queries.tilsagn.getTilsagnTilRefusjon(gjennomforingId, periode)
     }
 
     fun getArrangorflateTilsagnTilRefusjon(
         gjennomforingId: UUID,
         periode: RefusjonskravPeriode,
     ): List<ArrangorflateTilsagn> = db.session {
-        return Queries.tilsagn.getArrangorflateTilsagnTilRefusjon(gjennomforingId, periode)
+        return queries.tilsagn.getArrangorflateTilsagnTilRefusjon(gjennomforingId, periode)
     }
 
     private fun lagOkonomiId(tilsagn: TilsagnDto): String {
@@ -222,7 +222,7 @@ class TilsagnService(
     }
 
     private suspend fun QueryContext.lagOgSendBestilling(tilsagn: TilsagnDto) {
-        val gjennomforing = requireNotNull(Queries.gjennomforing.get(tilsagn.tiltaksgjennomforing.id)) {
+        val gjennomforing = requireNotNull(queries.gjennomforing.get(tilsagn.tiltaksgjennomforing.id)) {
             "Fant ikke gjennomforing til tilsagn"
         }
 
@@ -239,7 +239,7 @@ class TilsagnService(
     }
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
-        Queries.endringshistorikk.getEndringshistorikk(DocumentClass.TILSAGN, id)
+        queries.endringshistorikk.getEndringshistorikk(DocumentClass.TILSAGN, id)
     }
 
     private fun validateGjennomforingBeregningInput(
@@ -261,7 +261,7 @@ class TilsagnService(
         dto: TilsagnDto,
         endretAv: EndretAv,
     ) {
-        Queries.endringshistorikk.logEndring(
+        queries.endringshistorikk.logEndring(
             DocumentClass.TILSAGN,
             operation,
             endretAv,
@@ -272,6 +272,6 @@ class TilsagnService(
     }
 
     private fun QueryContext.getOrError(id: UUID): TilsagnDto {
-        return requireNotNull(Queries.tilsagn.get(id)) { "Tilsagn med id=$id finnes ikke" }
+        return requireNotNull(queries.tilsagn.get(id)) { "Tilsagn med id=$id finnes ikke" }
     }
 }

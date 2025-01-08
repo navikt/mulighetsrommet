@@ -253,7 +253,7 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(arenaDbo)
 
             database.run {
-                Queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
                     it.tiltaksnummer shouldBe "2024#2024"
                     it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = "Nav Tiltak Oslo", enhetsnummer = "0387")
                     it.status.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
@@ -293,7 +293,7 @@ class ArenaAdapterServiceTest : FunSpec({
             // Setter den til custom avbrutt tidspunkt for å sjekke at den ikke overskrives med en "fake" en
             val jan2023 = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
             database.run {
-                Queries.gjennomforing.setAvsluttet(
+                queries.gjennomforing.setAvsluttet(
                     gjennomforing1.id,
                     jan2023,
                     AvbruttAarsak.EndringHosArrangor,

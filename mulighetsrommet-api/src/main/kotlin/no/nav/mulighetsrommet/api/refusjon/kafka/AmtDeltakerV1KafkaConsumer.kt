@@ -41,20 +41,20 @@ class AmtDeltakerV1KafkaConsumer(
         when {
             deltaker == null -> {
                 logger.info("Mottok tombstone for deltaker deltakerId=$key, sletter deltakeren")
-                Queries.deltaker.delete(key)
+                queries.deltaker.delete(key)
             }
 
             deltaker.status.type == DeltakerStatus.Type.FEILREGISTRERT -> {
                 logger.info("Sletter deltaker deltakerId=$key fordi den var feilregistrert")
-                Queries.deltaker.delete(key)
+                queries.deltaker.delete(key)
             }
 
             else -> {
                 logger.info("Lagrer deltaker deltakerId=$key")
-                Queries.deltaker.upsert(deltaker.toDeltakerDbo())
+                queries.deltaker.upsert(deltaker.toDeltakerDbo())
 
                 if (isRelevantForRefusjonskrav(deltaker)) {
-                    Queries.deltaker.setNorskIdent(deltaker.id, NorskIdent(deltaker.personIdent))
+                    queries.deltaker.setNorskIdent(deltaker.id, NorskIdent(deltaker.personIdent))
 
                     refusjonService.recalculateRefusjonskravForGjennomforing(deltaker.gjennomforingId)
                 }

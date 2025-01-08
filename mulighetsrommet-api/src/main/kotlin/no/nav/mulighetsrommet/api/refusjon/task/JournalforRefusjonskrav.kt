@@ -59,7 +59,7 @@ class JournalforRefusjonskrav(
     suspend fun journalforRefusjonskrav(id: UUID): Either<DokarkError, DokarkResponse> = db.session {
         logger.info("Journalfører refusjonskrav med id: $id")
 
-        val krav = requireNotNull(Queries.refusjonskrav.get(id)) { "Fant ikke refusjonskrav med id=$id" }
+        val krav = requireNotNull(queries.refusjonskrav.get(id)) { "Fant ikke refusjonskrav med id=$id" }
             .also { require(it.status == RefusjonskravStatus.GODKJENT_AV_ARRANGOR) { "Krav må være godkjent" } }
 
         val pdf = run {
@@ -75,7 +75,7 @@ class JournalforRefusjonskrav(
 
         dokarkClient.opprettJournalpost(journalpost, AccessType.M2M)
             .onRight {
-                Queries.refusjonskrav.setJournalpostId(id, it.journalpostId)
+                queries.refusjonskrav.setJournalpostId(id, it.journalpostId)
             }
             .onLeft {
                 throw Exception("Feil ved opprettelse av journalpost. Message: ${it.message}")

@@ -29,7 +29,7 @@ class TiltaksgjennomforingValidator(
     ): Either<List<ValidationError>, TiltaksgjennomforingDbo> = either {
         var next = dbo
 
-        val avtale = db.session { Queries.avtale.get(next.avtaleId) }
+        val avtale = db.session { queries.avtale.get(next.avtaleId) }
             ?: raise(ValidationError.of(TiltaksgjennomforingDbo::avtaleId, "Avtalen finnes ikke").nel())
 
         val errors = buildList {
@@ -193,7 +193,7 @@ class TiltaksgjennomforingValidator(
     ) {
         val slettedeNavIdenter = db.session {
             next.kontaktpersoner.mapNotNull { p ->
-                Queries.ansatt.getByNavIdent(p.navIdent)?.takeIf { it.skalSlettesDato != null }?.navIdent?.value
+                queries.ansatt.getByNavIdent(p.navIdent)?.takeIf { it.skalSlettesDato != null }?.navIdent?.value
             }
         }
 
@@ -212,7 +212,7 @@ class TiltaksgjennomforingValidator(
     ) {
         val slettedeNavIdenter = db.session {
             next.administratorer.mapNotNull { ident ->
-                Queries.ansatt.getByNavIdent(ident)?.takeIf { it.skalSlettesDato != null }?.navIdent?.value
+                queries.ansatt.getByNavIdent(ident)?.takeIf { it.skalSlettesDato != null }?.navIdent?.value
             }
         }
 
@@ -273,7 +273,7 @@ class TiltaksgjennomforingValidator(
         gjennomforing: TiltaksgjennomforingDbo,
         avtale: AvtaleDto,
     ) {
-        val arrangor = db.session { Queries.arrangor.getById(gjennomforing.arrangorId) }
+        val arrangor = db.session { queries.arrangor.getById(gjennomforing.arrangorId) }
         if (arrangor.slettetDato != null) {
             add(
                 ValidationError.of(

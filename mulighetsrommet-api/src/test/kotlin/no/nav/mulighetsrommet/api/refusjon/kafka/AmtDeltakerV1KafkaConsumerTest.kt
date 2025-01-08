@@ -95,26 +95,26 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
                 deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
                 deltakerConsumer.consume(amtDeltaker2.id, Json.encodeToJsonElement(amtDeltaker2))
 
-                Queries.deltaker.getAll().shouldContainExactlyInAnyOrder(deltaker1Dbo.toDto(), deltaker2Dbo.toDto())
+                queries.deltaker.getAll().shouldContainExactlyInAnyOrder(deltaker1Dbo.toDto(), deltaker2Dbo.toDto())
             }
         }
 
         test("delete deltakere for tombstone messages") {
             database.run {
-                Queries.deltaker.upsert(deltaker1Dbo)
+                queries.deltaker.upsert(deltaker1Dbo)
             }
 
             val deltakerConsumer = createConsumer()
             deltakerConsumer.consume(amtDeltaker1.id, JsonNull)
 
             database.run {
-                Queries.deltaker.getAll().shouldBeEmpty()
+                queries.deltaker.getAll().shouldBeEmpty()
             }
         }
 
         test("sletter deltakere med status FEILREGISTRERT") {
             database.run {
-                Queries.deltaker.upsert(deltaker1Dbo)
+                queries.deltaker.upsert(deltaker1Dbo)
             }
 
             val deltakerConsumer = createConsumer()
@@ -128,7 +128,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             deltakerConsumer.consume(feilregistrertDeltaker1.id, Json.encodeToJsonElement(feilregistrertDeltaker1))
 
             database.run {
-                Queries.deltaker.getAll().shouldBeEmpty()
+                queries.deltaker.getAll().shouldBeEmpty()
             }
         }
 
@@ -144,7 +144,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
                     Json.encodeToJsonElement(amtDeltaker2.copy(gjennomforingId = VTA1.id)),
                 )
 
-                Queries.deltaker.getAll().shouldContainExactlyInAnyOrder(
+                queries.deltaker.getAll().shouldContainExactlyInAnyOrder(
                     deltaker1Dbo
                         .copy(gjennomforingId = AFT1.id, deltakelsesprosent = 100.0)
                         .toDto(),
@@ -198,7 +198,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
                     )
                     deltakerConsumer.consume(deltaker.id, Json.encodeToJsonElement(deltaker))
 
-                    Queries.deltaker.get(deltaker.id).shouldNotBeNull().norskIdent shouldBe expectedNorskIdent
+                    queries.deltaker.get(deltaker.id).shouldNotBeNull().norskIdent shouldBe expectedNorskIdent
                 }
             }
         }
@@ -221,7 +221,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
                     )
                     deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(deltaker))
 
-                    Queries.deltaker.get(deltaker.id).shouldNotBeNull().norskIdent.shouldBe(expectedNorskIdent)
+                    queries.deltaker.get(deltaker.id).shouldNotBeNull().norskIdent.shouldBe(expectedNorskIdent)
                 }
             }
         }
