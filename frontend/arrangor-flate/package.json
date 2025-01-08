@@ -14,7 +14,7 @@
     "typecheck": "react-router typegen && tsc",
     "build": "react-router build",
     "pack": "pnpm --filter @mr/arrangor-flate --prod deploy dist",
-    "playwright": "DEBUG=pw:webserver playwright test --debug",
+    "playwright": "playwright test",
     "playwright:debug": "playwright test --debug",
     "playwright:open": "playwright test --ui",
     "playwright:codegen": "playwright codegen playwright.dev"
