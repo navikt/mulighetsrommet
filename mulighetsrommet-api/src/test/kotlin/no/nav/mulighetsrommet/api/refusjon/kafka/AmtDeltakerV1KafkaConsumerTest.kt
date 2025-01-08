@@ -89,12 +89,12 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         }
 
         test("lagrer deltakere fra topic") {
+            val deltakerConsumer = createConsumer()
+
+            deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
+            deltakerConsumer.consume(amtDeltaker2.id, Json.encodeToJsonElement(amtDeltaker2))
+
             database.run {
-                val deltakerConsumer = createConsumer()
-
-                deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
-                deltakerConsumer.consume(amtDeltaker2.id, Json.encodeToJsonElement(amtDeltaker2))
-
                 queries.deltaker.getAll().shouldContainExactlyInAnyOrder(deltaker1Dbo.toDto(), deltaker2Dbo.toDto())
             }
         }
@@ -133,17 +133,17 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         }
 
         test("tolker deltakelsesprosent som 100 hvis den mangler for forhåndsgodkjente tiltak") {
-            database.run {
-                val deltakerConsumer = createConsumer()
-                deltakerConsumer.consume(
-                    amtDeltaker1.id,
-                    Json.encodeToJsonElement(amtDeltaker1.copy(gjennomforingId = AFT1.id)),
-                )
-                deltakerConsumer.consume(
-                    amtDeltaker2.id,
-                    Json.encodeToJsonElement(amtDeltaker2.copy(gjennomforingId = VTA1.id)),
-                )
+            val deltakerConsumer = createConsumer()
+            deltakerConsumer.consume(
+                amtDeltaker1.id,
+                Json.encodeToJsonElement(amtDeltaker1.copy(gjennomforingId = AFT1.id)),
+            )
+            deltakerConsumer.consume(
+                amtDeltaker2.id,
+                Json.encodeToJsonElement(amtDeltaker2.copy(gjennomforingId = VTA1.id)),
+            )
 
+            database.run {
                 queries.deltaker.getAll().shouldContainExactlyInAnyOrder(
                     deltaker1Dbo
                         .copy(gjennomforingId = AFT1.id, deltakelsesprosent = 100.0)
@@ -182,45 +182,45 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         }
 
         test("lagrer fødselsnummer på deltakere i AFT med relevant status") {
-            database.run {
-                val deltakerConsumer = createConsumer(refusjonService = refusjonService)
+            val deltakerConsumer = createConsumer(refusjonService = refusjonService)
 
-                forAll(
-                    row(DeltakerStatus.Type.VENTER_PA_OPPSTART, null),
-                    row(DeltakerStatus.Type.IKKE_AKTUELL, null),
-                    row(DeltakerStatus.Type.DELTAR, NorskIdent("12345678910")),
-                    row(DeltakerStatus.Type.FULLFORT, NorskIdent("12345678910")),
-                    row(DeltakerStatus.Type.HAR_SLUTTET, NorskIdent("12345678910")),
-                    row(DeltakerStatus.Type.AVBRUTT, NorskIdent("12345678910")),
-                ) { status, expectedNorskIdent ->
-                    val deltaker = amtDeltaker1.copy(
-                        status = amtDeltaker1.status.copy(type = status),
-                    )
-                    deltakerConsumer.consume(deltaker.id, Json.encodeToJsonElement(deltaker))
+            forAll(
+                row(DeltakerStatus.Type.VENTER_PA_OPPSTART, null),
+                row(DeltakerStatus.Type.IKKE_AKTUELL, null),
+                row(DeltakerStatus.Type.DELTAR, NorskIdent("12345678910")),
+                row(DeltakerStatus.Type.FULLFORT, NorskIdent("12345678910")),
+                row(DeltakerStatus.Type.HAR_SLUTTET, NorskIdent("12345678910")),
+                row(DeltakerStatus.Type.AVBRUTT, NorskIdent("12345678910")),
+            ) { status, expectedNorskIdent ->
+                val deltaker = amtDeltaker1.copy(
+                    status = amtDeltaker1.status.copy(type = status),
+                )
+                deltakerConsumer.consume(deltaker.id, Json.encodeToJsonElement(deltaker))
 
+                database.run {
                     queries.deltaker.get(deltaker.id).shouldNotBeNull().norskIdent shouldBe expectedNorskIdent
                 }
             }
         }
 
         test("lagrer ikke fødselsnummer når deltakelsen har en sluttdato før konfigurert periode") {
-            database.run {
-                val deltakerConsumer = createConsumer(
-                    period = Period.ofDays(1),
-                    refusjonService = refusjonService,
+            val deltakerConsumer = createConsumer(
+                period = Period.ofDays(1),
+                refusjonService = refusjonService,
+            )
+
+            forAll(
+                row(LocalDate.now().minusDays(2), null),
+                row(LocalDate.now().minusDays(1), NorskIdent("12345678910")),
+                row(LocalDate.now(), NorskIdent("12345678910")),
+            ) { sluttDato, expectedNorskIdent ->
+                val deltaker = amtDeltaker1.copy(
+                    startDato = LocalDate.now().minusMonths(1),
+                    sluttDato = sluttDato,
                 )
+                deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(deltaker))
 
-                forAll(
-                    row(LocalDate.now().minusDays(2), null),
-                    row(LocalDate.now().minusDays(1), NorskIdent("12345678910")),
-                    row(LocalDate.now(), NorskIdent("12345678910")),
-                ) { sluttDato, expectedNorskIdent ->
-                    val deltaker = amtDeltaker1.copy(
-                        startDato = LocalDate.now().minusMonths(1),
-                        sluttDato = sluttDato,
-                    )
-                    deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(deltaker))
-
+                database.run {
                     queries.deltaker.get(deltaker.id).shouldNotBeNull().norskIdent.shouldBe(expectedNorskIdent)
                 }
             }

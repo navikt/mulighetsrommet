@@ -56,9 +56,7 @@ class UpdateApentForPameldingTest : FunSpec({
         )
 
         beforeEach {
-            database.run {
-                domain.setup(it)
-            }
+            domain.initialize(database.db)
         }
 
         test("beholder påmelding når dato er før startDato på tiltaket") {

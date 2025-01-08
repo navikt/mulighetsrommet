@@ -59,10 +59,10 @@ class NotificationQueriesTest : FunSpec({
     }
 
     test("CRUD") {
-        database.runAndRollback {
-            domain.setup(it)
+        database.runAndRollback { session ->
+            domain.setup(session)
 
-            val queries = NotificationQueries(it)
+            val queries = NotificationQueries(session)
 
             queries.insert(notification1)
             queries.insert(notification2)
@@ -83,10 +83,10 @@ class NotificationQueriesTest : FunSpec({
     }
 
     test("get notifications for specified user") {
-        database.runAndRollback {
-            domain.setup(it)
+        database.runAndRollback { session ->
+            domain.setup(session)
 
-            val queries = NotificationQueries(it)
+            val queries = NotificationQueries(session)
 
             queries.insert(notification1)
             queries.insert(notification2)
@@ -105,10 +105,10 @@ class NotificationQueriesTest : FunSpec({
     val doneAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
 
     test("should only set done_at for the specific user when the notification type is NOTIFICATION") {
-        database.runAndRollback {
-            domain.setup(it)
+        database.runAndRollback { session ->
+            domain.setup(session)
 
-            val queries = NotificationQueries(it)
+            val queries = NotificationQueries(session)
 
             queries.insert(notification1)
             queries.insert(notification2)
@@ -124,10 +124,10 @@ class NotificationQueriesTest : FunSpec({
     }
 
     test("should set done_at for all users when the notification type is TASK") {
-        database.runAndRollback {
-            domain.setup(it)
+        database.runAndRollback { session ->
+            domain.setup(session)
 
-            val notifications = NotificationQueries(it)
+            val notifications = NotificationQueries(session)
 
             val task = notification1.copy(type = NotificationType.TASK)
             notifications.insert(task)
@@ -144,10 +144,10 @@ class NotificationQueriesTest : FunSpec({
     }
 
     test("filter on notification status") {
-        database.runAndRollback {
-            domain.setup(it)
+        database.runAndRollback { session ->
+            domain.setup(session)
 
-            val notifications = NotificationQueries(it)
+            val notifications = NotificationQueries(session)
 
             notifications.insert(notification1)
             notifications.insert(notification2)
@@ -175,10 +175,10 @@ class NotificationQueriesTest : FunSpec({
     }
 
     test("should not be able to set notification status for another user's notification") {
-        database.runAndRollback {
-            domain.setup(it)
+        database.runAndRollback { session ->
+            domain.setup(session)
 
-            val queries = NotificationQueries(it)
+            val queries = NotificationQueries(session)
 
             queries.insert(notification2)
 
@@ -192,10 +192,10 @@ class NotificationQueriesTest : FunSpec({
     }
 
     test("get notification summary for user") {
-        database.runAndRollback {
-            domain.setup(it)
+        database.runAndRollback { session ->
+            domain.setup(session)
 
-            val queries = NotificationQueries(it)
+            val queries = NotificationQueries(session)
 
             queries.insert(notification1)
             queries.insert(notification2)

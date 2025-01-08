@@ -106,8 +106,7 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
             avtaler = listOf(AvtaleFixtures.AFT),
             gjennomforinger = listOf(TiltaksgjennomforingFixtures.AFT1),
             deltakere = listOf(DeltakerFixtures.createDeltaker(TiltaksgjennomforingFixtures.AFT1.id)),
-        )
-        domain.initialize(database.db)
+        ).initialize(database.db)
 
         val deltakerId = domain.deltakere[0].id
 

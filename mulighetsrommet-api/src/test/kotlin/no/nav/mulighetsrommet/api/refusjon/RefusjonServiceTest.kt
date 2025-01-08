@@ -34,15 +34,11 @@ class RefusjonServiceTest : FunSpec({
         val organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer
 
         test("genererer ikke refusjonskrav når deltakelser mangler") {
-            val domain = MulighetsrommetTestDomain(
+            MulighetsrommetTestDomain(
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-            )
-
-            database.run {
-                domain.setup(it)
-            }
+            ).initialize(database.db)
 
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
@@ -65,11 +61,7 @@ class RefusjonServiceTest : FunSpec({
                         deltakelsesprosent = 100.0,
                     ),
                 ),
-            )
-
-            database.run {
-                domain.setup(it)
-            }
+            ).initialize(database.db)
 
             val krav = service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
                 .shouldHaveSize(1)
@@ -107,11 +99,7 @@ class RefusjonServiceTest : FunSpec({
                         deltakelsesprosent = 100.0,
                     ),
                 ),
-            )
-
-            database.run {
-                domain.setup(it)
-            }
+            ).initialize(database.db)
 
             val krav = service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1)).first()
             krav.gjennomforing.id shouldBe AFT1.id
@@ -173,8 +161,7 @@ class RefusjonServiceTest : FunSpec({
                         deltakelsesprosent = 100.0,
                     ),
                 ),
-            )
-            domain.initialize(database.db)
+            ).initialize(database.db)
 
             val krav = service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1)).first()
 
@@ -226,8 +213,7 @@ class RefusjonServiceTest : FunSpec({
                         deltakelsesprosent = 100.0,
                     ),
                 ),
-            )
-            domain.initialize(database.db)
+            ).initialize(database.db)
 
             val krav = service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1)).first()
 
@@ -261,8 +247,7 @@ class RefusjonServiceTest : FunSpec({
                         deltakelsesprosent = 100.0,
                     ),
                 ),
-            )
-            domain.initialize(database.db)
+            ).initialize(database.db)
 
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1)).shouldHaveSize(1)
             database.run { queries.refusjonskrav.getByArrangorIds(organisasjonsnummer).shouldHaveSize(1) }
@@ -294,8 +279,7 @@ class RefusjonServiceTest : FunSpec({
                         deltakelsesprosent = 100.0,
                     ),
                 ),
-            )
-            domain.initialize(database.db)
+            ).initialize(database.db)
 
             val krav = service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1)).first()
 
@@ -320,13 +304,9 @@ class RefusjonServiceTest : FunSpec({
                         deltakelsesprosent = 100.0,
                     ),
                 ),
-            )
+            ).initialize(database.db)
 
             val kravId = UUID.randomUUID()
-
-            database.run {
-                domain.setup(it)
-            }
 
             database.run {
                 val krav = service.createRefusjonskravAft(
@@ -371,13 +351,9 @@ class RefusjonServiceTest : FunSpec({
                         deltakelsesprosent = 100.0,
                     ),
                 ),
-            )
+            ).initialize(database.db)
 
             val kravId = UUID.randomUUID()
-
-            database.run {
-                domain.setup(it)
-            }
 
             database.run {
                 val krav = service.createRefusjonskravAft(

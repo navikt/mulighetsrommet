@@ -205,7 +205,8 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         database.runAndRollback { session ->
             domain.setup(session)
             val idForUtdanningsprogram = queries.utdanning.getIdForUtdanningsprogram("BABAN3----")
-            val idForUtdanning = queries.utdanning.getIdForUtdanning("u_sveisefag_under_vann")
+            val idForSveisefag = queries.utdanning.getIdForUtdanning("u_sveisefag")
+            val idForSveisefagUnderVann = queries.utdanning.getIdForUtdanning("u_sveisefag_under_vann")
 
             val queries = DatavarehusTiltakQueries(session)
 
@@ -221,7 +222,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 it.utdanninger.shouldHaveSingleElement { utdanning ->
                     utdanning.equalsIgnoring(
                         DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanning(
-                            id = this.queries.utdanning.getIdForUtdanning("u_sveisefag"),
+                            id = idForSveisefag,
                             navn = "Sveisefag",
                             sluttkompetanse = Utdanning.Sluttkompetanse.FAGBREV,
                             nusKoder = listOf("12345"),
@@ -235,7 +236,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 it.utdanninger.shouldHaveSingleElement { utdanning ->
                     utdanning.equalsIgnoring(
                         DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanning(
-                            id = idForUtdanning,
+                            id = idForSveisefagUnderVann,
                             navn = "Sveisefag under vann",
                             sluttkompetanse = Utdanning.Sluttkompetanse.SVENNEBREV,
                             nusKoder = listOf("23456"),

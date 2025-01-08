@@ -43,10 +43,10 @@ class TilsagnQueriesTest : FunSpec({
 
     context("CRUD") {
         test("upsert, get, delete") {
-            database.runAndRollback {
-                domain.setup(it)
+            database.runAndRollback { session ->
+                domain.setup(session)
 
-                val queries = TilsagnQueries(it)
+                val queries = TilsagnQueries(session)
 
                 queries.upsert(tilsagn)
 
@@ -80,10 +80,10 @@ class TilsagnQueriesTest : FunSpec({
         }
 
         test("get all") {
-            database.runAndRollback {
-                domain.setup(it)
+            database.runAndRollback { session ->
+                domain.setup(session)
 
-                val queries = TilsagnQueries(it)
+                val queries = TilsagnQueries(session)
 
                 queries.upsert(tilsagn)
 
@@ -101,10 +101,10 @@ class TilsagnQueriesTest : FunSpec({
 
     context("endre status på tilsagn") {
         test("annuller") {
-            database.runAndRollback {
-                domain.setup(it)
+            database.runAndRollback { session ->
+                domain.setup(session)
 
-                val queries = TilsagnQueries(it)
+                val queries = TilsagnQueries(session)
                 queries.upsert(tilsagn)
 
                 val endretTidspunkt = LocalDateTime.now()
@@ -144,10 +144,10 @@ class TilsagnQueriesTest : FunSpec({
         }
 
         test("avbryt annullering") {
-            database.runAndRollback {
-                domain.setup(it)
+            database.runAndRollback { session ->
+                domain.setup(session)
 
-                val queries = TilsagnQueries(it)
+                val queries = TilsagnQueries(session)
                 queries.upsert(tilsagn)
 
                 val endretTidspunkt = LocalDateTime.now()
@@ -173,10 +173,10 @@ class TilsagnQueriesTest : FunSpec({
         }
 
         test("godkjenn") {
-            database.runAndRollback {
-                domain.setup(it)
+            database.runAndRollback { session ->
+                domain.setup(session)
 
-                val queries = TilsagnQueries(it)
+                val queries = TilsagnQueries(session)
                 queries.upsert(tilsagn)
 
                 val besluttetTidspunkt = LocalDateTime.of(2024, 12, 12, 0, 0)
@@ -192,10 +192,10 @@ class TilsagnQueriesTest : FunSpec({
         }
 
         test("returner") {
-            database.runAndRollback {
-                domain.setup(it)
+            database.runAndRollback { session ->
+                domain.setup(session)
 
-                val queries = TilsagnQueries(it)
+                val queries = TilsagnQueries(session)
                 queries.upsert(tilsagn)
 
                 val returnertTidspunkt = LocalDateTime.of(2024, 12, 12, 0, 0)
@@ -218,10 +218,10 @@ class TilsagnQueriesTest : FunSpec({
         }
 
         test("Skal få status TIL_GODKJENNING etter upsert") {
-            database.runAndRollback {
-                domain.setup(it)
+            database.runAndRollback { session ->
+                domain.setup(session)
 
-                val queries = TilsagnQueries(it)
+                val queries = TilsagnQueries(session)
                 queries.upsert(tilsagn)
 
                 queries.get(tilsagn.id).shouldNotBeNull()
@@ -234,10 +234,10 @@ class TilsagnQueriesTest : FunSpec({
 
     context("tilsagn for arrangører") {
         test("get by arrangor_ids") {
-            database.runAndRollback {
-                domain.setup(it)
+            database.runAndRollback { session ->
+                domain.setup(session)
 
-                val queries = TilsagnQueries(it)
+                val queries = TilsagnQueries(session)
                 queries.upsert(tilsagn)
                 queries.besluttGodkjennelse(tilsagn.id, NavIdent("B123456"), LocalDateTime.now())
 
@@ -269,10 +269,10 @@ class TilsagnQueriesTest : FunSpec({
         }
 
         test("get til refusjon") {
-            database.runAndRollback {
-                domain.setup(it)
+            database.runAndRollback { session ->
+                domain.setup(session)
 
-                val queries = TilsagnQueries(it)
+                val queries = TilsagnQueries(session)
                 queries.upsert(tilsagn)
                 queries.besluttGodkjennelse(tilsagn.id, NavIdent("B123456"), LocalDateTime.now())
 
