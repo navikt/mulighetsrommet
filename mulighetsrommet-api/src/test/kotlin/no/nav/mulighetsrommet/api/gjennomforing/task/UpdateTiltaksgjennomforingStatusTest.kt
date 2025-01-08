@@ -63,15 +63,11 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
         )
 
         beforeEach {
-            database.run {
-                domain.setup(it)
-            }
+            domain.initialize(database.db)
         }
 
         afterEach {
-            database.run {
-                domain.teardown(it)
-            }
+            database.truncateAll()
         }
 
         test("forsøker ikke å avslutte gjennomføringer før sluttDato er passert") {
@@ -217,15 +213,11 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
         )
 
         beforeEach {
-            database.run {
-                domain.setup(it)
-            }
+            domain.initialize(database.db)
         }
 
         afterEach {
-            database.run {
-                domain.teardown(it)
-            }
+            database.truncateAll()
         }
 
         test("avpubliserer og stenger gjennomføring for påmelding") {

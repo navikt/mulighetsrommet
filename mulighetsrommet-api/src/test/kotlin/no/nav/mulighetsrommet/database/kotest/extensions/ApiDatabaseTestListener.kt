@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import org.assertj.db.api.Assertions
 import org.assertj.db.api.TableAssert
 import org.assertj.db.type.Table
-import kotlin.time.measureTime
 
 class ApiDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpecListener, AfterSpecListener {
     private var delegate: Database? = null
@@ -86,16 +85,13 @@ class ApiDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpecLi
     }
 
     fun truncateAll() {
-        val time = measureTime {
-            val tableNames =
-                queryOf("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'")
-                    .map { it.string("table_name") }
-                    .asList
-                    .let { db.db.run(it) }
-            tableNames.forEach {
-                db.db.run(queryOf("truncate table $it restart identity cascade").asExecute)
-            }
+        val tableNames =
+            queryOf("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'")
+                .map { it.string("table_name") }
+                .asList
+                .let { db.db.run(it) }
+        tableNames.forEach {
+            db.db.run(queryOf("truncate table $it restart identity cascade").asExecute)
         }
-        println("time ${time.inWholeMilliseconds}")
     }
 }

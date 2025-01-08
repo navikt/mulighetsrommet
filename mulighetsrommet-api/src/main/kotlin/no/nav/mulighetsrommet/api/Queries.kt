@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api
 
-import kotlinx.coroutines.delay
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.altinn.db.AltinnRettigheterQueries
@@ -10,9 +9,7 @@ import no.nav.mulighetsrommet.api.avtale.db.OpsjonLoggQueries
 import no.nav.mulighetsrommet.api.datavarehus.db.DatavarehusTiltakQueries
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkQueries
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingQueries
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattQueries
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetQueries
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagQueries
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerQueries
@@ -26,11 +23,15 @@ import no.nav.mulighetsrommet.notifications.NotificationQueries
 import no.nav.mulighetsrommet.utdanning.db.UtdanningQueries
 import javax.sql.DataSource
 
-inline fun <R> withTransaction(receiver: Session, block: TransactionalSession.() -> R): R {
-    return if (receiver is TransactionalSession) {
-        receiver.block()
+/**
+ * Kjører [block] i kontekst av en [TransactionalSession], utledet fra [session] (som allerede kan være en [Session]
+ * eller en [TransactionalSession]).
+ */
+inline fun <R> withTransaction(session: Session, block: TransactionalSession.() -> R): R {
+    return if (session is TransactionalSession) {
+        session.block()
     } else {
-        receiver.transaction { it.block() }
+        session.transaction { it.block() }
     }
 }
 
@@ -58,18 +59,6 @@ class QueryContext(val session: Session) {
         val veilderTiltak = VeilederflateTiltakQueries(session)
         val veilederJoyride = VeilederJoyrideQueries(session)
     }
-}
-
-suspend fun bar(db: ApiDatabase, ansatt: NavAnsattDbo) {
-    db.session {
-        queries.ansatt.upsert(ansatt)
-        foo(this)
-    }
-}
-
-suspend fun foo(queries: QueryContext): List<NavAnsattDto> {
-    delay(100)
-    return queries.queries.ansatt.getAll()
 }
 
 class ApiDatabase(

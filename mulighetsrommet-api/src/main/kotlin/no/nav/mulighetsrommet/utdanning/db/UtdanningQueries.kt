@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.utdanning.db
 
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.withTransaction
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
@@ -59,7 +58,7 @@ class UtdanningQueries(private val session: Session) {
         }
     }
 
-    fun upsertUtdanningsprogram(utdanningsprogram: Utdanningsprogram) = withTransaction(session) {
+    fun upsertUtdanningsprogram(utdanningsprogram: Utdanningsprogram) = with(session) {
         @Language("PostgreSQL")
         val query = """
             insert into utdanningsprogram (navn, programomradekode, utdanningsprogram_type, nus_koder)
@@ -80,7 +79,7 @@ class UtdanningQueries(private val session: Session) {
         execute(queryOf(query, params))
     }
 
-    fun upsertUtdanning(utdanning: Utdanning) = withTransaction(session) {
+    fun upsertUtdanning(utdanning: Utdanning) = with(session) {
         val programomradeId = getIdForUtdanningsprogram(utdanning.utdanningslop.first())
 
         @Language("PostgreSQL")

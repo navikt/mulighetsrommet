@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeDbo
-import no.nav.mulighetsrommet.database.Database
 
 data class MulighetsrommetTestDomain(
     val enheter: List<NavEnhetDbo> = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
@@ -46,25 +45,7 @@ data class MulighetsrommetTestDomain(
     val refusjonskrav: List<RefusjonskravDbo> = listOf(),
     val additionalSetup: (QueryContext.() -> Unit)? = null,
 ) {
-    fun initialize(database: Database) = database.transaction { session ->
-        val context = QueryContext(session)
-
-        with(context) {
-            enheter.forEach { queries.enhet.upsert(it) }
-            ansatte.forEach { queries.ansatt.upsert(it) }
-            arrangorer.forEach { queries.arrangor.upsert(it) }
-            arrangorKontaktpersoner.forEach { queries.arrangor.upsertKontaktperson(it) }
-            tiltakstyper.forEach { queries.tiltakstype.upsert(it) }
-            avtaler.forEach { queries.avtale.upsert(it) }
-            gjennomforinger.forEach { queries.gjennomforing.upsert(it) }
-            deltakere.forEach { queries.deltaker.upsert(it) }
-            refusjonskrav.forEach { queries.refusjonskrav.upsert(it) }
-        }
-
-        additionalSetup?.invoke(context)
-    }
-
-    fun initialize(database: ApiDatabase) = database.tx {
+    fun initialize(database: ApiDatabase): MulighetsrommetTestDomain = database.tx {
         enheter.forEach { queries.enhet.upsert(it) }
         ansatte.forEach { queries.ansatt.upsert(it) }
         arrangorer.forEach { queries.arrangor.upsert(it) }
@@ -76,6 +57,8 @@ data class MulighetsrommetTestDomain(
         refusjonskrav.forEach { queries.refusjonskrav.upsert(it) }
 
         additionalSetup?.invoke(this)
+
+        this@MulighetsrommetTestDomain
     }
 
     fun setup(session: TransactionalSession): MulighetsrommetTestDomain {
@@ -94,19 +77,6 @@ data class MulighetsrommetTestDomain(
         }
 
         additionalSetup?.invoke(context)
-
-        return this
-    }
-
-    fun teardown(session: TransactionalSession): MulighetsrommetTestDomain {
-        with(QueryContext(session)) {
-            deltakere.forEach { queries.deltaker.delete(it.id) }
-            gjennomforinger.forEach { queries.gjennomforing.delete(it.id) }
-            avtaler.forEach { queries.avtale.delete(it.id) }
-            arrangorer.forEach { queries.arrangor.delete(it.organisasjonsnummer.value) }
-            arrangorKontaktpersoner.forEach { queries.arrangor.deleteKontaktperson(it.id) }
-            ansatte.forEach { queries.ansatt.getByNavIdent(it.navIdent) }
-        }
 
         return this
     }

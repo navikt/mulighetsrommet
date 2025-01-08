@@ -272,9 +272,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
         }
 
         beforeAny {
-            database.run {
-                domain.setup(it)
-            }
+            domain.initialize(database.db)
         }
 
         afterContainer {

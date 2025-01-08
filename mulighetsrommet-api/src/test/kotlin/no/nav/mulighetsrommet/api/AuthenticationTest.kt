@@ -217,12 +217,14 @@ class AuthenticationTest : FunSpec({
     test("verify provider TOKEN_X_ARRANGOR_FLATE") {
         val personMedRettighet = "11830348931"
 
-        @Language("PostgreSQL")
-        val query = """
-            insert into altinn_person_rettighet (norsk_ident, organisasjonsnummer, rettighet, expiry)
-            values('$personMedRettighet', '123456789', 'TILTAK_ARRANGOR_REFUSJON', '3000-01-01') on conflict do nothing;
-        """.trimIndent()
-        database.run { it.execute(queryOf(query)) }
+        database.run {
+            @Language("PostgreSQL")
+            val query = """
+                insert into altinn_person_rettighet (norsk_ident, organisasjonsnummer, rettighet, expiry)
+                values('$personMedRettighet', '123456789', 'TILTAK_ARRANGOR_REFUSJON', '3000-01-01') on conflict do nothing;
+            """.trimIndent()
+            it.execute(queryOf(query))
+        }
 
         val requestWithoutBearerToken = { _: HttpRequestBuilder -> }
         val requestWithWrongAudience = { request: HttpRequestBuilder ->
