@@ -18,7 +18,7 @@ import { useAtom } from "jotai/index";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 
 export function TiltaksgjennomforingerPage() {
-  useTitle("Tiltaksgjennomføringer");
+  useTitle("Gjennomføringer");
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
   const [filter, setFilter] = useAtom(tiltaksgjennomforingfilterAtom);
@@ -28,13 +28,10 @@ export function TiltaksgjennomforingerPage() {
       <Brodsmuler
         brodsmuler={[
           { tittel: "Forside", lenke: "/" },
-          { tittel: "Tiltaksgjennomføringer", lenke: "/tiltaksgjennomforinger" },
+          { tittel: "Gjennomføringer", lenke: "/tiltaksgjennomforinger" },
         ]}
       />
-      <HeaderBanner
-        heading="Oversikt over tiltaksgjennomføringer"
-        ikon={<TiltaksgjennomforingIkon />}
-      />
+      <HeaderBanner heading="Oversikt over gjennomføringer" ikon={<TiltaksgjennomforingIkon />} />
       <MainContainer>
         <ContainerLayout>
           <FilterAndTableLayout

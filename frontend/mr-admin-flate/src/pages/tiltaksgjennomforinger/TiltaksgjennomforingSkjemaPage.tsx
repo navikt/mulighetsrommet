@@ -62,29 +62,29 @@ export function TiltaksgjennomforingSkjemaPage() {
     { tittel: "Forside", lenke: "/" },
     avtaleId
       ? { tittel: "Avtaler", lenke: "/avtaler" }
-      : { tittel: "Tiltaksgjennomføringer", lenke: "/tiltaksgjennomforinger" },
+      : { tittel: "Gjennomføringer", lenke: "/tiltaksgjennomforinger" },
     avtaleId
       ? {
-          tittel: "Avtaledetaljer",
+          tittel: "Avtale",
           lenke: `/avtaler/${avtaleId}`,
         }
       : undefined,
     erPaaGjennomforingerForAvtale
       ? {
-          tittel: "Avtalens gjennomføringer",
+          tittel: "Gjennomføringer",
           lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
         }
       : undefined,
     redigeringsModus
       ? {
-          tittel: "Tiltaksgjennomføringdetaljer",
+          tittel: "Gjennomføring",
           lenke: avtaleId
             ? `/avtaler/${avtaleId}/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}`
             : `/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}`,
         }
       : undefined,
     {
-      tittel: redigeringsModus ? "Rediger gjennomføring" : "Ny tiltaksgjennomføring",
+      tittel: redigeringsModus ? "Rediger gjennomføring" : "Ny gjennomføring",
       lenke: redigeringsModus
         ? `/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}/skjema`
         : "/tiltaksgjennomforinger/skjema",
@@ -97,7 +97,7 @@ export function TiltaksgjennomforingSkjemaPage() {
       <Header>
         <TiltaksgjennomforingIkon />
         <Heading size="large" level="2">
-          {redigeringsModus ? "Rediger gjennomføring" : "Opprett ny tiltaksgjennomføring"}
+          {redigeringsModus ? "Rediger gjennomføring" : "Opprett ny gjennomføring"}
         </Heading>
         {tiltaksgjennomforing ? (
           <GjennomforingStatusMedAarsakTag status={tiltaksgjennomforing.status} />

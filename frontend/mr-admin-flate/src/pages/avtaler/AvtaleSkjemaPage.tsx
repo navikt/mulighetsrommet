@@ -28,7 +28,7 @@ export function AvtaleSkjemaPage() {
     { tittel: "Avtaler", lenke: "/avtaler" },
     redigeringsModus
       ? {
-          tittel: "Avtaledetaljer",
+          tittel: "Avtale",
           lenke: `/avtaler/${avtale?.id}`,
         }
       : undefined,

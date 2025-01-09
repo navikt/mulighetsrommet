@@ -19,10 +19,10 @@ function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   return [
     { tittel: "Forside", lenke: "/" },
     { tittel: "Avtaler", lenke: "/avtaler" },
-    { tittel: "Avtaledetaljer", lenke: `/avtaler/${avtaleId}` },
+    { tittel: "Avtale", lenke: `/avtaler/${avtaleId}` },
     erPaaGjennomforingerForAvtale
       ? {
-          tittel: "Avtalens gjennomføringer",
+          tittel: "Gjennomføringer",
           lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
         }
       : undefined,

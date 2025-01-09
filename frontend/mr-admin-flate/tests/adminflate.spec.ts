@@ -51,7 +51,7 @@ test.describe("Smoketest og UU", () => {
     await sjekkUU(page, "opprett-ny-tiltaksgjenomforing_knapp");
   });
 
-  test("Tiltaksgjennomføringer", async ({ page }) => {
+  test("Gjennomføringer", async ({ page }) => {
     await page.getByTestId("forsidekort-tiltaksgjennomforinger").click();
     await expect(page.getByTestId("header_oversikt-over-tiltaksgjennomforinger")).toBeVisible();
     await sjekkUU(page, "header_oversikt-over-tiltaksgjennomforinger");
