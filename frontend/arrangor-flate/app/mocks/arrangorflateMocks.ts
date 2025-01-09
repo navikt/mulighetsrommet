@@ -4,6 +4,7 @@ import {
   RefusjonKravAft,
   RefusjonskravStatus,
   RelevanteForslag,
+  TilsagnStatus,
 } from "@mr/api-client-v2";
 import { http, HttpResponse, PathParams } from "msw";
 import { v4 as uuid } from "uuid";
@@ -177,6 +178,7 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
     },
     periodeStart: "2024-06-01",
     periodeSlutt: "2024-12-31",
+    status: TilsagnStatus.GODKJENT,
     arrangor: {
       id: uuid(),
       organisasjonsnummer: "123456789",
@@ -207,6 +209,7 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
     },
     periodeStart: "2024-08-01",
     periodeSlutt: "2024-08-31",
+    status: TilsagnStatus.GODKJENT,
     arrangor: {
       id: uuid(),
       organisasjonsnummer: "123456789",
@@ -237,6 +240,7 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
     },
     periodeStart: "2024-08-01",
     periodeSlutt: "2024-08-31",
+    status: TilsagnStatus.GODKJENT,
     arrangor: {
       id: uuid(),
       organisasjonsnummer: "123456789",

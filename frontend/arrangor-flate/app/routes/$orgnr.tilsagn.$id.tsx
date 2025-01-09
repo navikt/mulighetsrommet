@@ -7,6 +7,7 @@ import { PageHeader } from "../components/PageHeader";
 import { internalNavigation } from "../internal-navigation";
 import { useOrgnrFromUrl } from "../utils";
 import { apiHeaders } from "~/auth/auth.server";
+import { TilsagnStatusTag } from "~/components/tilsagn/TilsagnStatusTag";
 
 type LoaderData = {
   tilsagn: ArrangorflateTilsagn;
@@ -40,6 +41,7 @@ export default function TilsagnDetaljerPage() {
           url: internalNavigation(orgnr).root,
         }}
       />
+      <TilsagnStatusTag status={tilsagn.status} />
       <Definisjonsliste
         className="mt-4"
         definitions={[

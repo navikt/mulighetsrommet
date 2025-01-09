@@ -80,6 +80,7 @@ class TilsagnRepositoryTest : FunSpec({
 
             repository.getAll(statuser = listOf(TilsagnStatus.TIL_GODKJENNING)).shouldHaveSize(1)
             repository.getAll(statuser = listOf(TilsagnStatus.TIL_ANNULLERING)).shouldHaveSize(0)
+            repository.getAll(statuser = listOf(TilsagnStatus.ANNULLERT)).shouldHaveSize(0)
 
             repository.getAll(gjennomforingId = AFT1.id).shouldHaveSize(1)
             repository.getAll(gjennomforingId = UUID.randomUUID()).shouldHaveSize(0)
@@ -259,6 +260,7 @@ class TilsagnRepositoryTest : FunSpec({
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                     ),
                     beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
+                    status = TilsagnStatus.GODKJENT,
                 ),
             )
             repository.getArrangorflateTilsagn(tilsagn.id)?.id shouldBe tilsagn.id
@@ -294,6 +296,7 @@ class TilsagnRepositoryTest : FunSpec({
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                     ),
                     beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
+                    status = TilsagnStatus.GODKJENT,
                 ),
             )
         }
