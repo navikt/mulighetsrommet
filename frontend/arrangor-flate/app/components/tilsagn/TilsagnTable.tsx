@@ -1,8 +1,9 @@
-import { ArrangorflateTilsagn, TilsagnStatus } from "@mr/api-client";
-import { Alert, Table, Tag } from "@navikt/ds-react";
+import { ArrangorflateTilsagn } from "@mr/api-client";
+import { Alert, Table } from "@navikt/ds-react";
 import { formaterDato, useOrgnrFromUrl } from "~/utils";
 import { internalNavigation } from "../../internal-navigation";
 import { LinkWithTabState } from "../LinkWithTabState";
+import { TilsagnStatusTag } from "./TilsagnStatusTag";
 
 interface Props {
   tilsagn: ArrangorflateTilsagn[];
@@ -42,7 +43,7 @@ export function TilsagnTable({ tilsagn }: Props) {
                     {`${formaterDato(tilsagn.periodeStart)} - ${formaterDato(tilsagn.periodeSlutt)}`}
                   </Table.DataCell>
                   <Table.DataCell>
-                    <StatusTag status={tilsagn.status} />
+                    <TilsagnStatusTag status={tilsagn.status} />
                   </Table.DataCell>
                   <Table.DataCell>
                     <LinkWithTabState
@@ -60,25 +61,4 @@ export function TilsagnTable({ tilsagn }: Props) {
       </div>
     </>
   );
-}
-
-function StatusTag({ status }: { status: TilsagnStatus }) {
-  switch (status) {
-    case TilsagnStatus.GODKJENT:
-      return <Tag variant="success">Godkjent</Tag>;
-    case TilsagnStatus.ANNULLERT:
-      return (
-        <Tag variant="error" className="line-through bg-white text-text-danger border-text-danger">
-          Annullert
-        </Tag>
-      );
-    case TilsagnStatus.TIL_ANNULLERING:
-      return (
-        <Tag variant="neutral" className="bg-white  border-text-danger">
-          Til annullering
-        </Tag>
-      );
-    default:
-      return null;
-  }
 }
