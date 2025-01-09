@@ -419,6 +419,7 @@ class TilsagnRepository(private val db: Database) {
                 navn = string("arrangor_navn"),
             ),
             beregning = Json.decodeFromString<TilsagnBeregning>(string("beregning")),
+            status = TilsagnStatus.valueOf(string("status")),
         )
     }
 }

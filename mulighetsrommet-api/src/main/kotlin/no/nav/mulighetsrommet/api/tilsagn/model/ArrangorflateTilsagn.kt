@@ -19,6 +19,7 @@ data class ArrangorflateTilsagn(
     val periodeSlutt: LocalDate,
     val beregning: TilsagnBeregning,
     val arrangor: Arrangor,
+    val status: TilsagnStatus,
 ) {
     @Serializable
     data class Arrangor(

@@ -5594,6 +5594,8 @@ components:
         periodeSlutt:
           type: string
           format: date
+        status:
+            $ref: "#/components/schemas/TilsagnStatus"
         arrangor:
           type: object
           properties:
@@ -5613,6 +5615,7 @@ components:
       required:
         - periodeStart
         - periodeSlutt
+        - status
         - gjennomforing
         - tiltakstype
         - arrangor
