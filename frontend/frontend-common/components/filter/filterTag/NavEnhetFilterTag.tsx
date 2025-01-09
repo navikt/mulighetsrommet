@@ -3,7 +3,7 @@ import Ikonknapp from "../../ikonknapp/Ikonknapp";
 import { XMarkIcon } from "@navikt/aksel-icons";
 import styles from "./FilterTag.module.scss";
 import { MouseEvent } from "react";
-import { NavEnhet } from "@mr/api-client";
+import { NavEnhet } from "@mr/api-client-v2";
 
 interface Props {
   navEnheter: NavEnhet[];

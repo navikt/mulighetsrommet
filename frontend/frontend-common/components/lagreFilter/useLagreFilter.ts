@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ApiError, LagretDokumenttype, LagretFilterRequest } from "@mr/api-client";
-import { LagretFilterService } from "@mr/api-client";
 import { QueryKeys } from "../../QueryKeys";
+import { LagretDokumenttype, LagretFilterRequest, LagretFilterService } from "@mr/api-client-v2";
 
 interface Props {
   dokumenttype: LagretDokumenttype;
@@ -9,8 +8,8 @@ interface Props {
 
 export function useLagreFilter({ dokumenttype }: Props) {
   const queryClient = useQueryClient();
-  return useMutation<any, ApiError, LagretFilterRequest>({
-    mutationFn: (requestBody) => LagretFilterService.upsertFilter({ requestBody }),
+  return useMutation<any, any, LagretFilterRequest>({
+    mutationFn: (body) => LagretFilterService.upsertFilter({ body }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: QueryKeys.lagredeFilter(dokumenttype),
