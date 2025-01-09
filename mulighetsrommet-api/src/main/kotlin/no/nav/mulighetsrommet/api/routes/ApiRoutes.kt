@@ -25,8 +25,8 @@ import no.nav.mulighetsrommet.notifications.notificationRoutes
 import no.nav.mulighetsrommet.utdanning.utdanningRoutes
 
 fun Route.apiRoutes() {
-        maamRoutes()
     authenticate(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET) {
+        maamRoutes()
     }
 
     authenticate(AuthProvider.AZURE_AD_TILTAKSGJENNOMFORING_APP) {
