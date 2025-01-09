@@ -1,5 +1,4 @@
 import { ErrorBoundary, FallbackProps } from "react-error-boundary";
-import { ApiError } from "@mr/api-client";
 import { Alert, BodyShort, Heading } from "@navikt/ds-react";
 import { PropsWithChildren } from "react";
 import { Link } from "react-router";
@@ -38,7 +37,7 @@ interface DefaultErrorFallbackProps extends FallbackProps {
 }
 
 function InlineFallback({ error, portenUrl }: DefaultErrorFallbackProps) {
-  const heading = error instanceof ApiError ? resolveErrorMessage(error) : error.message;
+  const heading = resolveErrorMessage(error);
 
   return (
     <div className="error">
@@ -55,7 +54,7 @@ function InlineFallback({ error, portenUrl }: DefaultErrorFallbackProps) {
 }
 
 function ReloadAppFallback({ error, portenUrl }: DefaultErrorFallbackProps) {
-  const heading = error instanceof ApiError ? resolveErrorMessage(error) : error.message;
+  const heading = resolveErrorMessage(error);
 
   return (
     <div className="error">

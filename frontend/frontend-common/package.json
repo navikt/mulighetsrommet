@@ -8,7 +8,7 @@
   "homepage": "https://github.com/navikt/mulighetsrommet#readme",
   "dependencies": {
     "@hookform/resolvers": "3.9.1",
-    "@mr/api-client": "workspace:*",
+    "@mr/api-client-v2": "workspace:*",
     "@navikt/aksel-icons": "7.9.0",
     "@navikt/ds-css": "7.9.0",
     "@navikt/ds-react": "7.9.0",
