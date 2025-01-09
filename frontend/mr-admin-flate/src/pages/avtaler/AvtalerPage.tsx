@@ -1,21 +1,20 @@
 import { avtaleFilterAtom, AvtaleFilterSchema } from "@/api/atoms";
 import { AvtaleFilter } from "@/components/filter/AvtaleFilter";
-import { AvtaleTabell } from "@/components/tabell/AvtaleTabell";
-import { HeaderBanner } from "@/layouts/HeaderBanner";
-import { ContainerLayout } from "@/layouts/ContainerLayout";
-import { MainContainer } from "@/layouts/MainContainer";
-import { LagredeFilterOversikt, useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
-import { AvtaleFiltertags } from "@/components/filter/AvtaleFiltertags";
-import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
-import { useState } from "react";
-import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
+import { AvtaleFiltertags } from "@/components/filter/AvtaleFiltertags";
+import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
+import { AvtaleTabell } from "@/components/tabell/AvtaleTabell";
+import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
+import { ContainerLayout } from "@/layouts/ContainerLayout";
+import { HeaderBanner } from "@/layouts/HeaderBanner";
+import { MainContainer } from "@/layouts/MainContainer";
 import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
 import { LagretDokumenttype } from "@mr/api-client";
+import { LagredeFilterOversikt, useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
+import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
+import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useAtom } from "jotai/index";
-import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
+import { useState } from "react";
 
 export function AvtalerPage() {
   useTitle("Avtaler");
@@ -26,12 +25,6 @@ export function AvtalerPage() {
 
   return (
     <>
-      <Brodsmuler
-        brodsmuler={[
-          { tittel: "Forside", lenke: "/" },
-          { tittel: "Avtaler", lenke: "/avtaler" },
-        ]}
-      />
       <HeaderBanner heading="Oversikt over avtaler" harUndermeny ikon={<AvtaleIkon />} />
       <ReloadAppErrorBoundary>
         <MainContainer>

@@ -33,7 +33,7 @@ export function Brodsmuler({ brodsmuler }: Props) {
     <nav aria-label="Brødsmulesti" className={styles.navContainer}>
       <ol className={styles.container}>
         {filtrerteBrodsmuler.filter(erBrodsmule).map((item, index) => {
-          const erSisteBrodsmule = index > 0 && index === filtrerteBrodsmuler.length - 1;
+          const erSisteBrodsmule = index >= 0 && index === filtrerteBrodsmuler.length - 1;
           return (
             <li key={index}>
               {erSisteBrodsmule ? (

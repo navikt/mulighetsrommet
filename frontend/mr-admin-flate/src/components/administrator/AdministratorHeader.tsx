@@ -67,7 +67,7 @@ export function AdministratorHeader() {
                 to="/tiltaksgjennomforinger"
                 className={styles.menylenke}
               >
-                Tiltaksgjennomføringer
+                Gjennomføringer
               </Link>
             </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.GroupedList.Item
