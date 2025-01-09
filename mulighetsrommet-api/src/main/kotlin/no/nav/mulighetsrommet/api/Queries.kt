@@ -71,18 +71,16 @@ class ApiDatabase(
     inline fun <T> session(
         operation: QueryContext.() -> T,
     ): T {
-        return db.session.use { session ->
-            operation(QueryContext(session))
+        return db.session { session ->
+            QueryContext(session).operation()
         }
     }
 
     inline fun <T> tx(
         operation: QueryContext.() -> T,
     ): T {
-        return db.session.use { session ->
-            session.transaction {
-                operation(QueryContext(it))
-            }
+        return db.transaction { session ->
+            QueryContext(session).operation()
         }
     }
 }
