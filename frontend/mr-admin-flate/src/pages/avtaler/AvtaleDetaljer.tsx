@@ -6,7 +6,6 @@ import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
-import { DetaljerContainer } from "@/pages/DetaljerContainer";
 import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
 import { ArrangorKontaktinfoContainer } from "@/pages/arrangor/ArrangorKontaktinfoContainer";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
@@ -15,7 +14,7 @@ import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { Avtaletype, NavEnhet } from "@mr/api-client";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
+import { Alert, Heading, HelpText, HGrid, VStack } from "@navikt/ds-react";
 import { Fragment } from "react";
 import { Link } from "react-router";
 import { useAvtale } from "@/api/avtaler/useAvtale";
@@ -54,7 +53,7 @@ export function AvtaleDetaljer() {
   } = avtale;
 
   return (
-    <DetaljerContainer>
+    <HGrid columns={2} align="start">
       <DetaljerInfoContainer>
         <Bolk aria-label="Avtalenavn">
           <Metadata header={avtaletekster.avtalenavnLabel} verdi={navn} />
@@ -169,7 +168,6 @@ export function AvtaleDetaljer() {
           ) : null}
         </VStack>
       </DetaljerInfoContainer>
-
       <DetaljerInfoContainer>
         {kontorstruktur.length > 1 ? (
           <Metadata
@@ -266,6 +264,6 @@ export function AvtaleDetaljer() {
           />
         )}
       </DetaljerInfoContainer>
-    </DetaljerContainer>
+    </HGrid>
   );
 }

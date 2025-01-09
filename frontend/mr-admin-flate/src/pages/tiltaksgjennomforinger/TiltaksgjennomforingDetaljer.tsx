@@ -8,7 +8,6 @@ import { tiltaktekster } from "@/components/ledetekster/tiltaksgjennomforingLede
 import { NokkeltallDeltakere } from "@/components/tiltaksgjennomforinger/NokkeltallDeltakere";
 import { TiltakTilgjengeligForArrangor } from "@/components/tiltaksgjennomforinger/TilgjengeligTiltakForArrangor";
 import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
-import { DetaljerContainer } from "@/pages/DetaljerContainer";
 import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
 import { ArrangorKontaktinfoContainer } from "@/pages/arrangor/ArrangorKontaktinfoContainer";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
@@ -23,7 +22,7 @@ import { useTitle } from "@mr/frontend-common";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { BodyShort, HelpText, HStack, Tag } from "@navikt/ds-react";
+import { BodyShort, HelpText, HGrid, HStack, Tag } from "@navikt/ds-react";
 import { Link } from "react-router";
 import styles from "./TiltaksgjennomforingDetaljer.module.scss";
 
@@ -78,7 +77,7 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
 
   return (
     <>
-      <DetaljerContainer>
+      <HGrid columns={2} align="start">
         <DetaljerInfoContainer>
           <Bolk aria-label="Tiltaksnavn og tiltaksnummer" data-testid="tiltaksnavn">
             <Metadata header={tiltaktekster.tiltaksnavnLabel} verdi={tiltaksgjennomforing.navn} />
@@ -304,7 +303,7 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
           )}
           <TiltakTilgjengeligForArrangor gjennomforing={tiltaksgjennomforing} />
         </DetaljerInfoContainer>
-      </DetaljerContainer>
+      </HGrid>
 
       <NokkeltallDeltakere gjennomforingId={tiltaksgjennomforing.id} />
     </>

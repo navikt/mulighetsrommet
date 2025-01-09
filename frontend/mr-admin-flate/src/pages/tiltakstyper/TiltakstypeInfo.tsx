@@ -1,19 +1,19 @@
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
 import { SANITY_STUDIO_URL } from "@/constants";
-import { DetaljerContainer } from "@/pages/DetaljerContainer";
 import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
 import { formaterDato } from "@/utils/Utils";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Link, useLoaderData } from "react-router";
 import { tiltakstypeLoader } from "./tiltakstyperLoaders";
+import { HGrid } from "@navikt/ds-react";
 
 export function TiltakstypeInfo() {
   const tiltakstype = useLoaderData<typeof tiltakstypeLoader>();
   const tiltakstypeSanityUrl = `${SANITY_STUDIO_URL}/structure/tiltakstype;${tiltakstype.sanityId}`;
 
   return (
-    <DetaljerContainer>
+    <HGrid columns={2} align="start">
       <DetaljerInfoContainer withBorderRight={false}>
         <Bolk>
           <Metadata header="Tiltakstype" verdi={tiltakstype.navn} />
@@ -46,6 +46,6 @@ export function TiltakstypeInfo() {
           </>
         )}
       </DetaljerInfoContainer>
-    </DetaljerContainer>
+    </HGrid>
   );
 }

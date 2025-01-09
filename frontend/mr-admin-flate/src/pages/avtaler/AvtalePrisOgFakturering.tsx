@@ -1,8 +1,7 @@
-import { Alert, HStack, Select, TextField, VStack } from "@navikt/ds-react";
+import { Alert, HGrid, HStack, Select, TextField, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { Avtaletype, EmbeddedTiltakstype, Prismodell, Tiltakskode } from "@mr/api-client";
-import { DetaljerContainer } from "@/pages/DetaljerContainer";
 import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
 import { Metadata } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
@@ -30,7 +29,7 @@ export function AvtalePrisOgFakturering({ tiltakstype }: Props) {
   const avtaletype = watch("avtaletype");
 
   return (
-    <DetaljerContainer>
+    <HGrid columns={2} align="start">
       <FormGroup>
         <Metadata header={avtaletekster.tiltakstypeLabel} verdi={tiltakstype.navn} />
 
@@ -43,7 +42,7 @@ export function AvtalePrisOgFakturering({ tiltakstype }: Props) {
           <ForhandsgodkjentAvtalePrismodell tiltakstype={tiltakstype.tiltakskode} />
         )}
       </FormGroup>
-    </DetaljerContainer>
+    </HGrid>
   );
 }
 
