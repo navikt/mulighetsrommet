@@ -67,9 +67,17 @@ function StatusTag({ status }: { status: TilsagnStatus }) {
     case TilsagnStatus.GODKJENT:
       return <Tag variant="success">Godkjent</Tag>;
     case TilsagnStatus.ANNULLERT:
-      return <Tag variant="error">Annullert</Tag>;
+      return (
+        <Tag variant="error" className="line-through bg-white text-text-danger border-text-danger">
+          Annullert
+        </Tag>
+      );
     case TilsagnStatus.TIL_ANNULLERING:
-      return <Tag variant="neutral">Til annullering</Tag>;
+      return (
+        <Tag variant="neutral" className="bg-white  border-text-danger">
+          Til annullering
+        </Tag>
+      );
     default:
       return null;
   }

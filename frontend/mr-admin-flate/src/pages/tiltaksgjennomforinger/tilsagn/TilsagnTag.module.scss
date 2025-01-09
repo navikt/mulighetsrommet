@@ -11,13 +11,12 @@
 
 .til_annullering_tag {
   background-color: white;
-  color: var(--a-text-danger);
   border-color: var(--a-text-danger);
 }
 
 .annullert_aarsak_list li {
-  padding-left: .5rem;
-  margin-left: .5rem;
+  padding-left: 0.5rem;
+  margin-left: 0.5rem;
 }
 
 .annullert_aarsak_list li::marker {
