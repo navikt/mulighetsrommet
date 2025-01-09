@@ -27,18 +27,18 @@ export function ForsidekortListe() {
         tekst="Her finner du informasjon om avtaler for gruppetiltak"
       />
       <Forsidekort
-        navn="Tiltaksgjennomføringer"
+        navn="Gjennomføringer"
         ikon={
           <TiltaksgjennomforingIkon
             inkluderBakgrunn
-            aria-label="Tiltaksgjennomføringer for gruppetiltak"
+            aria-label="Gjennomføringer for gruppetiltak"
           />
         }
         url="tiltaksgjennomforinger"
-        tekst="Her finner du informasjon om tiltaksgjennomføringer for gruppetiltak"
+        tekst="Her finner du informasjon om Gjennomføringer for gruppetiltak"
       />
       <Forsidekort
-        navn="Individuelle tiltaksgjennomføringer"
+        navn="Individuelle Gjennomføringer"
         ikon={
           <img
             style={{ height: "64px", width: "64px" }}
@@ -48,7 +48,7 @@ export function ForsidekortListe() {
         }
         url={SANITY_STUDIO_URL}
         apneINyTab
-        tekst="Her administrerer du individuelle tiltaksgjennomføringer"
+        tekst="Her administrerer du individuelle Gjennomføringer"
       />
       <Forsidekort
         navn="Veilederflate forhåndsvisning"

@@ -24,19 +24,18 @@ function createBrodsmuler(
   refusjonskrav?: boolean,
 ): Array<Brodsmule | undefined> {
   return [
-    { tittel: "Forside", lenke: "/" },
     avtaleId
       ? { tittel: "Avtaler", lenke: "/avtaler" }
-      : { tittel: "Tiltaksgjennomføringer", lenke: "/tiltaksgjennomforinger" },
-    avtaleId ? { tittel: "Avtaledetaljer", lenke: `/avtaler/${avtaleId}` } : undefined,
+      : { tittel: "Gjennomføringer", lenke: "/tiltaksgjennomforinger" },
+    avtaleId ? { tittel: "Avtale", lenke: `/avtaler/${avtaleId}` } : undefined,
     avtaleId
       ? {
-          tittel: "Avtalens gjennomføringer",
+          tittel: "Gjennomføringer",
           lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
         }
       : undefined,
     {
-      tittel: "Tiltaksgjennomføringdetaljer",
+      tittel: "Gjennomføring",
       lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}`,
     },
     tilsagn

@@ -51,14 +51,14 @@ test.describe("Smoketest og UU", () => {
     await sjekkUU(page, "opprett-ny-tiltaksgjenomforing_knapp");
   });
 
-  test("Tiltaksgjennomføringer", async ({ page }) => {
-    await page.getByTestId("forsidekort-tiltaksgjennomforinger").click();
-    await expect(page.getByTestId("header_oversikt-over-tiltaksgjennomforinger")).toBeVisible();
-    await sjekkUU(page, "header_oversikt-over-tiltaksgjennomforinger");
+  test("Gjennomføringer", async ({ page }) => {
+    await page.getByTestId("forsidekort-gjennomforinger").click();
+    await expect(page.getByTestId("header_oversikt-over-gjennomforinger")).toBeVisible();
+    await sjekkUU(page, "header_oversikt-over-gjennomforinger");
   });
 
   test("Tiltaksgjennomføring - Info", async ({ page }) => {
-    await page.getByTestId("forsidekort-tiltaksgjennomforinger").click();
+    await page.getByTestId("forsidekort-gjennomforinger").click();
     await page.getByTestId("filtertab").click();
     await page.getByTestId("tiltaksgjennomforing-tabell_tittel").first().click();
     await expect(page.getByText("Tiltaksnavn")).toBeVisible();

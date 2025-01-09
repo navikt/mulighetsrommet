@@ -13,12 +13,9 @@ import { tiltakstypeLoader } from "./tiltakstyperLoaders";
 function useTiltakstypeBrodsmuler(tiltakstypeId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/tiltakstyper/:tiltakstypeId/avtaler");
   return [
-    { tittel: "Forside", lenke: "/" },
     { tittel: "Tiltakstyper", lenke: "/tiltakstyper" },
-    { tittel: "Tiltakstypedetaljer", lenke: `/tiltakstyper/${tiltakstypeId}` },
-    match
-      ? { tittel: "Tiltaktypens avtaler", lenke: `/tiltakstyper/${tiltakstypeId}/avtaler` }
-      : undefined,
+    { tittel: "Tiltakstype", lenke: `/tiltakstyper/${tiltakstypeId}` },
+    match ? { tittel: "Avtaler", lenke: `/tiltakstyper/${tiltakstypeId}/avtaler` } : undefined,
   ];
 }
 
