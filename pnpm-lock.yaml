@@ -309,9 +309,9 @@ importers:
       '@hookform/resolvers':
         specifier: 3.9.1
         version: 3.9.1(react-hook-form@7.54.2(react@18.3.1))
-      '@mr/api-client':
+      '@mr/api-client-v2':
         specifier: workspace:*
-        version: link:../api-client
+        version: link:../api-client-v2
       '@navikt/aksel-icons':
         specifier: 7.9.0
         version: 7.9.0
@@ -2264,6 +2264,9 @@ packages:
     peerDependencies:
       '@types/react': '>=17.0.30'
       react: '>=17.0.0 || >19.0.0-rc'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@navikt/ds-tailwind@7.9.0':
     resolution: {integrity: sha512-gQW35LArW6ef+NAXSTlIhM++uIiO1pPI6IkZ1WsaPFzzR5cEdqcEry5LdGPHnevHjYa1v9g8WpwIf3zU2geTqA==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.9.0/697aabbdcd90775281393e80cd0147d2322d8b01}
@@ -2279,6 +2282,9 @@ packages:
       html-react-parser: '>=5.x'
       jsdom: '>=16.x'
       react: '>=17.x'
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@navikt/oasis@3.6.0':
     resolution: {integrity: sha512-g+0plp7xNUo1ZNv0ahL80A96Swu8RRv/pE1ZYAp9t1AGo6RHUicF3PYuyiQH+xtXrdiXQk29KumS+jCqURswlA==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/3.6.0/8e7b3918165b037c18cfbc36ad4aeee04fc0650f}
@@ -10250,11 +10256,12 @@ snapshots:
       '@floating-ui/react-dom': 2.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@navikt/aksel-icons': 7.9.0
       '@navikt/ds-tokens': 7.9.0
-      '@types/react': 18.3.12
       clsx: 2.1.1
       date-fns: 3.6.0
       react: 18.3.1
       react-day-picker: 8.10.1(date-fns@3.6.0)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.3.12
     transitivePeerDependencies:
       - react-dom
 
@@ -10264,11 +10271,12 @@ snapshots:
       '@floating-ui/react-dom': 2.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@navikt/aksel-icons': 7.9.0
       '@navikt/ds-tokens': 7.9.0
-      '@types/react': 18.3.13
       clsx: 2.1.1
       date-fns: 3.6.0
       react: 18.3.1
       react-day-picker: 8.10.1(date-fns@3.6.0)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.3.13
     transitivePeerDependencies:
       - react-dom
 
@@ -10281,6 +10289,7 @@ snapshots:
       csp-header: 6.0.0
       html-react-parser: 5.2.2(@types/react@18.3.12)(react@18.3.1)
       jsdom: 25.0.1
+    optionalDependencies:
       react: 18.3.1
 
   '@navikt/oasis@3.6.0':

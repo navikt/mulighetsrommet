@@ -1,5 +1,5 @@
 import { Tag } from "@navikt/ds-react";
-import { TiltaksgjennomforingStatusDto } from "@mr/api-client";
+import { TiltaksgjennomforingStatusDto } from "@mr/api-client-v2";
 import { useState } from "react";
 import { variantAndName } from "./GjennomforingStatusTag";
 
