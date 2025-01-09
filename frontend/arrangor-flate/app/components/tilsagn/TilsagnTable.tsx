@@ -1,5 +1,5 @@
-import { ArrangorflateTilsagn } from "@mr/api-client";
-import { Alert, Table } from "@navikt/ds-react";
+import { ArrangorflateTilsagn, TilsagnStatus } from "@mr/api-client";
+import { Alert, Table, Tag } from "@navikt/ds-react";
 import { formaterDato, useOrgnrFromUrl } from "~/utils";
 import { internalNavigation } from "../../internal-navigation";
 import { LinkWithTabState } from "../LinkWithTabState";
@@ -28,6 +28,7 @@ export function TilsagnTable({ tilsagn }: Props) {
               <Table.HeaderCell>Tiltakstype</Table.HeaderCell>
               <Table.HeaderCell>Navn</Table.HeaderCell>
               <Table.HeaderCell>Periode</Table.HeaderCell>
+              <Table.HeaderCell>Status</Table.HeaderCell>
               <Table.HeaderCell></Table.HeaderCell>
             </Table.Row>
           </Table.Header>
@@ -39,6 +40,9 @@ export function TilsagnTable({ tilsagn }: Props) {
                   <Table.DataCell>{tilsagn.gjennomforing.navn}</Table.DataCell>
                   <Table.DataCell>
                     {`${formaterDato(tilsagn.periodeStart)} - ${formaterDato(tilsagn.periodeSlutt)}`}
+                  </Table.DataCell>
+                  <Table.DataCell>
+                    <StatusTag status={tilsagn.status} />
                   </Table.DataCell>
                   <Table.DataCell>
                     <LinkWithTabState
@@ -56,4 +60,17 @@ export function TilsagnTable({ tilsagn }: Props) {
       </div>
     </>
   );
+}
+
+function StatusTag({ status }: { status: TilsagnStatus }) {
+  switch (status) {
+    case TilsagnStatus.GODKJENT:
+      return <Tag variant="success">Godkjent</Tag>;
+    case TilsagnStatus.ANNULLERT:
+      return <Tag variant="error">Annullert</Tag>;
+    case TilsagnStatus.TIL_ANNULLERING:
+      return <Tag variant="neutral">Til annullering</Tag>;
+    default:
+      return null;
+  }
 }

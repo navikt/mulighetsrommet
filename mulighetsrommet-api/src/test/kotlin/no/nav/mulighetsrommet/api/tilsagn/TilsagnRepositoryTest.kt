@@ -80,6 +80,7 @@ class TilsagnRepositoryTest : FunSpec({
 
             repository.getAll(statuser = listOf(TilsagnStatus.TIL_GODKJENNING)).shouldHaveSize(1)
             repository.getAll(statuser = listOf(TilsagnStatus.TIL_ANNULLERING)).shouldHaveSize(0)
+            repository.getAll(statuser = listOf(TilsagnStatus.ANNULLERT)).shouldHaveSize(0)
 
             repository.getAll(gjennomforingId = AFT1.id).shouldHaveSize(1)
             repository.getAll(gjennomforingId = UUID.randomUUID()).shouldHaveSize(0)

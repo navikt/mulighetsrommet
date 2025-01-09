@@ -9,6 +9,7 @@ select
     tilsagn.periode_start,
     tilsagn.periode_slutt,
     tilsagn.beregning,
+    tilsagn.status,
     arrangor.id                         as arrangor_id,
     arrangor.organisasjonsnummer        as arrangor_organisasjonsnummer,
     arrangor.navn                       as arrangor_navn
@@ -17,5 +18,5 @@ from tilsagn
     inner join tiltakstype on tiltakstype.id = tiltaksgjennomforing.tiltakstype_id
     inner join arrangor on arrangor.id = tilsagn.arrangor_id
 where
-    tilsagn.status in ('GODKJENT', 'TIL_ANNULLERING')
+    tilsagn.status in ('GODKJENT', 'TIL_ANNULLERING', 'ANNULLERT')
 
