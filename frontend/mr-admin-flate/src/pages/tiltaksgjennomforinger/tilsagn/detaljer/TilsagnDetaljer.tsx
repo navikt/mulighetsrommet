@@ -50,7 +50,6 @@ export function TilsagnDetaljer() {
   );
 
   const brodsmuler: Array<Brodsmule | undefined> = [
-    { tittel: "Forside", lenke: "/" },
     avtaleId
       ? { tittel: "Avtaler", lenke: "/avtaler" }
       : { tittel: "Gjennomføringer", lenke: "/tiltaksgjennomforinger" },

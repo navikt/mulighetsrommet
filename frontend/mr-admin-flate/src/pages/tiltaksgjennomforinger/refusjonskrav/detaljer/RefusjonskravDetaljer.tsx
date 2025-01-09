@@ -20,7 +20,7 @@ export function RefusjonskravDetaljer() {
   );
 
   const brodsmuler: Array<Brodsmule | undefined> = [
-    { tittel: "Forside", lenke: "/" },
+    { tittel: "", lenke: "/" },
     avtaleId
       ? { tittel: "Avtaler", lenke: "/avtaler" }
       : { tittel: "Gjennomføringer", lenke: "/tiltaksgjennomforinger" },

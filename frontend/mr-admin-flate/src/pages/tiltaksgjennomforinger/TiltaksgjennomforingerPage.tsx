@@ -1,21 +1,20 @@
-import { LagredeFilterOversikt, useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
+import { tiltaksgjennomforingfilterAtom, TiltaksgjennomforingFilterSchema } from "@/api/atoms";
+import { TiltaksgjennomforingFilter } from "@/components/filter/TiltaksgjennomforingFilter";
+import { TiltaksgjennomforingFilterButtons } from "@/components/filter/TiltaksgjennomforingFilterButtons";
+import { TiltaksgjennomforingFiltertags } from "@/components/filter/TiltaksgjennomforingFiltertags";
+import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
 import { TiltaksgjennomforingsTabell } from "@/components/tabell/TiltaksgjennomforingsTabell";
+import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { MainContainer } from "@/layouts/MainContainer";
-import { tiltaksgjennomforingfilterAtom, TiltaksgjennomforingFilterSchema } from "@/api/atoms";
-import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
-import { TiltaksgjennomforingFilterButtons } from "@/components/filter/TiltaksgjennomforingFilterButtons";
-import { TiltaksgjennomforingFiltertags } from "@/components/filter/TiltaksgjennomforingFiltertags";
-import { TiltaksgjennomforingFilter } from "@/components/filter/TiltaksgjennomforingFilter";
-import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
-import { useState } from "react";
 import { NullstillKnappForTiltaksgjennomforinger } from "@/pages/tiltaksgjennomforinger/NullstillKnappForTiltaksgjennomforinger";
 import { LagretDokumenttype } from "@mr/api-client";
+import { LagredeFilterOversikt, useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
+import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
+import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useAtom } from "jotai/index";
-import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
+import { useState } from "react";
 
 export function TiltaksgjennomforingerPage() {
   useTitle("Gjennomføringer");
@@ -25,12 +24,6 @@ export function TiltaksgjennomforingerPage() {
 
   return (
     <>
-      <Brodsmuler
-        brodsmuler={[
-          { tittel: "Forside", lenke: "/" },
-          { tittel: "Gjennomføringer", lenke: "/tiltaksgjennomforinger" },
-        ]}
-      />
       <HeaderBanner heading="Oversikt over gjennomføringer" ikon={<TiltaksgjennomforingIkon />} />
       <MainContainer>
         <ContainerLayout>

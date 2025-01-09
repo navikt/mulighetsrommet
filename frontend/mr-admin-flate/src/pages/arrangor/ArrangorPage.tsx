@@ -17,7 +17,6 @@ export function ArrangorPage({ arrangorId }: Props) {
   const [openHovedenhet, setOpenHovedenhet] = useState(true); // TODO Fiks default open for arrangører med underenheter
 
   const brodsmuler: Brodsmule[] = [
-    { tittel: "Forside", lenke: "/" },
     { tittel: "Arrangører", lenke: "/arrangorer" },
     { tittel: `${arrangor?.navn}`, lenke: `/arrangorer/${arrangorId}` },
   ];

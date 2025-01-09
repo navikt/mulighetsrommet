@@ -24,7 +24,6 @@ export function AvtaleSkjemaPage() {
   const redigeringsModus = avtale ? inneholderUrl(avtale.id) : false;
 
   const brodsmuler: Array<Brodsmule | undefined> = [
-    { tittel: "Forside", lenke: "/" },
     { tittel: "Avtaler", lenke: "/avtaler" },
     redigeringsModus
       ? {

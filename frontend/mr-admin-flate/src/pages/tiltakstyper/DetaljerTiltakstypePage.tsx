@@ -13,7 +13,6 @@ import { tiltakstypeLoader } from "./tiltakstyperLoaders";
 function useTiltakstypeBrodsmuler(tiltakstypeId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/tiltakstyper/:tiltakstypeId/avtaler");
   return [
-    { tittel: "Forside", lenke: "/" },
     { tittel: "Tiltakstyper", lenke: "/tiltakstyper" },
     { tittel: "Tiltakstype", lenke: `/tiltakstyper/${tiltakstypeId}` },
     match ? { tittel: "Avtaler", lenke: `/tiltakstyper/${tiltakstypeId}/avtaler` } : undefined,
