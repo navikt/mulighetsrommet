@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@axe-core/playwright": "4.10.1",
-    "@mr/api-client": "workspace:*",
+    "@mr/api-client-v2": "workspace:*",
     "@mr/frontend-common": "workspace:*",
     "@navikt/aksel-icons": "7.9.0",
     "@navikt/ds-css": "7.9.0",

@@ -1,4 +1,4 @@
-import { TilsagnStatus } from "@mr/api-client";
+import { TilsagnStatus } from "@mr/api-client-v2";
 import { Tag } from "@navikt/ds-react";
 
 interface Props {

@@ -1,7 +1,7 @@
 import { fetchDecoratorHtml } from "@navikt/nav-dekoratoren-moduler/ssr";
 import { hentMiljø, Miljø } from "../miljø";
 
-const visDekoratørUnderUtvikling = false;
+const visDekoratørUnderUtvikling = true;
 const brukSsrDekoratørIMiljø = true;
 
 export type Dekoratørfragmenter = {
