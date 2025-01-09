@@ -23,9 +23,7 @@ export const loader: LoaderFunction = async ({
   params,
 }): Promise<RefusjonskavKvitteringData> => {
   const { id } = params;
-  if (!id) {
-    throw Error("Mangler id");
-  }
+  if (!id) throw Error("Mangler id");
 
   const [krav, tilsagn] = await Promise.all([
     ArrangorflateService.getRefusjonkrav({
@@ -37,8 +35,8 @@ export const loader: LoaderFunction = async ({
       headers: await apiHeaders(request),
     }),
   ]);
-  if (!krav?.data || !tilsagn.data) {
-    throw Error("Fant ikke refusjonskrav");
+  if (krav.error || tilsagn.error || !krav?.data || !tilsagn.data) {
+    throw krav.error ?? tilsagn.error;
   }
 
   return { krav: krav.data, tilsagn: tilsagn.data };

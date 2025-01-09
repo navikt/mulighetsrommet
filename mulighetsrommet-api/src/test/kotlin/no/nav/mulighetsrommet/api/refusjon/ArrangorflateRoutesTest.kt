@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.refusjon
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.ktor.client.call.*
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -195,12 +196,13 @@ class ArrangorflateRoutesTest : FunSpec({
         }
     }
 
-    test("401 Unauthorized med pid uten tilgang") {
+    test("200 OK og tom liste med pid uten tilgang") {
         withTestApplication(appConfig()) {
             val response = client.get("/api/v1/intern/arrangorflate/tilgang-arrangor") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922")).serialize())
             }
-            response.status shouldBe HttpStatusCode.Unauthorized
+            response.status shouldBe HttpStatusCode.OK
+            Json.decodeFromString<List<ArrangorDto>>(response.bodyAsText()) shouldHaveSize 0
         }
     }
 
@@ -218,13 +220,13 @@ class ArrangorflateRoutesTest : FunSpec({
         }
     }
 
-    test("401 hent krav uten tilgang til bedrift") {
+    test("403 hent krav uten tilgang til bedrift") {
         withTestApplication(appConfig()) {
             val response = client.get("/api/v1/intern/arrangorflate/refusjonskrav/${krav.id}") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922")).serialize())
                 contentType(ContentType.Application.Json)
             }
-            response.status shouldBe HttpStatusCode.Unauthorized
+            response.status shouldBe HttpStatusCode.Forbidden
         }
     }
 

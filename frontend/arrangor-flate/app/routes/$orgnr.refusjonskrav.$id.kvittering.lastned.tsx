@@ -4,9 +4,7 @@ import { apiHeaders } from "~/auth/auth.server";
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<Response> => {
   const { id } = params;
-  if (!id) {
-    throw Error("Mangler id");
-  }
+  if (!id) throw Error("Mangler id");
 
   const { data: kvittering } = await ArrangorflateService.getRefusjonkravKvittering({
     path: { id },

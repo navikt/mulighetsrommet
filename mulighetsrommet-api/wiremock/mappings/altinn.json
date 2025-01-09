@@ -19,6 +19,15 @@
           "tiltak-arrangor-refusjon"
         ],
         "subunits": []
+      },
+      {
+        "name": "FRETEX OSLO",
+        "type": "Organization",
+        "organizationNumber": "992943084",
+        "authorizedResources": [
+          "tiltak-arrangor-refusjon"
+        ],
+        "subunits": []
       }
     ],
     "headers": {

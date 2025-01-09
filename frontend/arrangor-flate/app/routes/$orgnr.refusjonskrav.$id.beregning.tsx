@@ -44,20 +44,19 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   const deltakerlisteUrl = deltakerOversiktLenke(hentMiljø());
 
   const { id } = params;
-  if (!id) {
-    throw Error("Mangler id");
-  }
+  if (!id) throw Error("Mangler id");
 
-  const { data: krav } = await ArrangorflateService.getRefusjonkrav({
+  const { data: krav, error: errorKrav } = await ArrangorflateService.getRefusjonkrav({
     path: { id },
     headers: await apiHeaders(request),
   });
-  const { data: relevanteForslag } = await ArrangorflateService.getRelevanteForslag({
-    path: { id },
-    headers: await apiHeaders(request),
-  });
-  if (!krav || !relevanteForslag) {
-    throw Error("Fant ikke refusjonskrav");
+  const { data: relevanteForslag, error: errorForslag } =
+    await ArrangorflateService.getRelevanteForslag({
+      path: { id },
+      headers: await apiHeaders(request),
+    });
+  if (errorKrav || errorForslag || !krav || !relevanteForslag) {
+    throw errorKrav ?? errorForslag;
   }
 
   return { krav, deltakerlisteUrl, relevanteForslag };

@@ -275,11 +275,6 @@ fun Application.configureAuthentication(
                     .filter { AltinnRessurs.TILTAK_ARRANGOR_REFUSJON in it.rettigheter }
                     .map { it.organisasjonsnummer }
 
-                // TILTAK_ARRANGOR_REFUSJON rettighet hos minst én bedrift
-                if (organisasjonsnummer.isEmpty()) {
-                    return@validate null
-                }
-
                 ArrangorflatePrincipal(organisasjonsnummer, JWTPrincipal(credentials.payload))
             }
         }

@@ -17,6 +17,7 @@ import { useOrgnrFromUrl } from "~/utils";
 import { getCurrentTab } from "~/utils/currentTab";
 import { Separator } from "../components/Separator";
 import { apiHeaders } from "~/auth/auth.server";
+import { isValidationError } from "@mr/frontend-common/utils/utils";
 
 type BekreftRefusjonskravData = {
   krav: RefusjonKravAft;
@@ -32,9 +33,7 @@ export const loader: LoaderFunction = async ({
   params,
 }): Promise<BekreftRefusjonskravData> => {
   const { id } = params;
-  if (!id) {
-    throw Error("Mangler id");
-  }
+  if (!id) throw Error("Mangler id");
 
   const [krav, tilsagn] = await Promise.all([
     ArrangorflateService.getRefusjonkrav({
@@ -46,8 +45,8 @@ export const loader: LoaderFunction = async ({
       headers: await apiHeaders(request),
     }),
   ]);
-  if (!krav?.data || !tilsagn?.data) {
-    throw Error("Fant ikke refusjonskrav");
+  if (krav.error || tilsagn.error || !krav?.data || !tilsagn?.data) {
+    throw krav.error ?? tilsagn.error;
   }
 
   return { krav: krav.data, tilsagn: tilsagn.data };
@@ -96,10 +95,10 @@ export const action: ActionFunction = async ({ request }) => {
       `${internalNavigation(orgnr).kvittering(refusjonskravId)}?forside-tab=${currentTab}`,
     );
   } else {
-    // Remix revaliderer loader data ved actions, så når denne feilmeldingen vises skal allerede kravet
-    // være oppdatert. Det kan hende vi i fremtiden vil vise _hva_ som har endret seg også, men det
-    // får vi ta senere.
-    return { errors: error.errors };
+    if (isValidationError(error)) {
+      return { errors: error.errors };
+    }
+    throw error;
   }
 };
 

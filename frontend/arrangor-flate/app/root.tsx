@@ -1,6 +1,6 @@
 import { Arrangor, ArrangorflateService } from "@mr/api-client-v2";
 import { BodyShort, Box, Heading } from "@navikt/ds-react";
-import { LoaderFunction } from "react-router";
+import { LoaderFunction, redirect } from "react-router";
 import {
   isRouteErrorResponse,
   Links,
@@ -13,7 +13,7 @@ import {
   useRouteError,
 } from "react-router";
 import parse from "html-react-parser";
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 import { Header } from "./components/Header";
 import css from "./root.module.css";
 import { Dekoratørfragmenter, hentSsrDekoratør } from "./services/dekoratør/dekorator.server";
@@ -84,13 +84,14 @@ function Dokument({
 export const ErrorBoundary = () => {
   const error = useRouteError();
 
-  useEffect(() => {
-    if (isRouteErrorResponse(error) && error.status === 401) {
-      redirectTilInnlogging();
-    }
-  });
-
   if (isRouteErrorResponse(error)) {
+    if (error.status === 401) {
+      return redirectTilInnlogging();
+    }
+    if (error.status === 403) {
+      return redirect(`ingen-tilgang`);
+    }
+
     return (
       <Dokument arrangorer={[]}>
         <Heading spacing size="large" level="2">
