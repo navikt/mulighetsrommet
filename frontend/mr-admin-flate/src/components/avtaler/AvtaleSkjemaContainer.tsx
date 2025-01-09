@@ -1,7 +1,6 @@
 import { avtaleDetaljerTabAtom } from "@/api/atoms";
 import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
 import { AvtaleSchema, InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
-import { RedaksjoneltInnholdBunnKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdBunnKnapperad";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -18,7 +17,7 @@ import {
 } from "@mr/api-client";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { isValidationError } from "@mr/frontend-common/utils/utils";
-import { Tabs } from "@navikt/ds-react";
+import { Box, Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import React, { useCallback } from "react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
@@ -182,35 +181,41 @@ export function AvtaleSkjemaContainer({
             <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus} onClose={onClose} />
           </Tabs.List>
           <Tabs.Panel value="detaljer">
-            <AvtaleSkjemaDetaljer
-              avtale={avtale}
-              tiltakstyper={props.tiltakstyper}
-              ansatt={ansatt}
-              enheter={props.enheter}
-            />
+            <Box marginBlock="4">
+              <AvtaleSkjemaDetaljer
+                avtale={avtale}
+                tiltakstyper={props.tiltakstyper}
+                ansatt={ansatt}
+                enheter={props.enheter}
+              />
+            </Box>
           </Tabs.Panel>
           {enableOkonomi && (
             <Tabs.Panel value="pris-og-fakturering">
               <InlineErrorBoundary>
-                <AvtalePrisOgFakturering tiltakstype={watchedTiltakstype} />
+                <Box marginBlock="4">
+                  <AvtalePrisOgFakturering tiltakstype={watchedTiltakstype} />
+                </Box>
               </InlineErrorBoundary>
             </Tabs.Panel>
           )}
           <Tabs.Panel value="personvern">
             <InlineErrorBoundary>
               <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
-                <AvtalePersonvernForm tiltakstype={watchedTiltakstype} />
+                <Box marginBlock="4">
+                  <AvtalePersonvernForm tiltakstype={watchedTiltakstype} />
+                </Box>
               </React.Suspense>
             </InlineErrorBoundary>
           </Tabs.Panel>
           <Tabs.Panel value="redaksjonelt-innhold">
-            <AvtaleRedaksjoneltInnholdForm tiltakstype={watchedTiltakstype} />
+            <Box marginBlock="4">
+              <AvtaleRedaksjoneltInnholdForm tiltakstype={watchedTiltakstype} />
+            </Box>
           </Tabs.Panel>
         </Tabs>
         <Separator />
-        <RedaksjoneltInnholdBunnKnapperad>
-          <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus} onClose={onClose} />
-        </RedaksjoneltInnholdBunnKnapperad>
+        <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus} onClose={onClose} />
       </form>
     </FormProvider>
   );

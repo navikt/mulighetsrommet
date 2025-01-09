@@ -3,14 +3,13 @@ import { AvtaleSkjemaContainer } from "@/components/avtaler/AvtaleSkjemaContaine
 import { Header } from "@/components/detaljside/Header";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { SkjemaContainer } from "@/components/skjema/SkjemaContainer";
-import { SkjemaContent } from "@/components/skjema/SkjemaContent";
 import { AvtalestatusTag } from "@/components/statuselementer/AvtalestatusTag";
-import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { inneholderUrl } from "@/utils/Utils";
 import { Heading } from "@navikt/ds-react";
 import { useLoaderData, useLocation, useNavigate } from "react-router";
 import { avtaleSkjemaLoader } from "./avtaleLoader";
+import { ContentBox } from "@/layouts/ContentBox";
+import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 
 export function AvtaleSkjemaPage() {
   const navigate = useNavigate();
@@ -47,25 +46,22 @@ export function AvtaleSkjemaPage() {
         </Heading>
         {avtale ? <AvtalestatusTag avtale={avtale} showAvbruttAarsak /> : null}
       </Header>
-
-      <ContainerLayout>
-        <SkjemaContainer>
-          <SkjemaContent>
-            <AvtaleSkjemaContainer
-              onClose={() => {
-                navigerTilbake();
-              }}
-              onSuccess={(id) => navigate(`/avtaler/${id}`)}
-              tiltakstyper={tiltakstyper.data}
-              ansatt={ansatt}
-              enheter={enheter}
-              avtale={avtale}
-              defaultValues={defaultAvtaleData(ansatt, location.state?.dupliserAvtale ?? avtale)}
-              redigeringsModus={redigeringsModus}
-            />
-          </SkjemaContent>
-        </SkjemaContainer>
-      </ContainerLayout>
+      <ContentBox>
+        <WhitePaddedBox>
+          <AvtaleSkjemaContainer
+            onClose={() => {
+              navigerTilbake();
+            }}
+            onSuccess={(id) => navigate(`/avtaler/${id}`)}
+            tiltakstyper={tiltakstyper.data}
+            ansatt={ansatt}
+            enheter={enheter}
+            avtale={avtale}
+            defaultValues={defaultAvtaleData(ansatt, location.state?.dupliserAvtale ?? avtale)}
+            redigeringsModus={redigeringsModus}
+          />
+        </WhitePaddedBox>
+      </ContentBox>
     </main>
   );
 }

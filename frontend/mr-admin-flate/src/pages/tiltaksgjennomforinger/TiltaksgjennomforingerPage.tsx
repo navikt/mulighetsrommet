@@ -5,9 +5,8 @@ import { TiltaksgjennomforingFiltertags } from "@/components/filter/Tiltaksgjenn
 import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
 import { TiltaksgjennomforingsTabell } from "@/components/tabell/TiltaksgjennomforingsTabell";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
-import { ContainerLayout } from "@/layouts/ContainerLayout";
+import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
-import { MainContainer } from "@/layouts/MainContainer";
 import { NullstillKnappForTiltaksgjennomforinger } from "@/pages/tiltaksgjennomforinger/NullstillKnappForTiltaksgjennomforinger";
 import { LagretDokumenttype } from "@mr/api-client";
 import { LagredeFilterOversikt, useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
@@ -25,47 +24,43 @@ export function TiltaksgjennomforingerPage() {
   return (
     <>
       <HeaderBanner heading="Oversikt over gjennomføringer" ikon={<TiltaksgjennomforingIkon />} />
-      <MainContainer>
-        <ContainerLayout>
-          <FilterAndTableLayout
-            filter={<TiltaksgjennomforingFilter filterAtom={tiltaksgjennomforingfilterAtom} />}
-            lagredeFilter={
-              <LagredeFilterOversikt
-                setFilter={setFilter}
-                filter={filter}
-                dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING}
-                validateFilterStructure={(filter) => {
-                  return TiltaksgjennomforingFilterSchema.safeParse(filter).success;
-                }}
-              />
-            }
-            tags={
-              <TiltaksgjennomforingFiltertags
+      <ContentBox>
+        <FilterAndTableLayout
+          filter={<TiltaksgjennomforingFilter filterAtom={tiltaksgjennomforingfilterAtom} />}
+          lagredeFilter={
+            <LagredeFilterOversikt
+              setFilter={setFilter}
+              filter={filter}
+              dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING}
+              validateFilterStructure={(filter) => {
+                return TiltaksgjennomforingFilterSchema.safeParse(filter).success;
+              }}
+            />
+          }
+          tags={
+            <TiltaksgjennomforingFiltertags
+              filterAtom={tiltaksgjennomforingfilterAtom}
+              filterOpen={filterOpen}
+              setTagsHeight={setTagsHeight}
+            />
+          }
+          buttons={<TiltaksgjennomforingFilterButtons />}
+          table={
+            <ReloadAppErrorBoundary>
+              <TiltaksgjennomforingsTabell
                 filterAtom={tiltaksgjennomforingfilterAtom}
+                tagsHeight={tagsHeight}
                 filterOpen={filterOpen}
-                setTagsHeight={setTagsHeight}
               />
-            }
-            buttons={<TiltaksgjennomforingFilterButtons />}
-            table={
-              <ReloadAppErrorBoundary>
-                <TiltaksgjennomforingsTabell
-                  filterAtom={tiltaksgjennomforingfilterAtom}
-                  tagsHeight={tagsHeight}
-                  filterOpen={filterOpen}
-                />
-              </ReloadAppErrorBoundary>
-            }
-            filterOpen={filterOpen}
-            setFilterOpen={setFilterOpen}
-            nullstillFilterButton={
-              <NullstillKnappForTiltaksgjennomforinger
-                filterAtom={tiltaksgjennomforingfilterAtom}
-              />
-            }
-          />
-        </ContainerLayout>
-      </MainContainer>
+            </ReloadAppErrorBoundary>
+          }
+          filterOpen={filterOpen}
+          setFilterOpen={setFilterOpen}
+          nullstillFilterButton={
+            <NullstillKnappForTiltaksgjennomforinger filterAtom={tiltaksgjennomforingfilterAtom} />
+          }
+        />
+      </ContentBox>
       <TilToppenKnapp />
     </>
   );

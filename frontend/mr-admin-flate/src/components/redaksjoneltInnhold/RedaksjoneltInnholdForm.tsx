@@ -11,7 +11,6 @@ import { FileTextIcon, LinkIcon, PaperplaneIcon } from "@navikt/aksel-icons";
 import { Lenker } from "../lenker/Lenker";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
-import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
 import { FaneinnholdContainer } from "@/components/redaksjoneltInnhold/FaneinnholdContainer";
 import { DescriptionRichtextContainer } from "@/components/redaksjoneltInnhold/DescriptionRichtextContainer";
 import { RedaksjoneltInnholdTabTittel } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdTabTittel";
@@ -35,7 +34,7 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
   const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakstype.id);
 
   return (
-    <SkjemaDetaljerContainer>
+    <>
       <HStack justify="space-between" align="start" gap="2">
         <Alert size="small" variant="info">
           Ikke del personopplysninger i fritekstfeltene
@@ -127,7 +126,7 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
           </Tabs.Panel>
         </Tabs>
       </RedaksjoneltInnholdContainer>
-    </SkjemaDetaljerContainer>
+    </>
   );
 }
 

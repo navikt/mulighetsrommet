@@ -2,7 +2,6 @@ import { useBesluttTilsagn } from "@/api/tilsagn/useBesluttTilsagn";
 import { Header } from "@/components/detaljside/Header";
 import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { ContainerLayout } from "@/layouts/ContainerLayout";
 import {
   BesluttTilsagnRequest,
   NavAnsattRolle,
@@ -31,6 +30,7 @@ import {
   isTilsagnFri,
 } from "@/pages/tiltaksgjennomforinger/tilsagn/tilsagnUtils";
 import { TilsagnDetaljerFri } from "@/pages/tiltaksgjennomforinger/tilsagn/detaljer/TilsagnDetaljerFri";
+import { ContentBox } from "@/layouts/ContentBox";
 
 export function TilsagnDetaljer() {
   const { gjennomforing, tilsagn, ansatt, historikk } =
@@ -137,7 +137,7 @@ export function TilsagnDetaljer() {
           </HStack>
         </Heading>
       </Header>
-      <ContainerLayout>
+      <ContentBox>
         <Box background="bg-default" padding={"5"}>
           <HStack gap="2" justify={"end"}>
             <EndringshistorikkPopover>
@@ -287,7 +287,7 @@ export function TilsagnDetaljer() {
             </div>
           </Box>
         </Box>
-      </ContainerLayout>
+      </ContentBox>
     </main>
   );
 }

@@ -1,7 +1,6 @@
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { useUpsertTiltaksgjennomforing } from "@/api/tiltaksgjennomforing/useUpsertTiltaksgjennomforing";
 import { Laster } from "@/components/laster/Laster";
-import { RedaksjoneltInnholdBunnKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdBunnKnapperad";
 import {
   InferredTiltaksgjennomforingSchema,
   TiltaksgjennomforingSchema,
@@ -17,7 +16,7 @@ import {
 } from "@mr/api-client";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { isValidationError } from "@mr/frontend-common/utils/utils";
-import { Tabs } from "@navikt/ds-react";
+import { Box, Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import React, { useCallback } from "react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
@@ -177,25 +176,27 @@ export function TiltaksgjennomforingSkjemaContainer({
           <Tabs.Panel value="detaljer">
             <InlineErrorBoundary>
               <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
-                <TiltaksgjennomforingSkjemaDetaljer
-                  avtale={avtale}
-                  tiltaksgjennomforing={tiltaksgjennomforing}
-                />
+                <Box marginBlock="4">
+                  <TiltaksgjennomforingSkjemaDetaljer
+                    avtale={avtale}
+                    tiltaksgjennomforing={tiltaksgjennomforing}
+                  />
+                </Box>
               </React.Suspense>
             </InlineErrorBoundary>
           </Tabs.Panel>
           <Tabs.Panel value="redaksjonelt-innhold">
-            <TiltakgjennomforingRedaksjoneltInnholdForm avtale={avtale} />
+            <Box marginBlock="4">
+              <TiltakgjennomforingRedaksjoneltInnholdForm avtale={avtale} />
+            </Box>
           </Tabs.Panel>
         </Tabs>
         <Separator />
-        <RedaksjoneltInnholdBunnKnapperad>
-          <TiltaksgjennomforingSkjemaKnapperad
-            redigeringsModus={redigeringsModus}
-            onClose={onClose}
-            mutation={mutation}
-          />
-        </RedaksjoneltInnholdBunnKnapperad>
+        <TiltaksgjennomforingSkjemaKnapperad
+          redigeringsModus={redigeringsModus}
+          onClose={onClose}
+          mutation={mutation}
+        />
       </form>
     </FormProvider>
   );

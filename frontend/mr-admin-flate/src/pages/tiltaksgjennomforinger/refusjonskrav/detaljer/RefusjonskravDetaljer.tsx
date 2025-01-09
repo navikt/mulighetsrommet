@@ -1,7 +1,6 @@
 import { Header } from "@/components/detaljside/Header";
 import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { Heading, HStack } from "@navikt/ds-react";
 import { useLoaderData, useMatch, useParams } from "react-router";
 import { refusjonskravDetaljerLoader } from "./refusjonskravDetaljerLoader";
@@ -10,6 +9,8 @@ import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata } from "@/components/detaljside/Metadata";
 import { formaterDato } from "@/utils/Utils";
 import { RefusjonskravStatusTag } from "../RefusjonskravStatusTag";
+import { ContentBox } from "@/layouts/ContentBox";
+import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 
 export function RefusjonskravDetaljer() {
   const { gjennomforing, refusjonskrav } = useLoaderData<typeof refusjonskravDetaljerLoader>();
@@ -51,7 +52,7 @@ export function RefusjonskravDetaljer() {
   ];
 
   return (
-    <main>
+    <>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <TiltaksgjennomforingIkon />
@@ -61,25 +62,27 @@ export function RefusjonskravDetaljer() {
           </HStack>
         </Heading>
       </Header>
-      <ContainerLayout>
-        <HStack padding="5">
-          <DetaljerInfoContainer withBorderRight>
-            <Bolk>
-              <Metadata
-                header="Refusjonskravperiode"
-                verdi={`${formaterDato(refusjonskrav.beregning.periodeStart)} - ${formaterDato(refusjonskrav.beregning.periodeSlutt)}`}
-              />
-              <Metadata
-                header="Status"
-                verdi={<RefusjonskravStatusTag status={refusjonskrav.status} />}
-              />
-            </Bolk>
-            <Bolk>
-              <Metadata header="Beløp" verdi={refusjonskrav.beregning.belop} />
-            </Bolk>
-          </DetaljerInfoContainer>
-        </HStack>
-      </ContainerLayout>
-    </main>
+      <ContentBox>
+        <WhitePaddedBox>
+          <HStack padding="5">
+            <DetaljerInfoContainer>
+              <Bolk>
+                <Metadata
+                  header="Refusjonskravperiode"
+                  verdi={`${formaterDato(refusjonskrav.beregning.periodeStart)} - ${formaterDato(refusjonskrav.beregning.periodeSlutt)}`}
+                />
+                <Metadata
+                  header="Status"
+                  verdi={<RefusjonskravStatusTag status={refusjonskrav.status} />}
+                />
+              </Bolk>
+              <Bolk>
+                <Metadata header="Beløp" verdi={refusjonskrav.beregning.belop} />
+              </Bolk>
+            </DetaljerInfoContainer>
+          </HStack>
+        </WhitePaddedBox>
+      </ContentBox>
+    </>
   );
 }

@@ -6,7 +6,6 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { DupliserTiltak } from "@/components/tiltaksgjennomforinger/DupliserTiltak";
 import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "@/constants";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
-import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { Toggles } from "@mr/api-client";
 import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
@@ -16,6 +15,7 @@ import classNames from "classnames";
 import { Outlet, useLoaderData, useLocation, useParams } from "react-router";
 import commonStyles from "../Page.module.scss";
 import { tiltaksgjennomforingLoader } from "./tiltaksgjennomforingLoaders";
+import { ContentBox } from "@/layouts/ContentBox";
 
 function createBrodsmuler(
   tiltaksgjennomforingId: string,
@@ -149,11 +149,11 @@ export function TiltaksgjennomforingPage() {
             </>
           ) : null}
         </Tabs.List>
-        <ContainerLayout>
+        <ContentBox>
           <div id="panel">
             <Outlet />
           </div>
-        </ContainerLayout>
+        </ContentBox>
       </Tabs>
     </main>
   );

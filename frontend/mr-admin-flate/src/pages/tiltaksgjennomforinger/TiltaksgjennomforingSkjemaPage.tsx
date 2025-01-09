@@ -1,17 +1,15 @@
 import { Header } from "@/components/detaljside/Header";
 import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { SkjemaContainer } from "@/components/skjema/SkjemaContainer";
-import { SkjemaContent } from "@/components/skjema/SkjemaContent";
 import { defaultTiltaksgjennomforingData } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
 import { TiltaksgjennomforingSkjemaContainer } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaContainer";
 import { ErrorMeldinger } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaErrors";
-import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { avtaleHarRegioner, inneholderUrl } from "@/utils/Utils";
 import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
-import { Alert, Heading } from "@navikt/ds-react";
+import { Alert, Box, Heading } from "@navikt/ds-react";
 import { useLoaderData, useLocation, useMatch, useNavigate, useParams } from "react-router";
 import { tiltaksgjennomforingSkjemaLoader } from "./tiltaksgjennomforingLoaders";
+import { ContentBox } from "@/layouts/ContentBox";
 
 export function TiltaksgjennomforingSkjemaPage() {
   const navigate = useNavigate();
@@ -30,33 +28,6 @@ export function TiltaksgjennomforingSkjemaPage() {
   };
 
   const isError = !avtale || !avtaleHarRegioner(avtale);
-
-  let content = null;
-  if (isError) {
-    content = <Alert variant="error">{ErrorMeldinger(avtale)}</Alert>;
-  } else if (avtale && ansatt) {
-    content = (
-      <TiltaksgjennomforingSkjemaContainer
-        onClose={() => {
-          navigerTilbake();
-        }}
-        onSuccess={(id) =>
-          navigate(
-            avtaleId
-              ? `/avtaler/${avtaleId}/tiltaksgjennomforinger/${id}`
-              : `/tiltaksgjennomforinger/${id}`,
-          )
-        }
-        avtale={avtale}
-        tiltaksgjennomforing={tiltaksgjennomforing}
-        defaultValues={defaultTiltaksgjennomforingData(
-          ansatt,
-          avtale,
-          location.state?.dupliserTiltaksgjennomforing ?? tiltaksgjennomforing,
-        )}
-      />
-    );
-  }
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     avtaleId
@@ -102,11 +73,32 @@ export function TiltaksgjennomforingSkjemaPage() {
           <GjennomforingStatusMedAarsakTag status={tiltaksgjennomforing.status} />
         ) : null}
       </Header>
-      <ContainerLayout>
-        <SkjemaContainer>
-          <SkjemaContent>{content}</SkjemaContent>
-        </SkjemaContainer>
-      </ContainerLayout>
+      <ContentBox>
+        <Box padding="4" background="bg-default">
+          {isError && <Alert variant="error">{ErrorMeldinger(avtale)}</Alert>}
+          {avtale && ansatt && (
+            <TiltaksgjennomforingSkjemaContainer
+              onClose={() => {
+                navigerTilbake();
+              }}
+              onSuccess={(id) =>
+                navigate(
+                  avtaleId
+                    ? `/avtaler/${avtaleId}/tiltaksgjennomforinger/${id}`
+                    : `/tiltaksgjennomforinger/${id}`,
+                )
+              }
+              avtale={avtale}
+              tiltaksgjennomforing={tiltaksgjennomforing}
+              defaultValues={defaultTiltaksgjennomforingData(
+                ansatt,
+                avtale,
+                location.state?.dupliserTiltaksgjennomforing ?? tiltaksgjennomforing,
+              )}
+            />
+          )}
+        </Box>
+      </ContentBox>
     </main>
   );
 }

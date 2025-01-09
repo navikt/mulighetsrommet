@@ -8,7 +8,6 @@ import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSch
 import { RedaksjoneltInnholdModalContainer } from "@/components/modal/RedaksjoneltInnholdModalContainer";
 import { RedaksjoneltInnholdModalBody } from "@/components/modal/RedaksjoneltInnholdModalBody";
 import { RedaksjoneltInnholdToppKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdToppKnapperad";
-import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
 
 interface Props {
   tiltakstype?: EmbeddedTiltakstype;
@@ -29,9 +28,7 @@ export function AvtaleRedaksjoneltInnholdForm({ tiltakstype }: Props) {
 
   if (!tiltakstype) {
     return (
-      <SkjemaDetaljerContainer>
-        <Alert variant="info">Tiltakstype må velges før redaksjonelt innhold kan redigeres.</Alert>
-      </SkjemaDetaljerContainer>
+      <Alert variant="info">Tiltakstype må velges før redaksjonelt innhold kan redigeres.</Alert>
     );
   }
 

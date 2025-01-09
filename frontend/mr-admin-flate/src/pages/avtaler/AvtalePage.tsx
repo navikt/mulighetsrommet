@@ -5,14 +5,13 @@ import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { AvtalestatusTag } from "@/components/statuselementer/AvtalestatusTag";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
-import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { useTitle } from "@mr/frontend-common";
 import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
 import { Link, Outlet, useLocation, useMatch } from "react-router";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import commonStyles from "../Page.module.scss";
-import styles from "./AvtalePage.module.scss";
 import { Laster } from "../../components/laster/Laster";
+import { ContentBox } from "@/layouts/ContentBox";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const erPaaGjennomforingerForAvtale = useMatch("/avtaler/:avtaleId/tiltaksgjennomforinger");
@@ -64,7 +63,7 @@ export function AvtalePage() {
   };
 
   return (
-    <main className={styles.avtaleinfo}>
+    <>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <div className={headerStyles.tiltaksnavn_status}>
@@ -94,12 +93,12 @@ export function AvtalePage() {
             data-testid="gjennomforinger-tab"
           />
         </Tabs.List>
-        <ContainerLayout>
+        <ContentBox>
           <div id="panel">
             <Outlet />
           </div>
-        </ContainerLayout>
+        </ContentBox>
       </Tabs>
-    </main>
+    </>
   );
 }
