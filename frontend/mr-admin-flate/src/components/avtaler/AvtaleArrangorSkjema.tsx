@@ -2,7 +2,7 @@ import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktper
 import { useSyncArrangorFromBrreg } from "@/api/arrangor/useSyncArrangorFromBrreg";
 import { useBrregVirksomhetUnderenheter } from "@/api/virksomhet/useBrregVirksomhetUnderenheter";
 import { useSokBrregVirksomheter } from "@/api/virksomhet/useSokBrregVirksomheter";
-import { Alert, Button } from "@navikt/ds-react";
+import { Alert, Button, VStack } from "@navikt/ds-react";
 import {
   Arrangor,
   ArrangorKontaktperson,
@@ -18,7 +18,6 @@ import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "@/components/skjema/FormGroup";
-import { ArrangorKontaktpersonContainer } from "@/components/skjema/ArrangorKontaktpersonContainer";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 
 interface Props {
@@ -85,7 +84,7 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
         />
       </FormGroup>
       <FormGroup>
-        <ArrangorKontaktpersonContainer>
+        <VStack>
           <ControlledMultiSelect
             size="small"
             placeholder="Velg kontaktpersoner"
@@ -108,7 +107,7 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
             onClick={() => arrangorKontaktpersonerModalRef.current?.showModal()}
             knappetekst="Opprett eller rediger kontaktpersoner"
           />
-        </ArrangorKontaktpersonContainer>
+        </VStack>
       </FormGroup>
       {arrangor && (
         <ArrangorKontaktpersonerModal

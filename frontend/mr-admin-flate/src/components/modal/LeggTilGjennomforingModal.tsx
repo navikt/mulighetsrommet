@@ -4,8 +4,6 @@ import { useState } from "react";
 import { AvtaleDto, TiltaksgjennomforingDto } from "@mr/api-client";
 import { TiltaksgjennomforingerListe } from "../tiltaksgjennomforinger/TiltaksgjennomforingerListe";
 import { Link } from "react-router";
-import { RedaksjoneltInnholdModalContainer } from "@/components/modal/RedaksjoneltInnholdModalContainer";
-import { RedaksjoneltInnholdModalBody } from "@/components/modal/RedaksjoneltInnholdModalBody";
 
 interface Props {
   avtale: AvtaleDto;
@@ -39,12 +37,17 @@ export function LeggTilGjennomforingModal({ avtale, modalOpen, onClose }: Props)
   };
 
   return (
-    <RedaksjoneltInnholdModalContainer modalOpen={modalOpen} onClose={clickCancel}>
+    <Modal
+      open={modalOpen}
+      onClose={clickCancel}
+      style={{ maxHeight: "70rem" }}
+      aria-label="modal"
+      width="50rem"
+    >
       <Modal.Header closeButton>
         <Heading size="medium">Legg til eller fjern gjennomføring fra avtalen</Heading>
       </Modal.Header>
-
-      <RedaksjoneltInnholdModalBody>
+      <Modal.Body style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
         <Search
           label="Søk på navn eller tiltaksnummer"
           variant="simple"
@@ -94,7 +97,7 @@ export function LeggTilGjennomforingModal({ avtale, modalOpen, onClose }: Props)
             }
           />
         )}
-      </RedaksjoneltInnholdModalBody>
-    </RedaksjoneltInnholdModalContainer>
+      </Modal.Body>
+    </Modal>
   );
 }

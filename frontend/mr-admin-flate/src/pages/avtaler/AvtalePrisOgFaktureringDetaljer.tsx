@@ -1,15 +1,14 @@
 import { useForhandsgodkjenteSatser } from "@/api/tilsagn/useForhandsgodkjenteSatser";
-import { HGrid, HStack, VStack } from "@navikt/ds-react";
+import { Box, HStack, VStack } from "@navikt/ds-react";
 import { avtaleLoader } from "@/pages/avtaler/avtaleLoader";
 import { useLoaderData } from "react-router";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata } from "@/components/detaljside/Metadata";
 import { AvtaleDto, Prismodell } from "@mr/api-client";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { BorderedContainer } from "@/components/skjema/BorderedContainer";
 import { formaterDato } from "@/utils/Utils";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
-import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
+import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 
 export function AvtalePrisOgFaktureringDetaljer() {
   const { avtale } = useLoaderData<typeof avtaleLoader>();
@@ -17,8 +16,8 @@ export function AvtalePrisOgFaktureringDetaljer() {
   const prismodell = avtale.prismodell;
 
   return (
-    <HGrid columns={2} align="start">
-      <DetaljerInfoContainer>
+    <TwoColumnGrid separator>
+      <VStack>
         <Bolk>
           <Metadata header={avtaletekster.tiltakstypeLabel} verdi={avtale.tiltakstype.navn} />
         </Bolk>
@@ -33,8 +32,8 @@ export function AvtalePrisOgFaktureringDetaljer() {
         {prismodell === Prismodell.FORHANDSGODKJENT && (
           <ForhandsgodkjentAvtalePrismodell avtale={avtale} />
         )}
-      </DetaljerInfoContainer>
-    </HGrid>
+      </VStack>
+    </TwoColumnGrid>
   );
 }
 
@@ -50,7 +49,13 @@ function ForhandsgodkjentAvtalePrismodell({ avtale }: ForhandsgodkjentAvtalePris
   return (
     <VStack gap="4">
       {satser.map((sats) => (
-        <BorderedContainer key={sats.periodeStart}>
+        <Box
+          padding="4"
+          borderColor="border-subtle"
+          borderRadius="large"
+          borderWidth="1"
+          key={sats.periodeStart}
+        >
           <HStack gap="4">
             <Metadata header={avtaletekster.prismodell.valuta.label} verdi={sats.valuta} />
 
@@ -69,7 +74,7 @@ function ForhandsgodkjentAvtalePrismodell({ avtale }: ForhandsgodkjentAvtalePris
               verdi={formaterDato(sats.periodeSlutt)}
             />
           </HStack>
-        </BorderedContainer>
+        </Box>
       ))}
     </VStack>
   );

@@ -1,4 +1,4 @@
-import { Alert, HGrid, HStack, Select, TextField, VStack } from "@navikt/ds-react";
+import { Alert, Box, HGrid, HStack, Select, TextField, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { Avtaletype, EmbeddedTiltakstype, Prismodell, Tiltakskode } from "@mr/api-client";
@@ -7,7 +7,6 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { useForhandsgodkjenteSatser } from "@/api/tilsagn/useForhandsgodkjenteSatser";
 import { DateInput } from "@/components/skjema/DateInput";
-import { BorderedContainer } from "@/components/skjema/BorderedContainer";
 
 interface Props {
   tiltakstype?: EmbeddedTiltakstype;
@@ -98,7 +97,13 @@ function ForhandsgodkjentAvtalePrismodell({ tiltakstype }: ForhandsgodkjentAvtal
   return (
     <VStack gap="4">
       {satser.map((sats) => (
-        <BorderedContainer key={sats.periodeStart}>
+        <Box
+          padding="4"
+          borderColor="border-subtle"
+          borderRadius="large"
+          borderWidth="1"
+          key={sats.periodeStart}
+        >
           <HStack key={sats.periodeStart} gap="4">
             <Select readOnly label="Valuta" size="small">
               <option value={undefined}>{sats.valuta}</option>
@@ -133,7 +138,7 @@ function ForhandsgodkjentAvtalePrismodell({ tiltakstype }: ForhandsgodkjentAvtal
               value={sats.periodeSlutt}
             />
           </HStack>
-        </BorderedContainer>
+        </Box>
       ))}
     </VStack>
   );
