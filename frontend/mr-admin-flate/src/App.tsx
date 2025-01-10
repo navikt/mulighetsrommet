@@ -83,10 +83,10 @@ export function App() {
 
   return (
     <Page background="bg-subtle">
-      <Page.Block as="header" width="2xl">
+      <Page.Block as="header" className="max-w-[1920px]">
         <AdministratorHeader />
       </Page.Block>
-      <Page.Block as="main" width="2xl">
+      <Page.Block as="main" className="max-w-[1920px]">
         <Outlet />
       </Page.Block>
     </Page>
