@@ -31,6 +31,7 @@ import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
 import { AvtaleDatoContainer } from "./avtaledatoer/AvtaleDatoContainer";
 import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
 import { opsjonsmodeller } from "./opsjoner/opsjonsmodeller";
+import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 
 interface Props {
   tiltakstyper: TiltakstypeDto[];
@@ -103,7 +104,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   ).length;
 
   return (
-    <HGrid gap="6" columns="repeat(auto-fit, minmax(450px, 1fr))">
+    <TwoColumnGrid separator>
       <SkjemaKolonne>
         <FormGroup>
           <TextField
@@ -259,7 +260,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
           <AvtaleArrangorSkjema readOnly={false} />
         </FormGroup>
       </SkjemaKolonne>
-    </HGrid>
+    </TwoColumnGrid>
   );
 }
 

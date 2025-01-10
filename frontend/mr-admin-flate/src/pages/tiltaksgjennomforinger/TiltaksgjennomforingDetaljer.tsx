@@ -8,7 +8,6 @@ import { tiltaktekster } from "@/components/ledetekster/tiltaksgjennomforingLede
 import { NokkeltallDeltakere } from "@/components/tiltaksgjennomforinger/NokkeltallDeltakere";
 import { TiltakTilgjengeligForArrangor } from "@/components/tiltaksgjennomforinger/TilgjengeligTiltakForArrangor";
 import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
-import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
 import { ArrangorKontaktinfoContainer } from "@/pages/arrangor/ArrangorKontaktinfoContainer";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { Kontaktperson } from "@/pages/tiltaksgjennomforinger/Kontaktperson";
@@ -22,9 +21,10 @@ import { useTitle } from "@mr/frontend-common";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { BodyShort, HelpText, HGrid, HStack, Tag } from "@navikt/ds-react";
+import { BodyShort, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
 import { Link } from "react-router";
 import styles from "./TiltaksgjennomforingDetaljer.module.scss";
+import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 
 interface Props {
   tiltaksgjennomforing: TiltaksgjennomforingDto;
@@ -77,8 +77,8 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
 
   return (
     <>
-      <HGrid columns={2} align="start">
-        <DetaljerInfoContainer>
+      <TwoColumnGrid separator>
+        <VStack>
           <Bolk aria-label="Tiltaksnavn og tiltaksnummer" data-testid="tiltaksnavn">
             <Metadata header={tiltaktekster.tiltaksnavnLabel} verdi={tiltaksgjennomforing.navn} />
             <Metadata
@@ -195,9 +195,8 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
               }
             />
           </Bolk>
-        </DetaljerInfoContainer>
-
-        <DetaljerInfoContainer>
+        </VStack>
+        <VStack>
           <Bolk aria-label={tiltaktekster.navRegionLabel}>
             <Metadata header={tiltaktekster.navRegionLabel} verdi={navRegion?.navn} />
           </Bolk>
@@ -302,9 +301,8 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
             </>
           )}
           <TiltakTilgjengeligForArrangor gjennomforing={tiltaksgjennomforing} />
-        </DetaljerInfoContainer>
-      </HGrid>
-
+        </VStack>
+      </TwoColumnGrid>
       <NokkeltallDeltakere gjennomforingId={tiltaksgjennomforing.id} />
     </>
   );

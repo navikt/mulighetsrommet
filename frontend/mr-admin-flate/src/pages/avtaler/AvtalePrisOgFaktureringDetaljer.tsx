@@ -1,5 +1,5 @@
 import { useForhandsgodkjenteSatser } from "@/api/tilsagn/useForhandsgodkjenteSatser";
-import { HGrid, HStack, VStack } from "@navikt/ds-react";
+import { HStack, VStack } from "@navikt/ds-react";
 import { avtaleLoader } from "@/pages/avtaler/avtaleLoader";
 import { useLoaderData } from "react-router";
 import { Bolk } from "@/components/detaljside/Bolk";
@@ -9,7 +9,7 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { BorderedContainer } from "@/components/skjema/BorderedContainer";
 import { formaterDato } from "@/utils/Utils";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
-import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
+import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 
 export function AvtalePrisOgFaktureringDetaljer() {
   const { avtale } = useLoaderData<typeof avtaleLoader>();
@@ -17,8 +17,8 @@ export function AvtalePrisOgFaktureringDetaljer() {
   const prismodell = avtale.prismodell;
 
   return (
-    <HGrid columns={2} align="start">
-      <DetaljerInfoContainer>
+    <TwoColumnGrid separator>
+      <VStack>
         <Bolk>
           <Metadata header={avtaletekster.tiltakstypeLabel} verdi={avtale.tiltakstype.navn} />
         </Bolk>
@@ -33,8 +33,8 @@ export function AvtalePrisOgFaktureringDetaljer() {
         {prismodell === Prismodell.FORHANDSGODKJENT && (
           <ForhandsgodkjentAvtalePrismodell avtale={avtale} />
         )}
-      </DetaljerInfoContainer>
-    </HGrid>
+      </VStack>
+    </TwoColumnGrid>
   );
 }
 
