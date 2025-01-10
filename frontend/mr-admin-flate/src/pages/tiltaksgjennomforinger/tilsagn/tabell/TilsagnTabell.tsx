@@ -60,7 +60,6 @@ export function TilsagnTabell({ tilsagn }: Props) {
     }
     return 0;
   }
-
   const sortedData: TabellData[] = [...tilsagn]
     .map((tilsagn) => ({
       ...tilsagn,
@@ -108,7 +107,6 @@ export function TilsagnTabell({ tilsagn }: Props) {
       <Table.Body>
         {sortedData.map((tilsagn) => {
           const { periodeStart, periodeSlutt, kostnadssted, beregning, id } = tilsagn;
-
           return (
             <Table.Row key={id}>
               <Table.DataCell>{formaterDato(periodeStart)}</Table.DataCell>

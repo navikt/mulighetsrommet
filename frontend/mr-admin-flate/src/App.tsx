@@ -174,20 +174,6 @@ const router = () =>
             errorElement: <ErrorPage />,
           },
           {
-            path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId",
-            element: <TiltaksgjennomforingPage />,
-            errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingLoader,
-            children: [
-              {
-                index: true,
-                element: <TiltaksgjennomforingInfo />,
-                errorElement: <ErrorPage />,
-                loader: tiltaksgjennomforingLoader,
-              },
-            ],
-          },
-          {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId",
             element: <TiltaksgjennomforingPage />,
             errorElement: <ErrorPage />,
@@ -228,42 +214,6 @@ const router = () =>
                 loader: refusjonskravForGjennomforingLoader,
               },
             ],
-          },
-          {
-            path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema",
-            element: <TiltaksgjennomforingSkjemaPage />,
-            errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingSkjemaLoader,
-          },
-          {
-            path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/opprett-tilsagn",
-            element: <OpprettTilsagnSkjemaPage />,
-            errorElement: <ErrorPage />,
-            loader: opprettTilsagnLoader,
-          },
-          {
-            path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId",
-            element: <TilsagnDetaljer />,
-            errorElement: <ErrorPage />,
-            loader: tilsagnDetaljerLoader,
-          },
-          {
-            path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId/rediger-tilsagn",
-            element: <RedigerTilsagnSkjemaPage />,
-            errorElement: <ErrorPage />,
-            loader: redigerTilsagnLoader,
-          },
-          {
-            path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/refusjonskrav/:refusjonskravId",
-            element: <RefusjonskravDetaljer />,
-            errorElement: <ErrorPage />,
-            loader: refusjonskravDetaljerLoader,
-          },
-          {
-            path: "avtaler/:avtaleId/tiltaksgjennomforinger/skjema",
-            element: <TiltaksgjennomforingSkjemaPage />,
-            errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingSkjemaLoader,
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema",
