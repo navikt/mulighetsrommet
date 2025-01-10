@@ -6,7 +6,6 @@ import { APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
 import { CustomEmotionCacheProvider } from "./CustomEmotionCacheProvider";
 import { ModiaArbeidsmarkedstiltak } from "./ModiaArbeidsmarkedstiltak";
 import { PreviewArbeidsmarkedstiltak } from "@/apps/nav/PreviewArbeidsmarkedstiltak";
-import appCss from "../../index.css?inline";
 
 export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
   static FNR_PROP = "data-fnr";
@@ -66,7 +65,7 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
 
   async loadStyles(shadowRoot: ShadowRoot) {
     const style = document.createElement("style");
-    style.innerHTML = appCss + SHADOW_STYLE;
+    style.innerHTML = SHADOW_STYLE;
     shadowRoot.appendChild(style);
   }
 
