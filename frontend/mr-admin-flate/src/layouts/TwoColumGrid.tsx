@@ -19,7 +19,7 @@ export function TwoColumnGrid(props: Props) {
       <div className="relative lg:pl-4 md:pl-0">
         {/* Right Column Content */}
         {separator && (
-          <div className="hidden md:block absolute inset-y-0 left-0 w-px bg-gray-300 md:my-4"></div>
+          <div className="hidden lg:block absolute inset-y-0 left-0 w-px bg-gray-300 md:my-4"></div>
         )}
         {rightChild}
       </div>
