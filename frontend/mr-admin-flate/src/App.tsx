@@ -8,7 +8,6 @@ import { AdministratorHeader } from "./components/administrator/AdministratorHea
 import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
 import { initializeAmplitude } from "./logging/amplitude";
 import { ErrorPage } from "./pages/ErrorPage";
-import { ArrangorPageContainer } from "./pages/arrangor/ArrangorPageContainer";
 import { ArrangorerPage } from "./pages/arrangor/ArrangorerPage";
 import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
 import { AvtalePage } from "./pages/avtaler/AvtalePage";
@@ -44,6 +43,7 @@ import { refusjonskravForGjennomforingLoader } from "./pages/tiltaksgjennomforin
 import { RefusjonskravDetaljer } from "./pages/tiltaksgjennomforinger/refusjonskrav/detaljer/RefusjonskravDetaljer";
 import { refusjonskravDetaljerLoader } from "./pages/tiltaksgjennomforinger/refusjonskrav/detaljer/refusjonskravDetaljerLoader";
 import { Page } from "@navikt/ds-react";
+import { ArrangorPage } from "./pages/arrangor/ArrangorPage";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -257,7 +257,7 @@ const router = () =>
           },
           {
             path: "arrangorer/:arrangorId",
-            element: <ArrangorPageContainer />,
+            element: <ArrangorPage />,
             errorElement: <ErrorPage />,
           },
           {

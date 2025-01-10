@@ -1,18 +1,18 @@
+import { useArrangorHovedenhet } from "@/api/arrangor/useArrangorHovedenhet";
+import { ArrangorKort } from "@/components/arrangor/ArrangorKort";
+import { ArrangorIkon } from "@/components/ikoner/ArrangorIkon";
+import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
+import { ContentBox } from "@/layouts/ContentBox";
+import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { Accordion } from "@navikt/ds-react";
 import { useState } from "react";
-import { useArrangorHovedenhet } from "../../api/arrangor/useArrangorHovedenhet";
-import { ArrangorKort } from "../../components/arrangor/ArrangorKort";
-import { ArrangorIkon } from "../../components/ikoner/ArrangorIkon";
-import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
-import { HeaderBanner } from "../../layouts/HeaderBanner";
-import styles from "./ArrangorPage.module.scss";
-import { ContentBox } from "@/layouts/ContentBox";
+import { useParams } from "react-router";
 
-interface Props {
-  arrangorId: string;
-}
-
-export function ArrangorPage({ arrangorId }: Props) {
+export function ArrangorPage() {
+  const { arrangorId } = useParams();
+  if (!arrangorId) {
+    throw Error("Fant ikke arrangorId i route");
+  }
   const { data: arrangor, isLoading } = useArrangorHovedenhet(arrangorId);
   const [openHovedenhet, setOpenHovedenhet] = useState(true); // TODO Fiks default open for arrangører med underenheter
 
@@ -26,23 +26,21 @@ export function ArrangorPage({ arrangorId }: Props) {
   return (
     <>
       <Brodsmuler brodsmuler={brodsmuler} />
-      <main>
-        <HeaderBanner heading={arrangor.navn} ikon={<ArrangorIkon />} />
-        <ContentBox>
-          <Accordion className={styles.container}>
-            {!arrangor.overordnetEnhet ? (
-              <Accordion.Item open={openHovedenhet}>
-                <Accordion.Header onClick={() => setOpenHovedenhet(!openHovedenhet)}>
-                  Arrangør - {arrangor.organisasjonsnummer} {arrangor.navn}
-                </Accordion.Header>
-                <Accordion.Content>
-                  <ArrangorKort arrangor={arrangor} />
-                </Accordion.Content>
-              </Accordion.Item>
-            ) : null}
-          </Accordion>
-        </ContentBox>
-      </main>
+      <HeaderBanner heading={arrangor.navn} ikon={<ArrangorIkon />} />
+      <ContentBox>
+        <Accordion className="bg-white">
+          {!arrangor.overordnetEnhet ? (
+            <Accordion.Item open={openHovedenhet}>
+              <Accordion.Header onClick={() => setOpenHovedenhet(!openHovedenhet)}>
+                Arrangør - {arrangor.organisasjonsnummer} {arrangor.navn}
+              </Accordion.Header>
+              <Accordion.Content>
+                <ArrangorKort arrangor={arrangor} />
+              </Accordion.Content>
+            </Accordion.Item>
+          ) : null}
+        </Accordion>
+      </ContentBox>
     </>
   );
 }
