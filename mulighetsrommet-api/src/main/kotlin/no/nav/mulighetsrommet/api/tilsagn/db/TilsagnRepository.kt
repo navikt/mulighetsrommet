@@ -424,7 +424,7 @@ class TilsagnRepository(private val db: Database) {
             beregning = Json.decodeFromString<TilsagnBeregning>(string("beregning")),
             status = ArrangorflateTilsagn.StatusOgAarsaker(
                 status = TilsagnStatus.valueOf(string("status")),
-                aarsaker = aarsaker
+                aarsaker = aarsaker,
             ),
         )
     }

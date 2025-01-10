@@ -262,8 +262,8 @@ class TilsagnRepositoryTest : FunSpec({
                     beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
                     status = ArrangorflateTilsagn.StatusOgAarsaker(
                         status = TilsagnStatus.GODKJENT,
-                        aarsaker = emptyList()
-                    )
+                        aarsaker = emptyList(),
+                    ),
                 ),
             )
             repository.getArrangorflateTilsagn(tilsagn.id)?.id shouldBe tilsagn.id
@@ -301,8 +301,8 @@ class TilsagnRepositoryTest : FunSpec({
                     beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
                     status = ArrangorflateTilsagn.StatusOgAarsaker(
                         status = TilsagnStatus.GODKJENT,
-                        aarsaker = emptyList()
-                    )
+                        aarsaker = emptyList(),
+                    ),
                 ),
             )
         }
