@@ -95,7 +95,7 @@ class RefusjonService(
         periode: Periode,
     ): Set<DeltakelsePerioder> {
         val deltakelser = db.session {
-            queries.deltaker.getAll(gjennomforingId)
+            queries.deltaker.getAll(gjennomforingId = gjennomforingId)
         }
 
         return deltakelser

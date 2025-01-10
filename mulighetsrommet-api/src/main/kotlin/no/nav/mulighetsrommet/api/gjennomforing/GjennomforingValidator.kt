@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isKursTiltak
 import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
@@ -361,6 +362,20 @@ class GjennomforingValidator(
                     ValidationError.of(
                         GjennomforingDbo::sluttDato,
                         "Du kan ikke sette en sluttdato bakover i tid når gjennomføringen er aktiv",
+                    ),
+                )
+            }
+        }
+
+        val gjennomforingHarDeltakere = db.session {
+            queries.deltaker.getAll(pagination = Pagination.of(1, 1), gjennomforingId = gjennomforing.id).isNotEmpty()
+        }
+        if (gjennomforingHarDeltakere) {
+            if (gjennomforing.oppstart != previous.oppstart) {
+                add(
+                    ValidationError.of(
+                        GjennomforingDbo::oppstart,
+                        "Oppstartstype kan ikke endres fordi det er deltakere koblet til gjennomføringen",
                     ),
                 )
             }

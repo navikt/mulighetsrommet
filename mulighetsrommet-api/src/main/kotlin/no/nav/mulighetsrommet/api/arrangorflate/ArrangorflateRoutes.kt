@@ -324,7 +324,7 @@ suspend fun toRefusjonskrav(
     krav: RefusjonskravDto,
 ): ArrFlateRefusjonKravAft = when (val beregning = krav.beregning) {
     is RefusjonKravBeregningAft -> {
-        val deltakere = db.session { queries.deltaker.getAll(krav.gjennomforing.id) }
+        val deltakere = db.session { queries.deltaker.getAll(gjennomforingId = krav.gjennomforing.id) }
 
         val deltakereById = deltakere.associateBy { it.id }
         val personerByNorskIdent: Map<NorskIdent, RefusjonKravDeltakelse.Person> = getPersoner(pdl, deltakere)
