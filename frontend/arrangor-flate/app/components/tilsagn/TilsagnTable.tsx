@@ -43,7 +43,7 @@ export function TilsagnTable({ tilsagn }: Props) {
                     {`${formaterDato(tilsagn.periodeStart)} - ${formaterDato(tilsagn.periodeSlutt)}`}
                   </Table.DataCell>
                   <Table.DataCell>
-                    <TilsagnStatusTag status={tilsagn.status} />
+                    <TilsagnStatusTag data={tilsagn.status} />
                   </Table.DataCell>
                   <Table.DataCell>
                     <LinkWithTabState

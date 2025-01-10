@@ -41,7 +41,7 @@ export default function TilsagnDetaljerPage() {
           url: internalNavigation(orgnr).root,
         }}
       />
-      <TilsagnStatusTag status={tilsagn.status} />
+      <TilsagnStatusTag data={tilsagn.status} />
       <Definisjonsliste
         className="mt-4"
         definitions={[

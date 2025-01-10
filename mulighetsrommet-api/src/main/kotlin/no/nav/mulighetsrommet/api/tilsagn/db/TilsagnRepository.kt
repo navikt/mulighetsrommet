@@ -403,6 +403,9 @@ class TilsagnRepository(private val db: Database) {
     }
 
     private fun Row.toArrangorflateTilsagn(): ArrangorflateTilsagn {
+        val aarsaker = arrayOrNull<String>("status_aarsaker")
+            ?.toList()
+            ?.map { TilsagnStatusAarsak.valueOf(it) } ?: emptyList()
         return ArrangorflateTilsagn(
             id = uuid("id"),
             gjennomforing = ArrangorflateTilsagn.Gjennomforing(
@@ -419,7 +422,10 @@ class TilsagnRepository(private val db: Database) {
                 navn = string("arrangor_navn"),
             ),
             beregning = Json.decodeFromString<TilsagnBeregning>(string("beregning")),
-            status = TilsagnStatus.valueOf(string("status")),
+            status = ArrangorflateTilsagn.StatusOgAarsaker(
+                status = TilsagnStatus.valueOf(string("status")),
+                aarsaker = aarsaker
+            ),
         )
     }
 }

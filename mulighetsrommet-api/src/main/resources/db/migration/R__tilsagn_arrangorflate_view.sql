@@ -10,6 +10,7 @@ select
     tilsagn.periode_slutt,
     tilsagn.beregning,
     tilsagn.status,
+    tilsagn.status_aarsaker,
     arrangor.id                         as arrangor_id,
     arrangor.organisasjonsnummer        as arrangor_organisasjonsnummer,
     arrangor.navn                       as arrangor_navn
