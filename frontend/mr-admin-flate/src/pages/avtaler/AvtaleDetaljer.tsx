@@ -6,7 +6,6 @@ import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
-import { ArrangorKontaktinfoContainer } from "@/pages/arrangor/ArrangorKontaktinfoContainer";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { avtaletypeTilTekst, formaterDato } from "@/utils/Utils";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
@@ -252,14 +251,14 @@ export function AvtaleDetaljer() {
           <Metadata
             header={avtaletekster.kontaktpersonerHosTiltaksarrangorLabel}
             verdi={
-              <ArrangorKontaktinfoContainer>
+              <VStack>
                 {arrangor.kontaktpersoner.map((kontaktperson) => (
                   <ArrangorKontaktpersonDetaljer
                     key={kontaktperson.id}
                     kontaktperson={kontaktperson}
                   />
                 ))}
-              </ArrangorKontaktinfoContainer>
+              </VStack>
             }
           />
         )}

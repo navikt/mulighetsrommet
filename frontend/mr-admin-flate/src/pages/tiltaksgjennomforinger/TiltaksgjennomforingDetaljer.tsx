@@ -8,7 +8,6 @@ import { tiltaktekster } from "@/components/ledetekster/tiltaksgjennomforingLede
 import { NokkeltallDeltakere } from "@/components/tiltaksgjennomforinger/NokkeltallDeltakere";
 import { TiltakTilgjengeligForArrangor } from "@/components/tiltaksgjennomforinger/TilgjengeligTiltakForArrangor";
 import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
-import { ArrangorKontaktinfoContainer } from "@/pages/arrangor/ArrangorKontaktinfoContainer";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { Kontaktperson } from "@/pages/tiltaksgjennomforinger/Kontaktperson";
 import { formaterDato, formatertVentetid } from "@/utils/Utils";
@@ -278,14 +277,14 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
             <Metadata
               header={tiltaktekster.kontaktpersonerHosTiltaksarrangorLabel}
               verdi={
-                <ArrangorKontaktinfoContainer>
+                <VStack>
                   {arrangor.kontaktpersoner.map((kontaktperson) => (
                     <ArrangorKontaktpersonDetaljer
                       key={kontaktperson.id}
                       kontaktperson={kontaktperson}
                     />
                   ))}
-                </ArrangorKontaktinfoContainer>
+                </VStack>
               }
             />
           )}
