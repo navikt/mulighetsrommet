@@ -148,9 +148,6 @@ const DetaljerFane = ({
     <div className={styles.faneinnhold_container}>
       {tiltakstype && (
         <>
-          <Heading level="2" size="small">
-            Generell Informasjon
-          </Heading>
           {tiltakstypeAlert && (
             <Alert style={{ whiteSpace: "pre-wrap" }} variant="info">
               {tiltakstypeAlert}

@@ -41,19 +41,19 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
         </Alert>
       </HStack>
       <RedaksjoneltInnholdContainer>
-        {tiltakstypeSanityData?.beskrivelse && (
-          <>
-            <Heading size="medium">Beskrivelse</Heading>
-            <BodyLong style={{ whiteSpace: "pre-wrap" }}>
-              {tiltakstypeSanityData?.beskrivelse}
-            </BodyLong>
-          </>
-        )}
         <Textarea
           {...register("beskrivelse")}
           description="Beskrivelse av formålet med tiltaksgjennomføringen."
           label="Beskrivelse"
         />
+        {tiltakstypeSanityData?.beskrivelse && (
+          <>
+            <Heading size="medium">Generell informasjon</Heading>
+            <BodyLong style={{ whiteSpace: "pre-wrap" }}>
+              {tiltakstypeSanityData?.beskrivelse}
+            </BodyLong>
+          </>
+        )}
         <Heading size="medium">Faneinnhold</Heading>
         <Tabs size="small" defaultValue="for_hvem">
           <Tabs.List>
