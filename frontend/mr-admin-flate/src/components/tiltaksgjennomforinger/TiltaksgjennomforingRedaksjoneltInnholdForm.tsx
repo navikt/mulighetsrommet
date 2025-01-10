@@ -5,8 +5,6 @@ import { useFormContext } from "react-hook-form";
 import { InferredTiltaksgjennomforingSchema } from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
 import { useState } from "react";
 import { TiltaksgjennomforingerListe } from "./TiltaksgjennomforingerListe";
-import { RedaksjoneltInnholdModalContainer } from "@/components/modal/RedaksjoneltInnholdModalContainer";
-import { RedaksjoneltInnholdModalBody } from "@/components/modal/RedaksjoneltInnholdModalBody";
 import { RedaksjoneltInnholdToppKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdToppKnapperad";
 
 interface Props {
@@ -62,12 +60,17 @@ export function TiltakgjennomforingRedaksjoneltInnholdForm({ avtale }: Props) {
         key={`redaksjonelt-innhold-${key}`}
         tiltakstype={avtale.tiltakstype}
       />
-
-      <RedaksjoneltInnholdModalContainer modalOpen={modalOpen} onClose={() => setModalOpen(false)}>
+      <Modal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        style={{ maxHeight: "70rem" }}
+        aria-label="modal"
+        width="50rem"
+      >
         <Modal.Header closeButton>
           <Heading size="medium">Kopier redaksjonelt innhold fra gjennomføring</Heading>
         </Modal.Header>
-        <RedaksjoneltInnholdModalBody>
+        <Modal.Body style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
           <Search
             label="Søk på navn eller tiltaksnummer"
             variant="simple"
@@ -92,8 +95,8 @@ export function TiltakgjennomforingRedaksjoneltInnholdForm({ avtale }: Props) {
               </Button>
             )}
           />
-        </RedaksjoneltInnholdModalBody>
-      </RedaksjoneltInnholdModalContainer>
+        </Modal.Body>
+      </Modal>
     </>
   );
 }
