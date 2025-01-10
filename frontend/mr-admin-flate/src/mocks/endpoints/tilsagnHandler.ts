@@ -1,4 +1,9 @@
-import { GetForhandsgodkjenteSatserResponse, TilsagnDto, TilsagnRequest } from "@mr/api-client";
+import {
+  GetForhandsgodkjenteSatserResponse,
+  TilsagnDefaults,
+  TilsagnDto,
+  TilsagnRequest,
+} from "@mr/api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import { mockTilsagn } from "../fixtures/mock_tilsagn";
 
@@ -16,6 +21,12 @@ export const tilsagnHandlers = [
       return HttpResponse.json(mockTilsagn);
     },
   ),
+  http.get<PathParams, any, TilsagnDto[]>("*/api/v1/intern/tilsagn", async () => {
+    return HttpResponse.json(mockTilsagn);
+  }),
+  http.get<PathParams, any, TilsagnDefaults>("*/api/v1/intern/tilsagn/defaults", async () => {
+    return HttpResponse.json({});
+  }),
   http.get<PathParams, any, TilsagnDto>(
     "*/api/v1/intern/tilsagn/:tilsagnId",
     async ({ params }) => {

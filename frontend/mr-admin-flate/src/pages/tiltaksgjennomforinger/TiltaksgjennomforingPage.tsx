@@ -12,7 +12,7 @@ import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
-import { Outlet, useLoaderData, useLocation, useParams } from "react-router";
+import { Outlet, useLoaderData, useLocation } from "react-router";
 import commonStyles from "../Page.module.scss";
 import { tiltaksgjennomforingLoader } from "./tiltaksgjennomforingLoaders";
 import { ContentBox } from "@/layouts/ContentBox";
@@ -55,7 +55,6 @@ function createBrodsmuler(
 
 export function TiltaksgjennomforingPage() {
   const { pathname } = useLocation();
-  const { avtaleId } = useParams();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { tiltaksgjennomforing } = useLoaderData<typeof tiltaksgjennomforingLoader>();
   const { data: enableOkonomi } = useFeatureToggle(
@@ -77,7 +76,7 @@ export function TiltaksgjennomforingPage() {
 
   const brodsmuler = createBrodsmuler(
     tiltaksgjennomforing.id,
-    avtaleId,
+    tiltaksgjennomforing.avtaleId,
     currentTab() === "tilsagn",
     currentTab() === "refusjonskrav",
   );
