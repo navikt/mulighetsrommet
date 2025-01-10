@@ -2,7 +2,6 @@ import { LagredeFilterOversikt, useTitle, useOpenFilterWhenThreshold } from "@mr
 import { AvtaleFilterSchema, getAvtalerForTiltakstypeFilterAtom } from "@/api/atoms";
 import { AvtaleTabell } from "@/components/tabell/AvtaleTabell";
 import { useGetTiltakstypeIdFromUrlOrThrow } from "@/hooks/useGetTiltakstypeIdFromUrl";
-import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { AvtaleFiltertags } from "@/components/filter/AvtaleFiltertags";
 import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
@@ -12,6 +11,7 @@ import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtal
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useAtom } from "jotai/index";
 import { LagretDokumenttype } from "@mr/api-client";
+import { ContentBox } from "@/layouts/ContentBox";
 
 export function AvtalerForTiltakstypePage() {
   useTitle("Tiltakstyper - Avtaler");
@@ -24,7 +24,7 @@ export function AvtalerForTiltakstypePage() {
 
   return (
     <>
-      <ContainerLayout>
+      <ContentBox>
         <FilterAndTableLayout
           filter={
             <AvtaleFilter
@@ -62,7 +62,7 @@ export function AvtalerForTiltakstypePage() {
             <NullstillKnappForAvtaler filterAtom={filterAtom} tiltakstypeId={tiltakstypeId} />
           }
         />
-      </ContainerLayout>
+      </ContentBox>
       <TilToppenKnapp />
     </>
   );

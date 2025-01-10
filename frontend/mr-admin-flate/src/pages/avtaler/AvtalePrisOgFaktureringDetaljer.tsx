@@ -1,10 +1,9 @@
 import { useForhandsgodkjenteSatser } from "@/api/tilsagn/useForhandsgodkjenteSatser";
-import { HStack, VStack } from "@navikt/ds-react";
+import { HGrid, HStack, VStack } from "@navikt/ds-react";
 import { avtaleLoader } from "@/pages/avtaler/avtaleLoader";
 import { useLoaderData } from "react-router";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata } from "@/components/detaljside/Metadata";
-import { DetaljerContainer } from "@/pages/DetaljerContainer";
 import { AvtaleDto, Prismodell } from "@mr/api-client";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { BorderedContainer } from "@/components/skjema/BorderedContainer";
@@ -18,7 +17,7 @@ export function AvtalePrisOgFaktureringDetaljer() {
   const prismodell = avtale.prismodell;
 
   return (
-    <DetaljerContainer>
+    <HGrid columns={2} align="start">
       <DetaljerInfoContainer>
         <Bolk>
           <Metadata header={avtaletekster.tiltakstypeLabel} verdi={avtale.tiltakstype.navn} />
@@ -35,7 +34,7 @@ export function AvtalePrisOgFaktureringDetaljer() {
           <ForhandsgodkjentAvtalePrismodell avtale={avtale} />
         )}
       </DetaljerInfoContainer>
-    </DetaljerContainer>
+    </HGrid>
   );
 }
 

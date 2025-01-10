@@ -43,6 +43,7 @@ import { RefusjonskravForGjennomforingContainer } from "./pages/tiltaksgjennomfo
 import { refusjonskravForGjennomforingLoader } from "./pages/tiltaksgjennomforinger/refusjonskrav/refusjonskravForGjennomforingLoader";
 import { RefusjonskravDetaljer } from "./pages/tiltaksgjennomforinger/refusjonskrav/detaljer/RefusjonskravDetaljer";
 import { refusjonskravDetaljerLoader } from "./pages/tiltaksgjennomforinger/refusjonskrav/detaljer/refusjonskravDetaljerLoader";
+import { Page } from "@navikt/ds-react";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -81,10 +82,14 @@ export function App() {
   }
 
   return (
-    <>
-      <AdministratorHeader />
-      <Outlet />
-    </>
+    <Page background="bg-subtle">
+      <Page.Block as="header" className="max-w-[1920px]">
+        <AdministratorHeader />
+      </Page.Block>
+      <Page.Block as="main" className="max-w-[1920px]">
+        <Outlet />
+      </Page.Block>
+    </Page>
   );
 }
 

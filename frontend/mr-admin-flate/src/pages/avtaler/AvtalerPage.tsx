@@ -5,9 +5,8 @@ import { AvtaleFiltertags } from "@/components/filter/AvtaleFiltertags";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { AvtaleTabell } from "@/components/tabell/AvtaleTabell";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
-import { ContainerLayout } from "@/layouts/ContainerLayout";
+import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
-import { MainContainer } from "@/layouts/MainContainer";
 import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
 import { LagretDokumenttype } from "@mr/api-client";
 import { LagredeFilterOversikt, useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
@@ -27,41 +26,39 @@ export function AvtalerPage() {
     <>
       <HeaderBanner heading="Oversikt over avtaler" harUndermeny ikon={<AvtaleIkon />} />
       <ReloadAppErrorBoundary>
-        <MainContainer>
-          <ContainerLayout>
-            <FilterAndTableLayout
-              nullstillFilterButton={<NullstillKnappForAvtaler filterAtom={avtaleFilterAtom} />}
-              filter={<AvtaleFilter filterAtom={avtaleFilterAtom} />}
-              lagredeFilter={
-                <LagredeFilterOversikt
-                  setFilter={setFilter}
-                  filter={filter}
-                  dokumenttype={LagretDokumenttype.AVTALE}
-                  validateFilterStructure={(filter) => {
-                    return AvtaleFilterSchema.safeParse(filter).success;
-                  }}
-                />
-              }
-              tags={
-                <AvtaleFiltertags
-                  filterAtom={avtaleFilterAtom}
-                  filterOpen={filterOpen}
-                  setTagsHeight={setTagsHeight}
-                />
-              }
-              buttons={<AvtaleFilterButtons />}
-              table={
-                <AvtaleTabell
-                  filterAtom={avtaleFilterAtom}
-                  tagsHeight={tagsHeight}
-                  filterOpen={filterOpen}
-                />
-              }
-              setFilterOpen={setFilterOpen}
-              filterOpen={filterOpen}
-            />
-          </ContainerLayout>
-        </MainContainer>
+        <ContentBox>
+          <FilterAndTableLayout
+            nullstillFilterButton={<NullstillKnappForAvtaler filterAtom={avtaleFilterAtom} />}
+            filter={<AvtaleFilter filterAtom={avtaleFilterAtom} />}
+            lagredeFilter={
+              <LagredeFilterOversikt
+                setFilter={setFilter}
+                filter={filter}
+                dokumenttype={LagretDokumenttype.AVTALE}
+                validateFilterStructure={(filter) => {
+                  return AvtaleFilterSchema.safeParse(filter).success;
+                }}
+              />
+            }
+            tags={
+              <AvtaleFiltertags
+                filterAtom={avtaleFilterAtom}
+                filterOpen={filterOpen}
+                setTagsHeight={setTagsHeight}
+              />
+            }
+            buttons={<AvtaleFilterButtons />}
+            table={
+              <AvtaleTabell
+                filterAtom={avtaleFilterAtom}
+                tagsHeight={tagsHeight}
+                filterOpen={filterOpen}
+              />
+            }
+            setFilterOpen={setFilterOpen}
+            filterOpen={filterOpen}
+          />
+        </ContentBox>
       </ReloadAppErrorBoundary>
       <TilToppenKnapp />
     </>

@@ -4,9 +4,9 @@ import { useArrangorHovedenhet } from "../../api/arrangor/useArrangorHovedenhet"
 import { ArrangorKort } from "../../components/arrangor/ArrangorKort";
 import { ArrangorIkon } from "../../components/ikoner/ArrangorIkon";
 import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
-import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { HeaderBanner } from "../../layouts/HeaderBanner";
 import styles from "./ArrangorPage.module.scss";
+import { ContentBox } from "@/layouts/ContentBox";
 
 interface Props {
   arrangorId: string;
@@ -28,7 +28,7 @@ export function ArrangorPage({ arrangorId }: Props) {
       <Brodsmuler brodsmuler={brodsmuler} />
       <main>
         <HeaderBanner heading={arrangor.navn} ikon={<ArrangorIkon />} />
-        <ContainerLayout>
+        <ContentBox>
           <Accordion className={styles.container}>
             {!arrangor.overordnetEnhet ? (
               <Accordion.Item open={openHovedenhet}>
@@ -41,7 +41,7 @@ export function ArrangorPage({ arrangorId }: Props) {
               </Accordion.Item>
             ) : null}
           </Accordion>
-        </ContainerLayout>
+        </ContentBox>
       </main>
     </>
   );

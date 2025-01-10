@@ -1,6 +1,5 @@
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
-import { InfoContainer } from "@/components/skjema/InfoContainer";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
@@ -17,7 +16,7 @@ export function TiltaksgjennomforingInfo() {
   const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
 
   return (
-    <InfoContainer dataTestId="tiltaksgjennomforing_info-container">
+    <div data-testid="tiltaksgjennomforing_info-container">
       <Tabs defaultValue={activeTab}>
         <Tabs.List className={styles.tabslist}>
           <div>
@@ -51,6 +50,6 @@ export function TiltaksgjennomforingInfo() {
           </InlineErrorBoundary>
         </Tabs.Panel>
       </Tabs>
-    </InfoContainer>
+    </div>
   );
 }

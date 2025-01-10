@@ -13,7 +13,7 @@ import { GjennomforingStatusTag } from "@mr/frontend-common";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
-import { Alert, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
+import { Alert, BodyShort, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import React, { createRef, useEffect, useState } from "react";
 import pageStyles from "../../pages/Page.module.scss";
@@ -228,15 +228,7 @@ export function TiltaksgjennomforingsTabell({
                         <Table.DataCell
                           aria-label={`Virksomhetsnavn: ${tiltaksgjennomforing.arrangor.navn}`}
                         >
-                          {tiltaksgjennomforing.arrangor.navn}
-                        </Table.DataCell>
-                      </SkjulKolonne>
-
-                      <SkjulKolonne skjul={!!skjulKolonner?.tiltakstype}>
-                        <Table.DataCell
-                          aria-label={`Tiltakstypenavn: ${tiltaksgjennomforing.tiltakstype.navn}`}
-                        >
-                          {tiltaksgjennomforing.tiltakstype.navn}
+                          <BodyShort size="small">{tiltaksgjennomforing.arrangor.navn}</BodyShort>
                         </Table.DataCell>
                       </SkjulKolonne>
 
@@ -349,12 +341,6 @@ const headers: ColumnHeader[] = [
   {
     sortKey: "arrangor",
     tittel: "Arrangør",
-    sortable: true,
-    width: "3fr",
-  },
-  {
-    sortKey: "tiltakstype",
-    tittel: "Tiltakstype",
     sortable: true,
     width: "3fr",
   },

@@ -6,10 +6,7 @@ import { TiltaksgjennomforingAmoKategoriseringSkjema } from "@/components/amoKat
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 import { InferredTiltaksgjennomforingSchema } from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
 import { FormGroup } from "@/components/skjema/FormGroup";
-import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
-import { SkjemaInputContainer } from "@/components/skjema/SkjemaInputContainer";
 import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
-import { VertikalSeparator } from "@/components/skjema/VertikalSeparator";
 import { addYear, formaterDato } from "@/utils/Utils";
 import {
   AvtaleDto,
@@ -132,8 +129,8 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
   const maxSluttdato = addYear(minStartdato, 35);
 
   return (
-    <SkjemaDetaljerContainer>
-      <SkjemaInputContainer>
+    <>
+      <HGrid gap="6" columns="repeat(auto-fit, minmax(450px, 1fr))">
         <SkjemaKolonne>
           <FormGroup>
             <TextField
@@ -304,7 +301,6 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
             />
           </FormGroup>
         </SkjemaKolonne>
-        <VertikalSeparator />
         <SkjemaKolonne>
           <div>
             <FormGroup>
@@ -374,7 +370,7 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
             <TiltaksgjennomforingArrangorSkjema readOnly={false} avtale={avtale} />
           </FormGroup>
         </SkjemaKolonne>
-      </SkjemaInputContainer>
+      </HGrid>
       <EndreDatoAdvarselModal
         modalRef={endreStartDatoModalRef}
         onCancel={() => setValue("startOgSluttDato.startDato", tiltaksgjennomforing!.startDato)}
@@ -385,7 +381,7 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
         onCancel={() => setValue("startOgSluttDato.sluttDato", tiltaksgjennomforing!.sluttDato)}
         antallDeltakere={deltakerSummary?.antallDeltakere ?? 0}
       />
-    </SkjemaDetaljerContainer>
+    </>
   );
 }
 

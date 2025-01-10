@@ -18,7 +18,6 @@ import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
 import styles from "./AvtalePersonvernForm.module.scss";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
 import { EmbeddedTiltakstype, PersonopplysningData } from "@mr/api-client";
-import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
 
 interface Props {
   tiltakstype?: EmbeddedTiltakstype;
@@ -31,11 +30,7 @@ export function AvtalePersonvernForm({ tiltakstype }: Props) {
   const watchPersonopplysninger = watch("personopplysninger");
 
   if (!tiltakstype) {
-    return (
-      <SkjemaDetaljerContainer>
-        <Alert variant="info">Tiltakstype må velges før personvern kan redigeres.</Alert>
-      </SkjemaDetaljerContainer>
-    );
+    return <Alert variant="info">Tiltakstype må velges før personvern kan redigeres.</Alert>;
   }
 
   function PersonopplysningCheckboxList(props: {
