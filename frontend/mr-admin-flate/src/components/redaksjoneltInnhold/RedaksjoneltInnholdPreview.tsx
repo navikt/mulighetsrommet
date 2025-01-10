@@ -1,4 +1,4 @@
-import { useTiltakstypeFaneinnhold } from "@/api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
+import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
 import { Alert, BodyLong, Heading } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
 import { EmbeddedTiltakstype, Faneinnhold } from "@mr/api-client";

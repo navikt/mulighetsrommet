@@ -2,7 +2,7 @@ import { Alert, BodyLong, Heading, HStack, Tabs, Textarea, VStack } from "@navik
 import { PortableText } from "@portabletext/react";
 import { EmbeddedTiltakstype, VeilederflateTiltakstype } from "@mr/api-client";
 import { useFormContext } from "react-hook-form";
-import { useTiltakstypeFaneinnhold } from "@/api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
+import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
 import { Separator } from "../detaljside/Metadata";
 import { PortableTextEditor } from "../portableText/PortableTextEditor";
 import { Laster } from "../laster/Laster";

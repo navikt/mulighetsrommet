@@ -10,7 +10,7 @@ import {
   TilsagnAvvisningAarsak,
   TilsagnTilAnnulleringAarsak,
 } from "@mr/api-client";
-import { AvtaleFilter, TiltaksgjennomforingFilter } from "@/api/atoms";
+import { AvtaleFilter, GjennomforingFilter } from "@/api/atoms";
 
 export function capitalize(text?: string): string {
   return text ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase() : "";
@@ -210,7 +210,7 @@ export function createQueryParamsForExcelDownloadForAvtale(filter: AvtaleFilter)
 }
 
 export function createQueryParamsForExcelDownloadForTiltaksgjennomforing(
-  filter: TiltaksgjennomforingFilter,
+  filter: GjennomforingFilter,
 ): URLSearchParams {
   const queryParams = new URLSearchParams();
 
