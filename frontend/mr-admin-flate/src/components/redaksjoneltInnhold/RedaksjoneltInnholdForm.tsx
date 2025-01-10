@@ -11,7 +11,6 @@ import { FileTextIcon, LinkIcon, PaperplaneIcon } from "@navikt/aksel-icons";
 import { Lenker } from "../lenker/Lenker";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
-import { FaneinnholdContainer } from "@/components/redaksjoneltInnhold/FaneinnholdContainer";
 import { DescriptionRichtextContainer } from "@/components/redaksjoneltInnhold/DescriptionRichtextContainer";
 import { RedaksjoneltInnholdTabTittel } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdTabTittel";
 
@@ -134,7 +133,7 @@ const ForHvem = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) =>
   const { register } = useFormContext();
 
   return (
-    <FaneinnholdContainer>
+    <VStack className="mt-4">
       {tiltakstype?.faneinnhold?.forHvemInfoboks && (
         <Alert style={{ whiteSpace: "pre-wrap" }} variant="info">
           {tiltakstype?.faneinnhold?.forHvemInfoboks}
@@ -157,7 +156,7 @@ const ForHvem = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) =>
           description="Beskrivelse av hvem tiltakstypen passer for. Husk å bruke et kort og konsist språk."
         />
       </DescriptionRichtextContainer>
-    </FaneinnholdContainer>
+    </VStack>
   );
 };
 
@@ -165,7 +164,7 @@ const DetaljerOgInnhold = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltaks
   const { register } = useFormContext();
 
   return (
-    <FaneinnholdContainer>
+    <VStack className="mt-4">
       {tiltakstype?.faneinnhold?.detaljerOgInnholdInfoboks && (
         <Alert variant="info">{tiltakstype?.faneinnhold?.detaljerOgInnholdInfoboks}</Alert>
       )}
@@ -186,7 +185,7 @@ const DetaljerOgInnhold = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltaks
           description="Beskrivelse av detaljer og innhold for tiltakstypen. Husk å bruke et kort og konsist språk."
         />
       </DescriptionRichtextContainer>
-    </FaneinnholdContainer>
+    </VStack>
   );
 };
 
@@ -194,7 +193,7 @@ const PameldingOgVarighet = ({ tiltakstype }: { tiltakstype?: VeilederflateTilta
   const { register } = useFormContext();
 
   return (
-    <FaneinnholdContainer>
+    <VStack className="mt-4">
       {tiltakstype?.faneinnhold?.pameldingOgVarighetInfoboks && (
         <Alert variant="info">{tiltakstype?.faneinnhold?.pameldingOgVarighetInfoboks}</Alert>
       )}
@@ -215,7 +214,7 @@ const PameldingOgVarighet = ({ tiltakstype }: { tiltakstype?: VeilederflateTilta
           description="Beskrivelse av rutiner rundt påmelding og varighet i tiltaket. Husk å bruke et kort og konsist språk."
         />
       </DescriptionRichtextContainer>
-    </FaneinnholdContainer>
+    </VStack>
   );
 };
 
@@ -223,7 +222,7 @@ const Kontaktinfo = () => {
   const { register } = useFormContext();
 
   return (
-    <FaneinnholdContainer>
+    <VStack className="mt-4">
       <VStack gap="5">
         <Textarea
           {...register("faneinnhold.kontaktinfoInfoboks")}
@@ -236,7 +235,7 @@ const Kontaktinfo = () => {
           description="Ekstra tekst om kontaktinfo."
         />
       </VStack>
-    </FaneinnholdContainer>
+    </VStack>
   );
 };
 
@@ -254,7 +253,7 @@ const DelMedBruker = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype 
   }
 
   return (
-    <FaneinnholdContainer>
+    <VStack className="mt-4">
       <Textarea
         onChange={(e) => {
           onChange(e.target.value);
@@ -264,6 +263,6 @@ const DelMedBruker = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype 
         label="Del med bruker"
         description="Bruk denne tekstboksen for å redigere teksten som sendes til bruker når man deler et tiltak. Det blir automatisk lagt til en ”Hei” og en “Hilsen”."
       />
-    </FaneinnholdContainer>
+    </VStack>
   );
 };
