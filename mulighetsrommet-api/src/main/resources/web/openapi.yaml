@@ -5601,7 +5601,7 @@ components:
           type: string
           format: date
         status:
-            $ref: "#/components/schemas/TilsagnStatus"
+            $ref: "#/components/schemas/TilsagnStatusOgAarsaker"
         arrangor:
           type: object
           properties:
@@ -5658,3 +5658,14 @@ components:
       required:
         - deltakerId
         - antallRelevanteForslag
+
+
+    TilsagnStatusOgAarsaker:
+      type: object
+      properties:
+        status:
+          $ref: "#/components/schemas/TilsagnStatus"
+        aarsaker:
+            type: array
+            items:
+                $ref: "#/components/schemas/TilsagnTilAnnulleringAarsak"
