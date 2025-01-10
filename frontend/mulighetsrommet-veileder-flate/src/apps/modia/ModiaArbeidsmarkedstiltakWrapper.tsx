@@ -66,7 +66,7 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
 
   async loadStyles(shadowRoot: ShadowRoot) {
     const style = document.createElement("style");
-    style.innerHTML = appCss;
+    style.innerHTML = appCss + SHADOW_STYLE;
     shadowRoot.appendChild(style);
   }
 
