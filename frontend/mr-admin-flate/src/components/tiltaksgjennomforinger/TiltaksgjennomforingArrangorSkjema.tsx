@@ -9,7 +9,6 @@ import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 import { InferredTiltaksgjennomforingSchema } from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "@/constants";
-import { ArrangorKontaktpersonContainer } from "@/components/skjema/ArrangorKontaktpersonContainer";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 
 interface Props {
@@ -52,7 +51,7 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
           readOnly={readOnly}
           options={arrangorOptions}
         />
-        <ArrangorKontaktpersonContainer>
+        <VStack>
           <ControlledMultiSelect
             size="small"
             placeholder="Velg kontaktpersoner"
@@ -74,7 +73,7 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
             onClick={() => arrangorKontaktpersonerModalRef.current?.showModal()}
             knappetekst="Opprett eller rediger kontaktpersoner"
           />
-        </ArrangorKontaktpersonContainer>
+        </VStack>
         <Textarea
           size="small"
           resize
