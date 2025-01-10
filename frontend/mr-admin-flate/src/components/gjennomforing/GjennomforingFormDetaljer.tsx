@@ -39,6 +39,7 @@ import { GjennomforingUtdanningslopForm } from "../utdanning/GjennomforingUtdann
 import { SelectOppstartstype } from "./SelectOppstartstype";
 import { GjennomforingArrangorSkjema } from "./GjennomforingArrangorSkjema";
 import styles from "./GjennomforingFormDetaljer.module.scss";
+import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 
 interface Props {
   gjennomforing?: TiltaksgjennomforingDto;
@@ -130,7 +131,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
 
   return (
     <>
-      <HGrid gap="6" columns="repeat(auto-fit, minmax(450px, 1fr))">
+      <TwoColumnGrid separator>
         <SkjemaKolonne>
           <FormGroup>
             <TextField
@@ -370,7 +371,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
             <GjennomforingArrangorSkjema readOnly={false} avtale={avtale} />
           </FormGroup>
         </SkjemaKolonne>
-      </HGrid>
+      </TwoColumnGrid>
       <EndreDatoAdvarselModal
         modalRef={endreStartDatoModalRef}
         onCancel={() => setValue("startOgSluttDato.startDato", gjennomforing!.startDato)}
