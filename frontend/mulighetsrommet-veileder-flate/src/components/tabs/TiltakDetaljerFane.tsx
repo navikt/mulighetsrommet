@@ -30,7 +30,7 @@ export function TiltakDetaljerFane({
           {tiltakstypeAlert}
         </Alert>
       )}
-      <BodyLong as="div" size="large">
+      <BodyLong as="div" size="large" className="prose">
         <RedaksjoneltInnhold value={tiltakstype} />
       </BodyLong>
       {(tiltaksgjennomforing || tiltaksgjennomforingAlert) && (
@@ -43,7 +43,7 @@ export function TiltakDetaljerFane({
               {tiltaksgjennomforingAlert}
             </Alert>
           )}
-          <BodyLong as="div" size="large">
+          <BodyLong as="div" size="large" className="prose">
             <RedaksjoneltInnhold value={tiltaksgjennomforing} />
           </BodyLong>
         </LokalInformasjonContainer>
