@@ -138,7 +138,7 @@ fun slack(slack: SlackConfig): Module = module(createdAtStart = true) {
 
 private fun db(config: DatabaseConfig) = module {
     single<Database>(createdAtStart = true) {
-        Database(config)
+        Database(config.copy { metricRegistry = Metrikker.appMicrometerRegistry })
     }
 }
 
