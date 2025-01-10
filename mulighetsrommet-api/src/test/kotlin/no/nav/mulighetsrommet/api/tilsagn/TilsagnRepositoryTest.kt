@@ -260,7 +260,10 @@ class TilsagnRepositoryTest : FunSpec({
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                     ),
                     beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
-                    status = TilsagnStatus.GODKJENT,
+                    status = ArrangorflateTilsagn.StatusOgAarsaker(
+                        status = TilsagnStatus.GODKJENT,
+                        aarsaker = emptyList()
+                    )
                 ),
             )
             repository.getArrangorflateTilsagn(tilsagn.id)?.id shouldBe tilsagn.id
@@ -296,7 +299,10 @@ class TilsagnRepositoryTest : FunSpec({
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                     ),
                     beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
-                    status = TilsagnStatus.GODKJENT,
+                    status = ArrangorflateTilsagn.StatusOgAarsaker(
+                        status = TilsagnStatus.GODKJENT,
+                        aarsaker = emptyList()
+                    )
                 ),
             )
         }
