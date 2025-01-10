@@ -591,6 +591,9 @@ importers:
       '@navikt/ds-react':
         specifier: 7.9.0
         version: 7.9.0(@types/react@18.3.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@navikt/ds-tailwind':
+        specifier: 7.9.0
+        version: 7.9.0
       '@portabletext/react':
         specifier: 3.2.0
         version: 3.2.0(react@18.3.1)
@@ -630,6 +633,9 @@ importers:
       react-router:
         specifier: 7.1.1
         version: 7.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      tailwindcss:
+        specifier: 3.4.17
+        version: 3.4.17(ts-node@10.9.2(@swc/core@1.10.1)(@types/node@22.10.5)(typescript@5.7.2))
       uuid:
         specifier: 11.0.4
         version: 11.0.4
