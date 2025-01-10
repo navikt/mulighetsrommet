@@ -15,35 +15,35 @@ import { AvtaleSkjemaPage } from "./pages/avtaler/AvtaleSkjemaPage";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
 import { notifikasjonLoader } from "./pages/notifikasjoner/notifikasjonerLoader";
-import { TiltaksgjennomforingInfo } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingInfo";
-import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingPage";
-import { TiltaksgjennomforingSkjemaPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
-import { TiltaksgjennomforingerForAvtalePage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerForAvtalePage";
-import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
-import { OpprettTilsagnSkjemaPage } from "./pages/tiltaksgjennomforinger/tilsagn/opprett/OpprettTilsagnSkjemaPage";
-import { TilsagnDetaljer } from "./pages/tiltaksgjennomforinger/tilsagn/detaljer/TilsagnDetaljer";
-import { TilsagnForGjennomforingContainer } from "./pages/tiltaksgjennomforinger/tilsagn/tabell/TilsagnForGjennomforingContainer";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
 import { tiltakstypeLoader, tiltakstyperLoaders } from "./pages/tiltakstyper/tiltakstyperLoaders";
 import { avtaleLoader, avtaleSkjemaLoader } from "./pages/avtaler/avtaleLoader";
-import {
-  tiltaksgjennomforingLoader,
-  tiltaksgjennomforingSkjemaLoader,
-} from "./pages/tiltaksgjennomforinger/tiltaksgjennomforingLoaders";
-import { tilsagnDetaljerLoader } from "./pages/tiltaksgjennomforinger/tilsagn/detaljer/tilsagnDetaljerLoader";
-import { redigerTilsagnLoader } from "@/pages/tiltaksgjennomforinger/tilsagn/rediger/redigerTilsagnLoader";
-import { opprettTilsagnLoader } from "@/pages/tiltaksgjennomforinger/tilsagn/opprett/opprettTilsagnLoader";
-import { RedigerTilsagnSkjemaPage } from "@/pages/tiltaksgjennomforinger/tilsagn/rediger/RedigerTilsagnSkjemaPage";
-import { tilsagnForGjennomforingLoader } from "@/pages/tiltaksgjennomforinger/tilsagn/tabell/tilsagnForGjennomforingLoader";
-import { RefusjonskravForGjennomforingContainer } from "./pages/tiltaksgjennomforinger/refusjonskrav/RefusjonskravForGjennomforingContainer";
-import { refusjonskravForGjennomforingLoader } from "./pages/tiltaksgjennomforinger/refusjonskrav/refusjonskravForGjennomforingLoader";
-import { RefusjonskravDetaljer } from "./pages/tiltaksgjennomforinger/refusjonskrav/detaljer/RefusjonskravDetaljer";
-import { refusjonskravDetaljerLoader } from "./pages/tiltaksgjennomforinger/refusjonskrav/detaljer/refusjonskravDetaljerLoader";
 import { Page } from "@navikt/ds-react";
 import { ArrangorPage } from "./pages/arrangor/ArrangorPage";
+import { GjennomforingFormPage } from "./pages/gjennomforing/GjennomforingFormPage";
+import { GjennomforingInfo } from "./pages/gjennomforing/GjennomforingInfo";
+import { GjennomforingPage } from "./pages/gjennomforing/GjennomforingPage";
+import { GjennomforingerForAvtalePage } from "./pages/gjennomforing/GjennomforingerForAvtalePage";
+import { GjennomforingerPage } from "./pages/gjennomforing/GjennomforingerPage";
+import {
+  gjennomforingFormLoader,
+  gjennomforingLoader,
+} from "./pages/gjennomforing/gjennomforingLoaders";
+import { RefusjonskravForGjennomforingContainer } from "./pages/gjennomforing/refusjonskrav/RefusjonskravForGjennomforingContainer";
+import { RefusjonskravDetaljer } from "./pages/gjennomforing/refusjonskrav/detaljer/RefusjonskravDetaljer";
+import { refusjonskravDetaljerLoader } from "./pages/gjennomforing/refusjonskrav/detaljer/refusjonskravDetaljerLoader";
+import { refusjonskravForGjennomforingLoader } from "./pages/gjennomforing/refusjonskrav/refusjonskravForGjennomforingLoader";
+import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljer";
+import { tilsagnDetaljerLoader } from "./pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
+import { OpprettTilsagnSkjemaPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnSkjemaPage";
+import { opprettTilsagnLoader } from "./pages/gjennomforing/tilsagn/opprett/opprettTilsagnLoader";
+import { RedigerTilsagnSkjemaPage } from "./pages/gjennomforing/tilsagn/rediger/RedigerTilsagnSkjemaPage";
+import { redigerTilsagnLoader } from "./pages/gjennomforing/tilsagn/rediger/redigerTilsagnLoader";
+import { TilsagnForGjennomforingContainer } from "./pages/gjennomforing/tilsagn/tabell/TilsagnForGjennomforingContainer";
+import { tilsagnForGjennomforingLoader } from "./pages/gjennomforing/tilsagn/tabell/tilsagnForGjennomforingLoader";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -150,7 +150,7 @@ const router = () =>
               },
               {
                 path: "tiltaksgjennomforinger",
-                element: <TiltaksgjennomforingerForAvtalePage />,
+                element: <GjennomforingerForAvtalePage />,
                 errorElement: <ErrorPage />,
               },
             ],
@@ -169,34 +169,34 @@ const router = () =>
           },
           {
             path: "tiltaksgjennomforinger/skjema",
-            element: <TiltaksgjennomforingSkjemaPage />,
+            element: <GjennomforingFormPage />,
             errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingSkjemaLoader,
+            loader: gjennomforingFormLoader,
           },
           {
             path: "tiltaksgjennomforinger/",
-            element: <TiltaksgjennomforingerPage />,
+            element: <GjennomforingerPage />,
             errorElement: <ErrorPage />,
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId",
-            element: <TiltaksgjennomforingPage />,
+            element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingLoader,
+            loader: gjennomforingLoader,
             children: [
               {
                 index: true,
-                element: <TiltaksgjennomforingInfo />,
+                element: <GjennomforingInfo />,
                 errorElement: <ErrorPage />,
-                loader: tiltaksgjennomforingLoader,
+                loader: gjennomforingLoader,
               },
             ],
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn",
-            element: <TiltaksgjennomforingPage />,
+            element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingLoader,
+            loader: gjennomforingLoader,
             children: [
               {
                 index: true,
@@ -208,9 +208,9 @@ const router = () =>
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/refusjonskrav",
-            element: <TiltaksgjennomforingPage />,
+            element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingLoader,
+            loader: gjennomforingLoader,
             children: [
               {
                 index: true,
@@ -222,9 +222,9 @@ const router = () =>
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema",
-            element: <TiltaksgjennomforingSkjemaPage />,
+            element: <GjennomforingFormPage />,
             errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingSkjemaLoader,
+            loader: gjennomforingFormLoader,
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/opprett-tilsagn",

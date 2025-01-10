@@ -1,8 +1,8 @@
 import { Alert, Button, Heading, HelpText, Modal, Search } from "@navikt/ds-react";
-import { useSetAvtaleForGjennomforing } from "@/api/tiltaksgjennomforing/useSetAvtaleForGjennomforing";
+import { useSetAvtaleForGjennomforing } from "@/api/gjennomforing/useSetAvtaleForGjennomforing";
 import { useState } from "react";
 import { AvtaleDto, TiltaksgjennomforingDto } from "@mr/api-client";
-import { TiltaksgjennomforingerListe } from "../tiltaksgjennomforinger/TiltaksgjennomforingerListe";
+import { GjennomforingList } from "../gjennomforing/GjennomforingList";
 import { Link } from "react-router";
 
 interface Props {
@@ -60,7 +60,7 @@ export function LeggTilGjennomforingModal({ avtale, modalOpen, onClose }: Props)
         {error ? <Alert variant="error">{error}</Alert> : null}
 
         {!search ? null : (
-          <TiltaksgjennomforingerListe
+          <GjennomforingList
             filter={{
               search,
               tiltakstyper: [avtale.tiltakstype.id],

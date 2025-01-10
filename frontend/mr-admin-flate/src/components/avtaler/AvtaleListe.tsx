@@ -1,6 +1,5 @@
-import { Alert, BodyShort } from "@navikt/ds-react";
+import { Alert, Table } from "@navikt/ds-react";
 import { Laster } from "../laster/Laster";
-import styles from "../tiltaksgjennomforinger/TiltaksgjennomforingerListe.module.scss";
 import { AvtaleFilter } from "@/api/atoms";
 import { AvtaleDto } from "@mr/api-client";
 import { ReactNode } from "react";
@@ -26,23 +25,26 @@ export function AvtaleListe(props: Props) {
   const avtaler = data.data;
 
   return (
-    <div className={styles.gjennomforingsliste_container}>
-      <div className={styles.gjennomforingsliste_headers}>
-        <BodyShort>Tittel</BodyShort>
-        <BodyShort>Avtalenummer</BodyShort>
-        <BodyShort>Status</BodyShort>
-      </div>
-
-      <ul className={styles.gjennomforingsliste}>
+    <Table>
+      <Table.Header>
+        <Table.Row>
+          <Table.HeaderCell scope="col">Tittel</Table.HeaderCell>
+          <Table.HeaderCell scope="col">Avtalenummer</Table.HeaderCell>
+          <Table.HeaderCell scope="col">Status</Table.HeaderCell>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
         {avtaler.map((avtale) => (
-          <li key={avtale.id} className={styles.gjennomforingsliste_element}>
-            <BodyShort>{avtale.navn}</BodyShort>
-            <BodyShort>{avtale.avtalenummer}</BodyShort>
-            <AvtalestatusTag avtale={avtale} />
-            {props.action(avtale)}
-          </li>
+          <Table.Row key={avtale.id}>
+            <Table.DataCell>{avtale.navn}</Table.DataCell>
+            <Table.DataCell>{avtale.avtalenummer}</Table.DataCell>
+            <Table.DataCell>
+              {" "}
+              <AvtalestatusTag avtale={avtale} />
+            </Table.DataCell>
+          </Table.Row>
         ))}
-      </ul>
-    </div>
+      </Table.Body>
+    </Table>
   );
 }

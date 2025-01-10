@@ -26,7 +26,7 @@ import { MultiValue } from "react-select";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
-import { AvtaleUtdanningslopSkjema } from "../utdanning/AvtaleUtdanningslopSkjema";
+import { AvtaleUtdanningslopForm } from "../utdanning/AvtaleUtdanningslopForm";
 import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
 import { AvtaleDatoContainer } from "./avtaledatoer/AvtaleDatoContainer";
 import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
@@ -185,7 +185,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             <AvtaleAmoKategoriseringSkjema />
           ) : null}
           {tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING ? (
-            <AvtaleUtdanningslopSkjema />
+            <AvtaleUtdanningslopForm />
           ) : null}
         </FormGroup>
 

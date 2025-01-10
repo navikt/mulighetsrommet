@@ -1,7 +1,7 @@
 import { AmoKategorisering, Kurstype } from "@mr/api-client";
 import { Metadata } from "@/components/detaljside/Metadata";
 import { Bolk } from "@/components/detaljside/Bolk";
-import { tiltaktekster } from "@/components/ledetekster/tiltaksgjennomforingLedetekster";
+import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import {
   forerkortKlasseToString,
   innholdElementToString,
@@ -18,7 +18,7 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
     <>
       <Bolk>
         <Metadata
-          header={tiltaktekster.kurstypeLabel}
+          header={gjennomforingTekster.kurstypeLabel}
           verdi={
             amoKategorisering.kurstype == Kurstype.BRANSJE_OG_YRKESRETTET
               ? `${kurstypeToString(amoKategorisering.kurstype as Kurstype)} - ${bransjeToString(amoKategorisering.bransje)}`
@@ -31,7 +31,7 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
           <>
             {amoKategorisering.forerkort && amoKategorisering.forerkort.length > 0 && (
               <Metadata
-                header={tiltaktekster.forerkortLabel}
+                header={gjennomforingTekster.forerkortLabel}
                 verdi={
                   <ul>
                     {amoKategorisering.forerkort.map((klasse) => (
@@ -43,7 +43,7 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
             )}
             {amoKategorisering.sertifiseringer && amoKategorisering.sertifiseringer.length > 0 && (
               <Metadata
-                header={tiltaktekster.sertifiseringerLabel}
+                header={gjennomforingTekster.sertifiseringerLabel}
                 verdi={
                   <ul>
                     {amoKategorisering.sertifiseringer.map((s) => (
@@ -56,7 +56,7 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
           </>
         )}
         {amoKategorisering.kurstype == Kurstype.NORSKOPPLAERING && amoKategorisering.norskprove && (
-          <Metadata header={tiltaktekster.norskproveLabel} verdi="Ja" />
+          <Metadata header={gjennomforingTekster.norskproveLabel} verdi="Ja" />
         )}
       </Bolk>
       <Bolk>
@@ -64,7 +64,7 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
           amoKategorisering.kurstype == Kurstype.GRUNNLEGGENDE_FERDIGHETER ||
           amoKategorisering.kurstype == Kurstype.BRANSJE_OG_YRKESRETTET) && (
           <Metadata
-            header={tiltaktekster.innholdElementerLabel}
+            header={gjennomforingTekster.innholdElementerLabel}
             verdi={
               <ul>
                 {amoKategorisering.innholdElementer.map((element) => (

@@ -1,7 +1,7 @@
 # Tiltaksadministrasjon (admin-flate)
 
 Kildekode for flate for administrative oppgaver rundt opprettelse og redigering av avtaler og
-tiltaksgjennomføringer.
+gjennomføringer.
 
 ## Demo
 

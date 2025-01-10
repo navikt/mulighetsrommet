@@ -3,7 +3,7 @@ import { Arrangor, ArrangorKontaktperson, PaginertArrangor } from "@mr/api-clien
 import { mockArrangorer } from "../fixtures/mock_arrangorer";
 import { mockArrangorKontaktpersoner } from "../fixtures/mock_arrangorKontaktperson";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
-import { mockTiltaksgjennomforinger } from "../fixtures/mock_tiltaksgjennomforinger";
+import { mockTiltaksgjennomforinger } from "../fixtures/mock_gjennomforinger";
 
 export const arrangorHandlers = [
   http.get<PathParams, PaginertArrangor | undefined>("*/api/v1/intern/arrangorer", () =>

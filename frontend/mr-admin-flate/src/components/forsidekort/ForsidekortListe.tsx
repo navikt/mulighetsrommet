@@ -6,7 +6,7 @@ import {
 import { AvtaleIkon } from "../ikoner/AvtaleIkon";
 import { EndringsmeldingerIkon } from "../ikoner/EndringsmeldingerIkon";
 import { ForhandsvisningIkon } from "../ikoner/ForhandsvisningIkon";
-import { TiltaksgjennomforingIkon } from "../ikoner/TiltaksgjennomforingIkon";
+import { GjennomforingIkon } from "../ikoner/GjennomforingIkon";
 import { TiltakstypeIkon } from "../ikoner/TiltakstypeIkon";
 import { Forsidekort } from "./Forsidekort";
 import styles from "./Forsidekort.module.scss";
@@ -28,12 +28,7 @@ export function ForsidekortListe() {
       />
       <Forsidekort
         navn="Gjennomføringer"
-        ikon={
-          <TiltaksgjennomforingIkon
-            inkluderBakgrunn
-            aria-label="Gjennomføringer for gruppetiltak"
-          />
-        }
+        ikon={<GjennomforingIkon inkluderBakgrunn aria-label="Gjennomføringer for gruppetiltak" />}
         url="tiltaksgjennomforinger"
         tekst="Her finner du informasjon om Gjennomføringer for gruppetiltak"
       />
