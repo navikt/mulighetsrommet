@@ -12,6 +12,7 @@ import { useAvtale } from "../../api/avtaler/useAvtale";
 import commonStyles from "../Page.module.scss";
 import { Laster } from "../../components/laster/Laster";
 import { ContentBox } from "@/layouts/ContentBox";
+import React from "react";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const erPaaGjennomforingerForAvtale = useMatch("/avtaler/:avtaleId/tiltaksgjennomforinger");
@@ -93,11 +94,13 @@ export function AvtalePage() {
             data-testid="gjennomforinger-tab"
           />
         </Tabs.List>
-        <ContentBox>
-          <div id="panel">
-            <Outlet />
-          </div>
-        </ContentBox>
+        <React.Suspense fallback={<Laster tekst="Laster innhold..." />}>
+          <ContentBox>
+            <div id="panel">
+              <Outlet />
+            </div>
+          </ContentBox>
+        </React.Suspense>
       </Tabs>
     </>
   );

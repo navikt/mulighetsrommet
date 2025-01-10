@@ -16,6 +16,9 @@ import { Outlet, useLoaderData, useLocation, useParams } from "react-router";
 import commonStyles from "../Page.module.scss";
 import { tiltaksgjennomforingLoader } from "./tiltaksgjennomforingLoaders";
 import { ContentBox } from "@/layouts/ContentBox";
+import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
+import React from "react";
+import { Laster } from "@/components/laster/Laster";
 
 function createBrodsmuler(
   tiltaksgjennomforingId: string,
@@ -80,7 +83,7 @@ export function TiltaksgjennomforingPage() {
   );
 
   return (
-    <main>
+    <>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header harForhandsvisningsknapp>
         <div
@@ -149,12 +152,16 @@ export function TiltaksgjennomforingPage() {
             </>
           ) : null}
         </Tabs.List>
-        <ContentBox>
-          <div id="panel">
-            <Outlet />
-          </div>
-        </ContentBox>
+        <React.Suspense fallback={<Laster tekst="Laster innhold..." />}>
+          <ContentBox>
+            <WhitePaddedBox>
+              <div id="panel">
+                <Outlet />
+              </div>
+            </WhitePaddedBox>
+          </ContentBox>
+        </React.Suspense>
       </Tabs>
-    </main>
+    </>
   );
 }

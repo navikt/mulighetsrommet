@@ -1,6 +1,5 @@
 import { Alert } from "@navikt/ds-react";
 import { useLoaderData } from "react-router";
-import { InfoContainer } from "@/components/skjema/InfoContainer";
 import { Toggles } from "@mr/api-client";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { RefusjonskravTabell } from "../refusjonskrav/RefusjonskravTabell";
@@ -20,7 +19,7 @@ export function RefusjonskravForGjennomforingContainer() {
   }
 
   return (
-    <InfoContainer>
+    <>
       {refusjonskrav.length > 0 ? (
         <RefusjonskravTabell refusjonskrav={refusjonskrav} />
       ) : (
@@ -28,6 +27,6 @@ export function RefusjonskravForGjennomforingContainer() {
           Det finnes ingen refusjonskrav for dette tiltaket
         </Alert>
       )}
-    </InfoContainer>
+    </>
   );
 }
