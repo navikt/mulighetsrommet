@@ -8,8 +8,8 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
@@ -22,7 +22,7 @@ import no.nav.mulighetsrommet.api.responses.respondWithStatusResponseError
 import no.nav.mulighetsrommet.api.services.EndretAv
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isForhaandsgodkjentTiltak
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.domain.serializers.AvbruttAarsakSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
@@ -41,7 +41,7 @@ fun Route.tiltaksgjennomforingRoutes() {
     route("tiltaksgjennomforinger") {
         authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
             put {
-                val request = call.receive<TiltaksgjennomforingRequest>()
+                val request = call.receive<GjennomforingRequest>()
                 val navIdent = getNavIdent()
 
                 val result = service.upsert(request, navIdent)
@@ -75,7 +75,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                     if (gjennomforing.tiltakstype.id != avtale.tiltakstype.id) {
                         return@put call.respond(
                             HttpStatusCode.BadRequest,
-                            message = "Tiltaksgjennomføringen må ha samme tiltakstype som avtalen",
+                            message = "Gjennomføringen må ha samme tiltakstype som avtalen",
                         )
                     }
                 }
@@ -95,7 +95,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                     message = "Gjennomføringen finnes ikke",
                 )
 
-                if (gjennomforing.status.status != TiltaksgjennomforingStatus.GJENNOMFORES) {
+                if (gjennomforing.status.status != GjennomforingStatus.GJENNOMFORES) {
                     return@put call.respond(
                         HttpStatusCode.BadRequest,
                         message = "Gjennomføringen er allerede avsluttet og kan derfor ikke avbrytes.",
@@ -252,7 +252,7 @@ fun Route.tiltaksgjennomforingRoutes() {
 
             val deltakereForGjennomforing = deltakere.getAll(id)
 
-            val summary = TiltaksgjennomforingDeltakerSummary(
+            val summary = GjennomforingDeltakerSummary(
                 antallDeltakere = deltakereForGjennomforing.size,
                 deltakereByStatus = deltakereForGjennomforing
                     .groupBy { it.status.type }
@@ -270,7 +270,7 @@ data class AdminTiltaksgjennomforingFilter(
     val search: String? = null,
     val navEnheter: List<String> = emptyList(),
     val tiltakstypeIder: List<UUID> = emptyList(),
-    val statuser: List<TiltaksgjennomforingStatus> = emptyList(),
+    val statuser: List<GjennomforingStatus> = emptyList(),
     val sortering: String? = null,
     val avtaleId: UUID? = null,
     val arrangorIds: List<UUID> = emptyList(),
@@ -283,7 +283,7 @@ fun RoutingContext.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomfor
     val navEnheter = call.parameters.getAll("navEnheter") ?: emptyList()
     val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { UUID.fromString(it) } ?: emptyList()
     val statuser = call.parameters.getAll("statuser")
-        ?.map { TiltaksgjennomforingStatus.valueOf(it) }
+        ?.map { GjennomforingStatus.valueOf(it) }
         ?: emptyList()
     val sortering = call.request.queryParameters["sort"]
     val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
@@ -304,7 +304,7 @@ fun RoutingContext.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomfor
 }
 
 @Serializable
-data class TiltaksgjennomforingDeltakerSummary(
+data class GjennomforingDeltakerSummary(
     val antallDeltakere: Int,
     val deltakereByStatus: List<DeltakerStatusSummary>,
 )
@@ -321,7 +321,7 @@ data class TiltaksnummerResponse(
 )
 
 @Serializable
-data class TiltaksgjennomforingRequest(
+data class GjennomforingRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
@@ -343,8 +343,8 @@ data class TiltaksgjennomforingRequest(
     val administratorer: List<NavIdent>,
     val navRegion: String,
     val navEnheter: List<String>,
-    val oppstart: TiltaksgjennomforingOppstartstype,
-    val kontaktpersoner: List<TiltaksgjennomforingKontaktpersonDto>,
+    val oppstart: GjennomforingOppstartstype,
+    val kontaktpersoner: List<GjennomforingKontaktpersonDto>,
     val stedForGjennomforing: String?,
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,
@@ -355,7 +355,7 @@ data class TiltaksgjennomforingRequest(
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo? = null,
 ) {
-    fun toDbo() = TiltaksgjennomforingDbo(
+    fun toDbo() = GjennomforingDbo(
         id = id,
         navn = navn,
         tiltakstypeId = tiltakstypeId,
@@ -370,7 +370,7 @@ data class TiltaksgjennomforingRequest(
         navEnheter = navEnheter,
         oppstart = oppstart,
         kontaktpersoner = kontaktpersoner.map {
-            TiltaksgjennomforingKontaktpersonDbo(
+            GjennomforingKontaktpersonDbo(
                 navIdent = it.navIdent,
                 navEnheter = it.navEnheter,
                 beskrivelse = it.beskrivelse,
@@ -401,7 +401,7 @@ data class SetAvtaleForGjennomforingRequest(
 )
 
 @Serializable
-data class TiltaksgjennomforingKontaktpersonDto(
+data class GjennomforingKontaktpersonDto(
     val navIdent: NavIdent,
     val navEnheter: List<String>,
     val beskrivelse: String?,

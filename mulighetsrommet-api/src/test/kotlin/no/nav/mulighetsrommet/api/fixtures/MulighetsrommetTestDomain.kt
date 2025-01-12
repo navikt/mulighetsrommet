@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRepository
@@ -45,7 +45,7 @@ data class MulighetsrommetTestDomain(
         AvtaleFixtures.jobbklubb,
         AvtaleFixtures.EnkelAmo,
     ),
-    val gjennomforinger: List<TiltaksgjennomforingDbo> = listOf(),
+    val gjennomforinger: List<GjennomforingDbo> = listOf(),
     val deltakere: List<DeltakerDbo> = listOf(),
     val refusjonskrav: List<RefusjonskravDbo> = listOf(),
 ) {

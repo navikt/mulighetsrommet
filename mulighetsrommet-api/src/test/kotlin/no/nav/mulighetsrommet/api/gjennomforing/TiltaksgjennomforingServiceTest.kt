@@ -14,7 +14,7 @@ import io.mockk.*
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
@@ -24,8 +24,8 @@ import no.nav.mulighetsrommet.api.services.EndretAv
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
+import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -56,7 +56,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         domain.initialize(database.db)
 
         every { validator.validate(any(), any()) } answers {
-            firstArg<TiltaksgjennomforingDbo>().right()
+            firstArg<GjennomforingDbo>().right()
         }
     }
 
@@ -241,7 +241,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             )
 
             tiltaksgjennomforingService.get(gjennomforing.id).shouldNotBeNull().should {
-                it.status.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
+                it.status.status shouldBe GjennomforingStatus.AVBRUTT
             }
 
             verify(exactly = 1) {
@@ -280,7 +280,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             }
 
             tiltaksgjennomforingService.get(gjennomforing.id).shouldNotBeNull().should {
-                it.status.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
+                it.status.status shouldBe GjennomforingStatus.GJENNOMFORES
             }
         }
     }

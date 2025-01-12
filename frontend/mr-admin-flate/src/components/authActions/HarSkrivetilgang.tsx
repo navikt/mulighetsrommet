@@ -4,7 +4,7 @@ import { NavAnsatt, NavAnsattRolle } from "@mr/api-client";
 
 interface Props {
   children: ReactNode;
-  ressurs: "Avtale" | "Tiltaksgjennomføring";
+  ressurs: "Avtale" | "Gjennomføring";
   condition?: boolean;
 }
 
@@ -16,7 +16,7 @@ export function HarSkrivetilgang({ ressurs, children, condition }: Props) {
   } else if (ressurs === "Avtale" && harRolle(ansatt, NavAnsattRolle.AVTALER_SKRIV)) {
     return children;
   } else if (
-    ressurs === "Tiltaksgjennomføring" &&
+    ressurs === "Gjennomføring" &&
     harRolle(ansatt, NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)
   ) {
     return children;

@@ -6,7 +6,7 @@ import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.okonomi.BestillingDto
 import no.nav.mulighetsrommet.api.okonomi.OkonomiClient
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
@@ -260,7 +260,7 @@ class TilsagnService(
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto = endringshistorikkService.getEndringshistorikk(DocumentClass.TILSAGN, id)
 
     private fun validateGjennomforingBeregningInput(
-        gjennomforing: TiltaksgjennomforingDto,
+        gjennomforing: GjennomforingDto,
         input: TilsagnBeregningInput,
     ): Either<List<ValidationError>, TilsagnBeregningInput> {
         return when (input) {

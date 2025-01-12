@@ -17,7 +17,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforinge
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import java.time.LocalDate
 
@@ -35,12 +35,12 @@ class UpdateApentForPameldingTest : FunSpec({
                 TiltaksgjennomforingFixtures.Jobbklubb1.copy(
                     startDato = startDato,
                     sluttDato = sluttDato,
-                    oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
+                    oppstart = GjennomforingOppstartstype.LOPENDE,
                 ),
                 TiltaksgjennomforingFixtures.GruppeAmo1.copy(
                     startDato = startDato,
                     sluttDato = sluttDato,
-                    oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+                    oppstart = GjennomforingOppstartstype.FELLES,
                 ),
             ),
         )

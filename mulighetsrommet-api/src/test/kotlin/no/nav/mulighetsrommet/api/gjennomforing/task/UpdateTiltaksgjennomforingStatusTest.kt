@@ -17,8 +17,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepositor
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus.*
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
+import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus.*
+import no.nav.mulighetsrommet.domain.dto.GjennomforingStatusDto
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import java.time.LocalDate
 import java.util.*
@@ -84,13 +84,13 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             task.oppdaterTiltaksgjennomforingStatus(today = LocalDate.of(2023, 1, 31))
 
             gjennomforinger.get(gjennomforing1.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
+                it.status.shouldBe(GjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
             }
             gjennomforinger.get(gjennomforing2.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
+                it.status.shouldBe(GjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
             }
             gjennomforinger.get(gjennomforing3.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
+                it.status.shouldBe(GjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
             }
 
             verify(exactly = 0) { producer.publish(any()) }
@@ -103,13 +103,13 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             task.oppdaterTiltaksgjennomforingStatus(today = LocalDate.of(2023, 2, 1))
 
             gjennomforinger.get(gjennomforing1.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
+                it.status.shouldBe(GjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
             }
             gjennomforinger.get(gjennomforing2.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                it.status.shouldBe(GjennomforingStatusDto(AVSLUTTET, avbrutt = null))
             }
             gjennomforinger.get(gjennomforing3.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                it.status.shouldBe(GjennomforingStatusDto(AVSLUTTET, avbrutt = null))
             }
 
             verifyAll {
@@ -133,13 +133,13 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             task.oppdaterTiltaksgjennomforingStatus(today = LocalDate.of(2023, 3, 1))
 
             gjennomforinger.get(gjennomforing1.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
+                it.status.shouldBe(GjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
             }
             gjennomforinger.get(gjennomforing2.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                it.status.shouldBe(GjennomforingStatusDto(AVSLUTTET, avbrutt = null))
             }
             gjennomforinger.get(gjennomforing3.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                it.status.shouldBe(GjennomforingStatusDto(AVSLUTTET, avbrutt = null))
             }
 
             verifyAll {
@@ -181,7 +181,7 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             task.oppdaterTiltaksgjennomforingStatus(today = LocalDate.of(2024, 1, 2))
 
             gjennomforinger.get(gjennomforing1.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                it.status.shouldBe(GjennomforingStatusDto(AVSLUTTET, avbrutt = null))
             }
             gjennomforinger.get(gjennomforing2.id).shouldNotBeNull().should {
                 it.status.status.shouldBe(AVLYST)
@@ -229,7 +229,7 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             task.oppdaterTiltaksgjennomforingStatus(today = LocalDate.of(2023, 2, 1))
 
             gjennomforinger.get(gjennomforing.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                it.status.shouldBe(GjennomforingStatusDto(AVSLUTTET, avbrutt = null))
                 it.publisert.shouldBe(false)
                 it.apentForPamelding.shouldBe(false)
             }

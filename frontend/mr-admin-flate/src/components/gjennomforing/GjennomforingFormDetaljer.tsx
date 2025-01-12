@@ -10,8 +10,8 @@ import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
 import { addYear, formaterDato } from "@/utils/Utils";
 import {
   AvtaleDto,
-  TiltaksgjennomforingDto,
-  TiltaksgjennomforingOppstartstype,
+  GjennomforingDto,
+  GjennomforingOppstartstype,
   Tiltakskode,
 } from "@mr/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common";
@@ -42,7 +42,7 @@ import styles from "./GjennomforingFormDetaljer.module.scss";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 
 interface Props {
-  gjennomforing?: TiltaksgjennomforingDto;
+  gjennomforing?: GjennomforingDto;
   avtale: AvtaleDto;
 }
 
@@ -242,7 +242,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
                 />
               )}
             </HGrid>
-            {watch("oppstart") === TiltaksgjennomforingOppstartstype.LOPENDE ? (
+            {watch("oppstart") === GjennomforingOppstartstype.LOPENDE ? (
               <>
                 <fieldset className={styles.fieldset_no_styling}>
                   <HStack gap="1">

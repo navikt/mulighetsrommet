@@ -2,13 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "@mr/frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
 import { GjennomforingFilter } from "../atoms";
-import { type GetTiltaksgjennomforingerData, TiltaksgjennomforingerService } from "@mr/api-client";
+import { type GetGjennomforingerData, GjennomforingerService } from "@mr/api-client";
 import { getPublisertStatus } from "../../utils/Utils";
 
 export function useAdminGjennomforinger(filter: Partial<GjennomforingFilter>) {
   const debouncedSok = useDebounce(filter.search?.trim(), 300);
 
-  const queryFilter: GetTiltaksgjennomforingerData = {
+  const queryFilter: GetGjennomforingerData = {
     search: debouncedSok || undefined,
     navEnheter: filter.navEnheter?.map((e) => e.enhetsnummer) ?? [],
     tiltakstyper: filter.tiltakstyper,
@@ -25,7 +25,7 @@ export function useAdminGjennomforinger(filter: Partial<GjennomforingFilter>) {
     queryKey: QueryKeys.gjennomforinger(filter.visMineGjennomforinger, queryFilter),
     queryFn: () =>
       filter.visMineGjennomforinger
-        ? TiltaksgjennomforingerService.getMineTiltaksgjennomforinger(queryFilter)
-        : TiltaksgjennomforingerService.getTiltaksgjennomforinger(queryFilter),
+        ? GjennomforingerService.getMineGjennomforinger(queryFilter)
+        : GjennomforingerService.getGjennomforinger(queryFilter),
   });
 }

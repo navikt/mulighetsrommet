@@ -26,7 +26,7 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -255,7 +255,7 @@ class ArenaAdapterServiceTest :
                 gjennomforinger.get(gjennomforing1.id).shouldNotBeNull().should {
                     it.tiltaksnummer shouldBe "2024#2024"
                     it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = "Nav Tiltak Oslo", enhetsnummer = "0387")
-                    it.status.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
+                    it.status.status shouldBe GjennomforingStatus.GJENNOMFORES
 
                     it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
                     it.avtaleId shouldBe gjennomforing1.avtaleId

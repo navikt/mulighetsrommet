@@ -1,12 +1,12 @@
 import { useSetAtom } from "jotai";
-import { Opphav, TiltaksgjennomforingDto } from "@mr/api-client";
+import { Opphav, GjennomforingDto } from "@mr/api-client";
 import { useNavigate } from "react-router";
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { DupliserButton } from "../detaljside/DupliserButton";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 
 interface Props {
-  gjennomforing: TiltaksgjennomforingDto;
+  gjennomforing: GjennomforingDto;
 }
 
 export function DupliserGjennomforing({ gjennomforing }: Props) {
@@ -17,7 +17,7 @@ export function DupliserGjennomforing({ gjennomforing }: Props) {
     setGjennomforingDetaljerTab("detaljer");
     navigate(`/avtaler/${gjennomforing.avtaleId}/tiltaksgjennomforinger/skjema`, {
       state: {
-        dupliserTiltaksgjennomforing: {
+        dupliserGjennomforing: {
           opphav: Opphav.MR_ADMIN_FLATE,
           avtaleId: gjennomforing.avtaleId,
           beskrivelse: gjennomforing.beskrivelse,
@@ -28,7 +28,7 @@ export function DupliserGjennomforing({ gjennomforing }: Props) {
   }
 
   return (
-    <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
+    <HarSkrivetilgang ressurs="Gjennomføring">
       <DupliserButton
         title="Dupliser tiltaksgjennomføring"
         onClick={apneRedigeringForDupliseringAvTiltak}

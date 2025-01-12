@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.domain.serializers.AvbruttAarsakSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
-enum class TiltaksgjennomforingStatus {
+enum class GjennomforingStatus {
     GJENNOMFORES,
     AVSLUTTET,
     AVBRUTT,
@@ -13,8 +13,8 @@ enum class TiltaksgjennomforingStatus {
 }
 
 @Serializable
-data class TiltaksgjennomforingStatusDto(
-    val status: TiltaksgjennomforingStatus,
+data class GjennomforingStatusDto(
+    val status: GjennomforingStatus,
     val avbrutt: AvbruttDto?,
 )
 

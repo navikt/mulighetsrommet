@@ -14,7 +14,7 @@ import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.domain.dto.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
@@ -263,8 +263,8 @@ private fun inititalizeData(database: FlywayDatabaseTestListener) {
         virksomhetsnummer = "123123123",
         startDato = LocalDate.now(),
         sluttDato = null,
-        status = TiltaksgjennomforingStatus.GJENNOMFORES,
-        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+        status = GjennomforingStatus.GJENNOMFORES,
+        oppstart = GjennomforingOppstartstype.FELLES,
         tilgjengeligForArrangorFraOgMedDato = null,
         apentForPamelding = true,
     )

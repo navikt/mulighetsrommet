@@ -1,5 +1,5 @@
 import { Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
-import { AvtaleDto, TiltaksgjennomforingDto } from "@mr/api-client";
+import { AvtaleDto, GjennomforingDto } from "@mr/api-client";
 import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
 import { useFormContext } from "react-hook-form";
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
@@ -18,10 +18,7 @@ export function GjennomforingRedaksjoneltInnholdForm({ avtale }: Props) {
 
   const { setValue } = useFormContext<InferredGjennomforingSchema>();
 
-  function kopierRedaksjoneltInnhold({
-    beskrivelse,
-    faneinnhold,
-  }: TiltaksgjennomforingDto | AvtaleDto) {
+  function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: GjennomforingDto | AvtaleDto) {
     setValue("beskrivelse", beskrivelse ?? null);
     setValue("faneinnhold", faneinnhold ?? null);
     // Ved å endre `key` så tvinger vi en update av den underliggende Slate-komponenten slik at

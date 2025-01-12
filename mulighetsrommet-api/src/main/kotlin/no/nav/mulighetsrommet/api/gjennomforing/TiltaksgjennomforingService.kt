@@ -6,10 +6,10 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -21,9 +21,9 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
+import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -42,9 +42,9 @@ class TiltaksgjennomforingService(
     private val db: Database,
 ) {
     suspend fun upsert(
-        request: TiltaksgjennomforingRequest,
+        request: GjennomforingRequest,
         navIdent: NavIdent,
-    ): Either<List<ValidationError>, TiltaksgjennomforingDto> {
+    ): Either<List<ValidationError>, GjennomforingDto> {
         val previous = tiltaksgjennomforinger.get(request.id)
         return validator.validate(request.toDbo(), previous)
             .onRight { dbo ->
@@ -75,14 +75,14 @@ class TiltaksgjennomforingService(
             }
     }
 
-    fun get(id: UUID): TiltaksgjennomforingDto? {
+    fun get(id: UUID): GjennomforingDto? {
         return tiltaksgjennomforinger.get(id)
     }
 
     fun getAll(
         pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
-    ): PaginatedResponse<TiltaksgjennomforingDto> = tiltaksgjennomforinger.getAll(
+    ): PaginatedResponse<GjennomforingDto> = tiltaksgjennomforinger.getAll(
         pagination,
         search = filter.search,
         navEnheter = filter.navEnheter,
@@ -169,9 +169,9 @@ class TiltaksgjennomforingService(
 
         val dto = getOrError(id, tx)
         val operation = when (dto.status.status) {
-            TiltaksgjennomforingStatus.AVSLUTTET,
-            TiltaksgjennomforingStatus.AVBRUTT,
-            TiltaksgjennomforingStatus.AVLYST,
+            GjennomforingStatus.AVSLUTTET,
+            GjennomforingStatus.AVBRUTT,
+            GjennomforingStatus.AVLYST,
             -> "Gjennomføringen ble ${dto.status.status.name.lowercase()}"
 
             else -> throw IllegalStateException("Gjennomføringen ble nettopp avsluttet, men status er fortsatt ${dto.status.status}")
@@ -219,14 +219,14 @@ class TiltaksgjennomforingService(
         )
     }
 
-    private fun getOrError(id: UUID, tx: TransactionalSession): TiltaksgjennomforingDto {
+    private fun getOrError(id: UUID, tx: TransactionalSession): GjennomforingDto {
         val gjennomforing = tiltaksgjennomforinger.get(id, tx)
         return requireNotNull(gjennomforing) { "Gjennomføringen med id=$id finnes ikke" }
     }
 
     private fun dispatchNotificationToNewAdministrators(
         tx: TransactionalSession,
-        dbo: TiltaksgjennomforingDbo,
+        dbo: GjennomforingDbo,
         navIdent: NavIdent,
     ) {
         val currentAdministratorer =
@@ -247,7 +247,7 @@ class TiltaksgjennomforingService(
 
     private fun logEndring(
         operation: String,
-        dto: TiltaksgjennomforingDto,
+        dto: GjennomforingDto,
         endretAv: EndretAv,
         tx: TransactionalSession,
     ) {

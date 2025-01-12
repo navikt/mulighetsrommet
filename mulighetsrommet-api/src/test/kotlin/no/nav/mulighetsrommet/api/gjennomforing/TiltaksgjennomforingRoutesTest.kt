@@ -20,7 +20,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepositor
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -401,7 +401,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 response.bodyAsText().shouldBeEmpty()
 
                 gjennomforinger.get(aktivGjennomforingId).shouldNotBeNull().should {
-                    it.status.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
+                    it.status.status shouldBe GjennomforingStatus.AVBRUTT
                     it.status.avbrutt?.aarsak shouldBe AvbruttAarsak.Feilregistrering
                 }
             }

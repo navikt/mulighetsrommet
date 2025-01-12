@@ -7,10 +7,10 @@ import no.nav.mulighetsrommet.api.veilederflate.models.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.Personopplysning
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import org.intellij.lang.annotations.Language
 import java.util.*
 
@@ -95,7 +95,7 @@ class VeilederflateTiltakRepository(private val db: Database) {
             stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
             apentForPamelding = boolean("apent_for_pamelding"),
             tiltaksnummer = stringOrNull("tiltaksnummer"),
-            oppstart = TiltaksgjennomforingOppstartstype.valueOf(string("oppstart")),
+            oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
             oppstartsdato = localDate("start_dato"),
             sluttdato = localDateOrNull("slutt_dato"),
             kontaktinfo = VeilederflateKontaktinfo(
@@ -119,7 +119,7 @@ class VeilederflateTiltakRepository(private val db: Database) {
             },
             personvernBekreftet = boolean("personvern_bekreftet"),
             personopplysningerSomKanBehandles = personopplysningerSomKanBehandles,
-            status = TiltaksgjennomforingStatus.valueOf(string("status")),
+            status = GjennomforingStatus.valueOf(string("status")),
         )
     }
 }

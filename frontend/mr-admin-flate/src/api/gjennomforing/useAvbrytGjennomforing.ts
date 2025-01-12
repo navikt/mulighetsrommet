@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ApiError, AvbrytGjennomforingAarsak, TiltaksgjennomforingerService } from "@mr/api-client";
+import { ApiError, AvbrytGjennomforingAarsak, GjennomforingerService } from "@mr/api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useAvbrytGjennomforing() {
@@ -8,7 +8,7 @@ export function useAvbrytGjennomforing() {
   return useMutation<unknown, ApiError, { id: string; aarsak: AvbrytGjennomforingAarsak | string }>(
     {
       mutationFn: (data: { id: string; aarsak?: AvbrytGjennomforingAarsak | string }) => {
-        return TiltaksgjennomforingerService.avbrytTiltaksgjennomforing({
+        return GjennomforingerService.avbrytGjennomforing({
           id: data.id,
           requestBody: { aarsak: data.aarsak },
         });

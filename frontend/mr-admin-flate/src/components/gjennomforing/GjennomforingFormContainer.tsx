@@ -9,8 +9,8 @@ import { logEvent } from "@/logging/amplitude";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AvtaleDto,
-  TiltaksgjennomforingDto,
-  TiltaksgjennomforingRequest,
+  GjennomforingDto,
+  GjennomforingRequest,
   Tiltakskode,
   ValidationErrorResponse,
 } from "@mr/api-client";
@@ -31,7 +31,7 @@ interface Props {
   onClose: () => void;
   onSuccess: (id: string) => void;
   avtale: AvtaleDto;
-  gjennomforing?: TiltaksgjennomforingDto;
+  gjennomforing?: GjennomforingDto;
   defaultValues: DeepPartial<InferredGjennomforingSchema>;
 }
 
@@ -65,10 +65,7 @@ export function GjennomforingFormContainer({
     formState: { errors },
   } = form;
 
-  const handleSuccess = useCallback(
-    (dto: TiltaksgjennomforingDto) => onSuccess(dto.id),
-    [onSuccess],
-  );
+  const handleSuccess = useCallback((dto: GjennomforingDto) => onSuccess(dto.id), [onSuccess]);
   const handleValidationError = useCallback(
     (validation: ValidationErrorResponse) => {
       validation.errors.forEach((error) => {
@@ -90,7 +87,7 @@ export function GjennomforingFormContainer({
   );
 
   const postData: SubmitHandler<InferredGjennomforingSchema> = async (data): Promise<void> => {
-    const body: TiltaksgjennomforingRequest = {
+    const body: GjennomforingRequest = {
       id: gjennomforing?.id || uuidv4(),
       antallPlasser: data.antallPlasser,
       tiltakstypeId: avtale.tiltakstype.id,

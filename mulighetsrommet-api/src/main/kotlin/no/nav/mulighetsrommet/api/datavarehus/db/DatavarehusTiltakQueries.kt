@@ -225,7 +225,7 @@ object DatavarehusTiltakQueries {
             sluttDato = localDateOrNull("slutt_dato"),
             opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
             oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
-            status = TiltaksgjennomforingStatus.valueOf(string("status")),
+            status = GjennomforingStatus.valueOf(string("status")),
             arrangor = DatavarehusTiltak.Arrangor(
                 organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
             ),

@@ -1,4 +1,4 @@
-import { NavAnsatt, NavAnsattRolle, TiltaksgjennomforingKontaktperson } from "@mr/api-client";
+import { NavAnsatt, NavAnsattRolle, GjennomforingKontaktperson } from "@mr/api-client";
 
 const bertil: NavAnsatt = {
   azureId: "8c133e5e-fd93-4226-8567-41d699a3efee",
@@ -81,7 +81,7 @@ const petrus: NavAnsatt = {
   skalSlettesDato: null,
 };
 
-export const petrusKontaktperson: TiltaksgjennomforingKontaktperson = {
+export const petrusKontaktperson: GjennomforingKontaktperson = {
   navIdent: petrus.navIdent,
   navn: petrus.fornavn + " " + petrus.etternavn,
   epost: petrus.epost,
@@ -90,7 +90,7 @@ export const petrusKontaktperson: TiltaksgjennomforingKontaktperson = {
   beskrivelse: "Beskrivelse til Petrus",
 };
 
-export const nikolineKontaktperson: TiltaksgjennomforingKontaktperson = {
+export const nikolineKontaktperson: GjennomforingKontaktperson = {
   navIdent: nikoline.navIdent,
   navn: nikoline.fornavn + " " + nikoline.etternavn,
   epost: nikoline.epost,

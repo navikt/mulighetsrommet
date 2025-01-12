@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRepository
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dto.UtdanningslopDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
@@ -23,7 +23,7 @@ import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
@@ -35,11 +35,11 @@ import java.util.*
 class TiltaksgjennomforingRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo) = db.transaction {
+    fun upsert(tiltaksgjennomforing: GjennomforingDbo) = db.transaction {
         upsert(tiltaksgjennomforing, it)
     }
 
-    fun upsert(tiltaksgjennomforing: TiltaksgjennomforingDbo, tx: Session) {
+    fun upsert(tiltaksgjennomforing: GjennomforingDbo, tx: Session) {
         logger.info("Lagrer tiltaksgjennomføring id=${tiltaksgjennomforing.id}")
         @Language("PostgreSQL")
         val query = """
@@ -297,11 +297,11 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .asExecute.let { tx.run(it) }
     }
 
-    fun get(id: UUID): TiltaksgjennomforingDto? = db.transaction {
+    fun get(id: UUID): GjennomforingDto? = db.transaction {
         get(id, it)
     }
 
-    fun get(id: UUID, tx: Session): TiltaksgjennomforingDto? {
+    fun get(id: UUID, tx: Session): GjennomforingDto? {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -332,7 +332,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         search: String? = null,
         navEnheter: List<String> = emptyList(),
         tiltakstypeIder: List<UUID> = emptyList(),
-        statuser: List<TiltaksgjennomforingStatus> = emptyList(),
+        statuser: List<GjennomforingStatus> = emptyList(),
         sortering: String? = null,
         sluttDatoGreaterThanOrEqualTo: LocalDate? = null,
         avtaleId: UUID? = null,
@@ -341,7 +341,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         administratorNavIdent: NavIdent? = null,
         opphav: ArenaMigrering.Opphav? = null,
         publisert: Boolean? = null,
-    ): PaginatedResult<TiltaksgjennomforingDto> {
+    ): PaginatedResult<GjennomforingDto> {
         val parameters = mapOf(
             "search" to search?.toFTSPrefixQuery(),
             "search_arrangor" to search?.trim()?.let { "%$it%" },
@@ -408,7 +408,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         }
     }
 
-    fun getGjennomforesInPeriodeUtenRefusjonskrav(periode: RefusjonskravPeriode): List<TiltaksgjennomforingDto> {
+    fun getGjennomforesInPeriodeUtenRefusjonskrav(periode: RefusjonskravPeriode): List<GjennomforingDto> {
         @Language("PostgreSQL")
         val query = """
             select * from tiltaksgjennomforing_admin_dto_view
@@ -551,7 +551,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         queryOf(query, kontaktpersonId, gjennomforingId).asUpdate.runWithSession(tx)
     }
 
-    private fun TiltaksgjennomforingDbo.toSqlParameters() = mapOf(
+    private fun GjennomforingDbo.toSqlParameters() = mapOf(
         "opphav" to ArenaMigrering.Opphav.MR_ADMIN_FLATE.name,
         "id" to id,
         "navn" to navn,
@@ -572,9 +572,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "tilgjengelig_for_arrangor_fra_dato" to tilgjengeligForArrangorFraOgMedDato,
     )
 
-    private fun Row.toTiltaksgjennomforingDto(): TiltaksgjennomforingDto {
+    private fun Row.toTiltaksgjennomforingDto(): GjennomforingDto {
         val administratorer = stringOrNull("administratorer_json")
-            ?.let { Json.decodeFromString<List<TiltaksgjennomforingDto.Administrator>>(it) }
+            ?.let { Json.decodeFromString<List<GjennomforingDto.Administrator>>(it) }
             ?: emptyList()
         val navEnheterDto = stringOrNull("nav_enheter_json")
             ?.let { Json.decodeFromString<List<NavEnhetDbo>>(it) }
@@ -592,9 +592,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             Json.decodeFromString<UtdanningslopDto>(it)
         }
 
-        val status = TiltaksgjennomforingStatus.valueOf(string("status"))
+        val status = GjennomforingStatus.valueOf(string("status"))
         val avbrutt = when (status) {
-            TiltaksgjennomforingStatus.AVBRUTT, TiltaksgjennomforingStatus.AVLYST -> {
+            GjennomforingStatus.AVBRUTT, GjennomforingStatus.AVLYST -> {
                 val aarsak = AvbruttAarsak.fromString(string("avbrutt_aarsak"))
                 AvbruttDto(
                     tidspunkt = localDateTime("avsluttet_tidspunkt"),
@@ -606,24 +606,24 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             else -> null
         }
 
-        return TiltaksgjennomforingDto(
+        return GjennomforingDto(
             id = uuid("id"),
             navn = string("navn"),
             tiltaksnummer = stringOrNull("tiltaksnummer"),
             startDato = startDato,
             sluttDato = sluttDato,
-            status = TiltaksgjennomforingStatusDto(status, avbrutt),
+            status = GjennomforingStatusDto(status, avbrutt),
             apentForPamelding = boolean("apent_for_pamelding"),
             antallPlasser = int("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
-            oppstart = TiltaksgjennomforingOppstartstype.valueOf(string("oppstart")),
+            oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             beskrivelse = stringOrNull("beskrivelse"),
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
             createdAt = localDateTime("created_at"),
             deltidsprosent = double("deltidsprosent"),
             estimertVentetid = intOrNull("estimert_ventetid_verdi")?.let {
-                TiltaksgjennomforingDto.EstimertVentetid(
+                GjennomforingDto.EstimertVentetid(
                     verdi = int("estimert_ventetid_verdi"),
                     enhet = string("estimert_ventetid_enhet"),
                 )
@@ -648,14 +648,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             },
             kontaktpersoner = kontaktpersoner,
             administratorer = administratorer,
-            arrangor = TiltaksgjennomforingDto.ArrangorUnderenhet(
+            arrangor = GjennomforingDto.ArrangorUnderenhet(
                 id = uuid("arrangor_id"),
                 organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
                 navn = string("arrangor_navn"),
                 slettet = boolean("arrangor_slettet"),
                 kontaktpersoner = arrangorKontaktpersoner,
             ),
-            tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
+            tiltakstype = GjennomforingDto.Tiltakstype(
                 id = uuid("tiltakstype_id"),
                 navn = string("tiltakstype_navn"),
                 tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),

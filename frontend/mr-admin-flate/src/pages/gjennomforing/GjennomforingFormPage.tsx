@@ -1,7 +1,7 @@
 import { Header } from "@/components/detaljside/Header";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { defaultTiltaksgjennomforingData } from "@/components/gjennomforing/GjennomforingFormConst";
+import { defaultGjennomforingData } from "@/components/gjennomforing/GjennomforingFormConst";
 import { GjennomforingFormContainer } from "@/components/gjennomforing/GjennomforingFormContainer";
 import { ErrorMeldinger } from "@/components/gjennomforing/GjennomforingFormErrors";
 import { avtaleHarRegioner, inneholderUrl } from "@/utils/Utils";
@@ -87,10 +87,10 @@ export function GjennomforingFormPage() {
               }
               avtale={avtale}
               gjennomforing={gjennomforing}
-              defaultValues={defaultTiltaksgjennomforingData(
+              defaultValues={defaultGjennomforingData(
                 ansatt,
                 avtale,
-                location.state?.dupliserTiltaksgjennomforing ?? gjennomforing,
+                location.state?.dupliserGjennomforing ?? gjennomforing,
               )}
             />
           )}

@@ -2,7 +2,7 @@ import {
   AvtalerService,
   TilsagnService,
   TilsagnStatus,
-  TiltaksgjennomforingerService,
+  GjennomforingerService,
 } from "@mr/api-client";
 import { LoaderFunctionArgs } from "react-router";
 
@@ -18,7 +18,7 @@ export async function redigerTilsagnLoader({ params }: LoaderFunctionArgs) {
   }
 
   const [gjennomforing, tilsagn, godkjenteTilsagn] = await Promise.all([
-    TiltaksgjennomforingerService.getTiltaksgjennomforing({ id: gjennomforingId }),
+    GjennomforingerService.getGjennomforing({ id: gjennomforingId }),
     TilsagnService.getTilsagn({ id: tilsagnId }),
     TilsagnService.getAll({
       gjennomforingId,

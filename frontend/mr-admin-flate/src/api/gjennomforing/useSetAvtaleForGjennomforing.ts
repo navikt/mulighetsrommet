@@ -1,13 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
-import { TiltaksgjennomforingerService } from "@mr/api-client";
+import { GjennomforingerService } from "@mr/api-client";
 
 export function useSetAvtaleForGjennomforing() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (data: { gjennomforingId: string; avtaleId?: string }) => {
-      return TiltaksgjennomforingerService.setAvtaleForGjennomforing({
+      return GjennomforingerService.setAvtaleForGjennomforing({
         id: data.gjennomforingId,
         requestBody: {
           avtaleId: data.avtaleId,

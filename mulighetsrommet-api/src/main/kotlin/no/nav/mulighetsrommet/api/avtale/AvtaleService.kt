@@ -169,7 +169,7 @@ class AvtaleService(
 
         val (_, gjennomforinger) = tiltaksgjennomforinger.getAll(
             avtaleId = id,
-            statuser = listOf(TiltaksgjennomforingStatus.GJENNOMFORES),
+            statuser = listOf(GjennomforingStatus.GJENNOMFORES),
         )
 
         if (gjennomforinger.isNotEmpty()) {
