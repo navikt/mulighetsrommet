@@ -414,6 +414,7 @@ class TilsagnRepository(private val db: Database) {
             tiltakstype = ArrangorflateTilsagn.Tiltakstype(
                 navn = string("tiltakstype_navn"),
             ),
+            type = TilsagnType.valueOf(string("type")),
             periodeSlutt = localDate("periode_slutt"),
             periodeStart = localDate("periode_start"),
             arrangor = ArrangorflateTilsagn.Arrangor(

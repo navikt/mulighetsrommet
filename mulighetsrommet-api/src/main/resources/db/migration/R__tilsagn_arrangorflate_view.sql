@@ -6,6 +6,7 @@ select
     tiltaksgjennomforing.navn as gjennomforing_navn,
     tiltaksgjennomforing.id as gjennomforing_id,
     tiltakstype.navn as tiltakstype_navn,
+    tilsagn.type,
     tilsagn.periode_start,
     tilsagn.periode_slutt,
     tilsagn.beregning,

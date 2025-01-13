@@ -5595,6 +5595,8 @@ components:
               type: string
           required:
             - navn
+        type:
+          $ref: "#/components/schemas/TilsagnType"
         periodeStart:
           type: string
           format: date
@@ -5622,6 +5624,7 @@ components:
       required:
         - periodeStart
         - periodeSlutt
+        - type
         - status
         - gjennomforing
         - tiltakstype
