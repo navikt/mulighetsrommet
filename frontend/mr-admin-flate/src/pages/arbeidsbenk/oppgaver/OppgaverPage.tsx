@@ -11,6 +11,7 @@ import { OppgaverFilter } from "../../../components/filter/OppgaverFilter";
 import { oppgaverFilterAtom } from "@/api/atoms";
 import { notifikasjonLoader } from "@/pages/arbeidsbenk/notifikasjoner/notifikasjonerLoader";
 import { oppgaverLoader } from "@/pages/arbeidsbenk/oppgaver/oppgaverLoader";
+import { Oppgave } from "@/components/oppgaver/Oppgave";
 
 export function OppgaverPage() {
   const { pathname } = useLocation();
@@ -18,7 +19,6 @@ export function OppgaverPage() {
   useTitle("Nye oppgaver");
 
   const oppgaver = useLoaderData<typeof oppgaverLoader>();
-  console.log("here", oppgaver);
 
   return (
     <main className={oppgaverPageStyles.root}>
@@ -32,11 +32,16 @@ export function OppgaverPage() {
             </Select>
           </div>
         </div>
-        <ContainerLayout>
+        {/*<ContainerLayout>
           <div id="panel">
             <Outlet />
           </div>
-        </ContainerLayout>
+        </ContainerLayout>*/}
+        <div className={oppgaverPageStyles.oppgaver}>
+          {oppgaver.map((o) => {
+            return <Oppgave oppgave={o} />;
+          })}
+        </div>
       </div>
     </main>
   );

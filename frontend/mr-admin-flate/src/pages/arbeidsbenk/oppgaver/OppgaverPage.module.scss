@@ -13,3 +13,10 @@
 .content {
   flex: 1;
 }
+
+.oppgaver {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--a-spacing-2);
+  margin-top: var(--a-spacing-4);
+}
