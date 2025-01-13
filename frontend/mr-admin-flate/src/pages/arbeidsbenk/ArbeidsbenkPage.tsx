@@ -38,6 +38,7 @@ export function ArbeidsbenkPage() {
             label={`Notifikasjoner ${notifikasjoner ? `(${notifikasjoner})` : ""}`}
             onClick={() => navigate("/arbeidsbenk/notifikasjoner")}
             aria-controls="panel"
+            data-testid="notifikasjoner"
           />
         </Tabs.List>
         <ContentBox>

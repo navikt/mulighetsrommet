@@ -67,8 +67,8 @@ test.describe("Smoketest og UU", () => {
 
   test("Notifikasjoner", async ({ page }) => {
     await page.getByTestId("notifikasjoner").click();
-    await expect(page.getByTestId("header_notifikasjoner")).toBeVisible();
-    await sjekkUU(page, "header_notifikasjoner");
+    await expect(page.getByTestId("header_arbeidsbenk")).toBeVisible();
+    await sjekkUU(page, "header_arbeidsbenk");
   });
 
   test("Arrangører", async ({ page }) => {
