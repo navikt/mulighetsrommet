@@ -107,7 +107,7 @@ nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "commo
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
 nav-common-tokenClient = { module = "no.nav.common:token-client", version.ref = "common-java-modules" }
 nav-common-client = { module = "no.nav.common:client", version.ref = "common-java-modules" }
-nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2024.11.26_08.36-ad014162ce23"
+nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2025.01.10_06.33-afbc6bc84eed"
 nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.1.10"
 
 opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.46.0"
