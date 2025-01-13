@@ -7,7 +7,6 @@ import {
 import { Accordion, Radio, RadioGroup } from "@navikt/ds-react";
 import { addOrRemove } from "@/utils/Utils";
 import { FilterAccordionHeader } from "@mr/frontend-common";
-import { Tiltakstypefilter } from "mulighetsrommet-veileder-flate/src/components/filtrering/Tiltakstypefilter";
 import styles from "./OppgaverFilter.module.scss";
 
 interface Props {
@@ -53,7 +52,7 @@ export function OppgaverFilter({ filterAtom }: Props) {
             </div>
           </Accordion.Content>
         </Accordion.Item>
-        <Tiltakstypefilter antallValgteTiltakstyper={5} />
+        {/*<Tiltakstypefilter antallValgteTiltakstyper={5} /> */}
       </Accordion>
     </div>
   );
