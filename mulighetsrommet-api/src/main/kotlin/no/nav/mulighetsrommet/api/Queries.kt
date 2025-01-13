@@ -76,7 +76,7 @@ class ApiDatabase(
         }
     }
 
-    inline fun <T> tx(
+    inline fun <T> transaction(
         operation: QueryContext.() -> T,
     ): T {
         return db.transaction { session ->

@@ -1,7 +1,10 @@
 package no.nav.mulighetsrommet.api.avtale
 
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.mapOrAccumulate
+import arrow.core.nel
 import arrow.core.raise.either
+import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
@@ -30,67 +33,39 @@ class AvtaleService(
     private val validator: AvtaleValidator,
     private val gjennomforingPublisher: InitialLoadTiltaksgjennomforinger,
 ) {
-    fun get(id: UUID): AvtaleDto? = db.session {
-        queries.avtale.get(id)
+    suspend fun upsert(
+        request: AvtaleRequest,
+        navIdent: NavIdent,
+    ): Either<List<ValidationError>, AvtaleDto> = either {
+        val (arrangor, underenheter) = syncArrangorerFromBrreg(request).bind()
+        val previous = get(request.id)
+        val dbo = validator.validate(toAvtaleDbo(request, arrangor, underenheter), previous).bind()
+
+        if (previous?.toDbo() == dbo) {
+            return@either previous
+        }
+
+        db.transaction {
+            queries.avtale.upsert(dbo)
+
+            dispatchNotificationToNewAdministrators(dbo, navIdent)
+
+            val dto = getOrError(dbo.id)
+            val operation = if (previous == null) {
+                "Opprettet avtale"
+            } else {
+                "Redigerte avtale"
+            }
+            logEndring(operation, dto, EndretAv.NavAnsatt(navIdent))
+
+            schedulePublishGjennomforingerForAvtale(dto)
+
+            dto
+        }
     }
 
-    suspend fun upsert(request: AvtaleRequest, navIdent: NavIdent): Either<List<ValidationError>, AvtaleDto> = db.tx {
-        val previous = queries.avtale.get(request.id)
-        syncArrangorerFromBrreg(request)
-            .flatMap { (arrangor, underenheter) ->
-                val dbo = request.run {
-                    AvtaleDbo(
-                        id = id,
-                        navn = navn,
-                        avtalenummer = avtalenummer,
-                        websaknummer = websaknummer,
-                        tiltakstypeId = tiltakstypeId,
-                        arrangorId = arrangor.id,
-                        arrangorUnderenheter = underenheter.map { it.id },
-                        arrangorKontaktpersoner = arrangorKontaktpersoner,
-                        startDato = startDato,
-                        sluttDato = sluttDato,
-                        opsjonMaksVarighet = opsjonsmodellData?.opsjonMaksVarighet,
-                        avtaletype = avtaletype,
-                        antallPlasser = null,
-                        administratorer = administratorer,
-                        prisbetingelser = prisbetingelser,
-                        navEnheter = navEnheter,
-                        beskrivelse = beskrivelse,
-                        faneinnhold = faneinnhold,
-                        personopplysninger = personopplysninger,
-                        personvernBekreftet = personvernBekreftet,
-                        amoKategorisering = amoKategorisering,
-                        opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
-                        customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
-                        utdanningslop = utdanningslop,
-                        prismodell = prismodell,
-                    )
-                }
-                validator.validate(dbo, previous)
-            }
-            .map { dbo ->
-                if (previous?.toDbo() == dbo) {
-                    return@map previous
-                }
-
-                queries.avtale.upsert(dbo)
-
-                dispatchNotificationToNewAdministrators(dbo, navIdent)
-
-                val dto = getOrError(dbo.id)
-
-                val operation = if (previous == null) {
-                    "Opprettet avtale"
-                } else {
-                    "Redigerte avtale"
-                }
-                logEndring(operation, dto, EndretAv.NavAnsatt(navIdent))
-
-                schedulePublishGjennomforingerForAvtale(dto)
-
-                dto
-            }
+    fun get(id: UUID): AvtaleDto? = db.session {
+        queries.avtale.get(id)
     }
 
     fun getAll(
@@ -113,22 +88,22 @@ class AvtaleService(
         PaginatedResponse.of(pagination, totalCount, items)
     }
 
-    fun avbrytAvtale(id: UUID, navIdent: NavIdent, aarsak: AvbruttAarsak?): StatusResponse<Unit> = db.tx {
+    fun avbrytAvtale(id: UUID, navIdent: NavIdent, aarsak: AvbruttAarsak?): StatusResponse<Unit> = db.transaction {
         if (aarsak == null) {
-            return@tx Either.Left(BadRequest(message = "Årsak mangler"))
+            return Either.Left(BadRequest(message = "Årsak mangler"))
         }
-        val avtale = queries.avtale.get(id) ?: return@tx Either.Left(NotFound("Avtalen finnes ikke"))
+        val avtale = queries.avtale.get(id) ?: return Either.Left(NotFound("Avtalen finnes ikke"))
 
         if (aarsak is AvbruttAarsak.Annet && aarsak.name.length > 100) {
-            return@tx Either.Left(BadRequest(message = "Beskrivelse kan ikke inneholde mer enn 100 tegn"))
+            return Either.Left(BadRequest(message = "Beskrivelse kan ikke inneholde mer enn 100 tegn"))
         }
 
         if (aarsak is AvbruttAarsak.Annet && aarsak.name.isEmpty()) {
-            return@tx Either.Left(BadRequest(message = "Beskrivelse er obligatorisk når “Annet” er valgt som årsak"))
+            return Either.Left(BadRequest(message = "Beskrivelse er obligatorisk når “Annet” er valgt som årsak"))
         }
 
         if (avtale.status != AvtaleStatus.AKTIV) {
-            return@tx Either.Left(BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
+            return Either.Left(BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
         }
 
         val (_, gjennomforinger) = queries.gjennomforing.getAll(
@@ -144,7 +119,7 @@ class AvtaleService(
                 "og kan derfor ikke avbrytes.",
             ).joinToString(" ")
 
-            return@tx Either.Left(BadRequest(message))
+            return Either.Left(BadRequest(message))
         }
 
         queries.avtale.avbryt(id, LocalDateTime.now(), aarsak)
@@ -158,7 +133,7 @@ class AvtaleService(
         kontaktpersonId: UUID,
         avtaleId: UUID,
         navIdent: NavIdent,
-    ): Unit = db.tx {
+    ): Unit = db.transaction {
         queries.avtale.frikobleKontaktpersonFraAvtale(kontaktpersonId = kontaktpersonId, avtaleId = avtaleId)
 
         val avtale = getOrError(avtaleId)
@@ -181,7 +156,7 @@ class AvtaleService(
         )
     }
 
-    private suspend fun QueryContext.syncArrangorerFromBrreg(
+    private suspend fun syncArrangorerFromBrreg(
         request: AvtaleRequest,
     ): Either<List<ValidationError>, Pair<ArrangorDto, List<ArrangorDto>>> = either {
         val arrangor = syncArrangorFromBrreg(request.arrangorOrganisasjonsnummer).bind()
@@ -239,4 +214,38 @@ class AvtaleService(
             Json.encodeToJsonElement(dto)
         }
     }
+}
+
+private fun toAvtaleDbo(
+    request: AvtaleRequest,
+    arrangor: ArrangorDto,
+    underenheter: List<ArrangorDto>,
+): AvtaleDbo = request.run {
+    AvtaleDbo(
+        id = id,
+        navn = navn,
+        avtalenummer = avtalenummer,
+        websaknummer = websaknummer,
+        tiltakstypeId = tiltakstypeId,
+        arrangorId = arrangor.id,
+        arrangorUnderenheter = underenheter.map { it.id },
+        arrangorKontaktpersoner = arrangorKontaktpersoner,
+        startDato = startDato,
+        sluttDato = sluttDato,
+        opsjonMaksVarighet = opsjonsmodellData?.opsjonMaksVarighet,
+        avtaletype = avtaletype,
+        antallPlasser = null,
+        administratorer = administratorer,
+        prisbetingelser = prisbetingelser,
+        navEnheter = navEnheter,
+        beskrivelse = beskrivelse,
+        faneinnhold = faneinnhold,
+        personopplysninger = personopplysninger,
+        personvernBekreftet = personvernBekreftet,
+        amoKategorisering = amoKategorisering,
+        opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
+        customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
+        utdanningslop = utdanningslop,
+        prismodell = prismodell,
+    )
 }

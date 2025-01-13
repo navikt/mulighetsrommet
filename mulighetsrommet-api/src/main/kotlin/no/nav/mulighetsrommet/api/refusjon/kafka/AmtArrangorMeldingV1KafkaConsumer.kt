@@ -22,7 +22,7 @@ class AmtArrangorMeldingV1KafkaConsumer(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    override suspend fun consume(key: UUID, message: JsonElement): Unit = db.tx {
+    override suspend fun consume(key: UUID, message: JsonElement): Unit = db.session {
         logger.info("Konsumerer arrangor-melding med id=$key")
 
         when (val melding = JsonIgnoreUnknownKeys.decodeFromJsonElement<Melding?>(message)) {

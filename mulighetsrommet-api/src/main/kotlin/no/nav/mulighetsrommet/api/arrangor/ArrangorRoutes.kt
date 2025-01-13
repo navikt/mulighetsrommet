@@ -28,7 +28,7 @@ fun Route.arrangorRoutes() {
             val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
 
             if (isUtenlandskOrgnr(orgnr)) {
-                val virksomhet = db.tx { queries.arrangor.get(orgnr) }
+                val virksomhet = db.session { queries.arrangor.get(orgnr) }
                 return@post if (virksomhet != null) {
                     call.respond(virksomhet)
                 } else {
@@ -69,7 +69,7 @@ fun Route.arrangorRoutes() {
         get("hovedenhet/{id}") {
             val id: UUID by call.parameters
 
-            val arrangor = db.tx { queries.arrangor.getHovedenhetById(id) }
+            val arrangor = db.session { queries.arrangor.getHovedenhetById(id) }
 
             call.respond(arrangor)
         }
@@ -94,7 +94,7 @@ fun Route.arrangorRoutes() {
         get("kontaktperson/{id}") {
             val id: UUID by call.parameters
 
-            val koblinger = db.session { arrangorService.hentKoblingerForKontaktperson(id) }
+            val koblinger = arrangorService.hentKoblingerForKontaktperson(id)
 
             call.respond(koblinger)
         }

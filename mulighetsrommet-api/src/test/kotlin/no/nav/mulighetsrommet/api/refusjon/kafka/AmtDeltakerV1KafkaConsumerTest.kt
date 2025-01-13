@@ -226,7 +226,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             }
         }
 
-        test("trigger at refusjonskrav for aktell gjennomføring beregnes på nytt") {
+        test("trigger at refusjonskrav for aktuell gjennomføring beregnes på nytt") {
             val deltakerConsumer = createConsumer(refusjonService = refusjonService)
 
             deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))

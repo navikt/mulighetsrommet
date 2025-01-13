@@ -29,12 +29,12 @@ class ArenaAdapterService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleDto = db.tx {
+    suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleDto = db.transaction {
         syncArrangorFromBrreg(Organisasjonsnummer(avtale.arrangorOrganisasjonsnummer))
 
         val previous = queries.avtale.get(avtale.id)
         if (previous?.toArenaAvtaleDbo() == avtale) {
-            return@tx previous
+            return@transaction previous
         }
 
         queries.avtale.upsertArenaAvtale(avtale)
@@ -83,7 +83,7 @@ class ArenaAdapterService(
     private fun upsertGruppetiltak(
         tiltakstype: TiltakstypeDto,
         arenaGjennomforing: ArenaTiltaksgjennomforingDbo,
-    ): Unit = db.tx {
+    ): Unit = db.transaction {
         require(Tiltakskoder.isGruppetiltak(tiltakstype.arenaKode)) {
             "Gjennomføringer er ikke støttet for tiltakstype ${tiltakstype.arenaKode}"
         }
@@ -94,7 +94,7 @@ class ArenaAdapterService(
 
         if (!hasRelevantChanges(arenaGjennomforing, previous)) {
             logger.info("Gjennomføring hadde ingen endringer")
-            return@tx
+            return@transaction
         }
 
         queries.gjennomforing.updateArenaData(

@@ -48,7 +48,7 @@ class ApiDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpecLi
         return Assertions.assertThat(table)
     }
 
-    inline fun <T> run(block: QueryContext.(TransactionalSession) -> T): T = db.tx {
+    inline fun <T> run(block: QueryContext.(TransactionalSession) -> T): T = db.transaction {
         block(session as TransactionalSession)
     }
 

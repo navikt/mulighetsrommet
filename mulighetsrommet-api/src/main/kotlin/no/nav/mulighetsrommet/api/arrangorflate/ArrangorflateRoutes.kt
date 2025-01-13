@@ -166,7 +166,7 @@ fun Route.arrangorflateRoutes() {
                     return@post call.respondWithStatusResponse(BadRequest(errors = it).left())
                 }
 
-                db.tx {
+                db.transaction {
                     queries.refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now())
                     queries.refusjonskrav.setBetalingsInformasjon(
                         id,

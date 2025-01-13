@@ -58,7 +58,7 @@ class NavAnsattSyncService(
         }
     }
 
-    private suspend fun deleteNavAnsatt(ansatt: NavAnsattDto): Unit = db.tx {
+    private suspend fun deleteNavAnsatt(ansatt: NavAnsattDto): Unit = db.transaction {
         val avtaleIds = queries.avtale.getAvtaleIdsByAdministrator(ansatt.navIdent)
         val gjennomforinger = sanityService.getTiltakByNavIdent(ansatt.navIdent)
 

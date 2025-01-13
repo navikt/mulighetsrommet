@@ -42,7 +42,7 @@ fun Route.notificationRoutes() {
             val userId = getNavIdent()
             val (notifikasjoner) = call.receive<SetNotificationStatusRequest>()
 
-            db.tx {
+            db.transaction {
                 notifikasjoner.forEach {
                     val doneAt = when (it.status) {
                         NotificationStatus.DONE -> LocalDateTime.now()

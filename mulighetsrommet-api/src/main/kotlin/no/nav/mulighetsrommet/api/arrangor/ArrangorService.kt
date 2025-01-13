@@ -35,24 +35,21 @@ class ArrangorService(
                 }
             }
             .map { virksomhet ->
-                db.tx {
+                db.transaction {
                     queries.arrangor.upsert(virksomhet)
                     queries.arrangor.get(virksomhet.organisasjonsnummer)!!
                 }
             }
     }
 
-    // TODO inline
-    fun upsertKontaktperson(kontaktperson: ArrangorKontaktperson) = db.session {
+    fun upsertKontaktperson(kontaktperson: ArrangorKontaktperson): Unit = db.session {
         queries.arrangor.upsertKontaktperson(kontaktperson)
     }
 
-    // TODO inline
     fun hentKontaktpersoner(arrangorId: UUID): List<ArrangorKontaktperson> = db.session {
         queries.arrangor.getKontaktpersoner(arrangorId)
     }
 
-    // TODO inline
     fun hentKoblingerForKontaktperson(kontaktpersonId: UUID): KoblingerForKontaktperson = db.session {
         val (gjennomforinger, avtaler) = queries.arrangor.koblingerTilKontaktperson(kontaktpersonId)
         KoblingerForKontaktperson(

@@ -31,7 +31,7 @@ class NavAnsattService(
         queries.ansatt.getAll(roller = filter.roller)
     }
 
-    suspend fun addUserToKontaktpersoner(navIdent: NavIdent): Unit = db.tx {
+    suspend fun addUserToKontaktpersoner(navIdent: NavIdent): Unit = db.transaction {
         val kontaktPersonGruppeId = roles.find { it.rolle == NavAnsattRolle.KONTAKTPERSON }?.adGruppeId
         requireNotNull(kontaktPersonGruppeId)
 

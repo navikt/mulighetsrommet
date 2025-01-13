@@ -12,7 +12,7 @@ import java.util.*
 class RefusjonService(
     private val db: ApiDatabase,
 ) {
-    fun genererRefusjonskravForMonth(dayInMonth: LocalDate): List<RefusjonskravDto> = db.tx {
+    fun genererRefusjonskravForMonth(dayInMonth: LocalDate): List<RefusjonskravDto> = db.transaction {
         val periode = RefusjonskravPeriode.fromDayInMonth(dayInMonth)
 
         queries.gjennomforing
@@ -36,7 +36,7 @@ class RefusjonService(
             }
     }
 
-    fun recalculateRefusjonskravForGjennomforing(id: UUID) = db.tx {
+    fun recalculateRefusjonskravForGjennomforing(id: UUID): Unit = db.transaction {
         queries.refusjonskrav
             .getByGjennomforing(id, statuser = listOf(RefusjonskravStatus.KLAR_FOR_GODKJENNING))
             .mapNotNull { gjeldendeKrav ->

@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorTil
 import no.nav.mulighetsrommet.api.arrangor.model.BrregVirksomhetDto
-import no.nav.mulighetsrommet.api.withTransaction
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
@@ -20,7 +19,7 @@ import java.util.*
 class ArrangorQueries(private val session: Session) {
 
     /** Upserter kun enheten og tar ikke hensyn til underenheter */
-    fun upsert(arrangor: ArrangorDto) = with(session) {
+    fun upsert(arrangor: ArrangorDto) {
         @Language("PostgreSQL")
         val query = """
             insert into arrangor(id, organisasjonsnummer, navn, overordnet_enhet, slettet_dato, postnummer, poststed)
@@ -47,11 +46,11 @@ class ArrangorQueries(private val session: Session) {
             )
         }
 
-        execute(queryOf(query, parameters))
+        session.execute(queryOf(query, parameters))
     }
 
     /** Upserter kun enheten og tar ikke hensyn til underenheter */
-    fun upsert(brregVirksomhet: BrregVirksomhetDto) = with(session) {
+    fun upsert(brregVirksomhet: BrregVirksomhetDto) {
         @Language("PostgreSQL")
         val query = """
             insert into arrangor(organisasjonsnummer, navn, overordnet_enhet, slettet_dato, postnummer, poststed)
@@ -74,7 +73,7 @@ class ArrangorQueries(private val session: Session) {
             "poststed" to brregVirksomhet.poststed,
         )
 
-        execute(queryOf(query, params))
+        session.execute(queryOf(query, params))
     }
 
     fun getAll(
@@ -85,7 +84,7 @@ class ArrangorQueries(private val session: Session) {
         utenlandsk: Boolean? = null,
         pagination: Pagination = Pagination.all(),
         sortering: String? = null,
-    ): PaginatedResult<ArrangorDto> = with(session) {
+    ): PaginatedResult<ArrangorDto> {
         val order = when (sortering) {
             "navn-ascending" -> "arrangor.navn asc"
             "navn-descending" -> "arrangor.navn desc"
@@ -129,10 +128,10 @@ class ArrangorQueries(private val session: Session) {
 
         return queryOf(query, params + pagination.parameters)
             .mapPaginated { it.toVirksomhetDto() }
-            .runWithSession(this)
+            .runWithSession(session)
     }
 
-    fun get(orgnr: Organisasjonsnummer): ArrangorDto? = with(session) {
+    fun get(orgnr: Organisasjonsnummer): ArrangorDto? {
         @Language("PostgreSQL")
         val selectHovedenhet = """
             select
@@ -161,13 +160,13 @@ class ArrangorQueries(private val session: Session) {
             where overordnet_enhet = ?
         """.trimIndent()
 
-        return single(queryOf(selectHovedenhet, orgnr.value)) { it.toVirksomhetDto() }?.let { arrangor ->
-            val underenheter = list(queryOf(selectUnderenheter, orgnr.value)) { it.toVirksomhetDto() }
+        return session.single(queryOf(selectHovedenhet, orgnr.value)) { it.toVirksomhetDto() }?.let { arrangor ->
+            val underenheter = session.list(queryOf(selectUnderenheter, orgnr.value)) { it.toVirksomhetDto() }
             arrangor.copy(underenheter = underenheter.takeIf { it.isNotEmpty() })
         }
     }
 
-    fun getById(id: UUID): ArrangorDto = with(session) {
+    fun getById(id: UUID): ArrangorDto {
         @Language("PostgreSQL")
         val query = """
             select
@@ -182,14 +181,14 @@ class ArrangorQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        val arrangor = single(queryOf(query, id)) { it.toVirksomhetDto() }
+        val arrangor = session.single(queryOf(query, id)) { it.toVirksomhetDto() }
 
         return requireNotNull(arrangor) {
             "Arrangør med id=$id finnes ikke"
         }
     }
 
-    fun getHovedenhetById(id: UUID): ArrangorDto = withTransaction(session) {
+    fun getHovedenhetById(id: UUID): ArrangorDto {
         val arrangor = getById(id)
 
         @Language("PostgreSQL")
@@ -207,23 +206,23 @@ class ArrangorQueries(private val session: Session) {
             order by navn
         """.trimIndent()
 
-        val underenheter = list(queryOf(queryForUnderenheter, arrangor.organisasjonsnummer.value)) {
+        val underenheter = session.list(queryOf(queryForUnderenheter, arrangor.organisasjonsnummer.value)) {
             it.toVirksomhetDto()
         }
 
         return arrangor.copy(underenheter = underenheter)
     }
 
-    fun delete(orgnr: String) = with(session) {
+    fun delete(orgnr: String) {
         @Language("PostgreSQL")
         val query = """
             delete from arrangor where organisasjonsnummer = ?
         """.trimIndent()
 
-        execute(queryOf(query, orgnr))
+        session.execute(queryOf(query, orgnr))
     }
 
-    fun upsertKontaktperson(kontaktperson: ArrangorKontaktperson) = with(session) {
+    fun upsertKontaktperson(kontaktperson: ArrangorKontaktperson) {
         @Language("PostgreSQL")
         val query = """
             insert into arrangor_kontaktperson(id, arrangor_id, navn, telefon, epost, beskrivelse, ansvarlig_for)
@@ -245,14 +244,14 @@ class ArrangorQueries(private val session: Session) {
             "epost" to kontaktperson.epost,
             "beskrivelse" to kontaktperson.beskrivelse,
             "ansvarligFor" to kontaktperson.ansvarligFor?.let {
-                createArrayOf("arrangor_kontaktperson_ansvarlig_for_type", it)
+                session.createArrayOf("arrangor_kontaktperson_ansvarlig_for_type", it)
             },
         )
 
-        execute(queryOf(query, params))
+        session.execute(queryOf(query, params))
     }
 
-    fun koblingerTilKontaktperson(kontaktpersonId: UUID): Pair<List<DokumentKoblingForKontaktperson>, List<DokumentKoblingForKontaktperson>> = with(session) {
+    fun koblingerTilKontaktperson(kontaktpersonId: UUID): Pair<List<DokumentKoblingForKontaktperson>, List<DokumentKoblingForKontaktperson>> {
         @Language("PostgreSQL")
         val gjennomforingQuery = """
             select tg.navn, tg.id
@@ -260,7 +259,7 @@ class ArrangorQueries(private val session: Session) {
             where arrangor_kontaktperson_id = ?
         """.trimIndent()
 
-        val gjennomforinger = list(queryOf(gjennomforingQuery, kontaktpersonId)) {
+        val gjennomforinger = session.list(queryOf(gjennomforingQuery, kontaktpersonId)) {
             DokumentKoblingForKontaktperson(id = it.uuid("id"), navn = it.string("navn"))
         }
 
@@ -271,23 +270,23 @@ class ArrangorQueries(private val session: Session) {
             where arrangor_kontaktperson_id = ?
         """.trimIndent()
 
-        val avtaler = list(queryOf(avtaleQuery, kontaktpersonId)) {
+        val avtaler = session.list(queryOf(avtaleQuery, kontaktpersonId)) {
             DokumentKoblingForKontaktperson(id = it.uuid("id"), navn = it.string("navn"))
         }
 
         return gjennomforinger to avtaler
     }
 
-    fun deleteKontaktperson(id: UUID) = with(session) {
+    fun deleteKontaktperson(id: UUID) {
         @Language("PostgreSQL")
         val query = """
             delete from arrangor_kontaktperson where id = ?
         """.trimIndent()
 
-        execute(queryOf(query, id))
+        session.execute(queryOf(query, id))
     }
 
-    fun getKontaktpersoner(arrangorId: UUID): List<ArrangorKontaktperson> = with(session) {
+    fun getKontaktpersoner(arrangorId: UUID): List<ArrangorKontaktperson> {
         @Language("PostgreSQL")
         val query = """
             select
@@ -302,7 +301,7 @@ class ArrangorQueries(private val session: Session) {
             where arrangor_id = ?::uuid
         """.trimIndent()
 
-        return list(queryOf(query, arrangorId)) { it.toArrangorKontaktperson() }
+        return session.list(queryOf(query, arrangorId)) { it.toArrangorKontaktperson() }
     }
 
     private fun Row.toVirksomhetDto() = ArrangorDto(

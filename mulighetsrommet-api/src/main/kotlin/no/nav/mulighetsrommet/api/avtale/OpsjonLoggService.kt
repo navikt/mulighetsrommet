@@ -20,7 +20,7 @@ class OpsjonLoggService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun lagreOpsjonLoggEntry(entry: OpsjonLoggEntry): Either<List<ValidationError>, Unit> = db.tx {
+    fun lagreOpsjonLoggEntry(entry: OpsjonLoggEntry): Either<List<ValidationError>, Unit> = db.transaction {
         val avtale = requireNotNull(queries.avtale.get(entry.avtaleId))
         OpsjonLoggValidator.validate(entry, avtale).map {
             if (entry.sluttdato != null) {
@@ -36,7 +36,7 @@ class OpsjonLoggService(
         }
     }
 
-    fun delete(opsjonLoggEntryId: UUID, avtaleId: UUID, slettesAv: NavIdent): Unit = db.tx {
+    fun delete(opsjonLoggEntryId: UUID, avtaleId: UUID, slettesAv: NavIdent): Unit = db.transaction {
         val opsjoner = queries.opsjoner.get(avtaleId)
         val avtale = requireNotNull(queries.avtale.get(avtaleId))
 

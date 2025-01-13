@@ -22,7 +22,7 @@ import java.util.*
 class TilsagnService(
     private val db: ApiDatabase,
 ) {
-    fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<ValidationError>, TilsagnDto> = db.tx {
+    fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<ValidationError>, TilsagnDto> = db.transaction {
         val gjennomforing = queries.gjennomforing.get(request.gjennomforingId)
             ?: return ValidationError
                 .of(TilsagnRequest::gjennomforingId, "Tiltaksgjennomforingen finnes ikke")
@@ -96,7 +96,7 @@ class TilsagnService(
         }
     }
 
-    private suspend fun godkjennTilsagn(tilsagn: TilsagnDto, navIdent: NavIdent): StatusResponse<TilsagnDto> = db.tx {
+    private suspend fun godkjennTilsagn(tilsagn: TilsagnDto, navIdent: NavIdent): StatusResponse<TilsagnDto> = db.transaction {
         require(tilsagn.status is TilsagnDto.TilsagnStatus.TilGodkjenning)
 
         if (navIdent == tilsagn.status.endretAv) {
@@ -115,7 +115,7 @@ class TilsagnService(
         tilsagn: TilsagnDto,
         besluttelse: BesluttTilsagnRequest.AvvistTilsagnRequest,
         navIdent: NavIdent,
-    ): StatusResponse<TilsagnDto> = db.tx {
+    ): StatusResponse<TilsagnDto> = db.transaction {
         require(tilsagn.status is TilsagnDto.TilsagnStatus.TilGodkjenning)
 
         if (navIdent == tilsagn.status.endretAv) {
@@ -137,7 +137,7 @@ class TilsagnService(
         dto.right()
     }
 
-    private fun annullerTilsagn(tilsagn: TilsagnDto, navIdent: NavIdent): StatusResponse<TilsagnDto> = db.tx {
+    private fun annullerTilsagn(tilsagn: TilsagnDto, navIdent: NavIdent): StatusResponse<TilsagnDto> = db.transaction {
         require(tilsagn.status is TilsagnDto.TilsagnStatus.TilAnnullering)
 
         if (navIdent == tilsagn.status.endretAv) {
@@ -151,7 +151,7 @@ class TilsagnService(
         dto.right()
     }
 
-    private fun avvisAnnullering(tilsagn: TilsagnDto, navIdent: NavIdent): StatusResponse<TilsagnDto> = db.tx {
+    private fun avvisAnnullering(tilsagn: TilsagnDto, navIdent: NavIdent): StatusResponse<TilsagnDto> = db.transaction {
         require(tilsagn.status is TilsagnDto.TilsagnStatus.TilAnnullering)
 
         if (navIdent == tilsagn.status.endretAv) {
@@ -169,7 +169,7 @@ class TilsagnService(
         id: UUID,
         navIdent: NavIdent,
         request: TilAnnulleringRequest,
-    ): StatusResponse<TilsagnDto> = db.tx {
+    ): StatusResponse<TilsagnDto> = db.transaction {
         val tilsagn = queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
 
         if (tilsagn.status !is TilsagnDto.TilsagnStatus.Godkjent) {
@@ -189,7 +189,7 @@ class TilsagnService(
         dto.right()
     }
 
-    fun slettTilsagn(id: UUID): StatusResponse<Unit> = db.tx {
+    fun slettTilsagn(id: UUID): StatusResponse<Unit> = db.transaction {
         val tilsagn = queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
 
         if (tilsagn.status !is TilsagnDto.TilsagnStatus.Returnert) {

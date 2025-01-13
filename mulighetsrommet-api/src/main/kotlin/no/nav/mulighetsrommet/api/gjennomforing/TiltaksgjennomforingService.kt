@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing
 
 import arrow.core.Either
+import arrow.core.raise.either
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
@@ -39,37 +40,40 @@ class TiltaksgjennomforingService(
     suspend fun upsert(
         request: TiltaksgjennomforingRequest,
         navIdent: NavIdent,
-    ): Either<List<ValidationError>, TiltaksgjennomforingDto> = db.tx {
-        val previous = queries.gjennomforing.get(request.id)
-        validator.validate(request.toDbo(), previous)
+    ): Either<List<ValidationError>, TiltaksgjennomforingDto> = either {
+        val previous = get(request.id)
+
+        val dbo = validator.validate(request.toDbo(), previous)
             .onRight { dbo ->
                 dbo.kontaktpersoner.forEach {
                     navAnsattService.addUserToKontaktpersoner(it.navIdent)
                 }
             }
-            .map { dbo ->
-                if (previous?.toTiltaksgjennomforingDbo() == dbo) {
-                    return@map previous
-                }
+            .bind()
 
-                queries.gjennomforing.upsert(dbo)
+        if (previous?.toTiltaksgjennomforingDbo() == dbo) {
+            return@either previous
+        }
 
-                val dto = getOrError(dbo.id)
+        db.transaction {
+            queries.gjennomforing.upsert(dbo)
 
-                dispatchNotificationToNewAdministrators(dbo, navIdent)
-                val operation = if (previous == null) {
-                    "Opprettet gjennomføring"
-                } else {
-                    "Redigerte gjennomføring"
-                }
-                logEndring(operation, dto, EndretAv.NavAnsatt(navIdent))
-                tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
+            dispatchNotificationToNewAdministrators(dbo, navIdent)
 
-                dto
+            val dto = getOrError(dbo.id)
+            val operation = if (previous == null) {
+                "Opprettet gjennomføring"
+            } else {
+                "Redigerte gjennomføring"
             }
+            logEndring(operation, dto, EndretAv.NavAnsatt(navIdent))
+
+            tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
+
+            dto
+        }
     }
 
-    // TODO inline
     fun get(id: UUID): TiltaksgjennomforingDto? = db.session {
         queries.gjennomforing.get(id)
     }
@@ -114,7 +118,7 @@ class TiltaksgjennomforingService(
             }
     }
 
-    fun setPublisert(id: UUID, publisert: Boolean, navIdent: NavIdent): Unit = db.tx {
+    fun setPublisert(id: UUID, publisert: Boolean, navIdent: NavIdent): Unit = db.transaction {
         queries.gjennomforing.setPublisert(id, publisert)
         val dto = getOrError(id)
         val operation = if (publisert) {
@@ -129,7 +133,7 @@ class TiltaksgjennomforingService(
         id: UUID,
         tilgjengeligForArrangorDato: LocalDate,
         navIdent: NavIdent,
-    ): Either<List<ValidationError>, Unit> = db.tx {
+    ): Either<List<ValidationError>, Unit> = db.transaction {
         val gjennomforing = getOrError(id)
 
         validator
@@ -149,7 +153,7 @@ class TiltaksgjennomforingService(
             }
     }
 
-    fun setAvtale(id: UUID, avtaleId: UUID?, navIdent: NavIdent): Unit = db.tx {
+    fun setAvtale(id: UUID, avtaleId: UUID?, navIdent: NavIdent): Unit = db.transaction {
         queries.gjennomforing.setAvtaleId(id, avtaleId)
         val dto = getOrError(id)
         logEndring("Endret avtale", dto, EndretAv.NavAnsatt(navIdent))
@@ -160,7 +164,7 @@ class TiltaksgjennomforingService(
         avsluttetTidspunkt: LocalDateTime,
         avsluttetAarsak: AvbruttAarsak?,
         endretAv: EndretAv,
-    ): Unit = db.tx {
+    ): Unit = db.transaction {
         queries.gjennomforing.setAvsluttet(id, avsluttetTidspunkt, avsluttetAarsak)
 
         val dto = getOrError(id)
@@ -177,7 +181,7 @@ class TiltaksgjennomforingService(
         tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
     }
 
-    fun setApentForPamelding(id: UUID, apentForPamelding: Boolean, bruker: EndretAv) = db.tx {
+    fun setApentForPamelding(id: UUID, apentForPamelding: Boolean, bruker: EndretAv): Unit = db.transaction {
         queries.gjennomforing.setApentForPamelding(id, apentForPamelding)
 
         val dto = getOrError(id)
@@ -199,7 +203,7 @@ class TiltaksgjennomforingService(
         kontaktpersonId: UUID,
         gjennomforingId: UUID,
         navIdent: NavIdent,
-    ): Unit = db.tx {
+    ): Unit = db.transaction {
         queries.gjennomforing.frikobleKontaktpersonFraGjennomforing(
             kontaktpersonId = kontaktpersonId,
             gjennomforingId = gjennomforingId,

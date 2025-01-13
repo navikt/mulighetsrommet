@@ -45,7 +45,7 @@ data class MulighetsrommetTestDomain(
     val refusjonskrav: List<RefusjonskravDbo> = listOf(),
     val additionalSetup: (QueryContext.() -> Unit)? = null,
 ) {
-    fun initialize(database: ApiDatabase): MulighetsrommetTestDomain = database.tx {
+    fun initialize(database: ApiDatabase): MulighetsrommetTestDomain = database.transaction {
         enheter.forEach { queries.enhet.upsert(it) }
         ansatte.forEach { queries.ansatt.upsert(it) }
         arrangorer.forEach { queries.arrangor.upsert(it) }
