@@ -74,6 +74,7 @@ export function OppgaverPage() {
         </div>
         <div className={oppgaverPageStyles.oppgaver}>
           {sortedOppgaver.map((o) => {
+            // @TODO: Should maybe have something like tiltakstypeName come from the backend instead of doing manual mapping
             return (
               <Oppgave
                 key={o.createdAt}

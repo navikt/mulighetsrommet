@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { PAGE_SIZE } from "@/constants";
-import { OppgaverFilter, TiltakstypeFilter } from "../atoms";
+import { OppgaverFilter } from "../atoms";
 import { QueryKeys } from "@/api/QueryKeys";
-import { OppgaverService, OppgaveType, Tiltakskode, TiltakstyperService } from "@mr/api-client";
+import { OppgaverService, Tiltakskode } from "@mr/api-client";
 
 export function useOppgaver(filter: OppgaverFilter) {
   return useQuery({

@@ -24,7 +24,7 @@ export function OppgaverFilter({ filterAtom, tiltakstyper }: Props) {
               setAccordionsOpen([...addOrRemove(accordionsOpen, "oppgaveType")]);
             }}
           >
-            <FilterAccordionHeader tittel="Oppgave" antallValgteFilter={5} />
+            <FilterAccordionHeader tittel="Oppgave" antallValgteFilter={2} />
           </Accordion.Header>
           <Accordion.Content>
             <div style={{ marginLeft: "-2rem" }}>
