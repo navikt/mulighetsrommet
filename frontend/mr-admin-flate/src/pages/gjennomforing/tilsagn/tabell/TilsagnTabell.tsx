@@ -7,6 +7,7 @@ import { SortState, Table } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
 import { useState } from "react";
 import { Link, useParams } from "react-router";
+import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 
 interface TabellData extends TilsagnDto {
   antallPlasser: number | null;
@@ -60,6 +61,7 @@ export function TilsagnTabell({ tilsagn }: Props) {
     }
     return 0;
   }
+
   const sortedData: TabellData[] = [...tilsagn]
     .map((tilsagn) => ({
       ...tilsagn,
@@ -89,6 +91,9 @@ export function TilsagnTabell({ tilsagn }: Props) {
           <TableColumnHeader sortKey="periodeSlutt" sortable>
             Periodeslutt
           </TableColumnHeader>
+          <TableColumnHeader sortKey="type" sortable>
+            Tilsagnstype
+          </TableColumnHeader>
           <TableColumnHeader sortKey="navnForKostnadssted" sortable>
             Kostnadssted
           </TableColumnHeader>
@@ -111,6 +116,7 @@ export function TilsagnTabell({ tilsagn }: Props) {
             <Table.Row key={id}>
               <Table.DataCell>{formaterDato(periodeStart)}</Table.DataCell>
               <Table.DataCell>{formaterDato(periodeSlutt)}</Table.DataCell>
+              <Table.DataCell>{avtaletekster.tilsagn.type(tilsagn.type)}</Table.DataCell>
               <Table.DataCell>{kostnadssted.navn}</Table.DataCell>
               <Table.DataCell align="right">{getAntallPlasser(tilsagn)}</Table.DataCell>
               <Table.DataCell align="right">{formaterNOK(beregning.output.belop)}</Table.DataCell>

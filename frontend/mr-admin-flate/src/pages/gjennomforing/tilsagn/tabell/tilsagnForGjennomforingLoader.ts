@@ -1,4 +1,10 @@
-import { TilsagnService } from "@mr/api-client";
+import {
+  TilsagnService,
+  TiltaksgjennomforingerService,
+  AvtalerService,
+  Avtaletype,
+  TilsagnType,
+} from "@mr/api-client";
 import { LoaderFunctionArgs } from "react-router";
 
 export async function tilsagnForGjennomforingLoader({ params }: LoaderFunctionArgs) {
@@ -8,7 +14,19 @@ export async function tilsagnForGjennomforingLoader({ params }: LoaderFunctionAr
     throw new Error("tiltaksgjennomforingId is missing");
   }
 
-  const tilsagnForGjennomforing = await TilsagnService.getAll({ gjennomforingId });
+  const gjennomforing = await TiltaksgjennomforingerService.getTiltaksgjennomforing({
+    id: gjennomforingId,
+  });
 
-  return { tilsagnForGjennomforing };
+  const [avtale, tilsagnForGjennomforing] = await Promise.all([
+    AvtalerService.getAvtale({ id: gjennomforing.avtaleId! }),
+    TilsagnService.getAll({ gjennomforingId }),
+  ]);
+
+  const tilsagnstyper =
+    avtale.avtaletype === Avtaletype.FORHAANDSGODKJENT
+      ? [TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN, TilsagnType.INVESTERING]
+      : [TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN];
+
+  return { tilsagnstyper, tilsagnForGjennomforing };
 }

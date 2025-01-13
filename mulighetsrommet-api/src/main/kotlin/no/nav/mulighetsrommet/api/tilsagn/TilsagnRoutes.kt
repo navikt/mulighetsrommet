@@ -83,6 +83,16 @@ fun Route.tilsagnRoutes() {
                     kostnadssted = null,
                     beregning = null,
                 )
+
+                TilsagnType.INVESTERING -> TilsagnDefaults(
+                    id = null,
+                    gjennomforingId = gjennomforing.id,
+                    type = TilsagnType.INVESTERING,
+                    periodeStart = null,
+                    periodeSlutt = null,
+                    kostnadssted = null,
+                    beregning = null,
+                )
             }
 
             call.respond(HttpStatusCode.OK, defaults)

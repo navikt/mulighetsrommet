@@ -1,4 +1,4 @@
-import { Avtaletype, Prismodell } from "@mr/api-client";
+import { Avtaletype, Prismodell, TilsagnType } from "@mr/api-client";
 
 export const avtaletekster = {
   avtalenavnLabel: "Avtalenavn",
@@ -56,6 +56,18 @@ export const avtaletekster = {
     },
     periodeSlutt: {
       label: "Gjelder til",
+    },
+  },
+  tilsagn: {
+    type: (type: TilsagnType): string => {
+      switch (type) {
+        case TilsagnType.TILSAGN:
+          return "Tilsagn";
+        case TilsagnType.EKSTRATILSAGN:
+          return "Ekstratilsagn";
+        case TilsagnType.INVESTERING:
+          return "Tilsagn for investeringer";
+      }
     },
   },
 } as const;
