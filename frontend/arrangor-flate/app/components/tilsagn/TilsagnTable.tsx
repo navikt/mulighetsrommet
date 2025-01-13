@@ -1,8 +1,9 @@
-import { ArrangorflateTilsagn } from "@mr/api-client";
+import { ArrangorflateTilsagn, TilsagnType } from "@mr/api-client-v2";
 import { Alert, Table } from "@navikt/ds-react";
 import { formaterDato, useOrgnrFromUrl } from "~/utils";
 import { internalNavigation } from "../../internal-navigation";
 import { LinkWithTabState } from "../LinkWithTabState";
+import { TilsagnStatusTag } from "./TilsagnStatusTag";
 
 interface Props {
   tilsagn: ArrangorflateTilsagn[];
@@ -27,7 +28,9 @@ export function TilsagnTable({ tilsagn }: Props) {
             <Table.Row>
               <Table.HeaderCell>Tiltakstype</Table.HeaderCell>
               <Table.HeaderCell>Navn</Table.HeaderCell>
+              <Table.HeaderCell>Tilsagnstype</Table.HeaderCell>
               <Table.HeaderCell>Periode</Table.HeaderCell>
+              <Table.HeaderCell>Status</Table.HeaderCell>
               <Table.HeaderCell></Table.HeaderCell>
             </Table.Row>
           </Table.Header>
@@ -37,8 +40,12 @@ export function TilsagnTable({ tilsagn }: Props) {
                 <Table.Row key={i}>
                   <Table.DataCell>{tilsagn.tiltakstype.navn}</Table.DataCell>
                   <Table.DataCell>{tilsagn.gjennomforing.navn}</Table.DataCell>
+                  <Table.DataCell>{formaterTilsagnType(tilsagn.type)}</Table.DataCell>
                   <Table.DataCell>
                     {`${formaterDato(tilsagn.periodeStart)} - ${formaterDato(tilsagn.periodeSlutt)}`}
+                  </Table.DataCell>
+                  <Table.DataCell>
+                    <TilsagnStatusTag data={tilsagn.status} />
                   </Table.DataCell>
                   <Table.DataCell>
                     <LinkWithTabState
@@ -56,4 +63,15 @@ export function TilsagnTable({ tilsagn }: Props) {
       </div>
     </>
   );
+}
+
+function formaterTilsagnType(type: TilsagnType): string {
+  switch (type) {
+    case TilsagnType.TILSAGN:
+      return "Tilsagn";
+    case TilsagnType.EKSTRATILSAGN:
+      return "Ekstratilsagn";
+    case TilsagnType.INVESTERING:
+      return "Tilsagn for investeringer";
+  }
 }

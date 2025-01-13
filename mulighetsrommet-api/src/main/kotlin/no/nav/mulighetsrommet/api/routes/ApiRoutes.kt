@@ -4,13 +4,14 @@ import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.arenaadapter.arenaAdapterRoutes
 import no.nav.mulighetsrommet.api.arrangor.arrangorRoutes
 import no.nav.mulighetsrommet.api.arrangor.brregVirksomhetRoutes
+import no.nav.mulighetsrommet.api.arrangorflate.arrangorflateRoutes
 import no.nav.mulighetsrommet.api.avtale.avtaleRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.tiltaksgjennomforingRoutes
 import no.nav.mulighetsrommet.api.navansatt.navAnsattRoutes
 import no.nav.mulighetsrommet.api.navenhet.navEnhetRoutes
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
-import no.nav.mulighetsrommet.api.refusjon.arrangorflateRoutes
+import no.nav.mulighetsrommet.api.refusjon.refusjonRoutes
 import no.nav.mulighetsrommet.api.routes.featuretoggles.featureTogglesRoute
 import no.nav.mulighetsrommet.api.routes.internal.maamRoutes
 import no.nav.mulighetsrommet.api.routes.v1.*
@@ -67,6 +68,7 @@ fun Route.adminflateRoutes() {
     tilsagnRoutes()
     utdanningRoutes()
     oppgaverRoutes()
+    refusjonRoutes()
 }
 
 fun Route.veilederflateRoutes() {

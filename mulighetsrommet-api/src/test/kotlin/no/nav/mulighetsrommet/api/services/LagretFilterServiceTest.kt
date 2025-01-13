@@ -6,13 +6,12 @@ import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 
 class LagretFilterServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     afterEach {
-        database.db.truncateAll()
+        database.truncateAll()
     }
 
     context("CRUD LagreFilterService") {

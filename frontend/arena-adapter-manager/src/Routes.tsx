@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes as ReactRouterRoutes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes as ReactRouterRoutes } from "react-router";
 import { Layout } from "./components/Layout";
 import { MrArenaAdapterManagement } from "./pages/MrArenaAdapterManagement";
 import { MrApiManagement } from "./pages/MrApiManagement";

@@ -36,6 +36,8 @@ class Database(val config: DatabaseConfig) : Closeable {
                 }
             }
 
+            config.additinalConfig.invoke(this)
+
             validate()
         }
         dataSource = HikariDataSource(hikariConfig)

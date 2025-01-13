@@ -8,3 +8,7 @@ data class FeatureToggleContext(
     val remoteAddress: String,
     val tiltakskoder: List<Tiltakskode>,
 )
+
+enum class Toggle(val featureName: String) {
+    MIGRERING_OKONOMI("mulighetsrommet.tiltakstype.migrering.okonomi"),
+}

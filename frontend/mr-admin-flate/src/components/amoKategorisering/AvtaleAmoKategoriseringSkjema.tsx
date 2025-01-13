@@ -1,9 +1,9 @@
 import { HGrid, Select } from "@navikt/ds-react";
 import { Kurstype } from "@mr/api-client";
 import { useFormContext } from "react-hook-form";
-import { kurstypeToString } from "../../utils/Utils";
+import { kurstypeToString } from "@/utils/Utils";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
-import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
+import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { AvtaleBransjeSkjema } from "./AvtaleBransjeSkjema";
 import { NorksopplaeringSkjema } from "./NorskopplaeringSkjema";
 import { InnholdElementerSkjema } from "./InnholdElementerSkjema";
@@ -21,7 +21,7 @@ export function AvtaleAmoKategoriseringSkjema() {
     <HGrid gap="4" columns={1}>
       <Select
         size="small"
-        label={tiltaktekster.kurstypeLabel}
+        label={gjennomforingTekster.kurstypeLabel}
         value={amoKategorisering?.kurstype}
         error={errors?.amoKategorisering?.kurstype?.message}
         onChange={(type) => {
@@ -58,6 +58,3 @@ export function AvtaleAmoKategoriseringSkjema() {
     </HGrid>
   );
 }
-
-/*
- */

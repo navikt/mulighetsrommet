@@ -51,7 +51,6 @@ services:
                   "requestParam": "scope",
                   "match": "openid somescope",
                   "claims": {
-                    "pid": "11830348931",
                     "aud": ["mulighetsrommet-api"]
                   }
                 }

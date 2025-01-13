@@ -11,7 +11,7 @@ import {
   LinkOverlay,
 } from "@chakra-ui/react";
 import { AiOutlineSetting } from "react-icons/ai";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router";
 import snoop from "../images/snoop.gif";
 import { IconType } from "react-icons";
 

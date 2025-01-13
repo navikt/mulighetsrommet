@@ -12,7 +12,7 @@ import {
   RegistrerOpsjonSchema,
 } from "./RegistrerOpsjonSchema";
 import { RegistrerOpsjonSkjema } from "./RegistrerOpsjonSkjema";
-import { useRevalidator } from "react-router-dom";
+import { useRevalidator } from "react-router";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;

@@ -1,6 +1,6 @@
 import { AnnetEnum } from "@/api/annetEnum";
 import { useAvbrytAvtale } from "@/api/avtaler/useAvbrytAvtale";
-import { useAktiveTiltaksgjennomforingerByAvtaleId } from "@/api/tiltaksgjennomforing/useAktiveTiltaksgjennomforingerByAvtaleId";
+import { useAktiveGjennomforingerByAvtaleId } from "@/api/gjennomforing/useAktiveGjennomforingerByAvtaleId";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { Laster } from "@/components/laster/Laster";
 import { AvbrytModalAarsaker } from "@/components/modal/AvbrytModalAarsaker";
@@ -10,7 +10,7 @@ import { avbrytAvtaleAarsakToString } from "@/utils/Utils";
 import { BodyShort, Button, Radio } from "@navikt/ds-react";
 import { AvbrytAvtaleAarsak, AvtaleDto } from "@mr/api-client";
 import { RefObject, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import z from "zod";
 import style from "./AvbrytGjennomforingAvtaleModal.module.scss";
 
@@ -52,9 +52,7 @@ const initialState: State = {
 export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
   const mutation = useAvbrytAvtale();
   const navigate = useNavigate();
-  const { data: tiltaksgjennomforingerMedAvtaleId } = useAktiveTiltaksgjennomforingerByAvtaleId(
-    avtale.id,
-  );
+  const { data: tiltaksgjennomforingerMedAvtaleId } = useAktiveGjennomforingerByAvtaleId(avtale.id);
   const [state, setState] = useState<State>(initialState);
 
   const avtalenHarGjennomforinger =

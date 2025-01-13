@@ -1,4 +1,4 @@
-import { Avtaletype } from "@mr/api-client";
+import { Avtaletype, Prismodell, TilsagnType } from "@mr/api-client";
 
 export const avtaletekster = {
   avtalenavnLabel: "Avtalenavn",
@@ -33,6 +33,41 @@ export const avtaletekster = {
     laerefag: {
       label: "Lærefag",
       velg: "Velg lærefag",
+    },
+  },
+  prismodell: {
+    label: "Prismodell",
+    beskrivelse: (prismodell: Prismodell): string => {
+      switch (prismodell) {
+        case Prismodell.FORHANDSGODKJENT:
+          return "Fast sats per tiltaksplass per måned";
+        case Prismodell.FRI:
+          return "Fri prismodell";
+      }
+    },
+    valuta: {
+      label: "Valuta",
+    },
+    pris: {
+      label: "Pris",
+    },
+    periodeStart: {
+      label: "Gjelder fra",
+    },
+    periodeSlutt: {
+      label: "Gjelder til",
+    },
+  },
+  tilsagn: {
+    type: (type: TilsagnType): string => {
+      switch (type) {
+        case TilsagnType.TILSAGN:
+          return "Tilsagn";
+        case TilsagnType.EKSTRATILSAGN:
+          return "Ekstratilsagn";
+        case TilsagnType.INVESTERING:
+          return "Tilsagn for investeringer";
+      }
     },
   },
 } as const;

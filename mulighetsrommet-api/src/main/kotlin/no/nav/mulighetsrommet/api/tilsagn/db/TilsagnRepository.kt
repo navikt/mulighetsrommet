@@ -9,7 +9,6 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
-import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.database.Database
@@ -37,7 +36,8 @@ class TilsagnRepository(private val db: Database) {
                 beregning,
                 status_endret_av,
                 status_endret_tidspunkt,
-                status
+                status,
+                type
             ) values (
                 :id::uuid,
                 :tiltaksgjennomforing_id::uuid,
@@ -48,7 +48,8 @@ class TilsagnRepository(private val db: Database) {
                 :beregning::jsonb,
                 :status_endret_av,
                 :status_endret_tidspunkt,
-                'TIL_GODKJENNING'::tilsagn_status
+                'TIL_GODKJENNING'::tilsagn_status,
+                :type::tilsagn_type
             )
             on conflict (id) do update set
                 tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
@@ -59,11 +60,24 @@ class TilsagnRepository(private val db: Database) {
                 beregning               = excluded.beregning,
                 status_endret_av        = excluded.status_endret_av,
                 status_endret_tidspunkt = excluded.status_endret_tidspunkt,
-                status                  = excluded.status
-            returning *
+                status                  = excluded.status,
+                type                    = excluded.type
         """.trimIndent()
 
-        tx.run(queryOf(query, dbo.toSqlParameters()).asExecute)
+        val params = mapOf(
+            "id" to dbo.id,
+            "tiltaksgjennomforing_id" to dbo.tiltaksgjennomforingId,
+            "periode_start" to dbo.periodeStart,
+            "periode_slutt" to dbo.periodeSlutt,
+            "kostnadssted" to dbo.kostnadssted,
+            "arrangor_id" to dbo.arrangorId,
+            "beregning" to Json.encodeToString<TilsagnBeregning>(dbo.beregning),
+            "status_endret_av" to dbo.endretAv.value,
+            "status_endret_tidspunkt" to dbo.endretTidspunkt,
+            "type" to dbo.type.name,
+        )
+
+        tx.run(queryOf(query, params).asExecute)
     }
 
     fun get(id: UUID) = db.transaction {
@@ -84,18 +98,31 @@ class TilsagnRepository(private val db: Database) {
         )
     }
 
-    fun getByGjennomforingId(gjennomforingId: UUID): List<TilsagnDto> {
+    fun getAll(
+        type: TilsagnType? = null,
+        gjennomforingId: UUID? = null,
+        statuser: List<TilsagnStatus>? = null,
+    ): List<TilsagnDto> = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
-            select * from tilsagn_admin_dto_view
-            where tiltaksgjennomforing_id = :gjennomforing_id::uuid
+            select *
+            from tilsagn_admin_dto_view
+            where (:type::tilsagn_type is null or type = :type::tilsagn_type)
+              and (:gjennomforing_id::uuid is null or tiltaksgjennomforing_id = :gjennomforing_id::uuid)
+              and (:statuser::tilsagn_status[] is null or status = any(:statuser))
             order by lopenummer desc
         """.trimIndent()
 
-        return queryOf(query, mapOf("gjennomforing_id" to gjennomforingId))
+        val params = mapOf(
+            "type" to type?.name,
+            "gjennomforing_id" to gjennomforingId,
+            "statuser" to statuser?.let { session.createArrayOf("tilsagn_status", statuser) },
+        )
+
+        queryOf(query, params)
             .map { it.toTilsagnDto() }
             .asList
-            .let { db.run(it) }
+            .runWithSession(session)
     }
 
     fun getAllArrangorflateTilsagn(organisasjonsnummer: Organisasjonsnummer): List<ArrangorflateTilsagn> {
@@ -107,6 +134,31 @@ class TilsagnRepository(private val db: Database) {
 
         return queryOf(query, mapOf("organisasjonsnummer" to organisasjonsnummer.value))
             .map { it.toArrangorflateTilsagn() }
+            .asList
+            .let { db.run(it) }
+    }
+
+    fun getTilsagnTilRefusjon(
+        gjennomforingId: UUID,
+        periode: RefusjonskravPeriode,
+    ): List<TilsagnDto> {
+        @Language("PostgreSQL")
+        val query = """
+            select * from tilsagn_admin_dto_view
+            where tiltaksgjennomforing_id = :gjennomforing_id::uuid
+              and (periode_start <= :periode_slutt::date)
+              and (periode_slutt >= :periode_start::date)
+        """.trimIndent()
+
+        return queryOf(
+            query,
+            mapOf(
+                "gjennomforing_id" to gjennomforingId,
+                "periode_start" to periode.start,
+                "periode_slutt" to periode.slutt,
+            ),
+        )
+            .map { it.toTilsagnDto() }
             .asList
             .let { db.run(it) }
     }
@@ -230,6 +282,7 @@ class TilsagnRepository(private val db: Database) {
         val query = """
             update tilsagn set
                 status_endret_av = :nav_ident,
+                status_besluttet_av = null,
                 status_endret_tidspunkt = :tidspunkt,
                 status_aarsaker = :status_aarsaker::tilsagn_status_aarsak[],
                 status_forklaring = :status_forklaring,
@@ -305,18 +358,6 @@ class TilsagnRepository(private val db: Database) {
         )
     }
 
-    private fun TilsagnDbo.toSqlParameters() = mapOf(
-        "id" to id,
-        "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
-        "periode_start" to periodeStart,
-        "periode_slutt" to periodeSlutt,
-        "kostnadssted" to kostnadssted,
-        "arrangor_id" to arrangorId,
-        "beregning" to Json.encodeToString(beregning),
-        "status_endret_av" to endretAv.value,
-        "status_endret_tidspunkt" to endretTidspunkt,
-    )
-
     private fun Row.toTilsagnDto(): TilsagnDto {
         val aarsaker = arrayOrNull<String>("status_aarsaker")
             ?.toList()
@@ -324,7 +365,7 @@ class TilsagnRepository(private val db: Database) {
         val forklaring = stringOrNull("status_forklaring")
 
         val status = toTilsagnStatus(
-            status = Status.valueOf(string("status")),
+            status = TilsagnStatus.valueOf(string("status")),
             endretAv = NavIdent(string("status_endret_av")),
             endretTidspunkt = localDateTime("status_endret_tidspunkt"),
             besluttetAv = stringOrNull("status_besluttet_av")?.let { NavIdent(it) },
@@ -355,12 +396,16 @@ class TilsagnRepository(private val db: Database) {
                 navn = string("arrangor_navn"),
                 slettet = boolean("arrangor_slettet"),
             ),
-            beregning = Json.decodeFromString<Prismodell.TilsagnBeregning>(string("beregning")),
+            beregning = Json.decodeFromString<TilsagnBeregning>(string("beregning")),
             status = status,
+            type = TilsagnType.valueOf(string("type")),
         )
     }
 
     private fun Row.toArrangorflateTilsagn(): ArrangorflateTilsagn {
+        val aarsaker = arrayOrNull<String>("status_aarsaker")
+            ?.toList()
+            ?.map { TilsagnStatusAarsak.valueOf(it) } ?: emptyList()
         return ArrangorflateTilsagn(
             id = uuid("id"),
             gjennomforing = ArrangorflateTilsagn.Gjennomforing(
@@ -369,6 +414,7 @@ class TilsagnRepository(private val db: Database) {
             tiltakstype = ArrangorflateTilsagn.Tiltakstype(
                 navn = string("tiltakstype_navn"),
             ),
+            type = TilsagnType.valueOf(string("type")),
             periodeSlutt = localDate("periode_slutt"),
             periodeStart = localDate("periode_start"),
             arrangor = ArrangorflateTilsagn.Arrangor(
@@ -376,21 +422,17 @@ class TilsagnRepository(private val db: Database) {
                 organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
                 navn = string("arrangor_navn"),
             ),
-            beregning = Json.decodeFromString<Prismodell.TilsagnBeregning>(string("beregning")),
+            beregning = Json.decodeFromString<TilsagnBeregning>(string("beregning")),
+            status = ArrangorflateTilsagn.StatusOgAarsaker(
+                status = TilsagnStatus.valueOf(string("status")),
+                aarsaker = aarsaker,
+            ),
         )
     }
 }
 
-enum class Status {
-    TIL_GODKJENNING,
-    GODKJENT,
-    RETURNERT,
-    TIL_ANNULLERING,
-    ANNULLERT,
-}
-
 fun toTilsagnStatus(
-    status: Status,
+    status: TilsagnStatus,
     endretAv: NavIdent,
     endretAvNavn: String,
     besluttetAv: NavIdent?,
@@ -399,12 +441,14 @@ fun toTilsagnStatus(
     aarsaker: List<TilsagnStatusAarsak>,
     forklaring: String?,
 ): TilsagnDto.TilsagnStatus = when (status) {
-    Status.TIL_GODKJENNING -> TilsagnDto.TilsagnStatus.TilGodkjenning(
+    TilsagnStatus.TIL_GODKJENNING -> TilsagnDto.TilsagnStatus.TilGodkjenning(
         endretAv = endretAv,
         endretTidspunkt = endretTidspunkt,
     )
-    Status.GODKJENT -> TilsagnDto.TilsagnStatus.Godkjent
-    Status.RETURNERT -> {
+
+    TilsagnStatus.GODKJENT -> TilsagnDto.TilsagnStatus.Godkjent
+
+    TilsagnStatus.RETURNERT -> {
         requireNotNull(besluttetAv)
         requireNotNull(besluttetAvNavn)
         TilsagnDto.TilsagnStatus.Returnert(
@@ -416,19 +460,23 @@ fun toTilsagnStatus(
             forklaring = forklaring,
         )
     }
-    Status.TIL_ANNULLERING -> TilsagnDto.TilsagnStatus.TilAnnullering(
+
+    TilsagnStatus.TIL_ANNULLERING -> TilsagnDto.TilsagnStatus.TilAnnullering(
         endretAv = endretAv,
         endretAvNavn = endretAvNavn,
         endretTidspunkt = endretTidspunkt,
         aarsaker = aarsaker,
         forklaring = forklaring,
     )
-    Status.ANNULLERT -> {
+
+    TilsagnStatus.ANNULLERT -> {
         requireNotNull(besluttetAv)
         TilsagnDto.TilsagnStatus.Annullert(
             endretAv = endretAv,
             endretTidspunkt = endretTidspunkt,
             godkjentAv = besluttetAv,
+            aarsaker = aarsaker,
+            forklaring = forklaring,
         )
     }
 }

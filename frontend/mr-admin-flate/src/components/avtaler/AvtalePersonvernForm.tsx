@@ -3,8 +3,8 @@ import {
   BodyShort,
   Checkbox,
   GuidePanel,
-  HStack,
   HelpText,
+  HStack,
   Label,
   Link,
   Radio,
@@ -17,24 +17,20 @@ import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSch
 import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
 import styles from "./AvtalePersonvernForm.module.scss";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
-import { PersonopplysningData } from "@mr/api-client";
+import { EmbeddedTiltakstype, PersonopplysningData } from "@mr/api-client";
 
 interface Props {
-  tiltakstypeId?: string;
+  tiltakstype?: EmbeddedTiltakstype;
 }
 
-export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
+export function AvtalePersonvernForm({ tiltakstype }: Props) {
   const { register, setValue, watch } = useFormContext<InferredAvtaleSchema>();
   const { data: personopplysninger } = usePersonopplysninger();
 
   const watchPersonopplysninger = watch("personopplysninger");
 
-  if (!tiltakstypeId) {
-    return (
-      <div className={styles.container}>
-        <Alert variant="info">Tiltakstype må velges før personvern kan redigeres.</Alert>
-      </div>
-    );
+  if (!tiltakstype) {
+    return <Alert variant="info">Tiltakstype må velges før personvern kan redigeres.</Alert>;
   }
 
   function PersonopplysningCheckboxList(props: {

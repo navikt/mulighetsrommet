@@ -24,7 +24,6 @@ import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.ktor.createMockEngine
@@ -87,7 +86,7 @@ class JournalforRefusjonskravTest : FunSpec({
     )
 
     beforeEach {
-        database.db.truncateAll()
+        database.truncateAll()
         domain.initialize(database.db)
     }
 

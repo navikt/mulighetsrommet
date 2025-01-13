@@ -1,9 +1,9 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "react-router";
+import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { redirect } from "react-router";
-import { hentArrangortilgangerForBruker } from "../auth/arrangortilgang.server";
-import { checkValidToken, setupOpenApi } from "../auth/auth.server";
 import { internalNavigation } from "../internal-navigation";
 import { getCurrentTab } from "../utils/currentTab";
+import { ArrangorflateService } from "@mr/api-client-v2";
+import { apiHeaders } from "~/auth/auth.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -12,30 +12,21 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const orgnr = formData.get("orgnr");
-
-  if (typeof orgnr === "string" && orgnr) {
-    return redirect(`/${orgnr}`);
-  }
-
-  return null;
-}
-
-export async function loader({ request, params }: LoaderFunctionArgs) {
-  await checkValidToken(request);
-  await setupOpenApi(request);
-  const url = new URL(request.url);
+export async function loader({ request }: LoaderFunctionArgs) {
   const currentTab = getCurrentTab(request);
-  const { orgnr } = params;
-  const arrangorer = await hentArrangortilgangerForBruker();
-
-  if (!orgnr && arrangorer.length > 0 && url.pathname === "/") {
-    return redirect(
-      `${internalNavigation(arrangorer[0].organisasjonsnummer).refusjonskravliste}?forside-tab=${currentTab}`,
-    );
+  const { data: arrangorer, error } =
+    await ArrangorflateService.getArrangorerInnloggetBrukerHarTilgangTil({
+      headers: await apiHeaders(request),
+    });
+  if (!arrangorer || error) {
+    throw error;
   }
 
-  return null;
+  if (arrangorer.length === 0) {
+    return redirect("/ingen-tilgang");
+  }
+
+  return redirect(
+    `${internalNavigation(arrangorer[0].organisasjonsnummer).refusjonskravliste}?forside-tab=${currentTab}`,
+  );
 }

@@ -5,10 +5,13 @@ import {
   NavEnhetStatus,
   TiltakstyperService,
 } from "@mr/api-client";
-import { LoaderFunctionArgs } from "react-router-dom";
+import { LoaderFunctionArgs } from "react-router";
 
 export async function avtaleLoader({ params }: LoaderFunctionArgs) {
-  if (!params.avtaleId) throw Error("Fant ikke avtaleId i route");
+  if (!params.avtaleId) {
+    throw Error("Fant ikke avtaleId i route");
+  }
+
   const avtale = await AvtalerService.getAvtale({ id: params.avtaleId });
   const ansatt = await AnsattService.hentInfoOmAnsatt();
   return { avtale, ansatt };

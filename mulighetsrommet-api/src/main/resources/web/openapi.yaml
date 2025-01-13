@@ -1727,14 +1727,22 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TilsagnDto"
-
-  /api/v1/intern/tiltaksgjennomforinger/{tiltaksgjennomforingId}/tilsagn:
-    parameters:
-      - $ref: "#/components/parameters/tiltaksgjennomforingId"
     get:
       tags:
         - Tilsagn
-      operationId: tilsagnByTiltaksgjennomforing
+      operationId: getAll
+      parameters:
+        - name: gjennomforingId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: statuser
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/TilsagnStatus"
       responses:
         200:
           description: TiltagnDto
@@ -1744,6 +1752,38 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/TilsagnDto"
+
+  /api/v1/intern/tiltaksgjennomforinger/{tiltaksgjennomforingId}/refusjonskrav:
+    parameters:
+      - $ref: "#/components/parameters/tiltaksgjennomforingId"
+    get:
+      tags:
+        - Refusjonskrav
+      operationId: refusjonskravByTiltaksgjennomforing
+      responses:
+        200:
+          description: RefusjonKravKompakt
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RefusjonKravKompakt"
+
+  /api/v1/intern/refusjonskrav/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Refusjonskrav
+      operationId: getRefusjonskrav
+      responses:
+        200:
+          description: RefusjonKravKompakt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefusjonKravKompakt"
 
   /api/v1/intern/tilsagn/beregn:
     post:
@@ -1761,7 +1801,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TilsagnBeregning"
+                $ref: "#/components/schemas/TilsagnBeregningOutput"
 
   /api/v1/intern/tilsagn/defaults:
     parameters:
@@ -1772,6 +1812,12 @@ paths:
         schema:
           type: string
           format: uuid
+      - name: type
+        in: query
+        description: Tilsagnstype
+        required: true
+        schema:
+          $ref: "#/components/schemas/TilsagnType"
     get:
       tags:
         - Tilsagn
@@ -1867,20 +1913,28 @@ paths:
               schema:
                 type: string
 
-  /api/v1/intern/tilsagn/aft/sats:
+  /api/v1/intern/prismodell/satser:
     get:
       tags:
-        - AFT satser
-      operationId: aftSatser
+        - Prismodell
+      parameters:
+        - in: query
+          name: tiltakstype
+          required: true
+          schema:
+            $ref: "#/components/schemas/Tiltakskode"
+            type: string
+            format: uuid
+      operationId: getForhandsgodkjenteSatser
       responses:
         200:
-          description: AFT satser
+          description: Avtalte satser for avtale
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/AFTSats"
+                  $ref: "#/components/schemas/AvtaltSats"
 
   /api/v1/intern/arrangorflate/arrangor/{orgnr}/refusjonskrav:
     get:
@@ -1897,7 +1951,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/RefusjonKravKompakt"
+                  $ref: "#/components/schemas/ArrFlateRefusjonKravKompakt"
 
   /api/v1/intern/arrangorflate/arrangor/{orgnr}/tilsagn:
     get:
@@ -1996,6 +2050,12 @@ paths:
       responses:
         200:
           description: Godkjenn et refusjonskrav
+        400:
+          description: Respons med valideringsfeil
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
 
   /api/v1/intern/arrangorflate/refusjonskrav/{id}/kvittering:
     parameters:
@@ -2453,6 +2513,8 @@ components:
             $ref: "#/components/schemas/OpsjonLoggRegistrert"
         utdanningslop:
           $ref: "#/components/schemas/Utdanningslop"
+        prismodell:
+          $ref: "#/components/schemas/Prismodell"
       required:
         - id
         - tiltakstype
@@ -2540,6 +2602,9 @@ components:
         utdanningslop:
           $ref: "#/components/schemas/UtdanningslopDbo"
           nullable: true
+        prismodell:
+          $ref: "#/components/schemas/Prismodell"
+          nullable: true
       required:
         - id
         - navn
@@ -2561,6 +2626,13 @@ components:
         - amoKategorisering
         - opsjonsmodellData
         - utdanningslop
+        - prismodell
+
+    Prismodell:
+      type: string
+      enum:
+        - FORHANDSGODKJENT
+        - FRI
 
     EmbeddedTiltakstype:
       type: object
@@ -3627,9 +3699,7 @@ components:
         id:
           type: string
           format: uuid
-        tittel:
-          type: string
-        underTittel:
+        navn:
           type: string
         stedForGjennomforing:
           type: string
@@ -3658,8 +3728,7 @@ components:
         - kontaktinfo
         - oppstart
         - id
-        - tittel
-        - underTittel
+        - navn
         - apentForPamelding
         - oppstartsdato
         - arrangor
@@ -3687,9 +3756,7 @@ components:
           const: LOPENDE
         sanityId:
           type: string
-        tittel:
-          type: string
-        underTittel:
+        navn:
           type: string
         stedForGjennomforing:
           type: string
@@ -3701,8 +3768,7 @@ components:
         - kontaktinfo
         - oppstart
         - sanityId
-        - tittel
-        - underTittel
+        - navn
 
     VeilederflateTiltakEnkeltplass:
       type: object
@@ -3723,9 +3789,7 @@ components:
           const: LOPENDE
         sanityId:
           type: string
-        tittel:
-          type: string
-        underTittel:
+        navn:
           type: string
         stedForGjennomforing:
           type: string
@@ -3737,8 +3801,7 @@ components:
         - kontaktinfo
         - oppstart
         - sanityId
-        - tittel
-        - underTittel
+        - navn
 
     VeilederflateTiltakEnkeltplassAnskaffet:
       type: object
@@ -3761,9 +3824,7 @@ components:
           const: LOPENDE
         sanityId:
           type: string
-        tittel:
-          type: string
-        underTittel:
+        navn:
           type: string
         stedForGjennomforing:
           type: string
@@ -3777,8 +3838,7 @@ components:
         - kontaktinfo
         - oppstart
         - sanityId
-        - tittel
-        - underTittel
+        - navn
         - arrangor
 
     RegelverkLenke:
@@ -4289,8 +4349,8 @@ components:
       type: string
       enum:
         - mulighetsrommet-veilederflate.vis-tilbakemelding
-        - mulighetsrommet.admin-flate.opprett-tilsagn
         - mulighetsrommet.tiltakstype.migrering.deltaker
+        - mulighetsrommet.tiltakstype.migrering.okonomi
         - mulighetsrommet.tiltakstype.pamelding-info-komet
 
     PublisertRequest:
@@ -4680,9 +4740,7 @@ components:
     TiltakDeltMedBruker:
       type: object
       properties:
-        tittel:
-          type: string
-        underTittel:
+        navn:
           type: string
         tiltakstype:
           $ref: "#/components/schemas/TiltakDeltMedBrukerTiltakstype"
@@ -4694,8 +4752,7 @@ components:
         tiltakId:
           type: string
       required:
-        - tittel
-        - underTittel
+        - navn
         - tiltakstype
         - createdAt
         - dialogId
@@ -4879,15 +4936,41 @@ components:
               - id
               - status
 
+    TilsagnDefaults:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        gjennomforingId:
+          type: string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/TilsagnType"
+        periodeStart:
+          type: string
+          format: date
+        periodeSlutt:
+          type: string
+          format: date
+        kostnadssted:
+          type: string
+        antallPlasser:
+          type: integer
+        beregning:
+          $ref: "#/components/schemas/TilsagnBeregningInput"
+
     TilsagnRequest:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        tiltaksgjennomforingId:
+        gjennomforingId:
           type: string
           format: uuid
+        type:
+          $ref: "#/components/schemas/TilsagnType"
         periodeStart:
           type: string
           format: date
@@ -4897,14 +4980,22 @@ components:
         kostnadssted:
           type: string
         beregning:
-          $ref: "#/components/schemas/TilsagnBeregning"
+          $ref: "#/components/schemas/TilsagnBeregningInput"
       required:
         - id
-        - tiltaksgjennomforingId
+        - gjennomforingId
+        - type
         - periodeStart
         - periodeSlutt
         - kostnadssted
         - beregning
+
+    TilsagnType:
+      type: string
+      enum:
+        - TILSAGN
+        - EKSTRATILSAGN
+        - INVESTERING
 
     TilsagnDto:
       type: object
@@ -4943,7 +5034,9 @@ components:
             - navn
             - overordnetEnhet
         status:
-          $ref: "#/components/schemas/TilsagnStatus"
+          $ref: "#/components/schemas/TilsagnStatusDto"
+        type:
+          $ref: "#/components/schemas/TilsagnType"
       required:
         - id
         - tiltaksgjennomforingId
@@ -4955,8 +5048,18 @@ components:
         - arrangor
         - lopenummer
         - status
+        - type
 
     TilsagnStatus:
+      type: string
+      enum:
+        - TIL_GODKJENNING
+        - GODKJENT
+        - RETURNERT
+        - TIL_ANNULLERING
+        - ANNULLERT
+
+    TilsagnStatusDto:
       oneOf:
         - $ref: "#/components/schemas/TilsagnStatusTilGodkjenning"
         - $ref: "#/components/schemas/TilsagnStatusGodkjent"
@@ -4970,7 +5073,7 @@ components:
         type:
           type: string
           enum:
-            - 'TIL_GODKJENNING'
+            - "TIL_GODKJENNING"
         endretAv:
           type: string
         endretTidspunkt:
@@ -4987,7 +5090,7 @@ components:
         type:
           type: string
           enum:
-            - 'GODKJENT'
+            - "GODKJENT"
       required:
         - type
 
@@ -4999,7 +5102,7 @@ components:
         type:
           type: string
           enum:
-            - 'RETURNERT'
+            - "RETURNERT"
         returnertAv:
           type: string
         returnertAvNavn:
@@ -5027,7 +5130,7 @@ components:
         type:
           type: string
           enum:
-            - 'TIL_ANNULLERING'
+            - "TIL_ANNULLERING"
         endretAv:
           type: string
         endretAvNavn:
@@ -5055,7 +5158,7 @@ components:
         type:
           type: string
           enum:
-            - 'ANNULLERT'
+            - "ANNULLERT"
         endretAv:
           type: string
         godkjentAv:
@@ -5063,11 +5166,19 @@ components:
         endretTidspunkt:
           type: string
           format: date-time
+        aarsaker:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnTilAnnulleringAarsak"
+        forklaring:
+          type: string
       required:
         - type
         - endretAv
         - godkjentAv
         - endretTidspunkt
+        - aarsaker
+        - forklaring
 
     TilsagnStatusBesluttelse:
       type: string
@@ -5118,34 +5229,6 @@ components:
         - besluttelse
         - aarsaker
 
-    TilsagnDefaults:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        periodeStart:
-          type: string
-          format: date
-        periodeSlutt:
-          type: string
-          format: date
-        antallPlasser:
-          type: integer
-        kostnadssted:
-          type: string
-        beregning:
-          $ref: "#/components/schemas/TilsagnBeregning"
-      required:
-        - periodeStart
-        - periodeSlutt
-        - antallPlasser
-
-    TilsagnBeregning:
-      oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningAFT"
-        - $ref: "#/components/schemas/TilsagnBeregningFri"
-
     TilsagnTilAnnulleringAarsak:
       type: string
       enum:
@@ -5162,95 +5245,122 @@ components:
         - FEIL_BELOP
         - FEIL_ANNET
 
-    TilsagnBeregningAFT:
+    TilsagnBeregning:
+      oneOf:
+        - $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjent"
+        - $ref: "#/components/schemas/TilsagnBeregningFri"
+
+    TilsagnBeregningInput:
+      oneOf:
+        - $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjentInput"
+        - $ref: "#/components/schemas/TilsagnBeregningFriInput"
+
+    TilsagnBeregningOutput:
+      oneOf:
+        - $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjentOutput"
+        - $ref: "#/components/schemas/TilsagnBeregningFriOutput"
+
+    TilsagnBeregningForhandsgodkjent:
       type: object
       properties:
         type:
-          type: string
-          enum:
-            - AFT
-        sats:
-          type: integer
-        antallPlasser:
-          type: integer
-        belop:
-          type: integer
+          const: FORHANDSGODKJENT
+        input:
+          $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjentInput"
+        output:
+          $ref: "#/components/schemas/TilsagnBeregningForhandsgodkjentOutput"
+      required:
+        - type
+        - input
+        - output
+
+    TilsagnBeregningForhandsgodkjentInput:
+      type: object
+      properties:
+        type:
+          const: FORHANDSGODKJENT
         periodeStart:
           type: string
           format: date
         periodeSlutt:
           type: string
           format: date
+        sats:
+          type: integer
+        antallPlasser:
+          type: integer
       required:
         - type
-        - sats
-        - antallPlasser
-        - belop
         - periodeStart
         - periodeSlutt
+        - sats
+        - antallPlasser
+
+    TilsagnBeregningForhandsgodkjentOutput:
+      type: object
+      properties:
+        type:
+          const: FORHANDSGODKJENT
+        belop:
+          type: integer
+      required:
+        - type
+        - belop
 
     TilsagnBeregningFri:
       type: object
       properties:
         type:
-          type: string
-          enum:
-            - FRI
+          const: FRI
+        input:
+          $ref: "#/components/schemas/TilsagnBeregningFriInput"
+        output:
+          $ref: "#/components/schemas/TilsagnBeregningFriOutput"
+      required:
+        - type
+        - input
+        - output
+
+    TilsagnBeregningFriInput:
+      type: object
+      properties:
+        type:
+          const: FRI
         belop:
           type: integer
       required:
         - type
         - belop
 
-    TilsagnBeregningInput:
-      oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningInputAFT"
-        - $ref: "#/components/schemas/TilsagnBeregningInputFri"
-
-    TilsagnBeregningInputAFT:
+    TilsagnBeregningFriOutput:
+      type: object
       properties:
         type:
-          type: string
-          enum:
-            - AFT
+          const: FRI
+        belop:
+          type: integer
+      required:
+        - type
+        - belop
+
+    AvtaltSats:
+      type: object
+      properties:
         periodeStart:
           type: string
           format: date
         periodeSlutt:
           type: string
           format: date
-        antallPlasser:
+        pris:
           type: integer
+        valuta:
+          type: string
       required:
-        - type
         - periodeStart
         - periodeSlutt
-        - antallPlasser
-
-    TilsagnBeregningInputFri:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-            - FRI
-        belop:
-          type: integer
-      required:
-        - type
-        - belop
-
-    AFTSats:
-      type: object
-      properties:
-        startDato:
-          type: string
-          format: date
-        belop:
-          type: integer
-      required:
-        - startDato
-        - belop
+        - pris
+        - valuta
 
     RefusjonskravStatus:
       type: string
@@ -5260,6 +5370,26 @@ components:
         - GODKJENT_AV_ARRANGOR
 
     RefusjonKravKompakt:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/RefusjonskravStatus"
+        beregning:
+          $ref: "#/components/schemas/RefusjonKravKompaktBeregning"
+        kostnadsteder:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavEnhet"
+      required:
+        - id
+        - status
+        - beregning
+        - kostnadsteder
+
+    ArrFlateRefusjonKravKompakt:
       type: object
       properties:
         id:
@@ -5535,12 +5665,16 @@ components:
               type: string
           required:
             - navn
+        type:
+          $ref: "#/components/schemas/TilsagnType"
         periodeStart:
           type: string
           format: date
         periodeSlutt:
           type: string
           format: date
+        status:
+            $ref: "#/components/schemas/TilsagnStatusOgAarsaker"
         arrangor:
           type: object
           properties:
@@ -5560,6 +5694,8 @@ components:
       required:
         - periodeStart
         - periodeSlutt
+        - type
+        - status
         - gjennomforing
         - tiltakstype
         - arrangor
@@ -5596,3 +5732,14 @@ components:
       required:
         - deltakerId
         - antallRelevanteForslag
+
+
+    TilsagnStatusOgAarsaker:
+      type: object
+      properties:
+        status:
+          $ref: "#/components/schemas/TilsagnStatus"
+        aarsaker:
+            type: array
+            items:
+                $ref: "#/components/schemas/TilsagnTilAnnulleringAarsak"

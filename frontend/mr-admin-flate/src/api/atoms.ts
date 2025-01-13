@@ -160,7 +160,7 @@ export const tiltakstypeFilterAtom = atomWithHashAndStorage<TiltakstypeFilter>(
   tiltakstypeFilterSchema,
 );
 
-export const TiltaksgjennomforingFilterSchema = z.object({
+export const GjennomforingFilterSchema = z.object({
   search: z.string(),
   navEnheter: z.custom<NavEnhet>().array(),
   tiltakstyper: z.string().array(),
@@ -174,9 +174,9 @@ export const TiltaksgjennomforingFilterSchema = z.object({
   pageSize: z.number(),
   lagretFilterIdValgt: z.string().optional(),
 });
-export type TiltaksgjennomforingFilter = z.infer<typeof TiltaksgjennomforingFilterSchema>;
+export type GjennomforingFilter = z.infer<typeof GjennomforingFilterSchema>;
 
-export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingFilter = {
+export const defaultGjennomforingfilter: GjennomforingFilter = {
   search: "",
   navEnheter: [],
   tiltakstyper: [],
@@ -197,25 +197,25 @@ export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingFilter = {
   lagretFilterIdValgt: undefined,
 };
 
-export const tiltaksgjennomforingfilterAtom = atomWithStorage<TiltaksgjennomforingFilter>(
+export const gjennomforingfilterAtom = atomWithStorage<GjennomforingFilter>(
   "tiltaksgjennomforing-filter",
-  defaultTiltaksgjennomforingfilter,
+  defaultGjennomforingfilter,
   sessionStorage,
-  TiltaksgjennomforingFilterSchema,
+  GjennomforingFilterSchema,
 );
 
 export const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
   string,
-  WritableAtom<TiltaksgjennomforingFilter, [newValue: TiltaksgjennomforingFilter], void>
+  WritableAtom<GjennomforingFilter, [newValue: GjennomforingFilter], void>
 >((avtaleId: string) => {
   return atomWithHashAndStorage(
     `tiltaksgjennomforing-filter-${avtaleId}`,
     {
-      ...defaultTiltaksgjennomforingfilter,
+      ...defaultGjennomforingfilter,
       avtale: avtaleId,
     },
     sessionStorage,
-    TiltaksgjennomforingFilterSchema,
+    GjennomforingFilterSchema,
   );
 });
 

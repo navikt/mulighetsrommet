@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.refusjon
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.ktor.client.engine.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -16,6 +16,8 @@ import kotliquery.Query
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedParty
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
+import no.nav.mulighetsrommet.api.arrangorflate.GodkjennRefusjonskrav
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravAft
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponseDokument
 import no.nav.mulighetsrommet.api.createAuthConfig
@@ -30,7 +32,6 @@ import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
 import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
@@ -135,7 +136,7 @@ class ArrangorflateRoutesTest : FunSpec({
     }
 
     beforeEach {
-        database.db.truncateAll()
+        database.truncateAll()
         domain.initialize(database.db)
     }
 
@@ -195,12 +196,13 @@ class ArrangorflateRoutesTest : FunSpec({
         }
     }
 
-    test("401 Unauthorized med pid uten tilgang") {
+    test("200 OK og tom liste med pid uten tilgang") {
         withTestApplication(appConfig()) {
             val response = client.get("/api/v1/intern/arrangorflate/tilgang-arrangor") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922")).serialize())
             }
-            response.status shouldBe HttpStatusCode.Unauthorized
+            response.status shouldBe HttpStatusCode.OK
+            Json.decodeFromString<List<ArrangorDto>>(response.bodyAsText()) shouldHaveSize 0
         }
     }
 
@@ -218,13 +220,13 @@ class ArrangorflateRoutesTest : FunSpec({
         }
     }
 
-    test("401 hent krav uten tilgang til bedrift") {
+    test("403 hent krav uten tilgang til bedrift") {
         withTestApplication(appConfig()) {
             val response = client.get("/api/v1/intern/arrangorflate/refusjonskrav/${krav.id}") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922")).serialize())
                 contentType(ContentType.Application.Json)
             }
-            response.status shouldBe HttpStatusCode.Unauthorized
+            response.status shouldBe HttpStatusCode.Forbidden
         }
     }
 
@@ -236,7 +238,7 @@ class ArrangorflateRoutesTest : FunSpec({
             }
             response.status shouldBe HttpStatusCode.OK
             val responseBody = response.bodyAsText()
-            val kravResponse: RefusjonKravAft = Json.decodeFromString(responseBody)
+            val kravResponse: ArrFlateRefusjonKravAft = Json.decodeFromString(responseBody)
             kravResponse.id shouldBe krav.id
         }
     }

@@ -1,7 +1,16 @@
 package no.nav.mulighetsrommet.domain.dto.amt
 
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.descriptors.element
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.JsonDecoder
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -9,38 +18,12 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-@Serializable
+@Serializable(with = MeldingSerializer::class)
 sealed interface Melding {
     val id: UUID
     val deltakerId: UUID
     val opprettetAvArrangorAnsattId: UUID
     val opprettet: LocalDateTime
-
-    @Serializable
-    @SerialName("EndringFraArrangor")
-    data class EndringFraArrangor(
-        @Serializable(with = UUIDSerializer::class)
-        override val id: UUID,
-        @Serializable(with = UUIDSerializer::class)
-        override val deltakerId: UUID,
-        @Serializable(with = UUIDSerializer::class)
-        override val opprettetAvArrangorAnsattId: UUID,
-        @Serializable(with = LocalDateTimeSerializer::class)
-        override val opprettet: LocalDateTime,
-        val endring: Endring,
-    ) : Melding {
-        @Serializable
-        sealed interface Endring {
-            @Serializable
-            @SerialName("LeggTilOppstartsdato")
-            data class LeggTilOppstartsdato(
-                @Serializable(with = LocalDateSerializer::class)
-                val startdato: LocalDate,
-                @Serializable(with = LocalDateSerializer::class)
-                val sluttdato: LocalDate? = null,
-            ) : Endring
-        }
-    }
 
     @Serializable
     @SerialName("Forslag")
@@ -153,6 +136,10 @@ sealed interface Melding {
             data class Sluttarsak(
                 val aarsak: EndringAarsak,
             ) : Endring
+
+            @Serializable
+            @SerialName("FjernOppstartsdato")
+            data object FjernOppstartsdato : Endring
         }
 
         @Serializable
@@ -192,4 +179,28 @@ sealed interface EndringAarsak {
     data class Annet(
         val beskrivelse: String,
     ) : EndringAarsak
+}
+
+object MeldingSerializer : KSerializer<Melding?> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Melding") {
+        element<String>("type")
+        element<String>("data", isOptional = true)
+    }
+
+    override fun deserialize(decoder: Decoder): Melding? {
+        require(decoder is JsonDecoder) // This serializer works with JSON
+        val jsonElement = decoder.decodeJsonElement().jsonObject
+
+        return when (jsonElement["type"]?.jsonPrimitive?.content) {
+            "Forslag" -> decoder.json.decodeFromJsonElement(
+                Melding.Forslag.serializer(),
+                jsonElement,
+            )
+            else -> null
+        }
+    }
+
+    override fun serialize(encoder: Encoder, value: Melding?) {
+        throw UnsupportedOperationException() // Implement if needed
+    }
 }

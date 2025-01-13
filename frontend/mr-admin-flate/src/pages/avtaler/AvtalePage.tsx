@@ -5,24 +5,23 @@ import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { AvtalestatusTag } from "@/components/statuselementer/AvtalestatusTag";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
-import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { useTitle } from "@mr/frontend-common";
 import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
-import { Link, Outlet, useLocation, useMatch } from "react-router-dom";
+import { Link, Outlet, useLocation, useMatch } from "react-router";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import commonStyles from "../Page.module.scss";
-import styles from "./AvtalePage.module.scss";
 import { Laster } from "../../components/laster/Laster";
+import { ContentBox } from "@/layouts/ContentBox";
+import React from "react";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const erPaaGjennomforingerForAvtale = useMatch("/avtaler/:avtaleId/tiltaksgjennomforinger");
   return [
-    { tittel: "Forside", lenke: "/" },
     { tittel: "Avtaler", lenke: "/avtaler" },
-    { tittel: "Avtaledetaljer", lenke: `/avtaler/${avtaleId}` },
+    { tittel: "Avtale", lenke: `/avtaler/${avtaleId}` },
     erPaaGjennomforingerForAvtale
       ? {
-          tittel: "Avtalens gjennomføringer",
+          tittel: "Gjennomføringer",
           lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
         }
       : undefined,
@@ -65,7 +64,7 @@ export function AvtalePage() {
   };
 
   return (
-    <main className={styles.avtaleinfo}>
+    <>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <div className={headerStyles.tiltaksnavn_status}>
@@ -95,12 +94,14 @@ export function AvtalePage() {
             data-testid="gjennomforinger-tab"
           />
         </Tabs.List>
-        <ContainerLayout>
-          <div id="panel">
-            <Outlet />
-          </div>
-        </ContainerLayout>
+        <React.Suspense fallback={<Laster tekst="Laster innhold..." />}>
+          <ContentBox>
+            <div id="panel">
+              <Outlet />
+            </div>
+          </ContentBox>
+        </React.Suspense>
       </Tabs>
-    </main>
+    </>
   );
 }

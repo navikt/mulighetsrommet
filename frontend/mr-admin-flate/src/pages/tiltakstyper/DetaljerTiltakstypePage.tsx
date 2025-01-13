@@ -3,22 +3,19 @@ import { TiltakstypeIkon } from "@/components/ikoner/TiltakstypeIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TiltakstypestatusTag } from "@/components/statuselementer/TiltakstypestatusTag";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
-import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { useTitle } from "@mr/frontend-common";
 import { Alert, Heading, Tabs } from "@navikt/ds-react";
-import { Link, Outlet, useLoaderData, useLocation, useMatch } from "react-router-dom";
+import { Link, Outlet, useLoaderData, useLocation, useMatch } from "react-router";
 import commonStyles from "../Page.module.scss";
 import { tiltakstypeLoader } from "./tiltakstyperLoaders";
+import { ContentBox } from "@/layouts/ContentBox";
 
 function useTiltakstypeBrodsmuler(tiltakstypeId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/tiltakstyper/:tiltakstypeId/avtaler");
   return [
-    { tittel: "Forside", lenke: "/" },
     { tittel: "Tiltakstyper", lenke: "/tiltakstyper" },
-    { tittel: "Tiltakstypedetaljer", lenke: `/tiltakstyper/${tiltakstypeId}` },
-    match
-      ? { tittel: "Tiltaktypens avtaler", lenke: `/tiltakstyper/${tiltakstypeId}/avtaler` }
-      : undefined,
+    { tittel: "Tiltakstype", lenke: `/tiltakstyper/${tiltakstypeId}` },
+    match ? { tittel: "Avtaler", lenke: `/tiltakstyper/${tiltakstypeId}/avtaler` } : undefined,
   ];
 }
 
@@ -66,11 +63,11 @@ export function DetaljerTiltakstypePage() {
             aria-controls="panel"
           />
         </Tabs.List>
-        <ContainerLayout>
+        <ContentBox>
           <div id="panel">
             <Outlet />
           </div>
-        </ContainerLayout>
+        </ContentBox>
       </Tabs>
     </main>
   );

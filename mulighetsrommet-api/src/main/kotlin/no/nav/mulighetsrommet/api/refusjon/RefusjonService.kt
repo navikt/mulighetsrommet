@@ -1,11 +1,11 @@
 package no.nav.mulighetsrommet.api.refusjon
 
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.refusjon.model.*
+import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
@@ -43,7 +43,7 @@ class RefusjonService(
 
     fun recalculateRefusjonskravForGjennomforing(id: UUID) = db.transaction { tx ->
         refusjonskravRepository
-            .getByGjennomforing(id, status = RefusjonskravStatus.KLAR_FOR_GODKJENNING)
+            .getByGjennomforing(id, statuser = listOf(RefusjonskravStatus.KLAR_FOR_GODKJENNING))
             .mapNotNull { gjeldendeKrav ->
                 val nyttKrav = when (gjeldendeKrav.beregning) {
                     is RefusjonKravBeregningAft -> createRefusjonskravAft(
@@ -69,15 +69,17 @@ class RefusjonService(
 
         val deltakere = getDeltakelser(gjennomforingId, periode)
 
+        // TODO: burde også verifisere at start og slutt har samme pris
+        val sats = ForhandsgodkjenteSatser.findSats(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, periode.start)
+            ?: throw IllegalStateException("Sats mangler for periode $periode")
+
         val input = RefusjonKravBeregningAft.Input(
             periode = periode,
-            sats = Prismodell.AFT.findSats(periode.start),
+            sats = sats,
             deltakelser = deltakere,
         )
 
-        val output = Prismodell.AFT.beregnRefusjonBelop(input)
-
-        val beregning = RefusjonKravBeregningAft(input, output)
+        val beregning = RefusjonKravBeregningAft.beregn(input)
 
         val forrigeKrav = refusjonskravRepository.getSisteGodkjenteRefusjonskrav(gjennomforingId)
 

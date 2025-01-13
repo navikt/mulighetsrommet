@@ -75,7 +75,6 @@ import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.TilsagnValidator
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
@@ -94,7 +93,7 @@ import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.notifications.NotificationRepository
-import no.nav.mulighetsrommet.notifications.NotificationService
+import no.nav.mulighetsrommet.notifications.NotificationTask
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
@@ -139,7 +138,7 @@ fun slack(slack: SlackConfig): Module = module(createdAtStart = true) {
 
 private fun db(config: DatabaseConfig) = module {
     single<Database>(createdAtStart = true) {
-        Database(config)
+        Database(config.copy { metricRegistry = Metrikker.appMicrometerRegistry })
     }
 }
 
@@ -396,7 +395,7 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakshistorikkService(get(), get(), get(), get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
     single { BrukerService(get(), get(), get(), get(), get(), get()) }
-    single { NavAnsattService(appConfig.auth.roles, get(), get()) }
+    single { NavAnsattService(appConfig.auth.roles, get(), get(), get()) }
     single { NavAnsattSyncService(get(), get(), get(), get(), get(), get(), get()) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get(), get(), get()) }
@@ -414,7 +413,6 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakstypeService(get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
-    single { NotificationService(get(), get()) }
     single { ArrangorService(get(), get()) }
     single { RefusjonService(get(), get(), get(), get()) }
     single { UnleashService(appConfig.unleash, get()) }
@@ -423,13 +421,12 @@ private fun services(appConfig: AppConfig) = module {
             appConfig.axsys.url,
         ) { runBlocking { cachedTokenProvider.withScope(appConfig.axsys.scope).exchange(AccessType.M2M) } }
     }
-    single { AvtaleValidator(get(), get(), get(), get(), get()) }
-    single { TiltaksgjennomforingValidator(get(), get()) }
+    single { AvtaleValidator(get(), get(), get(), get(), get(), get()) }
+    single { TiltaksgjennomforingValidator(get(), get(), get()) }
     single { OpsjonLoggValidator() }
-    single { TilsagnValidator(get()) }
     single { OpsjonLoggService(get(), get(), get(), get(), get()) }
     single { LagretFilterService(get()) }
-    single { TilsagnService(get(), get(), get(), get(), get()) }
+    single { TilsagnService(get(), get(), get(), get()) }
     single { AltinnRettigheterService(get(), get()) }
 }
 
@@ -441,6 +438,7 @@ private fun tasks(config: TaskConfig) = module {
     single { SynchronizeUtdanninger(config.synchronizeUtdanninger, get(), get()) }
     single { GenerateRefusjonskrav(config.generateRefusjonskrav, get()) }
     single { JournalforRefusjonskrav(get(), get(), get(), get(), get(), get()) }
+    single { NotificationTask(get(), get()) }
     single {
         val updateTiltaksgjennomforingStatus = UpdateTiltaksgjennomforingStatus(
             get(),
@@ -464,7 +462,7 @@ private fun tasks(config: TaskConfig) = module {
             get(),
         )
         val updateApentForPamelding = UpdateApentForPamelding(config.updateApentForPamelding, get(), get())
-        val notificationService: NotificationService by inject()
+        val notificationTask: NotificationTask by inject()
         val generateValidationReport: GenerateValidationReport by inject()
         val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
         val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
@@ -478,7 +476,7 @@ private fun tasks(config: TaskConfig) = module {
         Scheduler
             .create(
                 db.getDatasource(),
-                notificationService.getScheduledNotificationTask(),
+                notificationTask.task,
                 generateValidationReport.task,
                 initialLoadTiltaksgjennomforinger.task,
                 initialLoadTiltakstyper.task,

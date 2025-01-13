@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.veilederflate.models.DelMedBrukerDbo
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
@@ -33,7 +32,7 @@ class DelMedBrukerServiceTest : FunSpec({
     val tiltakstypeService: TiltakstypeService = mockk(relaxed = true)
 
     afterEach {
-        database.db.truncateAll()
+        database.truncateAll()
     }
 
     context("DelMedBrukerService") {
@@ -195,9 +194,9 @@ class DelMedBrukerServiceTest : FunSpec({
             delMedBruker.should {
                 it.shouldNotBeNull()
                 it.size shouldBe 3
-                it[0].tittel shouldBe "Oppfølging"
-                it[1].tittel shouldBe "Arbeidsmarkedsopplæring (AMO) enkeltplass"
-                it[2].tittel shouldBe "Arbeidstrening"
+                it[0].tiltakstype.navn shouldBe "Oppfølging"
+                it[1].tiltakstype.navn shouldBe "Arbeidsmarkedsopplæring (AMO) enkeltplass"
+                it[2].tiltakstype.navn shouldBe "Arbeidstrening"
             }
         }
     }

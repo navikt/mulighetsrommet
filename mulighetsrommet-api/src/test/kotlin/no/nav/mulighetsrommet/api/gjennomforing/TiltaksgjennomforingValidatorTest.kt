@@ -14,12 +14,13 @@ import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRepository
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
@@ -112,6 +113,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     lateinit var avtaler: AvtaleRepository
     lateinit var tiltaksgjennomforinger: TiltaksgjennomforingRepository
     lateinit var arrangorer: ArrangorRepository
+    lateinit var navAnsatte: NavAnsattRepository
 
     beforeEach {
         domain.initialize(database.db)
@@ -119,16 +121,17 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         avtaler = AvtaleRepository(database.db)
         tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         arrangorer = ArrangorRepository(database.db)
+        navAnsatte = NavAnsattRepository(database.db)
     }
 
     afterTest {
-        database.db.truncateAll()
+        database.truncateAll()
     }
 
     test("should fail when avtale does not exist") {
         val unknownAvtaleId = UUID.randomUUID()
 
-        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer, navAnsatte)
 
         val dbo = gjennomforing.copy(avtaleId = unknownAvtaleId)
 
@@ -140,7 +143,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     test("should fail when tiltakstype does not match with avtale") {
         avtaler.upsert(avtale.copy(tiltakstypeId = TiltakstypeFixtures.AFT.id))
 
-        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer, navAnsatte)
 
         validator.validate(gjennomforing, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             ValidationError("tiltakstypeId", "Tiltakstypen må være den samme som for avtalen"),
@@ -148,7 +151,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     }
 
     test("should fail when tiltakstype does not support change of oppstartstype") {
-        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer, navAnsatte)
 
         validator.validate(gjennomforing.copy(oppstart = TiltaksgjennomforingOppstartstype.FELLES), null)
             .shouldBeLeft()
@@ -161,7 +164,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
         avtaler.avbryt(id, LocalDateTime.now(), AvbruttAarsak.BudsjettHensyn)
 
-        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer, navAnsatte)
         val dbo = gjennomforing.copy(avtaleId = id)
 
         validator.validate(dbo, null).shouldBeLeft(
@@ -179,7 +182,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     }
 
     test("kan ikke opprette før Avtale startDato") {
-        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer, navAnsatte)
         val dbo = gjennomforing.copy(
             startDato = avtale.startDato.minusDays(1),
         )
@@ -194,7 +197,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         val dbo = gjennomforing.copy(startDato = startDato)
         tiltaksgjennomforinger.upsert(dbo)
 
-        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer, navAnsatte)
 
         val beforeAllowedDato = startDato.minusMonths(3)
         validator.validate(gjennomforing.copy(tilgjengeligForArrangorFraOgMedDato = beforeAllowedDato), null)
@@ -216,7 +219,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     }
 
     test("sluttDato er påkrevd hvis ikke forhåndsgodkjent avtale") {
-        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer, navAnsatte)
         val forhaandsgodkjent = TiltaksgjennomforingFixtures.AFT1.copy(sluttDato = null)
         val rammeAvtale = TiltaksgjennomforingFixtures.Oppfolging1.copy(sluttDato = null)
         val vanligAvtale = TiltaksgjennomforingFixtures.Oppfolging1.copy(
@@ -245,7 +248,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             AvtaleFixtures.gruppeAmo.copy(tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id, amoKategorisering = null)
         avtaler.upsert(avtaleUtenAmokategorisering)
 
-        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer, navAnsatte)
 
         val gruppeAmo = TiltaksgjennomforingFixtures.GruppeAmo1.copy(
             amoKategorisering = null,
@@ -267,7 +270,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         )
         avtaler.upsert(avtaleMedAmokategorisering)
 
-        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer, navAnsatte)
 
         val gruppeAmo = TiltaksgjennomforingFixtures.GruppeAmo1.copy(
             amoKategorisering = null,
@@ -282,7 +285,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     }
 
     test("utdanningsprogram og lærefag er påkrevd når tiltakstypen er Gruppe Fag- og yrkesopplæring") {
-        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer, navAnsatte)
 
         val gruppeFagYrke = TiltaksgjennomforingFixtures.GruppeFagYrke1.copy(utdanningslop = null)
 
@@ -300,7 +303,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             ),
         )
 
-        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer, navAnsatte)
 
         validator.validate(gruppeFagYrke, null).shouldBeRight()
     }
@@ -308,7 +311,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     test("arrangøren må være aktiv i Brreg") {
         arrangorer.upsert(ArrangorFixtures.underenhet1.copy(slettetDato = LocalDate.of(2024, 1, 1)))
 
-        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer, navAnsatte)
 
         validator.validate(gjennomforing, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             ValidationError(
@@ -319,7 +322,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     }
 
     test("should validate fields in the gjennomføring and fields related to the avtale") {
-        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(avtaler, arrangorer, navAnsatte)
 
         forAll(
             row(
@@ -363,13 +366,13 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         }
 
         test("Skal godta endringer for antall plasser selv om gjennomføringen er aktiv") {
-            val validator = TiltaksgjennomforingValidator(avtaler, arrangorer)
+            val validator = TiltaksgjennomforingValidator(avtaler, arrangorer, navAnsatte)
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
             validator.validate(gjennomforing.copy(antallPlasser = 15), previous).shouldBeRight()
         }
 
         test("Skal godta endringer for startdato selv om gjennomføringen er aktiv, men startdato skal ikke kunne settes til før avtaledatoen") {
-            val validator = TiltaksgjennomforingValidator(avtaler, arrangorer)
+            val validator = TiltaksgjennomforingValidator(avtaler, arrangorer, navAnsatte)
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
             validator.validate(gjennomforing.copy(startDato = LocalDate.now().plusDays(5)), previous).shouldBeRight()
             validator.validate(gjennomforing.copy(startDato = avtaleStartDato.minusDays(1)), previous).shouldBeLeft(
@@ -380,7 +383,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         }
 
         test("Skal godta endringer for sluttdato frem i tid selv om gjennomføringen er aktiv") {
-            val validator = TiltaksgjennomforingValidator(avtaler, arrangorer)
+            val validator = TiltaksgjennomforingValidator(avtaler, arrangorer, navAnsatte)
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
             avtaler.upsert(avtale.copy(startDato = LocalDate.now().minusDays(3)))
             validator.validate(gjennomforing.copy(sluttDato = avtaleSluttDato.plusDays(5)), previous).shouldBeRight()
@@ -403,7 +406,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         test("skal godta endringer selv om avtale er avbrutt") {
             avtaler.avbryt(avtale.id, LocalDateTime.now(), AvbruttAarsak.BudsjettHensyn)
 
-            val validator = TiltaksgjennomforingValidator(avtaler, arrangorer)
+            val validator = TiltaksgjennomforingValidator(avtaler, arrangorer, navAnsatte)
 
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
             validator.validate(gjennomforing, previous).shouldBeRight()
@@ -416,7 +419,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 AvbruttAarsak.Feilregistrering,
             )
 
-            val validator = TiltaksgjennomforingValidator(avtaler, arrangorer)
+            val validator = TiltaksgjennomforingValidator(avtaler, arrangorer, navAnsatte)
 
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
             validator.validate(gjennomforing, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
@@ -428,12 +431,48 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             tiltaksgjennomforinger.upsert(gjennomforing.copy(sluttDato = LocalDate.now().minusDays(2)))
             tiltaksgjennomforinger.setAvsluttet(gjennomforing.id, LocalDateTime.now(), null)
 
-            val validator = TiltaksgjennomforingValidator(avtaler, arrangorer)
+            val validator = TiltaksgjennomforingValidator(avtaler, arrangorer, navAnsatte)
 
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
             validator.validate(gjennomforing, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 ValidationError("navn", "Du kan ikke gjøre endringer på en gjennomføring som er avsluttet"),
             )
+        }
+    }
+
+    context("slettede nav ansatte") {
+        test("Slettede kontaktpersoner valideres") {
+            navAnsatte.upsert(NavAnsattFixture.ansatt2.copy(skalSlettesDato = LocalDate.now()))
+            val validator = TiltaksgjennomforingValidator(avtaler, arrangorer, navAnsatte)
+
+            validator.validate(
+                gjennomforing.copy(
+                    kontaktpersoner = listOf(
+                        TiltaksgjennomforingKontaktpersonDbo(
+                            navIdent = NavAnsattFixture.ansatt2.navIdent,
+                            navEnheter = emptyList(),
+                            beskrivelse = null,
+                        ),
+                    ),
+                ),
+                null,
+            ).shouldBeLeft()
+                .shouldContainExactlyInAnyOrder(
+                    ValidationError("kontaktpersoner", "Kontaktpersonene med Nav ident DD2 er slettet og må fjernes"),
+                )
+        }
+
+        test("Slettede administratorer valideres") {
+            navAnsatte.upsert(NavAnsattFixture.ansatt1.copy(skalSlettesDato = LocalDate.now()))
+            val validator = TiltaksgjennomforingValidator(avtaler, arrangorer, navAnsatte)
+
+            validator.validate(
+                gjennomforing.copy(administratorer = listOf(NavAnsattFixture.ansatt1.navIdent)),
+                null,
+            ).shouldBeLeft()
+                .shouldContainExactlyInAnyOrder(
+                    ValidationError("administratorer", "Administratorene med Nav ident DD1 er slettet og må fjernes"),
+                )
         }
     }
 })

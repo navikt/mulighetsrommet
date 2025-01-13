@@ -9,7 +9,7 @@ import { KnapperadContainer } from "@/pages/KnapperadContainer";
 import { BodyShort, Button, Dropdown } from "@navikt/ds-react";
 import { AvtaleDto, NavAnsatt } from "@mr/api-client";
 import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 interface Props {
   ansatt: NavAnsatt;

@@ -26,8 +26,7 @@ data class VeilederflateInnsatsgruppe(
 @Serializable
 sealed class VeilederflateTiltak {
     abstract val tiltakstype: VeilederflateTiltakstype
-    abstract val tittel: String
-    abstract val underTittel: String
+    abstract val navn: String
     abstract val status: TiltaksgjennomforingStatus
     abstract val beskrivelse: String?
     abstract val faneinnhold: Faneinnhold?
@@ -42,8 +41,7 @@ sealed class VeilederflateTiltak {
 @SerialName("TILTAK_GRUPPE")
 data class VeilederflateTiltakGruppe(
     override val tiltakstype: VeilederflateTiltakstype,
-    override val tittel: String,
-    override val underTittel: String,
+    override val navn: String,
     override val status: TiltaksgjennomforingStatus,
     override val beskrivelse: String?,
     override val faneinnhold: Faneinnhold?,
@@ -70,8 +68,7 @@ data class VeilederflateTiltakGruppe(
 @SerialName("TILTAK_ENKELTPLASS_ANSKAFFET")
 data class VeilederflateTiltakEnkeltplassAnskaffet(
     override val tiltakstype: VeilederflateTiltakstype,
-    override val tittel: String,
-    override val underTittel: String,
+    override val navn: String,
     override val status: TiltaksgjennomforingStatus,
     override val beskrivelse: String?,
     override val faneinnhold: Faneinnhold?,
@@ -89,8 +86,7 @@ data class VeilederflateTiltakEnkeltplassAnskaffet(
 @SerialName("TILTAK_EGEN_REGI")
 data class VeilederflateTiltakEgenRegi(
     override val tiltakstype: VeilederflateTiltakstype,
-    override val tittel: String,
-    override val underTittel: String,
+    override val navn: String,
     override val status: TiltaksgjennomforingStatus,
     override val beskrivelse: String?,
     override val faneinnhold: Faneinnhold?,
@@ -107,8 +103,7 @@ data class VeilederflateTiltakEgenRegi(
 @SerialName("TILTAK_ENKELTPLASS")
 data class VeilederflateTiltakEnkeltplass(
     override val tiltakstype: VeilederflateTiltakstype,
-    override val tittel: String,
-    override val underTittel: String,
+    override val navn: String,
     override val status: TiltaksgjennomforingStatus,
     override val beskrivelse: String?,
     override val faneinnhold: Faneinnhold?,

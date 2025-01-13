@@ -18,7 +18,8 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRepository
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle.*
+import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle.KONTAKTPERSON
+import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.tokenprovider.AccessType
@@ -57,13 +58,18 @@ class NavAnsattServiceTest : FunSpec({
     coEvery { msGraph.getGroupMembers(tiltaksadministrasjon.adGruppeId) } returns listOf(ansatt1, ansatt2)
     coEvery { msGraph.getGroupMembers(kontaktperson.adGruppeId) } returns listOf(ansatt2)
 
+    fun navAnsattService(
+        roles: List<AdGruppeNavAnsattRolleMapping>,
+    ) = NavAnsattService(
+        roles = roles,
+        db = database.db,
+        microsoftGraphClient = msGraph,
+        navAnsattRepository = NavAnsattRepository(database.db),
+    )
+
     context("getNavAnsattFromAzure") {
         test("should get NavAnsatt with roles filtered by the configured roles") {
-            val service = NavAnsattService(
-                roles = listOf(tiltaksadministrasjon),
-                microsoftGraphClient = msGraph,
-                navAnsattRepository = NavAnsattRepository(database.db),
-            )
+            val service = navAnsattService(listOf(tiltaksadministrasjon))
 
             val azureId = UUID.randomUUID()
 
@@ -83,11 +89,7 @@ class NavAnsattServiceTest : FunSpec({
         }
 
         test("should fail when the requested NavAnsatt does not have any of the configured roles") {
-            val service = NavAnsattService(
-                roles = listOf(kontaktperson),
-                microsoftGraphClient = msGraph,
-                navAnsattRepository = NavAnsattRepository(database.db),
-            )
+            val service = navAnsattService(listOf(kontaktperson))
 
             val azureId = UUID.randomUUID()
 
@@ -128,11 +130,7 @@ class NavAnsattServiceTest : FunSpec({
                 ),
             ) { roles, ansatteMedRoller ->
                 runBlocking {
-                    val service = NavAnsattService(
-                        roles = roles,
-                        microsoftGraphClient = msGraph,
-                        navAnsattRepository = NavAnsattRepository(database.db),
-                    )
+                    val service = navAnsattService(roles)
 
                     val resolvedAnsatte = service.getNavAnsatteFromAzure()
 
@@ -149,11 +147,7 @@ class NavAnsattServiceTest : FunSpec({
             )
             coEvery { msGraph.getGroupMembers(id) } returns listOf(ansatt1, ansatt2)
 
-            val service = NavAnsattService(
-                roles = roles,
-                microsoftGraphClient = msGraph,
-                navAnsattRepository = NavAnsattRepository(database.db),
-            )
+            val service = navAnsattService(roles)
 
             val resolvedAnsatte = service.getNavAnsatteFromAzure()
 

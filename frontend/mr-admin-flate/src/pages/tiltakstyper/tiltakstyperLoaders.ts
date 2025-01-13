@@ -1,5 +1,5 @@
 import { TiltakstyperService } from "@mr/api-client";
-import { LoaderFunctionArgs } from "react-router-dom";
+import { LoaderFunctionArgs } from "react-router";
 
 export async function tiltakstyperLoaders() {
   const data = await TiltakstyperService.getTiltakstyper();

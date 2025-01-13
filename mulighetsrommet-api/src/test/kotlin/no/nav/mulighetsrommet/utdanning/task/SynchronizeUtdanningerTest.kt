@@ -7,7 +7,6 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.client.UtdanningNoProgramomraade
 import no.nav.mulighetsrommet.utdanning.db.UtdanningQueries
@@ -17,7 +16,7 @@ class SynchronizeUtdanningerTest : FunSpec({
     val utdanningClient: UtdanningClient = mockk(relaxed = true)
 
     afterTest {
-        database.db.truncateAll()
+        database.truncateAll()
     }
 
     val utdanningBanemontorfaget = UtdanningNoProgramomraade(

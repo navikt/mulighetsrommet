@@ -3,7 +3,7 @@
 import { setupOpenAPIClient } from "@/api/setup-openapi-client";
 import { DemoBanner } from "@/components/demo/DemoBanner";
 import { isDemo } from "@/environment";
-import { ReloadAppErrorBoundary } from "@mr/frontend-common";
+import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import "@navikt/ds-css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";

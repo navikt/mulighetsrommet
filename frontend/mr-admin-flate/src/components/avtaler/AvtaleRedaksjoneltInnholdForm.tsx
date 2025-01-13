@@ -5,8 +5,6 @@ import { useFormContext } from "react-hook-form";
 import { useState } from "react";
 import { AvtaleListe } from "./AvtaleListe";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
-import { RedaksjoneltInnholdModalContainer } from "@/components/modal/RedaksjoneltInnholdModalContainer";
-import { RedaksjoneltInnholdModalBody } from "@/components/modal/RedaksjoneltInnholdModalBody";
 import { RedaksjoneltInnholdToppKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdToppKnapperad";
 
 interface Props {
@@ -28,9 +26,7 @@ export function AvtaleRedaksjoneltInnholdForm({ tiltakstype }: Props) {
 
   if (!tiltakstype) {
     return (
-      <div style={{ margin: "1rem 0 1rem 0" }}>
-        <Alert variant="info">Tiltakstype må velges før redaksjonelt innhold kan redigeres.</Alert>
-      </div>
+      <Alert variant="info">Tiltakstype må velges før redaksjonelt innhold kan redigeres.</Alert>
     );
   }
 
@@ -51,13 +47,17 @@ export function AvtaleRedaksjoneltInnholdForm({ tiltakstype }: Props) {
       </RedaksjoneltInnholdToppKnapperad>
 
       <RedaksjoneltInnholdForm key={`redaksjonelt-innhold-${key}`} tiltakstype={tiltakstype} />
-
-      <RedaksjoneltInnholdModalContainer modalOpen={modalOpen} onClose={() => setModalOpen(false)}>
+      <Modal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        style={{ maxHeight: "70rem" }}
+        aria-label="modal"
+        width="50rem"
+      >
         <Modal.Header closeButton>
           <Heading size="medium">Kopier redaksjonelt innhold fra avtale</Heading>
         </Modal.Header>
-
-        <RedaksjoneltInnholdModalBody>
+        <Modal.Body style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
           <Search
             label="Søk på navn eller avtalenummer"
             variant="simple"
@@ -88,8 +88,8 @@ export function AvtaleRedaksjoneltInnholdForm({ tiltakstype }: Props) {
               </Button>
             )}
           />
-        </RedaksjoneltInnholdModalBody>
-      </RedaksjoneltInnholdModalContainer>
+        </Modal.Body>
+      </Modal>
     </>
   );
 }

@@ -4,7 +4,9 @@ import {
   RefusjonKravAft,
   RefusjonskravStatus,
   RelevanteForslag,
-} from "@mr/api-client";
+  TilsagnStatus,
+  TilsagnType,
+} from "@mr/api-client-v2";
 import { http, HttpResponse, PathParams } from "msw";
 import { v4 as uuid } from "uuid";
 
@@ -177,22 +179,30 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
     },
     periodeStart: "2024-06-01",
     periodeSlutt: "2024-12-31",
+    status: { status: TilsagnStatus.GODKJENT },
     arrangor: {
       id: uuid(),
       organisasjonsnummer: "123456789",
       navn: "Fretex",
     },
     beregning: {
-      type: "AFT",
-      periodeStart: "2024-06-01",
-      periodeSlutt: "2024-12-31",
-      belop: 195700,
-      antallPlasser: 20,
-      sats: 20205,
+      type: "FORHANDSGODKJENT",
+      input: {
+        type: "FORHANDSGODKJENT",
+        periodeStart: "2024-06-01",
+        periodeSlutt: "2024-12-31",
+        antallPlasser: 20,
+        sats: 20205,
+      },
+      output: {
+        type: "FORHANDSGODKJENT",
+        belop: 195700,
+      },
     },
     gjennomforing: {
       navn: "Amo tiltak Halden",
     },
+    type: TilsagnType.TILSAGN,
   },
   {
     id: uuid(),
@@ -201,22 +211,30 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
     },
     periodeStart: "2024-08-01",
     periodeSlutt: "2024-08-31",
+    status: { status: TilsagnStatus.GODKJENT },
     arrangor: {
       id: uuid(),
       organisasjonsnummer: "123456789",
       navn: "Fretex",
     },
     beregning: {
-      type: "AFT",
-      periodeStart: "2024-08-01",
-      periodeSlutt: "2024-08-31",
-      belop: 50000,
-      antallPlasser: 2,
-      sats: 20205,
+      type: "FORHANDSGODKJENT",
+      input: {
+        type: "FORHANDSGODKJENT",
+        periodeStart: "2024-08-01",
+        periodeSlutt: "2024-08-31",
+        antallPlasser: 2,
+        sats: 20205,
+      },
+      output: {
+        type: "FORHANDSGODKJENT",
+        belop: 50000,
+      },
     },
     gjennomforing: {
       navn: "Amo tiltak Halden",
     },
+    type: TilsagnType.TILSAGN,
   },
   {
     id: uuid(),
@@ -225,22 +243,30 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
     },
     periodeStart: "2024-08-01",
     periodeSlutt: "2024-08-31",
+    status: { status: TilsagnStatus.GODKJENT },
     arrangor: {
       id: uuid(),
       organisasjonsnummer: "123456789",
       navn: "Fretex",
     },
     beregning: {
-      type: "AFT",
-      periodeStart: "2024-08-01",
-      periodeSlutt: "2024-08-31",
-      belop: 50000,
-      antallPlasser: 2,
-      sats: 20205,
+      type: "FORHANDSGODKJENT",
+      input: {
+        type: "FORHANDSGODKJENT",
+        periodeStart: "2024-08-01",
+        periodeSlutt: "2024-08-31",
+        antallPlasser: 2,
+        sats: 20205,
+      },
+      output: {
+        type: "FORHANDSGODKJENT",
+        belop: 50000,
+      },
     },
     gjennomforing: {
       navn: "Amo tiltak Halden",
     },
+    type: TilsagnType.EKSTRATILSAGN,
   },
 ];
 

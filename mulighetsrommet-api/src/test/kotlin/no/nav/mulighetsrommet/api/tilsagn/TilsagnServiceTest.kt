@@ -12,14 +12,14 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.Forbidden
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import java.time.LocalDate
 import java.util.*
 
@@ -27,9 +27,7 @@ class TilsagnServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
-        gjennomforinger = listOf(
-            AFT1,
-        ),
+        gjennomforinger = listOf(AFT1),
     )
 
     beforeEach {
@@ -37,32 +35,29 @@ class TilsagnServiceTest : FunSpec({
     }
 
     afterEach {
-        database.db.truncateAll()
+        database.truncateAll()
     }
+
     val endringshistorikkService: EndringshistorikkService = mockk(relaxed = true)
 
+    fun createTilsagnService() = TilsagnService(
+        tilsagnRepository = TilsagnRepository(database.db),
+        tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(db = database.db),
+        endringshistorikkService = endringshistorikkService,
+        db = database.db,
+    )
+
     context("beslutt") {
-        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-        val service = TilsagnService(
-            tilsagnRepository = TilsagnRepository(database.db),
-            tiltaksgjennomforingRepository,
-            validator = TilsagnValidator(tiltaksgjennomforingRepository),
-            endringshistorikkService = endringshistorikkService,
-            db = database.db,
-        )
+        val service = createTilsagnService()
+
         val tilsagn = TilsagnRequest(
             id = UUID.randomUUID(),
-            tiltaksgjennomforingId = AFT1.id,
+            gjennomforingId = AFT1.id,
+            type = TilsagnType.TILSAGN,
             periodeStart = LocalDate.of(2023, 1, 1),
             periodeSlutt = LocalDate.of(2023, 2, 1),
             kostnadssted = Gjovik.enhetsnummer,
-            beregning = Prismodell.TilsagnBeregning.AFT(
-                belop = 123,
-                periodeStart = LocalDate.of(2023, 1, 1),
-                periodeSlutt = LocalDate.of(2023, 2, 1),
-                antallPlasser = 2,
-                sats = 4,
-            ),
+            beregning = TilsagnBeregningFri.Input(belop = 0),
         )
 
         test("kan ikke beslutte egne") {
@@ -95,27 +90,17 @@ class TilsagnServiceTest : FunSpec({
     }
 
     context("slett tilsagn") {
-        val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-        val service = TilsagnService(
-            tilsagnRepository = TilsagnRepository(database.db),
-            tiltaksgjennomforingRepository,
-            validator = TilsagnValidator(tiltaksgjennomforingRepository),
-            endringshistorikkService = endringshistorikkService,
-            db = database.db,
-        )
+        val tilsagnRepository = TilsagnRepository(database.db)
+        val service = createTilsagnService()
+
         val tilsagn = TilsagnRequest(
             id = UUID.randomUUID(),
-            tiltaksgjennomforingId = AFT1.id,
+            gjennomforingId = AFT1.id,
+            type = TilsagnType.TILSAGN,
             periodeStart = LocalDate.of(2023, 1, 1),
             periodeSlutt = LocalDate.of(2023, 2, 1),
             kostnadssted = Gjovik.enhetsnummer,
-            beregning = Prismodell.TilsagnBeregning.AFT(
-                belop = 123,
-                periodeStart = LocalDate.of(2023, 1, 1),
-                periodeSlutt = LocalDate.of(2023, 2, 1),
-                antallPlasser = 2,
-                sats = 4,
-            ),
+            beregning = TilsagnBeregningFri.Input(belop = 0),
         )
 
         test("kan bare slette tilsagn når det er avvist") {
@@ -131,7 +116,7 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight()
 
             service.slettTilsagn(tilsagn.id).shouldBeRight()
-            service.get(tilsagn.id) shouldBe null
+            tilsagnRepository.get(tilsagn.id) shouldBe null
         }
 
         test("kan ikke slette tilsagn når det er godkjent") {

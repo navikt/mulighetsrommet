@@ -1,6 +1,6 @@
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import { AnsattService, NavAnsatt, NavAnsattRolle } from "@mr/api-client";
-import { createBrowserRouter, Outlet, RouterProvider, useLoaderData } from "react-router-dom";
+import { createBrowserRouter, Outlet, RouterProvider, useLoaderData } from "react-router";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
 import { IngenLesetilgang } from "./IngenLesetilgang";
@@ -8,22 +8,11 @@ import { AdministratorHeader } from "./components/administrator/AdministratorHea
 import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
 import { initializeAmplitude } from "./logging/amplitude";
 import { ErrorPage } from "./pages/ErrorPage";
-import { ArrangorPageContainer } from "./pages/arrangor/ArrangorPageContainer";
 import { ArrangorerPage } from "./pages/arrangor/ArrangorerPage";
 import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
 import { AvtalePage } from "./pages/avtaler/AvtalePage";
 import { AvtaleSkjemaPage } from "./pages/avtaler/AvtaleSkjemaPage";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
-import { NotifikasjonerPage } from "@/pages/arbeidsbenk/notifikasjoner/NotifikasjonerPage";
-import { notifikasjonLoader } from "@/pages/arbeidsbenk/notifikasjoner/notifikasjonerLoader";
-import { TiltaksgjennomforingInfo } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingInfo";
-import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingPage";
-import { TiltaksgjennomforingSkjemaPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
-import { TiltaksgjennomforingerForAvtalePage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerForAvtalePage";
-import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
-import { OpprettTilsagnSkjemaPage } from "./pages/tiltaksgjennomforinger/tilsagn/OpprettTilsagnSkjemaPage";
-import { TilsagnDetaljer } from "./pages/tiltaksgjennomforinger/tilsagn/TilsagnDetaljer";
-import { TilsagnForGjennomforingContainer } from "./pages/tiltaksgjennomforinger/tilsagn/TilsagnForGjennomforingContainer";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
@@ -33,9 +22,31 @@ import { ArbeidsbenkPage } from "@/pages/arbeidsbenk/ArbeidsbenkPage";
 import { OppgaverPage } from "@/pages/arbeidsbenk/oppgaver/OppgaverPage";
 import { arbeidsbenkLoader } from "@/pages/arbeidsbenk/arbeidsbenkLoader";
 import { avtaleLoader, avtaleSkjemaLoader } from "./pages/avtaler/avtaleLoader";
-import { tiltaksgjennomforingLoader } from "./pages/tiltaksgjennomforinger/tiltaksgjennomforingLoaders";
-import { tilsagnLoader } from "./pages/tiltaksgjennomforinger/tilsagn/tilsagnLoader";
 import { oppgaverLoader } from "@/pages/arbeidsbenk/oppgaver/oppgaverLoader";
+import { Page } from "@navikt/ds-react";
+import { ArrangorPage } from "./pages/arrangor/ArrangorPage";
+import { GjennomforingFormPage } from "./pages/gjennomforing/GjennomforingFormPage";
+import { GjennomforingInfo } from "./pages/gjennomforing/GjennomforingInfo";
+import { GjennomforingPage } from "./pages/gjennomforing/GjennomforingPage";
+import { GjennomforingerForAvtalePage } from "./pages/gjennomforing/GjennomforingerForAvtalePage";
+import { GjennomforingerPage } from "./pages/gjennomforing/GjennomforingerPage";
+import {
+  gjennomforingFormLoader,
+  gjennomforingLoader,
+} from "./pages/gjennomforing/gjennomforingLoaders";
+import { RefusjonskravForGjennomforingContainer } from "./pages/gjennomforing/refusjonskrav/RefusjonskravForGjennomforingContainer";
+import { RefusjonskravDetaljer } from "./pages/gjennomforing/refusjonskrav/detaljer/RefusjonskravDetaljer";
+import { refusjonskravDetaljerLoader } from "./pages/gjennomforing/refusjonskrav/detaljer/refusjonskravDetaljerLoader";
+import { refusjonskravForGjennomforingLoader } from "./pages/gjennomforing/refusjonskrav/refusjonskravForGjennomforingLoader";
+import { tilsagnDetaljerLoader } from "./pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
+import { opprettTilsagnLoader } from "./pages/gjennomforing/tilsagn/opprett/opprettTilsagnLoader";
+import { RedigerTilsagnSkjemaPage } from "./pages/gjennomforing/tilsagn/rediger/RedigerTilsagnSkjemaPage";
+import { redigerTilsagnLoader } from "./pages/gjennomforing/tilsagn/rediger/redigerTilsagnLoader";
+import { tilsagnForGjennomforingLoader } from "./pages/gjennomforing/tilsagn/tabell/tilsagnForGjennomforingLoader";
+import { OpprettTilsagnSkjemaPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnSkjemaPage";
+import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljer";
+import { NotifikasjonerPage } from "./pages/arbeidsbenk/notifikasjoner/NotifikasjonerPage";
+import { notifikasjonLoader } from "./pages/arbeidsbenk/notifikasjoner/notifikasjonerLoader";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -74,16 +85,19 @@ export function App() {
   }
 
   return (
-    <>
-      <AdministratorHeader />
-      <Outlet />
-    </>
+    <Page background="bg-subtle">
+      <Page.Block as="header" className="max-w-[1920px]">
+        <AdministratorHeader />
+      </Page.Block>
+      <Page.Block as="main" className="max-w-[1920px]">
+        <Outlet />
+      </Page.Block>
+    </Page>
   );
 }
 
 async function ansattLoader() {
-  const data = await AnsattService.hentInfoOmAnsatt();
-  return data;
+  return AnsattService.hentInfoOmAnsatt();
 }
 
 const router = () =>
@@ -139,7 +153,7 @@ const router = () =>
               },
               {
                 path: "tiltaksgjennomforinger",
-                element: <TiltaksgjennomforingerForAvtalePage />,
+                element: <GjennomforingerForAvtalePage />,
                 errorElement: <ErrorPage />,
               },
             ],
@@ -157,110 +171,93 @@ const router = () =>
             loader: avtaleSkjemaLoader,
           },
           {
-            path: "tiltaksgjennomforinger/skjema",
-            element: <TiltaksgjennomforingSkjemaPage />,
+            path: "avtaler/:avtaleId/tiltaksgjennomforinger/skjema",
+            element: <GjennomforingFormPage />,
             errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingLoader,
+            loader: gjennomforingFormLoader,
+          },
+          {
+            path: "tiltaksgjennomforinger/skjema",
+            element: <GjennomforingFormPage />,
+            errorElement: <ErrorPage />,
+            loader: gjennomforingFormLoader,
           },
           {
             path: "tiltaksgjennomforinger/",
-            element: <TiltaksgjennomforingerPage />,
+            element: <GjennomforingerPage />,
             errorElement: <ErrorPage />,
-          },
-          {
-            path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId",
-            element: <TiltaksgjennomforingPage />,
-            errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingLoader,
-            children: [
-              {
-                index: true,
-                element: <TiltaksgjennomforingInfo />,
-                errorElement: <ErrorPage />,
-                loader: tiltaksgjennomforingLoader,
-              },
-            ],
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId",
-            element: <TiltaksgjennomforingPage />,
+            element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingLoader,
+            loader: gjennomforingLoader,
             children: [
               {
                 index: true,
-                element: <TiltaksgjennomforingInfo />,
+                element: <GjennomforingInfo />,
                 errorElement: <ErrorPage />,
-                loader: tiltaksgjennomforingLoader,
+                loader: gjennomforingLoader,
               },
             ],
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn",
-            element: <TiltaksgjennomforingPage />,
+            element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingLoader,
+            loader: gjennomforingLoader,
             children: [
               {
                 index: true,
                 element: <TilsagnForGjennomforingContainer />,
+                loader: tilsagnForGjennomforingLoader,
                 errorElement: <ErrorPage />,
               },
             ],
           },
           {
-            path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema",
-            element: <TiltaksgjennomforingSkjemaPage />,
+            path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/refusjonskrav",
+            element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingLoader,
-          },
-          {
-            path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/opprett-tilsagn",
-            element: <OpprettTilsagnSkjemaPage />,
-            errorElement: <ErrorPage />,
-            loader: tilsagnLoader,
-          },
-          {
-            path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId",
-            element: <TilsagnDetaljer />,
-            errorElement: <ErrorPage />,
-            loader: tilsagnLoader,
-          },
-          {
-            path: "avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId/rediger-tilsagn",
-            element: <OpprettTilsagnSkjemaPage />,
-            errorElement: <ErrorPage />,
-            loader: tilsagnLoader,
-          },
-          {
-            path: "avtaler/:avtaleId/tiltaksgjennomforinger/skjema",
-            element: <TiltaksgjennomforingSkjemaPage />,
-            errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingLoader,
+            loader: gjennomforingLoader,
+            children: [
+              {
+                index: true,
+                element: <RefusjonskravForGjennomforingContainer />,
+                errorElement: <ErrorPage />,
+                loader: refusjonskravForGjennomforingLoader,
+              },
+            ],
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema",
-            element: <TiltaksgjennomforingSkjemaPage />,
+            element: <GjennomforingFormPage />,
             errorElement: <ErrorPage />,
-            loader: tiltaksgjennomforingLoader,
+            loader: gjennomforingFormLoader,
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/opprett-tilsagn",
             element: <OpprettTilsagnSkjemaPage />,
             errorElement: <ErrorPage />,
-            loader: tilsagnLoader,
+            loader: opprettTilsagnLoader,
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId",
             element: <TilsagnDetaljer />,
             errorElement: <ErrorPage />,
-            loader: tilsagnLoader,
+            loader: tilsagnDetaljerLoader,
           },
           {
             path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId/rediger-tilsagn",
-            element: <OpprettTilsagnSkjemaPage />,
+            element: <RedigerTilsagnSkjemaPage />,
             errorElement: <ErrorPage />,
-            loader: tilsagnLoader,
+            loader: redigerTilsagnLoader,
+          },
+          {
+            path: "tiltaksgjennomforinger/:tiltaksgjennomforingId/refusjonskrav/:refusjonskravId",
+            element: <RefusjonskravDetaljer />,
+            errorElement: <ErrorPage />,
+            loader: refusjonskravDetaljerLoader,
           },
           {
             path: "arrangorer",
@@ -269,7 +266,7 @@ const router = () =>
           },
           {
             path: "arrangorer/:arrangorId",
-            element: <ArrangorPageContainer />,
+            element: <ArrangorPage />,
             errorElement: <ErrorPage />,
           },
           {

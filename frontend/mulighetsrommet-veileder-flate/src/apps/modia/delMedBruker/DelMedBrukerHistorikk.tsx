@@ -6,7 +6,7 @@ import { formaterDato } from "../../../utils/Utils";
 import { ModiaRoute, navigateToModiaApp } from "../ModiaRoute";
 import { useDeltMedBrukerHistorikk } from "../hooks/useDeltMedBrukerHistorikk";
 import { IngenFunnetBox } from "../views/Landingsside";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import styles from "./DelMedBrukerHistorikk.module.scss";
 
 function sortOnCreatedAt(a: TiltakDeltMedBruker, b: TiltakDeltMedBruker) {
@@ -87,7 +87,11 @@ function contentForRow(delteTiltak: TiltakDeltMedBruker[]): ReactNode {
         return (
           <List.Item key={delt.dialogId}>
             <HStack gap="5" align="start">
-              <VisningsnavnForTiltak noLink tittel={delt.tittel} underTittel={delt.underTittel} />
+              <VisningsnavnForTiltak
+                noLink
+                tiltakstypeNavn={delt.tiltakstype.navn}
+                navn={delt.navn}
+              />
               <BodyShort size="small">Delt {formaterDato(delt.createdAt)}</BodyShort>
             </HStack>
           </List.Item>
@@ -102,7 +106,11 @@ function createCells(antallTiltakDelt: number, tiltak: TiltakDeltMedBruker): Rea
     <>
       {antallTiltakDelt === 1 ? <Table.DataCell></Table.DataCell> : null}
       <Table.DataCell>
-        <VisningsnavnForTiltak noLink tittel={tiltak.tittel} underTittel={tiltak.underTittel} />
+        <VisningsnavnForTiltak
+          noLink
+          tiltakstypeNavn={tiltak.tiltakstype.navn}
+          navn={tiltak.navn}
+        />
       </Table.DataCell>
       <Table.DataCell title={tiltak.createdAt}>{formaterDato(tiltak.createdAt)}</Table.DataCell>
       <Table.DataCell>

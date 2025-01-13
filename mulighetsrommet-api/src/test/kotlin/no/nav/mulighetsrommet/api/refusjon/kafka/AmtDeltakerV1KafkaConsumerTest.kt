@@ -26,7 +26,6 @@ import no.nav.mulighetsrommet.api.refusjon.model.DeltakerDto
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
@@ -90,7 +89,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         }
 
         afterEach {
-            database.db.truncateAll()
+            database.truncateAll()
         }
 
         test("lagrer deltakere fra topic") {
@@ -171,7 +170,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         }
 
         afterEach {
-            database.db.truncateAll()
+            database.truncateAll()
 
             clearAllMocks()
         }

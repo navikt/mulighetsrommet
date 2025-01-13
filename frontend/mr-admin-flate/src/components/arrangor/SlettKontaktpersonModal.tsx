@@ -2,11 +2,11 @@ import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Button, Heading, Table, VStack } from "@navikt/ds-react";
 import { UseMutationResult } from "@tanstack/react-query";
 import { ArrangorKontaktperson, DokumentKoblingForKontaktperson } from "@mr/api-client";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { useDeleteArrangorKontaktperson } from "@/api/arrangor/useDeleteArrangorKontaktperson";
 import { useKoblingerTilDokumenterForKontaktpersonHosArrangor } from "@/api/arrangor/useKoblingerTilDokumenterForKontaktpersonHosArrangor";
 import { useFrikobleArrangorKontaktpersonFraAvtale } from "@/api/avtaler/useFrikobleArrangorKontaktpersonFraAvtale";
-import { useFrikobleArrangorKontaktpersonFraTiltaksgjennomforing } from "@/api/tiltaksgjennomforing/useFrikobleArrangorKontaktpersonFraTiltaksgjennomforing";
+import { useFrikobleArrangorKontaktpersonFraGjennomforing } from "@/api/gjennomforing/useFrikobleArrangorKontaktpersonFraGjennomforing";
 import { Laster } from "../laster/Laster";
 import styles from "./SlettKontaktpersonModal.module.scss";
 import { RefObject } from "react";
@@ -91,8 +91,7 @@ interface KoblingsoversiktProps {
 
 function Koblingsoversikt({ avtaler, gjennomforinger, kontaktperson }: KoblingsoversiktProps) {
   const frikobleFraAvtaleMutation = useFrikobleArrangorKontaktpersonFraAvtale();
-  const frikobleFraGjennomforingMutation =
-    useFrikobleArrangorKontaktpersonFraTiltaksgjennomforing();
+  const frikobleFraGjennomforingMutation = useFrikobleArrangorKontaktpersonFraGjennomforing();
   return (
     <div>
       <p>{kontaktperson.navn} er koblet til følgende og må fjernes før hen kan slettes.</p>

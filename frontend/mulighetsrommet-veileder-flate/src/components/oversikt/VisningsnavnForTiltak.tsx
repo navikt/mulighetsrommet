@@ -4,12 +4,12 @@ import styles from "./VisningsnavnForTiltak.module.scss";
 import classNames from "classnames";
 
 interface Props {
-  tittel: string;
-  underTittel: string;
+  tiltakstypeNavn: string;
+  navn: string;
   noLink?: boolean;
 }
 
-export function VisningsnavnForTiltak({ tittel, underTittel, noLink = false }: Props): ReactNode {
+export function VisningsnavnForTiltak({ navn, tiltakstypeNavn, noLink = false }: Props): ReactNode {
   return (
     <div
       className={classNames(styles.container, {
@@ -17,9 +17,9 @@ export function VisningsnavnForTiltak({ tittel, underTittel, noLink = false }: P
       })}
     >
       <BodyShort textColor="default" weight="semibold" size="small">
-        {tittel}
+        {tiltakstypeNavn}
       </BodyShort>
-      <BodyShort size="small">{underTittel}</BodyShort>
+      <BodyShort size="small">{navn}</BodyShort>
     </div>
   );
 }

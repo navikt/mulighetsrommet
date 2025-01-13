@@ -1,6 +1,6 @@
 import { TrashFillIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Button, HStack, Radio, RadioGroup } from "@navikt/ds-react";
-import { LagretDokumenttype, LagretFilter } from "@mr/api-client";
+import { LagretDokumenttype, LagretFilter } from "@mr/api-client-v2";
 import { useRef, useState } from "react";
 import { useGetLagredeFilterForDokumenttype } from "./getLagredeFilterForDokumenttype";
 import styles from "./LagredeFilterOversikt.module.scss";

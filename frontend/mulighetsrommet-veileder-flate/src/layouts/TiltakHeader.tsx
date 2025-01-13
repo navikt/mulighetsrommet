@@ -14,11 +14,11 @@ export function TiltakHeader({ tiltak }: Props) {
       <VStack gap="2">
         <Heading level="2" size="xlarge">
           <BodyShort spacing size="small">
-            {tiltak.tittel}
+            {tiltak.tiltakstype.navn}
           </BodyShort>
         </Heading>
         <HStack gap={"2"} align="center">
-          <Heading size="large">{tiltak.underTittel}</Heading>
+          <Heading size="large">{tiltak.navn}</Heading>
           {!isTiltakAktivt(tiltak) && <GjennomforingStatusTag status={tiltak.status} />}
         </HStack>
       </VStack>

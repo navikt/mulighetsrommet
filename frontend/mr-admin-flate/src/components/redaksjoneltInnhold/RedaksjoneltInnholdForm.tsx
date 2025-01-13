@@ -2,17 +2,15 @@ import { Alert, BodyLong, Heading, HStack, Tabs, Textarea, VStack } from "@navik
 import { PortableText } from "@portabletext/react";
 import { EmbeddedTiltakstype, VeilederflateTiltakstype } from "@mr/api-client";
 import { useFormContext } from "react-hook-form";
-import { useTiltakstypeFaneinnhold } from "@/api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
+import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
 import { Separator } from "../detaljside/Metadata";
 import { PortableTextEditor } from "../portableText/PortableTextEditor";
 import { Laster } from "../laster/Laster";
 import React, { useState } from "react";
 import { FileTextIcon, LinkIcon, PaperplaneIcon } from "@navikt/aksel-icons";
 import { Lenker } from "../lenker/Lenker";
-import { InlineErrorBoundary } from "@mr/frontend-common";
+import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
-import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
-import { FaneinnholdContainer } from "@/components/redaksjoneltInnhold/FaneinnholdContainer";
 import { DescriptionRichtextContainer } from "@/components/redaksjoneltInnhold/DescriptionRichtextContainer";
 import { RedaksjoneltInnholdTabTittel } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdTabTittel";
 
@@ -35,26 +33,26 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
   const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakstype.id);
 
   return (
-    <SkjemaDetaljerContainer>
+    <>
       <HStack justify="space-between" align="start" gap="2">
         <Alert size="small" variant="info">
           Ikke del personopplysninger i fritekstfeltene
         </Alert>
       </HStack>
       <RedaksjoneltInnholdContainer>
-        {tiltakstypeSanityData?.beskrivelse && (
-          <>
-            <Heading size="medium">Beskrivelse</Heading>
-            <BodyLong style={{ whiteSpace: "pre-wrap" }}>
-              {tiltakstypeSanityData?.beskrivelse}
-            </BodyLong>
-          </>
-        )}
         <Textarea
           {...register("beskrivelse")}
           description="Beskrivelse av formålet med tiltaksgjennomføringen."
           label="Beskrivelse"
         />
+        {tiltakstypeSanityData?.beskrivelse && (
+          <>
+            <Heading size="medium">Generell informasjon</Heading>
+            <BodyLong style={{ whiteSpace: "pre-wrap" }}>
+              {tiltakstypeSanityData?.beskrivelse}
+            </BodyLong>
+          </>
+        )}
         <Heading size="medium">Faneinnhold</Heading>
         <Tabs size="small" defaultValue="for_hvem">
           <Tabs.List>
@@ -127,7 +125,7 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
           </Tabs.Panel>
         </Tabs>
       </RedaksjoneltInnholdContainer>
-    </SkjemaDetaljerContainer>
+    </>
   );
 }
 
@@ -135,7 +133,7 @@ const ForHvem = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) =>
   const { register } = useFormContext();
 
   return (
-    <FaneinnholdContainer>
+    <VStack className="mt-4">
       {tiltakstype?.faneinnhold?.forHvemInfoboks && (
         <Alert style={{ whiteSpace: "pre-wrap" }} variant="info">
           {tiltakstype?.faneinnhold?.forHvemInfoboks}
@@ -158,7 +156,7 @@ const ForHvem = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) =>
           description="Beskrivelse av hvem tiltakstypen passer for. Husk å bruke et kort og konsist språk."
         />
       </DescriptionRichtextContainer>
-    </FaneinnholdContainer>
+    </VStack>
   );
 };
 
@@ -166,7 +164,7 @@ const DetaljerOgInnhold = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltaks
   const { register } = useFormContext();
 
   return (
-    <FaneinnholdContainer>
+    <VStack className="mt-4">
       {tiltakstype?.faneinnhold?.detaljerOgInnholdInfoboks && (
         <Alert variant="info">{tiltakstype?.faneinnhold?.detaljerOgInnholdInfoboks}</Alert>
       )}
@@ -187,7 +185,7 @@ const DetaljerOgInnhold = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltaks
           description="Beskrivelse av detaljer og innhold for tiltakstypen. Husk å bruke et kort og konsist språk."
         />
       </DescriptionRichtextContainer>
-    </FaneinnholdContainer>
+    </VStack>
   );
 };
 
@@ -195,7 +193,7 @@ const PameldingOgVarighet = ({ tiltakstype }: { tiltakstype?: VeilederflateTilta
   const { register } = useFormContext();
 
   return (
-    <FaneinnholdContainer>
+    <VStack className="mt-4">
       {tiltakstype?.faneinnhold?.pameldingOgVarighetInfoboks && (
         <Alert variant="info">{tiltakstype?.faneinnhold?.pameldingOgVarighetInfoboks}</Alert>
       )}
@@ -216,7 +214,7 @@ const PameldingOgVarighet = ({ tiltakstype }: { tiltakstype?: VeilederflateTilta
           description="Beskrivelse av rutiner rundt påmelding og varighet i tiltaket. Husk å bruke et kort og konsist språk."
         />
       </DescriptionRichtextContainer>
-    </FaneinnholdContainer>
+    </VStack>
   );
 };
 
@@ -224,7 +222,7 @@ const Kontaktinfo = () => {
   const { register } = useFormContext();
 
   return (
-    <FaneinnholdContainer>
+    <VStack className="mt-4">
       <VStack gap="5">
         <Textarea
           {...register("faneinnhold.kontaktinfoInfoboks")}
@@ -237,7 +235,7 @@ const Kontaktinfo = () => {
           description="Ekstra tekst om kontaktinfo."
         />
       </VStack>
-    </FaneinnholdContainer>
+    </VStack>
   );
 };
 
@@ -255,7 +253,7 @@ const DelMedBruker = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype 
   }
 
   return (
-    <FaneinnholdContainer>
+    <VStack className="mt-4">
       <Textarea
         onChange={(e) => {
           onChange(e.target.value);
@@ -265,6 +263,6 @@ const DelMedBruker = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype 
         label="Del med bruker"
         description="Bruk denne tekstboksen for å redigere teksten som sendes til bruker når man deler et tiltak. Det blir automatisk lagt til en ”Hei” og en “Hilsen”."
       />
-    </FaneinnholdContainer>
+    </VStack>
   );
 };

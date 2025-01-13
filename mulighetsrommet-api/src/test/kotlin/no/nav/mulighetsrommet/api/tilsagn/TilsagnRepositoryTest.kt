@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -10,15 +11,11 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.okonomi.Prismodell
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
-import no.nav.mulighetsrommet.api.tilsagn.model.ArrangorflateTilsagn
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
+import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -28,30 +25,29 @@ class TilsagnRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
-        gjennomforinger = listOf(
-            AFT1,
-        ),
+        gjennomforinger = listOf(AFT1),
     )
 
     beforeEach {
-        database.db.truncateAll()
+        database.truncateAll()
         domain.initialize(database.db)
     }
 
+    val tilsagn = TilsagnDbo(
+        id = UUID.randomUUID(),
+        tiltaksgjennomforingId = AFT1.id,
+        periodeStart = LocalDate.of(2023, 1, 1),
+        periodeSlutt = LocalDate.of(2023, 2, 1),
+        kostnadssted = Gjovik.enhetsnummer,
+        arrangorId = ArrangorFixtures.underenhet1.id,
+        beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
+        endretAv = NavAnsattFixture.ansatt1.navIdent,
+        endretTidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
+        type = TilsagnType.TILSAGN,
+    )
+
     context("CRUD") {
         val repository = TilsagnRepository(database.db)
-
-        val tilsagn = TilsagnDbo(
-            id = UUID.randomUUID(),
-            tiltaksgjennomforingId = AFT1.id,
-            periodeStart = LocalDate.of(2023, 1, 1),
-            periodeSlutt = LocalDate.of(2023, 2, 1),
-            kostnadssted = Gjovik.enhetsnummer,
-            arrangorId = ArrangorFixtures.underenhet1.id,
-            beregning = Prismodell.TilsagnBeregning.Fri(123),
-            endretAv = NavAnsattFixture.ansatt1.navIdent,
-            endretTidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-        )
 
         test("upsert and get") {
             repository.upsert(tilsagn)
@@ -70,13 +66,38 @@ class TilsagnRepositoryTest : FunSpec({
                     organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                     slettet = ArrangorFixtures.underenhet1.slettetDato != null,
                 ),
-                beregning = Prismodell.TilsagnBeregning.Fri(123),
+                beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
                 status = TilsagnDto.TilsagnStatus.TilGodkjenning(
                     endretAv = NavAnsattFixture.ansatt1.navIdent,
                     endretTidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
                 ),
+                type = TilsagnType.TILSAGN,
             )
         }
+
+        test("get all") {
+            repository.upsert(tilsagn)
+
+            repository.getAll(statuser = listOf(TilsagnStatus.TIL_GODKJENNING)).shouldHaveSize(1)
+            repository.getAll(statuser = listOf(TilsagnStatus.TIL_ANNULLERING)).shouldHaveSize(0)
+            repository.getAll(statuser = listOf(TilsagnStatus.ANNULLERT)).shouldHaveSize(0)
+
+            repository.getAll(gjennomforingId = AFT1.id).shouldHaveSize(1)
+            repository.getAll(gjennomforingId = UUID.randomUUID()).shouldHaveSize(0)
+
+            repository.getAll(type = TilsagnType.TILSAGN).shouldHaveSize(1)
+            repository.getAll(type = TilsagnType.EKSTRATILSAGN).shouldHaveSize(0)
+        }
+
+        test("delete") {
+            repository.upsert(tilsagn)
+            repository.delete(tilsagn.id)
+            repository.get(tilsagn.id) shouldBe null
+        }
+    }
+
+    context("endre status på tilsagn") {
+        val repository = TilsagnRepository(database.db)
 
         test("annuller") {
             repository.upsert(tilsagn)
@@ -101,6 +122,7 @@ class TilsagnRepositoryTest : FunSpec({
                         it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_ANNET)
                         it.forklaring shouldBe "Min forklaring"
                     }
+
                     else -> throw Exception("Feil status")
                 }
             }
@@ -119,7 +141,10 @@ class TilsagnRepositoryTest : FunSpec({
                     is TilsagnDto.TilsagnStatus.Annullert -> {
                         it.endretAv shouldBe tilsagn.endretAv
                         it.godkjentAv shouldBe NavIdent("B123456")
+                        it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_ANNET)
+                        it.forklaring shouldBe "Min forklaring"
                     }
+
                     else -> throw Exception("Feil status")
                 }
             }
@@ -185,6 +210,7 @@ class TilsagnRepositoryTest : FunSpec({
                         it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_ANNET)
                         it.forklaring shouldBe "Min forklaring"
                     }
+
                     else -> throw Exception("Feil status")
                 }
             }
@@ -197,16 +223,15 @@ class TilsagnRepositoryTest : FunSpec({
                     is TilsagnDto.TilsagnStatus.TilGodkjenning -> {
                         it.endretAv shouldBe tilsagn.endretAv
                     }
+
                     else -> throw Exception("Feil status")
                 }
             }
         }
+    }
 
-        test("delete") {
-            repository.upsert(tilsagn)
-            repository.delete(tilsagn.id)
-            repository.get(tilsagn.id) shouldBe null
-        }
+    context("tilsagn for arrangører") {
+        val repository = TilsagnRepository(database.db)
 
         test("get by arrangor_ids") {
             repository.upsert(tilsagn)
@@ -234,7 +259,12 @@ class TilsagnRepositoryTest : FunSpec({
                         id = ArrangorFixtures.underenhet1.id,
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                     ),
-                    beregning = Prismodell.TilsagnBeregning.Fri(123),
+                    beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
+                    status = ArrangorflateTilsagn.StatusOgAarsaker(
+                        status = TilsagnStatus.GODKJENT,
+                        aarsaker = emptyList(),
+                    ),
+                    type = TilsagnType.TILSAGN,
                 ),
             )
             repository.getArrangorflateTilsagn(tilsagn.id)?.id shouldBe tilsagn.id
@@ -269,7 +299,12 @@ class TilsagnRepositoryTest : FunSpec({
                         id = ArrangorFixtures.underenhet1.id,
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                     ),
-                    beregning = Prismodell.TilsagnBeregning.Fri(123),
+                    beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
+                    status = ArrangorflateTilsagn.StatusOgAarsaker(
+                        status = TilsagnStatus.GODKJENT,
+                        aarsaker = emptyList(),
+                    ),
+                    type = TilsagnType.TILSAGN,
                 ),
             )
         }

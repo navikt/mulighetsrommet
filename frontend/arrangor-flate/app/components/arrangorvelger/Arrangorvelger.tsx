@@ -1,7 +1,6 @@
 import { Select } from "@navikt/ds-react";
-import { useNavigate } from "react-router";
-import { useOrgnrFromUrl } from "../../utils";
-import { Arrangor } from "@mr/api-client";
+import { useNavigate, useParams } from "react-router";
+import { Arrangor } from "@mr/api-client-v2";
 
 interface Props {
   arrangorer: Arrangor[];
@@ -9,7 +8,7 @@ interface Props {
 
 export function Arrangorvelger({ arrangorer }: Props) {
   const navigate = useNavigate();
-  const currentOrgnr = useOrgnrFromUrl();
+  const { currentOrgnr } = useParams();
 
   const alfabetisk = (a: Arrangor, b: Arrangor) => a.navn.localeCompare(b.navn);
 

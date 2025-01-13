@@ -1,5 +1,5 @@
 import { Tag } from "@navikt/ds-react";
-import { TiltaksgjennomforingStatus } from "@mr/api-client";
+import { TiltaksgjennomforingStatus } from "@mr/api-client-v2";
 
 interface Props {
   status: TiltaksgjennomforingStatus;

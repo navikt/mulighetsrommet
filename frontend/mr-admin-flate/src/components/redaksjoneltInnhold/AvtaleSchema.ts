@@ -2,6 +2,7 @@ import {
   Avtaletype,
   OpsjonsmodellKey,
   Personopplysning,
+  Prismodell,
   Tiltakskode,
   UtdanningslopDbo,
 } from "@mr/api-client";
@@ -74,6 +75,7 @@ export const AvtaleSchema = z
     personopplysninger: z.nativeEnum(Personopplysning).array(),
     amoKategorisering: AmoKategoriseringSchema.nullish(),
     utdanningslop: z.custom<UtdanningslopDbo>().nullable(),
+    prismodell: z.nativeEnum(Prismodell).nullable(),
   })
   .superRefine((data, ctx) => {
     if (
