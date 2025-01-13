@@ -264,6 +264,7 @@ class TilsagnRepositoryTest : FunSpec({
                         status = TilsagnStatus.GODKJENT,
                         aarsaker = emptyList(),
                     ),
+                    type = TilsagnType.TILSAGN,
                 ),
             )
             repository.getArrangorflateTilsagn(tilsagn.id)?.id shouldBe tilsagn.id
@@ -303,6 +304,7 @@ class TilsagnRepositoryTest : FunSpec({
                         status = TilsagnStatus.GODKJENT,
                         aarsaker = emptyList(),
                     ),
+                    type = TilsagnType.TILSAGN,
                 ),
             )
         }
