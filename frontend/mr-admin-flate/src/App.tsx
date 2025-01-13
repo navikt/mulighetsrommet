@@ -47,7 +47,7 @@ import { OpprettTilsagnSkjemaPage } from "./pages/gjennomforing/tilsagn/opprett/
 import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljer";
 import { NotifikasjonerPage } from "./pages/arbeidsbenk/notifikasjoner/NotifikasjonerPage";
 import { notifikasjonLoader } from "./pages/arbeidsbenk/notifikasjoner/notifikasjonerLoader";
-import {TilsagnForGjennomforingContainer} from "@/pages/gjennomforing/tilsagn/tabell/TilsagnForGjennomforingContainer";
+import { TilsagnForGjennomforingContainer } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnForGjennomforingContainer";
 
 const basename = import.meta.env.BASE_URL;
 

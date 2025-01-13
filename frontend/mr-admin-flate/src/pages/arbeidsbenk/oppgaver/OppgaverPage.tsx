@@ -63,7 +63,6 @@ export function OppgaverPage() {
               hideLabel
               onChange={(e) => {
                 setSorting(e.target.value as OppgaverSorting);
-                console.log(e.target.value);
               }}
             >
               <option value="korteste-frist">Korteste Frist</option>
