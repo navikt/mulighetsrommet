@@ -23,7 +23,7 @@ fun Route.oppgaverRoutes() {
                         linkText = "Gå til tilsagnet",
                         link = "https://nav.no/",
                     ),
-                    createdAt = LocalDateTime.now(),
+                    createdAt = LocalDateTime.now().minusDays(5),
                     frist = LocalDateTime.now().plusDays(7),
                 ),
                 Oppgave(
@@ -35,8 +35,20 @@ fun Route.oppgaverRoutes() {
                         linkText = "Gå til tilsagnet",
                         link = "https://nav.no/",
                     ),
-                    createdAt = LocalDateTime.now(),
-                    frist = LocalDateTime.now().plusDays(7),
+                    createdAt = LocalDateTime.now().minusDays(4),
+                    frist = LocalDateTime.now().plusDays(6),
+                ),
+                Oppgave(
+                    type = OppgaveType.TILSAGN_TIL_BESLUTNING,
+                    title = "Send tilsagn til beslutning",
+                    description = "Tilsagn opprettet av Benny Beslutter er klar og venter beslutning",
+                    tiltakstype = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+                    link = OppgaveLink(
+                        linkText = "Gå til tilsagnet",
+                        link = "https://nav.no/",
+                    ),
+                    createdAt = LocalDateTime.now().minusDays(3),
+                    frist = LocalDateTime.now().plusDays(5),
                 ),
             )
 

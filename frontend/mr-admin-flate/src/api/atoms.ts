@@ -293,13 +293,7 @@ export const arrangorerFilterAtom = atomWithHashAndStorage<ArrangorerFilter>(
 
 const oppgaverFilterSchema = z.object({
   type: z.enum(["alle", "avtale", "gjennomforing", "tilsagn", "stikkprove"]),
-  tiltakstyper: z
-    .object({
-      id: z.string(),
-      tittel: z.string(),
-      nokkel: z.string().optional(),
-    })
-    .array(),
+  tiltakstyper: z.array(z.string()),
 });
 
 export type OppgaverFilter = z.infer<typeof oppgaverFilterSchema>;

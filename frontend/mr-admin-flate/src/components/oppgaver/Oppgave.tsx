@@ -2,21 +2,23 @@ import { BellIcon } from "@navikt/aksel-icons";
 import { Heading, Link, LinkPanel } from "@navikt/ds-react";
 import styles from "./Oppgave.module.scss";
 import { type Oppgave, OppgaveType, Tiltakskode } from "@mr/api-client";
+import { formaterDato } from "@/utils/Utils";
 
 interface OppgaveProps {
   oppgave: Oppgave;
 }
 
 export function Oppgave({ oppgave }: OppgaveProps) {
-  const { title, description, link } = oppgave;
-  console.log(oppgave.type);
+  const { title, description, link, frist, createdAt } = oppgave;
+  const fristDate = new Date(frist);
+  console.log(oppgave.type, fristDate);
 
   return (
     <>
       <div className={styles.oppgave_container} data-testid="oppgaver">
         <div className={styles.header}>
           <span>Arbeidsforberedende trening</span>
-          <span>28.10</span>
+          <span>{formaterDato(fristDate)}</span>
         </div>
         <div>
           <div className={styles.titleAndStatus}>
@@ -27,6 +29,7 @@ export function Oppgave({ oppgave }: OppgaveProps) {
           <Link className={styles.link} href={link.link}>
             {link.linkText}
           </Link>
+          {createdAt}
         </div>
       </div>
     </>

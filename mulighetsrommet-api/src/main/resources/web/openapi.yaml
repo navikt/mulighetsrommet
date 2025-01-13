@@ -4166,6 +4166,7 @@ components:
           required:
             - linkText
             - link
+            -
         createdAt:
           type: string
           format: date-time
@@ -4179,6 +4180,8 @@ components:
         - title
         - tiltakstype
         - link
+        - frist
+        - createdAt
 
 
     AvbrytGjennomforingAarsak:

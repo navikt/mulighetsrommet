@@ -1,4 +1,4 @@
-import { OppgaverService } from "@mr/api-client";
+import { OppgaverService, TiltakstyperService } from "@mr/api-client";
 
 export async function oppgaverLoader() {
   const oppgaver = await OppgaverService.getOppgaver({
@@ -6,5 +6,10 @@ export async function oppgaverLoader() {
     oppgavetyper: [],
   });
 
-  return oppgaver;
+  const tiltakstyper = await TiltakstyperService.getTiltakstyper({});
+
+  return {
+    oppgaver,
+    tiltakstyper: tiltakstyper.data,
+  };
 }

@@ -4,6 +4,7 @@ import { BellDotFillIcon } from "@navikt/aksel-icons";
 import { Tabs } from "@navikt/ds-react";
 import { Outlet, useLoaderData, useLocation, useNavigate } from "react-router";
 import styles from "../Page.module.scss";
+import arbeidsbenkStyles from "./arbeidsbenk.module.scss";
 import { arbeidsbenkLoader } from "@/pages/arbeidsbenk/arbeidsbenkLoader";
 import { ContentBox } from "@/layouts/ContentBox";
 
@@ -40,7 +41,7 @@ export function ArbeidsbenkPage() {
           />
         </Tabs.List>
         <ContentBox>
-          <div id="panel">
+          <div className={arbeidsbenkStyles.container}>
             <Outlet />
           </div>
         </ContentBox>
