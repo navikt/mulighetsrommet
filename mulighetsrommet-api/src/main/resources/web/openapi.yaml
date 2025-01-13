@@ -4925,6 +4925,7 @@ components:
       enum:
         - TILSAGN
         - EKSTRATILSAGN
+        - INVESTERING
 
     TilsagnDto:
       type: object
