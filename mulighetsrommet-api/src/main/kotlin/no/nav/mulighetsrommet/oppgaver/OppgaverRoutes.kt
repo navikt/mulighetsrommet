@@ -15,7 +15,7 @@ fun Route.oppgaverRoutes() {
 
             val oppgaver = listOf(
                 Oppgave(
-                    type = OppgaveType.TILSAGN_TIL_BESLUTNING,
+                    type = OppgaveType.TILSAGN_TIL_ANNULLERING,
                     title = "Tilsagn til beslutning",
                     description = "Tilsagn opprettet av Benny Beslutter er klar og venter beslutning",
                     tiltakstype = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
@@ -52,7 +52,14 @@ fun Route.oppgaverRoutes() {
                 ),
             )
 
-            call.respond(oppgaver)
+            val sortedOppgaver = oppgaver.filter { oppgave ->
+                val matcherOppgaveType = filter.oppgavetyper.isEmpty() || filter.oppgavetyper.contains(oppgave.type)
+                val matcherTiltakstype = filter.tiltakstyper.isEmpty() || filter.tiltakstyper.contains(oppgave.tiltakstype)
+
+                matcherOppgaveType && matcherTiltakstype
+            }
+
+            call.respond(sortedOppgaver)
         }
     }
 }

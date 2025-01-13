@@ -1,10 +1,10 @@
 import { useAtom, WritableAtom } from "jotai/index";
 import { OppgaverFilter as OppgaverFilterProps, oppgaverFilterAccordionAtom } from "@/api/atoms";
-import { Accordion, Checkbox, CheckboxGroup, Radio, RadioGroup } from "@navikt/ds-react";
+import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
 import { addOrRemove } from "@/utils/Utils";
 import { FilterAccordionHeader } from "@mr/frontend-common";
 import styles from "./OppgaverFilter.module.scss";
-import { TiltakstypeDto } from "@mr/api-client";
+import { OppgaveType, TiltakstypeDto } from "@mr/api-client";
 
 interface Props {
   filterAtom: WritableAtom<OppgaverFilterProps, [newValue: OppgaverFilterProps], void>;
@@ -28,23 +28,24 @@ export function OppgaverFilter({ filterAtom, tiltakstyper }: Props) {
           </Accordion.Header>
           <Accordion.Content>
             <div style={{ marginLeft: "-2rem" }}>
-              <RadioGroup
+              <CheckboxGroup
                 value={filter.type}
                 legend="Registrer opsjon"
                 onChange={(value) => {
                   setFilter({
                     ...filter,
-                    type: value,
+                    type: [...value],
                   });
                 }}
                 hideLegend
               >
-                <Radio value="alle">Alle</Radio>
-                <Radio value="avtale">Avtale</Radio>
-                <Radio value="gjennomforing">Gjennomføring</Radio>
-                <Radio value="tilsagn">Tilsagn</Radio>
-                <Radio value="stikkprove">Stikkprøve</Radio>
-              </RadioGroup>
+                <Checkbox value={OppgaveType.TILSAGN_TIL_ANNULLERING}>
+                  Tilsagn til annullering
+                </Checkbox>
+                <Checkbox value={OppgaveType.TILSAGN_TIL_BESLUTNING}>
+                  Tilsagn til beslutning
+                </Checkbox>
+              </CheckboxGroup>
             </div>
           </Accordion.Content>
         </Accordion.Item>
@@ -72,7 +73,7 @@ export function OppgaverFilter({ filterAtom, tiltakstyper }: Props) {
                 {tiltakstyper.map((t) => {
                   return (
                     <Checkbox key={t.tiltakskode} value={t.tiltakskode}>
-                      {t.navn} {t.tiltakskode}
+                      {t.navn}
                     </Checkbox>
                   );
                 })}

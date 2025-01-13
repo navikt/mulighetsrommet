@@ -1,9 +1,6 @@
-import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { useTitle } from "@mr/frontend-common";
-import { BellDotFillIcon } from "@navikt/aksel-icons";
-import { Select, Tabs } from "@navikt/ds-react";
-import { Outlet, useLoaderData, useLocation, useNavigate } from "react-router";
-import styles from "../../Page.module.scss";
+import { Select } from "@navikt/ds-react";
+import { useLoaderData } from "react-router";
 import arbeidsbenkStyles from "../arbeidsbenk.module.scss";
 import oppgaverPageStyles from "./OppgaverPage.module.scss";
 import { OppgaverFilter } from "../../../components/filter/OppgaverFilter";
@@ -13,9 +10,10 @@ import { Oppgave } from "@/components/oppgaver/Oppgave";
 import { useState } from "react";
 import { GetOppgaverResponse } from "@mr/api-client";
 import { useAtom } from "jotai/index";
+import { useOppgaver } from "@/api/oppgaver/useOppgaver";
 
 type OppgaverSorting = "korteste-frist" | "nyeste" | "eldste";
-
+// @TODO: Should maybe be on the backend?
 function sort(oppgaver: GetOppgaverResponse, sorting: OppgaverSorting) {
   if (sorting === "korteste-frist") {
     return oppgaver.sort((a, b) => {
@@ -46,13 +44,12 @@ function sort(oppgaver: GetOppgaverResponse, sorting: OppgaverSorting) {
 }
 
 export function OppgaverPage() {
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
   const [sorting, setSorting] = useState<OppgaverSorting>("korteste-frist");
   useTitle("Oppgaver");
-  const { oppgaver, tiltakstyper } = useLoaderData<typeof oppgaverLoader>();
-  const sortedOppgaver = sort(oppgaver, sorting);
   const [filter] = useAtom(oppgaverFilterAtom);
+  const { tiltakstyper } = useLoaderData<typeof oppgaverLoader>();
+  const oppgaver = useOppgaver(filter);
+  const sortedOppgaver = sort(oppgaver.data || [], sorting);
 
   return (
     <main className={oppgaverPageStyles.root}>
@@ -77,7 +74,13 @@ export function OppgaverPage() {
         </div>
         <div className={oppgaverPageStyles.oppgaver}>
           {sortedOppgaver.map((o) => {
-            return <Oppgave key={o.createdAt} oppgave={o} />;
+            return (
+              <Oppgave
+                key={o.createdAt}
+                tiltakstype={tiltakstyper.find((t) => t.tiltakskode === o.tiltakstype)!}
+                oppgave={o}
+              />
+            );
           })}
         </div>
       </div>

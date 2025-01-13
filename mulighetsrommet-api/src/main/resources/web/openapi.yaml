@@ -2709,8 +2709,8 @@ components:
     OppgaveType:
       type: string
       enum:
-        - TILSAGN_TIL_BESLUTNING,
-        - TILSAGN_TIL_ANNULLERING,
+        - TILSAGN_TIL_BESLUTNING
+        - TILSAGN_TIL_ANNULLERING
 
     SorteringAvtaler:
       type: string

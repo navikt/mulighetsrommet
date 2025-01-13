@@ -10,6 +10,7 @@ import {
 export const QueryKeys = {
   tiltakstype: (id?: string) => ["tiltakstype", id] as const,
   tiltakstyper: (filter?: object) => ["tiltakstyper", { ...filter }] as const,
+  oppgaver: (filter?: object) => ["oppgaver", { ...filter }] as const,
   tiltakstypeFaneinnhold: (id: string) => ["tiltakstype", id, "faneinnhold"] as const,
   gjennomforinger: (mine?: boolean, filter?: GetTiltaksgjennomforingerData) =>
     ["gjennomforinger", mine, filter].filter((entry) => entry !== undefined),

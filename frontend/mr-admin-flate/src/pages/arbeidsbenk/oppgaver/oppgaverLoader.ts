@@ -1,9 +1,10 @@
-import { OppgaverService, TiltakstyperService } from "@mr/api-client";
+import { OppgaverService, OppgaveType, Tiltakskode, TiltakstyperService } from "@mr/api-client";
+import { OppgaverFilter } from "@/api/atoms";
 
-export async function oppgaverLoader() {
+export async function oppgaverLoader(filter: OppgaverFilter) {
   const oppgaver = await OppgaverService.getOppgaver({
-    tiltakstyper: [],
-    oppgavetyper: [],
+    tiltakstyper: filter.tiltakstyper as Tiltakskode[],
+    oppgavetyper: filter.type as unknown as Array<OppgaveType>,
   });
 
   const tiltakstyper = await TiltakstyperService.getTiltakstyper({});
