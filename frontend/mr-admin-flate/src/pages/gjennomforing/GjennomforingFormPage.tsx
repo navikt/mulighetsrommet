@@ -78,13 +78,7 @@ export function GjennomforingFormPage() {
               onClose={() => {
                 navigerTilbake();
               }}
-              onSuccess={(id) =>
-                navigate(
-                  avtaleId
-                    ? `/avtaler/${avtaleId}/tiltaksgjennomforinger/${id}`
-                    : `/tiltaksgjennomforinger/${id}`,
-                )
-              }
+              onSuccess={(id) => navigate(`/tiltaksgjennomforinger/${id}`)}
               avtale={avtale}
               gjennomforing={gjennomforing}
               defaultValues={defaultTiltaksgjennomforingData(
