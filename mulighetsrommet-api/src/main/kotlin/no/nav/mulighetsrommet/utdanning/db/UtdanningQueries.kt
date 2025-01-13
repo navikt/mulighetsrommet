@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.utdanning.db
 
 import kotliquery.Session
-import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
@@ -10,9 +9,9 @@ import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramMedUtdanninger
 import org.intellij.lang.annotations.Language
 import java.util.*
 
-object UtdanningQueries {
+class UtdanningQueries(private val session: Session) {
 
-    fun getUtdanningsprogrammer(session: Session): List<UtdanningsprogramMedUtdanninger> {
+    fun getUtdanningsprogrammer(): List<UtdanningsprogramMedUtdanninger> = with(session) {
         @Language("PostgreSQL")
         val utdanningsprogrammerQuery = """
             select *
@@ -34,22 +33,22 @@ object UtdanningQueries {
             order by utdanning.navn;
         """.trimIndent()
 
-        val utdanningsprogrammer = queryOf(utdanningsprogrammerQuery).map { row ->
+        val utdanningsprogrammer = list(queryOf(utdanningsprogrammerQuery)) { row ->
             UtdanningsprogramMedUtdanninger.Utdanningsprogram(
                 id = row.uuid("id"),
                 navn = row.string("navn"),
                 nusKoder = row.array<String>("nus_koder").toList(),
             )
-        }.asList.runWithSession(session)
+        }
 
-        val utdanninger = queryOf(utdanningerQuery).map { row ->
+        val utdanninger = list(queryOf(utdanningerQuery)) { row ->
             UtdanningsprogramMedUtdanninger.Utdanning(
                 id = row.uuid("id"),
                 navn = row.string("navn"),
                 programlopStart = row.uuid("programlop_start"),
                 nusKoder = row.array<String>("nusKoder").toList(),
             )
-        }.asList.runWithSession(session)
+        }
 
         return utdanningsprogrammer.map { utdanningsprogram ->
             UtdanningsprogramMedUtdanninger(
@@ -59,7 +58,7 @@ object UtdanningQueries {
         }
     }
 
-    fun upsertUtdanningsprogram(session: TransactionalSession, utdanningsprogram: Utdanningsprogram) {
+    fun upsertUtdanningsprogram(utdanningsprogram: Utdanningsprogram) = with(session) {
         @Language("PostgreSQL")
         val query = """
             insert into utdanningsprogram (navn, programomradekode, utdanningsprogram_type, nus_koder)
@@ -74,14 +73,14 @@ object UtdanningQueries {
             "navn" to utdanningsprogram.navn,
             "programomradekode" to utdanningsprogram.programomradekode,
             "utdanningsprogram_type" to utdanningsprogram.type?.name,
-            "nus_koder" to session.createTextArray(utdanningsprogram.nusKoder),
+            "nus_koder" to createTextArray(utdanningsprogram.nusKoder),
         )
 
-        queryOf(query, params).asExecute.runWithSession(session)
+        execute(queryOf(query, params))
     }
 
-    fun upsertUtdanning(session: TransactionalSession, utdanning: Utdanning) {
-        val programomradeId = getIdForUtdanningsprogram(session, utdanning.utdanningslop.first())
+    fun upsertUtdanning(utdanning: Utdanning) = with(session) {
+        val programomradeId = getIdForUtdanningsprogram(utdanning.utdanningslop.first())
 
         @Language("PostgreSQL")
         val upsertUtdanning = """
@@ -98,45 +97,38 @@ object UtdanningQueries {
                 nus_koder = excluded.nus_koder
         """.trimIndent()
 
-        queryOf(
-            upsertUtdanning,
-            mapOf(
-                "utdanning_id" to utdanning.utdanningId,
-                "programomradekode" to utdanning.programomradekode,
-                "navn" to utdanning.navn,
-                "sluttkompetanse" to utdanning.sluttkompetanse?.name,
-                "aktiv" to utdanning.aktiv,
-                "utdanningstatus" to utdanning.utdanningstatus.name,
-                "utdanningslop" to session.createTextArray(utdanning.utdanningslop),
-                "programlop_start" to programomradeId,
-                "nus_koder" to session.createTextArray(utdanning.nusKoder),
-            ),
-        ).asExecute.runWithSession(session)
+        val params = mapOf(
+            "utdanning_id" to utdanning.utdanningId,
+            "programomradekode" to utdanning.programomradekode,
+            "navn" to utdanning.navn,
+            "sluttkompetanse" to utdanning.sluttkompetanse?.name,
+            "aktiv" to utdanning.aktiv,
+            "utdanningstatus" to utdanning.utdanningstatus.name,
+            "utdanningslop" to createTextArray(utdanning.utdanningslop),
+            "programlop_start" to programomradeId,
+            "nus_koder" to createTextArray(utdanning.nusKoder),
+        )
+
+        execute(queryOf(upsertUtdanning, params))
     }
 
-    fun getIdForUtdanningsprogram(session: Session, programomradekode: String): UUID {
+    fun getIdForUtdanningsprogram(programomradekode: String): UUID = with(session) {
         @Language("PostgreSQL")
         val query = """
             select id from utdanningsprogram where programomradekode = ?
         """.trimIndent()
 
-        return queryOf(query, programomradekode)
-            .map { it.uuid("id") }
-            .asSingle
-            .runWithSession(session)
+        return single(queryOf(query, programomradekode)) { it.uuid("id") }
             .let { requireNotNull(it) { "Fant ingen utdanningsprogram med kode=$programomradekode" } }
     }
 
-    fun getIdForUtdanning(session: Session, utdanningId: String): UUID {
+    fun getIdForUtdanning(utdanningId: String): UUID = with(session) {
         @Language("PostgreSQL")
         val query = """
             select id from utdanning where utdanning_id = ?
         """.trimIndent()
 
-        return queryOf(query, utdanningId)
-            .map { it.uuid("id") }
-            .asSingle
-            .runWithSession(session)
+        return single(queryOf(query, utdanningId)) { it.uuid("id") }
             .let { requireNotNull(it) { "Fant ingen utdanning med id=$utdanningId" } }
     }
 }

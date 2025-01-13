@@ -1,27 +1,21 @@
 package no.nav.mulighetsrommet.api.refusjon
 
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
-import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import java.time.LocalDate
 import java.util.*
 
 class RefusjonService(
-    private val db: Database,
-    private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
-    private val deltakerRepository: DeltakerRepository,
-    private val refusjonskravRepository: RefusjonskravRepository,
+    private val db: ApiDatabase,
 ) {
-    fun genererRefusjonskravForMonth(dayInMonth: LocalDate) {
+    fun genererRefusjonskravForMonth(dayInMonth: LocalDate): List<RefusjonskravDto> = db.transaction {
         val periode = RefusjonskravPeriode.fromDayInMonth(dayInMonth)
 
-        tiltaksgjennomforingRepository
+        queries.gjennomforing
             .getGjennomforesInPeriodeUtenRefusjonskrav(periode)
             .mapNotNull { gjennomforing ->
                 val krav = when (gjennomforing.tiltakstype.tiltakskode) {
@@ -36,13 +30,14 @@ class RefusjonService(
 
                 krav?.takeIf { it.beregning.output.belop > 0 }
             }
-            .forEach { krav ->
-                refusjonskravRepository.upsert(krav)
+            .map { krav ->
+                queries.refusjonskrav.upsert(krav)
+                requireNotNull(queries.refusjonskrav.get(krav.id)) { "Refusjonskrav forventet siden det nettopp ble opprettet" }
             }
     }
 
-    fun recalculateRefusjonskravForGjennomforing(id: UUID) = db.transaction { tx ->
-        refusjonskravRepository
+    fun recalculateRefusjonskravForGjennomforing(id: UUID): Unit = db.transaction {
+        queries.refusjonskrav
             .getByGjennomforing(id, statuser = listOf(RefusjonskravStatus.KLAR_FOR_GODKJENNING))
             .mapNotNull { gjeldendeKrav ->
                 val nyttKrav = when (gjeldendeKrav.beregning) {
@@ -56,7 +51,7 @@ class RefusjonService(
                 nyttKrav.takeIf { it.beregning != gjeldendeKrav.beregning }
             }
             .forEach { krav ->
-                refusjonskravRepository.upsert(krav, tx)
+                queries.refusjonskrav.upsert(krav)
             }
     }
 
@@ -81,7 +76,9 @@ class RefusjonService(
 
         val beregning = RefusjonKravBeregningAft.beregn(input)
 
-        val forrigeKrav = refusjonskravRepository.getSisteGodkjenteRefusjonskrav(gjennomforingId)
+        val forrigeKrav = db.session {
+            queries.refusjonskrav.getSisteGodkjenteRefusjonskrav(gjennomforingId)
+        }
 
         return RefusjonskravDbo(
             id = refusjonskravId,
@@ -97,7 +94,9 @@ class RefusjonService(
         gjennomforingId: UUID,
         periode: RefusjonskravPeriode,
     ): Set<DeltakelsePerioder> {
-        val deltakelser = deltakerRepository.getAll(gjennomforingId)
+        val deltakelser = db.session {
+            queries.deltaker.getAll(gjennomforingId)
+        }
 
         return deltakelser
             .asSequence()

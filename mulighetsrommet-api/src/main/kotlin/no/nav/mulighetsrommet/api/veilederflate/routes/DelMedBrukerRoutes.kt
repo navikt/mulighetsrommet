@@ -34,6 +34,7 @@ fun Route.delMedBrukerRoutes() {
             poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.fnr)
 
             val obo = AccessType.OBO(call.getAccessToken())
+
             val dialogRequest = request.run {
                 DialogRequest(
                     fnr = fnr,
@@ -42,6 +43,7 @@ fun Route.delMedBrukerRoutes() {
                     venterPaaSvarFraBruker = venterPaaSvarFraBruker,
                 )
             }
+
             dialogClient.sendMeldingTilDialogen(obo, dialogRequest)
                 .onRight { dialogResponse ->
                     val dbo = DelMedBrukerDbo(

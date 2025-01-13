@@ -6,20 +6,20 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
+import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
+import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.ServerError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponseError
-import no.nav.mulighetsrommet.api.services.EndretAv
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isForhaandsgodkjentTiltak
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
@@ -34,9 +34,9 @@ import java.time.LocalDateTime
 import java.util.*
 
 fun Route.tiltaksgjennomforingRoutes() {
-    val deltakere: DeltakerRepository by inject()
-    val service: TiltaksgjennomforingService by inject()
-    val avtaler: AvtaleRepository by inject()
+    val db: ApiDatabase by inject()
+    val gjennomforinger: TiltaksgjennomforingService by inject()
+    val avtaler: AvtaleService by inject()
 
     route("tiltaksgjennomforinger") {
         authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
@@ -44,7 +44,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                 val request = call.receive<TiltaksgjennomforingRequest>()
                 val navIdent = getNavIdent()
 
-                val result = service.upsert(request, navIdent)
+                val result = gjennomforinger.upsert(request, navIdent)
                     .mapLeft { BadRequest(errors = it) }
 
                 call.respondWithStatusResponse(result)
@@ -55,7 +55,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                 val navIdent = getNavIdent()
                 val request = call.receive<SetAvtaleForGjennomforingRequest>()
 
-                val gjennomforing = service.get(id) ?: return@put call.respond(
+                val gjennomforing = gjennomforinger.get(id) ?: return@put call.respond(
                     HttpStatusCode.NotFound,
                     message = "Gjennomføringen finnes ikke",
                 )
@@ -80,7 +80,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                     }
                 }
 
-                service.setAvtale(gjennomforing.id, avtaleId, navIdent)
+                gjennomforinger.setAvtale(gjennomforing.id, avtaleId, navIdent)
 
                 call.respond(HttpStatusCode.OK)
             }
@@ -90,7 +90,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                 val navIdent = getNavIdent()
                 val request = call.receive<AvbrytRequest>()
 
-                val gjennomforing = service.get(id) ?: return@put call.respond(
+                val gjennomforing = gjennomforinger.get(id) ?: return@put call.respond(
                     HttpStatusCode.NotFound,
                     message = "Gjennomføringen finnes ikke",
                 )
@@ -119,7 +119,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                     )
                 }
 
-                service.setAvsluttet(id, LocalDateTime.now(), aarsak, EndretAv.NavAnsatt(navIdent))
+                gjennomforinger.setAvsluttet(id, LocalDateTime.now(), aarsak, EndretAv.NavAnsatt(navIdent))
 
                 call.respond(HttpStatusCode.OK)
             }
@@ -128,7 +128,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
                 val request = call.receive<PublisertRequest>()
-                service.setPublisert(id, request.publisert, navIdent)
+                gjennomforinger.setPublisert(id, request.publisert, navIdent)
                 call.respond(HttpStatusCode.OK)
             }
 
@@ -136,7 +136,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
                 val request = call.receive<SetApentForPameldingRequest>()
-                service.setApentForPamelding(id, request.apentForPamelding, EndretAv.NavAnsatt(navIdent))
+                gjennomforinger.setApentForPamelding(id, request.apentForPamelding, EndretAv.NavAnsatt(navIdent))
                 call.respond(HttpStatusCode.OK)
             }
 
@@ -145,7 +145,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                 val request = call.receive<SetTilgjengligForArrangorRequest>()
                 val navIdent = getNavIdent()
 
-                val response = service
+                val response = gjennomforinger
                     .setTilgjengeligForArrangorDato(
                         id,
                         request.tilgjengeligForArrangorDato,
@@ -160,7 +160,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                 val request = call.receive<FrikobleKontaktpersonRequest>()
                 val navIdent = getNavIdent()
                 try {
-                    service.frikobleKontaktpersonFraGjennomforing(
+                    gjennomforinger.frikobleKontaktpersonFraGjennomforing(
                         kontaktpersonId = request.kontaktpersonId,
                         gjennomforingId = request.dokumentId,
                         navIdent = navIdent,
@@ -181,14 +181,14 @@ fun Route.tiltaksgjennomforingRoutes() {
             val pagination = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter()
 
-            call.respond(service.getAll(pagination, filter))
+            call.respond(gjennomforinger.getAll(pagination, filter))
         }
 
         get("mine") {
             val pagination = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter().copy(administratorNavIdent = getNavIdent())
 
-            call.respond(service.getAll(pagination, filter))
+            call.respond(gjennomforinger.getAll(pagination, filter))
         }
 
         get("/excel") {
@@ -205,7 +205,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                 administratorNavIdent = navIdent,
             )
 
-            val result = service.getAll(pagination, overstyrtFilter)
+            val result = gjennomforinger.getAll(pagination, overstyrtFilter)
             val file = ExcelService.createExcelFileForTiltaksgjennomforing(result.data)
             call.response.header(
                 HttpHeaders.ContentDisposition,
@@ -224,7 +224,7 @@ fun Route.tiltaksgjennomforingRoutes() {
         get("{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
 
-            service.get(id)
+            gjennomforinger.get(id)
                 ?.let { call.respond(it) }
                 ?: call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")
         }
@@ -232,7 +232,7 @@ fun Route.tiltaksgjennomforingRoutes() {
         get("{id}/tiltaksnummer") {
             val id = call.parameters.getOrFail<UUID>("id")
 
-            service.get(id)
+            gjennomforinger.get(id)
                 ?.let { gjennomforing ->
                     gjennomforing.tiltaksnummer
                         ?.let { call.respond(TiltaksnummerResponse(tiltaksnummer = it)) }
@@ -243,22 +243,26 @@ fun Route.tiltaksgjennomforingRoutes() {
 
         get("{id}/historikk") {
             val id: UUID by call.parameters
-            val historikk = service.getEndringshistorikk(id)
+            val historikk = gjennomforinger.getEndringshistorikk(id)
             call.respond(historikk)
         }
 
         get("{id}/deltaker-summary") {
             val id: UUID by call.parameters
 
-            val deltakereForGjennomforing = deltakere.getAll(id)
+            val deltakereForGjennomforing = db.session {
+                queries.deltaker.getAll(tiltaksgjennomforingId = id)
+            }
+
+            val deltakereByStatus = deltakereForGjennomforing
+                .groupBy { it.status.type }
+                .map { (status, deltakere) ->
+                    DeltakerStatusSummary(status = status.description, count = deltakere.size)
+                }
 
             val summary = TiltaksgjennomforingDeltakerSummary(
                 antallDeltakere = deltakereForGjennomforing.size,
-                deltakereByStatus = deltakereForGjennomforing
-                    .groupBy { it.status.type }
-                    .map { (status, deltakere) ->
-                        DeltakerStatusSummary(status = status.description, count = deltakere.size)
-                    },
+                deltakereByStatus = deltakereByStatus,
             )
 
             call.respond(summary)

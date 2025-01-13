@@ -1,139 +1,78 @@
 package no.nav.mulighetsrommet.api.avtale
 
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.mapOrAccumulate
+import arrow.core.nel
 import arrow.core.raise.either
+import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import kotliquery.TransactionalSession
+import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.responses.*
-import no.nav.mulighetsrommet.api.services.DocumentClass
-import no.nav.mulighetsrommet.api.services.EndretAv
-import no.nav.mulighetsrommet.api.services.EndringshistorikkService
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.dto.*
-import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
-import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
 
 class AvtaleService(
-    private val avtaler: AvtaleRepository,
-    private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
+    private val db: ApiDatabase,
     private val arrangorService: ArrangorService,
-    private val notificationRepository: NotificationRepository,
     private val validator: AvtaleValidator,
-    private val endringshistorikkService: EndringshistorikkService,
-    private val db: Database,
     private val gjennomforingPublisher: InitialLoadTiltaksgjennomforinger,
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
+    suspend fun upsert(
+        request: AvtaleRequest,
+        navIdent: NavIdent,
+    ): Either<List<ValidationError>, AvtaleDto> = either {
+        val (arrangor, underenheter) = syncArrangorerFromBrreg(request).bind()
+        val previous = get(request.id)
+        val dbo = validator.validate(toAvtaleDbo(request, arrangor, underenheter), previous).bind()
 
-    fun get(id: UUID): AvtaleDto? = avtaler.get(id)
-
-    suspend fun upsert(request: AvtaleRequest, navIdent: NavIdent): Either<List<ValidationError>, AvtaleDto> {
-        val previous = avtaler.get(request.id)
-        return syncArrangorerFromBrreg(request)
-            .flatMap { (arrangor, underenheter) ->
-                val dbo = request.run {
-                    AvtaleDbo(
-                        id = id,
-                        navn = navn,
-                        avtalenummer = avtalenummer,
-                        websaknummer = websaknummer,
-                        tiltakstypeId = tiltakstypeId,
-                        arrangorId = arrangor.id,
-                        arrangorUnderenheter = underenheter.map { it.id },
-                        arrangorKontaktpersoner = arrangorKontaktpersoner,
-                        startDato = startDato,
-                        sluttDato = sluttDato,
-                        opsjonMaksVarighet = opsjonsmodellData?.opsjonMaksVarighet,
-                        avtaletype = avtaletype,
-                        antallPlasser = null,
-                        administratorer = administratorer,
-                        prisbetingelser = prisbetingelser,
-                        navEnheter = navEnheter,
-                        beskrivelse = beskrivelse,
-                        faneinnhold = faneinnhold,
-                        personopplysninger = personopplysninger,
-                        personvernBekreftet = personvernBekreftet,
-                        amoKategorisering = amoKategorisering,
-                        opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
-                        customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
-                        utdanningslop = utdanningslop,
-                        prismodell = prismodell,
-                    )
-                }
-                validator.validate(dbo, previous)
-            }
-            .map { dbo ->
-                db.transaction { tx ->
-                    if (previous?.toDbo() == dbo) {
-                        return@transaction previous
-                    }
-
-                    avtaler.upsert(dbo, tx)
-
-                    dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
-
-                    val dto = getOrError(dbo.id, tx)
-
-                    val operation = if (previous == null) {
-                        "Opprettet avtale"
-                    } else {
-                        "Redigerte avtale"
-                    }
-                    logEndring(operation, dto, EndretAv.NavAnsatt(navIdent), tx)
-
-                    schedulePublishGjennomforingerForAvtale(dto)
-
-                    dto
-                }
-            }
-    }
-
-    private fun schedulePublishGjennomforingerForAvtale(dto: AvtaleDto) {
-        gjennomforingPublisher.schedule(
-            input = InitialLoadTiltaksgjennomforinger.Input(avtaleId = dto.id),
-            id = dto.id,
-            startTime = Instant.now().plus(5, ChronoUnit.MINUTES),
-        )
-    }
-
-    private suspend fun syncArrangorerFromBrreg(request: AvtaleRequest): Either<List<ValidationError>, Pair<ArrangorDto, List<ArrangorDto>>> = either {
-        val arrangor = syncArrangorFromBrreg(request.arrangorOrganisasjonsnummer).bind()
-        val underenheter = request.arrangorUnderenheter.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
-            syncArrangorFromBrreg(it).bind()
-        }.bind()
-        Pair(arrangor, underenheter)
-    }
-
-    private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): Either<List<ValidationError>, ArrangorDto> = arrangorService
-        .getOrSyncArrangorFromBrreg(orgnr)
-        .mapLeft {
-            ValidationError.of(
-                AvtaleRequest::arrangorOrganisasjonsnummer,
-                "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
-            ).nel()
+        if (previous?.toDbo() == dbo) {
+            return@either previous
         }
+
+        db.transaction {
+            queries.avtale.upsert(dbo)
+
+            dispatchNotificationToNewAdministrators(dbo, navIdent)
+
+            val dto = getOrError(dbo.id)
+            val operation = if (previous == null) {
+                "Opprettet avtale"
+            } else {
+                "Redigerte avtale"
+            }
+            logEndring(operation, dto, EndretAv.NavAnsatt(navIdent))
+
+            schedulePublishGjennomforingerForAvtale(dto)
+
+            dto
+        }
+    }
+
+    fun get(id: UUID): AvtaleDto? = db.session {
+        queries.avtale.get(id)
+    }
 
     fun getAll(
         filter: AvtaleFilter,
         pagination: Pagination,
-    ): PaginatedResponse<AvtaleDto> {
-        val (totalCount, items) = avtaler.getAll(
+    ): PaginatedResponse<AvtaleDto> = db.session {
+        val (totalCount, items) = queries.avtale.getAll(
             pagination = pagination,
             tiltakstypeIder = filter.tiltakstypeIder,
             search = filter.search,
@@ -146,14 +85,14 @@ class AvtaleService(
             personvernBekreftet = filter.personvernBekreftet,
         )
 
-        return PaginatedResponse.of(pagination, totalCount, items)
+        PaginatedResponse.of(pagination, totalCount, items)
     }
 
-    fun avbrytAvtale(id: UUID, navIdent: NavIdent, aarsak: AvbruttAarsak?): StatusResponse<Unit> {
+    fun avbrytAvtale(id: UUID, navIdent: NavIdent, aarsak: AvbruttAarsak?): StatusResponse<Unit> = db.transaction {
         if (aarsak == null) {
             return Either.Left(BadRequest(message = "Årsak mangler"))
         }
-        val avtale = avtaler.get(id) ?: return Either.Left(NotFound("Avtalen finnes ikke"))
+        val avtale = queries.avtale.get(id) ?: return Either.Left(NotFound("Avtalen finnes ikke"))
 
         if (aarsak is AvbruttAarsak.Annet && aarsak.name.length > 100) {
             return Either.Left(BadRequest(message = "Beskrivelse kan ikke inneholde mer enn 100 tegn"))
@@ -167,40 +106,83 @@ class AvtaleService(
             return Either.Left(BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
         }
 
-        val (_, gjennomforinger) = tiltaksgjennomforinger.getAll(
+        val (_, gjennomforinger) = queries.gjennomforing.getAll(
             avtaleId = id,
             statuser = listOf(TiltaksgjennomforingStatus.GJENNOMFORES),
         )
 
         if (gjennomforinger.isNotEmpty()) {
-            val plural = gjennomforinger.size > 1
             val message = listOf(
                 "Avtalen har",
                 gjennomforinger.size,
-                if (plural) "aktive gjennomføringer" else "aktiv gjennomføring",
+                if (gjennomforinger.size > 1) "aktive gjennomføringer" else "aktiv gjennomføring",
                 "og kan derfor ikke avbrytes.",
             ).joinToString(" ")
+
             return Either.Left(BadRequest(message))
         }
 
-        db.transaction { tx ->
-            avtaler.avbryt(tx, id, LocalDateTime.now(), aarsak)
-            val dto = getOrError(id, tx)
-            logEndring("Avtale ble avbrutt", dto, EndretAv.NavAnsatt(navIdent), tx)
-        }
+        queries.avtale.avbryt(id, LocalDateTime.now(), aarsak)
+        val dto = getOrError(id)
+        logEndring("Avtale ble avbrutt", dto, EndretAv.NavAnsatt(navIdent))
 
-        return Either.Right(Unit)
+        Either.Right(Unit)
     }
 
-    fun getEndringshistorikk(id: UUID): EndringshistorikkDto = endringshistorikkService.getEndringshistorikk(DocumentClass.AVTALE, id)
+    fun frikobleKontaktpersonFraAvtale(
+        kontaktpersonId: UUID,
+        avtaleId: UUID,
+        navIdent: NavIdent,
+    ): Unit = db.transaction {
+        queries.avtale.frikobleKontaktpersonFraAvtale(kontaktpersonId = kontaktpersonId, avtaleId = avtaleId)
 
-    private fun getOrError(id: UUID, tx: TransactionalSession): AvtaleDto {
-        val dto = avtaler.get(id, tx)
+        val avtale = getOrError(avtaleId)
+        logEndring(
+            "Kontaktperson ble fjernet fra avtalen via arrangørsidene",
+            avtale,
+            EndretAv.NavAnsatt(navIdent),
+        )
+    }
+
+    fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
+        queries.endringshistorikk.getEndringshistorikk(DocumentClass.AVTALE, id)
+    }
+
+    private fun schedulePublishGjennomforingerForAvtale(dto: AvtaleDto) {
+        gjennomforingPublisher.schedule(
+            input = InitialLoadTiltaksgjennomforinger.Input(avtaleId = dto.id),
+            id = dto.id,
+            startTime = Instant.now().plus(5, ChronoUnit.MINUTES),
+        )
+    }
+
+    private suspend fun syncArrangorerFromBrreg(
+        request: AvtaleRequest,
+    ): Either<List<ValidationError>, Pair<ArrangorDto, List<ArrangorDto>>> = either {
+        val arrangor = syncArrangorFromBrreg(request.arrangorOrganisasjonsnummer).bind()
+        val underenheter = request.arrangorUnderenheter.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
+            syncArrangorFromBrreg(it).bind()
+        }.bind()
+        Pair(arrangor, underenheter)
+    }
+
+    private suspend fun syncArrangorFromBrreg(
+        orgnr: Organisasjonsnummer,
+    ): Either<List<ValidationError>, ArrangorDto> = arrangorService
+        .getOrSyncArrangorFromBrreg(orgnr)
+        .mapLeft {
+            ValidationError.of(
+                AvtaleRequest::arrangorOrganisasjonsnummer,
+                "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
+            ).nel()
+        }
+
+    private fun QueryContext.getOrError(id: UUID): AvtaleDto {
+        val dto = queries.avtale.get(id)
         return requireNotNull(dto) { "Avtale med id=$id finnes ikke" }
     }
 
-    private fun dispatchNotificationToNewAdministrators(
-        tx: TransactionalSession,
+    private fun QueryContext.dispatchNotificationToNewAdministrators(
         dbo: AvtaleDbo,
         navIdent: NavIdent,
     ) {
@@ -215,17 +197,15 @@ class AvtaleService(
             targets = administratorsToNotify,
             createdAt = Instant.now(),
         )
-        notificationRepository.insert(notification, tx)
+        queries.notifications.insert(notification)
     }
 
-    private fun logEndring(
+    private fun QueryContext.logEndring(
         operation: String,
         dto: AvtaleDto,
         endretAv: EndretAv.NavAnsatt,
-        tx: TransactionalSession,
     ) {
-        endringshistorikkService.logEndring(
-            tx,
+        queries.endringshistorikk.logEndring(
             DocumentClass.AVTALE,
             operation,
             endretAv,
@@ -234,28 +214,38 @@ class AvtaleService(
             Json.encodeToJsonElement(dto)
         }
     }
+}
 
-    fun frikobleKontaktpersonFraAvtale(
-        kontaktpersonId: UUID,
-        avtaleId: UUID,
-        navIdent: NavIdent,
-    ): Either<StatusResponseError, String> {
-        val avtale = avtaler.get(avtaleId) ?: return Either.Left(NotFound("Avtalen finnes ikke"))
-        return db.transaction { tx ->
-            avtaler.frikobleKontaktpersonFraAvtale(kontaktpersonId = kontaktpersonId, avtaleId = avtaleId, tx = tx)
-                .map {
-                    logEndring(
-                        "Kontaktperson ble fjernet fra avtalen via arrangørsidene",
-                        avtale,
-                        EndretAv.NavAnsatt(navIdent),
-                        tx,
-                    )
-                    it
-                }
-                .mapLeft {
-                    logger.error("Klarte ikke fjerne kontaktperson fra avtale: KontaktpersonId = '$kontaktpersonId', avtaleId = '$avtaleId'")
-                    ServerError("Klarte ikke fjerne kontaktperson fra avtalen")
-                }
-        }
-    }
+private fun toAvtaleDbo(
+    request: AvtaleRequest,
+    arrangor: ArrangorDto,
+    underenheter: List<ArrangorDto>,
+): AvtaleDbo = request.run {
+    AvtaleDbo(
+        id = id,
+        navn = navn,
+        avtalenummer = avtalenummer,
+        websaknummer = websaknummer,
+        tiltakstypeId = tiltakstypeId,
+        arrangorId = arrangor.id,
+        arrangorUnderenheter = underenheter.map { it.id },
+        arrangorKontaktpersoner = arrangorKontaktpersoner,
+        startDato = startDato,
+        sluttDato = sluttDato,
+        opsjonMaksVarighet = opsjonsmodellData?.opsjonMaksVarighet,
+        avtaletype = avtaletype,
+        antallPlasser = null,
+        administratorer = administratorer,
+        prisbetingelser = prisbetingelser,
+        navEnheter = navEnheter,
+        beskrivelse = beskrivelse,
+        faneinnhold = faneinnhold,
+        personopplysninger = personopplysninger,
+        personvernBekreftet = personvernBekreftet,
+        amoKategorisering = amoKategorisering,
+        opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
+        customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
+        utdanningslop = utdanningslop,
+        prismodell = prismodell,
+    )
 }

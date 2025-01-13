@@ -3,23 +3,25 @@ package no.nav.mulighetsrommet.api.navenhet
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetRepository
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.concurrent.TimeUnit
 
-class NavEnhetService(private val enhetRepository: NavEnhetRepository) {
+class NavEnhetService(
+    private val db: ApiDatabase,
+) {
     val cache: Cache<String, NavEnhetDbo> = Caffeine.newBuilder()
         .expireAfterWrite(12, TimeUnit.HOURS)
         .maximumSize(500)
         .recordStats()
         .build()
 
-    fun hentEnhet(enhetsnummer: String): NavEnhetDbo? {
-        return CacheUtils.tryCacheFirstNullable(cache, enhetsnummer) {
-            enhetRepository.get(enhetsnummer)
+    fun hentEnhet(enhetsnummer: String): NavEnhetDbo? = db.session {
+        CacheUtils.tryCacheFirstNullable(cache, enhetsnummer) {
+            queries.enhet.get(enhetsnummer)
         }
     }
 
@@ -37,8 +39,8 @@ class NavEnhetService(private val enhetRepository: NavEnhetRepository) {
         }
     }
 
-    fun hentAlleEnheter(filter: EnhetFilter): List<NavEnhetDbo> {
-        return enhetRepository.getAll(filter.statuser, filter.typer, filter.overordnetEnhet)
+    fun hentAlleEnheter(filter: EnhetFilter): List<NavEnhetDbo> = db.session {
+        queries.enhet.getAll(filter.statuser, filter.typer, filter.overordnetEnhet)
     }
 
     fun hentRegioner(): List<NavRegionDto> {
@@ -48,6 +50,7 @@ class NavEnhetService(private val enhetRepository: NavEnhetRepository) {
                 typer = listOf(Norg2Type.KO, Norg2Type.LOKAL, Norg2Type.FYLKE),
             ),
         )
+
         return alleEnheter
             .filter { it.type == Norg2Type.FYLKE }
             .map { region ->
@@ -67,8 +70,8 @@ class NavEnhetService(private val enhetRepository: NavEnhetRepository) {
             }
     }
 
-    fun hentKostnadssted(regioner: List<String>): List<NavEnhetDbo> {
-        return enhetRepository.getKostnadssted(regioner)
+    fun hentKostnadssted(regioner: List<String>): List<NavEnhetDbo> = db.session {
+        queries.enhet.getKostnadssted(regioner)
     }
 
     @Serializable

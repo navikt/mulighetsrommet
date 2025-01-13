@@ -4,9 +4,9 @@ import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.Daily
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.api.services.EndretAv
-import no.nav.mulighetsrommet.database.Database
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -14,7 +14,7 @@ import java.time.LocalTime
 import java.util.*
 
 class UpdateTiltaksgjennomforingStatus(
-    private val db: Database,
+    private val db: ApiDatabase,
     private val gjennomforingService: TiltaksgjennomforingService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -47,7 +47,7 @@ class UpdateTiltaksgjennomforingStatus(
 
     private fun getGjennomforingerSomSkalAvsluttes(
         sluttDatoLessThan: LocalDate,
-    ): List<UUID> = db.useSession { tx ->
+    ): List<UUID> = db.session {
         @Language("PostgreSQL")
         val query = """
             select gjennomforing.id,
@@ -65,9 +65,6 @@ class UpdateTiltaksgjennomforingStatus(
             "slutt_dato_lt" to sluttDatoLessThan,
         )
 
-        queryOf(query, params)
-            .map { it.uuid("id") }
-            .asList
-            .runWithSession(tx)
+        session.list(queryOf(query, params)) { it.uuid("id") }
     }
 }

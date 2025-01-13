@@ -90,7 +90,7 @@ class FlywayMigrationManager(
             where installed_rank = ? and checksum = ? and version is null
         """.trimIndent()
 
-        database.useSession { session ->
+        database.session { session ->
             flyway.info().applied().filter { !it.isVersioned }.forEach {
                 queryOf(deleteRepeatableEntry, it.installedRank, it.checksum).asExecute.runWithSession(session)
             }

@@ -9,7 +9,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
@@ -28,10 +27,9 @@ import java.time.temporal.TemporalAdjusters
 import java.util.*
 
 fun Route.tilsagnRoutes() {
+    val db: ApiDatabase by inject()
     val service: TilsagnService by inject()
-    val tilsagn: TilsagnRepository by inject()
     val gjennomforinger: TiltaksgjennomforingService by inject()
-    val avtaler: AvtaleRepository by inject()
 
     route("tilsagn") {
         get {
@@ -39,7 +37,9 @@ fun Route.tilsagnRoutes() {
             val status = call.queryParameters.getAll("statuser")
                 ?.map { TilsagnStatus.valueOf(it) }
 
-            val result = tilsagn.getAll(gjennomforingId = gjennomforingId, statuser = status)
+            val result = db.session {
+                queries.tilsagn.getAll(gjennomforingId = gjennomforingId, statuser = status)
+            }
 
             call.respond(result)
         }
@@ -48,7 +48,9 @@ fun Route.tilsagnRoutes() {
             get {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val result = tilsagn.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
+                val result = db.session {
+                    queries.tilsagn.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
+                }
 
                 call.respond(result)
             }
@@ -68,9 +70,12 @@ fun Route.tilsagnRoutes() {
 
             val defaults = when (type) {
                 TilsagnType.TILSAGN -> {
-                    val sisteTilsagn = tilsagn
-                        .getAll(type = TilsagnType.TILSAGN, gjennomforingId = gjennomforingId)
-                        .firstOrNull()
+                    val sisteTilsagn = db.session {
+                        queries.tilsagn
+                            .getAll(type = TilsagnType.TILSAGN, gjennomforingId = gjennomforingId)
+                            .firstOrNull()
+                    }
+
                     resolveTilsagnDefaults(gjennomforing, sisteTilsagn)
                 }
 

@@ -13,30 +13,25 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus.*
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
-import no.nav.mulighetsrommet.notifications.NotificationRepository
 import java.time.LocalDate
 import java.util.*
 
 class UpdateTiltaksgjennomforingStatusTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createTask(
-        tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
+        producer: SisteTiltaksgjennomforingerV1KafkaProducer = mockk(relaxed = true),
     ) = UpdateTiltaksgjennomforingStatus(
         database.db,
         TiltaksgjennomforingService(
             db = database.db,
-            tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
-            tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
-            notificationRepository = NotificationRepository(database.db),
+            tiltaksgjennomforingKafkaProducer = producer,
             validator = mockk(relaxed = true),
-            documentHistoryService = mockk(relaxed = true),
             navAnsattService = mockk(relaxed = true),
         ),
     )
@@ -67,8 +62,6 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             ),
         )
 
-        val gjennomforinger = TiltaksgjennomforingRepository(database.db)
-
         beforeEach {
             domain.initialize(database.db)
         }
@@ -83,14 +76,16 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
 
             task.oppdaterTiltaksgjennomforingStatus(today = LocalDate.of(2023, 1, 31))
 
-            gjennomforinger.get(gjennomforing1.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
-            }
-            gjennomforinger.get(gjennomforing2.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
-            }
-            gjennomforinger.get(gjennomforing3.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
+            database.run {
+                queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
+                    it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
+                }
+                queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
+                    it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
+                }
+                queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
+                    it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
+                }
             }
 
             verify(exactly = 0) { producer.publish(any()) }
@@ -102,14 +97,16 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
 
             task.oppdaterTiltaksgjennomforingStatus(today = LocalDate.of(2023, 2, 1))
 
-            gjennomforinger.get(gjennomforing1.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
-            }
-            gjennomforinger.get(gjennomforing2.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
-            }
-            gjennomforinger.get(gjennomforing3.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+            database.run {
+                queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
+                    it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
+                }
+                queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
+                    it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                }
+                queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
+                    it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                }
             }
 
             verifyAll {
@@ -132,14 +129,16 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
 
             task.oppdaterTiltaksgjennomforingStatus(today = LocalDate.of(2023, 3, 1))
 
-            gjennomforinger.get(gjennomforing1.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
-            }
-            gjennomforinger.get(gjennomforing2.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
-            }
-            gjennomforinger.get(gjennomforing3.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+            database.run {
+                queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
+                    it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
+                }
+                queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
+                    it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                }
+                queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
+                    it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                }
             }
 
             verifyAll {
@@ -157,39 +156,43 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
         }
 
         test("forsøker ikke å avslutte gjennomføringer som allerede er avsluttet, avlyst eller avbrutt") {
+            database.run {
+                queries.gjennomforing.setAvsluttet(
+                    gjennomforing1.id,
+                    LocalDate.of(2024, 1, 1).atStartOfDay(),
+                    AvbruttAarsak.Feilregistrering,
+                )
+
+                queries.gjennomforing.setAvsluttet(
+                    gjennomforing2.id,
+                    LocalDate.of(2022, 12, 31).atStartOfDay(),
+                    AvbruttAarsak.Feilregistrering,
+                )
+
+                queries.gjennomforing.setAvsluttet(
+                    gjennomforing3.id,
+                    LocalDate.of(2023, 1, 1).atStartOfDay(),
+                    AvbruttAarsak.Feilregistrering,
+                )
+            }
+
             val producer = mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true)
             val task = createTask(producer)
 
-            gjennomforinger.setAvsluttet(
-                gjennomforing1.id,
-                LocalDate.of(2024, 1, 1).atStartOfDay(),
-                AvbruttAarsak.Feilregistrering,
-            )
-
-            gjennomforinger.setAvsluttet(
-                gjennomforing2.id,
-                LocalDate.of(2022, 12, 31).atStartOfDay(),
-                AvbruttAarsak.Feilregistrering,
-            )
-
-            gjennomforinger.setAvsluttet(
-                gjennomforing3.id,
-                LocalDate.of(2023, 1, 1).atStartOfDay(),
-                AvbruttAarsak.Feilregistrering,
-            )
-
             task.oppdaterTiltaksgjennomforingStatus(today = LocalDate.of(2024, 1, 2))
 
-            gjennomforinger.get(gjennomforing1.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
-            }
-            gjennomforinger.get(gjennomforing2.id).shouldNotBeNull().should {
-                it.status.status.shouldBe(AVLYST)
-                it.status.avbrutt.shouldNotBeNull().aarsak.shouldBe(AvbruttAarsak.Feilregistrering)
-            }
-            gjennomforinger.get(gjennomforing3.id).shouldNotBeNull().should {
-                it.status.status.shouldBe(AVBRUTT)
-                it.status.avbrutt.shouldNotBeNull().aarsak.shouldBe(AvbruttAarsak.Feilregistrering)
+            database.run {
+                queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
+                    it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                }
+                queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
+                    it.status.status.shouldBe(AVLYST)
+                    it.status.avbrutt.shouldNotBeNull().aarsak.shouldBe(AvbruttAarsak.Feilregistrering)
+                }
+                queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
+                    it.status.status.shouldBe(AVBRUTT)
+                    it.status.avbrutt.shouldNotBeNull().aarsak.shouldBe(AvbruttAarsak.Feilregistrering)
+                }
             }
 
             verify(exactly = 0) { producer.publish(any()) }
@@ -209,8 +212,6 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             gjennomforinger = listOf(gjennomforing),
         )
 
-        val gjennomforinger = TiltaksgjennomforingRepository(database.db)
-
         beforeEach {
             domain.initialize(database.db)
         }
@@ -220,18 +221,19 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
         }
 
         test("avpubliserer og stenger gjennomføring for påmelding") {
-            val producer = mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true)
-            val task = createTask(producer)
+            database.run {
+                queries.gjennomforing.setPublisert(gjennomforing.id, true)
+                queries.gjennomforing.setApentForPamelding(gjennomforing.id, true)
+            }
 
-            gjennomforinger.setPublisert(gjennomforing.id, true)
-            gjennomforinger.setApentForPamelding(gjennomforing.id, true)
+            createTask().oppdaterTiltaksgjennomforingStatus(today = LocalDate.of(2023, 2, 1))
 
-            task.oppdaterTiltaksgjennomforingStatus(today = LocalDate.of(2023, 2, 1))
-
-            gjennomforinger.get(gjennomforing.id).shouldNotBeNull().should {
-                it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
-                it.publisert.shouldBe(false)
-                it.apentForPamelding.shouldBe(false)
+            database.run {
+                queries.gjennomforing.get(gjennomforing.id).shouldNotBeNull().should {
+                    it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                    it.publisert.shouldBe(false)
+                    it.apentForPamelding.shouldBe(false)
+                }
             }
         }
     }
