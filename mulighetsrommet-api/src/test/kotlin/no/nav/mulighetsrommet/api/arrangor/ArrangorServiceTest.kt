@@ -12,17 +12,16 @@ import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.arrangor.db.ArrangorRepository
 import no.nav.mulighetsrommet.api.arrangor.model.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import java.time.LocalDate
 
 class ArrangorServiceTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val underenhet = BrregVirksomhetDto(
         organisasjonsnummer = Organisasjonsnummer("234567891"),
@@ -39,10 +38,9 @@ class ArrangorServiceTest : FunSpec({
         poststed = "Oslo",
     )
 
-    context(ArrangorService::getOrSyncArrangorFromBrreg.name) {
+    context("get or sync arrangør fra brreg") {
         val brregClient: BrregClient = mockk()
-        val arrangorRepository = ArrangorRepository(database.db)
-        val arrangorService = ArrangorService(brregClient, arrangorRepository)
+        val arrangorService = ArrangorService(database.db, brregClient)
 
         afterEach {
             clearAllMocks()
@@ -54,15 +52,17 @@ class ArrangorServiceTest : FunSpec({
 
             arrangorService.getOrSyncArrangorFromBrreg(hovedenhet.organisasjonsnummer).shouldBeRight()
 
-            arrangorRepository.get(hovedenhet.organisasjonsnummer).shouldNotBeNull().should {
-                it.id.shouldNotBeNull()
-                it.navn shouldBe "Testbedriften AS"
-                it.organisasjonsnummer shouldBe Organisasjonsnummer("123456789")
-                it.postnummer shouldBe "0484"
-                it.poststed shouldBe "Oslo"
-                it.underenheter.shouldBeNull()
+            database.run {
+                queries.arrangor.get(hovedenhet.organisasjonsnummer).shouldNotBeNull().should {
+                    it.id.shouldNotBeNull()
+                    it.navn shouldBe "Testbedriften AS"
+                    it.organisasjonsnummer shouldBe Organisasjonsnummer("123456789")
+                    it.postnummer shouldBe "0484"
+                    it.poststed shouldBe "Oslo"
+                    it.underenheter.shouldBeNull()
+                }
+                queries.arrangor.get(underenhet.organisasjonsnummer).shouldBeNull()
             }
-            arrangorRepository.get(underenhet.organisasjonsnummer).shouldBeNull()
         }
 
         test("skal synkronisere hovedenhet i tillegg til underenhet fra brreg til databasen gitt orgnr til underenhet") {
@@ -71,13 +71,15 @@ class ArrangorServiceTest : FunSpec({
 
             arrangorService.getOrSyncArrangorFromBrreg(underenhet.organisasjonsnummer).shouldBeRight()
 
-            arrangorRepository.get(hovedenhet.organisasjonsnummer).shouldNotBeNull().should {
-                it.navn shouldBe "Testbedriften AS"
-                it.organisasjonsnummer shouldBe Organisasjonsnummer("123456789")
-            }
-            arrangorRepository.get(underenhet.organisasjonsnummer).shouldNotBeNull().should {
-                it.navn shouldBe "Underenhet til Testbedriften AS"
-                it.organisasjonsnummer shouldBe Organisasjonsnummer("234567891")
+            database.run {
+                queries.arrangor.get(hovedenhet.organisasjonsnummer).shouldNotBeNull().should {
+                    it.navn shouldBe "Testbedriften AS"
+                    it.organisasjonsnummer shouldBe Organisasjonsnummer("123456789")
+                }
+                queries.arrangor.get(underenhet.organisasjonsnummer).shouldNotBeNull().should {
+                    it.navn shouldBe "Underenhet til Testbedriften AS"
+                    it.organisasjonsnummer shouldBe Organisasjonsnummer("234567891")
+                }
             }
         }
 
@@ -95,10 +97,12 @@ class ArrangorServiceTest : FunSpec({
 
             arrangorService.getOrSyncArrangorFromBrreg(orgnr).shouldBeRight()
 
-            arrangorRepository.get(orgnr).shouldNotBeNull().should {
-                it.navn shouldBe "Slettet bedrift"
-                it.organisasjonsnummer shouldBe orgnr
-                it.slettetDato shouldBe LocalDate.of(2020, 1, 1)
+            database.run {
+                queries.arrangor.get(orgnr).shouldNotBeNull().should {
+                    it.navn shouldBe "Slettet bedrift"
+                    it.organisasjonsnummer shouldBe orgnr
+                    it.slettetDato shouldBe LocalDate.of(2020, 1, 1)
+                }
             }
         }
 
@@ -110,7 +114,9 @@ class ArrangorServiceTest : FunSpec({
 
             arrangorService.getOrSyncArrangorFromBrreg(orgnr) shouldBeLeft BrregError.NotFound
 
-            arrangorRepository.get(orgnr) shouldBe null
+            database.run {
+                queries.arrangor.get(orgnr) shouldBe null
+            }
         }
     }
 })

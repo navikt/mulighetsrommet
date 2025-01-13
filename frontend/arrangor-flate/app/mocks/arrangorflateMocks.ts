@@ -5,6 +5,7 @@ import {
   RefusjonskravStatus,
   RelevanteForslag,
   TilsagnStatus,
+  TilsagnType,
 } from "@mr/api-client-v2";
 import { http, HttpResponse, PathParams } from "msw";
 import { v4 as uuid } from "uuid";
@@ -201,6 +202,7 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
     gjennomforing: {
       navn: "Amo tiltak Halden",
     },
+    type: TilsagnType.TILSAGN,
   },
   {
     id: uuid(),
@@ -232,6 +234,7 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
     gjennomforing: {
       navn: "Amo tiltak Halden",
     },
+    type: TilsagnType.TILSAGN,
   },
   {
     id: uuid(),
@@ -263,6 +266,7 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
     gjennomforing: {
       navn: "Amo tiltak Halden",
     },
+    type: TilsagnType.EKSTRATILSAGN,
   },
 ];
 

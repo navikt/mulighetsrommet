@@ -8,9 +8,9 @@ import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationTask
@@ -22,7 +22,7 @@ import java.time.LocalDate
 
 class NotifySluttdatoForAvtalerNarmerSeg(
     config: Config,
-    private val db: Database,
+    private val db: ApiDatabase,
     private val notificationTask: NotificationTask,
 ) {
     data class Config(
@@ -74,7 +74,7 @@ class NotifySluttdatoForAvtalerNarmerSeg(
 
     fun getAllAvtalerSomNarmerSegSluttdato(
         today: LocalDate,
-    ): List<AvtaleNotificationDto> = db.useSession { session ->
+    ): List<AvtaleNotificationDto> = db.session {
         @Language("PostgreSQL")
         val query = """
             select avtale.id::uuid,
@@ -91,19 +91,16 @@ class NotifySluttdatoForAvtalerNarmerSeg(
             group by avtale.id
         """.trimIndent()
 
-        queryOf(query, mapOf("today" to today))
-            .map { it.toAvtaleNotificationDto() }
-            .asList
-            .runWithSession(session)
+        session.list(queryOf(query, mapOf("today" to today))) { it.toAvtaleNotificationDto() }
     }
+}
 
-    private fun Row.toAvtaleNotificationDto(): AvtaleNotificationDto {
-        val administratorer = array<String>("administratorer").asList().map { NavIdent(it) }
-        return AvtaleNotificationDto(
-            id = uuid("id"),
-            navn = string("navn"),
-            sluttDato = localDate("slutt_dato"),
-            administratorer = administratorer,
-        )
-    }
+private fun Row.toAvtaleNotificationDto(): AvtaleNotificationDto {
+    val administratorer = array<String>("administratorer").asList().map { NavIdent(it) }
+    return AvtaleNotificationDto(
+        id = uuid("id"),
+        navn = string("navn"),
+        sluttDato = localDate("slutt_dato"),
+        administratorer = administratorer,
+    )
 }

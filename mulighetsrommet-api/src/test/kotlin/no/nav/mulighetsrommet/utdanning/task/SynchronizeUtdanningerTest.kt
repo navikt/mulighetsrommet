@@ -6,18 +6,20 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.client.UtdanningNoProgramomraade
-import no.nav.mulighetsrommet.utdanning.db.UtdanningQueries
 
 class SynchronizeUtdanningerTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
+
     val utdanningClient: UtdanningClient = mockk(relaxed = true)
 
-    afterTest {
-        database.truncateAll()
-    }
+    fun createTask() = SynchronizeUtdanninger(
+        db = database.db,
+        utdanningClient = utdanningClient,
+        config = SynchronizeUtdanninger.Config(disabled = true, cronPattern = "0 0 0 1 * ?"),
+    )
 
     val utdanningBanemontorfaget = UtdanningNoProgramomraade(
         programomradekode = "BABAN3----",
@@ -56,11 +58,7 @@ class SynchronizeUtdanningerTest : FunSpec({
 
     context("Synchronize utdanninger") {
         test("Skal synkronisere programområder og utdanninger") {
-            val synchronizeUtdanninger = SynchronizeUtdanninger(
-                db = database.db,
-                utdanningClient = utdanningClient,
-                config = SynchronizeUtdanninger.Config(disabled = true, cronPattern = "0 0 0 1 * ?"),
-            )
+            val synchronizeUtdanninger = createTask()
 
             coEvery { utdanningClient.getUtdanninger() } returns listOf(
                 utdanningBanemontorfaget,
@@ -69,7 +67,9 @@ class SynchronizeUtdanningerTest : FunSpec({
 
             synchronizeUtdanninger.syncUtdanninger()
 
-            val programomraderMedUtdanninger = database.db.useSession { UtdanningQueries.getUtdanningsprogrammer(it) }
+            val programomraderMedUtdanninger = database.run {
+                queries.utdanning.getUtdanningsprogrammer()
+            }
 
             programomraderMedUtdanninger should {
                 it.size shouldBe 1
@@ -83,11 +83,7 @@ class SynchronizeUtdanningerTest : FunSpec({
         }
 
         test("Skal bare synkronisere programområder fra vg1") {
-            val synchronizeUtdanninger = SynchronizeUtdanninger(
-                db = database.db,
-                utdanningClient = utdanningClient,
-                config = SynchronizeUtdanninger.Config(disabled = true, cronPattern = "0 0 0 1 * ?"),
-            )
+            val synchronizeUtdanninger = createTask()
 
             val programomradeBetongOgMurVg2 = UtdanningNoProgramomraade(
                 programomradekode = "BABMO2----",
@@ -112,7 +108,9 @@ class SynchronizeUtdanningerTest : FunSpec({
 
             synchronizeUtdanninger.syncUtdanninger()
 
-            val programomraderMedUtdanninger = database.db.useSession { UtdanningQueries.getUtdanningsprogrammer(it) }
+            val programomraderMedUtdanninger = database.run {
+                queries.utdanning.getUtdanningsprogrammer()
+            }
 
             programomraderMedUtdanninger should {
                 it.size shouldBe 1

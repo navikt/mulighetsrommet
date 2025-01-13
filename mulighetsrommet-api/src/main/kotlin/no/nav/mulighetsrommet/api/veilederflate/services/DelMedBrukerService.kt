@@ -4,13 +4,13 @@ import io.ktor.server.plugins.*
 import kotlinx.serialization.Serializable
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.services.cms.CacheUsage
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.DelMedBrukerDbo
-import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.utils.QueryResult
-import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.database.createUuidArray
+import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
@@ -23,13 +23,14 @@ import java.time.LocalDateTime
 import java.util.*
 
 class DelMedBrukerService(
-    private val db: Database,
+    private val db: ApiDatabase,
     private val sanityService: SanityService,
     private val tiltakstypeService: TiltakstypeService,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    fun lagreDelMedBruker(dbo: DelMedBrukerDbo): QueryResult<DelMedBrukerDbo> = query {
+    fun lagreDelMedBruker(dbo: DelMedBrukerDbo): DelMedBrukerDbo = db.session {
+        // TODO flytt til routes?
         SecureLog.logger.info(
             "Veileder (${dbo.navident}) deler tiltak med id: '${dbo.sanityId ?: dbo.tiltaksgjennomforingId}' " +
                 "med bruker (${dbo.norskIdent.value})",
@@ -70,29 +71,26 @@ class DelMedBrukerService(
             returning *
         """.trimIndent()
 
-        queryOf(query, dbo.toParameters())
-            .map { it.toDelMedBruker() }
-            .asSingle
-            .let { db.run(it)!! }
+        session.requireSingle(queryOf(query, dbo.toParameters())) { it.toDelMedBruker() }
     }
 
-    fun getDeltMedBruker(fnr: NorskIdent, sanityOrGjennomforingId: UUID): DelMedBrukerDbo? {
+    fun getDeltMedBruker(fnr: NorskIdent, sanityOrGjennomforingId: UUID): DelMedBrukerDbo? = db.session {
         @Language("PostgreSQL")
         val query = """
-            select * from del_med_bruker
-            where
-                norsk_ident = :norsk_ident
-                and (sanity_id = :id::uuid or tiltaksgjennomforing_id = :id::uuid)
-            order by created_at desc limit 1
+            select *
+            from del_med_bruker
+            where norsk_ident = :norsk_ident
+              and (sanity_id = :id::uuid or tiltaksgjennomforing_id = :id::uuid)
+            order by created_at desc
+            limit 1
         """.trimIndent()
 
-        return queryOf(query, mapOf("norsk_ident" to fnr.value, "id" to sanityOrGjennomforingId))
-            .map { it.toDelMedBruker() }
-            .asSingle
-            .let { db.run(it) }
+        val params = mapOf("norsk_ident" to fnr.value, "id" to sanityOrGjennomforingId)
+
+        session.single(queryOf(query, params)) { it.toDelMedBruker() }
     }
 
-    fun getAlleDistinkteTiltakDeltMedBruker(fnr: NorskIdent): List<DelMedBrukerDbo> {
+    fun getAlleDistinkteTiltakDeltMedBruker(fnr: NorskIdent): List<DelMedBrukerDbo> = db.session {
         @Language("PostgreSQL")
         val query = """
             select distinct on (tiltaksgjennomforing_id, sanity_id) *
@@ -101,13 +99,10 @@ class DelMedBrukerService(
             order by tiltaksgjennomforing_id, sanity_id, created_at desc;
         """.trimIndent()
 
-        return queryOf(query, fnr.value)
-            .map { it.toDelMedBruker() }
-            .asList
-            .let { db.run(it) }
+        session.list(queryOf(query, fnr.value)) { it.toDelMedBruker() }
     }
 
-    private fun getAlleTiltakDeltMedBruker(fnr: NorskIdent): List<DelMedBrukerDbo> {
+    private fun getAlleTiltakDeltMedBruker(fnr: NorskIdent): List<DelMedBrukerDbo> = db.session {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -116,10 +111,7 @@ class DelMedBrukerService(
             order by tiltaksgjennomforing_id, sanity_id, created_at desc;
         """.trimIndent()
 
-        return queryOf(query, fnr.value)
-            .map { it.toDelMedBruker() }
-            .asList
-            .let { db.run(it) }
+        session.list(queryOf(query, fnr.value)) { it.toDelMedBruker() }
     }
 
     suspend fun getDelMedBrukerHistorikk(norskIdent: NorskIdent): List<TiltakDeltMedBruker> {
@@ -133,8 +125,7 @@ class DelMedBrukerService(
         return alleDelteTiltak
     }
 
-    private fun getTiltakFraDb(deltMedBruker: List<DelMedBrukerDbo>): List<TiltakDeltMedBruker> {
-        // Slå opp i database for navn
+    private fun getTiltakFraDb(deltMedBruker: List<DelMedBrukerDbo>): List<TiltakDeltMedBruker> = db.session {
         @Language("PostgreSQL")
         val tiltakFraDbQuery = """
             select
@@ -144,43 +135,37 @@ class DelMedBrukerService(
                 tt.navn as tiltakstypeNavn
             from tiltaksgjennomforing tg
                 inner join tiltakstype tt on tt.id = tg.tiltakstype_id
-            where tg.id = any(:ids::uuid[])
+            where tg.id = any(?::uuid[])
         """.trimIndent()
 
-        val gjennomforingerIds = deltMedBruker
-            .mapNotNull { it.tiltaksgjennomforingId }
-            .let { db.createUuidArray(it) }
+        val ids = deltMedBruker.mapNotNull { it.tiltaksgjennomforingId }
 
-        val tiltakFraDbParams = mapOf(
-            "ids" to gjennomforingerIds,
-        )
+        val deltById = deltMedBruker.associateBy { it.tiltaksgjennomforingId }
 
-        return queryOf(tiltakFraDbQuery, tiltakFraDbParams)
-            .map {
-                it.uuid("id") to TiltakFraDb(
-                    it.string("navn"),
-                    it.uuid("id"),
-                    Tiltakskode.valueOf(it.string("tiltakskode")),
-                    it.string("tiltakstypeNavn"),
-                )
-            }
-            .asList
-            .let { db.run(it) }
-            .flatMap { (id, tiltak) ->
-                deltMedBruker.filter { it.tiltaksgjennomforingId == id }.map {
-                    TiltakDeltMedBruker(
-                        navn = tiltak.navn,
-                        createdAt = it.createdAt!!,
-                        dialogId = it.dialogId,
-                        tiltakId = id,
-                        tiltakstype = TiltakDeltMedBruker.Tiltakstype(
-                            tiltakskode = tiltak.tiltakskode,
-                            arenakode = null,
-                            navn = tiltak.tiltakstypeNavn,
-                        ),
-                    )
-                }
-            }
+        val tiltakById = session.list(queryOf(tiltakFraDbQuery, session.createUuidArray(ids))) {
+            TiltakFraDb(
+                it.string("navn"),
+                it.uuid("id"),
+                Tiltakskode.valueOf(it.string("tiltakskode")),
+                it.string("tiltakstypeNavn"),
+            )
+        }.associateBy { it.id }
+
+        ids.mapNotNull { id ->
+            val deling = deltById[id] ?: return@mapNotNull null
+            val tiltak = tiltakById[id] ?: return@mapNotNull null
+            TiltakDeltMedBruker(
+                navn = tiltak.navn,
+                createdAt = deling.createdAt!!,
+                dialogId = deling.dialogId,
+                tiltakId = id,
+                tiltakstype = TiltakDeltMedBruker.Tiltakstype(
+                    tiltakskode = tiltak.tiltakskode,
+                    arenakode = null,
+                    navn = tiltak.tiltakstypeNavn,
+                ),
+            )
+        }
     }
 
     private suspend fun getTiltakFraSanity(deltMedBruker: List<DelMedBrukerDbo>): List<TiltakDeltMedBruker> {

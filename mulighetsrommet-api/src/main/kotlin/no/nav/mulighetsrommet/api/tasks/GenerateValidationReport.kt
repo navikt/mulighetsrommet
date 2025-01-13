@@ -7,14 +7,12 @@ import com.google.cloud.storage.Storage
 import com.google.cloud.storage.StorageOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingValidator
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.ValidationError
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.tasks.executeSuspend
@@ -31,10 +29,8 @@ import kotlin.io.path.outputStream
 
 class GenerateValidationReport(
     private val config: Config,
-    database: Database,
-    private val avtaler: AvtaleRepository,
+    private val db: ApiDatabase,
     private val avtaleValidator: AvtaleValidator,
-    private val gjennomforinger: TiltaksgjennomforingRepository,
     private val gjennomforingValidator: TiltaksgjennomforingValidator,
 ) {
 
@@ -54,7 +50,7 @@ class GenerateValidationReport(
             upload(report)
         }
 
-    private val client = SchedulerClient.Builder.create(database.getDatasource(), task).build()
+    private val client = SchedulerClient.Builder.create(db.getDatasource(), task).build()
 
     private val storage: Storage = StorageOptions.getDefaultInstance().service
 
@@ -109,13 +105,13 @@ class GenerateValidationReport(
         return workbook
     }
 
-    private suspend fun validateAvtaler() = buildMap {
-        paginateFanOut({ pagination -> avtaler.getAll(pagination).items }) {
-            val dbo = it.toDbo()
-            avtaleValidator.validate(dbo, it)
-                .onLeft { validationErrors ->
+    private suspend fun validateAvtaler(): Map<AvtaleDto, List<ValidationError>> = db.session {
+        buildMap {
+            paginateFanOut({ pagination -> queries.avtale.getAll(pagination).items }) {
+                avtaleValidator.validate(it.toDbo(), it).onLeft { validationErrors ->
                     put(it, validationErrors)
                 }
+            }
         }
     }
 
@@ -134,18 +130,18 @@ class GenerateValidationReport(
         }
     }
 
-    private suspend fun validateGjennomforinger() = buildMap {
-        paginateFanOut({ pagination ->
-            gjennomforinger.getAll(
-                pagination,
-                sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
-            ).items
-        }) {
-            val dbo = it.toTiltaksgjennomforingDbo()
-            gjennomforingValidator.validate(dbo, it)
-                .onLeft { validationErrors ->
+    private suspend fun validateGjennomforinger(): Map<GjennomforingDto, List<ValidationError>> = db.session {
+        buildMap {
+            paginateFanOut({ pagination ->
+                queries.gjennomforing.getAll(
+                    pagination,
+                    sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
+                ).items
+            }) {
+                gjennomforingValidator.validate(it.toTiltaksgjennomforingDbo(), it).onLeft { validationErrors ->
                     put(it, validationErrors)
                 }
+            }
         }
     }
 

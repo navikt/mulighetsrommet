@@ -13,6 +13,7 @@ data class ArrangorflateTilsagn(
     val id: UUID,
     val gjennomforing: Gjennomforing,
     val tiltakstype: Tiltakstype,
+    val type: TilsagnType,
     @Serializable(with = LocalDateSerializer::class)
     val periodeStart: LocalDate,
     @Serializable(with = LocalDateSerializer::class)

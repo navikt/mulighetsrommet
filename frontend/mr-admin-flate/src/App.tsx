@@ -168,6 +168,12 @@ const router = () =>
             loader: avtaleSkjemaLoader,
           },
           {
+            path: "avtaler/:avtaleId/tiltaksgjennomforinger/skjema",
+            element: <GjennomforingFormPage />,
+            errorElement: <ErrorPage />,
+            loader: gjennomforingFormLoader,
+          },
+          {
             path: "tiltaksgjennomforinger/skjema",
             element: <GjennomforingFormPage />,
             errorElement: <ErrorPage />,

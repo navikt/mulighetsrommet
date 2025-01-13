@@ -15,7 +15,7 @@ fun createDatabaseConfig(
     return DatabaseConfig(
         jdbcUrl = "jdbc:postgresql://$host:$port/$name?user=$user&password=${password.value}",
         schema = null,
-        maximumPoolSize = 2,
+        maximumPoolSize = 5,
     )
 }
 

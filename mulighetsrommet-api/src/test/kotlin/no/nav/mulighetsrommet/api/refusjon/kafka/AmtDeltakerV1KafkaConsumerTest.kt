@@ -21,11 +21,9 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolgi
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.refusjon.RefusjonService
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerDbo
-import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.model.DeltakerDto
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
@@ -36,7 +34,7 @@ import java.time.Period
 import java.util.*
 
 class AmtDeltakerV1KafkaConsumerTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createConsumer(
         period: Period = Period.ofDays(1),
@@ -44,16 +42,14 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
     ): AmtDeltakerV1KafkaConsumer {
         return AmtDeltakerV1KafkaConsumer(
             config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
+            db = database.db,
             relevantDeltakerSluttDatoPeriod = period,
-            tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db)),
-            deltakere = DeltakerRepository(database.db),
+            tiltakstyper = TiltakstypeService(database.db),
             refusjonService = refusjonService,
         )
     }
 
     context("konsumering av deltakere") {
-        val deltakere = DeltakerRepository(database.db)
-
         val amtDeltaker1 = createAmtDeltakerV1Dto(
             gjennomforingId = Oppfolging1.id,
             status = DeltakerStatus.Type.VENTER_PA_OPPSTART,
@@ -98,22 +94,30 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
             deltakerConsumer.consume(amtDeltaker2.id, Json.encodeToJsonElement(amtDeltaker2))
 
-            deltakere.getAll().shouldContainExactlyInAnyOrder(deltaker1Dbo.toDto(), deltaker2Dbo.toDto())
+            database.run {
+                queries.deltaker.getAll().shouldContainExactlyInAnyOrder(deltaker1Dbo.toDto(), deltaker2Dbo.toDto())
+            }
         }
 
         test("delete deltakere for tombstone messages") {
-            val deltakerConsumer = createConsumer()
-            deltakere.upsert(deltaker1Dbo)
+            database.run {
+                queries.deltaker.upsert(deltaker1Dbo)
+            }
 
+            val deltakerConsumer = createConsumer()
             deltakerConsumer.consume(amtDeltaker1.id, JsonNull)
 
-            deltakere.getAll().shouldBeEmpty()
+            database.run {
+                queries.deltaker.getAll().shouldBeEmpty()
+            }
         }
 
         test("sletter deltakere med status FEILREGISTRERT") {
-            val deltakerConsumer = createConsumer()
-            deltakere.upsert(deltaker1Dbo)
+            database.run {
+                queries.deltaker.upsert(deltaker1Dbo)
+            }
 
+            val deltakerConsumer = createConsumer()
             val feilregistrertDeltaker1 = amtDeltaker1.copy(
                 status = DeltakerStatus(
                     type = DeltakerStatus.Type.FEILREGISTRERT,
@@ -123,7 +127,9 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             )
             deltakerConsumer.consume(feilregistrertDeltaker1.id, Json.encodeToJsonElement(feilregistrertDeltaker1))
 
-            deltakere.getAll().shouldBeEmpty()
+            database.run {
+                queries.deltaker.getAll().shouldBeEmpty()
+            }
         }
 
         test("tolker deltakelsesprosent som 100 hvis den mangler for forhåndsgodkjente tiltak") {
@@ -137,20 +143,20 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
                 Json.encodeToJsonElement(amtDeltaker2.copy(gjennomforingId = VTA1.id)),
             )
 
-            deltakere.getAll().shouldContainExactlyInAnyOrder(
-                deltaker1Dbo
-                    .copy(gjennomforingId = AFT1.id, deltakelsesprosent = 100.0)
-                    .toDto(),
-                deltaker2Dbo
-                    .copy(gjennomforingId = VTA1.id, deltakelsesprosent = 100.0)
-                    .toDto(),
-            )
+            database.run {
+                queries.deltaker.getAll().shouldContainExactlyInAnyOrder(
+                    deltaker1Dbo
+                        .copy(gjennomforingId = AFT1.id, deltakelsesprosent = 100.0)
+                        .toDto(),
+                    deltaker2Dbo
+                        .copy(gjennomforingId = VTA1.id, deltakelsesprosent = 100.0)
+                        .toDto(),
+                )
+            }
         }
     }
 
     context("deltakelser for refusjonskrav") {
-        val deltakere = DeltakerRepository(database.db)
-
         val refusjonService: RefusjonService = mockk()
 
         val amtDeltaker1 = createAmtDeltakerV1Dto(
@@ -191,7 +197,9 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
                 )
                 deltakerConsumer.consume(deltaker.id, Json.encodeToJsonElement(deltaker))
 
-                deltakere.get(deltaker.id).shouldNotBeNull().norskIdent shouldBe expectedNorskIdent
+                database.run {
+                    queries.deltaker.get(deltaker.id).shouldNotBeNull().norskIdent shouldBe expectedNorskIdent
+                }
             }
         }
 
@@ -212,11 +220,13 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
                 )
                 deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(deltaker))
 
-                deltakere.get(deltaker.id).shouldNotBeNull().norskIdent.shouldBe(expectedNorskIdent)
+                database.run {
+                    queries.deltaker.get(deltaker.id).shouldNotBeNull().norskIdent.shouldBe(expectedNorskIdent)
+                }
             }
         }
 
-        test("trigger at refusjonskrav for aktell gjennomføring beregnes på nytt") {
+        test("trigger at refusjonskrav for aktuell gjennomføring beregnes på nytt") {
             val deltakerConsumer = createConsumer(refusjonService = refusjonService)
 
             deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))

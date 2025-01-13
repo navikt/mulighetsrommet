@@ -44,7 +44,7 @@ export function GjennomforingFilterButtons() {
           <HarSkrivetilgang ressurs="Gjennomføring">
             <Lenkeknapp
               size="small"
-              to={`skjema`}
+              to={`/avtaler/${avtale.id}/tiltaksgjennomforinger/skjema`}
               variant="primary"
               dataTestid="opprett-ny-tiltaksgjenomforing_knapp"
               onClick={() => setGjennomforingFane("detaljer")}

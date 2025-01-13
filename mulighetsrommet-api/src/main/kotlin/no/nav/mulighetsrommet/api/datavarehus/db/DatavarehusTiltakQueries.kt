@@ -13,8 +13,8 @@ import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import org.intellij.lang.annotations.Language
 import java.util.*
 
-object DatavarehusTiltakQueries {
-    fun get(session: Session, id: UUID): DatavarehusTiltak {
+class DatavarehusTiltakQueries(private val session: Session) {
+    fun getTiltak(id: UUID): DatavarehusTiltak = with(session) {
         @Language("PostgreSQL")
         val query = """
             select gjennomforing.id,
@@ -42,15 +42,12 @@ object DatavarehusTiltakQueries {
             where gjennomforing.id = ?
         """.trimIndent()
 
-        val dto = queryOf(query, id)
-            .map { it.toDatavarehusTiltakDto() }
-            .asSingle
-            .runWithSession(session)
+        val dto = single(queryOf(query, id)) { it.toDatavarehusTiltakDto() }
             .let { requireNotNull(it) { "Gjennomføring med id=$id finnes ikke" } }
 
         return when (dto.tiltakskode) {
             Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING -> {
-                val utdanningslop = getUtdanningslop(session, id)
+                val utdanningslop = getUtdanningslop(id)
                 DatavarehusTiltakYrkesfagDto(
                     dto.tiltakskode,
                     dto.avtale,
@@ -60,7 +57,7 @@ object DatavarehusTiltakQueries {
             }
 
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> {
-                val amoKategorisering = getAmoKategorisering(session, id)
+                val amoKategorisering = getAmoKategorisering(id)
                 DatavarehusTiltakAmoDto(
                     dto.tiltakskode,
                     dto.avtale,
@@ -73,7 +70,7 @@ object DatavarehusTiltakQueries {
         }
     }
 
-    private fun getUtdanningslop(session: Session, id: UUID): DatavarehusTiltakYrkesfagDto.Utdanningslop? {
+    private fun getUtdanningslop(id: UUID): DatavarehusTiltakYrkesfagDto.Utdanningslop? = with(session) {
         @Language("PostgreSQL")
         val utdanningsprogramQuery = """
             select program.id,
@@ -87,18 +84,15 @@ object DatavarehusTiltakQueries {
             group by program.id
         """.trimIndent()
 
-        val utdanningsprogram = queryOf(utdanningsprogramQuery, id)
-            .map {
-                DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanningsprogram(
-                    id = it.uuid("id"),
-                    navn = it.string("navn"),
-                    opprettetTidspunkt = it.localDateTime("opprettet_tidspunkt"),
-                    oppdatertTidspunkt = it.localDateTime("oppdatert_tidspunkt"),
-                    nusKoder = it.array<String>("nus_koder").toList(),
-                )
-            }
-            .asSingle
-            .runWithSession(session)
+        val utdanningsprogram = single(queryOf(utdanningsprogramQuery, id)) {
+            DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanningsprogram(
+                id = it.uuid("id"),
+                navn = it.string("navn"),
+                opprettetTidspunkt = it.localDateTime("opprettet_tidspunkt"),
+                oppdatertTidspunkt = it.localDateTime("oppdatert_tidspunkt"),
+                nusKoder = it.array<String>("nus_koder").toList(),
+            )
+        }
 
         if (utdanningsprogram == null) {
             return null
@@ -118,25 +112,21 @@ object DatavarehusTiltakQueries {
             group by utdanning.id;
         """.trimIndent()
 
-        val utdanninger = queryOf(utdanningerQuery, id)
-            .map {
-                DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanning(
-                    id = it.uuid("id"),
-                    navn = it.string("navn"),
-                    sluttkompetanse = Utdanning.Sluttkompetanse.valueOf(it.string("sluttkompetanse")),
-                    opprettetTidspunkt = it.localDateTime("opprettet_tidspunkt"),
-                    oppdatertTidspunkt = it.localDateTime("oppdatert_tidspunkt"),
-                    nusKoder = it.array<String>("nus_koder").toList(),
-                )
-            }
-            .asList
-            .runWithSession(session)
-            .toSet()
+        val utdanninger = list(queryOf(utdanningerQuery, id)) {
+            DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanning(
+                id = it.uuid("id"),
+                navn = it.string("navn"),
+                sluttkompetanse = Utdanning.Sluttkompetanse.valueOf(it.string("sluttkompetanse")),
+                opprettetTidspunkt = it.localDateTime("opprettet_tidspunkt"),
+                oppdatertTidspunkt = it.localDateTime("oppdatert_tidspunkt"),
+                nusKoder = it.array<String>("nus_koder").toList(),
+            )
+        }
 
-        return DatavarehusTiltakYrkesfagDto.Utdanningslop(utdanningsprogram, utdanninger)
+        return DatavarehusTiltakYrkesfagDto.Utdanningslop(utdanningsprogram, utdanninger.toSet())
     }
 
-    private fun getAmoKategorisering(session: Session, id: UUID): AmoKategorisering? {
+    private fun getAmoKategorisering(id: UUID): AmoKategorisering? = with(session) {
         @Language("PostgreSQL")
         val sertifiseringQuery = """
             select s.label,
@@ -146,15 +136,12 @@ object DatavarehusTiltakQueries {
             where k.tiltaksgjennomforing_id = ?
         """.trimIndent()
 
-        val sertifiseringer = queryOf(sertifiseringQuery, id)
-            .map {
-                AmoKategorisering.BransjeOgYrkesrettet.Sertifisering(
-                    konseptId = it.long("konsept_id"),
-                    label = it.string("label"),
-                )
-            }
-            .asList
-            .runWithSession(session)
+        val sertifiseringer = list(queryOf(sertifiseringQuery, id)) {
+            AmoKategorisering.BransjeOgYrkesrettet.Sertifisering(
+                konseptId = it.long("konsept_id"),
+                label = it.string("label"),
+            )
+        }
 
         @Language("PostgreSQL")
         val amoKategoriseringQuery = """
@@ -167,75 +154,72 @@ object DatavarehusTiltakQueries {
             where tiltaksgjennomforing_id = ?
         """.trimIndent()
 
-        return queryOf(amoKategoriseringQuery, id)
-            .map { it.toAmoKategorisering(sertifiseringer) }
-            .asSingle
-            .runWithSession(session)
+        return single(queryOf(amoKategoriseringQuery, id)) { it.toAmoKategorisering(sertifiseringer) }
     }
+}
 
-    private fun Row.toAmoKategorisering(
-        sertifiseringer: List<AmoKategorisering.BransjeOgYrkesrettet.Sertifisering>,
-    ): AmoKategorisering {
-        val kurstype = AmoKurstype.valueOf(string("kurstype"))
-        return when (kurstype) {
-            AmoKurstype.BRANSJE_OG_YRKESRETTET -> AmoKategorisering.BransjeOgYrkesrettet(
-                bransje = AmoKategorisering.BransjeOgYrkesrettet.Bransje.valueOf(string("bransje")),
-                sertifiseringer = sertifiseringer,
-                forerkort = array<String>("forerkort")
-                    .toList()
-                    .map { AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.valueOf(it) },
-                innholdElementer = array<String>("innhold_elementer")
-                    .toList()
-                    .map { AmoKategorisering.InnholdElement.valueOf(it) },
-            )
+private fun Row.toAmoKategorisering(
+    sertifiseringer: List<AmoKategorisering.BransjeOgYrkesrettet.Sertifisering>,
+): AmoKategorisering {
+    val kurstype = AmoKurstype.valueOf(string("kurstype"))
+    return when (kurstype) {
+        AmoKurstype.BRANSJE_OG_YRKESRETTET -> AmoKategorisering.BransjeOgYrkesrettet(
+            bransje = AmoKategorisering.BransjeOgYrkesrettet.Bransje.valueOf(string("bransje")),
+            sertifiseringer = sertifiseringer,
+            forerkort = array<String>("forerkort")
+                .toList()
+                .map { AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.valueOf(it) },
+            innholdElementer = array<String>("innhold_elementer")
+                .toList()
+                .map { AmoKategorisering.InnholdElement.valueOf(it) },
+        )
 
-            AmoKurstype.NORSKOPPLAERING -> AmoKategorisering.Norskopplaering(
-                norskprove = boolean("norskprove"),
-                innholdElementer = array<String>("innhold_elementer")
-                    .toList()
-                    .map { AmoKategorisering.InnholdElement.valueOf(it) },
-            )
+        AmoKurstype.NORSKOPPLAERING -> AmoKategorisering.Norskopplaering(
+            norskprove = boolean("norskprove"),
+            innholdElementer = array<String>("innhold_elementer")
+                .toList()
+                .map { AmoKategorisering.InnholdElement.valueOf(it) },
+        )
 
-            AmoKurstype.GRUNNLEGGENDE_FERDIGHETER -> AmoKategorisering.GrunnleggendeFerdigheter(
-                innholdElementer = array<String>("innhold_elementer")
-                    .toList()
-                    .map { AmoKategorisering.InnholdElement.valueOf(it) },
-            )
+        AmoKurstype.GRUNNLEGGENDE_FERDIGHETER -> AmoKategorisering.GrunnleggendeFerdigheter(
+            innholdElementer = array<String>("innhold_elementer")
+                .toList()
+                .map { AmoKategorisering.InnholdElement.valueOf(it) },
+        )
 
-            AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> AmoKategorisering.ForberedendeOpplaeringForVoksne
+        AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> AmoKategorisering.ForberedendeOpplaeringForVoksne
 
-            AmoKurstype.STUDIESPESIALISERING -> AmoKategorisering.Studiespesialisering
-        }
+        AmoKurstype.STUDIESPESIALISERING -> AmoKategorisering.Studiespesialisering
     }
+}
 
-    private fun Row.toDatavarehusTiltakDto() = DatavarehusTiltakDto(
-        tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
-        avtale = uuidOrNull("avtale_id")?.let {
-            DatavarehusTiltak.Avtale(
-                id = it,
-                navn = string("avtale_navn"),
-                opprettetTidspunkt = localDateTime("avtale_opprettet_tidspunkt"),
-                oppdatertTidspunkt = localDateTime("avtale_oppdatert_tidspunkt"),
+private fun Row.toDatavarehusTiltakDto() = DatavarehusTiltakDto(
+    tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
+    avtale = uuidOrNull("avtale_id")?.let {
+        DatavarehusTiltak.Avtale(
+            id = it,
+            navn = string("avtale_navn"),
+            opprettetTidspunkt = localDateTime("avtale_opprettet_tidspunkt"),
+            oppdatertTidspunkt = localDateTime("avtale_oppdatert_tidspunkt"),
+        )
+    },
+    gjennomforing = DatavarehusTiltak.Gjennomforing(
+        id = uuid("id"),
+        navn = string("navn"),
+        startDato = localDate("start_dato"),
+        sluttDato = localDateOrNull("slutt_dato"),
+        opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
+        oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
+        status = GjennomforingStatus.valueOf(string("status")),
+        arrangor = DatavarehusTiltak.Arrangor(
+            organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+        ),
+        arena = stringOrNull("tiltaksnummer")?.let {
+            val tiltaksnummmer = Tiltaksnummer(it)
+            DatavarehusTiltak.ArenaData(
+                aar = tiltaksnummmer.aar,
+                lopenummer = tiltaksnummmer.lopenummer,
             )
         },
-        gjennomforing = DatavarehusTiltak.Gjennomforing(
-            id = uuid("id"),
-            navn = string("navn"),
-            startDato = localDate("start_dato"),
-            sluttDato = localDateOrNull("slutt_dato"),
-            opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
-            oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
-            status = GjennomforingStatus.valueOf(string("status")),
-            arrangor = DatavarehusTiltak.Arrangor(
-                organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
-            ),
-            arena = stringOrNull("tiltaksnummer")?.let {
-                val tiltaksnummmer = Tiltaksnummer(it)
-                DatavarehusTiltak.ArenaData(
-                    aar = tiltaksnummmer.aar,
-                    lopenummer = tiltaksnummmer.lopenummer,
-                )
-            },
-        ),
-    )
-}
+    ),
+)

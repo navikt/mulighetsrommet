@@ -5,12 +5,10 @@ import arrow.core.left
 import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.right
-import no.nav.mulighetsrommet.api.arrangor.db.ArrangorRepository
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleRepository
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRepository
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isKursTiltak
@@ -21,9 +19,7 @@ import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus
 import java.time.LocalDate
 
 class TiltaksgjennomforingValidator(
-    private val avtaler: AvtaleRepository,
-    private val arrangorer: ArrangorRepository,
-    private val navAnsatte: NavAnsattRepository,
+    private val db: ApiDatabase,
 ) {
     private val maksAntallTegnStedForGjennomforing = 100
 
@@ -33,7 +29,7 @@ class TiltaksgjennomforingValidator(
     ): Either<List<ValidationError>, GjennomforingDbo> = either {
         var next = dbo
 
-        val avtale = avtaler.get(next.avtaleId)
+        val avtale = db.session { queries.avtale.get(next.avtaleId) }
             ?: raise(ValidationError.of(GjennomforingDbo::avtaleId, "Avtalen finnes ikke").nel())
 
         val errors = buildList {
@@ -195,15 +191,11 @@ class TiltaksgjennomforingValidator(
     private fun MutableList<ValidationError>.validateKontaktpersoner(
         next: GjennomforingDbo,
     ) {
-        val slettedeNavIdenter = next.kontaktpersoner
-            .mapNotNull {
-                val ansatt = navAnsatte.getByNavIdent(it.navIdent)
-                if (ansatt?.skalSlettesDato != null) {
-                    ansatt.navIdent.value
-                } else {
-                    null
-                }
+        val slettedeNavIdenter = db.session {
+            next.kontaktpersoner.mapNotNull { p ->
+                queries.ansatt.getByNavIdent(p.navIdent)?.takeIf { it.skalSlettesDato != null }?.navIdent?.value
             }
+        }
 
         if (slettedeNavIdenter.isNotEmpty()) {
             add(
@@ -218,15 +210,11 @@ class TiltaksgjennomforingValidator(
     private fun MutableList<ValidationError>.validateAdministratorer(
         next: GjennomforingDbo,
     ) {
-        val slettedeNavIdenter = next.administratorer
-            .mapNotNull {
-                val ansatt = navAnsatte.getByNavIdent(it)
-                if (ansatt?.skalSlettesDato != null) {
-                    ansatt.navIdent.value
-                } else {
-                    null
-                }
+        val slettedeNavIdenter = db.session {
+            next.administratorer.mapNotNull { ident ->
+                queries.ansatt.getByNavIdent(ident)?.takeIf { it.skalSlettesDato != null }?.navIdent?.value
             }
+        }
 
         if (slettedeNavIdenter.isNotEmpty()) {
             add(
@@ -285,7 +273,7 @@ class TiltaksgjennomforingValidator(
         gjennomforing: GjennomforingDbo,
         avtale: AvtaleDto,
     ) {
-        val arrangor = arrangorer.getById(gjennomforing.arrangorId)
+        val arrangor = db.session { queries.arrangor.getById(gjennomforing.arrangorId) }
         if (arrangor.slettetDato != null) {
             add(
                 ValidationError.of(

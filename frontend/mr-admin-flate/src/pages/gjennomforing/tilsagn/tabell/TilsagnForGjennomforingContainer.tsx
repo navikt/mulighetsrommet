@@ -4,9 +4,11 @@ import { KnapperadContainer } from "@/pages/KnapperadContainer";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { TilsagnTabell } from "./TilsagnTabell";
 import { tilsagnForGjennomforingLoader } from "@/pages/gjennomforing/tilsagn/tabell/tilsagnForGjennomforingLoader";
+import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 
 export function TilsagnForGjennomforingContainer() {
-  const { tilsagnForGjennomforing } = useLoaderData<typeof tilsagnForGjennomforingLoader>();
+  const { tilsagnstyper, tilsagnForGjennomforing } =
+    useLoaderData<typeof tilsagnForGjennomforingLoader>();
 
   const navigate = useNavigate();
 
@@ -20,20 +22,16 @@ export function TilsagnForGjennomforingContainer() {
             </Button>
             <Dropdown.Menu>
               <Dropdown.Menu.GroupedList>
-                <Dropdown.Menu.GroupedList.Item
-                  onClick={() => {
-                    navigate("opprett-tilsagn?type=TILSAGN");
-                  }}
-                >
-                  Opprett tilsagn
-                </Dropdown.Menu.GroupedList.Item>
-                <Dropdown.Menu.GroupedList.Item
-                  onClick={() => {
-                    navigate("opprett-tilsagn?type=EKSTRATILSAGN");
-                  }}
-                >
-                  Opprett ekstratilsagn
-                </Dropdown.Menu.GroupedList.Item>
+                {tilsagnstyper.map((type) => (
+                  <Dropdown.Menu.GroupedList.Item
+                    key={type}
+                    onClick={() => {
+                      navigate(`opprett-tilsagn?type=${type}`);
+                    }}
+                  >
+                    Opprett {avtaletekster.tilsagn.type(type).toLowerCase()}
+                  </Dropdown.Menu.GroupedList.Item>
+                ))}
               </Dropdown.Menu.GroupedList>
             </Dropdown.Menu>
           </Dropdown>

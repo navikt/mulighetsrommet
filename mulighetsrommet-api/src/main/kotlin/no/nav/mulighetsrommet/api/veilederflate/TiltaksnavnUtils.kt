@@ -1,12 +1,5 @@
 package no.nav.mulighetsrommet.api.veilederflate
 
-object TiltaksnavnUtils {
-    fun tittelOgUnderTittel(
-        navn: String,
-        tiltakstypeNavn: String,
-    ): Pair<String, String> = tiltakstypeNavn to navn
-}
-
 fun String.hosTitleCaseArrangor(arrangor: String?): String {
     val casedArrangor = toTitleCase(arrangor ?: "")
 
