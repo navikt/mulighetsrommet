@@ -4166,6 +4166,13 @@ components:
           required:
             - linkText
             - link
+        createdAt:
+          type: string
+          format: date-time
+
+        frist:
+          type: string
+          format: date-time
 
       required:
         - type

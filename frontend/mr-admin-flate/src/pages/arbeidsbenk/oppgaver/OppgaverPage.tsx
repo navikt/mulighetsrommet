@@ -18,6 +18,7 @@ export function OppgaverPage() {
   useTitle("Nye oppgaver");
 
   const oppgaver = useLoaderData<typeof oppgaverLoader>();
+  console.log(oppgaver);
 
   return (
     <main className={oppgaverPageStyles.root}>
@@ -28,14 +29,11 @@ export function OppgaverPage() {
             Sortering
             <Select label={"Sortering"} hideLabel>
               <option value="korteste-frist">Korteste Frist</option>
+              <option value="korteste-frist">Nyeste</option>
+              <option value="korteste-frist">Eldste</option>
             </Select>
           </div>
         </div>
-        {/*<ContainerLayout>
-          <div id="panel">
-            <Outlet />
-          </div>
-        </ContainerLayout>*/}
         <div className={oppgaverPageStyles.oppgaver}>
           {oppgaver.map((o) => {
             return <Oppgave oppgave={o} />;

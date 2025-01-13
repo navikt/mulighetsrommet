@@ -4,6 +4,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.domain.Tiltakskode
+import java.time.LocalDateTime
 import kotlin.text.get
 
 fun Route.oppgaverRoutes() {
@@ -22,6 +23,8 @@ fun Route.oppgaverRoutes() {
                         linkText = "Gå til tilsagnet",
                         link = "https://nav.no/",
                     ),
+                    createdAt = LocalDateTime.now(),
+                    frist = LocalDateTime.now().plusDays(7),
                 ),
                 Oppgave(
                     type = OppgaveType.TILSAGN_TIL_BESLUTNING,
@@ -32,6 +35,8 @@ fun Route.oppgaverRoutes() {
                         linkText = "Gå til tilsagnet",
                         link = "https://nav.no/",
                     ),
+                    createdAt = LocalDateTime.now(),
+                    frist = LocalDateTime.now().plusDays(7),
                 ),
             )
 
