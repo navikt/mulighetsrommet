@@ -267,7 +267,7 @@ class ArrangorflateRoutesTest : FunSpec({
         }
     }
 
-    test("riktig sjekksum ved godkjenning av refusjon gir 200") {
+    test("riktig sjekksum ved godkjenning av refusjon gir 200, og spawner journalforing task") {
         withTestApplication(appConfig()) {
             val client = createClient {
                 install(ContentNegotiation) {
