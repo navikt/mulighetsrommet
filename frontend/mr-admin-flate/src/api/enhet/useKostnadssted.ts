@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { NavEnheterService } from "@mr/api-client";
 import { QueryKeys } from "@/api/QueryKeys";
+import { NavEnheterService } from "@mr/api-client";
 
 export function useKostnadssted(regioner: string[] = []) {
   return useQuery({

@@ -5,7 +5,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
@@ -55,7 +54,8 @@ data class AvtaleRequest(
     val personvernBekreftet: Boolean,
     val opsjonsmodellData: OpsjonsmodellData?,
     val amoKategorisering: AmoKategorisering?,
-    val utdanningslop: UtdanningslopDbo? = null,
+    val utdanningslop: UtdanningslopDbo?,
+    val prismodell: Prismodell?,
 )
 
 @Serializable

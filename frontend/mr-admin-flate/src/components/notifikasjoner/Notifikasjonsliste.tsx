@@ -1,15 +1,15 @@
 import { NotificationStatus } from "@mr/api-client";
 import { useNotifikasjonerForAnsatt } from "@/api/notifikasjoner/useNotifikasjonerForAnsatt";
-import { Laster } from "../laster/Laster";
+import { Laster } from "@/components/laster/Laster";
 import { EmptyState } from "./EmptyState";
 import styles from "./Notifikasjoner.module.scss";
 import { Notifikasjonssrad } from "./Notifikasjonsrad";
-import { ReloadAppErrorBoundary } from "@mr/frontend-common/components/error-handling/ErrorBoundary";
 import { Button, HStack } from "@navikt/ds-react";
-import { useMutateNotifikasjoner } from "../../api/notifikasjoner/useMutateNotifikasjoner";
-import { useNavigate } from "react-router-dom";
+import { useMutateNotifikasjoner } from "@/api/notifikasjoner/useMutateNotifikasjoner";
+import { useNavigate } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { QueryKeys } from "../../api/QueryKeys";
+import { QueryKeys } from "@/api/QueryKeys";
+import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 
 interface Props {
   lest: boolean;
@@ -34,12 +34,15 @@ export function Notifikasjonsliste({ lest }: Props) {
         {
           onSuccess: () => {
             navigate(`/notifikasjoner${lest ? "" : "/tidligere"}`);
-            queryClient.invalidateQueries({
-              queryKey: QueryKeys.notifikasjonerForAnsatt(NotificationStatus.NOT_DONE),
-            });
-            queryClient.invalidateQueries({
-              queryKey: QueryKeys.notifikasjonerForAnsatt(NotificationStatus.DONE),
-            });
+
+            return Promise.all([
+              queryClient.invalidateQueries({
+                queryKey: QueryKeys.notifikasjonerForAnsatt(NotificationStatus.NOT_DONE),
+              }),
+              queryClient.invalidateQueries({
+                queryKey: QueryKeys.notifikasjonerForAnsatt(NotificationStatus.DONE),
+              }),
+            ]);
           },
         },
       );

@@ -8,6 +8,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.db.ArrangorRepository
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
@@ -19,6 +20,7 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRepository
 import no.nav.mulighetsrommet.api.responses.BadRequest
@@ -26,7 +28,6 @@ import no.nav.mulighetsrommet.api.responses.NotFound
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -53,7 +54,7 @@ class AvtaleServiceTest : FunSpec({
     }
 
     afterEach {
-        database.db.truncateAll()
+        database.truncateAll()
     }
 
     val bertilNavIdent = NavIdent("B123456")
@@ -63,6 +64,7 @@ class AvtaleServiceTest : FunSpec({
         val arrangorService = ArrangorService(brregClient, ArrangorRepository(database.db))
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         val avtaler = AvtaleRepository(database.db)
+        val gjennomforingPublisher = mockk<InitialLoadTiltaksgjennomforinger>(relaxed = true)
         val avtaleService = AvtaleService(
             avtaler,
             tiltaksgjennomforinger,
@@ -71,6 +73,7 @@ class AvtaleServiceTest : FunSpec({
             validator,
             EndringshistorikkService(database.db),
             database.db,
+            gjennomforingPublisher,
         )
 
         test("får ikke opprette avtale dersom det oppstår valideringsfeil") {
@@ -102,6 +105,20 @@ class AvtaleServiceTest : FunSpec({
                 ),
             )
         }
+
+        test("skedulerer publisering av gjennomføringer tilhørende avtalen") {
+            val request = AvtaleFixtures.avtaleRequest
+
+            avtaleService.upsert(request, bertilNavIdent)
+
+            verify {
+                gjennomforingPublisher.schedule(
+                    InitialLoadTiltaksgjennomforinger.Input(avtaleId = request.id),
+                    any(),
+                    any(),
+                )
+            }
+        }
     }
 
     context("Avbryte avtale") {
@@ -116,6 +133,7 @@ class AvtaleServiceTest : FunSpec({
             validator,
             EndringshistorikkService(database.db),
             database.db,
+            mockk(relaxed = true),
         )
 
         test("Man skal ikke få avbryte dersom avtalen ikke finnes") {
@@ -137,6 +155,7 @@ class AvtaleServiceTest : FunSpec({
                 validator,
                 EndringshistorikkService(database.db),
                 database.db,
+                mockk(relaxed = true),
             )
             val avtale = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
@@ -230,6 +249,7 @@ class AvtaleServiceTest : FunSpec({
             validator,
             EndringshistorikkService(database.db),
             database.db,
+            mockk(relaxed = true),
         )
         val navAnsattRepository = NavAnsattRepository(database.db)
 

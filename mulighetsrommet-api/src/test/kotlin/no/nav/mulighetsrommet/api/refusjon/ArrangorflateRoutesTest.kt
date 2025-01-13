@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.refusjon
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.ktor.client.engine.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -12,25 +12,32 @@ import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import kotliquery.Query
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedParty
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
+import no.nav.mulighetsrommet.api.arrangorflate.GodkjennRefusjonskrav
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravAft
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponseDokument
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.refusjon.db.DeltakerDbo
+import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
+import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag.Status
+import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravAft
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
+import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.domain.dto.amt.EndringAarsak
+import no.nav.mulighetsrommet.domain.dto.amt.Melding
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -58,6 +65,20 @@ class ArrangorflateRoutesTest : FunSpec({
         poststed = "Oslo",
         overordnetEnhet = hovedenhet.organisasjonsnummer,
     )
+    val deltaker = DeltakerDbo(
+        id = UUID.randomUUID(),
+        gjennomforingId = TiltaksgjennomforingFixtures.AFT1.id,
+        startDato = TiltaksgjennomforingFixtures.AFT1.startDato,
+        sluttDato = TiltaksgjennomforingFixtures.AFT1.sluttDato,
+        registrertTidspunkt = TiltaksgjennomforingFixtures.AFT1.startDato.atStartOfDay(),
+        endretTidspunkt = LocalDateTime.now(),
+        deltakelsesprosent = 100.0,
+        status = DeltakerStatus(
+            type = DeltakerStatus.Type.DELTAR,
+            aarsak = null,
+            opprettetDato = LocalDateTime.now(),
+        ),
+    )
     val krav = RefusjonskravDbo(
         id = UUID.randomUUID(),
         gjennomforingId = TiltaksgjennomforingFixtures.AFT1.id,
@@ -66,11 +87,27 @@ class ArrangorflateRoutesTest : FunSpec({
             input = RefusjonKravBeregningAft.Input(
                 periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2024, 8, 1)),
                 sats = 20205,
-                deltakelser = emptySet(),
+                deltakelser = setOf(
+                    DeltakelsePerioder(
+                        deltakelseId = deltaker.id,
+                        perioder = listOf(
+                            DeltakelsePeriode(
+                                start = LocalDate.of(2024, 8, 1),
+                                slutt = LocalDate.of(2024, 8, 31),
+                                deltakelsesprosent = 100.0,
+                            ),
+                        ),
+                    ),
+                ),
             ),
             output = RefusjonKravBeregningAft.Output(
                 belop = 0,
-                deltakelser = emptySet(),
+                deltakelser = setOf(
+                    DeltakelseManedsverk(
+                        deltakelseId = deltaker.id,
+                        manedsverk = 1.0,
+                    ),
+                ),
             ),
         ),
         kontonummer = Kontonummer("12312312312"),
@@ -88,7 +125,7 @@ class ArrangorflateRoutesTest : FunSpec({
             ),
         ),
         gjennomforinger = listOf(TiltaksgjennomforingFixtures.AFT1.copy(arrangorId = barnevernsNembda.id)),
-        deltakere = emptyList(),
+        deltakere = listOf(deltaker),
         arrangorer = listOf(hovedenhet, barnevernsNembda),
         refusjonskrav = listOf(krav),
     )
@@ -99,7 +136,7 @@ class ArrangorflateRoutesTest : FunSpec({
     }
 
     beforeEach {
-        database.db.truncateAll()
+        database.truncateAll()
         domain.initialize(database.db)
     }
 
@@ -159,12 +196,13 @@ class ArrangorflateRoutesTest : FunSpec({
         }
     }
 
-    test("401 Unauthorized med pid uten tilgang") {
+    test("200 OK og tom liste med pid uten tilgang") {
         withTestApplication(appConfig()) {
             val response = client.get("/api/v1/intern/arrangorflate/tilgang-arrangor") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922")).serialize())
             }
-            response.status shouldBe HttpStatusCode.Unauthorized
+            response.status shouldBe HttpStatusCode.OK
+            Json.decodeFromString<List<ArrangorDto>>(response.bodyAsText()) shouldHaveSize 0
         }
     }
 
@@ -182,13 +220,13 @@ class ArrangorflateRoutesTest : FunSpec({
         }
     }
 
-    test("401 hent krav uten tilgang til bedrift") {
+    test("403 hent krav uten tilgang til bedrift") {
         withTestApplication(appConfig()) {
             val response = client.get("/api/v1/intern/arrangorflate/refusjonskrav/${krav.id}") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922")).serialize())
                 contentType(ContentType.Application.Json)
             }
-            response.status shouldBe HttpStatusCode.Unauthorized
+            response.status shouldBe HttpStatusCode.Forbidden
         }
     }
 
@@ -200,7 +238,7 @@ class ArrangorflateRoutesTest : FunSpec({
             }
             response.status shouldBe HttpStatusCode.OK
             val responseBody = response.bodyAsText()
-            val kravResponse: RefusjonKravAft = Json.decodeFromString(responseBody)
+            val kravResponse: ArrFlateRefusjonKravAft = Json.decodeFromString(responseBody)
             kravResponse.id shouldBe krav.id
         }
     }
@@ -250,6 +288,11 @@ class ArrangorflateRoutesTest : FunSpec({
                 )
             }
             response.status shouldBe HttpStatusCode.OK
+
+            Query("select count(*) from scheduled_tasks where task_name = 'JournalforRefusjonskrav'")
+                .map { 1 }
+                .asList
+                .let { database.db.run(it) } shouldHaveSize 1
         }
     }
 
@@ -283,6 +326,42 @@ class ArrangorflateRoutesTest : FunSpec({
                 )
             }
             response.status shouldBe HttpStatusCode.OK
+        }
+    }
+
+    test("ikke lov å godkjenne når det finnes relevante forslag") {
+        val deltakerForslagRepository = DeltakerForslagRepository(database.db)
+        deltakerForslagRepository.upsert(
+            DeltakerForslag(
+                id = UUID.randomUUID(),
+                deltakerId = deltaker.id,
+                endring = Melding.Forslag.Endring.AvsluttDeltakelse(
+                    aarsak = EndringAarsak.Syk,
+                    harDeltatt = false,
+                ),
+                status = Status.VENTER_PA_SVAR,
+            ),
+        )
+        withTestApplication(appConfig()) {
+            val client = createClient {
+                install(ContentNegotiation) {
+                    json()
+                }
+            }
+            val response = client.post("/api/v1/intern/arrangorflate/refusjonskrav/${krav.id}/godkjenn-refusjon") {
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
+                contentType(ContentType.Application.Json)
+                setBody(
+                    GodkjennRefusjonskrav(
+                        digest = krav.beregning.getDigest(),
+                        betalingsinformasjon = GodkjennRefusjonskrav.Betalingsinformasjon(
+                            kontonummer = Kontonummer("12312312312"),
+                            kid = null,
+                        ),
+                    ),
+                )
+            }
+            response.status shouldBe HttpStatusCode.BadRequest
         }
     }
 })

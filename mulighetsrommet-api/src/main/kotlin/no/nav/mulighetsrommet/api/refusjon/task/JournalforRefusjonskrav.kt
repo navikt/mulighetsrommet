@@ -1,26 +1,23 @@
 package no.nav.mulighetsrommet.api.refusjon.task
 
-import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
+import kotliquery.TransactionalSession
+import no.nav.mulighetsrommet.api.arrangorflate.toRefusjonskrav
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.dokark.Journalpost
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.pdfgen.Pdfgen
+import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravAft
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravDto
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravStatus
-import no.nav.mulighetsrommet.api.refusjon.toRefusjonskrav
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
+import no.nav.mulighetsrommet.tasks.transactionalSchedulerClient
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
 import java.time.Instant
@@ -28,13 +25,13 @@ import java.time.LocalDateTime
 import java.util.*
 
 class JournalforRefusjonskrav(
-    database: Database,
     private val refusjonskravRepository: RefusjonskravRepository,
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val tilsagnService: TilsagnService,
     private val dokarkClient: DokarkClient,
     private val deltakerRepository: DeltakerRepository,
     private val pdl: HentAdressebeskyttetPersonBolkPdlQuery,
+    private val pdf: PdfGenClient,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -47,26 +44,24 @@ class JournalforRefusjonskrav(
     val task: OneTimeTask<TaskData> = Tasks
         .oneTime(javaClass.simpleName, TaskData::class.java)
         .executeSuspend { inst, _ ->
-            journalforRefusjonskrav(inst.data.refusjonskravId)
+            // TODO: Midlertidig avskrudd i påvente av endringer
+            // Vi skal få fagsystem hos dokarkiv
+            // journalforRefusjonskrav(inst.data.refusjonskravId)
         }
 
-    private val client = SchedulerClient.Builder
-        .create(database.getDatasource(), task)
-        .serializer(DbSchedulerKotlinSerializer())
-        .build()
-
-    fun schedule(refusjonskravId: UUID, startTime: Instant = Instant.now()): UUID {
+    fun schedule(refusjonskravId: UUID, startTime: Instant, tx: TransactionalSession): UUID {
         val id = UUID.randomUUID()
         val instance = task.instance(id.toString(), TaskData(refusjonskravId))
+        val client = transactionalSchedulerClient(task, tx.connection.underlying)
         client.scheduleIfNotExists(instance, startTime)
         return id
     }
 
     suspend fun journalforRefusjonskrav(id: UUID) {
         logger.info("Journalfører refusjonskrav med id: $id")
-        val krav = refusjonskravRepository.get(id)
-        requireNotNull(krav) { "Fant ikke refusjonskrav med id=$id" }
-        require(krav.status == RefusjonskravStatus.GODKJENT_AV_ARRANGOR) { "Krav må være godkjent" }
+
+        val krav = requireNotNull(refusjonskravRepository.get(id)) { "Fant ikke refusjonskrav med id=$id" }
+            .also { require(it.status == RefusjonskravStatus.GODKJENT_AV_ARRANGOR) { "Krav må være godkjent" } }
 
         val gjennomforing = tiltaksgjennomforingRepository.get(krav.gjennomforing.id)
         requireNotNull(gjennomforing) { "Fant ikke gjennomforing til refusjonskrav med id=$id" }
@@ -78,18 +73,13 @@ class JournalforRefusjonskrav(
                 gjennomforingId = krav.gjennomforing.id,
                 periode = krav.beregning.input.periode,
             )
-            when (krav.beregning) {
-                is RefusjonKravBeregningAft -> {
-                    val refusjonsKravAft: RefusjonKravAft = toRefusjonskrav(pdl, deltakerRepository, krav)
-                    Pdfgen.Aft.refusjonJournalpost(refusjonsKravAft, tilsagn)
-                }
-            }
+            val refusjonsKravAft = toRefusjonskrav(pdl, deltakerRepository, krav)
+            pdf.refusjonJournalpost(refusjonsKravAft, tilsagn)
         }
 
-        dokarkClient.opprettJournalpost(
-            refusjonskravJournalpost(pdf, krav.id, krav.arrangor, fagsakId),
-            AccessType.M2M,
-        )
+        val journalpost = refusjonskravJournalpost(pdf, krav.id, krav.arrangor, fagsakId)
+
+        dokarkClient.opprettJournalpost(journalpost, AccessType.M2M)
             .onRight {
                 refusjonskravRepository.setJournalpostId(id, it.journalpostId)
             }

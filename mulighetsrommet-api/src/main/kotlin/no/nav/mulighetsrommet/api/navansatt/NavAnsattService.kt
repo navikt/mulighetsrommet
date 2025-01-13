@@ -1,12 +1,12 @@
 package no.nav.mulighetsrommet.api.navansatt
 
-import kotliquery.Session
 import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRepository
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
@@ -14,6 +14,7 @@ import java.util.*
 
 class NavAnsattService(
     private val roles: List<AdGruppeNavAnsattRolleMapping>,
+    private val db: Database,
     private val microsoftGraphClient: MicrosoftGraphClient,
     private val navAnsattRepository: NavAnsattRepository,
 ) {
@@ -32,7 +33,7 @@ class NavAnsattService(
         return navAnsattRepository.getAll(roller = filter.roller)
     }
 
-    suspend fun addUserToKontaktpersoner(navIdent: NavIdent, tx: Session) {
+    suspend fun addUserToKontaktpersoner(navIdent: NavIdent) {
         val kontaktPersonGruppeId = roles.find { it.rolle == NavAnsattRolle.KONTAKTPERSON }?.adGruppeId
         requireNotNull(kontaktPersonGruppeId)
 
@@ -48,12 +49,15 @@ class NavAnsattService(
             return
         }
 
-        navAnsattRepository.upsert(
-            NavAnsattDbo.fromNavAnsattDto(ansatt).copy(roller = ansatt.roller.plus(NavAnsattRolle.KONTAKTPERSON)),
-            tx,
-        )
+        db.transactionSuspend { tx ->
+            val dbo = NavAnsattDbo.fromNavAnsattDto(ansatt).copy(
+                roller = ansatt.roller.plus(NavAnsattRolle.KONTAKTPERSON),
+            )
 
-        microsoftGraphClient.addToGroup(ansatt.azureId, kontaktPersonGruppeId)
+            navAnsattRepository.upsert(dbo, tx)
+
+            microsoftGraphClient.addToGroup(ansatt.azureId, kontaktPersonGruppeId)
+        }
     }
 
     suspend fun getNavAnsattFromAzureSok(query: String): List<NavAnsattDto> {

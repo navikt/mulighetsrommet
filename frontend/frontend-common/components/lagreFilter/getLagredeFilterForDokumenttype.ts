@@ -1,11 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import { LagretDokumenttype } from "@mr/api-client";
-import { LagretFilterService } from "@mr/api-client";
 import { QueryKeys } from "../../QueryKeys";
+import { LagretDokumenttype, LagretFilterService } from "@mr/api-client-v2";
 
 export function useGetLagredeFilterForDokumenttype(dokumenttype: LagretDokumenttype) {
-  return useQuery({
+  const query = useQuery({
     queryKey: QueryKeys.lagredeFilter(dokumenttype),
-    queryFn: () => LagretFilterService.getMineFilterForDokumenttype({ dokumenttype }),
+    queryFn: () => LagretFilterService.getMineFilterForDokumenttype<true>({ path: { dokumenttype } }),
   });
+
+  return {
+    ...query,
+    data: query.data?.data,
+  };
 }

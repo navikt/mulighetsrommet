@@ -95,7 +95,7 @@ function findArbeidsmarkedstiltak(id: string) {
 }
 
 function filtrerFritekst(gjennomforing: VeilederflateTiltak, sok: string): boolean {
-  return sok === "" || gjennomforing.tittel.toLocaleLowerCase().includes(sok.toLocaleLowerCase());
+  return sok === "" || gjennomforing.navn.toLocaleLowerCase().includes(sok.toLocaleLowerCase());
 }
 
 function filtrerInnsatsgruppe(

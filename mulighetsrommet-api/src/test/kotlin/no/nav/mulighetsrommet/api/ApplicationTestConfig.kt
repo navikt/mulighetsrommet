@@ -4,8 +4,8 @@ import io.ktor.server.application.*
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
-import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.database.kotest.extensions.createRandomDatabaseConfig
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.unleash.UnleashService
-import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
@@ -44,53 +43,6 @@ fun <R> withTestApplication(
 
 fun createTestApplicationConfig() = AppConfig(
     database = databaseConfig,
-    flyway = FlywayMigrationManager.MigrationConfig(),
-    auth = createAuthConfig(oauth = null, roles = listOf()),
-    kafka = createKafkaConfig(),
-    sanity = SanityClient.Config(projectId = "", token = "", dataset = "", apiVersion = ""),
-    veilarboppfolgingConfig = createServiceClientConfig("veilarboppfolging"),
-    veilarbvedtaksstotteConfig = createServiceClientConfig("veilarbvedtaksstotte"),
-    veilarbdialogConfig = createServiceClientConfig("veilarbdialog"),
-    amtDeltakerConfig = createServiceClientConfig("deltakelser"),
-    poaoTilgang = createServiceClientConfig("poaotilgang"),
-    msGraphConfig = createServiceClientConfig("ms-graph"),
-    arenaAdapter = createServiceClientConfig("arena-adapter"),
-    tiltakshistorikk = createServiceClientConfig("tiltakshistorikk"),
-    tasks = TaskConfig(
-        synchronizeNorgEnheter = SynchronizeNorgEnheter.Config(
-            delayOfMinutes = 10,
-            disabled = true,
-        ),
-        synchronizeNavAnsatte = SynchronizeNavAnsatte.Config(
-            disabled = true,
-        ),
-        synchronizeUtdanninger = SynchronizeUtdanninger.Config(
-            disabled = true,
-        ),
-        notifySluttdatoForGjennomforingerNarmerSeg = NotifySluttdatoForGjennomforingerNarmerSeg.Config(
-            disabled = true,
-        ),
-        notifySluttdatoForAvtalerNarmerSeg = NotifySluttdatoForAvtalerNarmerSeg.Config(disabled = true),
-        notifyFailedKafkaEvents = NotifyFailedKafkaEvents.Config(
-            disabled = true,
-            cronPattern = "",
-            maxRetries = 5,
-        ),
-        updateApentForPamelding = UpdateApentForPamelding.Config(
-            disabled = true,
-        ),
-        generateRefusjonskrav = GenerateRefusjonskrav.Config(
-            disabled = true,
-            cronPattern = null,
-        ),
-    ),
-    norg2 = Norg2Config(baseUrl = ""),
-    slack = SlackConfig(
-        token = "",
-        channel = "",
-        enable = false,
-    ),
-    brreg = BrregClient.Config(baseUrl = "brreg"),
     unleash = UnleashService.Config(
         appName = "",
         url = "http://localhost:8090",
@@ -98,30 +50,73 @@ fun createTestApplicationConfig() = AppConfig(
         instanceId = "",
         environment = "",
     ),
-    axsys = ServiceClientConfig(url = "", scope = ""),
-    pdl = ServiceClientConfig(url = "", scope = ""),
-    pamOntologi = createServiceClientConfig("pam-ontologi"),
-    utdanning = UtdanningClient.Config(
-        baseUrl = "",
+    flyway = FlywayMigrationManager.MigrationConfig(),
+    auth = createAuthConfig(oauth = null, roles = listOf()),
+    kafka = createKafkaConfig(),
+    tasks = createTaskConfig(),
+    sanity = SanityClient.Config(projectId = "", token = "", dataset = "", apiVersion = ""),
+    slack = SlackConfig(token = "", channel = "", enable = false),
+    altinn = AltinnClient.Config(url = "altinn", scope = "default", apiKey = "apiKey"),
+    veilarboppfolgingConfig = authenticatedHttpClientConfig("veilarboppfolging"),
+    veilarbvedtaksstotteConfig = authenticatedHttpClientConfig("veilarbvedtaksstotte"),
+    veilarbdialogConfig = authenticatedHttpClientConfig("veilarbdialog"),
+    amtDeltakerConfig = authenticatedHttpClientConfig("deltakelser"),
+    poaoTilgang = authenticatedHttpClientConfig("poaotilgang"),
+    msGraphConfig = authenticatedHttpClientConfig("ms-graph"),
+    arenaAdapter = authenticatedHttpClientConfig("arena-adapter"),
+    tiltakshistorikk = authenticatedHttpClientConfig("tiltakshistorikk"),
+    axsys = authenticatedHttpClientConfig("axsys"),
+    pdl = authenticatedHttpClientConfig("pdl"),
+    pamOntologi = authenticatedHttpClientConfig("pam-ontologi"),
+    isoppfolgingstilfelleConfig = authenticatedHttpClientConfig("isoppfolging"),
+    dokark = authenticatedHttpClientConfig("dokark"),
+    pdfgen = HttpClientConfig("pdfgen"),
+    norg2 = HttpClientConfig("norg2"),
+    brreg = HttpClientConfig("brreg"),
+    utdanning = HttpClientConfig("utdanning.no"),
+)
+
+private fun createTaskConfig() = TaskConfig(
+    synchronizeNorgEnheter = SynchronizeNorgEnheter.Config(
+        delayOfMinutes = 10,
+        disabled = true,
     ),
-    altinn = AltinnClient.Config(
-        url = "altinn",
-        scope = "default",
-        apiKey = "apiKey",
+    synchronizeNavAnsatte = SynchronizeNavAnsatte.Config(
+        disabled = true,
     ),
-    isoppfolgingstilfelleConfig = ServiceClientConfig(
-        url = "isoppfolgingstilfelleConfig",
-        scope = "default",
+    synchronizeUtdanninger = SynchronizeUtdanninger.Config(
+        disabled = true,
     ),
-    dokark = ServiceClientConfig(
-        url = "dokark",
-        scope = "default",
+    notifySluttdatoForGjennomforingerNarmerSeg = NotifySluttdatoForGjennomforingerNarmerSeg.Config(
+        disabled = true,
+    ),
+    notifySluttdatoForAvtalerNarmerSeg = NotifySluttdatoForAvtalerNarmerSeg.Config(disabled = true),
+    notifyFailedKafkaEvents = NotifyFailedKafkaEvents.Config(
+        disabled = true,
+        cronPattern = "",
+        maxRetries = 5,
+    ),
+    updateApentForPamelding = UpdateApentForPamelding.Config(
+        disabled = true,
+    ),
+    generateRefusjonskrav = GenerateRefusjonskrav.Config(
+        disabled = true,
+        cronPattern = null,
     ),
 )
 
 fun createKafkaConfig(): KafkaConfig = KafkaConfig(
     brokerUrl = "localhost:29092",
+    defaultConsumerGroupId = "mulighetsrommet-api-consumer",
     producerId = "mulighetsrommet-api-producer",
+    clients = KafkaClients(
+        dvhGjennomforing = DatavarehusTiltakV1KafkaProducer.Config(
+            consumerId = "dvh-gjennomforing-consumer",
+            consumerGroupId = "mulighetsrommet-api.dvh-gjennomforing.v1",
+            consumerTopic = "siste-tiltaksgjennomforinger-v1",
+            producerTopic = "dvh-gjennomforinger-v1",
+        ),
+    ),
     producers = KafkaProducers(
         tiltaksgjennomforinger = SisteTiltaksgjennomforingerV1KafkaProducer.Config(topic = "siste-tiltaksgjennomforinger-v1"),
         tiltakstyper = SisteTiltakstyperV2KafkaProducer.Config(topic = "siste-tiltakstyper-v2"),
@@ -129,7 +124,6 @@ fun createKafkaConfig(): KafkaConfig = KafkaConfig(
             topic = "arena-migrering-tiltaksgjennomforinger-v1",
         ),
     ),
-    defaultConsumerGroupId = "mulighetsrommet-api-consumer",
     consumers = KafkaConsumers(
         tiltaksgjennomforingerV1 = KafkaTopicConsumer.Config(
             id = "siste-tiltaksgjennomforinger",
@@ -137,10 +131,11 @@ fun createKafkaConfig(): KafkaConfig = KafkaConfig(
         ),
         amtDeltakerV1 = KafkaTopicConsumer.Config(id = "amt-deltaker", topic = "amt-deltaker"),
         amtVirksomheterV1 = KafkaTopicConsumer.Config(id = "amt-virksomheter", topic = "amt-virksomheter"),
+        amtArrangorMeldingV1 = KafkaTopicConsumer.Config(id = "amt-arrangor-melding", topic = "amt-arrangor-melding"),
     ),
 )
 
-fun createServiceClientConfig(url: String): ServiceClientConfig = ServiceClientConfig(
+fun authenticatedHttpClientConfig(url: String): AuthenticatedHttpClientConfig = AuthenticatedHttpClientConfig(
     url = url,
     scope = "",
 )

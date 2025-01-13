@@ -1,4 +1,4 @@
-import { useSearchParams } from "@remix-run/react";
+import { useSearchParams } from "react-router";
 import { useEffect } from "react";
 import { Tabs } from "../routes/$orgnr_.refusjonskrav";
 

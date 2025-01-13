@@ -3,7 +3,7 @@ import {
   Tiltakskode,
   TiltakskodeArena,
   ValidationErrorResponse,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { shallowEquals } from "./shallow-equals";
 
 export function addOrRemove<T>(array: T[], item: T): T[] {

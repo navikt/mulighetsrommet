@@ -7,7 +7,6 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.services.cms.CacheUsage
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.veilederflate.TiltaksnavnUtils.tittelOgUnderTittel
 import no.nav.mulighetsrommet.api.veilederflate.models.DelMedBrukerDbo
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
@@ -169,15 +168,8 @@ class DelMedBrukerService(
             .let { db.run(it) }
             .flatMap { (id, tiltak) ->
                 deltMedBruker.filter { it.tiltaksgjennomforingId == id }.map {
-                    val (tittel, underTittel) = tittelOgUnderTittel(
-                        tiltak.navn,
-                        tiltak.tiltakstypeNavn,
-                        tiltak.tiltakskode,
-                    )
-
                     TiltakDeltMedBruker(
-                        tittel = tittel,
-                        underTittel = underTittel,
+                        navn = tiltak.navn,
                         createdAt = it.createdAt!!,
                         dialogId = it.dialogId,
                         tiltakId = id,
@@ -205,16 +197,9 @@ class DelMedBrukerService(
         return tiltakFraSanity.map { tiltak ->
             val arenaKode = tiltakstyper.getValue(UUID.fromString(tiltak.tiltakstype._id)).arenaKode
 
-            val (tittel, underTittel) = tittelOgUnderTittel(
-                tiltak.tiltaksgjennomforingNavn ?: "",
-                tiltak.tiltakstype.tiltakstypeNavn,
-                arenaKode,
-            )
-
             deltMedBruker.filter { it.sanityId == tiltak._id.toUUID() }.map {
                 TiltakDeltMedBruker(
-                    tittel = tittel,
-                    underTittel = underTittel,
+                    navn = tiltak.tiltaksgjennomforingNavn ?: "",
                     createdAt = it.createdAt!!,
                     dialogId = it.dialogId,
                     tiltakId = tiltak._id.toUUID(),
@@ -254,8 +239,7 @@ private fun Row.toDelMedBruker(): DelMedBrukerDbo = DelMedBrukerDbo(
 
 @Serializable
 data class TiltakDeltMedBruker(
-    val tittel: String,
-    val underTittel: String,
+    val navn: String,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
     val dialogId: String,

@@ -1,25 +1,29 @@
-import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
-import { LoaderFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client-v2";
+import { LoaderFunction } from "react-router";
+import { useLoaderData } from "react-router";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
-import { checkValidToken } from "../auth/auth.server";
 import { PageHeader } from "../components/PageHeader";
 import { internalNavigation } from "../internal-navigation";
 import { useOrgnrFromUrl } from "../utils";
+import { apiHeaders } from "~/auth/auth.server";
+import { TilsagnStatusTag } from "~/components/tilsagn/TilsagnStatusTag";
 
 type LoaderData = {
   tilsagn: ArrangorflateTilsagn;
 };
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
-  await checkValidToken(request);
-
   const { id } = params;
-  if (!id) {
-    throw Error("Mangler id");
+  if (!id) throw Error("Mangler id");
+
+  const { data: tilsagn, error } = await ArrangorflateService.getArrangorflateTilsagn({
+    path: { id },
+    headers: await apiHeaders(request),
+  });
+  if (error || !tilsagn) {
+    throw error;
   }
-  const tilsagn = await ArrangorflateService.getArrangorflateTilsagn({ id });
 
   return { tilsagn };
 };
@@ -37,6 +41,7 @@ export default function TilsagnDetaljerPage() {
           url: internalNavigation(orgnr).root,
         }}
       />
+      <TilsagnStatusTag data={tilsagn.status} />
       <Definisjonsliste
         className="mt-4"
         definitions={[

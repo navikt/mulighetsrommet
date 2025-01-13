@@ -46,7 +46,7 @@ export default ts.config(
     },
   },
   {
-    files: ["server.js"],
+    files: ["server/**"],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "module",

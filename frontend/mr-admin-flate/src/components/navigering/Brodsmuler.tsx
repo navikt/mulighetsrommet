@@ -1,5 +1,5 @@
 import { ArrowRightIcon } from "@navikt/aksel-icons";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import styles from "./Brodsmuler.module.scss";
 
 type Id = string;
@@ -33,7 +33,7 @@ export function Brodsmuler({ brodsmuler }: Props) {
     <nav aria-label="Brødsmulesti" className={styles.navContainer}>
       <ol className={styles.container}>
         {filtrerteBrodsmuler.filter(erBrodsmule).map((item, index) => {
-          const erSisteBrodsmule = index > 0 && index === filtrerteBrodsmuler.length - 1;
+          const erSisteBrodsmule = index >= 0 && index === filtrerteBrodsmuler.length - 1;
           return (
             <li key={index}>
               {erSisteBrodsmule ? (

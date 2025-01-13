@@ -1,4 +1,4 @@
-import { RefusjonKravKompakt, RefusjonskravStatus } from "@mr/api-client";
+import { ArrFlateRefusjonKravKompakt, RefusjonskravStatus } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, Table, Tag } from "@navikt/ds-react";
 import React, { ReactNode } from "react";
@@ -7,7 +7,7 @@ import { internalNavigation } from "~/internal-navigation";
 import { LinkWithTabState } from "../LinkWithTabState";
 
 interface Props {
-  krav: RefusjonKravKompakt[];
+  krav: ArrFlateRefusjonKravKompakt[];
 }
 
 export function RefusjonskravTable({ krav }: Props) {

@@ -1,3 +1,12 @@
+import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
+import { useUpsertArrangorKontaktperson } from "@/api/arrangor/useUpsertArrangorKontaktperson";
+import {
+  ApiError,
+  Arrangor,
+  ArrangorKontaktperson,
+  ArrangorKontaktpersonAnsvar,
+} from "@mr/api-client";
+import { isValidationError } from "@mr/frontend-common/utils/utils";
 import {
   Button,
   HStack,
@@ -8,14 +17,10 @@ import {
   UNSAFE_Combobox,
   VStack,
 } from "@navikt/ds-react";
-import { Arrangor, ArrangorKontaktperson, ArrangorKontaktpersonAnsvar } from "@mr/api-client";
 import { RefObject, useRef, useState } from "react";
 import { z } from "zod";
-import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
-import { useUpsertArrangorKontaktperson } from "@/api/arrangor/useUpsertArrangorKontaktperson";
-import { useHandleApiUpsertResponse } from "@/api/effects";
-import { SlettKontaktpersonModal } from "./SlettKontaktpersonModal";
 import { navnForAnsvar } from "./ArrangorKontaktpersonUtils";
+import { SlettKontaktpersonModal } from "./SlettKontaktpersonModal";
 
 interface Props {
   arrangor: Arrangor;
@@ -242,22 +247,25 @@ function RedigerbarRad({ kontaktperson, setRedigerKontaktperson, arrangor }: Red
 
       return;
     }
-    mutation.mutate(state);
+    mutation.mutate(state, {
+      onSuccess,
+      onError,
+    });
   }
 
-  useHandleApiUpsertResponse(
-    mutation,
-    () => {
-      setRedigerKontaktperson(undefined);
-      mutation.reset();
-    },
-    (validation) => {
-      const errors = validation.errors.reduce((errors: Record<string, string>, error) => {
+  const onSuccess = () => {
+    setRedigerKontaktperson(undefined);
+    mutation.reset();
+  };
+
+  const onError = (error: ApiError) => {
+    if (isValidationError(error)) {
+      const errors = error.errors.reduce((errors: Record<string, string>, error) => {
         return { ...errors, [error.name]: error.message };
       }, {});
       setState({ ...state, errors });
-    },
-  );
+    }
+  };
 
   return (
     <Table.Row key={kontaktperson.id}>

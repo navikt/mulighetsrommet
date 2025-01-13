@@ -1,38 +1,30 @@
-import { Alert, Heading, Tabs } from "@navikt/ds-react";
-import { useTitle } from "@mr/frontend-common";
-import { Link, Outlet, useLocation, useMatch } from "react-router-dom";
-import { useTiltakstypeById } from "@/api/tiltakstyper/useTiltakstypeById";
 import { Header } from "@/components/detaljside/Header";
-import { Laster } from "@/components/laster/Laster";
+import { TiltakstypeIkon } from "@/components/ikoner/TiltakstypeIkon";
+import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TiltakstypestatusTag } from "@/components/statuselementer/TiltakstypestatusTag";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
-import { ContainerLayout } from "@/layouts/ContainerLayout";
+import { useTitle } from "@mr/frontend-common";
+import { Alert, Heading, Tabs } from "@navikt/ds-react";
+import { Link, Outlet, useLoaderData, useLocation, useMatch } from "react-router";
 import commonStyles from "../Page.module.scss";
-import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { TiltakstypeIkon } from "@/components/ikoner/TiltakstypeIkon";
+import { tiltakstypeLoader } from "./tiltakstyperLoaders";
+import { ContentBox } from "@/layouts/ContentBox";
 
 function useTiltakstypeBrodsmuler(tiltakstypeId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/tiltakstyper/:tiltakstypeId/avtaler");
   return [
-    { tittel: "Forside", lenke: "/" },
     { tittel: "Tiltakstyper", lenke: "/tiltakstyper" },
-    { tittel: "Tiltakstypedetaljer", lenke: `/tiltakstyper/${tiltakstypeId}` },
-    match
-      ? { tittel: "Tiltaktypens avtaler", lenke: `/tiltakstyper/${tiltakstypeId}/avtaler` }
-      : undefined,
+    { tittel: "Tiltakstype", lenke: `/tiltakstyper/${tiltakstypeId}` },
+    match ? { tittel: "Avtaler", lenke: `/tiltakstyper/${tiltakstypeId}/avtaler` } : undefined,
   ];
 }
 
 export function DetaljerTiltakstypePage() {
   const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
-  const { data: tiltakstype, isLoading } = useTiltakstypeById();
+  const tiltakstype = useLoaderData<typeof tiltakstypeLoader>();
   useTitle(`Tiltakstyper ${tiltakstype?.navn ? `- ${tiltakstype.navn}` : ""}`);
   const brodsmuler = useTiltakstypeBrodsmuler(tiltakstype?.id);
-
-  if (!tiltakstype && isLoading) {
-    return <Laster tekst="Laster tiltakstype" />;
-  }
 
   if (!tiltakstype) {
     return (
@@ -71,11 +63,11 @@ export function DetaljerTiltakstypePage() {
             aria-controls="panel"
           />
         </Tabs.List>
-        <ContainerLayout>
+        <ContentBox>
           <div id="panel">
             <Outlet />
           </div>
-        </ContainerLayout>
+        </ContentBox>
       </Tabs>
     </main>
   );

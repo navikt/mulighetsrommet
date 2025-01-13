@@ -62,9 +62,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.arrow.core)
     implementation(libs.arrow.core.serialization)
-    implementation(libs.pdfgen.core)
-    implementation(libs.verapdf)
-    implementation(libs.handlebars)
 
     // Logging
     implementation(libs.bundles.logging)
@@ -117,7 +114,7 @@ dependencies {
         implementation("org.yaml:snakeyaml:2.3") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
-        implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.1") {
+        implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.2") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }

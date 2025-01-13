@@ -7,8 +7,10 @@ import {
   ForerkortKlasse,
   InnholdElement,
   Kurstype,
+  TilsagnAvvisningAarsak,
+  TilsagnTilAnnulleringAarsak,
 } from "@mr/api-client";
-import { AvtaleFilter, TiltaksgjennomforingFilter } from "@/api/atoms";
+import { AvtaleFilter, GjennomforingFilter } from "@/api/atoms";
 
 export function capitalize(text?: string): string {
   return text ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase() : "";
@@ -26,7 +28,9 @@ export function capitalizeEveryWord(text: string = "", ignoreWords: string[] = [
     ?.join(" ");
 }
 
-export function formaterDato(dato: string | Date): string {
+export function formaterDato(dato: string | Date | undefined | null): string {
+  if (!dato) return "";
+
   const result = new Date(dato).toLocaleString("no-NO", {
     year: "numeric",
     month: "2-digit",
@@ -121,6 +125,12 @@ export function addYear(date: Date, numYears: number): Date {
   return newDate;
 }
 
+export function addMonths(date: Date, numOfMonths: number): Date {
+  const newDate = new Date(date);
+  newDate.setMonth(date.getMonth() + numOfMonths);
+  return newDate;
+}
+
 export function subtractMonths(date: Date, numMonths: number): Date {
   const newDate = new Date(date);
   newDate.setMonth(date.getMonth() - numMonths);
@@ -200,7 +210,7 @@ export function createQueryParamsForExcelDownloadForAvtale(filter: AvtaleFilter)
 }
 
 export function createQueryParamsForExcelDownloadForTiltaksgjennomforing(
-  filter: TiltaksgjennomforingFilter,
+  filter: GjennomforingFilter,
 ): URLSearchParams {
   const queryParams = new URLSearchParams();
 
@@ -365,4 +375,27 @@ export function getPublisertStatus(statuser: string[] = []): boolean | null {
   if (statuser.every((status) => status === "ikke-publisert")) return false;
 
   return null;
+}
+
+export function tilsagnAarsakTilTekst(
+  aarsak: TilsagnAvvisningAarsak | TilsagnTilAnnulleringAarsak,
+): string {
+  switch (aarsak) {
+    case TilsagnAvvisningAarsak.FEIL_PERIODE:
+      return "Feil periode";
+    case TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER:
+      return "Feil antall plasser";
+    case TilsagnAvvisningAarsak.FEIL_KOSTNADSSTED:
+      return "Feil kostnadssted";
+    case TilsagnAvvisningAarsak.FEIL_BELOP:
+      return "Feil beløp";
+    case TilsagnAvvisningAarsak.FEIL_ANNET:
+      return "Annet";
+    case TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING:
+      return "Feilregistrering";
+    case TilsagnTilAnnulleringAarsak.GJENNOMFORING_AVBRYTES:
+      return "Tiltaksgjennomføring skal avbrytes";
+    case TilsagnTilAnnulleringAarsak.FEIL_ANNET:
+      return "Annet";
+  }
 }

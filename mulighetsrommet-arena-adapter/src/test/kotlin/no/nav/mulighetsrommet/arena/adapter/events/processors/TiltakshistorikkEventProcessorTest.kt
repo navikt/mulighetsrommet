@@ -30,7 +30,6 @@ import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsFnr
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
@@ -45,7 +44,7 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     afterEach {
-        database.db.truncateAll()
+        database.truncateAll()
     }
 
     context("handleEvent") {

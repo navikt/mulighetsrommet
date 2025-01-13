@@ -18,7 +18,6 @@ import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import java.time.LocalDate
 
@@ -47,7 +46,7 @@ class ArrangorServiceTest : FunSpec({
 
         afterEach {
             clearAllMocks()
-            database.db.truncateAll()
+            database.truncateAll()
         }
 
         test("skal synkronisere hovedenhet uten underenheter fra brreg til databasen gitt orgnr til hovedenhet") {

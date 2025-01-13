@@ -2,7 +2,7 @@ import { UNSAFE_Combobox } from "@navikt/ds-react";
 import { ForerkortKlasse } from "@mr/api-client";
 import { FieldValues, Path, PathValue, useFormContext } from "react-hook-form";
 import { forerkortKlasseToString } from "../../utils/Utils";
-import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
+import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 
 export function ForerkortSkjema<T extends FieldValues>(props: {
   path: Path<T>;
@@ -17,7 +17,7 @@ export function ForerkortSkjema<T extends FieldValues>(props: {
     <UNSAFE_Combobox
       clearButton
       size="small"
-      label={tiltaktekster.forerkortLabel}
+      label={gjennomforingTekster.forerkortLabel}
       isMultiSelect
       options={(
         options ?? [

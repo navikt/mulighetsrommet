@@ -10,6 +10,7 @@ spec:
   port: 8080
   ingresses:
     - https://nav-arbeidsmarkedstiltak.intern.nav.no
+    - https://nav-arbeidsmarkedstiltak.ansatt.nav.no
   liveness:
     path: /internal/alive
     initialDelay: 10

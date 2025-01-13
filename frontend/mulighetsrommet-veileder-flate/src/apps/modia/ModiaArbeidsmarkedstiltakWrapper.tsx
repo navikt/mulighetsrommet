@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router";
 import { createRoot, Root } from "react-dom/client";
 import createCache from "@emotion/cache";
 import { ModiaContext } from "@/apps/modia/ModiaContext";

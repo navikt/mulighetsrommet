@@ -5,98 +5,82 @@ import arrow.core.left
 import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.right
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.okonomi.Prismodell
-import no.nav.mulighetsrommet.api.okonomi.Prismodell.TilsagnBeregning
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningInput
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBesluttelseStatus
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
+import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dto.NavIdent
 
-class TilsagnValidator(
-    val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
-) {
+object TilsagnValidator {
     fun validate(
-        request: TilsagnRequest,
+        next: TilsagnDbo,
         previous: TilsagnDto?,
-        navIdent: NavIdent,
     ): Either<List<ValidationError>, TilsagnDbo> = either {
-        val gjennomforing = tiltaksgjennomforingRepository.get(request.tiltaksgjennomforingId)
-            ?: return@validate ValidationError
-                .of(TilsagnRequest::tiltaksgjennomforingId, "Tiltaksgjennomforingen finnes ikke")
-                .nel()
-                .left()
-
-        if (previous?.besluttelse?.status == TilsagnBesluttelseStatus.GODKJENT) {
+        if (previous != null && previous.status !is TilsagnDto.TilsagnStatus.Returnert) {
             return ValidationError
-                .of(TilsagnDto::id, "Tilsagnet er godkjent og kan ikke endres.")
+                .of(TilsagnDto::id, "Tilsagnet kan ikke endres.")
                 .nel()
                 .left()
         }
-        if (previous?.annullertTidspunkt != null) {
-            return ValidationError
-                .of(TilsagnDto::id, "Tilsagnet er annullert og kan ikke endres.")
-                .nel()
-                .left()
-        }
-
-        when (request.beregning) {
-            is TilsagnBeregning.AFT -> {
-                if (gjennomforing.tiltakstype.tiltakskode != Tiltakskode.ARBEIDSFORBEREDENDE_TRENING) {
-                    return ValidationError
-                        .of(TilsagnDto::id, "Feil prismodell")
-                        .nel()
-                        .left()
-                }
-            }
-
-            is TilsagnBeregning.Fri -> {
-                if (gjennomforing.tiltakstype.tiltakskode == Tiltakskode.ARBEIDSFORBEREDENDE_TRENING) {
-                    return ValidationError
-                        .of(TilsagnDto::id, "Feil prismodell")
-                        .nel()
-                        .left()
-                }
-            }
-        }
-
-        val next = request.toDbo(navIdent, gjennomforing.arrangor.id)
 
         val errors = buildList {
             if (next.periodeStart.year != next.periodeSlutt.year) {
-                add(ValidationError.of(TilsagnDto::periodeSlutt, "Perioden kan ikke gå over flere år"))
+                add(
+                    ValidationError.of(
+                        TilsagnRequest::periodeSlutt,
+                        "Tilsagnsperioden kan ikke vare utover årsskiftet",
+                    ),
+                )
             }
         }
 
         return errors.takeIf { it.isNotEmpty() }?.left() ?: next.right()
     }
 
+    fun validateForhandsgodkjentSats(
+        tiltakskode: Tiltakskode,
+        input: TilsagnBeregningForhandsgodkjent.Input,
+    ): Either<List<ValidationError>, TilsagnBeregningForhandsgodkjent.Input> = either {
+        val errors = buildList {
+            val satsPeriodeStart = ForhandsgodkjenteSatser.findSats(tiltakskode, input.periodeStart)
+            if (satsPeriodeStart == null) {
+                add(ValidationError.ofCustomLocation("periodeStart", "Sats mangler for valgt periode"))
+            }
+
+            val satsPeriodeSlutt = ForhandsgodkjenteSatser.findSats(tiltakskode, input.periodeSlutt)
+            if (satsPeriodeSlutt == null) {
+                add(ValidationError.ofCustomLocation("periodeSlutt", "Sats mangler for valgt periode"))
+            }
+
+            if (satsPeriodeStart != satsPeriodeSlutt) {
+                add(ValidationError.ofCustomLocation("periodeSlutt", "Periode går over flere satser"))
+            }
+        }
+
+        return errors.takeIf { it.isNotEmpty() }?.left() ?: input.right()
+    }
+
     fun validateBeregningInput(input: TilsagnBeregningInput): Either<List<ValidationError>, TilsagnBeregningInput> = either {
         return when (input) {
-            is TilsagnBeregningInput.AFT -> validateAFTTilsagnBeregningInput(input)
-            is TilsagnBeregningInput.Fri -> input.right()
+            is TilsagnBeregningForhandsgodkjent.Input -> validateAFTTilsagnBeregningInput(input)
+            is TilsagnBeregningFri.Input -> input.right()
         }
     }
 
-    private fun validateAFTTilsagnBeregningInput(input: TilsagnBeregningInput.AFT): Either<List<ValidationError>, TilsagnBeregningInput> = either {
+    private fun validateAFTTilsagnBeregningInput(input: TilsagnBeregningForhandsgodkjent.Input): Either<List<ValidationError>, TilsagnBeregningInput> = either {
         val errors = buildList {
             if (input.periodeStart.year != input.periodeSlutt.year) {
-                add(ValidationError.of(TilsagnBeregningInput.AFT::periodeSlutt, "Perioden kan ikke gå over flere år"))
+                add(
+                    ValidationError.ofCustomLocation(
+                        "periodeSlutt",
+                        "Tilsagnsperioden kan ikke vare utover årsskiftet",
+                    ),
+                )
             }
             if (input.periodeStart.isAfter(input.periodeSlutt)) {
-                add(ValidationError.of(TilsagnBeregningInput.AFT::periodeSlutt, "Slutt kan ikke være før start"))
+                add(ValidationError.ofCustomLocation("periodeSlutt", "Slutt kan ikke være før start"))
             }
             if (input.antallPlasser <= 0) {
-                add(ValidationError.of(TilsagnBeregningInput.AFT::antallPlasser, "Antall plasser kan ikke være 0"))
-            }
-            if (Prismodell.AFT.findSats(input.periodeStart) != input.sats) {
-                add(ValidationError.ofCustomLocation("beregning.sats", "Feil sats for valgt periode"))
-            }
-            if (Prismodell.AFT.findSats(input.periodeStart) != Prismodell.AFT.findSats(input.periodeSlutt)) {
-                add(ValidationError.of(TilsagnBeregningInput.AFT::periodeStart, "Periode går over flere satser"))
+                add(ValidationError.ofCustomLocation("beregning.antallPlasser", "Antall plasser kan ikke være 0"))
             }
         }
 

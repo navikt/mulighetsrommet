@@ -11,12 +11,9 @@ import { FilterAccordionHeader } from "./components/filter/accordionHeader/Filte
 import { GjennomforingStatusTag } from "./components/gjennomforing/GjennomforingStatusTag";
 import { GjennomforingStatusMedAarsakTag } from "./components/gjennomforing/GjennomforingStatusMedAarsakTag";
 import { FilterSkeleton } from "./components/skeleton/FilterSkeleton";
-import { Drawer } from "./components/drawer/Drawer";
 import {
   InlineErrorBoundary,
-  InlineFallback,
   ReloadAppErrorBoundary,
-  ReloadAppFallback,
 } from "./components/error-handling/ErrorBoundary";
 import { OversiktSkeleton } from "./components/skeleton/OversiktSkeleton";
 import { DetaljerSkeleton } from "./components/skeleton/DetaljerSkeleton";
@@ -40,11 +37,8 @@ export {
   FilterTagsContainer,
   FilterAccordionHeader,
   FilterSkeleton,
-  Drawer,
   ReloadAppErrorBoundary,
   InlineErrorBoundary,
-  InlineFallback,
-  ReloadAppFallback,
   OversiktSkeleton,
   DetaljerSkeleton,
   ListSkeleton,

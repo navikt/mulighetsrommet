@@ -1,26 +1,24 @@
-import { useAvtale } from "@/api/avtaler/useAvtale";
 import { getDisplayName } from "@/api/enhet/helpers";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
 import { OpsjonerRegistrert } from "@/components/avtaler/opsjoner/OpsjonerRegistrert";
+import { opsjonsmodellTilTekst } from "@/components/avtaler/opsjoner/opsjonsmodeller";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
-import { Laster } from "@/components/laster/Laster";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { DetaljerContainer } from "@/pages/DetaljerContainer";
-import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
-import { ArrangorKontaktinfoContainer } from "@/pages/arrangor/ArrangorKontaktinfoContainer";
+import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { avtaletypeTilTekst, formaterDato } from "@/utils/Utils";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
 import { Avtaletype, NavEnhet } from "@mr/api-client";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
 import { Fragment } from "react";
-import { Link } from "react-router-dom";
-import { opsjonsmodellTilTekst } from "@/components/avtaler/opsjoner/opsjonsmodeller";
+import { Link } from "react-router";
+import { useAvtale } from "@/api/avtaler/useAvtale";
+import { Laster } from "@/components/laster/Laster";
 import styles from "./AvtaleDetaljer.module.scss";
-import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
+import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
@@ -54,8 +52,8 @@ export function AvtaleDetaljer() {
   } = avtale;
 
   return (
-    <DetaljerContainer>
-      <DetaljerInfoContainer>
+    <TwoColumnGrid separator>
+      <VStack>
         <Bolk aria-label="Avtalenavn">
           <Metadata header={avtaletekster.avtalenavnLabel} verdi={navn} />
         </Bolk>
@@ -168,9 +166,8 @@ export function AvtaleDetaljer() {
             </Bolk>
           ) : null}
         </VStack>
-      </DetaljerInfoContainer>
-
-      <DetaljerInfoContainer>
+      </VStack>
+      <VStack>
         {kontorstruktur.length > 1 ? (
           <Metadata
             header={avtaletekster.fylkessamarbeidLabel}
@@ -254,18 +251,18 @@ export function AvtaleDetaljer() {
           <Metadata
             header={avtaletekster.kontaktpersonerHosTiltaksarrangorLabel}
             verdi={
-              <ArrangorKontaktinfoContainer>
+              <VStack>
                 {arrangor.kontaktpersoner.map((kontaktperson) => (
                   <ArrangorKontaktpersonDetaljer
                     key={kontaktperson.id}
                     kontaktperson={kontaktperson}
                   />
                 ))}
-              </ArrangorKontaktinfoContainer>
+              </VStack>
             }
           />
         )}
-      </DetaljerInfoContainer>
-    </DetaljerContainer>
+      </VStack>
+    </TwoColumnGrid>
   );
 }

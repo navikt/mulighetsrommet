@@ -1,133 +1,232 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.right
+import arrow.core.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
+import kotliquery.TransactionalSession
+import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.okonomi.BestillingDto
 import no.nav.mulighetsrommet.api.okonomi.OkonomiClient
-import no.nav.mulighetsrommet.api.okonomi.Prismodell
-import no.nav.mulighetsrommet.api.okonomi.Prismodell.TilsagnBeregning
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.responses.*
+import no.nav.mulighetsrommet.api.services.DocumentClass
+import no.nav.mulighetsrommet.api.services.EndretAv
+import no.nav.mulighetsrommet.api.services.EndringshistorikkService
+import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import java.time.LocalDateTime
 import java.util.*
 
 class TilsagnService(
     private val tilsagnRepository: TilsagnRepository,
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
-    private val validator: TilsagnValidator,
+    private val endringshistorikkService: EndringshistorikkService,
     private val db: Database,
 ) {
     suspend fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<ValidationError>, TilsagnDto> {
+        val gjennomforing = tiltaksgjennomforingRepository.get(request.gjennomforingId)
+            ?: return ValidationError
+                .of(TilsagnRequest::gjennomforingId, "Tiltaksgjennomforingen finnes ikke")
+                .nel()
+                .left()
+
         val previous = tilsagnRepository.get(request.id)
 
-        return validator.validate(request, previous, navIdent)
-            .map {
+        val beregningInput = request.beregning
+
+        return validateGjennomforingBeregningInput(gjennomforing, beregningInput)
+            .flatMap { beregnTilsagn(beregningInput) }
+            .map { beregning ->
+                TilsagnDbo(
+                    id = request.id,
+                    tiltaksgjennomforingId = request.gjennomforingId,
+                    type = request.type,
+                    periodeStart = request.periodeStart,
+                    periodeSlutt = request.periodeSlutt,
+                    kostnadssted = request.kostnadssted,
+                    beregning = beregning,
+                    endretAv = navIdent,
+                    // TODO: flytt til db
+                    endretTidspunkt = LocalDateTime.now(),
+                    arrangorId = gjennomforing.arrangor.id,
+                )
+            }
+            .flatMap { dbo ->
+                TilsagnValidator.validate(dbo, previous)
+            }
+            .map { dbo ->
                 db.transactionSuspend { tx ->
-                    tilsagnRepository.upsert(it, tx)
+                    tilsagnRepository.upsert(dbo, tx)
 
-                    val dto = tilsagnRepository.get(it.id, tx)
-                    requireNotNull(dto) { "Fant ikke tilsagn etter upsert id=${it.id}" }
+                    val dto = getOrError(dbo.id, tx)
 
+                    logEndring("Sendt til godkjenning", dto, EndretAv.NavAnsatt(navIdent), tx)
                     dto
                 }
             }
     }
 
-    fun tilsagnBeregning(input: TilsagnBeregningInput): Either<List<ValidationError>, TilsagnBeregning> {
-        return validator.validateBeregningInput(input)
+    fun beregnTilsagn(input: TilsagnBeregningInput): Either<List<ValidationError>, TilsagnBeregning> {
+        return TilsagnValidator.validateBeregningInput(input)
             .map {
                 when (input) {
-                    is TilsagnBeregningInput.AFT -> aftTilsagnBeregning(input)
-                    is TilsagnBeregningInput.Fri -> TilsagnBeregning.Fri(input.belop)
+                    is TilsagnBeregningForhandsgodkjent.Input -> TilsagnBeregningForhandsgodkjent.beregn(input)
+                    is TilsagnBeregningFri.Input -> TilsagnBeregningFri.beregn(input)
                 }
             }
-    }
-
-    private fun aftTilsagnBeregning(input: TilsagnBeregningInput.AFT): TilsagnBeregning.AFT {
-        val belop = Prismodell.AFT.beregnTilsagnBelop(
-            sats = input.sats,
-            antallPlasser = input.antallPlasser,
-            periodeStart = input.periodeStart,
-            periodeSlutt = input.periodeSlutt,
-        )
-
-        return TilsagnBeregning.AFT(
-            sats = input.sats,
-            antallPlasser = input.antallPlasser,
-            periodeStart = input.periodeStart,
-            periodeSlutt = input.periodeSlutt,
-            belop = belop,
-        )
     }
 
     suspend fun beslutt(id: UUID, besluttelse: BesluttTilsagnRequest, navIdent: NavIdent): StatusResponse<Unit> {
         val tilsagn = tilsagnRepository.get(id)
             ?: return NotFound("Fant ikke tilsagn").left()
 
-        if (tilsagn.opprettetAv == navIdent) {
-            return Forbidden("Kan ikke beslutte eget tilsagn").left()
-        }
+        return when (tilsagn.status) {
+            is TilsagnDto.TilsagnStatus.Annullert, is TilsagnDto.TilsagnStatus.Godkjent, is TilsagnDto.TilsagnStatus.Returnert ->
+                BadRequest("Tilsagnet kan ikke besluttes fordi det har status ${tilsagn.status.javaClass.simpleName}").left()
 
-        if (tilsagn.besluttelse != null) {
-            return BadRequest("Tilsagn allerede besluttet").left()
-        }
+            is TilsagnDto.TilsagnStatus.TilGodkjenning -> {
+                when (besluttelse) {
+                    BesluttTilsagnRequest.GodkjentTilsagnRequest -> godkjennTilsagn(tilsagn, navIdent)
+                    is BesluttTilsagnRequest.AvvistTilsagnRequest -> returnerTilsagn(tilsagn, besluttelse, navIdent)
+                }
+            }
 
-        if (tilsagn.annullertTidspunkt != null) {
-            return BadRequest("Tilsagn er annullert").left()
-        }
-
-        when (besluttelse) {
-            is BesluttTilsagnRequest.GodkjentTilsagnRequest -> Unit
-            is BesluttTilsagnRequest.AvvistTilsagnRequest -> {
-                if (besluttelse.aarsaker.contains(AvvistTilsagnAarsak.FEIL_ANNET) && besluttelse.forklaring.isNullOrBlank()) {
-                    return BadRequest("Forklaring må oppgis når årsak er 'Annet' ved avvist tilsagn").left()
+            is TilsagnDto.TilsagnStatus.TilAnnullering -> {
+                when (besluttelse.besluttelse) {
+                    TilsagnBesluttelseStatus.GODKJENT -> annullerTilsagn(tilsagn, navIdent)
+                    TilsagnBesluttelseStatus.AVVIST -> avvisAnnullering(tilsagn, navIdent)
                 }
             }
         }
+    }
+
+    private suspend fun godkjennTilsagn(tilsagn: TilsagnDto, navIdent: NavIdent): StatusResponse<Unit> {
+        require(tilsagn.status is TilsagnDto.TilsagnStatus.TilGodkjenning)
+        if (navIdent == tilsagn.status.endretAv) {
+            return Forbidden("Kan ikke beslutte eget tilsagn").left()
+        }
 
         return db.transactionSuspend { tx ->
-            tilsagnRepository.setBesluttelse(tilsagn.id, besluttelse, navIdent, LocalDateTime.now(), tx)
-
-            when (besluttelse) {
-                is BesluttTilsagnRequest.GodkjentTilsagnRequest -> lagOgSendBestilling(tilsagn)
-                is BesluttTilsagnRequest.AvvistTilsagnRequest -> Unit
-            }
+            tilsagnRepository.besluttGodkjennelse(
+                tilsagn.id,
+                navIdent,
+                LocalDateTime.now(),
+                tx,
+            )
+            lagOgSendBestilling(tilsagn)
+            logEndring("Tilsagn godkjent", getOrError(tilsagn.id, tx), EndretAv.NavAnsatt(navIdent), tx)
         }.right()
     }
 
-    suspend fun annuller(id: UUID): StatusResponse<Unit> {
+    private fun returnerTilsagn(
+        tilsagn: TilsagnDto,
+        besluttelse: BesluttTilsagnRequest.AvvistTilsagnRequest,
+        navIdent: NavIdent,
+    ): StatusResponse<Unit> {
+        require(tilsagn.status is TilsagnDto.TilsagnStatus.TilGodkjenning)
+        if (navIdent == tilsagn.status.endretAv) {
+            return Forbidden("Kan ikke beslutte eget tilsagn").left()
+        }
+        if (besluttelse.aarsaker.isEmpty()) {
+            return BadRequest(message = "Årsaker er påkrevd").left()
+        }
+
+        db.transaction { tx ->
+            tilsagnRepository.returner(
+                tilsagn.id,
+                navIdent,
+                LocalDateTime.now(),
+                besluttelse.aarsaker,
+                besluttelse.forklaring,
+                tx,
+            )
+            logEndring("Tilsagn returnert", getOrError(tilsagn.id, tx), EndretAv.NavAnsatt(navIdent), tx)
+        }
+
+        return Unit.right()
+    }
+
+    private fun annullerTilsagn(tilsagn: TilsagnDto, navIdent: NavIdent): StatusResponse<Unit> {
+        require(tilsagn.status is TilsagnDto.TilsagnStatus.TilAnnullering)
+        if (navIdent == tilsagn.status.endretAv) {
+            return Forbidden("Kan ikke beslutte eget tilsagn").left()
+        }
+
+        db.transaction { tx ->
+            tilsagnRepository.besluttAnnullering(
+                tilsagn.id,
+                navIdent,
+                LocalDateTime.now(),
+                tx,
+            )
+            logEndring("Tilsagn annullert", getOrError(tilsagn.id, tx), EndretAv.NavAnsatt(navIdent), tx)
+        }
+
+        return Unit.right()
+    }
+
+    private fun avvisAnnullering(tilsagn: TilsagnDto, navIdent: NavIdent): StatusResponse<Unit> {
+        require(tilsagn.status is TilsagnDto.TilsagnStatus.TilAnnullering)
+        if (navIdent == tilsagn.status.endretAv) {
+            return Forbidden("Kan ikke beslutte eget tilsagn").left()
+        }
+
+        db.transaction { tx ->
+            tilsagnRepository.avbrytAnnullering(
+                tilsagn.id,
+                navIdent,
+                LocalDateTime.now(),
+                tx,
+            )
+            logEndring("Annullering avvist", getOrError(tilsagn.id, tx), EndretAv.NavAnsatt(navIdent), tx)
+        }
+
+        return Unit.right()
+    }
+
+    fun tilAnnullering(id: UUID, navIdent: NavIdent, request: TilAnnulleringRequest): StatusResponse<Unit> {
         val dto = tilsagnRepository.get(id)
             ?: return NotFound("Fant ikke tilsagn").left()
+        if (dto.status !is TilsagnDto.TilsagnStatus.Godkjent) {
+            return BadRequest("Kan bare annullere godkjente tilsagn").left()
+        }
 
-        return db.transactionSuspend { tx ->
-            tilsagnRepository.setAnnullertTidspunkt(id, LocalDateTime.now(), tx)
+        db.transaction { tx ->
+            tilsagnRepository.tilAnnullering(
+                id,
+                navIdent,
+                LocalDateTime.now(),
+                request.aarsaker,
+                request.forklaring,
+                tx,
+            )
+            logEndring("Sendt til annullering", getOrError(id, tx), EndretAv.NavAnsatt(navIdent), tx)
+        }
 
-            if (dto.besluttelse?.status == TilsagnBesluttelseStatus.GODKJENT) {
-                OkonomiClient.annullerOrder(lagOkonomiId(dto))
-            }
-        }.right()
+        return Unit.right()
     }
 
     fun slettTilsagn(id: UUID): Either<StatusResponseError, Unit> {
         val dto = tilsagnRepository.get(id)
             ?: return NotFound("Fant ikke tilsagn").left()
 
-        if (dto.besluttelse?.status == TilsagnBesluttelseStatus.GODKJENT) {
+        if (dto.status !is TilsagnDto.TilsagnStatus.Returnert) {
             return BadRequest("Kan ikke slette tilsagn som er godkjent").left()
         }
 
         return tilsagnRepository.delete(id).right()
     }
 
-    fun getAllArrangorflateTilsagn(organisasjonsnummer: Organisasjonsnummer): List<ArrangorflateTilsagn> {
-        return tilsagnRepository.getAllArrangorflateTilsagn(organisasjonsnummer)
+    fun getTilsagnTilRefusjon(
+        gjennomforingId: UUID,
+        periode: RefusjonskravPeriode,
+    ): List<TilsagnDto> {
+        return tilsagnRepository.getTilsagnTilRefusjon(gjennomforingId, periode)
     }
 
     fun getArrangorflateTilsagnTilRefusjon(
@@ -136,12 +235,6 @@ class TilsagnService(
     ): List<ArrangorflateTilsagn> {
         return tilsagnRepository.getArrangorflateTilsagnTilRefusjon(gjennomforingId, periode)
     }
-
-    fun getArrangorflateTilsagn(id: UUID): ArrangorflateTilsagn? = tilsagnRepository.getArrangorflateTilsagn(id)
-
-    fun getByGjennomforingId(gjennomforingId: UUID): List<TilsagnDto> = tilsagnRepository.getByGjennomforingId(gjennomforingId)
-
-    fun get(id: UUID): TilsagnDto? = tilsagnRepository.get(id)
 
     private fun lagOkonomiId(tilsagn: TilsagnDto): String {
         return "T-${tilsagn.id}"
@@ -159,8 +252,46 @@ class TilsagnService(
                 periodeSlutt = tilsagn.periodeSlutt,
                 organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
                 kostnadSted = tilsagn.kostnadssted,
-                belop = tilsagn.beregning.belop,
+                belop = tilsagn.beregning.output.belop,
             ),
         )
+    }
+
+    fun getEndringshistorikk(id: UUID): EndringshistorikkDto = endringshistorikkService.getEndringshistorikk(DocumentClass.TILSAGN, id)
+
+    private fun validateGjennomforingBeregningInput(
+        gjennomforing: TiltaksgjennomforingDto,
+        input: TilsagnBeregningInput,
+    ): Either<List<ValidationError>, TilsagnBeregningInput> {
+        return when (input) {
+            is TilsagnBeregningForhandsgodkjent.Input -> TilsagnValidator.validateForhandsgodkjentSats(
+                gjennomforing.tiltakstype.tiltakskode,
+                input,
+            )
+
+            else -> input.right()
+        }
+    }
+
+    private fun logEndring(
+        operation: String,
+        dto: TilsagnDto,
+        endretAv: EndretAv,
+        tx: TransactionalSession,
+    ) {
+        endringshistorikkService.logEndring(
+            tx,
+            DocumentClass.TILSAGN,
+            operation,
+            endretAv,
+            dto.id,
+        ) {
+            Json.encodeToJsonElement(dto)
+        }
+    }
+
+    private fun getOrError(id: UUID, tx: TransactionalSession): TilsagnDto {
+        val dto = tilsagnRepository.get(id, tx)
+        return requireNotNull(dto) { "Tilsagn med id=$id finnes ikke" }
     }
 }

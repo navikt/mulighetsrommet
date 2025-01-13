@@ -6,7 +6,7 @@ import {
 import { AvtaleIkon } from "../ikoner/AvtaleIkon";
 import { EndringsmeldingerIkon } from "../ikoner/EndringsmeldingerIkon";
 import { ForhandsvisningIkon } from "../ikoner/ForhandsvisningIkon";
-import { TiltaksgjennomforingIkon } from "../ikoner/TiltaksgjennomforingIkon";
+import { GjennomforingIkon } from "../ikoner/GjennomforingIkon";
 import { TiltakstypeIkon } from "../ikoner/TiltakstypeIkon";
 import { Forsidekort } from "./Forsidekort";
 import styles from "./Forsidekort.module.scss";
@@ -27,18 +27,13 @@ export function ForsidekortListe() {
         tekst="Her finner du informasjon om avtaler for gruppetiltak"
       />
       <Forsidekort
-        navn="Tiltaksgjennomføringer"
-        ikon={
-          <TiltaksgjennomforingIkon
-            inkluderBakgrunn
-            aria-label="Tiltaksgjennomføringer for gruppetiltak"
-          />
-        }
+        navn="Gjennomføringer"
+        ikon={<GjennomforingIkon inkluderBakgrunn aria-label="Gjennomføringer for gruppetiltak" />}
         url="tiltaksgjennomforinger"
-        tekst="Her finner du informasjon om tiltaksgjennomføringer for gruppetiltak"
+        tekst="Her finner du informasjon om Gjennomføringer for gruppetiltak"
       />
       <Forsidekort
-        navn="Individuelle tiltaksgjennomføringer"
+        navn="Individuelle Gjennomføringer"
         ikon={
           <img
             style={{ height: "64px", width: "64px" }}
@@ -48,7 +43,7 @@ export function ForsidekortListe() {
         }
         url={SANITY_STUDIO_URL}
         apneINyTab
-        tekst="Her administrerer du individuelle tiltaksgjennomføringer"
+        tekst="Her administrerer du individuelle Gjennomføringer"
       />
       <Forsidekort
         navn="Veilederflate forhåndsvisning"

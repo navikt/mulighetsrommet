@@ -1,21 +1,21 @@
-import { Refusjonskrav } from "~/domene/domene";
 import { Definisjonsliste } from "../Definisjonsliste";
+import { RefusjonKravAft } from "@mr/api-client-v2";
 
 interface Props {
-  krav: Refusjonskrav;
+  krav: RefusjonKravAft;
   className?: string;
 }
 
 export function GenerelleDetaljer({ className, krav }: Props) {
-  const { tiltaksnavn, tiltakstype } = krav.detaljer;
+  const { gjennomforing, tiltakstype } = krav;
 
   return (
     <Definisjonsliste
       className={className}
       title="Generelt"
       definitions={[
-        { key: "Tiltaksnavn", value: tiltaksnavn },
-        { key: "Tiltakstype", value: tiltakstype },
+        { key: "Tiltaksnavn", value: gjennomforing.navn },
+        { key: "Tiltakstype", value: tiltakstype.navn },
       ]}
     />
   );

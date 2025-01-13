@@ -1,16 +1,20 @@
-import { LoaderFunction } from "@remix-run/node";
-import { checkValidToken } from "../auth/auth.server";
-import { ArrangorflateService } from "@mr/api-client";
+import { LoaderFunction } from "react-router";
+import { ArrangorflateService } from "@mr/api-client-v2";
+import { apiHeaders } from "~/auth/auth.server";
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<Response> => {
-  await checkValidToken(request);
-
   const { id } = params;
-  if (!id) {
-    throw Error("Mangler id");
-  }
+  if (!id) throw Error("Mangler id");
 
-  const kvittering = await ArrangorflateService.getRefusjonkravKvittering({ id });
+  const { data: kvittering } = await ArrangorflateService.getRefusjonkravKvittering({
+    path: { id },
+    headers: await apiHeaders(request),
+  });
+  if (!kvittering) {
+    return new Response("Generering av pdf feilet", {
+      status: 500,
+    });
+  }
 
   return new Response(kvittering, {
     status: 200,

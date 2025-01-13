@@ -1,91 +1,88 @@
-import { Alert, Tabs } from "@navikt/ds-react";
-import { useAvtale } from "@/api/avtaler/useAvtale";
-import { Laster } from "@/components/laster/Laster";
-import styles from "./AvtaleInfo.module.scss";
-import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
-import { AvtaleKnapperad } from "./AvtaleKnapperad";
-import { AvtaleDetaljer } from "./AvtaleDetaljer";
-import { useAtom } from "jotai";
 import { avtaleDetaljerTabAtom } from "@/api/atoms";
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { AvtalePersonvern } from "./AvtalePersonvern";
-import { InlineErrorBoundary } from "@mr/frontend-common";
-import { InfoContainer } from "@/components/skjema/InfoContainer";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
 import { Toggles } from "@mr/api-client";
-import { AvtalePrisOgFakturering } from "./AvtalePrisOgFakturering";
+import { InlineErrorBoundary } from "@/ErrorBoundary";
+import { Tabs } from "@navikt/ds-react";
+import { useAtom } from "jotai";
+import { useLoaderData } from "react-router";
+import { AvtaleDetaljer } from "./AvtaleDetaljer";
+import styles from "./AvtaleInfo.module.scss";
+import { AvtaleKnapperad } from "./AvtaleKnapperad";
+import { avtaleLoader } from "./avtaleLoader";
+import { AvtalePersonvern } from "./AvtalePersonvern";
+import { AvtalePrisOgFaktureringDetaljer } from "@/pages/avtaler/AvtalePrisOgFaktureringDetaljer";
+import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 
 export function AvtaleInfo() {
-  const { data: bruker } = useHentAnsatt();
-  const { data: avtale, isPending, isError } = useAvtale();
+  const { avtale, ansatt } = useLoaderData<typeof avtaleLoader>();
 
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 
-  const { data: enableOpprettTilsagn } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
+  const { data: enableOkonomi } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
+    [avtale.tiltakstype.tiltakskode],
   );
 
-  if (!bruker || isPending) {
-    return <Laster tekst="Laster avtale..." />;
-  }
-
-  if (isError) {
-    return <Alert variant="error">Klarte ikke laste avtale</Alert>;
-  }
-
   return (
-    <InfoContainer dataTestId="avtale_info-container">
-      <Tabs defaultValue={activeTab}>
-        <Tabs.List className={styles.tabslist}>
-          <div>
-            <Tabs.Tab label="Detaljer" value="detaljer" onClick={() => setActiveTab("detaljer")} />
-            {enableOpprettTilsagn && (
+    <div data-testid="avtale_info-container">
+      <WhitePaddedBox data-testid="avtale_info-container">
+        <Tabs defaultValue={activeTab}>
+          <Tabs.List className={styles.tabslist}>
+            <div>
               <Tabs.Tab
-                label="Pris og fakturering"
-                value="pris-og-fakturering"
-                onClick={() => setActiveTab("pris-og-fakturering")}
+                label="Detaljer"
+                value="detaljer"
+                onClick={() => setActiveTab("detaljer")}
               />
-            )}
-            <Tabs.Tab
-              label="Personvern"
-              value="personvern"
-              onClick={() => setActiveTab("personvern")}
-            />
-            <Tabs.Tab
-              label="Redaksjonelt innhold"
-              value="redaksjonelt-innhold"
-              onClick={() => setActiveTab("redaksjonelt-innhold")}
-            />
-          </div>
-          <AvtaleKnapperad bruker={bruker} avtale={avtale} />
-        </Tabs.List>
-        <Tabs.Panel value="detaljer">
-          <InlineErrorBoundary>
-            <AvtaleDetaljer />
-          </InlineErrorBoundary>
-        </Tabs.Panel>
-        {enableOpprettTilsagn && (
-          <Tabs.Panel value="pris-og-fakturering">
+              {enableOkonomi && (
+                <Tabs.Tab
+                  label="Pris og fakturering"
+                  value="pris-og-fakturering"
+                  onClick={() => setActiveTab("pris-og-fakturering")}
+                />
+              )}
+              <Tabs.Tab
+                label="Personvern"
+                value="personvern"
+                onClick={() => setActiveTab("personvern")}
+              />
+              <Tabs.Tab
+                label="Redaksjonelt innhold"
+                value="redaksjonelt-innhold"
+                onClick={() => setActiveTab("redaksjonelt-innhold")}
+              />
+            </div>
+            <AvtaleKnapperad ansatt={ansatt} avtale={avtale} />
+          </Tabs.List>
+          <Tabs.Panel value="detaljer">
             <InlineErrorBoundary>
-              <AvtalePrisOgFakturering />
+              <AvtaleDetaljer />
             </InlineErrorBoundary>
           </Tabs.Panel>
-        )}
-        <Tabs.Panel value="redaksjonelt-innhold">
-          <InlineErrorBoundary>
-            <RedaksjoneltInnholdPreview
-              tiltakstype={avtale.tiltakstype}
-              beskrivelse={avtale.beskrivelse}
-              faneinnhold={avtale.faneinnhold}
-            />
-          </InlineErrorBoundary>
-        </Tabs.Panel>
-        <Tabs.Panel value="personvern">
-          <InlineErrorBoundary>
-            <AvtalePersonvern />
-          </InlineErrorBoundary>
-        </Tabs.Panel>
-      </Tabs>
-    </InfoContainer>
+          {enableOkonomi && (
+            <Tabs.Panel value="pris-og-fakturering">
+              <InlineErrorBoundary>
+                <AvtalePrisOgFaktureringDetaljer />
+              </InlineErrorBoundary>
+            </Tabs.Panel>
+          )}
+          <Tabs.Panel value="personvern">
+            <InlineErrorBoundary>
+              <AvtalePersonvern />
+            </InlineErrorBoundary>
+          </Tabs.Panel>
+          <Tabs.Panel value="redaksjonelt-innhold">
+            <InlineErrorBoundary>
+              <RedaksjoneltInnholdPreview
+                tiltakstype={avtale.tiltakstype}
+                beskrivelse={avtale.beskrivelse}
+                faneinnhold={avtale.faneinnhold}
+              />
+            </InlineErrorBoundary>
+          </Tabs.Panel>
+        </Tabs>
+      </WhitePaddedBox>
+    </div>
   );
 }

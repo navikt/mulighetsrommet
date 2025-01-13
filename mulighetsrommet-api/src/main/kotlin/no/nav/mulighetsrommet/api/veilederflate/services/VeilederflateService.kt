@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.services.cms.CacheUsage
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.veilederflate.TiltaksnavnUtils.tittelOgUnderTittel
 import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakRepository
 import no.nav.mulighetsrommet.api.veilederflate.models.*
 import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForPamelding
@@ -208,12 +207,7 @@ class VeilederflateService(
         }
 
         val status = TiltaksgjennomforingStatus.GJENNOMFORES
-        val (tittel, underTittel) = tittelOgUnderTittel(
-            navn = gjennomforing.tiltaksgjennomforingNavn ?: "",
-            tiltakstypeNavn = tiltakstype.navn,
-            arenaKode = tiltakstypeAdminDto.arenaKode,
-        )
-
+        val navn = gjennomforing.tiltaksgjennomforingNavn ?: ""
         val faneinnhold = gjennomforing.faneinnhold?.copy(delMedBruker = gjennomforing.delingMedBruker)
         val kontaktinfo = VeilederflateKontaktinfo(tiltaksansvarlige)
         val fylke = gjennomforing.fylke ?: ""
@@ -234,8 +228,7 @@ class VeilederflateService(
                     oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
                     sanityId = sanityId,
                     tiltakstype = tiltakstype,
-                    tittel = tittel,
-                    underTittel = underTittel,
+                    navn = navn,
                     stedForGjennomforing = stedForGjennomforing,
                     fylke = fylke,
                     enheter = enheter,
@@ -251,8 +244,7 @@ class VeilederflateService(
                 oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
                 sanityId = sanityId,
                 tiltakstype = tiltakstype,
-                tittel = tittel,
-                underTittel = underTittel,
+                navn = navn,
                 stedForGjennomforing = stedForGjennomforing,
                 fylke = fylke,
                 enheter = enheter,
@@ -267,8 +259,7 @@ class VeilederflateService(
                 oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
                 sanityId = sanityId,
                 tiltakstype = tiltakstype,
-                tittel = tittel,
-                underTittel = underTittel,
+                navn = navn,
                 stedForGjennomforing = stedForGjennomforing,
                 fylke = fylke,
                 enheter = enheter,

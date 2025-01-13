@@ -1,22 +1,20 @@
-import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client";
+import { ArrangorflateService, ArrangorflateTilsagn, RefusjonKravAft } from "@mr/api-client-v2";
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
 import { Button, VStack } from "@navikt/ds-react";
-import { LoaderFunction } from "@remix-run/node";
-import { useLoaderData, useParams } from "@remix-run/react";
-import { checkValidToken } from "~/auth/auth.server";
+import { LoaderFunction } from "react-router";
+import { useLoaderData, useParams } from "react-router";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { PageHeader } from "~/components/PageHeader";
 import { RefusjonskravDetaljer } from "~/components/refusjonskrav/RefusjonskravDetaljer";
 import { Separator } from "~/components/Separator";
-import { Refusjonskrav } from "~/domene/domene";
-import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { internalNavigation } from "../internal-navigation";
 import { useOrgnrFromUrl } from "../utils";
 import { LinkWithTabState } from "../components/LinkWithTabState";
+import { apiHeaders } from "~/auth/auth.server";
 
 type RefusjonskavKvitteringData = {
-  krav: Refusjonskrav;
+  krav: RefusjonKravAft;
   tilsagn: ArrangorflateTilsagn[];
 };
 
@@ -24,19 +22,24 @@ export const loader: LoaderFunction = async ({
   request,
   params,
 }): Promise<RefusjonskavKvitteringData> => {
-  await checkValidToken(request);
-
   const { id } = params;
-  if (!id) {
-    throw Error("Mangler id");
-  }
+  if (!id) throw Error("Mangler id");
 
   const [krav, tilsagn] = await Promise.all([
-    loadRefusjonskrav(id),
-    ArrangorflateService.getArrangorflateTilsagnTilRefusjon({ id }),
+    ArrangorflateService.getRefusjonkrav({
+      path: { id },
+      headers: await apiHeaders(request),
+    }),
+    ArrangorflateService.getArrangorflateTilsagnTilRefusjon({
+      path: { id },
+      headers: await apiHeaders(request),
+    }),
   ]);
+  if (krav.error || tilsagn.error || !krav?.data || !tilsagn.data) {
+    throw krav.error ?? tilsagn.error;
+  }
 
-  return { krav, tilsagn };
+  return { krav: krav.data, tilsagn: tilsagn.data };
 };
 
 export default function RefusjonskravKvittering() {

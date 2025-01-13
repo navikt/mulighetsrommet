@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import org.junit.jupiter.api.assertThrows
@@ -32,7 +31,7 @@ class RefusjonskravRepositoryTest : FunSpec({
     }
 
     afterEach {
-        database.db.truncateAll()
+        database.truncateAll()
     }
 
     context("CRUD") {

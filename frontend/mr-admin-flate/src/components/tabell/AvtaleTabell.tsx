@@ -1,5 +1,5 @@
 import { AvtaleFilter } from "@/api/atoms";
-import { useAvtaler } from "@/api/avtaler/useAvtaler";
+import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { APPLICATION_NAME } from "@/constants";
 import {
@@ -8,19 +8,19 @@ import {
   formaterDato,
   formaterNavEnheter,
 } from "@/utils/Utils";
-import { Alert, Pagination, Table, VStack } from "@navikt/ds-react";
-import { useAtom, WritableAtom } from "jotai";
 import { OpenAPI, SorteringAvtaler } from "@mr/api-client";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
+import { Alert, Pagination, Table, VStack } from "@navikt/ds-react";
+import { useAtom, WritableAtom } from "jotai";
 import { createRef, useEffect, useState } from "react";
+import { useAvtaler } from "../../api/avtaler/useAvtaler";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { AvtalestatusTag } from "../statuselementer/AvtalestatusTag";
 import styles from "./Tabell.module.scss";
-import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;

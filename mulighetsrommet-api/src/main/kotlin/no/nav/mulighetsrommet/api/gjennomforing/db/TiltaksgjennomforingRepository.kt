@@ -615,7 +615,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             sluttDato = sluttDato,
             status = TiltaksgjennomforingStatusDto(status, avbrutt),
             apentForPamelding = boolean("apent_for_pamelding"),
-            antallPlasser = intOrNull("antall_plasser"),
+            antallPlasser = int("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
             oppstart = TiltaksgjennomforingOppstartstype.valueOf(string("oppstart")),
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),

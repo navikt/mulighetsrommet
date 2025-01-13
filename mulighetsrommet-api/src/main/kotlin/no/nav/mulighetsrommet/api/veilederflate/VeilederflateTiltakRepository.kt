@@ -7,7 +7,6 @@ import no.nav.mulighetsrommet.api.veilederflate.models.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.Tiltakskoder.isKursTiltak
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.Personopplysning
@@ -85,24 +84,14 @@ class VeilederflateTiltakRepository(private val db: Database) {
             ?.let { Json.decodeFromString<List<VeilederflateArrangorKontaktperson>>(it) }
             ?: emptyList()
 
-        val tiltakstypeNavn = string("tiltakstype_navn")
-        val tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) }
-        val navn = string("navn")
-        val (tittel, underTittel) = if (isKursTiltak(tiltakskode)) {
-            navn to tiltakstypeNavn
-        } else {
-            tiltakstypeNavn to navn
-        }
-
         return VeilederflateTiltakGruppe(
             id = uuid("id"),
             tiltakstype = VeilederflateTiltakstype(
                 sanityId = uuid("tiltakstype_sanity_id").toString(),
-                navn = tiltakstypeNavn,
+                navn = string("tiltakstype_navn"),
                 tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) },
             ),
-            tittel = tittel,
-            underTittel = underTittel,
+            navn = string("navn"),
             stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
             apentForPamelding = boolean("apent_for_pamelding"),
             tiltaksnummer = stringOrNull("tiltaksnummer"),

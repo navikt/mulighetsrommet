@@ -1,6 +1,6 @@
 import { Checkbox, CheckboxGroup, HGrid } from "@navikt/ds-react";
 import { Controller, FieldValues, Path, useFormContext } from "react-hook-form";
-import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
+import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { InnholdElement } from "@mr/api-client";
 import { innholdElementToString } from "@/utils/Utils";
 
@@ -15,7 +15,7 @@ export function InnholdElementerSkjema<T extends FieldValues>(props: { path: Pat
       render={({ field, fieldState: { error } }) => (
         <CheckboxGroup
           size="small"
-          legend={tiltaktekster.innholdElementerLabel}
+          legend={gjennomforingTekster.innholdElementerLabel}
           onChange={(value) => field.onChange(value)}
           error={error?.message}
           value={field.value}

@@ -34,6 +34,7 @@ object AvtaleFixtures {
         opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
         utdanningslop = null,
+        prismodell = null,
     )
 
     val oppfolgingMedAvtale = AvtaleDbo(
@@ -61,6 +62,7 @@ object AvtaleFixtures {
         opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
         utdanningslop = null,
+        prismodell = null,
     )
 
     val gruppeAmo = AvtaleDbo(
@@ -80,7 +82,7 @@ object AvtaleFixtures {
         navEnheter = listOf("0400", "0502"),
         antallPlasser = null,
         beskrivelse = null,
-        faneinnhold = Faneinnhold(kurstittel = "Min kurstittel"),
+        faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         amoKategorisering = AmoKategorisering.Studiespesialisering,
@@ -88,6 +90,7 @@ object AvtaleFixtures {
         opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
         utdanningslop = null,
+        prismodell = null,
     )
 
     val gruppeFagYrke = AvtaleDbo(
@@ -107,7 +110,7 @@ object AvtaleFixtures {
         navEnheter = listOf("0400", "0502"),
         antallPlasser = null,
         beskrivelse = null,
-        faneinnhold = Faneinnhold(kurstittel = "Min kurstittel"),
+        faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         amoKategorisering = null,
@@ -115,6 +118,7 @@ object AvtaleFixtures {
         opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
         utdanningslop = null,
+        prismodell = null,
     )
 
     val IPS = AvtaleDbo(
@@ -142,6 +146,7 @@ object AvtaleFixtures {
         opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
         utdanningslop = null,
+        prismodell = null,
     )
 
     val VTA = AvtaleDbo(
@@ -169,6 +174,7 @@ object AvtaleFixtures {
         opsjonsmodell = null,
         customOpsjonsmodellNavn = null,
         utdanningslop = null,
+        prismodell = null,
     )
 
     val AFT = AvtaleDbo(
@@ -196,6 +202,7 @@ object AvtaleFixtures {
         opsjonsmodell = null,
         customOpsjonsmodellNavn = null,
         utdanningslop = null,
+        prismodell = null,
     )
 
     val EnkelAmo = AvtaleDbo(
@@ -223,6 +230,7 @@ object AvtaleFixtures {
         opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
         utdanningslop = null,
+        prismodell = null,
     )
 
     val jobbklubb = AvtaleDbo(
@@ -250,6 +258,7 @@ object AvtaleFixtures {
         opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
         utdanningslop = null,
+        prismodell = null,
     )
 
     val avtaleRequest = AvtaleRequest(
@@ -278,6 +287,7 @@ object AvtaleFixtures {
             customOpsjonsmodellNavn = null,
         ),
         utdanningslop = null,
+        prismodell = null,
     )
 
     val ArbeidsrettetRehabilitering = AvtaleDbo(
@@ -305,5 +315,6 @@ object AvtaleFixtures {
         opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
         utdanningslop = null,
+        prismodell = null,
     )
 }

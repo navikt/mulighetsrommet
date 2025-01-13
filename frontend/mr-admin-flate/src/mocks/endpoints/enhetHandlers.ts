@@ -7,6 +7,10 @@ export const enhetHandlers = [
     HttpResponse.json(Object.values(mockEnheter)),
   ),
 
+  http.get<PathParams, NavEnhet[]>("*/api/v1/intern/nav-enheter/kostnadssted", () =>
+    HttpResponse.json(Object.values(mockEnheter)),
+  ),
+
   http.get<PathParams, NavRegion[]>("*/api/v1/intern/nav-enheter/regioner", () =>
     HttpResponse.json(Object.values(mockRegioner)),
   ),

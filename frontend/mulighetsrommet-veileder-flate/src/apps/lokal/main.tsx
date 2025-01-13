@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { APPLICATION_NAME } from "@/constants";
 import { ModiaContext } from "@/apps/modia/ModiaContext";
-import { BrowserRouter as Router, Link, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Link, Route, Routes } from "react-router";
 import { NavArbeidsmarkedstiltak } from "@/apps/nav/NavArbeidsmarkedstiltak";
 import { PreviewArbeidsmarkedstiltak } from "@/apps/nav/PreviewArbeidsmarkedstiltak";
 import { ModiaArbeidsmarkedstiltak } from "@/apps/modia/ModiaArbeidsmarkedstiltak";

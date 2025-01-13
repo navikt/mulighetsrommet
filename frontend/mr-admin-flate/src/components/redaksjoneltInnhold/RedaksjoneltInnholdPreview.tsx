@@ -1,14 +1,14 @@
-import { useTiltakstypeFaneinnhold } from "@/api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
-import { Alert, BodyLong, BodyShort, Heading, HStack } from "@navikt/ds-react";
+import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
+import { Alert, BodyLong, Heading } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
 import { EmbeddedTiltakstype, Faneinnhold } from "@mr/api-client";
-import { InlineErrorBoundary, LokalInformasjonContainer } from "@mr/frontend-common";
+import { LokalInformasjonContainer } from "@mr/frontend-common";
 import React from "react";
 import styles from "../../pages/DetaljerInfo.module.scss";
 import { Laster } from "../laster/Laster";
 import { Lenkeliste } from "../lenker/Lenkeliste";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
-import { isKursTiltak } from "@mr/frontend-common/utils/utils";
+import { InlineErrorBoundary } from "@/ErrorBoundary";
 
 interface RedaksjoneltInnholdPreviewProps {
   tiltakstype: EmbeddedTiltakstype;
@@ -30,102 +30,98 @@ function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
   const { tiltakstype, beskrivelse, faneinnhold } = props;
   const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakstype.id);
   return (
-    <RedaksjoneltInnholdContainer>
-      {isKursTiltak(tiltakstype.tiltakskode) && faneinnhold?.kurstittel && (
-        <HStack align="center" gap="2">
-          <Heading size="small">Kurstittel:</Heading>
-          <BodyShort size="medium">{faneinnhold.kurstittel}</BodyShort>
-        </HStack>
-      )}
-      {tiltakstypeSanityData?.beskrivelse && (
-        <BodyLong size="large" spacing style={{ whiteSpace: "pre-wrap" }}>
-          {tiltakstypeSanityData.beskrivelse}
-        </BodyLong>
-      )}
-      {beskrivelse && (
-        <LokalInformasjonContainer>
-          <BodyLong style={{ whiteSpace: "pre-wrap" }} textColor="subtle" size="medium">
-            {beskrivelse}
+    <div className="prose prose-headings:mb-0 min-w-1/2">
+      <RedaksjoneltInnholdContainer>
+        {tiltakstypeSanityData?.beskrivelse && (
+          <BodyLong size="large" spacing style={{ whiteSpace: "pre-wrap" }}>
+            {tiltakstypeSanityData.beskrivelse}
           </BodyLong>
-        </LokalInformasjonContainer>
-      )}
-      {someValuesExists([
-        faneinnhold?.forHvem,
-        faneinnhold?.forHvemInfoboks,
-        tiltakstypeSanityData?.faneinnhold?.forHvem,
-        tiltakstypeSanityData?.faneinnhold?.forHvemInfoboks,
-      ]) ? (
-        <>
-          <Heading size="medium">For hvem</Heading>
-          <DetaljerFane
-            tiltaksgjennomforing={faneinnhold?.forHvem}
-            tiltaksgjennomforingAlert={faneinnhold?.forHvemInfoboks}
-            tiltakstype={tiltakstypeSanityData?.faneinnhold?.forHvem}
-            tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.forHvemInfoboks}
-          />
-        </>
-      ) : null}
+        )}
+        {beskrivelse && (
+          <LokalInformasjonContainer>
+            <BodyLong style={{ whiteSpace: "pre-wrap" }} textColor="subtle" size="medium">
+              {beskrivelse}
+            </BodyLong>
+          </LokalInformasjonContainer>
+        )}
+        {someValuesExists([
+          faneinnhold?.forHvem,
+          faneinnhold?.forHvemInfoboks,
+          tiltakstypeSanityData?.faneinnhold?.forHvem,
+          tiltakstypeSanityData?.faneinnhold?.forHvemInfoboks,
+        ]) ? (
+          <>
+            <Heading size="medium">For hvem</Heading>
+            <DetaljerFane
+              tiltaksgjennomforing={faneinnhold?.forHvem}
+              tiltaksgjennomforingAlert={faneinnhold?.forHvemInfoboks}
+              tiltakstype={tiltakstypeSanityData?.faneinnhold?.forHvem}
+              tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.forHvemInfoboks}
+            />
+          </>
+        ) : null}
 
-      {someValuesExists([
-        faneinnhold?.detaljerOgInnhold,
-        faneinnhold?.detaljerOgInnholdInfoboks,
-        tiltakstypeSanityData?.faneinnhold?.detaljerOgInnhold,
-        tiltakstypeSanityData?.faneinnhold?.detaljerOgInnholdInfoboks,
-      ]) ? (
-        <>
-          <Heading size="medium">Detaljer og innhold</Heading>
-          <DetaljerFane
-            tiltaksgjennomforing={faneinnhold?.detaljerOgInnhold}
-            tiltaksgjennomforingAlert={faneinnhold?.detaljerOgInnholdInfoboks}
-            tiltakstype={tiltakstypeSanityData?.faneinnhold?.detaljerOgInnhold}
-            tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.detaljerOgInnholdInfoboks}
-          />
-        </>
-      ) : null}
+        {someValuesExists([
+          faneinnhold?.detaljerOgInnhold,
+          faneinnhold?.detaljerOgInnholdInfoboks,
+          tiltakstypeSanityData?.faneinnhold?.detaljerOgInnhold,
+          tiltakstypeSanityData?.faneinnhold?.detaljerOgInnholdInfoboks,
+        ]) ? (
+          <>
+            <Heading size="medium">Detaljer og innhold</Heading>
+            <DetaljerFane
+              tiltaksgjennomforing={faneinnhold?.detaljerOgInnhold}
+              tiltaksgjennomforingAlert={faneinnhold?.detaljerOgInnholdInfoboks}
+              tiltakstype={tiltakstypeSanityData?.faneinnhold?.detaljerOgInnhold}
+              tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.detaljerOgInnholdInfoboks}
+            />
+          </>
+        ) : null}
 
-      {someValuesExists([
-        faneinnhold?.pameldingOgVarighet,
-        faneinnhold?.pameldingOgVarighetInfoboks,
-        tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighet,
-        tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighetInfoboks,
-      ]) ? (
-        <>
-          <Heading size="medium">Påmelding og varighet</Heading>
-          <DetaljerFane
-            tiltaksgjennomforing={faneinnhold?.pameldingOgVarighet}
-            tiltaksgjennomforingAlert={faneinnhold?.pameldingOgVarighetInfoboks}
-            tiltakstype={tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighet}
-            tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighetInfoboks}
-          />
-        </>
-      ) : null}
+        {someValuesExists([
+          faneinnhold?.pameldingOgVarighet,
+          faneinnhold?.pameldingOgVarighetInfoboks,
+          tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighet,
+          tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighetInfoboks,
+        ]) ? (
+          <>
+            <Heading size="medium">Påmelding og varighet</Heading>
+            <DetaljerFane
+              tiltaksgjennomforing={faneinnhold?.pameldingOgVarighet}
+              tiltaksgjennomforingAlert={faneinnhold?.pameldingOgVarighetInfoboks}
+              tiltakstype={tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighet}
+              tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighetInfoboks}
+            />
+          </>
+        ) : null}
 
-      {someValuesExists([faneinnhold?.kontaktinfo, faneinnhold?.kontaktinfoInfoboks]) ? (
-        <>
-          <Heading size="medium">Kontaktinfo</Heading>
-          <DetaljerFane
-            tiltaksgjennomforing={faneinnhold?.kontaktinfo}
-            tiltaksgjennomforingAlert={faneinnhold?.kontaktinfoInfoboks}
-          />
-        </>
-      ) : null}
+        {someValuesExists([faneinnhold?.kontaktinfo, faneinnhold?.kontaktinfoInfoboks]) ? (
+          <>
+            <Heading size="medium">Kontaktinfo</Heading>
+            <DetaljerFane
+              tiltaksgjennomforing={faneinnhold?.kontaktinfo}
+              tiltaksgjennomforingAlert={faneinnhold?.kontaktinfoInfoboks}
+            />
+          </>
+        ) : null}
 
-      {someValuesExists([faneinnhold?.lenker]) ? (
-        <>
-          <Heading size="medium">Lenker</Heading>
-          <Lenkeliste lenker={faneinnhold?.lenker || []} />
-        </>
-      ) : null}
+        {someValuesExists([faneinnhold?.lenker]) ? (
+          <>
+            <Heading size="medium">Lenker</Heading>
+            <Lenkeliste lenker={faneinnhold?.lenker || []} />
+          </>
+        ) : null}
 
-      {someValuesExists([faneinnhold?.delMedBruker, tiltakstypeSanityData.delingMedBruker]) ? (
-        <>
-          <Heading size="medium">Del med bruker</Heading>
-          <BodyLong as="div" size="small">
-            {faneinnhold?.delMedBruker ?? tiltakstypeSanityData.delingMedBruker}
-          </BodyLong>
-        </>
-      ) : null}
-    </RedaksjoneltInnholdContainer>
+        {someValuesExists([faneinnhold?.delMedBruker, tiltakstypeSanityData.delingMedBruker]) ? (
+          <>
+            <Heading size="medium">Del med bruker</Heading>
+            <BodyLong as="div" size="small">
+              {faneinnhold?.delMedBruker ?? tiltakstypeSanityData.delingMedBruker}
+            </BodyLong>
+          </>
+        ) : null}
+      </RedaksjoneltInnholdContainer>
+    </div>
   );
 }
 
@@ -154,9 +150,6 @@ const DetaljerFane = ({
     <div className={styles.faneinnhold_container}>
       {tiltakstype && (
         <>
-          <Heading level="2" size="small">
-            Generell Informasjon
-          </Heading>
           {tiltakstypeAlert && (
             <Alert style={{ whiteSpace: "pre-wrap" }} variant="info">
               {tiltakstypeAlert}
@@ -169,7 +162,7 @@ const DetaljerFane = ({
       )}
       {(tiltaksgjennomforing || tiltaksgjennomforingAlert) && (
         <LokalInformasjonContainer>
-          <Heading level="2" size="small">
+          <Heading level="2" size="small" spacing className="mt-0">
             Lokal Informasjon
           </Heading>
           {tiltaksgjennomforingAlert && (

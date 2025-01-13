@@ -1,41 +1,65 @@
-import { RefusjonKravDeltakelse, RefusjonKravDeltakelsePerson } from "@mr/api-client";
+import {
+  ArrangorflateService,
+  RefusjonKravAft,
+  RefusjonKravDeltakelse,
+  RefusjonKravDeltakelsePerson,
+  RelevanteForslag,
+} from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Button, GuidePanel, HGrid, SortState, Table, VStack } from "@navikt/ds-react";
-import type { LoaderFunction, MetaFunction } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import {
+  Alert,
+  Button,
+  GuidePanel,
+  HGrid,
+  List,
+  SortState,
+  Table,
+  Tooltip,
+  VStack,
+} from "@navikt/ds-react";
+import type { LoaderFunction, MetaFunction } from "react-router";
+import { Link, useLoaderData } from "react-router";
 import { useState } from "react";
-import { checkValidToken } from "~/auth/auth.server";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { PageHeader } from "~/components/PageHeader";
 import { GenerelleDetaljer } from "~/components/refusjonskrav/GenerelleDetaljer";
-import { Refusjonskrav } from "~/domene/domene";
-import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { formaterDato, useOrgnrFromUrl } from "~/utils";
 import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
 import { LinkWithTabState } from "~/components/LinkWithTabState";
 import { internalNavigation } from "~/internal-navigation";
 import { hentMiljø, Miljø } from "~/services/miljø";
+import { ExclamationmarkTriangleIcon } from "@navikt/aksel-icons";
+import { apiHeaders } from "~/auth/auth.server";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Refusjon" }, { name: "description", content: "Refusjonsdetaljer" }];
 };
 
 type LoaderData = {
-  krav: Refusjonskrav;
+  krav: RefusjonKravAft;
+  relevanteForslag: RelevanteForslag[];
   deltakerlisteUrl: string;
 };
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
-  await checkValidToken(request);
   const deltakerlisteUrl = deltakerOversiktLenke(hentMiljø());
 
   const { id } = params;
-  if (!id) {
-    throw Error("Mangler id");
+  if (!id) throw Error("Mangler id");
+
+  const { data: krav, error: errorKrav } = await ArrangorflateService.getRefusjonkrav({
+    path: { id },
+    headers: await apiHeaders(request),
+  });
+  const { data: relevanteForslag, error: errorForslag } =
+    await ArrangorflateService.getRelevanteForslag({
+      path: { id },
+      headers: await apiHeaders(request),
+    });
+  if (errorKrav || errorForslag || !krav || !relevanteForslag) {
+    throw errorKrav ?? errorForslag;
   }
 
-  const krav = await loadRefusjonskrav(id);
-
-  return { krav, deltakerlisteUrl };
+  return { krav, deltakerlisteUrl, relevanteForslag };
 };
 
 interface DeltakerSortState extends SortState {
@@ -52,7 +76,7 @@ enum DeltakerSortKey {
 
 export default function RefusjonskravBeregning() {
   const orgnr = useOrgnrFromUrl();
-  const { krav, deltakerlisteUrl } = useLoaderData<LoaderData>();
+  const { krav, deltakerlisteUrl, relevanteForslag } = useLoaderData<LoaderData>();
   const [sort, setSort] = useState<DeltakerSortState | undefined>();
 
   const handleSort = (orderBy: string) => {
@@ -72,8 +96,16 @@ export default function RefusjonskravBeregning() {
   };
 
   const sortedData = sort
-    ? sortBy(krav.deltakere, sort.direction, getDeltakerSelector(sort.orderBy))
-    : krav.deltakere;
+    ? sortBy(krav.deltakelser, sort.direction, getDeltakerSelector(sort.orderBy))
+    : krav.deltakelser;
+
+  function hasRelevanteForslag(id: string): boolean {
+    return (relevanteForslag.find((r) => r.deltakerId === id)?.antallRelevanteForslag ?? 0) > 0;
+  }
+
+  const deltakereMedRelevanteForslag = sortedData.filter((deltaker: RefusjonKravDeltakelse) =>
+    hasRelevanteForslag(deltaker.id),
+  );
 
   return (
     <>
@@ -90,7 +122,18 @@ export default function RefusjonskravBeregning() {
           Hvis noen av opplysningene om deltakerne ikke stemmer, må det sendes forslag til Nav om
           endring via <Link to={deltakerlisteUrl}>Deltakeroversikten</Link>.
         </GuidePanel>
-        <Table sort={sort} onSortChange={(sortKey) => handleSort(sortKey)} zebraStripes>
+        {deltakereMedRelevanteForslag.length > 0 && (
+          <Alert variant="warning">
+            Det finnes ubehandlede forslag som påvirker refusjonen på følgende personer. Disse må
+            først godkjennes av Nav-veileder før refusjonskravet oppdaterer seg.
+            <List>
+              {deltakereMedRelevanteForslag.map((deltaker) => (
+                <List.Item key={deltaker.id}>{deltaker.person?.navn}</List.Item>
+              ))}
+            </List>
+          </Alert>
+        )}
+        <Table sort={sort} onSortChange={(sortKey) => handleSort(sortKey)}>
           <Table.Header>
             <Table.Row>
               <Table.ColumnHeader scope="col" sortable sortKey={DeltakerSortKey.PERSON_NAVN}>
@@ -113,12 +156,30 @@ export default function RefusjonskravBeregning() {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {sortedData.map((deltaker) => {
+            {sortedData.map((deltaker, index) => {
               const { id, person } = deltaker;
               const fodselsdato = getFormattedFodselsdato(person);
               return (
-                <Table.ExpandableRow key={id} content={null} togglePlacement="right">
-                  <Table.DataCell className="font-bold">{person?.navn}</Table.DataCell>
+                <Table.ExpandableRow
+                  key={id}
+                  content={null}
+                  togglePlacement="right"
+                  className={
+                    hasRelevanteForslag(id)
+                      ? "bg-surface-warning-moderate"
+                      : index % 2 !== 0
+                        ? "bg-surface-subtle"
+                        : "" // zebra stripes gjøres her fordi den overskriver warning background
+                  }
+                >
+                  <Table.DataCell className="font-bold">
+                    {hasRelevanteForslag(id) && (
+                      <Tooltip content="Har ubehandlede forslag som påvirker refusjonen">
+                        <ExclamationmarkTriangleIcon fontSize="1.5rem" />
+                      </Tooltip>
+                    )}
+                    {person?.navn}
+                  </Table.DataCell>
                   <Table.DataCell className="w-52">{fodselsdato}</Table.DataCell>
                   <Table.DataCell>{formaterDato(deltaker.startDato)}</Table.DataCell>
                   <Table.DataCell>{formaterDato(deltaker.forstePeriodeStartDato)}</Table.DataCell>

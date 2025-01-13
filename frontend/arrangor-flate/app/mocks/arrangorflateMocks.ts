@@ -3,9 +3,52 @@ import {
   ArrangorflateTilsagn,
   RefusjonKravAft,
   RefusjonskravStatus,
-} from "@mr/api-client";
+  RelevanteForslag,
+  TilsagnStatus,
+  TilsagnType,
+} from "@mr/api-client-v2";
 import { http, HttpResponse, PathParams } from "msw";
 import { v4 as uuid } from "uuid";
+
+const mockDeltakelser = [
+  {
+    id: uuid(),
+    person: {
+      navn: "Per Petterson",
+      fodselsdato: "1980-01-01",
+      fodselsaar: 1980,
+    },
+    startDato: "2024-06-01",
+    forstePeriodeStartDato: "2024-06-01",
+    sistePeriodeSluttDato: "2024-06-30",
+    sistePeriodeDeltakelsesprosent: 30,
+    manedsverk: 0.3,
+  },
+  {
+    id: uuid(),
+    person: {
+      navn: "Stian Bjærvik",
+      fodselsaar: 1980,
+    },
+    startDato: "2024-06-01",
+    forstePeriodeStartDato: "2024-06-01",
+    sistePeriodeSluttDato: "2024-06-30",
+    sistePeriodeDeltakelsesprosent: 100,
+    manedsverk: 1,
+  },
+  {
+    id: uuid(),
+    person: {
+      navn: "Donald Duck",
+      fodselsaar: 1980,
+    },
+    startDato: "2024-06-01",
+    forstePeriodeStartDato: "2024-06-01",
+    sistePeriodeSluttDato: "2024-06-30",
+    sistePeriodeDeltakelsesprosent: 100,
+    manedsverk: 1,
+  },
+];
 
 const mockKrav: RefusjonKravAft[] = [
   {
@@ -30,33 +73,7 @@ const mockKrav: RefusjonKravAft[] = [
       navn: "Fretex",
       slettet: false,
     },
-    deltakelser: [
-      {
-        id: uuid(),
-        person: {
-          navn: "Per Petterson",
-          fodselsdato: "1980-01-01",
-          fodselsaar: 1980,
-        },
-        startDato: "2024-06-01",
-        forstePeriodeStartDato: "2024-06-01",
-        sistePeriodeSluttDato: "2024-06-30",
-        sistePeriodeDeltakelsesprosent: 30,
-        manedsverk: 0.3,
-      },
-      {
-        id: uuid(),
-        person: {
-          navn: "Stian Bjærvik",
-          fodselsaar: 1980,
-        },
-        startDato: "2024-06-01",
-        forstePeriodeStartDato: "2024-06-01",
-        sistePeriodeSluttDato: "2024-06-30",
-        sistePeriodeDeltakelsesprosent: 100,
-        manedsverk: 1,
-      },
-    ],
+    deltakelser: mockDeltakelser,
     beregning: {
       periodeStart: "2024-06-01",
       periodeSlutt: "2024-06-30",
@@ -87,32 +104,7 @@ const mockKrav: RefusjonKravAft[] = [
       navn: "Fretex",
       slettet: false,
     },
-    deltakelser: [
-      {
-        id: uuid(),
-        person: {
-          navn: "Per Petterson",
-          fodselsdato: "1980-01-01",
-          fodselsaar: 1980,
-        },
-        startDato: "2024-06-01",
-        forstePeriodeStartDato: "2024-06-01",
-        sistePeriodeSluttDato: "2024-06-30",
-        sistePeriodeDeltakelsesprosent: 30,
-        manedsverk: 0.3,
-      },
-      {
-        id: uuid(),
-        person: {
-          navn: "Stian Bjærvik",
-        },
-        startDato: "2024-06-01",
-        forstePeriodeStartDato: "2024-06-01",
-        sistePeriodeSluttDato: "2024-06-30",
-        sistePeriodeDeltakelsesprosent: 100,
-        manedsverk: 1,
-      },
-    ],
+    deltakelser: mockDeltakelser,
     beregning: {
       periodeStart: "2024-06-01",
       periodeSlutt: "2024-06-30",
@@ -187,22 +179,30 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
     },
     periodeStart: "2024-06-01",
     periodeSlutt: "2024-12-31",
+    status: { status: TilsagnStatus.GODKJENT },
     arrangor: {
       id: uuid(),
       organisasjonsnummer: "123456789",
       navn: "Fretex",
     },
     beregning: {
-      type: "AFT",
-      periodeStart: "2024-06-01",
-      periodeSlutt: "2024-12-31",
-      belop: 195700,
-      antallPlasser: 20,
-      sats: 20205,
+      type: "FORHANDSGODKJENT",
+      input: {
+        type: "FORHANDSGODKJENT",
+        periodeStart: "2024-06-01",
+        periodeSlutt: "2024-12-31",
+        antallPlasser: 20,
+        sats: 20205,
+      },
+      output: {
+        type: "FORHANDSGODKJENT",
+        belop: 195700,
+      },
     },
     gjennomforing: {
       navn: "Amo tiltak Halden",
     },
+    type: TilsagnType.TILSAGN,
   },
   {
     id: uuid(),
@@ -211,22 +211,30 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
     },
     periodeStart: "2024-08-01",
     periodeSlutt: "2024-08-31",
+    status: { status: TilsagnStatus.GODKJENT },
     arrangor: {
       id: uuid(),
       organisasjonsnummer: "123456789",
       navn: "Fretex",
     },
     beregning: {
-      type: "AFT",
-      periodeStart: "2024-08-01",
-      periodeSlutt: "2024-08-31",
-      belop: 50000,
-      antallPlasser: 2,
-      sats: 20205,
+      type: "FORHANDSGODKJENT",
+      input: {
+        type: "FORHANDSGODKJENT",
+        periodeStart: "2024-08-01",
+        periodeSlutt: "2024-08-31",
+        antallPlasser: 2,
+        sats: 20205,
+      },
+      output: {
+        type: "FORHANDSGODKJENT",
+        belop: 50000,
+      },
     },
     gjennomforing: {
       navn: "Amo tiltak Halden",
     },
+    type: TilsagnType.TILSAGN,
   },
   {
     id: uuid(),
@@ -235,22 +243,30 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
     },
     periodeStart: "2024-08-01",
     periodeSlutt: "2024-08-31",
+    status: { status: TilsagnStatus.GODKJENT },
     arrangor: {
       id: uuid(),
       organisasjonsnummer: "123456789",
       navn: "Fretex",
     },
     beregning: {
-      type: "AFT",
-      periodeStart: "2024-08-01",
-      periodeSlutt: "2024-08-31",
-      belop: 50000,
-      antallPlasser: 2,
-      sats: 20205,
+      type: "FORHANDSGODKJENT",
+      input: {
+        type: "FORHANDSGODKJENT",
+        periodeStart: "2024-08-01",
+        periodeSlutt: "2024-08-31",
+        antallPlasser: 2,
+        sats: 20205,
+      },
+      output: {
+        type: "FORHANDSGODKJENT",
+        belop: 50000,
+      },
     },
     gjennomforing: {
       navn: "Amo tiltak Halden",
     },
+    type: TilsagnType.EKSTRATILSAGN,
   },
 ];
 
@@ -260,6 +276,17 @@ const arrangorer: Arrangor[] = [
     organisasjonsnummer: "123456789",
     navn: "Fretex",
     overordnetEnhet: null,
+  },
+];
+
+const mockRelevanteForslag: RelevanteForslag[] = [
+  {
+    deltakerId: mockDeltakelser[0].id,
+    antallRelevanteForslag: 1,
+  },
+  {
+    deltakerId: mockDeltakelser[1].id,
+    antallRelevanteForslag: 0,
   },
 ];
 
@@ -286,6 +313,10 @@ export const arrangorflateHandlers = [
   http.get<PathParams, RefusjonKravAft[]>(
     "*/api/v1/intern/arrangorflate/refusjonskrav/:id/tilsagn",
     () => HttpResponse.json(mockTilsagn),
+  ),
+  http.get<PathParams, RefusjonKravAft[]>(
+    "*/api/v1/intern/arrangorflate/refusjonskrav/:id/relevante-forslag",
+    () => HttpResponse.json(mockRelevanteForslag),
   ),
   http.get<PathParams, RefusjonKravAft[]>(
     "*/api/v1/intern/arrangorflate/arrangor/:orgnr/tilsagn",

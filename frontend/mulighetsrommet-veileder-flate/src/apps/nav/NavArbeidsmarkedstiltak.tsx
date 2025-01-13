@@ -3,7 +3,7 @@ import { AppContainer } from "@/layouts/AppContainer";
 import { MenuGridIcon } from "@navikt/aksel-icons";
 import "@navikt/ds-css";
 import { Dropdown, InternalHeader, Spacer } from "@navikt/ds-react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router";
 import { OmArbeidsmarkedstiltak } from "./OmArbeidsmarkedstiltak";
 import { NavArbeidsmarkedstiltakDetaljer } from "./views/NavArbeidsmarkedstiltakDetaljer";
 import { NavArbeidsmarkedstiltakOversikt } from "./views/NavArbeidsmarkedstiltakOversikt";

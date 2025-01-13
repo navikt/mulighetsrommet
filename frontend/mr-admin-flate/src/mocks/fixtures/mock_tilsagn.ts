@@ -2,16 +2,21 @@ import {
   NavEnhetStatus,
   NavEnhetType,
   TilsagnAvvisningAarsak,
-  TilsagnBesluttelseStatus,
   TilsagnDto,
+  TilsagnTilAnnulleringAarsak,
+  TilsagnType,
 } from "@mr/api-client";
 import { mockArrangorer } from "./mock_arrangorer";
-import { mockTiltaksgjennomforinger } from "./mock_tiltaksgjennomforinger";
 
 export const mockTilsagn: TilsagnDto[] = [
   {
     arrangor: mockArrangorer.data[0],
-    beregning: { type: "FRI", belop: 14000 },
+    type: TilsagnType.TILSAGN,
+    beregning: {
+      type: "FRI",
+      input: { type: "FRI", belop: 14000 },
+      output: { type: "FRI", belop: 14000 },
+    },
     id: "10e393b0-1b7c-4c68-9a42-b541b2f114b8",
     kostnadssted: {
       enhetsnummer: "0300",
@@ -23,15 +28,20 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 1,
     periodeStart: "2024-01-05",
     periodeSlutt: "2024-01-06",
-    tiltaksgjennomforing: {
-      id: mockTiltaksgjennomforinger[0].id,
-      antallPlasser: mockTiltaksgjennomforinger[0].antallPlasser || 15,
+    status: {
+      endretAv: "B123456",
+      type: "TIL_GODKJENNING",
+      endretTidspunkt: "2024-01-01T22:00:00",
     },
-    opprettetAv: "B123456",
   },
   {
     arrangor: mockArrangorer.data[0],
-    beregning: { type: "FRI", belop: 14000 },
+    type: TilsagnType.TILSAGN,
+    beregning: {
+      type: "FRI",
+      input: { type: "FRI", belop: 14000 },
+      output: { type: "FRI", belop: 14000 },
+    },
     id: "fd1825aa-1951-4de2-9b72-12d22f121e92",
     kostnadssted: {
       enhetsnummer: "0300",
@@ -43,35 +53,26 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 1,
     periodeStart: "2024-01-03",
     periodeSlutt: "2024-01-04",
-    tiltaksgjennomforing: {
-      id: mockTiltaksgjennomforinger[0].id,
-      antallPlasser: mockTiltaksgjennomforinger[0].antallPlasser || 15,
+    status: {
+      endretAv: "F123456",
+      endretAvNavn: "Donald Duck",
+      type: "TIL_ANNULLERING",
+      endretTidspunkt: "2024-01-01T22:00:00",
+      aarsaker: [
+        TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
+        TilsagnTilAnnulleringAarsak.FEIL_ANNET,
+      ],
+      forklaring: "Du må fikse det",
     },
-    opprettetAv: "F123456",
   },
   {
     arrangor: mockArrangorer.data[0],
-    beregning: { type: "FRI", belop: 67000 },
-    id: "aaad5bed-00dc-4437-9b43-b09eced228d7",
-    kostnadssted: {
-      enhetsnummer: "0300",
-      navn: "Nav Oslo",
-      overordnetEnhet: null,
-      status: NavEnhetStatus.AKTIV,
-      type: NavEnhetType.TILTAK,
+    type: TilsagnType.TILSAGN,
+    beregning: {
+      type: "FRI",
+      input: { type: "FRI", belop: 14000 },
+      output: { type: "FRI", belop: 14000 },
     },
-    lopenummer: 1,
-    periodeStart: "2024-01-01",
-    periodeSlutt: "2024-01-02",
-    tiltaksgjennomforing: {
-      id: mockTiltaksgjennomforinger[0].id,
-      antallPlasser: mockTiltaksgjennomforinger[0].antallPlasser || 15,
-    },
-    opprettetAv: "F123456",
-  },
-  {
-    arrangor: mockArrangorer.data[0],
-    beregning: { type: "FRI", belop: 67000 },
     id: "3ac22799-6af6-47c7-a3f4-bb4eaa7bad07",
     kostnadssted: {
       enhetsnummer: "0300",
@@ -83,21 +84,18 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 4,
     periodeStart: "2024-01-01",
     periodeSlutt: "2024-01-02",
-    tiltaksgjennomforing: {
-      id: mockTiltaksgjennomforinger[0].id,
-      antallPlasser: mockTiltaksgjennomforinger[0].antallPlasser || 15,
-    },
-    opprettetAv: "F123456",
-    besluttelse: {
-      navIdent: "N12345",
-      beslutternavn: "Nils Ole Hansen",
-      tidspunkt: "2024-01-10",
-      status: TilsagnBesluttelseStatus.GODKJENT,
+    status: {
+      type: "GODKJENT",
     },
   },
   {
     arrangor: mockArrangorer.data[0],
-    beregning: { type: "FRI", belop: 67000 },
+    type: TilsagnType.TILSAGN,
+    beregning: {
+      type: "FRI",
+      input: { type: "FRI", belop: 14000 },
+      output: { type: "FRI", belop: 14000 },
+    },
     id: "c7cd1ac0-34cd-46f2-b441-6d8c7318ee05",
     kostnadssted: {
       enhetsnummer: "0300",
@@ -109,16 +107,26 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 4,
     periodeStart: "2024-01-01",
     periodeSlutt: "2024-01-02",
-    tiltaksgjennomforing: {
-      id: mockTiltaksgjennomforinger[0].id,
-      antallPlasser: mockTiltaksgjennomforinger[0].antallPlasser || 15,
+    status: {
+      endretAv: "F123456",
+      godkjentAv: "N12345",
+      type: "ANNULLERT",
+      endretTidspunkt: "2024-01-01T22:00:00",
+      aarsaker: [
+        TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
+        TilsagnTilAnnulleringAarsak.FEIL_ANNET,
+      ],
+      forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
     },
-    opprettetAv: "F123456",
-    annullertTidspunkt: "2024-05-10",
   },
   {
     arrangor: mockArrangorer.data[0],
-    beregning: { type: "FRI", belop: 67000 },
+    type: TilsagnType.TILSAGN,
+    beregning: {
+      type: "FRI",
+      input: { type: "FRI", belop: 14000 },
+      output: { type: "FRI", belop: 14000 },
+    },
     id: "5950e714-95bc-4d4c-b52e-c75fde749056",
     kostnadssted: {
       enhetsnummer: "0300",
@@ -130,16 +138,12 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 4,
     periodeStart: "2024-01-01",
     periodeSlutt: "2024-01-02",
-    tiltaksgjennomforing: {
-      id: mockTiltaksgjennomforinger[0].id,
-      antallPlasser: mockTiltaksgjennomforinger[0].antallPlasser || 15,
-    },
-    opprettetAv: "B123456",
-    besluttelse: {
-      navIdent: "N12345",
-      beslutternavn: "Nils Ole Hansen",
-      tidspunkt: "2024-01-10",
-      status: TilsagnBesluttelseStatus.AVVIST,
+    status: {
+      endretAv: "B123456",
+      returnertAv: "N12345",
+      returnertAvNavn: "Nils Fjordstrand",
+      type: "RETURNERT",
+      endretTidspunkt: "2024-01-10",
       aarsaker: [TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER, TilsagnAvvisningAarsak.FEIL_ANNET],
       forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
     },

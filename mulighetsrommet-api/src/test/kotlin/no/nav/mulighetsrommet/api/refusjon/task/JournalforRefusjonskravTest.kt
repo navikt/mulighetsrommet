@@ -4,6 +4,8 @@ import arrow.core.right
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.ktor.client.engine.mock.*
+import io.ktor.http.*
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -14,6 +16,7 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
@@ -22,15 +25,15 @@ import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.ktor.createMockEngine
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
 class JournalforRefusjonskravTest : FunSpec({
-    val databaseConfig = databaseConfig
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val hovedenhet = ArrangorDto(
@@ -84,25 +87,34 @@ class JournalforRefusjonskravTest : FunSpec({
     )
 
     beforeEach {
-        database.db.truncateAll()
+        database.truncateAll()
         domain.initialize(database.db)
     }
 
     val pdl: PdlClient = mockk(relaxed = true)
+    val pdf = PdfGenClient(
+        clientEngine = createMockEngine(
+            "http://pdfgen/api/v1/genpdf/refusjon/journalpost" to {
+                respond(":)".toByteArray(), HttpStatusCode.OK)
+            },
+        ),
+        baseUrl = "http://pdfgen",
+    )
     val tilsagnService: TilsagnService = mockk()
     val dokarkClient: DokarkClient = mockk()
-    val hentAdressebeskyttetPersonBolkPdlQuery = HentAdressebeskyttetPersonBolkPdlQuery(pdl)
+
+    fun createTask() = JournalforRefusjonskrav(
+        refusjonskravRepository = RefusjonskravRepository(database.db),
+        tilsagnService = tilsagnService,
+        dokarkClient = dokarkClient,
+        deltakerRepository = DeltakerRepository(database.db),
+        pdl = HentAdressebeskyttetPersonBolkPdlQuery(pdl),
+        pdf = pdf,
+        tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db),
+    )
 
     test("krav må være godkjent") {
-        val task = JournalforRefusjonskrav(
-            database.db,
-            refusjonskravRepository = RefusjonskravRepository(database.db),
-            tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db),
-            tilsagnService,
-            dokarkClient,
-            deltakerRepository = DeltakerRepository(database.db),
-            hentAdressebeskyttetPersonBolkPdlQuery,
-        )
+        val task = createTask()
 
         shouldThrow<Throwable> {
             task.journalforRefusjonskrav(krav.id)
@@ -111,15 +123,8 @@ class JournalforRefusjonskravTest : FunSpec({
 
     test("vellykket journalføring setter journalpost_id") {
         val refusjonskravRepository = RefusjonskravRepository(database.db)
-        val task = JournalforRefusjonskrav(
-            database.db,
-            refusjonskravRepository,
-            tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db),
-            tilsagnService,
-            dokarkClient,
-            deltakerRepository = DeltakerRepository(database.db),
-            hentAdressebeskyttetPersonBolkPdlQuery,
-        )
+        val task = createTask()
+
         refusjonskravRepository.setGodkjentAvArrangor(krav.id, LocalDateTime.now())
 
         every { tilsagnService.getArrangorflateTilsagnTilRefusjon(any(), any()) } returns emptyList()
@@ -133,5 +138,31 @@ class JournalforRefusjonskravTest : FunSpec({
 
         task.journalforRefusjonskrav(krav.id)
         refusjonskravRepository.get(krav.id)?.journalpostId shouldBe "123"
+    }
+
+    test("task scheduleres ikke hvis transaction rulles tilbake") {
+        val task = createTask()
+
+        runCatching {
+            database.db.transaction { tx ->
+                task.schedule(krav.id, Instant.now(), tx)
+                throw Exception("Test")
+            }
+        }
+
+        database.assertThat("scheduled_tasks")
+            .hasNumberOfRows(0)
+    }
+
+    test("task scheduleres hvis transaction går bra") {
+        val task = createTask()
+
+        database.db.transaction { tx ->
+            task.schedule(krav.id, Instant.now(), tx)
+        }
+
+        database.assertThat("scheduled_tasks")
+            .row()
+            .value("task_name").isEqualTo("JournalforRefusjonskrav")
     }
 })

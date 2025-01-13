@@ -97,6 +97,12 @@ spec:
               "valueDeserializerType": "STRING"
             },
             {
+              "name": "team-mulighetsrommet.datavarehus-tiltak-v1",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            },
+            {
               "name": "team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
@@ -104,6 +110,12 @@ spec:
             },
             {
               "name": "amt.deltaker-v1",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            },
+            {
+              "name": "amt.arrangor-melding-v1",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
               "valueDeserializerType": "STRING"

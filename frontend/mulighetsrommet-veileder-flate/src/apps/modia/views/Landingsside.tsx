@@ -20,7 +20,7 @@ import {
 } from "@navikt/ds-react";
 import { ReactNode, Suspense, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router";
 import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
 import { DeltakelseKort } from "../historikk/DeltakelseKort";
 import styles from "./Landingsside.module.scss";
@@ -204,7 +204,7 @@ function DeltakelserAktive() {
         <ManglerDeltakelserFraTeamTiltakMelding />
       )}
       {data.deltakelser.map((deltakelse) => {
-        return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} />;
+        return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} aktiv />;
       })}
       {data.deltakelser.length === 0 && <IngenFunnetBox title="Brukeren har ingen aktive tiltak" />}
     </Container>
@@ -246,7 +246,7 @@ function DeltakelserHistoriske() {
         <ManglerDeltakelserFraTeamTiltakMelding />
       )}
       {yngreEnn5aar.map((deltakelse) => {
-        return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} />;
+        return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} aktiv={false} />;
       })}
       {yngreEnn5aar.length === 0 && eldreEnn5aar.length === 0 && (
         <IngenFunnetBox title="Brukeren har ingen tidligere tiltak" />
@@ -272,7 +272,7 @@ function DeltakelserHistoriske() {
       {visAlle &&
         eldreEnn5aar.length > 0 &&
         eldreEnn5aar.map((deltakelse) => {
-          return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} />;
+          return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} aktiv={false} />;
         })}
       {data.meldinger.includes(DeltakelserMelding.HENTER_IKKE_DELTAKELSER_FRA_TEAM_TILTAK) && (
         <HenterIkkeDeltakelserFraTeamTiltakMeling />

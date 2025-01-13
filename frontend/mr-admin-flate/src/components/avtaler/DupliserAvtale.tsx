@@ -1,6 +1,6 @@
 import { useSetAtom } from "jotai";
 import { AvtaleDto, Opphav } from "@mr/api-client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { avtaleDetaljerTabAtom } from "@/api/atoms";
 import { DupliserButton } from "../detaljside/DupliserButton";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";

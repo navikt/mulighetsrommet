@@ -1,4 +1,4 @@
-import { useParams } from "@remix-run/react";
+import { useParams } from "react-router";
 
 export function formaterDato(dato: string | Date, fallback = ""): string {
   const result = new Date(dato).toLocaleString("no-NO", {

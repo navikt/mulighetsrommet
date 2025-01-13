@@ -63,6 +63,7 @@ class OpsjonLoggValidatorTest : FunSpec({
         ),
         opsjonerRegistrert = emptyList(),
         utdanningslop = null,
+        prismodell = null,
     )
 
     test("Skal kaste en feil hvis opsjonsmodell ikke finnes") {
