@@ -24,6 +24,7 @@ export function TilsagnForGjennomforingContainer() {
               <Dropdown.Menu.GroupedList>
                 {tilsagnstyper.map((type) => (
                   <Dropdown.Menu.GroupedList.Item
+                    key={type}
                     onClick={() => {
                       navigate(`opprett-tilsagn?type=${type}`);
                     }}
