@@ -3,7 +3,6 @@ import { OppgaverFilter as OppgaverFilterProps, oppgaverFilterAccordionAtom } fr
 import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
 import { addOrRemove } from "@/utils/Utils";
 import { FilterAccordionHeader } from "@mr/frontend-common";
-import styles from "./OppgaverFilter.module.scss";
 import { OppgaveType, TiltakstypeDto } from "@mr/api-client";
 
 interface Props {
@@ -16,7 +15,7 @@ export function OppgaverFilter({ filterAtom, tiltakstyper }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(oppgaverFilterAccordionAtom);
 
   return (
-    <div className={styles.container}>
+    <div className="bg-white self-start">
       <Accordion>
         <Accordion.Item open={accordionsOpen.includes("oppgaveType")}>
           <Accordion.Header
@@ -30,7 +29,7 @@ export function OppgaverFilter({ filterAtom, tiltakstyper }: Props) {
             <div style={{ marginLeft: "-2rem" }}>
               <CheckboxGroup
                 value={filter.type}
-                legend="Registrer opsjon"
+                legend="Velg tilsagn du vil se"
                 onChange={(value) => {
                   setFilter({
                     ...filter,

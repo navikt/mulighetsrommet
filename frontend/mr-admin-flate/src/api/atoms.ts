@@ -293,7 +293,6 @@ export const arrangorerFilterAtom = atomWithHashAndStorage<ArrangorerFilter>(
 );
 
 const oppgaverFilterSchema = z.object({
-  //type: z.enum(["alle", "avtale", "gjennomforing", "tilsagn", "stikkprove"]).array(),
   type: z.enum([OppgaveType.TILSAGN_TIL_BESLUTNING, OppgaveType.TILSAGN_TIL_ANNULLERING]).array(),
   tiltakstyper: z.array(z.string()),
 });

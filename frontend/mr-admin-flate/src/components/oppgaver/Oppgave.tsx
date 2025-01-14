@@ -1,5 +1,4 @@
 import { Heading, Link } from "@navikt/ds-react";
-import styles from "./Oppgave.module.scss";
 import { type Oppgave, OppgaveType, TiltakstypeDto } from "@mr/api-client";
 import { formaterDato } from "@/utils/Utils";
 
@@ -14,18 +13,18 @@ export function Oppgave({ oppgave, tiltakstype }: OppgaveProps) {
 
   return (
     <>
-      <div className={styles.oppgave_container} data-testid="oppgaver">
-        <div className={styles.header}>
+      <div className="bg-white p-4" data-testid="oppgaver">
+        <div className="flex justify-between items-center">
           <span>{tiltakstype.navn}</span>
           <span>{formaterDato(fristDate)}</span>
         </div>
         <div>
-          <div className={styles.titleAndStatus}>
+          <div className="flex justify-between mt-4">
             <Heading size="medium">{title}</Heading>
             <OppgaveStatus status={oppgave.type} />
           </div>
           <div>{description}</div>
-          <Link className={styles.link} href={link.link}>
+          <Link className="mt-3" href={link.link}>
             {link.linkText}
           </Link>
         </div>
@@ -53,7 +52,7 @@ function OppgaveStatus({ status }: { status: OppgaveType }) {
       style={{
         backgroundColor: color,
       }}
-      className={styles.oppgaveStatus}
+      className="p-1"
     >
       {label}
     </div>

@@ -30,7 +30,7 @@ export function ArbeidsbenkPage() {
         selectionFollowsFocus
       >
         <Tabs.List id="fane_liste" className={styles.list}>
-          {enableArbeidsbenk && (
+          {true && (
             <Tabs.Tab
               value="oppgaver"
               label={`Oppgaver`}
