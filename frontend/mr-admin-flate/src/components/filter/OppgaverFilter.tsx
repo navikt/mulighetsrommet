@@ -15,7 +15,7 @@ export function OppgaverFilter({ filterAtom, tiltakstyper }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(oppgaverFilterAccordionAtom);
 
   return (
-    <div className="bg-white self-start">
+    <div className="bg-white self-start w-80">
       <Accordion>
         <Accordion.Item open={accordionsOpen.includes("oppgaveType")}>
           <Accordion.Header

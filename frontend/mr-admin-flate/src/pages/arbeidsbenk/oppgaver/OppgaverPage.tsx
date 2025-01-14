@@ -11,9 +11,10 @@ import { useState } from "react";
 import { GetOppgaverResponse } from "@mr/api-client";
 import { useAtom } from "jotai/index";
 import { useOppgaver } from "@/api/oppgaver/useOppgaver";
+import { EmptyState } from "@/components/notifikasjoner/EmptyState";
 
 type OppgaverSorting = "korteste-frist" | "nyeste" | "eldste";
-// @TODO: Should maybe be on the backend?
+
 function sort(oppgaver: GetOppgaverResponse, sorting: OppgaverSorting) {
   if (sorting === "korteste-frist") {
     return oppgaver.sort((a, b) => {
@@ -82,6 +83,9 @@ export function OppgaverPage() {
               />
             );
           })}
+          {sortedOppgaver.length === 0 && (
+            <EmptyState tittel={"Du har ingen nye Oppgaver"} beskrivelse={""} />
+          )}
         </div>
       </div>
     </main>

@@ -13,9 +13,8 @@ import { Toggles } from "@mr/api-client";
 export function ArbeidsbenkPage() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { notifikasjoner, enableArbeidsbenk } = useLoaderData<typeof arbeidsbenkLoader>();
+  const { antallNotifikasjoner, enableArbeidsbenk } = useLoaderData<typeof arbeidsbenkLoader>();
 
-  console.log("feature", enableArbeidsbenk);
   useTitle("Arbeidsbenk");
 
   return (
@@ -30,7 +29,7 @@ export function ArbeidsbenkPage() {
         selectionFollowsFocus
       >
         <Tabs.List id="fane_liste" className={styles.list}>
-          {true && (
+          {enableArbeidsbenk && (
             <Tabs.Tab
               value="oppgaver"
               label={`Oppgaver`}
@@ -40,7 +39,7 @@ export function ArbeidsbenkPage() {
           )}
           <Tabs.Tab
             value="notifikasjoner"
-            label={`Notifikasjoner ${notifikasjoner ? `(${notifikasjoner})` : ""}`}
+            label={`Notifikasjoner ${antallNotifikasjoner ? `(${antallNotifikasjoner})` : ""}`}
             onClick={() => navigate("/arbeidsbenk/notifikasjoner")}
             aria-controls="panel"
             data-testid="notifikasjoner"

@@ -16,7 +16,7 @@ export async function arbeidsbenkLoader() {
   });
 
   return {
-    notifikasjoner: leste?.pagination.totalCount + uleste?.pagination.totalCount,
+    antallNotifikasjoner: leste?.pagination.totalCount + uleste?.pagination.totalCount,
     enableArbeidsbenk: enableArbeidsbenk,
   };
 }
