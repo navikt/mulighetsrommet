@@ -1,4 +1,6 @@
 import { avtaleFilterAtom, AvtaleFilterSchema } from "@/api/atoms";
+import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
+import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
 import { AvtaleFilter } from "@/components/filter/AvtaleFilter";
 import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
 import { AvtaleFiltertags } from "@/components/filter/AvtaleFiltertags";
@@ -19,6 +21,8 @@ export function AvtalerPage() {
   useTitle("Avtaler");
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
+  const { data: lagredeFilter = [] } = useLagredeFilter(LagretDokumenttype.AVTALE);
+  const deleteFilterMutation = useSlettFilter(LagretDokumenttype.AVTALE);
 
   const [filter, setFilter] = useAtom(avtaleFilterAtom);
 
@@ -32,9 +36,10 @@ export function AvtalerPage() {
             filter={<AvtaleFilter filterAtom={avtaleFilterAtom} />}
             lagredeFilter={
               <LagredeFilterOversikt
+                deleteMutation={deleteFilterMutation}
+                lagredeFilter={lagredeFilter}
                 setFilter={setFilter}
                 filter={filter}
-                dokumenttype={LagretDokumenttype.AVTALE}
                 validateFilterStructure={(filter) => {
                   return AvtaleFilterSchema.safeParse(filter).success;
                 }}

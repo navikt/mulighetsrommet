@@ -3,6 +3,7 @@ import {
   type GetAvtalerData,
   GetEnheterData,
   GetGjennomforingerData,
+  LagretDokumenttype,
   NavAnsattRolle,
   NotificationStatus,
 } from "@mr/api-client";
@@ -48,4 +49,5 @@ export const QueryKeys = {
   slettTilsagn: () => ["slett-tilsagn"],
   avtalteSatser: (avtaleId: string) => ["satser", avtaleId],
   utdanninger: () => ["utdanninger"],
+  lagredeFilter: (dokumenttype: LagretDokumenttype) => ["lagredeFilter", dokumenttype],
 };

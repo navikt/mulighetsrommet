@@ -1,26 +1,26 @@
 import { TrashFillIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Button, HStack, Radio, RadioGroup } from "@navikt/ds-react";
-import { LagretDokumenttype, LagretFilter } from "@mr/api-client-v2";
+import { LagretFilter } from "@mr/api-client-v2";
 import { useRef, useState } from "react";
-import { useGetLagredeFilterForDokumenttype } from "./getLagredeFilterForDokumenttype";
 import styles from "./LagredeFilterOversikt.module.scss";
-import { useSlettFilter } from "./useSlettFilter";
 import { VarselModal } from "../varsel/VarselModal";
+import { UseMutationResult } from "@tanstack/react-query";
 
 interface Props {
-  dokumenttype: LagretDokumenttype;
+  lagredeFilter: LagretFilter[];
   filter: any;
   setFilter: (filter: any) => void;
   validateFilterStructure: (filter: any) => boolean;
+  deleteMutation: UseMutationResult<string, any, string>;
 }
 
 export function LagredeFilterOversikt({
-  dokumenttype,
+  lagredeFilter,
   filter,
   setFilter,
   validateFilterStructure,
+  deleteMutation,
 }: Props) {
-  const { data: lagredeFilter = [] } = useGetLagredeFilterForDokumenttype(dokumenttype);
   const [filterForSletting, setFilterForSletting] = useState<LagretFilter | undefined>(undefined);
   const [filterHarUgyldigStruktur, setFilterHarUgyldigStruktur] = useState<
     LagretFilter | undefined
@@ -28,7 +28,6 @@ export function LagredeFilterOversikt({
 
   const sletteFilterModalRef = useRef<HTMLDialogElement>(null);
   const filterHarUgyldigStrukturModalRef = useRef<HTMLDialogElement>(null);
-  const mutation = useSlettFilter(dokumenttype);
 
   function oppdaterFilter(id: string) {
     const valgtFilter = lagredeFilter.find((f) => f.id === id);
@@ -42,7 +41,7 @@ export function LagredeFilterOversikt({
   }
 
   function slettFilter(id: string) {
-    mutation.mutate(id, {
+    deleteMutation.mutate(id, {
       onSuccess: () => {
         setFilter({ ...filter, lagretFilterIdValgt: undefined });
         setFilterForSletting(undefined);
