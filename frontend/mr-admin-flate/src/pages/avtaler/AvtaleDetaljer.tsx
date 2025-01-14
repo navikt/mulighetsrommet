@@ -150,6 +150,7 @@ export function AvtaleDetaljer() {
                               target="_blank"
                               rel="noopener noreferrer"
                               href={`${NOM_ANSATT_SIDE}${admin.navIdent}`}
+                              className="flex gap-1.5"
                             >
                               {`${admin.navn} - ${admin.navIdent}`}{" "}
                               <ExternalLinkIcon aria-label="Ekstern lenke" />

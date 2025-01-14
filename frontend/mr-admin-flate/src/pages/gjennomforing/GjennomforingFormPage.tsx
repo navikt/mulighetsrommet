@@ -47,9 +47,7 @@ export function GjennomforingFormPage() {
     redigeringsModus
       ? {
           tittel: "Gjennomføring",
-          lenke: avtaleId
-            ? `/avtaler/${avtaleId}/tiltaksgjennomforinger/${gjennomforing?.id}`
-            : `/tiltaksgjennomforinger/${gjennomforing?.id}`,
+          lenke: `/tiltaksgjennomforinger/${gjennomforing?.id}`,
         }
       : undefined,
     {

@@ -71,7 +71,7 @@ export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
   return (
     <>
       <TwoColumnGrid separator>
-        <VStack>
+        <VStack justify={"space-between"}>
           <Bolk aria-label="Tiltaksnavn og tiltaksnummer" data-testid="tiltaksnavn">
             <Metadata header={gjennomforingTekster.tiltaksnavnLabel} verdi={gjennomforing.navn} />
             <Metadata
@@ -173,6 +173,7 @@ export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
                             target="_blank"
                             rel="noopener noreferrer"
                             href={`${NOM_ANSATT_SIDE}${admin?.navIdent}`}
+                            className="flex gap-1.5"
                           >
                             {`${admin?.navn} - ${admin?.navIdent}`}{" "}
                             <ExternalLinkIcon aria-label="Ekstern lenke" />
