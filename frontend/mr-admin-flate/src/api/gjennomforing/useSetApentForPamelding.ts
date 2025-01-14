@@ -1,13 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
-import { TiltaksgjennomforingerService } from "@mr/api-client";
+import { GjennomforingerService } from "@mr/api-client";
 
 export function useSetApentForPamelding(id: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (apentForPamelding: boolean) => {
-      return TiltaksgjennomforingerService.setApentForPamelding({
+      return GjennomforingerService.setApentForPamelding({
         id: id,
         requestBody: { apentForPamelding },
       });

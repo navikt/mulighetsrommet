@@ -1,4 +1,4 @@
-import { TilsagnBeregningFri, TiltaksgjennomforingDto } from "@mr/api-client";
+import { TilsagnBeregningFri, GjennomforingDto } from "@mr/api-client";
 import { TilsagnSkjema } from "@/components/tilsagn/prismodell/TilsagnSkjema";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { TextField } from "@navikt/ds-react";
@@ -8,7 +8,7 @@ import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
 type FriTilsagn = InferredTilsagn & { beregning: TilsagnBeregningFri };
 
 interface Props {
-  gjennomforing: TiltaksgjennomforingDto;
+  gjennomforing: GjennomforingDto;
   onSuccess: () => void;
   onAvbryt: () => void;
   defaultValues: DeepPartial<FriTilsagn>;

@@ -11,7 +11,7 @@ import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 export function GjennomforingFilterButtons() {
   const { data: avtale } = useAvtale();
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const setTiltaksgjennomforingFane = useSetAtom(gjennomforingDetaljerTabAtom);
+  const setGjennomforingFane = useSetAtom(gjennomforingDetaljerTabAtom);
 
   const avtaleErAftEllerVta = avtale?.tiltakstype?.tiltakskode
     ? [
@@ -41,13 +41,13 @@ export function GjennomforingFilterButtons() {
             alignItems: "center",
           }}
         >
-          <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
+          <HarSkrivetilgang ressurs="Gjennomføring">
             <Lenkeknapp
               size="small"
               to={`/avtaler/${avtale.id}/tiltaksgjennomforinger/skjema`}
               variant="primary"
               dataTestid="opprett-ny-tiltaksgjenomforing_knapp"
-              onClick={() => setTiltaksgjennomforingFane("detaljer")}
+              onClick={() => setGjennomforingFane("detaljer")}
             >
               Opprett ny tiltaksgjennomføring
             </Lenkeknapp>

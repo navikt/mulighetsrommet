@@ -8,9 +8,9 @@ import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingNotificationDto
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationTask
@@ -22,7 +22,7 @@ import java.time.LocalDate
 
 class NotifySluttdatoForGjennomforingerNarmerSeg(
     config: Config,
-    private val db: Database,
+    private val db: ApiDatabase,
     private val notificationTask: NotificationTask,
 ) {
     data class Config(
@@ -75,7 +75,7 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
 
     fun getAllGjennomforingerSomNarmerSegSluttdato(
         today: LocalDate,
-    ): List<TiltaksgjennomforingNotificationDto> = db.useSession { session ->
+    ): List<TiltaksgjennomforingNotificationDto> = db.session {
         @Language("PostgreSQL")
         val query = """
             select gjennomforing.id::uuid,
@@ -91,20 +91,17 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
             group by gjennomforing.id
         """.trimIndent()
 
-        queryOf(query, mapOf("today" to today))
-            .map { it.toTiltaksgjennomforingNotificationDto() }
-            .asList
-            .runWithSession(session)
+        session.list(queryOf(query, mapOf("today" to today))) { it.toTiltaksgjennomforingNotificationDto() }
     }
+}
 
-    private fun Row.toTiltaksgjennomforingNotificationDto(): TiltaksgjennomforingNotificationDto {
-        val administratorer = array<String>("administratorer").asList().map { NavIdent(it) }
-        return TiltaksgjennomforingNotificationDto(
-            id = uuid("id"),
-            navn = string("navn"),
-            sluttDato = localDate("slutt_dato"),
-            administratorer = administratorer,
-            tiltaksnummer = stringOrNull("tiltaksnummer"),
-        )
-    }
+private fun Row.toTiltaksgjennomforingNotificationDto(): TiltaksgjennomforingNotificationDto {
+    val administratorer = array<String>("administratorer").asList().map { NavIdent(it) }
+    return TiltaksgjennomforingNotificationDto(
+        id = uuid("id"),
+        navn = string("navn"),
+        sluttDato = localDate("slutt_dato"),
+        administratorer = administratorer,
+        tiltaksnummer = stringOrNull("tiltaksnummer"),
+    )
 }

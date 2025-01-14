@@ -7,11 +7,7 @@ import { useAtomValue } from "jotai";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 import { VisningsnavnForTiltak } from "./VisningsnavnForTiltak";
-import {
-  DelMedBruker,
-  TiltaksgjennomforingOppstartstype,
-  VeilederflateTiltak,
-} from "@mr/api-client";
+import { DelMedBruker, GjennomforingOppstartstype, VeilederflateTiltak } from "@mr/api-client";
 import styles from "./ArbeidsmarkedstiltakListItem.module.scss";
 import {
   isTiltakEnkeltplass,
@@ -101,9 +97,9 @@ function utledOppstart(tiltak: VeilederflateTiltak) {
   }
 
   switch (tiltak.oppstart) {
-    case TiltaksgjennomforingOppstartstype.FELLES:
+    case GjennomforingOppstartstype.FELLES:
       return formaterDato(tiltak.oppstartsdato);
-    case TiltaksgjennomforingOppstartstype.LOPENDE:
+    case GjennomforingOppstartstype.LOPENDE:
       return "Løpende oppstart";
   }
 }

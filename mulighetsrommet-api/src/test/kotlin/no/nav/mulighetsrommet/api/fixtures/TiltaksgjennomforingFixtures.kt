@@ -1,15 +1,15 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.gjennomforing.EstimertVentetid
-import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingRequest
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingRequest
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import java.time.LocalDate
 import java.util.*
 
 object TiltaksgjennomforingFixtures {
-    val Oppfolging1 = TiltaksgjennomforingDbo(
+    val Oppfolging1 = GjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "Oppfølging 1",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -20,7 +20,7 @@ object TiltaksgjennomforingFixtures {
         administratorer = listOf(NavIdent("DD1")),
         navRegion = "0400",
         navEnheter = listOf("0502"),
-        oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
+        oppstart = GjennomforingOppstartstype.LOPENDE,
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
@@ -35,7 +35,7 @@ object TiltaksgjennomforingFixtures {
         utdanningslop = null,
     )
 
-    val EnkelAmo1 = TiltaksgjennomforingDbo(
+    val EnkelAmo1 = GjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "EnkelAmo 1",
         tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
@@ -46,7 +46,7 @@ object TiltaksgjennomforingFixtures {
         administratorer = listOf(NavIdent("DD1")),
         navRegion = "0400",
         navEnheter = listOf("0502"),
-        oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
+        oppstart = GjennomforingOppstartstype.LOPENDE,
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
@@ -61,7 +61,7 @@ object TiltaksgjennomforingFixtures {
         utdanningslop = null,
     )
 
-    val Oppfolging1Request = TiltaksgjennomforingRequest(
+    val Oppfolging1Request = GjennomforingRequest(
         id = Oppfolging1.id,
         navn = Oppfolging1.navn,
         tiltakstypeId = Oppfolging1.tiltakstypeId,
@@ -89,7 +89,7 @@ object TiltaksgjennomforingFixtures {
         utdanningslop = null,
     )
 
-    val Oppfolging2 = TiltaksgjennomforingDbo(
+    val Oppfolging2 = GjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "Oppfølging 2",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -100,7 +100,7 @@ object TiltaksgjennomforingFixtures {
         administratorer = emptyList(),
         navRegion = "2990",
         navEnheter = emptyList(),
-        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+        oppstart = GjennomforingOppstartstype.FELLES,
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
@@ -115,7 +115,7 @@ object TiltaksgjennomforingFixtures {
         utdanningslop = null,
     )
 
-    val VTA1 = TiltaksgjennomforingDbo(
+    val VTA1 = GjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "VTA 1",
         tiltakstypeId = TiltakstypeFixtures.VTA.id,
@@ -126,7 +126,7 @@ object TiltaksgjennomforingFixtures {
         navRegion = "0400",
         navEnheter = listOf("0502"),
         administratorer = listOf(NavIdent("DD1")),
-        oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
+        oppstart = GjennomforingOppstartstype.LOPENDE,
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
@@ -141,7 +141,7 @@ object TiltaksgjennomforingFixtures {
         utdanningslop = null,
     )
 
-    val AFT1 = TiltaksgjennomforingDbo(
+    val AFT1 = GjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "AFT 1",
         tiltakstypeId = TiltakstypeFixtures.AFT.id,
@@ -152,7 +152,7 @@ object TiltaksgjennomforingFixtures {
         administratorer = listOf(NavIdent("DD1")),
         navRegion = "0400",
         navEnheter = listOf("0502"),
-        oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
+        oppstart = GjennomforingOppstartstype.LOPENDE,
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
@@ -167,7 +167,7 @@ object TiltaksgjennomforingFixtures {
         utdanningslop = null,
     )
 
-    val Jobbklubb1 = TiltaksgjennomforingDbo(
+    val Jobbklubb1 = GjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "Jobbklubb 1",
         tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
@@ -178,7 +178,7 @@ object TiltaksgjennomforingFixtures {
         administratorer = listOf(NavIdent("DD1")),
         navRegion = "0400",
         navEnheter = listOf("0502"),
-        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+        oppstart = GjennomforingOppstartstype.FELLES,
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
@@ -193,7 +193,7 @@ object TiltaksgjennomforingFixtures {
         utdanningslop = null,
     )
 
-    val GruppeAmo1 = TiltaksgjennomforingDbo(
+    val GruppeAmo1 = GjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "Gruppe Amo 1",
         tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id,
@@ -204,7 +204,7 @@ object TiltaksgjennomforingFixtures {
         administratorer = listOf(NavIdent("DD1")),
         navRegion = "0400",
         navEnheter = listOf("0502"),
-        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+        oppstart = GjennomforingOppstartstype.FELLES,
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
@@ -219,7 +219,7 @@ object TiltaksgjennomforingFixtures {
         utdanningslop = null,
     )
 
-    val GruppeFagYrke1 = TiltaksgjennomforingDbo(
+    val GruppeFagYrke1 = GjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "Gruppe Fag- og yrkesopplæring 1",
         tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
@@ -230,7 +230,7 @@ object TiltaksgjennomforingFixtures {
         administratorer = listOf(NavIdent("DD1")),
         navRegion = "0400",
         navEnheter = listOf("0502"),
-        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+        oppstart = GjennomforingOppstartstype.FELLES,
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
@@ -245,7 +245,7 @@ object TiltaksgjennomforingFixtures {
         utdanningslop = null,
     )
 
-    val IPS1 = TiltaksgjennomforingDbo(
+    val IPS1 = GjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "IPS 1",
         tiltakstypeId = TiltakstypeFixtures.IPS.id,
@@ -256,7 +256,7 @@ object TiltaksgjennomforingFixtures {
         administratorer = listOf(NavIdent("DD1")),
         navRegion = "0400",
         navEnheter = listOf("0502"),
-        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+        oppstart = GjennomforingOppstartstype.FELLES,
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
@@ -271,7 +271,7 @@ object TiltaksgjennomforingFixtures {
         utdanningslop = null,
     )
 
-    val ArbeidsrettetRehabilitering = TiltaksgjennomforingDbo(
+    val ArbeidsrettetRehabilitering = GjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "Arbeidsretter Rehabilitering 1",
         tiltakstypeId = TiltakstypeFixtures.ArbeidsrettetRehabilitering.id,
@@ -282,7 +282,7 @@ object TiltaksgjennomforingFixtures {
         administratorer = listOf(NavIdent("DD1")),
         navRegion = "0400",
         navEnheter = listOf("0502"),
-        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+        oppstart = GjennomforingOppstartstype.FELLES,
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",

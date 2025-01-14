@@ -1,9 +1,9 @@
 import {
   TilsagnService,
-  TiltaksgjennomforingerService,
   AvtalerService,
   Avtaletype,
   TilsagnType,
+  GjennomforingerService,
 } from "@mr/api-client";
 import { LoaderFunctionArgs } from "react-router";
 
@@ -14,7 +14,7 @@ export async function tilsagnForGjennomforingLoader({ params }: LoaderFunctionAr
     throw new Error("tiltaksgjennomforingId is missing");
   }
 
-  const gjennomforing = await TiltaksgjennomforingerService.getTiltaksgjennomforing({
+  const gjennomforing = await GjennomforingerService.getGjennomforing({
     id: gjennomforingId,
   });
 

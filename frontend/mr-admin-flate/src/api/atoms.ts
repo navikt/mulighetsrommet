@@ -10,9 +10,9 @@ import {
   OppgaveType,
   SorteringArrangorer,
   SorteringAvtaler,
-  SorteringTiltaksgjennomforinger,
+  SorteringGjennomforinger,
   SorteringTiltakstyper,
-  TiltaksgjennomforingStatus,
+  GjennomforingStatus,
 } from "@mr/api-client";
 import { z, ZodType } from "zod";
 
@@ -165,8 +165,8 @@ export const GjennomforingFilterSchema = z.object({
   search: z.string(),
   navEnheter: z.custom<NavEnhet>().array(),
   tiltakstyper: z.string().array(),
-  statuser: z.custom<TiltaksgjennomforingStatus>().array(),
-  sortering: createSorteringProps(z.custom<SorteringTiltaksgjennomforinger>()),
+  statuser: z.custom<GjennomforingStatus>().array(),
+  sortering: createSorteringProps(z.custom<SorteringGjennomforinger>()),
   avtale: z.string(),
   arrangorer: z.string().array(),
   visMineGjennomforinger: z.boolean(),
@@ -181,9 +181,9 @@ export const defaultGjennomforingfilter: GjennomforingFilter = {
   search: "",
   navEnheter: [],
   tiltakstyper: [],
-  statuser: [TiltaksgjennomforingStatus.GJENNOMFORES],
+  statuser: [GjennomforingStatus.GJENNOMFORES],
   sortering: {
-    sortString: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
+    sortString: SorteringGjennomforinger.NAVN_ASCENDING,
     tableSort: {
       orderBy: "navn",
       direction: "ascending",

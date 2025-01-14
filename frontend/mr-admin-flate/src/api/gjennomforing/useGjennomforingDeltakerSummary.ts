@@ -1,12 +1,12 @@
 import { QueryKeys } from "@/api/QueryKeys";
-import { TiltaksgjennomforingerService } from "@mr/api-client";
+import { GjennomforingerService } from "@mr/api-client";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 function getDeltakerSummaryQuery(id: string) {
   return {
     queryKey: QueryKeys.gjennomforingDeltakerSummary(id),
     queryFn() {
-      return TiltaksgjennomforingerService.getTiltaksgjennomforingDeltakerSummary({
+      return GjennomforingerService.getGjennomforingDeltakerSummary({
         id,
       });
     },

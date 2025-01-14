@@ -3,7 +3,7 @@ import {
   TilsagnService,
   TilsagnStatus,
   TilsagnType,
-  TiltaksgjennomforingerService,
+  GjennomforingerService,
 } from "@mr/api-client";
 import { LoaderFunctionArgs } from "react-router";
 
@@ -18,7 +18,7 @@ export async function opprettTilsagnLoader({ params, request }: LoaderFunctionAr
   const type = (url.searchParams.get("type") as TilsagnType) ?? TilsagnType.TILSAGN;
 
   const [gjennomforing, defaults, godkjenteTilsagn] = await Promise.all([
-    TiltaksgjennomforingerService.getTiltaksgjennomforing({ id: gjennomforingId }),
+    GjennomforingerService.getGjennomforing({ id: gjennomforingId }),
     TilsagnService.getTilsagnDefaults({ gjennomforingId, type }),
     TilsagnService.getAll({
       gjennomforingId,

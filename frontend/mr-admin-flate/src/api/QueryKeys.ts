@@ -2,7 +2,7 @@ import {
   GetArrangorerData,
   type GetAvtalerData,
   GetEnheterData,
-  GetTiltaksgjennomforingerData,
+  GetGjennomforingerData,
   NavAnsattRolle,
   NotificationStatus,
 } from "@mr/api-client";
@@ -12,7 +12,7 @@ export const QueryKeys = {
   tiltakstyper: (filter?: object) => ["tiltakstyper", { ...filter }] as const,
   oppgaver: (filter?: object) => ["oppgaver", { ...filter }] as const,
   tiltakstypeFaneinnhold: (id: string) => ["tiltakstype", id, "faneinnhold"] as const,
-  gjennomforinger: (mine?: boolean, filter?: GetTiltaksgjennomforingerData) =>
+  gjennomforinger: (mine?: boolean, filter?: GetGjennomforingerData) =>
     ["gjennomforinger", mine, filter].filter((entry) => entry !== undefined),
   gjennomforing: (id?: string) => ["gjennomforing", id] as const,
   gjennomforingHistorikk: (id?: string) => ["gjennomforing", id, "historikk"] as const,

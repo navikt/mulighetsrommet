@@ -47,7 +47,7 @@ export function useModiaArbeidsmarkedstiltakById() {
 
   return useSuspenseQuery({
     queryKey: QueryKeys.arbeidsmarkedstiltak.tiltakById(id),
-    queryFn: () => VeilederTiltakService.getVeilederTiltaksgjennomforing({ id }),
+    queryFn: () => VeilederTiltakService.getVeilederTiltak({ id }),
   });
 }
 
@@ -56,7 +56,7 @@ export function useNavArbeidsmarkedstiltakById() {
 
   return useSuspenseQuery({
     queryKey: QueryKeys.arbeidsmarkedstiltak.tiltakById(id),
-    queryFn: () => VeilederTiltakService.getNavTiltaksgjennomforing({ id }),
+    queryFn: () => VeilederTiltakService.getNavTiltak({ id }),
   });
 }
 
@@ -65,6 +65,6 @@ export function usePreviewArbeidsmarkedstiltakById() {
 
   return useSuspenseQuery({
     queryKey: QueryKeys.arbeidsmarkedstiltak.previewTiltakById(id),
-    queryFn: () => VeilederTiltakService.getPreviewTiltaksgjennomforing({ id }),
+    queryFn: () => VeilederTiltakService.getPreviewTiltak({ id }),
   });
 }

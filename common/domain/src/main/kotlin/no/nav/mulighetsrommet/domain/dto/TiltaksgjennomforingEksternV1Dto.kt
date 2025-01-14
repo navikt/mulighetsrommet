@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.domain.dto
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -18,9 +18,9 @@ data class TiltaksgjennomforingEksternV1Dto(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val status: TiltaksgjennomforingStatus,
+    val status: GjennomforingStatus,
     val virksomhetsnummer: String,
-    val oppstart: TiltaksgjennomforingOppstartstype,
+    val oppstart: GjennomforingOppstartstype,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
     val apentForPamelding: Boolean,

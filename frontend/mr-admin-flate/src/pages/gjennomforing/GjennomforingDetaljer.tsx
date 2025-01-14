@@ -11,11 +11,7 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { Kontaktperson } from "@/pages/gjennomforing/Kontaktperson";
 import { formaterDato, formatertVentetid } from "@/utils/Utils";
-import {
-  AvtaleDto,
-  TiltaksgjennomforingDto,
-  TiltaksgjennomforingOppstartstype,
-} from "@mr/api-client";
+import { AvtaleDto, GjennomforingDto, GjennomforingOppstartstype } from "@mr/api-client";
 import { useTitle } from "@mr/frontend-common";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { isKursTiltak } from "@mr/frontend-common/utils/utils";
@@ -26,12 +22,12 @@ import styles from "./GjennomforingDetaljer.module.scss";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 
 interface Props {
-  gjennomforing: TiltaksgjennomforingDto;
+  gjennomforing: GjennomforingDto;
   avtale?: AvtaleDto;
 }
 
 export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
-  useTitle(`Tiltaksgjennomføring ${gjennomforing.navn ? `- ${gjennomforing.navn}` : null}`);
+  useTitle(`Gjennomføring ${gjennomforing.navn ? `- ${gjennomforing.navn}` : null}`);
 
   const navnPaaNavEnheterForKontaktperson = (enheterForKontaktperson: string[]): string => {
     return (
@@ -75,7 +71,7 @@ export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
   return (
     <>
       <TwoColumnGrid separator>
-        <VStack>
+        <VStack justify={"space-between"}>
           <Bolk aria-label="Tiltaksnavn og tiltaksnummer" data-testid="tiltaksnavn">
             <Metadata header={gjennomforingTekster.tiltaksnavnLabel} verdi={gjennomforing.navn} />
             <Metadata
@@ -118,11 +114,7 @@ export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
           <Bolk aria-label={gjennomforingTekster.oppstartstypeLabel}>
             <Metadata
               header={gjennomforingTekster.oppstartstypeLabel}
-              verdi={
-                oppstart === TiltaksgjennomforingOppstartstype.FELLES
-                  ? "Felles"
-                  : "Løpende oppstart"
-              }
+              verdi={oppstart === GjennomforingOppstartstype.FELLES ? "Felles" : "Løpende oppstart"}
             />
           </Bolk>
           <Bolk aria-label="Start- og sluttdato">
@@ -181,6 +173,7 @@ export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
                             target="_blank"
                             rel="noopener noreferrer"
                             href={`${NOM_ANSATT_SIDE}${admin?.navIdent}`}
+                            className="flex gap-1.5"
                           >
                             {`${admin?.navn} - ${admin?.navIdent}`}{" "}
                             <ExternalLinkIcon aria-label="Ekstern lenke" />

@@ -209,7 +209,7 @@ export function createQueryParamsForExcelDownloadForAvtale(filter: AvtaleFilter)
   return queryParams;
 }
 
-export function createQueryParamsForExcelDownloadForTiltaksgjennomforing(
+export function createQueryParamsForExcelDownloadForGjennomforing(
   filter: GjennomforingFilter,
 ): URLSearchParams {
   const queryParams = new URLSearchParams();
@@ -228,7 +228,7 @@ export function createQueryParamsForExcelDownloadForTiltaksgjennomforing(
   filter.arrangorer.forEach((arrangorId) => queryParams.append("arrangorer", arrangorId));
 
   if (filter.visMineGjennomforinger) {
-    queryParams.set("visMineTiltaksgjennomforinger", "true");
+    queryParams.set("visMineGjennomforinger", "true");
   }
 
   const publisertStatus = getPublisertStatus(filter.publisert);
@@ -394,7 +394,7 @@ export function tilsagnAarsakTilTekst(
     case TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING:
       return "Feilregistrering";
     case TilsagnTilAnnulleringAarsak.GJENNOMFORING_AVBRYTES:
-      return "Tiltaksgjennomføring skal avbrytes";
+      return "Gjennomføring skal avbrytes";
     case TilsagnTilAnnulleringAarsak.FEIL_ANNET:
       return "Annet";
   }

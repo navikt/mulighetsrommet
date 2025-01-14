@@ -20,7 +20,12 @@ export function TiltakstypestatusTag({ tiltakstype }: Props) {
   const { variant, name } = variantAndName();
 
   return (
-    <Tag size="small" aria-label={`Status for tiltakstype: ${name}`} variant={variant}>
+    <Tag
+      size="small"
+      className="w-[140px] text-center whitespace-nowrap"
+      aria-label={`Status for tiltakstype: ${name}`}
+      variant={variant}
+    >
       {name}
     </Tag>
   );

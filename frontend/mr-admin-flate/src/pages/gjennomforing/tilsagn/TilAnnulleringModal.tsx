@@ -71,9 +71,7 @@ export function TilAnnulleringModal({ open, onClose, onConfirm }: Props) {
                 error={errors?.aarsak}
               >
                 <Checkbox value="FEIL_REGISTRERING">Feilregistrering</Checkbox>
-                <Checkbox value="GJENNOMFORING_AVBRYTES">
-                  Tiltaksgjennomføring skal avbrytes
-                </Checkbox>
+                <Checkbox value="GJENNOMFORING_AVBRYTES">Gjennomføring skal avbrytes</Checkbox>
                 <Checkbox value="FEIL_ANNET">Annet</Checkbox>
               </CheckboxGroup>
               <Textarea

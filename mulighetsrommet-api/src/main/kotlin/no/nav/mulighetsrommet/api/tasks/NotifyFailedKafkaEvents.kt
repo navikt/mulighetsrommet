@@ -5,15 +5,13 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
-import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
+import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.tasks.executeSuspend
 
 class NotifyFailedKafkaEvents(
     private val config: Config,
-    val database: Database,
-    private val kafkaConsumerRepository: KafkaConsumerRepositoryImpl,
+    private val kafkaConsumerOrchestrator: KafkaConsumerOrchestrator,
     private val slackNotifier: SlackNotifier,
 ) {
 
@@ -35,7 +33,7 @@ class NotifyFailedKafkaEvents(
         .recurring(javaClass.simpleName, config.toSchedule())
         .executeSuspend { _, _ ->
             val retries = config.maxRetries
-            val failedEvents = kafkaConsumerRepository.getAll()
+            val failedEvents = kafkaConsumerOrchestrator.getAllStoredConsumerRecords()
             val topicCounts = failedEvents
                 .groupBy { it.topic }
                 .map { "${it.key} : ${it.value.count()}" }

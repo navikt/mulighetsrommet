@@ -1,13 +1,13 @@
 import { TilsagnSkjemaForhandsgodkjent } from "@/components/tilsagn/prismodell/TilsagnSkjemaForhandsgodkjent";
 import { TilsagnSkjemaFri } from "@/components/tilsagn/prismodell/TilsagnSkjemaFri";
-import { AvtaleDto, Avtaletype, TilsagnType, TiltaksgjennomforingDto } from "@mr/api-client";
+import { AvtaleDto, Avtaletype, TilsagnType, GjennomforingDto } from "@mr/api-client";
 import { useNavigate } from "react-router";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
 import { DeepPartial } from "react-hook-form";
 
 interface Props {
   avtale: AvtaleDto;
-  gjennomforing: TiltaksgjennomforingDto;
+  gjennomforing: GjennomforingDto;
   defaults: DeepPartial<InferredTilsagn>;
 }
 
@@ -52,7 +52,7 @@ export function TilsagnSkjemaContainer({ avtale, gjennomforing, defaults }: Prop
   }
 }
 
-function getKostnadssted(gjennomforing: TiltaksgjennomforingDto, type?: TilsagnType) {
+function getKostnadssted(gjennomforing: GjennomforingDto, type?: TilsagnType) {
   return type === TilsagnType.TILSAGN && gjennomforing.navRegion?.enhetsnummer
     ? [gjennomforing.navRegion.enhetsnummer]
     : [];

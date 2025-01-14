@@ -79,7 +79,7 @@ data class AvtaleDto(
         val organisasjonsnummer: Organisasjonsnummer,
         val navn: String,
         val slettet: Boolean,
-        // TODO: denne er hardkodet til emptyList() enn så lenge slik at modell matcher [TiltaksgjennomforingAdminDto.ArrangorUnderenhet] samt modell i openapi.yaml
+        // TODO: denne er hardkodet til emptyList() enn så lenge slik at modell matcher [GjennomforingDto.ArrangorUnderenhet] samt modell i openapi.yaml
         //  satser på å få samlet modellene i neste omgang.
         val kontaktpersoner: List<ArrangorKontaktperson> = emptyList(),
     )
