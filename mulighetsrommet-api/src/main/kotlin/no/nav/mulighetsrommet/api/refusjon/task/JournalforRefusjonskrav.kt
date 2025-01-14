@@ -13,9 +13,9 @@ import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.dokark.Journalpost
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
+import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravDto
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravStatus
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.tasks.transactionalSchedulerClient
@@ -43,9 +43,7 @@ class JournalforRefusjonskrav(
     val task: OneTimeTask<TaskData> = Tasks
         .oneTime(javaClass.simpleName, TaskData::class.java)
         .executeSuspend { inst, _ ->
-            // TODO: Midlertidig avskrudd i påvente av endringer
-            // Vi skal få fagsystem hos dokarkiv
-            // journalforRefusjonskrav(inst.data.refusjonskravId)
+            journalforRefusjonskrav(inst.data.refusjonskravId)
         }
 
     fun schedule(refusjonskravId: UUID, startTime: Instant, tx: TransactionalSession): UUID {
@@ -62,6 +60,11 @@ class JournalforRefusjonskrav(
         val krav = requireNotNull(queries.refusjonskrav.get(id)) { "Fant ikke refusjonskrav med id=$id" }
             .also { require(it.status == RefusjonskravStatus.GODKJENT_AV_ARRANGOR) { "Krav må være godkjent" } }
 
+        val gjennomforing = queries.gjennomforing.get(krav.gjennomforing.id)
+        requireNotNull(gjennomforing) { "Fant ikke gjennomforing til refusjonskrav med id=$id" }
+        val fagsakId = gjennomforing.tiltaksnummer ?: gjennomforing.lopenummer
+        requireNotNull(fagsakId) { "FagsakId var null for gjennomføring med id=${gjennomforing.id}" }
+
         val pdf = run {
             val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
                 gjennomforingId = krav.gjennomforing.id,
@@ -71,7 +74,7 @@ class JournalforRefusjonskrav(
             pdf.refusjonJournalpost(refusjonsKravAft, tilsagn)
         }
 
-        val journalpost = refusjonskravJournalpost(pdf, krav.id, krav.arrangor.organisasjonsnummer)
+        val journalpost = refusjonskravJournalpost(pdf, krav.id, krav.arrangor, fagsakId)
 
         dokarkClient.opprettJournalpost(journalpost, AccessType.M2M)
             .onRight {
@@ -86,17 +89,18 @@ class JournalforRefusjonskrav(
 fun refusjonskravJournalpost(
     pdf: ByteArray,
     refusjonskravId: UUID,
-    organisasjonsnummer: Organisasjonsnummer,
+    arrangor: RefusjonskravDto.Arrangor,
+    fagsakId: String,
 ): Journalpost = Journalpost(
     tittel = "Refusjonskrav",
     journalposttype = "INNGAAENDE",
     avsenderMottaker = Journalpost.AvsenderMottaker(
-        id = organisasjonsnummer.value,
+        id = arrangor.organisasjonsnummer.value,
         idType = "ORGNR",
-        navn = null,
+        navn = arrangor.navn,
     ),
     bruker = Journalpost.Bruker(
-        id = organisasjonsnummer.value,
+        id = arrangor.organisasjonsnummer.value,
         idType = "ORGNR",
     ),
     tema = "TIL",
@@ -116,6 +120,10 @@ fun refusjonskravJournalpost(
     eksternReferanseId = refusjonskravId.toString(),
     journalfoerendeEnhet = "9999", // Automatisk journalføring
     kanal = "NAV_NO", // Påkrevd for INNGAENDE. Se https://confluence.adeo.no/display/BOA/Mottakskanal
-    sak = null,
+    sak = Journalpost.Sak(
+        sakstype = Journalpost.Sak.Sakstype.FAGSAK,
+        fagsakId = fagsakId,
+        fagsaksystem = Journalpost.Sak.Fagsaksystem.TILTAKSADMINISTRASJON,
+    ),
     behandlingstema = null,
 )

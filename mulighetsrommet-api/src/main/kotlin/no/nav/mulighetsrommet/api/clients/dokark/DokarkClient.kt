@@ -72,7 +72,7 @@ data class Journalpost(
     val journalfoerendeEnhet: String,
     val journalposttype: String,
     val kanal: String,
-    val sak: Sak?,
+    val sak: Sak,
 ) {
     @Serializable
     data class AvsenderMottaker(
@@ -89,10 +89,17 @@ data class Journalpost(
 
     @Serializable
     data class Sak(
+        val sakstype: Sakstype,
         val fagsakId: String,
-        val fagsaksystem: String,
-        val sakstype: String,
-    )
+        val fagsaksystem: Fagsaksystem,
+    ) {
+        enum class Sakstype {
+            FAGSAK,
+        }
+        enum class Fagsaksystem {
+            TILTAKSADMINISTRASJON,
+        }
+    }
 
     @Serializable
     data class Dokument(

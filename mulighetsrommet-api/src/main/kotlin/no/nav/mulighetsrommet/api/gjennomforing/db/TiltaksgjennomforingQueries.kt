@@ -541,6 +541,7 @@ class TiltaksgjennomforingQueries(private val session: Session) {
             id = uuid("id"),
             navn = string("navn"),
             tiltaksnummer = stringOrNull("tiltaksnummer"),
+            lopenummer = stringOrNull("lopenummer"),
             startDato = startDato,
             sluttDato = sluttDato,
             status = GjennomforingStatusDto(status, avbrutt),

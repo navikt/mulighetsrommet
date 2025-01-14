@@ -46,7 +46,6 @@ fun Route.tiltaksgjennomforingRoutes() {
 
                 val result = gjennomforinger.upsert(request, navIdent)
                     .mapLeft { BadRequest(errors = it) }
-
                 call.respondWithStatusResponse(result)
             }
 
