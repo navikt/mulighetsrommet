@@ -13,16 +13,34 @@ export function TilsagnTag(props: Props) {
   const { status, expandable = false } = props;
   const [expandLabel, setExpandLabel] = useState<boolean>(false);
 
+  const baseTagClasses = "w-[140px] text-center whitespace-nowrap";
+
   switch (status.type) {
     case TilsagnStatus.TIL_GODKJENNING:
-      return <Tag variant="alt1">Til godkjenning</Tag>;
+      return (
+        <Tag size="small" variant="alt1" className={baseTagClasses}>
+          Til godkjenning
+        </Tag>
+      );
     case TilsagnStatus.GODKJENT:
-      return <Tag variant="success">Godkjent</Tag>;
+      return (
+        <Tag size="small" variant="success" className={baseTagClasses}>
+          Godkjent
+        </Tag>
+      );
     case TilsagnStatus.RETURNERT:
-      return <Tag variant="error">Returnert</Tag>;
+      return (
+        <Tag size="small" variant="error" className={baseTagClasses}>
+          Returnert
+        </Tag>
+      );
     case TilsagnStatus.TIL_ANNULLERING:
       return (
-        <Tag variant="neutral" className={styles.til_annullering_tag}>
+        <Tag
+          size="small"
+          variant="neutral"
+          className={`${baseTagClasses} ${styles.til_annullering_tag}`}
+        >
           Til annullering
         </Tag>
       );
@@ -30,14 +48,14 @@ export function TilsagnTag(props: Props) {
       const annullertLabel = expandable ? "Annullert..." : "Annullert";
       return (
         <Tag
-          style={{
-            maxWidth: "400px",
-          }}
-          className={styles.annullert_tag}
+          className={`${baseTagClasses} ${styles.annullert_tag}`}
           size="small"
           onMouseEnter={() => setExpandLabel(true)}
           onMouseLeave={() => setExpandLabel(false)}
           variant="neutral"
+          style={{
+            maxWidth: expandable ? "400px" : "140px",
+          }}
         >
           {expandable && expandLabel ? (
             <ExpandedAnnullert status={status} />
