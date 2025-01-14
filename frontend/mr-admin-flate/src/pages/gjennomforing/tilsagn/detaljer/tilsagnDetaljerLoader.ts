@@ -1,4 +1,4 @@
-import { AnsattService, TilsagnService, TiltaksgjennomforingerService } from "@mr/api-client";
+import { AnsattService, TilsagnService, GjennomforingerService } from "@mr/api-client";
 import { LoaderFunctionArgs } from "react-router";
 
 export async function tilsagnDetaljerLoader({ params }: LoaderFunctionArgs) {
@@ -14,7 +14,7 @@ export async function tilsagnDetaljerLoader({ params }: LoaderFunctionArgs) {
 
   const [ansatt, gjennomforing, tilsagn, historikk] = await Promise.all([
     AnsattService.hentInfoOmAnsatt(),
-    TiltaksgjennomforingerService.getTiltaksgjennomforing({
+    GjennomforingerService.getGjennomforing({
       id: tiltaksgjennomforingId,
     }),
     TilsagnService.getTilsagn({ id: tilsagnId }),

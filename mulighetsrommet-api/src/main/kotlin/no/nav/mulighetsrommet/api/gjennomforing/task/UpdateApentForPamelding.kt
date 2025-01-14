@@ -6,15 +6,15 @@ import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.api.services.EndretAv
-import no.nav.mulighetsrommet.database.Database
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 
 class UpdateApentForPamelding(
     config: Config = Config(),
-    private val db: Database,
+    private val db: ApiDatabase,
     private val tiltaksgjennomforingService: TiltaksgjennomforingService,
 ) {
     data class Config(
@@ -36,7 +36,7 @@ class UpdateApentForPamelding(
             stengTiltakMedFellesOppstartForPamelding(LocalDate.now())
         }
 
-    fun stengTiltakMedFellesOppstartForPamelding(startDato: LocalDate) = db.transaction { tx ->
+    fun stengTiltakMedFellesOppstartForPamelding(startDato: LocalDate) = db.session {
         @Language("PostgreSQL")
         val query = """
                 select id
@@ -46,10 +46,7 @@ class UpdateApentForPamelding(
                   and start_dato = ?
         """.trimIndent()
 
-        val ids = queryOf(query, startDato)
-            .map { it.uuid("id") }
-            .asList
-            .runWithSession(tx)
+        val ids = session.list(queryOf(query, startDato)) { it.uuid("id") }
 
         ids.forEach { id ->
             tiltaksgjennomforingService.setApentForPamelding(id, apentForPamelding = false, EndretAv.System)

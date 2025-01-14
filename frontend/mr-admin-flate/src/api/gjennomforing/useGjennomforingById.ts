@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useGetGjennomforingIdFromUrl } from "../../hooks/useGetGjennomforingIdFromUrl";
 import { QueryKeys } from "@/api/QueryKeys";
-import { TiltaksgjennomforingerService } from "@mr/api-client";
+import { GjennomforingerService } from "@mr/api-client";
 
 export function useGjennomforingById() {
   const id = useGetGjennomforingIdFromUrl();
@@ -9,7 +9,7 @@ export function useGjennomforingById() {
   return useQuery({
     queryKey: QueryKeys.gjennomforing(id!),
     queryFn: () =>
-      TiltaksgjennomforingerService.getTiltaksgjennomforing({
+      GjennomforingerService.getGjennomforing({
         id: id!,
       }),
     enabled: !!id,

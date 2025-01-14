@@ -7,17 +7,17 @@ import {
   InnholdElement,
   Kurstype,
   Opphav,
-  PaginertTiltaksgjennomforing,
-  TiltaksgjennomforingDto,
-  TiltaksgjennomforingOppstartstype,
-  TiltaksgjennomforingStatus,
+  PaginertGjennomforing,
+  GjennomforingDto,
+  GjennomforingOppstartstype,
+  GjennomforingStatus,
 } from "@mr/api-client";
 import { mockArrangorKontaktpersoner } from "./mock_arrangorKontaktperson";
 import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
 
-export const mockTiltaksgjennomforinger: TiltaksgjennomforingDto[] = [
+export const mockGjennomforinger: GjennomforingDto[] = [
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee361",
     navn: "Yrkesnorsk med praksis med en veldig lang tittel som ikke er helt utenkelig at de skriver inn",
@@ -46,8 +46,8 @@ export const mockTiltaksgjennomforinger: TiltaksgjennomforingDto[] = [
     deltidsprosent: 100,
     arenaAnsvarligEnhet: mockEnheter._0313,
     navEnheter: [mockEnheter._0313, mockEnheter._0315, mockEnheter._0330],
-    status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
-    oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
+    status: { status: GjennomforingStatus.GJENNOMFORES },
+    oppstart: GjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.MR_ADMIN_FLATE,
     apentForPamelding: false,
     stedForGjennomforing: "Brummundal",
@@ -110,7 +110,7 @@ export const mockTiltaksgjennomforinger: TiltaksgjennomforingDto[] = [
     administratorer: [],
     navEnheter: [],
     status: {
-      status: TiltaksgjennomforingStatus.AVLYST,
+      status: GjennomforingStatus.AVLYST,
       avbrutt: {
         aarsak:
           "Denne gjennomføringen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
@@ -119,7 +119,7 @@ export const mockTiltaksgjennomforinger: TiltaksgjennomforingDto[] = [
         tidspunkt: "2020-03-04T12:00:00",
       },
     },
-    oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
+    oppstart: GjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.MR_ADMIN_FLATE,
     apentForPamelding: true,
     kontaktpersoner: [],
@@ -150,8 +150,8 @@ export const mockTiltaksgjennomforinger: TiltaksgjennomforingDto[] = [
     sluttDato: "2022-12-12",
     arenaAnsvarligEnhet: mockEnheter._0313,
     navEnheter: [],
-    status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
-    oppstart: TiltaksgjennomforingOppstartstype.FELLES,
+    status: { status: GjennomforingStatus.GJENNOMFORES },
+    oppstart: GjennomforingOppstartstype.FELLES,
     opphav: Opphav.MR_ADMIN_FLATE,
     apentForPamelding: true,
     antallPlasser: 10,
@@ -184,8 +184,8 @@ export const mockTiltaksgjennomforinger: TiltaksgjennomforingDto[] = [
     arenaAnsvarligEnhet: mockEnheter._0313,
     administratorer: [],
     navEnheter: [],
-    status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
-    oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
+    status: { status: GjennomforingStatus.GJENNOMFORES },
+    oppstart: GjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.MR_ADMIN_FLATE,
     apentForPamelding: true,
     kontaktpersoner: [],
@@ -196,20 +196,20 @@ export const mockTiltaksgjennomforinger: TiltaksgjennomforingDto[] = [
   },
 ];
 
-export const paginertMockGjennomforinger: PaginertTiltaksgjennomforing = {
+export const paginertMockGjennomforinger: PaginertGjennomforing = {
   pagination: {
     totalCount: 18,
     pageSize: 50,
     totalPages: 1,
   },
-  data: mockTiltaksgjennomforinger,
+  data: mockGjennomforinger,
 };
 
 // Bruker denne for å teste med flere tiltaksgjennomføringer lokalt, men setter den til 0 sånn
 // at testene går gjennom.
 const x = 0;
 for (let i = 0; i < x; i++) {
-  mockTiltaksgjennomforinger.push({
+  mockGjennomforinger.push({
     id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
     navn: "AFT",
     tiltaksnummer: "654434",
@@ -226,8 +226,8 @@ for (let i = 0; i < x; i++) {
     arenaAnsvarligEnhet: mockEnheter._0313,
     administratorer: [],
     navEnheter: [],
-    status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
-    oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
+    status: { status: GjennomforingStatus.GJENNOMFORES },
+    oppstart: GjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.MR_ADMIN_FLATE,
     apentForPamelding: true,
     kontaktpersoner: [],

@@ -1,18 +1,18 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ApiError,
-  TiltaksgjennomforingDto,
-  TiltaksgjennomforingerService,
-  TiltaksgjennomforingRequest,
+  GjennomforingDto,
+  GjennomforingerService,
+  GjennomforingRequest,
 } from "@mr/api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useUpsertGjennomforing() {
   const queryClient = useQueryClient();
 
-  return useMutation<TiltaksgjennomforingDto, ApiError, TiltaksgjennomforingRequest>({
-    mutationFn: (requestBody: TiltaksgjennomforingRequest) =>
-      TiltaksgjennomforingerService.upsertTiltaksgjennomforing({
+  return useMutation<GjennomforingDto, ApiError, GjennomforingRequest>({
+    mutationFn: (requestBody: GjennomforingRequest) =>
+      GjennomforingerService.upsertGjennomforing({
         requestBody,
       }),
 

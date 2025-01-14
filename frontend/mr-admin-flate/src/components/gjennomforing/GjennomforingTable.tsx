@@ -4,11 +4,11 @@ import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabe
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { APPLICATION_NAME } from "@/constants";
 import {
-  createQueryParamsForExcelDownloadForTiltaksgjennomforing,
+  createQueryParamsForExcelDownloadForGjennomforing,
   formaterDato,
   formaterNavEnheter,
 } from "@/utils/Utils";
-import { OpenAPI, SorteringTiltaksgjennomforinger } from "@mr/api-client";
+import { OpenAPI, SorteringGjennomforinger } from "@mr/api-client";
 import { GjennomforingStatusTag } from "@mr/frontend-common";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
@@ -53,7 +53,7 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
     }
     headers.append("accept", "application/json");
 
-    const queryParams = createQueryParamsForExcelDownloadForTiltaksgjennomforing(filter);
+    const queryParams = createQueryParamsForExcelDownloadForGjennomforing(filter);
 
     return await fetch(
       `${OpenAPI.BASE}/api/v1/intern/tiltaksgjennomforinger/excel?${queryParams}`,
@@ -101,7 +101,7 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
 
     updateFilter({
       sortering: {
-        sortString: `${sortKey}-${direction}` as SorteringTiltaksgjennomforinger,
+        sortString: `${sortKey}-${direction}` as SorteringGjennomforinger,
         tableSort: { orderBy: sortKey, direction },
       },
       page: sort.orderBy !== sortKey || sort.direction !== direction ? 1 : filter.page,

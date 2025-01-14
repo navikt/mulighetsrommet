@@ -1,4 +1,4 @@
-import { Opphav, TiltaksgjennomforingOppstartstype, UtdanningslopDbo } from "@mr/api-client";
+import { Opphav, GjennomforingOppstartstype, UtdanningslopDbo } from "@mr/api-client";
 import z from "zod";
 import { FaneinnholdSchema } from "./FaneinnholdSchema";
 import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "@/constants";
@@ -67,10 +67,7 @@ export const GjennomforingSchema = z
       .string({ required_error: "Du må velge minst én administrator" })
       .array()
       .min(1, "Du må velge minst én administrator"),
-    oppstart: z.custom<TiltaksgjennomforingOppstartstype>(
-      (val) => !!val,
-      "Du må velge oppstartstype",
-    ),
+    oppstart: z.custom<GjennomforingOppstartstype>((val) => !!val, "Du må velge oppstartstype"),
     beskrivelse: z.string().nullable(),
     faneinnhold: FaneinnholdSchema.nullable(),
     opphav: z.nativeEnum(Opphav),

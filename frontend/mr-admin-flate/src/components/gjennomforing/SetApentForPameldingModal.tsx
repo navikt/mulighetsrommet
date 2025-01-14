@@ -1,12 +1,12 @@
 import { useSetApentForPamelding } from "@/api/gjennomforing/useSetApentForPamelding";
-import { TiltaksgjennomforingDto } from "@mr/api-client";
+import { GjennomforingDto } from "@mr/api-client";
 import { Alert, Button, Modal, Switch } from "@navikt/ds-react";
 import { RefObject } from "react";
 import { useRevalidator } from "react-router";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
-  gjennomforing: TiltaksgjennomforingDto;
+  gjennomforing: GjennomforingDto;
 }
 
 export function SetApentForPameldingModal({ modalRef, gjennomforing }: Props) {

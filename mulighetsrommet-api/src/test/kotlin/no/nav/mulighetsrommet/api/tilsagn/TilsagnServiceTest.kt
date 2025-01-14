@@ -5,26 +5,22 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.mockk
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.Forbidden
-import no.nav.mulighetsrommet.api.services.EndringshistorikkService
-import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnRepository
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import java.time.LocalDate
 import java.util.*
 
 class TilsagnServiceTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
         gjennomforinger = listOf(AFT1),
@@ -38,12 +34,7 @@ class TilsagnServiceTest : FunSpec({
         database.truncateAll()
     }
 
-    val endringshistorikkService: EndringshistorikkService = mockk(relaxed = true)
-
     fun createTilsagnService() = TilsagnService(
-        tilsagnRepository = TilsagnRepository(database.db),
-        tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(db = database.db),
-        endringshistorikkService = endringshistorikkService,
         db = database.db,
     )
 
@@ -67,8 +58,7 @@ class TilsagnServiceTest : FunSpec({
                 id = tilsagn.id,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
                 navIdent = NavAnsattFixture.ansatt1.navIdent,
-            ) shouldBe
-                Forbidden("Kan ikke beslutte eget tilsagn").left()
+            ) shouldBe Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
         test("kan ikke beslutte to ganger") {
@@ -84,13 +74,11 @@ class TilsagnServiceTest : FunSpec({
                 id = tilsagn.id,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
                 navIdent = NavAnsattFixture.ansatt2.navIdent,
-            ) shouldBe
-                BadRequest("Tilsagnet kan ikke besluttes fordi det har status Godkjent").left()
+            ) shouldBe BadRequest("Tilsagnet kan ikke besluttes fordi det har status Godkjent").left()
         }
     }
 
     context("slett tilsagn") {
-        val tilsagnRepository = TilsagnRepository(database.db)
         val service = createTilsagnService()
 
         val tilsagn = TilsagnRequest(
@@ -103,7 +91,7 @@ class TilsagnServiceTest : FunSpec({
             beregning = TilsagnBeregningFri.Input(belop = 0),
         )
 
-        test("kan bare slette tilsagn når det er avvist") {
+        test("kan slette tilsagn når det er avvist") {
             service.upsert(tilsagn, NavAnsattFixture.ansatt1.navIdent).shouldBeRight()
 
             service.beslutt(
@@ -116,7 +104,10 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight()
 
             service.slettTilsagn(tilsagn.id).shouldBeRight()
-            tilsagnRepository.get(tilsagn.id) shouldBe null
+
+            database.run {
+                queries.tilsagn.get(tilsagn.id) shouldBe null
+            }
         }
 
         test("kan ikke slette tilsagn når det er godkjent") {
@@ -128,7 +119,7 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = NavAnsattFixture.ansatt2.navIdent,
             ).shouldBeRight()
 
-            service.slettTilsagn(tilsagn.id).shouldBeLeft()
+            service.slettTilsagn(tilsagn.id) shouldBeLeft BadRequest("Kan ikke slette tilsagn som er godkjent")
         }
     }
 })

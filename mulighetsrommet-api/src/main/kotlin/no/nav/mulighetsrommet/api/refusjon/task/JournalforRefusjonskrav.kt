@@ -1,17 +1,18 @@
 package no.nav.mulighetsrommet.api.refusjon.task
 
+import arrow.core.Either
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
 import kotliquery.TransactionalSession
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangorflate.toRefusjonskrav
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
+import no.nav.mulighetsrommet.api.clients.dokark.DokarkError
+import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.dokark.Journalpost
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
-import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
-import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravDto
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravStatus
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -25,11 +26,9 @@ import java.time.LocalDateTime
 import java.util.*
 
 class JournalforRefusjonskrav(
-    private val refusjonskravRepository: RefusjonskravRepository,
-    private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
+    private val db: ApiDatabase,
     private val tilsagnService: TilsagnService,
     private val dokarkClient: DokarkClient,
-    private val deltakerRepository: DeltakerRepository,
     private val pdl: HentAdressebeskyttetPersonBolkPdlQuery,
     private val pdf: PdfGenClient,
 ) {
@@ -55,13 +54,13 @@ class JournalforRefusjonskrav(
         return id
     }
 
-    suspend fun journalforRefusjonskrav(id: UUID) {
+    suspend fun journalforRefusjonskrav(id: UUID): Either<DokarkError, DokarkResponse> = db.session {
         logger.info("Journalfører refusjonskrav med id: $id")
 
-        val krav = requireNotNull(refusjonskravRepository.get(id)) { "Fant ikke refusjonskrav med id=$id" }
+        val krav = requireNotNull(queries.refusjonskrav.get(id)) { "Fant ikke refusjonskrav med id=$id" }
             .also { require(it.status == RefusjonskravStatus.GODKJENT_AV_ARRANGOR) { "Krav må være godkjent" } }
 
-        val gjennomforing = tiltaksgjennomforingRepository.get(krav.gjennomforing.id)
+        val gjennomforing = queries.gjennomforing.get(krav.gjennomforing.id)
         requireNotNull(gjennomforing) { "Fant ikke gjennomforing til refusjonskrav med id=$id" }
         val fagsakId = gjennomforing.tiltaksnummer ?: gjennomforing.lopenummer
         requireNotNull(fagsakId) { "FagsakId var null for gjennomføring med id=${gjennomforing.id}" }
@@ -71,7 +70,7 @@ class JournalforRefusjonskrav(
                 gjennomforingId = krav.gjennomforing.id,
                 periode = krav.beregning.input.periode,
             )
-            val refusjonsKravAft = toRefusjonskrav(pdl, deltakerRepository, krav)
+            val refusjonsKravAft = toRefusjonskrav(db, pdl, krav)
             pdf.refusjonJournalpost(refusjonsKravAft, tilsagn)
         }
 
@@ -79,7 +78,7 @@ class JournalforRefusjonskrav(
 
         dokarkClient.opprettJournalpost(journalpost, AccessType.M2M)
             .onRight {
-                refusjonskravRepository.setJournalpostId(id, it.journalpostId)
+                queries.refusjonskrav.setJournalpostId(id, it.journalpostId)
             }
             .onLeft {
                 throw Exception("Feil ved opprettelse av journalpost. Message: ${it.message}")

@@ -2,7 +2,7 @@ import { useFindForhandsgodkjentSats } from "@/api/tilsagn/useFindForhandsgodkje
 import { TilsagnBeregningPreview } from "@/components/tilsagn/prismodell/TilsagnBeregningPreview";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
 import { TilsagnSkjema } from "@/components/tilsagn/prismodell/TilsagnSkjema";
-import { TilsagnBeregningForhandsgodkjent, TiltaksgjennomforingDto } from "@mr/api-client";
+import { TilsagnBeregningForhandsgodkjent, GjennomforingDto } from "@mr/api-client";
 import { HGrid, TextField } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
@@ -10,7 +10,7 @@ import { DeepPartial, useFormContext } from "react-hook-form";
 type ForhandsgodkjentTilsagn = InferredTilsagn & { beregning: TilsagnBeregningForhandsgodkjent };
 
 interface Props {
-  gjennomforing: TiltaksgjennomforingDto;
+  gjennomforing: GjennomforingDto;
   onSuccess: () => void;
   onAvbryt: () => void;
   defaultValues: DeepPartial<ForhandsgodkjentTilsagn>;

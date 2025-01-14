@@ -2,15 +2,14 @@ package no.nav.mulighetsrommet.notifications
 
 import arrow.core.nonEmptyListOf
 import com.github.kagkarlsson.scheduler.Scheduler
-import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.should
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import java.time.Instant
@@ -21,7 +20,8 @@ import java.util.*
 import kotlin.time.Duration.Companion.seconds
 
 class NotificationTaskTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
+
     val domain = MulighetsrommetTestDomain()
 
     beforeEach {
@@ -32,9 +32,7 @@ class NotificationTaskTest : FunSpec({
     val user2 = NavAnsattFixture.ansatt2.navIdent
 
     context("NotificationTask") {
-        val notifications = NotificationRepository(database.db)
-
-        val task = NotificationTask(database.db, notifications)
+        val task = NotificationTask(database.db)
 
         beforeEach {
             val scheduler = Scheduler
@@ -76,13 +74,14 @@ class NotificationTaskTest : FunSpec({
         }
 
         test("scheduled notification should eventually be created for all targets") {
+
             task.scheduleNotification(notification, now)
 
-            notifications.getAll() shouldBeRight listOf()
+            database.run {
+                queries.notifications.getAll().shouldBeEmpty()
 
-            eventually(30.seconds) {
-                notifications.getAll().shouldBeRight().should {
-                    it shouldContainExactlyInAnyOrder listOf(
+                eventually(30.seconds) {
+                    queries.notifications.getAll() shouldContainExactlyInAnyOrder listOf(
                         notification.asUserNotification(user1),
                         notification.asUserNotification(user2),
                     )

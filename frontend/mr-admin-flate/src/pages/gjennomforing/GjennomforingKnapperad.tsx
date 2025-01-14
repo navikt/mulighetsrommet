@@ -6,7 +6,7 @@ import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndrin
 import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
 import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentForPameldingModal";
 import { KnapperadContainer } from "@/pages/KnapperadContainer";
-import { NavAnsatt, TiltaksgjennomforingDto } from "@mr/api-client";
+import { NavAnsatt, GjennomforingDto } from "@mr/api-client";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
@@ -15,7 +15,7 @@ import { useNavigate, useRevalidator } from "react-router";
 
 interface Props {
   ansatt: NavAnsatt;
-  gjennomforing: TiltaksgjennomforingDto;
+  gjennomforing: GjennomforingDto;
 }
 
 export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
@@ -38,7 +38,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
   return (
     <KnapperadContainer>
       <HarSkrivetilgang
-        ressurs="Tiltaksgjennomføring"
+        ressurs="Gjennomføring"
         condition={gjennomforingIsAktiv(gjennomforing.status.status)}
       >
         <Switch checked={gjennomforing.publisert} onClick={handleClick}>
@@ -47,11 +47,11 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
       </HarSkrivetilgang>
 
       <EndringshistorikkPopover>
-        <TiltaksgjennomforingEndringshistorikk id={gjennomforing.id} />
+        <GjennomforingEndringshistorikk id={gjennomforing.id} />
       </EndringshistorikkPopover>
 
       <HarSkrivetilgang
-        ressurs="Tiltaksgjennomføring"
+        ressurs="Gjennomføring"
         condition={gjennomforingIsAktiv(gjennomforing.status.status)}
       >
         <Dropdown>
@@ -114,7 +114,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
   );
 }
 
-function TiltaksgjennomforingEndringshistorikk({ id }: { id: string }) {
+function GjennomforingEndringshistorikk({ id }: { id: string }) {
   const historikk = useGjennomforingEndringshistorikk(id);
 
   return <ViewEndringshistorikk historikk={historikk.data} />;

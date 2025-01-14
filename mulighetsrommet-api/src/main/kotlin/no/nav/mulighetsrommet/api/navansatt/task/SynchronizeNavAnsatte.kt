@@ -7,8 +7,8 @@ import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import io.ktor.server.plugins.*
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattSyncService
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import java.time.Instant
 import java.time.LocalDate
@@ -17,8 +17,8 @@ import java.util.*
 
 class SynchronizeNavAnsatte(
     config: Config,
+    database: ApiDatabase,
     private val navAnsattSyncService: NavAnsattSyncService,
-    database: Database,
 ) {
     data class Config(
         val disabled: Boolean = false,

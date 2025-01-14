@@ -1,17 +1,17 @@
-import { TiltaksgjennomforingDto } from "@mr/api-client";
+import { GjennomforingDto } from "@mr/api-client";
 import { GjennomforingStatusTag } from "@mr/frontend-common";
 import { Heading, HGrid, VStack } from "@navikt/ds-react";
 import { formaterDato } from "../../utils/Utils";
 import { Metadata } from "../detaljside/Metadata";
 
 interface Props {
-  tiltaksgjennomforing: TiltaksgjennomforingDto;
+  tiltaksgjennomforing: GjennomforingDto;
 }
 
 export function TiltakDetaljerForTilsagn({ tiltaksgjennomforing }: Props) {
   return (
     <VStack gap="4">
-      <Heading size="medium">Tiltaksgjennomføring</Heading>
+      <Heading size="medium">Gjennomføring</Heading>
       <HGrid columns="2fr 2fr 1fr 1fr 1fr 1fr 1fr">
         <Metadata header="Tiltaksnavn" verdi={tiltaksgjennomforing.navn} />
         <Metadata

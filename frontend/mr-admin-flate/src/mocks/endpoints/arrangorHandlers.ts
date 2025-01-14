@@ -3,7 +3,7 @@ import { Arrangor, ArrangorKontaktperson, PaginertArrangor } from "@mr/api-clien
 import { mockArrangorer } from "../fixtures/mock_arrangorer";
 import { mockArrangorKontaktpersoner } from "../fixtures/mock_arrangorKontaktperson";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
-import { mockTiltaksgjennomforinger } from "../fixtures/mock_gjennomforinger";
+import { mockGjennomforinger } from "../fixtures/mock_gjennomforinger";
 
 export const arrangorHandlers = [
   http.get<PathParams, PaginertArrangor | undefined>("*/api/v1/intern/arrangorer", () =>
@@ -31,7 +31,7 @@ export const arrangorHandlers = [
   http.get<PathParams, Arrangor | undefined>("*/api/v1/intern/arrangorer/kontaktperson/:id", () => {
     return HttpResponse.json({
       avtaler: [...mockAvtaler],
-      gjennomforinger: [...mockTiltaksgjennomforinger],
+      gjennomforinger: [...mockGjennomforinger],
     });
   }),
   http.get<PathParams, ArrangorKontaktperson[]>(

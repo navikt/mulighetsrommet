@@ -11,7 +11,7 @@ class GruppetiltakRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(tiltak: TiltaksgjennomforingEksternV1Dto) = db.useSession { session ->
+    fun upsert(tiltak: TiltaksgjennomforingEksternV1Dto) = db.session { session ->
         logger.info("Lagrer tiltak id=${tiltak.id}")
 
         @Language("PostgreSQL")
@@ -61,7 +61,7 @@ class GruppetiltakRepository(private val db: Database) {
         queryOf(query, params).asExecute.runWithSession(session)
     }
 
-    fun delete(id: UUID) = db.useSession { session ->
+    fun delete(id: UUID) = db.session { session ->
         logger.info("Sletter tiltak id=$id")
 
         @Language("PostgreSQL")

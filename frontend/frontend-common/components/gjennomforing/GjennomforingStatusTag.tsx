@@ -1,8 +1,8 @@
 import { Tag } from "@navikt/ds-react";
-import { TiltaksgjennomforingStatus } from "@mr/api-client-v2";
+import { GjennomforingStatus } from "@mr/api-client-v2";
 
 interface Props {
-  status: TiltaksgjennomforingStatus;
+  status: GjennomforingStatus;
 }
 
 export function GjennomforingStatusTag({ status }: Props) {
@@ -15,18 +15,18 @@ export function GjennomforingStatusTag({ status }: Props) {
   );
 }
 
-export function variantAndName(status: TiltaksgjennomforingStatus): {
+export function variantAndName(status: GjennomforingStatus): {
   variant: "alt1" | "success" | "neutral" | "error";
   label: string;
 } {
   switch (status) {
-    case TiltaksgjennomforingStatus.GJENNOMFORES:
+    case GjennomforingStatus.GJENNOMFORES:
       return { variant: "success", label: "Gjennomføres" };
-    case TiltaksgjennomforingStatus.AVSLUTTET:
+    case GjennomforingStatus.AVSLUTTET:
       return { variant: "neutral", label: "Avsluttet" };
-    case TiltaksgjennomforingStatus.AVBRUTT:
+    case GjennomforingStatus.AVBRUTT:
       return { variant: "error", label: "Avbrutt" };
-    case TiltaksgjennomforingStatus.AVLYST:
+    case GjennomforingStatus.AVLYST:
       return { variant: "error", label: "Avlyst" };
   }
 }

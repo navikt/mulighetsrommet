@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.api.datavarehus.model
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
+import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -44,7 +44,7 @@ sealed class DatavarehusTiltak {
         val opprettetTidspunkt: LocalDateTime,
         @Serializable(with = LocalDateTimeSerializer::class)
         val oppdatertTidspunkt: LocalDateTime,
-        val status: TiltaksgjennomforingStatus,
+        val status: GjennomforingStatus,
         val arena: ArenaData?,
     )
 
