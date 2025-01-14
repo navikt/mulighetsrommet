@@ -1,10 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, BodyShort, Button, Heading, Modal, TextField } from "@navikt/ds-react";
-import { LagretDokumenttype } from "@mr/api-client-v2";
+import { LagretDokumenttype, LagretFilterRequest } from "@mr/api-client-v2";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
-import { useLagreFilter } from "./useLagreFilter";
+import { UseMutationResult } from "@tanstack/react-query";
 
 const LagreFilterSchema = z.object({
   navn: z
@@ -18,14 +18,11 @@ type InferredLagreFilterSchema = z.infer<typeof LagreFilterSchema>;
 interface Props {
   dokumenttype: LagretDokumenttype;
   filter: any;
+  mutation: UseMutationResult<any, any, LagretFilterRequest>;
 }
 
-export function LagreFilterContainer({ dokumenttype, filter }: Props) {
+export function LagreFilterButton({ mutation, dokumenttype, filter }: Props) {
   const [isOpen, setIsOpen] = useState(false);
-
-  const mutation = useLagreFilter({
-    dokumenttype,
-  });
 
   const form = useForm<InferredLagreFilterSchema>({
     resolver: zodResolver(LagreFilterSchema),

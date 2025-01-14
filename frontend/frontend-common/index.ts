@@ -19,7 +19,7 @@ import { OversiktSkeleton } from "./components/skeleton/OversiktSkeleton";
 import { DetaljerSkeleton } from "./components/skeleton/DetaljerSkeleton";
 import { ListSkeleton } from "./components/skeleton/ListSkeleton";
 import { LokalInformasjonContainer } from "./components/containers/LokalInformasjonContainer";
-import { LagreFilterContainer } from "./components/lagreFilter/LagreFilterContainer";
+import { LagreFilterButton } from "./components/lagreFilter/LagreFilterButton";
 import { LagredeFilterOversikt } from "./components/lagreFilter/LagredeFilterOversikt";
 import { TilbakemeldingsLenke } from "./components/tilbakemelding/Tilbakemeldingslenke";
 import { FilterContainer } from "./components/filter/FilterContainer";
@@ -43,7 +43,7 @@ export {
   DetaljerSkeleton,
   ListSkeleton,
   LokalInformasjonContainer,
-  LagreFilterContainer,
+  LagreFilterButton,
   LagredeFilterOversikt,
   TilbakemeldingsLenke,
   FilterContainer,
