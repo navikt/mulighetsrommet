@@ -40,6 +40,7 @@ export function AvtalestatusTag({ avtale, showAvbruttAarsak = false }: Props) {
       style={{
         maxWidth: "400px",
       }}
+      className="w-[140px] text-center whitespace-nowrap"
       size="small"
       onMouseEnter={() => setExpandLabel(true)}
       onMouseLeave={() => setExpandLabel(false)}

@@ -9,7 +9,12 @@ export function GjennomforingStatusTag({ status }: Props) {
   const { variant, label } = variantAndName(status);
 
   return (
-    <Tag size="small" aria-label={`Gjennomføringstatus: ${label}`} variant={variant}>
+    <Tag
+      size="small"
+      className="w-[140px] text-center whitespace-nowrap"
+      aria-label={`Gjennomføringstatus: ${label}`}
+      variant={variant}
+    >
       {label}
     </Tag>
   );
