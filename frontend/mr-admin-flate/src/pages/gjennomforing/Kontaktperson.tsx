@@ -1,10 +1,10 @@
 import { TEAMS_DYPLENKE } from "@mr/frontend-common/constants";
-import { TiltaksgjennomforingKontaktperson } from "@mr/api-client";
+import { GjennomforingKontaktperson } from "@mr/api-client";
 import { BodyShort, VStack } from "@navikt/ds-react";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 
 interface Props {
-  kontaktperson: TiltaksgjennomforingKontaktperson;
+  kontaktperson: GjennomforingKontaktperson;
 }
 
 export function Kontaktperson({ kontaktperson }: Props) {

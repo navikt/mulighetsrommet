@@ -2,12 +2,12 @@ import { ArrangorKontaktpersonAnsvar } from "@mr/api-client";
 
 export function navnForAnsvar(
   ansvar: ArrangorKontaktpersonAnsvar,
-): "Avtale" | "Tiltaksgjennomføring" | "Økonomi" {
+): "Avtale" | "Gjennomføring" | "Økonomi" {
   switch (ansvar) {
     case ArrangorKontaktpersonAnsvar.AVTALE:
       return "Avtale";
     case ArrangorKontaktpersonAnsvar.TILTAKSGJENNOMFORING:
-      return "Tiltaksgjennomføring";
+      return "Gjennomføring";
     case ArrangorKontaktpersonAnsvar.OKONOMI:
       return "Økonomi";
   }

@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.domain.dbo
 
-enum class TiltaksgjennomforingOppstartstype {
+enum class GjennomforingOppstartstype {
     LOPENDE,
     FELLES,
 }

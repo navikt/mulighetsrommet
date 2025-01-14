@@ -3,8 +3,8 @@ import {
   AvtaleDto,
   NavAnsatt,
   Opphav,
-  TiltaksgjennomforingDto,
-  TiltaksgjennomforingOppstartstype,
+  GjennomforingDto,
+  GjennomforingOppstartstype,
   Utdanningslop,
   UtdanningslopDbo,
 } from "@mr/api-client";
@@ -12,20 +12,20 @@ import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/Gj
 import { DeepPartial } from "react-hook-form";
 import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 
-export function defaultOppstartType(avtale?: AvtaleDto): TiltaksgjennomforingOppstartstype {
+export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartstype {
   if (!avtale) {
-    return TiltaksgjennomforingOppstartstype.LOPENDE;
+    return GjennomforingOppstartstype.LOPENDE;
   }
 
   const tiltakskode = avtale.tiltakstype.tiltakskode;
   return isKursTiltak(tiltakskode)
-    ? TiltaksgjennomforingOppstartstype.FELLES
-    : TiltaksgjennomforingOppstartstype.LOPENDE;
+    ? GjennomforingOppstartstype.FELLES
+    : GjennomforingOppstartstype.LOPENDE;
 }
 
 function defaultNavRegion(
   avtale: AvtaleDto,
-  tiltaksgjennomforing?: TiltaksgjennomforingDto,
+  tiltaksgjennomforing?: GjennomforingDto,
 ): string | undefined {
   if (tiltaksgjennomforing?.navRegion) {
     return tiltaksgjennomforing.navRegion.enhetsnummer;
@@ -35,10 +35,7 @@ function defaultNavRegion(
   }
 }
 
-function defaultNavEnheter(
-  avtale: AvtaleDto,
-  tiltaksgjennomforing?: TiltaksgjennomforingDto,
-): string[] {
+function defaultNavEnheter(avtale: AvtaleDto, tiltaksgjennomforing?: GjennomforingDto): string[] {
   if (tiltaksgjennomforing?.navEnheter) {
     return tiltaksgjennomforing.navEnheter.map((enhet) => enhet.enhetsnummer);
   }
@@ -50,7 +47,7 @@ function defaultNavEnheter(
 
 function defaultArrangor(
   avtale: AvtaleDto,
-  tiltaksgjennomforing?: TiltaksgjennomforingDto,
+  tiltaksgjennomforing?: GjennomforingDto,
 ): string | undefined {
   if (tiltaksgjennomforing?.arrangor?.id) {
     return tiltaksgjennomforing.arrangor.id;
@@ -63,10 +60,10 @@ function defaultArrangor(
   return undefined;
 }
 
-export function defaultTiltaksgjennomforingData(
+export function defaultGjennomforingData(
   ansatt: NavAnsatt,
   avtale: AvtaleDto,
-  tiltaksgjennomforing?: TiltaksgjennomforingDto,
+  tiltaksgjennomforing?: GjennomforingDto,
 ): DeepPartial<InferredGjennomforingSchema> {
   return {
     navn: tiltaksgjennomforing?.navn || avtale.navn,
@@ -80,12 +77,12 @@ export function defaultTiltaksgjennomforingData(
     startOgSluttDato: {
       startDato: tiltaksgjennomforing
         ? tiltaksgjennomforing.startDato
-        : defaultOppstartType(avtale) === TiltaksgjennomforingOppstartstype.LOPENDE
+        : defaultOppstartType(avtale) === GjennomforingOppstartstype.LOPENDE
           ? avtale.startDato
           : undefined,
       sluttDato: tiltaksgjennomforing
         ? tiltaksgjennomforing.sluttDato
-        : defaultOppstartType(avtale) === TiltaksgjennomforingOppstartstype.LOPENDE
+        : defaultOppstartType(avtale) === GjennomforingOppstartstype.LOPENDE
           ? avtale.sluttDato
           : undefined,
     },

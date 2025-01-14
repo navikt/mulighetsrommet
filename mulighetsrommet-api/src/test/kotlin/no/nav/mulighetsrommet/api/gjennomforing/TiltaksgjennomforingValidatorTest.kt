@@ -12,12 +12,12 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
@@ -138,7 +138,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
     test("should fail when tiltakstype does not support change of oppstartstype") {
 
-        createValidator().validate(gjennomforing.copy(oppstart = TiltaksgjennomforingOppstartstype.FELLES), null)
+        createValidator().validate(gjennomforing.copy(oppstart = GjennomforingOppstartstype.FELLES), null)
             .shouldBeLeft()
             .shouldContainExactlyInAnyOrder(ValidationError("oppstart", "Tiltaket må ha løpende oppstartstype"))
     }
@@ -438,7 +438,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
             val dbo = gjennomforing.copy(
                 kontaktpersoner = listOf(
-                    TiltaksgjennomforingKontaktpersonDbo(
+                    GjennomforingKontaktpersonDbo(
                         navIdent = NavAnsattFixture.ansatt2.navIdent,
                         navEnheter = emptyList(),
                         beskrivelse = null,

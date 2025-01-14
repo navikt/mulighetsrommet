@@ -14,9 +14,9 @@ import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.*
 import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForPamelding
 import no.nav.mulighetsrommet.domain.Tiltakskoder
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import java.util.*
 
 class VeilederflateService(
@@ -206,7 +206,7 @@ class VeilederflateService(
             )
         }
 
-        val status = TiltaksgjennomforingStatus.GJENNOMFORES
+        val status = GjennomforingStatus.GJENNOMFORES
         val navn = gjennomforing.tiltaksgjennomforingNavn ?: ""
         val faneinnhold = gjennomforing.faneinnhold?.copy(delMedBruker = gjennomforing.delingMedBruker)
         val kontaktinfo = VeilederflateKontaktinfo(tiltaksansvarlige)
@@ -225,7 +225,7 @@ class VeilederflateService(
                     beskrivelse = beskrivelse,
                     faneinnhold = faneinnhold,
                     kontaktinfo = kontaktinfo,
-                    oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
+                    oppstart = GjennomforingOppstartstype.LOPENDE,
                     sanityId = sanityId,
                     tiltakstype = tiltakstype,
                     navn = navn,
@@ -241,7 +241,7 @@ class VeilederflateService(
                 beskrivelse = beskrivelse,
                 faneinnhold = faneinnhold,
                 kontaktinfo = kontaktinfo,
-                oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
+                oppstart = GjennomforingOppstartstype.LOPENDE,
                 sanityId = sanityId,
                 tiltakstype = tiltakstype,
                 navn = navn,
@@ -256,7 +256,7 @@ class VeilederflateService(
                 beskrivelse = beskrivelse,
                 faneinnhold = faneinnhold,
                 kontaktinfo = kontaktinfo,
-                oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
+                oppstart = GjennomforingOppstartstype.LOPENDE,
                 sanityId = sanityId,
                 tiltakstype = tiltakstype,
                 navn = navn,

@@ -10,7 +10,7 @@ interface Props {
   onClose: () => void;
 }
 export function AvtaleSkjemaKnapperad({ redigeringsModus, onClose }: Props) {
-  const setTiltaksgjennomforingFane = useSetAtom(gjennomforingDetaljerTabAtom);
+  const setGjennomforingFane = useSetAtom(gjennomforingDetaljerTabAtom);
   return (
     <SkjemaKnapperad>
       <ValideringsfeilOppsummering />
@@ -18,7 +18,7 @@ export function AvtaleSkjemaKnapperad({ redigeringsModus, onClose }: Props) {
         Avbryt
       </Button>
       <HarSkrivetilgang ressurs="Avtale">
-        <Button size="small" type="submit" onClick={() => setTiltaksgjennomforingFane("detaljer")}>
+        <Button size="small" type="submit" onClick={() => setGjennomforingFane("detaljer")}>
           {redigeringsModus ? "Lagre redigert avtale" : "Opprett ny avtale"}
         </Button>
       </HarSkrivetilgang>

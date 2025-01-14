@@ -1,5 +1,5 @@
 import { Alert, HelpText } from "@navikt/ds-react";
-import { TiltaksgjennomforingOppstartstype } from "@mr/api-client";
+import { GjennomforingOppstartstype } from "@mr/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useController } from "react-hook-form";
 import { useSuspenseGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
@@ -29,11 +29,11 @@ export function SelectOppstartstype({ name, readonly = false }: SelectOppstartst
         options={[
           {
             label: "Felles oppstartsdato",
-            value: TiltaksgjennomforingOppstartstype.FELLES,
+            value: GjennomforingOppstartstype.FELLES,
           },
           {
             label: "Løpende oppstart",
-            value: TiltaksgjennomforingOppstartstype.LOPENDE,
+            value: GjennomforingOppstartstype.LOPENDE,
           },
         ]}
       />

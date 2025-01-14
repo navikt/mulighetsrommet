@@ -11,7 +11,7 @@ export function useModiaArbeidsmarkedstiltak() {
 
   return useQuery({
     queryKey: QueryKeys.arbeidsmarkedstiltak.tiltak(filter),
-    queryFn: () => VeilederTiltakService.getVeilederTiltaksgjennomforinger(filter),
+    queryFn: () => VeilederTiltakService.getAllVeilederTiltak(filter),
     enabled: isFilterReady,
   });
 }
@@ -23,8 +23,8 @@ export function useNavArbeidsmarkedstiltak({ preview }: { preview: boolean }) {
     queryKey: QueryKeys.arbeidsmarkedstiltak.tiltak({ ...filter, preview }),
     queryFn() {
       return preview
-        ? VeilederTiltakService.getPreviewTiltaksgjennomforinger(filter)
-        : VeilederTiltakService.getNavTiltaksgjennomforinger(filter);
+        ? VeilederTiltakService.getAllPreviewTiltak(filter)
+        : VeilederTiltakService.getAllNavTiltak(filter);
     },
     enabled: isFilterReady,
   });

@@ -3,13 +3,13 @@ package no.nav.mulighetsrommet.api.gjennomforing.model
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.UtdanningslopDto
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-data class TiltaksgjennomforingDto(
+data class GjennomforingDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val tiltakstype: Tiltakstype,
@@ -31,7 +31,7 @@ data class TiltaksgjennomforingDto(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val arenaAnsvarligEnhet: ArenaNavEnhet?,
-    val status: TiltaksgjennomforingStatusDto,
+    val status: GjennomforingStatusDto,
     val apentForPamelding: Boolean,
     val antallPlasser: Int,
     @Serializable(with = UUIDSerializer::class)
@@ -39,7 +39,7 @@ data class TiltaksgjennomforingDto(
     val administratorer: List<Administrator>,
     val navRegion: NavEnhetDbo?,
     val navEnheter: List<NavEnhetDbo>,
-    val oppstart: TiltaksgjennomforingOppstartstype,
+    val oppstart: GjennomforingOppstartstype,
     val opphav: ArenaMigrering.Opphav,
     val kontaktpersoner: List<TiltaksgjennomforingKontaktperson>,
     val stedForGjennomforing: String?,
@@ -104,7 +104,7 @@ data class TiltaksgjennomforingDto(
         apentForPamelding = apentForPamelding,
     )
 
-    fun toTiltaksgjennomforingDbo() = TiltaksgjennomforingDbo(
+    fun toTiltaksgjennomforingDbo() = GjennomforingDbo(
         id = id,
         navn = navn,
         tiltakstypeId = tiltakstype.id,
@@ -119,7 +119,7 @@ data class TiltaksgjennomforingDto(
         navEnheter = navEnheter.map { it.enhetsnummer },
         oppstart = oppstart,
         kontaktpersoner = kontaktpersoner.map {
-            TiltaksgjennomforingKontaktpersonDbo(
+            GjennomforingKontaktpersonDbo(
                 navIdent = it.navIdent,
                 navEnheter = it.navEnheter,
                 beskrivelse = it.beskrivelse,

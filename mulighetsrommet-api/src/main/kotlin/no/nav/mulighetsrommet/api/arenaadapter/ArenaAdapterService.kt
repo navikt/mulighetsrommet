@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.api.clients.brreg.BrregError
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.domain.Tiltakskoder
@@ -129,7 +129,7 @@ class ArenaAdapterService(
 
     private fun hasRelevantChanges(
         arenaGjennomforing: ArenaTiltaksgjennomforingDbo,
-        current: TiltaksgjennomforingDto,
+        current: GjennomforingDto,
     ): Boolean {
         return arenaGjennomforing.tiltaksnummer != current.tiltaksnummer || arenaGjennomforing.arenaAnsvarligEnhet != current.arenaAnsvarligEnhet?.enhetsnummer
     }
@@ -143,7 +143,7 @@ class ArenaAdapterService(
         ) { Json.encodeToJsonElement(dto) }
     }
 
-    private fun QueryContext.logUpdateGjennomforing(dto: TiltaksgjennomforingDto) {
+    private fun QueryContext.logUpdateGjennomforing(dto: GjennomforingDto) {
         queries.endringshistorikk.logEndring(
             DocumentClass.TILTAKSGJENNOMFORING,
             "Endret i Arena",
@@ -152,7 +152,7 @@ class ArenaAdapterService(
         ) { Json.encodeToJsonElement(dto) }
     }
 
-    private fun QueryContext.logTiltaksnummerHentetFraArena(dto: TiltaksgjennomforingDto) {
+    private fun QueryContext.logTiltaksnummerHentetFraArena(dto: GjennomforingDto) {
         queries.endringshistorikk.logEndring(
             DocumentClass.TILTAKSGJENNOMFORING,
             "Oppdatert med tiltaksnummer fra Arena",

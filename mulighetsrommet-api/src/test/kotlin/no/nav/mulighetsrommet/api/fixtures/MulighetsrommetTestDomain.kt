@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerDbo
@@ -40,7 +40,7 @@ data class MulighetsrommetTestDomain(
         AvtaleFixtures.jobbklubb,
         AvtaleFixtures.EnkelAmo,
     ),
-    val gjennomforinger: List<TiltaksgjennomforingDbo> = listOf(),
+    val gjennomforinger: List<GjennomforingDbo> = listOf(),
     val deltakere: List<DeltakerDbo> = listOf(),
     val refusjonskrav: List<RefusjonskravDbo> = listOf(),
     val additionalSetup: (QueryContext.() -> Unit)? = null,

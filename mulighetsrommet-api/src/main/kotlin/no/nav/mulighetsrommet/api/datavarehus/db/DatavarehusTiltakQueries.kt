@@ -14,7 +14,6 @@ import org.intellij.lang.annotations.Language
 import java.util.*
 
 class DatavarehusTiltakQueries(private val session: Session) {
-
     fun getTiltak(id: UUID): DatavarehusTiltak = with(session) {
         @Language("PostgreSQL")
         val query = """
@@ -211,7 +210,7 @@ private fun Row.toDatavarehusTiltakDto() = DatavarehusTiltakDto(
         sluttDato = localDateOrNull("slutt_dato"),
         opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
         oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
-        status = TiltaksgjennomforingStatus.valueOf(string("status")),
+        status = GjennomforingStatus.valueOf(string("status")),
         arrangor = DatavarehusTiltak.Arrangor(
             organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
         ),

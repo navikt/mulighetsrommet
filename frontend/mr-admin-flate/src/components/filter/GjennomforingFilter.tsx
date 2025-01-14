@@ -4,7 +4,7 @@ import { ArrangorTil, NavEnhet } from "@mr/api-client";
 import { useEffect } from "react";
 import {
   gjennomforingFilterAccordionAtom,
-  GjennomforingFilter as TiltaksgjennomforingFilterProps,
+  GjennomforingFilter as GjennomforingFilterProps,
 } from "@/api/atoms";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
@@ -24,11 +24,7 @@ import { logEvent } from "@/logging/amplitude";
 type Filters = "tiltakstype";
 
 interface Props {
-  filterAtom: WritableAtom<
-    TiltaksgjennomforingFilterProps,
-    [newValue: TiltaksgjennomforingFilterProps],
-    void
-  >;
+  filterAtom: WritableAtom<GjennomforingFilterProps, [newValue: GjennomforingFilterProps], void>;
   skjulFilter?: Record<Filters, boolean>;
 }
 

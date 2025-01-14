@@ -16,8 +16,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus.*
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
+import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus.*
+import no.nav.mulighetsrommet.domain.dto.GjennomforingStatusDto
 import java.time.LocalDate
 import java.util.*
 
@@ -78,13 +78,13 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
-                    it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
+                    it.status.shouldBe(GjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
                 }
                 queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
-                    it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
+                    it.status.shouldBe(GjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
                 }
                 queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
-                    it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
+                    it.status.shouldBe(GjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
                 }
             }
 
@@ -99,13 +99,13 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
-                    it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
+                    it.status.shouldBe(GjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
                 }
                 queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
-                    it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                    it.status.shouldBe(GjennomforingStatusDto(AVSLUTTET, avbrutt = null))
                 }
                 queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
-                    it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                    it.status.shouldBe(GjennomforingStatusDto(AVSLUTTET, avbrutt = null))
                 }
             }
 
@@ -131,13 +131,13 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
-                    it.status.shouldBe(TiltaksgjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
+                    it.status.shouldBe(GjennomforingStatusDto(GJENNOMFORES, avbrutt = null))
                 }
                 queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
-                    it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                    it.status.shouldBe(GjennomforingStatusDto(AVSLUTTET, avbrutt = null))
                 }
                 queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
-                    it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                    it.status.shouldBe(GjennomforingStatusDto(AVSLUTTET, avbrutt = null))
                 }
             }
 
@@ -183,7 +183,7 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
-                    it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                    it.status.shouldBe(GjennomforingStatusDto(AVSLUTTET, avbrutt = null))
                 }
                 queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
                     it.status.status.shouldBe(AVLYST)
@@ -230,7 +230,7 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.get(gjennomforing.id).shouldNotBeNull().should {
-                    it.status.shouldBe(TiltaksgjennomforingStatusDto(AVSLUTTET, avbrutt = null))
+                    it.status.shouldBe(GjennomforingStatusDto(AVSLUTTET, avbrutt = null))
                     it.publisert.shouldBe(false)
                     it.apentForPamelding.shouldBe(false)
                 }

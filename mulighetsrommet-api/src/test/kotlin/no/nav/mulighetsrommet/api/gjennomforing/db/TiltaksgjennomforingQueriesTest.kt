@@ -24,13 +24,13 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.EnkelAmo
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging2
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.VTA1
-import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingKontaktperson
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -55,14 +55,14 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                 queries.get(Oppfolging1.id) should {
                     it.shouldNotBeNull()
                     it.id shouldBe Oppfolging1.id
-                    it.tiltakstype shouldBe TiltaksgjennomforingDto.Tiltakstype(
+                    it.tiltakstype shouldBe GjennomforingDto.Tiltakstype(
                         id = TiltakstypeFixtures.Oppfolging.id,
                         navn = TiltakstypeFixtures.Oppfolging.navn,
                         tiltakskode = Tiltakskode.OPPFOLGING,
                     )
                     it.navn shouldBe Oppfolging1.navn
                     it.tiltaksnummer shouldBe null
-                    it.arrangor shouldBe TiltaksgjennomforingDto.ArrangorUnderenhet(
+                    it.arrangor shouldBe GjennomforingDto.ArrangorUnderenhet(
                         id = ArrangorFixtures.underenhet1.id,
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                         navn = ArrangorFixtures.underenhet1.navn,
@@ -72,18 +72,18 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                     it.startDato shouldBe Oppfolging1.startDato
                     it.sluttDato shouldBe Oppfolging1.sluttDato
                     it.arenaAnsvarligEnhet shouldBe null
-                    it.status.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
+                    it.status.status shouldBe GjennomforingStatus.GJENNOMFORES
                     it.apentForPamelding shouldBe true
                     it.antallPlasser shouldBe 12
                     it.avtaleId shouldBe Oppfolging1.avtaleId
                     it.administratorer shouldBe listOf(
-                        TiltaksgjennomforingDto.Administrator(
+                        GjennomforingDto.Administrator(
                             navIdent = NavIdent("DD1"),
                             navn = "Donald Duck",
                         ),
                     )
                     it.navEnheter shouldBe listOf(Gjovik)
-                    it.oppstart shouldBe TiltaksgjennomforingOppstartstype.LOPENDE
+                    it.oppstart shouldBe GjennomforingOppstartstype.LOPENDE
                     it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
                     it.kontaktpersoner shouldBe listOf()
                     it.stedForGjennomforing shouldBe "Oslo"
@@ -111,7 +111,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                 queries.upsert(gjennomforing)
 
                 queries.get(gjennomforing.id)?.administratorer.shouldContainExactlyInAnyOrder(
-                    TiltaksgjennomforingDto.Administrator(
+                    GjennomforingDto.Administrator(
                         navIdent = NavAnsattFixture.ansatt1.navIdent,
                         navn = "Donald Duck",
                     ),
@@ -159,12 +159,12 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                 queries.upsert(
                     Oppfolging1.copy(
                         kontaktpersoner = listOf(
-                            TiltaksgjennomforingKontaktpersonDbo(
+                            GjennomforingKontaktpersonDbo(
                                 navIdent = NavAnsattFixture.ansatt1.navIdent,
                                 navEnheter = listOf(NavAnsattFixture.ansatt1.hovedenhet),
                                 beskrivelse = "hei hei kontaktperson",
                             ),
-                            TiltaksgjennomforingKontaktpersonDbo(
+                            GjennomforingKontaktpersonDbo(
                                 navIdent = NavAnsattFixture.ansatt2.navIdent,
                                 navEnheter = listOf(NavAnsattFixture.ansatt2.hovedenhet),
                                 beskrivelse = null,
@@ -197,7 +197,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                 queries.upsert(
                     Oppfolging1.copy(
                         kontaktpersoner = listOf(
-                            TiltaksgjennomforingKontaktpersonDbo(
+                            GjennomforingKontaktpersonDbo(
                                 navIdent = NavAnsattFixture.ansatt1.navIdent,
                                 navEnheter = listOf(NavAnsattFixture.ansatt1.hovedenhet),
                                 beskrivelse = null,
@@ -693,15 +693,15 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                 val queries = TiltaksgjennomforingQueries(session)
 
                 forAll(
-                    row(enManedTilbake, enManedFrem, enManedTilbake.minusDays(1), TiltaksgjennomforingStatus.AVLYST),
-                    row(enManedTilbake, null, enManedTilbake.minusDays(1), TiltaksgjennomforingStatus.AVLYST),
-                    row(enManedFrem, toManederFrem, dagensDato, TiltaksgjennomforingStatus.AVLYST),
-                    row(dagensDato, toManederFrem, dagensDato, TiltaksgjennomforingStatus.AVBRUTT),
-                    row(enManedTilbake, enManedFrem, enManedTilbake.plusDays(3), TiltaksgjennomforingStatus.AVBRUTT),
-                    row(enManedTilbake, enManedFrem, enManedFrem, TiltaksgjennomforingStatus.AVBRUTT),
-                    row(enManedTilbake, null, enManedFrem, TiltaksgjennomforingStatus.AVBRUTT),
-                    row(enManedFrem, toManederFrem, enManedFrem.plusMonths(2), TiltaksgjennomforingStatus.AVSLUTTET),
-                    row(enManedTilbake, enManedFrem, enManedFrem.plusDays(1), TiltaksgjennomforingStatus.AVSLUTTET),
+                    row(enManedTilbake, enManedFrem, enManedTilbake.minusDays(1), GjennomforingStatus.AVLYST),
+                    row(enManedTilbake, null, enManedTilbake.minusDays(1), GjennomforingStatus.AVLYST),
+                    row(enManedFrem, toManederFrem, dagensDato, GjennomforingStatus.AVLYST),
+                    row(dagensDato, toManederFrem, dagensDato, GjennomforingStatus.AVBRUTT),
+                    row(enManedTilbake, enManedFrem, enManedTilbake.plusDays(3), GjennomforingStatus.AVBRUTT),
+                    row(enManedTilbake, enManedFrem, enManedFrem, GjennomforingStatus.AVBRUTT),
+                    row(enManedTilbake, null, enManedFrem, GjennomforingStatus.AVBRUTT),
+                    row(enManedFrem, toManederFrem, enManedFrem.plusMonths(2), GjennomforingStatus.AVSLUTTET),
+                    row(enManedTilbake, enManedFrem, enManedFrem.plusDays(1), GjennomforingStatus.AVSLUTTET),
                 ) { startDato, sluttDato, avbruttDato, expectedStatus ->
                     queries.upsert(AFT1.copy(startDato = startDato, sluttDato = sluttDato))
 
@@ -723,11 +723,11 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                 val queries = TiltaksgjennomforingQueries(session)
 
                 forAll(
-                    row(toManederTilbake, enManedTilbake, TiltaksgjennomforingStatus.GJENNOMFORES),
-                    row(enManedTilbake, null, TiltaksgjennomforingStatus.GJENNOMFORES),
-                    row(dagensDato, dagensDato, TiltaksgjennomforingStatus.GJENNOMFORES),
-                    row(enManedFrem, toManederFrem, TiltaksgjennomforingStatus.GJENNOMFORES),
-                    row(enManedFrem, null, TiltaksgjennomforingStatus.GJENNOMFORES),
+                    row(toManederTilbake, enManedTilbake, GjennomforingStatus.GJENNOMFORES),
+                    row(enManedTilbake, null, GjennomforingStatus.GJENNOMFORES),
+                    row(dagensDato, dagensDato, GjennomforingStatus.GJENNOMFORES),
+                    row(enManedFrem, toManederFrem, GjennomforingStatus.GJENNOMFORES),
+                    row(enManedFrem, null, GjennomforingStatus.GJENNOMFORES),
                 ) { startDato, sluttDato, status ->
                     queries.upsert(AFT1.copy(startDato = startDato, sluttDato = sluttDato))
 
@@ -792,6 +792,6 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
     }
 })
 
-private infix fun Collection<TiltaksgjennomforingDto>.shouldContainExactlyIds(listOf: Collection<UUID>) {
+private infix fun Collection<GjennomforingDto>.shouldContainExactlyIds(listOf: Collection<UUID>) {
     map { it.id }.shouldContainExactlyInAnyOrder(listOf)
 }

@@ -5,14 +5,14 @@ import kotlinx.serialization.json.Json
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import org.intellij.lang.annotations.Language
 import java.util.*
 
 class AmoKategoriseringQueries(private val session: Session) {
 
-    fun upsert(dbo: TiltaksgjennomforingDbo) {
+    fun upsert(dbo: GjennomforingDbo) {
         if (dbo.amoKategorisering == null) {
             delete(dbo.id, ForeignIdType.GJENNOMFORING)
         } else {

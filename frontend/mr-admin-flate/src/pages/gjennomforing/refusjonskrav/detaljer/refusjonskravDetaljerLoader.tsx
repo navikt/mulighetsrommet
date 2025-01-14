@@ -1,4 +1,4 @@
-import { RefusjonskravService, TiltaksgjennomforingerService } from "@mr/api-client";
+import { RefusjonskravService, GjennomforingerService } from "@mr/api-client";
 import { LoaderFunctionArgs } from "react-router";
 
 export async function refusjonskravDetaljerLoader({ params }: LoaderFunctionArgs) {
@@ -13,7 +13,7 @@ export async function refusjonskravDetaljerLoader({ params }: LoaderFunctionArgs
   }
 
   const [gjennomforing, refusjonskrav] = await Promise.all([
-    TiltaksgjennomforingerService.getTiltaksgjennomforing({
+    GjennomforingerService.getGjennomforing({
       id: tiltaksgjennomforingId,
     }),
     RefusjonskravService.getRefusjonskrav({ id: refusjonskravId }),

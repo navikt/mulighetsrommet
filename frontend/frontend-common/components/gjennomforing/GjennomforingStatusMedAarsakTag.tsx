@@ -1,10 +1,10 @@
 import { Tag } from "@navikt/ds-react";
-import { TiltaksgjennomforingStatusDto } from "@mr/api-client-v2";
+import { GjennomforingStatusDto } from "@mr/api-client-v2";
 import { useState } from "react";
 import { variantAndName } from "./GjennomforingStatusTag";
 
 interface Props {
-  status: TiltaksgjennomforingStatusDto;
+  status: GjennomforingStatusDto;
 }
 
 export function GjennomforingStatusMedAarsakTag({ status }: Props) {

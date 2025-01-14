@@ -10,9 +10,9 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -20,9 +20,9 @@ import no.nav.mulighetsrommet.api.routes.v1.EksternTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
+import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
@@ -38,9 +38,9 @@ class TiltaksgjennomforingService(
 ) {
 
     suspend fun upsert(
-        request: TiltaksgjennomforingRequest,
+        request: GjennomforingRequest,
         navIdent: NavIdent,
-    ): Either<List<ValidationError>, TiltaksgjennomforingDto> = either {
+    ): Either<List<ValidationError>, GjennomforingDto> = either {
         val previous = get(request.id)
 
         val dbo = validator.validate(request.toDbo(), previous)
@@ -74,14 +74,14 @@ class TiltaksgjennomforingService(
         }
     }
 
-    fun get(id: UUID): TiltaksgjennomforingDto? = db.session {
+    fun get(id: UUID): GjennomforingDto? = db.session {
         queries.gjennomforing.get(id)
     }
 
     fun getAll(
         pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
-    ): PaginatedResponse<TiltaksgjennomforingDto> = db.session {
+    ): PaginatedResponse<GjennomforingDto> = db.session {
         queries.gjennomforing.getAll(
             pagination,
             search = filter.search,
@@ -169,9 +169,9 @@ class TiltaksgjennomforingService(
 
         val dto = getOrError(id)
         val operation = when (dto.status.status) {
-            TiltaksgjennomforingStatus.AVSLUTTET,
-            TiltaksgjennomforingStatus.AVBRUTT,
-            TiltaksgjennomforingStatus.AVLYST,
+            GjennomforingStatus.AVSLUTTET,
+            GjennomforingStatus.AVBRUTT,
+            GjennomforingStatus.AVLYST,
             -> "Gjennomføringen ble ${dto.status.status.name.lowercase()}"
 
             else -> throw IllegalStateException("Gjennomføringen ble nettopp avsluttet, men status er fortsatt ${dto.status.status}")
@@ -217,13 +217,13 @@ class TiltaksgjennomforingService(
         )
     }
 
-    private fun QueryContext.getOrError(id: UUID): TiltaksgjennomforingDto {
+    private fun QueryContext.getOrError(id: UUID): GjennomforingDto {
         val gjennomforing = queries.gjennomforing.get(id)
         return requireNotNull(gjennomforing) { "Gjennomføringen med id=$id finnes ikke" }
     }
 
     private fun QueryContext.dispatchNotificationToNewAdministrators(
-        dbo: TiltaksgjennomforingDbo,
+        dbo: GjennomforingDbo,
         navIdent: NavIdent,
     ) {
         val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet()
@@ -243,7 +243,7 @@ class TiltaksgjennomforingService(
 
     private fun QueryContext.logEndring(
         operation: String,
-        dto: TiltaksgjennomforingDto,
+        dto: GjennomforingDto,
         endretAv: EndretAv,
     ) {
         queries.endringshistorikk.logEndring(

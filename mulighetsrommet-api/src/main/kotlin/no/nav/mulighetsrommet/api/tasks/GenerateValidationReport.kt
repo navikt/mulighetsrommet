@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingValidator
-import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -130,7 +130,7 @@ class GenerateValidationReport(
         }
     }
 
-    private suspend fun validateGjennomforinger(): Map<TiltaksgjennomforingDto, List<ValidationError>> = db.session {
+    private suspend fun validateGjennomforinger(): Map<GjennomforingDto, List<ValidationError>> = db.session {
         buildMap {
             paginateFanOut({ pagination ->
                 queries.gjennomforing.getAll(
@@ -147,7 +147,7 @@ class GenerateValidationReport(
 
     private fun createGjennomforingerSheet(
         workbook: XSSFWorkbook,
-        result: Map<TiltaksgjennomforingDto, List<ValidationError>>,
+        result: Map<GjennomforingDto, List<ValidationError>>,
     ) {
         val workSheet = workbook.createSheet("Gjennomføringer")
         createHeader(workSheet)

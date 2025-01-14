@@ -1,5 +1,5 @@
 import {
-  TiltaksgjennomforingStatus,
+  GjennomforingStatus,
   Tiltakskode,
   TiltakskodeArena,
   ValidationErrorResponse,
@@ -20,8 +20,8 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
   }
 }
 
-export function gjennomforingIsAktiv(status: TiltaksgjennomforingStatus): boolean {
-  return status === TiltaksgjennomforingStatus.GJENNOMFORES;
+export function gjennomforingIsAktiv(status: GjennomforingStatus): boolean {
+  return status === GjennomforingStatus.GJENNOMFORES;
 }
 
 export function formaterNOK(tall: number) {

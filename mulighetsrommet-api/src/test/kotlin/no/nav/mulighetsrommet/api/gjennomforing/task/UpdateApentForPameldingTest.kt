@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
 import java.time.LocalDate
 
 class UpdateApentForPameldingTest : FunSpec({
@@ -29,12 +29,12 @@ class UpdateApentForPameldingTest : FunSpec({
                 TiltaksgjennomforingFixtures.Jobbklubb1.copy(
                     startDato = startDato,
                     sluttDato = sluttDato,
-                    oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
+                    oppstart = GjennomforingOppstartstype.LOPENDE,
                 ),
                 TiltaksgjennomforingFixtures.GruppeAmo1.copy(
                     startDato = startDato,
                     sluttDato = sluttDato,
-                    oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+                    oppstart = GjennomforingOppstartstype.FELLES,
                 ),
             ),
         ) {

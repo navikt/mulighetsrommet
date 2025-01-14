@@ -20,7 +20,7 @@ import { GjennomforingTable } from "@/components/gjennomforing/GjennomforingTabl
 export function GjennomforingerForAvtalePage() {
   const id = useGetAvtaleIdFromUrlOrThrow();
 
-  const filterAtomTiltaksgjennomforinger = gjennomforingerForAvtaleFilterAtomFamily(id);
+  const filterAtomGjennomforinger = gjennomforingerForAvtaleFilterAtomFamily(id);
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const { data: avtale } = useAvtale();
   const [tagsHeight, setTagsHeight] = useState(0);
@@ -31,7 +31,7 @@ export function GjennomforingerForAvtalePage() {
       <FilterAndTableLayout
         filter={
           <GjennomforingFilter
-            filterAtom={filterAtomTiltaksgjennomforinger}
+            filterAtom={filterAtomGjennomforinger}
             skjulFilter={{
               tiltakstype: true,
             }}
@@ -49,7 +49,7 @@ export function GjennomforingerForAvtalePage() {
         }
         tags={
           <GjennomforingFiltertags
-            filterAtom={filterAtomTiltaksgjennomforinger}
+            filterAtom={filterAtomGjennomforinger}
             filterOpen={filterOpen}
             setTagsHeight={setTagsHeight}
           />
@@ -61,7 +61,7 @@ export function GjennomforingerForAvtalePage() {
               tiltakstype: true,
               arrangor: true,
             }}
-            filterAtom={filterAtomTiltaksgjennomforinger}
+            filterAtom={filterAtomGjennomforinger}
             tagsHeight={tagsHeight}
             filterOpen={filterOpen}
           />
@@ -71,7 +71,7 @@ export function GjennomforingerForAvtalePage() {
         nullstillFilterButton={
           <NullstillKnappForGjennomforinger
             avtale={avtale}
-            filterAtom={filterAtomTiltaksgjennomforinger}
+            filterAtom={filterAtomGjennomforinger}
           />
         }
       />

@@ -108,7 +108,7 @@ class AvtaleService(
 
         val (_, gjennomforinger) = queries.gjennomforing.getAll(
             avtaleId = id,
-            statuser = listOf(TiltaksgjennomforingStatus.GJENNOMFORES),
+            statuser = listOf(GjennomforingStatus.GJENNOMFORES),
         )
 
         if (gjennomforinger.isNotEmpty()) {

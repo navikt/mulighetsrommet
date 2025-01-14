@@ -6,7 +6,7 @@ import { AvbrytModalAarsaker } from "@/components/modal/AvbrytModalAarsaker";
 import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { Alert, BodyShort, Button, Radio } from "@navikt/ds-react";
-import { AvbrytGjennomforingAarsak, TiltaksgjennomforingDto } from "@mr/api-client";
+import { AvbrytGjennomforingAarsak, GjennomforingDto } from "@mr/api-client";
 import { RefObject, useState } from "react";
 import { useNavigate } from "react-router";
 import z from "zod";
@@ -31,7 +31,7 @@ export const AvbrytGjennomforingModalSchema = z
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
-  gjennomforing: TiltaksgjennomforingDto;
+  gjennomforing: GjennomforingDto;
 }
 
 interface State {

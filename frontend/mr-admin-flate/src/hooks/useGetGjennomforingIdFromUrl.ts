@@ -12,7 +12,7 @@ export function useGetGjennomforingIdFromUrlOrThrow(): string {
   const id = useGetGjennomforingIdFromUrl();
 
   if (!id) {
-    throw Error("TiltaksgjennomføringId er ikke satt i URL");
+    throw Error("GjennomføringId er ikke satt i URL");
   }
 
   return id;

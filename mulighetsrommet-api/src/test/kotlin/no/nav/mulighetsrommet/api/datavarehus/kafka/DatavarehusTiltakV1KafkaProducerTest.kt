@@ -14,9 +14,9 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import java.time.LocalDate
 import java.util.*
 
@@ -80,8 +80,8 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
                 virksomhetsnummer = "123123123",
                 startDato = LocalDate.now(),
                 sluttDato = null,
-                status = TiltaksgjennomforingStatus.GJENNOMFORES,
-                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+                status = GjennomforingStatus.GJENNOMFORES,
+                oppstart = GjennomforingOppstartstype.FELLES,
                 tilgjengeligForArrangorFraOgMedDato = null,
                 apentForPamelding = true,
             ),

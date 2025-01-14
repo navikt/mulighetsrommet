@@ -10,7 +10,7 @@ export function GjennomforingIkon({ inkluderBakgrunn = false }: IkonTypeProps) {
       xmlns="http://www.w3.org/2000/svg"
       role="img"
     >
-      <title>Tiltaksgjennomføring</title>
+      <title>Gjennomføring</title>
       <circle cx="50" cy="50" r="50" fill="#66C786" />
       <path
         fillRule="evenodd"
@@ -36,7 +36,7 @@ export function GjennomforingIkon({ inkluderBakgrunn = false }: IkonTypeProps) {
       xmlns="http://www.w3.org/2000/svg"
       role="img"
     >
-      <title>Tiltaksgjennomføring</title>
+      <title>Gjennomføring</title>
       <path
         fillRule="evenodd"
         clipRule="evenodd"
