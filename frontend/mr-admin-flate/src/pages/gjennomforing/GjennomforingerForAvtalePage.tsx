@@ -27,8 +27,8 @@ export function GjennomforingerForAvtalePage() {
   const { data: avtale } = useAvtale();
   const [tagsHeight, setTagsHeight] = useState(0);
   const [filter, setFilter] = useAtom(gjennomforingfilterAtom);
-  const { data: lagredeFilter = [] } = useLagredeFilter(LagretDokumenttype.TILTAKSGJENNOMFØRING);
-  const deleteFilterMutation = useSlettFilter(LagretDokumenttype.TILTAKSGJENNOMFØRING);
+  const { data: lagredeFilter = [] } = useLagredeFilter(LagretDokumenttype.GJENNOMFORING);
+  const deleteFilterMutation = useSlettFilter(LagretDokumenttype.GJENNOMFORING);
 
   return (
     <>

@@ -10,7 +10,7 @@ export const lagretFilterHandlers = [
           id: "cd5ed640-e8e4-46fb-a7b5-e98667f6c1ab",
           brukerId: "Z990079",
           navn: "Varig tilpasset Fredrikstad",
-          type: LagretDokumenttype.TILTAKSGJENNOMFØRING_MODIA,
+          type: LagretDokumenttype.GJENNOMFORING_MODIA,
           filter: {
             search: "",
             navEnheter: [
