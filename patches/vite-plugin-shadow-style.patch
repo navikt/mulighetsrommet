@@ -1,0 +1,13 @@
+diff --git a/dist/plugin.js b/dist/plugin.js
+index d3803abf90a62f06cc2b6471b20fe280116d0070..766826c222fc0dc4e89dd270652e80863d506962 100644
+--- a/dist/plugin.js
++++ b/dist/plugin.js
+@@ -27,7 +27,7 @@ function shadowStyle(pluginConfig = { iife: false }) {
+                 (0, checkCSSOutput_1.checkCSSOutput)(outputBundle);
+                 const injectionCandidate = (0, findInjectionCandidate_1.findInjectionCandidate)(outputBundle);
+                 const injectionTarget = (0, findInjectionTarget_1.findInjectionTarget)(outputBundle);
+-                injectionTarget.code = injectionTarget.code.replace("SHADOW_STYLE", `\`${injectionCandidate.source}\``);
++                injectionTarget.code = injectionTarget.code.replace("SHADOW_STYLE", `\`${injectionCandidate.source.replace(/`/g, "\\`")}\``);
+                 if (pluginConfig.iife)
+                     injectionTarget.code = `(() => {${injectionTarget.code}})();`;
+             }

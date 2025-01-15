@@ -1,11 +1,11 @@
-import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router";
-import { createRoot, Root } from "react-dom/client";
-import createCache from "@emotion/cache";
 import { ModiaContext } from "@/apps/modia/ModiaContext";
+import { PreviewArbeidsmarkedstiltak } from "@/apps/nav/PreviewArbeidsmarkedstiltak";
 import { APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
+import createCache from "@emotion/cache";
+import { createRoot, Root } from "react-dom/client";
+import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router";
 import { CustomEmotionCacheProvider } from "./CustomEmotionCacheProvider";
 import { ModiaArbeidsmarkedstiltak } from "./ModiaArbeidsmarkedstiltak";
-import { PreviewArbeidsmarkedstiltak } from "@/apps/nav/PreviewArbeidsmarkedstiltak";
 
 export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
   static FNR_PROP = "data-fnr";
