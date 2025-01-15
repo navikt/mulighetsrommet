@@ -1,6 +1,5 @@
 import { Alert, BodyShort, Button, Heading } from "@navikt/ds-react";
 import { useState } from "react";
-import styles from "./DemoBanner.module.scss";
 
 export function DemoBanner() {
   const [vis, setVis] = useState(true);
@@ -8,7 +7,7 @@ export function DemoBanner() {
   if (!vis) return null;
 
   return (
-    <div className={styles.miljobanner_container}>
+    <div className="text-black flex items-center justify-center p-[1rem 0] my-1">
       <Alert variant="warning">
         <Heading spacing size="small">
           Dette er en demo-tjeneste som er under utvikling
@@ -17,7 +16,9 @@ export function DemoBanner() {
           Her eksperimenterer vi med ny funksjonalitet. Demoen inneholder ikke ekte data og kan til
           tider være ustabil.
         </BodyShort>
-        <Button onClick={() => setVis(false)}>Lukk melding</Button>
+        <Button size="small" onClick={() => setVis(false)}>
+          Lukk melding
+        </Button>
       </Alert>
     </div>
   );

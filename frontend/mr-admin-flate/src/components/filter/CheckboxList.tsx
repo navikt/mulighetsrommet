@@ -1,5 +1,4 @@
 import { useState } from "react";
-import styles from "./CheckboxList.module.scss";
 import { Checkbox, Search } from "@navikt/ds-react";
 
 interface CheckboxListProps<T> {
@@ -15,7 +14,7 @@ export function CheckboxList<T>(props: CheckboxListProps<T>) {
   const [search, setSearch] = useState<string>("");
 
   return (
-    <div className={styles.checkbox_list}>
+    <div className="max-w-[calc(var(--filter-width)_-_35px)] ml-[-2rem] m-h-[400px] overflow-y-auto pl-[0.1rem]">
       {searchable && (
         <Search
           label=""
@@ -23,7 +22,7 @@ export function CheckboxList<T>(props: CheckboxListProps<T>) {
           variant="simple"
           onChange={(v: string) => setSearch(v)}
           value={search}
-          className={styles.checkbox_search}
+          className="mb-[0.2rem] max-w-[220px]"
         />
       )}
       {onSelectAll && (
