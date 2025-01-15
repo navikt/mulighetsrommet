@@ -1,6 +1,6 @@
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { List, VStack } from "@navikt/ds-react";
 import { Lenke } from "@mr/api-client";
+import { Lenke as LenkeComponent } from "@mr/frontend-common/components/lenke/Lenke";
+import { List, VStack } from "@navikt/ds-react";
 
 interface Props {
   lenker: Lenke[];
@@ -12,13 +12,14 @@ export function Lenkeliste({ lenker }: Props) {
       {lenker.map((lenke, index) => (
         <List.Item key={index}>
           <VStack>
-            <a
-              href={lenke.lenke}
+            <LenkeComponent
+              to={lenke.lenke}
               target={lenke.apneINyFane ? "_blank" : "_self"}
               rel={lenke.apneINyFane ? "noopener noreferrer" : undefined}
+              isExternal={lenke.apneINyFane}
             >
-              {lenke.lenkenavn} ({lenke.lenke}) {lenke.apneINyFane ? <ExternalLinkIcon /> : null}
-            </a>
+              {lenke.lenkenavn} ({lenke.lenke})
+            </LenkeComponent>
             {lenke.visKunForVeileder ? <small>Vises kun i Modia</small> : null}
           </VStack>
         </List.Item>

@@ -1,6 +1,10 @@
+import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
+import { TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL } from "@/constants";
+import { useLogEvent } from "@/logging/amplitude";
+import { Deltakelse, DeltakelserMelding } from "@mr/api-client";
+import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import {
   ArrowForwardIcon,
-  ExternalLinkIcon,
   HourglassBottomFilledIcon,
   LocationPinIcon,
   PlusIcon,
@@ -8,27 +12,22 @@ import {
 import {
   Alert,
   Box,
+  Button,
   Heading,
   HelpText,
   HGrid,
   HStack,
-  Link as AkselLink,
   Skeleton,
   Tabs,
   VStack,
-  Button,
 } from "@navikt/ds-react";
+import ingenFunnImg from "public/ingen-funn.svg";
 import { ReactNode, Suspense, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { Link, useLocation } from "react-router";
-import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
+import { DelMedBrukerHistorikk } from "../delMedBruker/DelMedBrukerHistorikk";
 import { DeltakelseKort } from "../historikk/DeltakelseKort";
 import styles from "./Landingsside.module.scss";
-import { DelMedBrukerHistorikk } from "../delMedBruker/DelMedBrukerHistorikk";
-import { useLogEvent } from "@/logging/amplitude";
-import ingenFunnImg from "public/ingen-funn.svg";
-import { Deltakelse, DeltakelserMelding } from "@mr/api-client";
-import { TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL } from "@/constants";
 
 function Feilmelding({ message }: { message: string }) {
   return (
@@ -341,13 +340,14 @@ function HenterIkkeDeltakelserFraTeamTiltakMeling() {
 
 function TeamTiltakTiltaksgjennomforingAvtalerLink() {
   return (
-    <AkselLink
+    <Lenke
       target="_blank"
       rel="noreferrer noopener"
-      href={`${TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL}/tiltaksgjennomforing?part=VEILEDER`}
+      to={`${TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL}/tiltaksgjennomforing?part=VEILEDER`}
+      isExternal
     >
-      Tiltaksgjennomføring - avtaler <ExternalLinkIcon title="Ikon for å åpne lenke i ny fane" />
-    </AkselLink>
+      Tiltaksgjennomføring - avtaler
+    </Lenke>
   );
 }
 

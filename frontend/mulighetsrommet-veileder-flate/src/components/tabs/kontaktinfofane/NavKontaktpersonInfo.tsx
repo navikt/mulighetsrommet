@@ -1,5 +1,5 @@
-import { Alert, BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import { VeilederflateKontaktInfo, VeilederflateKontaktinfoTiltaksansvarlig } from "@mr/api-client";
+import { Alert, BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import { RefObject, useRef } from "react";
 
 const TEAMS_DYPLENKE = "https://teams.microsoft.com/l/chat/0/0?users=";

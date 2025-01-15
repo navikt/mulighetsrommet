@@ -1,8 +1,8 @@
-import { Toggles, VeilederflateTiltak } from "@mr/api-client";
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { BodyShort, GuidePanel, Heading, Link, VStack } from "@navikt/ds-react";
 import { useFeatureToggle } from "@/api/feature-toggles";
 import { TegnestiftIkon } from "@/ikoner/TegnestiftIkon";
+import { Toggles, VeilederflateTiltak } from "@mr/api-client";
+import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
+import { BodyShort, GuidePanel, Heading, VStack } from "@navikt/ds-react";
 import styles from "./PameldingKometApnerSnart.module.scss";
 
 interface Props {
@@ -34,13 +34,13 @@ export function PameldingKometApnerSnart({ tiltak }: Props) {
           løsning blir tilgjengelig 10. desember.
         </BodyShort>
         <BodyShort>
-          <Link
+          <Lenke
             target="_blank"
             rel="noreferrer noopener"
-            href="https://navno.sharepoint.com/sites/intranett-produktomrader-og-prosjekter/SitePages/Ny-l%C3%B8sning-for-p%C3%A5melding-til-arbeidsforberedende-trening.aspx"
+            to="https://navno.sharepoint.com/sites/intranett-produktomrader-og-prosjekter/SitePages/Ny-l%C3%B8sning-for-p%C3%A5melding-til-arbeidsforberedende-trening.aspx"
           >
-            Les mer på navet her <ExternalLinkIcon title="Ikon for å åpne lenke i ny fane" />
-          </Link>
+            Les mer på navet her
+          </Lenke>
         </BodyShort>
       </VStack>
     </GuidePanel>

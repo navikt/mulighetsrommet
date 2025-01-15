@@ -1,6 +1,6 @@
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { GuidePanel, Heading, Link, List } from "@navikt/ds-react";
 import { Lenke } from "@mr/api-client";
+import { Lenke as LenkeComponent } from "@mr/frontend-common/components/lenke/Lenke";
+import { GuidePanel, Heading, List } from "@navikt/ds-react";
 import { DokumentIkon } from "../../ikoner/DokumentIkon";
 
 interface Props {
@@ -18,13 +18,14 @@ export function LenkeListe({ lenker }: Props) {
       <List as="ul">
         {lenker.map(({ lenke, apneINyFane, lenkenavn }, index) => (
           <List.Item key={index}>
-            <Link
-              href={lenke}
+            <LenkeComponent
+              to={lenke}
               target={apneINyFane ? "_blank" : undefined}
               rel={apneINyFane ? "noopener noreferrer" : undefined}
+              isExternal={apneINyFane}
             >
-              {lenkenavn} {apneINyFane ? <ExternalLinkIcon /> : null}
-            </Link>
+              {lenkenavn}
+            </LenkeComponent>
           </List.Item>
         ))}
       </List>
