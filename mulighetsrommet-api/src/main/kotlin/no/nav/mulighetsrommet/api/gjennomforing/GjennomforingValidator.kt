@@ -18,7 +18,7 @@ import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus
 import java.time.LocalDate
 
-class TiltaksgjennomforingValidator(
+class GjennomforingValidator(
     private val db: ApiDatabase,
 ) {
     private val maksAntallTegnStedForGjennomforing = 100

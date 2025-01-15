@@ -102,7 +102,7 @@ function Koblingsoversikt({ avtaler, gjennomforinger, kontaktperson }: Koblingso
           frikobleMutation={frikobleFraAvtaleMutation}
         />
         <DokumentKoblinger
-          baseUrl="tiltaksgjennomforinger"
+          baseUrl="gjennomforinger"
           dokumenter={gjennomforinger}
           kontaktperson={kontaktperson}
           frikobleMutation={frikobleFraGjennomforingMutation}
@@ -115,7 +115,7 @@ function Koblingsoversikt({ avtaler, gjennomforinger, kontaktperson }: Koblingso
 interface DokumentKoblingerProps {
   dokumenter: DokumentKoblingForKontaktperson[];
   kontaktperson: ArrangorKontaktperson;
-  baseUrl: "tiltaksgjennomforinger" | "avtaler";
+  baseUrl: "gjennomforinger" | "avtaler";
   frikobleMutation: UseMutationResult<
     string,
     Error,

@@ -29,13 +29,13 @@ import java.util.*
 class TiltakshistorikkServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
-    val tiltaksgjennomforing = TiltaksgjennomforingFixtures.Oppfolging1
+    val gjennomforing = GjennomforingFixtures.Oppfolging1
 
     val tiltakshistorikkOppfolging = Tiltakshistorikk.GruppetiltakDeltakelse(
         id = UUID.randomUUID(),
         gjennomforing = Gjennomforing(
-            id = tiltaksgjennomforing.id,
-            navn = tiltaksgjennomforing.navn,
+            id = gjennomforing.id,
+            navn = gjennomforing.navn,
             tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
         ),
         norskIdent = NorskIdent("12345678910"),
@@ -175,7 +175,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                 TiltakstypeFixtures.Arbeidstrening,
             ),
             avtaler = listOf(AvtaleFixtures.oppfolging),
-            gjennomforinger = listOf(tiltaksgjennomforing),
+            gjennomforinger = listOf(gjennomforing),
         ).initialize(database.db)
     }
 

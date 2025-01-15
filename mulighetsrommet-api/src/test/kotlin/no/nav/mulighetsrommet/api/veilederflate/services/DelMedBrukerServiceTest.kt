@@ -10,8 +10,8 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.domain.dto.SanityTiltakstype
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
@@ -74,9 +74,9 @@ class DelMedBrukerServiceTest : FunSpec({
             }
         }
 
-        test("insert med tiltaksgjennomforingId") {
+        test("insert med gjennomforingId") {
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1),
+                gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
             ).initialize(database.db)
 
             val request = DelMedBrukerDbo(
@@ -84,7 +84,7 @@ class DelMedBrukerServiceTest : FunSpec({
                 norskIdent = NorskIdent("12345678910"),
                 navident = "nav123",
                 sanityId = null,
-                tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
+                gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
                 dialogId = "1234",
             )
 
@@ -92,18 +92,18 @@ class DelMedBrukerServiceTest : FunSpec({
 
             val delMedBruker = service.getDeltMedBruker(
                 fnr = NorskIdent("12345678910"),
-                sanityOrGjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
+                sanityOrGjennomforingId = GjennomforingFixtures.Oppfolging1.id,
             )
 
             delMedBruker.shouldNotBeNull().should {
-                it.tiltaksgjennomforingId shouldBe TiltaksgjennomforingFixtures.Oppfolging1.id
+                it.gjennomforingId shouldBe GjennomforingFixtures.Oppfolging1.id
                 it.sanityId shouldBe null
             }
         }
 
         test("Hent Del med bruker-historikk fra database og Sanity") {
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1.copy(navn = "Delt med bruker - tabell")),
+                gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1.copy(navn = "Delt med bruker - tabell")),
             ).initialize(database.db)
 
             val sanityGjennomforingIdForEnkeltplass = UUID.randomUUID()
@@ -162,7 +162,7 @@ class DelMedBrukerServiceTest : FunSpec({
                 norskIdent = NorskIdent("12345678910"),
                 navident = "nav123",
                 sanityId = null,
-                tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
+                gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
                 dialogId = "1234",
             )
 
@@ -171,7 +171,7 @@ class DelMedBrukerServiceTest : FunSpec({
                 norskIdent = NorskIdent("12345678910"),
                 navident = "nav123",
                 sanityId = sanityGjennomforingIdForEnkeltplass,
-                tiltaksgjennomforingId = null,
+                gjennomforingId = null,
                 dialogId = "1235",
             )
 
@@ -180,7 +180,7 @@ class DelMedBrukerServiceTest : FunSpec({
                 norskIdent = NorskIdent("12345678910"),
                 navident = "nav123",
                 sanityId = sanityGjennomforingIdForArbeidstrening,
-                tiltaksgjennomforingId = null,
+                gjennomforingId = null,
                 dialogId = "1235",
             )
 

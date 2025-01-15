@@ -21,7 +21,7 @@ import React from "react";
 import { Laster } from "@/components/laster/Laster";
 
 function createBrodsmuler(
-  tiltaksgjennomforingId: string,
+  gjennomforingId: string,
   avtaleId?: string,
   tilsagn?: boolean,
   refusjonskrav?: boolean,
@@ -29,25 +29,25 @@ function createBrodsmuler(
   return [
     avtaleId
       ? { tittel: "Avtaler", lenke: "/avtaler" }
-      : { tittel: "Gjennomføringer", lenke: "/tiltaksgjennomforinger" },
+      : { tittel: "Gjennomføringer", lenke: "/gjennomforinger" },
     avtaleId ? { tittel: "Avtale", lenke: `/avtaler/${avtaleId}` } : undefined,
     avtaleId
       ? {
           tittel: "Gjennomføringer",
-          lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
+          lenke: `/avtaler/${avtaleId}/gjennomforinger`,
         }
       : undefined,
     {
       tittel: "Gjennomføring",
-      lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}`,
+      lenke: `/gjennomforinger/${gjennomforingId}`,
     },
     tilsagn
-      ? { tittel: "Tilsagn", lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn` }
+      ? { tittel: "Tilsagn", lenke: `/gjennomforinger/${gjennomforingId}/tilsagn` }
       : undefined,
     refusjonskrav
       ? {
           tittel: "Refusjonskrav",
-          lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}/refusjonskrav`,
+          lenke: `/gjennomforinger/${gjennomforingId}/refusjonskrav`,
         }
       : undefined,
   ];
@@ -121,7 +121,7 @@ export function GjennomforingPage() {
           <Tabs.Tab
             value="gjennomforing"
             label="Gjennomføring"
-            onClick={() => navigateAndReplaceUrl(`/tiltaksgjennomforinger/${gjennomforing.id}`)}
+            onClick={() => navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}`)}
             aria-controls="panel"
           />
           {enableOkonomi ? (
@@ -130,7 +130,7 @@ export function GjennomforingPage() {
                 value="tilsagn"
                 label="Tilsagn"
                 onClick={() =>
-                  navigateAndReplaceUrl(`/tiltaksgjennomforinger/${gjennomforing.id}/tilsagn`)
+                  navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/tilsagn`)
                 }
                 aria-controls="panel"
               />
@@ -138,7 +138,7 @@ export function GjennomforingPage() {
                 value="refusjonskrav"
                 label="Refusjonskrav"
                 onClick={() =>
-                  navigateAndReplaceUrl(`/tiltaksgjennomforinger/${gjennomforing.id}/refusjonskrav`)
+                  navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/refusjonskrav`)
                 }
                 aria-controls="panel"
               />

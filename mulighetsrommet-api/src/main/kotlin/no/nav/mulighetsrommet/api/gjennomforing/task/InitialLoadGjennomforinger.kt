@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.*
 
-class InitialLoadTiltaksgjennomforinger(
+class InitialLoadGjennomforinger(
     private val db: ApiDatabase,
     private val gjennomforingProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
 ) {

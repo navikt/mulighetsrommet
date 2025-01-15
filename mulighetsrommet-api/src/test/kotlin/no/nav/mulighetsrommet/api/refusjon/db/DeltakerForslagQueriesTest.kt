@@ -4,8 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.maps.shouldNotContainKey
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.Melding
@@ -18,7 +18,7 @@ class DeltakerForslagQueriesTest : FunSpec({
 
     val deltaker = DeltakerDbo(
         id = UUID.randomUUID(),
-        gjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
+        gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
         startDato = null,
         sluttDato = null,
         registrertTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
@@ -32,7 +32,7 @@ class DeltakerForslagQueriesTest : FunSpec({
     )
 
     val domain = MulighetsrommetTestDomain(
-        gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1),
+        gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
         deltakere = listOf(deltaker),
     )
 
@@ -52,14 +52,14 @@ class DeltakerForslagQueriesTest : FunSpec({
             queries.upsert(forslag)
 
             val forslagEtterUpsert = queries.getForslagByGjennomforing(
-                TiltaksgjennomforingFixtures.Oppfolging1.id,
+                GjennomforingFixtures.Oppfolging1.id,
             )
             forslagEtterUpsert shouldContainExactly mapOf(deltaker.id to listOf(forslag))
 
             queries.delete(forslag.id)
 
             val forslagEtterDelete = queries.getForslagByGjennomforing(
-                TiltaksgjennomforingFixtures.Oppfolging1.id,
+                GjennomforingFixtures.Oppfolging1.id,
             )
             forslagEtterDelete shouldNotContainKey deltaker.id
         }

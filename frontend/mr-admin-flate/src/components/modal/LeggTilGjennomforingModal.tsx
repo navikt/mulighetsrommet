@@ -22,10 +22,10 @@ export function LeggTilGjennomforingModal({ avtale, modalOpen, onClose }: Props)
     onClose();
   };
 
-  const handleLeggTil = (tiltaksgjennomforing: GjennomforingDto, avtaleId?: string) => {
+  const handleLeggTil = (gjennomforing: GjennomforingDto, avtaleId?: string) => {
     mutate(
       {
-        gjennomforingId: tiltaksgjennomforing.id,
+        gjennomforingId: gjennomforing.id,
         avtaleId,
       },
       {

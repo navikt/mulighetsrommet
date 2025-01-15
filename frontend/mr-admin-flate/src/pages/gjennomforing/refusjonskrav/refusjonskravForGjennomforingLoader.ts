@@ -2,19 +2,19 @@ import { RefusjonskravService, GjennomforingerService } from "@mr/api-client";
 import { LoaderFunctionArgs } from "react-router";
 
 export async function refusjonskravForGjennomforingLoader({ params }: LoaderFunctionArgs) {
-  const { tiltaksgjennomforingId } = params;
+  const { gjennomforingId } = params;
 
-  if (!tiltaksgjennomforingId) {
-    throw Error("Fant ikke tiltaksgjennomforingId i route");
+  if (!gjennomforingId) {
+    throw Error("Fant ikke gjennomforingId i route");
   }
 
   const [gjennomforing, refusjonskrav] = await Promise.all([
     GjennomforingerService.getGjennomforing({
-      id: tiltaksgjennomforingId,
+      id: gjennomforingId,
     }),
 
     RefusjonskravService.refusjonskravByGjennomforing({
-      tiltaksgjennomforingId,
+      gjennomforingId,
     }),
   ]);
 

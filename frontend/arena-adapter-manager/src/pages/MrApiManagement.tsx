@@ -54,7 +54,7 @@ export function MrApiManagement() {
 
         <RunTask
           base={ApiBase.MR_API}
-          task="initial-load-tiltaksgjennomforinger"
+          task="initial-load-gjennomforinger"
           input={{
             oneOf: [
               { $ref: "#/definitions/tiltakstyperInput" },

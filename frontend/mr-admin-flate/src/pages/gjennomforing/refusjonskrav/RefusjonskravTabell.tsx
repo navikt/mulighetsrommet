@@ -11,7 +11,7 @@ interface Props {
 }
 
 export function RefusjonskravTabell({ refusjonskrav }: Props) {
-  const { tiltaksgjennomforingId } = useParams();
+  const { gjennomforingId } = useParams();
 
   function formaterKostnadsteder(
     kostnadsteder: {
@@ -69,9 +69,7 @@ export function RefusjonskravTabell({ refusjonskrav }: Props) {
                 <RefusjonskravStatusTag status={status} />
               </Table.DataCell>
               <Table.DataCell>
-                <Link to={`/tiltaksgjennomforinger/${tiltaksgjennomforingId}/refusjonskrav/${id}`}>
-                  Detaljer
-                </Link>
+                <Link to={`/gjennomforinger/${gjennomforingId}/refusjonskrav/${id}`}>Detaljer</Link>
               </Table.DataCell>
             </Table.Row>
           );

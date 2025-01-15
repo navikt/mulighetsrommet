@@ -17,7 +17,7 @@ export function GjennomforingFormPage() {
   const { avtaleId } = useParams();
   const { gjennomforing, avtale, ansatt } = useLoaderData<typeof gjennomforingFormLoader>();
   const erPaaGjennomforingerForAvtale = useMatch(
-    "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema",
+    "/avtaler/:avtaleId/gjennomforinger/:gjennomforingId/skjema",
   );
 
   const redigeringsModus = gjennomforing && inneholderUrl(gjennomforing?.id);
@@ -31,7 +31,7 @@ export function GjennomforingFormPage() {
   const brodsmuler: Array<Brodsmule | undefined> = [
     avtaleId
       ? { tittel: "Avtaler", lenke: "/avtaler" }
-      : { tittel: "Gjennomføringer", lenke: "/tiltaksgjennomforinger" },
+      : { tittel: "Gjennomføringer", lenke: "/gjennomforinger" },
     avtaleId
       ? {
           tittel: "Avtale",
@@ -41,20 +41,20 @@ export function GjennomforingFormPage() {
     erPaaGjennomforingerForAvtale
       ? {
           tittel: "Gjennomføringer",
-          lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
+          lenke: `/avtaler/${avtaleId}/gjennomforinger`,
         }
       : undefined,
     redigeringsModus
       ? {
           tittel: "Gjennomføring",
-          lenke: `/tiltaksgjennomforinger/${gjennomforing?.id}`,
+          lenke: `/gjennomforinger/${gjennomforing?.id}`,
         }
       : undefined,
     {
       tittel: redigeringsModus ? "Rediger gjennomføring" : "Ny gjennomføring",
       lenke: redigeringsModus
-        ? `/tiltaksgjennomforinger/${gjennomforing?.id}/skjema`
-        : "/tiltaksgjennomforinger/skjema",
+        ? `/gjennomforinger/${gjennomforing?.id}/skjema`
+        : "/gjennomforinger/skjema",
     },
   ];
 
@@ -76,7 +76,7 @@ export function GjennomforingFormPage() {
               onClose={() => {
                 navigerTilbake();
               }}
-              onSuccess={(id) => navigate(`/tiltaksgjennomforinger/${id}`)}
+              onSuccess={(id) => navigate(`/gjennomforinger/${id}`)}
               avtale={avtale}
               gjennomforing={gjennomforing}
               defaultValues={defaultGjennomforingData(

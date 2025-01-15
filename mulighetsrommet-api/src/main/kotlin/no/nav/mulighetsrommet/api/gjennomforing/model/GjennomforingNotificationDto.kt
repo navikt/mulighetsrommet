@@ -8,7 +8,7 @@ import java.time.LocalDate
 import java.util.*
 
 @Serializable
-data class TiltaksgjennomforingNotificationDto(
+data class GjennomforingNotificationDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,

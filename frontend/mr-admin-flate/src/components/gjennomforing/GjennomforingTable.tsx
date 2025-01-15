@@ -55,12 +55,9 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
 
     const queryParams = createQueryParamsForExcelDownloadForGjennomforing(filter);
 
-    return await fetch(
-      `${OpenAPI.BASE}/api/v1/intern/tiltaksgjennomforinger/excel?${queryParams}`,
-      {
-        headers,
-      },
-    );
+    return await fetch(`${OpenAPI.BASE}/api/v1/intern/gjennomforinger/excel?${queryParams}`, {
+      headers,
+    });
   }
 
   async function lastNedExcel() {
@@ -78,7 +75,7 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
 
   useEffect(() => {
     if (link.current && excelUrl) {
-      link.current.download = "tiltaksgjennomforinger.xlsx";
+      link.current.download = "gjennomforinger.xlsx";
       link.current.href = excelUrl;
 
       link.current.click();
@@ -112,7 +109,7 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
     return <Laster size="xlarge" tekst="Laster tiltaksgjennomføringer..." />;
   }
 
-  const { pagination, data: tiltaksgjennomforinger } = data;
+  const { pagination, data: gjennomforinger } = data;
 
   return (
     <>
@@ -121,7 +118,7 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
           <PagineringsOversikt
             page={filter.page}
             pageSize={filter.pageSize}
-            antall={tiltaksgjennomforinger.length}
+            antall={gjennomforinger.length}
             maksAntall={pagination.totalCount}
             type="tiltaksgjennomføringer"
             onChangePageSize={(size) => {
@@ -136,14 +133,14 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
         </ToolbarMeny>
       </ToolbarContainer>
       <TabellWrapper filterOpen={filterOpen}>
-        {tiltaksgjennomforinger.length === 0 ? (
+        {gjennomforinger.length === 0 ? (
           <Alert variant="info">Fant ingen tiltaksgjennomføringer</Alert>
         ) : (
           <Table
             sort={sort!}
             onSortChange={(sortKey) => handleSort(sortKey!)}
             className={styles.tabell}
-            data-testid="tiltaksgjennomforing-tabell"
+            data-testid="gjennomforing-tabell"
           >
             <Table.Header
               style={{
@@ -169,27 +166,27 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
                   ))}
               </Table.Row>
             </Table.Header>
-            {tiltaksgjennomforinger.length > 0 ? (
+            {gjennomforinger.length > 0 ? (
               <Table.Body>
-                {tiltaksgjennomforinger.map((tiltaksgjennomforing, index) => {
-                  const formattertSluttDato = tiltaksgjennomforing.sluttDato
-                    ? formaterDato(tiltaksgjennomforing.sluttDato)
+                {gjennomforinger.map((gjennomforing, index) => {
+                  const formattertSluttDato = gjennomforing.sluttDato
+                    ? formaterDato(gjennomforing.sluttDato)
                     : "-";
-                  const formattertStartDato = formaterDato(tiltaksgjennomforing.startDato);
+                  const formattertStartDato = formaterDato(gjennomforing.startDato);
 
                   return (
                     <Table.Row key={index}>
                       <SkjulKolonne skjul={!!skjulKolonner?.navn}>
                         <Table.DataCell
-                          aria-label={`Navn på tiltaksgjennomforing: ${tiltaksgjennomforing.navn}`}
+                          aria-label={`Navn på gjennomforing: ${gjennomforing.navn}`}
                           className={styles.title}
                         >
                           <VStack>
                             <Lenke
-                              to={`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`}
-                              data-testid="tiltaksgjennomforing-tabell_tittel"
+                              to={`/gjennomforinger/${gjennomforing.id}`}
+                              data-testid="gjennomforing-tabell_tittel"
                             >
-                              {tiltaksgjennomforing.navn}
+                              {gjennomforing.navn}
                             </Lenke>
                           </VStack>
                         </Table.DataCell>
@@ -197,33 +194,33 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
 
                       <SkjulKolonne skjul={!!skjulKolonner?.enhet}>
                         <Table.DataCell
-                          aria-label={`Enheter: ${tiltaksgjennomforing?.navEnheter
+                          aria-label={`Enheter: ${gjennomforing?.navEnheter
                             .map((enhet) => enhet?.navn)
                             .join(", ")}`}
-                          title={`Enheter: ${tiltaksgjennomforing?.navEnheter
+                          title={`Enheter: ${gjennomforing?.navEnheter
                             .map((enhet) => enhet?.navn)
                             .join(", ")}`}
                         >
                           {formaterNavEnheter(
-                            tiltaksgjennomforing.navRegion?.navn,
-                            tiltaksgjennomforing.navEnheter,
+                            gjennomforing.navRegion?.navn,
+                            gjennomforing.navEnheter,
                           )}
                         </Table.DataCell>
                       </SkjulKolonne>
 
                       <SkjulKolonne skjul={!!skjulKolonner?.tiltaksnummer}>
                         <Table.DataCell
-                          aria-label={`Tiltaksnummer: ${tiltaksgjennomforing.tiltaksnummer}`}
+                          aria-label={`Tiltaksnummer: ${gjennomforing.tiltaksnummer}`}
                         >
-                          {tiltaksgjennomforing.tiltaksnummer}
+                          {gjennomforing.tiltaksnummer}
                         </Table.DataCell>
                       </SkjulKolonne>
 
                       <SkjulKolonne skjul={!!skjulKolonner?.arrangor}>
                         <Table.DataCell
-                          aria-label={`Virksomhetsnavn: ${tiltaksgjennomforing.arrangor.navn}`}
+                          aria-label={`Virksomhetsnavn: ${gjennomforing.arrangor.navn}`}
                         >
-                          <BodyShort size="small">{tiltaksgjennomforing.arrangor.navn}</BodyShort>
+                          <BodyShort size="small">{gjennomforing.arrangor.navn}</BodyShort>
                         </Table.DataCell>
                       </SkjulKolonne>
 
@@ -240,9 +237,7 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
                         <Table.DataCell
                           title={`Sluttdato ${formattertSluttDato}`}
                           aria-label={
-                            tiltaksgjennomforing.sluttDato
-                              ? `Sluttdato ${formattertSluttDato}`
-                              : undefined // Noen gjennomføringer har ikke sluttdato så da setter vi heller ikke aria-label for da klager reactA11y
+                            gjennomforing.sluttDato ? `Sluttdato ${formattertSluttDato}` : undefined // Noen gjennomføringer har ikke sluttdato så da setter vi heller ikke aria-label for da klager reactA11y
                           }
                         >
                           {formattertSluttDato}
@@ -251,12 +246,12 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
 
                       <SkjulKolonne skjul={!!skjulKolonner?.status}>
                         <Table.DataCell>
-                          <GjennomforingStatusTag status={tiltaksgjennomforing.status.status} />
+                          <GjennomforingStatusTag status={gjennomforing.status.status} />
                         </Table.DataCell>
                       </SkjulKolonne>
                       <Table.DataCell>
                         <VStack align={"center"}>
-                          {tiltaksgjennomforing.publisert ? (
+                          {gjennomforing.publisert ? (
                             <Tag
                               aria-label="Tiltaket er publisert for alle"
                               title="Tiltaket er publisert for alle"
@@ -281,12 +276,12 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
             ) : null}
           </Table>
         )}
-        {tiltaksgjennomforinger.length > 0 ? (
+        {gjennomforinger.length > 0 ? (
           <PagineringContainer>
             <PagineringsOversikt
               page={filter.page}
               pageSize={filter.pageSize}
-              antall={tiltaksgjennomforinger.length}
+              antall={gjennomforinger.length}
               maksAntall={pagination.totalCount}
               type="tiltaksgjennomføringer"
             />

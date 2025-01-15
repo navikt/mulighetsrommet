@@ -17,13 +17,13 @@ export function OpprettTilsagnSkjemaPage() {
     useLoaderData<typeof opprettTilsagnLoader>();
 
   const erPaaGjennomforingerForAvtale = useMatch(
-    "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
+    "/avtaler/:avtaleId/gjennomforinger/:gjennomforingId/opprett-tilsagn",
   );
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     avtaleId
       ? { tittel: "Avtaler", lenke: "/avtaler" }
-      : { tittel: "Gjennomføringer", lenke: "/tiltaksgjennomforinger" },
+      : { tittel: "Gjennomføringer", lenke: "/gjennomforinger" },
     avtaleId
       ? {
           tittel: "Avtale",
@@ -33,12 +33,12 @@ export function OpprettTilsagnSkjemaPage() {
     erPaaGjennomforingerForAvtale
       ? {
           tittel: "Gjennomføringer",
-          lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
+          lenke: `/avtaler/${avtaleId}/gjennomforinger`,
         }
       : undefined,
     {
       tittel: "Opprett tilsagn",
-      lenke: "/tiltaksgjennomforinger/opprett-tilsagn",
+      lenke: "/gjennomforinger/opprett-tilsagn",
     },
   ];
 
@@ -54,7 +54,7 @@ export function OpprettTilsagnSkjemaPage() {
       <ContentBox>
         <VStack gap={"8"}>
           <WhitePaddedBox>
-            <TiltakDetaljerForTilsagn tiltaksgjennomforing={gjennomforing} />
+            <TiltakDetaljerForTilsagn gjennomforing={gjennomforing} />
             <TilsagnSkjemaContainer
               avtale={avtale}
               gjennomforing={gjennomforing}

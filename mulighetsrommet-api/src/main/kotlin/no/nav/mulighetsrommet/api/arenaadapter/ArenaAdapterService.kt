@@ -16,14 +16,14 @@ import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
-import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import org.slf4j.LoggerFactory
 import java.util.*
 
 class ArenaAdapterService(
     private val db: ApiDatabase,
-    private val tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
+    private val gjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
     private val sanityService: SanityService,
     private val arrangorService: ArrangorService,
 ) {
@@ -46,7 +46,7 @@ class ArenaAdapterService(
         next
     }
 
-    suspend fun upsertTiltaksgjennomforing(arenaGjennomforing: ArenaTiltaksgjennomforingDbo): UUID? = db.session {
+    suspend fun upsertTiltaksgjennomforing(arenaGjennomforing: ArenaGjennomforingDbo): UUID? = db.session {
         val tiltakstype = queries.tiltakstype.get(arenaGjennomforing.tiltakstypeId)
             ?: throw IllegalStateException("Ukjent tiltakstype id=${arenaGjennomforing.tiltakstypeId}")
 
@@ -66,7 +66,7 @@ class ArenaAdapterService(
 
     private suspend fun upsertEgenRegiTiltak(
         tiltakstype: TiltakstypeDto,
-        arenaGjennomforing: ArenaTiltaksgjennomforingDbo,
+        arenaGjennomforing: ArenaGjennomforingDbo,
     ): UUID? {
         require(Tiltakskoder.isEgenRegiTiltak(tiltakstype.arenaKode)) {
             "Gjennomføring for tiltakstype ${tiltakstype.arenaKode} skal ikke skrives til Sanity"
@@ -82,7 +82,7 @@ class ArenaAdapterService(
 
     private fun upsertGruppetiltak(
         tiltakstype: TiltakstypeDto,
-        arenaGjennomforing: ArenaTiltaksgjennomforingDbo,
+        arenaGjennomforing: ArenaGjennomforingDbo,
     ): Unit = db.transaction {
         require(Tiltakskoder.isGruppetiltak(tiltakstype.arenaKode)) {
             "Gjennomføringer er ikke støttet for tiltakstype ${tiltakstype.arenaKode}"
@@ -113,7 +113,7 @@ class ArenaAdapterService(
             logUpdateGjennomforing(next)
         }
 
-        tiltaksgjennomforingKafkaProducer.publish(next.toTiltaksgjennomforingV1Dto())
+        gjennomforingKafkaProducer.publish(next.toTiltaksgjennomforingV1Dto())
     }
 
     private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer) {
@@ -128,7 +128,7 @@ class ArenaAdapterService(
     }
 
     private fun hasRelevantChanges(
-        arenaGjennomforing: ArenaTiltaksgjennomforingDbo,
+        arenaGjennomforing: ArenaGjennomforingDbo,
         current: GjennomforingDto,
     ): Boolean {
         return arenaGjennomforing.tiltaksnummer != current.tiltaksnummer || arenaGjennomforing.arenaAnsvarligEnhet != current.arenaAnsvarligEnhet?.enhetsnummer

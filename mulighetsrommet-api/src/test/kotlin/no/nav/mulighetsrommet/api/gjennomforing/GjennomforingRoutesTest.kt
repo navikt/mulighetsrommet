@@ -25,7 +25,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class TiltaksgjennomforingRoutesTest : FunSpec({
+class GjennomforingRoutesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val oauth = MockOAuth2Server()
@@ -84,16 +84,16 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
             database.truncateAll()
         }
 
-        test("401 Unauthorized for uautentisert kall for PUT av tiltaksgjennomføring") {
+        test("401 Unauthorized for uautentisert kall for PUT av gjennomføring") {
             withTestApplication(appConfig()) {
-                val response = client.put("/api/v1/intern/tiltaksgjennomforinger")
+                val response = client.put("/api/v1/intern/gjennomforinger")
                 response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
 
-        test("401 Unauthorized for uautentisert kall for PUT av tiltaksgjennomføring når bruker ikke har tilgang til å skrive for tiltaksgjennomføringer") {
+        test("401 Unauthorized for uautentisert kall for PUT av gjennomføring når bruker ikke har tilgang til å skrive for gjennomføringer") {
             withTestApplication(appConfig()) {
-                val response = client.put("/api/v1/intern/tiltaksgjennomforinger") {
+                val response = client.put("/api/v1/intern/gjennomforinger") {
                     val claims = mapOf(
                         "NAVident" to "ABC123",
                         "groups" to emptyList<String>(),
@@ -106,9 +106,9 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
             }
         }
 
-        test("401 Unauthorized for uautentisert kall for PUT av tiltaksgjennomføring når bruker har tilgang til å skrive for tiltaksgjennomføringer, men mangler generell tilgang") {
+        test("401 Unauthorized for uautentisert kall for PUT av gjennomføring når bruker har tilgang til å skrive for gjennomføringer, men mangler generell tilgang") {
             withTestApplication(appConfig()) {
-                val response = client.put("/api/v1/intern/tiltaksgjennomforinger") {
+                val response = client.put("/api/v1/intern/gjennomforinger") {
                     val claims = mapOf(
                         "NAVident" to "ABC123",
                         "groups" to listOf(gjennomforingerSkriv.adGruppeId),
@@ -121,7 +121,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
             }
         }
 
-        test("200 OK for autentisert kall for PUT av tiltaksgjennomføring når bruker har generell tilgang og til skriv for tiltaksgjennomføring") {
+        test("200 OK for autentisert kall for PUT av gjennomføring når bruker har generell tilgang og til skriv for gjennomføring") {
             withTestApplication(appConfig()) {
                 val client = createClient {
                     install(ContentNegotiation) {
@@ -133,7 +133,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                     row(AvtaleFixtures.oppfolging, HttpStatusCode.OK),
                     row(AvtaleFixtures.VTA, HttpStatusCode.BadRequest),
                 ) { avtale, expectedStatus ->
-                    val response = client.put("/api/v1/intern/tiltaksgjennomforinger") {
+                    val response = client.put("/api/v1/intern/gjennomforinger") {
                         val claims = mapOf(
                             "NAVident" to "ABC123",
                             "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
@@ -143,7 +143,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                         )
                         contentType(ContentType.Application.Json)
                         setBody(
-                            TiltaksgjennomforingFixtures.Oppfolging1Request.copy(
+                            GjennomforingFixtures.Oppfolging1Request.copy(
                                 avtaleId = avtale.id,
                                 navRegion = NavEnhetFixtures.Oslo.enhetsnummer,
                                 navEnheter = listOf(NavEnhetFixtures.Sagene.enhetsnummer),
@@ -156,9 +156,9 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
             }
         }
 
-        test("200 OK for autentisert kall for GET av tiltaksgjennomføringer") {
+        test("200 OK for autentisert kall for GET av gjennomføringer") {
             withTestApplication(appConfig()) {
-                val response = client.get("/api/v1/intern/tiltaksgjennomforinger") {
+                val response = client.get("/api/v1/intern/gjennomforinger") {
                     val claims = mapOf(
                         "NAVident" to "ABC123",
                         "groups" to listOf(generellRolle.adGruppeId),
@@ -180,11 +180,11 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 AvtaleFixtures.AFT.copy(id = UUID.randomUUID()),
             ),
             gjennomforinger = listOf(
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                GjennomforingFixtures.Oppfolging1.copy(
                     startDato = LocalDate.now(),
                     sluttDato = LocalDate.now(),
                 ),
-                TiltaksgjennomforingFixtures.AFT1.copy(
+                GjennomforingFixtures.AFT1.copy(
                     startDato = LocalDate.now(),
                     sluttDato = LocalDate.now(),
                 ),
@@ -208,7 +208,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 }
 
                 val response = client
-                    .put("/api/v1/intern/tiltaksgjennomforinger/${domain.gjennomforinger[0].id}/avtale") {
+                    .put("/api/v1/intern/gjennomforinger/${domain.gjennomforinger[0].id}/avtale") {
                         val claims = mapOf(
                             "NAVident" to "ABC123",
                             "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
@@ -219,7 +219,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                     }
 
                 response.status shouldBe HttpStatusCode.BadRequest
-                response.bodyAsText() shouldBe "Avtale kan bare settes for tiltaksgjennomføringer av type AFT eller VTA"
+                response.bodyAsText() shouldBe "Avtale kan bare settes for gjennomføringer av type AFT eller VTA"
             }
         }
 
@@ -232,7 +232,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 }
 
                 val response = client
-                    .put("/api/v1/intern/tiltaksgjennomforinger/${domain.gjennomforinger[1].id}/avtale") {
+                    .put("/api/v1/intern/gjennomforinger/${domain.gjennomforinger[1].id}/avtale") {
                         val claims = mapOf(
                             "NAVident" to "ABC123",
                             "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
@@ -254,12 +254,12 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
         val domain = MulighetsrommetTestDomain(
             avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                GjennomforingFixtures.Oppfolging1.copy(
                     id = aktivGjennomforingId,
                     startDato = LocalDate.now(),
                     sluttDato = LocalDate.now(),
                 ),
-                TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                GjennomforingFixtures.Oppfolging1.copy(
                     id = avsluttetGjennomforingId,
                 ),
             ),
@@ -288,7 +288,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 }
 
                 val response = client
-                    .put("/api/v1/intern/tiltaksgjennomforinger/${UUID.randomUUID()}/avbryt") {
+                    .put("/api/v1/intern/gjennomforinger/${UUID.randomUUID()}/avbryt") {
                         val claims = mapOf(
                             "NAVident" to "ABC123",
                             "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
@@ -312,7 +312,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 }
 
                 val response = client
-                    .put("/api/v1/intern/tiltaksgjennomforinger/$aktivGjennomforingId/avbryt") {
+                    .put("/api/v1/intern/gjennomforinger/$aktivGjennomforingId/avbryt") {
                         val claims = mapOf(
                             "NAVident" to "ABC123",
                             "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
@@ -336,7 +336,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 }
 
                 val response = client
-                    .put("/api/v1/intern/tiltaksgjennomforinger/$aktivGjennomforingId/avbryt") {
+                    .put("/api/v1/intern/gjennomforinger/$aktivGjennomforingId/avbryt") {
                         val claims = mapOf(
                             "NAVident" to "ABC123",
                             "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
@@ -360,7 +360,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 }
 
                 val response = client
-                    .put("/api/v1/intern/tiltaksgjennomforinger/$avsluttetGjennomforingId/avbryt") {
+                    .put("/api/v1/intern/gjennomforinger/$avsluttetGjennomforingId/avbryt") {
                         val claims = mapOf(
                             "NAVident" to "ABC123",
                             "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
@@ -383,7 +383,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                     }
                 }
 
-                val response = client.put("/api/v1/intern/tiltaksgjennomforinger/$aktivGjennomforingId/avbryt") {
+                val response = client.put("/api/v1/intern/gjennomforinger/$aktivGjennomforingId/avbryt") {
                     val claims = mapOf(
                         "NAVident" to "ABC123",
                         "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),

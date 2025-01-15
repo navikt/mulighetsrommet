@@ -62,7 +62,7 @@ class TilsagnQueries(private val session: Session) {
 
         val params = mapOf(
             "id" to dbo.id,
-            "gjennomforing_id" to dbo.tiltaksgjennomforingId,
+            "gjennomforing_id" to dbo.gjennomforingId,
             "periode_start" to dbo.periodeStart,
             "periode_slutt" to dbo.periodeSlutt,
             "kostnadssted" to dbo.kostnadssted,
@@ -328,7 +328,7 @@ class TilsagnQueries(private val session: Session) {
 
         return TilsagnDto(
             id = uuid("id"),
-            tiltaksgjennomforing = TilsagnDto.Tiltaksgjennomforing(
+            gjennomforing = TilsagnDto.Gjennomforing(
                 id = uuid("gjennomforing_id"),
             ),
             periodeSlutt = localDate("periode_slutt"),

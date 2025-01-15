@@ -165,7 +165,7 @@ class ArrangorQueriesTest : FunSpec({
                 arrangorer = listOf(hovedenhet, underenhet),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
-                gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1),
+                gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
             )
 
             database.runAndRollback { session ->
@@ -191,7 +191,7 @@ class ArrangorQueriesTest : FunSpec({
                 arrangorer = listOf(hovedenhet, underenhet),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
-                gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1),
+                gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
             )
 
             database.runAndRollback { session ->

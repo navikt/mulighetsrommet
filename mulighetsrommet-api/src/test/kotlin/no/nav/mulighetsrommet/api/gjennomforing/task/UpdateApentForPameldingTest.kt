@@ -7,10 +7,10 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
 import java.time.LocalDate
@@ -26,25 +26,25 @@ class UpdateApentForPameldingTest : FunSpec({
             tiltakstyper = listOf(TiltakstypeFixtures.Jobbklubb, TiltakstypeFixtures.GruppeAmo),
             avtaler = listOf(AvtaleFixtures.jobbklubb, AvtaleFixtures.gruppeAmo),
             gjennomforinger = listOf(
-                TiltaksgjennomforingFixtures.Jobbklubb1.copy(
+                GjennomforingFixtures.Jobbklubb1.copy(
                     startDato = startDato,
                     sluttDato = sluttDato,
                     oppstart = GjennomforingOppstartstype.LOPENDE,
                 ),
-                TiltaksgjennomforingFixtures.GruppeAmo1.copy(
+                GjennomforingFixtures.GruppeAmo1.copy(
                     startDato = startDato,
                     sluttDato = sluttDato,
                     oppstart = GjennomforingOppstartstype.FELLES,
                 ),
             ),
         ) {
-            queries.gjennomforing.setApentForPamelding(TiltaksgjennomforingFixtures.Jobbklubb1.id, true)
-            queries.gjennomforing.setApentForPamelding(TiltaksgjennomforingFixtures.GruppeAmo1.id, true)
+            queries.gjennomforing.setApentForPamelding(GjennomforingFixtures.Jobbklubb1.id, true)
+            queries.gjennomforing.setApentForPamelding(GjennomforingFixtures.GruppeAmo1.id, true)
         }
 
-        val service = TiltaksgjennomforingService(
+        val service = GjennomforingService(
             db = database.db,
-            tiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
+            gjennomforingKafkaProducer = mockk(relaxed = true),
             validator = mockk(),
             navAnsattService = mockk(relaxed = true),
         )
@@ -52,7 +52,7 @@ class UpdateApentForPameldingTest : FunSpec({
         val updateApentForPamelding = UpdateApentForPamelding(
             config = UpdateApentForPamelding.Config(disabled = true),
             db = database.db,
-            tiltaksgjennomforingService = service,
+            gjennomforingService = service,
         )
 
         beforeEach {
@@ -63,10 +63,10 @@ class UpdateApentForPameldingTest : FunSpec({
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = startDato.minusDays(1))
 
             database.run {
-                queries.gjennomforing.get(TiltaksgjennomforingFixtures.Jobbklubb1.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(GjennomforingFixtures.Jobbklubb1.id).shouldNotBeNull().should {
                     it.apentForPamelding shouldBe true
                 }
-                queries.gjennomforing.get(TiltaksgjennomforingFixtures.GruppeAmo1.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(GjennomforingFixtures.GruppeAmo1.id).shouldNotBeNull().should {
                     it.apentForPamelding shouldBe true
                 }
             }
@@ -76,10 +76,10 @@ class UpdateApentForPameldingTest : FunSpec({
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = LocalDate.now())
 
             database.run {
-                queries.gjennomforing.get(TiltaksgjennomforingFixtures.Jobbklubb1.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(GjennomforingFixtures.Jobbklubb1.id).shouldNotBeNull().should {
                     it.apentForPamelding shouldBe true
                 }
-                queries.gjennomforing.get(TiltaksgjennomforingFixtures.GruppeAmo1.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(GjennomforingFixtures.GruppeAmo1.id).shouldNotBeNull().should {
                     it.apentForPamelding shouldBe false
                 }
             }
@@ -89,10 +89,10 @@ class UpdateApentForPameldingTest : FunSpec({
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = LocalDate.now().plusDays(1))
 
             database.run {
-                queries.gjennomforing.get(TiltaksgjennomforingFixtures.Jobbklubb1.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(GjennomforingFixtures.Jobbklubb1.id).shouldNotBeNull().should {
                     it.apentForPamelding shouldBe true
                 }
-                queries.gjennomforing.get(TiltaksgjennomforingFixtures.GruppeAmo1.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(GjennomforingFixtures.GruppeAmo1.id).shouldNotBeNull().should {
                     it.apentForPamelding shouldBe true
                 }
             }

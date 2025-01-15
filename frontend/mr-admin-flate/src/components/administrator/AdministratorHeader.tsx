@@ -63,11 +63,7 @@ export function AdministratorHeader() {
               onClick={() => gjennomforingerLinkRef.current?.click()}
               as="span"
             >
-              <Link
-                ref={gjennomforingerLinkRef}
-                to="/tiltaksgjennomforinger"
-                className={styles.menylenke}
-              >
+              <Link ref={gjennomforingerLinkRef} to="/gjennomforinger" className={styles.menylenke}>
                 Gjennomføringer
               </Link>
             </Dropdown.Menu.GroupedList.Item>

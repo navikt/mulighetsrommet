@@ -10,7 +10,7 @@ import kotlinx.coroutines.withContext
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingValidator
+import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingValidator
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
@@ -31,7 +31,7 @@ class GenerateValidationReport(
     private val config: Config,
     private val db: ApiDatabase,
     private val avtaleValidator: AvtaleValidator,
-    private val gjennomforingValidator: TiltaksgjennomforingValidator,
+    private val gjennomforingValidator: GjennomforingValidator,
 ) {
 
     data class Config(

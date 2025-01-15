@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dto.UtdanningslopDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingKontaktperson
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
@@ -32,7 +32,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class TiltaksgjennomforingQueries(private val session: Session) {
+class GjennomforingQueries(private val session: Session) {
     fun upsert(gjennomforing: GjennomforingDbo) = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
@@ -511,7 +511,7 @@ class TiltaksgjennomforingQueries(private val session: Session) {
             ?.let { Json.decodeFromString<List<NavEnhetDbo>>(it) }
             ?: emptyList()
         val kontaktpersoner = stringOrNull("nav_kontaktpersoner_json")
-            ?.let { Json.decodeFromString<List<TiltaksgjennomforingKontaktperson>>(it) }
+            ?.let { Json.decodeFromString<List<GjennomforingKontaktperson>>(it) }
             ?: emptyList()
         val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
             ?.let { Json.decodeFromString<List<ArrangorKontaktperson>>(it) }

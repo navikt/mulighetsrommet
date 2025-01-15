@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.refusjon
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.ktor.client.call.*
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -62,10 +61,10 @@ class ArrangorflateRoutesTest : FunSpec({
     )
     val deltaker = DeltakerDbo(
         id = UUID.randomUUID(),
-        gjennomforingId = TiltaksgjennomforingFixtures.AFT1.id,
-        startDato = TiltaksgjennomforingFixtures.AFT1.startDato,
-        sluttDato = TiltaksgjennomforingFixtures.AFT1.sluttDato,
-        registrertTidspunkt = TiltaksgjennomforingFixtures.AFT1.startDato.atStartOfDay(),
+        gjennomforingId = GjennomforingFixtures.AFT1.id,
+        startDato = GjennomforingFixtures.AFT1.startDato,
+        sluttDato = GjennomforingFixtures.AFT1.sluttDato,
+        registrertTidspunkt = GjennomforingFixtures.AFT1.startDato.atStartOfDay(),
         endretTidspunkt = LocalDateTime.now(),
         deltakelsesprosent = 100.0,
         status = DeltakerStatus(
@@ -76,7 +75,7 @@ class ArrangorflateRoutesTest : FunSpec({
     )
     val krav = RefusjonskravDbo(
         id = UUID.randomUUID(),
-        gjennomforingId = TiltaksgjennomforingFixtures.AFT1.id,
+        gjennomforingId = GjennomforingFixtures.AFT1.id,
         fristForGodkjenning = LocalDateTime.now(),
         beregning = RefusjonKravBeregningAft(
             input = RefusjonKravBeregningAft.Input(
@@ -119,7 +118,7 @@ class ArrangorflateRoutesTest : FunSpec({
                 arrangorUnderenheter = listOf(barnevernsNembda.id),
             ),
         ),
-        gjennomforinger = listOf(TiltaksgjennomforingFixtures.AFT1.copy(arrangorId = barnevernsNembda.id)),
+        gjennomforinger = listOf(GjennomforingFixtures.AFT1.copy(arrangorId = barnevernsNembda.id)),
         deltakere = listOf(deltaker),
         arrangorer = listOf(hovedenhet, barnevernsNembda),
         refusjonskrav = listOf(krav),

@@ -35,7 +35,7 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.ArenaTimestampFormatter
-import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.UpsertTiltaksgjennomforingResponse
 import no.nav.mulighetsrommet.ktor.createMockEngine
@@ -355,7 +355,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 engine.requestHistory.last().apply {
                     method shouldBe HttpMethod.Put
 
-                    decodeRequestBody<ArenaTiltaksgjennomforingDbo>().apply {
+                    decodeRequestBody<ArenaGjennomforingDbo>().apply {
                         id shouldBe mapping.entityId
                         tiltakstypeId shouldBe tiltakstype.id
                         tiltaksnummer shouldBe "2022#123"
@@ -428,7 +428,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                         engine.requestHistory.last().apply {
                             method shouldBe HttpMethod.Put
 
-                            decodeRequestBody<ArenaTiltaksgjennomforingDbo>().apply {
+                            decodeRequestBody<ArenaGjennomforingDbo>().apply {
                                 id shouldBe mapping.entityId
                                 avslutningsstatus shouldBe expectedStatus
                             }
@@ -524,7 +524,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     .value("avtale_id").isEqualTo(1)
 
                 engine.requestHistory.last().apply {
-                    decodeRequestBody<ArenaTiltaksgjennomforingDbo>().apply {
+                    decodeRequestBody<ArenaGjennomforingDbo>().apply {
                         id shouldBe mapping.entityId
                         avtaleId shouldBe avtaleMapping.entityId
                     }

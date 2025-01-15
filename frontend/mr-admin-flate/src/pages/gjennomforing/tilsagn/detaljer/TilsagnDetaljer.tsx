@@ -36,7 +36,7 @@ export function TilsagnDetaljer() {
   const { gjennomforing, tilsagn, ansatt, historikk } =
     useLoaderData<typeof tilsagnDetaljerLoader>();
 
-  const { avtaleId, tiltaksgjennomforingId } = useParams();
+  const { avtaleId, gjennomforingId } = useParams();
   const besluttMutation = useBesluttTilsagn();
   const tilAnnulleringMutation = useTilsagnTilAnnullering();
   const slettMutation = useSlettTilsagn();
@@ -46,13 +46,13 @@ export function TilsagnDetaljer() {
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
 
   const erPaaGjennomforingerForAvtale = useMatch(
-    "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
+    "/avtaler/:avtaleId/gjennomforinger/:gjennomforingId/opprett-tilsagn",
   );
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     avtaleId
       ? { tittel: "Avtaler", lenke: "/avtaler" }
-      : { tittel: "Gjennomføringer", lenke: "/tiltaksgjennomforinger" },
+      : { tittel: "Gjennomføringer", lenke: "/gjennomforinger" },
     avtaleId
       ? {
           tittel: "Avtale",
@@ -62,25 +62,25 @@ export function TilsagnDetaljer() {
     erPaaGjennomforingerForAvtale
       ? {
           tittel: "Gjennomføringer",
-          lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
+          lenke: `/avtaler/${avtaleId}/gjennomforinger`,
         }
       : undefined,
     {
       tittel: "Gjennomføring",
-      lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}`,
+      lenke: `/gjennomforinger/${gjennomforingId}`,
     },
     {
       tittel: "Tilsagnsoversikt",
-      lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn`,
+      lenke: `/gjennomforinger/${gjennomforingId}/tilsagn`,
     },
     {
       tittel: "Tilsagnsdetaljer",
-      lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn`,
+      lenke: `/gjennomforinger/${gjennomforingId}/tilsagn`,
     },
   ];
 
   function navigerTilTilsagnTabell() {
-    navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn`);
+    navigate(`/gjennomforinger/${gjennomforingId}/tilsagn`);
   }
 
   function besluttTilsagn(request: BesluttTilsagnRequest) {
@@ -182,7 +182,7 @@ export function TilsagnDetaljer() {
               </ActionMenu>
             ) : null}
           </HStack>
-          <TiltakDetaljerForTilsagn tiltaksgjennomforing={gjennomforing} />
+          <TiltakDetaljerForTilsagn gjennomforing={gjennomforing} />
           {tilsagn.status.type === "RETURNERT" && <AvvistAlert status={tilsagn.status} />}
           {tilsagn.status.type === "TIL_ANNULLERING" && (
             <TilAnnulleringAlert status={tilsagn.status} />

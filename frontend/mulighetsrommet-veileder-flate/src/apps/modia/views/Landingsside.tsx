@@ -343,7 +343,7 @@ function TeamTiltakTiltaksgjennomforingAvtalerLink() {
     <Lenke
       target="_blank"
       rel="noreferrer noopener"
-      to={`${TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL}/tiltaksgjennomforing?part=VEILEDER`}
+      to={`${TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL}/gjennomforing?part=VEILEDER`}
       isExternal
     >
       Tiltaksgjennomføring - avtaler

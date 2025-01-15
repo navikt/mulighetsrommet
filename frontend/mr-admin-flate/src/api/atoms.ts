@@ -198,7 +198,7 @@ export const defaultGjennomforingfilter: GjennomforingFilter = {
 };
 
 export const gjennomforingfilterAtom = atomWithStorage<GjennomforingFilter>(
-  "tiltaksgjennomforing-filter",
+  "gjennomforing-filter",
   defaultGjennomforingfilter,
   sessionStorage,
   GjennomforingFilterSchema,
@@ -209,7 +209,7 @@ export const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
   WritableAtom<GjennomforingFilter, [newValue: GjennomforingFilter], void>
 >((avtaleId: string) => {
   return atomWithHashAndStorage(
-    `tiltaksgjennomforing-filter-${avtaleId}`,
+    `gjennomforing-filter-${avtaleId}`,
     {
       ...defaultGjennomforingfilter,
       avtale: avtaleId,

@@ -23,21 +23,18 @@ export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartst
     : GjennomforingOppstartstype.LOPENDE;
 }
 
-function defaultNavRegion(
-  avtale: AvtaleDto,
-  tiltaksgjennomforing?: GjennomforingDto,
-): string | undefined {
-  if (tiltaksgjennomforing?.navRegion) {
-    return tiltaksgjennomforing.navRegion.enhetsnummer;
+function defaultNavRegion(avtale: AvtaleDto, gjennomforing?: GjennomforingDto): string | undefined {
+  if (gjennomforing?.navRegion) {
+    return gjennomforing.navRegion.enhetsnummer;
   }
   if (avtale.kontorstruktur.length === 1) {
     return avtale.kontorstruktur[0].region.enhetsnummer;
   }
 }
 
-function defaultNavEnheter(avtale: AvtaleDto, tiltaksgjennomforing?: GjennomforingDto): string[] {
-  if (tiltaksgjennomforing?.navEnheter) {
-    return tiltaksgjennomforing.navEnheter.map((enhet) => enhet.enhetsnummer);
+function defaultNavEnheter(avtale: AvtaleDto, gjennomforing?: GjennomforingDto): string[] {
+  if (gjennomforing?.navEnheter) {
+    return gjennomforing.navEnheter.map((enhet) => enhet.enhetsnummer);
   }
   if (avtale.kontorstruktur.length === 1) {
     return avtale.kontorstruktur[0].kontorer.map((enhet) => enhet.enhetsnummer);
@@ -45,12 +42,9 @@ function defaultNavEnheter(avtale: AvtaleDto, tiltaksgjennomforing?: Gjennomfori
   return [];
 }
 
-function defaultArrangor(
-  avtale: AvtaleDto,
-  tiltaksgjennomforing?: GjennomforingDto,
-): string | undefined {
-  if (tiltaksgjennomforing?.arrangor?.id) {
-    return tiltaksgjennomforing.arrangor.id;
+function defaultArrangor(avtale: AvtaleDto, gjennomforing?: GjennomforingDto): string | undefined {
+  if (gjennomforing?.arrangor?.id) {
+    return gjennomforing.arrangor.id;
   }
 
   if (avtale.arrangor.underenheter.length === 1) {
@@ -63,47 +57,45 @@ function defaultArrangor(
 export function defaultGjennomforingData(
   ansatt: NavAnsatt,
   avtale: AvtaleDto,
-  tiltaksgjennomforing?: GjennomforingDto,
+  gjennomforing?: GjennomforingDto,
 ): DeepPartial<InferredGjennomforingSchema> {
   return {
-    navn: tiltaksgjennomforing?.navn || avtale.navn,
+    navn: gjennomforing?.navn || avtale.navn,
     avtaleId: avtale.id,
-    navRegion: defaultNavRegion(avtale, tiltaksgjennomforing),
-    navEnheter: defaultNavEnheter(avtale, tiltaksgjennomforing),
-    administratorer: tiltaksgjennomforing?.administratorer?.map((admin) => admin.navIdent) || [
+    navRegion: defaultNavRegion(avtale, gjennomforing),
+    navEnheter: defaultNavEnheter(avtale, gjennomforing),
+    administratorer: gjennomforing?.administratorer?.map((admin) => admin.navIdent) || [
       ansatt.navIdent,
     ],
-    antallPlasser: tiltaksgjennomforing?.antallPlasser,
+    antallPlasser: gjennomforing?.antallPlasser,
     startOgSluttDato: {
-      startDato: tiltaksgjennomforing
-        ? tiltaksgjennomforing.startDato
+      startDato: gjennomforing
+        ? gjennomforing.startDato
         : defaultOppstartType(avtale) === GjennomforingOppstartstype.LOPENDE
           ? avtale.startDato
           : undefined,
-      sluttDato: tiltaksgjennomforing
-        ? tiltaksgjennomforing.sluttDato
+      sluttDato: gjennomforing
+        ? gjennomforing.sluttDato
         : defaultOppstartType(avtale) === GjennomforingOppstartstype.LOPENDE
           ? avtale.sluttDato
           : undefined,
     },
-    arrangorId: defaultArrangor(avtale, tiltaksgjennomforing),
-    oppstart: tiltaksgjennomforing?.oppstart || defaultOppstartType(avtale),
-    kontaktpersoner: tiltaksgjennomforing?.kontaktpersoner ?? [],
-    stedForGjennomforing: tiltaksgjennomforing?.stedForGjennomforing ?? null,
+    arrangorId: defaultArrangor(avtale, gjennomforing),
+    oppstart: gjennomforing?.oppstart || defaultOppstartType(avtale),
+    kontaktpersoner: gjennomforing?.kontaktpersoner ?? [],
+    stedForGjennomforing: gjennomforing?.stedForGjennomforing ?? null,
     arrangorKontaktpersoner:
-      tiltaksgjennomforing?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
-    beskrivelse: tiltaksgjennomforing?.beskrivelse ?? avtale.beskrivelse,
-    faneinnhold: tiltaksgjennomforing?.faneinnhold ?? avtale.faneinnhold,
-    opphav: tiltaksgjennomforing?.opphav ?? Opphav.MR_ADMIN_FLATE,
-    deltidsprosent: tiltaksgjennomforing?.deltidsprosent ?? 100,
-    visEstimertVentetid: !!tiltaksgjennomforing?.estimertVentetid?.enhet,
-    estimertVentetid: tiltaksgjennomforing?.estimertVentetid ?? null,
-    tilgjengeligForArrangorFraOgMedDato:
-      tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato ?? null,
-    amoKategorisering:
-      tiltaksgjennomforing?.amoKategorisering ?? avtale.amoKategorisering ?? undefined,
-    utdanningslop: tiltaksgjennomforing?.utdanningslop
-      ? toUtdanningslopDbo(tiltaksgjennomforing.utdanningslop)
+      gjennomforing?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
+    beskrivelse: gjennomforing?.beskrivelse ?? avtale.beskrivelse,
+    faneinnhold: gjennomforing?.faneinnhold ?? avtale.faneinnhold,
+    opphav: gjennomforing?.opphav ?? Opphav.MR_ADMIN_FLATE,
+    deltidsprosent: gjennomforing?.deltidsprosent ?? 100,
+    visEstimertVentetid: !!gjennomforing?.estimertVentetid?.enhet,
+    estimertVentetid: gjennomforing?.estimertVentetid ?? null,
+    tilgjengeligForArrangorFraOgMedDato: gjennomforing?.tilgjengeligForArrangorFraOgMedDato ?? null,
+    amoKategorisering: gjennomforing?.amoKategorisering ?? avtale.amoKategorisering ?? undefined,
+    utdanningslop: gjennomforing?.utdanningslop
+      ? toUtdanningslopDbo(gjennomforing.utdanningslop)
       : avtale.utdanningslop
         ? toUtdanningslopDbo(avtale.utdanningslop)
         : undefined,

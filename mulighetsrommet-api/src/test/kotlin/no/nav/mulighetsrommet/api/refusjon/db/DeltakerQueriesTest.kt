@@ -4,8 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.refusjon.model.DeltakerDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
@@ -17,14 +17,14 @@ class DeltakerQueriesTest : FunSpec({
 
     val domain = MulighetsrommetTestDomain(
         avtaler = listOf(AvtaleFixtures.oppfolging),
-        gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1, TiltaksgjennomforingFixtures.Oppfolging2),
+        gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1, GjennomforingFixtures.Oppfolging2),
     )
 
     val registrertTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
 
     val deltaker1 = DeltakerDbo(
         id = UUID.randomUUID(),
-        gjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
+        gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
         startDato = null,
         sluttDato = null,
         registrertTidspunkt = registrertTidspunkt,
@@ -38,7 +38,7 @@ class DeltakerQueriesTest : FunSpec({
     )
     val deltaker2 = deltaker1.copy(
         id = UUID.randomUUID(),
-        gjennomforingId = TiltaksgjennomforingFixtures.Oppfolging2.id,
+        gjennomforingId = GjennomforingFixtures.Oppfolging2.id,
     )
 
     test("CRUD") {
@@ -69,7 +69,7 @@ class DeltakerQueriesTest : FunSpec({
         }
     }
 
-    test("get by tiltaksgjennomforing") {
+    test("get by gjennomforing") {
         database.runAndRollback { session ->
             domain.setup(session)
 
@@ -79,11 +79,11 @@ class DeltakerQueriesTest : FunSpec({
             queries.upsert(deltaker2)
 
             queries
-                .getAll(tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id)
+                .getAll(gjennomforingId = GjennomforingFixtures.Oppfolging1.id)
                 .shouldContainExactly(deltaker1.toDto())
 
             queries
-                .getAll(tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging2.id)
+                .getAll(gjennomforingId = GjennomforingFixtures.Oppfolging2.id)
                 .shouldContainExactly(deltaker2.toDto())
         }
     }

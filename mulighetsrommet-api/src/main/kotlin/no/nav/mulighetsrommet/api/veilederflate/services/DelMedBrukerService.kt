@@ -32,7 +32,7 @@ class DelMedBrukerService(
     fun lagreDelMedBruker(dbo: DelMedBrukerDbo): DelMedBrukerDbo = db.session {
         // TODO flytt til routes?
         SecureLog.logger.info(
-            "Veileder (${dbo.navident}) deler tiltak med id: '${dbo.sanityId ?: dbo.tiltaksgjennomforingId}' " +
+            "Veileder (${dbo.navident}) deler tiltak med id: '${dbo.sanityId ?: dbo.gjennomforingId}' " +
                 "med bruker (${dbo.norskIdent.value})",
         )
 
@@ -43,9 +43,9 @@ class DelMedBrukerService(
             throw BadRequestException("Veileders NAVident er ikke 6 tegn")
         }
 
-        if (dbo.sanityId == null && dbo.tiltaksgjennomforingId == null) {
+        if (dbo.sanityId == null && dbo.gjennomforingId == null) {
             log.warn("Id til gjennomføringen mangler")
-            throw BadRequestException("sanityId eller tiltaksgjennomforingId må inkluderes")
+            throw BadRequestException("sanityId eller gjennomforingId må inkluderes")
         }
 
         @Language("PostgreSQL")
@@ -138,9 +138,9 @@ class DelMedBrukerService(
             where tg.id = any(?::uuid[])
         """.trimIndent()
 
-        val ids = deltMedBruker.mapNotNull { it.tiltaksgjennomforingId }
+        val ids = deltMedBruker.mapNotNull { it.gjennomforingId }
 
-        val deltById = deltMedBruker.associateBy { it.tiltaksgjennomforingId }
+        val deltById = deltMedBruker.associateBy { it.gjennomforingId }
 
         val tiltakById = session.list(queryOf(tiltakFraDbQuery, session.createUuidArray(ids))) {
             TiltakFraDb(
@@ -203,7 +203,7 @@ private fun DelMedBrukerDbo.toParameters() = mapOf(
     "norsk_ident" to norskIdent.value,
     "navident" to navident,
     "sanity_id" to sanityId,
-    "gjennomforing_id" to tiltaksgjennomforingId,
+    "gjennomforing_id" to gjennomforingId,
     "dialogid" to dialogId,
     "created_by" to navident,
     "updated_by" to navident,
@@ -214,7 +214,7 @@ private fun Row.toDelMedBruker(): DelMedBrukerDbo = DelMedBrukerDbo(
     norskIdent = NorskIdent(string("norsk_ident")),
     navident = string("navident"),
     sanityId = uuidOrNull("sanity_id"),
-    tiltaksgjennomforingId = uuidOrNull("gjennomforing_id"),
+    gjennomforingId = uuidOrNull("gjennomforing_id"),
     dialogId = string("dialogid"),
     createdAt = localDateTime("created_at"),
     updatedAt = localDateTime("updated_at"),

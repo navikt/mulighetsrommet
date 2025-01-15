@@ -18,13 +18,13 @@ export function RedigerTilsagnSkjemaPage() {
     useLoaderData<typeof redigerTilsagnLoader>();
 
   const erPaaGjennomforingerForAvtale = useMatch(
-    "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/rediger-tilsagn",
+    "/avtaler/:avtaleId/gjennomforinger/:gjennomforingId/rediger-tilsagn",
   );
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     avtaleId
       ? { tittel: "Avtaler", lenke: "/avtaler" }
-      : { tittel: "Gjennomføringer", lenke: "/tiltaksgjennomforinger" },
+      : { tittel: "Gjennomføringer", lenke: "/gjennomforinger" },
     avtaleId
       ? {
           tittel: "Avtale",
@@ -34,18 +34,18 @@ export function RedigerTilsagnSkjemaPage() {
     erPaaGjennomforingerForAvtale
       ? {
           tittel: "Gjennomføringer",
-          lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
+          lenke: `/avtaler/${avtaleId}/gjennomforinger`,
         }
       : undefined,
     {
       tittel: "Gjennomføring",
       lenke: avtaleId
-        ? `/avtaler/${avtaleId}/tiltaksgjennomforinger/${gjennomforing.id}`
-        : `/tiltaksgjennomforinger/${gjennomforing.id}`,
+        ? `/avtaler/${avtaleId}/gjennomforinger/${gjennomforing.id}`
+        : `/gjennomforinger/${gjennomforing.id}`,
     },
     {
       tittel: "Rediger tilsagn",
-      lenke: `/tiltaksgjennomforinger/${gjennomforing.id}/rediger-tilsagn`,
+      lenke: `/gjennomforinger/${gjennomforing.id}/rediger-tilsagn`,
     },
   ];
 
@@ -71,7 +71,7 @@ export function RedigerTilsagnSkjemaPage() {
       <ContentBox>
         <VStack gap={"8"}>
           <WhitePaddedBox>
-            <TiltakDetaljerForTilsagn tiltaksgjennomforing={gjennomforing} />
+            <TiltakDetaljerForTilsagn gjennomforing={gjennomforing} />
           </WhitePaddedBox>
           <WhitePaddedBox>
             <TilsagnSkjemaContainer

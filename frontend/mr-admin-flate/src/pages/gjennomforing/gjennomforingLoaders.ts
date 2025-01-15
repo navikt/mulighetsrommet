@@ -2,7 +2,7 @@ import { AnsattService, AvtalerService, GjennomforingerService } from "@mr/api-c
 import { LoaderFunctionArgs } from "react-router";
 
 export async function gjennomforingLoader({ params }: LoaderFunctionArgs) {
-  if (!params.tiltaksgjennomforingId) {
+  if (!params.gjennomforingId) {
     throw Error("Fant ikke gjennomforingId i route");
   }
 
@@ -10,7 +10,7 @@ export async function gjennomforingLoader({ params }: LoaderFunctionArgs) {
     AnsattService.hentInfoOmAnsatt(),
 
     GjennomforingerService.getGjennomforing({
-      id: params.tiltaksgjennomforingId,
+      id: params.gjennomforingId,
     }),
   ]);
 
@@ -24,9 +24,9 @@ export async function gjennomforingFormLoader({ params }: LoaderFunctionArgs) {
   const [ansatt, gjennomforing] = await Promise.all([
     AnsattService.hentInfoOmAnsatt(),
 
-    params.tiltaksgjennomforingId
+    params.gjennomforingId
       ? await GjennomforingerService.getGjennomforing({
-          id: params.tiltaksgjennomforingId,
+          id: params.gjennomforingId,
         })
       : undefined,
   ]);

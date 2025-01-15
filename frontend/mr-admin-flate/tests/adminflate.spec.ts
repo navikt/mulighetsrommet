@@ -47,7 +47,7 @@ test.describe("Smoketest og UU", () => {
     await page.getByTestId("filtertab").click();
     await page.getByTestId("avtaletabell_tittel").first().click();
     await page.getByTestId("gjennomforinger-tab").click();
-    await expect(page.getByTestId("tiltaksgjennomforing-tabell")).toBeVisible();
+    await expect(page.getByTestId("gjennomforing-tabell")).toBeVisible();
     await sjekkUU(page, "opprett-ny-tiltaksgjenomforing_knapp");
   });
 
@@ -60,9 +60,9 @@ test.describe("Smoketest og UU", () => {
   test("Gjennomføring - Info", async ({ page }) => {
     await page.getByTestId("forsidekort-gjennomforinger").click();
     await page.getByTestId("filtertab").click();
-    await page.getByTestId("tiltaksgjennomforing-tabell_tittel").first().click();
+    await page.getByTestId("gjennomforing-tabell_tittel").first().click();
     await expect(page.getByText("Tiltaksnavn")).toBeVisible();
-    await sjekkUU(page, "tiltaksgjennomforing_info-container");
+    await sjekkUU(page, "gjennomforing_info-container");
   });
 
   test("Notifikasjoner", async ({ page }) => {

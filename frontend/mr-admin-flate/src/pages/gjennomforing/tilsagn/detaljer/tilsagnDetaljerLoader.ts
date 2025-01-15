@@ -2,10 +2,10 @@ import { AnsattService, TilsagnService, GjennomforingerService } from "@mr/api-c
 import { LoaderFunctionArgs } from "react-router";
 
 export async function tilsagnDetaljerLoader({ params }: LoaderFunctionArgs) {
-  const { tiltaksgjennomforingId, tilsagnId } = params;
+  const { gjennomforingId, tilsagnId } = params;
 
-  if (!tiltaksgjennomforingId) {
-    throw new Error("tiltaksgjennomforingId is missing");
+  if (!gjennomforingId) {
+    throw new Error("gjennomforingId is missing");
   }
 
   if (!tilsagnId) {
@@ -15,7 +15,7 @@ export async function tilsagnDetaljerLoader({ params }: LoaderFunctionArgs) {
   const [ansatt, gjennomforing, tilsagn, historikk] = await Promise.all([
     AnsattService.hentInfoOmAnsatt(),
     GjennomforingerService.getGjennomforing({
-      id: tiltaksgjennomforingId,
+      id: gjennomforingId,
     }),
     TilsagnService.getTilsagn({ id: tilsagnId }),
     TilsagnService.getTilsagnEndringshistorikk({ id: tilsagnId }),

@@ -29,7 +29,7 @@ export function ForsidekortListe() {
       <Forsidekort
         navn="Gjennomføringer"
         ikon={<GjennomforingIkon inkluderBakgrunn aria-label="Gjennomføringer for gruppetiltak" />}
-        url="tiltaksgjennomforinger"
+        url="gjennomforinger"
         tekst="Her finner du informasjon om Gjennomføringer for gruppetiltak"
       />
       <Forsidekort

@@ -61,7 +61,7 @@ export const AvbrytGjennomforingModal = ({ modalRef, gjennomforing }: Props) => 
   function onSuccessMutation() {
     setState(initialState);
     modalRef.current?.close();
-    navigate(`/tiltaksgjennomforinger/${gjennomforing?.id}`);
+    navigate(`/gjennomforinger/${gjennomforing?.id}`);
   }
 
   const handleAvbrytGjennomforing = () => {

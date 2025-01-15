@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.api.arrangor.arrangorRoutes
 import no.nav.mulighetsrommet.api.arrangor.brregVirksomhetRoutes
 import no.nav.mulighetsrommet.api.arrangorflate.arrangorflateRoutes
 import no.nav.mulighetsrommet.api.avtale.avtaleRoutes
-import no.nav.mulighetsrommet.api.gjennomforing.tiltaksgjennomforingRoutes
+import no.nav.mulighetsrommet.api.gjennomforing.gjennomforingRoutes
 import no.nav.mulighetsrommet.api.lagretfilter.lagretFilterRoutes
 import no.nav.mulighetsrommet.api.navansatt.navAnsattRoutes
 import no.nav.mulighetsrommet.api.navenhet.navEnhetRoutes
@@ -59,7 +59,7 @@ fun Route.apiRoutes() {
 
 fun Route.adminflateRoutes() {
     tiltakstypeRoutes()
-    tiltaksgjennomforingRoutes()
+    gjennomforingRoutes()
     avtaleRoutes()
     navAnsattRoutes()
     arrangorRoutes()

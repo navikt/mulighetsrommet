@@ -15,7 +15,7 @@ data class DelMedBrukerDbo(
     @Serializable(with = UUIDSerializer::class)
     val sanityId: UUID? = null,
     @Serializable(with = UUIDSerializer::class)
-    val tiltaksgjennomforingId: UUID? = null,
+    val gjennomforingId: UUID? = null,
     val dialogId: String,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime? = null,

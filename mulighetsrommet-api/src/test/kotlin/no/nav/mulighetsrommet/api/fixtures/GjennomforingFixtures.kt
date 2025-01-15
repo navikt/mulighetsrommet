@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.domain.dto.NavIdent
 import java.time.LocalDate
 import java.util.*
 
-object TiltaksgjennomforingFixtures {
+object GjennomforingFixtures {
     val Oppfolging1 = GjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "Oppfølging 1",

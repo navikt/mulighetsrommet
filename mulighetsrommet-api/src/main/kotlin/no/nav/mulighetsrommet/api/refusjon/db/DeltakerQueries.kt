@@ -99,7 +99,7 @@ class DeltakerQueries(private val session: Session) {
         return single(queryOf(query, id)) { it.toDeltakerDto() }
     }
 
-    fun getAll(tiltaksgjennomforingId: UUID? = null): List<DeltakerDto> = with(session) {
+    fun getAll(gjennomforingId: UUID? = null): List<DeltakerDto> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select id,
@@ -117,7 +117,7 @@ class DeltakerQueries(private val session: Session) {
             where :gjennomforing_id::uuid is null or gjennomforing_id = :gjennomforing_id::uuid
         """.trimIndent()
 
-        val params = mapOf("gjennomforing_id" to tiltaksgjennomforingId)
+        val params = mapOf("gjennomforing_id" to gjennomforingId)
 
         return list(queryOf(query, params)) { it.toDeltakerDto() }
     }

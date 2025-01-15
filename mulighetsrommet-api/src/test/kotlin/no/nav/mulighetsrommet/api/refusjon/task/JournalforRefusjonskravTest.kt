@@ -52,7 +52,7 @@ class JournalforRefusjonskravTest : FunSpec({
     )
     val krav = RefusjonskravDbo(
         id = UUID.randomUUID(),
-        gjennomforingId = TiltaksgjennomforingFixtures.AFT1.id,
+        gjennomforingId = GjennomforingFixtures.AFT1.id,
         fristForGodkjenning = LocalDateTime.now(),
         beregning = RefusjonKravBeregningAft(
             input = RefusjonKravBeregningAft.Input(
@@ -79,7 +79,7 @@ class JournalforRefusjonskravTest : FunSpec({
                 arrangorUnderenheter = listOf(barnevernsNembda.id),
             ),
         ),
-        gjennomforinger = listOf(TiltaksgjennomforingFixtures.AFT1.copy(arrangorId = barnevernsNembda.id)),
+        gjennomforinger = listOf(GjennomforingFixtures.AFT1.copy(arrangorId = barnevernsNembda.id)),
         deltakere = emptyList(),
         arrangorer = listOf(hovedenhet, barnevernsNembda),
         refusjonskrav = listOf(krav),
