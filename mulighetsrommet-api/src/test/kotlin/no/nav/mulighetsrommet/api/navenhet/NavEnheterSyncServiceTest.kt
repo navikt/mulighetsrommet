@@ -3,20 +3,22 @@ package no.nav.mulighetsrommet.api.navenhet
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.clients.norg2.*
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetStatus
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Response
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dto.EnhetSlug
 import no.nav.mulighetsrommet.api.domain.dto.FylkeRef
 import no.nav.mulighetsrommet.api.domain.dto.SanityEnhet
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetRepository
-import no.nav.mulighetsrommet.api.services.cms.SanityService
-import no.nav.mulighetsrommet.slack.SlackNotifier
 
 class NavEnheterSyncServiceTest : FunSpec({
-    val norg2Client: Norg2Client = mockk()
-    val enheter: NavEnhetRepository = mockk(relaxed = true)
-    val slackNotifier: SlackNotifier = mockk(relaxed = true)
-    val sanityService: SanityService = mockk(relaxed = true)
-    val navEnheterSyncService = NavEnheterSyncService(norg2Client, sanityService, enheter, slackNotifier)
+
+    val navEnheterSyncService = NavEnheterSyncService(
+        db = mockk(relaxed = true),
+        norg2Client = mockk(relaxed = true),
+        sanityService = mockk(relaxed = true),
+        slackNotifier = mockk(relaxed = true),
+    )
 
     fun createEnhet(enhet: String, type: Norg2Type) = Norg2EnhetDto(
         enhetId = Math.random().toInt(),

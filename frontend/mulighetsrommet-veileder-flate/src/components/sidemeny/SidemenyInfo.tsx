@@ -1,6 +1,6 @@
 import { BodyShort, Box } from "@navikt/ds-react";
 import {
-  TiltaksgjennomforingOppstartstype,
+  GjennomforingOppstartstype,
   VeilederflateInnsatsgruppe,
   VeilederflateTiltak,
 } from "@mr/api-client";
@@ -106,7 +106,7 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
 
 function TiltakVarighetInfo({ tiltak }: { tiltak: VeilederflateTiltak }) {
   const { tittel, innhold } =
-    !isTiltakGruppe(tiltak) || tiltak.oppstart === TiltaksgjennomforingOppstartstype.LOPENDE
+    !isTiltakGruppe(tiltak) || tiltak.oppstart === GjennomforingOppstartstype.LOPENDE
       ? {
           tittel: "Oppstart",
           innhold: "Løpende",

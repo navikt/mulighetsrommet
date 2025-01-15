@@ -26,11 +26,12 @@ import { MultiValue } from "react-select";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
-import { AvtaleUtdanningslopSkjema } from "../utdanning/AvtaleUtdanningslopSkjema";
+import { AvtaleUtdanningslopForm } from "../utdanning/AvtaleUtdanningslopForm";
 import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
 import { AvtaleDatoContainer } from "./avtaledatoer/AvtaleDatoContainer";
 import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
 import { opsjonsmodeller } from "./opsjoner/opsjonsmodeller";
+import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 
 interface Props {
   tiltakstyper: TiltakstypeDto[];
@@ -103,7 +104,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   ).length;
 
   return (
-    <HGrid gap="6" columns="repeat(auto-fit, minmax(450px, 1fr))">
+    <TwoColumnGrid separator>
       <SkjemaKolonne>
         <FormGroup>
           <TextField
@@ -184,7 +185,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             <AvtaleAmoKategoriseringSkjema />
           ) : null}
           {tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING ? (
-            <AvtaleUtdanningslopSkjema />
+            <AvtaleUtdanningslopForm />
           ) : null}
         </FormGroup>
 
@@ -259,7 +260,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
           <AvtaleArrangorSkjema readOnly={false} />
         </FormGroup>
       </SkjemaKolonne>
-    </HGrid>
+    </TwoColumnGrid>
   );
 }
 

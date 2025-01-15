@@ -6,9 +6,9 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.tiltakshistorikk.databaseConfig
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.GruppetiltakRepository
@@ -41,8 +41,8 @@ class TiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
             virksomhetsnummer = "123123123",
             startDato = LocalDate.now(),
             sluttDato = null,
-            status = TiltaksgjennomforingStatus.GJENNOMFORES,
-            oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+            status = GjennomforingStatus.GJENNOMFORES,
+            oppstart = GjennomforingOppstartstype.FELLES,
             tilgjengeligForArrangorFraOgMedDato = null,
             apentForPamelding = true,
         )

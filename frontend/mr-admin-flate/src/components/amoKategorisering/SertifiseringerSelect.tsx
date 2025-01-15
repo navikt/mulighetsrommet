@@ -3,7 +3,7 @@ import { FieldValues, Path, useFormContext } from "react-hook-form";
 import { useState } from "react";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { useSokSertifiseringer } from "@/api/janzz/useSokSertifiseringer";
-import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
+import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
 
 export function SertifiseringerSkjema<T extends FieldValues>(props: {
@@ -57,7 +57,7 @@ export function SertifiseringerSkjema<T extends FieldValues>(props: {
     <ControlledMultiSelect<{ konseptId: number; label: string }>
       size="small"
       placeholder="Søk etter sertifiseringer"
-      label={tiltaktekster.sertifiseringerLabel}
+      label={gjennomforingTekster.sertifiseringerLabel}
       {...register(path)}
       onInputChange={(s: string) => {
         if (!options) {

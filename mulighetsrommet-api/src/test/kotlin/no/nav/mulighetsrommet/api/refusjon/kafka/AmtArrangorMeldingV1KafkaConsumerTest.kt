@@ -1,35 +1,32 @@
 package no.nav.mulighetsrommet.api.refusjon.kafka
 
 import io.kotest.core.spec.style.FunSpec
-import io.mockk.clearAllMocks
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
+import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagRepository
-import no.nav.mulighetsrommet.api.refusjon.db.DeltakerRepository
-import no.nav.mulighetsrommet.api.refusjon.model.DeltakerDto
-import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
+import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
+import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.domain.dto.amt.EndringAarsak
+import no.nav.mulighetsrommet.domain.dto.amt.Melding
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.utils.toUUID
-import java.time.LocalDateTime
 import java.util.*
 
 class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
-    val deltakerForslagRepository: DeltakerForslagRepository = mockk(relaxed = true)
-    val deltakerRepository: DeltakerRepository = mockk(relaxed = true)
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
-    val arrangorMeldingConsumer = AmtArrangorMeldingV1KafkaConsumer(
+    fun createArrangorMeldingConsumer() = AmtArrangorMeldingV1KafkaConsumer(
         config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
-        deltakerForslagRepository,
-        deltakerRepository,
+        db = database.db,
     )
 
-    beforeEach {
-        clearAllMocks()
-    }
-
     test("klarer og deserialisere arrangor-melding") {
+        val arrangorMeldingConsumer = createArrangorMeldingConsumer()
+
         arrangorMeldingConsumer.consume(
             "26b2ef7f-2c33-4468-b9cd-98e935d747cc".toUUID(),
             Json.parseToJsonElement(
@@ -105,18 +102,15 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
     }
 
     test("venter på svar genererer upsert") {
-        every { deltakerRepository.get(any()) } returns DeltakerDto(
-            id = UUID.randomUUID(),
-            gjennomforingId = UUID.randomUUID(),
-            norskIdent = null,
-            startDato = null,
-            sluttDato = null,
-            registrertTidspunkt = LocalDateTime.now(),
-            endretTidspunkt = LocalDateTime.now(),
-            deltakelsesprosent = null,
-            status = DeltakerStatus(type = DeltakerStatus.Type.DELTAR, aarsak = null, opprettetDato = LocalDateTime.now()),
-        )
-        every { deltakerForslagRepository.upsert(any()) } returns Unit
+        val domain = MulighetsrommetTestDomain(
+            avtaler = listOf(AvtaleFixtures.AFT),
+            gjennomforinger = listOf(TiltaksgjennomforingFixtures.AFT1),
+            deltakere = listOf(DeltakerFixtures.createDeltaker(TiltaksgjennomforingFixtures.AFT1.id)),
+        ).initialize(database.db)
+
+        val deltakerId = domain.deltakere[0].id
+
+        val arrangorMeldingConsumer = createArrangorMeldingConsumer()
 
         arrangorMeldingConsumer.consume(
             "26b2ef7f-2c33-4468-b9cd-98e935d747cc".toUUID(),
@@ -124,7 +118,7 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
                 """{
                 "type":"Forslag",
                 "id":"26b2ef7f-2c33-4468-b9cd-98e935d747cc",
-                "deltakerId":"d70c80d8-98aa-4591-a060-b3e70dcbe6b6",
+                "deltakerId":"$deltakerId",
                 "opprettetAvArrangorAnsattId":"fff9a665-cbde-4dbc-9ef9-deb8681a0d6f",
                 "opprettet":"2024-10-07T13:52:49.178623",
                 "begrunnelse":null,
@@ -149,6 +143,22 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
             ),
         )
 
-        verify(exactly = 1) { deltakerForslagRepository.upsert(any()) }
+        val forslag = database.run {
+            queries.deltakerForslag.getForslagByGjennomforing(TiltaksgjennomforingFixtures.AFT1.id)
+        }
+
+        forslag shouldBe mapOf(
+            deltakerId to listOf(
+                DeltakerForslag(
+                    id = UUID.fromString("26b2ef7f-2c33-4468-b9cd-98e935d747cc"),
+                    deltakerId = deltakerId,
+                    endring = Melding.Forslag.Endring.AvsluttDeltakelse(
+                        aarsak = EndringAarsak.TrengerAnnenStotte,
+                        harDeltatt = false,
+                    ),
+                    status = DeltakerForslag.Status.VENTER_PA_SVAR,
+                ),
+            ),
+        )
     }
 })

@@ -4,6 +4,7 @@ import kotlinx.coroutines.runBlocking
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import no.nav.common.kafka.consumer.KafkaConsumerClient
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecordProcessor
+import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord
 import no.nav.common.kafka.consumer.feilhandtering.util.KafkaConsumerRecordProcessorBuilder
 import no.nav.common.kafka.consumer.util.ConsumerUtils.findConsumerConfigsWithStoreOnFailure
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
@@ -99,6 +100,10 @@ class KafkaConsumerOrchestrator(
 
     fun stopPollingTopicChanges() {
         topicPoller.stop()
+    }
+
+    fun getAllStoredConsumerRecords(): MutableList<StoredConsumerRecord> {
+        return kafkaConsumerRepository.getAll()
     }
 
     private fun <K, V> toTopicConfig(consumer: KafkaTopicConsumer<K, V>): TopicConfig<K, V> {

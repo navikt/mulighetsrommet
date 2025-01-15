@@ -5,7 +5,8 @@ import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFi
 import { WritableAtom } from "jotai";
 import { LagretDokumenttype } from "@mr/api-client";
 import { HStack } from "@navikt/ds-react";
-import { LagreFilterContainer } from "@mr/frontend-common";
+import { LagreFilterButton } from "@mr/frontend-common/components/lagreFilter/LagreFilterButton";
+import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
@@ -14,6 +15,7 @@ interface Props {
 
 export function NullstillKnappForAvtaler({ filterAtom, tiltakstypeId }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
+  const lagreFilterMutation = useLagreFilter(LagretDokumenttype.AVTALE);
 
   return (
     <div className={style.filterbuttons_container}>
@@ -34,7 +36,11 @@ export function NullstillKnappForAvtaler({ filterAtom, tiltakstypeId }: Props) {
               });
             }}
           />
-          <LagreFilterContainer dokumenttype={LagretDokumenttype.AVTALE} filter={filter} />
+          <LagreFilterButton
+            mutation={lagreFilterMutation}
+            dokumenttype={LagretDokumenttype.AVTALE}
+            filter={filter}
+          />
         </HStack>
       ) : null}
     </div>

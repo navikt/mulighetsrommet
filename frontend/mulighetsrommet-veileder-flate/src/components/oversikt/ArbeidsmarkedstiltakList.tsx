@@ -4,11 +4,7 @@ import { useLogEvent } from "@/logging/amplitude";
 import { BodyShort, Pagination, Select } from "@navikt/ds-react";
 import classnames from "classnames";
 import { useAtom } from "jotai";
-import {
-  DelMedBruker,
-  TiltaksgjennomforingOppstartstype,
-  VeilederflateTiltak,
-} from "@mr/api-client";
+import { DelMedBruker, GjennomforingOppstartstype, VeilederflateTiltak } from "@mr/api-client";
 import { ReactNode, useEffect } from "react";
 import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
 import { ArbeidsmarkedstiltakListItem } from "./ArbeidsmarkedstiltakListItem";
@@ -48,10 +44,10 @@ export function ArbeidsmarkedstiltakList({
 
   const antallSize = [10, 50, 100, 1000];
   const lopendeGjennomforinger = tiltak.filter(
-    (gj) => gj.oppstart === TiltaksgjennomforingOppstartstype.LOPENDE,
+    (gj) => gj.oppstart === GjennomforingOppstartstype.LOPENDE,
   );
   const gjennomforingerMedFellesOppstart = tiltak.filter(
-    (gj) => gj.oppstart !== TiltaksgjennomforingOppstartstype.LOPENDE,
+    (gj) => gj.oppstart !== GjennomforingOppstartstype.LOPENDE,
   );
 
   const sort = getSort(sortValue);
@@ -207,13 +203,9 @@ function sorter(
 
       if (orderBy === "oppstart") {
         const dateB =
-          b.oppstart === TiltaksgjennomforingOppstartstype.FELLES
-            ? new Date(b.oppstartsdato)
-            : new Date();
+          b.oppstart === GjennomforingOppstartstype.FELLES ? new Date(b.oppstartsdato) : new Date();
         const dateA =
-          a.oppstart === TiltaksgjennomforingOppstartstype.FELLES
-            ? new Date(a.oppstartsdato)
-            : new Date();
+          a.oppstart === GjennomforingOppstartstype.FELLES ? new Date(a.oppstartsdato) : new Date();
         return compare(dateA, dateB);
       } else if (orderBy === "tiltakstype") {
         return compare(a.tiltakstype.navn, b.tiltakstype.navn);

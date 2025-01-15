@@ -3,14 +3,11 @@ package no.nav.mulighetsrommet.api.avtale
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.nel
-import arrow.core.raise.either
 import arrow.core.right
-import no.nav.mulighetsrommet.api.arrangor.db.ArrangorRepository
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRepository
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -25,19 +22,17 @@ import no.nav.mulighetsrommet.unleash.Toggle
 import no.nav.mulighetsrommet.unleash.UnleashService
 
 class AvtaleValidator(
+    private val db: ApiDatabase,
     private val tiltakstyper: TiltakstypeService,
-    private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val navEnheterService: NavEnhetService,
-    private val arrangorer: ArrangorRepository,
-    private val navAnsatte: NavAnsattRepository,
     private val unleash: UnleashService,
 ) {
     private val opsjonsmodellerUtenValidering =
         listOf(Opsjonsmodell.AVTALE_UTEN_OPSJONSMODELL, Opsjonsmodell.AVTALE_VALGFRI_SLUTTDATO)
 
-    fun validate(avtale: AvtaleDbo, currentAvtale: AvtaleDto?): Either<List<ValidationError>, AvtaleDbo> = either {
+    fun validate(avtale: AvtaleDbo, currentAvtale: AvtaleDto?): Either<List<ValidationError>, AvtaleDbo> {
         val tiltakstype = tiltakstyper.getById(avtale.tiltakstypeId)
-            ?: raise(ValidationError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
+            ?: return ValidationError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel().left()
 
         val errors = buildList {
             if (avtale.navn.length < 5 && currentAvtale?.opphav != ArenaMigrering.Opphav.ARENA) {
@@ -51,6 +46,17 @@ class AvtaleValidator(
             if (avtale.sluttDato != null) {
                 if (avtale.sluttDato.isBefore(avtale.startDato)) {
                     add(ValidationError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
+                }
+                if (
+                    Avtaletype.Forhaandsgodkjent != avtale.avtaletype &&
+                    avtale.startDato.plusYears(5).isBefore(avtale.sluttDato)
+                ) {
+                    add(
+                        ValidationError.of(
+                            AvtaleDbo::sluttDato,
+                            "Avtaleperioden kan ikke vare lenger enn 5 år for anskaffede tiltak",
+                        ),
+                    )
                 }
             }
 
@@ -174,8 +180,8 @@ class AvtaleValidator(
 
     private fun MutableList<ValidationError>.validateCreateAvtale(
         avtale: AvtaleDbo,
-    ) {
-        val hovedenhet = arrangorer.getById(avtale.arrangorId)
+    ) = db.session {
+        val hovedenhet = queries.arrangor.getById(avtale.arrangorId)
 
         if (hovedenhet.slettetDato != null) {
             add(
@@ -187,7 +193,7 @@ class AvtaleValidator(
         }
 
         avtale.arrangorUnderenheter.forEach { underenhetId ->
-            val underenhet = arrangorer.getById(underenhetId)
+            val underenhet = queries.arrangor.getById(underenhetId)
 
             if (underenhet.slettetDato != null) {
                 add(
@@ -212,8 +218,8 @@ class AvtaleValidator(
     private fun MutableList<ValidationError>.validateUpdateAvtale(
         avtale: AvtaleDbo,
         currentAvtale: AvtaleDto,
-    ) {
-        val (numGjennomforinger, gjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = avtale.id)
+    ) = db.session {
+        val (numGjennomforinger, gjennomforinger) = queries.gjennomforing.getAll(avtaleId = avtale.id)
 
         /**
          * Når avtalen har blitt godkjent så skal alle datafelter som påvirker økonomien, påmelding, osv. være låst.
@@ -235,7 +241,7 @@ class AvtaleValidator(
             gjennomforinger.forEach { gjennomforing ->
                 val arrangorId = gjennomforing.arrangor.id
                 if (arrangorId !in avtale.arrangorUnderenheter) {
-                    val arrangor = arrangorer.getById(arrangorId)
+                    val arrangor = queries.arrangor.getById(arrangorId)
                     add(
                         ValidationError.of(
                             AvtaleDbo::arrangorUnderenheter,
@@ -283,15 +289,11 @@ class AvtaleValidator(
     private fun MutableList<ValidationError>.validateAdministratorer(
         next: AvtaleDbo,
     ) {
-        val slettedeNavIdenter = next.administratorer
-            .mapNotNull {
-                val ansatt = navAnsatte.getByNavIdent(it)
-                if (ansatt?.skalSlettesDato != null) {
-                    ansatt.navIdent.value
-                } else {
-                    null
-                }
+        val slettedeNavIdenter = db.session {
+            next.administratorer.mapNotNull { ident ->
+                queries.ansatt.getByNavIdent(ident)?.takeIf { it.skalSlettesDato != null }?.navIdent?.value
             }
+        }
 
         if (slettedeNavIdenter.isNotEmpty()) {
             add(

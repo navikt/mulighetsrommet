@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.gjennomforing.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -34,7 +34,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
 ) {
     companion object {
         fun from(
-            tiltaksgjennomforing: TiltaksgjennomforingDto,
+            tiltaksgjennomforing: GjennomforingDto,
             arenaId: Int?,
             endretTidspunkt: LocalDateTime,
         ): ArenaMigreringTiltaksgjennomforingDto {
@@ -48,10 +48,10 @@ data class ArenaMigreringTiltaksgjennomforingDto(
             }
 
             val status = when (tiltaksgjennomforing.status.status) {
-                TiltaksgjennomforingStatus.GJENNOMFORES -> ArenaTiltaksgjennomforingStatus.GJENNOMFORES
-                TiltaksgjennomforingStatus.AVSLUTTET -> ArenaTiltaksgjennomforingStatus.AVSLUTTET
-                TiltaksgjennomforingStatus.AVBRUTT -> ArenaTiltaksgjennomforingStatus.AVBRUTT
-                TiltaksgjennomforingStatus.AVLYST -> ArenaTiltaksgjennomforingStatus.AVLYST
+                GjennomforingStatus.GJENNOMFORES -> ArenaTiltaksgjennomforingStatus.GJENNOMFORES
+                GjennomforingStatus.AVSLUTTET -> ArenaTiltaksgjennomforingStatus.AVSLUTTET
+                GjennomforingStatus.AVBRUTT -> ArenaTiltaksgjennomforingStatus.AVBRUTT
+                GjennomforingStatus.AVLYST -> ArenaTiltaksgjennomforingStatus.AVLYST
             }
 
             return ArenaMigreringTiltaksgjennomforingDto(

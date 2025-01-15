@@ -323,8 +323,8 @@ paths:
   /api/v1/intern/tiltaksgjennomforinger/{id}/historikk:
     get:
       tags:
-        - Tiltaksgjennomforinger
-      operationId: getTiltaksgjennomforingEndringshistorikk
+        - Gjennomforinger
+      operationId: getGjennomforingEndringshistorikk
       parameters:
         - in: path
           name: id
@@ -344,8 +344,8 @@ paths:
   /api/v1/intern/tiltaksgjennomforinger/{id}/deltaker-summary:
     get:
       tags:
-        - Tiltaksgjennomforinger
-      operationId: getTiltaksgjennomforingDeltakerSummary
+        - Gjennomforinger
+      operationId: getGjennomforingDeltakerSummary
       parameters:
         - in: path
           name: id
@@ -360,13 +360,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TiltaksgjennomforingDeltakerSummary"
+                $ref: "#/components/schemas/GjennomforingDeltakerSummary"
 
   /api/v1/intern/tiltaksgjennomforinger:
     get:
       tags:
-        - Tiltaksgjennomforinger
-      operationId: getTiltaksgjennomforinger
+        - Gjennomforinger
+      operationId: getGjennomforinger
       parameters:
         - in: query
           name: page
@@ -398,7 +398,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/TiltaksgjennomforingStatus"
+              $ref: "#/components/schemas/GjennomforingStatus"
           description: Status for tiltaksgjennomføring
         - in: query
           name: navRegioner
@@ -426,7 +426,7 @@ paths:
         - in: query
           name: sort
           schema:
-            $ref: "#/components/schemas/SorteringTiltaksgjennomforinger"
+            $ref: "#/components/schemas/SorteringGjennomforinger"
         - in: query
           name: avtaleId
           schema:
@@ -437,23 +437,23 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
+                $ref: "#/components/schemas/PaginertGjennomforing"
     put:
       tags:
-        - Tiltaksgjennomforinger
-      operationId: upsertTiltaksgjennomforing
+        - Gjennomforinger
+      operationId: upsertGjennomforing
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/TiltaksgjennomforingRequest"
+              $ref: "#/components/schemas/GjennomforingRequest"
       responses:
         200:
           description: The specified tiltaksgjennomføring with data about tiltakstype.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TiltaksgjennomforingDto"
+                $ref: "#/components/schemas/GjennomforingDto"
         400:
           description: Respons med valideringsfeil
           content:
@@ -470,8 +470,8 @@ paths:
   /api/v1/intern/tiltaksgjennomforinger/mine:
     get:
       tags:
-        - Tiltaksgjennomforinger
-      operationId: getMineTiltaksgjennomforinger
+        - Gjennomforinger
+      operationId: getMineGjennomforinger
       parameters:
         - in: query
           name: navEnheter
@@ -493,7 +493,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/TiltaksgjennomforingStatus"
+              $ref: "#/components/schemas/GjennomforingStatus"
           description: Status for tiltaksgjennomføring
         - in: query
           name: navRegioner
@@ -526,7 +526,7 @@ paths:
         - in: query
           name: sort
           schema:
-            $ref: "#/components/schemas/SorteringTiltaksgjennomforinger"
+            $ref: "#/components/schemas/SorteringGjennomforinger"
         - in: query
           name: avtaleId
           schema:
@@ -537,13 +537,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
+                $ref: "#/components/schemas/PaginertGjennomforing"
 
   /api/v1/intern/tiltaksgjennomforinger/excel:
     get:
       tags:
-        - Tiltaksgjennomforinger
-      operationId: lastNedTiltaksgjennomforingerSomExcel
+        - Gjennomforinger
+      operationId: lastNedGjennomforingerSomExcel
       responses:
         200:
           description: Excel-fil med tiltaksgjennomforinger
@@ -558,17 +558,17 @@ paths:
       - $ref: "#/components/parameters/ID"
     get:
       tags:
-        - Tiltaksgjennomforinger
-      operationId: getTiltaksgjennomforing
+        - Gjennomforinger
+      operationId: getGjennomforing
       responses:
         200:
           description: The specified tiltaksgjennomføring with data about tiltakstype.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TiltaksgjennomforingDto"
+                $ref: "#/components/schemas/GjennomforingDto"
         404:
-          description: "Tiltaksgjennomføringen ble ikke funnet"
+          description: "Gjennomføringen ble ikke funnet"
           content:
             application/json:
               schema:
@@ -579,7 +579,7 @@ paths:
       - $ref: "#/components/parameters/ID"
     get:
       tags:
-        - Tiltaksgjennomforinger
+        - Gjennomforinger
       operationId: getTiltaksnummer
       responses:
         200:
@@ -589,9 +589,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/TiltaksnummerResponse"
         204:
-          description: Tiltaksgjennomføringen har enda ikke tiltaksnummer.
+          description: Gjennomføringen har enda ikke tiltaksnummer.
         404:
-          description: Tiltaksgjennomføringen ble ikke funnet.
+          description: Gjennomføringen ble ikke funnet.
           content:
             application/json:
               schema:
@@ -602,7 +602,7 @@ paths:
       - $ref: "#/components/parameters/ID"
     put:
       tags:
-        - Tiltaksgjennomforinger
+        - Gjennomforinger
       operationId: setAvtaleForGjennomforing
       requestBody:
         content:
@@ -618,8 +618,8 @@ paths:
       - $ref: "#/components/parameters/ID"
     put:
       tags:
-        - Tiltaksgjennomforinger
-      operationId: avbrytTiltaksgjennomforing
+        - Gjennomforinger
+      operationId: avbrytGjennomforing
       requestBody:
         content:
           application/json:
@@ -646,7 +646,7 @@ paths:
       - $ref: "#/components/parameters/ID"
     put:
       tags:
-        - Tiltaksgjennomforinger
+        - Gjennomforinger
       operationId: setPublisert
       requestBody:
         content:
@@ -662,7 +662,7 @@ paths:
       - $ref: "#/components/parameters/ID"
     put:
       tags:
-        - Tiltaksgjennomforinger
+        - Gjennomforinger
       operationId: setApentForPamelding
       requestBody:
         content:
@@ -678,7 +678,7 @@ paths:
       - $ref: "#/components/parameters/ID"
     put:
       tags:
-        - Tiltaksgjennomforinger
+        - Gjennomforinger
       operationId: setTilgjengeligForArrangor
       requestBody:
         content:
@@ -692,8 +692,8 @@ paths:
   /api/v1/intern/tiltaksgjennomforinger/kontaktperson:
     delete:
       tags:
-        - Tiltaksgjennomforinger
-      operationId: frikobleKontaktpersonFraTiltaksgjennomforing
+        - Gjennomforinger
+      operationId: frikobleKontaktpersonFraGjennomforing
       requestBody:
         content:
           application/json:
@@ -823,7 +823,7 @@ paths:
     get:
       tags:
         - VeilederTiltak
-      operationId: getVeilederTiltaksgjennomforinger
+      operationId: getAllVeilederTiltak
       parameters:
         - $ref: "#/components/parameters/SearchParam"
         - $ref: "#/components/parameters/ApentForPameldingParam"
@@ -833,7 +833,7 @@ paths:
         - $ref: "#/components/parameters/ErSykmeldtMedArbeidsgiverParam"
       responses:
         200:
-          description: Hent tiltaksgjennomføringer
+          description: Hent tiltak
           content:
             application/json:
               schema:
@@ -845,12 +845,12 @@ paths:
     get:
       tags:
         - VeilederTiltak
-      operationId: getVeilederTiltaksgjennomforing
+      operationId: getVeilederTiltak
       parameters:
         - $ref: "#/components/parameters/ID"
       responses:
         200:
-          description: Hent tiltaksgjennomføring for id
+          description: Hent tiltak for id
           content:
             application/json:
               schema:
@@ -860,7 +860,7 @@ paths:
     get:
       tags:
         - VeilederTiltak
-      operationId: getPreviewTiltaksgjennomforinger
+      operationId: getAllPreviewTiltak
       parameters:
         - $ref: "#/components/parameters/SearchParam"
         - $ref: "#/components/parameters/ApentForPameldingParam"
@@ -869,7 +869,7 @@ paths:
         - $ref: "#/components/parameters/TiltakstyperParam"
       responses:
         200:
-          description: Hent tiltaksgjennomføringer
+          description: Hent preview tiltak
           content:
             application/json:
               schema:
@@ -881,12 +881,12 @@ paths:
     get:
       tags:
         - VeilederTiltak
-      operationId: getPreviewTiltaksgjennomforing
+      operationId: getPreviewTiltak
       parameters:
         - $ref: "#/components/parameters/ID"
       responses:
         200:
-          description: Hent tiltaksgjennomføring for id
+          description: Hent preview tiltak for id
           content:
             application/json:
               schema:
@@ -896,7 +896,7 @@ paths:
     get:
       tags:
         - VeilederTiltak
-      operationId: getNavTiltaksgjennomforinger
+      operationId: getAllNavTiltak
       parameters:
         - $ref: "#/components/parameters/SearchParam"
         - $ref: "#/components/parameters/ApentForPameldingParam"
@@ -905,7 +905,7 @@ paths:
         - $ref: "#/components/parameters/TiltakstyperParam"
       responses:
         200:
-          description: Hent tiltaksgjennomføringer
+          description: Hent tiltak
           content:
             application/json:
               schema:
@@ -917,12 +917,12 @@ paths:
     get:
       tags:
         - VeilederTiltak
-      operationId: getNavTiltaksgjennomforing
+      operationId: getNavTiltak
       parameters:
         - $ref: "#/components/parameters/ID"
       responses:
         200:
-          description: Hent tiltaksgjennomføring for id
+          description: Hent tiltak for id
           content:
             application/json:
               schema:
@@ -1759,7 +1759,7 @@ paths:
     get:
       tags:
         - Refusjonskrav
-      operationId: refusjonskravByTiltaksgjennomforing
+      operationId: refusjonskravByGjennomforing
       responses:
         200:
           description: RefusjonKravKompakt
@@ -2123,7 +2123,7 @@ components:
     tiltaksgjennomforingId:
       name: tiltaksgjennomforingId
       in: path
-      description: Tiltaksgjennomforing Id
+      description: Gjennomforing Id
       required: true
       schema:
         type: string
@@ -2316,7 +2316,7 @@ components:
           items:
             $ref: "#/components/schemas/TiltakstypeDto"
 
-    PaginertTiltaksgjennomforing:
+    PaginertGjennomforing:
       type: object
       required:
         - pagination
@@ -2327,7 +2327,7 @@ components:
         data:
           type: array
           items:
-            $ref: "#/components/schemas/TiltaksgjennomforingDto"
+            $ref: "#/components/schemas/GjennomforingDto"
 
     PaginertAvtale:
       type: object
@@ -2694,7 +2694,7 @@ components:
         - sluttdato-ascending
         - sluttdato-descending
 
-    SorteringTiltaksgjennomforinger:
+    SorteringGjennomforinger:
       type: string
       enum:
         - navn-ascending
@@ -2718,7 +2718,7 @@ components:
         - navn-ascending
         - navn-descending
 
-    TiltaksgjennomforingDto:
+    GjennomforingDto:
       type: object
       properties:
         id:
@@ -2742,7 +2742,7 @@ components:
         arenaAnsvarligEnhet:
           $ref: "#/components/schemas/ArenaNavEnhet"
         status:
-          $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
+          $ref: "#/components/schemas/GjennomforingStatusDto"
         apentForPamelding:
           type: boolean
         antallPlasser:
@@ -2753,7 +2753,7 @@ components:
         administratorer:
           type: array
           items:
-            $ref: "#/components/schemas/TiltaksgjennomforingAdministrator"
+            $ref: "#/components/schemas/GjennomforingAdministrator"
         navRegion:
           $ref: "#/components/schemas/NavEnhet"
         navEnheter:
@@ -2764,13 +2764,13 @@ components:
           type: string
           format: uuid
         oppstart:
-          $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
+          $ref: "#/components/schemas/GjennomforingOppstartstype"
         opphav:
           $ref: "#/components/schemas/Opphav"
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/TiltaksgjennomforingKontaktperson"
+            $ref: "#/components/schemas/GjennomforingKontaktperson"
         stedForGjennomforing:
           type: string
         faneinnhold:
@@ -2821,7 +2821,7 @@ components:
       required:
         - tiltaksnummer
 
-    TiltaksgjennomforingRequest:
+    GjennomforingRequest:
       type: object
       properties:
         id:
@@ -2863,11 +2863,11 @@ components:
           items:
             type: string
         oppstart:
-          $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
+          $ref: "#/components/schemas/GjennomforingOppstartstype"
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersonRequest"
+            $ref: "#/components/schemas/GjennomforingKontaktpersonRequest"
         stedForGjennomforing:
           type: string
           nullable: true
@@ -2921,11 +2921,11 @@ components:
         - amoKategorisering
         - utdanningslop
 
-    TiltaksgjennomforingStatusDto:
+    GjennomforingStatusDto:
       type: object
       properties:
         status:
-          $ref: "#/components/schemas/TiltaksgjennomforingStatus"
+          $ref: "#/components/schemas/GjennomforingStatus"
         avbrutt:
           type: object
           properties:
@@ -2945,7 +2945,7 @@ components:
       required:
         - status
 
-    TiltaksgjennomforingStatus:
+    GjennomforingStatus:
       type: string
       enum:
         - GJENNOMFORES
@@ -2953,7 +2953,7 @@ components:
         - AVLYST
         - AVSLUTTET
 
-    TiltaksgjennomforingOppstartstype:
+    GjennomforingOppstartstype:
       type: string
       enum:
         - LOPENDE
@@ -3570,7 +3570,7 @@ components:
         - navIdent
         - navn
 
-    TiltaksgjennomforingAdministrator:
+    GjennomforingAdministrator:
       type: object
       properties:
         navIdent:
@@ -3647,7 +3647,7 @@ components:
         tiltaksnummer:
           type: string
         status:
-          $ref: "#/components/schemas/TiltaksgjennomforingStatus"
+          $ref: "#/components/schemas/GjennomforingStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -3655,7 +3655,7 @@ components:
         kontaktinfo:
           $ref: "#/components/schemas/VeilederflateKontaktInfo"
         oppstart:
-          $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
+          $ref: "#/components/schemas/GjennomforingOppstartstype"
         id:
           type: string
           format: uuid
@@ -3705,7 +3705,7 @@ components:
         tiltaksnummer:
           type: string
         status:
-          $ref: "#/components/schemas/TiltaksgjennomforingStatus"
+          $ref: "#/components/schemas/GjennomforingStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -3738,7 +3738,7 @@ components:
         tiltakstype:
           $ref: "#/components/schemas/VeilederflateTiltakstype"
         status:
-          $ref: "#/components/schemas/TiltaksgjennomforingStatus"
+          $ref: "#/components/schemas/GjennomforingStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -3773,7 +3773,7 @@ components:
         tiltaksnummer:
           type: string
         status:
-          $ref: "#/components/schemas/TiltaksgjennomforingStatus"
+          $ref: "#/components/schemas/GjennomforingStatus"
         beskrivelse:
           type: string
         faneinnhold:
@@ -4157,7 +4157,7 @@ components:
           format: UUID
           nullable: true
 
-    TiltaksgjennomforingDeltakerSummary:
+    GjennomforingDeltakerSummary:
       type: object
       properties:
         antallDeltakere:
@@ -4178,7 +4178,7 @@ components:
         - antallDeltakere
         - deltakereByStatus
 
-    TiltaksgjennomforingKontaktperson:
+    GjennomforingKontaktperson:
       type: object
       properties:
         navIdent:
@@ -4205,7 +4205,7 @@ components:
         - mobilnummer
         - beskrivelse
 
-    TiltaksgjennomforingKontaktpersonRequest:
+    GjennomforingKontaktpersonRequest:
       type: object
       properties:
         navIdent:
@@ -4925,6 +4925,7 @@ components:
       enum:
         - TILSAGN
         - EKSTRATILSAGN
+        - INVESTERING
 
     TilsagnDto:
       type: object
@@ -5594,6 +5595,8 @@ components:
               type: string
           required:
             - navn
+        type:
+          $ref: "#/components/schemas/TilsagnType"
         periodeStart:
           type: string
           format: date
@@ -5621,6 +5624,7 @@ components:
       required:
         - periodeStart
         - periodeSlutt
+        - type
         - status
         - gjennomforing
         - tiltakstype

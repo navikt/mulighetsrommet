@@ -6,20 +6,19 @@ import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
-import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
-import { ArrangorKontaktinfoContainer } from "@/pages/arrangor/ArrangorKontaktinfoContainer";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { avtaletypeTilTekst, formaterDato } from "@/utils/Utils";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { Avtaletype, NavEnhet } from "@mr/api-client";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Alert, Heading, HelpText, HGrid, VStack } from "@navikt/ds-react";
+import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
 import { Fragment } from "react";
 import { Link } from "react-router";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { Laster } from "@/components/laster/Laster";
 import styles from "./AvtaleDetaljer.module.scss";
+import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
@@ -53,8 +52,8 @@ export function AvtaleDetaljer() {
   } = avtale;
 
   return (
-    <HGrid columns={2} align="start">
-      <DetaljerInfoContainer>
+    <TwoColumnGrid separator>
+      <VStack>
         <Bolk aria-label="Avtalenavn">
           <Metadata header={avtaletekster.avtalenavnLabel} verdi={navn} />
         </Bolk>
@@ -151,6 +150,7 @@ export function AvtaleDetaljer() {
                               target="_blank"
                               rel="noopener noreferrer"
                               href={`${NOM_ANSATT_SIDE}${admin.navIdent}`}
+                              className="flex gap-1.5"
                             >
                               {`${admin.navn} - ${admin.navIdent}`}{" "}
                               <ExternalLinkIcon aria-label="Ekstern lenke" />
@@ -167,8 +167,8 @@ export function AvtaleDetaljer() {
             </Bolk>
           ) : null}
         </VStack>
-      </DetaljerInfoContainer>
-      <DetaljerInfoContainer>
+      </VStack>
+      <VStack>
         {kontorstruktur.length > 1 ? (
           <Metadata
             header={avtaletekster.fylkessamarbeidLabel}
@@ -252,18 +252,18 @@ export function AvtaleDetaljer() {
           <Metadata
             header={avtaletekster.kontaktpersonerHosTiltaksarrangorLabel}
             verdi={
-              <ArrangorKontaktinfoContainer>
+              <VStack>
                 {arrangor.kontaktpersoner.map((kontaktperson) => (
                   <ArrangorKontaktpersonDetaljer
                     key={kontaktperson.id}
                     kontaktperson={kontaktperson}
                   />
                 ))}
-              </ArrangorKontaktinfoContainer>
+              </VStack>
             }
           />
         )}
-      </DetaljerInfoContainer>
-    </HGrid>
+      </VStack>
+    </TwoColumnGrid>
   );
 }

@@ -61,7 +61,7 @@ export function Notifikasjonssrad({ notifikasjon, lest }: NotifikasjonssradProps
         <BodyShort size="small" title={createdAt} className={styles.muted}>
           {formaterDatoTid(createdAt)}
         </BodyShort>
-        <VStack>
+        <VStack className="flex flex-row bg-red-200">
           <CheckmarkButton
             id={notifikasjon.id}
             read={read}

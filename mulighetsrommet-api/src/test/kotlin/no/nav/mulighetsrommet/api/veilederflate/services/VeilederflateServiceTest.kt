@@ -19,21 +19,22 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetRepository
 import no.nav.mulighetsrommet.api.services.cms.CacheUsage
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeRepository
-import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakRepository
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet
 import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForPamelding
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import java.util.*
 
 class VeilederflateServiceTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
+
+    val enkelAmoSanityId = UUID.randomUUID()
+    val arbeidstreningSanityId = UUID.randomUUID()
+    val arbeidsrettetRehabiliteringSanityId = UUID.randomUUID()
 
     val domain = MulighetsrommetTestDomain(
         enheter = listOf(
@@ -50,25 +51,24 @@ class VeilederflateServiceTest : FunSpec({
         ),
         avtaler = emptyList(),
         gjennomforinger = emptyList(),
-    )
-
-    val enkelAmoSanityId = UUID.randomUUID()
-    val arbeidstreningSanityId = UUID.randomUUID()
-    val arbeidsrettetRehabiliteringSanityId = UUID.randomUUID()
+    ) {
+        session.execute(Query("update tiltakstype set sanity_id = '$enkelAmoSanityId' where id = '${TiltakstypeFixtures.EnkelAmo.id}'"))
+        session.execute(Query("update tiltakstype set sanity_id = '$arbeidstreningSanityId' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'"))
+        session.execute(Query("update tiltakstype set sanity_id = '$arbeidsrettetRehabiliteringSanityId' where id = '${TiltakstypeFixtures.ArbeidsrettetRehabilitering.id}'"))
+    }
 
     beforeEach {
         domain.initialize(database.db)
-
-        listOf(
-            Query("update tiltakstype set sanity_id = '$enkelAmoSanityId' where id = '${TiltakstypeFixtures.EnkelAmo.id}'"),
-            Query("update tiltakstype set sanity_id = '$arbeidstreningSanityId' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'"),
-            Query("update tiltakstype set sanity_id = '$arbeidsrettetRehabiliteringSanityId' where id = '${TiltakstypeFixtures.ArbeidsrettetRehabilitering.id}'"),
-        ).forEach {
-            database.db.run(it.asExecute)
-        }
     }
 
     val sanityService: SanityService = mockk(relaxed = true)
+
+    fun createService() = VeilederflateService(
+        db = database.db,
+        sanityService = sanityService,
+        tiltakstypeService = TiltakstypeService(database.db),
+        navEnhetService = NavEnhetService(database.db),
+    )
 
     beforeEach {
         clearMocks(sanityService)
@@ -147,12 +147,7 @@ class VeilederflateServiceTest : FunSpec({
     )
 
     test("utleder gjennomføringer som enkeltplass anskaffet tiltak når de har arrangør") {
-        val veilederFlateService = VeilederflateService(
-            sanityService = sanityService,
-            veilederflateTiltakRepository = VeilederflateTiltakRepository(database.db),
-            tiltakstypeService = TiltakstypeService(TiltakstypeRepository(database.db)),
-            navEnhetService = NavEnhetService(NavEnhetRepository(database.db)),
-        )
+        val veilederFlateService = createService()
 
         coEvery { sanityService.getAllTiltak(any(), any()) } returns sanityTiltak
 
@@ -173,10 +168,10 @@ class VeilederflateServiceTest : FunSpec({
 
     test("henter ikke gjennomføringer fra Sanity når filter for 'Åpent for påmelding' er STENGT") {
         val veilederFlateService = VeilederflateService(
+            db = database.db,
             sanityService = sanityService,
-            veilederflateTiltakRepository = VeilederflateTiltakRepository(database.db),
-            tiltakstypeService = TiltakstypeService(TiltakstypeRepository(database.db)),
-            navEnhetService = NavEnhetService(NavEnhetRepository(database.db)),
+            tiltakstypeService = TiltakstypeService(database.db),
+            navEnhetService = NavEnhetService(database.db),
         )
 
         coEvery { sanityService.getAllTiltak(any(), any()) } returns sanityTiltak

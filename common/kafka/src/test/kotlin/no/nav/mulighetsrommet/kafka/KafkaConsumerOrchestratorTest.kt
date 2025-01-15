@@ -7,6 +7,7 @@ import io.kotest.extensions.testcontainers.kafka.KafkaContainerExtension
 import io.kotest.extensions.testcontainers.kafka.stringStringProducer
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coVerify
 import io.mockk.spyk
@@ -172,7 +173,6 @@ class KafkaConsumerOrchestratorTest : FunSpec({
     }
 
     test("failed events should be handled gracefully and kept in the topic consumer repository") {
-        val consumerRepository = KafkaConsumerRepositoryImpl(database.db)
         val topic = uniqueTopicName()
 
         val producer = kafka.stringStringProducer()
@@ -181,7 +181,7 @@ class KafkaConsumerOrchestratorTest : FunSpec({
 
         val consumer = spyk(TestConsumer(id = "1", topic))
 
-        KafkaConsumerOrchestrator(
+        val orchestrator = KafkaConsumerOrchestrator(
             defaultConfig,
             kafka.getConsumerProperties(),
             database.db,
@@ -192,8 +192,9 @@ class KafkaConsumerOrchestratorTest : FunSpec({
             coVerify(exactly = 1) {
                 consumer.consume(null, "false")
             }
-
-            consumerRepository.getRecords(topic, 0, 1) shouldHaveSize 1
+            orchestrator.getAllStoredConsumerRecords().shouldHaveSize(1).first().should {
+                it.topic shouldBe topic
+            }
         }
     }
 })

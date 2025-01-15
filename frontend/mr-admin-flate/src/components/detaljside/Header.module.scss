@@ -7,7 +7,6 @@
   }
 
   .header {
-    max-width: 1920px;
     margin: 0 auto;
     padding-left: 0.5rem;
     gap: 1.5rem;
@@ -22,11 +21,7 @@
     }
 
     .header_outer_container_forhandsvisningsknapp {
-      width: 1440px;
-
-      @media (width <= 1450px) {
-        width: auto;
-      }
+      width: 100%;
 
       span {
         align-self: center;
@@ -38,9 +33,6 @@
         justify-content: flex-end;
         padding-right: 0.5rem;
         flex-wrap: wrap;
-
-        @media (width <= 1460px) {
-        }
       }
     }
 
@@ -58,7 +50,6 @@
   }
 
   .header_wrapper {
-    max-width: 1920px;
     margin: 0 auto;
     padding-left: 0.5rem;
     padding-top: 0.5rem;
@@ -70,7 +61,6 @@
     background-color: var(--a-white);
 
     :global(.navds-tabs__tablist-wrapper) {
-      max-width: 1920px;
       margin: 0 auto;
       padding-left: 0.5rem;
       box-shadow: none;

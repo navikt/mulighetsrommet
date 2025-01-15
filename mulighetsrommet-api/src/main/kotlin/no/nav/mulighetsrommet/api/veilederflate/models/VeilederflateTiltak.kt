@@ -6,11 +6,11 @@ import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.domain.dto.RegelverkLenke
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
+import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.PersonopplysningData
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -27,11 +27,11 @@ data class VeilederflateInnsatsgruppe(
 sealed class VeilederflateTiltak {
     abstract val tiltakstype: VeilederflateTiltakstype
     abstract val navn: String
-    abstract val status: TiltaksgjennomforingStatus
+    abstract val status: GjennomforingStatus
     abstract val beskrivelse: String?
     abstract val faneinnhold: Faneinnhold?
     abstract val kontaktinfo: VeilederflateKontaktinfo
-    abstract val oppstart: TiltaksgjennomforingOppstartstype
+    abstract val oppstart: GjennomforingOppstartstype
     abstract val stedForGjennomforing: String?
     abstract val fylke: String
     abstract val enheter: List<String>
@@ -42,11 +42,11 @@ sealed class VeilederflateTiltak {
 data class VeilederflateTiltakGruppe(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,
-    override val status: TiltaksgjennomforingStatus,
+    override val status: GjennomforingStatus,
     override val beskrivelse: String?,
     override val faneinnhold: Faneinnhold?,
     override val kontaktinfo: VeilederflateKontaktinfo,
-    override val oppstart: TiltaksgjennomforingOppstartstype,
+    override val oppstart: GjennomforingOppstartstype,
     override val stedForGjennomforing: String?,
     override val fylke: String,
     override val enheter: List<String>,
@@ -69,11 +69,11 @@ data class VeilederflateTiltakGruppe(
 data class VeilederflateTiltakEnkeltplassAnskaffet(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,
-    override val status: TiltaksgjennomforingStatus,
+    override val status: GjennomforingStatus,
     override val beskrivelse: String?,
     override val faneinnhold: Faneinnhold?,
     override val kontaktinfo: VeilederflateKontaktinfo,
-    override val oppstart: TiltaksgjennomforingOppstartstype,
+    override val oppstart: GjennomforingOppstartstype,
     override val stedForGjennomforing: String?,
     override val fylke: String,
     override val enheter: List<String>,
@@ -87,11 +87,11 @@ data class VeilederflateTiltakEnkeltplassAnskaffet(
 data class VeilederflateTiltakEgenRegi(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,
-    override val status: TiltaksgjennomforingStatus,
+    override val status: GjennomforingStatus,
     override val beskrivelse: String?,
     override val faneinnhold: Faneinnhold?,
     override val kontaktinfo: VeilederflateKontaktinfo,
-    override val oppstart: TiltaksgjennomforingOppstartstype,
+    override val oppstart: GjennomforingOppstartstype,
     override val stedForGjennomforing: String?,
     override val fylke: String,
     override val enheter: List<String>,
@@ -104,11 +104,11 @@ data class VeilederflateTiltakEgenRegi(
 data class VeilederflateTiltakEnkeltplass(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,
-    override val status: TiltaksgjennomforingStatus,
+    override val status: GjennomforingStatus,
     override val beskrivelse: String?,
     override val faneinnhold: Faneinnhold?,
     override val kontaktinfo: VeilederflateKontaktinfo,
-    override val oppstart: TiltaksgjennomforingOppstartstype,
+    override val oppstart: GjennomforingOppstartstype,
     override val stedForGjennomforing: String?,
     override val fylke: String,
     override val enheter: List<String>,

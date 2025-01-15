@@ -1,12 +1,12 @@
 import { AnnetEnum } from "@/api/annetEnum";
-import { useAvbrytTiltaksgjennomforing } from "@/api/tiltaksgjennomforing/useAvbrytTiltaksgjennomforing";
-import { useSuspenseGjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
+import { useAvbrytGjennomforing } from "@/api/gjennomforing/useAvbrytGjennomforing";
+import { useSuspenseGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
 import { Laster } from "@/components/laster/Laster";
 import { AvbrytModalAarsaker } from "@/components/modal/AvbrytModalAarsaker";
 import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { Alert, BodyShort, Button, Radio } from "@navikt/ds-react";
-import { AvbrytGjennomforingAarsak, TiltaksgjennomforingDto } from "@mr/api-client";
+import { AvbrytGjennomforingAarsak, GjennomforingDto } from "@mr/api-client";
 import { RefObject, useState } from "react";
 import { useNavigate } from "react-router";
 import z from "zod";
@@ -31,7 +31,7 @@ export const AvbrytGjennomforingModalSchema = z
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
-  tiltaksgjennomforing: TiltaksgjennomforingDto;
+  gjennomforing: GjennomforingDto;
 }
 
 interface State {
@@ -46,12 +46,10 @@ const initialState: State = {
   errors: {},
 };
 
-export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Props) => {
-  const mutation = useAvbrytTiltaksgjennomforing();
+export const AvbrytGjennomforingModal = ({ modalRef, gjennomforing }: Props) => {
+  const mutation = useAvbrytGjennomforing();
   const navigate = useNavigate();
-  const { data: deltakerSummary } = useSuspenseGjennomforingDeltakerSummary(
-    tiltaksgjennomforing.id,
-  );
+  const { data: deltakerSummary } = useSuspenseGjennomforingDeltakerSummary(gjennomforing.id);
   const [state, setState] = useState<State>(initialState);
 
   const onClose = () => {
@@ -63,7 +61,7 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
   function onSuccessMutation() {
     setState(initialState);
     modalRef.current?.close();
-    navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}`);
+    navigate(`/tiltaksgjennomforinger/${gjennomforing?.id}`);
   }
 
   const handleAvbrytGjennomforing = () => {
@@ -82,11 +80,11 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
       });
     }
 
-    if (parsed.success && tiltaksgjennomforing?.id && state?.aarsak) {
+    if (parsed.success && gjennomforing?.id && state?.aarsak) {
       if (state.aarsak === AnnetEnum.ANNET && state.customAarsak) {
         mutation.mutate(
           {
-            id: tiltaksgjennomforing.id,
+            id: gjennomforing.id,
             aarsak: state.customAarsak,
           },
           { onSuccess: onSuccessMutation },
@@ -94,7 +92,7 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
       } else
         mutation.mutate(
           {
-            id: tiltaksgjennomforing?.id,
+            id: gjennomforing?.id,
             aarsak: state.aarsak,
           },
           { onSuccess: onSuccessMutation },
@@ -124,8 +122,8 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
       headingIconType="warning"
       headingText={
         mutation.isError
-          ? `Kan ikke avbryte «${tiltaksgjennomforing?.navn}»`
-          : `Ønsker du å avbryte «${tiltaksgjennomforing?.navn}»?`
+          ? `Kan ikke avbryte «${gjennomforing?.navn}»`
+          : `Ønsker du å avbryte «${gjennomforing?.navn}»?`
       }
       body={
         <>

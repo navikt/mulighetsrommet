@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { TilsagnRequest, TiltaksgjennomforingDto } from "@mr/api-client";
+import { TilsagnRequest, GjennomforingDto } from "@mr/api-client";
 import { Button, Heading, HStack } from "@navikt/ds-react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import styles from "./TilsagnSkjema.module.scss";
@@ -10,7 +10,7 @@ import { VelgPeriode } from "@/components/tilsagn/prismodell/VelgPeriode";
 import { InferredTilsagn, TilsagnSchema } from "@/components/tilsagn/prismodell/TilsagnSchema";
 
 interface Props {
-  gjennomforing: TiltaksgjennomforingDto;
+  gjennomforing: GjennomforingDto;
   onSuccess: () => void;
   onAvbryt: () => void;
   defaultValues: DeepPartial<InferredTilsagn>;
