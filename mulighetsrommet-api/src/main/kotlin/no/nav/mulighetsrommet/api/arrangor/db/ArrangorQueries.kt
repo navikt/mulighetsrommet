@@ -93,7 +93,7 @@ class ArrangorQueries(private val session: Session) {
 
         val isRelatedToTiltak = when (til) {
             ArrangorTil.AVTALE -> "id in (select arrangor_hovedenhet_id from avtale) and"
-            ArrangorTil.TILTAKSGJENNOMFORING -> "id in (select arrangor_id from tiltaksgjennomforing) and"
+            ArrangorTil.TILTAKSGJENNOMFORING -> "id in (select arrangor_id from gjennomforing) and"
             else -> ""
         }
 
@@ -255,7 +255,7 @@ class ArrangorQueries(private val session: Session) {
         @Language("PostgreSQL")
         val gjennomforingQuery = """
             select tg.navn, tg.id
-            from tiltaksgjennomforing_arrangor_kontaktperson join tiltaksgjennomforing tg on tiltaksgjennomforing_id = tg.id
+            from gjennomforing_arrangor_kontaktperson join gjennomforing tg on gjennomforing_id = tg.id
             where arrangor_kontaktperson_id = ?
         """.trimIndent()
 

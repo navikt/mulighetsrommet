@@ -19,7 +19,7 @@ data class ArrangorKontaktperson(
     @Serializable
     enum class AnsvarligFor {
         AVTALE,
-        TILTAKSGJENNOMFORING,
+        GJENNOMFORING,
         OKONOMI,
     }
 }

@@ -22,7 +22,7 @@ export const lagretFilterHandlers = [
             "Et mocket tiltaksgjennomføringsfilter med et ganske langt navn så vi kan teste" +
             " hvordan det ser ut også",
           sortOrder: 0,
-          type: LagretDokumenttype.TILTAKSGJENNOMFØRING,
+          type: LagretDokumenttype.GJENNOMFORING,
         },
         {
           id: window.crypto.randomUUID(),
@@ -30,7 +30,7 @@ export const lagretFilterHandlers = [
           filter: {},
           navn: "Et mocket modia/nav-filter",
           sortOrder: 0,
-          type: LagretDokumenttype.TILTAKSGJENNOMFØRING_MODIA,
+          type: LagretDokumenttype.GJENNOMFORING_MODIA,
         },
       ]);
     },

@@ -6,11 +6,9 @@ import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.util.*
 
 enum class FilterDokumentType {
-    Avtale,
-    Tiltaksgjennomføring,
-
-    @Suppress("ktlint:standard:enum-entry-name-case")
-    Tiltaksgjennomføring_Modia,
+    AVTALE,
+    GJENNOMFORING,
+    GJENNOMFORING_MODIA,
 }
 
 @Serializable

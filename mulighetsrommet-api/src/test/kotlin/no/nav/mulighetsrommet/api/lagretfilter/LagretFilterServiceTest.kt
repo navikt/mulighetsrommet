@@ -18,14 +18,14 @@ class LagretFilterServiceTest : FunSpec({
             val filter1 = LagretFilterUpsert(
                 brukerId = "B123456",
                 navn = "Avtalefilter for Benny",
-                type = FilterDokumentType.Avtale,
+                type = FilterDokumentType.AVTALE,
                 filter = Json.parseToJsonElement("""{"filter": "filter1"}"""),
                 sortOrder = 0,
             )
             val filter2 = LagretFilterUpsert(
                 brukerId = "J987654",
                 navn = "Gjennomføringsfilter for Johnny",
-                type = FilterDokumentType.Tiltaksgjennomføring,
+                type = FilterDokumentType.GJENNOMFORING,
                 filter = Json.parseToJsonElement("""{"filter": "filter1"}"""),
                 sortOrder = 0,
             )
@@ -35,7 +35,7 @@ class LagretFilterServiceTest : FunSpec({
 
             val lagretFilterForBenny = lagretFilterService.getLagredeFiltereForBruker(
                 brukerId = "B123456",
-                FilterDokumentType.Avtale,
+                FilterDokumentType.AVTALE,
             )
             lagretFilterForBenny.shouldHaveSize(1).first().navn shouldBe "Avtalefilter for Benny"
 
@@ -43,7 +43,7 @@ class LagretFilterServiceTest : FunSpec({
 
             lagretFilterService.getLagredeFiltereForBruker(
                 "B123456",
-                FilterDokumentType.Avtale,
+                FilterDokumentType.AVTALE,
             ).shouldBeEmpty()
         }
     }

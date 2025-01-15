@@ -123,7 +123,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
             service.upsertTiltaksgjennomforing(gjennomforing)
 
-            database.assertThat("tiltaksgjennomforing").isEmpty
+            database.assertThat("gjennomforing").isEmpty
         }
 
         test("should publish egen regi-tiltak to sanity") {
@@ -322,7 +322,7 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(arenaDbo)
 
             val avbrutt = database.run {
-                session.single(Query("select avsluttet_tidspunkt, avbrutt_aarsak from tiltaksgjennomforing where id = '${gjennomforing1.id}'")) {
+                session.single(Query("select avsluttet_tidspunkt, avbrutt_aarsak from gjennomforing where id = '${gjennomforing1.id}'")) {
                     it.localDateTime("avsluttet_tidspunkt") to it.string("avbrutt_aarsak")
                 }
             }

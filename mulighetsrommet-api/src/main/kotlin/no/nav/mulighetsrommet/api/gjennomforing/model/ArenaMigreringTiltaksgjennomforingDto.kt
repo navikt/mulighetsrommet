@@ -34,20 +34,20 @@ data class ArenaMigreringTiltaksgjennomforingDto(
 ) {
     companion object {
         fun from(
-            tiltaksgjennomforing: GjennomforingDto,
+            gjennomforing: GjennomforingDto,
             arenaId: Int?,
             endretTidspunkt: LocalDateTime,
         ): ArenaMigreringTiltaksgjennomforingDto {
-            val enhetsnummer = if (tiltaksgjennomforing.opphav == ArenaMigrering.Opphav.ARENA) {
-                tiltaksgjennomforing.arenaAnsvarligEnhet?.enhetsnummer
+            val enhetsnummer = if (gjennomforing.opphav == ArenaMigrering.Opphav.ARENA) {
+                gjennomforing.arenaAnsvarligEnhet?.enhetsnummer
             } else {
-                tiltaksgjennomforing.navRegion?.enhetsnummer
+                gjennomforing.navRegion?.enhetsnummer
             }
             requireNotNull(enhetsnummer) {
                 "navRegion or arenaAnsvarligEnhet was null! Should not be possible!"
             }
 
-            val status = when (tiltaksgjennomforing.status.status) {
+            val status = when (gjennomforing.status.status) {
                 GjennomforingStatus.GJENNOMFORES -> ArenaTiltaksgjennomforingStatus.GJENNOMFORES
                 GjennomforingStatus.AVSLUTTET -> ArenaTiltaksgjennomforingStatus.AVSLUTTET
                 GjennomforingStatus.AVBRUTT -> ArenaTiltaksgjennomforingStatus.AVBRUTT
@@ -55,20 +55,20 @@ data class ArenaMigreringTiltaksgjennomforingDto(
             }
 
             return ArenaMigreringTiltaksgjennomforingDto(
-                id = tiltaksgjennomforing.id,
-                tiltakskode = tiltaksgjennomforing.tiltakstype.tiltakskode.toArenaKode(),
-                startDato = tiltaksgjennomforing.startDato,
-                sluttDato = tiltaksgjennomforing.sluttDato,
-                opprettetTidspunkt = tiltaksgjennomforing.createdAt,
+                id = gjennomforing.id,
+                tiltakskode = gjennomforing.tiltakstype.tiltakskode.toArenaKode(),
+                startDato = gjennomforing.startDato,
+                sluttDato = gjennomforing.sluttDato,
+                opprettetTidspunkt = gjennomforing.createdAt,
                 endretTidspunkt = endretTidspunkt,
-                navn = tiltaksgjennomforing.navn,
-                orgnummer = tiltaksgjennomforing.arrangor.organisasjonsnummer.value,
-                antallPlasser = tiltaksgjennomforing.antallPlasser,
+                navn = gjennomforing.navn,
+                orgnummer = gjennomforing.arrangor.organisasjonsnummer.value,
+                antallPlasser = gjennomforing.antallPlasser,
                 status = status,
                 arenaId = arenaId,
                 enhet = enhetsnummer,
-                apentForInnsok = tiltaksgjennomforing.apentForPamelding,
-                deltidsprosent = tiltaksgjennomforing.deltidsprosent,
+                apentForInnsok = gjennomforing.apentForPamelding,
+                deltidsprosent = gjennomforing.deltidsprosent,
             )
         }
     }

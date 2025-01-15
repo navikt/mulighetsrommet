@@ -33,10 +33,10 @@ import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingQueries(private val session: Session) {
-    fun upsert(tiltaksgjennomforing: GjennomforingDbo) = withTransaction(session) {
+    fun upsert(gjennomforing: GjennomforingDbo) = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (
+            insert into gjennomforing (
                 id,
                 navn,
                 tiltakstype_id,
@@ -65,7 +65,7 @@ class TiltaksgjennomforingQueries(private val session: Session) {
                 :slutt_dato,
                 :antall_plasser,
                 :avtale_id,
-                :oppstart::tiltaksgjennomforing_oppstartstype,
+                :oppstart::gjennomforing_oppstartstype,
                 :opphav::opphav,
                 :sted_for_gjennomforing,
                 :faneinnhold::jsonb,
@@ -85,7 +85,7 @@ class TiltaksgjennomforingQueries(private val session: Session) {
                 antall_plasser                     = excluded.antall_plasser,
                 avtale_id                          = excluded.avtale_id,
                 oppstart                           = excluded.oppstart,
-                opphav                             = coalesce(tiltaksgjennomforing.opphav, excluded.opphav),
+                opphav                             = coalesce(gjennomforing.opphav, excluded.opphav),
                 sted_for_gjennomforing             = excluded.sted_for_gjennomforing,
                 faneinnhold                        = excluded.faneinnhold,
                 beskrivelse                        = excluded.beskrivelse,
@@ -98,117 +98,117 @@ class TiltaksgjennomforingQueries(private val session: Session) {
 
         @Language("PostgreSQL")
         val upsertEnhet = """
-             insert into tiltaksgjennomforing_nav_enhet (tiltaksgjennomforing_id, enhetsnummer)
+             insert into gjennomforing_nav_enhet (gjennomforing_id, enhetsnummer)
              values (:id::uuid, :enhet_id)
-             on conflict (tiltaksgjennomforing_id, enhetsnummer) do nothing
+             on conflict (gjennomforing_id, enhetsnummer) do nothing
         """.trimIndent()
 
         @Language("PostgreSQL")
         val deleteEnheter = """
-             delete from tiltaksgjennomforing_nav_enhet
-             where tiltaksgjennomforing_id = ?::uuid and not (enhetsnummer = any (?))
+             delete from gjennomforing_nav_enhet
+             where gjennomforing_id = ?::uuid and not (enhetsnummer = any (?))
         """.trimIndent()
 
         @Language("PostgreSQL")
         val upsertAdministrator = """
-             insert into tiltaksgjennomforing_administrator (tiltaksgjennomforing_id, nav_ident)
+             insert into gjennomforing_administrator (gjennomforing_id, nav_ident)
              values (:id::uuid, :nav_ident)
-             on conflict (tiltaksgjennomforing_id, nav_ident) do nothing
+             on conflict (gjennomforing_id, nav_ident) do nothing
         """.trimIndent()
 
         @Language("PostgreSQL")
         val deleteAdministratorer = """
-             delete from tiltaksgjennomforing_administrator
-             where tiltaksgjennomforing_id = ?::uuid and not (nav_ident = any (?))
+             delete from gjennomforing_administrator
+             where gjennomforing_id = ?::uuid and not (nav_ident = any (?))
         """.trimIndent()
 
         @Language("PostgreSQL")
         val upsertKontaktperson = """
-            insert into tiltaksgjennomforing_kontaktperson (
-                tiltaksgjennomforing_id,
+            insert into gjennomforing_kontaktperson (
+                gjennomforing_id,
                 enheter,
                 kontaktperson_nav_ident,
                 beskrivelse
             )
             values (:id::uuid, :enheter, :nav_ident, :beskrivelse)
-            on conflict (tiltaksgjennomforing_id, kontaktperson_nav_ident) do update set
+            on conflict (gjennomforing_id, kontaktperson_nav_ident) do update set
                 enheter = :enheter,
                 beskrivelse = :beskrivelse
         """.trimIndent()
 
         @Language("PostgreSQL")
         val deleteKontaktpersoner = """
-            delete from tiltaksgjennomforing_kontaktperson
-            where tiltaksgjennomforing_id = ?::uuid and not (kontaktperson_nav_ident = any (?))
+            delete from gjennomforing_kontaktperson
+            where gjennomforing_id = ?::uuid and not (kontaktperson_nav_ident = any (?))
         """.trimIndent()
 
         @Language("PostgreSQL")
         val upsertArrangorKontaktperson = """
-            insert into tiltaksgjennomforing_arrangor_kontaktperson (
+            insert into gjennomforing_arrangor_kontaktperson (
                 arrangor_kontaktperson_id,
-                tiltaksgjennomforing_id
+                gjennomforing_id
             )
-            values (:arrangor_kontaktperson_id::uuid, :tiltaksgjennomforing_id::uuid)
+            values (:arrangor_kontaktperson_id::uuid, :gjennomforing_id::uuid)
             on conflict do nothing
         """.trimIndent()
 
         @Language("PostgreSQL")
         val deleteArrangorKontaktpersoner = """
-            delete from tiltaksgjennomforing_arrangor_kontaktperson
-            where tiltaksgjennomforing_id = ?::uuid and not (arrangor_kontaktperson_id = any (?))
+            delete from gjennomforing_arrangor_kontaktperson
+            where gjennomforing_id = ?::uuid and not (arrangor_kontaktperson_id = any (?))
         """.trimIndent()
 
         @Language("PostgreSQL")
         val deleteUtdanningslop = """
-            delete from tiltaksgjennomforing_utdanningsprogram
-            where tiltaksgjennomforing_id = ?::uuid
+            delete from gjennomforing_utdanningsprogram
+            where gjennomforing_id = ?::uuid
         """.trimIndent()
 
         @Language("PostgreSQL")
         val insertUtdanningslop = """
-            insert into tiltaksgjennomforing_utdanningsprogram(
-                tiltaksgjennomforing_id,
+            insert into gjennomforing_utdanningsprogram(
+                gjennomforing_id,
                 utdanning_id,
                 utdanningsprogram_id
             )
-            values(:tiltaksgjennomforing_id::uuid, :utdanning_id::uuid, :utdanningsprogram_id::uuid)
+            values(:gjennomforing_id::uuid, :utdanning_id::uuid, :utdanningsprogram_id::uuid)
         """.trimIndent()
 
-        execute(queryOf(query, tiltaksgjennomforing.toSqlParameters()))
+        execute(queryOf(query, gjennomforing.toSqlParameters()))
 
         batchPreparedNamedStatement(
             upsertAdministrator,
-            tiltaksgjennomforing.administratorer.map { administrator ->
-                mapOf("id" to tiltaksgjennomforing.id, "nav_ident" to administrator.value)
+            gjennomforing.administratorer.map { administrator ->
+                mapOf("id" to gjennomforing.id, "nav_ident" to administrator.value)
             },
         )
 
         execute(
             queryOf(
                 deleteAdministratorer,
-                tiltaksgjennomforing.id,
-                tiltaksgjennomforing.administratorer.map { it.value }.let { createTextArray(it) },
+                gjennomforing.id,
+                gjennomforing.administratorer.map { it.value }.let { createTextArray(it) },
             ),
         )
 
         batchPreparedNamedStatement(
             upsertEnhet,
-            tiltaksgjennomforing.navEnheter.map { enhetId ->
-                mapOf("id" to tiltaksgjennomforing.id, "enhet_id" to enhetId)
+            gjennomforing.navEnheter.map { enhetId ->
+                mapOf("id" to gjennomforing.id, "enhet_id" to enhetId)
             },
         )
 
         execute(
             queryOf(
                 deleteEnheter,
-                tiltaksgjennomforing.id,
-                createTextArray(tiltaksgjennomforing.navEnheter),
+                gjennomforing.id,
+                createTextArray(gjennomforing.navEnheter),
             ),
         )
 
-        val kontaktpersoner = tiltaksgjennomforing.kontaktpersoner.map { kontakt ->
+        val kontaktpersoner = gjennomforing.kontaktpersoner.map { kontakt ->
             mapOf(
-                "id" to tiltaksgjennomforing.id,
+                "id" to gjennomforing.id,
                 "enheter" to createTextArray(kontakt.navEnheter),
                 "nav_ident" to kontakt.navIdent.value,
                 "beskrivelse" to kontakt.beskrivelse,
@@ -219,14 +219,14 @@ class TiltaksgjennomforingQueries(private val session: Session) {
         execute(
             queryOf(
                 deleteKontaktpersoner,
-                tiltaksgjennomforing.id,
-                tiltaksgjennomforing.kontaktpersoner.map { it.navIdent.value }.let { createTextArray(it) },
+                gjennomforing.id,
+                gjennomforing.kontaktpersoner.map { it.navIdent.value }.let { createTextArray(it) },
             ),
         )
 
-        val arrangorKontaktpersoner = tiltaksgjennomforing.arrangorKontaktpersoner.map { person ->
+        val arrangorKontaktpersoner = gjennomforing.arrangorKontaktpersoner.map { person ->
             mapOf(
-                "tiltaksgjennomforing_id" to tiltaksgjennomforing.id,
+                "gjennomforing_id" to gjennomforing.id,
                 "arrangor_kontaktperson_id" to person,
             )
         }
@@ -235,19 +235,19 @@ class TiltaksgjennomforingQueries(private val session: Session) {
         execute(
             queryOf(
                 deleteArrangorKontaktpersoner,
-                tiltaksgjennomforing.id,
-                createUuidArray(tiltaksgjennomforing.arrangorKontaktpersoner),
+                gjennomforing.id,
+                createUuidArray(gjennomforing.arrangorKontaktpersoner),
             ),
         )
 
-        AmoKategoriseringQueries(this).upsert(tiltaksgjennomforing)
+        AmoKategoriseringQueries(this).upsert(gjennomforing)
 
-        execute(queryOf(deleteUtdanningslop, tiltaksgjennomforing.id))
+        execute(queryOf(deleteUtdanningslop, gjennomforing.id))
 
-        tiltaksgjennomforing.utdanningslop?.also { utdanningslop ->
+        gjennomforing.utdanningslop?.also { utdanningslop ->
             val utdanninger = utdanningslop.utdanninger.map {
                 mapOf(
-                    "tiltaksgjennomforing_id" to tiltaksgjennomforing.id,
+                    "gjennomforing_id" to gjennomforing.id,
                     "utdanningsprogram_id" to utdanningslop.utdanningsprogram,
                     "utdanning_id" to it,
                 )
@@ -259,7 +259,7 @@ class TiltaksgjennomforingQueries(private val session: Session) {
     fun updateArenaData(id: UUID, tiltaksnummer: String, arenaAnsvarligEnhet: String?) = with(session) {
         @Language("PostgreSQL")
         val query = """
-            update tiltaksgjennomforing set
+            update gjennomforing set
                 tiltaksnummer = :tiltaksnummer, arena_ansvarlig_enhet = :arena_ansvarlig_enhet
             where id = :id::uuid
         """.trimIndent()
@@ -273,7 +273,7 @@ class TiltaksgjennomforingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from tiltaksgjennomforing_admin_dto_view
+            from gjennomforing_admin_dto_view
             where id = ?::uuid
         """.trimIndent()
 
@@ -283,7 +283,7 @@ class TiltaksgjennomforingQueries(private val session: Session) {
     fun getUpdatedAt(id: UUID): LocalDateTime? = with(session) {
         @Language("PostgreSQL")
         val query = """
-            select updated_at from tiltaksgjennomforing where id = ?::uuid
+            select updated_at from gjennomforing where id = ?::uuid
         """.trimIndent()
 
         return single(queryOf(query, id)) { it.localDateTimeOrNull("updated_at") }
@@ -340,7 +340,7 @@ class TiltaksgjennomforingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *, count(*) over () as total_count
-            from tiltaksgjennomforing_admin_dto_view
+            from gjennomforing_admin_dto_view
             where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any(:tiltakstype_ids))
               and (:avtale_id::uuid is null or avtale_id = :avtale_id)
               and (:arrangor_ids::uuid[] is null or arrangor_id = any(:arrangor_ids))
@@ -371,7 +371,7 @@ class TiltaksgjennomforingQueries(private val session: Session) {
     fun getGjennomforesInPeriodeUtenRefusjonskrav(periode: RefusjonskravPeriode): List<GjennomforingDto> = with(session) {
         @Language("PostgreSQL")
         val query = """
-            select * from tiltaksgjennomforing_admin_dto_view
+            select * from gjennomforing_admin_dto_view
             where
                 (start_dato <= :periode_slutt) and
                 (slutt_dato >= :periode_start or slutt_dato is null) and
@@ -380,7 +380,7 @@ class TiltaksgjennomforingQueries(private val session: Session) {
                     select 1
                     from refusjonskrav
                         join refusjonskrav_beregning_aft ON refusjonskrav.id = refusjonskrav_beregning_aft.refusjonskrav_id
-                    where refusjonskrav.gjennomforing_id = tiltaksgjennomforing_admin_dto_view.id
+                    where refusjonskrav.gjennomforing_id = gjennomforing_admin_dto_view.id
                     and refusjonskrav_beregning_aft.periode && daterange(:periode_start, :periode_slutt)
                 );
         """.trimIndent()
@@ -393,7 +393,7 @@ class TiltaksgjennomforingQueries(private val session: Session) {
     fun delete(id: UUID): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
-            delete from tiltaksgjennomforing
+            delete from gjennomforing
             where id = ?::uuid
         """.trimIndent()
 
@@ -403,7 +403,7 @@ class TiltaksgjennomforingQueries(private val session: Session) {
     fun setOpphav(id: UUID, opphav: ArenaMigrering.Opphav): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
-            update tiltaksgjennomforing
+            update gjennomforing
             set opphav = ?::opphav
             where id = ?::uuid
         """.trimIndent()
@@ -414,7 +414,7 @@ class TiltaksgjennomforingQueries(private val session: Session) {
     fun setPublisert(id: UUID, publisert: Boolean): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
-           update tiltaksgjennomforing
+           update gjennomforing
            set publisert = ?
            where id = ?::uuid
         """.trimIndent()
@@ -425,7 +425,7 @@ class TiltaksgjennomforingQueries(private val session: Session) {
     fun setApentForPamelding(id: UUID, apentForPamelding: Boolean): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
-           update tiltaksgjennomforing
+           update gjennomforing
            set apent_for_pamelding = ?
            where id = ?::uuid
         """.trimIndent()
@@ -436,7 +436,7 @@ class TiltaksgjennomforingQueries(private val session: Session) {
     fun setTilgjengeligForArrangorFraOgMedDato(id: UUID, date: LocalDate): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
-            update tiltaksgjennomforing
+            update gjennomforing
             set tilgjengelig_for_arrangor_fra_og_med_dato = ?
             where id = ?:uuid
         """.trimIndent()
@@ -447,7 +447,7 @@ class TiltaksgjennomforingQueries(private val session: Session) {
     fun setAvtaleId(gjennomforingId: UUID, avtaleId: UUID?): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
-            update tiltaksgjennomforing
+            update gjennomforing
             set avtale_id = ?
             where id = ?
         """.trimIndent()
@@ -458,7 +458,7 @@ class TiltaksgjennomforingQueries(private val session: Session) {
     fun setAvsluttet(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak?): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
-            update tiltaksgjennomforing
+            update gjennomforing
             set avsluttet_tidspunkt = :tidspunkt,
                 avbrutt_aarsak = :aarsak,
                 publisert = false,
@@ -475,8 +475,8 @@ class TiltaksgjennomforingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             delete
-            from tiltaksgjennomforing_arrangor_kontaktperson
-            where arrangor_kontaktperson_id = ?::uuid and tiltaksgjennomforing_id = ?::uuid
+            from gjennomforing_arrangor_kontaktperson
+            where arrangor_kontaktperson_id = ?::uuid and gjennomforing_id = ?::uuid
         """.trimIndent()
 
         update(queryOf(query, kontaktpersonId, gjennomforingId))

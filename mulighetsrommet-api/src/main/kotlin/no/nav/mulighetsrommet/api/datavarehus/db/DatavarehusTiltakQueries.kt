@@ -35,7 +35,7 @@ class DatavarehusTiltakQueries(private val session: Session) {
                    avtale.created_at            as avtale_opprettet_tidspunkt,
                    avtale.updated_at            as avtale_oppdatert_tidspunkt,
                    arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
-            from tiltaksgjennomforing gjennomforing
+            from gjennomforing gjennomforing
                      join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
                      left join avtale on gjennomforing.avtale_id = avtale.id
                      join arrangor on gjennomforing.arrangor_id = arrangor.id
@@ -78,9 +78,9 @@ class DatavarehusTiltakQueries(private val session: Session) {
                    program.created_at as opprettet_tidspunkt,
                    program.updated_at as oppdatert_tidspunkt,
                    program.nus_koder
-            from tiltaksgjennomforing_utdanningsprogram
+            from gjennomforing_utdanningsprogram
                     join utdanningsprogram program on utdanningsprogram_id = program.id
-            where tiltaksgjennomforing_id = ?
+            where gjennomforing_id = ?
             group by program.id
         """.trimIndent()
 
@@ -106,9 +106,9 @@ class DatavarehusTiltakQueries(private val session: Session) {
                    utdanning.created_at as opprettet_tidspunkt,
                    utdanning.updated_at as oppdatert_tidspunkt,
                    utdanning.nus_koder
-            from tiltaksgjennomforing_utdanningsprogram
-                    join utdanning on tiltaksgjennomforing_utdanningsprogram.utdanning_id = utdanning.id
-            where tiltaksgjennomforing_id = ?
+            from gjennomforing_utdanningsprogram
+                    join utdanning on gjennomforing_utdanningsprogram.utdanning_id = utdanning.id
+            where gjennomforing_id = ?
             group by utdanning.id;
         """.trimIndent()
 
@@ -131,9 +131,9 @@ class DatavarehusTiltakQueries(private val session: Session) {
         val sertifiseringQuery = """
             select s.label,
                    s.konsept_id
-            from tiltaksgjennomforing_amo_kategorisering_sertifisering k
+            from gjennomforing_amo_kategorisering_sertifisering k
                      join amo_sertifisering s on k.konsept_id = s.konsept_id
-            where k.tiltaksgjennomforing_id = ?
+            where k.gjennomforing_id = ?
         """.trimIndent()
 
         val sertifiseringer = list(queryOf(sertifiseringQuery, id)) {
@@ -150,8 +150,8 @@ class DatavarehusTiltakQueries(private val session: Session) {
                    forerkort,
                    norskprove,
                    innhold_elementer
-            from tiltaksgjennomforing_amo_kategorisering
-            where tiltaksgjennomforing_id = ?
+            from gjennomforing_amo_kategorisering
+            where gjennomforing_id = ?
         """.trimIndent()
 
         return single(queryOf(amoKategoriseringQuery, id)) { it.toAmoKategorisering(sertifiseringer) }

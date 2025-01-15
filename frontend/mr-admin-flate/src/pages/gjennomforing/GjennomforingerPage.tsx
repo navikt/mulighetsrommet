@@ -22,8 +22,8 @@ export function GjennomforingerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
   const [filter, setFilter] = useAtom(gjennomforingfilterAtom);
-  const { data: lagredeFilter = [] } = useLagredeFilter(LagretDokumenttype.TILTAKSGJENNOMFØRING);
-  const deleteFilterMutation = useSlettFilter(LagretDokumenttype.TILTAKSGJENNOMFØRING);
+  const { data: lagredeFilter = [] } = useLagredeFilter(LagretDokumenttype.GJENNOMFORING);
+  const deleteFilterMutation = useSlettFilter(LagretDokumenttype.GJENNOMFORING);
 
   return (
     <>

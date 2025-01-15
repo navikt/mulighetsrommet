@@ -117,7 +117,7 @@ class TiltakstypeQueries(private val session: Session) {
         val query = """
             select t.*
             from tiltakstype_admin_dto_view t
-            join tiltaksgjennomforing g on g.tiltakstype_id = t.id
+            join gjennomforing g on g.tiltakstype_id = t.id
             where g.id = ?::uuid
         """.trimIndent()
 

@@ -36,7 +36,7 @@ class AmoKategoriseringQueries(private val session: Session) {
     private fun upsert(amoKategorisering: AmoKategorisering, foreignId: UUID, foreignIdType: ForeignIdType) = with(session) {
         val foreignName = when (foreignIdType) {
             ForeignIdType.AVTALE -> "avtale"
-            ForeignIdType.GJENNOMFORING -> "tiltaksgjennomforing"
+            ForeignIdType.GJENNOMFORING -> "gjennomforing"
         }
 
         @Language("PostgreSQL")
@@ -119,7 +119,7 @@ class AmoKategoriseringQueries(private val session: Session) {
     private fun delete(foreignId: UUID, foreignIdType: ForeignIdType) = with(session) {
         val foreignName = when (foreignIdType) {
             ForeignIdType.AVTALE -> "avtale"
-            ForeignIdType.GJENNOMFORING -> "tiltaksgjennomforing"
+            ForeignIdType.GJENNOMFORING -> "gjennomforing"
         }
 
         @Language("PostgreSQL")
