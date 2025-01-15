@@ -6,7 +6,8 @@ import {
   SANITY_STUDIO_URL,
 } from "@/constants";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
-import { ExternalLinkIcon, MenuGridIcon } from "@navikt/aksel-icons";
+import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
+import { MenuGridIcon } from "@navikt/aksel-icons";
 import { Dropdown, InternalHeader, Spacer } from "@navikt/ds-react";
 import { useRef } from "react";
 import { Link } from "react-router";
@@ -92,29 +93,29 @@ export function AdministratorHeader() {
               as="span"
               onClick={() => individuelleGjennomforingerLinkRef.current?.click()}
             >
-              <Link
-                ref={individuelleGjennomforingerLinkRef}
+              <Lenke
                 to={SANITY_STUDIO_URL}
                 target="_blank"
                 onClick={(e) => e.stopPropagation()}
                 className={styles.menylenke}
+                isExternal
               >
-                Individuelle tiltaksgjennomføringer <ExternalLinkIcon />
-              </Link>
+                Individuelle tiltaksgjennomføringer
+              </Lenke>
             </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.GroupedList.Item
               onClick={() => veilederflateLinkRef.current?.click()}
               as="span"
             >
-              <Link
-                ref={veilederflateLinkRef}
+              <Lenke
                 to={PREVIEW_ARBEIDSMARKEDSTILTAK_URL}
                 target="_blank"
                 onClick={(e) => e.stopPropagation()}
                 className={styles.menylenke}
+                isExternal
               >
-                Veilederflate forhåndsvisning <ExternalLinkIcon />
-              </Link>
+                Veilederflate forhåndsvisning
+              </Lenke>
             </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.Divider />
             <Dropdown.Menu.GroupedList.Item

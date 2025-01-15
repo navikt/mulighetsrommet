@@ -1,7 +1,7 @@
-import { TEAMS_DYPLENKE } from "@mr/frontend-common/constants";
 import { GjennomforingKontaktperson } from "@mr/api-client";
+import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
+import { TEAMS_DYPLENKE } from "@mr/frontend-common/constants";
 import { BodyShort, VStack } from "@navikt/ds-react";
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
 
 interface Props {
   kontaktperson: GjennomforingKontaktperson;
@@ -17,8 +17,9 @@ export function Kontaktperson({ kontaktperson }: Props) {
       <BodyShort>{kontaktperson.mobilnummer}</BodyShort>
       <BodyShort className="flex gap-1.5">
         Kontakt via Teams:{" "}
-        <a href={`${TEAMS_DYPLENKE}${kontaktperson.epost}`}>{kontaktperson.epost}</a>{" "}
-        <ExternalLinkIcon aria-label="Åpner direktemelding i Teams" />
+        <Lenke isExternal to={`${TEAMS_DYPLENKE}${kontaktperson.epost}`}>
+          {kontaktperson.epost}
+        </Lenke>
       </BodyShort>
     </VStack>
   );

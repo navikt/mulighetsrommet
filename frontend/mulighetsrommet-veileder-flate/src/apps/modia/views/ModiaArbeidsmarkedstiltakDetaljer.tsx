@@ -141,9 +141,14 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
             )}
 
             {dialogRoute && brukerdata.erUnderOppfolging && (
-              <Button size="small" variant="tertiary" onClick={dialogRoute.navigate}>
+              <Button
+                className="flex"
+                size="small"
+                variant="tertiary"
+                onClick={dialogRoute.navigate}
+              >
                 Åpne i dialogen
-                <Chat2Icon aria-label="Åpne i dialogen" />
+                <Chat2Icon className="inline-flex" aria-label="Åpne i dialogen" />
               </Button>
             )}
 

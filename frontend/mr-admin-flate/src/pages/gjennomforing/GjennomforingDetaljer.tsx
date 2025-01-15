@@ -3,23 +3,23 @@ import { usePollTiltaksnummer } from "@/api/gjennomforing/usePollTiltaksnummer";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
-import { Laster } from "@/components/laster/Laster";
-import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { NokkeltallDeltakere } from "@/components/gjennomforing/NokkeltallDeltakere";
 import { TiltakTilgjengeligForArrangor } from "@/components/gjennomforing/TilgjengeligTiltakForArrangor";
+import { Laster } from "@/components/laster/Laster";
+import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
+import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { Kontaktperson } from "@/pages/gjennomforing/Kontaktperson";
 import { formaterDato, formatertVentetid } from "@/utils/Utils";
 import { AvtaleDto, GjennomforingDto, GjennomforingOppstartstype } from "@mr/api-client";
 import { useTitle } from "@mr/frontend-common";
+import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { isKursTiltak } from "@mr/frontend-common/utils/utils";
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { BodyShort, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
 import { Link } from "react-router";
 import styles from "./GjennomforingDetaljer.module.scss";
-import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -169,15 +169,15 @@ export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
                     {administratorer.map((admin) => {
                       return (
                         <li key={admin.navIdent}>
-                          <a
+                          <Lenke
                             target="_blank"
                             rel="noopener noreferrer"
-                            href={`${NOM_ANSATT_SIDE}${admin?.navIdent}`}
+                            to={`${NOM_ANSATT_SIDE}${admin?.navIdent}`}
+                            isExternal
                             className="flex gap-1.5"
                           >
                             {`${admin?.navn} - ${admin?.navIdent}`}{" "}
-                            <ExternalLinkIcon aria-label="Ekstern lenke" />
-                          </a>
+                          </Lenke>
                         </li>
                       );
                     })}
