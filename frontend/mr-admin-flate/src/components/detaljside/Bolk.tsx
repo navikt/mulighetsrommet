@@ -1,10 +1,8 @@
 import { ReactNode } from "react";
-import styles from "./Bolk.module.scss";
-import classNames from "classnames";
 
-export function Bolk({ children, classez, ...rest }: { children: ReactNode; classez?: string }) {
+export function Bolk({ children, ...rest }: { children: ReactNode }) {
   return (
-    <dl className={classNames(styles.bolk, classez)} {...rest}>
+    <dl className="grid grid-cols-2 gap-12 my-4" {...rest}>
       {children}
     </dl>
   );
