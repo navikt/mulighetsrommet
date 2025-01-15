@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 import styles from "./Feilmelding.module.scss";
-import svgStyle from "../../App.module.scss";
 import { BodyShort, Heading } from "@navikt/ds-react";
 import classNames from "classnames";
 import {
@@ -27,17 +26,14 @@ export function Feilmelding({
   const ikon = () => {
     if (ikonvariant === "info") {
       return (
-        <InformationSquareFillIcon aria-label="Informasjons-ikon" className={svgStyle.svg_info} />
+        <InformationSquareFillIcon aria-label="Informasjons-ikon" className="text-lightblue-700" />
       );
     } else if (ikonvariant === "warning") {
       return (
-        <ExclamationmarkTriangleFillIcon
-          aria-label="Varsel-ikon"
-          className={svgStyle.svg_warning}
-        />
+        <ExclamationmarkTriangleFillIcon aria-label="Varsel-ikon" className="text-orange-600" />
       );
     } else if (ikonvariant === "error") {
-      return <XMarkOctagonFillIcon aria-label="Feilmelding-ikon" className={svgStyle.svg_error} />;
+      return <XMarkOctagonFillIcon aria-label="Feilmelding-ikon" className="text-nav-red" />;
     }
   };
 
