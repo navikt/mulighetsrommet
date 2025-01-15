@@ -28,7 +28,7 @@ export function AvtaleInfo() {
     <div data-testid="avtale_info-container">
       <WhitePaddedBox data-testid="avtale_info-container">
         <Tabs defaultValue={activeTab}>
-          <Tabs.List className={styles.tabslist}>
+          <Tabs.List className="flex flex-row justify-between">
             <div>
               <Tabs.Tab
                 label="Detaljer"

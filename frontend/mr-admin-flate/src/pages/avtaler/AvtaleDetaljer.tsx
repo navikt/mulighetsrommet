@@ -18,7 +18,6 @@ import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
 import { Fragment } from "react";
 import { Link } from "react-router";
-import styles from "./AvtaleDetaljer.module.scss";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
@@ -188,7 +187,7 @@ export function AvtaleDetaljer() {
                   <Metadata
                     header={avtaletekster.navEnheterLabel}
                     verdi={
-                      <ul className={styles.two_columns}>
+                      <ul className="columns-2">
                         {struktur.kontorer.map((kontor) => (
                           <li key={kontor.enhetsnummer}>{kontor.navn}</li>
                         ))}
