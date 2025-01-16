@@ -1,5 +1,5 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { LagretDokumenttype, LagretFilter } from "@mr/api-client";
+import { LagretDokumenttype, LagretFilter } from "@mr/api-client-v2";
 
 export const lagretFilterHandlers = [
   http.get<PathParams, LagretFilter[] | undefined>(

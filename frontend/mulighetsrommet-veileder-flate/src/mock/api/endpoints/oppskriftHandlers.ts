@@ -1,5 +1,5 @@
 import { HttpResponse, PathParams, http } from "msw";
-import { Oppskrift } from "@mr/api-client";
+import { Oppskrift } from "@mr/api-client-v2";
 import { mockOppskrifter } from "../../fixtures/mockOppskrifter";
 
 export const oppskriftHandlers = [

@@ -22,7 +22,7 @@ interface Props {
 
 export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) {
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
-  const innsatsgrupper = useInnsatsgrupper();
+  const { data: innsatsgrupper } = useInnsatsgrupper();
 
   const [oppskriftId, setOppskriftId] = useState<string | undefined>(undefined);
 
@@ -60,7 +60,7 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
                   ) : null}
                 </Tabs.List>
                 <Tabs.Panel value="info">
-                  <SidemenyInfo tiltak={tiltak} innsatsgrupper={innsatsgrupper.data} />
+                  <SidemenyInfo tiltak={tiltak} innsatsgrupper={innsatsgrupper ?? []} />
                 </Tabs.Panel>
                 {harKombinasjon ? (
                   <Tabs.Panel value="kombineres">

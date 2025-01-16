@@ -61,7 +61,7 @@ export function Filtermeny() {
             <NavEnhetFilter
               navEnheter={filter.navEnheter}
               setNavEnheter={(navEnheter: NavEnhet[]) => setFilter({ ...filter, navEnheter })}
-              regioner={regioner}
+              regioner={regioner ?? []}
             />
           </Accordion.Content>
         </Accordion.Item>

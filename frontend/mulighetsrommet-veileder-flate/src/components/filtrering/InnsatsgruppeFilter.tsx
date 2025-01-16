@@ -1,4 +1,4 @@
-import { Accordion, Alert, HelpText, Radio, RadioGroup } from "@navikt/ds-react";
+import { Accordion, HelpText, Radio, RadioGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Innsatsgruppe, VeilederflateInnsatsgruppe } from "@mr/api-client";
 import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
@@ -30,7 +30,6 @@ export function InnsatsgruppeFilter() {
       value={filter.innsatsgruppe?.nokkel}
       onChange={onChange}
       options={innsatsgrupper.data ?? []}
-      isError={innsatsgrupper.isError}
     />
   );
 }
@@ -39,15 +38,9 @@ interface InnsatsgruppeAccordionProps {
   value?: Innsatsgruppe;
   onChange: (type: Innsatsgruppe) => void;
   options: VeilederflateInnsatsgruppe[];
-  isError: boolean;
 }
 
-function InnsatsgruppeAccordion({
-  value,
-  onChange,
-  options,
-  isError,
-}: InnsatsgruppeAccordionProps) {
+function InnsatsgruppeAccordion({ value, onChange, options }: InnsatsgruppeAccordionProps) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
 
   return (
@@ -99,7 +92,6 @@ function InnsatsgruppeAccordion({
             })}
           </RadioGroup>
         )}
-        {isError && <Alert variant="error">Det har skjedd en feil</Alert>}
       </Accordion.Content>
     </Accordion.Item>
   );

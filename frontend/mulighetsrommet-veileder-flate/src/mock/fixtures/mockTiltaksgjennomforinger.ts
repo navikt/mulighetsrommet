@@ -7,7 +7,7 @@ import {
   VeilederflateTiltak,
   VeilederflateTiltakEnkeltplass,
   VeilederflateTiltakGruppe,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { mockTiltakstyper } from "./mockTiltakstyper";
 
 export const tiltakAvklaring: VeilederflateTiltakGruppe = {

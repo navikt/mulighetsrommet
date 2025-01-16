@@ -1,13 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQueryWrapper } from "@/hooks/useQueryWrapper";
 import { QueryKeys } from "../query-keys";
-import { NavEnheterService } from "@mr/api-client";
+import { NavEnheterService } from "@mr/api-client-v2";
 
 export function useOverordnetEnhet(enhetsnummer: string) {
-  return useQuery({
+  return useQueryWrapper({
     queryKey: QueryKeys.overordnetEnhet(enhetsnummer),
     queryFn: () =>
       NavEnheterService.getOverordnetEnhet({
-        enhetsnummer,
+        path: { enhetsnummer },
       }),
   });
 }

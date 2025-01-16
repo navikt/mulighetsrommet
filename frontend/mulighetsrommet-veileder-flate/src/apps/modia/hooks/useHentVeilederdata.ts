@@ -1,9 +1,9 @@
 import { QueryKeys } from "@/api/query-keys";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { VeilederService } from "@mr/api-client";
+import { useSuspenseQueryWrapper } from "@/hooks/useQueryWrapper";
+import { VeilederService } from "@mr/api-client-v2";
 
 export function useHentVeilederdata() {
-  return useSuspenseQuery({
+  return useSuspenseQueryWrapper({
     queryKey: [QueryKeys.Veilederdata],
     queryFn: () => VeilederService.getVeileder(),
   });

@@ -1,4 +1,4 @@
-import { DelMedBruker } from "@mr/api-client";
+import { DelMedBruker } from "@mr/api-client-v2";
 import { tiltakAmoGruppe, tiltakAvklaring } from "./mockTiltaksgjennomforinger";
 
 export const mockDeltMedBruker: DelMedBruker[] = [

@@ -1,17 +1,17 @@
-import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "../query-keys";
 import {
   isFilterReady,
   useArbeidsmarkedstiltakFilterValue,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { NavEnhet, VeilederTiltakService } from "@mr/api-client";
+import { useQueryWrapper } from "@/hooks/useQueryWrapper";
+import { NavEnhet, VeilederTiltakService } from "@mr/api-client-v2";
 
 export function useModiaArbeidsmarkedstiltak() {
   const { isFilterReady, filter } = useGetArbeidsmarkedstiltakFilterAsQuery();
 
-  return useQuery({
+  return useQueryWrapper({
     queryKey: QueryKeys.arbeidsmarkedstiltak.tiltak(filter),
-    queryFn: () => VeilederTiltakService.getAllVeilederTiltak(filter),
+    queryFn: () => VeilederTiltakService.getAllVeilederTiltak({ query: filter }),
     enabled: isFilterReady,
   });
 }
@@ -19,12 +19,12 @@ export function useModiaArbeidsmarkedstiltak() {
 export function useNavArbeidsmarkedstiltak({ preview }: { preview: boolean }) {
   const { isFilterReady, filter } = useGetArbeidsmarkedstiltakFilterAsQuery();
 
-  return useQuery({
+  return useQueryWrapper({
     queryKey: QueryKeys.arbeidsmarkedstiltak.tiltak({ ...filter, preview }),
     queryFn() {
       return preview
-        ? VeilederTiltakService.getAllPreviewTiltak(filter)
-        : VeilederTiltakService.getAllNavTiltak(filter);
+        ? VeilederTiltakService.getAllPreviewTiltak({ query: filter })
+        : VeilederTiltakService.getAllNavTiltak({ query: filter });
     },
     enabled: isFilterReady,
   });

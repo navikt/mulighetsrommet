@@ -46,18 +46,15 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   const { id } = params;
   if (!id) throw Error("Mangler id");
 
-  const { data: krav, error: errorKrav } = await ArrangorflateService.getRefusjonkrav({
+  const { data: krav } = await ArrangorflateService.getRefusjonkrav({
     path: { id },
     headers: await apiHeaders(request),
   });
-  const { data: relevanteForslag, error: errorForslag } =
+  const { data: relevanteForslag } =
     await ArrangorflateService.getRelevanteForslag({
       path: { id },
       headers: await apiHeaders(request),
     });
-  if (errorKrav || errorForslag || !krav || !relevanteForslag) {
-    throw errorKrav ?? errorForslag;
-  }
 
   return { krav, deltakerlisteUrl, relevanteForslag };
 };

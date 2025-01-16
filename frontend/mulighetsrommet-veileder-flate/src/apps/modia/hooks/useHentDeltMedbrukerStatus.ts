@@ -1,15 +1,19 @@
 import { QueryKeys } from "@/api/query-keys";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { DelMedBrukerService } from "@mr/api-client";
+import { DelMedBrukerService } from "@mr/api-client-v2";
+import { useQuery } from "@tanstack/react-query";
 
 export function useHentDeltMedBrukerStatus(norskIdent: string, gjennomforingId: string) {
-  const { data: delMedBrukerInfo } = useSuspenseQuery({
+  const { data: delMedBrukerInfo } = useQuery({
     queryKey: [...QueryKeys.DeltMedBrukerStatus, norskIdent, gjennomforingId],
     queryFn: async () => {
       const result = await DelMedBrukerService.getDelMedBruker({
-        requestBody: { norskIdent, tiltakId: gjennomforingId },
+        body: { norskIdent, tiltakId: gjennomforingId },
       });
-      return result || null; // Returner null hvis API returnerer 204 No Content = undefined;
+
+      if (Object.prototype.hasOwnProperty.call(result, "id")) {
+        return result.data;
+      }
+      return null; // Returner null hvis API returnerer 204 No Content = {};
     },
   });
 

@@ -1,13 +1,13 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { useModiaContext } from "./useModiaContext";
 import { QueryKeys } from "@/api/query-keys";
-import { Bruker, BrukerService } from "@mr/api-client";
+import { useSuspenseQueryWrapper } from "@/hooks/useQueryWrapper";
+import { BrukerService } from "@mr/api-client-v2";
 
 export function useHentBrukerdata() {
   const { fnr: norskIdent } = useModiaContext();
 
-  return useSuspenseQuery<Bruker>({
+  return useSuspenseQueryWrapper({
     queryKey: QueryKeys.Bruker(norskIdent),
-    queryFn: () => BrukerService.getBrukerdata({ requestBody: { norskIdent } }),
+    queryFn: () => BrukerService.getBrukerdata({ body: { norskIdent } }),
   });
 }

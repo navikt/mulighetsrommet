@@ -30,7 +30,7 @@
     "@emotion/cache": "11.14.0",
     "@emotion/react": "11.14.0",
     "@grafana/faro-web-sdk": "1.12.2",
-    "@mr/api-client": "workspace:*",
+    "@mr/api-client-v2": "workspace:*",
     "@mr/frontend-common": "workspace:*",
     "@navikt/aksel-icons": "7.9.1",
     "@navikt/ds-css": "7.9.1",

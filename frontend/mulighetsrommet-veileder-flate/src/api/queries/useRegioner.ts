@@ -1,9 +1,9 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { QueryKeys } from "../query-keys";
-import { NavEnheterService } from "@mr/api-client";
+import { NavEnheterService } from "@mr/api-client-v2";
+import { useSuspenseQueryWrapper } from "@/hooks/useQueryWrapper";
 
 export function useRegioner() {
-  return useSuspenseQuery({
+  return useSuspenseQueryWrapper({
     queryKey: QueryKeys.navRegioner,
     queryFn: () => {
       return NavEnheterService.getRegioner();

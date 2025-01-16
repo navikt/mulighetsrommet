@@ -587,9 +587,9 @@ importers:
       '@grafana/faro-web-sdk':
         specifier: 1.12.2
         version: 1.12.2
-      '@mr/api-client':
+      '@mr/api-client-v2':
         specifier: workspace:*
-        version: link:../api-client
+        version: link:../api-client-v2
       '@mr/frontend-common':
         specifier: workspace:*
         version: link:../frontend-common
@@ -2318,6 +2318,9 @@ packages:
     peerDependencies:
       '@types/react': '>=17.0.30'
       react: '>=17.0.0 || >19.0.0-rc'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@navikt/ds-tailwind@7.9.1':
     resolution: {integrity: sha512-Op7gIqp9RReWvuJ1vBZUlbXyuxcFV8MVyPD3rzq5ZNjJa4Xh4jnhZQWkq4ZsgcTTPbf0yiIQT0XJim27bdPSaQ==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.9.1/8fc6ad80ceef5ad936fb06191857b5e3c0f16d3e}
@@ -10406,11 +10409,12 @@ snapshots:
       '@floating-ui/react-dom': 2.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@navikt/aksel-icons': 7.9.1
       '@navikt/ds-tokens': 7.9.1
-      '@types/react': 18.3.12
       clsx: 2.1.1
       date-fns: 3.6.0
       react: 18.3.1
       react-day-picker: 8.10.1(date-fns@3.6.0)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.3.12
     transitivePeerDependencies:
       - react-dom
 
@@ -10420,11 +10424,12 @@ snapshots:
       '@floating-ui/react-dom': 2.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@navikt/aksel-icons': 7.9.1
       '@navikt/ds-tokens': 7.9.1
-      '@types/react': 18.3.13
       clsx: 2.1.1
       date-fns: 3.6.0
       react: 18.3.1
       react-day-picker: 8.10.1(date-fns@3.6.0)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.3.13
     transitivePeerDependencies:
       - react-dom
 

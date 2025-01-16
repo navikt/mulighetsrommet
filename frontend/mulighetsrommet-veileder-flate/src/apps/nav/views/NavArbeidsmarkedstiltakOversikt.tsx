@@ -16,7 +16,7 @@ import { LagredeFilterOversikt, LagreFilterButton, ListSkeleton } from "@mr/fron
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { HStack } from "@navikt/ds-react";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
 import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
@@ -45,7 +45,11 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
         buttons={null}
-        filter={<Filtermeny />}
+        filter={
+          <Suspense fallback={<div>loading...</div>}>
+            <Filtermeny />
+          </Suspense>
+        }
         tags={<NavFiltertags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
         nullstillFilterButton={
           filterHasChanged && (
@@ -61,7 +65,7 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
         }
         lagredeFilter={
           <LagredeFilterOversikt
-            deleteMutation={deleteFilterMutation}
+            onDelete={(id: string) => deleteFilterMutation.mutate(id)}
             lagredeFilter={lagredeFilter}
             filter={filter}
             setFilter={setFilter}

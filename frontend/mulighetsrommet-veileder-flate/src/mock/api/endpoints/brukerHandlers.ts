@@ -11,7 +11,7 @@ import {
   Innsatsgruppe,
   NavEnhetStatus,
   NavEnhetType,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { http, HttpResponse, PathParams } from "msw";
 import { deltakelserHistoriske } from "../../fixtures/mockDeltakelserHistoriske";
 

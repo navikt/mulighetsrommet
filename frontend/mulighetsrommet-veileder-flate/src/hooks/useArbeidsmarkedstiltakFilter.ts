@@ -1,4 +1,4 @@
-import { ApentForPamelding, Innsatsgruppe, NavEnhet } from "@mr/api-client";
+import { ApentForPamelding, Innsatsgruppe, NavEnhet } from "@mr/api-client-v2";
 import {
   atomWithStorage,
   createJSONStorage,
@@ -59,8 +59,8 @@ export function useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst() {
   const filterHasChanged =
     filter.search !== "" ||
     filter.apentForPamelding !== ApentForPamelding.APENT_ELLER_STENGT ||
-    filter.innsatsgruppe?.nokkel !== brukerdata.innsatsgruppe ||
-    brukersEnhetFilterHasChanged(filter, brukerdata) ||
+    filter.innsatsgruppe?.nokkel !== brukerdata?.innsatsgruppe ||
+    (brukerdata && brukersEnhetFilterHasChanged(filter, brukerdata)) ||
     filter.tiltakstyper.length > 0;
 
   return {
