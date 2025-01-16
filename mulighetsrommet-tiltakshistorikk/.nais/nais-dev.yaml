@@ -43,10 +43,10 @@ spec:
         - id: loki
   gcp:
     sqlInstances:
-      - type: POSTGRES_16
+      - type: POSTGRES_17
         tier: db-f1-micro
         databases:
-          - name: tiltakshistorikk
+          - name: tiltakshistorikk-v1
             envVarPrefix: DB
         flags:
           - name: max_connections
