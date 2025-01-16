@@ -15,7 +15,7 @@ app:
     producers:
       arenaMigreringTiltaksgjennomforinger:
         topic: team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1
-      tiltaksgjennomforinger:
+      gjennomforinger:
         topic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1
       tiltakstyper:
         topic: team-mulighetsrommet.siste-tiltakstyper-v2
@@ -26,7 +26,7 @@ app:
         consumerTopic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1
         producerTopic: team-mulighetsrommet.datavarehus-tiltak-v1
     consumers:
-      tiltaksgjennomforingerV1:
+      gjennomforingerV1:
         id: siste-tiltaksgjennomforinger
         topic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1
       amtDeltakerV1:
