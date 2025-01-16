@@ -38,7 +38,6 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { GjennomforingUtdanningslopForm } from "../utdanning/GjennomforingUtdanningslopForm";
 import { SelectOppstartstype } from "./SelectOppstartstype";
 import { GjennomforingArrangorSkjema } from "./GjennomforingArrangorSkjema";
-import styles from "./GjennomforingFormDetaljer.module.scss";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 
 interface Props {
@@ -244,7 +243,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
             </HGrid>
             {watch("oppstart") === GjennomforingOppstartstype.LOPENDE ? (
               <>
-                <fieldset className={styles.fieldset_no_styling}>
+                <fieldset className="border-none p-0 [&>legend]:font-bold [&>legend]:mb-2">
                   <HStack gap="1">
                     <legend>Estimert ventetid</legend>
                     <HelpText title="Hva er estimert ventetid?">
@@ -330,9 +329,12 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
               <div>
                 {kontaktpersonFields?.map((field, index) => {
                   return (
-                    <div className={styles.kontaktperson_container} key={field.id}>
+                    <div
+                      className="bg-surface-selected mt-4 p-2 relative border border-border-divider rounded"
+                      key={field.id}
+                    >
                       <Button
-                        className={styles.kontaktperson_fjern_button}
+                        className="p-0 float-right"
                         variant="tertiary"
                         size="small"
                         type="button"
@@ -340,7 +342,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
                       >
                         <XMarkIcon fontSize="1.5rem" />
                       </Button>
-                      <div className={styles.kontaktperson_inputs}>
+                      <div className="flex flex-col gap-4">
                         <SokEtterKontaktperson
                           index={index}
                           navEnheter={navEnheterOptions}

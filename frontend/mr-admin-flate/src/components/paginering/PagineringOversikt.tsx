@@ -1,5 +1,4 @@
 import { BodyShort, Select } from "@navikt/ds-react";
-import styles from "./Paginering.module.scss";
 
 interface Props {
   page: number;
@@ -25,7 +24,7 @@ export function PagineringsOversikt({
   const summary =
     antall === 0 ? `Viser 0 av 0 ${type}` : `Viser ${start}-${end} av ${maksAntall} ${type}`;
   return (
-    <div className={styles.paginering_container}>
+    <div className="flex items-center gap-2 pb-2">
       <BodyShort weight="semibold">{summary}</BodyShort>
 
       {onChangePageSize ? (

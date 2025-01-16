@@ -1,10 +1,11 @@
 import { BellIcon } from "@navikt/aksel-icons";
 import { Link } from "react-router";
 import { useNotificationSummary } from "@/api/notifikasjoner/useNotificationSummary";
-import styles from "./Notifikasjonsbjelle.module.scss";
 
 function Notifier() {
-  return <span className={styles.notifier}></span>;
+  return (
+    <span className="w-2 h-2 bg-[var(--a-icon-danger)] inline-block rounded-full absolute right-0.5 bottom-[15px]"></span>
+  );
 }
 
 export function Notifikasjonsbjelle() {
@@ -17,8 +18,8 @@ export function Notifikasjonsbjelle() {
   const harUlesteNotifikasjoner = summary.notDoneCount > 0;
 
   return (
-    <Link to="/notifikasjoner" className={styles.lenke}>
-      <div className={styles.bell_container}>
+    <Link to="/notifikasjoner" className="text-white mr-4">
+      <div className="relative flex items-center justify-center">
         {harUlesteNotifikasjoner ? <Notifier /> : null}
         <BellIcon fontSize={24} title="Notifikasjonsbjelle" />
       </div>

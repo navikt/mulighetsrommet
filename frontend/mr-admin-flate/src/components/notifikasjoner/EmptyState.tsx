@@ -1,5 +1,4 @@
 import { BodyShort, Heading } from "@navikt/ds-react";
-import styles from "./EmptyState.module.scss";
 
 interface Props {
   tittel: string;
@@ -8,7 +7,7 @@ interface Props {
 
 export function EmptyState({ tittel, beskrivelse }: Props) {
   return (
-    <div style={{ textAlign: "center" }}>
+    <div className="text-center flex flex-col justify-center items-center">
       <VarslerIkon />
       <Heading size={"xsmall"}>{tittel}</Heading>
       <BodyShort>{beskrivelse}</BodyShort>
@@ -25,7 +24,6 @@ const VarslerIkon = () => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
-      className={styles.bell}
       role="img"
     >
       <title>Varsler</title>
