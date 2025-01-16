@@ -35,11 +35,9 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
   const { filterHasChanged, resetFilterToDefaults } =
     useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst();
   const [tagsHeight, setTagsHeight] = useState(0);
-  const { data: lagredeFilter = [] } = useLagredeFilter(
-    LagretDokumenttype.TILTAKSGJENNOMFØRING_MODIA,
-  );
-  const deleteFilterMutation = useSlettFilter(LagretDokumenttype.TILTAKSGJENNOMFØRING_MODIA);
-  const lagreFilterMutation = useLagreFilter(LagretDokumenttype.TILTAKSGJENNOMFØRING_MODIA);
+  const { data: lagredeFilter = [] } = useLagredeFilter(LagretDokumenttype.GJENNOMFORING_MODIA);
+  const deleteFilterMutation = useSlettFilter(LagretDokumenttype.GJENNOMFORING_MODIA);
+  const lagreFilterMutation = useLagreFilter(LagretDokumenttype.GJENNOMFORING_MODIA);
 
   return (
     <>
@@ -55,7 +53,7 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
               <NullstillFilterKnapp onClick={resetFilterToDefaults} />
               <LagreFilterButton
                 mutation={lagreFilterMutation}
-                dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING_MODIA}
+                dokumenttype={LagretDokumenttype.GJENNOMFORING_MODIA}
                 filter={filterValue}
               />
             </HStack>

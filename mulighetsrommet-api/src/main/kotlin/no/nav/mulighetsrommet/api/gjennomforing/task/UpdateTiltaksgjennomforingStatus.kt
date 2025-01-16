@@ -53,7 +53,7 @@ class UpdateTiltaksgjennomforingStatus(
             select gjennomforing.id,
                    gjennomforing.slutt_dato,
                    tiltaksgjennomforing_status(gjennomforing.start_dato, gjennomforing.slutt_dato, gjennomforing.avsluttet_tidspunkt) as current_status
-            from tiltaksgjennomforing gjennomforing
+            from gjennomforing gjennomforing
                      join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
             where gjennomforing.avsluttet_tidspunkt is null
               and gjennomforing.slutt_dato < :slutt_dato_lt

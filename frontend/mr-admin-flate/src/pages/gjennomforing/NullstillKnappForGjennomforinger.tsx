@@ -12,7 +12,7 @@ interface Props {
 }
 export function NullstillKnappForGjennomforinger({ filterAtom, avtale }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
-  const lagreFilterMutation = useLagreFilter(LagretDokumenttype.TILTAKSGJENNOMFØRING);
+  const lagreFilterMutation = useLagreFilter(LagretDokumenttype.GJENNOMFORING);
 
   return filter.visMineGjennomforinger ||
     filter.search.length > 0 ||
@@ -30,7 +30,7 @@ export function NullstillKnappForGjennomforinger({ filterAtom, avtale }: Props) 
         }}
       />
       <LagreFilterButton
-        dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING}
+        dokumenttype={LagretDokumenttype.GJENNOMFORING}
         filter={filter}
         mutation={lagreFilterMutation}
       />

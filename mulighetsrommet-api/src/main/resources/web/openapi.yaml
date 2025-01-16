@@ -2103,6 +2103,40 @@ paths:
                 items:
                   $ref: "#/components/schemas/UtdanningsprogramMedUtdanninger"
 
+  /api/v1/intern/oppgaver:
+    get:
+      tags:
+        - Oppgaver
+      operationId: getOppgaver
+      parameters:
+        - in: query
+          name: oppgavetyper
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/OppgaveType"
+
+          description: Typer for oppgaver
+
+        - in: query
+          name: tiltakstyper
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Tiltakskode"
+
+          description: Tiltakstyper for oppgaver
+
+      responses:
+        200:
+          description: Notifications for the user that is currently signed in.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Oppgave"
+
 components:
   securitySchemes:
     bearerAuth:
@@ -2671,6 +2705,12 @@ components:
       enum:
         - DONE
         - NOT_DONE
+
+    OppgaveType:
+      type: string
+      enum:
+        - TILSAGN_TIL_BESLUTNING
+        - TILSAGN_TIL_ANNULLERING
 
     SorteringAvtaler:
       type: string
@@ -4104,6 +4144,46 @@ components:
       required:
         - notDoneCount
 
+    Oppgave:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/OppgaveType"
+        title:
+          type: string
+        description:
+          type: string
+        tiltakstype:
+          $ref: "#/components/schemas/Tiltakskode"
+        link:
+          type: object
+          properties:
+            linkText:
+              type: string
+            link:
+              type: string
+
+          required:
+            - linkText
+            - link
+
+        createdAt:
+          type: string
+          format: date-time
+
+        deadline:
+          type: string
+          format: date-time
+
+      required:
+        - type
+        - title
+        - tiltakstype
+        - link
+        - deadline
+        - createdAt
+
+
     AvbrytGjennomforingAarsak:
       type: string
       enum:
@@ -4282,6 +4362,7 @@ components:
         - mulighetsrommet.tiltakstype.migrering.deltaker
         - mulighetsrommet.tiltakstype.migrering.okonomi
         - mulighetsrommet.tiltakstype.pamelding-info-komet
+        - mulighetsrommet.admin-flate.arbeidsbenk
 
     PublisertRequest:
       type: object
@@ -4821,9 +4902,9 @@ components:
     LagretDokumenttype:
       type: string
       enum:
-        - Avtale
-        - Tiltaksgjennomføring
-        - Tiltaksgjennomføring_Modia
+        - AVTALE
+        - GJENNOMFORING
+        - GJENNOMFORING_MODIA
 
     LagretFilter:
       type: object

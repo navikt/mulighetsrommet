@@ -13,14 +13,16 @@ import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
 import { AvtalePage } from "./pages/avtaler/AvtalePage";
 import { AvtaleSkjemaPage } from "./pages/avtaler/AvtaleSkjemaPage";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
-import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
-import { notifikasjonLoader } from "./pages/notifikasjoner/notifikasjonerLoader";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
 import { tiltakstypeLoader, tiltakstyperLoaders } from "./pages/tiltakstyper/tiltakstyperLoaders";
+import { ArbeidsbenkPage } from "@/pages/arbeidsbenk/ArbeidsbenkPage";
+import { OppgaverPage } from "@/pages/arbeidsbenk/oppgaver/OppgaverPage";
+import { arbeidsbenkLoader } from "@/pages/arbeidsbenk/arbeidsbenkLoader";
 import { avtaleLoader, avtaleSkjemaLoader } from "./pages/avtaler/avtaleLoader";
+import { oppgaverLoader } from "@/pages/arbeidsbenk/oppgaver/oppgaverLoader";
 import { Page } from "@navikt/ds-react";
 import { ArrangorPage } from "./pages/arrangor/ArrangorPage";
 import { GjennomforingFormPage } from "./pages/gjennomforing/GjennomforingFormPage";
@@ -36,14 +38,16 @@ import { RefusjonskravForGjennomforingContainer } from "./pages/gjennomforing/re
 import { RefusjonskravDetaljer } from "./pages/gjennomforing/refusjonskrav/detaljer/RefusjonskravDetaljer";
 import { refusjonskravDetaljerLoader } from "./pages/gjennomforing/refusjonskrav/detaljer/refusjonskravDetaljerLoader";
 import { refusjonskravForGjennomforingLoader } from "./pages/gjennomforing/refusjonskrav/refusjonskravForGjennomforingLoader";
-import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljer";
 import { tilsagnDetaljerLoader } from "./pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
-import { OpprettTilsagnSkjemaPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnSkjemaPage";
 import { opprettTilsagnLoader } from "./pages/gjennomforing/tilsagn/opprett/opprettTilsagnLoader";
 import { RedigerTilsagnSkjemaPage } from "./pages/gjennomforing/tilsagn/rediger/RedigerTilsagnSkjemaPage";
 import { redigerTilsagnLoader } from "./pages/gjennomforing/tilsagn/rediger/redigerTilsagnLoader";
-import { TilsagnForGjennomforingContainer } from "./pages/gjennomforing/tilsagn/tabell/TilsagnForGjennomforingContainer";
 import { tilsagnForGjennomforingLoader } from "./pages/gjennomforing/tilsagn/tabell/tilsagnForGjennomforingLoader";
+import { OpprettTilsagnSkjemaPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnSkjemaPage";
+import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljer";
+import { NotifikasjonerPage } from "./pages/arbeidsbenk/notifikasjoner/NotifikasjonerPage";
+import { notifikasjonLoader } from "./pages/arbeidsbenk/notifikasjoner/notifikasjonerLoader";
+import { TilsagnForGjennomforingContainer } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnForGjennomforingContainer";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -267,20 +271,47 @@ const router = () =>
             errorElement: <ErrorPage />,
           },
           {
-            path: "notifikasjoner",
-            element: <NotifikasjonerPage />,
+            path: "arbeidsbenk",
+            element: <ArbeidsbenkPage />,
             errorElement: <ErrorPage />,
-            loader: notifikasjonLoader,
+            loader: arbeidsbenkLoader,
+            //element: <Notifikasjonsliste lest={false} />,
             children: [
               {
-                index: true,
-                element: <Notifikasjonsliste lest={false} />,
+                path: "notifikasjoner",
+                element: <NotifikasjonerPage />,
+                loader: notifikasjonLoader,
                 errorElement: <ErrorPage />,
+                children: [
+                  {
+                    index: true,
+                    element: <Notifikasjonsliste lest={false} />,
+                    errorElement: <ErrorPage />,
+                  },
+                  {
+                    path: "tidligere",
+                    element: <Notifikasjonsliste lest={true} />,
+                    errorElement: <ErrorPage />,
+                  },
+                ],
               },
               {
-                path: "tidligere",
-                element: <Notifikasjonsliste lest={true} />,
+                path: "oppgaver",
+                element: <OppgaverPage />,
+                loader: oppgaverLoader,
                 errorElement: <ErrorPage />,
+                children: [
+                  {
+                    index: true,
+                    element: <Notifikasjonsliste lest={false} />,
+                    errorElement: <ErrorPage />,
+                  },
+                  {
+                    path: "fullforte",
+                    element: <Notifikasjonsliste lest={true} />,
+                    errorElement: <ErrorPage />,
+                  },
+                ],
               },
             ],
           },

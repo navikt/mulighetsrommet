@@ -3,7 +3,7 @@ drop view if exists tilsagn_admin_dto_view;
 create view tilsagn_admin_dto_view as
 select
     tilsagn.id,
-    tilsagn.tiltaksgjennomforing_id,
+    tilsagn.gjennomforing_id,
     tilsagn.periode_start,
     tilsagn.periode_slutt,
     tilsagn.beregning,
@@ -30,7 +30,7 @@ select
 from tilsagn
     inner join nav_enhet on nav_enhet.enhetsnummer = tilsagn.kostnadssted
     inner join arrangor on arrangor.id = tilsagn.arrangor_id
-    inner join tiltaksgjennomforing t on t.id = tilsagn.tiltaksgjennomforing_id
+    inner join gjennomforing t on t.id = tilsagn.gjennomforing_id
     left join nav_ansatt nav_ansatt_beslutter on nav_ansatt_beslutter.nav_ident = tilsagn.status_besluttet_av
     left join nav_ansatt nav_ansatt_endret_av on nav_ansatt_endret_av.nav_ident = tilsagn.status_endret_av;
 
