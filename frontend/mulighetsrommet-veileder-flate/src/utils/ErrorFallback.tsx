@@ -1,5 +1,4 @@
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
-import { ApiError } from "@mr/api-client-v2";
 import { BodyShort, Heading } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { FallbackProps } from "react-error-boundary";
@@ -8,7 +7,7 @@ import { resolveErrorMessage, resolveRequestId } from "../errors";
 
 export function ErrorFallback({ error }: FallbackProps) {
   let feilmelding: ReactNode;
-  if (error instanceof ApiError) {
+  if ("status" in error) {
     feilmelding = renderApiError(error);
   } else {
     feilmelding = (
@@ -33,7 +32,7 @@ export function ErrorFallback({ error }: FallbackProps) {
   );
 }
 
-function renderApiError(error: ApiError) {
+function renderApiError(error: any) {
   let description: string;
   if (error.status === 401) {
     description =
