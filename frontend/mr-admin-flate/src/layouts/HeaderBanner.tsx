@@ -1,7 +1,6 @@
 import { Heading, HStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import { ReactNode } from "react";
-import styles from "../components/detaljside/Header.module.scss";
 import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 
 interface HeaderBannerProps {
@@ -12,13 +11,8 @@ interface HeaderBannerProps {
 
 export function HeaderBanner({ heading, harUndermeny = false, ikon }: HeaderBannerProps) {
   return (
-    <div
-      className={classNames(
-        styles.header_container,
-        !harUndermeny && styles.header_container_border,
-      )}
-    >
-      <HStack align="center" justify="start" gap="2" wrap className={styles.header_wrapper}>
+    <div className={classNames("bg-white p-2", !harUndermeny && "border-b-border-divider")}>
+      <HStack align="center" justify="start" gap="2" wrap>
         {ikon ? <span>{ikon}</span> : null}
         <Heading level="2" size="large" data-testid={`header_${kebabCase(heading)}`}>
           {heading}

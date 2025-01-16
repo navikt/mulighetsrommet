@@ -1,6 +1,5 @@
 import { TilsagnStatus, TilsagnStatusAnnullert, TilsagnStatusDto } from "@mr/api-client";
 import { BodyLong, List, Tag, VStack } from "@navikt/ds-react";
-import styles from "./TilsagnTag.module.scss";
 import { useState } from "react";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
 
@@ -13,7 +12,7 @@ export function TilsagnTag(props: Props) {
   const { status, expandable = false } = props;
   const [expandLabel, setExpandLabel] = useState<boolean>(false);
 
-  const baseTagClasses = "w-[140px] text-center whitespace-nowrap";
+  const baseTagClasses = "min-w-[140px] text-center whitespace-nowrap";
 
   switch (status.type) {
     case TilsagnStatus.TIL_GODKJENNING:
@@ -39,7 +38,7 @@ export function TilsagnTag(props: Props) {
         <Tag
           size="small"
           variant="neutral"
-          className={`${baseTagClasses} ${styles.til_annullering_tag}`}
+          className={`${baseTagClasses} bg-white border-[color:var(--a-text-danger)]`}
         >
           Til annullering
         </Tag>
@@ -48,14 +47,11 @@ export function TilsagnTag(props: Props) {
       const annullertLabel = expandable ? "Annullert..." : "Annullert";
       return (
         <Tag
-          className={`${baseTagClasses} ${styles.annullert_tag}`}
+          className={`${baseTagClasses} line-through hover:no-underline bg-white text-[color:var(--a-text-danger)] border-[color:var(--a-text-danger)]`}
           size="small"
           onMouseEnter={() => setExpandLabel(true)}
           onMouseLeave={() => setExpandLabel(false)}
           variant="neutral"
-          style={{
-            maxWidth: expandable ? "400px" : "140px",
-          }}
         >
           {expandable && expandLabel ? (
             <ExpandedAnnullert status={status} />
@@ -71,7 +67,12 @@ export function TilsagnTag(props: Props) {
 function ExpandedAnnullert({ status }: { status: TilsagnStatusAnnullert }) {
   return (
     <VStack>
-      <List as="ul" size="small" title="Årsaker" className={styles.annullert_aarsak_list}>
+      <List
+        as="ul"
+        size="small"
+        title="Årsaker"
+        className="[&>li]:pl-2 [&>li]:ml-2 [&>li]:marker:content-['\2022'] [&>li]:marker:text-[color:var(--a-text-danger)] [&>li]:marker:text-lg"
+      >
         {status.aarsaker.map((aarsak) => (
           <li>{tilsagnAarsakTilTekst(aarsak)}</li>
         ))}

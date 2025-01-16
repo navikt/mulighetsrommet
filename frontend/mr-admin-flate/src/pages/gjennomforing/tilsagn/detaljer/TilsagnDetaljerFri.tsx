@@ -5,7 +5,7 @@ import { TilsagnTag } from "@/pages/gjennomforing/tilsagn/TilsagnTag";
 import { formaterDato } from "@/utils/Utils";
 import { TilsagnDto } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Heading, HStack, VStack } from "@navikt/ds-react";
+import { Heading, VStack } from "@navikt/ds-react";
 
 interface Props {
   tilsagn: TilsagnDto;
@@ -14,11 +14,9 @@ interface Props {
 export function TilsagnDetaljerFri({ tilsagn }: Props) {
   return (
     <>
-      <HStack justify={"space-between"} align={"baseline"} padding={"5"}>
-        <Heading size="medium" level="3">
-          Tilsagn
-        </Heading>
-      </HStack>
+      <Heading size="medium" level="3">
+        Tilsagn
+      </Heading>
       <TwoColumnGrid separator>
         <VStack>
           <Bolk>

@@ -1,9 +1,8 @@
-import { Alert, HelpText, HStack, List, VStack } from "@navikt/ds-react";
 import { useAvtale } from "@/api/avtaler/useAvtale";
-import { Laster } from "@/components/laster/Laster";
-import styles from "./AvtalePersonvern.module.scss";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
+import { Laster } from "@/components/laster/Laster";
 import { PersonopplysningData } from "@mr/api-client";
+import { Alert, HelpText, HStack, List, VStack } from "@navikt/ds-react";
 
 export function AvtalePersonvern() {
   const { data: avtale, isPending, error } = useAvtale();
@@ -42,7 +41,7 @@ export function AvtalePersonvern() {
   );
 
   return (
-    <VStack gap="4" className={styles.info_container}>
+    <VStack gap="4" className="p-[1.5rem] bg-white mw-[1440px]">
       {checkedPersonopplysninger && (
         <List
           size="small"

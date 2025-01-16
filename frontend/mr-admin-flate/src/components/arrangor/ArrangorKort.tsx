@@ -1,7 +1,6 @@
 import { BodyShort, CopyButton, List, Tabs } from "@navikt/ds-react";
 import { Arrangor } from "@mr/api-client";
 import { ArrangorKontaktpersonOversikt } from "./ArrangorKontaktpersonerOversikt";
-import styles from "./ArrangorKort.module.scss";
 
 interface Props {
   arrangor: Arrangor;
@@ -10,11 +9,11 @@ interface Props {
 export function ArrangorKort({ arrangor }: Props) {
   return (
     <div>
-      <BodyShort className={styles.orgnr}>
+      <BodyShort className="flex items-baseline">
         Organisasjonsnummer: {arrangor.organisasjonsnummer}
         <CopyButton size="small" copyText={arrangor.organisasjonsnummer} />{" "}
       </BodyShort>
-      <Tabs defaultValue="kontaktpersoner" className={styles.tabs}>
+      <Tabs defaultValue="kontaktpersoner" className="mt-8">
         <Tabs.List>
           <Tabs.Tab value="kontaktpersoner" label="Kontaktpersoner" />
           <Tabs.Tab

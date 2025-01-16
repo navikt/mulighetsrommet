@@ -12,13 +12,6 @@ export default defineConfig({
   },
   plugins: [tsconfigPaths(), react(), terser()],
   base: process.env.VITE_BASE || "/",
-  css: {
-    preprocessorOptions: {
-      scss: {
-        api: "modern-compiler",
-      },
-    },
-  },
   resolve: {
     dedupe: await dedupeDependencies("@mr/frontend-common"),
   },

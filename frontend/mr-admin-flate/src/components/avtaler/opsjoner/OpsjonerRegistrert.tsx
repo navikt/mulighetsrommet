@@ -2,7 +2,6 @@ import { Alert, BodyShort, Button, Heading, HStack, Table, VStack } from "@navik
 import { AvtaleDto, OpsjonLoggRegistrert, OpsjonStatus } from "@mr/api-client";
 import { useSlettOpsjon } from "@/api/avtaler/useSlettOpsjon";
 import { formaterDato } from "@/utils/Utils";
-import styles from "./OpsjonerRegistrert.module.scss";
 import { useRevalidator } from "react-router";
 
 interface Props {
@@ -41,7 +40,7 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
     .at(0)?.forrigeSluttdato;
 
   return (
-    <section className={styles.container}>
+    <section className="bg-surface-subtle p-4 rounded-lg">
       <HStack justify={"space-between"} align={"center"}>
         <Heading level="4" size="xsmall">
           Opsjoner
@@ -50,7 +49,7 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
           <BodyShort>* Opprinnelig sluttdato: {formaterDato(opprinneligSluttDato)}</BodyShort>
         )}
       </HStack>
-      <hr className={styles.separator} />
+      <hr className="h-[0.2rem] bg-border-strong border-none" />
       <Table>
         <Table.Header>
           <Table.Row>
@@ -73,7 +72,7 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
                         size="small"
                         variant="primary"
                         type="button"
-                        className={styles.button_as_link}
+                        className="bg-none text-surface-inverted hover"
                       >
                         Fjern
                       </Button>

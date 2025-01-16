@@ -1,7 +1,6 @@
 import { DatePicker, useDatepicker } from "@navikt/ds-react";
 import { forwardRef, useEffect, useState } from "react";
 import { formaterDatoSomYYYYMMDD as formaterSomIsoDate } from "../../utils/Utils";
-import styles from "./DateInput.module.scss";
 
 interface Props {
   label: string;
@@ -78,7 +77,6 @@ export const DateInput = forwardRef(function DateInput(
   return (
     <DatePicker {...datepickerProps} dropdownCaption>
       <DatePicker.Input
-        className={styles.dato_input}
         size={size}
         label={label}
         hideLabel={hideLabel}

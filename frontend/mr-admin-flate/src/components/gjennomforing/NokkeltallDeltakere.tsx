@@ -4,7 +4,6 @@ import HighchartsReact from "highcharts-react-official";
 import "highcharts/modules/accessibility";
 import { useRef } from "react";
 import { useSuspenseGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
-import styles from "./NokkeltallDeltakere.module.scss";
 
 interface Props {
   gjennomforingId: string;
@@ -72,9 +71,9 @@ export function NokkeltallDeltakere({ gjennomforingId }: Props) {
   };
 
   return (
-    <div className={styles.container}>
+    <div className="bg-bg-subtle p-[0.5rem] rounded-[0.5rem] mt-8">
       <Heading size="small" level="2">
-        <span className={styles.thin}>Deltakerinformasjon</span>{" "}
+        <span className="font-light pr-4">Deltakerinformasjon</span>{" "}
         <b>
           Totalt {deltakerSummary.antallDeltakere}{" "}
           {deltakerSummary.antallDeltakere === 1 ? "deltaker" : "deltakere"}

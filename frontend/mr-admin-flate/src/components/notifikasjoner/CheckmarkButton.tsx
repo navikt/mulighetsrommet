@@ -1,8 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { CheckmarkCircleFillIcon, CheckmarkCircleIcon } from "@navikt/aksel-icons";
 import { NotificationStatus } from "@mr/api-client";
-import classNames from "classnames";
-import styles from "./CheckmarkButton.module.scss";
 import { useSetNotificationStatus } from "@/api/notifikasjoner/useSetNotificationStatus";
 import { Button } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -42,24 +40,24 @@ export function CheckmarkButton({ id, read, setRead, setError }: Props) {
   return read ? (
     <Button
       onClick={() => setStatus(NotificationStatus.NOT_DONE)}
-      className={classNames(styles.button, styles.read)}
+      className={`flex items-center justify-center p-2 -mt-2.5 cursor-pointer rounded-lg`}
       size="medium"
     >
       <CheckmarkCircleFillIcon
         fontSize={"2rem"}
-        className={styles.icon}
+        className="p-0 m-0 flex items-center justify-center"
         aria-label="Knapp for å markere notifikasjon som ulest"
       />
     </Button>
   ) : (
     <Button
       onClick={() => setStatus(NotificationStatus.DONE)}
-      className={classNames(styles.button, styles.unread)}
+      className={`flex items-center justify-center p-2 -mt-2.5 cursor-pointer`}
       size="medium"
     >
       <CheckmarkCircleIcon
         fontSize={"2rem"}
-        className={styles.icon}
+        className="p-0 m-0 flex items-center justify-center"
         aria-label="Knapp for å markere notifikasjon som lest"
       />
     </Button>
