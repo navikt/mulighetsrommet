@@ -15,7 +15,6 @@ import { useFormContext } from "react-hook-form";
 import { Separator } from "../detaljside/Metadata";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
-import styles from "./AvtalePersonvernForm.module.scss";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
 import { EmbeddedTiltakstype, PersonopplysningData } from "@mr/api-client";
 
@@ -73,7 +72,7 @@ export function AvtalePersonvernForm({ tiltakstype }: Props) {
               }
               size="small"
             >
-              <span className={styles.max_length_text}> {p.tittel}</span>
+              <span className="max-w-[65ch] inline-block"> {p.tittel}</span>
             </Checkbox>
             {p.hjelpetekst && <HelpText>{p.hjelpetekst}</HelpText>}
           </HStack>
@@ -83,8 +82,8 @@ export function AvtalePersonvernForm({ tiltakstype }: Props) {
   }
 
   return (
-    <VStack gap="4" className={styles.container}>
-      <GuidePanel poster className={styles.guide_panel}>
+    <VStack gap="4">
+      <GuidePanel poster>
         Huk av de personopplysningene som er avtalt i databehandleravtalen. Nav tiltaksenhet/fylke
         er ansvarlig for at listen er i samsvar med gjeldende databehandleravtale.
       </GuidePanel>

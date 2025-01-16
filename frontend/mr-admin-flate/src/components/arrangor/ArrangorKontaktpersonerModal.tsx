@@ -6,7 +6,6 @@ import { RefObject, useState } from "react";
 import { Laster } from "../laster/Laster";
 import { ArrangorKontaktpersonSkjema } from "./ArrangorKontaktpersonSkjema";
 import { navnForAnsvar } from "./ArrangorKontaktpersonUtils";
-import styles from "./ArrangorKontaktpersonerModal.module.scss";
 
 interface Props {
   arrangorId: string;
@@ -35,7 +34,7 @@ export function ArrangorKontaktpersonerModal(props: Props) {
   return (
     <Modal
       ref={modalRef}
-      className={styles.modal}
+      width={500}
       onClose={() => {
         setOpprett(false);
         modalRef.current?.close();
@@ -45,11 +44,14 @@ export function ArrangorKontaktpersonerModal(props: Props) {
       }}
     >
       <Modal.Body>
-        <div className={styles.modal_body}>
+        <div className="p-2 flex flex-col max-h-[600px] overflow-auto gap-4">
           {kontaktpersoner
             .sort((a, b) => a.navn.localeCompare(b.navn))
             .map((person) => (
-              <div key={person.id} className={styles.list_item_container}>
+              <div
+                key={person.id}
+                className="p-4 border border-border-divider bg-gray-100 rounded-l"
+              >
                 {redigerId === person.id ? (
                   <ArrangorKontaktpersonSkjema
                     arrangorId={arrangorId}
@@ -85,7 +87,7 @@ export function ArrangorKontaktpersonerModal(props: Props) {
                           <div>
                             <Label size="small">Ansvarlig for</Label>
                             <HStack gap="5">
-                              <ul className={styles.list_unstyled}>
+                              <ul className="list-none flex gap-2 p-0 m-0">
                                 {person.ansvarligFor.map((ansvar) => (
                                   <li key={ansvar}>
                                     <Tag variant="info" size="xsmall">
@@ -107,7 +109,11 @@ export function ArrangorKontaktpersonerModal(props: Props) {
                     </div>
                   </VStack>
                 )}
-                <VStack justify="start" align="start" className={styles.button_container}>
+                <VStack
+                  justify="start"
+                  align="start"
+                  className="mt-[8px] flex flex-row justify-between"
+                >
                   {redigerId !== person.id && (
                     <Button
                       size="small"
@@ -124,7 +130,7 @@ export function ArrangorKontaktpersonerModal(props: Props) {
               </div>
             ))}
           {opprett ? (
-            <div className={styles.list_item_container}>
+            <div className="p-4 border border-border-divider bg-gray-100 rounded-l">
               <ArrangorKontaktpersonSkjema
                 arrangorId={arrangorId}
                 onSubmit={reset}

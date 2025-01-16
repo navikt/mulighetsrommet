@@ -27,7 +27,6 @@ import { Laster } from "../laster/Laster";
 import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
 import { AvtalePersonvernForm } from "./AvtalePersonvernForm";
 import { AvtaleRedaksjoneltInnholdForm } from "./AvtaleRedaksjoneltInnholdForm";
-import styles from "./AvtaleSkjemaContainer.module.scss";
 import { AvtaleSkjemaDetaljer } from "./AvtaleSkjemaDetaljer";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
@@ -149,7 +148,7 @@ export function AvtaleSkjemaContainer({
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
         <Tabs defaultValue={activeTab}>
-          <Tabs.List className={styles.tabslist}>
+          <Tabs.List className="flex flex-row justify-between">
             <div>
               <TabWithErrorBorder
                 onClick={() => setActiveTab("detaljer")}

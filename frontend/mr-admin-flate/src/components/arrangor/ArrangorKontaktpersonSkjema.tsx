@@ -7,7 +7,6 @@ import { isValidationError } from "@mr/frontend-common/utils/utils";
 import { Button, HGrid, TextField, UNSAFE_Combobox } from "@navikt/ds-react";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import styles from "./ArrangorKontaktpersonSkjema.module.scss";
 import { navnForAnsvar } from "./ArrangorKontaktpersonUtils";
 
 type ArrangorKontaktpersonErrors = Partial<Record<keyof ArrangorKontaktperson, string>>;
@@ -195,7 +194,7 @@ export function ArrangorKontaktpersonSkjema({
         )}
       </HGrid>
       {deleteMutation.isError && (
-        <div className={styles.error_msg}>
+        <div className="text-[16px] mt-[8px] text-[#c30000]">
           <b>• {resolveErrorMessage(deleteMutation.error)}</b>
         </div>
       )}
