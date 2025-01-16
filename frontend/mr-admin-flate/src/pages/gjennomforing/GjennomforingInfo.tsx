@@ -5,7 +5,6 @@ import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { useLoaderData } from "react-router";
 import { GjennomforingDetaljer } from "./GjennomforingDetaljer";
-import styles from "./GjennomforingInfo.module.scss";
 import { GjennomforingKnapperad } from "./GjennomforingKnapperad";
 import { gjennomforingLoader } from "./gjennomforingLoaders";
 
@@ -17,7 +16,7 @@ export function GjennomforingInfo() {
   return (
     <div data-testid="gjennomforing_info-container">
       <Tabs defaultValue={activeTab}>
-        <Tabs.List className={styles.tabslist}>
+        <Tabs.List className="flex flex-row justify-between">
           <div>
             <Tabs.Tab onClick={() => setActiveTab("detaljer")} value="detaljer" label="Detaljer" />
             <Tabs.Tab

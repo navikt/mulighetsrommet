@@ -1,11 +1,10 @@
 import { BodyShort, Heading } from "@navikt/ds-react";
-import styles from "./IngenLesetilgang.module.scss";
 import { PadlockLockedIcon } from "@navikt/aksel-icons";
 
 export function IngenLesetilgang() {
   return (
-    <main className={styles.main}>
-      <div className={styles.content}>
+    <main className="w-1/2 m-auto mt-4 flex justify-center text-center prose">
+      <div className="bg-white p-4 rounded-md flex flex-col items-center">
         <PadlockLockedIcon fontSize={50} />
         <Heading size="medium">Ingen tilgang</Heading>
         <BodyShort spacing>Din bruker mangler tilgang til Nav Tiltaksadministrasjon</BodyShort>

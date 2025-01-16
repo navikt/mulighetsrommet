@@ -1,6 +1,5 @@
 import { ArrowRightIcon } from "@navikt/aksel-icons";
 import { Link } from "react-router";
-import styles from "./Brodsmuler.module.scss";
 
 type Id = string;
 
@@ -30,8 +29,8 @@ export function Brodsmuler({ brodsmuler }: Props) {
   const filtrerteBrodsmuler = brodsmuler.filter(erBrodsmule);
 
   return (
-    <nav aria-label="Brødsmulesti" className={styles.navContainer}>
-      <ol className={styles.container}>
+    <nav aria-label="Brødsmulesti" className={"bg-white pl-[0.5rem]"}>
+      <ol className="flex list-none p-[0.5rem] m-0 gap-[0.5rem] flex-row">
         {filtrerteBrodsmuler.filter(erBrodsmule).map((item, index) => {
           const erSisteBrodsmule = index >= 0 && index === filtrerteBrodsmuler.length - 1;
           return (
@@ -39,10 +38,8 @@ export function Brodsmuler({ brodsmuler }: Props) {
               {erSisteBrodsmule ? (
                 <span aria-current="page">{item.tittel}</span>
               ) : (
-                <div className={styles.item}>
-                  <Link className={styles.link} to={item.lenke}>
-                    {item.tittel}
-                  </Link>
+                <div className="flex justify-center items-center gap-[0.5rem]">
+                  <Link to={item.lenke}>{item.tittel}</Link>
                   <ArrowRightIcon aria-hidden="true" aria-label="Ikon for pil til høyre" />
                 </div>
               )}

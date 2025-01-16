@@ -4,7 +4,6 @@ import type {
   EndringshistorikkUser,
 } from "@mr/api-client";
 import { formaterDatoTid } from "../../utils/Utils";
-import styles from "./ViewEndringshistorikk.module.scss";
 import classNames from "classnames";
 
 export interface ViewEndringshistorikkProps {
@@ -19,7 +18,7 @@ export function ViewEndringshistorikk(props: ViewEndringshistorikkProps) {
   }
 
   return (
-    <ul className={styles.endringshistorikkList}>
+    <ul>
       {historikk.entries.map(({ operation, editedAt, editedBy }) => {
         const user = isNavAnsatt(editedBy)
           ? `${editedBy.navn} (${editedBy.navIdent})`
@@ -28,7 +27,7 @@ export function ViewEndringshistorikk(props: ViewEndringshistorikkProps) {
         return (
           <li
             className={classNames({
-              [styles.system]: !isNavAnsatt(editedBy),
+              "italic font-thin text-text-subtle": !isNavAnsatt(editedBy),
             })}
             key={editedAt}
           >

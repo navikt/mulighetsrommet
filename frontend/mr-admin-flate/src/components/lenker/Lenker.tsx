@@ -1,7 +1,6 @@
 import { Box, Button, Heading, HStack, Switch, TextField, VStack } from "@navikt/ds-react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import z from "zod";
-import styles from "./Lenker.module.scss";
 import { FaneinnholdLenkerSchema } from "@/components/redaksjoneltInnhold/FaneinnholdSchema";
 
 type Lenke = {
@@ -48,16 +47,18 @@ function Lenkeskjema() {
       >
         Registrer ny lenke
       </Button>
-      <VStack gap="5" className={styles.lenkeliste}>
+      <VStack gap="5" className="max-h-[50rem] overflow-auto p-4">
         {fields?.map((lenke, index) => {
           return (
             <VStack gap="2" key={lenke.id}>
               <TextField
+                size="small"
                 label="Lenkenavn"
                 {...register(`faneinnhold.lenker.${index}.lenkenavn`)}
                 error={errors?.faneinnhold?.lenker?.[index]?.lenkenavn?.message}
               />
               <TextField
+                size="small"
                 label="Lenke"
                 {...register(`faneinnhold.lenker.${index}.lenke`)}
                 error={errors?.faneinnhold?.lenker?.[index]?.lenke?.message}

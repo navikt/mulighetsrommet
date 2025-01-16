@@ -12,7 +12,6 @@ import { Dropdown, InternalHeader, Spacer } from "@navikt/ds-react";
 import { useRef } from "react";
 import { Link } from "react-router";
 import { Notifikasjonsbjelle } from "../notifikasjoner/Notifikasjonsbjelle";
-import styles from "./AdministratorHeader.module.scss";
 
 export function AdministratorHeader() {
   const tiltakstyperLinkRef = useRef<HTMLAnchorElement>(null);
@@ -24,16 +23,17 @@ export function AdministratorHeader() {
   const notifikasjonerLinkRef = useRef<HTMLAnchorElement>(null);
   const endringsmeldingerLinkRef = useRef<HTMLAnchorElement>(null);
   const logoutLinkRef = useRef<HTMLAnchorElement>(null);
+  const menylenke = "text-blue-600";
 
   return (
     <InternalHeader>
-      <InternalHeader.Title className={styles.title} as="h1">
-        <Link className={styles.link} to="/">
+      <InternalHeader.Title as="h1">
+        <Link className="no-underline text-white" to="/">
           Nav Tiltaksadministrasjon
         </Link>
       </InternalHeader.Title>
       <Spacer />
-      <div className={styles.content}>
+      <div className="flex justify-end items-center">
         <Notifikasjonsbjelle />
       </div>
       <Dropdown>
@@ -47,7 +47,7 @@ export function AdministratorHeader() {
               onClick={() => tiltakstyperLinkRef.current?.click()}
               as="span"
             >
-              <Link ref={tiltakstyperLinkRef} to="/tiltakstyper" className={styles.menylenke}>
+              <Link ref={tiltakstyperLinkRef} to="/tiltakstyper" className={menylenke}>
                 Tiltakstyper
               </Link>
             </Dropdown.Menu.GroupedList.Item>
@@ -55,7 +55,7 @@ export function AdministratorHeader() {
               onClick={() => avtalerLinkRef.current?.click()}
               as="span"
             >
-              <Link ref={avtalerLinkRef} to="/avtaler" className={styles.menylenke}>
+              <Link ref={avtalerLinkRef} to="/avtaler" className={menylenke}>
                 Avtaler
               </Link>
             </Dropdown.Menu.GroupedList.Item>
@@ -63,7 +63,7 @@ export function AdministratorHeader() {
               onClick={() => gjennomforingerLinkRef.current?.click()}
               as="span"
             >
-              <Link ref={gjennomforingerLinkRef} to="/gjennomforinger" className={styles.menylenke}>
+              <Link ref={gjennomforingerLinkRef} to="/gjennomforinger" className={menylenke}>
                 Gjennomføringer
               </Link>
             </Dropdown.Menu.GroupedList.Item>
@@ -71,7 +71,7 @@ export function AdministratorHeader() {
               onClick={() => arrangorerLinkRef.current?.click()}
               as="span"
             >
-              <Link ref={arrangorerLinkRef} to="/arrangorer" className={styles.menylenke}>
+              <Link ref={arrangorerLinkRef} to="/arrangorer" className={menylenke}>
                 Arrangører
               </Link>
             </Dropdown.Menu.GroupedList.Item>
@@ -80,7 +80,7 @@ export function AdministratorHeader() {
               onClick={() => notifikasjonerLinkRef.current?.click()}
               as="span"
             >
-              <Link ref={notifikasjonerLinkRef} to="/notifikasjoner" className={styles.menylenke}>
+              <Link ref={notifikasjonerLinkRef} to="/notifikasjoner" className={menylenke}>
                 Notifikasjoner
               </Link>
             </Dropdown.Menu.GroupedList.Item>
@@ -93,7 +93,7 @@ export function AdministratorHeader() {
                 to={SANITY_STUDIO_URL}
                 target="_blank"
                 onClick={(e) => e.stopPropagation()}
-                className={styles.menylenke}
+                className={menylenke}
                 isExternal
               >
                 Individuelle tiltaksgjennomføringer
@@ -107,7 +107,7 @@ export function AdministratorHeader() {
                 to={PREVIEW_ARBEIDSMARKEDSTILTAK_URL}
                 target="_blank"
                 onClick={(e) => e.stopPropagation()}
-                className={styles.menylenke}
+                className={menylenke}
                 isExternal
               >
                 Veilederflate forhåndsvisning
@@ -118,11 +118,7 @@ export function AdministratorHeader() {
               onClick={() => endringsmeldingerLinkRef.current?.click()}
               as="span"
             >
-              <Link
-                ref={endringsmeldingerLinkRef}
-                to={ENDRINGSMELDINGER_URL}
-                className={styles.menylenke}
-              >
+              <Link ref={endringsmeldingerLinkRef} to={ENDRINGSMELDINGER_URL} className={menylenke}>
                 Endringsmeldinger
               </Link>
             </Dropdown.Menu.GroupedList.Item>
@@ -155,11 +151,5 @@ function Brukernavn() {
 
   const ansattNavn = [data.fornavn, data.etternavn].join(" ");
 
-  return (
-    <InternalHeader.User
-      name={ansattNavn}
-      description={data?.navIdent ?? "..."}
-      className={styles.user}
-    />
-  );
+  return <InternalHeader.User name={ansattNavn} description={data?.navIdent ?? "..."} />;
 }

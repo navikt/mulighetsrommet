@@ -4,7 +4,6 @@ import { PortableText } from "@portabletext/react";
 import { EmbeddedTiltakstype, Faneinnhold } from "@mr/api-client";
 import { LokalInformasjonContainer } from "@mr/frontend-common";
 import React from "react";
-import styles from "../../pages/DetaljerInfo.module.scss";
 import { Laster } from "../laster/Laster";
 import { Lenkeliste } from "../lenker/Lenkeliste";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
@@ -147,7 +146,7 @@ const DetaljerFane = ({
   }
 
   return (
-    <div className={styles.faneinnhold_container}>
+    <div>
       {tiltakstype && (
         <>
           {tiltakstypeAlert && (

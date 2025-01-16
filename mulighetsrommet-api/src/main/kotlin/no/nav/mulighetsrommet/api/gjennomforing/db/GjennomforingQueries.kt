@@ -438,7 +438,7 @@ class GjennomforingQueries(private val session: Session) {
         val query = """
             update gjennomforing
             set tilgjengelig_for_arrangor_fra_og_med_dato = ?
-            where id = ?:uuid
+            where id = ?::uuid
         """.trimIndent()
 
         return update(queryOf(query, date, id))

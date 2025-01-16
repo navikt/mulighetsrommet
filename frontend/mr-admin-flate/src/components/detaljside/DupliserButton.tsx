@@ -1,6 +1,5 @@
 import { Button } from "@navikt/ds-react";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
-import styles from "./DupliserButton.module.scss";
 
 interface Props {
   onClick: () => void;
@@ -9,8 +8,8 @@ interface Props {
 
 export function DupliserButton({ onClick, title }: Props) {
   return (
-    <Button title={title} className={styles.button} onClick={onClick}>
-      <div className={styles.button_inner}>
+    <Button title={title} className="bg-[var(--a-surface-action)] max-h-8" onClick={onClick}>
+      <div className="flex items-start justify-between text-base gap-2">
         <LayersPlusIcon
           color="white"
           fontSize="1.5rem"

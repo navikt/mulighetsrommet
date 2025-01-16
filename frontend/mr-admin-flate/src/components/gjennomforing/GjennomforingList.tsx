@@ -1,6 +1,5 @@
 import { Alert, BodyShort } from "@navikt/ds-react";
 import { Laster } from "../laster/Laster";
-import styles from "./GjennomforingList.module.scss";
 import { GjennomforingFilter } from "@/api/atoms";
 import { GjennomforingDto } from "@mr/api-client";
 import { ReactNode } from "react";
@@ -26,16 +25,19 @@ export function GjennomforingList(props: Props) {
   const gjennomforinger = data.data;
 
   return (
-    <div className={styles.gjennomforingsliste_container}>
-      <div className={styles.gjennomforingsliste_headers}>
-        <BodyShort>Tittel</BodyShort>
-        <BodyShort>Tiltaksnr.</BodyShort>
-        <BodyShort>Status</BodyShort>
+    <div>
+      <div className="grid grid-cols-[2fr_1fr_1fr_1fr] border-b border-border-divider p-4 items-center gap-2">
+        <BodyShort className="font-bold">Tittel</BodyShort>
+        <BodyShort className="font-bold">Tiltaksnr.</BodyShort>
+        <BodyShort className="font-bold">Status</BodyShort>
       </div>
 
-      <ul className={styles.gjennomforingsliste}>
+      <ul className="overflow-y-auto list-none m-0 p-0 max-h-[30rem]">
         {gjennomforinger.map((gjennomforing) => (
-          <li key={gjennomforing.id} className={styles.gjennomforingsliste_element}>
+          <li
+            key={gjennomforing.id}
+            className="grid grid-cols-[2fr_1fr_1fr_1fr] border-b border-border-divider p-4 items-center gap-2"
+          >
             <BodyShort>{gjennomforing.navn}</BodyShort>
             <BodyShort>{gjennomforing.tiltaksnummer}</BodyShort>
             <GjennomforingStatusTag status={gjennomforing.status.status} />

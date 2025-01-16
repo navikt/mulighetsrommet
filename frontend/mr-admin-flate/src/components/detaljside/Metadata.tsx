@@ -1,5 +1,4 @@
 import { ReactNode } from "react";
-import styles from "./Metadata.module.scss";
 import classNames from "classnames";
 
 export interface MetadataProps {
@@ -9,13 +8,18 @@ export interface MetadataProps {
 
 export function Metadata({ header, verdi }: MetadataProps) {
   return (
-    <div className={styles.header_og_verdi}>
-      <dt className={styles.bold}>{header}</dt>
-      <dd className={styles.definition}>{verdi ?? "-"}</dd>
+    <div className="flex flex-col gap-2">
+      <dt className="font-bold">{header}</dt>
+      <dd className="mr-6 whitespace-pre-line">{verdi ?? "-"}</dd>
     </div>
   );
 }
 
 export function Separator({ style, classname }: { style?: any; classname?: string }) {
-  return <hr style={style} className={classNames(styles.separator, classname)} />;
+  return (
+    <hr
+      style={style}
+      className={classNames("bg-[var(--a-border-divider)] h-px border-0 w-full my-4", classname)}
+    />
+  );
 }

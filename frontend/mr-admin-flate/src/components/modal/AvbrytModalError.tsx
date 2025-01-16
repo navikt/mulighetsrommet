@@ -1,4 +1,3 @@
-import styles from "@/components/modal/Modal.module.scss";
 import { resolveErrorMessage } from "@mr/frontend-common/components/error-handling/errors";
 import { AvbrytAvtaleAarsak, AvbrytGjennomforingAarsak } from "@mr/api-client";
 import { AnnetEnum } from "@/api/annetEnum";
@@ -19,7 +18,7 @@ export function AvbrytModalError({ mutation, aarsak, customAarsak }: Props) {
   };
 
   return (
-    <div className={styles.error}>
+    <div className="text-red-500">
       <b>• {beskrivelser()}</b>
     </div>
   );

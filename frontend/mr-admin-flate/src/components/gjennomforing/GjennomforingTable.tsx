@@ -16,8 +16,6 @@ import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/
 import { Alert, BodyShort, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import React, { createRef, useEffect, useState } from "react";
-import pageStyles from "../../pages/Page.module.scss";
-import styles from "../tabell/Tabell.module.scss";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
@@ -132,14 +130,13 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
           <a style={{ display: "none" }} ref={link}></a>
         </ToolbarMeny>
       </ToolbarContainer>
-      <TabellWrapper filterOpen={filterOpen}>
+      <TabellWrapper>
         {gjennomforinger.length === 0 ? (
           <Alert variant="info">Fant ingen tiltaksgjennomføringer</Alert>
         ) : (
           <Table
             sort={sort!}
             onSortChange={(sortKey) => handleSort(sortKey!)}
-            className={styles.tabell}
             data-testid="gjennomforing-tabell"
           >
             <Table.Header
@@ -177,10 +174,7 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
                   return (
                     <Table.Row key={index}>
                       <SkjulKolonne skjul={!!skjulKolonner?.navn}>
-                        <Table.DataCell
-                          aria-label={`Navn på gjennomforing: ${gjennomforing.navn}`}
-                          className={styles.title}
-                        >
+                        <Table.DataCell aria-label={`Navn på gjennomforing: ${gjennomforing.navn}`}>
                           <VStack>
                             <Lenke
                               to={`/gjennomforinger/${gjennomforing.id}`}
@@ -286,7 +280,6 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
               type="tiltaksgjennomføringer"
             />
             <Pagination
-              className={pageStyles.pagination}
               size="small"
               page={filter.page}
               count={pagination.totalPages}

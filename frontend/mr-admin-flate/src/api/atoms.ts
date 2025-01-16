@@ -7,6 +7,7 @@ import {
   Avtalestatus,
   Avtaletype,
   NavEnhet,
+  OppgaveType,
   SorteringArrangorer,
   SorteringAvtaler,
   SorteringGjennomforinger,
@@ -291,6 +292,25 @@ export const arrangorerFilterAtom = atomWithHashAndStorage<ArrangorerFilter>(
   arrangorerFilterSchema,
 );
 
+const oppgaverFilterSchema = z.object({
+  type: z.enum([OppgaveType.TILSAGN_TIL_BESLUTNING, OppgaveType.TILSAGN_TIL_ANNULLERING]).array(),
+  tiltakstyper: z.array(z.string()),
+});
+
+export type OppgaverFilter = z.infer<typeof oppgaverFilterSchema>;
+
+const defaultOppgaverFilter: OppgaverFilter = {
+  type: [],
+  tiltakstyper: [],
+};
+
+export const oppgaverFilterAtom = atomWithHashAndStorage<OppgaverFilter>(
+  "oppgaver-filter",
+  defaultOppgaverFilter,
+  sessionStorage,
+  oppgaverFilterSchema,
+);
+
 export const getAvtalerForTiltakstypeFilterAtom = atomFamily<
   string,
   WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>
@@ -314,3 +334,4 @@ export const avtaleDetaljerTabAtom = atom<
 
 export const gjennomforingFilterAccordionAtom = atom<string[]>(["navEnhet"]);
 export const avtaleFilterAccordionAtom = atom<string[]>(["region"]);
+export const oppgaverFilterAccordionAtom = atom<string[]>(["type"]);

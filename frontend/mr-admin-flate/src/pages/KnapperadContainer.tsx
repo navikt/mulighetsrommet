@@ -1,6 +1,9 @@
-import styles from "./KnapperadContainer.module.scss";
 import { PropsWithChildren } from "react";
 
 export function KnapperadContainer(props: PropsWithChildren) {
-  return <div className={styles.knapperad_container}>{props.children}</div>;
+  return (
+    <div className="flex flex-row justify-end items-center [grid-area:knapperad] gap-[0.5rem]">
+      {props.children}
+    </div>
+  );
 }

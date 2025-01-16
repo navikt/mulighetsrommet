@@ -9,11 +9,10 @@ import { ForhandsvisningIkon } from "../ikoner/ForhandsvisningIkon";
 import { GjennomforingIkon } from "../ikoner/GjennomforingIkon";
 import { TiltakstypeIkon } from "../ikoner/TiltakstypeIkon";
 import { Forsidekort } from "./Forsidekort";
-import styles from "./Forsidekort.module.scss";
 
 export function ForsidekortListe() {
   return (
-    <div className={styles.card_container}>
+    <div className="flex justify-around mb-8 flex-wrap gap-16 xl:gap-8">
       <Forsidekort
         navn="Tiltakstyper"
         ikon={<TiltakstypeIkon inkluderBakgrunn aria-label="Tiltakstyper" />}
@@ -34,13 +33,7 @@ export function ForsidekortListe() {
       />
       <Forsidekort
         navn="Individuelle Gjennomføringer"
-        ikon={
-          <img
-            style={{ height: "64px", width: "64px" }}
-            src="./sanity_logo.png"
-            alt="Sanity-logo"
-          />
-        }
+        ikon={<img className="h-16 w-16" src="./sanity_logo.png" alt="Sanity-logo" />}
         url={SANITY_STUDIO_URL}
         apneINyTab
         tekst="Her administrerer du individuelle Gjennomføringer"

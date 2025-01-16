@@ -150,6 +150,23 @@ class GjennomforingQueriesTest : FunSpec({
             }
         }
 
+        test("tilgjengelig for arrangør") {
+            database.runAndRollback { session ->
+                MulighetsrommetTestDomain(
+                    arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                    avtaler = listOf(AvtaleFixtures.oppfolging),
+                ).setup(session)
+
+                val queries = GjennomforingQueries(session)
+
+                queries.upsert(Oppfolging1)
+                queries.setTilgjengeligForArrangorFraOgMedDato(Oppfolging1.id, LocalDate.now())
+                queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
+                    it.tilgjengeligForArrangorFraOgMedDato shouldBe LocalDate.now()
+                }
+            }
+        }
+
         test("Nav kontaktperson") {
             database.runAndRollback { session ->
                 domain.setup(session)

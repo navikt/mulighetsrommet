@@ -178,12 +178,7 @@ export const AvbrytGjennomforingModal = ({ modalRef, gjennomforing }: Props) => 
       }
       secondaryButton
       primaryButton={
-        <Button
-          variant="danger"
-          onClick={handleAvbrytGjennomforing}
-          disabled={mutation.isPending}
-          style={{ minWidth: "20rem" }}
-        >
+        <Button variant="danger" onClick={handleAvbrytGjennomforing} disabled={mutation.isPending}>
           {mutation.isPending ? <Laster /> : "Ja, jeg vil avbryte gjennomføringen"}
         </Button>
       }

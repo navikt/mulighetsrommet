@@ -9,7 +9,6 @@ import { Alert, BodyShort, Button, Heading, Table, VStack } from "@navikt/ds-rea
 import { UseMutationResult } from "@tanstack/react-query";
 import { RefObject } from "react";
 import { Laster } from "../laster/Laster";
-import styles from "./SlettKontaktpersonModal.module.scss";
 
 interface Props {
   onClose: () => void;
@@ -156,10 +155,10 @@ function DokumentKoblinger({
               <Table.HeaderCell></Table.HeaderCell>
             </Table.Row>
           </Table.Header>
-          <Table.Body className={styles.tableBody}>
+          <Table.Body className="h-[10px] overflow-auto">
             {dokumenter.map((dokument) => (
               <Table.Row key={dokument.id}>
-                <Table.DataCell className={styles.name_column}>
+                <Table.DataCell className="w-full">
                   <Lenke to={`/${baseUrl}/${dokument.id}/skjema`} isExternal>
                     {dokument.navn}
                   </Lenke>

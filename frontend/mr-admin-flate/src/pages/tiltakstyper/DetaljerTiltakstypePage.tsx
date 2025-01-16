@@ -6,7 +6,6 @@ import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl
 import { useTitle } from "@mr/frontend-common";
 import { Alert, Heading, Tabs } from "@navikt/ds-react";
 import { Link, Outlet, useLoaderData, useLocation, useMatch } from "react-router";
-import commonStyles from "../Page.module.scss";
 import { tiltakstypeLoader } from "./tiltakstyperLoaders";
 import { ContentBox } from "@/layouts/ContentBox";
 
@@ -49,7 +48,7 @@ export function DetaljerTiltakstypePage() {
       </Header>
 
       <Tabs value={pathname.includes("avtaler") ? "avtaler" : "arenainfo"}>
-        <Tabs.List className={commonStyles.list}>
+        <Tabs.List className="p-[0 0.5rem] w-[1920px] flex items-start m-auto">
           <Tabs.Tab
             value="arenainfo"
             label="Arenainfo"

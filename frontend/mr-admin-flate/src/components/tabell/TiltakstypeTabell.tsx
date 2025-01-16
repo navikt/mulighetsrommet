@@ -7,7 +7,6 @@ import { Alert, Table } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { useLoaderData } from "react-router";
 import { TiltakstypestatusTag } from "../statuselementer/TiltakstypestatusTag";
-import styles from "./Tabell.module.scss";
 
 export function TiltakstypeTabell() {
   const [filter, setFilter] = useAtom(tiltakstypeFilterAtom);
@@ -34,11 +33,11 @@ export function TiltakstypeTabell() {
     });
   };
   return (
-    <TabellWrapper className={styles.tiltakstypetabell}>
+    <TabellWrapper className="m-0">
       <Table
         sort={sort!}
         onSortChange={(sortKey) => handleSort(sortKey!)}
-        className={styles.tabell}
+        className="bg-white border-separate border-spacing-0 border-t border-gray-200"
       >
         <Table.Header>
           <Table.Row>
@@ -62,10 +61,10 @@ export function TiltakstypeTabell() {
               const startDato = formaterDato(tiltakstype.startDato);
               const sluttDato = tiltakstype.sluttDato ? formaterDato(tiltakstype.sluttDato) : "-";
               return (
-                <Table.Row key={index} className={styles.tiltakstype_tabellrad}>
+                <Table.Row key={index}>
                   <Table.DataCell
                     aria-label={`Navn på tiltakstype: ${tiltakstype.navn}`}
-                    className={styles.title}
+                    className="underline"
                   >
                     <Lenke to={`/tiltakstyper/${tiltakstype.id}`}>{tiltakstype.navn}</Lenke>
                   </Table.DataCell>
