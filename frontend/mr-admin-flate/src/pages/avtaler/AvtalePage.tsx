@@ -1,6 +1,5 @@
 import { DupliserAvtale } from "@/components/avtaler/DupliserAvtale";
 import { Header } from "@/components/detaljside/Header";
-import headerStyles from "@/components/detaljside/Header.module.scss";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { AvtalestatusTag } from "@/components/statuselementer/AvtalestatusTag";
@@ -66,7 +65,7 @@ export function AvtalePage() {
     <>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
-        <div className={headerStyles.tiltaksnavn_status}>
+        <div className="flex justify-start gap-6 items-center flex-wrap">
           <AvtaleIkon />
           <VStack>
             <Heading size="large" level="2">
