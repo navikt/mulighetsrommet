@@ -61,7 +61,7 @@ export function TiltakstypeTabell() {
               const startDato = formaterDato(tiltakstype.startDato);
               const sluttDato = tiltakstype.sluttDato ? formaterDato(tiltakstype.sluttDato) : "-";
               return (
-                <Table.Row key={index} className={styles.tiltakstype_tabellrad}>
+                <Table.Row key={index}>
                   <Table.DataCell
                     aria-label={`Navn på tiltakstype: ${tiltakstype.navn}`}
                     className="underline"

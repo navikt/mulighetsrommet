@@ -12,7 +12,7 @@ import { AvbrytAvtaleAarsak, AvtaleDto } from "@mr/api-client";
 import { RefObject, useState } from "react";
 import { useNavigate } from "react-router";
 import z from "zod";
-import style from "./AvbrytGjennomforingAvtaleModal.module.scss";
+import classNames from "classnames";
 
 export const AvbrytAvtaleModalSchema = z
   .object({
@@ -197,7 +197,7 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
           </HarSkrivetilgang>
         )
       }
-      footerClassName={avtalenHarGjennomforinger ? style.footer_ok : ""}
+      footerClassName={classNames(avtalenHarGjennomforinger && "flex flex-end")}
     />
   );
 }
