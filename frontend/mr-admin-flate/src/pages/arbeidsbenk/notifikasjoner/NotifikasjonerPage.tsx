@@ -1,8 +1,6 @@
 import { useTitle } from "@mr/frontend-common";
 import { Tabs } from "@navikt/ds-react";
 import { Outlet, useLoaderData, useLocation, useNavigate } from "react-router";
-import styles from "../../Page.module.scss";
-import arbeidsbenkStyles from "../arbeidsbenk.module.scss";
 import { notifikasjonLoader } from "./notifikasjonerLoader";
 
 export function NotifikasjonerPage() {
@@ -13,9 +11,9 @@ export function NotifikasjonerPage() {
 
   return (
     <main>
-      <div className={arbeidsbenkStyles.header}>
+      <div className="flex justify-end">
         <Tabs value={pathname.includes("tidligere") ? "tidligere" : "nye"} selectionFollowsFocus>
-          <Tabs.List id="fane_liste" className={styles.list}>
+          <Tabs.List id="fane_liste" className="flex flex-row justify-between">
             <Tabs.Tab
               value="nye"
               label={`Nye notifikasjoner ${uleste?.pagination.totalCount ? `(${uleste?.pagination.totalCount})` : ""}`}

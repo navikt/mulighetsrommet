@@ -1,8 +1,6 @@
 import { useTitle } from "@mr/frontend-common";
 import { Select } from "@navikt/ds-react";
 import { useLoaderData } from "react-router";
-import arbeidsbenkStyles from "../arbeidsbenk.module.scss";
-import oppgaverPageStyles from "./OppgaverPage.module.scss";
 import { OppgaverFilter } from "../../../components/filter/OppgaverFilter";
 import { oppgaverFilterAtom } from "@/api/atoms";
 import { oppgaverLoader } from "@/pages/arbeidsbenk/oppgaver/oppgaverLoader";
@@ -53,11 +51,11 @@ export function OppgaverPage() {
   const sortedOppgaver = sort(oppgaver.data || [], sorting);
 
   return (
-    <main className={oppgaverPageStyles.root}>
+    <main className="flex gap-4 self-start">
       <OppgaverFilter filterAtom={oppgaverFilterAtom} tiltakstyper={tiltakstyper} />
-      <div className={oppgaverPageStyles.content}>
-        <div className={arbeidsbenkStyles.header}>
-          <div className={oppgaverPageStyles.sorting}>
+      <div className="flex-1">
+        <div className="flex justify-end">
+          <div className="flex items-center gap-4">
             Sortering
             <Select
               label={"Sortering"}
@@ -72,7 +70,7 @@ export function OppgaverPage() {
             </Select>
           </div>
         </div>
-        <div className={oppgaverPageStyles.oppgaver}>
+        <div className="grid grid-cols-1 gap-2 mt-4">
           {sortedOppgaver.map((o) => {
             // @TODO: Should maybe have something like tiltakstypeName come from the backend instead of doing manual mapping
             return (
