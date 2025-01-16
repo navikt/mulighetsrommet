@@ -21,7 +21,7 @@ select refusjonskrav.id,
        arrangor.slettet_dato is not null as arrangor_slettet,
        tiltakstype.navn                  as tiltakstype_navn
 from refusjonskrav
-         inner join tiltaksgjennomforing gjennomforing on gjennomforing.id = refusjonskrav.gjennomforing_id
+         inner join gjennomforing on gjennomforing.id = refusjonskrav.gjennomforing_id
          inner join arrangor on gjennomforing.arrangor_id = arrangor.id
          inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id;
 

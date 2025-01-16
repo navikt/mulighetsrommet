@@ -1,4 +1,4 @@
-import { JoyrideType, NavEnhetStatus, NavEnhetType } from "@mr/api-client";
+import { JoyrideType, LagretDokumenttype, NavEnhetStatus, NavEnhetType } from "@mr/api-client";
 
 export const QueryKeys = {
   Veilederdata: "veilederdata",
@@ -39,4 +39,5 @@ export const QueryKeys = {
   deltMedBrukerHistorikk: (norskIdent: string) => ["deltMedBrukerHistorikk", norskIdent],
   tiltakstyperSomStotterPameldingIModia: () => ["tiltakstyperSomStotterPameldingIModia"],
   tiltakstyperSomSnartStotterPameldingIModia: () => ["tiltakstyperSomSnartStotterPameldingIModia"],
+  lagredeFilter: (dokumenttype: LagretDokumenttype) => ["lagredeFilter", dokumenttype],
 };

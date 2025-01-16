@@ -57,7 +57,7 @@ class DelMedBrukerService(
                 dialogid,
                 created_by,
                 updated_by,
-                tiltaksgjennomforing_id
+                gjennomforing_id
             )
             values (
                 :norsk_ident,
@@ -66,7 +66,7 @@ class DelMedBrukerService(
                 :dialogid,
                 :created_by,
                 :updated_by,
-                :tiltaksgjennomforing_id::uuid
+                :gjennomforing_id::uuid
             )
             returning *
         """.trimIndent()
@@ -80,7 +80,7 @@ class DelMedBrukerService(
             select *
             from del_med_bruker
             where norsk_ident = :norsk_ident
-              and (sanity_id = :id::uuid or tiltaksgjennomforing_id = :id::uuid)
+              and (sanity_id = :id::uuid or gjennomforing_id = :id::uuid)
             order by created_at desc
             limit 1
         """.trimIndent()
@@ -93,10 +93,10 @@ class DelMedBrukerService(
     fun getAlleDistinkteTiltakDeltMedBruker(fnr: NorskIdent): List<DelMedBrukerDbo> = db.session {
         @Language("PostgreSQL")
         val query = """
-            select distinct on (tiltaksgjennomforing_id, sanity_id) *
+            select distinct on (gjennomforing_id, sanity_id) *
             from del_med_bruker
             where norsk_ident = ?
-            order by tiltaksgjennomforing_id, sanity_id, created_at desc;
+            order by gjennomforing_id, sanity_id, created_at desc;
         """.trimIndent()
 
         session.list(queryOf(query, fnr.value)) { it.toDelMedBruker() }
@@ -108,7 +108,7 @@ class DelMedBrukerService(
             select *
             from del_med_bruker
             where norsk_ident = ?
-            order by tiltaksgjennomforing_id, sanity_id, created_at desc;
+            order by gjennomforing_id, sanity_id, created_at desc;
         """.trimIndent()
 
         session.list(queryOf(query, fnr.value)) { it.toDelMedBruker() }
@@ -133,7 +133,7 @@ class DelMedBrukerService(
                 tg.id,
                 tt.tiltakskode,
                 tt.navn as tiltakstypeNavn
-            from tiltaksgjennomforing tg
+            from gjennomforing tg
                 inner join tiltakstype tt on tt.id = tg.tiltakstype_id
             where tg.id = any(?::uuid[])
         """.trimIndent()
@@ -203,7 +203,7 @@ private fun DelMedBrukerDbo.toParameters() = mapOf(
     "norsk_ident" to norskIdent.value,
     "navident" to navident,
     "sanity_id" to sanityId,
-    "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
+    "gjennomforing_id" to tiltaksgjennomforingId,
     "dialogid" to dialogId,
     "created_by" to navident,
     "updated_by" to navident,
@@ -214,7 +214,7 @@ private fun Row.toDelMedBruker(): DelMedBrukerDbo = DelMedBrukerDbo(
     norskIdent = NorskIdent(string("norsk_ident")),
     navident = string("navident"),
     sanityId = uuidOrNull("sanity_id"),
-    tiltaksgjennomforingId = uuidOrNull("tiltaksgjennomforing_id"),
+    tiltaksgjennomforingId = uuidOrNull("gjennomforing_id"),
     dialogId = string("dialogid"),
     createdAt = localDateTime("created_at"),
     updatedAt = localDateTime("updated_at"),

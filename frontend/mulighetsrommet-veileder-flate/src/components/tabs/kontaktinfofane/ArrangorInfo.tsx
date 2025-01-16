@@ -1,7 +1,6 @@
 import { PortableTextTypedObject, VeilderflateArrangor } from "@mr/api-client";
-import { BodyLong, BodyShort, Heading } from "@navikt/ds-react";
+import { BodyLong, BodyShort, Heading, Link } from "@navikt/ds-react";
 import { RedaksjoneltInnhold } from "../../RedaksjoneltInnhold";
-import styles from "./KontaktinfoFane.module.scss";
 
 interface ArrangorInfoProps {
   arrangor: VeilderflateArrangor;
@@ -12,22 +11,18 @@ const ArrangorInfo = ({ arrangor, faneinnhold }: ArrangorInfoProps) => {
   const { kontaktpersoner } = arrangor;
 
   return (
-    <div className={styles.arrangor_info}>
-      <Heading size="small" className={styles.header}>
+    <div>
+      <Heading size="small" spacing={false}>
         Arrangør
       </Heading>
 
-      <div className={styles.container}>
-        <BodyShort className={styles.navn} size="small">
-          {arrangor.selskapsnavn}
-        </BodyShort>
-      </div>
+      <BodyShort spacing size="small">
+        {arrangor.selskapsnavn}
+      </BodyShort>
 
       {kontaktpersoner.map((person) => (
-        <div key={person.id} className={styles.container}>
-          <BodyShort className={styles.navn} size="small">
-            {person.navn}
-          </BodyShort>
+        <div key={person.id} className="prose bg-bg-subtle p-2 my-2 rounded-md">
+          <BodyShort className="font-bold">{person.navn}</BodyShort>
           {person.beskrivelse && (
             <BodyShort textColor="subtle" size="small">
               {person.beskrivelse}
@@ -35,10 +30,10 @@ const ArrangorInfo = ({ arrangor, faneinnhold }: ArrangorInfoProps) => {
           )}
 
           <BodyShort as="div" size="small">
-            <dl className={styles.definisjonsliste}>
+            <dl>
               <dt>Epost:</dt>
               <dd>
-                <a href={`mailto:${person.epost}`}>{person.epost}</a>
+                <Link href={`mailto:${person.epost}`}>{person.epost}</Link>
               </dd>
               {person.telefon ? (
                 <>

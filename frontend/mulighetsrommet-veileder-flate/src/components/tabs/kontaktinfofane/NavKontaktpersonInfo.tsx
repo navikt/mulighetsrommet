@@ -1,7 +1,6 @@
-import { Alert, BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import { VeilederflateKontaktInfo, VeilederflateKontaktinfoTiltaksansvarlig } from "@mr/api-client";
+import { Alert, BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import { RefObject, useRef } from "react";
-import styles from "./KontaktinfoFane.module.scss";
 
 const TEAMS_DYPLENKE = "https://teams.microsoft.com/l/chat/0/0?users=";
 
@@ -17,37 +16,28 @@ const NavKontaktpersonInfo = ({ kontaktinfo }: NavKontaktpersonInfoProps) => {
   const { tiltaksansvarlige } = kontaktinfo;
 
   return (
-    <div className={styles.tiltaksansvarlig_info}>
+    <div>
       {tiltaksansvarlige.length === 0 ? (
         <Alert variant="info">Kontaktinfo til tiltaksansvarlig er ikke lagt inn</Alert>
       ) : (
         <>
-          <Heading size="small" className={styles.header}>
-            Tiltaksansvarlig
-          </Heading>
+          <Heading size="small">Tiltaksansvarlig</Heading>
 
           {tiltaksansvarlige.map((tiltaksansvarlig: VeilederflateKontaktinfoTiltaksansvarlig) => {
             const { navn, epost, telefon, enhet, beskrivelse } = tiltaksansvarlig;
             return (
-              <div key={epost} className={styles.container}>
-                <BodyShort className={styles.navn} size="small">
-                  {navn}
-                </BodyShort>
+              <div key={epost} className="prose bg-bg-subtle p-2 my-2 rounded-md">
+                <BodyShort className="font-bold mt-5">{navn}</BodyShort>
                 {beskrivelse && (
                   <BodyShort textColor="subtle" size="small">
                     {beskrivelse}
                   </BodyShort>
                 )}
                 <BodyShort as="div" size="small">
-                  <dl className={styles.definisjonsliste}>
+                  <dl>
                     <dt>Teams:</dt>
                     <dd>
-                      <a
-                        className={styles.teamslenke}
-                        onClick={() => modalRef?.current?.showModal()}
-                      >
-                        Kontakt meg på Teams
-                      </a>
+                      <a onClick={() => modalRef?.current?.showModal()}>Kontakt meg på Teams</a>
                     </dd>
                     <dt>Epost:</dt>
                     <dd>
@@ -99,7 +89,7 @@ function PersonsensitiveOpplysningerModal({ modalRef, epost }: Props) {
   return (
     <Modal ref={modalRef} onClose={onClose} aria-label="modal">
       <Modal.Header closeButton>
-        <div className={styles.heading}>
+        <div>
           <Heading size="medium">Personvern er viktig</Heading>
         </div>
       </Modal.Header>
@@ -109,7 +99,7 @@ function PersonsensitiveOpplysningerModal({ modalRef, epost }: Props) {
         </BodyShort>
       </Modal.Body>
       <Modal.Footer>
-        <div className={styles.knapperad}>
+        <div>
           <Button variant="secondary" onClick={openTeams}>
             Ok
           </Button>

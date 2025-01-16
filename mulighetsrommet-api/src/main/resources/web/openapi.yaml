@@ -4902,9 +4902,9 @@ components:
     LagretDokumenttype:
       type: string
       enum:
-        - Avtale
-        - Tiltaksgjennomføring
-        - Tiltaksgjennomføring_Modia
+        - AVTALE
+        - GJENNOMFORING
+        - GJENNOMFORING_MODIA
 
     LagretFilter:
       type: object

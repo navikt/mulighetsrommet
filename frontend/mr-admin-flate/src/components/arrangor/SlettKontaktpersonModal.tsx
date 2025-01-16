@@ -1,16 +1,15 @@
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Alert, BodyShort, Button, Heading, Table, VStack } from "@navikt/ds-react";
-import { UseMutationResult } from "@tanstack/react-query";
-import { ArrangorKontaktperson, DokumentKoblingForKontaktperson } from "@mr/api-client";
-import { Link } from "react-router";
 import { useDeleteArrangorKontaktperson } from "@/api/arrangor/useDeleteArrangorKontaktperson";
 import { useKoblingerTilDokumenterForKontaktpersonHosArrangor } from "@/api/arrangor/useKoblingerTilDokumenterForKontaktpersonHosArrangor";
 import { useFrikobleArrangorKontaktpersonFraAvtale } from "@/api/avtaler/useFrikobleArrangorKontaktpersonFraAvtale";
 import { useFrikobleArrangorKontaktpersonFraGjennomforing } from "@/api/gjennomforing/useFrikobleArrangorKontaktpersonFraGjennomforing";
+import { ArrangorKontaktperson, DokumentKoblingForKontaktperson } from "@mr/api-client";
+import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
+import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
+import { Alert, BodyShort, Button, Heading, Table, VStack } from "@navikt/ds-react";
+import { UseMutationResult } from "@tanstack/react-query";
+import { RefObject } from "react";
 import { Laster } from "../laster/Laster";
 import styles from "./SlettKontaktpersonModal.module.scss";
-import { RefObject } from "react";
-import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 
 interface Props {
   onClose: () => void;
@@ -161,13 +160,9 @@ function DokumentKoblinger({
             {dokumenter.map((dokument) => (
               <Table.Row key={dokument.id}>
                 <Table.DataCell className={styles.name_column}>
-                  <Link
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    to={`/${baseUrl}/${dokument.id}/skjema`}
-                  >
-                    {dokument.navn} <ExternalLinkIcon />
-                  </Link>
+                  <Lenke to={`/${baseUrl}/${dokument.id}/skjema`} isExternal>
+                    {dokument.navn}
+                  </Lenke>
                 </Table.DataCell>
                 <Table.DataCell>
                   <Button

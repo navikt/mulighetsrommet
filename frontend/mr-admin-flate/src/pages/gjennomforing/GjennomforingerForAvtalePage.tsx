@@ -16,6 +16,8 @@ import { LagredeFilterOversikt, useOpenFilterWhenThreshold } from "@mr/frontend-
 import { LagretDokumenttype } from "@mr/api-client";
 import { useAtom } from "jotai/index";
 import { GjennomforingTable } from "@/components/gjennomforing/GjennomforingTable";
+import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
+import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 
 export function GjennomforingerForAvtalePage() {
   const id = useGetAvtaleIdFromUrlOrThrow();
@@ -25,6 +27,8 @@ export function GjennomforingerForAvtalePage() {
   const { data: avtale } = useAvtale();
   const [tagsHeight, setTagsHeight] = useState(0);
   const [filter, setFilter] = useAtom(gjennomforingfilterAtom);
+  const { data: lagredeFilter = [] } = useLagredeFilter(LagretDokumenttype.GJENNOMFORING);
+  const deleteFilterMutation = useSlettFilter(LagretDokumenttype.GJENNOMFORING);
 
   return (
     <>
@@ -41,7 +45,8 @@ export function GjennomforingerForAvtalePage() {
           <LagredeFilterOversikt
             setFilter={setFilter}
             filter={filter}
-            dokumenttype={LagretDokumenttype.AVTALE}
+            lagredeFilter={lagredeFilter}
+            deleteMutation={deleteFilterMutation}
             validateFilterStructure={(filter) => {
               return GjennomforingFilterSchema.safeParse(filter).success;
             }}

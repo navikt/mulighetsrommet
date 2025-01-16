@@ -1,6 +1,5 @@
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Link } from "@navikt/ds-react";
 import { RegelverkLenke } from "@mr/api-client";
+import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import styles from "./SidemenyInfo.module.scss";
 
 interface RegelverksinfoProps {
@@ -12,10 +11,9 @@ const Regelverksinfo = ({ regelverkLenker }: RegelverksinfoProps) => {
     return (
       regelverkLenke.regelverkUrl && (
         <div key={regelverkLenke._id}>
-          <Link target="_blank" href={regelverkLenke.regelverkUrl}>
+          <Lenke target="_blank" to={regelverkLenke.regelverkUrl}>
             {regelverkLenke.regelverkLenkeNavn}{" "}
-            <ExternalLinkIcon aria-label="Ikon som representerer at lenke åpnes i ny fane" />
-          </Link>
+          </Lenke>
         </div>
       )
     );

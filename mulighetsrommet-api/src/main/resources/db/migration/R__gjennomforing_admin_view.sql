@@ -1,6 +1,6 @@
-drop view if exists tiltaksgjennomforing_admin_dto_view;
+drop view if exists gjennomforing_admin_dto_view;
 
-create view tiltaksgjennomforing_admin_dto_view as
+create view gjennomforing_admin_dto_view as
 select gjennomforing.id,
        gjennomforing.fts,
        gjennomforing.navn,
@@ -47,7 +47,7 @@ select gjennomforing.id,
        arrangor.slettet_dato is not null                              as arrangor_slettet,
        arrangor_kontaktpersoner_json,
        utdanningslop_json
-from tiltaksgjennomforing gjennomforing
+from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          join arrangor on arrangor.id = gjennomforing.arrangor_id
          left join nav_enhet nav_region on nav_region.enhetsnummer = gjennomforing.nav_region
@@ -61,9 +61,9 @@ from tiltaksgjennomforing gjennomforing
                                                    'overordnetEnhet', enhet.overordnet_enhet
                                            )
                                    ) as nav_enheter_json
-                            from tiltaksgjennomforing_nav_enhet
+                            from gjennomforing_nav_enhet
                                      natural join nav_enhet enhet
-                            where tiltaksgjennomforing_id = gjennomforing.id) on true
+                            where gjennomforing_id = gjennomforing.id) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'navIdent', ansatt.nav_ident,
@@ -75,18 +75,18 @@ from tiltaksgjennomforing gjennomforing
                                                    'beskrivelse', k.beskrivelse
                                            )
                                    ) as nav_kontaktpersoner_json
-                            from tiltaksgjennomforing_kontaktperson k
+                            from gjennomforing_kontaktperson k
                                      join nav_ansatt ansatt on ansatt.nav_ident = k.kontaktperson_nav_ident
-                            where k.tiltaksgjennomforing_id = gjennomforing.id) on true
+                            where k.gjennomforing_id = gjennomforing.id) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'navIdent', ansatt.nav_ident,
                                                    'navn', concat(ansatt.fornavn, ' ', ansatt.etternavn)
                                            )
                                    ) as administratorer_json
-                            from tiltaksgjennomforing_administrator administrator
+                            from gjennomforing_administrator administrator
                                      natural join nav_ansatt ansatt
-                            where administrator.tiltaksgjennomforing_id = gjennomforing.id) on true
+                            where administrator.gjennomforing_id = gjennomforing.id) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'id', id,
@@ -97,9 +97,9 @@ from tiltaksgjennomforing gjennomforing
                                                    'beskrivelse', beskrivelse
                                            )
                                    ) as arrangor_kontaktpersoner_json
-                            from tiltaksgjennomforing_arrangor_kontaktperson
+                            from gjennomforing_arrangor_kontaktperson
                                      join arrangor_kontaktperson kontaktperson on id = arrangor_kontaktperson_id
-                            where tiltaksgjennomforing_id = gjennomforing.id) on true
+                            where gjennomforing_id = gjennomforing.id) on true
          left join lateral (select jsonb_build_object(
                                            'kurstype', k.kurstype,
                                            'bransje', k.bransje,
@@ -117,24 +117,24 @@ from tiltaksgjennomforing gjennomforing
                                                                     )
                                                             )
                                                      from amo_sertifisering s
-                                                              join tiltaksgjennomforing_amo_kategorisering_sertifisering aks
+                                                              join gjennomforing_amo_kategorisering_sertifisering aks
                                                                    on aks.konsept_id = s.konsept_id
-                                                     where aks.tiltaksgjennomforing_id = k.tiltaksgjennomforing_id),
+                                                     where aks.gjennomforing_id = k.gjennomforing_id),
                                                     '[]'::jsonb),
                                            'innholdElementer', k.innhold_elementer
                                    ) as amo_kategorisering_json
-                            from tiltaksgjennomforing_amo_kategorisering k
-                            where tiltaksgjennomforing_id = gjennomforing.id) on true
+                            from gjennomforing_amo_kategorisering k
+                            where gjennomforing_id = gjennomforing.id) on true
          left join lateral (select jsonb_build_object(
                                            'utdanningsprogram',
                                            json_build_object('id', up.id, 'navn', up.navn),
                                            'utdanninger',
                                            jsonb_agg(jsonb_build_object('id', u.id, 'navn', u.navn))
                                    ) utdanningslop_json
-                            from tiltaksgjennomforing t
-                                     join tiltaksgjennomforing_utdanningsprogram upt
-                                          on t.id = upt.tiltaksgjennomforing_id
+                            from gjennomforing t
+                                     join gjennomforing_utdanningsprogram upt
+                                          on t.id = upt.gjennomforing_id
                                      join utdanningsprogram up on upt.utdanningsprogram_id = up.id
                                      join utdanning u on upt.utdanning_id = u.id
-                            where tiltaksgjennomforing_id = gjennomforing.id
+                            where gjennomforing_id = gjennomforing.id
                             group by up.id) on true;

@@ -1,11 +1,11 @@
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
 import { SANITY_STUDIO_URL } from "@/constants";
-import { formaterDato } from "@/utils/Utils";
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Link, useLoaderData } from "react-router";
-import { tiltakstypeLoader } from "./tiltakstyperLoaders";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
+import { formaterDato } from "@/utils/Utils";
+import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
+import { useLoaderData } from "react-router";
+import { tiltakstypeLoader } from "./tiltakstyperLoaders";
 
 export function TiltakstypeInfo() {
   const tiltakstype = useLoaderData<typeof tiltakstypeLoader>();
@@ -33,10 +33,9 @@ export function TiltakstypeInfo() {
               header="Sanity-dokument"
               verdi={
                 <>
-                  <Link target="_blank" to={tiltakstypeSanityUrl}>
-                    Åpne tiltakstypen i Sanity{" "}
-                    <ExternalLinkIcon title="Åpner tiltakstypen i Sanity" />
-                  </Link>
+                  <Lenke isExternal target="_blank" to={tiltakstypeSanityUrl}>
+                    Åpne tiltakstypen i Sanity
+                  </Lenke>
                 </>
               }
             />

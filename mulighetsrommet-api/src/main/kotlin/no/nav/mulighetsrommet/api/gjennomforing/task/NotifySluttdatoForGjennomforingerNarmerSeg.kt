@@ -83,8 +83,8 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
                    gjennomforing.slutt_dato,
                    array_agg(distinct nav_ident) as administratorer,
                    gjennomforing.tiltaksnummer
-            from tiltaksgjennomforing gjennomforing
-                     join tiltaksgjennomforing_administrator on tiltaksgjennomforing_id = gjennomforing.id
+            from gjennomforing gjennomforing
+                     join gjennomforing_administrator on gjennomforing_id = gjennomforing.id
             where (:today::timestamp + interval '14' day) = gjennomforing.slutt_dato
                or (:today::timestamp + interval '7' day) = gjennomforing.slutt_dato
                or (:today::timestamp + interval '1' day) = gjennomforing.slutt_dato

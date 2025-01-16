@@ -1,6 +1,5 @@
 import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import modalStyles from "./Modal.module.scss";
-import svgStyle from "../../App.module.scss";
 
 import React from "react";
 import {
@@ -35,17 +34,15 @@ export function StatusModal({
 }: StatusModalProps) {
   const ikon = () => {
     if (ikonVariant === "success")
-      return (
-        <CheckmarkCircleFillIcon className={classNames(modalStyles.icon, svgStyle.svg_success)} />
-      );
+      return <CheckmarkCircleFillIcon className={classNames(modalStyles.icon, "text-green-600")} />;
     else if (ikonVariant === "warning")
       return (
         <ExclamationmarkTriangleFillIcon
-          className={classNames(modalStyles.icon, svgStyle.svg_warning)}
+          className={classNames(modalStyles.icon, "text-orange-600")}
         />
       );
     else if (ikonVariant === "error")
-      return <XMarkOctagonFillIcon className={classNames(modalStyles.icon, svgStyle.svg_error)} />;
+      return <XMarkOctagonFillIcon className={classNames(modalStyles.icon, "text-nav-red")} />;
   };
 
   function footerInnhold() {

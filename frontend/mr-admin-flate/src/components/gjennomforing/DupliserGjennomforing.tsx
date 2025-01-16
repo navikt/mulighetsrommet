@@ -15,7 +15,7 @@ export function DupliserGjennomforing({ gjennomforing }: Props) {
 
   function apneRedigeringForDupliseringAvTiltak() {
     setGjennomforingDetaljerTab("detaljer");
-    navigate(`/tiltaksgjennomforinger/skjema`, {
+    navigate(`/avtaler/${gjennomforing.avtaleId}/tiltaksgjennomforinger/skjema`, {
       state: {
         dupliserGjennomforing: {
           opphav: Opphav.MR_ADMIN_FLATE,

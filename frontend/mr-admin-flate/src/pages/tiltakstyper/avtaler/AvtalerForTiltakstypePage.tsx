@@ -12,6 +12,8 @@ import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/Ti
 import { useAtom } from "jotai/index";
 import { LagretDokumenttype } from "@mr/api-client";
 import { ContentBox } from "@/layouts/ContentBox";
+import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
+import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 
 export function AvtalerForTiltakstypePage() {
   useTitle("Tiltakstyper - Avtaler");
@@ -21,6 +23,8 @@ export function AvtalerForTiltakstypePage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
   const [filter, setFilter] = useAtom(filterAtom);
+  const { data: lagredeFilter = [] } = useLagredeFilter(LagretDokumenttype.AVTALE);
+  const deleteFilterMutation = useSlettFilter(LagretDokumenttype.AVTALE);
 
   return (
     <>
@@ -37,8 +41,9 @@ export function AvtalerForTiltakstypePage() {
           lagredeFilter={
             <LagredeFilterOversikt
               setFilter={setFilter}
+              lagredeFilter={lagredeFilter}
+              deleteMutation={deleteFilterMutation}
               filter={filter}
-              dokumenttype={LagretDokumenttype.AVTALE}
               validateFilterStructure={(filter) => {
                 return AvtaleFilterSchema.safeParse(filter).success;
               }}

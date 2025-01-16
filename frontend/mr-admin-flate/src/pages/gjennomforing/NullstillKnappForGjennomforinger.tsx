@@ -3,7 +3,8 @@ import { useAtom } from "jotai/index";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { AvtaleDto, LagretDokumenttype } from "@mr/api-client";
 import { WritableAtom } from "jotai";
-import { LagreFilterContainer } from "@mr/frontend-common";
+import { LagreFilterButton } from "@mr/frontend-common/components/lagreFilter/LagreFilterButton";
+import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
 
 interface Props {
   filterAtom: WritableAtom<GjennomforingFilter, [newValue: GjennomforingFilter], void>;
@@ -11,6 +12,7 @@ interface Props {
 }
 export function NullstillKnappForGjennomforinger({ filterAtom, avtale }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
+  const lagreFilterMutation = useLagreFilter(LagretDokumenttype.GJENNOMFORING);
 
   return filter.visMineGjennomforinger ||
     filter.search.length > 0 ||
@@ -27,9 +29,10 @@ export function NullstillKnappForGjennomforinger({ filterAtom, avtale }: Props) 
           });
         }}
       />
-      <LagreFilterContainer
-        dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING}
+      <LagreFilterButton
+        dokumenttype={LagretDokumenttype.GJENNOMFORING}
         filter={filter}
+        mutation={lagreFilterMutation}
       />
     </>
   ) : null;

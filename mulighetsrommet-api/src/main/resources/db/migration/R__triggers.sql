@@ -15,11 +15,11 @@ CREATE TRIGGER set_timestamp
     FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
 
-DROP TRIGGER IF EXISTS set_timestamp ON tiltaksgjennomforing;
+DROP TRIGGER IF EXISTS set_timestamp ON gjennomforing;
 
 CREATE TRIGGER set_timestamp
     BEFORE UPDATE
-    ON tiltaksgjennomforing
+    ON gjennomforing
     FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
 
@@ -93,7 +93,7 @@ DECLARE
 BEGIN
     SELECT COALESCE(MAX(lopenummer), 0) + 1 INTO next_lopenummer
     FROM tilsagn
-    WHERE tiltaksgjennomforing_id = NEW.tiltaksgjennomforing_id;
+    WHERE gjennomforing_id = NEW.gjennomforing_id;
 
     NEW.lopenummer = next_lopenummer;
     RETURN NEW;

@@ -24,7 +24,7 @@ class TilsagnQueries(private val session: Session) {
         val query = """
             insert into tilsagn (
                 id,
-                tiltaksgjennomforing_id,
+                gjennomforing_id,
                 periode_start,
                 periode_slutt,
                 kostnadssted,
@@ -36,7 +36,7 @@ class TilsagnQueries(private val session: Session) {
                 type
             ) values (
                 :id::uuid,
-                :tiltaksgjennomforing_id::uuid,
+                :gjennomforing_id::uuid,
                 :periode_start,
                 :periode_slutt,
                 :kostnadssted,
@@ -48,7 +48,7 @@ class TilsagnQueries(private val session: Session) {
                 :type::tilsagn_type
             )
             on conflict (id) do update set
-                tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
+                gjennomforing_id = excluded.gjennomforing_id,
                 periode_start           = excluded.periode_start,
                 periode_slutt           = excluded.periode_slutt,
                 kostnadssted            = excluded.kostnadssted,
@@ -62,7 +62,7 @@ class TilsagnQueries(private val session: Session) {
 
         val params = mapOf(
             "id" to dbo.id,
-            "tiltaksgjennomforing_id" to dbo.tiltaksgjennomforingId,
+            "gjennomforing_id" to dbo.tiltaksgjennomforingId,
             "periode_start" to dbo.periodeStart,
             "periode_slutt" to dbo.periodeSlutt,
             "kostnadssted" to dbo.kostnadssted,
@@ -96,7 +96,7 @@ class TilsagnQueries(private val session: Session) {
             select *
             from tilsagn_admin_dto_view
             where (:type::tilsagn_type is null or type = :type::tilsagn_type)
-              and (:gjennomforing_id::uuid is null or tiltaksgjennomforing_id = :gjennomforing_id::uuid)
+              and (:gjennomforing_id::uuid is null or gjennomforing_id = :gjennomforing_id::uuid)
               and (:statuser::tilsagn_status[] is null or status = any(:statuser))
             order by lopenummer desc
         """.trimIndent()
@@ -127,7 +127,7 @@ class TilsagnQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select * from tilsagn_admin_dto_view
-            where tiltaksgjennomforing_id = :gjennomforing_id::uuid
+            where gjennomforing_id = :gjennomforing_id::uuid
               and (periode_start <= :periode_slutt::date)
               and (periode_slutt >= :periode_start::date)
         """.trimIndent()
@@ -329,7 +329,7 @@ class TilsagnQueries(private val session: Session) {
         return TilsagnDto(
             id = uuid("id"),
             tiltaksgjennomforing = TilsagnDto.Tiltaksgjennomforing(
-                id = uuid("tiltaksgjennomforing_id"),
+                id = uuid("gjennomforing_id"),
             ),
             periodeSlutt = localDate("periode_slutt"),
             periodeStart = localDate("periode_start"),

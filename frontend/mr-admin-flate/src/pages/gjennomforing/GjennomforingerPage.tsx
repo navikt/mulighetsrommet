@@ -1,4 +1,6 @@
 import { gjennomforingfilterAtom, GjennomforingFilterSchema } from "@/api/atoms";
+import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
+import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
 import { GjennomforingFilter } from "@/components/filter/GjennomforingFilter";
 import { GjennomforingFilterButtons } from "@/components/filter/GjennomforingFilterButtons";
 import { GjennomforingFiltertags } from "@/components/filter/GjennomforingFiltertags";
@@ -20,6 +22,8 @@ export function GjennomforingerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
   const [filter, setFilter] = useAtom(gjennomforingfilterAtom);
+  const { data: lagredeFilter = [] } = useLagredeFilter(LagretDokumenttype.GJENNOMFORING);
+  const deleteFilterMutation = useSlettFilter(LagretDokumenttype.GJENNOMFORING);
 
   return (
     <>
@@ -30,8 +34,9 @@ export function GjennomforingerPage() {
           lagredeFilter={
             <LagredeFilterOversikt
               setFilter={setFilter}
+              lagredeFilter={lagredeFilter}
+              deleteMutation={deleteFilterMutation}
               filter={filter}
-              dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING}
               validateFilterStructure={(filter) => {
                 return GjennomforingFilterSchema.safeParse(filter).success;
               }}
