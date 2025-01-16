@@ -4171,7 +4171,7 @@ components:
           type: string
           format: date-time
 
-        frist:
+        deadline:
           type: string
           format: date-time
 
@@ -4180,7 +4180,7 @@ components:
         - title
         - tiltakstype
         - link
-        - frist
+        - deadline
         - createdAt
 
 

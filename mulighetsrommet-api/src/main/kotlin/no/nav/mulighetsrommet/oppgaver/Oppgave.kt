@@ -21,7 +21,7 @@ data class Oppgave(
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val frist: LocalDateTime,
+    val deadline: LocalDateTime,
 )
 
 @Serializable

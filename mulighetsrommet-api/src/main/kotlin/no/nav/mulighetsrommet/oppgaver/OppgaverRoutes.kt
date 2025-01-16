@@ -24,7 +24,7 @@ fun Route.oppgaverRoutes() {
                         link = "https://nav.no/",
                     ),
                     createdAt = LocalDateTime.now().minusDays(5),
-                    frist = LocalDateTime.now().plusDays(7),
+                    deadline = LocalDateTime.now().plusDays(7),
                 ),
                 Oppgave(
                     type = OppgaveType.TILSAGN_TIL_BESLUTNING,
@@ -36,7 +36,7 @@ fun Route.oppgaverRoutes() {
                         link = "https://nav.no/",
                     ),
                     createdAt = LocalDateTime.now().minusDays(4),
-                    frist = LocalDateTime.now().plusDays(6),
+                    deadline = LocalDateTime.now().plusDays(6),
                 ),
                 Oppgave(
                     type = OppgaveType.TILSAGN_TIL_BESLUTNING,
@@ -48,7 +48,7 @@ fun Route.oppgaverRoutes() {
                         link = "https://nav.no/",
                     ),
                     createdAt = LocalDateTime.now().minusDays(3),
-                    frist = LocalDateTime.now().plusDays(5),
+                    deadline = LocalDateTime.now().plusDays(5),
                 ),
             )
 
