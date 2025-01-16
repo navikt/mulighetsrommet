@@ -8,7 +8,6 @@ import { Controller } from "react-hook-form";
 import { Editor, Range, Element as SlateElement, Transforms, createEditor } from "slate";
 import { withHistory } from "slate-history";
 import { Editable, Slate, useSlate, withReact } from "slate-react";
-import styles from "./PortableTextEditor.module.scss";
 import { portableTextToSlate } from "./portableTextToSlate";
 import { slateToPortableText } from "./slateToPortableText";
 
@@ -66,9 +65,9 @@ function PortableTextEditor(props: PortableTextEditorProps, _: ForwardedRef<HTML
         {...rest}
         render={({ field: { onChange, value, name }, fieldState: { error } }) => {
           return (
-            <div className={styles.container}>
+            <div className="flex flex-col">
               <label
-                className={classnames(styles.label, {
+                className={classnames("inline-block", {
                   "navds-sr-only": hideLabel,
                 })}
                 style={{
@@ -80,7 +79,7 @@ function PortableTextEditor(props: PortableTextEditorProps, _: ForwardedRef<HTML
               </label>
               {description && (
                 <label
-                  className={classnames(styles.description, {
+                  className={classnames("mb-[8px] inline-block text-text-subtle", {
                     "navds-sr-only": hideLabel,
                   })}
                   style={{
@@ -104,9 +103,10 @@ function PortableTextEditor(props: PortableTextEditorProps, _: ForwardedRef<HTML
                 }}
               >
                 <div
-                  className={classnames(styles.editor_wrapper, {
-                    [styles.editor_wrapper__focusVisible]: focused,
-                  })}
+                  className={classnames(
+                    "border border-border-default rounded-lg flex flex-col hover:border-border-action",
+                    focused && "outline-none shadow-focus",
+                  )}
                 >
                   <ToolbarComponent>
                     <MarkButton
@@ -136,7 +136,7 @@ function PortableTextEditor(props: PortableTextEditorProps, _: ForwardedRef<HTML
                     <LinkButton />
                   </ToolbarComponent>
                   <Editable
-                    className={styles.textarea}
+                    className="outline-none min-h-[200px] p-2"
                     renderElement={renderElement}
                     renderLeaf={renderLeaf}
                     placeholder={placeholder}
@@ -156,7 +156,7 @@ function PortableTextEditor(props: PortableTextEditorProps, _: ForwardedRef<HTML
                 </div>
               </Slate>
               {error && (
-                <div className={styles.errormsg}>
+                <div className="mt-[8px] text-nav-red">
                   <b>• {error.message}</b>
                 </div>
               )}
@@ -430,7 +430,10 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function Toolbar({ children, ...props }: { children: any }, _: ForwardedRef<HTMLElement>) {
   return (
-    <div {...props} className={styles.toolbar}>
+    <div
+      {...props}
+      className="flex flex-row justify-start gap-8 border-b border-b-border-default [&>span>div]:flex [&>span>div]:items-center [&>span>div]:justify-center [&>span>div]:gap-2 [&>span>div]:p-[10px] hover:[&>span]:bg-gray-200 hover:[&>span]:!text-text-default hover:[&>span]:rounded-sm"
+    >
       {children}
     </div>
   );

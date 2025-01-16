@@ -13,7 +13,6 @@ import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import { Outlet, useLoaderData, useLocation } from "react-router";
-import commonStyles from "../Page.module.scss";
 import { gjennomforingLoader } from "./gjennomforingLoaders";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
@@ -117,7 +116,7 @@ export function GjennomforingPage() {
       </Header>
 
       <Tabs value={currentTab()}>
-        <Tabs.List className={commonStyles.list}>
+        <Tabs.List className="p-[0 0.5rem] w-[1920px] flex items-start m-auto">
           <Tabs.Tab
             value="gjennomforing"
             label="Gjennomføring"

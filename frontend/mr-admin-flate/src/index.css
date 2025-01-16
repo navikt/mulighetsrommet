@@ -19,3 +19,8 @@ html {
 :root {
   --filter-width: 320px;
 }
+
+.navds-tabs__tablist-wrapper {
+  background-color: var(--a-white);
+  width: 100%;
+}

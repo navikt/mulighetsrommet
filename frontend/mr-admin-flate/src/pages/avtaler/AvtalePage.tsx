@@ -9,7 +9,6 @@ import { useTitle } from "@mr/frontend-common";
 import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
 import { Link, Outlet, useLocation, useMatch } from "react-router";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import commonStyles from "../Page.module.scss";
 import { Laster } from "../../components/laster/Laster";
 import { ContentBox } from "@/layouts/ContentBox";
 import React from "react";
@@ -79,7 +78,7 @@ export function AvtalePage() {
         </div>
       </Header>
       <Tabs value={currentTab()}>
-        <Tabs.List className={commonStyles.list}>
+        <Tabs.List className="p-[0 0.5rem] w-[1920px] flex items-start m-auto">
           <Tabs.Tab
             value="avtale"
             label="Avtale"

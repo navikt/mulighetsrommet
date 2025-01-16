@@ -16,7 +16,6 @@ import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/
 import { Alert, BodyShort, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import React, { createRef, useEffect, useState } from "react";
-import pageStyles from "../../pages/Page.module.scss";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
@@ -288,7 +287,6 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
               type="tiltaksgjennomføringer"
             />
             <Pagination
-              className={pageStyles.pagination}
               size="small"
               page={filter.page}
               count={pagination.totalPages}
