@@ -18,8 +18,8 @@ type OppgaverSorting = "korteste-frist" | "nyeste" | "eldste";
 function sort(oppgaver: GetOppgaverResponse, sorting: OppgaverSorting) {
   if (sorting === "korteste-frist") {
     return oppgaver.sort((a, b) => {
-      const aDate = new Date(a.frist);
-      const bDate = new Date(b.frist);
+      const aDate = new Date(a.deadline);
+      const bDate = new Date(b.deadline);
 
       return aDate.getTime() - bDate.getTime();
     });

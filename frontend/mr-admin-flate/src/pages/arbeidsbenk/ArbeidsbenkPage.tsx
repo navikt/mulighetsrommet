@@ -7,8 +7,6 @@ import styles from "../Page.module.scss";
 import arbeidsbenkStyles from "./arbeidsbenk.module.scss";
 import { arbeidsbenkLoader } from "@/pages/arbeidsbenk/arbeidsbenkLoader";
 import { ContentBox } from "@/layouts/ContentBox";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { Toggles } from "@mr/api-client";
 
 export function ArbeidsbenkPage() {
   const { pathname } = useLocation();
