@@ -1,7 +1,18 @@
 import { useBesluttTilsagn } from "@/api/tilsagn/useBesluttTilsagn";
+import { useSlettTilsagn } from "@/api/tilsagn/useSlettTilsagn";
+import { useTilsagnTilAnnullering } from "@/api/tilsagn/useTilsagnTilAnnullering";
 import { Header } from "@/components/detaljside/Header";
+import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
+import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
+import { TiltakDetaljerForTilsagn } from "@/components/tilsagn/TiltakDetaljerForTilsagn";
+import { ContentBox } from "@/layouts/ContentBox";
+import { TilsagnDetaljerFri } from "@/pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljerFri";
+import {
+  isTilsagnForhandsgodkjent,
+  isTilsagnFri,
+} from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
 import {
   BesluttTilsagnRequest,
   NavAnsattRolle,
@@ -13,24 +24,12 @@ import { EraserIcon, PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/ak
 import { ActionMenu, Alert, BodyShort, Box, Button, Heading, HStack } from "@navikt/ds-react";
 import { useRef, useState } from "react";
 import { Link, useLoaderData, useMatch, useNavigate, useParams } from "react-router";
-import { useSlettTilsagn } from "@/api/tilsagn/useSlettTilsagn";
-import { TiltakDetaljerForTilsagn } from "@/components/tilsagn/TiltakDetaljerForTilsagn";
-import { TilsagnDetaljerForhandsgodkjent } from "./TilsagnDetaljerForhandsgodkjent";
-import { AvvisTilsagnModal } from "../AvvisTilsagnModal";
-import styles from "../TilsagnDetaljer.module.scss";
-import { tilsagnDetaljerLoader } from "./tilsagnDetaljerLoader";
-import { TilsagnTag } from "../TilsagnTag";
-import { useTilsagnTilAnnullering } from "@/api/tilsagn/useTilsagnTilAnnullering";
-import { TilAnnulleringModal } from "../TilAnnulleringModal";
 import { AvvistAlert, TilAnnulleringAlert } from "../AarsakerAlert";
-import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
-import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
-import {
-  isTilsagnForhandsgodkjent,
-  isTilsagnFri,
-} from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
-import { TilsagnDetaljerFri } from "@/pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljerFri";
-import { ContentBox } from "@/layouts/ContentBox";
+import { AvvisTilsagnModal } from "../AvvisTilsagnModal";
+import { TilAnnulleringModal } from "../TilAnnulleringModal";
+import { TilsagnTag } from "../TilsagnTag";
+import { TilsagnDetaljerForhandsgodkjent } from "./TilsagnDetaljerForhandsgodkjent";
+import { tilsagnDetaljerLoader } from "./tilsagnDetaljerLoader";
 
 export function TilsagnDetaljer() {
   const { gjennomforing, tilsagn, ansatt, historikk } =
@@ -154,7 +153,7 @@ export function TilsagnDetaljer() {
                   {tilsagn.status.type === "RETURNERT" && (
                     <>
                       <ActionMenu.Item icon={<PencilFillIcon />}>
-                        <Link className={styles.link_without_underline} to="./rediger-tilsagn">
+                        <Link className="no-underline" to="./rediger-tilsagn">
                           Rediger tilsagn
                         </Link>
                       </ActionMenu.Item>
