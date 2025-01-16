@@ -50,11 +50,10 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     path: { id },
     headers: await apiHeaders(request),
   });
-  const { data: relevanteForslag } =
-    await ArrangorflateService.getRelevanteForslag({
-      path: { id },
-      headers: await apiHeaders(request),
-    });
+  const { data: relevanteForslag } = await ArrangorflateService.getRelevanteForslag({
+    path: { id },
+    headers: await apiHeaders(request),
+  });
 
   return { krav, deltakerlisteUrl, relevanteForslag };
 };

@@ -14,10 +14,11 @@ export const meta: MetaFunction = () => {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const currentTab = getCurrentTab(request);
-  const { data: arrangorer } =
-    await ArrangorflateService.getArrangorerInnloggetBrukerHarTilgangTil({
+  const { data: arrangorer } = await ArrangorflateService.getArrangorerInnloggetBrukerHarTilgangTil(
+    {
       headers: await apiHeaders(request),
-    });
+    },
+  );
 
   if (arrangorer.length === 0) {
     return redirect("/ingen-tilgang");
