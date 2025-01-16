@@ -8,7 +8,15 @@ interface Props {
 
 export function EmptyState({ tittel, beskrivelse }: Props) {
   return (
-    <div style={{ textAlign: "center" }}>
+    <div
+      style={{
+        textAlign: "center",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
       <VarslerIkon />
       <Heading size={"xsmall"}>{tittel}</Heading>
       <BodyShort>{beskrivelse}</BodyShort>
