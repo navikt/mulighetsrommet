@@ -2,7 +2,6 @@ import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
 import { Button, ErrorSummary, Popover } from "@navikt/ds-react";
 import { useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
-import styles from "./ValideringsfeilOppsummering.module.scss";
 
 export function ValideringsfeilOppsummering() {
   const visValideringsFeilTrekantRef = useRef(null);
@@ -38,7 +37,7 @@ export function ValideringsfeilOppsummering() {
         size="small"
         aria-live="assertive"
         tabIndex={0}
-        className={styles.varseltrekant}
+        className="cursor-pointer"
         onClick={() => setVisValideringsfeil(true)}
         ref={visValideringsFeilTrekantRef}
         title="Det er valideringsfeil i skjema. Trykk for å få oversikt over valideringsfeilene."
@@ -52,12 +51,16 @@ export function ValideringsfeilOppsummering() {
       >
         <Popover.Content>
           <ErrorSummary
-            className={styles.valideringsfeil}
+            className="[&>li]:cursor-default [&>li]:text-gray-900"
             heading="Det er valideringsfeil i skjema"
           >
             {messages.map((value, key) => {
               return (
-                <ErrorSummary.Item as="span" className={styles.valideringsfeil_item} key={key}>
+                <ErrorSummary.Item
+                  as="span"
+                  className="no-underline text-[var(--a-text-default)]"
+                  key={key}
+                >
                   {value.message}
                 </ErrorSummary.Item>
               );

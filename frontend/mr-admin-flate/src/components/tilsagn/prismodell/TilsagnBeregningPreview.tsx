@@ -1,7 +1,6 @@
 import { ApiError, TilsagnBeregningInput, TilsagnBeregningOutput } from "@mr/api-client";
 import { formaterNOK, isValidationError } from "@mr/frontend-common/utils/utils";
 import { Heading, Label } from "@navikt/ds-react";
-import styles from "./TilsagnSkjema.module.scss";
 import { useBeregnTilsagn } from "@/api/tilsagn/useBeregnTilsagn";
 import { useEffect, useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
@@ -42,7 +41,7 @@ export function TilsagnBeregningPreview(props: Props) {
   return (
     <>
       <Heading size="small">Beløp</Heading>
-      <div className={styles.rowSpaceBetween}>
+      <div className="flex justify-between">
         <Label size="medium">Totalbeløp</Label>
         {beregning?.belop && <Label size="medium">{formaterNOK(beregning.belop)}</Label>}
       </div>

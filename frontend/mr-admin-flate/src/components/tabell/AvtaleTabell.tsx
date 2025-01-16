@@ -20,7 +20,6 @@ import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { AvtalestatusTag } from "../statuselementer/AvtalestatusTag";
-import styles from "./Tabell.module.scss";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
@@ -128,21 +127,22 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
           <a style={{ display: "none" }} ref={link}></a>
         </ToolbarMeny>
       </ToolbarContainer>
-      <TabellWrapper filterOpen={filterOpen}>
+      <TabellWrapper>
         {avtaler.length === 0 ? (
           <Alert variant="info">Fant ingen avtaler</Alert>
         ) : (
           <Table
             sort={sort!}
             onSortChange={(sortKey) => handleSort(sortKey!)}
-            className={styles.tabell}
+            className="bg-white border-separate border-spacing-0 border-t border-gray-200"
           >
             <Table.Header
               style={{
                 top: `calc(${tagsHeight}px + 7.8rem)`,
               }}
+              className="sticky bg-white"
             >
-              <Table.Row className={styles.avtale_tabellrad}>
+              <Table.Row className="hover:bg-gray-50">
                 {headers.map((header) => (
                   <Table.ColumnHeader
                     key={header.sortKey}
@@ -160,11 +160,8 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
             <Table.Body>
               {avtaler.map((avtale, index) => {
                 return (
-                  <Table.Row key={index} className={styles.avtale_tabellrad}>
-                    <Table.DataCell
-                      aria-label={`Avtalenavn: ${avtale.navn}`}
-                      className={styles.title}
-                    >
+                  <Table.Row key={index} className="hover:bg-gray-50">
+                    <Table.DataCell aria-label={`Avtalenavn: ${avtale.navn}`} className="underline">
                       <VStack>
                         <Lenke to={`/avtaler/${avtale.id}`} data-testid="avtaletabell_tittel">
                           {avtale.navn}
@@ -220,7 +217,6 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
               type="avtaler"
             />
             <Pagination
-              className={styles.pagination}
               size="small"
               page={filter.page}
               count={pagination.totalPages}

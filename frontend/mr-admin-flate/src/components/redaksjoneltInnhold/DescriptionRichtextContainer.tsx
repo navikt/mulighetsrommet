@@ -1,6 +1,5 @@
 import { PropsWithChildren } from "react";
-import styles from "./DescriptionRichtextContainer.module.scss";
 
 export function DescriptionRichtextContainer(props: PropsWithChildren) {
-  return <div className={styles.description_richtext_container}>{props.children}</div>;
+  return <div className="flex flex-col gap-4 mt-4">{props.children}</div>;
 }

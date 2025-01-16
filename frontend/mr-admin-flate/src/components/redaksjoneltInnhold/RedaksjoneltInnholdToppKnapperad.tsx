@@ -1,11 +1,10 @@
 import { PropsWithChildren } from "react";
-import styles from "./RedaksjoneltInnholdToppKnapperad.module.scss";
 
 export function RedaksjoneltInnholdToppKnapperad(props: PropsWithChildren) {
   return (
-    <div className={styles.redaksjonelt_innhold_topp_knapperad}>
+    <div className="max-w-[900px] mt-4">
       {props.children}
-      <hr className={styles.separator} />
+      <hr className="w-full h-px my-4 bg-border-divider border-0" />
     </div>
   );
 }
