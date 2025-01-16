@@ -56,7 +56,10 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
             <HStack gap="2">
               <NullstillFilterKnapp onClick={resetFilterToDefaults} />
               <LagreFilterButton
-                mutation={lagreFilterMutation}
+                onLagre={(r) => {
+                  lagreFilterMutation.mutate(r);
+                  lagreFilterMutation.reset();
+                }}
                 dokumenttype={LagretDokumenttype.GJENNOMFORING_MODIA}
                 filter={filterValue}
               />

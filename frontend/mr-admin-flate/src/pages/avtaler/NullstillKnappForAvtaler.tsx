@@ -37,7 +37,10 @@ export function NullstillKnappForAvtaler({ filterAtom, tiltakstypeId }: Props) {
             }}
           />
           <LagreFilterButton
-            mutation={lagreFilterMutation}
+            onLagre={(r) => {
+              lagreFilterMutation.mutate(r);
+              lagreFilterMutation.reset();
+            }}
             dokumenttype={LagretDokumenttype.AVTALE}
             filter={filter}
           />

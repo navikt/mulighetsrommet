@@ -46,7 +46,7 @@ export function GjennomforingerForAvtalePage() {
             setFilter={setFilter}
             filter={filter}
             lagredeFilter={lagredeFilter}
-            deleteMutation={deleteFilterMutation}
+            onDelete={(id: string) => deleteFilterMutation.mutate(id)}
             validateFilterStructure={(filter) => {
               return GjennomforingFilterSchema.safeParse(filter).success;
             }}
