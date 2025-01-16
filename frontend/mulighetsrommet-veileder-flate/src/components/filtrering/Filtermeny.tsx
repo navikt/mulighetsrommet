@@ -1,6 +1,6 @@
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Accordion } from "@navikt/ds-react";
-import { ApentForPamelding, NavEnhet } from "@mr/api-client";
+import { ApentForPamelding, NavEnhet } from "@mr/api-client-v2";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { FilterToggle } from "./FilterToggle";
 import styles from "./Filtermeny.module.scss";

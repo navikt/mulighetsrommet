@@ -1,7 +1,7 @@
 import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
 import { TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL } from "@/constants";
 import { useLogEvent } from "@/logging/amplitude";
-import { Deltakelse, DeltakelserMelding } from "@mr/api-client";
+import { Deltakelse, DeltakelserMelding } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import {
   ArrowForwardIcon,

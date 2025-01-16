@@ -1,5 +1,5 @@
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
-import { ApiError } from "@mr/api-client";
+import { ApiError } from "@mr/api-client-v2";
 import { BodyShort, Heading } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { FallbackProps } from "react-error-boundary";

@@ -1,4 +1,4 @@
-import { PortableTextTypedObject, VeilderflateArrangor } from "@mr/api-client";
+import { PortableTextTypedObject, VeilderflateArrangor } from "@mr/api-client-v2";
 import { BodyLong, BodyShort, Heading, Link } from "@navikt/ds-react";
 import { RedaksjoneltInnhold } from "../../RedaksjoneltInnhold";
 

@@ -10,7 +10,7 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import { ModalBody, ModalHeader } from "@navikt/ds-react/Modal";
-import { PersonopplysningData, VeilederflateTiltakGruppe } from "@mr/api-client";
+import { PersonopplysningData, VeilederflateTiltakGruppe } from "@mr/api-client-v2";
 import { useState } from "react";
 import { PersonvernIkon } from "@/ikoner/PersonvernIkon";
 import styles from "./PersonvernContainer.module.scss";

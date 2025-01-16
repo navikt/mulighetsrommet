@@ -1,6 +1,6 @@
 import { Accordion, ToggleGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { ApentForPamelding } from "@mr/api-client";
+import { ApentForPamelding } from "@mr/api-client-v2";
 import React from "react";
 import { filterAccordionAtom, FilterAccordionTypes } from "../../core/atoms";
 import { addOrRemove } from "../../utils/Utils";

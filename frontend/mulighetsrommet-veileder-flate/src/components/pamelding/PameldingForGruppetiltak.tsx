@@ -5,7 +5,7 @@ import {
   GruppetiltakDeltakerStatus,
   Toggles,
   VeilederflateTiltakGruppe,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { Alert, BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import styles from "./PameldingForGruppetiltak.module.scss";

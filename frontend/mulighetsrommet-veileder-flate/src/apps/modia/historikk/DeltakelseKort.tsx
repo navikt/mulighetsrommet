@@ -3,7 +3,7 @@ import {
   ArenaDeltakerStatus,
   Deltakelse,
   GruppetiltakDeltakerStatus,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import {
   BodyShort,
   Box,

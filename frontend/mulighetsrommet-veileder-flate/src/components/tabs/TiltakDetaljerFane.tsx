@@ -1,4 +1,4 @@
-import { PortableTextTypedObject } from "@mr/api-client";
+import { PortableTextTypedObject } from "@mr/api-client-v2";
 import { LokalInformasjonContainer } from "@mr/frontend-common";
 import { Alert, BodyLong, Heading } from "@navikt/ds-react";
 import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
