@@ -46,7 +46,7 @@ spec:
       - name: arena-adapter-v1
         type: POSTGRES_17
         tier: db-f1-micro
-        diskAutoResize: true
+        diskAutoresize: true
         databases:
           - name: mulighetsrommet-arena-adapter-db
             envVarPrefix: DB
