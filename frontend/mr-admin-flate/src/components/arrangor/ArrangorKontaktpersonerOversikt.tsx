@@ -316,7 +316,7 @@ function RedigerbarRad({ kontaktperson, setRedigerKontaktperson, arrangor }: Red
           options={[
             { value: ArrangorKontaktpersonAnsvar.AVTALE, label: "Avtale" },
             {
-              value: ArrangorKontaktpersonAnsvar.TILTAKSGJENNOMFORING,
+              value: ArrangorKontaktpersonAnsvar.GJENNOMFORING,
               label: "Gjennomføring",
             },
             { value: ArrangorKontaktpersonAnsvar.OKONOMI, label: "Økonomi" },

@@ -75,7 +75,7 @@ function InnsatsgruppeAccordion({
           }
         />
       </Accordion.Header>
-      <Accordion.Content data-testid="filter_accordioncontent_innsatsgruppe">
+      <Accordion.Content className="ml-[-2rem]" data-testid="filter_accordioncontent_innsatsgruppe">
         {options.length !== 0 && (
           <RadioGroup
             legend=""
