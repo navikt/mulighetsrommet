@@ -21,13 +21,15 @@ export function TilsagnDetaljerForhandsgodkjent({ tilsagn }: Props) {
       <TwoColumnGrid separator>
         <VStack>
           <Bolk>
+            <Metadata header="Tilsagnstype" verdi={avtaletekster.tilsagn.type(tilsagn.type)} />
+          </Bolk>
+          <Bolk>
             <Metadata header="Dato fra" verdi={formaterDato(tilsagn.periodeStart)} />
             <Metadata header="Dato til" verdi={formaterDato(tilsagn.periodeSlutt)} />
             <Metadata
               header="Tilsagnsstatus"
               verdi={<TilsagnTag expandable status={tilsagn.status} />}
             />
-            <Metadata header="Tilsagnstype" verdi={avtaletekster.tilsagn.type(tilsagn.type)} />
           </Bolk>
           <Bolk>
             <Metadata header="Antall plasser" verdi={tilsagn.beregning.input.antallPlasser} />

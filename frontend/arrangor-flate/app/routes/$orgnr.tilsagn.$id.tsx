@@ -47,8 +47,8 @@ export default function TilsagnDetaljerPage() {
         className="mt-4"
         definitions={[
           { key: "Tiltakstype", value: tilsagn.tiltakstype.navn },
-          { key: "Tilsagnstype", value: tekster.tilsagn.tilsagntype(tilsagn.type) },
           { key: "Tiltaksnavn", value: tilsagn.gjennomforing.navn },
+          { key: "Tilsagnstype", value: tekster.tilsagn.tilsagntype(tilsagn.type) },
         ]}
       />
       <TilsagnDetaljer tilsagn={tilsagn} />
