@@ -6,6 +6,7 @@ import { formaterDato } from "@/utils/Utils";
 import { TilsagnDto } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Heading, VStack } from "@navikt/ds-react";
+import { avtaletekster } from "../../../../components/ledetekster/avtaleLedetekster";
 
 interface Props {
   tilsagn: TilsagnDto;
@@ -26,6 +27,7 @@ export function TilsagnDetaljerFri({ tilsagn }: Props) {
               header="Tilsagnsstatus"
               verdi={<TilsagnTag expandable status={tilsagn.status} />}
             />
+            <Metadata header="Tilsagnstype" verdi={avtaletekster.tilsagn.type(tilsagn.type)} />
           </Bolk>
           <Bolk>
             <Metadata
