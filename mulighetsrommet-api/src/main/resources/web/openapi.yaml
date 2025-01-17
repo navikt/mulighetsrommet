@@ -3596,7 +3596,7 @@ components:
       type: string
       enum:
         - AVTALE
-        - TILTAKSGJENNOMFORING
+        - GJENNOMFORING
         - OKONOMI
 
     AvtaleAdministrator:

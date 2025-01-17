@@ -156,7 +156,7 @@ export function ArrangorKontaktpersonSkjema({
         options={[
           { value: ArrangorKontaktpersonAnsvar.AVTALE, label: "Avtale" },
           {
-            value: ArrangorKontaktpersonAnsvar.TILTAKSGJENNOMFORING,
+            value: ArrangorKontaktpersonAnsvar.GJENNOMFORING,
             label: "Gjennomføring",
           },
           { value: ArrangorKontaktpersonAnsvar.OKONOMI, label: "Økonomi" },
