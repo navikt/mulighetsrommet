@@ -15,17 +15,17 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo1
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging2
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Lillehammer
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.EnkelAmo1
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging1
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging2
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingKontaktperson
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
@@ -36,7 +36,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class TiltaksgjennomforingQueriesTest : FunSpec({
+class GjennomforingQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     context("CRUD") {
@@ -48,7 +48,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 queries.upsert(Oppfolging1)
 
@@ -103,7 +103,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 val gjennomforing = Oppfolging1.copy(
                     administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
@@ -127,7 +127,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                     avtaler = listOf(AvtaleFixtures.oppfolging),
                 ).setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 queries.upsert(
                     Oppfolging1.copy(navEnheter = listOf(Gjovik.enhetsnummer, Sel.enhetsnummer)),
@@ -157,7 +157,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                     avtaler = listOf(AvtaleFixtures.oppfolging),
                 ).setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 queries.upsert(Oppfolging1)
                 queries.setTilgjengeligForArrangorFraOgMedDato(Oppfolging1.id, LocalDate.now())
@@ -171,7 +171,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 queries.upsert(
                     Oppfolging1.copy(
@@ -191,7 +191,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                 )
 
                 queries.get(Oppfolging1.id)?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(
-                    TiltaksgjennomforingKontaktperson(
+                    GjennomforingKontaktperson(
                         navIdent = NavIdent("DD1"),
                         navn = "Donald Duck",
                         mobilnummer = "12345678",
@@ -200,7 +200,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                         hovedenhet = "0400",
                         beskrivelse = "hei hei kontaktperson",
                     ),
-                    TiltaksgjennomforingKontaktperson(
+                    GjennomforingKontaktperson(
                         navIdent = NavIdent("DD2"),
                         navn = "Dolly Duck",
                         mobilnummer = "48243214",
@@ -224,7 +224,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                 )
 
                 queries.get(Oppfolging1.id)?.kontaktpersoner shouldBe listOf(
-                    TiltaksgjennomforingKontaktperson(
+                    GjennomforingKontaktperson(
                         navIdent = NavIdent("DD1"),
                         navn = "Donald Duck",
                         mobilnummer = "12345678",
@@ -261,7 +261,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                     avtaler = listOf(AvtaleFixtures.oppfolging),
                 ).setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 queries.upsert(Oppfolging1.copy(arrangorKontaktpersoner = listOf(thomas.id)))
                 queries.get(Oppfolging1.id).shouldNotBeNull().should {
@@ -288,7 +288,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 queries.upsert(Oppfolging1)
 
@@ -303,7 +303,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 queries.upsert(Oppfolging1)
                 queries.get(Oppfolging1.id).shouldNotBeNull().apentForPamelding shouldBe true
@@ -317,7 +317,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 queries.upsert(Oppfolging1)
                 queries.setPublisert(Oppfolging1.id, true)
@@ -360,7 +360,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 queries.upsert(Oppfolging1.copy(faneinnhold = faneinnhold))
 
@@ -382,7 +382,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 queries.upsert(Oppfolging1.copy(amoKategorisering = amo))
                 queries.get(Oppfolging1.id).shouldNotBeNull().should {
@@ -413,7 +413,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                     ),
                 ).setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 queries.getAll(
                     arrangorOrgnr = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
@@ -446,7 +446,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                     ),
                 ).setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 queries.getAll(search = "bergen").should {
                     it.items.size shouldBe 1
@@ -466,7 +466,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                     gjennomforinger = listOf(Oppfolging1, EnkelAmo1),
                 ).setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 queries.getAll().should {
                     it.totalCount shouldBe 1
@@ -483,7 +483,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                     gjennomforinger = listOf(Oppfolging1, Oppfolging2),
                 ).setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 queries.setOpphav(Oppfolging1.id, ArenaMigrering.Opphav.ARENA)
 
@@ -510,7 +510,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                     gjennomforinger = listOf(Oppfolging1, AFT1),
                 ).setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 queries.getAll(avtaleId = AvtaleFixtures.oppfolging.id)
                     .items.shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
@@ -532,7 +532,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                     ),
                 ).setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 queries.getAll(sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate)
                     .should { (totalCount, gjennomforinger) ->
@@ -558,7 +558,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                     ),
                 ).setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 queries.updateArenaData(
                     id = domain.gjennomforinger[2].id,
@@ -592,7 +592,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                     ),
                 ).setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 queries.getAll(administratorNavIdent = NavAnsattFixture.ansatt1.navIdent)
                     .totalCount shouldBe 2
@@ -612,7 +612,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                     gjennomforinger = listOf(Oppfolging1, VTA1, AFT1),
                 ).setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 queries.getAll(tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id))
                     .should { (totalCount, gjennomforinger) ->
@@ -641,7 +641,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                     ),
                 ).setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 queries.getAll(navEnheter = listOf(Gjovik.enhetsnummer))
                     .should { (totalCount, gjennomforinger) ->
@@ -669,7 +669,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.oppfolging),
             ).setup(session)
 
-            val queries = TiltaksgjennomforingQueries(session)
+            val queries = GjennomforingQueries(session)
 
             (1..10).forEach {
                 queries.upsert(
@@ -707,7 +707,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(avtaler = listOf(AvtaleFixtures.AFT)).setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 forAll(
                     row(enManedTilbake, enManedFrem, enManedTilbake.minusDays(1), GjennomforingStatus.AVLYST),
@@ -737,7 +737,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(avtaler = listOf(AvtaleFixtures.AFT)).setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 forAll(
                     row(toManederTilbake, enManedTilbake, GjennomforingStatus.GJENNOMFORES),
@@ -787,7 +787,7 @@ class TiltaksgjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 testDomain.setup(session)
 
-                val queries = TiltaksgjennomforingQueries(session)
+                val queries = GjennomforingQueries(session)
 
                 queries.get(testDomain.gjennomforinger[0].id).shouldNotBeNull().should {
                     it.arrangor.kontaktpersoner.first().id.shouldBe(kontaktperson1.id)

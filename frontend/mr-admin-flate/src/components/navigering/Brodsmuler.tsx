@@ -11,8 +11,8 @@ export interface Brodsmule {
     | `/tiltakstyper/${Id}`
     | "/avtaler"
     | `/avtaler/${Id}`
-    | "/tiltaksgjennomforinger"
-    | `/tiltaksgjennomforinger/${Id}`
+    | "/gjennomforinger"
+    | `/gjennomforinger/${Id}`
     | "/arrangorer"
     | `/arrangorer/${Id}`;
 }

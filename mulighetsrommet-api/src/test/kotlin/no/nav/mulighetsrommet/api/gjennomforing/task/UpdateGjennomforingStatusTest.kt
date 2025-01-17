@@ -9,10 +9,10 @@ import io.mockk.verify
 import io.mockk.verifyAll
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
@@ -21,33 +21,33 @@ import no.nav.mulighetsrommet.domain.dto.GjennomforingStatusDto
 import java.time.LocalDate
 import java.util.*
 
-class UpdateTiltaksgjennomforingStatusTest : FunSpec({
+class UpdateGjennomforingStatusTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createTask(
         producer: SisteTiltaksgjennomforingerV1KafkaProducer = mockk(relaxed = true),
-    ) = UpdateTiltaksgjennomforingStatus(
+    ) = UpdateGjennomforingStatus(
         database.db,
-        TiltaksgjennomforingService(
+        GjennomforingService(
             db = database.db,
-            tiltaksgjennomforingKafkaProducer = producer,
+            gjennomforingKafkaProducer = producer,
             validator = mockk(relaxed = true),
             navAnsattService = mockk(relaxed = true),
         ),
     )
 
     context("oppdater statuser på tiltaksgjennomføringer") {
-        val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+        val gjennomforing1 = GjennomforingFixtures.Oppfolging1.copy(
             id = UUID.randomUUID(),
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2023, 12, 31),
         )
-        val gjennomforing2 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+        val gjennomforing2 = GjennomforingFixtures.Oppfolging1.copy(
             id = UUID.randomUUID(),
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2023, 1, 31),
         )
-        val gjennomforing3 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+        val gjennomforing3 = GjennomforingFixtures.Oppfolging1.copy(
             id = UUID.randomUUID(),
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2023, 1, 31),
@@ -74,7 +74,7 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             val producer = mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true)
             val task = createTask(producer)
 
-            task.oppdaterTiltaksgjennomforingStatus(today = LocalDate.of(2023, 1, 31))
+            task.oppdaterGjennomforingStatus(today = LocalDate.of(2023, 1, 31))
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
@@ -95,7 +95,7 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             val producer = mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true)
             val task = createTask(producer)
 
-            task.oppdaterTiltaksgjennomforingStatus(today = LocalDate.of(2023, 2, 1))
+            task.oppdaterGjennomforingStatus(today = LocalDate.of(2023, 2, 1))
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
@@ -127,7 +127,7 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             val producer = mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true)
             val task = createTask(producer)
 
-            task.oppdaterTiltaksgjennomforingStatus(today = LocalDate.of(2023, 3, 1))
+            task.oppdaterGjennomforingStatus(today = LocalDate.of(2023, 3, 1))
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
@@ -179,7 +179,7 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             val producer = mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true)
             val task = createTask(producer)
 
-            task.oppdaterTiltaksgjennomforingStatus(today = LocalDate.of(2024, 1, 2))
+            task.oppdaterGjennomforingStatus(today = LocalDate.of(2024, 1, 2))
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
@@ -200,7 +200,7 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
     }
 
     context("når gjennomføring blir avsluttet") {
-        val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+        val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
             id = UUID.randomUUID(),
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2023, 1, 31),
@@ -226,7 +226,7 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
                 queries.gjennomforing.setApentForPamelding(gjennomforing.id, true)
             }
 
-            createTask().oppdaterTiltaksgjennomforingStatus(today = LocalDate.of(2023, 2, 1))
+            createTask().oppdaterGjennomforingStatus(today = LocalDate.of(2023, 2, 1))
 
             database.run {
                 queries.gjennomforing.get(gjennomforing.id).shouldNotBeNull().should {

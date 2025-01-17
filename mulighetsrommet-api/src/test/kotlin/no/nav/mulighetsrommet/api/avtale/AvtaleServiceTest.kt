@@ -19,10 +19,10 @@ import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadTiltaksgjennomforinger
+import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.NotFound
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -58,7 +58,7 @@ class AvtaleServiceTest : FunSpec({
 
     fun createAvtaleService(
         brregClient: BrregClient = mockk(relaxed = true),
-        gjennomforingPublisher: InitialLoadTiltaksgjennomforinger = mockk(relaxed = true),
+        gjennomforingPublisher: InitialLoadGjennomforinger = mockk(relaxed = true),
     ) = AvtaleService(
         database.db,
         ArrangorService(database.db, brregClient),
@@ -68,7 +68,7 @@ class AvtaleServiceTest : FunSpec({
 
     context("Upsert avtale") {
         val brregClient = mockk<BrregClient>()
-        val gjennomforingPublisher = mockk<InitialLoadTiltaksgjennomforinger>(relaxed = true)
+        val gjennomforingPublisher = mockk<InitialLoadGjennomforinger>(relaxed = true)
         val avtaleService = createAvtaleService(brregClient, gjennomforingPublisher)
 
         test("får ikke opprette avtale dersom det oppstår valideringsfeil") {
@@ -108,7 +108,7 @@ class AvtaleServiceTest : FunSpec({
 
             verify {
                 gjennomforingPublisher.schedule(
-                    InitialLoadTiltaksgjennomforinger.Input(avtaleId = request.id),
+                    InitialLoadGjennomforinger.Input(avtaleId = request.id),
                     any(),
                     any(),
                 )
@@ -147,12 +147,12 @@ class AvtaleServiceTest : FunSpec({
                 startDato = LocalDate.of(2024, 5, 17),
                 sluttDato = LocalDate.of(2025, 7, 1),
             )
-            val oppfolging1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val oppfolging1 = GjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
                 startDato = LocalDate.of(2023, 5, 1),
                 sluttDato = null,
             )
-            val oppfolging2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
+            val oppfolging2 = GjennomforingFixtures.Oppfolging2.copy(
                 avtaleId = avtale.id,
                 startDato = LocalDate.of(2023, 5, 1),
                 sluttDato = null,
@@ -176,7 +176,7 @@ class AvtaleServiceTest : FunSpec({
                 startDato = LocalDate.now().minusDays(1),
                 sluttDato = LocalDate.now().plusMonths(1),
             )
-            val oppfolging1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val oppfolging1 = GjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
                 startDato = LocalDate.now().minusDays(1),
                 sluttDato = LocalDate.now().minusDays(1),

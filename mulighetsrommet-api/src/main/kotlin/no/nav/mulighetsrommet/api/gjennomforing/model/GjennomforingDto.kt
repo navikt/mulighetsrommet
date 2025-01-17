@@ -42,7 +42,7 @@ data class GjennomforingDto(
     val navEnheter: List<NavEnhetDbo>,
     val oppstart: GjennomforingOppstartstype,
     val opphav: ArenaMigrering.Opphav,
-    val kontaktpersoner: List<TiltaksgjennomforingKontaktperson>,
+    val kontaktpersoner: List<GjennomforingKontaktperson>,
     val stedForGjennomforing: String?,
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,

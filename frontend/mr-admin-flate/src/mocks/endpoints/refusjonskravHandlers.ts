@@ -49,7 +49,7 @@ const mockRefusjonskravKompakt: RefusjonKravKompakt[] = [
 
 export const refusjonskravHandlers = [
   http.get<PathParams, any, RefusjonKravKompakt[]>(
-    "*/api/v1/intern/tiltaksgjennomforinger/:tiltaksgjennomforingId/refusjonskrav",
+    "*/api/v1/intern/gjennomforinger/:gjennomforingId/refusjonskrav",
     async () => {
       return HttpResponse.json(mockRefusjonskravKompakt);
     },

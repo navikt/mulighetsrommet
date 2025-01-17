@@ -15,7 +15,7 @@ export function TilsagnSkjemaContainer({ avtale, gjennomforing, defaults }: Prop
   const navigate = useNavigate();
 
   function navigerTilTilsagn() {
-    navigate(`/tiltaksgjennomforinger/${gjennomforing.id}/tilsagn`);
+    navigate(`/gjennomforinger/${gjennomforing.id}/tilsagn`);
   }
 
   const kostnadssted = getKostnadssted(gjennomforing, defaults.type);

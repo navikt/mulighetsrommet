@@ -25,13 +25,13 @@ enum class Personopplysning(private val tittel: String, private val hjelpetekst:
     PERSONLIGE_EGENSKAPER_OG_INTERESSER("Opplysninger om personlige egenskaper og interesser", null, 16),
     SPRAKKUNNSKAP("Opplysninger om språkkunnskap", null, 17),
     ADFERD(
-        "Opplysninger om atferd som kan ha betydning for tiltaksgjennomføring og jobbmuligheter",
+        "Opplysninger om atferd som kan ha betydning for tiltaket og jobbmuligheter",
         "For eksempel truende adferd, vanskelig å samarbeide med osv. Det kan for eksempel være tilfeller hvor det er nødvendig å informere tiltaksarrangør om at bruker har et sikkerhetstiltak hos Nav.",
         18,
     ),
     SOSIALE_FORHOLD(
-        "Sosiale eller personlige forhold som kan ha betydning for tiltaksgjennomføring og jobbmuligheter",
-        "For eksempel aleneomsorg for barn og kan derfor ikke jobbe kveldstid, eller økonomiske forhold som går utover tiltaksgjennomføringen.",
+        "Sosiale eller personlige forhold som kan ha betydning for tiltaket og jobbmuligheter",
+        "For eksempel aleneomsorg for barn og kan derfor ikke jobbe kveldstid, eller økonomiske forhold som går utover tiltaket.",
         19,
     ),
     HELSEOPPLYSNINGER(

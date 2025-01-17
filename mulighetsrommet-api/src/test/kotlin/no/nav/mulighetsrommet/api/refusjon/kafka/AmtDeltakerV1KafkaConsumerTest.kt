@@ -15,10 +15,10 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging1
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.refusjon.RefusjonService
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.refusjon.model.DeltakerDto

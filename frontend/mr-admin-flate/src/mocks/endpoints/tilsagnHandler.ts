@@ -9,14 +9,14 @@ import { mockTilsagn } from "../fixtures/mock_tilsagn";
 
 export const tilsagnHandlers = [
   http.put<PathParams, TilsagnRequest>(
-    "*/api/v1/intern/tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn",
+    "*/api/v1/intern/gjennomforinger/:gjennomforingId/tilsagn",
     async ({ request }) => {
       const body = await request.json();
       return HttpResponse.json(body);
     },
   ),
   http.get<PathParams, any, TilsagnDto[]>(
-    "*/api/v1/intern/tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn",
+    "*/api/v1/intern/gjennomforinger/:gjennomforingId/tilsagn",
     async () => {
       return HttpResponse.json(mockTilsagn);
     },

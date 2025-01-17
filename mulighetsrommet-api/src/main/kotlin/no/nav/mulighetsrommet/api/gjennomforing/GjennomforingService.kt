@@ -30,10 +30,10 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class TiltaksgjennomforingService(
+class GjennomforingService(
     private val db: ApiDatabase,
-    private val tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
-    private val validator: TiltaksgjennomforingValidator,
+    private val gjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
+    private val validator: GjennomforingValidator,
     private val navAnsattService: NavAnsattService,
 ) {
 
@@ -68,7 +68,7 @@ class TiltaksgjennomforingService(
             }
             logEndring(operation, dto, EndretAv.NavAnsatt(navIdent))
 
-            tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
+            gjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
 
             dto
         }
@@ -149,7 +149,7 @@ class TiltaksgjennomforingService(
                 val dto = getOrError(id)
                 val operation = "Endret dato for tilgang til Deltakeroversikten"
                 logEndring(operation, dto, EndretAv.NavAnsatt(navIdent))
-                tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
+                gjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
             }
     }
 
@@ -178,7 +178,7 @@ class TiltaksgjennomforingService(
         }
         logEndring(operation, dto, endretAv)
 
-        tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
+        gjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
     }
 
     fun setApentForPamelding(id: UUID, apentForPamelding: Boolean, bruker: EndretAv): Unit = db.transaction {
@@ -192,7 +192,7 @@ class TiltaksgjennomforingService(
         }
         logEndring(operation, dto, bruker)
 
-        tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
+        gjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
     }
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {

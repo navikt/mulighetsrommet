@@ -17,7 +17,7 @@ import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
-import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
@@ -31,11 +31,11 @@ class ArenaAdapterServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createArenaAdapterService(
-        tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer = mockk(relaxed = true),
+        gjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer = mockk(relaxed = true),
         sanityService: SanityService = mockk(relaxed = true),
     ) = ArenaAdapterService(
         db = database.db,
-        tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
+        gjennomforingKafkaProducer = gjennomforingKafkaProducer,
         sanityService = sanityService,
         arrangorService = mockk(relaxed = true),
     )
@@ -87,7 +87,7 @@ class ArenaAdapterServiceTest : FunSpec({
     }
 
     context("tiltak i egen regi") {
-        val gjennomforing = ArenaTiltaksgjennomforingDbo(
+        val gjennomforing = ArenaGjennomforingDbo(
             id = UUID.randomUUID(),
             sanityId = null,
             navn = "IPS",
@@ -155,16 +155,16 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("should not publish egen regi-tiltak to kafka") {
-            val tiltaksgjennomforingKafkaProducer =
+            val gjennomforingKafkaProducer =
                 mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true)
             val service = createArenaAdapterService(
-                tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
+                gjennomforingKafkaProducer = gjennomforingKafkaProducer,
             )
 
             service.upsertTiltaksgjennomforing(gjennomforing)
 
             verify(exactly = 0) {
-                tiltaksgjennomforingKafkaProducer.publish(any())
+                gjennomforingKafkaProducer.publish(any())
             }
         }
     }
@@ -188,7 +188,7 @@ class ArenaAdapterServiceTest : FunSpec({
         test("tillater ikke opprettelse av gjennomføringer fra Arena") {
             val service = createArenaAdapterService()
 
-            val arenaGjennomforing = ArenaTiltaksgjennomforingDbo(
+            val arenaGjennomforing = ArenaGjennomforingDbo(
                 id = UUID.randomUUID(),
                 navn = "Oppfølging",
                 sanityId = null,
@@ -212,7 +212,7 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("skal bare oppdatere arena-felter når tiltakstype har endret eierskap") {
-            val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val gjennomforing1 = GjennomforingFixtures.Oppfolging1.copy(
                 startDato = LocalDate.now(),
                 sluttDato = LocalDate.now().plusDays(1),
             )
@@ -231,7 +231,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 gjennomforinger = listOf(gjennomforing1),
             ).initialize(database.db)
 
-            val arenaDbo = ArenaTiltaksgjennomforingDbo(
+            val arenaDbo = ArenaGjennomforingDbo(
                 id = gjennomforing1.id,
                 sanityId = null,
                 navn = "Endet navn",
@@ -271,7 +271,7 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("skal ikke overskrive avsluttet_tidspunkt") {
-            val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val gjennomforing1 = GjennomforingFixtures.Oppfolging1.copy(
                 startDato = LocalDate.now(),
                 sluttDato = LocalDate.now().plusDays(1),
             )
@@ -300,7 +300,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 )
             }
 
-            val arenaDbo = ArenaTiltaksgjennomforingDbo(
+            val arenaDbo = ArenaGjennomforingDbo(
                 id = gjennomforing1.id,
                 sanityId = null,
                 navn = "Endet navn",
@@ -331,7 +331,7 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("skal publisere til kafka når det er endringer fra Arena") {
-            val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1
+            val gjennomforing1 = GjennomforingFixtures.Oppfolging1
 
             MulighetsrommetTestDomain(
                 enheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
@@ -341,13 +341,13 @@ class ArenaAdapterServiceTest : FunSpec({
                 gjennomforinger = listOf(gjennomforing1),
             ).initialize(database.db)
 
-            val tiltaksgjennomforingKafkaProducer =
+            val gjennomforingKafkaProducer =
                 mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true)
             val service = createArenaAdapterService(
-                tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
+                gjennomforingKafkaProducer = gjennomforingKafkaProducer,
             )
 
-            val arenaGjennomforing = ArenaTiltaksgjennomforingDbo(
+            val arenaGjennomforing = ArenaGjennomforingDbo(
                 id = gjennomforing1.id,
                 navn = "Oppfølging",
                 sanityId = null,
@@ -369,7 +369,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
             // Verifiserer at duplikater ikke blir publisert
             verify(exactly = 1) {
-                tiltaksgjennomforingKafkaProducer.publish(
+                gjennomforingKafkaProducer.publish(
                     match {
                         it.navn == gjennomforing1.navn
                     },

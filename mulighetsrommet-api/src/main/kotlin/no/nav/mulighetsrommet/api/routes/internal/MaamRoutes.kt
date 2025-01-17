@@ -6,7 +6,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadTiltaksgjennomforinger
+import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.refusjon.task.GenerateRefusjonskrav
 import no.nav.mulighetsrommet.api.tasks.*
@@ -26,7 +26,7 @@ fun Route.maamRoutes() {
     route("/api/intern/maam") {
         route("/tasks") {
             val generateValidationReport: GenerateValidationReport by inject()
-            val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
+            val initialLoadGjennomforinger: InitialLoadGjennomforinger by inject()
             val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
             val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
             val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
@@ -38,14 +38,14 @@ fun Route.maamRoutes() {
                 call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
             }
 
-            post("initial-load-tiltaksgjennomforinger") {
+            post("initial-load-gjennomforinger") {
                 val input = call.receive<StartInitialLoadTiltaksgjennomforingRequest>()
 
                 val taskInput = if (input.id != null) {
                     val ids = input.id.split(",").map { UUID.fromString(it.trim()) }
-                    InitialLoadTiltaksgjennomforinger.Input(ids = ids)
+                    InitialLoadGjennomforinger.Input(ids = ids)
                 } else if (input.tiltakstyper != null) {
-                    InitialLoadTiltaksgjennomforinger.Input(
+                    InitialLoadGjennomforinger.Input(
                         tiltakskoder = input.tiltakstyper,
                         opphav = input.opphav,
                     )
@@ -53,7 +53,7 @@ fun Route.maamRoutes() {
                     throw BadRequestException("Ugyldig input")
                 }
 
-                val taskId = initialLoadTiltaksgjennomforinger.schedule(taskInput)
+                val taskId = initialLoadGjennomforinger.schedule(taskInput)
 
                 call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
             }

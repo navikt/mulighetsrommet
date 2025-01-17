@@ -33,12 +33,12 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-fun Route.tiltaksgjennomforingRoutes() {
+fun Route.gjennomforingRoutes() {
     val db: ApiDatabase by inject()
-    val gjennomforinger: TiltaksgjennomforingService by inject()
+    val gjennomforinger: GjennomforingService by inject()
     val avtaler: AvtaleService by inject()
 
-    route("tiltaksgjennomforinger") {
+    route("gjennomforinger") {
         authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
             put {
                 val request = call.receive<GjennomforingRequest>()
@@ -62,7 +62,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                 if (!isForhaandsgodkjentTiltak(gjennomforing.tiltakstype.tiltakskode)) {
                     return@put call.respond(
                         HttpStatusCode.BadRequest,
-                        message = "Avtale kan bare settes for tiltaksgjennomføringer av type AFT eller VTA",
+                        message = "Avtale kan bare settes for gjennomføringer av type AFT eller VTA",
                     )
                 }
 
@@ -209,7 +209,7 @@ fun Route.tiltaksgjennomforingRoutes() {
             call.response.header(
                 HttpHeaders.ContentDisposition,
                 ContentDisposition.Attachment
-                    .withParameter(ContentDisposition.Parameters.FileName, "tiltaksgjennomforinger.xlsx")
+                    .withParameter(ContentDisposition.Parameters.FileName, "gjennomforinger.xlsx")
                     .toString(),
             )
             call.response.header("Access-Control-Expose-Headers", HttpHeaders.ContentDisposition)
@@ -250,7 +250,7 @@ fun Route.tiltaksgjennomforingRoutes() {
             val id: UUID by call.parameters
 
             val deltakereForGjennomforing = db.session {
-                queries.deltaker.getAll(tiltaksgjennomforingId = id)
+                queries.deltaker.getAll(gjennomforingId = id)
             }
 
             val deltakereByStatus = deltakereForGjennomforing

@@ -7,7 +7,7 @@ import java.time.LocalDate
 import java.util.*
 
 @Serializable
-data class ArenaTiltaksgjennomforingDbo(
+data class ArenaGjennomforingDbo(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)

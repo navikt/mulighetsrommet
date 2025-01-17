@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 
-export function useGetTiltaksgjennomforingIdFraUrl() {
+export function useGetTiltakIdFraUrl() {
   const { id } = useParams();
   return normalizeId(id);
 }

@@ -9,8 +9,8 @@ import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.ArenaMigreringTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
@@ -34,12 +34,12 @@ class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
         MulighetsrommetTestDomain(
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
             avtaler = listOf(AvtaleFixtures.oppfolging),
-            gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1),
+            gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
         ).initialize(database.db)
 
         val (gjennomforing, endretTidspunkt) = database.run {
-            val tiltak = queries.gjennomforing.get(TiltaksgjennomforingFixtures.Oppfolging1.id).shouldNotBeNull()
-            val ts = queries.gjennomforing.getUpdatedAt(TiltaksgjennomforingFixtures.Oppfolging1.id).shouldNotBeNull()
+            val tiltak = queries.gjennomforing.get(GjennomforingFixtures.Oppfolging1.id).shouldNotBeNull()
+            val ts = queries.gjennomforing.getUpdatedAt(GjennomforingFixtures.Oppfolging1.id).shouldNotBeNull()
             Pair(tiltak, ts)
         }
 

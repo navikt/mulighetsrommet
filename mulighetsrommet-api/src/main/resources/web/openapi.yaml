@@ -320,7 +320,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/Sertifisering"
 
-  /api/v1/intern/tiltaksgjennomforinger/{id}/historikk:
+  /api/v1/intern/gjennomforinger/{id}/historikk:
     get:
       tags:
         - Gjennomforinger
@@ -332,16 +332,16 @@ paths:
           schema:
             type: string
             format: uuid
-          description: ID for tiltaksgjennomføringen
+          description: ID for gjennomføringen
       responses:
         200:
-          description: Endringshistorikken for tiltaksgjennomføringen
+          description: Endringshistorikken for gjennomføringen
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Endringshistorikk"
 
-  /api/v1/intern/tiltaksgjennomforinger/{id}/deltaker-summary:
+  /api/v1/intern/gjennomforinger/{id}/deltaker-summary:
     get:
       tags:
         - Gjennomforinger
@@ -353,7 +353,7 @@ paths:
           schema:
             type: string
             format: uuid
-          description: ID for tiltaksgjennomføringen
+          description: ID for gjennomføringen
       responses:
         200:
           description: Oppsummert informasjon om gjennomførings deltakere
@@ -362,7 +362,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/GjennomforingDeltakerSummary"
 
-  /api/v1/intern/tiltaksgjennomforinger:
+  /api/v1/intern/gjennomforinger:
     get:
       tags:
         - Gjennomforinger
@@ -377,7 +377,7 @@ paths:
           name: search
           schema:
             type: string
-          description: Search for tiltaksgjennomføringer by the name
+          description: Search for gjennomføringer by the name
         - in: query
           name: navEnheter
           schema:
@@ -392,14 +392,14 @@ paths:
             items:
               type: string
               format: uuid
-          description: Id for tiltakstype knyttet til tiltaksgjennomføringer
+          description: Id for tiltakstype knyttet til gjennomføringer
         - in: query
           name: statuser
           schema:
             type: array
             items:
               $ref: "#/components/schemas/GjennomforingStatus"
-          description: Status for tiltaksgjennomføring
+          description: Status for gjennomføring
         - in: query
           name: navRegioner
           schema:
@@ -433,7 +433,7 @@ paths:
             type: string
       responses:
         200:
-          description: Object of paginated tiltaksgjennomføringer.
+          description: Object of paginated gjennomføringer.
           content:
             application/json:
               schema:
@@ -449,7 +449,7 @@ paths:
               $ref: "#/components/schemas/GjennomforingRequest"
       responses:
         200:
-          description: The specified tiltaksgjennomføring with data about tiltakstype.
+          description: The specified gjennomføring with data about tiltakstype.
           content:
             application/json:
               schema:
@@ -461,13 +461,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/ValidationErrorResponse"
         500:
-          description: "Kunne ikke opprette tiltaksgennomforing"
+          description: "Kunne ikke opprette gjennomforing"
           content:
             application/json:
               schema:
                 type: string
 
-  /api/v1/intern/tiltaksgjennomforinger/mine:
+  /api/v1/intern/gjennomforinger/mine:
     get:
       tags:
         - Gjennomforinger
@@ -487,14 +487,14 @@ paths:
             items:
               type: string
               format: uuid
-          description: Id for tiltakstype knyttet til tiltaksgjennomføringer
+          description: Id for tiltakstype knyttet til gjennomføringer
         - in: query
           name: statuser
           schema:
             type: array
             items:
               $ref: "#/components/schemas/GjennomforingStatus"
-          description: Status for tiltaksgjennomføring
+          description: Status for gjennomføring
         - in: query
           name: navRegioner
           schema:
@@ -517,7 +517,7 @@ paths:
           name: search
           schema:
             type: string
-          description: Search for tiltaksgjennomføringer by the name
+          description: Search for gjennomføringer by the name
         - in: query
           name: size
           schema:
@@ -533,27 +533,27 @@ paths:
             type: string
       responses:
         200:
-          description: Object of paginated tiltaksgjennomføringer where logged in user is responsible for gjennomføringen.
+          description: Object of paginated gjennomføringer where logged in user is responsible for gjennomføringen.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaginertGjennomforing"
 
-  /api/v1/intern/tiltaksgjennomforinger/excel:
+  /api/v1/intern/gjennomforinger/excel:
     get:
       tags:
         - Gjennomforinger
       operationId: lastNedGjennomforingerSomExcel
       responses:
         200:
-          description: Excel-fil med tiltaksgjennomforinger
+          description: Excel-fil med gjennomforinger
           content:
             application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
               schema:
                 type: string
                 format: binary
 
-  /api/v1/intern/tiltaksgjennomforinger/{id}:
+  /api/v1/intern/gjennomforinger/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
@@ -562,7 +562,7 @@ paths:
       operationId: getGjennomforing
       responses:
         200:
-          description: The specified tiltaksgjennomføring with data about tiltakstype.
+          description: The specified gjennomføring with data about tiltakstype.
           content:
             application/json:
               schema:
@@ -574,7 +574,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/intern/tiltaksgjennomforinger/{id}/tiltaksnummer:
+  /api/v1/intern/gjennomforinger/{id}/tiltaksnummer:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
@@ -583,7 +583,7 @@ paths:
       operationId: getTiltaksnummer
       responses:
         200:
-          description: Tiltaksnummer til tiltaksgjennomføringen.
+          description: Tiltaksnummer til gjennomføringen.
           content:
             application/json:
               schema:
@@ -597,7 +597,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/intern/tiltaksgjennomforinger/{id}/avtale:
+  /api/v1/intern/gjennomforinger/{id}/avtale:
     parameters:
       - $ref: "#/components/parameters/ID"
     put:
@@ -613,7 +613,7 @@ paths:
         200:
           description: "Gjennomføring ble oppdatert med avtale"
 
-  /api/v1/intern/tiltaksgjennomforinger/{id}/avbryt:
+  /api/v1/intern/gjennomforinger/{id}/avbryt:
     parameters:
       - $ref: "#/components/parameters/ID"
     put:
@@ -629,7 +629,7 @@ paths:
                 - $ref: "#/components/schemas/CustomAvbrytGjennomforingRequest"
       responses:
         200:
-          description: The specified tiltaksgjennomføring you want to 'Avbryte'
+          description: The specified gjennomføring you want to 'Avbryte'
           content:
             application/json:
               schema:
@@ -641,7 +641,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/intern/tiltaksgjennomforinger/{id}/tilgjengelig-for-veileder:
+  /api/v1/intern/gjennomforinger/{id}/tilgjengelig-for-veileder:
     parameters:
       - $ref: "#/components/parameters/ID"
     put:
@@ -657,7 +657,7 @@ paths:
         200:
           description: Update for 'tilgjengelig for veileder' was successful
 
-  /api/v1/intern/tiltaksgjennomforinger/{id}/apent-for-pamelding:
+  /api/v1/intern/gjennomforinger/{id}/apent-for-pamelding:
     parameters:
       - $ref: "#/components/parameters/ID"
     put:
@@ -673,7 +673,7 @@ paths:
         200:
           description: OK
 
-  /api/v1/intern/tiltaksgjennomforinger/{id}/tilgjengelig-for-arrangor:
+  /api/v1/intern/gjennomforinger/{id}/tilgjengelig-for-arrangor:
     parameters:
       - $ref: "#/components/parameters/ID"
     put:
@@ -689,7 +689,7 @@ paths:
         200:
           description: OK
 
-  /api/v1/intern/tiltaksgjennomforinger/kontaktperson:
+  /api/v1/intern/gjennomforinger/kontaktperson:
     delete:
       tags:
         - Gjennomforinger
@@ -819,7 +819,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltakstype"
 
-  /api/v1/intern/veileder/tiltaksgjennomforinger:
+  /api/v1/intern/veileder/gjennomforinger:
     get:
       tags:
         - VeilederTiltak
@@ -841,7 +841,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltak"
 
-  /api/v1/intern/veileder/tiltaksgjennomforinger/{id}:
+  /api/v1/intern/veileder/gjennomforinger/{id}:
     get:
       tags:
         - VeilederTiltak
@@ -856,7 +856,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltak"
 
-  /api/v1/intern/veileder/preview/tiltaksgjennomforinger:
+  /api/v1/intern/veileder/preview/gjennomforinger:
     get:
       tags:
         - VeilederTiltak
@@ -877,7 +877,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltak"
 
-  /api/v1/intern/veileder/preview/tiltaksgjennomforinger/{id}:
+  /api/v1/intern/veileder/preview/gjennomforinger/{id}:
     get:
       tags:
         - VeilederTiltak
@@ -892,7 +892,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltak"
 
-  /api/v1/intern/veileder/nav/tiltaksgjennomforinger:
+  /api/v1/intern/veileder/nav/gjennomforinger:
     get:
       tags:
         - VeilederTiltak
@@ -913,7 +913,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltak"
 
-  /api/v1/intern/veileder/nav/tiltaksgjennomforinger/{id}:
+  /api/v1/intern/veileder/nav/gjennomforinger/{id}:
     get:
       tags:
         - VeilederTiltak
@@ -1753,9 +1753,9 @@ paths:
                 items:
                   $ref: "#/components/schemas/TilsagnDto"
 
-  /api/v1/intern/tiltaksgjennomforinger/{tiltaksgjennomforingId}/refusjonskrav:
+  /api/v1/intern/gjennomforinger/{gjennomforingId}/refusjonskrav:
     parameters:
-      - $ref: "#/components/parameters/tiltaksgjennomforingId"
+      - $ref: "#/components/parameters/gjennomforingId"
     get:
       tags:
         - Refusjonskrav
@@ -2154,8 +2154,8 @@ components:
         type: string
         format: uuid
 
-    tiltaksgjennomforingId:
-      name: tiltaksgjennomforingId
+    gjennomforingId:
+      name: gjennomforingId
       in: path
       description: Gjennomforing Id
       required: true
@@ -2270,12 +2270,12 @@ components:
       properties:
         norskIdent:
           type: string
-        tiltaksgjennomforingId:
+        gjennomforingId:
           type: string
           format: uuid
       required:
         - norskIdent
-        - tiltaksgjennomforingId
+        - gjennomforingId
 
     GetDelMedBrukerRequest:
       type: object
@@ -3162,7 +3162,7 @@ components:
           type: string
         venterPaaSvarFraBruker:
           type: boolean
-        tiltaksgjennomforingId:
+        gjennomforingId:
           type: string
           format: uuid
           nullable: true
@@ -3175,7 +3175,7 @@ components:
         - overskrift
         - tekst
         - venterPaaSvarFraBruker
-        - tiltaksgjennomforingId
+        - gjennomforingId
         - sanityId
 
     DelTiltakMedBrukerResponse:
@@ -3410,7 +3410,7 @@ components:
         sanityId:
           type: string
           format: uuid
-        tiltaksgjennomforingId:
+        gjennomforingId:
           type: string
           format: uuid
         dialogId:
@@ -5050,7 +5050,7 @@ components:
           $ref: "#/components/schemas/TilsagnType"
       required:
         - id
-        - tiltaksgjennomforingId
+        - gjennomforingId
         - periodeStart
         - periodeSlutt
         - kostnadssted

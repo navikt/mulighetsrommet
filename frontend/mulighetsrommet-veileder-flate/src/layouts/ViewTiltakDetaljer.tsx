@@ -1,5 +1,5 @@
 import { Oppskrift } from "@/components/oppskrift/Oppskrift";
-import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
+import { useGetTiltakIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Alert, Tabs } from "@navikt/ds-react";
 import { VeilederflateTiltak } from "@mr/api-client";
@@ -21,7 +21,7 @@ interface Props {
 }
 
 export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) {
-  const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
+  const gjennomforingsId = useGetTiltakIdFraUrl();
   const innsatsgrupper = useInnsatsgrupper();
 
   const [oppskriftId, setOppskriftId] = useState<string | undefined>(undefined);
@@ -39,7 +39,7 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
       <div className={styles.top_wrapper}>{knapperad}</div>
       <Suspense fallback={<DetaljerSkeleton />}>
         <>
-          <div className={styles.tiltaksgjennomforing_detaljer} id="tiltaksgjennomforing_detaljer">
+          <div className={styles.gjennomforing_detaljer} id="gjennomforing_detaljer">
             <div className={styles.tiltakstype_header_maksbredde}>
               <TiltakHeader tiltak={tiltak} />
             </div>

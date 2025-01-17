@@ -8,10 +8,10 @@ import {
 import { LoaderFunctionArgs } from "react-router";
 
 export async function opprettTilsagnLoader({ params, request }: LoaderFunctionArgs) {
-  const { tiltaksgjennomforingId: gjennomforingId } = params;
+  const { gjennomforingId: gjennomforingId } = params;
 
   if (!gjennomforingId) {
-    throw new Error("tiltaksgjennomforingId is missing");
+    throw new Error("gjennomforingId is missing");
   }
 
   const url = new URL(request.url);

@@ -484,7 +484,7 @@ class AvtaleValidatorTest : FunSpec({
         context("når avtalen har gjennomføringer") {
             val startDatoForGjennomforing = avtaleDbo.startDato
 
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtaleDbo.id,
                 administratorer = emptyList(),
                 navRegion = "0400",

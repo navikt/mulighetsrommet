@@ -14,7 +14,7 @@ export function GjennomforingInfo() {
   const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
 
   return (
-    <div data-testid="tiltaksgjennomforing_info-container">
+    <div data-testid="gjennomforing_info-container">
       <Tabs defaultValue={activeTab}>
         <Tabs.List className="flex flex-row justify-between">
           <div>

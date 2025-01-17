@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.navansatt.SanityNavKontaktperson
 import no.nav.mulighetsrommet.api.navansatt.SanityRedaktor
 import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrift
-import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.slf4j.LoggerFactory
@@ -291,23 +291,23 @@ class SanityService(
         )
 
         if (response.status != HttpStatusCode.OK) {
-            throw Exception("Klarte ikke slette tiltaksgjennomforing i sanity: ${response.status}")
+            throw Exception("Klarte ikke slette gjennomforing i sanity: ${response.status}")
         } else {
-            log.info("Slettet tiltaksgjennomforing i Sanity med id: $sanityId")
+            log.info("Slettet gjennomforing i Sanity med id: $sanityId")
         }
     }
 
     suspend fun createOrPatchSanityTiltaksgjennomforing(
-        tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo,
+        gjennomforing: ArenaGjennomforingDbo,
         tiltakstypeSanityId: UUID?,
     ): UUID? {
         val sanityTiltaksgjennomforingFields = SanityTiltaksgjennomforingFields(
-            tiltaksgjennomforingNavn = tiltaksgjennomforing.navn,
+            tiltaksgjennomforingNavn = gjennomforing.navn,
             tiltakstype = tiltakstypeSanityId?.let { TiltakstypeRef(_ref = it.toString()) },
-            tiltaksnummer = Slug(current = tiltaksgjennomforing.tiltaksnummer),
+            tiltaksnummer = Slug(current = gjennomforing.tiltaksnummer),
         )
 
-        val sanityId = tiltaksgjennomforing.sanityId
+        val sanityId = gjennomforing.sanityId
 
         return if (sanityId != null) {
             patchSanityTiltaksgjennomforing(sanityId, sanityTiltaksgjennomforingFields)
@@ -335,9 +335,9 @@ class SanityService(
         )
 
         if (response.status != HttpStatusCode.OK) {
-            throw Exception("Klarte ikke opprette tiltaksgjennomforing i sanity: ${response.status}")
+            throw Exception("Klarte ikke opprette gjennomforing i sanity: ${response.status}")
         } else {
-            log.info("Opprettet tiltaksgjennomforing i Sanity med id: $sanityId")
+            log.info("Opprettet gjennomforing i Sanity med id: $sanityId")
         }
     }
 
@@ -355,9 +355,9 @@ class SanityService(
         )
 
         if (response.status != HttpStatusCode.OK) {
-            throw Exception("Klarte ikke patche tiltaksgjennomforing i sanity: ${response.status}")
+            throw Exception("Klarte ikke patche gjennomforing i sanity: ${response.status}")
         } else {
-            log.info("Patchet tiltaksgjennomforing i Sanity med id: $sanityId")
+            log.info("Patchet gjennomforing i Sanity med id: $sanityId")
         }
     }
 

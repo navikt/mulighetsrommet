@@ -86,13 +86,13 @@ data class KafkaClients(
 )
 
 data class KafkaProducers(
-    val tiltaksgjennomforinger: SisteTiltaksgjennomforingerV1KafkaProducer.Config,
+    val gjennomforinger: SisteTiltaksgjennomforingerV1KafkaProducer.Config,
     val tiltakstyper: SisteTiltakstyperV2KafkaProducer.Config,
     val arenaMigreringTiltaksgjennomforinger: ArenaMigreringTiltaksgjennomforingerV1KafkaProducer.Config,
 )
 
 data class KafkaConsumers(
-    val tiltaksgjennomforingerV1: KafkaTopicConsumer.Config,
+    val gjennomforingerV1: KafkaTopicConsumer.Config,
     val amtDeltakerV1: KafkaTopicConsumer.Config,
     val amtVirksomheterV1: KafkaTopicConsumer.Config,
     val amtArrangorMeldingV1: KafkaTopicConsumer.Config,

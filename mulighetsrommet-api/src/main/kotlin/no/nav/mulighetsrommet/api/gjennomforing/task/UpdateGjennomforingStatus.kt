@@ -6,26 +6,26 @@ import com.github.kagkarlsson.scheduler.task.schedule.Daily
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
-import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalTime
 import java.util.*
 
-class UpdateTiltaksgjennomforingStatus(
+class UpdateGjennomforingStatus(
     private val db: ApiDatabase,
-    private val gjennomforingService: TiltaksgjennomforingService,
+    private val gjennomforingService: GjennomforingService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     val task: RecurringTask<Void> = Tasks
         .recurring(javaClass.simpleName, Daily(LocalTime.MIDNIGHT))
         .execute { _, _ ->
-            oppdaterTiltaksgjennomforingStatus(LocalDate.now())
+            oppdaterGjennomforingStatus(LocalDate.now())
         }
 
-    fun oppdaterTiltaksgjennomforingStatus(today: LocalDate) {
+    fun oppdaterGjennomforingStatus(today: LocalDate) {
         logger.info("Oppdaterer status på gjennomføringer som skal avsluttes fra og med dato $today")
 
         val gjennomforinger = getGjennomforingerSomSkalAvsluttes(

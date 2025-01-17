@@ -23,7 +23,7 @@ export const delMedBrukerHandlers = [
       const data = (await request.json()) as GetDelMedBrukerRequest;
 
       const deltMedBruker = mockDeltMedBruker.find(
-        (delt) => delt.sanityId === data.tiltakId || delt.tiltaksgjennomforingId === data.tiltakId,
+        (delt) => delt.sanityId === data.tiltakId || delt.gjennomforingId === data.tiltakId,
       );
 
       if (deltMedBruker) {

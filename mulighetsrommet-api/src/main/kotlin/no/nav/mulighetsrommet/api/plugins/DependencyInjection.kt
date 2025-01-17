@@ -36,15 +36,15 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
-import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingValidator
+import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingValidator
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadTiltaksgjennomforinger
+import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
-import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateTiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingStatus
 import no.nav.mulighetsrommet.api.lagretfilter.LagretFilterService
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattSyncService
@@ -150,7 +150,7 @@ private fun kafka(appConfig: AppConfig) = module {
             config.producers.arenaMigreringTiltaksgjennomforinger,
         )
     }
-    single { SisteTiltaksgjennomforingerV1KafkaProducer(producerClient, config.producers.tiltaksgjennomforinger) }
+    single { SisteTiltaksgjennomforingerV1KafkaProducer(producerClient, config.producers.gjennomforinger) }
     single { SisteTiltakstyperV2KafkaProducer(producerClient, config.producers.tiltakstyper) }
 
     val consumerPreset = when (NaisEnv.current()) {
@@ -172,7 +172,7 @@ private fun kafka(appConfig: AppConfig) = module {
                 db = get(),
             ),
             SisteTiltaksgjennomforingerV1KafkaConsumer(
-                config = config.consumers.tiltaksgjennomforingerV1,
+                config = config.consumers.gjennomforingerV1,
                 db = get(),
                 tiltakstyper = get(),
                 arenaAdapterClient = get(),
@@ -355,7 +355,7 @@ private fun services(appConfig: AppConfig) = module {
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get(), get(), get()) }
     single {
-        TiltaksgjennomforingService(
+        GjennomforingService(
             get(),
             get(),
             get(),
@@ -374,7 +374,7 @@ private fun services(appConfig: AppConfig) = module {
         ) { runBlocking { cachedTokenProvider.withScope(appConfig.axsys.scope).exchange(AccessType.M2M) } }
     }
     single { AvtaleValidator(get(), get(), get(), get()) }
-    single { TiltaksgjennomforingValidator(get()) }
+    single { GjennomforingValidator(get()) }
     single { OpsjonLoggService(get()) }
     single { LagretFilterService(get()) }
     single { TilsagnService(get()) }
@@ -383,7 +383,7 @@ private fun services(appConfig: AppConfig) = module {
 
 private fun tasks(config: TaskConfig) = module {
     single { GenerateValidationReport(config.generateValidationReport, get(), get(), get()) }
-    single { InitialLoadTiltaksgjennomforinger(get(), get()) }
+    single { InitialLoadGjennomforinger(get(), get()) }
     single { InitialLoadTiltakstyper(get(), get(), get()) }
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get()) }
     single { SynchronizeUtdanninger(config.synchronizeUtdanninger, get(), get()) }
@@ -391,7 +391,7 @@ private fun tasks(config: TaskConfig) = module {
     single { JournalforRefusjonskrav(get(), get(), get(), get(), get()) }
     single { NotificationTask(get()) }
     single {
-        val updateTiltaksgjennomforingStatus = UpdateTiltaksgjennomforingStatus(
+        val updateGjennomforingStatus = UpdateGjennomforingStatus(
             get(),
             get(),
         )
@@ -414,7 +414,7 @@ private fun tasks(config: TaskConfig) = module {
         val updateApentForPamelding = UpdateApentForPamelding(config.updateApentForPamelding, get(), get())
         val notificationTask: NotificationTask by inject()
         val generateValidationReport: GenerateValidationReport by inject()
-        val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
+        val initialLoadGjennomforinger: InitialLoadGjennomforinger by inject()
         val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
         val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
         val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
@@ -428,7 +428,7 @@ private fun tasks(config: TaskConfig) = module {
                 db.getDatasource(),
                 notificationTask.task,
                 generateValidationReport.task,
-                initialLoadTiltaksgjennomforinger.task,
+                initialLoadGjennomforinger.task,
                 initialLoadTiltakstyper.task,
                 journalforRefusjonskrav.task,
             )
@@ -436,7 +436,7 @@ private fun tasks(config: TaskConfig) = module {
             .addSchedulerListener(OpenTelemetrySchedulerListener())
             .startTasks(
                 synchronizeNorgEnheterTask.task,
-                updateTiltaksgjennomforingStatus.task,
+                updateGjennomforingStatus.task,
                 synchronizeNavAnsatte.task,
                 synchronizeUtdanninger.task,
                 notifySluttdatoForGjennomforingerNarmerSeg.task,

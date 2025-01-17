@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
-import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadTiltaksgjennomforinger
+import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.dto.*
@@ -31,7 +31,7 @@ class AvtaleService(
     private val db: ApiDatabase,
     private val arrangorService: ArrangorService,
     private val validator: AvtaleValidator,
-    private val gjennomforingPublisher: InitialLoadTiltaksgjennomforinger,
+    private val gjennomforingPublisher: InitialLoadGjennomforinger,
 ) {
     suspend fun upsert(
         request: AvtaleRequest,
@@ -150,7 +150,7 @@ class AvtaleService(
 
     private fun schedulePublishGjennomforingerForAvtale(dto: AvtaleDto) {
         gjennomforingPublisher.schedule(
-            input = InitialLoadTiltaksgjennomforinger.Input(avtaleId = dto.id),
+            input = InitialLoadGjennomforinger.Input(avtaleId = dto.id),
             id = dto.id,
             startTime = Instant.now().plus(5, ChronoUnit.MINUTES),
         )

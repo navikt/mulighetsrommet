@@ -118,14 +118,14 @@ fun createKafkaConfig(): KafkaConfig = KafkaConfig(
         ),
     ),
     producers = KafkaProducers(
-        tiltaksgjennomforinger = SisteTiltaksgjennomforingerV1KafkaProducer.Config(topic = "siste-tiltaksgjennomforinger-v1"),
+        gjennomforinger = SisteTiltaksgjennomforingerV1KafkaProducer.Config(topic = "siste-tiltaksgjennomforinger-v1"),
         tiltakstyper = SisteTiltakstyperV2KafkaProducer.Config(topic = "siste-tiltakstyper-v2"),
         arenaMigreringTiltaksgjennomforinger = ArenaMigreringTiltaksgjennomforingerV1KafkaProducer.Config(
             topic = "arena-migrering-tiltaksgjennomforinger-v1",
         ),
     ),
     consumers = KafkaConsumers(
-        tiltaksgjennomforingerV1 = KafkaTopicConsumer.Config(
+        gjennomforingerV1 = KafkaTopicConsumer.Config(
             id = "siste-tiltaksgjennomforinger",
             topic = "siste-tiltaksgjennomforinger-v1",
         ),

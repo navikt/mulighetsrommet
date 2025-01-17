@@ -9,9 +9,9 @@ export const QueryKeys = {
     "historikk",
   ],
   BrukerDeltakelser: (fnr: string) => [...QueryKeys.Bruker(fnr), "deltakelser"],
-  DeltakelseForGjennomforing: (fnr: string, tiltaksgjennomforingId: string) => [
+  DeltakelseForGjennomforing: (fnr: string, gjennomforingId: string) => [
     ...QueryKeys.Bruker(fnr),
-    tiltaksgjennomforingId,
+    gjennomforingId,
     "deltakelser-for-gjennomforing",
   ],
   DeltMedBrukerStatus: ["deltMedBrukerStatus"],
@@ -19,9 +19,9 @@ export const QueryKeys = {
   arbeidsmarkedstiltak: {
     innsatsgrupper: ["innsatsgrupper"],
     tiltakstyper: ["tiltakstyper"],
-    tiltak: (filter?: object) => ["tiltaksgjennomforinger", { ...filter }],
-    tiltakById: (id: string) => ["tiltaksgjennomforing", id],
-    previewTiltakById: (id: string) => ["tiltaksgjennomforing", "preview", id],
+    tiltak: (filter?: object) => ["gjennomforinger", { ...filter }],
+    tiltakById: (id: string) => ["gjennomforing", id],
+    previewTiltakById: (id: string) => ["gjennomforing", "preview", id],
   },
   navEnheter: (statuser: NavEnhetStatus[], typer: NavEnhetType[]) => [
     statuser,

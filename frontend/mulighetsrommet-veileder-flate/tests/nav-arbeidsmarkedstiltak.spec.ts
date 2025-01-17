@@ -14,12 +14,12 @@ test.describe("Tiltaksoversikt", () => {
   test("Sjekk at det er tiltaksgjennomføringer i oversikten", async ({ page }) => {
     const feilmelding = page.getByTestId("feilmelding-container");
     await expect(feilmelding).toContainText(
-      /Du må filtrere på en innsatsgruppe og minst én Nav-enhet for å se tiltaksgjennomføringer/,
+      /Du må filtrere på en innsatsgruppe og minst én Nav-enhet for å se tiltak/,
     );
     await page.getByLabel("Varig tilpasset innsats").click();
     await page.getByLabel("Nav Oslo").click();
-    const rows = page.getByTestId("oversikt_tiltaksgjennomforinger").getByRole("link");
-    await expect(page.getByTestId("oversikt_tiltaksgjennomforinger")).toContainText("Avklaring");
+    const rows = page.getByTestId("oversikt_gjennomforinger").getByRole("link");
+    await expect(page.getByTestId("oversikt_gjennomforinger")).toContainText("Avklaring");
     expect(await rows.count()).toBeGreaterThan(5);
   });
 

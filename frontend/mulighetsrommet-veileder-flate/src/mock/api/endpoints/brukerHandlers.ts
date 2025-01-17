@@ -81,11 +81,9 @@ export const brukerHandlers = [
   http.post<PathParams, GetAktivDeltakelseForBrukerRequest, Deltakelse>(
     "*/api/v1/intern/bruker/deltakelse-for-gjennomforing",
     async ({ request }) => {
-      const { tiltaksgjennomforingId } = await request.json();
+      const { gjennomforingId } = await request.json();
       const found = deltakelserAktive.find((deltakelse) => {
-        return (
-          "gjennomforingId" in deltakelse && deltakelse.gjennomforingId === tiltaksgjennomforingId
-        );
+        return "gjennomforingId" in deltakelse && deltakelse.gjennomforingId === gjennomforingId;
       });
       if (found) {
         return HttpResponse.json(found);

@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 
 @Serializable
-data class TiltaksgjennomforingKontaktperson(
+data class GjennomforingKontaktperson(
     val navIdent: NavIdent,
     val navn: String,
     val epost: String,

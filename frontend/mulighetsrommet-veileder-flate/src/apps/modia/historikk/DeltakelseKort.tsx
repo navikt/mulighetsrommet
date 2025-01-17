@@ -73,7 +73,7 @@ function Knapper({ deltakelse, aktiv }: Props) {
       );
     }
     case "TEAM_TILTAK": {
-      const link = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL}/tiltaksgjennomforing/avtale/${deltakelse.id}?part=VEILEDER`;
+      const link = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL}/gjennomforing/avtale/${deltakelse.id}?part=VEILEDER`;
       return (
         <Lenkeknapp variant="secondary" to={link} size="small">
           Gå til avtale

@@ -16,10 +16,10 @@ import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakYrkesfagDto
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.GruppeAmo1
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.GruppeFagYrke1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.GruppeAmo1
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.GruppeFagYrke1
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode

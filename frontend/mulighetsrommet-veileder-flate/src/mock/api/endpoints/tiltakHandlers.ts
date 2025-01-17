@@ -29,29 +29,26 @@ export const tiltakHandlers = [
     return HttpResponse.json(tiltakstyperMedPamelding);
   }),
 
-  http.get("*/api/v1/intern/veileder/tiltaksgjennomforinger", async ({ request }) => {
+  http.get("*/api/v1/intern/veileder/gjennomforinger", async ({ request }) => {
+    const url = new URL(request.url);
+    const results = getFilteredArbeidsmarkedstiltak(url);
+    return HttpResponse.json(results);
+  }),
+
+  http.get<{ id: string }>("*/api/v1/intern/veileder/gjennomforinger/:id", async ({ params }) => {
+    const { id } = params;
+    const gjennomforing = findArbeidsmarkedstiltak(id);
+    return HttpResponse.json(gjennomforing);
+  }),
+
+  http.get("*/api/v1/intern/veileder/nav/gjennomforinger", async ({ request }) => {
     const url = new URL(request.url);
     const results = getFilteredArbeidsmarkedstiltak(url);
     return HttpResponse.json(results);
   }),
 
   http.get<{ id: string }>(
-    "*/api/v1/intern/veileder/tiltaksgjennomforinger/:id",
-    async ({ params }) => {
-      const { id } = params;
-      const gjennomforing = findArbeidsmarkedstiltak(id);
-      return HttpResponse.json(gjennomforing);
-    },
-  ),
-
-  http.get("*/api/v1/intern/veileder/nav/tiltaksgjennomforinger", async ({ request }) => {
-    const url = new URL(request.url);
-    const results = getFilteredArbeidsmarkedstiltak(url);
-    return HttpResponse.json(results);
-  }),
-
-  http.get<{ id: string }>(
-    "*/api/v1/intern/veileder/nav/tiltaksgjennomforinger/:id",
+    "*/api/v1/intern/veileder/nav/gjennomforinger/:id",
     async ({ params }) => {
       const { id } = params;
 
@@ -61,14 +58,14 @@ export const tiltakHandlers = [
     },
   ),
 
-  http.get("*/api/v1/intern/veileder/preview/tiltaksgjennomforinger", async ({ request }) => {
+  http.get("*/api/v1/intern/veileder/preview/gjennomforinger", async ({ request }) => {
     const url = new URL(request.url);
     const results = getFilteredArbeidsmarkedstiltak(url);
     return HttpResponse.json(results);
   }),
 
   http.get<{ id: string }>(
-    "*/api/v1/intern/veileder/preview/tiltaksgjennomforinger/:id",
+    "*/api/v1/intern/veileder/preview/gjennomforinger/:id",
     async ({ params }) => {
       const { id } = params;
       const gjennomforing = findArbeidsmarkedstiltak(id);

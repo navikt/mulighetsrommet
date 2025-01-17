@@ -25,7 +25,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class TiltaksgjennomforingValidatorTest : FunSpec({
+class GjennomforingValidatorTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val avtaleStartDato = LocalDate.now()
@@ -39,7 +39,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         navEnheter = listOf("0400", "0502"),
     )
 
-    val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+    val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
         avtaleId = avtale.id,
         startDato = avtaleStartDato,
         sluttDato = avtaleSluttDato,
@@ -114,7 +114,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         database.truncateAll()
     }
 
-    fun createValidator() = TiltaksgjennomforingValidator(database.db)
+    fun createValidator() = GjennomforingValidator(database.db)
 
     test("should fail when avtale does not exist") {
         val unknownAvtaleId = UUID.randomUUID()
@@ -203,13 +203,13 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     }
 
     test("sluttDato er påkrevd hvis ikke forhåndsgodkjent avtale") {
-        val forhaandsgodkjent = TiltaksgjennomforingFixtures.AFT1.copy(sluttDato = null)
-        val rammeAvtale = TiltaksgjennomforingFixtures.Oppfolging1.copy(sluttDato = null)
-        val vanligAvtale = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+        val forhaandsgodkjent = GjennomforingFixtures.AFT1.copy(sluttDato = null)
+        val rammeAvtale = GjennomforingFixtures.Oppfolging1.copy(sluttDato = null)
+        val vanligAvtale = GjennomforingFixtures.Oppfolging1.copy(
             sluttDato = null,
             avtaleId = AvtaleFixtures.oppfolgingMedAvtale.id,
         )
-        val offentligOffentlig = TiltaksgjennomforingFixtures.GruppeAmo1.copy(
+        val offentligOffentlig = GjennomforingFixtures.GruppeAmo1.copy(
             sluttDato = null,
             amoKategorisering = AmoKategorisering.Studiespesialisering,
         )
@@ -233,7 +233,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         )
         database.run { queries.avtale.upsert(avtaleUtenAmokategorisering) }
 
-        val gruppeAmo = TiltaksgjennomforingFixtures.GruppeAmo1.copy(
+        val gruppeAmo = GjennomforingFixtures.GruppeAmo1.copy(
             amoKategorisering = null,
             avtaleId = avtaleUtenAmokategorisering.id,
         )
@@ -253,7 +253,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         )
         database.run { queries.avtale.upsert(avtaleMedAmokategorisering) }
 
-        val gruppeAmo = TiltaksgjennomforingFixtures.GruppeAmo1.copy(
+        val gruppeAmo = GjennomforingFixtures.GruppeAmo1.copy(
             amoKategorisering = null,
             avtaleId = avtaleMedAmokategorisering.id,
         )
@@ -266,7 +266,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     }
 
     test("utdanningsprogram og lærefag er påkrevd når tiltakstypen er Gruppe Fag- og yrkesopplæring") {
-        val gruppeFagYrke = TiltaksgjennomforingFixtures.GruppeFagYrke1.copy(utdanningslop = null)
+        val gruppeFagYrke = GjennomforingFixtures.GruppeFagYrke1.copy(utdanningslop = null)
 
         createValidator().validate(gruppeFagYrke, null).shouldBeLeft(
             listOf(ValidationError("utdanningslop", "Du må velge utdanningsprogram og lærefag på avtalen")),
@@ -275,7 +275,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
     // TODO: fiks test
     xtest("utdanningsløp må være valgt fra avtalen når tiltakstypen er Gruppe Fag- og yrkesopplæring") {
-        val gruppeFagYrke = TiltaksgjennomforingFixtures.GruppeFagYrke1.copy(
+        val gruppeFagYrke = GjennomforingFixtures.GruppeFagYrke1.copy(
             utdanningslop = UtdanningslopDbo(
                 utdanningsprogram = UUID.randomUUID(),
                 utdanninger = listOf(UUID.randomUUID()),

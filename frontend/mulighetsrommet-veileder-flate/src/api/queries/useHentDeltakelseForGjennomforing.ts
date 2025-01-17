@@ -1,21 +1,21 @@
 import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
 import { HistorikkService } from "@mr/api-client";
 import { useQuery } from "@tanstack/react-query";
-import { useGetTiltaksgjennomforingIdFraUrl } from "../../hooks/useGetTiltaksgjennomforingIdFraUrl";
+import { useGetTiltakIdFraUrl } from "../../hooks/useGetTiltaksgjennomforingIdFraUrl";
 import { QueryKeys } from "../query-keys";
 
 export function useHentDeltakelseForGjennomforing() {
   const { fnr: norskIdent } = useModiaContext();
-  const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
+  const gjennomforingId = useGetTiltakIdFraUrl();
   return useQuery({
-    queryKey: QueryKeys.DeltakelseForGjennomforing(norskIdent, tiltaksgjennomforingId),
+    queryKey: QueryKeys.DeltakelseForGjennomforing(norskIdent, gjennomforingId),
     queryFn: async () => {
       const result = await HistorikkService.hentDeltakelseForGjennomforing({
-        requestBody: { norskIdent, tiltaksgjennomforingId },
+        requestBody: { norskIdent, gjennomforingId },
       });
       return result || null; // Returner null hvis API returnerer 204 No Content = undefined;;
     },
     throwOnError: false,
-    enabled: !!tiltaksgjennomforingId,
+    enabled: !!gjennomforingId,
   });
 }

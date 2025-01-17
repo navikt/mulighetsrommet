@@ -7,10 +7,10 @@ import {
 import { LoaderFunctionArgs } from "react-router";
 
 export async function redigerTilsagnLoader({ params }: LoaderFunctionArgs) {
-  const { tiltaksgjennomforingId: gjennomforingId, tilsagnId } = params;
+  const { gjennomforingId: gjennomforingId, tilsagnId } = params;
 
   if (!gjennomforingId) {
-    throw new Error("tiltaksgjennomforingId is missing");
+    throw new Error("gjennomforingId is missing");
   }
 
   if (!tilsagnId) {

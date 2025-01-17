@@ -13,14 +13,14 @@ import { ContentBox } from "@/layouts/ContentBox";
 import React from "react";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
-  const erPaaGjennomforingerForAvtale = useMatch("/avtaler/:avtaleId/tiltaksgjennomforinger");
+  const erPaaGjennomforingerForAvtale = useMatch("/avtaler/:avtaleId/gjennomforinger");
   return [
     { tittel: "Avtaler", lenke: "/avtaler" },
     { tittel: "Avtale", lenke: `/avtaler/${avtaleId}` },
     erPaaGjennomforingerForAvtale
       ? {
           tittel: "Gjennomføringer",
-          lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
+          lenke: `/avtaler/${avtaleId}/gjennomforinger`,
         }
       : undefined,
   ];
@@ -54,8 +54,8 @@ export function AvtalePage() {
   }
 
   const currentTab = () => {
-    if (pathname.includes("tiltaksgjennomforinger")) {
-      return "tiltaksgjennomforinger";
+    if (pathname.includes("gjennomforinger")) {
+      return "gjennomforinger";
     } else {
       return "avtale";
     }
@@ -85,9 +85,9 @@ export function AvtalePage() {
             aria-controls="panel"
           />
           <Tabs.Tab
-            value="tiltaksgjennomforinger"
+            value="gjennomforinger"
             label="Gjennomføringer"
-            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}/tiltaksgjennomforinger`)}
+            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}/gjennomforinger`)}
             aria-controls="panel"
             data-testid="gjennomforinger-tab"
           />

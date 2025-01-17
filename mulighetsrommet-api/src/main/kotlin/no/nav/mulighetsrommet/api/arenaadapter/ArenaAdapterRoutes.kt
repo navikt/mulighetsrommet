@@ -1,13 +1,12 @@
 package no.nav.mulighetsrommet.api.arenaadapter
 
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
-import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.UpsertTiltaksgjennomforingResponse
 import org.koin.ktor.ext.inject
 import java.util.*
@@ -23,9 +22,9 @@ fun Route.arenaAdapterRoutes() {
         }
 
         put("tiltaksgjennomforing") {
-            val tiltaksgjennomforing = call.receive<ArenaTiltaksgjennomforingDbo>()
+            val gjennomforing = call.receive<ArenaGjennomforingDbo>()
 
-            val sanityId = arenaAdapterService.upsertTiltaksgjennomforing(tiltaksgjennomforing)
+            val sanityId = arenaAdapterService.upsertTiltaksgjennomforing(gjennomforing)
 
             call.respond(UpsertTiltaksgjennomforingResponse(sanityId))
         }

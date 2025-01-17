@@ -52,8 +52,8 @@ function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
           <>
             <Heading size="medium">For hvem</Heading>
             <DetaljerFane
-              tiltaksgjennomforing={faneinnhold?.forHvem}
-              tiltaksgjennomforingAlert={faneinnhold?.forHvemInfoboks}
+              gjennomforing={faneinnhold?.forHvem}
+              gjennomforingAlert={faneinnhold?.forHvemInfoboks}
               tiltakstype={tiltakstypeSanityData?.faneinnhold?.forHvem}
               tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.forHvemInfoboks}
             />
@@ -69,8 +69,8 @@ function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
           <>
             <Heading size="medium">Detaljer og innhold</Heading>
             <DetaljerFane
-              tiltaksgjennomforing={faneinnhold?.detaljerOgInnhold}
-              tiltaksgjennomforingAlert={faneinnhold?.detaljerOgInnholdInfoboks}
+              gjennomforing={faneinnhold?.detaljerOgInnhold}
+              gjennomforingAlert={faneinnhold?.detaljerOgInnholdInfoboks}
               tiltakstype={tiltakstypeSanityData?.faneinnhold?.detaljerOgInnhold}
               tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.detaljerOgInnholdInfoboks}
             />
@@ -86,8 +86,8 @@ function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
           <>
             <Heading size="medium">Påmelding og varighet</Heading>
             <DetaljerFane
-              tiltaksgjennomforing={faneinnhold?.pameldingOgVarighet}
-              tiltaksgjennomforingAlert={faneinnhold?.pameldingOgVarighetInfoboks}
+              gjennomforing={faneinnhold?.pameldingOgVarighet}
+              gjennomforingAlert={faneinnhold?.pameldingOgVarighetInfoboks}
               tiltakstype={tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighet}
               tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighetInfoboks}
             />
@@ -98,8 +98,8 @@ function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
           <>
             <Heading size="medium">Kontaktinfo</Heading>
             <DetaljerFane
-              tiltaksgjennomforing={faneinnhold?.kontaktinfo}
-              tiltaksgjennomforingAlert={faneinnhold?.kontaktinfoInfoboks}
+              gjennomforing={faneinnhold?.kontaktinfo}
+              gjennomforingAlert={faneinnhold?.kontaktinfoInfoboks}
             />
           </>
         ) : null}
@@ -129,19 +129,19 @@ function someValuesExists(params: any[]): boolean {
 }
 
 interface DetaljerFaneProps {
-  tiltaksgjennomforingAlert?: string;
+  gjennomforingAlert?: string;
   tiltakstypeAlert?: string;
-  tiltaksgjennomforing?: any;
+  gjennomforing?: any;
   tiltakstype?: any;
 }
 
 const DetaljerFane = ({
-  tiltaksgjennomforingAlert,
+  gjennomforingAlert,
   tiltakstypeAlert,
-  tiltaksgjennomforing,
+  gjennomforing,
   tiltakstype,
 }: DetaljerFaneProps) => {
-  if (!tiltaksgjennomforingAlert && !tiltakstypeAlert && !tiltaksgjennomforing && !tiltakstype) {
+  if (!gjennomforingAlert && !tiltakstypeAlert && !gjennomforing && !tiltakstype) {
     return <></>;
   }
 
@@ -159,18 +159,18 @@ const DetaljerFane = ({
           </BodyLong>
         </>
       )}
-      {(tiltaksgjennomforing || tiltaksgjennomforingAlert) && (
+      {(gjennomforing || gjennomforingAlert) && (
         <LokalInformasjonContainer>
           <Heading level="2" size="small" spacing className="mt-0">
             Lokal Informasjon
           </Heading>
-          {tiltaksgjennomforingAlert && (
+          {gjennomforingAlert && (
             <Alert style={{ whiteSpace: "pre-wrap" }} variant="info">
-              {tiltaksgjennomforingAlert}
+              {gjennomforingAlert}
             </Alert>
           )}
           <BodyLong as="div" size="small">
-            <PortableText value={tiltaksgjennomforing} />
+            <PortableText value={gjennomforing} />
           </BodyLong>
         </LokalInformasjonContainer>
       )}

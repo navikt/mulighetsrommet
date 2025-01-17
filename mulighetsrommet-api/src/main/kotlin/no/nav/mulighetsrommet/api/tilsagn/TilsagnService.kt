@@ -38,7 +38,7 @@ class TilsagnService(
             .map { beregning ->
                 TilsagnDbo(
                     id = request.id,
-                    tiltaksgjennomforingId = request.gjennomforingId,
+                    gjennomforingId = request.gjennomforingId,
                     type = request.type,
                     periodeStart = request.periodeStart,
                     periodeSlutt = request.periodeSlutt,
@@ -222,7 +222,7 @@ class TilsagnService(
     }
 
     private suspend fun QueryContext.lagOgSendBestilling(tilsagn: TilsagnDto) {
-        val gjennomforing = requireNotNull(queries.gjennomforing.get(tilsagn.tiltaksgjennomforing.id)) {
+        val gjennomforing = requireNotNull(queries.gjennomforing.get(tilsagn.gjennomforing.id)) {
             "Fant ikke gjennomforing til tilsagn"
         }
 

@@ -59,15 +59,14 @@ export const oversiktenSteps: MulighetsrommetStep[] = [
   },
   {
     title: "Liste over tiltak",
-    content: "I listen finnes alle gjennomføringene som er tilknyttet brukerens Nav-enhet.",
-    target: '[data-testid="oversikt_tiltaksgjennomforinger"]',
+    content: "I listen finnes alle tiltakene som er tilknyttet brukerens Nav-enhet.",
+    target: '[data-testid="oversikt_gjennomforinger"]',
     disableBeacon: true,
     id: "liste-over-tiltak",
   },
   {
     title: "Prefiltrering",
-    content:
-      "Gjennomføringene er allerede filtrert på brukerens innsatsbehov og geografiske tilknytning.",
+    content: "Tiltakene er allerede filtrert på brukerens innsatsbehov og geografiske tilknytning.",
     target: '[data-testid="filtertags"]',
     disableBeacon: true,
     id: "prefiltrering",
@@ -83,15 +82,14 @@ export const oversiktenSteps: MulighetsrommetStep[] = [
   },
   {
     title: "Sortering",
-    content:
-      "I tillegg kan du sortere listen med tiltaksgjennomføringer slik at de mest relevante kommer øverst.",
+    content: "I tillegg kan du sortere listen med tiltak slik at de mest relevante kommer øverst.",
     target: '[data-testid="sortering-select"]',
     disableBeacon: true,
     id: "sortering",
   },
   {
     title: "Detaljert visning",
-    content: "Ved å klikke på gjennomføringen vil du kunne se flere detaljer om tiltaket.",
+    content: "Ved å klikke på tiltaket vil du kunne se flere detaljer om tiltaket.",
     target: "#list_element_0",
     placement: "top",
     disableBeacon: true,
@@ -112,7 +110,7 @@ export const detaljerSteps: MulighetsrommetStep[] = [
     title: "Detaljside",
     content:
       "Her finner du detaljert informasjon om tiltaket, som formål, målgruppe, innhold og varighet.",
-    target: "#tiltaksgjennomforing_detaljer",
+    target: "#gjennomforing_detaljer",
     disableBeacon: true,
     id: "detaljside",
   },
