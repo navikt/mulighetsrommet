@@ -47,7 +47,7 @@ export function FilterToggle({
       >
         {accordionHeader}
       </Accordion.Header>
-      <Accordion.Content>
+      <Accordion.Content className="ml-[-2rem]">
         <ToggleGroup size="small" value={value} onChange={onToggleChanged}>
           <ToggleGroup.Item value={venstreValue}>{venstreTekst}</ToggleGroup.Item>
           <ToggleGroup.Item value={midtValue}>{midtTekst}</ToggleGroup.Item>
