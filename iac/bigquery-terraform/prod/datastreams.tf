@@ -30,15 +30,13 @@ module "mr_api_datastream" {
       tables = [
         { table = "tiltakstype" },
         { table = "avtale" },
-        { table = "tiltaksgjennomforing" },
-        { table = "tiltaksgjennomforing_amo_kategorisering" },
-        { table = "tiltaksgjennomforing_amo_kategorisering_sertifisering" },
-        { table = "tiltaksgjennomforing_utdanningsprogram" },
+        { table = "gjennomforing" },
+        { table = "gjennomforing_amo_kategorisering" },
+        { table = "gjennomforing_amo_kategorisering_sertifisering" },
+        { table = "gjennomforing_utdanningsprogram" },
         { table = "arrangor" },
         { table = "utdanningsprogram" },
         { table = "utdanning" },
-        { table = "utdanning_nus_kode" },
-        { table = "utdanning_nus_kode_innhold" },
       ]
     }
   ]
