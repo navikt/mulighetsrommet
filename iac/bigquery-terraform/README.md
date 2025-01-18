@@ -57,7 +57,7 @@ SECRET_NAME=mr-api-datastream-credential
 # Database secrets for the datastream postgres user
 gcloud secrets create $SECRET_NAME --replication-policy user-managed --project $PROJECT --locations europe-north1
 
-kubectl --context prod-gcp get secret google-sql-mulighetsrommet-api-mulighetsrommet-api-db--184f872d -o json \
+kubectl --context $CLUSTER get secret google-sql-mulighetsrommet-api-mulighetsrommet-api-db--184f872d -o json \
     | jq -r '.data | map_values(@base64d) | { username: .DB_DATASTREAM_USERNAME, password: .DB_DATASTREAM_PASSWORD }' \
     | gcloud secrets versions add mr-api-datastream-credentials --project $PROJECT --data-file=-
 ```
@@ -128,8 +128,12 @@ terraform state show <resource_name>
 terraform destroy
 ```
 
-### Vanlige feil
+### Feilsøking
 
-- Første gang `terraform apply` kjøres så kan det være at bigquery views ikke blir opprettet.
-  Dette skjer fordi de er avhengig av at tabellene finnes i dataset'et, men det kan være at disse enda ikke er opprettet
-  av datastreamen. Det burde fungere å kjøre `apply` på nytt når tabellene har blitt replikert til bigquery.
+- **Hvofor feiler `terraform apply` første gang det kjøres?** Første gang `terraform apply` kjøres så kan det være at
+  bigquery views ikke blir opprettet. Dette skjer fordi de er avhengig av at tabellene finnes i dataset'et, men det vil
+  typisk ta litt tid før disse tabellene blir opprettet av datastreamen. Det burde fungere å kjøre `terraform apply` på
+  nytt når tabellene har blitt replikert til BigQuery.
+- **Hvorfor ser jeg ikke oppdatert data i BigQuery?** Standard innstilling for `bigquery_table_freshness` er satt til
+  1t, som betyr at det kan ta like lang tid før endringer i data er tilgjengelig i BigQuery. Dette kan endres i
+  Datastream-innstillingene, men merk at dette også øker kostnadene av tjenesten.
