@@ -484,7 +484,7 @@ export const tiltakEnkelplassFagOgYrke: VeilederflateTiltakEnkeltplass = {
   },
 };
 
-export const mockTiltaksgjennomforinger: VeilederflateTiltak[] = [
+export const mockGjennomforinger: VeilederflateTiltak[] = [
   tiltakAvklaring,
   tiltakMentor,
   tiltakAmoGruppe,

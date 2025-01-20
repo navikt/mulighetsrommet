@@ -34,14 +34,14 @@ import {
 } from "@/api/queries/useArbeidsmarkedstiltakById";
 import { PameldingForGruppetiltak } from "@/components/pamelding/PameldingForGruppetiltak";
 import { VisibleWhenToggledOn } from "@/components/toggles/VisibleWhenToggledOn";
-import { useGetTiltakIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
+import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import { PameldingKometApnerSnart } from "../pamelding/PameldingKometApnerSnart";
 import { ArbeidsmarkedstiltakErrorBoundary } from "@/ErrorBoundary";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
-  const id = useGetTiltakIdFraUrl();
+  const id = useTiltakIdFraUrl();
   const { delMedBrukerInfo } = useHentDeltMedBrukerStatus(fnr, id);
 
   const { data: veilederdata } = useHentVeilederdata();

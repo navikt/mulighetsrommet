@@ -94,9 +94,9 @@ export const avtaleHandlers = [
       {
         personopplysning: Personopplysning.SOSIALE_FORHOLD,
         tittel:
-          "Sosiale eller personlige forhold som kan ha betydning for tiltaksgjennomføring og jobbmuligheter (eks. Aleneforsørger og kan derfor ikke jobbe kveldstid, eller økonomiske forhold som går ut over tiltaksgjennomføringen)",
+          "Sosiale eller personlige forhold som kan ha betydning for gjennomføring og jobbmuligheter (eks. Aleneforsørger og kan derfor ikke jobbe kveldstid, eller økonomiske forhold som går ut over gjennomføringen)",
         hjelpetekst:
-          "For eksempel aleneomsorg for barn og kan derfor ikke jobbe kveldstid, eller økonomiske forhold som går utover tiltaksgjennomføringen.",
+          "For eksempel aleneomsorg for barn og kan derfor ikke jobbe kveldstid, eller økonomiske forhold som går utover gjennomføringen.",
       },
       {
         personopplysning: Personopplysning.HELSEOPPLYSNINGER,
