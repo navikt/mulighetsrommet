@@ -1,5 +1,5 @@
 import { Oppskrift } from "@/components/oppskrift/Oppskrift";
-import { useGetTiltakIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
+import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Alert, Tabs } from "@navikt/ds-react";
 import { VeilederflateTiltak } from "@mr/api-client-v2";
@@ -21,17 +21,15 @@ interface Props {
 }
 
 export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) {
-  const gjennomforingsId = useGetTiltakIdFraUrl();
   const { data: innsatsgrupper } = useInnsatsgrupper();
+  const tiltakId = useTiltakIdFraUrl();
 
   const [oppskriftId, setOppskriftId] = useState<string | undefined>(undefined);
 
   const harKombinasjon = tiltak.tiltakstype.kanKombineresMed.length > 0;
 
   if (!tiltak) {
-    return (
-      <Alert variant="warning">{`Det finnes ingen tiltaksgjennomføringer med id: "${gjennomforingsId}"`}</Alert>
-    );
+    return <Alert variant="warning">{`Det finnes ingen tiltak med id: "${tiltakId}"`}</Alert>;
   }
 
   return (

@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 
-export function useGetTiltakIdFraUrl() {
+export function useTiltakIdFraUrl() {
   const { id } = useParams();
   return normalizeId(id);
 }

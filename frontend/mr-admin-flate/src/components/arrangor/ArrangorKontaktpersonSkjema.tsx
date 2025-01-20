@@ -87,8 +87,9 @@ export function ArrangorKontaktpersonSkjema({
           onSubmit();
         },
         onError: (error: ApiError) => {
-          if (isValidationError(error)) {
-            const errors = error.errors.reduce((errors: Record<string, string>, error) => {
+          const body = error.body;
+          if (isValidationError(body)) {
+            const errors = body.errors.reduce((errors: Record<string, string>, error) => {
               return { ...errors, [error.name]: error.message };
             }, {});
             setState({ ...state, errors });

@@ -11,7 +11,7 @@ test.describe("Tiltaksoversikt", () => {
     await page.goto("/nav/oversikt");
   });
 
-  test("Sjekk at det er tiltaksgjennomføringer i oversikten", async ({ page }) => {
+  test("Sjekk at det er gjennomføringer i oversikten", async ({ page }) => {
     const feilmelding = page.getByTestId("feilmelding-container");
     await expect(feilmelding).toContainText(
       /Du må filtrere på en innsatsgruppe og minst én Nav-enhet for å se tiltak/,
@@ -28,7 +28,7 @@ test.describe("Tiltaksoversikt", () => {
   });
 });
 
-test.describe("Tiltaksgjennomføringsdetaljer for alle Nav-ansatte", () => {
+test.describe("Gjennomføringsdetaljer for alle Nav-ansatte", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/nav/oversikt");
     await page.getByLabel("Varig tilpasset innsats").click();
@@ -36,7 +36,7 @@ test.describe("Tiltaksgjennomføringsdetaljer for alle Nav-ansatte", () => {
     await page.getByRole("link", { name: "Sindres mentorordning med Yoda" }).click();
   });
 
-  test("Sjekk riktig tiltaksgjennomføring", async ({ page }) => {
+  test("Sjekk riktig gjennomføring", async ({ page }) => {
     const h1 = await page.getByRole("heading", { level: 1 }).innerText();
     expect(h1).toContain("Sindres mentorordning med Yoda");
   });

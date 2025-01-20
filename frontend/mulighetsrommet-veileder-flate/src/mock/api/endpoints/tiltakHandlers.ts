@@ -1,9 +1,9 @@
 import { http, HttpResponse } from "msw";
 import { Innsatsgruppe, VeilederflateTiltak } from "@mr/api-client-v2";
 import { mockInnsatsgrupper } from "@/mock/fixtures/mockInnsatsgrupper";
-import { mockTiltaksgjennomforinger } from "@/mock/fixtures/mockTiltaksgjennomforinger";
 import { mockTiltakstyper } from "@/mock/fixtures/mockTiltakstyper";
 import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
+import { mockGjennomforinger } from "@/mock/fixtures/mockGjennomforinger";
 
 export const tiltakHandlers = [
   http.get("*/api/v1/intern/veileder/innsatsgrupper", async () => {
@@ -79,16 +79,14 @@ function getFilteredArbeidsmarkedstiltak(url: URL) {
   const search = url.searchParams.get("search") ?? "";
   const tiltakstyper = url.searchParams.getAll("tiltakstyper");
 
-  return mockTiltaksgjennomforinger
+  return mockGjennomforinger
     .filter((gj) => filtrerFritekst(gj, search))
     .filter((gj) => filtrerInnsatsgruppe(gj, innsatsgruppe))
     .filter((gj) => filtrerTiltakstyper(gj, tiltakstyper));
 }
 
 function findArbeidsmarkedstiltak(id: string) {
-  return mockTiltaksgjennomforinger.find((gj) =>
-    isTiltakGruppe(gj) ? gj.id === id : gj.sanityId === id,
-  );
+  return mockGjennomforinger.find((gj) => (isTiltakGruppe(gj) ? gj.id === id : gj.sanityId === id));
 }
 
 function filtrerFritekst(gjennomforing: VeilederflateTiltak, sok: string): boolean {

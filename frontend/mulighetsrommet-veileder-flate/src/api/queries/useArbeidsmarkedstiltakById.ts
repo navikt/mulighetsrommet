@@ -1,5 +1,5 @@
 import { QueryKeys } from "../query-keys";
-import { useGetTiltakIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
+import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
 import {
   VeilederflateTiltak,
   VeilederflateTiltakEnkeltplass,
@@ -43,7 +43,7 @@ export function isTiltakMedArrangor(
 }
 
 export function useModiaArbeidsmarkedstiltakById() {
-  const id = useGetTiltakIdFraUrl();
+  const id = useTiltakIdFraUrl();
 
   return useApiSuspenseQuery({
     queryKey: QueryKeys.arbeidsmarkedstiltak.tiltakById(id),
@@ -52,7 +52,7 @@ export function useModiaArbeidsmarkedstiltakById() {
 }
 
 export function useNavArbeidsmarkedstiltakById() {
-  const id = useGetTiltakIdFraUrl();
+  const id = useTiltakIdFraUrl();
 
   return useApiSuspenseQuery({
     queryKey: QueryKeys.arbeidsmarkedstiltak.tiltakById(id),
@@ -61,7 +61,7 @@ export function useNavArbeidsmarkedstiltakById() {
 }
 
 export function usePreviewArbeidsmarkedstiltakById() {
-  const id = useGetTiltakIdFraUrl();
+  const id = useTiltakIdFraUrl();
 
   return useApiSuspenseQuery({
     queryKey: QueryKeys.arbeidsmarkedstiltak.previewTiltakById(id),
