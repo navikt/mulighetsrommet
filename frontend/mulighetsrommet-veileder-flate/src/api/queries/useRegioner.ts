@@ -1,9 +1,9 @@
 import { QueryKeys } from "../query-keys";
 import { NavEnheterService } from "@mr/api-client-v2";
-import { useSuspenseQueryWrapper } from "@/hooks/useQueryWrapper";
+import { useApiSuspenseQuery } from "@/hooks/useApiQuery";
 
 export function useRegioner() {
-  return useSuspenseQueryWrapper({
+  return useApiSuspenseQuery({
     queryKey: QueryKeys.navRegioner,
     queryFn: () => {
       return NavEnheterService.getRegioner();

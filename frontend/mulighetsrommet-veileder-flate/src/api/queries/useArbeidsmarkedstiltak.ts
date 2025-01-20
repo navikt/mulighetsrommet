@@ -3,13 +3,13 @@ import {
   isFilterReady,
   useArbeidsmarkedstiltakFilterValue,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { useQueryWrapper } from "@/hooks/useQueryWrapper";
+import { useApiQuery } from "@/hooks/useApiQuery";
 import { NavEnhet, VeilederTiltakService } from "@mr/api-client-v2";
 
 export function useModiaArbeidsmarkedstiltak() {
   const { isFilterReady, filter } = useGetArbeidsmarkedstiltakFilterAsQuery();
 
-  return useQueryWrapper({
+  return useApiQuery({
     queryKey: QueryKeys.arbeidsmarkedstiltak.tiltak(filter),
     queryFn: () => VeilederTiltakService.getAllVeilederTiltak({ query: filter }),
     enabled: isFilterReady,
@@ -19,7 +19,7 @@ export function useModiaArbeidsmarkedstiltak() {
 export function useNavArbeidsmarkedstiltak({ preview }: { preview: boolean }) {
   const { isFilterReady, filter } = useGetArbeidsmarkedstiltakFilterAsQuery();
 
-  return useQueryWrapper({
+  return useApiQuery({
     queryKey: QueryKeys.arbeidsmarkedstiltak.tiltak({ ...filter, preview }),
     queryFn() {
       return preview

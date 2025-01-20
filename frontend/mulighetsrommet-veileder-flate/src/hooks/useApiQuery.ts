@@ -14,7 +14,7 @@ interface UseQueryWrapperOptions<TQueryFnData, TError, TData>
  * i hey-api (som vi gjør), kunne ikke den bare returnert data da? Kan hende
  * det er en config et sted.
  */
-export function useQueryWrapper<TQueryFnData, TError, TData = TQueryFnData>(
+export function useApiQuery<TQueryFnData, TError, TData = TQueryFnData>(
   options: UseQueryWrapperOptions<TQueryFnData, TError, TData>,
 ) {
   const { queryFn, ...restOptions } = options;
@@ -35,7 +35,7 @@ interface UseSuspenseQueryWrapperOptions<TQueryFnData, TError, TData>
   queryFn: () => Promise<{ data: TQueryFnData }>;
 }
 
-export function useSuspenseQueryWrapper<TQueryFnData, TData = TQueryFnData>(
+export function useApiSuspenseQuery<TQueryFnData, TData = TQueryFnData>(
   options: UseSuspenseQueryWrapperOptions<TQueryFnData, never, TData>,
 ) {
   const { queryFn, ...restOptions } = options;

@@ -1,12 +1,12 @@
 import { QueryKeys } from "@/api/query-keys";
 import { DelMedBrukerService } from "@mr/api-client-v2";
 import { useModiaContext } from "./useModiaContext";
-import { useSuspenseQueryWrapper } from "@/hooks/useQueryWrapper";
+import { useApiSuspenseQuery } from "@/hooks/useApiQuery";
 
 export function useDeltMedBrukerHistorikk() {
   const { fnr: norskIdent } = useModiaContext();
 
-  return useSuspenseQueryWrapper({
+  return useApiSuspenseQuery({
     queryKey: QueryKeys.deltMedBrukerHistorikk(norskIdent),
     queryFn: () => {
       return DelMedBrukerService.getHistorikkForDeltMedBruker({

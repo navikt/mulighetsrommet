@@ -1,4 +1,4 @@
-import { useQueryWrapper } from "@/hooks/useQueryWrapper";
+import { useApiQuery } from "@/hooks/useApiQuery";
 import { FeatureToggleService, Tiltakskode, Toggles } from "@mr/api-client-v2";
 
 export type Features = Record<Toggles, boolean>;
@@ -10,7 +10,7 @@ export type Features = Record<Toggles, boolean>;
  * @returns true hvis toggle er skrudd på, eller false hvis ikke
  */
 export function useFeatureToggle(feature: Toggles, tiltakskoder: Tiltakskode[] = []) {
-  return useQueryWrapper({
+  return useApiQuery({
     queryKey: ["feature", feature, tiltakskoder],
     queryFn: () =>
       FeatureToggleService.getFeatureToggle<false>({ query: { feature, tiltakskoder } }),

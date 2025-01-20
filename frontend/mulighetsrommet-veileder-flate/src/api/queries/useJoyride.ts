@@ -2,10 +2,10 @@ import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { QueryKeys } from "../query-keys";
 import { JoyrideService, JoyrideType } from "@mr/api-client-v2";
-import { useQueryWrapper } from "@/hooks/useQueryWrapper";
+import { useApiQuery } from "@/hooks/useApiQuery";
 
 export function useJoyride(joyrideType: JoyrideType) {
-  const query = useQueryWrapper({
+  const query = useApiQuery({
     queryKey: QueryKeys.harFullfortJoyride(joyrideType),
     queryFn: () => {
       return JoyrideService.veilederHarFullfortJoyride({
