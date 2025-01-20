@@ -35,6 +35,7 @@ class PdlClient(
         val baseUrl: String,
         val maxRetries: Int = 0,
     )
+
     private val log = LoggerFactory.getLogger(javaClass)
 
     private val client = httpJsonClient(clientEngine).config {
@@ -88,12 +89,14 @@ class PdlClient(
             variables = variables,
         )
         return graphqlRequest<GraphqlRequest.HentHistoriskeIdenter, HentIdenterResponse>(request, accessType)
-            .onRight { hentIdenterCache.put(variables, it.hentIdenter) }
-            .map {
-                requireNotNull(it.hentIdenter) {
-                    "hentIdenter var null og errors tom! response: $it"
+            .onRight { response ->
+                response.hentIdenter?.also { hentIdenterCache.put(variables, it) }
+            }
+            .map { response ->
+                requireNotNull(response.hentIdenter) {
+                    "hentIdenter var null og errors tom! response: $response"
                 }
-                it.hentIdenter.identer
+                response.hentIdenter.identer
             }
     }
 
