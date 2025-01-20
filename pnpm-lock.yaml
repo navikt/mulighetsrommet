@@ -2292,6 +2292,9 @@ packages:
       html-react-parser: '>=5.x'
       jsdom: '>=16.x'
       react: '>=17.x'
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@navikt/oasis@3.6.0':
     resolution: {integrity: sha512-g+0plp7xNUo1ZNv0ahL80A96Swu8RRv/pE1ZYAp9t1AGo6RHUicF3PYuyiQH+xtXrdiXQk29KumS+jCqURswlA==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/3.6.0/8e7b3918165b037c18cfbc36ad4aeee04fc0650f}
@@ -10393,14 +10396,8 @@ snapshots:
     dependencies:
       '@floating-ui/react': 0.25.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@floating-ui/react-dom': 2.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-<<<<<<< HEAD
-      '@navikt/aksel-icons': 7.9.1
-      '@navikt/ds-tokens': 7.9.1
-=======
       '@navikt/aksel-icons': 7.9.2
       '@navikt/ds-tokens': 7.9.2
-      '@types/react': 18.3.12
->>>>>>> main
       clsx: 2.1.1
       date-fns: 3.6.0
       react: 18.3.1
@@ -10414,14 +10411,8 @@ snapshots:
     dependencies:
       '@floating-ui/react': 0.25.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@floating-ui/react-dom': 2.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-<<<<<<< HEAD
-      '@navikt/aksel-icons': 7.9.1
-      '@navikt/ds-tokens': 7.9.1
-=======
       '@navikt/aksel-icons': 7.9.2
       '@navikt/ds-tokens': 7.9.2
-      '@types/react': 18.3.13
->>>>>>> main
       clsx: 2.1.1
       date-fns: 3.6.0
       react: 18.3.1
@@ -10440,6 +10431,7 @@ snapshots:
       csp-header: 6.0.0
       html-react-parser: 5.2.2(@types/react@18.3.12)(react@18.3.1)
       jsdom: 26.0.0
+    optionalDependencies:
       react: 18.3.1
 
   '@navikt/oasis@3.6.0':
