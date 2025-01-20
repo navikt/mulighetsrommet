@@ -85,7 +85,7 @@ fun Route.arrangorRoutes() {
             val virksomhetKontaktperson = call.receive<ArrangorKontaktpersonRequest>()
 
             val result = virksomhetKontaktperson.toDto(id)
-                .map { arrangorService.upsertKontaktperson(it) }
+                .onRight { arrangorService.upsertKontaktperson(it) }
                 .onLeft { application.log.warn("Klarte ikke opprette kontaktperson: $it") }
 
             call.respondWithStatusResponse(result)
