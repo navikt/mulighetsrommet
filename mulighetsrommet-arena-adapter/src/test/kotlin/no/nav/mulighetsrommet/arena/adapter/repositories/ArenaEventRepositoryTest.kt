@@ -67,7 +67,7 @@ class ArenaEventRepositoryTest : FunSpec({
         }
 
         test("should save events") {
-            database.assertThat("arena_events").hasNumberOfRows(10)
+            database.assertTable("arena_events").hasNumberOfRows(10)
         }
 
         test("should get events specified by table") {

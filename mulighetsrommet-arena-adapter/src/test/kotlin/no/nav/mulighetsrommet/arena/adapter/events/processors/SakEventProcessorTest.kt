@@ -46,15 +46,15 @@ class SakEventProcessorTest : FunSpec({
 
                 val e1 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 1) }
                 processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertThat("sak").row().value("lopenummer").isEqualTo(1)
+                database.assertTable("sak").row().value("lopenummer").isEqualTo(1)
 
                 val e2 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 2) }
                 processor.handleEvent(e2).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertThat("sak").row().value("lopenummer").isEqualTo(2)
+                database.assertTable("sak").row().value("lopenummer").isEqualTo(2)
 
                 val e3 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 3) }
                 processor.handleEvent(e3).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertThat("sak").row().value("lopenummer").isEqualTo(3)
+                database.assertTable("sak").row().value("lopenummer").isEqualTo(3)
             }
         }
     }

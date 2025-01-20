@@ -80,7 +80,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                     it.status shouldBe Failed
                     it.message shouldContain "Key (tiltakskode)=(INDOPPFAG) is not present in table \"tiltakstype\""
                 }
-                database.assertThat("avtale").isEmpty
+                database.assertTable("avtale").isEmpty
             }
         }
 
@@ -123,7 +123,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 events.forEach { event ->
                     processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Ignored }
                 }
-                database.assertThat("avtale").isEmpty
+                database.assertTable("avtale").isEmpty
             }
 
             test("ignore avtaler ended before 2023") {
@@ -134,7 +134,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 }
 
                 processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Ignored }
-                database.assertThat("avtale").isEmpty
+                database.assertTable("avtale").isEmpty
             }
 
             test("should treat all operations as upserts") {
@@ -150,7 +150,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 val processor = createProcessor(engine)
 
                 processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertThat("avtale").row()
+                database.assertTable("avtale").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("status").isEqualTo(Avtale.Status.Aktiv.name)
 
@@ -158,7 +158,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                     it.copy(AVTALESTATUSKODE = Avtalestatuskode.Planlagt)
                 }
                 processor.handleEvent(e2).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertThat("avtale").row()
+                database.assertTable("avtale").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("status").isEqualTo(Avtale.Status.Planlagt.name)
 
@@ -166,7 +166,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                     it.copy(AVTALESTATUSKODE = Avtalestatuskode.Avsluttet)
                 }
                 processor.handleEvent(e3).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertThat("avtale").row()
+                database.assertTable("avtale").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("status").isEqualTo(Avtale.Status.Avsluttet.name)
             }
@@ -283,7 +283,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
 
                 processor.handleEvent(event).shouldBeRight()
 
-                database.assertThat("avtale").row()
+                database.assertTable("avtale").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("status").isEqualTo(Avtale.Status.Overfort.name)
 

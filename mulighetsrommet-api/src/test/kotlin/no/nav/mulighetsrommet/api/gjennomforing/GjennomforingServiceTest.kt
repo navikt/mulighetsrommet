@@ -119,7 +119,7 @@ class GjennomforingServiceTest : FunSpec({
             )
             service.upsert(gjennomforing, navIdent).shouldBeRight()
 
-            database.assertThat("user_notification").isEmpty
+            database.assertTable("user_notification").isEmpty
         }
 
         test("Bare nye administratorer får notifikasjon når man endrer gjennomføring") {
@@ -132,7 +132,7 @@ class GjennomforingServiceTest : FunSpec({
             )
             service.upsert(gjennomforing, identAnsatt1).shouldBeRight()
 
-            database.assertThat("user_notification")
+            database.assertTable("user_notification")
                 .hasNumberOfRows(1)
                 .column("user_id")
                 .containsValues(identAnsatt2.value)

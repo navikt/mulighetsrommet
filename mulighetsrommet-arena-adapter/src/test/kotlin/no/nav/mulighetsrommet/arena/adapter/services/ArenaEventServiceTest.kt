@@ -84,7 +84,7 @@ class ArenaEventServiceTest : FunSpec({
             val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.processEvent(pendingEvent)
 
-            database.assertThat("arena_events").row()
+            database.assertTable("arena_events").row()
                 .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
                 .value("message").isNull
         }
@@ -105,7 +105,7 @@ class ArenaEventServiceTest : FunSpec({
                 processor2.handleEvent(pendingEvent)
             }
 
-            database.assertThat("arena_events").row()
+            database.assertTable("arena_events").row()
                 .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
                 .value("message").isNull
         }
@@ -166,7 +166,7 @@ class ArenaEventServiceTest : FunSpec({
             }
 
             // Verifiser tilstand i underliggende tabeller
-            database.assertThat("arena_events")
+            database.assertTable("arena_events")
                 .row()
                 .value("arena_id").isEqualTo(processedEvent.arenaId)
                 .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
@@ -176,7 +176,7 @@ class ArenaEventServiceTest : FunSpec({
                 .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
                 .value("message").isNull
 
-            database.assertThat("arena_entity_mapping")
+            database.assertTable("arena_entity_mapping")
                 .row()
                 .value("entity_id").isEqualTo(processedEventMapping.entityId)
                 .value("status").isEqualTo(Handled.name)
@@ -195,7 +195,7 @@ class ArenaEventServiceTest : FunSpec({
             val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.processEvent(pendingEvent)
 
-            database.assertThat("arena_events").row()
+            database.assertTable("arena_events").row()
                 .value("processing_status").isEqualTo(ProcessingStatus.Failed.name)
                 .value("message").isEqualTo("Event processing failed: :(")
         }
@@ -217,7 +217,7 @@ class ArenaEventServiceTest : FunSpec({
                 processor2.handleEvent(any())
             }
 
-            database.assertThat("arena_events").row()
+            database.assertTable("arena_events").row()
                 .value("processing_status").isEqualTo(ProcessingStatus.Failed.name)
                 .value("message").isEqualTo("Event processing failed: :(")
         }
@@ -239,10 +239,10 @@ class ArenaEventServiceTest : FunSpec({
                 processor2.handleEvent(any())
             }
 
-            database.assertThat("arena_events").row()
+            database.assertTable("arena_events").row()
                 .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
                 .value("message").isNull
-            database.assertThat("arena_entity_mapping").row()
+            database.assertTable("arena_entity_mapping").row()
                 .value("status").isEqualTo(Ignored.name)
                 .value("message").isEqualTo(":/")
         }
@@ -257,7 +257,7 @@ class ArenaEventServiceTest : FunSpec({
                 processor.handleEvent(any())
             }
 
-            database.assertThat("arena_events").row()
+            database.assertTable("arena_events").row()
                 .value("processing_status").isEqualTo(ProcessingStatus.Pending.name)
         }
 
@@ -269,7 +269,7 @@ class ArenaEventServiceTest : FunSpec({
             val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.processEvent(pendingEvent)
 
-            database.assertThat("arena_events").row()
+            database.assertTable("arena_events").row()
                 .value("processing_status").isEqualTo(ProcessingStatus.Failed.name)
                 .value("message").isEqualTo("Oh no!")
         }
@@ -289,9 +289,9 @@ class ArenaEventServiceTest : FunSpec({
                 processor.deleteEntity(processedEvent)
             }
 
-            database.assertThat("arena_events").row()
+            database.assertTable("arena_events").row()
                 .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
-            database.assertThat("arena_entity_mapping").row()
+            database.assertTable("arena_entity_mapping").row()
                 .value("status").isEqualTo(Ignored.name)
                 .value("message").isEqualTo("test")
         }
@@ -315,10 +315,10 @@ class ArenaEventServiceTest : FunSpec({
                 processor.deleteEntity(processedEvent)
             }
 
-            database.assertThat("arena_events").row()
+            database.assertTable("arena_events").row()
                 .value("processing_status").isEqualTo(ProcessingStatus.Failed.name)
                 .value("message").isEqualTo("Event processing failed: :(")
-            database.assertThat("arena_entity_mapping").row()
+            database.assertTable("arena_entity_mapping").row()
                 .value("entity_id").isEqualTo(processedEventMapping.entityId)
                 .value("status").isEqualTo(Handled.name)
                 .value("message").isNull
@@ -376,7 +376,7 @@ class ArenaEventServiceTest : FunSpec({
             }
 
             // Verifiser tilstand i underliggende tabeller
-            database.assertThat("arena_events")
+            database.assertTable("arena_events")
                 .row()
                 .value("arena_id").isEqualTo(dependentEvent.arenaId)
                 .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
@@ -385,7 +385,7 @@ class ArenaEventServiceTest : FunSpec({
                 .value("arena_id").isEqualTo(processedEvent.arenaId)
                 .value("processing_status").isEqualTo(ProcessingStatus.Failed.name)
                 .value("message").isEqualTo("Dependent event has not yet been processed: :(")
-            database.assertThat("arena_entity_mapping")
+            database.assertTable("arena_entity_mapping")
                 .row()
                 .value("entity_id").isEqualTo(dependentEventMapping.entityId)
                 .value("status").isEqualTo(Handled.name)
@@ -409,10 +409,10 @@ class ArenaEventServiceTest : FunSpec({
                 processor.deleteEntity(pendingEvent)
             }
 
-            database.assertThat("arena_events").row()
+            database.assertTable("arena_events").row()
                 .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
                 .value("message").isNull
-            database.assertThat("arena_entity_mapping").row()
+            database.assertTable("arena_entity_mapping").row()
                 .value("status").isEqualTo(Ignored.name)
         }
 
@@ -422,7 +422,7 @@ class ArenaEventServiceTest : FunSpec({
             val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.processEvent(pendingEventWithEksternId.copy(arenaTable = ArenaTable.Tiltaksgjennomforing))
 
-            database.assertThat("arena_entity_mapping").row()
+            database.assertTable("arena_entity_mapping").row()
                 .value("entity_id").isEqualTo(eksternId)
                 .value("arena_id").isEqualTo(pendingEventWithEksternId.arenaId)
         }
@@ -433,7 +433,7 @@ class ArenaEventServiceTest : FunSpec({
             val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.processEvent(pendingEventWithEksternId)
 
-            database.assertThat("arena_entity_mapping").row()
+            database.assertTable("arena_entity_mapping").row()
                 .value("entity_id").isNotEqualTo(eksternId)
                 .value("arena_id").isEqualTo(pendingEventWithEksternId.arenaId)
         }
@@ -476,7 +476,7 @@ class ArenaEventServiceTest : FunSpec({
             val service = ArenaEventService(events = events, processors = listOf(), entities = entities)
             service.setReplayStatusForEvents(table, ArenaEntityMapping.Status.Handled)
 
-            database.assertThat("arena_events")
+            database.assertTable("arena_events")
                 .row().value("processing_status").isEqualTo(ProcessingStatus.Pending.name)
                 .row().value("processing_status").isEqualTo(ProcessingStatus.Replay.name)
                 .row().value("processing_status").isEqualTo(ProcessingStatus.Failed.name)
@@ -513,7 +513,7 @@ class ArenaEventServiceTest : FunSpec({
                 processor.handleEvent(any())
             }
 
-            database.assertThat("arena_events")
+            database.assertTable("arena_events")
                 .row().value("retries").isEqualTo(0)
                 .row().value("retries").isEqualTo(0)
         }
@@ -535,7 +535,7 @@ class ArenaEventServiceTest : FunSpec({
                 processor.handleEvent(any())
             }
 
-            database.assertThat("arena_events")
+            database.assertTable("arena_events")
                 .row().value("retries").isEqualTo(1)
                 .row().value("retries").isEqualTo(1)
         }
