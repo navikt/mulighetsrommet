@@ -1,5 +1,5 @@
 import { Alert, ErrorMessage, Textarea } from "@navikt/ds-react";
-import { DelMedBruker, VeilederflateTiltak } from "@mr/api-client";
+import { DelMedBruker, VeilederflateTiltak } from "@mr/api-client-v2";
 import React, { Dispatch, useEffect, useRef } from "react";
 import { erPreview, formaterDato } from "@/utils/Utils";
 import styles from "./Delemodal.module.scss";

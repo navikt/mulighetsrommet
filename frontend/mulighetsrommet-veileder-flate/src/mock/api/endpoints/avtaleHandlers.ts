@@ -1,5 +1,5 @@
 import { http, HttpResponse } from "msw";
-import { Personopplysning, PersonopplysningData } from "@mr/api-client";
+import { Personopplysning, PersonopplysningData } from "@mr/api-client-v2";
 
 export const avtaleHandlers = [
   http.get("*/api/v1/intern/avtaler/:id/behandle-personopplysninger", async () => {

@@ -4,7 +4,7 @@ import { useLogEvent } from "@/logging/amplitude";
 import { BodyShort, Pagination, Select } from "@navikt/ds-react";
 import classnames from "classnames";
 import { useAtom } from "jotai";
-import { DelMedBruker, GjennomforingOppstartstype, VeilederflateTiltak } from "@mr/api-client";
+import { DelMedBruker, GjennomforingOppstartstype, VeilederflateTiltak } from "@mr/api-client-v2";
 import { ReactNode, useEffect } from "react";
 import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
 import { ArbeidsmarkedstiltakListItem } from "./ArbeidsmarkedstiltakListItem";

@@ -36,7 +36,7 @@ export function AvtalerPage() {
             filter={<AvtaleFilter filterAtom={avtaleFilterAtom} />}
             lagredeFilter={
               <LagredeFilterOversikt
-                deleteMutation={deleteFilterMutation}
+                onDelete={(id: string) => deleteFilterMutation.mutate(id)}
                 lagredeFilter={lagredeFilter}
                 setFilter={setFilter}
                 filter={filter}

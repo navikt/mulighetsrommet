@@ -1,10 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert, BodyShort, Button, Heading, Modal, TextField } from "@navikt/ds-react";
+import { BodyShort, Button, Heading, Modal, TextField } from "@navikt/ds-react";
 import { LagretDokumenttype, LagretFilterRequest } from "@mr/api-client-v2";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
-import { UseMutationResult } from "@tanstack/react-query";
 
 const LagreFilterSchema = z.object({
   navn: z
@@ -18,10 +17,10 @@ type InferredLagreFilterSchema = z.infer<typeof LagreFilterSchema>;
 interface Props {
   dokumenttype: LagretDokumenttype;
   filter: any;
-  mutation: UseMutationResult<any, any, LagretFilterRequest>;
+  onLagre: (r: LagretFilterRequest) => void;
 }
 
-export function LagreFilterButton({ mutation, dokumenttype, filter }: Props) {
+export function LagreFilterButton({ onLagre, dokumenttype, filter }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   const form = useForm<InferredLagreFilterSchema>({
@@ -40,22 +39,17 @@ export function LagreFilterButton({ mutation, dokumenttype, filter }: Props) {
   }, [setFocus, isOpen]);
 
   function lagreFilter(data: InferredLagreFilterSchema) {
-    mutation.mutate(
+    onLagre(
       {
         navn: data.navn,
         filter,
         type: dokumenttype,
         sortOrder: 0,
         id: window.crypto.randomUUID(),
-      },
-      {
-        onSuccess: () => {
-          setIsOpen(false);
-          mutation.reset();
-          form.reset();
-        },
-      },
+      }
     );
+    setIsOpen(false);
+    form.reset();
   }
 
   return (
@@ -79,15 +73,10 @@ export function LagreFilterButton({ mutation, dokumenttype, filter }: Props) {
             <Modal.Body>
               <BodyShort>Du vil finne igjen filteret under "Lagrede filter".</BodyShort>
               <TextField {...register("navn")} error={errors.navn?.message} label="Navn:" />
-              {mutation.error ? (
-                <Alert style={{ marginTop: "2rem" }} variant="error">
-                  Klarte ikke lagre filter
-                </Alert>
-              ) : null}
             </Modal.Body>
             <Modal.Footer>
-              <Button type="submit" variant="primary" disabled={mutation.isPending}>
-                {mutation.isPending ? "Lagrer..." : "Lagre"}
+              <Button type="submit" variant="primary">
+                Lagre
               </Button>
             </Modal.Footer>
           </form>

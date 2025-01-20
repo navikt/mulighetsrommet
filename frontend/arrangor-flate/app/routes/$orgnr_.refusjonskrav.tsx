@@ -34,9 +34,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     path: { orgnr },
     headers: await apiHeaders(request),
   });
-  if (!krav || !tilsagn) {
-    throw new Error("Error");
-  }
 
   return { krav, tilsagn };
 }

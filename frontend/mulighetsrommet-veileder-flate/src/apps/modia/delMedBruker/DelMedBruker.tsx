@@ -3,7 +3,7 @@ import { CheckmarkIcon } from "@navikt/aksel-icons";
 import { Delemodal } from "./Delemodal";
 import { useDelMedBruker } from "./DelemodalReducer";
 import { useLogEvent } from "@/logging/amplitude";
-import { Bruker, DelMedBruker as DelMedBrukerInfo, VeilederflateTiltak } from "@mr/api-client";
+import { Bruker, DelMedBruker as DelMedBrukerInfo, VeilederflateTiltak } from "@mr/api-client-v2";
 import { formaterDato } from "@/utils/Utils";
 import {
   erBrukerReservertMotDigitalKommunikasjon,

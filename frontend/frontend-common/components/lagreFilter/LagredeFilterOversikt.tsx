@@ -4,14 +4,13 @@ import { LagretFilter } from "@mr/api-client-v2";
 import { useRef, useState } from "react";
 import styles from "./LagredeFilterOversikt.module.scss";
 import { VarselModal } from "../varsel/VarselModal";
-import { UseMutationResult } from "@tanstack/react-query";
 
 interface Props {
   lagredeFilter: LagretFilter[];
   filter: any;
   setFilter: (filter: any) => void;
   validateFilterStructure: (filter: any) => boolean;
-  deleteMutation: UseMutationResult<string, any, string>;
+  onDelete:(id: string) => void;
 }
 
 export function LagredeFilterOversikt({
@@ -19,7 +18,7 @@ export function LagredeFilterOversikt({
   filter,
   setFilter,
   validateFilterStructure,
-  deleteMutation,
+  onDelete,
 }: Props) {
   const [filterForSletting, setFilterForSletting] = useState<LagretFilter | undefined>(undefined);
   const [filterHarUgyldigStruktur, setFilterHarUgyldigStruktur] = useState<
@@ -41,15 +40,12 @@ export function LagredeFilterOversikt({
   }
 
   function slettFilter(id: string) {
-    deleteMutation.mutate(id, {
-      onSuccess: () => {
-        setFilter({ ...filter, lagretFilterIdValgt: undefined });
-        setFilterForSletting(undefined);
-        setFilterHarUgyldigStruktur(undefined);
-        sletteFilterModalRef.current?.close();
-        filterHarUgyldigStrukturModalRef.current?.close();
-      },
-    });
+    onDelete(id);
+    setFilter({ ...filter, lagretFilterIdValgt: undefined });
+    setFilterForSletting(undefined);
+    setFilterHarUgyldigStruktur(undefined);
+    sletteFilterModalRef.current?.close();
+    filterHarUgyldigStrukturModalRef.current?.close();
   }
 
   const sletteBody = (typeFilter: string) => {

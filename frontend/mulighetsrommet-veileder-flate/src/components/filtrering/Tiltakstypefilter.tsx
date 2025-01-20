@@ -26,7 +26,6 @@ export function Tiltakstypefilter({ antallValgteTiltakstyper }: Props) {
           };
         }) ?? []
       }
-      isError={tiltakstyper.isError}
       sortert
     />
   );

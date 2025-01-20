@@ -1,4 +1,4 @@
-import { Oppskrift } from "@mr/api-client";
+import { Oppskrift } from "@mr/api-client-v2";
 
 export const mockOppskrifter: { data: Oppskrift[] } = {
   data: [

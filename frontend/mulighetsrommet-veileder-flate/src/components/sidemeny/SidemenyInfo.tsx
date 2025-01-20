@@ -3,7 +3,7 @@ import {
   GjennomforingOppstartstype,
   VeilederflateInnsatsgruppe,
   VeilederflateTiltak,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { formaterDato, utledLopenummerFraTiltaksnummer } from "@/utils/Utils";
 import Kopiknapp from "../kopiknapp/Kopiknapp";
 import Regelverksinfo from "./Regelverksinfo";

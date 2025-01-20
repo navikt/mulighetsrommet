@@ -1,4 +1,4 @@
-import { Accordion, Alert, Checkbox, CheckboxGroup } from "@navikt/ds-react";
+import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import React from "react";
 import { filterAccordionAtom, FilterAccordionTypes } from "@/core/atoms";
@@ -11,7 +11,6 @@ interface CheckboxFilterProps<T extends { id: string; tittel: string }> {
   options: T[];
   setOptions: (type: T[]) => void;
   data: T[];
-  isError: boolean;
   sortert?: boolean;
 }
 
@@ -21,7 +20,6 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
   options,
   setOptions,
   data,
-  isError,
   sortert = false,
 }: CheckboxFilterProps<T>) => {
   const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
@@ -75,7 +73,6 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
               : data.map(checkbox)}
           </CheckboxGroup>
         )}
-        {isError && <Alert variant="error">Det har skjedd en feil</Alert>}
       </Accordion.Content>
     </Accordion.Item>
   );

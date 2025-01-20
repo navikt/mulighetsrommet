@@ -32,7 +32,10 @@ export function NullstillKnappForGjennomforinger({ filterAtom, avtale }: Props) 
       <LagreFilterButton
         dokumenttype={LagretDokumenttype.GJENNOMFORING}
         filter={filter}
-        mutation={lagreFilterMutation}
+        onLagre={(r) => {
+          lagreFilterMutation.mutate(r);
+          lagreFilterMutation.reset();
+        }}
       />
     </>
   ) : null;

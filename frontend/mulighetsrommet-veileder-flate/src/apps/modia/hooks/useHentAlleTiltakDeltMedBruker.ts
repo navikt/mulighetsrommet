@@ -1,21 +1,17 @@
-import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/query-keys";
 import { useModiaContext } from "./useModiaContext";
-import { DelMedBrukerService } from "@mr/api-client";
+import { DelMedBrukerService } from "@mr/api-client-v2";
+import { useApiQuery } from "@/hooks/useApiQuery";
 
 export function useHentAlleTiltakDeltMedBruker() {
   const { fnr: norskIdent } = useModiaContext();
 
-  const { data: alleTiltakDeltMedBruker } = useQuery({
+  return useApiQuery({
     queryKey: [QueryKeys.AlleDeltMedBrukerStatus, norskIdent],
-    queryFn: async () => {
-      const result = await DelMedBrukerService.getAlleTiltakDeltMedBruker({
-        requestBody: { norskIdent },
-      });
-      return result || null; // Returner null hvis API returnerer 204 No Content = undefined;
-    },
+    queryFn: () =>
+      DelMedBrukerService.getAlleTiltakDeltMedBruker<false>({
+        body: { norskIdent },
+      }),
     throwOnError: false, // Er ingen krise hvis dette kallet feiler
   });
-
-  return { alleTiltakDeltMedBruker };
 }

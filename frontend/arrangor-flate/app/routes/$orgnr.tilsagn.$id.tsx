@@ -18,13 +18,10 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   const { id } = params;
   if (!id) throw Error("Mangler id");
 
-  const { data: tilsagn, error } = await ArrangorflateService.getArrangorflateTilsagn({
+  const { data: tilsagn } = await ArrangorflateService.getArrangorflateTilsagn({
     path: { id },
     headers: await apiHeaders(request),
   });
-  if (error || !tilsagn) {
-    throw error;
-  }
 
   return { tilsagn };
 };

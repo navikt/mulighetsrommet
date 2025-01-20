@@ -22,7 +22,7 @@ import {
   TiltakskodeArena,
   Toggles,
   VeilederflateTiltakstype,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { TilbakemeldingsLenke, useTitle } from "@mr/frontend-common";
 import { Chat2Icon } from "@navikt/aksel-icons";
 import { Alert, Button } from "@navikt/ds-react";

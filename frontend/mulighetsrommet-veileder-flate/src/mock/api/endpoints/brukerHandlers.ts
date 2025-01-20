@@ -11,7 +11,7 @@ import {
   Innsatsgruppe,
   NavEnhetStatus,
   NavEnhetType,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { http, HttpResponse, PathParams } from "msw";
 import { deltakelserHistoriske } from "../../fixtures/mockDeltakelserHistoriske";
 
@@ -79,16 +79,16 @@ export const brukerHandlers = [
   ),
 
   http.post<PathParams, GetAktivDeltakelseForBrukerRequest, Deltakelse>(
-    "*/api/v1/intern/bruker/deltakelse-for-gjennomforing",
+    "*/api/v1/intern/bruker/deltakelse",
     async ({ request }) => {
-      const { gjennomforingId } = await request.json();
+      const { tiltakId } = await request.json();
       const found = deltakelserAktive.find((deltakelse) => {
-        return "gjennomforingId" in deltakelse && deltakelse.gjennomforingId === gjennomforingId;
+        return "gjennomforingId" in deltakelse && deltakelse.gjennomforingId === tiltakId;
       });
       if (found) {
         return HttpResponse.json(found);
       } else {
-        return HttpResponse.json(undefined, { status: 204 });
+        return HttpResponse.json(undefined, { status: 404 });
       }
     },
   ),

@@ -1,4 +1,3 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { QueryKeys } from "../query-keys";
 import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
 import {
@@ -7,8 +6,9 @@ import {
   VeilederflateTiltakEnkeltplassAnskaffet,
   VeilederflateTiltakGruppe,
   VeilederTiltakService,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
+import { useApiSuspenseQuery } from "@/hooks/useApiQuery";
 
 export function isTiltakGruppe(tiltak: VeilederflateTiltak): tiltak is VeilederflateTiltakGruppe {
   return tiltak.type === "TILTAK_GRUPPE";
@@ -45,26 +45,26 @@ export function isTiltakMedArrangor(
 export function useModiaArbeidsmarkedstiltakById() {
   const id = useTiltakIdFraUrl();
 
-  return useSuspenseQuery({
+  return useApiSuspenseQuery({
     queryKey: QueryKeys.arbeidsmarkedstiltak.tiltakById(id),
-    queryFn: () => VeilederTiltakService.getVeilederTiltak({ id }),
+    queryFn: () => VeilederTiltakService.getVeilederTiltak({ path: { id } }),
   });
 }
 
 export function useNavArbeidsmarkedstiltakById() {
   const id = useTiltakIdFraUrl();
 
-  return useSuspenseQuery({
+  return useApiSuspenseQuery({
     queryKey: QueryKeys.arbeidsmarkedstiltak.tiltakById(id),
-    queryFn: () => VeilederTiltakService.getNavTiltak({ id }),
+    queryFn: () => VeilederTiltakService.getNavTiltak({ path: { id } }),
   });
 }
 
 export function usePreviewArbeidsmarkedstiltakById() {
   const id = useTiltakIdFraUrl();
 
-  return useSuspenseQuery({
+  return useApiSuspenseQuery({
     queryKey: QueryKeys.arbeidsmarkedstiltak.previewTiltakById(id),
-    queryFn: () => VeilederTiltakService.getPreviewTiltak({ id }),
+    queryFn: () => VeilederTiltakService.getPreviewTiltak({ path: { id } }),
   });
 }

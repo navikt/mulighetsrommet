@@ -1,4 +1,4 @@
-import { TiltakDeltMedBruker, Tiltakskode, TiltakskodeArena } from "@mr/api-client";
+import { TiltakDeltMedBruker, Tiltakskode, TiltakskodeArena } from "@mr/api-client-v2";
 
 export const mockHistorikkDeltMedBruker: TiltakDeltMedBruker[] = [
   {

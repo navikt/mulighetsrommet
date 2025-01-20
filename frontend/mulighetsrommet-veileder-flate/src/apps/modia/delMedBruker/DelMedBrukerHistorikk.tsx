@@ -1,4 +1,4 @@
-import { TiltakDeltMedBruker } from "@mr/api-client";
+import { TiltakDeltMedBruker } from "@mr/api-client-v2";
 import { BodyShort, Box, Button, HStack, List, Table, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { VisningsnavnForTiltak } from "../../../components/oversikt/VisningsnavnForTiltak";

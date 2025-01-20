@@ -3,7 +3,7 @@ import {
   Tiltakskode,
   TiltakskodeArena,
   VeilederflateTiltakstype,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 
 export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
   VTA: {

@@ -1,5 +1,5 @@
 import { Alert } from "@navikt/ds-react";
-import { Bruker, BrukerVarsel } from "@mr/api-client";
+import { Bruker, BrukerVarsel } from "@mr/api-client-v2";
 import { useArbeidsmarkedstiltakFilterValue } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { brukersEnhetFilterHasChanged } from "@/apps/modia/delMedBruker/helpers";
 

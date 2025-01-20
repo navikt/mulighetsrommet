@@ -70,8 +70,8 @@ fun Route.brukerRoutes() {
             call.respond(response)
         }
 
-        post("deltakelse-for-gjennomforing") {
-            val (norskIdent, gjennomforingId) = call.receive<GetAktivDeltakelseForBrukerRequest>()
+        post("deltakelse") {
+            val (norskIdent, tiltakId) = call.receive<GetAktivDeltakelseForBrukerRequest>()
             val obo = AccessType.OBO(call.getAccessToken())
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), norskIdent)
@@ -80,9 +80,9 @@ fun Route.brukerRoutes() {
 
             val response = deltakelser.aktive
                 .firstOrNull {
-                    it is Deltakelse.DeltakelseGruppetiltak && it.gjennomforingId == gjennomforingId
+                    it is Deltakelse.DeltakelseGruppetiltak && it.gjennomforingId == tiltakId
                 }
-                ?: HttpStatusCode.NoContent
+                ?: HttpStatusCode.NotFound
 
             call.respond(response)
         }
@@ -115,7 +115,7 @@ data class GetDeltakelserForBrukerResponse(
 data class GetAktivDeltakelseForBrukerRequest(
     val norskIdent: NorskIdent,
     @Serializable(with = UUIDSerializer::class)
-    val gjennomforingId: UUID,
+    val tiltakId: UUID,
 )
 
 private fun createAuditMessage(msg: String, topic: String, navIdent: NavIdent, norskIdent: NorskIdent): CefMessage {

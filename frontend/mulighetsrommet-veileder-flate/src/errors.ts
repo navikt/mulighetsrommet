@@ -1,4 +1,8 @@
-import { ApiError } from "@mr/api-client";
+export interface ApiError {
+  message: string;
+  body: any;
+  status: number;
+}
 
 export function resolveErrorMessage(error: ApiError): string {
   if (typeof error.body === "string") {

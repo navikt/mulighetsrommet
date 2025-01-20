@@ -4,7 +4,7 @@ import { StatusModal } from "@/components/modal/StatusModal";
 import { useLogEvent } from "@/logging/amplitude";
 import { erPreview } from "@/utils/Utils";
 import { BodyShort, Button, Checkbox, Heading, HelpText, Modal } from "@navikt/ds-react";
-import { Bruker, DelMedBruker, VeilederflateTiltak } from "@mr/api-client";
+import { Bruker, DelMedBruker, VeilederflateTiltak } from "@mr/api-client-v2";
 import { useDelTiltakMedBruker } from "@/api/queries/useDelTiltakMedBruker";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import style from "./Delemodal.module.scss";
