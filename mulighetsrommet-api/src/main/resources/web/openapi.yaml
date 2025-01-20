@@ -947,11 +947,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/GetDeltakelserForBrukerResponse"
 
-  /api/v1/intern/bruker/deltakelse-for-gjennomforing:
+  /api/v1/intern/bruker/deltakelse:
     post:
       tags:
         - Historikk
-      operationId: hentDeltakelseForGjennomforing
+      operationId: hentDeltakelse
       requestBody:
         content:
           application/json:
@@ -960,13 +960,13 @@ paths:
         required: true
       responses:
         200:
-          description: Aktiv deltakelse for gjennomføring
+          description: Aktiv deltakelse
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/DeltakelseGruppetiltak"
         204:
-          description: Fant ikke deltakelse for gjennomføring
+          description: Fant ikke deltakelse for tiltak
 
   /api/v1/intern/ansatt:
     get:
@@ -2270,12 +2270,12 @@ components:
       properties:
         norskIdent:
           type: string
-        gjennomforingId:
+        tiltakId:
           type: string
           format: uuid
       required:
         - norskIdent
-        - gjennomforingId
+        - tiltakId
 
     GetDelMedBrukerRequest:
       type: object

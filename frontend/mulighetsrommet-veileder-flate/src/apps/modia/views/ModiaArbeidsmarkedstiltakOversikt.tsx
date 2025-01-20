@@ -21,7 +21,7 @@ import { ModiaOversiktBrukerVarsler } from "../varsler/ModiaOversiktBrukerVarsle
 export function ModiaArbeidsmarkedstiltakOversikt() {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
-  const { alleTiltakDeltMedBruker } = useHentAlleTiltakDeltMedBruker();
+  const { data: alleTiltakDeltMedBruker } = useHentAlleTiltakDeltMedBruker();
 
   const { filter, filterHasChanged, resetFilterToDefaults } =
     useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst();

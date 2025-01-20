@@ -9,9 +9,9 @@ import {
 import { Alert, BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import styles from "./PameldingForGruppetiltak.module.scss";
-import { useHentDeltakelseForGjennomforing } from "@/api/queries/useHentDeltakelseForGjennomforing";
 import { useFeatureToggle } from "@/api/feature-toggles";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
+import { useDeltakelse } from "@/api/queries/useDeltakelse";
 
 interface PameldingProps {
   brukerHarRettPaaValgtTiltak: boolean;
@@ -22,7 +22,7 @@ export function PameldingForGruppetiltak({
   brukerHarRettPaaValgtTiltak,
   tiltak,
 }: PameldingProps): ReactNode {
-  const { data: brukerDeltarPaaValgtTiltak } = useHentDeltakelseForGjennomforing();
+  const { data: deltakelse } = useDeltakelse();
   const gjennomforingId = useGetTiltakIdFraUrl();
 
   const tiltakskoder = tiltak.tiltakstype.tiltakskode ? [tiltak.tiltakstype.tiltakskode] : [];
@@ -31,13 +31,13 @@ export function PameldingForGruppetiltak({
     tiltakskoder,
   );
 
-  if (brukerDeltarPaaValgtTiltak) {
+  if (deltakelse) {
     const vedtakRoute = resolveModiaRoute({
       route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
-      deltakerId: brukerDeltarPaaValgtTiltak.id,
+      deltakerId: deltakelse.id,
     });
 
-    const tekster = utledTekster(brukerDeltarPaaValgtTiltak);
+    const tekster = utledTekster(deltakelse);
     return (
       <Alert variant={tekster.variant}>
         <Heading level={"2"} size="small">

@@ -9,11 +9,7 @@ export const QueryKeys = {
     "historikk",
   ],
   BrukerDeltakelser: (fnr: string) => [...QueryKeys.Bruker(fnr), "deltakelser"],
-  DeltakelseForGjennomforing: (fnr: string, gjennomforingId: string) => [
-    ...QueryKeys.Bruker(fnr),
-    gjennomforingId,
-    "deltakelser-for-gjennomforing",
-  ],
+  Deltakelse: (fnr: string, tiltakId: string) => [...QueryKeys.Bruker(fnr), tiltakId, "deltakelse"],
   DeltMedBrukerStatus: ["deltMedBrukerStatus"],
   AlleDeltMedBrukerStatus: "alleDeltMedBrukerStatus",
   arbeidsmarkedstiltak: {

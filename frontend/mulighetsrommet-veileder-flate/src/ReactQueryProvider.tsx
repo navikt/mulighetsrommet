@@ -20,10 +20,17 @@ client.setConfig({
 });
 
 client.interceptors.response.use(async (response) => {
-  if (response.status !== 200) {
+  if (response.status < 200 || response.status >= 300) {
+    let body: unknown;
+    try {
+      body = await response.json();
+    } catch {
+      // Do nothing
+    }
+
     throw {
       status: response.status,
-      body: await response.json(),
+      body,
     } as ApiError;
   }
   return response;
