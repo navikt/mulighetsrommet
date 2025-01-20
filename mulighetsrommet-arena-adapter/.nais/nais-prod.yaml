@@ -46,7 +46,7 @@ spec:
       - type: POSTGRES_16
         tier: db-custom-2-7680
         diskAutoresize: true
-        pointInTimeRecovery: true
+        pointInTimeRecovery: false
         databases:
           - name: mulighetsrommet-arena-adapter-db
             envVarPrefix: DB
