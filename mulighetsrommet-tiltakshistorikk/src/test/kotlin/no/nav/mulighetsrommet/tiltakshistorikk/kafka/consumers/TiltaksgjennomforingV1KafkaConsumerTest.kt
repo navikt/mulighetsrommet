@@ -50,7 +50,7 @@ class TiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
         test("upsert gruppetiltak from topic") {
             consumer.consume(tiltak.id, Json.encodeToJsonElement(tiltak))
 
-            database.assertThat("gruppetiltak")
+            database.assertTable("gruppetiltak")
                 .row()
                 .value("id").isEqualTo(tiltak.id)
         }
@@ -60,7 +60,7 @@ class TiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
 
             consumer.consume(tiltak.id, JsonNull)
 
-            database.assertThat("gruppetiltak").isEmpty
+            database.assertTable("gruppetiltak").isEmpty
         }
     }
 })

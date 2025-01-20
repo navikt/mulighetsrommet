@@ -150,7 +150,7 @@ class JournalforRefusjonskravTest : FunSpec({
             }
         }
 
-        database.assertThat("scheduled_tasks")
+        database.assertTable("scheduled_tasks")
             .hasNumberOfRows(0)
     }
 
@@ -161,7 +161,7 @@ class JournalforRefusjonskravTest : FunSpec({
             task.schedule(krav.id, Instant.now(), tx)
         }
 
-        database.assertThat("scheduled_tasks")
+        database.assertTable("scheduled_tasks")
             .row()
             .value("task_name").isEqualTo("JournalforRefusjonskrav")
     }

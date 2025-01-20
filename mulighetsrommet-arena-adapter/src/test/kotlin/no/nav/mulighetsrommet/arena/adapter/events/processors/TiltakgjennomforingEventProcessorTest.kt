@@ -109,7 +109,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     it.status shouldBe Failed
                     it.message shouldContain "insert or update on table \"tiltaksgjennomforing\" violates foreign key constraint \"tiltaksgjennomforing_sak_id_fkey\""
                 }
-                database.assertThat("tiltaksgjennomforing").isEmpty
+                database.assertTable("tiltaksgjennomforing").isEmpty
             }
 
             test("should save the event with status Failed when dependent tiltakstype is missing") {
@@ -130,7 +130,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     it.status shouldBe Failed
                     it.message shouldContain "insert or update on table \"tiltaksgjennomforing\" violates foreign key constraint \"tiltaksgjennomforing_tiltakskode_fkey\""
                 }
-                database.assertThat("tiltaksgjennomforing").isEmpty
+                database.assertTable("tiltaksgjennomforing").isEmpty
             }
         }
 
@@ -153,7 +153,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 }
             }
 
-            database.assertThat("tiltaksgjennomforing").isEmpty
+            database.assertTable("tiltaksgjennomforing").isEmpty
         }
 
         context("when tiltaksgjennomføring is individuell") {
@@ -250,7 +250,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 val processor = createProcessor(engine)
 
                 processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertThat("tiltaksgjennomforing").row()
+                database.assertTable("tiltaksgjennomforing").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("navn").isEqualTo("Navn 1")
 
@@ -261,7 +261,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     )
                 }
                 processor.handleEvent(e2).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertThat("tiltaksgjennomforing").row()
+                database.assertTable("tiltaksgjennomforing").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("navn").isEqualTo("Navn 2")
 
@@ -269,7 +269,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     it.copy(LOKALTNAVN = "Navn 1")
                 }
                 processor.handleEvent(e3).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertThat("tiltaksgjennomforing").row()
+                database.assertTable("tiltaksgjennomforing").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("navn").isEqualTo("Navn 1")
             }
@@ -490,7 +490,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 )
                 processor.handleEvent(event).shouldBeRight()
 
-                database.assertThat("tiltaksgjennomforing").row()
+                database.assertTable("tiltaksgjennomforing").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("avtale_id").isNull
             }
@@ -519,7 +519,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 )
                 processor.handleEvent(event).shouldBeRight()
 
-                database.assertThat("tiltaksgjennomforing").row()
+                database.assertTable("tiltaksgjennomforing").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("avtale_id").isEqualTo(1)
 

@@ -78,7 +78,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         test("upsert deltakere from topic") {
             deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
 
-            database.assertThat("komet_deltaker")
+            database.assertTable("komet_deltaker")
                 .row()
                 .value("id").isEqualTo(amtDeltaker1.id)
         }
@@ -88,7 +88,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
 
             deltakerConsumer.consume(amtDeltaker1.id, JsonNull)
 
-            database.assertThat("komet_deltaker").isEmpty
+            database.assertTable("komet_deltaker").isEmpty
         }
 
         test("delete deltakere that have status FEILREGISTRERT") {
@@ -103,7 +103,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             )
             deltakerConsumer.consume(feilregistrertDeltaker1.id, Json.encodeToJsonElement(feilregistrertDeltaker1))
 
-            database.assertThat("komet_deltaker").isEmpty
+            database.assertTable("komet_deltaker").isEmpty
         }
     }
 })

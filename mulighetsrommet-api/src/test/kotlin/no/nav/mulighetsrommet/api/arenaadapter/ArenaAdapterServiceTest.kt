@@ -72,7 +72,7 @@ class ArenaAdapterServiceTest : FunSpec({
             val service = createArenaAdapterService()
             service.upsertAvtale(avtale)
 
-            database.assertThat("avtale").row()
+            database.assertTable("avtale").row()
                 .value("id").isEqualTo(avtale.id)
                 .value("navn").isEqualTo(avtale.navn)
                 .value("tiltakstype_id").isEqualTo(avtale.tiltakstypeId)
@@ -123,7 +123,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
             service.upsertTiltaksgjennomforing(gjennomforing)
 
-            database.assertThat("gjennomforing").isEmpty
+            database.assertTable("gjennomforing").isEmpty
         }
 
         test("should publish egen regi-tiltak to sanity") {

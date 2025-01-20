@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import org.assertj.db.api.Assertions
 import org.assertj.db.api.TableAssert
-import org.assertj.db.type.Table
+import org.assertj.db.type.AssertDbConnectionFactory
 
 class FlywayDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpecListener, AfterSpecListener {
     private var delegate: Database? = null
@@ -41,8 +41,9 @@ class FlywayDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpe
         delegate?.close()
     }
 
-    fun assertThat(tableName: String): TableAssert {
-        val table = Table(db.getDatasource(), tableName)
+    fun assertTable(tableName: String): TableAssert {
+        val connection = AssertDbConnectionFactory.of(db.getDatasource()).create()
+        val table = connection.table(tableName).build()
         return Assertions.assertThat(table)
     }
 
