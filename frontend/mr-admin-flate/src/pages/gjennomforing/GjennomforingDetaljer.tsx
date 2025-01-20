@@ -19,6 +19,7 @@ import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 import { BodyShort, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
 import { Link } from "react-router";
+import { StengtHosArrangorTable } from "@/components/gjennomforing/stengt/StengtHosArrangorTable";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -126,6 +127,9 @@ export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
               verdi={sluttDato ? formaterDato(sluttDato) : "-"}
             />
           </Bolk>
+          {gjennomforing.stengt.length !== 0 && (
+            <StengtHosArrangorTable gjennomforing={gjennomforing} readOnly />
+          )}
 
           <Bolk>
             <Metadata header={gjennomforingTekster.antallPlasserLabel} verdi={antallPlasser} />

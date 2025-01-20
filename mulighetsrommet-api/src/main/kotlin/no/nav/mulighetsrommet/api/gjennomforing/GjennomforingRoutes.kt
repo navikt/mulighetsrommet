@@ -1,5 +1,13 @@
 package no.nav.mulighetsrommet.api.gjennomforing
 
+import arrow.core.Either
+import arrow.core.NonEmptyList
+import arrow.core.flatMap
+import arrow.core.nel
+import arrow.core.raise.either
+import arrow.core.raise.ensure
+import arrow.core.raise.ensureNotNull
+import arrow.core.raise.zipOrAccumulate
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -16,10 +24,8 @@ import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.responses.BadRequest
-import no.nav.mulighetsrommet.api.responses.ServerError
-import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.api.responses.respondWithStatusResponseError
+import no.nav.mulighetsrommet.api.refusjon.model.Periode
+import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isForhaandsgodkjentTiltak
 import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
@@ -153,6 +159,30 @@ fun Route.gjennomforingRoutes() {
                     .mapLeft { BadRequest(errors = it) }
 
                 call.respondWithStatusResponse(response)
+            }
+
+            put("{id}/stengt-hos-arrangor") {
+                val id: UUID by call.pathParameters
+                val navIdent = getNavIdent()
+                val request = call.receive<SetStengtHosArrangorRequest>()
+
+                val result = request.validate()
+                    .flatMap { (periode, beskrivelse) ->
+                        gjennomforinger.setStengtHosArrangor(id, periode, beskrivelse, EndretAv.NavAnsatt(navIdent))
+                    }
+                    .mapLeft { BadRequest(errors = it) }
+
+                call.respondWithStatusResponse(result)
+            }
+
+            delete("{id}/stengt-hos-arrangor/{periodeId}") {
+                val id: UUID by call.pathParameters
+                val periodeId: Int by call.pathParameters
+                val navIdent = getNavIdent()
+
+                gjennomforinger.deleteStengtHosArrangor(id, periodeId, EndretAv.NavAnsatt(navIdent))
+
+                call.respond(HttpStatusCode.OK)
             }
 
             delete("kontaktperson") {
@@ -419,6 +449,56 @@ data class PublisertRequest(
 data class SetApentForPameldingRequest(
     val apentForPamelding: Boolean,
 )
+
+@Serializable
+data class SetStengtHosArrangorRequest(
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeStart: LocalDate? = null,
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeSlutt: LocalDate? = null,
+    val beskrivelse: String? = null,
+) {
+    fun validate(): Either<NonEmptyList<ValidationError>, Pair<Periode, String>> = either {
+        zipOrAccumulate(
+            {
+                ensure(!beskrivelse.isNullOrBlank()) {
+                    ValidationError.of(
+                        SetStengtHosArrangorRequest::beskrivelse,
+                        message = "Beskrivelse er påkrevd",
+                    )
+                }
+                beskrivelse
+            },
+            {
+                ensureNotNull(periodeStart) {
+                    ValidationError.of(
+                        SetStengtHosArrangorRequest::periodeStart,
+                        message = "Start på perioden er påkrevd",
+                    )
+                }
+            },
+            {
+                ensureNotNull(periodeSlutt) {
+                    ValidationError.of(
+                        SetStengtHosArrangorRequest::periodeSlutt,
+                        message = "Slutt på perioden er påkrevd",
+                    )
+                }
+            },
+        ) { beskrivelse, start, slutt ->
+            ensure(!slutt.isBefore(start)) {
+                ValidationError.of(
+                    SetStengtHosArrangorRequest::periodeStart,
+                    message = "Start må være før slutt",
+                ).nel()
+            }
+
+            val periode = Periode.fromInclusiveDates(start, slutt)
+
+            Pair(periode, beskrivelse)
+        }
+    }
+}
 
 @Serializable
 data class SetTilgjengligForArrangorRequest(

@@ -482,6 +482,39 @@ class GjennomforingQueries(private val session: Session) {
         update(queryOf(query, kontaktpersonId, gjennomforingId))
     }
 
+    fun setStengtHosArrangor(
+        id: UUID,
+        periode: Periode,
+        beskrivelse: String,
+    ) {
+        @Language("PostgreSQL")
+        val query = """
+            insert into gjennomforing_stengt_hos_arrangor (gjennomforing_id, periode, beskrivelse)
+            values (:gjennomforing_id::uuid, daterange(:periode_start, :periode_slutt), :beskrivelse)
+        """.trimIndent()
+
+        val params = mapOf(
+            "gjennomforing_id" to id,
+            "periode_start" to periode.start,
+            "periode_slutt" to periode.slutt,
+            "beskrivelse" to beskrivelse,
+        )
+
+        session.execute(queryOf(query, params))
+    }
+
+    fun deleteStengtHosArrangor(
+        id: Int,
+    ) {
+        @Language("PostgreSQL")
+        val query = """
+            delete from gjennomforing_stengt_hos_arrangor
+            where id = ?
+        """.trimIndent()
+
+        session.execute(queryOf(query, id))
+    }
+
     private fun GjennomforingDbo.toSqlParameters() = mapOf(
         "opphav" to ArenaMigrering.Opphav.MR_ADMIN_FLATE.name,
         "id" to id,
@@ -515,6 +548,9 @@ class GjennomforingQueries(private val session: Session) {
             ?: emptyList()
         val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
             ?.let { Json.decodeFromString<List<ArrangorKontaktperson>>(it) }
+            ?: emptyList()
+        val stengt = stringOrNull("stengt_perioder_json")
+            ?.let { Json.decodeFromString<List<GjennomforingDto.StengtPeriode>>(it) }
             ?: emptyList()
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
@@ -595,6 +631,7 @@ class GjennomforingQueries(private val session: Session) {
             tilgjengeligForArrangorFraOgMedDato = localDateOrNull("tilgjengelig_for_arrangor_fra_og_med_dato"),
             amoKategorisering = stringOrNull("amo_kategorisering_json")?.let { JsonIgnoreUnknownKeys.decodeFromString(it) },
             utdanningslop = utdanningslop,
+            stengt = stengt,
         )
     }
 }

@@ -27,6 +27,10 @@ data class Periode(
             val periodeStart = date.with(TemporalAdjusters.firstDayOfMonth())
             return Periode(periodeStart, periodeStart.plusMonths(1))
         }
+
+        fun fromInclusiveDates(inclusiveStart: LocalDate, inclusiveEnd: LocalDate): Periode {
+            return Periode(inclusiveStart, inclusiveEnd.plusDays(1))
+        }
     }
 
     fun getDurationInDays(): Long {
