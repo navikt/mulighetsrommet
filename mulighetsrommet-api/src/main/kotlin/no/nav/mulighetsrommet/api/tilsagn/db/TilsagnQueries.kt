@@ -8,7 +8,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
+import no.nav.mulighetsrommet.api.refusjon.model.Periode
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.database.createEnumArray
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -122,7 +122,7 @@ class TilsagnQueries(private val session: Session) {
 
     fun getTilsagnTilRefusjon(
         gjennomforingId: UUID,
-        periode: RefusjonskravPeriode,
+        periode: Periode,
     ): List<TilsagnDto> {
         @Language("PostgreSQL")
         val query = """
@@ -143,7 +143,7 @@ class TilsagnQueries(private val session: Session) {
 
     fun getArrangorflateTilsagnTilRefusjon(
         gjennomforingId: UUID,
-        periode: RefusjonskravPeriode,
+        periode: Periode,
     ): List<ArrangorflateTilsagn> {
         @Language("PostgreSQL")
         val query = """

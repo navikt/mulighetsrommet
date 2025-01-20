@@ -10,7 +10,7 @@ import java.time.temporal.TemporalAdjusters
  * Representerer en periode inklusiv [start] og eksklusiv [slutt].
  */
 @Serializable
-data class RefusjonskravPeriode(
+data class Periode(
     @Serializable(with = LocalDateSerializer::class)
     val start: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
@@ -23,9 +23,9 @@ data class RefusjonskravPeriode(
     }
 
     companion object {
-        fun fromDayInMonth(dayInMonth: LocalDate): RefusjonskravPeriode {
-            val periodeStart = dayInMonth.with(TemporalAdjusters.firstDayOfMonth())
-            return RefusjonskravPeriode(periodeStart, periodeStart.plusMonths(1))
+        fun forMonthOf(date: LocalDate): Periode {
+            val periodeStart = date.with(TemporalAdjusters.firstDayOfMonth())
+            return Periode(periodeStart, periodeStart.plusMonths(1))
         }
     }
 

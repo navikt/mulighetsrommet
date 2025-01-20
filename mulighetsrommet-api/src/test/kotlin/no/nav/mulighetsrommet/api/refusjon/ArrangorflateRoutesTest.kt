@@ -79,7 +79,7 @@ class ArrangorflateRoutesTest : FunSpec({
         fristForGodkjenning = LocalDateTime.now(),
         beregning = RefusjonKravBeregningAft(
             input = RefusjonKravBeregningAft.Input(
-                periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2024, 8, 1)),
+                periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
                 sats = 20205,
                 deltakelser = setOf(
                     DeltakelsePerioder(
