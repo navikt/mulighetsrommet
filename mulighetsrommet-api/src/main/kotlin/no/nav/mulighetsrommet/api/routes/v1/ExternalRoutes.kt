@@ -5,7 +5,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
-import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingArenaDataDto
@@ -13,7 +13,7 @@ import org.koin.ktor.ext.inject
 import java.util.*
 
 fun Route.externalRoutes() {
-    val tiltaksgjennomforingService: TiltaksgjennomforingService by inject()
+    val gjennomforingService: GjennomforingService by inject()
     val arenaAdapterService: ArenaAdapterClient by inject()
 
     route("/api/v1/tiltaksgjennomforinger") {
@@ -23,7 +23,7 @@ fun Route.externalRoutes() {
             val filter = EksternTiltaksgjennomforingFilter(arrangorOrgnr = listOf(orgnr))
             val pagination = getPaginationParams()
 
-            val result = tiltaksgjennomforingService.getAllEkstern(pagination, filter)
+            val result = gjennomforingService.getAllEkstern(pagination, filter)
 
             call.respond(result)
         }
@@ -31,7 +31,7 @@ fun Route.externalRoutes() {
         get("{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
 
-            val result = tiltaksgjennomforingService.getEkstern(id)
+            val result = gjennomforingService.getEkstern(id)
                 ?: return@get call.respond(HttpStatusCode.Companion.NotFound, "Ingen tiltaksgjennomføring med id=$id")
 
             call.respond(result)
@@ -50,7 +50,7 @@ fun Route.externalRoutes() {
         get("arenadata/{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
 
-            val gjennomforing = tiltaksgjennomforingService.get(id)
+            val gjennomforing = gjennomforingService.get(id)
                 ?: return@get call.respond(HttpStatusCode.NotFound)
 
             val arenaData = gjennomforing.tiltaksnummer?.let { toArenaDataDto(it) }

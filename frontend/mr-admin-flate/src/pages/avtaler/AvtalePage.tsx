@@ -1,6 +1,5 @@
 import { DupliserAvtale } from "@/components/avtaler/DupliserAvtale";
 import { Header } from "@/components/detaljside/Header";
-import headerStyles from "@/components/detaljside/Header.module.scss";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { AvtalestatusTag } from "@/components/statuselementer/AvtalestatusTag";
@@ -9,20 +8,19 @@ import { useTitle } from "@mr/frontend-common";
 import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
 import { Link, Outlet, useLocation, useMatch } from "react-router";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import commonStyles from "../Page.module.scss";
 import { Laster } from "../../components/laster/Laster";
 import { ContentBox } from "@/layouts/ContentBox";
 import React from "react";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
-  const erPaaGjennomforingerForAvtale = useMatch("/avtaler/:avtaleId/tiltaksgjennomforinger");
+  const erPaaGjennomforingerForAvtale = useMatch("/avtaler/:avtaleId/gjennomforinger");
   return [
     { tittel: "Avtaler", lenke: "/avtaler" },
     { tittel: "Avtale", lenke: `/avtaler/${avtaleId}` },
     erPaaGjennomforingerForAvtale
       ? {
           tittel: "Gjennomføringer",
-          lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
+          lenke: `/avtaler/${avtaleId}/gjennomforinger`,
         }
       : undefined,
   ];
@@ -56,8 +54,8 @@ export function AvtalePage() {
   }
 
   const currentTab = () => {
-    if (pathname.includes("tiltaksgjennomforinger")) {
-      return "tiltaksgjennomforinger";
+    if (pathname.includes("gjennomforinger")) {
+      return "gjennomforinger";
     } else {
       return "avtale";
     }
@@ -67,7 +65,7 @@ export function AvtalePage() {
     <>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
-        <div className={headerStyles.tiltaksnavn_status}>
+        <div className="flex justify-start gap-6 items-center flex-wrap">
           <AvtaleIkon />
           <VStack>
             <Heading size="large" level="2">
@@ -79,7 +77,7 @@ export function AvtalePage() {
         </div>
       </Header>
       <Tabs value={currentTab()}>
-        <Tabs.List className={commonStyles.list}>
+        <Tabs.List className="p-[0 0.5rem] w-[1920px] flex items-start m-auto">
           <Tabs.Tab
             value="avtale"
             label="Avtale"
@@ -87,9 +85,9 @@ export function AvtalePage() {
             aria-controls="panel"
           />
           <Tabs.Tab
-            value="tiltaksgjennomforinger"
+            value="gjennomforinger"
             label="Gjennomføringer"
-            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}/tiltaksgjennomforinger`)}
+            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}/gjennomforinger`)}
             aria-controls="panel"
             data-testid="gjennomforinger-tab"
           />

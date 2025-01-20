@@ -2,7 +2,6 @@ import { NotificationStatus } from "@mr/api-client";
 import { useNotifikasjonerForAnsatt } from "@/api/notifikasjoner/useNotifikasjonerForAnsatt";
 import { Laster } from "@/components/laster/Laster";
 import { EmptyState } from "./EmptyState";
-import styles from "./Notifikasjoner.module.scss";
 import { Notifikasjonssrad } from "./Notifikasjonsrad";
 import { Button, HStack } from "@navikt/ds-react";
 import { useMutateNotifikasjoner } from "@/api/notifikasjoner/useMutateNotifikasjoner";
@@ -74,13 +73,13 @@ export function Notifikasjonsliste({ lest }: Props) {
 
   return (
     <ReloadAppErrorBoundary>
-      <div className={styles.max_width}>
+      <div className="max-w-[1440px]">
         <HStack align={"end"} justify={"end"}>
           <Button variant="tertiary-neutral" size="small" onClick={toggleMarkertSomlestUlest}>
             Merk alle som {lest ? "ulest" : "lest"}
           </Button>
         </HStack>
-        <ul className={styles.notifikasjonsliste_ul}>
+        <ul className="m-0 mb-4 pl-0 flex flex-col">
           {data.map((n) => {
             return <Notifikasjonssrad lest={lest} key={n.id} notifikasjon={n} />;
           })}

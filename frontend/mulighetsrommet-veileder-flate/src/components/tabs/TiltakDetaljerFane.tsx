@@ -6,24 +6,22 @@ import styles from "./TiltakDetaljerFane.module.scss";
 import { TiltakDetaljerFaneContainer } from "./TiltakDetaljerFaneContainer";
 
 interface DetaljerFaneProps {
-  tiltaksgjennomforingAlert?: string;
+  gjennomforingAlert?: string;
   tiltakstypeAlert?: string;
-  tiltaksgjennomforing?: PortableTextTypedObject[];
+  gjennomforing?: PortableTextTypedObject[];
   tiltakstype?: PortableTextTypedObject[];
 }
 
 export function TiltakDetaljerFane({
-  tiltaksgjennomforingAlert,
+  gjennomforingAlert,
   tiltakstypeAlert,
-  tiltaksgjennomforing,
+  gjennomforing,
   tiltakstype,
 }: DetaljerFaneProps) {
   return (
     <TiltakDetaljerFaneContainer
       className={styles.faneinnhold_container}
-      harInnhold={
-        !!tiltaksgjennomforingAlert || !!tiltakstypeAlert || !!tiltaksgjennomforing || !!tiltakstype
-      }
+      harInnhold={!!gjennomforingAlert || !!tiltakstypeAlert || !!gjennomforing || !!tiltakstype}
     >
       {tiltakstypeAlert && (
         <Alert variant="info" style={{ whiteSpace: "pre-wrap" }}>
@@ -33,18 +31,18 @@ export function TiltakDetaljerFane({
       <BodyLong as="div" size="large" className="prose">
         <RedaksjoneltInnhold value={tiltakstype} />
       </BodyLong>
-      {(tiltaksgjennomforing || tiltaksgjennomforingAlert) && (
+      {(gjennomforing || gjennomforingAlert) && (
         <LokalInformasjonContainer>
           <Heading level="2" size="small">
             Lokal informasjon
           </Heading>
-          {tiltaksgjennomforingAlert && (
+          {gjennomforingAlert && (
             <Alert variant="info" style={{ whiteSpace: "pre-wrap", margin: "1rem 0" }}>
-              {tiltaksgjennomforingAlert}
+              {gjennomforingAlert}
             </Alert>
           )}
           <BodyLong as="div" size="large" className="prose">
-            <RedaksjoneltInnhold value={tiltaksgjennomforing} />
+            <RedaksjoneltInnhold value={gjennomforing} />
           </BodyLong>
         </LokalInformasjonContainer>
       )}

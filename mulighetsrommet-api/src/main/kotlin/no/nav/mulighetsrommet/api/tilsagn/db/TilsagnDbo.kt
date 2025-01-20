@@ -9,7 +9,7 @@ import java.util.*
 
 data class TilsagnDbo(
     val id: UUID,
-    val tiltaksgjennomforingId: UUID,
+    val gjennomforingId: UUID,
     val periodeStart: LocalDate,
     val periodeSlutt: LocalDate,
     val kostnadssted: String,

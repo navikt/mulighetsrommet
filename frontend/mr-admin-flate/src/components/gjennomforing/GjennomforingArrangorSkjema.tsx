@@ -91,9 +91,7 @@ export function GjennomforingArrangorSkjema({ readOnly, avtale }: Props) {
         arrangorId={avtale.arrangor.id}
         modalRef={arrangorKontaktpersonerModalRef}
         onOpprettSuccess={(kontaktperson) => {
-          if (
-            !kontaktperson.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.TILTAKSGJENNOMFORING)
-          ) {
+          if (!kontaktperson.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.GJENNOMFORING)) {
             return;
           }
 
@@ -121,9 +119,7 @@ function getArrangorOptions(avtale: AvtaleDto) {
 
 function getKontaktpersonOptions(kontaktpersoner: ArrangorKontaktperson[]) {
   return kontaktpersoner
-    .filter((person) =>
-      person.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.TILTAKSGJENNOMFORING),
-    )
+    .filter((person) => person.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.GJENNOMFORING))
     .map((person) => ({
       value: person.id,
       label: person.navn,

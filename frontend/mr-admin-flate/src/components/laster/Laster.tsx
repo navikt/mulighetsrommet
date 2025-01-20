@@ -1,5 +1,4 @@
 import { BodyShort, Loader } from "@navikt/ds-react";
-import styles from "./Laster.module.scss";
 
 interface Props {
   tekst?: string;
@@ -9,7 +8,7 @@ interface Props {
 export function Laster({ tekst, ...rest }: Props) {
   if (tekst) {
     return (
-      <div className={styles.laster}>
+      <div className="flex flex-col items-center justify-center my-8">
         <Loader {...rest} />
         <BodyShort>{tekst}</BodyShort>
       </div>

@@ -9,7 +9,7 @@ import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.gjennomforing.model.TiltaksgjennomforingNotificationDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingNotificationDto
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
@@ -64,7 +64,7 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
                     createdAt = Instant.now(),
                     metadata = NotificationMetadata(
                         linkText = "Gå til gjennomføringen",
-                        link = "/tiltaksgjennomforinger/${gjennomforing.id}",
+                        link = "/gjennomforinger/${gjennomforing.id}",
                     ),
                 )
 
@@ -75,7 +75,7 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
 
     fun getAllGjennomforingerSomNarmerSegSluttdato(
         today: LocalDate,
-    ): List<TiltaksgjennomforingNotificationDto> = db.session {
+    ): List<GjennomforingNotificationDto> = db.session {
         @Language("PostgreSQL")
         val query = """
             select gjennomforing.id::uuid,
@@ -95,9 +95,9 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
     }
 }
 
-private fun Row.toTiltaksgjennomforingNotificationDto(): TiltaksgjennomforingNotificationDto {
+private fun Row.toTiltaksgjennomforingNotificationDto(): GjennomforingNotificationDto {
     val administratorer = array<String>("administratorer").asList().map { NavIdent(it) }
-    return TiltaksgjennomforingNotificationDto(
+    return GjennomforingNotificationDto(
         id = uuid("id"),
         navn = string("navn"),
         sluttDato = localDate("slutt_dato"),

@@ -82,7 +82,7 @@ export function Delemodal({
         overskrift: overskrift(tiltak),
         tekst,
         venterPaaSvarFraBruker,
-        tiltaksgjennomforingId: isTiltakGruppe(tiltak) ? tiltak.id : null,
+        gjennomforingId: isTiltakGruppe(tiltak) ? tiltak.id : null,
         sanityId: !isTiltakGruppe(tiltak) ? tiltak.sanityId : null,
       });
     } catch {

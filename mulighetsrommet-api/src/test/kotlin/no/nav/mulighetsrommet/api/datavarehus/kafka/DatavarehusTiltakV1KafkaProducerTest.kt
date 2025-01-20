@@ -10,8 +10,8 @@ import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltak
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype

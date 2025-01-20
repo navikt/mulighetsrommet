@@ -25,7 +25,7 @@ data class TilsagnDto(
     val beregning: TilsagnBeregning,
     val lopenummer: Int,
     val arrangor: Arrangor,
-    val tiltaksgjennomforing: Tiltaksgjennomforing,
+    val gjennomforing: Gjennomforing,
     val status: TilsagnStatus,
 ) {
     @Serializable
@@ -38,7 +38,7 @@ data class TilsagnDto(
     )
 
     @Serializable
-    data class Tiltaksgjennomforing(
+    data class Gjennomforing(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
     )

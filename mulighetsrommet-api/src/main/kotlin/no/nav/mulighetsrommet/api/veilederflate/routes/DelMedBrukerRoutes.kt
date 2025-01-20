@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.veilederflate.routes
 
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -51,7 +50,7 @@ fun Route.delMedBrukerRoutes() {
                         navident = navIdent.value,
                         dialogId = dialogResponse.id,
                         sanityId = request.sanityId,
-                        tiltaksgjennomforingId = request.tiltaksgjennomforingId,
+                        gjennomforingId = request.gjennomforingId,
                     )
                     delMedBrukerService.lagreDelMedBruker(dbo)
 
@@ -117,7 +116,7 @@ data class DelTiltakMedBrukerRequest(
     val venterPaaSvarFraBruker: Boolean,
     val fnr: NorskIdent,
     @Serializable(with = UUIDSerializer::class)
-    val tiltaksgjennomforingId: UUID?,
+    val gjennomforingId: UUID?,
     @Serializable(with = UUIDSerializer::class)
     val sanityId: UUID?,
 )

@@ -43,8 +43,10 @@ spec:
         - id: loki
   gcp:
     sqlInstances:
-      - type: POSTGRES_16
+      - name: arena-adapter-v1
+        type: POSTGRES_17
         tier: db-f1-micro
+        diskAutoresize: true
         databases:
           - name: mulighetsrommet-arena-adapter-db
             envVarPrefix: DB

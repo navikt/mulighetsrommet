@@ -24,7 +24,7 @@ interface ScopedSortState extends SortState {
 }
 
 export function TilsagnTabell({ tilsagn }: Props) {
-  const { tiltaksgjennomforingId } = useParams();
+  const { gjennomforingId } = useParams();
 
   const [sort, setSort] = useState<ScopedSortState>();
 
@@ -125,9 +125,7 @@ export function TilsagnTabell({ tilsagn }: Props) {
               </Table.DataCell>
 
               <Table.DataCell>
-                <Link to={`/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn/${id}`}>
-                  Detaljer
-                </Link>
+                <Link to={`/gjennomforinger/${gjennomforingId}/tilsagn/${id}`}>Detaljer</Link>
               </Table.DataCell>
             </Table.Row>
           );

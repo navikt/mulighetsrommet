@@ -44,8 +44,8 @@ test.describe("Tiltaksoversikt", () => {
     await finnNyttArbeidsmarkedstiltakBtn.click();
   });
 
-  test("Sjekk at det er 5 tiltaksgjennomføringer i oversikten", async ({ page }) => {
-    const rows = page.getByTestId("oversikt_tiltaksgjennomforinger").getByRole("link");
+  test("Sjekk at det er 5 tiltak i oversikten", async ({ page }) => {
+    const rows = page.getByTestId("oversikt_gjennomforinger").getByRole("link");
     await expect(rows).toHaveCount(5);
   });
 
@@ -54,11 +54,11 @@ test.describe("Tiltaksoversikt", () => {
   });
 
   test("Filtrer på søkefelt", async ({ page }) => {
-    const rows = page.getByTestId("oversikt_tiltaksgjennomforinger").getByRole("link");
+    const rows = page.getByTestId("oversikt_gjennomforinger").getByRole("link");
     await expect(rows).toHaveCount(5);
     await page.getByTestId("filter_sokefelt").fill("Mentor");
     await expect(rows).toHaveCount(1);
-    await expect(page.getByTestId("tiltaksgjennomforing_mentor")).toContainText("Mentor");
+    await expect(page.getByTestId("gjennomforing_mentor")).toContainText("Mentor");
   });
 
   test("Skal vise 'Nullstill filter'-knapp når man filtrerer på innsatsgruppe", async ({
@@ -69,7 +69,7 @@ test.describe("Tiltaksoversikt", () => {
   });
 
   test("'Nullstill filter'-knappen fungerer", async ({ page }) => {
-    const rows = page.getByTestId("oversikt_tiltaksgjennomforinger").getByRole("link");
+    const rows = page.getByTestId("oversikt_gjennomforinger").getByRole("link");
     await expect(rows).toHaveCount(5);
     await velgFilter(page, "standard-innsats");
     await expect(page.getByTestId("knapp_nullstill-filter")).toBeVisible();
@@ -78,7 +78,7 @@ test.describe("Tiltaksoversikt", () => {
     await expect(rows).toHaveCount(5);
   });
 
-  test("Skal vise korrekt feilmelding dersom ingen tiltaksgjennomføringer blir funnet", async ({
+  test("Skal vise korrekt feilmelding dersom ingen tiltak blir funnet", async ({
     page,
   }) => {
     await page.getByTestId("filter_sokefelt").fill("blablablablabla");
@@ -90,7 +90,7 @@ test.describe("Tiltaksoversikt", () => {
   });
 });
 
-test.describe("Tiltaksgjennomføringsdetaljer", () => {
+test.describe("Tiltakdetaljer", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/arbeidsmarkedstiltak/oversikt");
     await page.getByRole("link", { name: "Sindres mentorordning med Yoda" }).click();
@@ -100,7 +100,7 @@ test.describe("Tiltaksgjennomføringsdetaljer", () => {
     await sjekkUU(page);
   });
 
-  test("Sjekk riktig tiltaksgjennomføring", async ({ page }) => {
+  test("Sjekk riktig tiltak", async ({ page }) => {
     const h1 = await page.getByRole("heading", { level: 1 }).innerText();
     expect(h1).toContain("Sindres mentorordning med Yoda");
   });

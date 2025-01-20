@@ -1,11 +1,11 @@
 import { useParams } from "react-router";
 
 export function useGetGjennomforingIdFromUrl(): string | undefined {
-  const { tiltaksgjennomforingId } = useParams<{
-    tiltaksgjennomforingId: string;
+  const { gjennomforingId } = useParams<{
+    gjennomforingId: string;
   }>();
 
-  return tiltaksgjennomforingId;
+  return gjennomforingId;
 }
 
 export function useGetGjennomforingIdFromUrlOrThrow(): string {

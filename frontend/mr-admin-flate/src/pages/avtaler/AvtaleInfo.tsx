@@ -1,18 +1,17 @@
 import { avtaleDetaljerTabAtom } from "@/api/atoms";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
-import { Toggles } from "@mr/api-client";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
+import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
+import { AvtalePrisOgFaktureringDetaljer } from "@/pages/avtaler/AvtalePrisOgFaktureringDetaljer";
+import { Toggles } from "@mr/api-client";
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { useLoaderData } from "react-router";
 import { AvtaleDetaljer } from "./AvtaleDetaljer";
-import styles from "./AvtaleInfo.module.scss";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
 import { avtaleLoader } from "./avtaleLoader";
 import { AvtalePersonvern } from "./AvtalePersonvern";
-import { AvtalePrisOgFaktureringDetaljer } from "@/pages/avtaler/AvtalePrisOgFaktureringDetaljer";
-import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 
 export function AvtaleInfo() {
   const { avtale, ansatt } = useLoaderData<typeof avtaleLoader>();
@@ -28,7 +27,7 @@ export function AvtaleInfo() {
     <div data-testid="avtale_info-container">
       <WhitePaddedBox data-testid="avtale_info-container">
         <Tabs defaultValue={activeTab}>
-          <Tabs.List className={styles.tabslist}>
+          <Tabs.List className="flex flex-row justify-between">
             <div>
               <Tabs.Tab
                 label="Detaljer"

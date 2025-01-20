@@ -14,16 +14,16 @@ import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 export function RefusjonskravDetaljer() {
   const { gjennomforing, refusjonskrav } = useLoaderData<typeof refusjonskravDetaljerLoader>();
 
-  const { avtaleId, tiltaksgjennomforingId } = useParams();
+  const { avtaleId, gjennomforingId } = useParams();
   const erPaaGjennomforingerForAvtale = useMatch(
-    "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
+    "/avtaler/:avtaleId/gjennomforinger/:gjennomforingId/opprett-tilsagn",
   );
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     { tittel: "", lenke: "/" },
     avtaleId
       ? { tittel: "Avtaler", lenke: "/avtaler" }
-      : { tittel: "Gjennomføringer", lenke: "/tiltaksgjennomforinger" },
+      : { tittel: "Gjennomføringer", lenke: "/gjennomforinger" },
     avtaleId
       ? {
           tittel: "Avtale",
@@ -33,20 +33,20 @@ export function RefusjonskravDetaljer() {
     erPaaGjennomforingerForAvtale
       ? {
           tittel: "Gjennomføringer",
-          lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
+          lenke: `/avtaler/${avtaleId}/gjennomforinger`,
         }
       : undefined,
     {
       tittel: "Gjennomføring",
-      lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}`,
+      lenke: `/gjennomforinger/${gjennomforingId}`,
     },
     {
       tittel: "Refusjonskravoversikt",
-      lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}/refusjonskrav`,
+      lenke: `/gjennomforinger/${gjennomforingId}/refusjonskrav`,
     },
     {
       tittel: "Refusjonskravdetaljer",
-      lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}/refusjonskrav`,
+      lenke: `/gjennomforinger/${gjennomforingId}/refusjonskrav`,
     },
   ];
 

@@ -56,7 +56,10 @@ const CheckboxFilter = <T extends { id: string; tittel: string }>({
       >
         {accordionHeader}
       </Accordion.Header>
-      <Accordion.Content data-testid={`filter_accordioncontent_${kebabCaseAccordionNavn}`}>
+      <Accordion.Content
+        className="ml-[-2rem]"
+        data-testid={`filter_accordioncontent_${kebabCaseAccordionNavn}`}
+      >
         {data && (
           <CheckboxGroup
             legend=""

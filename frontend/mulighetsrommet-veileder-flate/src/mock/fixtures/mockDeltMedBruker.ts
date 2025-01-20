@@ -10,7 +10,7 @@ export const mockDeltMedBruker: DelMedBruker[] = [
     createdAt: new Date(2022, 2, 22).toString(),
   },
   {
-    tiltaksgjennomforingId: tiltakAmoGruppe.id,
+    gjennomforingId: tiltakAmoGruppe.id,
     navident: "B123456",
     norskIdent: "11223344557",
     dialogId: "2",

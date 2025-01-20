@@ -8,6 +8,7 @@ import { internalNavigation } from "../internal-navigation";
 import { useOrgnrFromUrl } from "../utils";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnStatusTag } from "~/components/tilsagn/TilsagnStatusTag";
+import { tekster } from "../tekster";
 
 type LoaderData = {
   tilsagn: ArrangorflateTilsagn;
@@ -44,6 +45,7 @@ export default function TilsagnDetaljerPage() {
         definitions={[
           { key: "Tiltakstype", value: tilsagn.tiltakstype.navn },
           { key: "Tiltaksnavn", value: tilsagn.gjennomforing.navn },
+          { key: "Tilsagnstype", value: tekster.tilsagn.tilsagntype(tilsagn.type) },
         ]}
       />
       <TilsagnDetaljer tilsagn={tilsagn} />

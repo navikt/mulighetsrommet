@@ -6,8 +6,8 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.amt.EndringAarsak
@@ -104,8 +104,8 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
     test("venter på svar genererer upsert") {
         val domain = MulighetsrommetTestDomain(
             avtaler = listOf(AvtaleFixtures.AFT),
-            gjennomforinger = listOf(TiltaksgjennomforingFixtures.AFT1),
-            deltakere = listOf(DeltakerFixtures.createDeltaker(TiltaksgjennomforingFixtures.AFT1.id)),
+            gjennomforinger = listOf(GjennomforingFixtures.AFT1),
+            deltakere = listOf(DeltakerFixtures.createDeltaker(GjennomforingFixtures.AFT1.id)),
         ).initialize(database.db)
 
         val deltakerId = domain.deltakere[0].id
@@ -144,7 +144,7 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
         )
 
         val forslag = database.run {
-            queries.deltakerForslag.getForslagByGjennomforing(TiltaksgjennomforingFixtures.AFT1.id)
+            queries.deltakerForslag.getForslagByGjennomforing(GjennomforingFixtures.AFT1.id)
         }
 
         forslag shouldBe mapOf(

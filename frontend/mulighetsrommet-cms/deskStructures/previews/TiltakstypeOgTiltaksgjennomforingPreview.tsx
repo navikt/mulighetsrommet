@@ -24,7 +24,7 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
   useEffect(() => {
     const fetchData = async () => {
       const gjennomforingsdata = await client.fetch(
-        `*[_type == "tiltaksgjennomforing" && _id == "${document.displayed._id}"]{...}[0]`
+        `*[_type == "gjennomforing" && _id == "${document.displayed._id}"]{...}[0]`
       );
       const data = await client.fetch(
         `*[_type == "tiltakstype" && _id == "${document.displayed.tiltakstype._ref}"]{..., innsatsgruppe->, regelverkLenker[]->}[0]`
@@ -193,7 +193,7 @@ export function TiltakstypeOgTiltaksgjennomforingPreview({ document }: any) {
     <div style={{ margin: "40px 64px", maxWidth: "600px" }}>
       <Verktoylinje />
       <h1 style={{ borderTop: "1px dotted black", paddingTop: "8px" }}>
-        {displayed.tiltaksgjennomforingNavn}
+        {displayed.gjennomforingNavn}
       </h1>
       <Detaljvisning />
 

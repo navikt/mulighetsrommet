@@ -31,12 +31,12 @@ class KafkaConsumerRepositoryTest : FunSpec({
 
         records.forEach { kafkaConsumerRepository.storeRecord(it) }
 
-        database.assertThat("failed_events").hasNumberOfRows(3)
+        database.assertTable("failed_events").hasNumberOfRows(3)
     }
 
     test("should delete records") {
         kafkaConsumerRepository.deleteRecords(mutableListOf(1))
-        database.assertThat("failed_events").hasNumberOfRows(2)
+        database.assertTable("failed_events").hasNumberOfRows(2)
     }
 
     test("should retrieve correct key") {
@@ -51,11 +51,11 @@ class KafkaConsumerRepositoryTest : FunSpec({
     }
 
     test("should increment retries") {
-        database.assertThat("failed_events").row().value("retries").isEqualTo(0)
+        database.assertTable("failed_events").row().value("retries").isEqualTo(0)
 
         kafkaConsumerRepository.incrementRetries(2)
 
-        database.assertThat("failed_events").row().value("retries").isEqualTo(1)
+        database.assertTable("failed_events").row().value("retries").isEqualTo(1)
     }
 
     test("should get topic partitions") {

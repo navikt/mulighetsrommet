@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.avtale.db.AvtaleQueries
 import no.nav.mulighetsrommet.api.avtale.db.OpsjonLoggQueries
 import no.nav.mulighetsrommet.api.datavarehus.db.DatavarehusTiltakQueries
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkQueries
-import no.nav.mulighetsrommet.api.gjennomforing.db.TiltaksgjennomforingQueries
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingQueries
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattQueries
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetQueries
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagQueries
@@ -45,7 +45,7 @@ class QueryContext(val session: Session) {
         val tiltakstype = TiltakstypeQueries(session)
         val avtale = AvtaleQueries(session)
         val opsjoner = OpsjonLoggQueries(session)
-        val gjennomforing = TiltaksgjennomforingQueries(session)
+        val gjennomforing = GjennomforingQueries(session)
         val deltaker = DeltakerQueries(session)
         val deltakerForslag = DeltakerForslagQueries(session)
         val refusjonskrav = RefusjonskravQueries(session)

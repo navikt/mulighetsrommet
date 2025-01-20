@@ -46,19 +46,19 @@ class TiltakEventProcessorTest : FunSpec({
 
             val (e1, mapping) = prepareEvent(createArenaTiltakEvent(Insert) { it.copy(TILTAKSNAVN = "Oppfølging 1") })
             processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
-            database.assertThat("tiltakstype").row()
+            database.assertTable("tiltakstype").row()
                 .value("id").isEqualTo(mapping.entityId)
                 .value("navn").isEqualTo("Oppfølging 1")
 
             val e2 = createArenaTiltakEvent(Update) { it.copy(TILTAKSNAVN = "Oppfølging 2") }
             processor.handleEvent(e2).shouldBeRight().should { it.status shouldBe Handled }
-            database.assertThat("tiltakstype").row()
+            database.assertTable("tiltakstype").row()
                 .value("id").isEqualTo(mapping.entityId)
                 .value("navn").isEqualTo("Oppfølging 2")
 
             val e3 = createArenaTiltakEvent(Delete) { it.copy(TILTAKSNAVN = "Oppfølging 1") }
             processor.handleEvent(e3).shouldBeRight().should { it.status shouldBe Handled }
-            database.assertThat("tiltakstype").row()
+            database.assertTable("tiltakstype").row()
                 .value("id").isEqualTo(mapping.entityId)
                 .value("navn").isEqualTo("Oppfølging 1")
                 .value("rett_paa_tiltakspenger").isTrue

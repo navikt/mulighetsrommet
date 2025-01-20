@@ -6,7 +6,6 @@ import { addDays, addYear, formaterDato, formaterDatoSomYYYYMMDD } from "../../.
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 import { ControlledRadioGroup } from "../../skjema/ControlledRadioGroup";
 import { InferredRegistrerOpsjonSchema } from "./RegistrerOpsjonSchema";
-import styles from "./RegistrerOpsjonSkjema.module.scss";
 
 interface Props {
   avtale: AvtaleDto;
@@ -40,7 +39,7 @@ export function RegistrerOpsjonSkjema({ avtale }: Props) {
   }
 
   return (
-    <div className={styles.container}>
+    <div className="bg-surface-selected p-4 rounded-lg">
       <ControlledRadioGroup legend="Registrer opsjon" hideLegend {...register("opsjonsvalg")}>
         <Radio value="Opsjon_skal_ikke_utloses">Avklart at opsjon ikke skal utløses</Radio>
         <Radio

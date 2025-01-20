@@ -78,7 +78,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
             call.respond(tiltakstyper)
         }
 
-        get("/tiltaksgjennomforinger") {
+        get("/gjennomforinger") {
             poaoTilgangService.verifyAccessToModia(getNavAnsattAzureId())
 
             val filter = getArbeidsmarkedstiltakFilter()
@@ -96,7 +96,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
             call.respond(result)
         }
 
-        get("/tiltaksgjennomforinger/{id}") {
+        get("/gjennomforinger/{id}") {
             poaoTilgangService.verifyAccessToModia(getNavAnsattAzureId())
 
             val id: UUID by call.parameters
@@ -127,7 +127,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
         }
 
         route("/nav") {
-            get("/tiltaksgjennomforinger") {
+            get("/gjennomforinger") {
                 val filter = getArbeidsmarkedstiltakFilter()
 
                 val result = veilederflateService.hentTiltaksgjennomforinger(
@@ -143,7 +143,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
                 call.respond(result)
             }
 
-            get("/tiltaksgjennomforinger/{id}") {
+            get("/gjennomforinger/{id}") {
                 val id: UUID by call.parameters
 
                 val result = veilederflateService.hentTiltaksgjennomforing(
@@ -157,7 +157,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
 
         authenticate(AuthProvider.AZURE_AD_TILTAKSADMINISTRASJON_GENERELL) {
             route("/preview") {
-                get("/tiltaksgjennomforinger") {
+                get("/gjennomforinger") {
                     val filter = getArbeidsmarkedstiltakFilter()
 
                     val result = veilederflateService.hentTiltaksgjennomforinger(
@@ -173,7 +173,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
                     call.respond(result)
                 }
 
-                get("/tiltaksgjennomforinger/{id}") {
+                get("/gjennomforinger/{id}") {
                     val id = call.parameters.getOrFail("id")
                         .let { UUID.fromString(it.replace("drafts.", "")) }
 

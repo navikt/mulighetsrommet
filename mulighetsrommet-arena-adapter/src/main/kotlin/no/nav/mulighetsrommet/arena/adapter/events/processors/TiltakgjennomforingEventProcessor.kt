@@ -24,7 +24,7 @@ import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isEgenRegiTiltak
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
-import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.JaNeiStatus
 import no.nav.mulighetsrommet.domain.dto.UpsertTiltaksgjennomforingResponse
@@ -179,7 +179,7 @@ class TiltakgjennomforingEventProcessor(
             )
         }.mapLeft { ProcessingError.ProcessingFailed(it.localizedMessage) }
 
-    private fun Tiltaksgjennomforing.toDbo(tiltakstypeId: UUID, sak: Sak, virksomhetsnummer: String, avtaleId: UUID?) = ArenaTiltaksgjennomforingDbo(
+    private fun Tiltaksgjennomforing.toDbo(tiltakstypeId: UUID, sak: Sak, virksomhetsnummer: String, avtaleId: UUID?) = ArenaGjennomforingDbo(
         id = id,
         sanityId = sanityId,
         navn = navn,

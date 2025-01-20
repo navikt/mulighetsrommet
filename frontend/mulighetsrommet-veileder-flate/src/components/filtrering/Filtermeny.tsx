@@ -57,7 +57,10 @@ export function Filtermeny() {
               antallValgteFilter={filter.navEnheter.length}
             />
           </Accordion.Header>
-          <Accordion.Content data-testid="filter_accordioncontent_brukers-enhet">
+          <Accordion.Content
+            className="ml-[-2rem]"
+            data-testid="filter_accordioncontent_brukers-enhet"
+          >
             <NavEnhetFilter
               navEnheter={filter.navEnheter}
               setNavEnheter={(navEnheter: NavEnhet[]) => setFilter({ ...filter, navEnheter })}

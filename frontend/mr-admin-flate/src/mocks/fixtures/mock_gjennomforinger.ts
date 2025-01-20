@@ -30,7 +30,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     arrangor: {
       ...mockArrangorer.data[0].underenheter![0],
       slettet: false,
-      kontaktpersoner: [mockArrangorKontaktpersoner[0]],
+      kontaktpersoner: [mockArrangorKontaktpersoner[0], mockArrangorKontaktpersoner[0]],
     },
     avtaleId: mockAvtaler[0].id,
     tiltakstype: mockTiltakstyper.AVKLARAG,

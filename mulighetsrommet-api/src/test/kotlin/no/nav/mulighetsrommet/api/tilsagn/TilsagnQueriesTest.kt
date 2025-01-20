@@ -8,8 +8,8 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
@@ -30,7 +30,7 @@ class TilsagnQueriesTest : FunSpec({
 
     val tilsagn = TilsagnDbo(
         id = UUID.randomUUID(),
-        tiltaksgjennomforingId = AFT1.id,
+        gjennomforingId = AFT1.id,
         periodeStart = LocalDate.of(2023, 1, 1),
         periodeSlutt = LocalDate.of(2023, 2, 1),
         kostnadssted = Gjovik.enhetsnummer,
@@ -52,7 +52,7 @@ class TilsagnQueriesTest : FunSpec({
 
                 queries.get(tilsagn.id) shouldBe TilsagnDto(
                     id = tilsagn.id,
-                    tiltaksgjennomforing = TilsagnDto.Tiltaksgjennomforing(
+                    gjennomforing = TilsagnDto.Gjennomforing(
                         id = AFT1.id,
                     ),
                     periodeStart = LocalDate.of(2023, 1, 1),
@@ -282,7 +282,7 @@ class TilsagnQueriesTest : FunSpec({
                 queries.besluttGodkjennelse(tilsagn.id, NavIdent("B123456"), LocalDateTime.now())
 
                 queries.getArrangorflateTilsagnTilRefusjon(
-                    tilsagn.tiltaksgjennomforingId,
+                    tilsagn.gjennomforingId,
                     RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2023, 1, 1)),
                 ) shouldBe listOf(
                     ArrangorflateTilsagn(

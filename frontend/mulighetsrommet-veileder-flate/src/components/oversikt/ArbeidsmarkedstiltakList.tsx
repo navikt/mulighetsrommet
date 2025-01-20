@@ -105,12 +105,12 @@ export function ArbeidsmarkedstiltakList({
           styles.gjennomforinger,
           filterOpen && styles.gjennomforinger_filter_open,
         )}
-        data-testid="oversikt_tiltaksgjennomforinger"
+        data-testid="oversikt_gjennomforinger"
       >
         {gjennomforingerForSide.map((gjennomforing, index) => {
           const id = isTiltakGruppe(gjennomforing) ? gjennomforing.id : gjennomforing.sanityId;
           const delMedBruker = deltMedBruker?.find((delt) => {
-            return delt.tiltaksgjennomforingId === id || delt.sanityId === id;
+            return delt.gjennomforingId === id || delt.sanityId === id;
           });
           return (
             <ArbeidsmarkedstiltakListItem

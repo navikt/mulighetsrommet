@@ -1,7 +1,18 @@
 import { useBesluttTilsagn } from "@/api/tilsagn/useBesluttTilsagn";
+import { useSlettTilsagn } from "@/api/tilsagn/useSlettTilsagn";
+import { useTilsagnTilAnnullering } from "@/api/tilsagn/useTilsagnTilAnnullering";
 import { Header } from "@/components/detaljside/Header";
+import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
+import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
+import { TiltakDetaljerForTilsagn } from "@/components/tilsagn/TiltakDetaljerForTilsagn";
+import { ContentBox } from "@/layouts/ContentBox";
+import { TilsagnDetaljerFri } from "@/pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljerFri";
+import {
+  isTilsagnForhandsgodkjent,
+  isTilsagnFri,
+} from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
 import {
   BesluttTilsagnRequest,
   NavAnsattRolle,
@@ -13,30 +24,18 @@ import { EraserIcon, PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/ak
 import { ActionMenu, Alert, BodyShort, Box, Button, Heading, HStack } from "@navikt/ds-react";
 import { useRef, useState } from "react";
 import { Link, useLoaderData, useMatch, useNavigate, useParams } from "react-router";
-import { useSlettTilsagn } from "@/api/tilsagn/useSlettTilsagn";
-import { TiltakDetaljerForTilsagn } from "@/components/tilsagn/TiltakDetaljerForTilsagn";
-import { TilsagnDetaljerForhandsgodkjent } from "./TilsagnDetaljerForhandsgodkjent";
-import { AvvisTilsagnModal } from "../AvvisTilsagnModal";
-import styles from "../TilsagnDetaljer.module.scss";
-import { tilsagnDetaljerLoader } from "./tilsagnDetaljerLoader";
-import { TilsagnTag } from "../TilsagnTag";
-import { useTilsagnTilAnnullering } from "@/api/tilsagn/useTilsagnTilAnnullering";
-import { TilAnnulleringModal } from "../TilAnnulleringModal";
 import { AvvistAlert, TilAnnulleringAlert } from "../AarsakerAlert";
-import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
-import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
-import {
-  isTilsagnForhandsgodkjent,
-  isTilsagnFri,
-} from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
-import { TilsagnDetaljerFri } from "@/pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljerFri";
-import { ContentBox } from "@/layouts/ContentBox";
+import { AvvisTilsagnModal } from "../AvvisTilsagnModal";
+import { TilAnnulleringModal } from "../TilAnnulleringModal";
+import { TilsagnTag } from "../TilsagnTag";
+import { TilsagnDetaljerForhandsgodkjent } from "./TilsagnDetaljerForhandsgodkjent";
+import { tilsagnDetaljerLoader } from "./tilsagnDetaljerLoader";
 
 export function TilsagnDetaljer() {
   const { gjennomforing, tilsagn, ansatt, historikk } =
     useLoaderData<typeof tilsagnDetaljerLoader>();
 
-  const { avtaleId, tiltaksgjennomforingId } = useParams();
+  const { avtaleId, gjennomforingId } = useParams();
   const besluttMutation = useBesluttTilsagn();
   const tilAnnulleringMutation = useTilsagnTilAnnullering();
   const slettMutation = useSlettTilsagn();
@@ -46,13 +45,13 @@ export function TilsagnDetaljer() {
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
 
   const erPaaGjennomforingerForAvtale = useMatch(
-    "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
+    "/avtaler/:avtaleId/gjennomforinger/:gjennomforingId/opprett-tilsagn",
   );
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     avtaleId
       ? { tittel: "Avtaler", lenke: "/avtaler" }
-      : { tittel: "Gjennomføringer", lenke: "/tiltaksgjennomforinger" },
+      : { tittel: "Gjennomføringer", lenke: "/gjennomforinger" },
     avtaleId
       ? {
           tittel: "Avtale",
@@ -62,25 +61,25 @@ export function TilsagnDetaljer() {
     erPaaGjennomforingerForAvtale
       ? {
           tittel: "Gjennomføringer",
-          lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
+          lenke: `/avtaler/${avtaleId}/gjennomforinger`,
         }
       : undefined,
     {
       tittel: "Gjennomføring",
-      lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}`,
+      lenke: `/gjennomforinger/${gjennomforingId}`,
     },
     {
       tittel: "Tilsagnsoversikt",
-      lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn`,
+      lenke: `/gjennomforinger/${gjennomforingId}/tilsagn`,
     },
     {
       tittel: "Tilsagnsdetaljer",
-      lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn`,
+      lenke: `/gjennomforinger/${gjennomforingId}/tilsagn`,
     },
   ];
 
   function navigerTilTilsagnTabell() {
-    navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn`);
+    navigate(`/gjennomforinger/${gjennomforingId}/tilsagn`);
   }
 
   function besluttTilsagn(request: BesluttTilsagnRequest) {
@@ -154,7 +153,7 @@ export function TilsagnDetaljer() {
                   {tilsagn.status.type === "RETURNERT" && (
                     <>
                       <ActionMenu.Item icon={<PencilFillIcon />}>
-                        <Link className={styles.link_without_underline} to="./rediger-tilsagn">
+                        <Link className="no-underline" to="./rediger-tilsagn">
                           Rediger tilsagn
                         </Link>
                       </ActionMenu.Item>
@@ -182,7 +181,7 @@ export function TilsagnDetaljer() {
               </ActionMenu>
             ) : null}
           </HStack>
-          <TiltakDetaljerForTilsagn tiltaksgjennomforing={gjennomforing} />
+          <TiltakDetaljerForTilsagn gjennomforing={gjennomforing} />
           {tilsagn.status.type === "RETURNERT" && <AvvistAlert status={tilsagn.status} />}
           {tilsagn.status.type === "TIL_ANNULLERING" && (
             <TilAnnulleringAlert status={tilsagn.status} />

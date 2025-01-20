@@ -5,7 +5,8 @@ import { TilsagnTag } from "@/pages/gjennomforing/tilsagn/TilsagnTag";
 import { formaterDato } from "@/utils/Utils";
 import { TilsagnBeregningForhandsgodkjent, TilsagnDto } from "@mr/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Heading, HStack, VStack } from "@navikt/ds-react";
+import { Heading, VStack } from "@navikt/ds-react";
+import { avtaletekster } from "../../../../components/ledetekster/avtaleLedetekster";
 
 interface Props {
   tilsagn: TilsagnDto & { beregning: TilsagnBeregningForhandsgodkjent };
@@ -14,13 +15,14 @@ interface Props {
 export function TilsagnDetaljerForhandsgodkjent({ tilsagn }: Props) {
   return (
     <>
-      <HStack justify={"space-between"} align={"baseline"} padding={"5"}>
-        <Heading size="medium" level="3">
-          Tilsagn
-        </Heading>
-      </HStack>
+      <Heading size="medium" level="3">
+        Tilsagn
+      </Heading>
       <TwoColumnGrid separator>
         <VStack>
+          <Bolk>
+            <Metadata header="Tilsagnstype" verdi={avtaletekster.tilsagn.type(tilsagn.type)} />
+          </Bolk>
           <Bolk>
             <Metadata header="Dato fra" verdi={formaterDato(tilsagn.periodeStart)} />
             <Metadata header="Dato til" verdi={formaterDato(tilsagn.periodeSlutt)} />

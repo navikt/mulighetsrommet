@@ -82,7 +82,7 @@ spec:
                   status=~"^404",
                   namespace="team-mulighetsrommet",
                   app="mulighetsrommet-api",
-                  route!~'.*(/api/v1/tiltaksgjennomforinger/{id}|/api/v1/tiltaksgjennomforinger/id/{arenaId}|/api/v1/tiltaksgjennomforinger/arenadata/{id})'
+                  route!~'.*(/api/v1/gjennomforinger/{id}|/api/v1/gjennomforinger/id/{arenaId}|/api/v1/gjennomforinger/arenadata/{id})'
                 }[3m]
               )
             ) > 0

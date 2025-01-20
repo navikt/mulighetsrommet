@@ -1,6 +1,5 @@
 import { PropsWithChildren } from "react";
-import styles from "./SkjemaKnapperad.module.scss";
 
 export function SkjemaKnapperad(props: PropsWithChildren) {
-  return <div className={styles.skjema_knapperad}>{props.children}</div>;
+  return <div className="flex flex-row gap-2 justify-end items-start">{props.children}</div>;
 }

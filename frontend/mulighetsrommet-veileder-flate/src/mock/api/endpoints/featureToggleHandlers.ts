@@ -7,6 +7,7 @@ const mockFeatures: Features = {
   [Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_DELTAKER]: true,
   [Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI]: true,
   [Toggles.MULIGHETSROMMET_TILTAKSTYPE_PAMELDING_INFO_KOMET]: true,
+  [Toggles.MULIGHETSROMMET_ADMIN_FLATE_ARBEIDSBENK]: true,
 };
 
 export const featureToggleHandlers = [

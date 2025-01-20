@@ -77,25 +77,25 @@ export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <Tabs.Panel value="tab1">
             <TiltakDetaljerFane
-              tiltaksgjennomforingAlert={faneinnhold?.forHvemInfoboks}
+              gjennomforingAlert={faneinnhold?.forHvemInfoboks}
               tiltakstypeAlert={tiltakstype.faneinnhold?.forHvemInfoboks}
-              tiltaksgjennomforing={faneinnhold?.forHvem}
+              gjennomforing={faneinnhold?.forHvem}
               tiltakstype={tiltakstype.faneinnhold?.forHvem}
             />
           </Tabs.Panel>
           <Tabs.Panel value="tab2">
             <TiltakDetaljerFane
-              tiltaksgjennomforingAlert={faneinnhold?.detaljerOgInnholdInfoboks}
+              gjennomforingAlert={faneinnhold?.detaljerOgInnholdInfoboks}
               tiltakstypeAlert={tiltakstype.faneinnhold?.detaljerOgInnholdInfoboks}
-              tiltaksgjennomforing={faneinnhold?.detaljerOgInnhold}
+              gjennomforing={faneinnhold?.detaljerOgInnhold}
               tiltakstype={tiltakstype.faneinnhold?.detaljerOgInnhold}
             />
           </Tabs.Panel>
           <Tabs.Panel value="tab3">
             <TiltakDetaljerFane
-              tiltaksgjennomforingAlert={faneinnhold?.pameldingOgVarighetInfoboks}
+              gjennomforingAlert={faneinnhold?.pameldingOgVarighetInfoboks}
               tiltakstypeAlert={tiltakstype.faneinnhold?.pameldingOgVarighetInfoboks}
-              tiltaksgjennomforing={faneinnhold?.pameldingOgVarighet}
+              gjennomforing={faneinnhold?.pameldingOgVarighet}
               tiltakstype={tiltakstype.faneinnhold?.pameldingOgVarighet}
             />
           </Tabs.Panel>

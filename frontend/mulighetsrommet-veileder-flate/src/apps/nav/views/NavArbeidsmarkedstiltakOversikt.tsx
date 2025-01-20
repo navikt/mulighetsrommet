@@ -85,7 +85,7 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
               !isFilterReady(filterValue) ? (
                 <Feilmelding
                   data-testid="filter-mangler-verdier-feilmelding"
-                  header="Du må filtrere på en innsatsgruppe og minst én Nav-enhet for å se tiltaksgjennomføringer"
+                  header="Du må filtrere på en innsatsgruppe og minst én Nav-enhet for å se tiltak"
                   ikonvariant="info"
                 />
               ) : tiltak.length === 0 ? (
@@ -93,7 +93,7 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
                   <ListSkeleton />
                 ) : (
                   <Feilmelding
-                    header="Ingen tiltaksgjennomføringer funnet"
+                    header="Ingen tiltak funnet"
                     beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
                     ikonvariant="warning"
                   />

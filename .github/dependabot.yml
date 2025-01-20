@@ -65,7 +65,7 @@ updates:
       # Trukket ut til egen gruppe siden biblioteket enda ikke er stabilt
       hey-api:
         patterns:
-          - "@hey-api/openapi-ts"
+          - "@hey-api/*"
 
       playwright:
         patterns:
@@ -91,6 +91,7 @@ updates:
           - "minor"
           - "patch"
         exclude-patterns:
+          - "@hey-api/*"
           - "playwright"
           - "@playwright/test"
           - "react"

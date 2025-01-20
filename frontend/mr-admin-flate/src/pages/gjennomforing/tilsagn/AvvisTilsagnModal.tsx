@@ -5,7 +5,6 @@ import {
 } from "@mr/api-client";
 import { Button, Checkbox, CheckboxGroup, Heading, HGrid, Modal, Textarea } from "@navikt/ds-react";
 import { useState } from "react";
-import styles from "./AvvisTilsagnModal.module.scss";
 
 interface Props {
   open: boolean;
@@ -58,7 +57,7 @@ export function AvvisTilsagnModal({ open, onClose, onConfirm }: Props) {
           <Heading size="medium">Send i retur med forklaring</Heading>
         </Modal.Header>
         <Modal.Body>
-          <div className={styles.body}>
+          <div className="bg-surface-hover p-6">
             <HGrid columns={2} align="start">
               <CheckboxGroup
                 onChange={(val) => {

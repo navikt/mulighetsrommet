@@ -6,7 +6,7 @@ export function navnForAnsvar(
   switch (ansvar) {
     case ArrangorKontaktpersonAnsvar.AVTALE:
       return "Avtale";
-    case ArrangorKontaktpersonAnsvar.TILTAKSGJENNOMFORING:
+    case ArrangorKontaktpersonAnsvar.GJENNOMFORING:
       return "Gjennomføring";
     case ArrangorKontaktpersonAnsvar.OKONOMI:
       return "Økonomi";

@@ -12,7 +12,7 @@ import { AvbrytAvtaleAarsak, AvtaleDto } from "@mr/api-client";
 import { RefObject, useState } from "react";
 import { useNavigate } from "react-router";
 import z from "zod";
-import style from "./AvbrytGjennomforingAvtaleModal.module.scss";
+import classNames from "classnames";
 
 export const AvbrytAvtaleModalSchema = z
   .object({
@@ -52,11 +52,11 @@ const initialState: State = {
 export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
   const mutation = useAvbrytAvtale();
   const navigate = useNavigate();
-  const { data: tiltaksgjennomforingerMedAvtaleId } = useAktiveGjennomforingerByAvtaleId(avtale.id);
+  const { data: gjennomforingerMedAvtaleId } = useAktiveGjennomforingerByAvtaleId(avtale.id);
   const [state, setState] = useState<State>(initialState);
 
   const avtalenHarGjennomforinger =
-    tiltaksgjennomforingerMedAvtaleId && tiltaksgjennomforingerMedAvtaleId.data.length > 0;
+    gjennomforingerMedAvtaleId && gjennomforingerMedAvtaleId.data.length > 0;
 
   const onClose = () => {
     setState(initialState);
@@ -107,8 +107,7 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
   };
 
   function pluralGjennomforingTekst(antall: number, tekst: string) {
-    return tiltaksgjennomforingerMedAvtaleId &&
-      tiltaksgjennomforingerMedAvtaleId.data.length > antall
+    return gjennomforingerMedAvtaleId && gjennomforingerMedAvtaleId.data.length > antall
       ? tekst
       : "";
   }
@@ -128,7 +127,7 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
           {avtalenHarGjennomforinger ? (
             <BodyShort>
               {`Avtaler med aktive gjennomføringer kan ikke avbrytes. Det er
-                ${tiltaksgjennomforingerMedAvtaleId.data.length}
+                ${gjennomforingerMedAvtaleId.data.length}
                 aktiv${pluralGjennomforingTekst(1, "e")}
                 gjennomføring${pluralGjennomforingTekst(1, "er")}
                 under denne avtalen. Vurder om du vil avbryte
@@ -197,7 +196,7 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
           </HarSkrivetilgang>
         )
       }
-      footerClassName={avtalenHarGjennomforinger ? style.footer_ok : ""}
+      footerClassName={classNames(avtalenHarGjennomforinger && "flex flex-end")}
     />
   );
 }

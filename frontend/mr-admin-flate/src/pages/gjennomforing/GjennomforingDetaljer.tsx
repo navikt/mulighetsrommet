@@ -19,7 +19,6 @@ import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 import { BodyShort, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
 import { Link } from "react-router";
-import styles from "./GjennomforingDetaljer.module.scss";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -198,7 +197,7 @@ export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
             <Metadata
               header={gjennomforingTekster.navEnheterKontorerLabel}
               verdi={
-                <ul className={styles.two_columns}>
+                <ul className="columns-2">
                   {navEnheter
                     .sort((a, b) => a.navn.localeCompare(b.navn))
                     .map((enhet) => (
@@ -226,7 +225,7 @@ export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
 
           {kontaktpersonerFraNav.map((kp, index) => {
             return (
-              <Bolk key={index} classez={styles.nav_kontaktpersoner}>
+              <Bolk key={index}>
                 <Metadata
                   header={
                     <>
@@ -246,8 +245,8 @@ export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
 
           <Separator />
 
-          {avtale?.arrangor ? (
-            <Bolk aria-label={gjennomforingTekster.tiltaksarrangorHovedenhetLabel}>
+          <VStack gap="5">
+            {avtale?.arrangor ? (
               <Metadata
                 header={gjennomforingTekster.tiltaksarrangorHovedenhetLabel}
                 verdi={
@@ -256,43 +255,39 @@ export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
                   </Link>
                 }
               />
-            </Bolk>
-          ) : null}
+            ) : null}
 
-          {arrangor ? (
-            <Bolk aria-label={gjennomforingTekster.tiltaksarrangorUnderenhetLabel}>
+            {arrangor ? (
               <Metadata
                 header={gjennomforingTekster.tiltaksarrangorUnderenhetLabel}
                 verdi={`${arrangor.navn} - ${arrangor.organisasjonsnummer}`}
               />
-            </Bolk>
-          ) : null}
-          {arrangor.kontaktpersoner.length > 0 && (
-            <Metadata
-              header={gjennomforingTekster.kontaktpersonerHosTiltaksarrangorLabel}
-              verdi={
-                <VStack>
-                  {arrangor.kontaktpersoner.map((kontaktperson) => (
-                    <ArrangorKontaktpersonDetaljer
-                      key={kontaktperson.id}
-                      kontaktperson={kontaktperson}
-                    />
-                  ))}
-                </VStack>
-              }
-            />
-          )}
-          {stedForGjennomforing && (
-            <>
-              <Separator />
-              <Bolk aria-label={gjennomforingTekster.stedForGjennomforingLabel}>
+            ) : null}
+            {arrangor.kontaktpersoner.length > 0 && (
+              <Metadata
+                header={gjennomforingTekster.kontaktpersonerHosTiltaksarrangorLabel}
+                verdi={
+                  <VStack>
+                    {arrangor.kontaktpersoner.map((kontaktperson) => (
+                      <ArrangorKontaktpersonDetaljer
+                        key={kontaktperson.id}
+                        kontaktperson={kontaktperson}
+                      />
+                    ))}
+                  </VStack>
+                }
+              />
+            )}
+            {stedForGjennomforing && (
+              <>
+                <Separator />
                 <Metadata
                   header={gjennomforingTekster.stedForGjennomforingLabel}
                   verdi={stedForGjennomforing}
                 />
-              </Bolk>
-            </>
-          )}
+              </>
+            )}
+          </VStack>
           <TiltakTilgjengeligForArrangor gjennomforing={gjennomforing} />
         </VStack>
       </TwoColumnGrid>

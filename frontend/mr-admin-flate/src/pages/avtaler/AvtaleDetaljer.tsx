@@ -18,7 +18,6 @@ import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
 import { Fragment } from "react";
 import { Link } from "react-router";
-import styles from "./AvtaleDetaljer.module.scss";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
@@ -164,16 +163,18 @@ export function AvtaleDetaljer() {
       </VStack>
       <VStack>
         {kontorstruktur.length > 1 ? (
-          <Metadata
-            header={avtaletekster.fylkessamarbeidLabel}
-            verdi={
-              <ul>
-                {kontorstruktur.sort(sorterPaRegionsnavn).map((kontor) => {
-                  return <li key={kontor.region.enhetsnummer}>{kontor.region.navn}</li>;
-                })}
-              </ul>
-            }
-          />
+          <Bolk>
+            <Metadata
+              header={avtaletekster.fylkessamarbeidLabel}
+              verdi={
+                <ul>
+                  {kontorstruktur.sort(sorterPaRegionsnavn).map((kontor) => {
+                    return <li key={kontor.region.enhetsnummer}>{kontor.region.navn}</li>;
+                  })}
+                </ul>
+              }
+            />
+          </Bolk>
         ) : (
           kontorstruktur.map((struktur, index) => {
             return (
@@ -186,7 +187,7 @@ export function AvtaleDetaljer() {
                   <Metadata
                     header={avtaletekster.navEnheterLabel}
                     verdi={
-                      <ul className={styles.two_columns}>
+                      <ul className="columns-2">
                         {struktur.kontorer.map((kontor) => (
                           <li key={kontor.enhetsnummer}>{kontor.navn}</li>
                         ))}
@@ -214,8 +215,7 @@ export function AvtaleDetaljer() {
         ) : null}
 
         <Separator />
-
-        <Bolk aria-label={avtaletekster.tiltaksarrangorHovedenhetLabel}>
+        <VStack gap="5">
           <Metadata
             header={avtaletekster.tiltaksarrangorHovedenhetLabel}
             verdi={
@@ -224,9 +224,7 @@ export function AvtaleDetaljer() {
               </Link>
             }
           />
-        </Bolk>
 
-        <Bolk aria-label={avtaletekster.tiltaksarrangorUnderenheterLabel}>
           <Metadata
             header={avtaletekster.tiltaksarrangorUnderenheterLabel}
             verdi={
@@ -239,7 +237,7 @@ export function AvtaleDetaljer() {
               </ul>
             }
           />
-        </Bolk>
+        </VStack>
 
         <Separator />
         {arrangor.kontaktpersoner.length > 0 && (

@@ -10,7 +10,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.gjennomforing.TiltaksgjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
@@ -29,7 +29,7 @@ import java.util.*
 fun Route.tilsagnRoutes() {
     val db: ApiDatabase by inject()
     val service: TilsagnService by inject()
-    val gjennomforinger: TiltaksgjennomforingService by inject()
+    val gjennomforinger: GjennomforingService by inject()
 
     route("tilsagn") {
         get {

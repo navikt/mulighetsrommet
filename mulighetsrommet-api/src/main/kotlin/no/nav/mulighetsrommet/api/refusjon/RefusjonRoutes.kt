@@ -41,7 +41,7 @@ fun Route.refusjonRoutes() {
         }
     }
 
-    route("/tiltaksgjennomforinger/{id}/refusjonskrav") {
+    route("/gjennomforinger/{id}/refusjonskrav") {
         authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
             get {
                 val id = call.parameters.getOrFail<UUID>("id")

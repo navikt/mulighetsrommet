@@ -76,7 +76,7 @@ export function PersonvernContainer({ tiltak }: Props) {
               <p style={{ margin: 0 }}>
                 Personopplysninger om deltakers nærstående skal i utgangspunktet ikke behandles. I
                 enkelte tilfeller kan det likevel være nødvendig å behandle indirekte opplysninger
-                om deltakers nærstående, fordi det kan ha betydning for tiltaksgjennomføringen.
+                om deltakers nærstående, fordi det kan ha betydning for tiltaket.
               </p>
               <HelpText>
                 Dataminimeringsprinsippet gjelder også her: man kan for eksempel opplyse om at

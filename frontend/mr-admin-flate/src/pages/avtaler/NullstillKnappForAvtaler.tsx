@@ -1,4 +1,3 @@
-import style from "@/pages/avtaler/AvtalerPage.module.scss";
 import { AvtaleFilter, defaultAvtaleFilter } from "@/api/atoms";
 import { useAtom } from "jotai/index";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
@@ -18,7 +17,7 @@ export function NullstillKnappForAvtaler({ filterAtom, tiltakstypeId }: Props) {
   const lagreFilterMutation = useLagreFilter(LagretDokumenttype.AVTALE);
 
   return (
-    <div className={style.filterbuttons_container}>
+    <div className="grid grid-cols-[auto auto] h-[100%] items-center">
       {filter.visMineAvtaler ||
       filter.sok.length > 0 ||
       filter.navRegioner.length > 0 ||

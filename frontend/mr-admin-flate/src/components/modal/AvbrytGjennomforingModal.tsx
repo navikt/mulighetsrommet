@@ -61,7 +61,7 @@ export const AvbrytGjennomforingModal = ({ modalRef, gjennomforing }: Props) => 
   function onSuccessMutation() {
     setState(initialState);
     modalRef.current?.close();
-    navigate(`/tiltaksgjennomforinger/${gjennomforing?.id}`);
+    navigate(`/gjennomforinger/${gjennomforing?.id}`);
   }
 
   const handleAvbrytGjennomforing = () => {
@@ -178,12 +178,7 @@ export const AvbrytGjennomforingModal = ({ modalRef, gjennomforing }: Props) => 
       }
       secondaryButton
       primaryButton={
-        <Button
-          variant="danger"
-          onClick={handleAvbrytGjennomforing}
-          disabled={mutation.isPending}
-          style={{ minWidth: "20rem" }}
-        >
+        <Button variant="danger" onClick={handleAvbrytGjennomforing} disabled={mutation.isPending}>
           {mutation.isPending ? <Laster /> : "Ja, jeg vil avbryte gjennomføringen"}
         </Button>
       }
