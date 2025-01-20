@@ -3,7 +3,7 @@ import { BodyShort, Heading } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { FallbackProps } from "react-error-boundary";
 import { PortenLink } from "@/components/PortenLink";
-import { resolveErrorMessage, resolveRequestId } from "../errors";
+import { ApiError, resolveErrorMessage, resolveRequestId } from "../errors";
 
 export function ErrorFallback({ error }: FallbackProps) {
   let feilmelding: ReactNode;
@@ -32,7 +32,7 @@ export function ErrorFallback({ error }: FallbackProps) {
   );
 }
 
-function renderApiError(error: any) {
+function renderApiError(error: ApiError) {
   let description: string;
   if (error.status === 401) {
     description =

@@ -1,4 +1,10 @@
-export function resolveErrorMessage(error: any): string {
+export interface ApiError {
+  message: string;
+  body: any;
+  status: number;
+}
+
+export function resolveErrorMessage(error: ApiError): string {
   if (typeof error.body === "string") {
     return error.body;
   } else if (typeof (error.body as any)?.description === "string") {
@@ -8,7 +14,7 @@ export function resolveErrorMessage(error: any): string {
   }
 }
 
-export function resolveRequestId(error: any): string | undefined {
+export function resolveRequestId(error: ApiError): string | undefined {
   if (typeof (error.body as any)?.requestId === "string") {
     return (error.body as any).requestId;
   }
