@@ -1,12 +1,12 @@
 import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
 import { HistorikkService } from "@mr/api-client";
 import { useQuery } from "@tanstack/react-query";
-import { useGetTiltakIdFraUrl } from "../../hooks/useGetTiltaksgjennomforingIdFraUrl";
+import { useTiltakIdFraUrl } from "../../hooks/useTiltakIdFraUrl";
 import { QueryKeys } from "../query-keys";
 
 export function useHentDeltakelseForGjennomforing() {
   const { fnr: norskIdent } = useModiaContext();
-  const gjennomforingId = useGetTiltakIdFraUrl();
+  const gjennomforingId = useTiltakIdFraUrl();
   return useQuery({
     queryKey: QueryKeys.DeltakelseForGjennomforing(norskIdent, gjennomforingId),
     queryFn: async () => {

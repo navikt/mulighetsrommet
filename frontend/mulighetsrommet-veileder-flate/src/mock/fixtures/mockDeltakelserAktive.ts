@@ -4,7 +4,7 @@ import {
   DeltakelseEierskap,
   GruppetiltakDeltakerStatus,
 } from "@mr/api-client";
-import { tiltakAft, tiltakAvklaring, tiltakJobbklubb } from "./mockTiltaksgjennomforinger";
+import { tiltakAft, tiltakAvklaring, tiltakJobbklubb } from "./mockGjennomforinger";
 
 export const deltakelserAktive: Deltakelse[] = [
   {

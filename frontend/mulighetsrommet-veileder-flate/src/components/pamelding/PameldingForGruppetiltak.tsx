@@ -1,5 +1,5 @@
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
-import { useGetTiltakIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
+import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
 import {
   DeltakelseGruppetiltak,
   GruppetiltakDeltakerStatus,
@@ -23,7 +23,7 @@ export function PameldingForGruppetiltak({
   tiltak,
 }: PameldingProps): ReactNode {
   const { data: brukerDeltarPaaValgtTiltak } = useHentDeltakelseForGjennomforing();
-  const gjennomforingId = useGetTiltakIdFraUrl();
+  const gjennomforingId = useTiltakIdFraUrl();
 
   const tiltakskoder = tiltak.tiltakstype.tiltakskode ? [tiltak.tiltakstype.tiltakskode] : [];
   const { data: deltakelserErMigrert } = useFeatureToggle(
