@@ -4,6 +4,7 @@ import io.ktor.client.plugins.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
+import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 
 sealed class ProcessingError(val status: ArenaEvent.ProcessingStatus, val message: String) {
     data class ProcessingFailed(val details: String) : ProcessingError(
@@ -18,7 +19,8 @@ sealed class ProcessingError(val status: ArenaEvent.ProcessingStatus, val messag
 
     companion object {
         fun fromDatabaseOperationError(error: DatabaseOperationError): ProcessingError = when (error) {
-            is DatabaseOperationError.ForeignKeyViolation -> ForeignKeyViolation(error.error.localizedMessage)
+            is IntegrityConstraintViolation.ForeignKeyViolation -> ForeignKeyViolation(error.error.localizedMessage)
+
             else -> ProcessingFailed(error.error.localizedMessage)
         }
 
