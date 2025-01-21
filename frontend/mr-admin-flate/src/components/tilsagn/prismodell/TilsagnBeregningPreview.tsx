@@ -1,4 +1,4 @@
-import { ApiError, TilsagnBeregningInput, TilsagnBeregningOutput } from "@mr/api-client";
+import { TilsagnBeregningInput, TilsagnBeregningOutput } from "@mr/api-client-v2";
 import { formaterNOK, isValidationError } from "@mr/frontend-common/utils/utils";
 import { Heading, Label } from "@navikt/ds-react";
 import { useBeregnTilsagn } from "@/api/tilsagn/useBeregnTilsagn";
@@ -19,14 +19,14 @@ export function TilsagnBeregningPreview(props: Props) {
 
   const { setError } = useFormContext<DeepPartial<InferredTilsagn>>();
 
-  function handleTilsagnBeregnet(beregning: TilsagnBeregningOutput) {
-    setBeregning(beregning);
-    onTilsagnBeregnet?.(beregning);
+  function handleTilsagnBeregnet(beregning: { data: TilsagnBeregningOutput }) {
+    setBeregning(beregning.data);
+    onTilsagnBeregnet?.(beregning.data);
   }
 
-  function setValidationErrors(error: ApiError) {
+  function setValidationErrors(error: any) {
     if (isValidationError(error.body)) {
-      error.body.errors.forEach((error) => {
+      error.body.errors.forEach((error: { name: string; message: string }) => {
         const name = error.name as keyof InferredTilsagn;
         setError(name, { type: "custom", message: error.message });
       });

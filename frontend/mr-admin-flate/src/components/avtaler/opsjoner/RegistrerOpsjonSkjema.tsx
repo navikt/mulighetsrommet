@@ -1,5 +1,5 @@
 import { Alert, Radio } from "@navikt/ds-react";
-import { AvtaleDto } from "@mr/api-client";
+import { AvtaleDto } from "@mr/api-client-v2";
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import { addDays, addYear, formaterDato, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";

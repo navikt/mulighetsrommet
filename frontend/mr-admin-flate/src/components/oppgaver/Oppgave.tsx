@@ -1,5 +1,5 @@
 import { Heading, Link } from "@navikt/ds-react";
-import { type Oppgave, OppgaveType, TiltakstypeDto } from "@mr/api-client";
+import { type Oppgave, OppgaveType, TiltakstypeDto } from "@mr/api-client-v2";
 import { formaterDato } from "@/utils/Utils";
 
 interface OppgaveProps {

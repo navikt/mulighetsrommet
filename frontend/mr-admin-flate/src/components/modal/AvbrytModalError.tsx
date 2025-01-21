@@ -1,5 +1,5 @@
 import { resolveErrorMessage } from "@mr/frontend-common/components/error-handling/errors";
-import { AvbrytAvtaleAarsak, AvbrytGjennomforingAarsak } from "@mr/api-client";
+import { AvbrytAvtaleAarsak, AvbrytGjennomforingAarsak } from "@mr/api-client-v2";
 import { AnnetEnum } from "@/api/annetEnum";
 
 interface Props {

@@ -1,4 +1,4 @@
-import { Endringshistorikk } from "@mr/api-client";
+import { Endringshistorikk } from "@mr/api-client-v2";
 import { mockRedaktor } from "./mock_ansatt";
 
 export const mockEndringshistorikkForGjennomforing: Endringshistorikk = {

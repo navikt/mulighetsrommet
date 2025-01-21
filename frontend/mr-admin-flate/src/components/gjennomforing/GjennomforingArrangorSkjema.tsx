@@ -1,6 +1,6 @@
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
 import { Button, Textarea, TextField, VStack } from "@navikt/ds-react";
-import { ArrangorKontaktperson, ArrangorKontaktpersonAnsvar, AvtaleDto } from "@mr/api-client";
+import { ArrangorKontaktperson, ArrangorKontaktpersonAnsvar, AvtaleDto } from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useRef } from "react";
 import { useFormContext } from "react-hook-form";

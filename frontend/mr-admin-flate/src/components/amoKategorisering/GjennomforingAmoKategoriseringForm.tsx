@@ -1,5 +1,5 @@
 import { bransjeToString, kurstypeToString } from "@/utils/Utils";
-import { AvtaleDto, Kurstype } from "@mr/api-client";
+import { AvtaleDto, Kurstype } from "@mr/api-client-v2";
 import { HGrid, Select, Alert } from "@navikt/ds-react";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { ForerkortSkjema } from "./ForerkortSkjema";

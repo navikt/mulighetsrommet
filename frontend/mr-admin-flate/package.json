@@ -23,7 +23,7 @@
     "@amplitude/analytics-browser": "2.11.11",
     "@grafana/faro-web-sdk": "1.12.2",
     "@hookform/resolvers": "3.10.0",
-    "@mr/api-client": "workspace:*",
+    "@mr/api-client-v2": "workspace:*",
     "@mr/frontend-common": "workspace:*",
     "@navikt/aksel-icons": "7.9.2",
     "@navikt/ds-css": "7.9.2",

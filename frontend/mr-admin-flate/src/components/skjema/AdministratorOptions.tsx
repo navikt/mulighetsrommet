@@ -1,4 +1,4 @@
-import { NavAnsatt } from "@mr/api-client";
+import { NavAnsatt } from "@mr/api-client-v2";
 import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
 
 export function AdministratorOptions(

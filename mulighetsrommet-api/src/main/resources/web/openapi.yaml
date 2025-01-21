@@ -249,6 +249,70 @@ paths:
       tags:
         - Avtaler
       operationId: lastNedAvtalerSomExcel
+      parameters:
+        - in: query
+          name: tiltakstyper
+          schema:
+            type: array
+            items:
+              type: string
+          description: ID for tiltakstyper om du ønsker avtaler for en spesifikk tiltakstype
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search for avtaler by the name
+        - in: query
+          name: statuser
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Avtalestatus"
+          description: Statuser for avtale
+        - in: query
+          name: avtaletyper
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Avtaletype"
+          description: Avtaletyper
+        - in: query
+          name: navRegioner
+          schema:
+            type: array
+            items:
+              type: string
+          description: 4 digit enhetskode
+        - in: query
+          name: arrangorer
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+          description: Id til arrangører for avtaler
+        - in: query
+          name: page
+          schema:
+            type: number
+          description: Page number, default 1
+        - in: query
+          name: size
+          schema:
+            type: number
+          description: Page size, default 50
+        - in: query
+          name: sort
+          schema:
+            $ref: "#/components/schemas/SorteringAvtaler"
+        - in: query
+          name: personvernBekreftet
+          schema:
+            type: boolean
+        - in: query
+          name: visMineAvtaler
+          schema:
+            type: boolean
       responses:
         200:
           description: Excel-fil med avtaler
@@ -544,6 +608,74 @@ paths:
       tags:
         - Gjennomforinger
       operationId: lastNedGjennomforingerSomExcel
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+          description: Page number, default 1
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search for gjennomføringer by the name
+        - in: query
+          name: navEnheter
+          schema:
+            type: array
+            items:
+              type: string
+          description: 4 digit enhetskode
+        - in: query
+          name: tiltakstyper
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+          description: Id for tiltakstype knyttet til gjennomføringer
+        - in: query
+          name: statuser
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/GjennomforingStatus"
+          description: Status for gjennomføring
+        - in: query
+          name: navRegioner
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: arrangorer
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+        - in: query
+          name: publisert
+          schema:
+            type: boolean
+            nullable: true
+        - in: query
+          name: size
+          schema:
+            type: number
+          description: Page size, default 50
+        - in: query
+          name: sort
+          schema:
+            $ref: "#/components/schemas/SorteringGjennomforinger"
+        - in: query
+          name: avtaleId
+          schema:
+            type: string
+        - in: query
+          name: visMineTiltaksgjennomforinger
+          schema:
+            type: boolean
       responses:
         200:
           description: Excel-fil med gjennomforinger

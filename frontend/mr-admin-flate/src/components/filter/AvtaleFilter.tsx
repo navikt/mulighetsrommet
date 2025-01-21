@@ -12,7 +12,7 @@ import {
 } from "@/utils/filterUtils";
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
-import { ArrangorTil } from "@mr/api-client";
+import { ArrangorTil } from "@mr/api-client-v2";
 import { FilterAccordionHeader, FilterSkeleton } from "@mr/frontend-common";
 import { logEvent } from "@/logging/amplitude";
 import { CheckboxList } from "./CheckboxList";
@@ -289,7 +289,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
           >
             <FilterAccordionHeader
               tittel="Personvern"
-              antallValgteFilter={filter.personvernBekreftet.length}
+              antallValgteFilter={filter.personvernBekreftet ? 1 : 0}
             />
           </Accordion.Header>
           <Accordion.Content>
@@ -304,12 +304,12 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                   value: false,
                 },
               ]}
-              isChecked={(b) => filter.personvernBekreftet.includes(b)}
+              isChecked={(b) => filter.personvernBekreftet === b}
               onChange={(bekreftet) => {
                 setFilter({
                   ...filter,
                   page: 1,
-                  personvernBekreftet: addOrRemove(filter.personvernBekreftet, bekreftet),
+                  personvernBekreftet: bekreftet,
                   lagretFilterIdValgt: undefined,
                 });
                 loggBrukAvFilter("personvernBekreftet", bekreftet);

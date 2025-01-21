@@ -1,6 +1,6 @@
 import { http, HttpResponse } from "msw";
 import { Features } from "@/api/features/useFeatureToggle";
-import { Toggles } from "@mr/api-client";
+import { Toggles } from "@mr/api-client-v2";
 
 const mockFeatures: Features = {
   [Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_TILBAKEMELDING]: true,

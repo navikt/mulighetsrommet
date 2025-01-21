@@ -6,7 +6,7 @@ import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndrin
 import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
 import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentForPameldingModal";
 import { KnapperadContainer } from "@/pages/KnapperadContainer";
-import { NavAnsatt, GjennomforingDto } from "@mr/api-client";
+import { NavAnsatt, GjennomforingDto } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";

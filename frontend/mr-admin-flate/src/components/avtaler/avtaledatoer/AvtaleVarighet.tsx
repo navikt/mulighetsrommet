@@ -1,4 +1,4 @@
-import { AvtaleDto, Avtaletype, OpsjonsmodellKey, OpsjonStatus } from "@mr/api-client";
+import { AvtaleDto, Avtaletype, OpsjonsmodellKey, OpsjonStatus } from "@mr/api-client-v2";
 import { Heading, HGrid, Select, TextField } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";

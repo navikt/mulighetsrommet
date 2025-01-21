@@ -1,4 +1,4 @@
-import { OpsjonsmodellData, OpsjonsmodellKey } from "@mr/api-client";
+import { OpsjonsmodellData, OpsjonsmodellKey } from "@mr/api-client-v2";
 
 export interface Opsjonsmodell {
   value: OpsjonsmodellKey;

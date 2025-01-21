@@ -1,10 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
+import { useApiQuery } from "@/hooks/useApiQuery";
 import { QueryKeys } from "@/api/QueryKeys";
-import { NotificationsService, NotificationStatus } from "@mr/api-client";
+import { NotificationsService, NotificationStatus } from "@mr/api-client-v2";
 
 export function useNotifikasjonerForAnsatt(status: NotificationStatus) {
-  return useQuery({
+  return useApiQuery({
     queryKey: QueryKeys.notifikasjonerForAnsatt(status),
-    queryFn: () => NotificationsService.getNotifications({ status }),
+    queryFn: () => NotificationsService.getNotifications({ query: { status } }),
   });
 }

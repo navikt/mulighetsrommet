@@ -5,7 +5,7 @@ import {
   TilsagnDto,
   TilsagnTilAnnulleringAarsak,
   TilsagnType,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { mockArrangorer } from "./mock_arrangorer";
 
 export const mockTilsagn: TilsagnDto[] = [

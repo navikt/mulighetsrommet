@@ -1,12 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
+import { useApiQuery } from "@/hooks/useApiQuery";
 import { QueryKeys } from "@/api/QueryKeys";
-import { ArrangorService } from "@mr/api-client";
+import { ArrangorService } from "@mr/api-client-v2";
 
 export function useArrangorHovedenhet(id?: string) {
-  return useQuery({
+  return useApiQuery({
     queryKey: QueryKeys.arrangorHovedenhetById(id!),
     queryFn: () => {
-      return ArrangorService.getArrangorHovedenhetById({ id: id! });
+      return ArrangorService.getArrangorHovedenhetById({ path: { id: id! } });
     },
     enabled: !!id,
   });

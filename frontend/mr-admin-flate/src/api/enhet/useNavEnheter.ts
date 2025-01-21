@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { type GetEnheterData, NavEnheterService, NavEnhetStatus } from "@mr/api-client";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import { type GetEnheterData, NavEnheterService, NavEnhetStatus } from "@mr/api-client-v2";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useNavEnheter(
@@ -10,10 +10,10 @@ export function useNavEnheter(
   ],
 ) {
   const filter: GetEnheterData = {
-    statuser,
+    query: { statuser },
   };
 
-  return useQuery({
+  return useApiQuery({
     queryKey: QueryKeys.enheter(filter),
 
     queryFn: () => {

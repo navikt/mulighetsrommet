@@ -18,7 +18,7 @@ import {
   NavAnsattRolle,
   TilsagnStatusBesluttelse,
   TilsagnTilAnnulleringRequest,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { EraserIcon, PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
 import { ActionMenu, Alert, BodyShort, Box, Button, Heading, HStack } from "@navikt/ds-react";
@@ -87,7 +87,7 @@ export function TilsagnDetaljer() {
       besluttMutation.mutate(
         {
           id: tilsagn.id,
-          requestBody: {
+          body: {
             ...request,
           },
         },

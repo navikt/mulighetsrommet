@@ -2,13 +2,12 @@ import { GjennomforingFilter } from "@/api/atoms";
 import { useAdminGjennomforinger } from "@/api/gjennomforing/useAdminGjennomforinger";
 import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
-import { APPLICATION_NAME } from "@/constants";
 import {
   createQueryParamsForExcelDownloadForGjennomforing,
   formaterDato,
   formaterNavEnheter,
 } from "@/utils/Utils";
-import { OpenAPI, SorteringGjennomforinger } from "@mr/api-client";
+import { GjennomforingerService, SorteringGjennomforinger } from "@mr/api-client-v2";
 import { GjennomforingStatusTag } from "@mr/frontend-common";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
@@ -40,22 +39,9 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
   const link = createRef<HTMLAnchorElement>();
 
   async function lastNedFil(filter: GjennomforingFilter) {
-    const headers = new Headers();
-    headers.append("Nav-Consumer-Id", APPLICATION_NAME);
-
-    if (import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN) {
-      headers.append(
-        "Authorization",
-        `Bearer ${import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN}`,
-      );
-    }
-    headers.append("accept", "application/json");
-
-    const queryParams = createQueryParamsForExcelDownloadForGjennomforing(filter);
-
-    return await fetch(`${OpenAPI.BASE}/api/v1/intern/gjennomforinger/excel?${queryParams}`, {
-      headers,
-    });
+    const query = createQueryParamsForExcelDownloadForGjennomforing(filter);
+    const { data } = await GjennomforingerService.lastNedGjennomforingerSomExcel(query);
+    return data;
   }
 
   async function lastNedExcel() {
@@ -65,8 +51,7 @@ export function GjennomforingTable({ skjulKolonner, filterAtom, tagsHeight, filt
     }
 
     const excelFil = await lastNedFil(filter);
-    const blob = await excelFil.blob();
-    const url = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(excelFil);
     setExcelUrl(url);
     setLasterExcel(false);
   }

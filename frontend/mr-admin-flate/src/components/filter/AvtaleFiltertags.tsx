@@ -1,5 +1,5 @@
 import { useAtom, WritableAtom } from "jotai";
-import { ArrangorTil } from "@mr/api-client";
+import { ArrangorTil } from "@mr/api-client-v2";
 import { AvtaleFilter } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
@@ -123,22 +123,19 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
           }}
         />
       ))}
-      {filter.personvernBekreftet.map((p, i) => {
-        return (
-          <FilterTag
-            key={i}
-            label={p ? "Personvern bekreftet" : "Personvern ikke bekreftet"}
-            onClose={() => {
-              setFilter({
-                ...filter,
-                personvernBekreftet: [],
-                page: 1,
-                lagretFilterIdValgt: undefined,
-              });
-            }}
-          />
-        );
-      })}
+      {(filter.personvernBekreftet === false || filter.personvernBekreftet === true) && (
+        <FilterTag
+          label={filter.personvernBekreftet ? "Personvern bekreftet" : "Personvern ikke bekreftet"}
+          onClose={() => {
+            setFilter({
+              ...filter,
+              personvernBekreftet: undefined,
+              page: 1,
+              lagretFilterIdValgt: undefined,
+            });
+          }}
+        />
+      )}
     </FilterTagsContainer>
   );
 }

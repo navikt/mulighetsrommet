@@ -1,4 +1,4 @@
-import { AvtaleDto } from "@mr/api-client";
+import { AvtaleDto } from "@mr/api-client-v2";
 import { Select, Alert } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { InferredGjennomforingSchema } from "../redaksjoneltInnhold/GjennomforingSchema";

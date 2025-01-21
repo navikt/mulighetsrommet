@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, BodyLong, BodyShort, Button, Modal, VStack } from "@navikt/ds-react";
-import { AvtaleDto, OpsjonLoggRequest, OpsjonStatus } from "@mr/api-client";
+import { AvtaleDto, OpsjonLoggRequest, OpsjonStatus } from "@mr/api-client-v2";
 import { RefObject } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useRegistrerOpsjon } from "@/api/avtaler/useRegistrerOpsjon";

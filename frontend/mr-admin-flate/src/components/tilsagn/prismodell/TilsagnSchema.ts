@@ -1,5 +1,5 @@
 import z from "zod";
-import { TilsagnType } from "@mr/api-client";
+import { TilsagnType } from "@mr/api-client-v2";
 import { tekster } from "@/components/tilsagn/prismodell/Tekster";
 
 const TilsagnBeregningSchema = z.discriminatedUnion("type", [

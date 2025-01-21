@@ -7,7 +7,7 @@ import { TilsagnSkjemaContainer } from "@/components/tilsagn/TilsagnSkjemaContai
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { TiltakDetaljerForTilsagn } from "@/components/tilsagn/TiltakDetaljerForTilsagn";
 import { redigerTilsagnLoader } from "@/pages/gjennomforing/tilsagn/rediger/redigerTilsagnLoader";
-import { TilsagnRequest } from "@mr/api-client";
+import { TilsagnRequest } from "@mr/api-client-v2";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 

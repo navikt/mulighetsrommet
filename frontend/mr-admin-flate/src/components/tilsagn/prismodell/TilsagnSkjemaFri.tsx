@@ -1,4 +1,4 @@
-import { TilsagnBeregningFri, GjennomforingDto } from "@mr/api-client";
+import { TilsagnBeregningFri, GjennomforingDto } from "@mr/api-client-v2";
 import { TilsagnSkjema } from "@/components/tilsagn/prismodell/TilsagnSkjema";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { TextField } from "@navikt/ds-react";

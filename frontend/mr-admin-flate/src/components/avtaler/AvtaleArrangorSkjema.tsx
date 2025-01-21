@@ -8,7 +8,7 @@ import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
   BrregVirksomhet,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common/components/ControlledSokeSelect";
 import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
 import { useRef, useState } from "react";

@@ -1,5 +1,5 @@
 import { AvtaleFilter } from "@/api/atoms";
-import { Avtalestatus, Avtaletype, SorteringAvtaler } from "@mr/api-client";
+import { Avtalestatus, Avtaletype, SorteringAvtaler } from "@mr/api-client-v2";
 import { describe, expect, test } from "vitest";
 import {
   capitalizeEveryWord,
@@ -84,20 +84,20 @@ describe("Avtaletabell", () => {
       },
       arrangorer: ["123456789"],
       visMineAvtaler: true,
-      personvernBekreftet: [true],
+      personvernBekreftet: true,
       page: 0,
       pageSize: 0,
     };
 
     const queryParams = createQueryParamsForExcelDownloadForAvtale(filter);
-    expect(queryParams.get("tiltakstyper")).toEqual("123");
-    expect(queryParams.get("statuser")).toEqual("AKTIV");
-    expect(queryParams.get("avtaletyper")).toEqual("Avtale");
-    expect(queryParams.get("navRegioner")).toEqual("0600");
-    expect(queryParams.get("arrangorer")).toEqual("123456789");
-    expect(queryParams.get("visMineAvtaler")).toEqual("true");
-    expect(queryParams.get("personvernBekreftet")).toEqual("true");
-    expect(queryParams.get("size")).toEqual("10000");
-    expect(queryParams.get("publisert")).toEqual(null);
+    expect(queryParams.query).toBeDefined();
+    expect(queryParams.query!.tiltakstyper).toEqual(["123"]);
+    expect(queryParams.query!.statuser).toEqual(["AKTIV"]);
+    expect(queryParams.query!.avtaletyper).toEqual(["Avtale"]);
+    expect(queryParams.query!.navRegioner).toEqual(["0600"]);
+    expect(queryParams.query!.arrangorer).toEqual(["123456789"]);
+    expect(queryParams.query!.visMineAvtaler).toEqual(true);
+    expect(queryParams.query!.personvernBekreftet).toEqual(true);
+    expect(queryParams.query!.size).toEqual(10000);
   });
 });

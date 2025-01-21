@@ -1,6 +1,6 @@
 import { Button } from "@navikt/ds-react";
 import { useSetAtom } from "jotai";
-import { Tiltakskode } from "@mr/api-client";
+import { Tiltakskode } from "@mr/api-client-v2";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { useState } from "react";
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";

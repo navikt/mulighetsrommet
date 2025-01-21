@@ -1,4 +1,4 @@
-import { ArrangorKontaktperson } from "@mr/api-client";
+import { ArrangorKontaktperson } from "@mr/api-client-v2";
 import { BodyShort } from "@navikt/ds-react";
 import { Metadata } from "../../components/detaljside/Metadata";
 

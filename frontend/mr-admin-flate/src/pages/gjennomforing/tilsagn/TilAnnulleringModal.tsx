@@ -1,4 +1,4 @@
-import { TilsagnTilAnnulleringAarsak, TilsagnTilAnnulleringRequest } from "@mr/api-client";
+import { TilsagnTilAnnulleringAarsak, TilsagnTilAnnulleringRequest } from "@mr/api-client-v2";
 import { Button, Checkbox, CheckboxGroup, Heading, HGrid, Modal, Textarea } from "@navikt/ds-react";
 import { useState } from "react";
 

@@ -1,14 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
+import { useApiQuery } from "@/hooks/useApiQuery";
 import { QueryKeys } from "@/api/QueryKeys";
-import { GjennomforingerService, GjennomforingStatus } from "@mr/api-client";
+import { GjennomforingerService, GjennomforingStatus } from "@mr/api-client-v2";
 
 export function useAktiveGjennomforingerByAvtaleId(avtaleId: string) {
-  return useQuery({
+  return useApiQuery({
     queryKey: QueryKeys.gjennomforing(avtaleId),
     queryFn: () =>
       GjennomforingerService.getGjennomforinger({
-        avtaleId: avtaleId,
-        statuser: [GjennomforingStatus.GJENNOMFORES],
+        query: {
+          avtaleId: avtaleId,
+          statuser: [GjennomforingStatus.GJENNOMFORES],
+        },
       }),
   });
 }

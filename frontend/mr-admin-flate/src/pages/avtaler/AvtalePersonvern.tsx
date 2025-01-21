@@ -1,14 +1,14 @@
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
 import { Laster } from "@/components/laster/Laster";
-import { PersonopplysningData } from "@mr/api-client";
+import { PersonopplysningData } from "@mr/api-client-v2";
 import { Alert, HelpText, HStack, List, VStack } from "@navikt/ds-react";
 
 export function AvtalePersonvern() {
   const { data: avtale, isPending, error } = useAvtale();
   const { data: personopplysninger } = usePersonopplysninger();
 
-  if (isPending) {
+  if (isPending || !avtale) {
     return <Laster tekst="Laster avtale..." />;
   }
 

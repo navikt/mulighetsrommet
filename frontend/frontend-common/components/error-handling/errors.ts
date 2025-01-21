@@ -1,3 +1,9 @@
+export interface ApiError {
+  message: string;
+  body: any;
+  status: number;
+}
+
 export function resolveErrorMessage(error: any): string {
   if (typeof error.body === "string") {
     return error.body;

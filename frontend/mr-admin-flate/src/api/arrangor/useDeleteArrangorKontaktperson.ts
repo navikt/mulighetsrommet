@@ -1,23 +1,20 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ApiError, ArrangorKontaktpersonRequest, ArrangorService } from "@mr/api-client";
+import { ArrangorService } from "@mr/api-client-v2";
 import { QueryKeys } from "@/api/QueryKeys";
 
-export function useDeleteArrangorKontaktperson() {
+export function useDeleteArrangorKontaktperson(arrangorId: string) {
   const queryClient = useQueryClient();
 
-  return useMutation<unknown, ApiError, { arrangorId: string; kontaktpersonId: string }>({
-    mutationFn({ kontaktpersonId }) {
+  return useMutation({
+    mutationFn({ kontaktpersonId }: { kontaktpersonId: string }) {
       return ArrangorService.deleteArrangorKontaktperson({
-        id: kontaktpersonId,
+        path: { id: kontaktpersonId },
       });
     },
-    onSuccess(_, { arrangorId, kontaktpersonId }) {
-      queryClient.setQueryData<ArrangorKontaktpersonRequest[]>(
-        QueryKeys.arrangorKontaktpersoner(arrangorId),
-        (previous) => {
-          return previous?.filter((kontaktperson) => kontaktperson.id !== kontaktpersonId);
-        },
-      );
+    onSuccess() {
+      queryClient.invalidateQueries({
+        queryKey: QueryKeys.arrangorKontaktpersoner(arrangorId),
+      });
     },
   });
 }

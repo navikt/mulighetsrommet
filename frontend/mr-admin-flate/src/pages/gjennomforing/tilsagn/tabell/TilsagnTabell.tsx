@@ -1,7 +1,7 @@
 import { TilsagnTag } from "@/pages/gjennomforing/tilsagn/TilsagnTag";
 import { isTilsagnForhandsgodkjent } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
 import { formaterDato } from "@/utils/Utils";
-import { TilsagnDto } from "@mr/api-client";
+import { TilsagnDto } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { SortState, Table } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";

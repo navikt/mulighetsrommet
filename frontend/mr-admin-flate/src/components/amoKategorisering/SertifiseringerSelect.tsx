@@ -1,4 +1,4 @@
-import { Sertifisering } from "@mr/api-client";
+import { Sertifisering } from "@mr/api-client-v2";
 import { FieldValues, Path, useFormContext } from "react-hook-form";
 import { useState } from "react";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";

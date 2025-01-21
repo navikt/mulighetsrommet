@@ -1,4 +1,4 @@
-import { TilsagnStatusReturnert, TilsagnStatusTilAnnullering } from "@mr/api-client";
+import { TilsagnStatusReturnert, TilsagnStatusTilAnnullering } from "@mr/api-client-v2";
 import { Alert, Heading } from "@navikt/ds-react";
 import { formaterDato, tilsagnAarsakTilTekst } from "../../../utils/Utils";
 

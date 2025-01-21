@@ -1,11 +1,6 @@
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
 import { useUpsertArrangorKontaktperson } from "@/api/arrangor/useUpsertArrangorKontaktperson";
-import {
-  ApiError,
-  Arrangor,
-  ArrangorKontaktperson,
-  ArrangorKontaktpersonAnsvar,
-} from "@mr/api-client";
+import { Arrangor, ArrangorKontaktperson, ArrangorKontaktpersonAnsvar } from "@mr/api-client-v2";
 import { isValidationError } from "@mr/frontend-common/utils/utils";
 import {
   Button,
@@ -258,7 +253,8 @@ function RedigerbarRad({ kontaktperson, setRedigerKontaktperson, arrangor }: Red
     mutation.reset();
   };
 
-  const onError = (error: ApiError) => {
+  const onError = (error: any) => {
+    // TODO: fix any
     if (isValidationError(error)) {
       const errors = error.errors.reduce((errors: Record<string, string>, error) => {
         return { ...errors, [error.name]: error.message };

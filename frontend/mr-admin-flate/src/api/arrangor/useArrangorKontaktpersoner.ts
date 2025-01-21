@@ -1,14 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
+import { useApiQuery } from "@/hooks/useApiQuery";
 import { QueryKeys } from "@/api/QueryKeys";
-import { ArrangorService } from "@mr/api-client";
+import { ArrangorService } from "@mr/api-client-v2";
 
 export function useArrangorKontaktpersoner(arrangorId?: string) {
-  return useQuery({
+  return useApiQuery({
     queryKey: QueryKeys.arrangorKontaktpersoner(arrangorId! ?? ""),
 
     queryFn: () =>
       ArrangorService.getArrangorKontaktpersoner({
-        id: arrangorId!,
+        path: { id: arrangorId! },
       }),
 
     enabled: !!arrangorId,

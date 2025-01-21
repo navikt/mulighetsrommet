@@ -1,4 +1,4 @@
-import { UtdanningsprogramMedUtdanninger } from "@mr/api-client";
+import { UtdanningsprogramMedUtdanninger } from "@mr/api-client-v2";
 
 export const mockUtdanningsprogrammerOgUtdanninger: UtdanningsprogramMedUtdanninger[] = [
   {

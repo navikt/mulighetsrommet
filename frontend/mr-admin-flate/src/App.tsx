@@ -1,5 +1,5 @@
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
-import { AnsattService, NavAnsatt, NavAnsattRolle } from "@mr/api-client";
+import { AnsattService, NavAnsatt, NavAnsattRolle } from "@mr/api-client-v2";
 import { createBrowserRouter, Outlet, RouterProvider, useLoaderData } from "react-router";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
@@ -98,7 +98,8 @@ export function App() {
 }
 
 async function ansattLoader() {
-  return AnsattService.hentInfoOmAnsatt();
+  const { data } = await AnsattService.hentInfoOmAnsatt();
+  return data;
 }
 
 const router = () =>
