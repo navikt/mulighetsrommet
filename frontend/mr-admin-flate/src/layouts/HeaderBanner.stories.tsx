@@ -2,7 +2,6 @@ import type { Meta, StoryObj } from "@storybook/react";
 
 import { HeaderBanner } from "./HeaderBanner";
 
-//👇 This default export determines where your story goes in the story list
 const meta: Meta<typeof HeaderBanner> = {
   component: HeaderBanner,
 };
@@ -15,7 +14,6 @@ export const HeaderBannerStory: Story = {
     heading: "Eksempel side",
     harUndermeny: true,
     ikon: null,
-    //👇 The args you need here will depend on your component
   },
 };
 
