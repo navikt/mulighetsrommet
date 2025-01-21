@@ -1,19 +1,25 @@
 import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
 import { HistorikkService } from "@mr/api-client-v2";
 import { QueryKeys } from "../query-keys";
-import { useApiQuery } from "@/hooks/useApiQuery";
 import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
+import { useQuery } from "@tanstack/react-query";
 
 export function useDeltakelse() {
   const { fnr: norskIdent } = useModiaContext();
 
   const tiltakId = useTiltakIdFraUrl();
-  return useApiQuery({
+  return useQuery({
     queryKey: QueryKeys.Deltakelse(norskIdent, tiltakId),
-    queryFn: async () =>
-      HistorikkService.hentDeltakelse({
+    queryFn: async () => {
+      const { data } = await HistorikkService.hentDeltakelse({
         body: { norskIdent, tiltakId },
-      }),
+      });
+      if (data && "id" in data) {
+        return data;
+      } else {
+        return undefined;
+      }
+    },
     throwOnError: false,
     enabled: !!tiltakId,
   });

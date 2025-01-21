@@ -82,7 +82,7 @@ fun Route.brukerRoutes() {
                 .firstOrNull {
                     it is Deltakelse.DeltakelseGruppetiltak && it.gjennomforingId == tiltakId
                 }
-                ?: HttpStatusCode.NotFound
+                ?: HttpStatusCode.NoContent
 
             call.respond(response)
         }
