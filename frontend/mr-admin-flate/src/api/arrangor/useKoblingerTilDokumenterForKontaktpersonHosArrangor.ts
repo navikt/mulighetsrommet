@@ -1,10 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
+import { useApiQuery } from "@/hooks/useApiQuery";
 import { QueryKeys } from "../QueryKeys";
-import { ArrangorService } from "@mr/api-client";
+import { ArrangorService } from "@mr/api-client-v2";
 
 export function useKoblingerTilDokumenterForKontaktpersonHosArrangor(kontaktpersonId: string) {
-  return useQuery({
+  return useApiQuery({
     queryKey: QueryKeys.arrangorKontaktpersonKoblinger(kontaktpersonId),
-    queryFn: () => ArrangorService.getKoblingerTilDokumenter({ id: kontaktpersonId }),
+    queryFn: () => ArrangorService.getKoblingerTilDokumenter({ path: { id: kontaktpersonId } }),
   });
 }

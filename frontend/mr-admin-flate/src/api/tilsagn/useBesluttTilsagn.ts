@@ -1,10 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
-import { ApiError, BesluttTilsagnRequest, TilsagnService } from "@mr/api-client";
+import { BesluttTilsagnRequest, TilsagnService } from "@mr/api-client-v2";
 import { QueryKeys } from "../../api/QueryKeys";
 
 export function useBesluttTilsagn() {
-  return useMutation<string, ApiError, { id: string; requestBody: BesluttTilsagnRequest }>({
-    mutationFn: ({ id, requestBody }) => TilsagnService.besluttTilsagn({ id, requestBody }),
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: BesluttTilsagnRequest }) =>
+      TilsagnService.besluttTilsagn({ path: { id }, body }),
     mutationKey: QueryKeys.besluttTilsagn(),
   });
 }

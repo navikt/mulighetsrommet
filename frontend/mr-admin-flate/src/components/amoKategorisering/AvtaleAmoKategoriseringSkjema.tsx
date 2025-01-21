@@ -1,5 +1,5 @@
 import { HGrid, Select } from "@navikt/ds-react";
-import { Kurstype } from "@mr/api-client";
+import { Kurstype } from "@mr/api-client-v2";
 import { useFormContext } from "react-hook-form";
 import { kurstypeToString } from "@/utils/Utils";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";

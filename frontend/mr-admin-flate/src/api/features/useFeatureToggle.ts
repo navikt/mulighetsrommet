@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { FeatureToggleService, Tiltakskode, Toggles } from "@mr/api-client";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import { FeatureToggleService, Tiltakskode, Toggles } from "@mr/api-client-v2";
 
 export type Features = Record<Toggles, boolean>;
 
@@ -10,9 +10,9 @@ export type Features = Record<Toggles, boolean>;
  * @returns true hvis toggle er skrudd på, eller false hvis ikke
  */
 export function useFeatureToggle(feature: Toggles, tiltakskoder: Tiltakskode[] = []) {
-  return useQuery({
+  return useApiQuery({
     queryKey: ["feature", feature, tiltakskoder],
-    queryFn: () => FeatureToggleService.getFeatureToggle({ feature, tiltakskoder }),
+    queryFn: () => FeatureToggleService.getFeatureToggle({ query: { feature, tiltakskoder } }),
     throwOnError: false,
   });
 }

@@ -1,7 +1,7 @@
 import { useDeleteArrangorKontaktperson } from "@/api/arrangor/useDeleteArrangorKontaktperson";
 import { useUpsertArrangorKontaktperson } from "@/api/arrangor/useUpsertArrangorKontaktperson";
 import { validEmail } from "@/utils/Utils";
-import { ApiError, ArrangorKontaktperson, ArrangorKontaktpersonAnsvar } from "@mr/api-client";
+import { ArrangorKontaktperson, ArrangorKontaktpersonAnsvar } from "@mr/api-client-v2";
 import { resolveErrorMessage } from "@mr/frontend-common/components/error-handling/errors";
 import { isValidationError } from "@mr/frontend-common/utils/utils";
 import { Button, HGrid, TextField, UNSAFE_Combobox } from "@navikt/ds-react";
@@ -34,7 +34,7 @@ export function ArrangorKontaktpersonSkjema({
   onOpprettSuccess,
 }: VirksomhetKontaktpersonerProps) {
   const putMutation = useUpsertArrangorKontaktperson(arrangorId);
-  const deleteMutation = useDeleteArrangorKontaktperson();
+  const deleteMutation = useDeleteArrangorKontaktperson(arrangorId);
 
   const [state, setState] = useState<State>({
     navn: person?.navn ?? "",
@@ -48,7 +48,7 @@ export function ArrangorKontaktpersonSkjema({
   function deleteKontaktperson() {
     if (person) {
       deleteMutation.mutate(
-        { arrangorId, kontaktpersonId: person.id },
+        { kontaktpersonId: person.id },
         {
           onSuccess: () => {
             deleteMutation.reset();
@@ -82,12 +82,13 @@ export function ArrangorKontaktpersonSkjema({
       },
       {
         onSuccess: (kontaktperson) => {
-          onOpprettSuccess(kontaktperson);
+          onOpprettSuccess(kontaktperson.data);
           putMutation.reset();
           onSubmit();
         },
-        onError: (error: ApiError) => {
-          const body = error.body;
+        onError: (error: any) => {
+          // TODO: Fix typing
+          const body = error?.body;
           if (isValidationError(body)) {
             const errors = body.errors.reduce((errors: Record<string, string>, error) => {
               return { ...errors, [error.name]: error.message };

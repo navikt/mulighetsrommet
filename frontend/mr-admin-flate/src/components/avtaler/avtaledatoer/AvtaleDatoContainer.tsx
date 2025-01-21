@@ -1,6 +1,6 @@
 import { MAKS_AAR_FOR_AVTALER, MIN_START_DATO_FOR_AVTALER } from "@/constants";
 import { addYear } from "@/utils/Utils";
-import { AvtaleDto } from "@mr/api-client";
+import { AvtaleDto } from "@mr/api-client-v2";
 import { useMemo } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { InferredAvtaleSchema } from "../../redaksjoneltInnhold/AvtaleSchema";

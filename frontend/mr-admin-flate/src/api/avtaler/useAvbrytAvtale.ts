@@ -1,15 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ApiError, AvbrytAvtaleAarsak, AvtalerService } from "@mr/api-client";
+import { AvbrytAvtaleAarsak, AvtalerService } from "@mr/api-client-v2";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useAvbrytAvtale() {
   const client = useQueryClient();
 
-  return useMutation<unknown, ApiError, { id: string; aarsak: AvbrytAvtaleAarsak | string }>({
+  return useMutation({
     mutationFn: (data: { id: string; aarsak?: AvbrytAvtaleAarsak | string }) => {
       return AvtalerService.avbrytAvtale({
-        id: data.id,
-        requestBody: { aarsak: data.aarsak },
+        path: { id: data.id },
+        body: { aarsak: data.aarsak },
       });
     },
     onSuccess(_, request) {

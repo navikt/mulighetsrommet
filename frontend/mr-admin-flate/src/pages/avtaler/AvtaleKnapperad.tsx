@@ -7,7 +7,7 @@ import { AvbrytAvtaleModal } from "@/components/modal/AvbrytAvtaleModal";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { KnapperadContainer } from "@/pages/KnapperadContainer";
 import { BodyShort, Button, Dropdown } from "@navikt/ds-react";
-import { AvtaleDto, NavAnsatt } from "@mr/api-client";
+import { AvtaleDto, NavAnsatt } from "@mr/api-client-v2";
 import { useRef } from "react";
 import { useNavigate } from "react-router";
 

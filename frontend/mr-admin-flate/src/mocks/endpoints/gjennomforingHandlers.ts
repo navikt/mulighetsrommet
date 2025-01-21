@@ -4,7 +4,7 @@ import {
   PaginertGjennomforing,
   GjennomforingDto,
   GjennomforingDeltakerSummary,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { mockGjennomforinger, paginertMockGjennomforinger } from "../fixtures/mock_gjennomforinger";
 import { mockEndringshistorikkForGjennomforing } from "../fixtures/mock_endringshistorikk_gjennomforinger";
 

@@ -1,5 +1,5 @@
 import { List } from "@navikt/ds-react";
-import { Bransje } from "@mr/api-client";
+import { Bransje } from "@mr/api-client-v2";
 import { useFormContext } from "react-hook-form";
 import { bransjeToString } from "../../utils/Utils";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";

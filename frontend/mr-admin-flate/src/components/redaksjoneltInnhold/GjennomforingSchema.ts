@@ -1,4 +1,4 @@
-import { Opphav, GjennomforingOppstartstype, UtdanningslopDbo } from "@mr/api-client";
+import { Opphav, GjennomforingOppstartstype, UtdanningslopDbo } from "@mr/api-client-v2";
 import z from "zod";
 import { FaneinnholdSchema } from "./FaneinnholdSchema";
 import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "@/constants";

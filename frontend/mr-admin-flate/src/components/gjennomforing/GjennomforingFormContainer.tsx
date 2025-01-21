@@ -13,7 +13,7 @@ import {
   GjennomforingRequest,
   Tiltakskode,
   ValidationErrorResponse,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { isValidationError } from "@mr/frontend-common/utils/utils";
 import { Box, Tabs } from "@navikt/ds-react";
@@ -65,7 +65,10 @@ export function GjennomforingFormContainer({
     formState: { errors },
   } = form;
 
-  const handleSuccess = useCallback((dto: GjennomforingDto) => onSuccess(dto.id), [onSuccess]);
+  const handleSuccess = useCallback(
+    (dto: { data: GjennomforingDto }) => onSuccess(dto.data.id),
+    [onSuccess],
+  );
   const handleValidationError = useCallback(
     (validation: ValidationErrorResponse) => {
       validation.errors.forEach((error) => {
@@ -131,7 +134,8 @@ export function GjennomforingFormContainer({
 
     mutation.mutate(body, {
       onSuccess: handleSuccess,
-      onError: (error) => {
+      onError: (error: any) => {
+        // TODO: fix any
         if (isValidationError(error.body)) {
           handleValidationError(error.body);
         }
@@ -164,7 +168,7 @@ export function GjennomforingFormContainer({
             <GjennomforingFormKnapperad
               redigeringsModus={redigeringsModus}
               onClose={onClose}
-              mutation={mutation}
+              isPending={mutation.isPending}
             />
           </Tabs.List>
           <Tabs.Panel value="detaljer">
@@ -186,7 +190,7 @@ export function GjennomforingFormContainer({
         <GjennomforingFormKnapperad
           redigeringsModus={redigeringsModus}
           onClose={onClose}
-          mutation={mutation}
+          isPending={mutation.isPending}
         />
       </form>
     </FormProvider>

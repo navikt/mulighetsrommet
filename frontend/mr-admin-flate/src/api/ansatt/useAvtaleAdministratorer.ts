@@ -1,13 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
+import { useApiQuery } from "@/hooks/useApiQuery";
 import { QueryKeys } from "@/api/QueryKeys";
-import { AnsattService, NavAnsattRolle } from "@mr/api-client";
+import { AnsattService, NavAnsattRolle } from "@mr/api-client-v2";
 
 export function useAvtaleAdministratorer() {
-  return useQuery({
+  return useApiQuery({
     queryKey: QueryKeys.navansatt(NavAnsattRolle.AVTALER_SKRIV),
     queryFn: () =>
       AnsattService.hentAnsatte({
-        roller: [NavAnsattRolle.AVTALER_SKRIV],
+        query: { roller: [NavAnsattRolle.AVTALER_SKRIV] },
       }),
   });
 }

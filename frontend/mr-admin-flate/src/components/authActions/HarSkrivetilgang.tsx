@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { NavAnsatt, NavAnsattRolle } from "@mr/api-client";
+import { NavAnsatt, NavAnsattRolle } from "@mr/api-client-v2";
 
 interface Props {
   children: ReactNode;

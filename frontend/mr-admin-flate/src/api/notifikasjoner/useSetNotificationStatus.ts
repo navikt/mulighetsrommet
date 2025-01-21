@@ -1,4 +1,4 @@
-import { NotificationsService, NotificationStatus } from "@mr/api-client";
+import { NotificationsService, NotificationStatus } from "@mr/api-client-v2";
 import { useMutation } from "@tanstack/react-query";
 import { useNotificationSummary } from "./useNotificationSummary";
 
@@ -12,7 +12,7 @@ export function useSetNotificationStatus(id: string) {
   return useMutation({
     mutationFn: async ({ status }: SetNotificationStatusParams): Promise<void> => {
       await NotificationsService.setNotificationStatus({
-        requestBody: {
+        body: {
           notifikasjoner: [{ status, id }],
         },
       });

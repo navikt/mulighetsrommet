@@ -1,4 +1,4 @@
-import { ArenaNavEnhet, NavEnhet } from "@mr/api-client";
+import { ArenaNavEnhet, NavEnhet } from "@mr/api-client-v2";
 
 export function getDisplayName(enhet: NavEnhet | ArenaNavEnhet) {
   const { enhetsnummer, navn } = enhet;

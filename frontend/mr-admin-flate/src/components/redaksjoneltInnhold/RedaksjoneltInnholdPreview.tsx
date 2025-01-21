@@ -1,7 +1,7 @@
 import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
 import { Alert, BodyLong, Heading } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
-import { EmbeddedTiltakstype, Faneinnhold } from "@mr/api-client";
+import { EmbeddedTiltakstype, Faneinnhold } from "@mr/api-client-v2";
 import { LokalInformasjonContainer } from "@mr/frontend-common";
 import React from "react";
 import { Laster } from "../laster/Laster";

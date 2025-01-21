@@ -1,6 +1,6 @@
 import { TilsagnSkjemaForhandsgodkjent } from "@/components/tilsagn/prismodell/TilsagnSkjemaForhandsgodkjent";
 import { TilsagnSkjemaFri } from "@/components/tilsagn/prismodell/TilsagnSkjemaFri";
-import { AvtaleDto, Avtaletype, TilsagnType, GjennomforingDto } from "@mr/api-client";
+import { AvtaleDto, Avtaletype, TilsagnType, GjennomforingDto } from "@mr/api-client-v2";
 import { useNavigate } from "react-router";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
 import { DeepPartial } from "react-hook-form";

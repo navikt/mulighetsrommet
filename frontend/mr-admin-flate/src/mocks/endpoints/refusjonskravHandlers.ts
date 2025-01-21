@@ -3,7 +3,7 @@ import {
   NavEnhetType,
   RefusjonKravKompakt,
   RefusjonskravStatus,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { http, HttpResponse, PathParams } from "msw";
 
 const mockRefusjonskravKompakt: RefusjonKravKompakt[] = [

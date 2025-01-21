@@ -1,7 +1,7 @@
-import { TiltakstyperService } from "@mr/api-client";
+import { TiltakstyperService } from "@mr/api-client-v2";
 
 export async function oppgaverLoader() {
-  const tiltakstyper = await TiltakstyperService.getTiltakstyper({});
+  const { data: tiltakstyper } = await TiltakstyperService.getTiltakstyper();
 
   return {
     tiltakstyper: tiltakstyper.data,

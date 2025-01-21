@@ -2,7 +2,7 @@ import { AvtaleFilter, defaultAvtaleFilter } from "@/api/atoms";
 import { useAtom } from "jotai/index";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { WritableAtom } from "jotai";
-import { LagretDokumenttype } from "@mr/api-client";
+import { LagretDokumenttype } from "@mr/api-client-v2";
 import { HStack } from "@navikt/ds-react";
 import { LagreFilterButton } from "@mr/frontend-common/components/lagreFilter/LagreFilterButton";
 import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
@@ -24,7 +24,7 @@ export function NullstillKnappForAvtaler({ filterAtom, tiltakstypeId }: Props) {
       filter.avtaletyper.length > 0 ||
       (!tiltakstypeId && filter.tiltakstyper.length > 0) ||
       filter.statuser.length > 0 ||
-      filter.personvernBekreftet.length > 0 ||
+      filter.personvernBekreftet !== undefined ||
       filter.arrangorer.length > 0 ? (
         <HStack gap="2">
           <NullstillFilterKnapp

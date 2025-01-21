@@ -4,7 +4,7 @@ import { avtaleLoader } from "@/pages/avtaler/avtaleLoader";
 import { useLoaderData } from "react-router";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata } from "@/components/detaljside/Metadata";
-import { AvtaleDto, Prismodell } from "@mr/api-client";
+import { AvtaleDto, Prismodell } from "@mr/api-client-v2";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { formaterDato } from "@/utils/Utils";
 import { formaterTall } from "@mr/frontend-common/utils/utils";

@@ -13,7 +13,7 @@ import { useAvtale } from "@/api/avtaler/useAvtale";
 import { NullstillKnappForGjennomforinger } from "@/pages/gjennomforing/NullstillKnappForGjennomforinger";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { LagredeFilterOversikt, useOpenFilterWhenThreshold } from "@mr/frontend-common";
-import { LagretDokumenttype } from "@mr/api-client";
+import { LagretDokumenttype } from "@mr/api-client-v2";
 import { useAtom } from "jotai/index";
 import { GjennomforingTable } from "@/components/gjennomforing/GjennomforingTable";
 import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";

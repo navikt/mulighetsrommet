@@ -1,4 +1,4 @@
-import { NavAnsatt, NavAnsattRolle, GjennomforingKontaktperson } from "@mr/api-client";
+import { NavAnsatt, NavAnsattRolle, GjennomforingKontaktperson } from "@mr/api-client-v2";
 
 const bertil: NavAnsatt = {
   azureId: "8c133e5e-fd93-4226-8567-41d699a3efee",

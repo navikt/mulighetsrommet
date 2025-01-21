@@ -1,5 +1,5 @@
 import { Alert, BodyShort, Button, Heading, HStack, Table, VStack } from "@navikt/ds-react";
-import { AvtaleDto, OpsjonLoggRegistrert, OpsjonStatus } from "@mr/api-client";
+import { AvtaleDto, OpsjonLoggRegistrert, OpsjonStatus } from "@mr/api-client-v2";
 import { useSlettOpsjon } from "@/api/avtaler/useSlettOpsjon";
 import { formaterDato } from "@/utils/Utils";
 import { useRevalidator } from "react-router";

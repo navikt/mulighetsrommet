@@ -6,7 +6,7 @@ import {
   NavEnhetType,
   Utdanningslop,
   UtdanningslopDbo,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { DeepPartial } from "react-hook-form";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 

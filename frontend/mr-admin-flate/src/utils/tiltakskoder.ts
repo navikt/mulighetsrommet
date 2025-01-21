@@ -1,4 +1,4 @@
-import { Tiltakskode } from "@mr/api-client";
+import { Tiltakskode } from "@mr/api-client-v2";
 
 export const ANSKAFFEDE_TILTAK: Tiltakskode[] = [
   Tiltakskode.ARBEIDSRETTET_REHABILITERING,

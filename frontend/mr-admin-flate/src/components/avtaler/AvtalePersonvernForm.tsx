@@ -16,7 +16,7 @@ import { Separator } from "../detaljside/Metadata";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
-import { EmbeddedTiltakstype, PersonopplysningData } from "@mr/api-client";
+import { EmbeddedTiltakstype, PersonopplysningData } from "@mr/api-client-v2";
 
 interface Props {
   tiltakstype?: EmbeddedTiltakstype;

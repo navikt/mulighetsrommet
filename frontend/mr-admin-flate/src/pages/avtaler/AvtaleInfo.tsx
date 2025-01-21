@@ -4,7 +4,7 @@ import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/Red
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { AvtalePrisOgFaktureringDetaljer } from "@/pages/avtaler/AvtalePrisOgFaktureringDetaljer";
-import { Toggles } from "@mr/api-client";
+import { Toggles } from "@mr/api-client-v2";
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { useLoaderData } from "react-router";

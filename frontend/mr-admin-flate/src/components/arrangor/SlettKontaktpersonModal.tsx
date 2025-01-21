@@ -2,7 +2,7 @@ import { useDeleteArrangorKontaktperson } from "@/api/arrangor/useDeleteArrangor
 import { useKoblingerTilDokumenterForKontaktpersonHosArrangor } from "@/api/arrangor/useKoblingerTilDokumenterForKontaktpersonHosArrangor";
 import { useFrikobleArrangorKontaktpersonFraAvtale } from "@/api/avtaler/useFrikobleArrangorKontaktpersonFraAvtale";
 import { useFrikobleArrangorKontaktpersonFraGjennomforing } from "@/api/gjennomforing/useFrikobleArrangorKontaktpersonFraGjennomforing";
-import { ArrangorKontaktperson, DokumentKoblingForKontaktperson } from "@mr/api-client";
+import { ArrangorKontaktperson, DokumentKoblingForKontaktperson } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { Alert, BodyShort, Button, Heading, Table, VStack } from "@navikt/ds-react";
@@ -20,7 +20,9 @@ export function SlettKontaktpersonModal({ onClose, kontaktperson, modalRef }: Pr
   const { data, isLoading } = useKoblingerTilDokumenterForKontaktpersonHosArrangor(
     kontaktperson.id,
   );
-  const deleteArrangorKontaktpersonMutation = useDeleteArrangorKontaktperson();
+  const deleteArrangorKontaktpersonMutation = useDeleteArrangorKontaktperson(
+    kontaktperson.arrangorId,
+  );
 
   const { avtaler, gjennomforinger } = data || { avtaler: [], gjennomforinger: [] };
   const erKobletTilDokumenter = avtaler.length + gjennomforinger.length > 0;
@@ -28,7 +30,6 @@ export function SlettKontaktpersonModal({ onClose, kontaktperson, modalRef }: Pr
   function slettKontaktperson() {
     deleteArrangorKontaktpersonMutation.mutate(
       {
-        arrangorId: kontaktperson.arrangorId,
         kontaktpersonId: kontaktperson.id,
       },
       {
@@ -116,7 +117,7 @@ interface DokumentKoblingerProps {
   kontaktperson: ArrangorKontaktperson;
   baseUrl: "gjennomforinger" | "avtaler";
   frikobleMutation: UseMutationResult<
-    string,
+    { data: string },
     Error,
     {
       kontaktpersonId: string;

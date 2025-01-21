@@ -4,7 +4,7 @@ import {
   TilsagnStatus,
   TilsagnType,
   GjennomforingerService,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { LoaderFunctionArgs } from "react-router";
 
 export async function opprettTilsagnLoader({ params, request }: LoaderFunctionArgs) {
@@ -17,17 +17,26 @@ export async function opprettTilsagnLoader({ params, request }: LoaderFunctionAr
   const url = new URL(request.url);
   const type = (url.searchParams.get("type") as TilsagnType) ?? TilsagnType.TILSAGN;
 
-  const [gjennomforing, defaults, godkjenteTilsagn] = await Promise.all([
-    GjennomforingerService.getGjennomforing({ id: gjennomforingId }),
-    TilsagnService.getTilsagnDefaults({ gjennomforingId, type }),
-    TilsagnService.getAll({
-      gjennomforingId,
-      statuser: [TilsagnStatus.GODKJENT, TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.RETURNERT],
-    }),
-  ]);
+  const [{ data: gjennomforing }, { data: defaults }, { data: godkjenteTilsagn }] =
+    await Promise.all([
+      GjennomforingerService.getGjennomforing({ path: { id: gjennomforingId } }),
+      TilsagnService.getTilsagnDefaults({ query: { gjennomforingId, type } }),
+      TilsagnService.getAll({
+        query: {
+          gjennomforingId,
+          statuser: [
+            TilsagnStatus.GODKJENT,
+            TilsagnStatus.TIL_GODKJENNING,
+            TilsagnStatus.RETURNERT,
+          ],
+        },
+      }),
+    ]);
 
   // TODO: utled fra url, eller embed prismodell direkte i gjennomføring? Da slipper vi fossefall-requester
-  const avtale = await AvtalerService.getAvtale({ id: gjennomforing.avtaleId! });
+  const { data: avtale } = await AvtalerService.getAvtale({
+    path: { id: gjennomforing.avtaleId! },
+  });
 
   return { avtale, gjennomforing, defaults, godkjenteTilsagn };
 }

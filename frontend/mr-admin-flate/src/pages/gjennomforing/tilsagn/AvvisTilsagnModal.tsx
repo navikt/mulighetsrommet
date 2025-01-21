@@ -2,7 +2,7 @@ import {
   AvvistTilsagnRequest,
   TilsagnAvvisningAarsak,
   TilsagnStatusBesluttelse,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { Button, Checkbox, CheckboxGroup, Heading, HGrid, Modal, Textarea } from "@navikt/ds-react";
 import { useState } from "react";
 

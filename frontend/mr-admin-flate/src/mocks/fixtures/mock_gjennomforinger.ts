@@ -11,7 +11,7 @@ import {
   GjennomforingDto,
   GjennomforingOppstartstype,
   GjennomforingStatus,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { mockArrangorKontaktpersoner } from "./mock_arrangorKontaktperson";
 import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";

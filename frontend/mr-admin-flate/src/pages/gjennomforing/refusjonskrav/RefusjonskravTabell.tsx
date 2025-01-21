@@ -1,5 +1,5 @@
 import { formaterDato } from "@/utils/Utils";
-import { RefusjonKravKompakt } from "@mr/api-client";
+import { RefusjonKravKompakt } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Table } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";

@@ -1,10 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
-import { PrismodellService, Tiltakskode } from "@mr/api-client";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import { PrismodellService, Tiltakskode } from "@mr/api-client-v2";
 import { QueryKeys } from "../QueryKeys";
 
 export function useForhandsgodkjenteSatser(tiltakstype: Tiltakskode) {
-  return useQuery({
-    queryFn: () => PrismodellService.getForhandsgodkjenteSatser({ tiltakstype }),
+  return useApiQuery({
+    queryFn: () => PrismodellService.getForhandsgodkjenteSatser({ query: { tiltakstype } }),
     queryKey: QueryKeys.avtalteSatser(tiltakstype),
   });
 }

@@ -1,17 +1,19 @@
-import { useQuery } from "@tanstack/react-query";
+import { useApiQuery } from "@/hooks/useApiQuery";
 import { PAGE_SIZE } from "@/constants";
 import { TiltakstypeFilter } from "../atoms";
 import { QueryKeys } from "@/api/QueryKeys";
-import { TiltakstyperService } from "@mr/api-client";
+import { TiltakstyperService } from "@mr/api-client-v2";
 
 export function useTiltakstyper(filter: TiltakstypeFilter = {}, page: number = 1) {
   const queryFilter = {
-    sort: filter.sort?.sortString,
-    page,
-    size: PAGE_SIZE,
+    query: {
+      sort: filter.sort?.sortString,
+      page,
+      size: PAGE_SIZE,
+    },
   };
 
-  return useQuery({
+  return useApiQuery({
     queryKey: QueryKeys.tiltakstyper(queryFilter),
     queryFn: () => TiltakstyperService.getTiltakstyper(queryFilter),
   });

@@ -13,7 +13,7 @@ import {
   GjennomforingDto,
   GjennomforingOppstartstype,
   Tiltakskode,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";

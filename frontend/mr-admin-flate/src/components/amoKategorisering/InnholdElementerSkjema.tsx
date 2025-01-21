@@ -1,7 +1,7 @@
 import { Checkbox, CheckboxGroup, HGrid } from "@navikt/ds-react";
 import { Controller, FieldValues, Path, useFormContext } from "react-hook-form";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
-import { InnholdElement } from "@mr/api-client";
+import { InnholdElement } from "@mr/api-client-v2";
 import { innholdElementToString } from "@/utils/Utils";
 
 export function InnholdElementerSkjema<T extends FieldValues>(props: { path: Path<T> }) {

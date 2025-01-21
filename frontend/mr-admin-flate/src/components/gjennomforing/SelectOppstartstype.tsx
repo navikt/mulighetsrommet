@@ -1,5 +1,5 @@
 import { Alert, HelpText } from "@navikt/ds-react";
-import { GjennomforingOppstartstype } from "@mr/api-client";
+import { GjennomforingOppstartstype } from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useController } from "react-hook-form";
 import { useSuspenseGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";

@@ -1,5 +1,5 @@
 import { UNSAFE_Combobox } from "@navikt/ds-react";
-import { ForerkortKlasse } from "@mr/api-client";
+import { ForerkortKlasse } from "@mr/api-client-v2";
 import { FieldValues, Path, PathValue, useFormContext } from "react-hook-form";
 import { forerkortKlasseToString } from "../../utils/Utils";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";

@@ -10,7 +10,7 @@ import { useState } from "react";
 import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useAtom } from "jotai/index";
-import { LagretDokumenttype } from "@mr/api-client";
+import { LagretDokumenttype } from "@mr/api-client-v2";
 import { ContentBox } from "@/layouts/ContentBox";
 import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
 import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";

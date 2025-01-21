@@ -1,7 +1,7 @@
 import { Alert, Table } from "@navikt/ds-react";
 import { Laster } from "../laster/Laster";
 import { AvtaleFilter } from "@/api/atoms";
-import { AvtaleDto } from "@mr/api-client";
+import { AvtaleDto } from "@mr/api-client-v2";
 import { ReactNode } from "react";
 import { useAvtaler } from "@/api/avtaler/useAvtaler";
 import { AvtalestatusTag } from "../statuselementer/AvtalestatusTag";

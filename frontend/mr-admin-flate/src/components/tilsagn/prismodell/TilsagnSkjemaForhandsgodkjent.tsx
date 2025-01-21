@@ -2,7 +2,7 @@ import { useFindForhandsgodkjentSats } from "@/api/tilsagn/useFindForhandsgodkje
 import { TilsagnBeregningPreview } from "@/components/tilsagn/prismodell/TilsagnBeregningPreview";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
 import { TilsagnSkjema } from "@/components/tilsagn/prismodell/TilsagnSkjema";
-import { TilsagnBeregningForhandsgodkjent, GjennomforingDto } from "@mr/api-client";
+import { TilsagnBeregningForhandsgodkjent, GjennomforingDto } from "@mr/api-client-v2";
 import { HGrid, TextField } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";

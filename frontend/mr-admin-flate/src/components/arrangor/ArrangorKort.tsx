@@ -1,5 +1,5 @@
 import { BodyShort, CopyButton, List, Tabs } from "@navikt/ds-react";
-import { Arrangor } from "@mr/api-client";
+import { Arrangor } from "@mr/api-client-v2";
 import { ArrangorKontaktpersonOversikt } from "./ArrangorKontaktpersonerOversikt";
 
 interface Props {

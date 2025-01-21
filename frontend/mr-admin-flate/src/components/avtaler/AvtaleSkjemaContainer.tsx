@@ -14,7 +14,7 @@ import {
   Toggles,
   UtdanningslopDbo,
   ValidationErrorResponse,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { isValidationError } from "@mr/frontend-common/utils/utils";
 import { Box, Tabs } from "@navikt/ds-react";
@@ -108,7 +108,8 @@ export function AvtaleSkjemaContainer({
 
     mutation.mutate(requestBody, {
       onSuccess: handleSuccess,
-      onError: (error) => {
+      onError: (error: any) => {
+        //TODO: fix any
         if (isValidationError(error.body)) {
           handleValidationError(error.body);
         }
@@ -116,7 +117,10 @@ export function AvtaleSkjemaContainer({
     });
   };
 
-  const handleSuccess = useCallback((dto: AvtaleDto) => onSuccess(dto.id), [onSuccess]);
+  const handleSuccess = useCallback(
+    (dto: { data: AvtaleDto }) => onSuccess(dto.data.id),
+    [onSuccess],
+  );
   const handleValidationError = useCallback(
     (validation: ValidationErrorResponse) => {
       validation.errors.forEach((error) => {

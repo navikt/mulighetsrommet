@@ -1,4 +1,4 @@
-import { RefusjonskravStatus } from "@mr/api-client";
+import { RefusjonskravStatus } from "@mr/api-client-v2";
 import { Tag } from "@navikt/ds-react";
 import { ReactNode } from "react";
 
