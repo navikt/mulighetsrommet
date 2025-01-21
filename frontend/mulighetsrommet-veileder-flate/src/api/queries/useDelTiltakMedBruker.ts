@@ -8,9 +8,10 @@ import { QueryKeys } from "../query-keys";
 
 interface Props {
   onSuccess: (response: DelTiltakMedBrukerResponse) => void;
+  onError: () => void;
 }
 
-export function useDelTiltakMedBruker({ onSuccess }: Props) {
+export function useDelTiltakMedBruker({ onSuccess, onError }: Props) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: QueryKeys.DeltMedBrukerStatus,
@@ -20,5 +21,6 @@ export function useDelTiltakMedBruker({ onSuccess }: Props) {
       queryClient.invalidateQueries({ queryKey: QueryKeys.DeltMedBrukerStatus });
       onSuccess(response.data!);
     },
+    onError: () => onError(),
   });
 }
