@@ -2,7 +2,6 @@ import type { Meta, StoryObj } from "@storybook/react";
 
 import { Laster } from "./Laster";
 
-//👇 This default export determines where your story goes in the story list
 const meta: Meta<typeof Laster> = {
   component: Laster,
 };
@@ -14,7 +13,6 @@ export const LasterStory: Story = {
   args: {
     tekst: "Laster innhold",
     size: "medium",
-    //👇 The args you need here will depend on your component
   },
 };
 
