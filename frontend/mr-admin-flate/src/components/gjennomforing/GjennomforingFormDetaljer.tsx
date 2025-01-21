@@ -406,13 +406,22 @@ function SokEtterKontaktperson({
       ?.filter((_, i) => i !== selectedIndex)
       .map((k) => k.navIdent);
 
-    const options = kontaktpersoner
-      ?.filter((kontaktperson) => !excludedKontaktpersoner?.includes(kontaktperson.navIdent))
+    const alleredeValgt = watch("kontaktpersoner")
+      ?.filter((_, i) => i === selectedIndex)
       ?.map((kontaktperson) => ({
-        label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navIdent}`,
+        label: kontaktperson.navIdent,
         value: kontaktperson.navIdent,
       }));
-    return options || [];
+
+    const options =
+      kontaktpersoner
+        ?.filter((kontaktperson) => !excludedKontaktpersoner?.includes(kontaktperson.navIdent))
+        ?.map((kontaktperson) => ({
+          label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navIdent}`,
+          value: kontaktperson.navIdent,
+        })) ?? [];
+
+    return alleredeValgt ? [...alleredeValgt, ...options] : options;
   };
 
   const valgteNavEnheter = watch("navEnheter");
