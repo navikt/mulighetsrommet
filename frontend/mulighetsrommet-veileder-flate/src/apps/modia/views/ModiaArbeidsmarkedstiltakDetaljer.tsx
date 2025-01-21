@@ -42,7 +42,7 @@ import { ArbeidsmarkedstiltakErrorBoundary } from "@/ErrorBoundary";
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
   const id = useTiltakIdFraUrl();
-  const { delMedBrukerInfo } = useHentDeltMedBrukerStatus(fnr, id);
+  const { data: delMedBrukerInfo } = useHentDeltMedBrukerStatus(fnr, id);
 
   const { data: veilederdata } = useHentVeilederdata();
   const { data: brukerdata } = useHentBrukerdata();
