@@ -50,7 +50,7 @@ spec:
     sqlInstances:
       - type: POSTGRES_16
         tier: db-custom-1-3840
-        pointInTimeRecovery: true
+        pointInTimeRecovery: false
         databases:
           - name: mulighetsrommet-api-db
             envVarPrefix: DB
