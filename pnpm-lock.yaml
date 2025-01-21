@@ -27,15 +27,6 @@ importers:
         specifier: 2.3.3
         version: 2.3.3
 
-  frontend/api-client:
-    devDependencies:
-      '@hey-api/openapi-ts':
-        specifier: 0.61.2
-        version: 0.61.2(typescript@5.7.3)
-      typescript:
-        specifier: 5.7.3
-        version: 5.7.3
-
   frontend/api-client-v2:
     dependencies:
       '@hey-api/client-fetch':
