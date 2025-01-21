@@ -24,6 +24,7 @@ import { LagredeFilterOversikt } from "./components/lagreFilter/LagredeFilterOve
 import { TilbakemeldingsLenke } from "./components/tilbakemelding/Tilbakemeldingslenke";
 import { FilterContainer } from "./components/filter/FilterContainer";
 import { useOpenFilterWhenThreshold } from "./hooks/useOpenFilterWhenThreshold";
+import { useApiQuery, useApiSuspenseQuery } from "./hooks/useApiQuery";
 
 export {
   useDebounce,
@@ -50,4 +51,6 @@ export {
   useOpenFilterWhenThreshold,
   GjennomforingStatusTag,
   GjennomforingStatusMedAarsakTag,
+  useApiQuery,
+  useApiSuspenseQuery,
 };

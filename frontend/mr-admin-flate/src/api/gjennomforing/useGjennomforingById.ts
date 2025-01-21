@@ -1,4 +1,4 @@
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useApiQuery } from "@mr/frontend-common";
 import { useGetGjennomforingIdFromUrl } from "../../hooks/useGetGjennomforingIdFromUrl";
 import { QueryKeys } from "@/api/QueryKeys";
 import { GjennomforingerService } from "@mr/api-client-v2";

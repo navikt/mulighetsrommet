@@ -1,5 +1,5 @@
 import { QueryKeys } from "@/api/query-keys";
-import { useApiSuspenseQuery } from "@/hooks/useApiQuery";
+import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { VeilederService } from "@mr/api-client-v2";
 
 export function useHentVeilederdata() {

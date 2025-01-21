@@ -1,7 +1,7 @@
 import { QueryKeys } from "@/api/query-keys";
 import { useModiaContext } from "./useModiaContext";
 import { DelMedBrukerService } from "@mr/api-client-v2";
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useApiQuery } from "@mr/frontend-common";
 
 export function useHentAlleTiltakDeltMedBruker() {
   const { fnr: norskIdent } = useModiaContext();

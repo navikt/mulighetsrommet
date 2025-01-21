@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { QueryKeys } from "../query-keys";
 import { JoyrideService, JoyrideType } from "@mr/api-client-v2";
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useApiQuery } from "@mr/frontend-common";
 
 export function useJoyride(joyrideType: JoyrideType) {
   const query = useApiQuery({

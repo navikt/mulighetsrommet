@@ -3,7 +3,7 @@ import {
   isFilterReady,
   useArbeidsmarkedstiltakFilterValue,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useApiQuery } from "@mr/frontend-common";
 import { NavEnhet, VeilederTiltakService } from "@mr/api-client-v2";
 
 export function useModiaArbeidsmarkedstiltak() {

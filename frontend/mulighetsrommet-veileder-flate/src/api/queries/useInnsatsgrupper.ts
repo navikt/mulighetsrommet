@@ -1,4 +1,4 @@
-import { useApiSuspenseQuery } from "@/hooks/useApiQuery";
+import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { QueryKeys } from "../query-keys";
 import { VeilederTiltakService } from "@mr/api-client-v2";
 

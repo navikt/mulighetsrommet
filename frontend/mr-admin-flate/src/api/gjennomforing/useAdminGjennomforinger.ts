@@ -1,4 +1,4 @@
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useApiQuery } from "@mr/frontend-common";
 import { useDebounce } from "@mr/frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
 import { GjennomforingFilter } from "../atoms";
