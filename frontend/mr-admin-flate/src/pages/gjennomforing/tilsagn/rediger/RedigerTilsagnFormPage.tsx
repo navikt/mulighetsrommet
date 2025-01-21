@@ -3,21 +3,22 @@ import { useLoaderData, useMatch, useParams } from "react-router";
 import { Header } from "@/components/detaljside/Header";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { TilsagnSkjemaContainer } from "@/components/tilsagn/TilsagnSkjemaContainer";
+import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { TiltakDetaljerForTilsagn } from "@/components/tilsagn/TiltakDetaljerForTilsagn";
-import { opprettTilsagnLoader } from "@/pages/gjennomforing/tilsagn/opprett/opprettTilsagnLoader";
+import { redigerTilsagnLoader } from "@/pages/gjennomforing/tilsagn/rediger/redigerTilsagnLoader";
+import { TilsagnRequest } from "@mr/api-client-v2";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 
-export function OpprettTilsagnSkjemaPage() {
+export function RedigerTilsagnFormPage() {
   const { avtaleId } = useParams();
 
-  const { avtale, gjennomforing, defaults, godkjenteTilsagn } =
-    useLoaderData<typeof opprettTilsagnLoader>();
+  const { avtale, gjennomforing, tilsagn, godkjenteTilsagn } =
+    useLoaderData<typeof redigerTilsagnLoader>();
 
   const erPaaGjennomforingerForAvtale = useMatch(
-    "/avtaler/:avtaleId/gjennomforinger/:gjennomforingId/opprett-tilsagn",
+    "/avtaler/:avtaleId/gjennomforinger/:gjennomforingId/rediger-tilsagn",
   );
 
   const brodsmuler: Array<Brodsmule | undefined> = [
@@ -37,10 +38,26 @@ export function OpprettTilsagnSkjemaPage() {
         }
       : undefined,
     {
-      tittel: "Opprett tilsagn",
-      lenke: "/gjennomforinger/opprett-tilsagn",
+      tittel: "Gjennomføring",
+      lenke: avtaleId
+        ? `/avtaler/${avtaleId}/gjennomforinger/${gjennomforing.id}`
+        : `/gjennomforinger/${gjennomforing.id}`,
+    },
+    {
+      tittel: "Rediger tilsagn",
+      lenke: `/gjennomforinger/${gjennomforing.id}/rediger-tilsagn`,
     },
   ];
+
+  const defaults: TilsagnRequest = {
+    id: tilsagn.id,
+    type: tilsagn.type,
+    periodeStart: tilsagn.periodeStart,
+    periodeSlutt: tilsagn.periodeSlutt,
+    kostnadssted: tilsagn.kostnadssted.enhetsnummer,
+    beregning: tilsagn.beregning.input,
+    gjennomforingId: gjennomforing.id,
+  };
 
   return (
     <main>
@@ -48,14 +65,16 @@ export function OpprettTilsagnSkjemaPage() {
       <Header>
         <GjennomforingIkon />
         <Heading size="large" level="2">
-          Opprett tilsagn
+          Rediger tilsagn
         </Heading>
       </Header>
       <ContentBox>
         <VStack gap={"8"}>
           <WhitePaddedBox>
             <TiltakDetaljerForTilsagn gjennomforing={gjennomforing} />
-            <TilsagnSkjemaContainer
+          </WhitePaddedBox>
+          <WhitePaddedBox>
+            <TilsagnFormContainer
               avtale={avtale}
               gjennomforing={gjennomforing}
               defaults={defaults}

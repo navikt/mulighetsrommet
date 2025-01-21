@@ -1,6 +1,6 @@
 import { useModiaArbeidsmarkedstiltak } from "@/api/queries/useArbeidsmarkedstiltak";
 import { ModiaFiltertags } from "@/apps/modia/filtrering/ModiaFiltertags";
-import { useHentAlleTiltakDeltMedBruker } from "@/apps/modia/hooks/useHentAlleTiltakDeltMedBruker";
+import { useAlleTiltakDeltMedBruker } from "@/apps/modia/hooks/useAlleTiltakDeltMedBruker";
 import { FiltrertFeilInnsatsgruppeVarsel } from "@/apps/modia/varsler/FiltrertFeilInnsatsgruppeVarsel";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { Filtermeny } from "@/components/filtrering/Filtermeny";
@@ -21,7 +21,7 @@ import { ModiaOversiktBrukerVarsler } from "../varsler/ModiaOversiktBrukerVarsle
 export function ModiaArbeidsmarkedstiltakOversikt() {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
-  const { data: alleTiltakDeltMedBruker } = useHentAlleTiltakDeltMedBruker();
+  const { data: alleTiltakDeltMedBruker } = useAlleTiltakDeltMedBruker();
 
   const { filter, filterHasChanged, resetFilterToDefaults } =
     useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst();

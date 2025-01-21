@@ -27,8 +27,8 @@ import { Laster } from "../laster/Laster";
 import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
 import { AvtalePersonvernForm } from "./AvtalePersonvernForm";
 import { AvtaleRedaksjoneltInnholdForm } from "./AvtaleRedaksjoneltInnholdForm";
-import { AvtaleSkjemaDetaljer } from "./AvtaleSkjemaDetaljer";
-import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
+import { AvtaleFormDetaljer } from "./AvtaleFormDetaljer";
+import { AvtaleFormKnapperad } from "./AvtaleFormKnapperad";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { AvtalePrisOgFakturering } from "@/pages/avtaler/AvtalePrisOgFakturering";
 
@@ -43,7 +43,7 @@ interface Props {
   defaultValues: DeepPartial<InferredAvtaleSchema>;
 }
 
-export function AvtaleSkjemaContainer({
+export function AvtaleFormContainer({
   onClose,
   onSuccess,
   ansatt,
@@ -181,11 +181,11 @@ export function AvtaleSkjemaContainer({
                 hasError={Boolean(errors.faneinnhold)}
               />
             </div>
-            <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus} onClose={onClose} />
+            <AvtaleFormKnapperad redigeringsModus={redigeringsModus} onClose={onClose} />
           </Tabs.List>
           <Tabs.Panel value="detaljer">
             <Box marginBlock="4">
-              <AvtaleSkjemaDetaljer
+              <AvtaleFormDetaljer
                 avtale={avtale}
                 tiltakstyper={props.tiltakstyper}
                 ansatt={ansatt}
@@ -218,7 +218,7 @@ export function AvtaleSkjemaContainer({
           </Tabs.Panel>
         </Tabs>
         <Separator />
-        <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus} onClose={onClose} />
+        <AvtaleFormKnapperad redigeringsModus={redigeringsModus} onClose={onClose} />
       </form>
     </FormProvider>
   );

@@ -11,7 +11,7 @@ import {
   Opsjonsvalg,
   RegistrerOpsjonSchema,
 } from "./RegistrerOpsjonSchema";
-import { RegistrerOpsjonSkjema } from "./RegistrerOpsjonSkjema";
+import { RegistrerOpsjonForm } from "./RegistrerOpsjonForm";
 import { useRevalidator } from "react-router";
 
 interface Props {
@@ -90,7 +90,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
           <Modal.Body>
             <VStack gap="5">
               <BodyLong as="div">
-                {!avtaleSkalIkkeUtloseOpsjoner && <RegistrerOpsjonSkjema avtale={avtale} />}
+                {!avtaleSkalIkkeUtloseOpsjoner && <RegistrerOpsjonForm avtale={avtale} />}
 
                 {mutation.isError && (
                   <Alert variant="error">Noe gikk galt ved registrering av opsjon</Alert>

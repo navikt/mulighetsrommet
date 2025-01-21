@@ -16,7 +16,7 @@ interface Props {
   readOnly: boolean;
 }
 
-export function GjennomforingArrangorSkjema({ readOnly, avtale }: Props) {
+export function GjennomforingArrangorForm({ readOnly, avtale }: Props) {
   const arrangorKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
 
   const {

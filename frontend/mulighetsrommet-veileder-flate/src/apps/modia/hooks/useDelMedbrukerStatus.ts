@@ -2,7 +2,7 @@ import { QueryKeys } from "@/api/query-keys";
 import { DelMedBrukerService } from "@mr/api-client-v2";
 import { useQuery } from "@tanstack/react-query";
 
-export function useHentDeltMedBrukerStatus(norskIdent: string, gjennomforingId: string) {
+export function useDelMedBrukerStatus(norskIdent: string, gjennomforingId: string) {
   return useQuery({
     queryKey: [...QueryKeys.DeltMedBrukerStatus, norskIdent, gjennomforingId],
     queryFn: async () => {

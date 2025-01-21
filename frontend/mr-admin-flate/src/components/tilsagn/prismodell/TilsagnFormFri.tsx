@@ -1,5 +1,5 @@
 import { TilsagnBeregningFri, GjennomforingDto } from "@mr/api-client-v2";
-import { TilsagnSkjema } from "@/components/tilsagn/prismodell/TilsagnSkjema";
+import { TilsagnForm } from "@/components/tilsagn/prismodell/TilsagnForm";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { TextField } from "@navikt/ds-react";
 import { TilsagnBeregningPreview } from "@/components/tilsagn/prismodell/TilsagnBeregningPreview";
@@ -15,9 +15,9 @@ interface Props {
   defaultKostnadssteder: string[];
 }
 
-export function TilsagnSkjemaFri(props: Props) {
+export function TilsagnFormFri(props: Props) {
   return (
-    <TilsagnSkjema
+    <TilsagnForm
       {...props}
       beregningInput={<BeregningInputSkjema />}
       beregningOutput={<BeregningOutputPreview />}

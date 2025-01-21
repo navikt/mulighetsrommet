@@ -1,7 +1,7 @@
 import { useFindForhandsgodkjentSats } from "@/api/tilsagn/useFindForhandsgodkjentSats";
 import { TilsagnBeregningPreview } from "@/components/tilsagn/prismodell/TilsagnBeregningPreview";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
-import { TilsagnSkjema } from "@/components/tilsagn/prismodell/TilsagnSkjema";
+import { TilsagnForm } from "@/components/tilsagn/prismodell/TilsagnForm";
 import { TilsagnBeregningForhandsgodkjent, GjennomforingDto } from "@mr/api-client-v2";
 import { HGrid, TextField } from "@navikt/ds-react";
 import { useEffect } from "react";
@@ -17,9 +17,9 @@ interface Props {
   defaultKostnadssteder: string[];
 }
 
-export function TilsagnSkjemaForhandsgodkjent(props: Props) {
+export function TilsagnFormForhandsgodkjent(props: Props) {
   return (
-    <TilsagnSkjema
+    <TilsagnForm
       {...props}
       beregningInput={<BeregningInputSkjema gjennomforing={props.gjennomforing} />}
       beregningOutput={<BeregningOutputPreview />}

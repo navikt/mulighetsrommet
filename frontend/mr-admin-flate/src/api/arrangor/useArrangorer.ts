@@ -1,4 +1,4 @@
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useApiQuery } from "@mr/frontend-common";
 import { ArrangorService, ArrangorTil, type GetArrangorerData } from "@mr/api-client-v2";
 import { QueryKeys } from "@/api/QueryKeys";
 import { ArrangorerFilter } from "../atoms";

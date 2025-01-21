@@ -4,7 +4,7 @@ import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { InnholdElement } from "@mr/api-client-v2";
 import { innholdElementToString } from "@/utils/Utils";
 
-export function InnholdElementerSkjema<T extends FieldValues>(props: { path: Path<T> }) {
+export function InnholdElementerForm<T extends FieldValues>(props: { path: Path<T> }) {
   const { path } = props;
   const { control } = useFormContext<T>();
 

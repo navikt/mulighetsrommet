@@ -24,7 +24,7 @@ interface Props {
   readOnly: boolean;
 }
 
-export function AvtaleArrangorSkjema({ readOnly }: Props) {
+export function AvtaleArrangorForm({ readOnly }: Props) {
   const arrangorKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
 
   const [sokArrangor, setSokArrangor] = useState("");

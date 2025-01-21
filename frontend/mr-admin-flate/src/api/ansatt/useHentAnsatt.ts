@@ -1,4 +1,4 @@
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useApiQuery } from "@mr/frontend-common";
 import { AnsattService, NavAnsatt } from "@mr/api-client-v2";
 import { QueryKeys } from "@/api/QueryKeys";
 

@@ -11,7 +11,7 @@ interface Props {
   avtale: AvtaleDto;
 }
 
-export function RegistrerOpsjonSkjema({ avtale }: Props) {
+export function RegistrerOpsjonForm({ avtale }: Props) {
   const maksVarighetForOpsjon = avtale?.opsjonsmodellData?.opsjonMaksVarighet;
   const sluttDatoSisteOpsjon = avtale?.opsjonerRegistrert?.at(-1)?.sluttDato;
   const sluttdato = avtale?.sluttDato;

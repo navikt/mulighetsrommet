@@ -9,7 +9,7 @@ interface Props {
   redigeringsModus: boolean;
   onClose: () => void;
 }
-export function AvtaleSkjemaKnapperad({ redigeringsModus, onClose }: Props) {
+export function AvtaleFormKnapperad({ redigeringsModus, onClose }: Props) {
   const setGjennomforingFane = useSetAtom(gjennomforingDetaljerTabAtom);
   return (
     <SkjemaKnapperad>

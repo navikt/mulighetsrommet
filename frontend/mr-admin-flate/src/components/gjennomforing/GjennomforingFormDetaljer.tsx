@@ -37,7 +37,7 @@ import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { GjennomforingUtdanningslopForm } from "../utdanning/GjennomforingUtdanningslopForm";
 import { SelectOppstartstype } from "./SelectOppstartstype";
-import { GjennomforingArrangorSkjema } from "./GjennomforingArrangorSkjema";
+import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 
 interface Props {
@@ -370,7 +370,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
             </FormGroup>
           </div>
           <FormGroup>
-            <GjennomforingArrangorSkjema readOnly={false} avtale={avtale} />
+            <GjennomforingArrangorForm readOnly={false} avtale={avtale} />
           </FormGroup>
         </SkjemaKolonne>
       </TwoColumnGrid>

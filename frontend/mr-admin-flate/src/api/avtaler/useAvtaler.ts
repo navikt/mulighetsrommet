@@ -1,5 +1,5 @@
 import { QueryKeys } from "@/api/QueryKeys";
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useApiQuery } from "@mr/frontend-common";
 import { useDebounce } from "@mr/frontend-common";
 import { AvtaleFilter } from "../atoms";
 import { AvtalerService, type GetAvtalerData } from "@mr/api-client-v2";

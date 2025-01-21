@@ -4,11 +4,11 @@ import { useFormContext } from "react-hook-form";
 import { kurstypeToString } from "@/utils/Utils";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
-import { AvtaleBransjeSkjema } from "./AvtaleBransjeSkjema";
-import { NorksopplaeringSkjema } from "./NorskopplaeringSkjema";
-import { InnholdElementerSkjema } from "./InnholdElementerSkjema";
+import { AvtaleBransjeForm } from "./AvtaleBransjeForm";
+import { NorksopplaeringForm } from "./NorskopplaeringForm";
+import { InnholdElementerForm } from "./InnholdElementerForm";
 
-export function AvtaleAmoKategoriseringSkjema() {
+export function AvtaleAmoKategoriseringForm() {
   const {
     setValue,
     watch,
@@ -45,15 +45,15 @@ export function AvtaleAmoKategoriseringSkjema() {
           {kurstypeToString(Kurstype.STUDIESPESIALISERING)}
         </option>
       </Select>
-      {amoKategorisering?.kurstype === Kurstype.BRANSJE_OG_YRKESRETTET && <AvtaleBransjeSkjema />}
+      {amoKategorisering?.kurstype === Kurstype.BRANSJE_OG_YRKESRETTET && <AvtaleBransjeForm />}
       {amoKategorisering?.kurstype === Kurstype.NORSKOPPLAERING && (
-        <NorksopplaeringSkjema<InferredAvtaleSchema>
+        <NorksopplaeringForm<InferredAvtaleSchema>
           norskprovePath="amoKategorisering.norskprove"
           innholdElementerPath="amoKategorisering.innholdElementer"
         />
       )}
       {amoKategorisering?.kurstype === Kurstype.GRUNNLEGGENDE_FERDIGHETER && (
-        <InnholdElementerSkjema<InferredAvtaleSchema> path="amoKategorisering.innholdElementer" />
+        <InnholdElementerForm<InferredAvtaleSchema> path="amoKategorisering.innholdElementer" />
       )}
     </HGrid>
   );

@@ -8,7 +8,7 @@ import {
   VeilederTiltakService,
 } from "@mr/api-client-v2";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
-import { useApiSuspenseQuery } from "@/hooks/useApiQuery";
+import { useApiSuspenseQuery } from "@mr/frontend-common";
 
 export function isTiltakGruppe(tiltak: VeilederflateTiltak): tiltak is VeilederflateTiltakGruppe {
   return tiltak.type === "TILTAK_GRUPPE";

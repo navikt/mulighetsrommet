@@ -1,5 +1,5 @@
-import { defaultAvtaleData } from "@/components/avtaler/AvtaleSkjemaConst";
-import { AvtaleSkjemaContainer } from "@/components/avtaler/AvtaleSkjemaContainer";
+import { defaultAvtaleData } from "@/components/avtaler/AvtaleFormConst";
+import { AvtaleFormContainer } from "@/components/avtaler/AvtaleFormContainer";
 import { Header } from "@/components/detaljside/Header";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
@@ -11,7 +11,7 @@ import { avtaleSkjemaLoader } from "./avtaleLoader";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 
-export function AvtaleSkjemaPage() {
+export function AvtaleFormPage() {
   const navigate = useNavigate();
   const { avtale, ansatt, enheter, tiltakstyper } = useLoaderData<typeof avtaleSkjemaLoader>();
   const location = useLocation();
@@ -48,7 +48,7 @@ export function AvtaleSkjemaPage() {
       </Header>
       <ContentBox>
         <WhitePaddedBox>
-          <AvtaleSkjemaContainer
+          <AvtaleFormContainer
             onClose={() => {
               navigerTilbake();
             }}

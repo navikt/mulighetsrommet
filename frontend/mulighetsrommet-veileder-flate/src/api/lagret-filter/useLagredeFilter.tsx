@@ -1,6 +1,6 @@
 import { LagretDokumenttype, LagretFilterService } from "@mr/api-client-v2";
 import { QueryKeys } from "../query-keys";
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useApiQuery } from "@mr/frontend-common";
 
 export function useLagredeFilter(dokumenttype: LagretDokumenttype) {
   return useApiQuery({
