@@ -1,4 +1,4 @@
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useApiQuery } from "@mr/frontend-common";
 import { QueryKeys } from "../query-keys";
 import { NavEnheterService } from "@mr/api-client-v2";
 

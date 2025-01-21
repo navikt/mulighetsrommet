@@ -1,5 +1,5 @@
 import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
-import { AvtaleAmoKategoriseringSkjema } from "@/components/amoKategorisering/AvtaleAmoKategoriseringSkjema";
+import { AvtaleAmoKategoriseringForm } from "@/components/amoKategorisering/AvtaleAmoKategoriseringForm";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
@@ -27,9 +27,9 @@ import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { AvtaleUtdanningslopForm } from "../utdanning/AvtaleUtdanningslopForm";
-import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
+import { AvtaleArrangorForm } from "./AvtaleArrangorForm";
 import { AvtaleDatoContainer } from "./avtaledatoer/AvtaleDatoContainer";
-import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
+import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleFormConst";
 import { opsjonsmodeller } from "./opsjoner/opsjonsmodeller";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 
@@ -40,7 +40,7 @@ interface Props {
   enheter: NavEnhet[];
 }
 
-export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: Props) {
+export function AvtaleFormDetaljer({ tiltakstyper, ansatt, enheter, avtale }: Props) {
   const { data: administratorer } = useAvtaleAdministratorer();
 
   const {
@@ -182,7 +182,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             />
           </HGrid>
           {tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ? (
-            <AvtaleAmoKategoriseringSkjema />
+            <AvtaleAmoKategoriseringForm />
           ) : null}
           {tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING ? (
             <AvtaleUtdanningslopForm />
@@ -257,7 +257,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
           </FormGroup>
         </div>
         <FormGroup>
-          <AvtaleArrangorSkjema readOnly={false} />
+          <AvtaleArrangorForm readOnly={false} />
         </FormGroup>
       </SkjemaKolonne>
     </TwoColumnGrid>

@@ -1,4 +1,4 @@
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useApiQuery } from "@mr/frontend-common";
 import { type GetEnheterData, NavEnheterService, NavEnhetStatus } from "@mr/api-client-v2";
 import { QueryKeys } from "@/api/QueryKeys";
 

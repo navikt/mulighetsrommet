@@ -1,6 +1,6 @@
 import { QueryKeys } from "../query-keys";
 import { VeilederTiltakService } from "@mr/api-client-v2";
-import { useApiSuspenseQuery } from "@/hooks/useApiQuery";
+import { useApiSuspenseQuery } from "@mr/frontend-common";
 
 export function useTiltakstyper() {
   return useApiSuspenseQuery({

@@ -20,7 +20,7 @@ interface Props {
   beregningOutput: JSX.Element;
 }
 
-export function TilsagnSkjema(props: Props) {
+export function TilsagnForm(props: Props) {
   const { gjennomforing, onSuccess, onAvbryt, defaultValues, defaultKostnadssteder } = props;
   const [searchParams] = useSearchParams();
   const tilsagnstype: TilsagnType =

@@ -1,4 +1,4 @@
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useApiQuery } from "@mr/frontend-common";
 import { OppgaverFilter } from "../atoms";
 import { QueryKeys } from "@/api/QueryKeys";
 import { OppgaverService, Tiltakskode } from "@mr/api-client-v2";

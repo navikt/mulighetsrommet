@@ -2,9 +2,9 @@ import { bransjeToString, kurstypeToString } from "@/utils/Utils";
 import { AvtaleDto, Kurstype } from "@mr/api-client-v2";
 import { HGrid, Select, Alert } from "@navikt/ds-react";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
-import { ForerkortSkjema } from "./ForerkortSkjema";
-import { InnholdElementerSkjema } from "./InnholdElementerSkjema";
-import { NorksopplaeringSkjema } from "./NorskopplaeringSkjema";
+import { ForerkortForm } from "./ForerkortForm";
+import { InnholdElementerForm } from "./InnholdElementerForm";
+import { NorksopplaeringForm } from "./NorskopplaeringForm";
 import { SertifiseringerSkjema } from "./SertifiseringerSelect";
 
 interface Props {
@@ -31,7 +31,7 @@ export function GjennomforingAmoKategoriseringForm(props: Props) {
             <option>{bransjeToString(avtaleAmo.bransje)}</option>
           </Select>
           {avtaleAmo.forerkort && avtaleAmo.forerkort.length > 0 && (
-            <ForerkortSkjema path="amoKategorisering.forerkort" options={avtaleAmo.forerkort} />
+            <ForerkortForm path="amoKategorisering.forerkort" options={avtaleAmo.forerkort} />
           )}
           {avtaleAmo.sertifiseringer && avtaleAmo.sertifiseringer.length > 0 && (
             <SertifiseringerSkjema
@@ -39,11 +39,11 @@ export function GjennomforingAmoKategoriseringForm(props: Props) {
               options={avtaleAmo.sertifiseringer}
             />
           )}
-          <InnholdElementerSkjema path="amoKategorisering.innholdElementer" />
+          <InnholdElementerForm path="amoKategorisering.innholdElementer" />
         </>
       )}
       {avtaleAmo.kurstype == Kurstype.NORSKOPPLAERING && (
-        <NorksopplaeringSkjema
+        <NorksopplaeringForm
           norskprovePath="amoKategorisering.norskprove"
           innholdElementerPath="amoKategorisering.innholdElementer"
         />

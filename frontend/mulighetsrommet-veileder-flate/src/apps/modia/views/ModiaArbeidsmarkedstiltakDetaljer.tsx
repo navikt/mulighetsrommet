@@ -1,8 +1,8 @@
 import { useRegioner } from "@/api/queries/useRegioner";
 import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
-import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
-import { useHentDeltMedBrukerStatus } from "@/apps/modia/hooks/useHentDeltMedbrukerStatus";
-import { useHentVeilederdata } from "@/apps/modia/hooks/useHentVeilederdata";
+import { useBrukerdata } from "@/apps/modia/hooks/useBrukerdata";
+import { useDelMedBrukerStatus } from "@/apps/modia/hooks/useDelMedbrukerStatus";
+import { useVeilederdata } from "@/apps/modia/hooks/useVeilederdata";
 import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
 import { BrukerKvalifisererIkkeVarsel } from "@/apps/modia/varsler/BrukerKvalifisererIkkeVarsel";
 import { DetaljerJoyride } from "@/components/joyride/DetaljerJoyride";
@@ -42,10 +42,10 @@ import { ArbeidsmarkedstiltakErrorBoundary } from "@/ErrorBoundary";
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
   const id = useTiltakIdFraUrl();
-  const { data: delMedBrukerInfo } = useHentDeltMedBrukerStatus(fnr, id);
+  const { data: delMedBrukerInfo } = useDelMedBrukerStatus(fnr, id);
 
-  const { data: veilederdata } = useHentVeilederdata();
-  const { data: brukerdata } = useHentBrukerdata();
+  const { data: veilederdata } = useVeilederdata();
+  const { data: brukerdata } = useBrukerdata();
   const { data: tiltak } = useModiaArbeidsmarkedstiltakById();
   const { data: regioner } = useRegioner();
 

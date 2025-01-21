@@ -1,4 +1,4 @@
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useApiQuery } from "@mr/frontend-common";
 import { FeatureToggleService, Tiltakskode, Toggles } from "@mr/api-client-v2";
 
 export type Features = Record<Toggles, boolean>;

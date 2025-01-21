@@ -1,4 +1,4 @@
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useApiQuery } from "@mr/frontend-common";
 import { PAGE_SIZE } from "@/constants";
 import { TiltakstypeFilter } from "../atoms";
 import { QueryKeys } from "@/api/QueryKeys";

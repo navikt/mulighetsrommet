@@ -1,6 +1,6 @@
 import { QueryKeys } from "@/api/QueryKeys";
 import { GjennomforingerService } from "@mr/api-client-v2";
-import { useApiQuery, useApiSuspenseQuery } from "@/hooks/useApiQuery";
+import { useApiQuery, useApiSuspenseQuery } from "@mr/frontend-common";
 
 function getDeltakerSummaryQuery(id: string) {
   return {
