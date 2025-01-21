@@ -219,7 +219,7 @@ class RefusjonskravQueries(private val session: Session) {
 private fun Row.toRefusjonsKravAft(): RefusjonskravDto {
     val beregning = RefusjonKravBeregningAft(
         input = RefusjonKravBeregningAft.Input(
-            periode = RefusjonskravPeriode(localDate("periode_start"), localDate("periode_slutt")),
+            periode = Periode(localDate("periode_start"), localDate("periode_slutt")),
             sats = int("sats"),
             deltakelser = stringOrNull("perioder_json")?.let { Json.decodeFromString(it) } ?: setOf(),
         ),

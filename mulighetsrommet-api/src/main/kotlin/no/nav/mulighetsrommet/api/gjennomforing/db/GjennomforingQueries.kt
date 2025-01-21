@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
+import no.nav.mulighetsrommet.api.refusjon.model.Periode
 import no.nav.mulighetsrommet.api.withTransaction
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.createUuidArray
@@ -368,7 +368,7 @@ class GjennomforingQueries(private val session: Session) {
             .runWithSession(this)
     }
 
-    fun getGjennomforesInPeriodeUtenRefusjonskrav(periode: RefusjonskravPeriode): List<GjennomforingDto> = with(session) {
+    fun getGjennomforesInPeriodeUtenRefusjonskrav(periode: Periode): List<GjennomforingDto> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select * from gjennomforing_admin_dto_view

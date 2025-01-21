@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.okonomi.BestillingDto
 import no.nav.mulighetsrommet.api.okonomi.OkonomiClient
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
+import no.nav.mulighetsrommet.api.refusjon.model.Periode
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.*
@@ -205,14 +205,14 @@ class TilsagnService(
 
     fun getTilsagnTilRefusjon(
         gjennomforingId: UUID,
-        periode: RefusjonskravPeriode,
+        periode: Periode,
     ): List<TilsagnDto> = db.session {
         return queries.tilsagn.getTilsagnTilRefusjon(gjennomforingId, periode)
     }
 
     fun getArrangorflateTilsagnTilRefusjon(
         gjennomforingId: UUID,
-        periode: RefusjonskravPeriode,
+        periode: Periode,
     ): List<ArrangorflateTilsagn> = db.session {
         return queries.tilsagn.getArrangorflateTilsagnTilRefusjon(gjennomforingId, periode)
     }

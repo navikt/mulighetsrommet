@@ -131,7 +131,7 @@ class RefusjonKravBeregningAftTest : FunSpec({
                     ),
                 ),
             ) { deltakelser, expectedBeregning ->
-                val periode = RefusjonskravPeriode(periodeStart, periodeSlutt)
+                val periode = Periode(periodeStart, periodeSlutt)
                 val input = RefusjonKravBeregningAft.Input(periode, 100, deltakelser)
 
                 val beregning = RefusjonKravBeregningAft.beregn(input)
