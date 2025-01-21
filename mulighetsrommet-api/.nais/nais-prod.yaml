@@ -55,8 +55,6 @@ spec:
         databases:
           - name: mulighetsrommet-api-db
             envVarPrefix: DB
-            users:
-            - name: datastream # Ekstra databasebruker for Datastream
         diskAutoresize: true
         flags:
           - name: max_connections
