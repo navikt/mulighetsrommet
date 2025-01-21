@@ -1,11 +1,11 @@
 import { useEffect } from "react";
-import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
+import { useBrukerdata } from "@/apps/modia/hooks/useBrukerdata";
 import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 
 export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
   const { data: innsatsgrupper } = useInnsatsgrupper();
-  const { data: brukerdata } = useHentBrukerdata();
+  const { data: brukerdata } = useBrukerdata();
 
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
 

@@ -3,7 +3,7 @@ import { useModiaContext } from "./useModiaContext";
 import { DelMedBrukerService } from "@mr/api-client-v2";
 import { useApiQuery } from "@mr/frontend-common";
 
-export function useHentAlleTiltakDeltMedBruker() {
+export function useAlleTiltakDeltMedBruker() {
   const { fnr: norskIdent } = useModiaContext();
 
   return useApiQuery({
