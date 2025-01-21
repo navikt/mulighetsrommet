@@ -1,8 +1,8 @@
 import { Checkbox } from "@navikt/ds-react";
 import { FieldValues, Path, PathValue, useFormContext } from "react-hook-form";
-import { InnholdElementerSkjema } from "./InnholdElementerSkjema";
+import { InnholdElementerForm } from "./InnholdElementerForm";
 
-export function NorksopplaeringSkjema<T extends FieldValues>(props: {
+export function NorksopplaeringForm<T extends FieldValues>(props: {
   norskprovePath: Path<T>;
   innholdElementerPath: Path<T>;
 }) {
@@ -19,7 +19,7 @@ export function NorksopplaeringSkjema<T extends FieldValues>(props: {
       >
         Gir mulighet for norskprøve
       </Checkbox>
-      <InnholdElementerSkjema<T> path={innholdElementerPath} />
+      <InnholdElementerForm<T> path={innholdElementerPath} />
     </>
   );
 }

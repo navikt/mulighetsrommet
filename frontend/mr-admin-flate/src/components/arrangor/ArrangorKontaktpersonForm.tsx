@@ -27,7 +27,7 @@ interface VirksomhetKontaktpersonerProps {
   onOpprettSuccess: (kontaktperson: ArrangorKontaktperson) => void;
 }
 
-export function ArrangorKontaktpersonSkjema({
+export function ArrangorKontaktpersonForm({
   arrangorId,
   person,
   onSubmit,

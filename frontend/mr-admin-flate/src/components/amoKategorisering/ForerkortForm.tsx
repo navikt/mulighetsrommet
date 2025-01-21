@@ -4,7 +4,7 @@ import { FieldValues, Path, PathValue, useFormContext } from "react-hook-form";
 import { forerkortKlasseToString } from "../../utils/Utils";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 
-export function ForerkortSkjema<T extends FieldValues>(props: {
+export function ForerkortForm<T extends FieldValues>(props: {
   path: Path<T>;
   options?: ForerkortKlasse[];
 }) {

@@ -5,10 +5,10 @@ import { bransjeToString } from "../../utils/Utils";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { SertifiseringerSkjema } from "./SertifiseringerSelect";
-import { ForerkortSkjema } from "./ForerkortSkjema";
-import { InnholdElementerSkjema } from "./InnholdElementerSkjema";
+import { ForerkortForm } from "./ForerkortForm";
+import { InnholdElementerForm } from "./InnholdElementerForm";
 
-export function AvtaleBransjeSkjema() {
+export function AvtaleBransjeForm() {
   const { register } = useFormContext<InferredAvtaleSchema>();
 
   return (
@@ -62,9 +62,9 @@ export function AvtaleBransjeSkjema() {
           },
         ]}
       />
-      <ForerkortSkjema<InferredAvtaleSchema> path="amoKategorisering.forerkort" />
+      <ForerkortForm<InferredAvtaleSchema> path="amoKategorisering.forerkort" />
       <SertifiseringerSkjema<InferredAvtaleSchema> path="amoKategorisering.sertifiseringer" />
-      <InnholdElementerSkjema<InferredAvtaleSchema> path={"amoKategorisering.innholdElementer"} />
+      <InnholdElementerForm<InferredAvtaleSchema> path={"amoKategorisering.innholdElementer"} />
     </>
   );
 }
