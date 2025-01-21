@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { TiltakstypestatusTag } from "./TiltakstypestatusTag";
-import { mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
 import { mockTiltakstyper } from "@/mocks/fixtures/mock_tiltakstyper";
 
 //👇 This default export determines where your story goes in the story list
