@@ -16,8 +16,6 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
-import no.nav.mulighetsrommet.domain.dto.ArenaDeltakerStatus
-import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
@@ -107,7 +105,11 @@ class TiltakshistorikkTest : FunSpec({
                                 startDato = LocalDate.of(2023, 1, 1),
                                 sluttDato = LocalDate.of(2023, 12, 31),
                                 avtaleStatus = Avtale.Status.GJENNOMFORES,
-                                registrertTidspunkt = ZonedDateTime.of(
+                                opprettetTidspunkt = ZonedDateTime.of(
+                                    LocalDateTime.of(2023, 1, 1, 0, 0, 0),
+                                    ZoneId.of("Europe/Oslo"),
+                                ),
+                                endretTidspunkt = ZonedDateTime.of(
                                     LocalDateTime.of(2023, 1, 1, 0, 0, 0),
                                     ZoneId.of("Europe/Oslo"),
                                 ),
@@ -197,7 +199,11 @@ class TiltakshistorikkTest : FunSpec({
                                 startDato = LocalDate.of(2000, 1, 1),
                                 sluttDato = LocalDate.of(2000, 12, 31),
                                 avtaleStatus = Avtale.Status.GJENNOMFORES,
-                                registrertTidspunkt = ZonedDateTime.of(
+                                opprettetTidspunkt = ZonedDateTime.of(
+                                    LocalDateTime.of(2023, 1, 1, 0, 0, 0),
+                                    ZoneId.of("Europe/Oslo"),
+                                ),
+                                endretTidspunkt = ZonedDateTime.of(
                                     LocalDateTime.of(2023, 1, 1, 0, 0, 0),
                                     ZoneId.of("Europe/Oslo"),
                                 ),

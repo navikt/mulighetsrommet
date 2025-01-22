@@ -68,7 +68,7 @@ class TiltakshistorikkService(
                     .filter { avtale ->
                         val avtaleDato = avtale.sluttDato
                             ?: avtale.startDato
-                            ?: avtale.registrertTidspunkt.toLocalDate()
+                            ?: avtale.opprettetTidspunkt.toLocalDate()
                         !avtaleDato.isBefore(minAvtaleDato)
                     }
                     .map { avtale ->
