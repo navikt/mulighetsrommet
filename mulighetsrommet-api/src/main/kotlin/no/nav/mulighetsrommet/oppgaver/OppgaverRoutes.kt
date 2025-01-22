@@ -4,8 +4,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import java.time.LocalDateTime
-import kotlin.text.get
 
 fun Route.oppgaverRoutes() {
     route("oppgaver") {
@@ -13,44 +11,7 @@ fun Route.oppgaverRoutes() {
             val userId = getNavIdent()
             val filter = getOppgaverFilter()
 
-            val oppgaver = listOf(
-                Oppgave(
-                    type = OppgaveType.TILSAGN_TIL_ANNULLERING,
-                    title = "Tilsagn til beslutning",
-                    description = "Tilsagn opprettet av Benny Beslutter er klar og venter beslutning",
-                    tiltakstype = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-                    link = OppgaveLink(
-                        linkText = "Gå til tilsagnet",
-                        link = "https://nav.no/",
-                    ),
-                    createdAt = LocalDateTime.now().minusDays(5),
-                    deadline = LocalDateTime.now().plusDays(7),
-                ),
-                Oppgave(
-                    type = OppgaveType.TILSAGN_TIL_BESLUTNING,
-                    title = "Send tilsagn til beslutning",
-                    description = "Tilsagn opprettet av Benny Beslutter er klar og venter beslutning",
-                    tiltakstype = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-                    link = OppgaveLink(
-                        linkText = "Gå til tilsagnet",
-                        link = "https://nav.no/",
-                    ),
-                    createdAt = LocalDateTime.now().minusDays(4),
-                    deadline = LocalDateTime.now().plusDays(6),
-                ),
-                Oppgave(
-                    type = OppgaveType.TILSAGN_TIL_BESLUTNING,
-                    title = "Send tilsagn til beslutning",
-                    description = "Tilsagn opprettet av Benny Beslutter er klar og venter beslutning",
-                    tiltakstype = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-                    link = OppgaveLink(
-                        linkText = "Gå til tilsagnet",
-                        link = "https://nav.no/",
-                    ),
-                    createdAt = LocalDateTime.now().minusDays(3),
-                    deadline = LocalDateTime.now().plusDays(5),
-                ),
-            )
+            val oppgaver = emptyList<Oppgave>()
 
             val sortedOppgaver = oppgaver.filter { oppgave ->
                 val matcherOppgaveType = filter.oppgavetyper.isEmpty() || filter.oppgavetyper.contains(oppgave.type)

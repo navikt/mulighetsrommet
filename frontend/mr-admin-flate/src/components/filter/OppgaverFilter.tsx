@@ -1,9 +1,9 @@
-import { useAtom, WritableAtom } from "jotai/index";
-import { OppgaverFilter as OppgaverFilterProps, oppgaverFilterAccordionAtom } from "@/api/atoms";
-import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
+import { oppgaverFilterAccordionAtom, OppgaverFilter as OppgaverFilterProps } from "@/api/atoms";
 import { addOrRemove } from "@/utils/Utils";
-import { FilterAccordionHeader } from "@mr/frontend-common";
 import { OppgaveType, TiltakstypeDto } from "@mr/api-client";
+import { FilterAccordionHeader } from "@mr/frontend-common";
+import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
+import { useAtom, WritableAtom } from "jotai/index";
 
 interface Props {
   filterAtom: WritableAtom<OppgaverFilterProps, [newValue: OppgaverFilterProps], void>;
@@ -17,13 +17,13 @@ export function OppgaverFilter({ filterAtom, tiltakstyper }: Props) {
   return (
     <div className="bg-white self-start w-80">
       <Accordion>
-        <Accordion.Item open={accordionsOpen.includes("oppgaveType")}>
+        <Accordion.Item open={accordionsOpen.includes("type")}>
           <Accordion.Header
             onClick={() => {
-              setAccordionsOpen([...addOrRemove(accordionsOpen, "oppgaveType")]);
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "type")]);
             }}
           >
-            <FilterAccordionHeader tittel="Oppgave" antallValgteFilter={2} />
+            <FilterAccordionHeader tittel="Oppgave" antallValgteFilter={filter.type.length} />
           </Accordion.Header>
           <Accordion.Content>
             <div style={{ marginLeft: "-2rem" }}>
@@ -38,10 +38,10 @@ export function OppgaverFilter({ filterAtom, tiltakstyper }: Props) {
                 }}
                 hideLegend
               >
-                <Checkbox value={OppgaveType.TILSAGN_TIL_ANNULLERING}>
+                <Checkbox size="small" value={OppgaveType.TILSAGN_TIL_ANNULLERING}>
                   Tilsagn til annullering
                 </Checkbox>
-                <Checkbox value={OppgaveType.TILSAGN_TIL_BESLUTNING}>
+                <Checkbox size="small" value={OppgaveType.TILSAGN_TIL_BESLUTNING}>
                   Tilsagn til beslutning
                 </Checkbox>
               </CheckboxGroup>
@@ -54,7 +54,10 @@ export function OppgaverFilter({ filterAtom, tiltakstyper }: Props) {
               setAccordionsOpen([...addOrRemove(accordionsOpen, "tiltakstype")]);
             }}
           >
-            <FilterAccordionHeader tittel="Tiltakstype" antallValgteFilter={tiltakstyper.length} />
+            <FilterAccordionHeader
+              tittel="Tiltakstype"
+              antallValgteFilter={filter.tiltakstyper.length}
+            />
           </Accordion.Header>
           <Accordion.Content>
             <div style={{ marginLeft: "-2rem" }}>
@@ -71,7 +74,7 @@ export function OppgaverFilter({ filterAtom, tiltakstyper }: Props) {
               >
                 {tiltakstyper.map((t) => {
                   return (
-                    <Checkbox key={t.tiltakskode} value={t.tiltakskode}>
+                    <Checkbox size="small" key={t.tiltakskode} value={t.tiltakskode}>
                       {t.navn}
                     </Checkbox>
                   );
