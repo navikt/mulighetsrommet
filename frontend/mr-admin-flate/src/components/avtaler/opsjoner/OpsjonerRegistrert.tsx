@@ -25,9 +25,9 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
     mutation.mutate(
       { id, avtaleId: avtale.id },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
           mutation.reset();
-          revalidator.revalidate();
+          await revalidator.revalidate();
         },
       },
     );

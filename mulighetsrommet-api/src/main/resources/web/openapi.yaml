@@ -821,6 +821,45 @@ paths:
         200:
           description: OK
 
+  /api/v1/intern/gjennomforinger/{id}/stengt-hos-arrangor:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    put:
+      tags:
+        - Gjennomforinger
+      operationId: setStengtHosArrangor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetStengtHosArrangorRequest"
+      responses:
+        200:
+          description: OK
+        400:
+          description: Respons med valideringsfeil
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+
+  /api/v1/intern/gjennomforinger/{id}/stengt-hos-arrangor/{periodeId}:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+      - name: periodeId
+        in: path
+        description: Id til periode som skal slettes
+        required: true
+        schema:
+          type: number
+    delete:
+      tags:
+        - Gjennomforinger
+      operationId: deleteStengtHosArrangor
+      responses:
+        200:
+          description: OK
+
   /api/v1/intern/gjennomforinger/kontaktperson:
     delete:
       tags:
@@ -2965,6 +3004,10 @@ components:
           nullable: true
         utdanningslop:
           $ref: "#/components/schemas/Utdanningslop"
+        stengt:
+          type: array
+          items:
+            $ref: "#/components/schemas/StengtPeriode"
       required:
         - id
         - tiltakstype
@@ -2984,6 +3027,7 @@ components:
         - deltidsprosent
         - tilgjengeligForArrangorFraOgMedDato
         - amoKategorisering
+        - stengt
 
     TiltaksnummerResponse:
       type: object
@@ -4315,7 +4359,6 @@ components:
         - deadline
         - createdAt
 
-
     AvbrytGjennomforingAarsak:
       type: string
       enum:
@@ -4521,6 +4564,18 @@ components:
       required:
         - tilgjengeligForArrangorDato
 
+    SetStengtHosArrangorRequest:
+      type: object
+      properties:
+        periodeStart:
+          type: string
+          format: date
+        periodeSlutt:
+          type: string
+          format: date
+        beskrivelse:
+          type: string
+
     NavKontorStruktur:
       type: array
       items:
@@ -4611,6 +4666,25 @@ components:
       required:
         - verdi
         - enhet
+
+    StengtPeriode:
+      type: object
+      properties:
+        id:
+          type: number
+        start:
+          type: string
+          format: date
+        slutt:
+          type: string
+          format: date
+        beskrivelse:
+          type: string
+      required:
+        - id
+        - start
+        - slutt
+        - beskrivelse
 
     Lenke:
       type: object
@@ -5817,7 +5891,7 @@ components:
           type: string
           format: date
         status:
-            $ref: "#/components/schemas/TilsagnStatusOgAarsaker"
+          $ref: "#/components/schemas/TilsagnStatusOgAarsaker"
         arrangor:
           type: object
           properties:
@@ -5876,13 +5950,12 @@ components:
         - deltakerId
         - antallRelevanteForslag
 
-
     TilsagnStatusOgAarsaker:
       type: object
       properties:
         status:
           $ref: "#/components/schemas/TilsagnStatus"
         aarsaker:
-            type: array
-            items:
-                $ref: "#/components/schemas/TilsagnTilAnnulleringAarsak"
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnTilAnnulleringAarsak"

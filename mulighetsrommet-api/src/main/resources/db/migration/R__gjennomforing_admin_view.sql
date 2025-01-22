@@ -46,7 +46,8 @@ select gjennomforing.id,
        arrangor.navn                                                  as arrangor_navn,
        arrangor.slettet_dato is not null                              as arrangor_slettet,
        arrangor_kontaktpersoner_json,
-       utdanningslop_json
+       utdanningslop_json,
+       stengt_perioder_json
 from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          join arrangor on arrangor.id = gjennomforing.arrangor_id
@@ -137,4 +138,15 @@ from gjennomforing
                                      join utdanningsprogram up on upt.utdanningsprogram_id = up.id
                                      join utdanning u on upt.utdanning_id = u.id
                             where gjennomforing_id = gjennomforing.id
-                            group by up.id) on true;
+                            group by up.id) on true
+         left join lateral (select json_agg(
+                                           json_build_object(
+                                                   'id', id,
+                                                   'start', lower(periode),
+                                                   'slutt', date(upper(periode) - interval '1 day'),
+                                                   'beskrivelse', beskrivelse
+                                           ) order by periode
+                                   ) as stengt_perioder_json
+                            from gjennomforing_stengt_hos_arrangor
+                            where gjennomforing_id = gjennomforing.id) on true;
+

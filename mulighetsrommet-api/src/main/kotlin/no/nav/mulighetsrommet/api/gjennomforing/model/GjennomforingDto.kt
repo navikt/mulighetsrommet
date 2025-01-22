@@ -55,6 +55,7 @@ data class GjennomforingDto(
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDto?,
+    val stengt: List<StengtPeriode>,
 ) {
 
     @Serializable
@@ -85,6 +86,16 @@ data class GjennomforingDto(
     data class EstimertVentetid(
         val verdi: Int,
         val enhet: String,
+    )
+
+    @Serializable
+    data class StengtPeriode(
+        val id: Int,
+        @Serializable(with = LocalDateSerializer::class)
+        val start: LocalDate,
+        @Serializable(with = LocalDateSerializer::class)
+        val slutt: LocalDate,
+        val beskrivelse: String,
     )
 
     fun toTiltaksgjennomforingV1Dto() = TiltaksgjennomforingEksternV1Dto(
