@@ -1,7 +1,7 @@
 import { tiltakstypeFilterAtom } from "@/api/atoms";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { formaterDato } from "@/utils/Utils";
-import { PaginertTiltakstype, SorteringTiltakstyper } from "@mr/api-client";
+import { PaginertTiltakstype, SorteringTiltakstyper } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { Alert, Table } from "@navikt/ds-react";
 import { useAtom } from "jotai";

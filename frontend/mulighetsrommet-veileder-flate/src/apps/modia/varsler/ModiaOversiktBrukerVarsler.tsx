@@ -2,10 +2,10 @@ import { BrukerErSykmeldtMedArbeidsgiverVarsel } from "./BrukerErSykmeldtMedArbe
 import { BrukerIkkeUnderOppfolgingVarsel } from "./BrukerIkkeUnderOppfolgingVarsel";
 import { BrukerUnderOppfolgingMenMangler14aVedtakVarsel } from "./BrukerUnderOppfolgingMenMangler14aVedtakVarsel";
 import { BrukersOppfolgingsenhetVarsel } from "./BrukersOppfolgingsenhetVarsel";
-import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
+import { useBrukerdata } from "@/apps/modia/hooks/useBrukerdata";
 
 export function ModiaOversiktBrukerVarsler() {
-  const { data: brukerdata } = useHentBrukerdata();
+  const { data: brukerdata } = useBrukerdata();
   return (
     <>
       <BrukerUnderOppfolgingMenMangler14aVedtakVarsel brukerdata={brukerdata} />

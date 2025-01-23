@@ -6,12 +6,14 @@ import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndrin
 import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
 import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentForPameldingModal";
 import { KnapperadContainer } from "@/pages/KnapperadContainer";
-import { NavAnsatt, GjennomforingDto } from "@mr/api-client";
+import { GjennomforingDto, NavAnsatt, Toggles } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
 import React, { useRef } from "react";
 import { useNavigate, useRevalidator } from "react-router";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
 
 interface Props {
   ansatt: NavAnsatt;
@@ -24,7 +26,13 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
   const revalidate = useRevalidator();
   const advarselModal = useRef<HTMLDialogElement>(null);
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
+  const registrerStengtModalRef = useRef<HTMLDialogElement>(null);
   const apentForPameldingModalRef = useRef<HTMLDialogElement>(null);
+
+  const { data: enableOkonomi } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
+    [gjennomforing.tiltakstype.tiltakskode],
+  );
 
   function handleClick(e: React.MouseEvent<HTMLInputElement>) {
     mutate(
@@ -82,7 +90,13 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
                   {gjennomforing.apentForPamelding ? "Steng for påmelding" : "Åpne for påmelding"}
                 </Dropdown.Menu.GroupedList.Item>
               )}
-
+              {enableOkonomi && (
+                <Dropdown.Menu.GroupedList.Item
+                  onClick={() => registrerStengtModalRef.current?.showModal()}
+                >
+                  Registrer stengt hos arrangør
+                </Dropdown.Menu.GroupedList.Item>
+              )}
               {gjennomforingIsAktiv(gjennomforing.status.status) && (
                 <Dropdown.Menu.GroupedList.Item onClick={() => avbrytModalRef.current?.showModal()}>
                   Avbryt gjennomføring
@@ -104,6 +118,10 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
             Ja, jeg vil redigere
           </Button>
         }
+      />
+      <RegistrerStengtHosArrangorModal
+        modalRef={registrerStengtModalRef}
+        gjennomforing={gjennomforing}
       />
       <SetApentForPameldingModal
         modalRef={apentForPameldingModalRef}

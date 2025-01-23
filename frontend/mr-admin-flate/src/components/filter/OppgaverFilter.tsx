@@ -3,7 +3,7 @@ import { OppgaverFilter as OppgaverFilterProps, oppgaverFilterAccordionAtom } fr
 import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
 import { addOrRemove } from "@/utils/Utils";
 import { FilterAccordionHeader } from "@mr/frontend-common";
-import { OppgaveType, TiltakstypeDto } from "@mr/api-client";
+import { OppgaveType, TiltakstypeDto } from "@mr/api-client-v2";
 
 interface Props {
   filterAtom: WritableAtom<OppgaverFilterProps, [newValue: OppgaverFilterProps], void>;

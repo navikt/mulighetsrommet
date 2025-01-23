@@ -1,4 +1,4 @@
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useApiQuery } from "@mr/frontend-common";
 import { QueryKeys } from "../query-keys";
 import { erPreview } from "@/utils/Utils";
 import { OppskrifterService } from "@mr/api-client-v2";

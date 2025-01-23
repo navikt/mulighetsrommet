@@ -69,7 +69,8 @@ class TiltakDatadelingClient(
                         startDato
                         sluttDato
                         avtaleStatus
-                        registrertTidspunkt
+                        opprettetTidspunkt
+                        endretTidspunkt
                     }
                 }
             """.trimIndent(),
@@ -183,7 +184,9 @@ data class Avtale(
     val sluttDato: LocalDate?,
     val avtaleStatus: Status,
     @Serializable(with = ZonedDateTimeSerializer::class)
-    val registrertTidspunkt: ZonedDateTime,
+    val opprettetTidspunkt: ZonedDateTime,
+    @Serializable(with = ZonedDateTimeSerializer::class)
+    val endretTidspunkt: ZonedDateTime,
 ) {
     enum class Tiltakstype {
         ARBEIDSTRENING,

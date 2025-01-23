@@ -6,7 +6,7 @@ import {
   LagretDokumenttype,
   NavAnsattRolle,
   NotificationStatus,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 
 export const QueryKeys = {
   tiltakstype: (id?: string) => ["tiltakstype", id] as const,

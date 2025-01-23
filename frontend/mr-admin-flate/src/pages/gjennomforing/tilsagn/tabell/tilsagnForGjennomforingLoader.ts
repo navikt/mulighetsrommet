@@ -4,7 +4,7 @@ import {
   Avtaletype,
   TilsagnType,
   GjennomforingerService,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { LoaderFunctionArgs } from "react-router";
 
 export async function tilsagnForGjennomforingLoader({ params }: LoaderFunctionArgs) {
@@ -14,13 +14,13 @@ export async function tilsagnForGjennomforingLoader({ params }: LoaderFunctionAr
     throw new Error("gjennomforingId is missing");
   }
 
-  const gjennomforing = await GjennomforingerService.getGjennomforing({
-    id: gjennomforingId,
+  const { data: gjennomforing } = await GjennomforingerService.getGjennomforing({
+    path: { id: gjennomforingId },
   });
 
-  const [avtale, tilsagnForGjennomforing] = await Promise.all([
-    AvtalerService.getAvtale({ id: gjennomforing.avtaleId! }),
-    TilsagnService.getAll({ gjennomforingId }),
+  const [{ data: avtale }, { data: tilsagnForGjennomforing }] = await Promise.all([
+    AvtalerService.getAvtale({ path: { id: gjennomforing.avtaleId! } }),
+    TilsagnService.getAll({ query: { gjennomforingId } }),
   ]);
 
   const tilsagnstyper =

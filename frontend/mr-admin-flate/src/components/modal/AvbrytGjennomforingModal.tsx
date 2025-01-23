@@ -6,7 +6,7 @@ import { AvbrytModalAarsaker } from "@/components/modal/AvbrytModalAarsaker";
 import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { Alert, BodyShort, Button, Radio } from "@navikt/ds-react";
-import { AvbrytGjennomforingAarsak, GjennomforingDto } from "@mr/api-client";
+import { AvbrytGjennomforingAarsak, GjennomforingDto } from "@mr/api-client-v2";
 import { RefObject, useState } from "react";
 import { useNavigate } from "react-router";
 import z from "zod";
@@ -150,7 +150,6 @@ export const AvbrytGjennomforingModal = ({ modalRef, gjennomforing }: Props) => 
                 errors: { ...state.errors, customAarsakError: undefined },
               });
             }}
-            mutation={mutation}
             aarsakError={state?.errors.aarsakError}
             customAarsakError={state?.errors.customAarsakError}
             radioknapp={

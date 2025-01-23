@@ -3,7 +3,7 @@ import { Metadata } from "@/components/detaljside/Metadata";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { TilsagnTag } from "@/pages/gjennomforing/tilsagn/TilsagnTag";
 import { formaterDato } from "@/utils/Utils";
-import { TilsagnDto } from "@mr/api-client";
+import { TilsagnDto } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Heading, VStack } from "@navikt/ds-react";
 import { avtaletekster } from "../../../../components/ledetekster/avtaleLedetekster";

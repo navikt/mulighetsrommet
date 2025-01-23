@@ -35,8 +35,6 @@ fun <T> query(queryRunner: () -> T): QueryResult<T> = try {
  * [0]: https://www.postgresql.org/docs/current/errcodes-appendix.html
  */
 sealed class DatabaseOperationError(val error: PSQLException) {
-    class ForeignKeyViolation(error: PSQLException) : DatabaseOperationError(error)
-    class DatabaseError(error: PSQLException) : DatabaseOperationError(error)
 
     override fun toString(): String {
         return "$javaClass: $error"
@@ -46,9 +44,40 @@ sealed class DatabaseOperationError(val error: PSQLException) {
         /**
          * Resolves a [DatabaseOperationError] instance from the provided [PSQLException].
          */
+        fun fromPSQLException(error: PSQLException) = when {
+            error.sqlState.startsWith("23") -> IntegrityConstraintViolation.fromPSQLException(error)
+
+            else -> PostgresError(error)
+        }
+    }
+}
+
+class PostgresError(error: PSQLException) : DatabaseOperationError(error)
+
+sealed class IntegrityConstraintViolation private constructor(error: PSQLException) : DatabaseOperationError(error) {
+    class OtherViolation internal constructor(error: PSQLException) : IntegrityConstraintViolation(error)
+    class RestrictViolation(error: PSQLException) : IntegrityConstraintViolation(error)
+    class NotNullViolation(error: PSQLException) : IntegrityConstraintViolation(error)
+    class ForeignKeyViolation(error: PSQLException) : IntegrityConstraintViolation(error)
+    class UniqueViolation(error: PSQLException) : IntegrityConstraintViolation(error)
+    class CheckViolation(error: PSQLException) : IntegrityConstraintViolation(error)
+    class ExclusionViolation(error: PSQLException) : IntegrityConstraintViolation(error)
+
+    companion object {
         fun fromPSQLException(error: PSQLException) = when (error.sqlState) {
+            "23001" -> RestrictViolation(error)
+            "23502" -> NotNullViolation(error)
             "23503" -> ForeignKeyViolation(error)
-            else -> DatabaseError(error)
+            "23505" -> UniqueViolation(error)
+            "23514" -> CheckViolation(error)
+            "23P01" -> ExclusionViolation(error)
+            else -> {
+                require(error.sqlState.startsWith("23")) {
+                    "${error.sqlState} is not a known SQL Integrity Constraint Violation"
+                }
+
+                OtherViolation(error)
+            }
         }
     }
 }

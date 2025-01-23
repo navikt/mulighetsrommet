@@ -1,4 +1,4 @@
-import { AvtaleDto, Avtaletype, Opphav, OpsjonsmodellKey } from "@mr/api-client";
+import { AvtaleDto, Avtaletype, Opphav, OpsjonsmodellKey } from "@mr/api-client-v2";
 import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";

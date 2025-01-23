@@ -1,16 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
-import {
-  ApiError,
-  BeregnTilsagnService,
-  TilsagnBeregningInput,
-  TilsagnBeregningOutput,
-} from "@mr/api-client";
+import { BeregnTilsagnService, TilsagnBeregningInput } from "@mr/api-client-v2";
 
 export function useBeregnTilsagn() {
-  return useMutation<TilsagnBeregningOutput, ApiError, TilsagnBeregningInput>({
-    mutationFn: (requestBody: TilsagnBeregningInput) =>
+  return useMutation({
+    mutationFn: (body: TilsagnBeregningInput) =>
       BeregnTilsagnService.beregnTilsagn({
-        requestBody,
+        body,
       }),
   });
 }

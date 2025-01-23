@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.gjennomforing
 
 import arrow.core.Either
+import arrow.core.NonEmptyList
+import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
@@ -14,10 +16,14 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
+import no.nav.mulighetsrommet.api.refusjon.model.Periode
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.routes.v1.EksternTiltaksgjennomforingFilter
+import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
+import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus
@@ -193,6 +199,44 @@ class GjennomforingService(
         logEndring(operation, dto, bruker)
 
         gjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
+    }
+
+    fun setStengtHosArrangor(
+        id: UUID,
+        periode: Periode,
+        beskrivelse: String,
+        bruker: EndretAv,
+    ): Either<NonEmptyList<ValidationError>, GjennomforingDto> = db.transaction {
+        return query {
+            queries.gjennomforing.setStengtHosArrangor(id, periode, beskrivelse)
+        }.mapLeft {
+            if (it is IntegrityConstraintViolation.ExclusionViolation) {
+                ValidationError.of(
+                    SetStengtHosArrangorRequest::periodeStart,
+                    "Perioden kan ikke overlappe med andre perioder",
+                ).nel()
+            } else {
+                throw it.error
+            }
+        }.map {
+            val dto = getOrError(id)
+            val operation = listOf(
+                "Registrerte stengt hos arrangør i perioden",
+                periode.start.formaterDatoTilEuropeiskDatoformat(),
+                "-",
+                periode.getLastDate().formaterDatoTilEuropeiskDatoformat(),
+            ).joinToString(separator = " ")
+            logEndring(operation, dto, bruker)
+            dto
+        }
+    }
+
+    fun deleteStengtHosArrangor(id: UUID, periodeId: Int, bruker: EndretAv) = db.transaction {
+        queries.gjennomforing.deleteStengtHosArrangor(periodeId)
+
+        val dto = getOrError(id)
+        val operation = "Fjernet periode med stengt hos arrangør"
+        logEndring(operation, dto, bruker)
     }
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {

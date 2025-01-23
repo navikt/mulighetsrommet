@@ -1,5 +1,5 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { BrregVirksomhet } from "@mr/api-client";
+import { BrregVirksomhet } from "@mr/api-client-v2";
 import { mockArrangorer } from "../fixtures/mock_arrangorer";
 
 export const virksomhetHandlers = [

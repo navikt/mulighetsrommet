@@ -1,15 +1,17 @@
-import { useQuery } from "@tanstack/react-query";
+import { useApiQuery } from "@mr/frontend-common";
 import { OppgaverFilter } from "../atoms";
 import { QueryKeys } from "@/api/QueryKeys";
-import { OppgaverService, Tiltakskode } from "@mr/api-client";
+import { OppgaverService, Tiltakskode } from "@mr/api-client-v2";
 
 export function useOppgaver(filter: OppgaverFilter) {
-  return useQuery({
+  return useApiQuery({
     queryKey: QueryKeys.oppgaver(filter),
     queryFn: () =>
       OppgaverService.getOppgaver({
-        tiltakstyper: filter.tiltakstyper as Tiltakskode[],
-        oppgavetyper: filter.type,
+        query: {
+          tiltakstyper: filter.tiltakstyper as Tiltakskode[],
+          oppgavetyper: filter.type,
+        },
       }),
   });
 }

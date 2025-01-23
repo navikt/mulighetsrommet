@@ -1,4 +1,4 @@
-import { Utdanningslop } from "@mr/api-client";
+import { Utdanningslop } from "@mr/api-client-v2";
 import { Bolk } from "../detaljside/Bolk";
 import { Metadata, Separator } from "../detaljside/Metadata";
 import { List } from "@navikt/ds-react";

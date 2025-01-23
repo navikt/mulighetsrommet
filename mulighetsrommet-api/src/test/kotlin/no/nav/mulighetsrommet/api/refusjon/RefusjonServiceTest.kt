@@ -70,7 +70,7 @@ class RefusjonServiceTest : FunSpec({
             krav.gjennomforing.id shouldBe AFT1.id
             krav.fristForGodkjenning shouldBe LocalDateTime.of(2024, 4, 1, 0, 0, 0)
             krav.beregning.input shouldBe RefusjonKravBeregningAft.Input(
-                periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2024, 1, 1)),
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
                 sats = 20205,
                 deltakelser = setOf(
                     DeltakelsePerioder(
@@ -312,7 +312,7 @@ class RefusjonServiceTest : FunSpec({
                 val krav = service.createRefusjonskravAft(
                     refusjonskravId = kravId,
                     gjennomforingId = AFT1.id,
-                    periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2024, 6, 1)),
+                    periode = Periode.forMonthOf(LocalDate.of(2024, 6, 1)),
                 )
                 queries.refusjonskrav.upsert(krav)
                 krav.beregning.output.shouldBeTypeOf<RefusjonKravBeregningAft.Output>().belop shouldBe 20205
@@ -359,7 +359,7 @@ class RefusjonServiceTest : FunSpec({
                 val krav = service.createRefusjonskravAft(
                     refusjonskravId = kravId,
                     gjennomforingId = AFT1.id,
-                    periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2024, 6, 1)),
+                    periode = Periode.forMonthOf(LocalDate.of(2024, 6, 1)),
                 )
                 queries.refusjonskrav.upsert(krav)
                 krav.beregning.output.shouldBeTypeOf<RefusjonKravBeregningAft.Output>().belop shouldBe 20205

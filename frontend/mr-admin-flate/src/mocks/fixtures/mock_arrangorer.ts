@@ -1,4 +1,4 @@
-import { PaginertArrangor } from "@mr/api-client";
+import { PaginertArrangor } from "@mr/api-client-v2";
 
 export const mockArrangorer: PaginertArrangor = {
   pagination: {

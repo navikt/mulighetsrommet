@@ -1,4 +1,4 @@
-import { AnsattService, AvtalerService, GjennomforingerService } from "@mr/api-client";
+import { AnsattService, AvtalerService, GjennomforingerService } from "@mr/api-client-v2";
 import { LoaderFunctionArgs } from "react-router";
 
 export async function gjennomforingLoader({ params }: LoaderFunctionArgs) {
@@ -6,33 +6,37 @@ export async function gjennomforingLoader({ params }: LoaderFunctionArgs) {
     throw Error("Fant ikke gjennomforingId i route");
   }
 
-  const [ansatt, gjennomforing] = await Promise.all([
+  const [{ data: ansatt }, { data: gjennomforing }] = await Promise.all([
     AnsattService.hentInfoOmAnsatt(),
 
     GjennomforingerService.getGjennomforing({
-      id: params.gjennomforingId,
+      path: { id: params.gjennomforingId },
     }),
   ]);
 
   const avtaleId = params?.avtaleId || gjennomforing?.avtaleId;
-  const avtale = avtaleId ? await AvtalerService.getAvtale({ id: avtaleId }) : undefined;
+  const { data: avtale } = avtaleId
+    ? await AvtalerService.getAvtale({ path: { id: avtaleId } })
+    : { data: undefined };
 
   return { gjennomforing, avtale, ansatt };
 }
 
 export async function gjennomforingFormLoader({ params }: LoaderFunctionArgs) {
-  const [ansatt, gjennomforing] = await Promise.all([
+  const [{ data: ansatt }, { data: gjennomforing }] = await Promise.all([
     AnsattService.hentInfoOmAnsatt(),
 
     params.gjennomforingId
       ? await GjennomforingerService.getGjennomforing({
-          id: params.gjennomforingId,
+          path: { id: params.gjennomforingId },
         })
-      : undefined,
+      : { data: undefined },
   ]);
 
   const avtaleId = params?.avtaleId || gjennomforing?.avtaleId;
-  const avtale = avtaleId ? await AvtalerService.getAvtale({ id: avtaleId }) : undefined;
+  const { data: avtale } = avtaleId
+    ? await AvtalerService.getAvtale({ path: { id: avtaleId } })
+    : { data: undefined };
 
   return { gjennomforing, avtale, ansatt };
 }

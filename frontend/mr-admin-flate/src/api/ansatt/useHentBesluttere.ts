@@ -1,13 +1,15 @@
-import { useQuery } from "@tanstack/react-query";
+import { useApiQuery } from "@mr/frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
-import { AnsattService, NavAnsattRolle } from "@mr/api-client";
+import { AnsattService, NavAnsattRolle } from "@mr/api-client-v2";
 
 export function useHentBesluttere() {
-  return useQuery({
+  return useApiQuery({
     queryKey: QueryKeys.navansatt(NavAnsattRolle.OKONOMI_BESLUTTER),
     queryFn: () =>
       AnsattService.hentAnsatte({
-        roller: [NavAnsattRolle.OKONOMI_BESLUTTER],
+        query: {
+          roller: [NavAnsattRolle.OKONOMI_BESLUTTER],
+        },
       }),
   });
 }

@@ -1,4 +1,4 @@
-import { Oppgave, OppgaveType, Tiltakskode } from "@mr/api-client";
+import { Oppgave, OppgaveType, Tiltakskode } from "@mr/api-client-v2";
 
 export const mockOppgaver: Oppgave[] = [
   {

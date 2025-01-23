@@ -3,7 +3,11 @@ import { BodyShort, Heading } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { FallbackProps } from "react-error-boundary";
 import { PortenLink } from "@/components/PortenLink";
-import { ApiError, resolveErrorMessage, resolveRequestId } from "../errors";
+import {
+  ApiError,
+  resolveErrorMessage,
+  resolveRequestId,
+} from "@mr/frontend-common/components/error-handling/errors";
 
 export function ErrorFallback({ error }: FallbackProps) {
   let feilmelding: ReactNode;

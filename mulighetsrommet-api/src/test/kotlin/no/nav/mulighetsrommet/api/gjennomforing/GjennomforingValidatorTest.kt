@@ -428,6 +428,27 @@ class GjennomforingValidatorTest : FunSpec({
         }
     }
 
+    context("når gjennomføring har deltakere") {
+        val validator = createValidator()
+
+        test("skal ikke kunne endre oppstartstype") {
+            val previous = database.run {
+                queries.gjennomforing.upsert(gjennomforing.copy(oppstart = GjennomforingOppstartstype.FELLES))
+                queries.deltaker.upsert(DeltakerFixtures.createDeltaker(gjennomforing.id))
+                queries.gjennomforing.get(gjennomforing.id)
+            }
+
+            val dbo = gjennomforing.copy(oppstart = GjennomforingOppstartstype.LOPENDE)
+
+            validator.validate(dbo, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                ValidationError(
+                    "oppstart",
+                    "Oppstartstype kan ikke endres fordi det er deltakere koblet til gjennomføringen",
+                ),
+            )
+        }
+    }
+
     context("slettede nav ansatte") {
         val validator = createValidator()
 

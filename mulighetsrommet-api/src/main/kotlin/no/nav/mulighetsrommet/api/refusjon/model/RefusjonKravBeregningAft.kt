@@ -14,7 +14,7 @@ data class RefusjonKravBeregningAft(
 ) : RefusjonKravBeregning() {
 
     data class Input(
-        override val periode: RefusjonskravPeriode,
+        override val periode: Periode,
         val sats: Int,
         val deltakelser: Set<DeltakelsePerioder>,
     ) : RefusjonKravBeregningInput()
@@ -34,7 +34,7 @@ data class RefusjonKravBeregningAft(
                     val perioder = deltkelse.perioder.map { deltakelsePeriode ->
                         val start = maxOf(periode.start, deltakelsePeriode.start)
                         val slutt = minOf(periode.slutt, deltakelsePeriode.slutt)
-                        val overlapDuration = RefusjonskravPeriode(start, slutt).getDurationInDays().toBigDecimal()
+                        val overlapDuration = Periode(start, slutt).getDurationInDays().toBigDecimal()
 
                         val overlapFraction = overlapDuration.divide(totalDuration, 2, RoundingMode.HALF_UP)
 

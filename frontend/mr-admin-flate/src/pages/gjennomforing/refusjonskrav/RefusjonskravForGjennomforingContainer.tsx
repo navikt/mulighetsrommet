@@ -1,6 +1,6 @@
 import { Alert } from "@navikt/ds-react";
 import { useLoaderData } from "react-router";
-import { Toggles } from "@mr/api-client";
+import { Toggles } from "@mr/api-client-v2";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { RefusjonskravTabell } from "../refusjonskrav/RefusjonskravTabell";
 import { refusjonskravForGjennomforingLoader } from "./refusjonskravForGjennomforingLoader";

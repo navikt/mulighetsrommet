@@ -1,4 +1,4 @@
-import { Lenke } from "@mr/api-client";
+import { Lenke } from "@mr/api-client-v2";
 import { Lenke as LenkeComponent } from "@mr/frontend-common/components/lenke/Lenke";
 import { List, VStack } from "@navikt/ds-react";
 

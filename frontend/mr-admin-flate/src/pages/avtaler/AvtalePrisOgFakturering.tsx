@@ -1,7 +1,7 @@
 import { Alert, Box, HGrid, HStack, Select, TextField, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
-import { Avtaletype, EmbeddedTiltakstype, Prismodell, Tiltakskode } from "@mr/api-client";
+import { Avtaletype, EmbeddedTiltakstype, Prismodell, Tiltakskode } from "@mr/api-client-v2";
 import { Metadata } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { FormGroup } from "@/components/skjema/FormGroup";

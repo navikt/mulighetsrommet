@@ -5,7 +5,7 @@ import {
   Prismodell,
   Tiltakskode,
   UtdanningslopDbo,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import z from "zod";
 import { AmoKategoriseringSchema } from "./AmoKategoriseringSchema";
 import { FaneinnholdSchema } from "./FaneinnholdSchema";

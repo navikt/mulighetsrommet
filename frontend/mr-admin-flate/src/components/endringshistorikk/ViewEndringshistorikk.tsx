@@ -2,7 +2,7 @@ import type {
   Endringshistorikk,
   EndringshistorikkNavAnsatt,
   EndringshistorikkUser,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { formaterDatoTid } from "../../utils/Utils";
 import classNames from "classnames";
 

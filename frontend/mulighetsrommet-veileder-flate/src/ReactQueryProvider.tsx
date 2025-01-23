@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 import { client } from "@mr/api-client-v2";
 import { v4 as uuidv4 } from "uuid";
 import { APPLICATION_NAME } from "@/constants";
-import { ApiError } from "./errors";
+import { ApiError } from "@mr/frontend-common/components/error-handling/errors";
 
 const queryClient = new QueryClient({
   defaultOptions: {

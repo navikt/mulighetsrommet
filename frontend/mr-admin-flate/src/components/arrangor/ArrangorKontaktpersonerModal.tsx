@@ -1,10 +1,10 @@
 import { useArrangor } from "@/api/arrangor/useArrangor";
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
 import { BodyShort, Button, HGrid, HStack, Label, Modal, Tag, VStack } from "@navikt/ds-react";
-import { ArrangorKontaktperson } from "@mr/api-client";
+import { ArrangorKontaktperson } from "@mr/api-client-v2";
 import { RefObject, useState } from "react";
 import { Laster } from "../laster/Laster";
-import { ArrangorKontaktpersonSkjema } from "./ArrangorKontaktpersonSkjema";
+import { ArrangorKontaktpersonForm } from "./ArrangorKontaktpersonForm";
 import { navnForAnsvar } from "./ArrangorKontaktpersonUtils";
 
 interface Props {
@@ -53,7 +53,7 @@ export function ArrangorKontaktpersonerModal(props: Props) {
                 className="p-4 border border-border-divider bg-gray-100 rounded-l"
               >
                 {redigerId === person.id ? (
-                  <ArrangorKontaktpersonSkjema
+                  <ArrangorKontaktpersonForm
                     arrangorId={arrangorId}
                     person={person}
                     onSubmit={reset}
@@ -131,7 +131,7 @@ export function ArrangorKontaktpersonerModal(props: Props) {
             ))}
           {opprett ? (
             <div className="p-4 border border-border-divider bg-gray-100 rounded-l">
-              <ArrangorKontaktpersonSkjema
+              <ArrangorKontaktpersonForm
                 arrangorId={arrangorId}
                 onSubmit={reset}
                 onOpprettSuccess={onOpprettSuccess}

@@ -5,7 +5,7 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { DupliserGjennomforing } from "@/components/gjennomforing/DupliserGjennomforing";
 import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "@/constants";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
-import { Toggles } from "@mr/api-client";
+import { Toggles } from "@mr/api-client-v2";
 import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";

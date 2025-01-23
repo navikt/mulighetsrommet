@@ -1,5 +1,5 @@
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
-import { AnsattService, NavAnsatt, NavAnsattRolle } from "@mr/api-client";
+import { AnsattService, NavAnsatt, NavAnsattRolle } from "@mr/api-client-v2";
 import { createBrowserRouter, Outlet, RouterProvider, useLoaderData } from "react-router";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
@@ -11,7 +11,7 @@ import { ErrorPage } from "./pages/ErrorPage";
 import { ArrangorerPage } from "./pages/arrangor/ArrangorerPage";
 import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
 import { AvtalePage } from "./pages/avtaler/AvtalePage";
-import { AvtaleSkjemaPage } from "./pages/avtaler/AvtaleSkjemaPage";
+import { AvtaleFormPage } from "./pages/avtaler/AvtaleFormPage";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
@@ -40,10 +40,10 @@ import { refusjonskravDetaljerLoader } from "./pages/gjennomforing/refusjonskrav
 import { refusjonskravForGjennomforingLoader } from "./pages/gjennomforing/refusjonskrav/refusjonskravForGjennomforingLoader";
 import { tilsagnDetaljerLoader } from "./pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
 import { opprettTilsagnLoader } from "./pages/gjennomforing/tilsagn/opprett/opprettTilsagnLoader";
-import { RedigerTilsagnSkjemaPage } from "./pages/gjennomforing/tilsagn/rediger/RedigerTilsagnSkjemaPage";
+import { RedigerTilsagnFormPage } from "./pages/gjennomforing/tilsagn/rediger/RedigerTilsagnFormPage";
 import { redigerTilsagnLoader } from "./pages/gjennomforing/tilsagn/rediger/redigerTilsagnLoader";
 import { tilsagnForGjennomforingLoader } from "./pages/gjennomforing/tilsagn/tabell/tilsagnForGjennomforingLoader";
-import { OpprettTilsagnSkjemaPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnSkjemaPage";
+import { OpprettTilsagnFormPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnFormPage";
 import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljer";
 import { NotifikasjonerPage } from "./pages/arbeidsbenk/notifikasjoner/NotifikasjonerPage";
 import { notifikasjonLoader } from "./pages/arbeidsbenk/notifikasjoner/notifikasjonerLoader";
@@ -98,7 +98,8 @@ export function App() {
 }
 
 async function ansattLoader() {
-  return AnsattService.hentInfoOmAnsatt();
+  const { data } = await AnsattService.hentInfoOmAnsatt();
+  return data;
 }
 
 const router = () =>
@@ -161,13 +162,13 @@ const router = () =>
           },
           {
             path: "avtaler/:avtaleId/skjema",
-            element: <AvtaleSkjemaPage />,
+            element: <AvtaleFormPage />,
             errorElement: <ErrorPage />,
             loader: avtaleSkjemaLoader,
           },
           {
             path: "avtaler/skjema",
-            element: <AvtaleSkjemaPage />,
+            element: <AvtaleFormPage />,
             errorElement: <ErrorPage />,
             loader: avtaleSkjemaLoader,
           },
@@ -238,7 +239,7 @@ const router = () =>
           },
           {
             path: "gjennomforinger/:gjennomforingId/tilsagn/opprett-tilsagn",
-            element: <OpprettTilsagnSkjemaPage />,
+            element: <OpprettTilsagnFormPage />,
             errorElement: <ErrorPage />,
             loader: opprettTilsagnLoader,
           },
@@ -250,7 +251,7 @@ const router = () =>
           },
           {
             path: "gjennomforinger/:gjennomforingId/tilsagn/:tilsagnId/rediger-tilsagn",
-            element: <RedigerTilsagnSkjemaPage />,
+            element: <RedigerTilsagnFormPage />,
             errorElement: <ErrorPage />,
             loader: redigerTilsagnLoader,
           },

@@ -1,7 +1,7 @@
 import { defaultGjennomforingfilter, GjennomforingFilter } from "@/api/atoms";
 import { useAtom } from "jotai/index";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
-import { AvtaleDto, LagretDokumenttype } from "@mr/api-client";
+import { AvtaleDto, LagretDokumenttype } from "@mr/api-client-v2";
 import { WritableAtom } from "jotai";
 import { LagreFilterButton } from "@mr/frontend-common/components/lagreFilter/LagreFilterButton";
 import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";

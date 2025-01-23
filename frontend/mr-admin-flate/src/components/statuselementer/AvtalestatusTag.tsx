@@ -1,5 +1,5 @@
 import { Tag } from "@navikt/ds-react";
-import { AvtaleDto } from "@mr/api-client";
+import { AvtaleDto } from "@mr/api-client-v2";
 import { useState } from "react";
 import { avbrytAvtaleAarsakToString } from "@/utils/Utils";
 

@@ -11,7 +11,7 @@ sealed class RefusjonKravBeregning {
 }
 
 abstract class RefusjonKravBeregningInput {
-    abstract val periode: RefusjonskravPeriode
+    abstract val periode: Periode
 }
 
 abstract class RefusjonKravBeregningOutput {

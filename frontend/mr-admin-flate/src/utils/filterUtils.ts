@@ -6,7 +6,7 @@ import {
   NavEnhetType,
   GjennomforingStatus,
   TiltakstypeDto,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { avtaletypeTilTekst } from "./Utils";
 
 export const TILTAKSGJENNOMFORING_STATUS_OPTIONS: {

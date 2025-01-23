@@ -1,4 +1,8 @@
-import { TilsagnBeregningForhandsgodkjent, TilsagnBeregningFri, TilsagnDto } from "@mr/api-client";
+import {
+  TilsagnBeregningForhandsgodkjent,
+  TilsagnBeregningFri,
+  TilsagnDto,
+} from "@mr/api-client-v2";
 
 export function isTilsagnForhandsgodkjent(
   tilsagn: TilsagnDto,
