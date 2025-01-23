@@ -4538,6 +4538,7 @@ components:
         - mulighetsrommet.tiltakstype.migrering.okonomi
         - mulighetsrommet.tiltakstype.pamelding-info-komet
         - mulighetsrommet.admin-flate.arbeidsbenk
+        - mulighetsrommet.admin-flate.deltakerliste
 
     PublisertRequest:
       type: object

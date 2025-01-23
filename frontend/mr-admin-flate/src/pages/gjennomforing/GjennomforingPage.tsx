@@ -55,9 +55,14 @@ export function GjennomforingPage() {
   const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { gjennomforing } = useLoaderData<typeof gjennomforingLoader>();
+
   const { data: enableOkonomi } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
     [gjennomforing.tiltakstype.tiltakskode],
+  );
+
+  const { data: enableDeltakerliste } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_DELTAKERLISTE,
   );
 
   const currentTab = () => {
@@ -139,6 +144,16 @@ export function GjennomforingPage() {
               />
             </>
           ) : null}
+          {enableDeltakerliste && (
+            <Tabs.Tab
+              value="deltakerliste"
+              label="Deltakerliste"
+              onClick={() =>
+                navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/deltakerliste`)
+              }
+              aria-controls="panel"
+            />
+          )}
         </Tabs.List>
         <React.Suspense fallback={<Laster tekst="Laster innhold..." />}>
           <ContentBox>
