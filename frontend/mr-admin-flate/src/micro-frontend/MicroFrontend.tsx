@@ -10,7 +10,7 @@ export interface MicroFrontendProps {
 export function MicroFrontend(props: MicroFrontendProps) {
   useEffect(() => {
     importMicroFrontend(props.baseUrl);
-  }, []);
+  }, [props.baseUrl]);
 
   return React.createElement(props.customComponentName, props.customComponentProps);
 }
