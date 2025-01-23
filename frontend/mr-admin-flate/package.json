@@ -17,7 +17,7 @@
     "playwright": "playwright test",
     "playwright:debug": "playwright test --debug",
     "playwright:open": "playwright test --ui",
-    "playwright:codegen": "playwright codegen playwright.dev",
+    "playwright:codegen": "playwright codegen playwright.dev"
   },
   "dependencies": {
     "@amplitude/analytics-browser": "2.11.11",
