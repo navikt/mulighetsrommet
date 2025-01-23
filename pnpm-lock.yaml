@@ -730,6 +730,49 @@ importers:
         specifier: 3.0.3
         version: 3.0.3(@types/node@22.10.7)(jiti@2.3.3)(jsdom@26.0.0)(msw@2.7.0(@types/node@22.10.7)(typescript@5.7.3))(sass-embedded@1.83.4)(sass@1.79.3)(terser@5.31.6)(yaml@2.7.0)
 
+  frontend/storybook:
+    dependencies:
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-router:
+        specifier: 7.1.3
+        version: 7.1.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    devDependencies:
+      '@storybook/addon-essentials':
+        specifier: 8.6.0-alpha.0
+        version: 8.6.0-alpha.0(@types/react@18.3.13)(storybook@8.6.0-alpha.0(prettier@3.4.2))
+      '@storybook/addon-interactions':
+        specifier: 8.6.0-alpha.0
+        version: 8.6.0-alpha.0(storybook@8.6.0-alpha.0(prettier@3.4.2))
+      '@storybook/addon-onboarding':
+        specifier: 8.6.0-alpha.0
+        version: 8.6.0-alpha.0(storybook@8.6.0-alpha.0(prettier@3.4.2))
+      '@storybook/blocks':
+        specifier: 8.6.0-alpha.0
+        version: 8.6.0-alpha.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.0-alpha.0(prettier@3.4.2))
+      '@storybook/react':
+        specifier: ^8.6.0-alpha.0
+        version: 8.6.0-alpha.1(@storybook/test@8.6.0-alpha.0(storybook@8.6.0-alpha.0(prettier@3.4.2)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.0-alpha.0(prettier@3.4.2))(typescript@5.7.3)
+      '@storybook/react-vite':
+        specifier: 8.6.0-alpha.0
+        version: 8.6.0-alpha.0(@storybook/test@8.6.0-alpha.0(storybook@8.6.0-alpha.0(prettier@3.4.2)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@4.31.0)(storybook@8.6.0-alpha.0(prettier@3.4.2))(typescript@5.7.3)(vite@6.0.9(@types/node@22.10.7)(jiti@2.3.3)(sass-embedded@1.83.4)(sass@1.79.3)(terser@5.31.6)(yaml@2.7.0))
+      '@storybook/test':
+        specifier: 8.6.0-alpha.0
+        version: 8.6.0-alpha.0(storybook@8.6.0-alpha.0(prettier@3.4.2))
+      '@types/react':
+        specifier: 18.3.13
+        version: 18.3.13
+      storybook:
+        specifier: 8.6.0-alpha.0
+        version: 8.6.0-alpha.0(prettier@3.4.2)
+      tailwindcss:
+        specifier: 3.4.17
+        version: 3.4.17(ts-node@10.9.2(@swc/core@1.10.1)(@types/node@22.10.7)(typescript@5.7.3))
+      vite:
+        specifier: 6.0.9
+        version: 6.0.9(@types/node@22.10.7)(jiti@2.3.3)(sass-embedded@1.83.4)(sass@1.79.3)(terser@5.31.6)(yaml@2.7.0)
+
 packages:
 
   '@actions/core@1.11.1':
@@ -4992,10 +5035,6 @@ packages:
   fast-fifo@1.3.2:
     resolution: {integrity: sha512-/d9sfos4yxzpwkDkuN7k2SqFKtYNmCTzgfEpz82x34IM9/zc8KGxQoXg1liNC/izpRM/MBdt44Nmx41ZWqk+FQ==}
 
-  fast-glob@3.3.2:
-    resolution: {integrity: sha512-oX2ruAFQwf/Orj8m737Y5adxDQO0LAB7/S5MnxCdTNDd4p6BsyIVsv9JQsATbTSq8KHRpLwIHbVlUNatxd+1Ow==}
-    engines: {node: '>=8.6.0'}
-
   fast-glob@3.3.3:
     resolution: {integrity: sha512-7MptL8U0cqcFdzIzwOTHoilX9x5BrNqye7Z/LuC7kCMRio1EMSyqRK3BEAUD7sXRq4iT4AzTVuZdhgQ2TCvYLg==}
     engines: {node: '>=8.6.0'}
@@ -8832,11 +8871,6 @@ packages:
   yaml@1.10.2:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
     engines: {node: '>= 6'}
-
-  yaml@2.6.1:
-    resolution: {integrity: sha512-7r0XPzioN/Q9kXBro/XPnA6kznR73DHq+GXh5ON7ZozRO6aMjbmiBuKste2wslTFkC5d1dw0GooOCepZXJ2SAg==}
-    engines: {node: '>= 14'}
-    hasBin: true
 
   yaml@2.7.0:
     resolution: {integrity: sha512-+hSoy/QHluxmC9kCIJyL/uyFmLmc+e5CFR5Wa+bpIhIj85LVb9ZH2nVnqrHoSvKogwODv0ClqZkmiSSaIH5LTA==}
@@ -12884,7 +12918,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.26.0
       cosmiconfig: 7.1.0
-      resolve: 1.22.8
+      resolve: 1.22.10
 
   babel-plugin-polyfill-corejs2@0.4.12(@babel/core@7.26.0):
     dependencies:
@@ -14082,14 +14116,6 @@ snapshots:
   fast-diff@1.3.0: {}
 
   fast-fifo@1.3.2: {}
-
-  fast-glob@3.3.2:
-    dependencies:
-      '@nodelib/fs.stat': 2.0.5
-      '@nodelib/fs.walk': 1.2.8
-      glob-parent: 5.1.2
-      merge2: 1.4.1
-      micromatch: 4.0.8
 
   fast-glob@3.3.3:
     dependencies:
@@ -16059,7 +16085,7 @@ snapshots:
       postcss: 8.5.1
       postcss-value-parser: 4.2.0
       read-cache: 1.0.0
-      resolve: 1.22.8
+      resolve: 1.22.10
 
   postcss-import@16.1.0(postcss@8.5.1):
     dependencies:
@@ -16076,7 +16102,7 @@ snapshots:
   postcss-load-config@4.0.2(postcss@8.5.1)(ts-node@10.9.2(@swc/core@1.10.1)(@types/node@22.10.7)(typescript@5.7.3)):
     dependencies:
       lilconfig: 3.1.3
-      yaml: 2.6.1
+      yaml: 2.7.0
     optionalDependencies:
       postcss: 8.5.1
       ts-node: 10.9.2(@swc/core@1.10.1)(@types/node@22.10.7)(typescript@5.7.3)
@@ -17452,7 +17478,7 @@ snapshots:
 
   sucrase@3.35.0:
     dependencies:
-      '@jridgewell/gen-mapping': 0.3.5
+      '@jridgewell/gen-mapping': 0.3.8
       commander: 4.1.1
       glob: 10.4.5
       lines-and-columns: 1.2.4
@@ -17500,7 +17526,7 @@ snapshots:
       chokidar: 3.6.0
       didyoumean: 1.2.2
       dlv: 1.1.3
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       glob-parent: 6.0.2
       is-glob: 4.0.3
       jiti: 1.21.6
@@ -17515,7 +17541,7 @@ snapshots:
       postcss-load-config: 4.0.2(postcss@8.5.1)(ts-node@10.9.2(@swc/core@1.10.1)(@types/node@22.10.7)(typescript@5.7.3))
       postcss-nested: 6.2.0(postcss@8.5.1)
       postcss-selector-parser: 6.1.2
-      resolve: 1.22.8
+      resolve: 1.22.10
       sucrase: 3.35.0
     transitivePeerDependencies:
       - ts-node
@@ -18368,8 +18394,6 @@ snapshots:
   yallist@5.0.0: {}
 
   yaml@1.10.2: {}
-
-  yaml@2.6.1: {}
 
   yaml@2.7.0: {}
 

@@ -1,8 +1,6 @@
 import type { Preview } from "@storybook/react";
-import { Decorator } from "@storybook/react";
-import "../src/index.css";
+import "../../mr-admin-flate/src/index.css";
 import { MemoryRouter } from "react-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export const decorators = [
   (Story) => (
