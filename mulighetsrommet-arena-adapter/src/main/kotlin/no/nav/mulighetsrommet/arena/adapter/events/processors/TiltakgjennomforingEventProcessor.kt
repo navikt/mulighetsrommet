@@ -8,6 +8,10 @@ import arrow.core.right
 import io.ktor.client.call.*
 import io.ktor.http.*
 import kotlinx.coroutines.delay
+import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
+import no.nav.mulighetsrommet.arena.Avslutningsstatus
+import no.nav.mulighetsrommet.arena.JaNeiStatus
+import no.nav.mulighetsrommet.arena.UpsertTiltaksgjennomforingResponse
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
@@ -22,12 +26,8 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
-import no.nav.mulighetsrommet.domain.Tiltakskoder.isEgenRegiTiltak
-import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
-import no.nav.mulighetsrommet.domain.dbo.ArenaGjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dto.JaNeiStatus
-import no.nav.mulighetsrommet.domain.dto.UpsertTiltaksgjennomforingResponse
+import no.nav.mulighetsrommet.model.Tiltakskoder.isEgenRegiTiltak
+import no.nav.mulighetsrommet.model.Tiltakskoder.isGruppetiltak
 import java.time.LocalDateTime
 import java.util.*
 

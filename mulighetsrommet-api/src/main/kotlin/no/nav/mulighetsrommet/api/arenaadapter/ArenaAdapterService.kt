@@ -11,13 +11,13 @@ import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
-import no.nav.mulighetsrommet.api.services.cms.SanityService
+import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
-import no.nav.mulighetsrommet.domain.Tiltakskoder
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
-import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
-import no.nav.mulighetsrommet.domain.dbo.ArenaGjennomforingDbo
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
+import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
+import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltakskoder
 import org.slf4j.LoggerFactory
 import java.util.*
 

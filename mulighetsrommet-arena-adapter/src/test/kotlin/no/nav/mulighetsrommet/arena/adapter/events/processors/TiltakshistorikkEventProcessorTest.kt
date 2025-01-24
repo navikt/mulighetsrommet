@@ -9,6 +9,7 @@ import io.kotest.matchers.string.shouldContain
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
+import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.clients.TiltakshistorikkClient
 import no.nav.mulighetsrommet.arena.adapter.databaseConfig
@@ -31,12 +32,11 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.getOrThrow
-import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.getLastPathParameterAsUUID
 import no.nav.mulighetsrommet.ktor.respondJson
+import no.nav.mulighetsrommet.model.NorskIdent
 import java.time.LocalDateTime
 import java.util.*
 

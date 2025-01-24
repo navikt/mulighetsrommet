@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.lagretfilter
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
-import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.*
 
 enum class FilterDokumentType {

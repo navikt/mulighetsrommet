@@ -19,13 +19,13 @@ import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
-import no.nav.mulighetsrommet.api.refusjon.model.Periode
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dto.Kontonummer
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.ktor.createMockEngine
+import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
 import org.junit.jupiter.api.assertThrows
 import java.time.Instant
 import java.time.LocalDate

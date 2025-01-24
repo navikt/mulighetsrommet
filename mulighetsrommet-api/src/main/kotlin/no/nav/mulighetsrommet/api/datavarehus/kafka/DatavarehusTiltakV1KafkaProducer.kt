@@ -7,10 +7,10 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer.Config
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.util.*

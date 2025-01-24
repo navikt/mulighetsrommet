@@ -59,8 +59,8 @@ import no.nav.mulighetsrommet.api.refusjon.kafka.AmtArrangorMeldingV1KafkaConsum
 import no.nav.mulighetsrommet.api.refusjon.kafka.AmtDeltakerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.refusjon.task.GenerateRefusjonskrav
 import no.nav.mulighetsrommet.api.refusjon.task.JournalforRefusjonskrav
+import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
-import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService

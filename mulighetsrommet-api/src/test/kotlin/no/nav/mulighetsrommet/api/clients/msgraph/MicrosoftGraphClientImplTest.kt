@@ -3,10 +3,9 @@ package no.nav.mulighetsrommet.api.clients.msgraph
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.mock.*
-import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
-import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.util.*
 

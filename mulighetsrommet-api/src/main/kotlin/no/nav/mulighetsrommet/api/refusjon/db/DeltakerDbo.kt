@@ -1,10 +1,10 @@
 package no.nav.mulighetsrommet.api.refusjon.db
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
-import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
-import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*

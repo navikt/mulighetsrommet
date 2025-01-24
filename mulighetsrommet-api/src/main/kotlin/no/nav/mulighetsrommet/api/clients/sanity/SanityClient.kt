@@ -13,9 +13,9 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.domain.dto.Mutation
-import no.nav.mulighetsrommet.api.domain.dto.Mutations
-import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
+import no.nav.mulighetsrommet.api.sanity.Mutation
+import no.nav.mulighetsrommet.api.sanity.Mutations
+import no.nav.mulighetsrommet.api.sanity.SanityResponse
 import no.nav.mulighetsrommet.ktor.clients.ClientResponseMetricPlugin
 import org.slf4j.LoggerFactory
 import java.util.*

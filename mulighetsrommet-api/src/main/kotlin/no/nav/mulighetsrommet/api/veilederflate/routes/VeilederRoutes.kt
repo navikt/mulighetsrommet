@@ -13,8 +13,8 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.veilederflate.models.JoyrideType
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederJoyrideDto
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederJoyrideRequest
-import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
 

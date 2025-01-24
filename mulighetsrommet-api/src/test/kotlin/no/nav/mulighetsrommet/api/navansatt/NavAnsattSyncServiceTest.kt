@@ -17,7 +17,7 @@ import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle.*
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
-import no.nav.mulighetsrommet.api.services.cms.SanityService
+import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.notifications.NotificationTask
 import no.nav.mulighetsrommet.notifications.NotificationType

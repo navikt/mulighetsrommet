@@ -16,8 +16,8 @@ import no.nav.mulighetsrommet.api.arrangor.model.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 
 class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

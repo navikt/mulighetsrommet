@@ -6,8 +6,8 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.domain.dto.amt.Melding
-import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.amt.model.Melding
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
 import java.util.*
 

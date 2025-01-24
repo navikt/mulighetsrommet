@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.oppgaver
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.domain.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDateTime
 import kotlin.text.get
 

@@ -7,9 +7,10 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.api.withTransaction
 import no.nav.mulighetsrommet.database.createEnumArray
-import no.nav.mulighetsrommet.domain.dto.Kid
-import no.nav.mulighetsrommet.domain.dto.Kontonummer
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Kid
+import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*
