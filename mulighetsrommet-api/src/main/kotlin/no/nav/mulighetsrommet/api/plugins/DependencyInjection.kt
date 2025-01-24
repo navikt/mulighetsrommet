@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtale.OpsjonLoggService
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
-import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient
@@ -71,6 +70,7 @@ import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
+import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.env.NaisEnv
