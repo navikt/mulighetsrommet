@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.database.createEnumArray
 import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.domain.dto.Periode
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*

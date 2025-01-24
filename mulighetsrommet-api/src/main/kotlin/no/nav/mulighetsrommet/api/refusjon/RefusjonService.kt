@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
+import no.nav.mulighetsrommet.domain.dto.Periode
 import java.time.LocalDate
 import java.util.*
 

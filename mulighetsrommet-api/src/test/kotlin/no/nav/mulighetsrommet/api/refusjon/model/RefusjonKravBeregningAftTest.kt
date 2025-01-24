@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.domain.dto.Periode
 import java.time.LocalDate
 import java.util.*
 

@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.Kid
 import no.nav.mulighetsrommet.domain.dto.Kontonummer
+import no.nav.mulighetsrommet.domain.dto.Periode
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*

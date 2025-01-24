@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.refusjon.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.dto.Periode
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.math.BigDecimal
