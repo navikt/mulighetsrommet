@@ -1,9 +1,8 @@
-package no.nav.mulighetsrommet.domain.serializers
+package no.nav.mulighetsrommet.serializers
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.serializers.LocalTimeSerializer
 import java.time.LocalTime
 
 class LocalTimeSerializerTest : FunSpec({
