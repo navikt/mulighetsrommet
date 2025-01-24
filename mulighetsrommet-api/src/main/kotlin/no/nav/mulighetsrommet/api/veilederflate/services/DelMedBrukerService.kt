@@ -13,9 +13,9 @@ import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
-import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
-import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.securelog.SecureLog
+import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utils.toUUID
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory

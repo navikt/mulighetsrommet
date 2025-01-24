@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.okonomi
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import java.time.LocalDate
 
 object OkonomiClient {

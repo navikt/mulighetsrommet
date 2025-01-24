@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.domain.serializers
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.serializers.FloatToIntSerializer
 
 class FloatToIntSerializerTest : FunSpec({
     test("should decode floats to nearest int") {

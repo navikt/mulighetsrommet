@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.domain.dto
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.serializers.AvbruttAarsakSerializer
-import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
+import no.nav.mulighetsrommet.serializers.AvbruttAarsakSerializer
+import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
 enum class GjennomforingStatus {

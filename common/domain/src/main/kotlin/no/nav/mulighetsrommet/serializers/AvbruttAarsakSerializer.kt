@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.domain.serializers
+package no.nav.mulighetsrommet.serializers
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.serializer
