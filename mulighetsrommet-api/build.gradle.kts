@@ -49,6 +49,7 @@ dependencies {
     implementation(projects.common.database)
     testImplementation(testFixtures(projects.common.database))
     implementation(projects.common.domain)
+    implementation(projects.common.brreg)
     implementation(projects.common.kafka)
     implementation(projects.common.ktor)
     testImplementation(testFixtures(projects.common.ktor))

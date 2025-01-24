@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.clients.brreg
+package no.nav.mulighetsrommet.brreg
 
 import arrow.core.Either
 import arrow.core.flatMap
@@ -11,7 +11,6 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.arrangor.model.BrregVirksomhetDto
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -184,6 +183,7 @@ internal data class BrregEnhet(
 
 @Serializable
 internal data class BrregEmbeddedHovedenheter(
+    @Suppress("PropertyName")
     val _embedded: BrregHovedenheter? = null,
 )
 
@@ -194,6 +194,7 @@ internal data class BrregHovedenheter(
 
 @Serializable
 internal data class BrregEmbeddedUnderenheter(
+    @Suppress("PropertyName")
     val _embedded: BrregUnderenheter? = null,
 )
 

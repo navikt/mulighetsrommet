@@ -3,6 +3,7 @@ rootProject.name = "mulighetsrommet"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(
+    "common:brreg",
     "common:database",
     "common:domain",
     "common:kafka",

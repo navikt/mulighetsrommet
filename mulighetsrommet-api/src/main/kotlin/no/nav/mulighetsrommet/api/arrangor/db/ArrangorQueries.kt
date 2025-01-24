@@ -7,7 +7,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorTil
-import no.nav.mulighetsrommet.api.arrangor.model.BrregVirksomhetDto
+import no.nav.mulighetsrommet.brreg.BrregVirksomhetDto
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
