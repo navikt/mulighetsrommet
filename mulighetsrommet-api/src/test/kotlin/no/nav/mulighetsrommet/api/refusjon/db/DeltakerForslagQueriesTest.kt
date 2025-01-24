@@ -3,12 +3,12 @@ package no.nav.mulighetsrommet.api.refusjon.db
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.maps.shouldNotContainKey
+import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
-import no.nav.mulighetsrommet.domain.dto.amt.Melding
+import no.nav.mulighetsrommet.model.DeltakerStatus
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*

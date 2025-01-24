@@ -14,10 +14,10 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.arena.ArenaMigrering
-import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import no.nav.mulighetsrommet.domain.dto.Prismodell
-import no.nav.mulighetsrommet.domain.dto.allowedAvtaletypes
+import no.nav.mulighetsrommet.model.Avtaletype
+import no.nav.mulighetsrommet.model.Prismodell
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.allowedAvtaletypes
 import no.nav.mulighetsrommet.unleash.Toggle
 import no.nav.mulighetsrommet.unleash.UnleashService
 

@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.arrangor.kafka
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 
 @Serializable
 data class AmtVirksomhetV1Dto(

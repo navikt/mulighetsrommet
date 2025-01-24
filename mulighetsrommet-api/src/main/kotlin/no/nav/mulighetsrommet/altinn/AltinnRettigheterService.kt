@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.altinn.db.PersonBedriftRettigheterDbo
 import no.nav.mulighetsrommet.altinn.model.BedriftRettigheter
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
+import no.nav.mulighetsrommet.model.NorskIdent
 import java.time.Duration
 import java.time.LocalDateTime
 

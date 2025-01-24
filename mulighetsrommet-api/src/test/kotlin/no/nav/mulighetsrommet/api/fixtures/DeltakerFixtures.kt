@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerDbo
-import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatus
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*

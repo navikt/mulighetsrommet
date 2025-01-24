@@ -8,7 +8,7 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.*

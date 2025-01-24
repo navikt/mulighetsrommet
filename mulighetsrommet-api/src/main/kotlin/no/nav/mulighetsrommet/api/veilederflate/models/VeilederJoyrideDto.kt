@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.veilederflate.models
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.model.NavIdent
 
 @Serializable
 data class VeilederJoyrideDto(

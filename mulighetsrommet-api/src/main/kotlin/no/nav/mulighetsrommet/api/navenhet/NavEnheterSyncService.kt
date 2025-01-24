@@ -6,12 +6,12 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Response
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.domain.dto.EnhetSlug
-import no.nav.mulighetsrommet.api.domain.dto.FylkeRef
-import no.nav.mulighetsrommet.api.domain.dto.SanityEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
-import no.nav.mulighetsrommet.api.services.cms.SanityService
+import no.nav.mulighetsrommet.api.sanity.EnhetSlug
+import no.nav.mulighetsrommet.api.sanity.FylkeRef
+import no.nav.mulighetsrommet.api.sanity.SanityEnhet
+import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 

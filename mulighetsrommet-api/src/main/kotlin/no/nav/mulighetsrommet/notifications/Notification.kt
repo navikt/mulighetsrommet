@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.notifications
 import arrow.core.NonEmptyList
 import arrow.core.serialization.NonEmptyListSerializer
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.serializers.InstantSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer

@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.unleash
 
-import no.nav.mulighetsrommet.domain.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltakskode
 
 data class FeatureToggleContext(
     val userId: String,

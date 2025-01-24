@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.refusjon.model
 
-import no.nav.mulighetsrommet.domain.dto.Periode
+import no.nav.mulighetsrommet.model.Periode
 
 sealed class RefusjonKravBeregning {
     abstract val input: RefusjonKravBeregningInput

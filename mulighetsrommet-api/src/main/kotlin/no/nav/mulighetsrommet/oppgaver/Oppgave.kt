@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.oppgaver
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
 

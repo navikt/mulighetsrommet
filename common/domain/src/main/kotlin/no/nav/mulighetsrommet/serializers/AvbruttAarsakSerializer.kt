@@ -4,7 +4,7 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
+import no.nav.mulighetsrommet.model.AvbruttAarsak
 
 object AvbruttAarsakSerializer : KSerializer<AvbruttAarsak> {
     override val descriptor = String.serializer().descriptor

@@ -7,7 +7,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
-import no.nav.mulighetsrommet.domain.dto.TiltakshistorikkRequest
+import no.nav.mulighetsrommet.model.TiltakshistorikkRequest
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
 import java.util.*
 

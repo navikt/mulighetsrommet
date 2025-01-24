@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.veilederflate.models
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.dto.ArbeidsgiverAvtaleStatus
-import no.nav.mulighetsrommet.domain.dto.ArenaDeltakerStatus
-import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
+import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus
+import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate

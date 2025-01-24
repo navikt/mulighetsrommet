@@ -9,9 +9,9 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
+import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -98,15 +98,15 @@ data class DeltakelseFraKomet(
         val visningstekst: String,
         val aarsak: String? = null,
     )
-}
 
-@Serializable
-data class Periode(
-    @Serializable(with = LocalDateSerializer::class)
-    val startdato: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class)
-    val sluttdato: LocalDate?,
-)
+    @Serializable
+    data class Periode(
+        @Serializable(with = LocalDateSerializer::class)
+        val startdato: LocalDate?,
+        @Serializable(with = LocalDateSerializer::class)
+        val sluttdato: LocalDate?,
+    )
+}
 
 @Serializable
 enum class GruppeTiltakstype {
