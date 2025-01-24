@@ -3,10 +3,12 @@ package no.nav.mulighetsrommet.tiltak.okonomi
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
+import no.nav.mulighetsrommet.tiltak.okonomi.oebs.OebsService
 import no.nav.mulighetsrommet.tiltak.okonomi.oebs.OebsTiltakApiClient
 import no.nav.mulighetsrommet.tiltak.okonomi.plugins.configureAuthentication
 import no.nav.mulighetsrommet.tiltak.okonomi.plugins.configureHTTP
@@ -36,13 +38,17 @@ fun Application.configure(config: AppConfig) {
 
     val cachedTokenProvider = CachedTokenProvider.init(config.auth.azure.audience, config.auth.azure.tokenEndpointUrl)
 
-    val oebs = OebsTiltakApiClient(
+    val oebsClient = OebsTiltakApiClient(
         engine = config.httpClientEngine,
         baseUrl = config.clients.oebsTiltakApi.url,
         tokenProvider = cachedTokenProvider.withScope(config.clients.oebsTiltakApi.scope),
     )
 
-    okonomiRoutes(oebs)
+    val brreg = BrregClient(config.httpClientEngine, config.clients.brreg.url)
+
+    val oebsService = OebsService(oebsClient, brreg)
+
+    okonomiRoutes(oebsService)
 
     monitor.subscribe(ApplicationStopPreparing) {
         db.close()
