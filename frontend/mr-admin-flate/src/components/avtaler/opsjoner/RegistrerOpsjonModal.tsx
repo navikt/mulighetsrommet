@@ -15,7 +15,7 @@ import { RegistrerOpsjonForm } from "./RegistrerOpsjonForm";
 import { useRevalidator } from "react-router";
 
 interface Props {
-  modalRef: RefObject<HTMLDialogElement>;
+  modalRef: RefObject<HTMLDialogElement | null>;
   avtale: AvtaleDto;
 }
 
@@ -115,13 +115,12 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
   );
 }
 
-function SluttDatoErLikEllerPassererMaksVarighetModal({
-  modalRef,
-  avtale,
-}: {
-  modalRef: RefObject<HTMLDialogElement>;
+interface ModalProps {
+  modalRef: RefObject<HTMLDialogElement | null>;
   avtale: AvtaleDto;
-}) {
+}
+
+function SluttDatoErLikEllerPassererMaksVarighetModal({ modalRef, avtale }: ModalProps) {
   return (
     <VarselModal
       headingIconType="info"

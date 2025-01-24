@@ -33,7 +33,7 @@ export const AvbrytAvtaleModalSchema = z
   });
 
 interface Props {
-  modalRef: RefObject<HTMLDialogElement>;
+  modalRef: RefObject<HTMLDialogElement | null>;
   avtale: AvtaleDto;
 }
 
