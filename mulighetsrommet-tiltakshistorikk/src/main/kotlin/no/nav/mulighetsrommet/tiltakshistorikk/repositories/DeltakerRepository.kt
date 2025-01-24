@@ -2,9 +2,9 @@ package no.nav.mulighetsrommet.tiltakshistorikk.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import org.intellij.lang.annotations.Language

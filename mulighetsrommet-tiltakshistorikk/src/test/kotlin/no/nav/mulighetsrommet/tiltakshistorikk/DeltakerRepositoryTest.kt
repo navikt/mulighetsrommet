@@ -4,9 +4,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.domain.dto.ArenaDeltakerStatus

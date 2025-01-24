@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter.utils
 
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.ArenaTimestampFormatter
+import no.nav.mulighetsrommet.arena.ArenaMigrering.ArenaTimestampFormatter
 import no.nav.mulighetsrommet.domain.dto.JaNeiStatus
 import java.time.LocalDateTime
 

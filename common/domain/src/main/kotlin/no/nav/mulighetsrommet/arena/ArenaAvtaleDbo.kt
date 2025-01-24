@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.domain.dbo
+package no.nav.mulighetsrommet.arena
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.dto.Avtaletype

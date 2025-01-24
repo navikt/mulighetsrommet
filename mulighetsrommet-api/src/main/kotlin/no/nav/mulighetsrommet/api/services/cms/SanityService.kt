@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.navansatt.SanityNavKontaktperson
 import no.nav.mulighetsrommet.api.navansatt.SanityRedaktor
 import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrift
-import no.nav.mulighetsrommet.domain.dbo.ArenaGjennomforingDbo
+import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.slf4j.LoggerFactory

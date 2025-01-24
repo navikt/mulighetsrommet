@@ -14,11 +14,11 @@ import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.services.cms.SanityService
+import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
+import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
+import no.nav.mulighetsrommet.arena.ArenaMigrering
+import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
-import no.nav.mulighetsrommet.domain.dbo.ArenaGjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus

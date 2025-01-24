@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.domain.constants
+package no.nav.mulighetsrommet.arena
 
 import java.time.LocalDate
 import java.time.LocalDateTime

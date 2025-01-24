@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.domain.dbo
+package no.nav.mulighetsrommet.arena
 
 enum class Avslutningsstatus {
     AVLYST,

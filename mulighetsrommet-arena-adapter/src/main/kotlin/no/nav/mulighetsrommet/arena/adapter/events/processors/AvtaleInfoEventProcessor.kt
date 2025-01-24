@@ -6,6 +6,9 @@ import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.right
 import io.ktor.http.*
+import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
+import no.nav.mulighetsrommet.arena.ArenaMigrering.ArenaAvtaleCutoffDateTime
+import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
@@ -21,9 +24,6 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Avtale
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.domain.Tiltakskoder
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.ArenaAvtaleCutoffDateTime
-import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.env.NaisEnv
 import java.time.LocalDate

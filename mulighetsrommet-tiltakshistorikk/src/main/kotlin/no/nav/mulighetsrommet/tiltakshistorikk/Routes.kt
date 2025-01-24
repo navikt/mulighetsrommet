@@ -1,13 +1,12 @@
 package no.nav.mulighetsrommet.tiltakshistorikk
 
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
+import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.domain.dto.TiltakshistorikkRequest
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
 import java.util.*
