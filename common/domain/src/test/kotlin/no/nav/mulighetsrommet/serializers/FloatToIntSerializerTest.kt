@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.domain.serializers
+package no.nav.mulighetsrommet.serializers
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
