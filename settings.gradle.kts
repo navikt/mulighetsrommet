@@ -16,4 +16,5 @@ include(
     "mulighetsrommet-api",
     "mulighetsrommet-arena-adapter",
     "mulighetsrommet-tiltakshistorikk",
+    "mulighetsrommet-tiltaksokonomi",
 )
