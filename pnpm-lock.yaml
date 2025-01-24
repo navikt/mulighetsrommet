@@ -393,9 +393,6 @@ importers:
       '@portabletext/types':
         specifier: 2.0.13
         version: 2.0.13
-      '@storybook/react':
-        specifier: ^8.6.0-alpha.0
-        version: 8.6.0-alpha.1(@storybook/test@8.6.0-alpha.0(storybook@8.6.0-alpha.0(prettier@3.4.2)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.0-alpha.0(prettier@3.4.2))(typescript@5.7.3)
       '@tanstack/react-query':
         specifier: 5.64.2
         version: 5.64.2(react@18.3.1)
@@ -450,9 +447,6 @@ importers:
       slate-react:
         specifier: 0.112.0
         version: 0.112.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(slate-dom@0.111.0(slate@0.112.0))(slate@0.112.0)
-      storybook:
-        specifier: 8.6.0-alpha.0
-        version: 8.6.0-alpha.0(prettier@3.4.2)
       use-deep-compare-effect:
         specifier: 1.8.1
         version: 1.8.1(react@18.3.1)
@@ -478,24 +472,6 @@ importers:
       '@rollup/plugin-terser':
         specifier: 0.4.4
         version: 0.4.4(rollup@4.31.0)
-      '@storybook/addon-essentials':
-        specifier: 8.6.0-alpha.0
-        version: 8.6.0-alpha.0(@types/react@18.3.13)(storybook@8.6.0-alpha.0(prettier@3.4.2))
-      '@storybook/addon-interactions':
-        specifier: 8.6.0-alpha.0
-        version: 8.6.0-alpha.0(storybook@8.6.0-alpha.0(prettier@3.4.2))
-      '@storybook/addon-onboarding':
-        specifier: 8.6.0-alpha.0
-        version: 8.6.0-alpha.0(storybook@8.6.0-alpha.0(prettier@3.4.2))
-      '@storybook/blocks':
-        specifier: 8.6.0-alpha.0
-        version: 8.6.0-alpha.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.6.0-alpha.0(prettier@3.4.2))
-      '@storybook/react-vite':
-        specifier: 8.6.0-alpha.0
-        version: 8.6.0-alpha.0(@storybook/test@8.6.0-alpha.0(storybook@8.6.0-alpha.0(prettier@3.4.2)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@4.31.0)(storybook@8.6.0-alpha.0(prettier@3.4.2))(typescript@5.7.3)(vite@6.0.9(@types/node@22.10.7)(jiti@2.3.3)(sass-embedded@1.83.4)(sass@1.79.3)(terser@5.31.6)(yaml@2.7.0))
-      '@storybook/test':
-        specifier: 8.6.0-alpha.0
-        version: 8.6.0-alpha.0(storybook@8.6.0-alpha.0(prettier@3.4.2))
       '@tailwindcss/typography':
         specifier: 0.5.16
         version: 0.5.16(tailwindcss@3.4.17(ts-node@10.9.2(@swc/core@1.10.1)(@types/node@22.10.7)(typescript@5.7.3)))
@@ -732,6 +708,12 @@ importers:
 
   frontend/storybook:
     dependencies:
+      '@navikt/ds-tailwind':
+        specifier: ^7.10.0
+        version: 7.10.0
+      '@tailwindcss/typography':
+        specifier: ^0.5.16
+        version: 0.5.16(tailwindcss@3.4.17(ts-node@10.9.2(@swc/core@1.10.1)(@types/node@22.10.7)(typescript@5.7.3)))
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -763,11 +745,17 @@ importers:
       '@types/react':
         specifier: 18.3.13
         version: 18.3.13
+      autoprefixer:
+        specifier: ^10.4.20
+        version: 10.4.20(postcss@8.5.1)
+      postcss:
+        specifier: ^8.5.1
+        version: 8.5.1
       storybook:
         specifier: 8.6.0-alpha.0
         version: 8.6.0-alpha.0(prettier@3.4.2)
       tailwindcss:
-        specifier: 3.4.17
+        specifier: ^3.4.17
         version: 3.4.17(ts-node@10.9.2(@swc/core@1.10.1)(@types/node@22.10.7)(typescript@5.7.3))
       vite:
         specifier: 6.0.9
@@ -2362,6 +2350,9 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
+
+  '@navikt/ds-tailwind@7.10.0':
+    resolution: {integrity: sha512-MPEhaA4tV7MJ4Xqf5681wEowrWnM5hMbzDewOcdfyRED6JM/lYRIkcIarEwIt5f4/tP6GL1kLbUySDXoPsvyig==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.10.0/b2a81fc795e866e9964be0101001ab2247e51c1a}
 
   '@navikt/ds-tailwind@7.9.2':
     resolution: {integrity: sha512-5aGuHslC/vKm7Xixsspil8LbaZMeghS4E6NQ6jCNMMz5kklXNAaWQEo0IEh8X9Lco9erY1qGQzfHQauKEc8CWg==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.9.2/3733374a7abf2e1b28b7410754d92a02306ce07b}
@@ -10814,6 +10805,8 @@ snapshots:
       '@types/react': 18.3.13
     transitivePeerDependencies:
       - react-dom
+
+  '@navikt/ds-tailwind@7.10.0': {}
 
   '@navikt/ds-tailwind@7.9.2': {}
 
