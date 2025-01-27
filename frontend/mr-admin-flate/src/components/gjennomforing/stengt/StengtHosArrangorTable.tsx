@@ -14,11 +14,13 @@ export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArr
   const deleteStengtHosArrangor = useDeleteStengtHosArrangor(gjennomforing.id);
   const revalidator = useRevalidator();
 
+  if (gjennomforing.stengt.length === 0) return null;
+
   return (
     <section className="bg-surface-subtle p-4 rounded-lg">
       <HStack justify={"space-between"} align={"center"}>
         <Heading level="4" size="xsmall">
-          Perioder med stengt hos arrangør
+          Perioder hvor tiltakstilbudet er stengt hos arrangør
         </Heading>
       </HStack>
       <hr className="h-[0.2rem] bg-border-strong border-none" />

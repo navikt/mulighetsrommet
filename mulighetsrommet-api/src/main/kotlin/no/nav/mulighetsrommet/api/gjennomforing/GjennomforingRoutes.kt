@@ -464,7 +464,7 @@ data class SetStengtHosArrangorRequest(
                 ensure(!beskrivelse.isNullOrBlank()) {
                     ValidationError.of(
                         SetStengtHosArrangorRequest::beskrivelse,
-                        message = "Beskrivelse er påkrevd",
+                        message = "Du må legge inn en beskrivelse",
                     )
                 }
                 beskrivelse
@@ -473,7 +473,7 @@ data class SetStengtHosArrangorRequest(
                 ensureNotNull(periodeStart) {
                     ValidationError.of(
                         SetStengtHosArrangorRequest::periodeStart,
-                        message = "Start på perioden er påkrevd",
+                        message = "Du må legge inn start på perioden",
                     )
                 }
             },
@@ -481,7 +481,7 @@ data class SetStengtHosArrangorRequest(
                 ensureNotNull(periodeSlutt) {
                     ValidationError.of(
                         SetStengtHosArrangorRequest::periodeSlutt,
-                        message = "Slutt på perioden er påkrevd",
+                        message = "Du må legge inn slutt på perioden",
                     )
                 }
             },
