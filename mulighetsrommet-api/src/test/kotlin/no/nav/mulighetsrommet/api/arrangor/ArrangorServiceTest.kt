@@ -13,9 +13,7 @@ import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.brreg.BrregClient
-import no.nav.mulighetsrommet.brreg.BrregError
-import no.nav.mulighetsrommet.brreg.BrregVirksomhetDto
+import no.nav.mulighetsrommet.brreg.*
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.time.LocalDate
@@ -23,19 +21,19 @@ import java.time.LocalDate
 class ArrangorServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
-    val underenhet = BrregVirksomhetDto(
+    val underenhet = BrregUnderenhetDto(
         organisasjonsnummer = Organisasjonsnummer("234567891"),
         navn = "Underenhet til Testbedriften AS",
         overordnetEnhet = Organisasjonsnummer("123456789"),
         postnummer = null,
         poststed = null,
     )
-    val hovedenhet = BrregVirksomhetDto(
+    val hovedenhet = BrregEnhetMedUnderenheterDto(
         organisasjonsnummer = Organisasjonsnummer("123456789"),
         navn = "Testbedriften AS",
         underenheter = listOf(underenhet),
-        postnummer = "0484",
-        poststed = "Oslo",
+        postnummer = null,
+        poststed = null,
     )
 
     context("get or sync arrangør fra brreg") {
@@ -50,15 +48,13 @@ class ArrangorServiceTest : FunSpec({
         test("skal synkronisere hovedenhet uten underenheter fra brreg til databasen gitt orgnr til hovedenhet") {
             coEvery { brregClient.getBrregVirksomhet(hovedenhet.organisasjonsnummer) } returns hovedenhet.right()
 
-            arrangorService.getOrSyncArrangorFromBrreg(hovedenhet.organisasjonsnummer).shouldBeRight()
+            arrangorService.getArrangorOrSyncFromBrreg(hovedenhet.organisasjonsnummer).shouldBeRight()
 
             database.run {
                 queries.arrangor.get(hovedenhet.organisasjonsnummer).shouldNotBeNull().should {
                     it.id.shouldNotBeNull()
                     it.navn shouldBe "Testbedriften AS"
                     it.organisasjonsnummer shouldBe Organisasjonsnummer("123456789")
-                    it.postnummer shouldBe "0484"
-                    it.poststed shouldBe "Oslo"
                     it.underenheter.shouldBeNull()
                 }
                 queries.arrangor.get(underenhet.organisasjonsnummer).shouldBeNull()
@@ -69,7 +65,7 @@ class ArrangorServiceTest : FunSpec({
             coEvery { brregClient.getBrregVirksomhet(hovedenhet.organisasjonsnummer) } returns hovedenhet.right()
             coEvery { brregClient.getBrregVirksomhet(underenhet.organisasjonsnummer) } returns underenhet.right()
 
-            arrangorService.getOrSyncArrangorFromBrreg(underenhet.organisasjonsnummer).shouldBeRight()
+            arrangorService.getArrangorOrSyncFromBrreg(underenhet.organisasjonsnummer).shouldBeRight()
 
             database.run {
                 queries.arrangor.get(hovedenhet.organisasjonsnummer).shouldNotBeNull().should {
@@ -85,17 +81,15 @@ class ArrangorServiceTest : FunSpec({
 
         test("skal synkronisere slettet enhet fra brreg og til databasen gitt orgnr til enheten") {
             val orgnr = Organisasjonsnummer("100200300")
-            val slettetVirksomhet = BrregVirksomhetDto(
+            val slettetVirksomhet = SlettetBrregEnhetDto(
                 organisasjonsnummer = orgnr,
                 navn = "Slettet bedrift",
                 slettetDato = LocalDate.of(2020, 1, 1),
-                postnummer = null,
-                poststed = null,
             )
 
             coEvery { brregClient.getBrregVirksomhet(orgnr) } returns slettetVirksomhet.right()
 
-            arrangorService.getOrSyncArrangorFromBrreg(orgnr).shouldBeRight()
+            arrangorService.getArrangorOrSyncFromBrreg(orgnr).shouldBeRight()
 
             database.run {
                 queries.arrangor.get(orgnr).shouldNotBeNull().should {
@@ -112,7 +106,7 @@ class ArrangorServiceTest : FunSpec({
             coEvery { brregClient.getBrregVirksomhet(orgnr) } returns BrregError.NotFound.left()
             coEvery { brregClient.getBrregVirksomhet(orgnr) } returns BrregError.NotFound.left()
 
-            arrangorService.getOrSyncArrangorFromBrreg(orgnr) shouldBeLeft BrregError.NotFound
+            arrangorService.getArrangorOrSyncFromBrreg(orgnr) shouldBeLeft BrregError.NotFound
 
             database.run {
                 queries.arrangor.get(orgnr) shouldBe null

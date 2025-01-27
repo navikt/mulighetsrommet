@@ -45,15 +45,11 @@ class ArrangorflateRoutesTest : FunSpec({
         id = UUID.randomUUID(),
         organisasjonsnummer = Organisasjonsnummer("883674471"),
         navn = "Hovedenhet",
-        postnummer = "0102",
-        poststed = "Oslo",
     )
     val barnevernsNembda = ArrangorDto(
         id = UUID.randomUUID(),
         organisasjonsnummer = Organisasjonsnummer("973674471"),
         navn = "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
-        postnummer = "0102",
-        poststed = "Oslo",
         overordnetEnhet = hovedenhet.organisasjonsnummer,
     )
     val deltaker = DeltakerDbo(

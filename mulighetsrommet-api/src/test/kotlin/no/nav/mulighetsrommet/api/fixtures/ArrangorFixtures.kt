@@ -10,8 +10,6 @@ object ArrangorFixtures {
             id = UUID.randomUUID(),
             organisasjonsnummer = Organisasjonsnummer("983982433"),
             navn = "FRETEX AS",
-            postnummer = "4315",
-            poststed = "SANDNES",
         )
 
         val underenhet1 = ArrangorDto(
@@ -19,8 +17,6 @@ object ArrangorFixtures {
             organisasjonsnummer = Organisasjonsnummer("992943084"),
             overordnetEnhet = Organisasjonsnummer("983982433"),
             navn = "FRETEX AS AVD OSLO",
-            postnummer = "0668",
-            poststed = "OSLO",
         )
     }
 
@@ -28,8 +24,6 @@ object ArrangorFixtures {
         id = UUID.randomUUID(),
         organisasjonsnummer = Organisasjonsnummer("123456789"),
         navn = "Hovedenhet AS",
-        postnummer = "0102",
-        poststed = "Oslo",
     )
 
     val underenhet1 = ArrangorDto(
@@ -37,8 +31,6 @@ object ArrangorFixtures {
         organisasjonsnummer = Organisasjonsnummer("976663934"),
         overordnetEnhet = Organisasjonsnummer("123456789"),
         navn = "Underenhet 1 AS",
-        postnummer = "0103",
-        poststed = "Oslo",
     )
 
     val underenhet2 = ArrangorDto(
@@ -46,7 +38,5 @@ object ArrangorFixtures {
         organisasjonsnummer = Organisasjonsnummer("890765789"),
         overordnetEnhet = Organisasjonsnummer("123456789"),
         navn = "Underenhet 2 AS",
-        postnummer = "0201",
-        poststed = "Lillestrøm",
     )
 }
