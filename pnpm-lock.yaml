@@ -108,7 +108,7 @@ importers:
     dependencies:
       '@axe-core/playwright':
         specifier: 4.10.1
-        version: 4.10.1(playwright-core@1.49.1)
+        version: 4.10.1(playwright-core@1.50.0)
       '@mr/api-client-v2':
         specifier: workspace:*
         version: link:../api-client-v2
@@ -195,8 +195,8 @@ importers:
         version: 3.17.0
     devDependencies:
       '@playwright/test':
-        specifier: 1.49.1
-        version: 1.49.1
+        specifier: 1.50.0
+        version: 1.50.0
       '@react-router/dev':
         specifier: 7.1.3
         version: 7.1.3(@react-router/serve@7.1.3(react-router@7.1.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.7.3))(@types/node@22.10.10)(babel-plugin-macros@3.1.0)(jiti@2.3.3)(react-router@7.1.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(sass-embedded@1.83.4)(sass@1.79.3)(terser@5.31.6)(typescript@5.7.3)(vite@6.0.11(@types/node@22.10.10)(jiti@2.3.3)(sass-embedded@1.83.4)(sass@1.79.3)(terser@5.31.6)(yaml@2.7.0))(yaml@2.7.0)
@@ -246,8 +246,8 @@ importers:
         specifier: 15.14.0
         version: 15.14.0
       playwright:
-        specifier: 1.49.1
-        version: 1.49.1
+        specifier: 1.50.0
+        version: 1.50.0
       postcss:
         specifier: 8.5.1
         version: 8.5.1
@@ -459,7 +459,7 @@ importers:
     devDependencies:
       '@axe-core/playwright':
         specifier: 4.10.1
-        version: 4.10.1(playwright-core@1.49.1)
+        version: 4.10.1(playwright-core@1.50.0)
       '@chromatic-com/storybook':
         specifier: ^3.2.4
         version: 3.2.4(react@18.3.1)(storybook@8.6.0-alpha.0(prettier@3.4.2))
@@ -467,8 +467,8 @@ importers:
         specifier: workspace:*
         version: link:../eslint-config-react-app
       '@playwright/test':
-        specifier: 1.49.1
-        version: 1.49.1
+        specifier: 1.50.0
+        version: 1.50.0
       '@rollup/plugin-terser':
         specifier: 0.4.4
         version: 0.4.4(rollup@4.32.0)
@@ -518,8 +518,8 @@ importers:
         specifier: 2.7.0
         version: 2.7.0(@types/node@22.10.10)(typescript@5.7.3)
       playwright:
-        specifier: 1.49.1
-        version: 1.49.1
+        specifier: 1.50.0
+        version: 1.50.0
       postcss-import:
         specifier: 16.1.0
         version: 16.1.0(postcss@8.5.1)
@@ -671,13 +671,13 @@ importers:
     devDependencies:
       '@axe-core/playwright':
         specifier: 4.10.1
-        version: 4.10.1(playwright-core@1.49.1)
+        version: 4.10.1(playwright-core@1.50.0)
       '@mr/eslint-config-react-app':
         specifier: workspace:*
         version: link:../eslint-config-react-app
       '@playwright/test':
-        specifier: 1.49.1
-        version: 1.49.1
+        specifier: 1.50.0
+        version: 1.50.0
       '@tailwindcss/typography':
         specifier: 0.5.16
         version: 0.5.16(tailwindcss@3.4.17(ts-node@10.9.2(@swc/core@1.10.1)(@types/node@22.10.10)(typescript@5.7.3)))
@@ -703,8 +703,8 @@ importers:
         specifier: 2.7.0
         version: 2.7.0(@types/node@22.10.10)(typescript@5.7.3)
       playwright:
-        specifier: 1.49.1
-        version: 1.49.1
+        specifier: 1.50.0
+        version: 1.50.0
       postcss-import:
         specifier: 16.1.0
         version: 16.1.0(postcss@8.5.1)
@@ -2562,8 +2562,8 @@ packages:
     resolution: {integrity: sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
-  '@playwright/test@1.49.1':
-    resolution: {integrity: sha512-Ky+BVzPz8pL6PQxHqNRW1k3mIyv933LML7HktS8uik0bUXNCdPhoS/kLihiO1tMf/egaJb4IutXd7UywvXEW+g==}
+  '@playwright/test@1.50.0':
+    resolution: {integrity: sha512-ZGNXbt+d65EGjBORQHuYKj+XhCewlwpnSd/EDuLPZGSiEWmgOJB5RmMCCYGy5aMfTs9wx61RivfDKi8H/hcMvw==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -6905,13 +6905,13 @@ packages:
     resolution: {integrity: sha512-nDywThFk1i4BQK4twPQ6TA4RT8bDY96yeuCVBWL3ePARCiEKDRSrNGbFIgUJpLp+XeIR65v8ra7WuJOFUBtkMA==}
     engines: {node: '>=8'}
 
-  playwright-core@1.49.1:
-    resolution: {integrity: sha512-BzmpVcs4kE2CH15rWfzpjzVGhWERJfmnXmniSyKeRZUs9Ws65m+RGIi7mjJK/euCegfn3i7jvqWeWyHe9y3Vgg==}
+  playwright-core@1.50.0:
+    resolution: {integrity: sha512-CXkSSlr4JaZs2tZHI40DsZUN/NIwgaUPsyLuOAaIZp2CyF2sN5MM5NJsyB188lFSSozFxQ5fPT4qM+f0tH/6wQ==}
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright@1.49.1:
-    resolution: {integrity: sha512-VYL8zLoNTBxVOrJBbDuRgDWa3i+mfQgDTrL8Ah9QXZ7ax4Dsj0MSq5bYgytRnDVVe+njoKnfsYkH3HzqVj5UZA==}
+  playwright@1.50.0:
+    resolution: {integrity: sha512-+GinGfGTrd2IfX1TA4N2gNmeIksSb+IAe589ZH+FlmpV3MYTx6+buChGIuDLQwrGNCw2lWibqV50fU510N7S+w==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -9141,10 +9141,10 @@ snapshots:
       css-tree: 2.3.1
       is-potential-custom-element-name: 1.0.1
 
-  '@axe-core/playwright@4.10.1(playwright-core@1.49.1)':
+  '@axe-core/playwright@4.10.1(playwright-core@1.50.0)':
     dependencies:
       axe-core: 4.10.2
-      playwright-core: 1.49.1
+      playwright-core: 1.50.0
 
   '@babel/code-frame@7.26.2':
     dependencies:
@@ -11260,9 +11260,9 @@ snapshots:
 
   '@pkgr/core@0.1.1': {}
 
-  '@playwright/test@1.49.1':
+  '@playwright/test@1.50.0':
     dependencies:
-      playwright: 1.49.1
+      playwright: 1.50.0
 
   '@pnpm/config.env-replace@1.1.0': {}
 
@@ -11278,16 +11278,16 @@ snapshots:
 
   '@popperjs/core@2.11.8': {}
 
-  '@portabletext/block-tools@1.1.3(@sanity/types@3.71.2(@types/react@18.3.12)(debug@4.4.0))(@types/react@18.3.12)':
+  '@portabletext/block-tools@1.1.3(@sanity/types@3.71.2(@types/react@18.3.12))(@types/react@18.3.12)':
     dependencies:
       '@sanity/types': 3.71.2(@types/react@18.3.12)(debug@4.4.0)
       '@types/react': 18.3.12
       get-random-values-esm: 1.0.2
       lodash: 4.17.21
 
-  '@portabletext/editor@1.26.1(@sanity/schema@3.71.2(@types/react@18.3.12))(@sanity/types@3.71.2(@types/react@18.3.12)(debug@4.4.0))(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.1)':
+  '@portabletext/editor@1.26.1(@sanity/schema@3.71.2(@types/react@18.3.12))(@sanity/types@3.71.2(@types/react@18.3.12))(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.1)':
     dependencies:
-      '@portabletext/block-tools': 1.1.3(@sanity/types@3.71.2(@types/react@18.3.12)(debug@4.4.0))(@types/react@18.3.12)
+      '@portabletext/block-tools': 1.1.3(@sanity/types@3.71.2(@types/react@18.3.12))(@types/react@18.3.12)
       '@portabletext/patches': 1.1.2
       '@portabletext/to-html': 2.0.13
       '@sanity/schema': 3.71.2(@types/react@18.3.12)(debug@4.4.0)
@@ -11797,7 +11797,7 @@ snapshots:
       - '@types/react'
       - supports-color
 
-  '@sanity/insert-menu@1.0.19(@emotion/is-prop-valid@1.3.0)(@sanity/types@3.71.2(@types/react@18.3.12)(debug@4.4.0))(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
+  '@sanity/insert-menu@1.0.19(@emotion/is-prop-valid@1.3.0)(@sanity/types@3.71.2(@types/react@18.3.12))(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
     dependencies:
       '@sanity/icons': 3.5.7(react@18.3.1)
       '@sanity/types': 3.71.2(@types/react@18.3.12)(debug@4.4.0)
@@ -11904,11 +11904,11 @@ snapshots:
       - debug
       - supports-color
 
-  '@sanity/presentation-comlink@1.0.3(@sanity/client@6.27.1)(@sanity/types@3.71.2(@types/react@18.3.12)(debug@4.4.0))':
+  '@sanity/presentation-comlink@1.0.3(@sanity/client@6.27.1)(@sanity/types@3.71.2(@types/react@18.3.12))':
     dependencies:
       '@sanity/client': 6.27.1(debug@4.4.0)
       '@sanity/comlink': 3.0.1
-      '@sanity/visual-editing-types': 1.0.3(@sanity/client@6.27.1)(@sanity/types@3.71.2(@types/react@18.3.12)(debug@4.4.0))
+      '@sanity/visual-editing-types': 1.0.3(@sanity/client@6.27.1)(@sanity/types@3.71.2(@types/react@18.3.12))
     transitivePeerDependencies:
       - '@sanity/types'
 
@@ -12045,7 +12045,7 @@ snapshots:
       - react-dom
       - react-is
 
-  '@sanity/visual-editing-types@1.0.3(@sanity/client@6.27.1)(@sanity/types@3.71.2(@types/react@18.3.12)(debug@4.4.0))':
+  '@sanity/visual-editing-types@1.0.3(@sanity/client@6.27.1)(@sanity/types@3.71.2(@types/react@18.3.12))':
     dependencies:
       '@sanity/client': 6.27.1(debug@4.4.0)
     optionalDependencies:
@@ -16368,11 +16368,11 @@ snapshots:
     dependencies:
       find-up: 3.0.0
 
-  playwright-core@1.49.1: {}
+  playwright-core@1.50.0: {}
 
-  playwright@1.49.1:
+  playwright@1.50.0:
     dependencies:
-      playwright-core: 1.49.1
+      playwright-core: 1.50.0
     optionalDependencies:
       fsevents: 2.3.2
 
@@ -17168,8 +17168,8 @@ snapshots:
       '@dnd-kit/sortable': 7.0.2(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       '@dnd-kit/utilities': 3.2.2(react@18.3.1)
       '@juggle/resize-observer': 3.4.0
-      '@portabletext/block-tools': 1.1.3(@sanity/types@3.71.2(@types/react@18.3.12)(debug@4.4.0))(@types/react@18.3.12)
-      '@portabletext/editor': 1.26.1(@sanity/schema@3.71.2(@types/react@18.3.12))(@sanity/types@3.71.2(@types/react@18.3.12)(debug@4.4.0))(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.1)
+      '@portabletext/block-tools': 1.1.3(@sanity/types@3.71.2(@types/react@18.3.12))(@types/react@18.3.12)
+      '@portabletext/editor': 1.26.1(@sanity/schema@3.71.2(@types/react@18.3.12))(@sanity/types@3.71.2(@types/react@18.3.12))(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.1)
       '@portabletext/react': 3.2.0(react@18.3.1)
       '@rexxars/react-json-inspector': 9.0.1(react@18.3.1)
       '@sanity/asset-utils': 2.2.1
@@ -17185,11 +17185,11 @@ snapshots:
       '@sanity/icons': 3.5.7(react@18.3.1)
       '@sanity/image-url': 1.1.0
       '@sanity/import': 3.37.9(@types/react@18.3.12)
-      '@sanity/insert-menu': 1.0.19(@emotion/is-prop-valid@1.3.0)(@sanity/types@3.71.2(@types/react@18.3.12)(debug@4.4.0))(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+      '@sanity/insert-menu': 1.0.19(@emotion/is-prop-valid@1.3.0)(@sanity/types@3.71.2(@types/react@18.3.12))(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@sanity/logos': 2.1.13(@sanity/color@3.0.6)(react@18.3.1)
       '@sanity/migrate': 3.71.2(@types/react@18.3.12)
       '@sanity/mutator': 3.71.2(@types/react@18.3.12)
-      '@sanity/presentation-comlink': 1.0.3(@sanity/client@6.27.1)(@sanity/types@3.71.2(@types/react@18.3.12)(debug@4.4.0))
+      '@sanity/presentation-comlink': 1.0.3(@sanity/client@6.27.1)(@sanity/types@3.71.2(@types/react@18.3.12))
       '@sanity/preview-url-secret': 2.1.3(@sanity/client@6.27.1)
       '@sanity/schema': 3.71.2(@types/react@18.3.12)(debug@4.4.0)
       '@sanity/telemetry': 0.7.9(react@18.3.1)
