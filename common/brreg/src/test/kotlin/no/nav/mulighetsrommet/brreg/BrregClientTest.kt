@@ -10,16 +10,16 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 
 class BrregClientTest : FunSpec({
 
-    val hovedenhet = BrregEnhet(
+    val hovedenhet = BrregUnderenhet(
         organisasjonsnummer = Organisasjonsnummer("123456789"),
         navn = "Nav Hovedenhet",
-        beliggenhetsadresse = Adresse(poststed = "Oslo", postnummer = "1234"),
+        beliggenhetsadresse = BrregAdresse(poststed = "Oslo", postnummer = "1234"),
     )
-    val underenhet = BrregEnhet(
+    val underenhet = BrregUnderenhet(
         organisasjonsnummer = Organisasjonsnummer("123456780"),
         navn = "Nav Underenhet",
         overordnetEnhet = Organisasjonsnummer("123456789"),
-        beliggenhetsadresse = Adresse(poststed = "Oslo", postnummer = "1234"),
+        beliggenhetsadresse = BrregAdresse(poststed = "Oslo", postnummer = "1234"),
     )
 
     context("sokOverordnetEnhet") {
@@ -107,7 +107,7 @@ class BrregClientTest : FunSpec({
                 ),
             )
 
-            brregClient.getHovedenhet(Organisasjonsnummer("123456789")) shouldBeRight BrregVirksomhetDto(
+            brregClient.getHovedenhetMedUnderenheter(Organisasjonsnummer("123456789")) shouldBeRight BrregVirksomhetDto(
                 organisasjonsnummer = Organisasjonsnummer("123456789"),
                 navn = "Nav Hovedenhet",
                 underenheter = emptyList(),
@@ -129,7 +129,7 @@ class BrregClientTest : FunSpec({
                 ),
             )
 
-            brregClient.getHovedenhet(Organisasjonsnummer("123456789")) shouldBeRight BrregVirksomhetDto(
+            brregClient.getHovedenhetMedUnderenheter(Organisasjonsnummer("123456789")) shouldBeRight BrregVirksomhetDto(
                 organisasjonsnummer = Organisasjonsnummer("123456789"),
                 navn = "Nav Hovedenhet",
                 underenheter = listOf(

@@ -30,7 +30,7 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
 
     suspend fun getBrregVirksomhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregVirksomhetDto> {
         // Sjekker først hovedenhet
-        return getHovedenhet(orgnr).fold(
+        return getHovedenhetMedUnderenheter(orgnr).fold(
             { error ->
                 if (error == BrregError.NotFound) {
                     // Ingen treff på hovedenhet, vi sjekker underenheter også
@@ -91,7 +91,7 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
             }
     }
 
-    suspend fun getHovedenhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregVirksomhetDto> {
+    suspend fun getHovedenhetMedUnderenheter(orgnr: Organisasjonsnummer): Either<BrregError, BrregVirksomhetDto> {
         val response = client.get("$baseUrl/enheter/${orgnr.value}")
         return parseResponse<BrregEnhet>(response)
             .flatMap { enhet ->
@@ -109,16 +109,32 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
                         overordnetEnhet = null,
                         underenheter = underenheter,
                         slettetDato = enhet.slettedato,
-                        postnummer = enhet.beliggenhetsadresse?.postnummer,
-                        poststed = enhet.beliggenhetsadresse?.poststed,
+                        postnummer = enhet.postAdresse?.postnummer,
+                        poststed = enhet.postAdresse?.poststed,
                     )
                 }
             }
     }
 
+    suspend fun getHovedenhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregVirksomhetDto> {
+        val response = client.get("$baseUrl/enheter/${orgnr.value}")
+        return parseResponse<BrregUnderenhet>(response)
+            .map { enhet ->
+                BrregVirksomhetDto(
+                    organisasjonsnummer = enhet.organisasjonsnummer,
+                    navn = enhet.navn,
+                    overordnetEnhet = null,
+                    underenheter = null,
+                    slettetDato = enhet.slettedato,
+                    postnummer = enhet.beliggenhetsadresse?.postnummer,
+                    poststed = enhet.beliggenhetsadresse?.poststed,
+                )
+            }
+    }
+
     suspend fun getUnderenhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregVirksomhetDto> {
         val response = client.get("$baseUrl/underenheter/${orgnr.value}")
-        return parseResponse<BrregEnhet>(response)
+        return parseResponse<BrregUnderenhet>(response)
             .map { enhet ->
                 val hovedenhet = if (enhet.slettedato == null) {
                     enhet.overordnetEnhet
