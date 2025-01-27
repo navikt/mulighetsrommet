@@ -70,6 +70,8 @@ export const DateInput = forwardRef(function DateInput(
   useEffect(() => {
     if (value) {
       setSelected(new Date(value));
+    } else {
+      setSelected(undefined);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
