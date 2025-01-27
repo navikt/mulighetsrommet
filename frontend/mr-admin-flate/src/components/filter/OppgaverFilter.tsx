@@ -1,14 +1,9 @@
 import { oppgaverFilterAccordionAtom, OppgaverFilter as OppgaverFilterProps } from "@/api/atoms";
 import { addOrRemove } from "@/utils/Utils";
-<<<<<<< HEAD
-import { OppgaveType, TiltakstypeDto } from "@mr/api-client";
+import { OppgaveType, TiltakstypeDto } from "@mr/api-client-v2";
 import { FilterAccordionHeader } from "@mr/frontend-common";
 import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai/index";
-=======
-import { FilterAccordionHeader } from "@mr/frontend-common";
-import { OppgaveType, TiltakstypeDto } from "@mr/api-client-v2";
->>>>>>> main
 
 interface Props {
   filterAtom: WritableAtom<OppgaverFilterProps, [newValue: OppgaverFilterProps], void>;
