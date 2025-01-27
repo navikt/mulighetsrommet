@@ -19,6 +19,9 @@ export default defineConfig({
     manifest: "asset-manifest.json",
     chunkSizeWarningLimit: 1400,
     sourcemap: true,
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
   },
   test: {
     environment: "jsdom",

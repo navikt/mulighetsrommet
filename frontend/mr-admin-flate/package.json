@@ -55,6 +55,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "4.10.1",
+    "@chromatic-com/storybook": "^3.2.4",
     "@mr/eslint-config-react-app": "workspace:*",
     "@playwright/test": "1.49.1",
     "@rollup/plugin-terser": "0.4.4",
@@ -72,6 +73,14 @@
     "typescript": "5.7.3",
     "vite": "6.0.11",
     "vite-tsconfig-paths": "5.1.4",
+    "@storybook/addon-essentials": "8.6.0-alpha.0",
+    "@storybook/addon-interactions": "8.6.0-alpha.0",
+    "@storybook/addon-onboarding": "8.6.0-alpha.0",
+    "@storybook/blocks": "8.6.0-alpha.0",
+    "@storybook/react": "^8.6.0-alpha.0",
+    "@storybook/react-vite": "8.6.0-alpha.0",
+    "@storybook/test": "8.6.0-alpha.0",
+    "storybook": "8.6.0-alpha.0",
     "vitest": "3.0.4"
   },
   "msw": {
