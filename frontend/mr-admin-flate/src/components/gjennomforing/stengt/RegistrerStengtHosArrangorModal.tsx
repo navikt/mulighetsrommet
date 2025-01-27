@@ -11,6 +11,7 @@ interface Props {
 }
 
 export function RegistrerStengtHosArrangorModal({ modalRef, gjennomforing }: Props) {
+  // This key is used to re-render the form when the modal is closed
   const [key, setKey] = useState(0);
 
   function handleCloseModal() {
