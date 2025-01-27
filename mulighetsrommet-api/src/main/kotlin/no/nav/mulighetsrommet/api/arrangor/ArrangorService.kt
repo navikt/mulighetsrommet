@@ -75,23 +75,10 @@ data class KoblingerForKontaktperson(
 
 private fun BrregVirksomhet.toArrangorDto(id: UUID): ArrangorDto {
     return when (this) {
-        is BrregEnhetDto -> ArrangorDto(
+        is BrregEnhetDto, is BrregEnhetMedUnderenheterDto -> ArrangorDto(
             id = id,
             organisasjonsnummer = organisasjonsnummer,
             navn = navn,
-            postnummer = postnummer,
-            poststed = poststed,
-            overordnetEnhet = null,
-            underenheter = null,
-            slettetDato = null,
-        )
-
-        is BrregEnhetMedUnderenheterDto -> ArrangorDto(
-            id = id,
-            organisasjonsnummer = organisasjonsnummer,
-            navn = navn,
-            postnummer = postnummer,
-            poststed = poststed,
             overordnetEnhet = null,
             underenheter = null,
             slettetDato = null,
@@ -102,8 +89,6 @@ private fun BrregVirksomhet.toArrangorDto(id: UUID): ArrangorDto {
             organisasjonsnummer = organisasjonsnummer,
             navn = navn,
             slettetDato = slettetDato,
-            postnummer = null,
-            poststed = null,
             overordnetEnhet = null,
             underenheter = null,
         )
@@ -114,8 +99,6 @@ private fun BrregVirksomhet.toArrangorDto(id: UUID): ArrangorDto {
             navn = navn,
             overordnetEnhet = overordnetEnhet,
             underenheter = null,
-            postnummer = postnummer,
-            poststed = poststed,
             slettetDato = null,
         )
 
@@ -124,8 +107,6 @@ private fun BrregVirksomhet.toArrangorDto(id: UUID): ArrangorDto {
             organisasjonsnummer = organisasjonsnummer,
             navn = navn,
             slettetDato = slettetDato,
-            postnummer = null,
-            poststed = null,
             overordnetEnhet = null,
             underenheter = null,
         )

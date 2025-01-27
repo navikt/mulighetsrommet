@@ -83,7 +83,7 @@ private fun toBrregVirksomhetDto(arrangor: ArrangorDto) = when {
     else -> BrregEnhetDto(
         organisasjonsnummer = arrangor.organisasjonsnummer,
         navn = arrangor.navn,
-        postnummer = arrangor.postnummer,
-        poststed = arrangor.poststed,
+        postnummer = null,
+        poststed = null,
     )
 }

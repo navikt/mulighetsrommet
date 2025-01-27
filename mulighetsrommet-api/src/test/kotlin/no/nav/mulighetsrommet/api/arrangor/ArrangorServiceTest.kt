@@ -32,8 +32,8 @@ class ArrangorServiceTest : FunSpec({
         organisasjonsnummer = Organisasjonsnummer("123456789"),
         navn = "Testbedriften AS",
         underenheter = listOf(underenhet),
-        postnummer = "0484",
-        poststed = "Oslo",
+        postnummer = null,
+        poststed = null,
     )
 
     context("get or sync arrangør fra brreg") {
@@ -55,8 +55,6 @@ class ArrangorServiceTest : FunSpec({
                     it.id.shouldNotBeNull()
                     it.navn shouldBe "Testbedriften AS"
                     it.organisasjonsnummer shouldBe Organisasjonsnummer("123456789")
-                    it.postnummer shouldBe "0484"
-                    it.poststed shouldBe "Oslo"
                     it.underenheter.shouldBeNull()
                 }
                 queries.arrangor.get(underenhet.organisasjonsnummer).shouldBeNull()

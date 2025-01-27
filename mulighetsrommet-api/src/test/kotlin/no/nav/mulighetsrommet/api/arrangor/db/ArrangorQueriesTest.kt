@@ -30,8 +30,6 @@ class ArrangorQueriesTest : FunSpec({
                     id = UUID.randomUUID(),
                     navn = "REMA 1000 AS",
                     organisasjonsnummer = Organisasjonsnummer("982254604"),
-                    postnummer = "5174",
-                    poststed = "Mathopen",
                 )
                 queries.upsert(overordnet)
 
@@ -40,8 +38,6 @@ class ArrangorQueriesTest : FunSpec({
                     organisasjonsnummer = Organisasjonsnummer("880907522"),
                     overordnetEnhet = overordnet.organisasjonsnummer,
                     navn = "REMA 1000 NORGE AS REGION NORDLAND",
-                    postnummer = "5174",
-                    poststed = "Mathopen",
                 )
                 queries.upsert(underenhet1)
 
@@ -50,8 +46,6 @@ class ArrangorQueriesTest : FunSpec({
                     organisasjonsnummer = Organisasjonsnummer("912704327"),
                     overordnetEnhet = overordnet.organisasjonsnummer,
                     navn = "REMA 1000 NORGE AS REGION VESTRE ØSTLAND",
-                    postnummer = "5174",
-                    poststed = "Mathopen",
                 )
                 queries.upsert(underenhet2)
 
@@ -59,8 +53,6 @@ class ArrangorQueriesTest : FunSpec({
                     id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("100000001"),
                     navn = "X - Utenlandsk arrangør",
-                    postnummer = null,
-                    poststed = null,
                 )
                 queries.upsert(utenlandsk)
                 session.execute(queryOf("update arrangor set er_utenlandsk_virksomhet = true where organisasjonsnummer = '${utenlandsk.organisasjonsnummer.value}'"))
@@ -92,16 +84,12 @@ class ArrangorQueriesTest : FunSpec({
                     organisasjonsnummer = Organisasjonsnummer("880907522"),
                     overordnetEnhet = Organisasjonsnummer("982254604"),
                     navn = "REMA 1000 NORGE AS REGION NORDLAND",
-                    postnummer = "5174",
-                    poststed = "Mathopen",
                 )
 
                 val overordnet = ArrangorDto(
                     id = UUID.randomUUID(),
                     navn = "REMA 1000 AS",
                     organisasjonsnummer = Organisasjonsnummer("982254604"),
-                    postnummer = "5174",
-                    poststed = "Mathopen",
                 )
 
                 queries.upsert(overordnet)
@@ -131,16 +119,12 @@ class ArrangorQueriesTest : FunSpec({
                     overordnetEnhet = Organisasjonsnummer("982254604"),
                     navn = "REMA 1000 NORGE AS REGION NORDLAND",
                     slettetDato = slettetDato,
-                    postnummer = "5174",
-                    poststed = "Mathopen",
                 )
 
                 val overordnet = ArrangorDto(
                     id = UUID.randomUUID(),
                     navn = "REMA 1000 AS",
                     organisasjonsnummer = Organisasjonsnummer("982254604"),
-                    postnummer = "5174",
-                    poststed = "Mathopen",
                 )
 
                 queries.upsert(overordnet)

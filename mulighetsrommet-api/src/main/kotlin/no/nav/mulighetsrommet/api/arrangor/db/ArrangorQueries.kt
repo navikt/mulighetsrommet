@@ -21,16 +21,13 @@ class ArrangorQueries(private val session: Session) {
     fun upsert(arrangor: ArrangorDto) {
         @Language("PostgreSQL")
         val query = """
-            insert into arrangor(id, organisasjonsnummer, navn, overordnet_enhet, slettet_dato, postnummer, poststed)
-            values (:id, :organisasjonsnummer, :navn, :overordnet_enhet, :slettet_dato, :postnummer, :poststed)
+            insert into arrangor(id, organisasjonsnummer, navn, overordnet_enhet, slettet_dato)
+            values (:id, :organisasjonsnummer, :navn, :overordnet_enhet, :slettet_dato)
             on conflict (id) do update set
                 organisasjonsnummer = excluded.organisasjonsnummer,
                 navn = excluded.navn,
                 overordnet_enhet = excluded.overordnet_enhet,
-                slettet_dato = excluded.slettet_dato,
-                postnummer = excluded.postnummer,
-                poststed = excluded.poststed
-            returning *
+                slettet_dato = excluded.slettet_dato
         """.trimIndent()
 
         val parameters = arrangor.run {
@@ -40,8 +37,6 @@ class ArrangorQueries(private val session: Session) {
                 "navn" to navn,
                 "overordnet_enhet" to overordnetEnhet?.value,
                 "slettet_dato" to slettetDato,
-                "postnummer" to postnummer,
-                "poststed" to poststed,
             )
         }
 
@@ -77,8 +72,6 @@ class ArrangorQueries(private val session: Session) {
                 arrangor.overordnet_enhet,
                 arrangor.navn,
                 arrangor.slettet_dato,
-                arrangor.postnummer,
-                arrangor.poststed,
                 count(*) over() as total_count
             from arrangor
             where $isRelatedToTiltak
@@ -111,9 +104,7 @@ class ArrangorQueries(private val session: Session) {
                 organisasjonsnummer,
                 overordnet_enhet,
                 navn,
-                slettet_dato,
-                postnummer,
-                poststed
+                slettet_dato
             from arrangor
             where organisasjonsnummer = ?
         """.trimIndent()
@@ -125,9 +116,7 @@ class ArrangorQueries(private val session: Session) {
                 organisasjonsnummer,
                 overordnet_enhet,
                 navn,
-                slettet_dato,
-                postnummer,
-                poststed
+                slettet_dato
             from arrangor
             where overordnet_enhet = ?
         """.trimIndent()
@@ -146,9 +135,7 @@ class ArrangorQueries(private val session: Session) {
                 organisasjonsnummer,
                 overordnet_enhet,
                 navn,
-                slettet_dato,
-                postnummer,
-                poststed
+                slettet_dato
             from arrangor
             where id = ?::uuid
         """.trimIndent()
@@ -170,9 +157,7 @@ class ArrangorQueries(private val session: Session) {
                 organisasjonsnummer,
                 overordnet_enhet,
                 navn,
-                slettet_dato,
-                postnummer,
-                poststed
+                slettet_dato
             from arrangor
             where overordnet_enhet = ?
             order by navn
@@ -282,8 +267,6 @@ class ArrangorQueries(private val session: Session) {
         navn = string("navn"),
         overordnetEnhet = stringOrNull("overordnet_enhet")?.let { Organisasjonsnummer(it) },
         slettetDato = localDateOrNull("slettet_dato"),
-        postnummer = stringOrNull("postnummer"),
-        poststed = stringOrNull("poststed"),
     )
 
     private fun Row.toArrangorKontaktperson() = ArrangorKontaktperson(

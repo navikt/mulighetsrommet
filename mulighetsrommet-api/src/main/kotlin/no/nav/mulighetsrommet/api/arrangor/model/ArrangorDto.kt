@@ -20,8 +20,6 @@ data class ArrangorDto(
     val navn: String,
     val overordnetEnhet: Organisasjonsnummer? = null,
     val underenheter: List<ArrangorDto>? = null,
-    val postnummer: String?,
-    val poststed: String?,
     @Serializable(with = LocalDateSerializer::class)
     val slettetDato: LocalDate? = null,
 )

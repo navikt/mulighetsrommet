@@ -85,8 +85,6 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
                         id = id,
                         organisasjonsnummer = virksomhetDto.organisasjonsnummer,
                         navn = "Kiwi",
-                        postnummer = "9999",
-                        poststed = "Gåseby",
                     ),
                 )
             }
@@ -99,8 +97,6 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
                     it.id shouldBe id
                     it.organisasjonsnummer shouldBe virksomhetDto.organisasjonsnummer
                     it.navn shouldBe "REMA 1000 AS"
-                    it.postnummer shouldBe "1000"
-                    it.poststed shouldBe "Andeby"
                 }
             }
         }
@@ -113,8 +109,6 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
                             id = UUID.randomUUID(),
                             organisasjonsnummer = underenhetDto.organisasjonsnummer,
                             navn = "Kiwi",
-                            postnummer = "9999",
-                            poststed = "Gåseby",
                         ),
                     )
                     queries.arrangor.get(underenhetDto.organisasjonsnummer).shouldNotBeNull()

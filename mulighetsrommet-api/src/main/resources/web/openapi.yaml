@@ -4221,12 +4221,6 @@ components:
           items:
             $ref: "#/components/schemas/Arrangor"
           nullable: true
-        postnummer:
-          type: string
-          nullable: true
-        poststed:
-          type: string
-          nullable: true
         slettetDato:
           type: string
           format: date
