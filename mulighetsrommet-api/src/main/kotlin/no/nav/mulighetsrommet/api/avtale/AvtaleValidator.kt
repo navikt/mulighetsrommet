@@ -192,6 +192,7 @@ class AvtaleValidator(
             )
         }
 
+        // @todo: Make arrangor optional
         avtale.arrangorUnderenheter.forEach { underenhetId ->
             val underenhet = queries.arrangor.getById(underenhetId)
 

@@ -12,6 +12,7 @@ data class AvtaleDbo(
     val tiltakstypeId: UUID,
     val avtalenummer: String?,
     val websaknummer: Websaknummer?,
+    // @todo: Make nullable
     val arrangorId: UUID,
     val arrangorUnderenheter: List<UUID>,
     val arrangorKontaktpersoner: List<UUID>,

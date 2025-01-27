@@ -2691,7 +2691,6 @@ components:
         - tiltakstype
         - navn
         - avtalenummer
-        - arrangor
         - startDato
         - avtaletype
         - status

@@ -19,6 +19,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
+// @Todo: Look into sealed classes
 @Serializable
 data class AvtaleDto(
     @Serializable(with = UUIDSerializer::class)
@@ -27,6 +28,7 @@ data class AvtaleDto(
     val navn: String,
     val avtalenummer: String?,
     val websaknummer: Websaknummer?,
+    // research how it effects to code base
     val arrangor: ArrangorHovedenhet,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
