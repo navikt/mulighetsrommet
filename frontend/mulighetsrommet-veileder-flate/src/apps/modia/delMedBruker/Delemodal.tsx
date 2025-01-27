@@ -1,15 +1,15 @@
+import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
+import { useDelTiltakMedBruker } from "@/api/queries/useDelTiltakMedBruker";
 import { ModiaRoute, navigateToModiaApp } from "@/apps/modia/ModiaRoute";
 import { PortenLink } from "@/components/PortenLink";
 import { StatusModal } from "@/components/modal/StatusModal";
 import { useLogEvent } from "@/logging/amplitude";
 import { erPreview } from "@/utils/Utils";
-import { BodyShort, Button, Checkbox, Heading, HelpText, Modal } from "@navikt/ds-react";
 import { Bruker, DelMedBruker, VeilederflateTiltak } from "@mr/api-client-v2";
-import { useDelTiltakMedBruker } from "@/api/queries/useDelTiltakMedBruker";
+import { BodyShort, Button, Checkbox, Heading, HelpText, Modal, VStack } from "@navikt/ds-react";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import style from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
-import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 
 interface DelemodalProps {
   veiledernavn?: string;
