@@ -6,7 +6,16 @@ import { StatusModal } from "@/components/modal/StatusModal";
 import { useLogEvent } from "@/logging/amplitude";
 import { erPreview } from "@/utils/Utils";
 import { Bruker, DelMedBruker, VeilederflateTiltak } from "@mr/api-client-v2";
-import { BodyShort, Button, Checkbox, Heading, HelpText, Modal } from "@navikt/ds-react";
+import {
+  BodyShort,
+  Button,
+  Checkbox,
+  Heading,
+  HelpText,
+  HStack,
+  Modal,
+  VStack,
+} from "@navikt/ds-react";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import style from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
@@ -124,14 +133,14 @@ export function Delemodal({
           />
         </Modal.Body>
 
-        <Modal.Footer className={style.delemodal_footer}>
-          <div className={style.delemodal_actions}>
+        <Modal.Footer className="grid pt-5">
+          <div className="flex items-center gap-5">
             {enableRedigerDeletekst ? null : (
               <Button size="small" onClick={enableEndreDeletekst} variant="secondary">
                 Rediger melding
               </Button>
             )}
-            <div className={style.delemodal_venter_pa_svar}>
+            <div className="flex">
               <Checkbox
                 onChange={(e) => {
                   dispatch({
@@ -159,7 +168,6 @@ export function Delemodal({
               </HelpText>
             </div>
           </div>
-
           <BodyShort size="small">
             Kandidatene vil få et varsel fra Nav, og kan logge inn på nav.no for å lese meldingen.
           </BodyShort>
