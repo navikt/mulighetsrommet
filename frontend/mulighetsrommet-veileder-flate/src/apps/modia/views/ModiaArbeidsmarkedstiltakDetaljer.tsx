@@ -194,9 +194,9 @@ function isIndividueltTiltak(tiltakstype: VeilederflateTiltakstype): boolean {
 
 function lenkeTilOpprettAvtale(): string {
   const baseUrl = isProduction
-    ? "https://gjennomforing.intern.nav.no"
-    : "https://gjennomforing.intern.dev.nav.no";
-  return `${baseUrl}/gjennomforing/opprett-avtale`;
+    ? "https://tiltaksgjennomforing.intern.nav.no"
+    : "https://tiltaksgjennomforing.intern.dev.nav.no";
+  return `${baseUrl}/tiltaksgjennomforing/opprett-avtale`;
 }
 
 function harBrukerRettPaaValgtTiltak(
