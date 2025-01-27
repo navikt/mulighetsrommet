@@ -10,8 +10,9 @@ import no.nav.mulighetsrommet.api.responses.NotFound
 import no.nav.mulighetsrommet.api.responses.ServerError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.brreg.BrregClient
+import no.nav.mulighetsrommet.brreg.BrregEnhetDto
 import no.nav.mulighetsrommet.brreg.BrregError
-import no.nav.mulighetsrommet.brreg.BrregVirksomhetDto
+import no.nav.mulighetsrommet.brreg.SlettetBrregEnhetDto
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import org.koin.ktor.ext.inject
 
@@ -72,12 +73,17 @@ fun toStatusResponseError(it: BrregError) = when (it) {
     BrregError.Error -> ServerError()
 }
 
-private fun toBrregVirksomhetDto(arrangor: ArrangorDto) = BrregVirksomhetDto(
-    organisasjonsnummer = arrangor.organisasjonsnummer,
-    navn = arrangor.navn,
-    overordnetEnhet = arrangor.overordnetEnhet,
-    underenheter = listOf(),
-    postnummer = arrangor.postnummer,
-    poststed = arrangor.poststed,
-    slettetDato = arrangor.slettetDato,
-)
+private fun toBrregVirksomhetDto(arrangor: ArrangorDto) = when {
+    arrangor.slettetDato != null -> SlettetBrregEnhetDto(
+        organisasjonsnummer = arrangor.organisasjonsnummer,
+        navn = arrangor.navn,
+        slettetDato = arrangor.slettetDato,
+    )
+
+    else -> BrregEnhetDto(
+        organisasjonsnummer = arrangor.organisasjonsnummer,
+        navn = arrangor.navn,
+        postnummer = arrangor.postnummer,
+        poststed = arrangor.poststed,
+    )
+}

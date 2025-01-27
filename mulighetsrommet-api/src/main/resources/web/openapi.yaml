@@ -4199,24 +4199,6 @@ components:
           type: string
         navn:
           type: string
-        overordnetEnhet:
-          type: string
-          nullable: true
-        underenheter:
-          type: array
-          items:
-            $ref: "#/components/schemas/BrregVirksomhet"
-          nullable: true
-        postnummer:
-          type: string
-          nullable: true
-        poststed:
-          type: string
-          nullable: true
-        slettetDato:
-          type: string
-          format: date
-          nullable: true
       required:
         - organisasjonsnummer
         - navn

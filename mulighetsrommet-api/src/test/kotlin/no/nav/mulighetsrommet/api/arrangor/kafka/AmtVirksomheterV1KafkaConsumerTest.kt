@@ -12,12 +12,16 @@ import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.brreg.BrregClient
-import no.nav.mulighetsrommet.brreg.BrregVirksomhetDto
+import no.nav.mulighetsrommet.brreg.BrregEnhetMedUnderenheterDto
+import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import java.util.*
 
 class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -35,7 +39,7 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
             overordnetEnhetOrganisasjonsnummer = amtVirksomhet.organisasjonsnummer,
         )
 
-        val underenhetDto = BrregVirksomhetDto(
+        val underenhetDto = BrregUnderenhetDto(
             navn = amtUnderenhet.navn,
             organisasjonsnummer = amtUnderenhet.organisasjonsnummer,
             overordnetEnhet = amtVirksomhet.organisasjonsnummer,
@@ -43,10 +47,9 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
             poststed = "Andeby",
         )
 
-        val virksomhetDto = BrregVirksomhetDto(
+        val virksomhetDto = BrregEnhetMedUnderenheterDto(
             organisasjonsnummer = amtVirksomhet.organisasjonsnummer,
             navn = amtVirksomhet.navn,
-            overordnetEnhet = null,
             underenheter = listOf(),
             postnummer = "1000",
             poststed = "Andeby",
@@ -56,10 +59,13 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
         coEvery { brregClient.getBrregVirksomhet(amtVirksomhet.organisasjonsnummer) } returns virksomhetDto.right()
         coEvery { brregClient.getBrregVirksomhet(amtUnderenhet.organisasjonsnummer) } returns underenhetDto.right()
 
-        val virksomhetConsumer = AmtVirksomheterV1KafkaConsumer(
-            config = KafkaTopicConsumer.Config(id = "virksomheter", topic = "virksomheter"),
+        val arrangorService = ArrangorService(
             db = database.db,
             brregClient = brregClient,
+        )
+        val virksomhetConsumer = AmtVirksomheterV1KafkaConsumer(
+            config = KafkaTopicConsumer.Config(id = "virksomheter", topic = "virksomheter"),
+            arrangorService = arrangorService,
         )
 
         test("ignorer virksomheter når de ikke allerede er lagret i databasen") {
@@ -72,27 +78,47 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
         }
 
         test("oppdaterer bare virksomheter som er lagret i databasen") {
+            val id = UUID.randomUUID()
             database.run {
-                queries.arrangor.upsert(virksomhetDto.copy(navn = "Kiwi", postnummer = "9999", poststed = "Gåseby"))
+                queries.arrangor.upsert(
+                    ArrangorDto(
+                        id = id,
+                        organisasjonsnummer = virksomhetDto.organisasjonsnummer,
+                        navn = "Kiwi",
+                        postnummer = "9999",
+                        poststed = "Gåseby",
+                    ),
+                )
             }
 
             virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer.value, Json.encodeToJsonElement(amtVirksomhet))
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer.value, Json.encodeToJsonElement(amtUnderenhet))
 
             database.run {
-                queries.arrangor.getAll().should {
-                    it.items.shouldHaveSize(1)
-                    it.items[0].navn shouldBe "REMA 1000 AS"
-                    it.items[0].postnummer shouldBe "1000"
-                    it.items[0].poststed shouldBe "Andeby"
+                queries.arrangor.getAll().items.shouldHaveSize(1).first().should {
+                    it.id shouldBe id
+                    it.organisasjonsnummer shouldBe virksomhetDto.organisasjonsnummer
+                    it.navn shouldBe "REMA 1000 AS"
+                    it.postnummer shouldBe "1000"
+                    it.poststed shouldBe "Andeby"
                 }
             }
         }
 
         test("delete virksomheter for tombstone messages") {
             database.run {
-                queries.arrangor.upsert(underenhetDto)
-                queries.arrangor.get(underenhetDto.organisasjonsnummer).shouldNotBeNull()
+                database.run {
+                    queries.arrangor.upsert(
+                        ArrangorDto(
+                            id = UUID.randomUUID(),
+                            organisasjonsnummer = underenhetDto.organisasjonsnummer,
+                            navn = "Kiwi",
+                            postnummer = "9999",
+                            poststed = "Gåseby",
+                        ),
+                    )
+                    queries.arrangor.get(underenhetDto.organisasjonsnummer).shouldNotBeNull()
+                }
             }
 
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer.value, JsonNull)

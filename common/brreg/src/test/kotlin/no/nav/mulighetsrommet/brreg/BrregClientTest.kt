@@ -10,31 +10,31 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 
 class BrregClientTest : FunSpec({
 
-    val hovedenhet = BrregUnderenhet(
+    val enhet = Enhet(
         organisasjonsnummer = Organisasjonsnummer("123456789"),
         navn = "Nav Hovedenhet",
-        beliggenhetsadresse = BrregAdresse(poststed = "Oslo", postnummer = "1234"),
+        postAdresse = Adresse(poststed = "Oslo", postnummer = "1234"),
     )
-    val underenhet = BrregUnderenhet(
+    val underenhet = Underenhet(
         organisasjonsnummer = Organisasjonsnummer("123456780"),
         navn = "Nav Underenhet",
         overordnetEnhet = Organisasjonsnummer("123456789"),
-        beliggenhetsadresse = BrregAdresse(poststed = "Oslo", postnummer = "1234"),
+        beliggenhetsadresse = Adresse(poststed = "Oslo", postnummer = "1234"),
     )
 
     context("sokOverordnetEnhet") {
-        test("Søk etter hovedenhet skal returnere en liste med treff") {
+        test("Søk etter enheter skal returnere en liste med treff") {
             val brregClient = BrregClient(
                 baseUrl = "https://brreg.no",
                 clientEngine = createMockEngine(
                     "/enheter?navn=Nav" to {
-                        respondJson(BrregEmbeddedHovedenheter(BrregHovedenheter(listOf(hovedenhet))))
+                        respondJson(EmbeddedEnheter(EmbeddedEnheter.Enheter(listOf(enhet))))
                     },
                 ),
             )
 
             brregClient.sokOverordnetEnhet("Nav") shouldBeRight listOf(
-                BrregVirksomhetDto(
+                BrregEnhetDto(
                     organisasjonsnummer = Organisasjonsnummer("123456789"),
                     navn = "Nav Hovedenhet",
                     postnummer = "1234",
@@ -43,12 +43,12 @@ class BrregClientTest : FunSpec({
             )
         }
 
-        test("Søk etter hovedenhet skal returnere en tom liste hvis ingen treff") {
+        test("Søk etter enhet skal returnere en tom liste hvis ingen treff") {
             val brregClient = BrregClient(
                 baseUrl = "https://brreg.no",
                 clientEngine = createMockEngine(
                     "/enheter?navn=Nav" to {
-                        respondJson(BrregEmbeddedHovedenheter())
+                        respondJson(EmbeddedEnheter())
                     },
                 ),
             )
@@ -63,13 +63,13 @@ class BrregClientTest : FunSpec({
                 baseUrl = "https://brreg.no",
                 clientEngine = createMockEngine(
                     "/underenheter?overordnetEnhet=123456789" to {
-                        respondJson(BrregEmbeddedUnderenheter(BrregUnderenheter(listOf(underenhet))))
+                        respondJson(EmbeddedUnderenheter(EmbeddedUnderenheter.Underenheter(listOf(underenhet))))
                     },
                 ),
             )
 
             brregClient.getUnderenheterForOverordnetEnhet(Organisasjonsnummer("123456789")) shouldBeRight listOf(
-                BrregVirksomhetDto(
+                BrregUnderenhetDto(
                     organisasjonsnummer = Organisasjonsnummer("123456780"),
                     navn = "Nav Underenhet",
                     overordnetEnhet = Organisasjonsnummer("123456789"),
@@ -84,7 +84,7 @@ class BrregClientTest : FunSpec({
                 baseUrl = "https://brreg.no",
                 clientEngine = createMockEngine(
                     "/underenheter?overordnetEnhet=123456789" to {
-                        respondJson(BrregEmbeddedHovedenheter())
+                        respondJson(EmbeddedEnheter())
                     },
                 ),
             )
@@ -93,21 +93,21 @@ class BrregClientTest : FunSpec({
         }
     }
 
-    context("getHovedenhet") {
+    context("getEnhetMedUnderenheter") {
         test("hent hovedenhet gitt orgnr") {
             val brregClient = BrregClient(
                 baseUrl = "https://brreg.no",
                 clientEngine = createMockEngine(
                     "/enheter/123456789" to {
-                        respondJson(hovedenhet)
+                        respondJson(enhet)
                     },
                     "/underenheter?overordnetEnhet=123456789" to {
-                        respondJson(BrregEmbeddedUnderenheter())
+                        respondJson(EmbeddedUnderenheter())
                     },
                 ),
             )
 
-            brregClient.getHovedenhetMedUnderenheter(Organisasjonsnummer("123456789")) shouldBeRight BrregVirksomhetDto(
+            brregClient.getEnhetMedUnderenheter(Organisasjonsnummer("123456789")) shouldBeRight BrregEnhetMedUnderenheterDto(
                 organisasjonsnummer = Organisasjonsnummer("123456789"),
                 navn = "Nav Hovedenhet",
                 underenheter = emptyList(),
@@ -121,19 +121,19 @@ class BrregClientTest : FunSpec({
                 baseUrl = "https://brreg.no",
                 clientEngine = createMockEngine(
                     "/enheter/123456789" to {
-                        respondJson(hovedenhet)
+                        respondJson(enhet)
                     },
                     "/underenheter?overordnetEnhet=123456789" to {
-                        respondJson(BrregEmbeddedUnderenheter(BrregUnderenheter(listOf(underenhet))))
+                        respondJson(EmbeddedUnderenheter(EmbeddedUnderenheter.Underenheter(listOf(underenhet))))
                     },
                 ),
             )
 
-            brregClient.getHovedenhetMedUnderenheter(Organisasjonsnummer("123456789")) shouldBeRight BrregVirksomhetDto(
+            brregClient.getEnhetMedUnderenheter(Organisasjonsnummer("123456789")) shouldBeRight BrregEnhetMedUnderenheterDto(
                 organisasjonsnummer = Organisasjonsnummer("123456789"),
                 navn = "Nav Hovedenhet",
                 underenheter = listOf(
-                    BrregVirksomhetDto(
+                    BrregUnderenhetDto(
                         organisasjonsnummer = Organisasjonsnummer("123456780"),
                         navn = "Nav Underenhet",
                         overordnetEnhet = Organisasjonsnummer("123456789"),
@@ -141,6 +141,29 @@ class BrregClientTest : FunSpec({
                         poststed = "Oslo",
                     ),
                 ),
+                postnummer = "1234",
+                poststed = "Oslo",
+            )
+        }
+    }
+
+    context("getEnhet") {
+        test("hent hovedenhet uten underenheter gitt orgnr") {
+            val brregClient = BrregClient(
+                baseUrl = "https://brreg.no",
+                clientEngine = createMockEngine(
+                    "/enheter/123456789" to {
+                        respondJson(enhet)
+                    },
+                    "/underenheter?overordnetEnhet=123456789" to {
+                        respondJson(EmbeddedUnderenheter(EmbeddedUnderenheter.Underenheter(listOf(underenhet))))
+                    },
+                ),
+            )
+
+            brregClient.getEnhet(Organisasjonsnummer("123456789")) shouldBeRight BrregEnhetDto(
+                organisasjonsnummer = Organisasjonsnummer("123456789"),
+                navn = "Nav Hovedenhet",
                 postnummer = "1234",
                 poststed = "Oslo",
             )
@@ -156,7 +179,7 @@ class BrregClientTest : FunSpec({
                 ),
             )
 
-            brregClient.getUnderenhet(Organisasjonsnummer("123456780")) shouldBeRight BrregVirksomhetDto(
+            brregClient.getUnderenhet(Organisasjonsnummer("123456780")) shouldBeRight BrregUnderenhetDto(
                 organisasjonsnummer = Organisasjonsnummer("123456780"),
                 navn = "Nav Underenhet",
                 overordnetEnhet = Organisasjonsnummer("123456789"),
@@ -172,19 +195,19 @@ class BrregClientTest : FunSpec({
                 baseUrl = "https://brreg.no",
                 clientEngine = createMockEngine(
                     "/enheter/123456789" to {
-                        respondJson(hovedenhet)
+                        respondJson(enhet)
                     },
                     "/underenheter?overordnetEnhet=123456789" to {
-                        respondJson(BrregEmbeddedUnderenheter(BrregUnderenheter(listOf(underenhet))))
+                        respondJson(EmbeddedUnderenheter(EmbeddedUnderenheter.Underenheter(listOf(underenhet))))
                     },
                 ),
             )
 
-            brregClient.getBrregVirksomhet(Organisasjonsnummer("123456789")) shouldBeRight BrregVirksomhetDto(
+            brregClient.getBrregVirksomhet(Organisasjonsnummer("123456789")) shouldBeRight BrregEnhetMedUnderenheterDto(
                 organisasjonsnummer = Organisasjonsnummer("123456789"),
                 navn = "Nav Hovedenhet",
                 underenheter = listOf(
-                    BrregVirksomhetDto(
+                    BrregUnderenhetDto(
                         organisasjonsnummer = Organisasjonsnummer("123456780"),
                         navn = "Nav Underenhet",
                         overordnetEnhet = Organisasjonsnummer("123456789"),
@@ -197,7 +220,7 @@ class BrregClientTest : FunSpec({
             )
         }
 
-        test("skal hente underenhet fra brreg gitt orgnr til underenhet") {
+        test("skal hente underenhet når det ikke finnes blandt enheter fra brreg gitt orgnr til underenhet") {
             val brregClient = BrregClient(
                 baseUrl = "https://brreg.no",
                 clientEngine = createMockEngine(
@@ -210,7 +233,7 @@ class BrregClientTest : FunSpec({
                 ),
             )
 
-            brregClient.getBrregVirksomhet(Organisasjonsnummer("123456780")) shouldBeRight BrregVirksomhetDto(
+            brregClient.getBrregVirksomhet(Organisasjonsnummer("123456780")) shouldBeRight BrregUnderenhetDto(
                 organisasjonsnummer = Organisasjonsnummer("123456780"),
                 navn = "Nav Underenhet",
                 overordnetEnhet = Organisasjonsnummer("123456789"),

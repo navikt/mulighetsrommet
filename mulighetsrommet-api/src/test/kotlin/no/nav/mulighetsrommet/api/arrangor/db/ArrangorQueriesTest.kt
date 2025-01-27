@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorTil
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
-import no.nav.mulighetsrommet.brreg.BrregVirksomhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.time.LocalDate
@@ -88,7 +87,8 @@ class ArrangorQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 val queries = ArrangorQueries(session)
 
-                val underenhet1 = BrregVirksomhetDto(
+                val underenhet1 = ArrangorDto(
+                    id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("880907522"),
                     overordnetEnhet = Organisasjonsnummer("982254604"),
                     navn = "REMA 1000 NORGE AS REGION NORDLAND",
@@ -96,10 +96,10 @@ class ArrangorQueriesTest : FunSpec({
                     poststed = "Mathopen",
                 )
 
-                val overordnet = BrregVirksomhetDto(
+                val overordnet = ArrangorDto(
+                    id = UUID.randomUUID(),
                     navn = "REMA 1000 AS",
                     organisasjonsnummer = Organisasjonsnummer("982254604"),
-                    underenheter = listOf(),
                     postnummer = "5174",
                     poststed = "Mathopen",
                 )

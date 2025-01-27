@@ -186,8 +186,7 @@ private fun kafka(appConfig: AppConfig) = module {
             ),
             AmtVirksomheterV1KafkaConsumer(
                 config = config.consumers.amtVirksomheterV1,
-                db = get(),
-                brregClient = get(),
+                get(),
             ),
             AmtArrangorMeldingV1KafkaConsumer(
                 config = config.consumers.amtArrangorMeldingV1,

@@ -6,27 +6,27 @@ import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import java.time.LocalDate
 
 @Serializable
-internal data class BrregEnhet(
+internal data class Enhet(
     val organisasjonsnummer: Organisasjonsnummer,
     val navn: String,
     val overordnetEnhet: Organisasjonsnummer? = null,
-    val postAdresse: BrregAdresse? = null,
+    val postAdresse: Adresse? = null,
     @Serializable(with = LocalDateSerializer::class)
     val slettedato: LocalDate? = null,
 )
 
 @Serializable
-internal data class BrregUnderenhet(
+internal data class Underenhet(
     val organisasjonsnummer: Organisasjonsnummer,
     val navn: String,
-    val overordnetEnhet: Organisasjonsnummer? = null,
-    val beliggenhetsadresse: BrregAdresse? = null,
+    val overordnetEnhet: Organisasjonsnummer,
+    val beliggenhetsadresse: Adresse? = null,
     @Serializable(with = LocalDateSerializer::class)
     val slettedato: LocalDate? = null,
 )
 
 @Serializable
-internal data class BrregAdresse(
+internal data class Adresse(
     val land: String? = null,
     val landkode: String? = null,
     val postnummer: String? = null,
@@ -37,23 +37,23 @@ internal data class BrregAdresse(
 )
 
 @Serializable
-internal data class BrregEmbeddedHovedenheter(
+internal data class EmbeddedEnheter(
     @Suppress("PropertyName")
-    val _embedded: BrregHovedenheter? = null,
+    val _embedded: Enheter? = null,
 ) {
     @Serializable
-    internal data class BrregHovedenheter(
-        val enheter: List<BrregUnderenhet>,
+    internal data class Enheter(
+        val enheter: List<Enhet>,
     )
 }
 
 @Serializable
-internal data class BrregEmbeddedUnderenheter(
+internal data class EmbeddedUnderenheter(
     @Suppress("PropertyName")
-    val _embedded: BrregUnderenheter? = null,
+    val _embedded: Underenheter? = null,
 ) {
     @Serializable
-    internal data class BrregUnderenheter(
-        val underenheter: List<BrregUnderenhet>,
+    internal data class Underenheter(
+        val underenheter: List<Underenhet>,
     )
 }

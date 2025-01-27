@@ -7,7 +7,6 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorTil
-import no.nav.mulighetsrommet.brreg.BrregVirksomhetDto
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
@@ -47,33 +46,6 @@ class ArrangorQueries(private val session: Session) {
         }
 
         session.execute(queryOf(query, parameters))
-    }
-
-    /** Upserter kun enheten og tar ikke hensyn til underenheter */
-    fun upsert(brregVirksomhet: BrregVirksomhetDto) {
-        @Language("PostgreSQL")
-        val query = """
-            insert into arrangor(organisasjonsnummer, navn, overordnet_enhet, slettet_dato, postnummer, poststed)
-            values (:organisasjonsnummer, :navn, :overordnet_enhet, :slettet_dato, :postnummer, :poststed)
-            on conflict (organisasjonsnummer) do update set
-                navn = excluded.navn,
-                overordnet_enhet = excluded.overordnet_enhet,
-                slettet_dato = excluded.slettet_dato,
-                postnummer = excluded.postnummer,
-                poststed = excluded.poststed
-            returning *
-        """.trimIndent()
-
-        val params = mapOf(
-            "organisasjonsnummer" to brregVirksomhet.organisasjonsnummer.value,
-            "navn" to brregVirksomhet.navn,
-            "overordnet_enhet" to brregVirksomhet.overordnetEnhet?.value,
-            "slettet_dato" to brregVirksomhet.slettetDato,
-            "postnummer" to brregVirksomhet.postnummer,
-            "poststed" to brregVirksomhet.poststed,
-        )
-
-        session.execute(queryOf(query, params))
     }
 
     fun getAll(
@@ -213,13 +185,13 @@ class ArrangorQueries(private val session: Session) {
         return arrangor.copy(underenheter = underenheter)
     }
 
-    fun delete(orgnr: String) {
+    fun delete(orgnr: Organisasjonsnummer) {
         @Language("PostgreSQL")
         val query = """
             delete from arrangor where organisasjonsnummer = ?
         """.trimIndent()
 
-        session.execute(queryOf(query, orgnr))
+        session.execute(queryOf(query, orgnr.value))
     }
 
     fun upsertKontaktperson(kontaktperson: ArrangorKontaktperson) {

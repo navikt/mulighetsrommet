@@ -169,7 +169,7 @@ class AvtaleService(
     private suspend fun syncArrangorFromBrreg(
         orgnr: Organisasjonsnummer,
     ): Either<List<ValidationError>, ArrangorDto> = arrangorService
-        .getOrSyncArrangorFromBrreg(orgnr)
+        .getArrangorOrSyncFromBrreg(orgnr)
         .mapLeft {
             ValidationError.of(
                 AvtaleRequest::arrangorOrganisasjonsnummer,
