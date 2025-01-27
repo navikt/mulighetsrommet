@@ -84,6 +84,7 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
                 oppstart = GjennomforingOppstartstype.FELLES,
                 tilgjengeligForArrangorFraOgMedDato = null,
                 apentForPamelding = true,
+                antallPlasser = 10,
             ),
         )
 

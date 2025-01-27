@@ -46,6 +46,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             oppstart = GjennomforingOppstartstype.FELLES,
             tilgjengeligForArrangorFraOgMedDato = null,
             apentForPamelding = true,
+            antallPlasser = 10,
         )
 
         val deltakelsesdato = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
