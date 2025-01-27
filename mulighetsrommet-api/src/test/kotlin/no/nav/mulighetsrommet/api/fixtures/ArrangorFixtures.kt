@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.util.*
 
 object ArrangorFixtures {

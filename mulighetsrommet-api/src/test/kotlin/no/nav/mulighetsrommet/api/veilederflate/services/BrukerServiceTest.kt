@@ -24,9 +24,9 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
-import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.model.Innsatsgruppe
+import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 
 class BrukerServiceTest : FunSpec({

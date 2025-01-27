@@ -4,7 +4,7 @@ import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.services.cms.SanityService
+import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import org.slf4j.LoggerFactory

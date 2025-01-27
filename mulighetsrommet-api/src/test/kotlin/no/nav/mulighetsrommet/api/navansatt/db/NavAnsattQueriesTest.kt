@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.model.NavIdent
 import java.util.*
 
 class NavAnsattQueriesTest : FunSpec({

@@ -11,22 +11,22 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.domain.dto.SanityArrangor
-import no.nav.mulighetsrommet.api.domain.dto.SanityArrangorKontaktperson
-import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforing
-import no.nav.mulighetsrommet.api.domain.dto.SanityTiltakstype
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
-import no.nav.mulighetsrommet.api.services.cms.CacheUsage
-import no.nav.mulighetsrommet.api.services.cms.SanityService
+import no.nav.mulighetsrommet.api.sanity.CacheUsage
+import no.nav.mulighetsrommet.api.sanity.SanityArrangor
+import no.nav.mulighetsrommet.api.sanity.SanityArrangorKontaktperson
+import no.nav.mulighetsrommet.api.sanity.SanityService
+import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
+import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet
 import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForPamelding
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dto.Faneinnhold
-import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
+import no.nav.mulighetsrommet.model.Faneinnhold
+import no.nav.mulighetsrommet.model.Innsatsgruppe
 import java.util.*
 
 class VeilederflateServiceTest : FunSpec({

@@ -48,6 +48,7 @@ import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnD
 import { NotifikasjonerPage } from "./pages/arbeidsbenk/notifikasjoner/NotifikasjonerPage";
 import { notifikasjonLoader } from "./pages/arbeidsbenk/notifikasjoner/notifikasjonerLoader";
 import { TilsagnForGjennomforingContainer } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnForGjennomforingContainer";
+import { DeltakerlisteContainer } from "@/pages/gjennomforing/deltakerliste/DeltakerlisteContainer";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -228,6 +229,19 @@ const router = () =>
                 element: <RefusjonskravForGjennomforingContainer />,
                 errorElement: <ErrorPage />,
                 loader: refusjonskravForGjennomforingLoader,
+              },
+            ],
+          },
+          {
+            path: "gjennomforinger/:gjennomforingId/deltakerliste",
+            element: <GjennomforingPage />,
+            errorElement: <ErrorPage />,
+            loader: gjennomforingLoader,
+            children: [
+              {
+                index: true,
+                element: <DeltakerlisteContainer />,
+                errorElement: <ErrorPage />,
               },
             ],
           },

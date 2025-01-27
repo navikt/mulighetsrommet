@@ -4,7 +4,7 @@ import no.nav.mulighetsrommet.api.avtale.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.OpsjonsmodellData
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
-import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.util.*
 

@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.altinn.db
 
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 
 data class BedriftRettigheterDbo(
     val organisasjonsnummer: Organisasjonsnummer,

@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.tiltakshistorikk
 import arrow.core.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.env.NaisEnv
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.tiltakshistorikk.clients.Avtale
 import no.nav.mulighetsrommet.tiltakshistorikk.clients.GraphqlRequest
 import no.nav.mulighetsrommet.tiltakshistorikk.clients.TiltakDatadelingClient

@@ -15,9 +15,9 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
-import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus.*
-import no.nav.mulighetsrommet.domain.dto.GjennomforingStatusDto
+import no.nav.mulighetsrommet.model.AvbruttAarsak
+import no.nav.mulighetsrommet.model.GjennomforingStatus.*
+import no.nav.mulighetsrommet.model.GjennomforingStatusDto
 import java.time.LocalDate
 import java.util.*
 

@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.veilederflate.models.JoyrideType
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederJoyrideDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.model.NavIdent
 
 class VeilederJoyrideQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))

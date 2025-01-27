@@ -18,8 +18,8 @@ import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
-import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus
+import no.nav.mulighetsrommet.model.AvbruttAarsak
+import no.nav.mulighetsrommet.model.GjennomforingStatus
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
 import java.time.LocalDateTime

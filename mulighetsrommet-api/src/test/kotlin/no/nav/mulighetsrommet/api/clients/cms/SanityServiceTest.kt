@@ -8,9 +8,9 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
-import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
-import no.nav.mulighetsrommet.api.services.cms.CacheUsage
-import no.nav.mulighetsrommet.api.services.cms.SanityService
+import no.nav.mulighetsrommet.api.sanity.CacheUsage
+import no.nav.mulighetsrommet.api.sanity.SanityResponse
+import no.nav.mulighetsrommet.api.sanity.SanityService
 import java.util.*
 
 class SanityServiceTest : FunSpec({

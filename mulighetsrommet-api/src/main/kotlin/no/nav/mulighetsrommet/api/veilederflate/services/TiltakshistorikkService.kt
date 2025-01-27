@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClien
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.hosTitleCaseArrangor
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
-import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

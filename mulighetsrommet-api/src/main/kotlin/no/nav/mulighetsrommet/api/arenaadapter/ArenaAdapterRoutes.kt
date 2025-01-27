@@ -5,9 +5,9 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
-import no.nav.mulighetsrommet.domain.dbo.ArenaGjennomforingDbo
-import no.nav.mulighetsrommet.domain.dto.UpsertTiltaksgjennomforingResponse
+import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
+import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
+import no.nav.mulighetsrommet.arena.UpsertTiltaksgjennomforingResponse
 import org.koin.ktor.ext.inject
 import java.util.*
 

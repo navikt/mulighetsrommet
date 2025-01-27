@@ -7,8 +7,8 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
-import no.nav.mulighetsrommet.domain.dto.ArenaTiltaksgjennomforingDto
-import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
+import no.nav.mulighetsrommet.model.ArenaTiltaksgjennomforingDto
+import no.nav.mulighetsrommet.model.ExchangeArenaIdForIdResponse
 import org.koin.ktor.ext.inject
 import java.util.*
 
@@ -24,7 +24,7 @@ fun Route.apiRoutes() {
                 status = HttpStatusCode.NotFound,
             )
 
-        call.respond(ExchangeArenaIdForIdResponse(mapping.entityId))
+        call.respond(no.nav.mulighetsrommet.model.ExchangeArenaIdForIdResponse(mapping.entityId))
     }
 
     get("/api/arenadata/{id}") {

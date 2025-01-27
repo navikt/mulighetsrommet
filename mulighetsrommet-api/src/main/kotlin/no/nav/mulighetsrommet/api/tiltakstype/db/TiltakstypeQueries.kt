@@ -6,8 +6,8 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.database.createTextArray
-import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Tiltakskode
 import org.intellij.lang.annotations.Language
 import java.util.*
 

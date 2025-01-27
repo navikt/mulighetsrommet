@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.refusjon.model.DeltakerDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatus
 import java.time.LocalDateTime
 import java.util.*
 

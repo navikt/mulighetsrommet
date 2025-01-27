@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn.model
 
-import no.nav.mulighetsrommet.api.refusjon.model.Periode
-import no.nav.mulighetsrommet.domain.Tiltakskode
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 
 data class ForhandsgodkjentSats(

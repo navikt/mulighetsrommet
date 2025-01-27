@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.unleash.strategies
 
 import io.getunleash.UnleashContext
 import io.getunleash.strategy.Strategy
-import no.nav.mulighetsrommet.domain.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltakskode
 
 class ByTiltakskodeStrategy : Strategy {
     companion object {

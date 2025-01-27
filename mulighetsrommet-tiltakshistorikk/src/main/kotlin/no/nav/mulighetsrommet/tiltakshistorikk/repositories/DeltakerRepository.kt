@@ -2,11 +2,11 @@ package no.nav.mulighetsrommet.tiltakshistorikk.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.amt.model.AmtDeltakerV1Dto
+import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
-import no.nav.mulighetsrommet.domain.dto.*
-import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
+import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Tiltakskode
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*

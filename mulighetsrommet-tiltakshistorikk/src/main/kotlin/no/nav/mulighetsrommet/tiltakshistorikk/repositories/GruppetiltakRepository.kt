@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.tiltakshistorikk.repositories
 
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*

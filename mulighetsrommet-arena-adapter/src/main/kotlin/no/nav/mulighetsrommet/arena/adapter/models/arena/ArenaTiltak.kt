@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter.models.arena
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.dto.JaNeiStatus
+import no.nav.mulighetsrommet.arena.JaNeiStatus
 
 @Suppress("PropertyName")
 @Serializable
