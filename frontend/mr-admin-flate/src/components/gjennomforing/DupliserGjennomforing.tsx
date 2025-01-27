@@ -1,5 +1,5 @@
 import { useSetAtom } from "jotai";
-import { Opphav, GjennomforingDto } from "@mr/api-client";
+import { Opphav, GjennomforingDto } from "@mr/api-client-v2";
 import { useNavigate } from "react-router";
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { DupliserButton } from "../detaljside/DupliserButton";

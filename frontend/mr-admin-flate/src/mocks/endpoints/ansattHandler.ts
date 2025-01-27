@@ -1,5 +1,5 @@
 import { HttpResponse, PathParams, http } from "msw";
-import { NavAnsatt } from "@mr/api-client";
+import { NavAnsatt } from "@mr/api-client-v2";
 import { mockRedaktor, mockKontaktpersoner } from "../fixtures/mock_ansatt";
 
 export const ansattHandlers = [

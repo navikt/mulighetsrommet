@@ -1,4 +1,4 @@
-import { TilsagnStatus, TilsagnStatusAnnullert, TilsagnStatusDto } from "@mr/api-client";
+import { TilsagnStatus, TilsagnStatusAnnullert, TilsagnStatusDto } from "@mr/api-client-v2";
 import { BodyLong, List, Tag, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";

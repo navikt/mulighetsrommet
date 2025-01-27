@@ -8,7 +8,7 @@ import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { avbrytAvtaleAarsakToString } from "@/utils/Utils";
 import { BodyShort, Button, Radio } from "@navikt/ds-react";
-import { AvbrytAvtaleAarsak, AvtaleDto } from "@mr/api-client";
+import { AvbrytAvtaleAarsak, AvtaleDto } from "@mr/api-client-v2";
 import { RefObject, useState } from "react";
 import { useNavigate } from "react-router";
 import z from "zod";
@@ -151,7 +151,6 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
                   errors: { ...state.errors, customAarsakError: undefined },
                 });
               }}
-              mutation={mutation}
               aarsakError={state?.errors.aarsakError}
               customAarsakError={state?.errors.customAarsakError}
               radioknapp={

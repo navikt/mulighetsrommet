@@ -6,7 +6,7 @@ import { oppgaverFilterAtom } from "@/api/atoms";
 import { oppgaverLoader } from "@/pages/arbeidsbenk/oppgaver/oppgaverLoader";
 import { Oppgave } from "@/components/oppgaver/Oppgave";
 import { useState } from "react";
-import { GetOppgaverResponse } from "@mr/api-client";
+import { GetOppgaverResponse } from "@mr/api-client-v2";
 import { useAtom } from "jotai/index";
 import { useOppgaver } from "@/api/oppgaver/useOppgaver";
 import { EmptyState } from "@/components/notifikasjoner/EmptyState";

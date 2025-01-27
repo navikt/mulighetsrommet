@@ -13,9 +13,9 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.veilederflate.models.DelMedBrukerDbo
 import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
-import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
+import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
 import java.util.*
@@ -84,10 +84,8 @@ fun Route.delMedBrukerRoutes() {
             poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
 
             val deltMedBruker = delMedBrukerService.getDeltMedBruker(request.norskIdent, request.tiltakId)
-                ?: call.respondText(
-                    status = HttpStatusCode.NoContent,
-                    text = "Fant ikke innslag om at veileder har delt tiltak med bruker tidligere",
-                )
+                ?: return@post call.respond(HttpStatusCode.NoContent)
+
             call.respond(deltMedBruker)
         }
 

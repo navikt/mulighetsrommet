@@ -13,7 +13,7 @@ import {
   GjennomforingDto,
   GjennomforingOppstartstype,
   Tiltakskode,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
@@ -37,7 +37,7 @@ import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { GjennomforingUtdanningslopForm } from "../utdanning/GjennomforingUtdanningslopForm";
 import { SelectOppstartstype } from "./SelectOppstartstype";
-import { GjennomforingArrangorSkjema } from "./GjennomforingArrangorSkjema";
+import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 
 interface Props {
@@ -370,7 +370,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
             </FormGroup>
           </div>
           <FormGroup>
-            <GjennomforingArrangorSkjema readOnly={false} avtale={avtale} />
+            <GjennomforingArrangorForm readOnly={false} avtale={avtale} />
           </FormGroup>
         </SkjemaKolonne>
       </TwoColumnGrid>
@@ -406,13 +406,22 @@ function SokEtterKontaktperson({
       ?.filter((_, i) => i !== selectedIndex)
       .map((k) => k.navIdent);
 
-    const options = kontaktpersoner
-      ?.filter((kontaktperson) => !excludedKontaktpersoner?.includes(kontaktperson.navIdent))
+    const alleredeValgt = watch("kontaktpersoner")
+      ?.filter((_, i) => i === selectedIndex)
       ?.map((kontaktperson) => ({
-        label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navIdent}`,
+        label: kontaktperson.navIdent,
         value: kontaktperson.navIdent,
       }));
-    return options || [];
+
+    const options =
+      kontaktpersoner
+        ?.filter((kontaktperson) => !excludedKontaktpersoner?.includes(kontaktperson.navIdent))
+        ?.map((kontaktperson) => ({
+          label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navIdent}`,
+          value: kontaktperson.navIdent,
+        })) ?? [];
+
+    return alleredeValgt ? [...alleredeValgt, ...options] : options;
   };
 
   const valgteNavEnheter = watch("navEnheter");

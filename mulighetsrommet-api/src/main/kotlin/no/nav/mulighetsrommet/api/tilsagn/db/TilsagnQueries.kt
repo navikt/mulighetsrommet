@@ -8,11 +8,11 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.database.createEnumArray
-import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*
@@ -122,7 +122,7 @@ class TilsagnQueries(private val session: Session) {
 
     fun getTilsagnTilRefusjon(
         gjennomforingId: UUID,
-        periode: RefusjonskravPeriode,
+        periode: Periode,
     ): List<TilsagnDto> {
         @Language("PostgreSQL")
         val query = """
@@ -143,7 +143,7 @@ class TilsagnQueries(private val session: Session) {
 
     fun getArrangorflateTilsagnTilRefusjon(
         gjennomforingId: UUID,
-        periode: RefusjonskravPeriode,
+        periode: Periode,
     ): List<ArrangorflateTilsagn> {
         @Language("PostgreSQL")
         val query = """

@@ -1,10 +1,10 @@
 import { Dispatch, SetStateAction } from "react";
 import { CheckmarkCircleFillIcon, CheckmarkCircleIcon } from "@navikt/aksel-icons";
-import { NotificationStatus } from "@mr/api-client";
+import { NotificationStatus } from "@mr/api-client-v2";
 import { useSetNotificationStatus } from "@/api/notifikasjoner/useSetNotificationStatus";
 import { Button } from "@navikt/ds-react";
-import { useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "../../api/QueryKeys";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   id: string;

@@ -1,5 +1,13 @@
 package no.nav.mulighetsrommet.api.gjennomforing
 
+import arrow.core.Either
+import arrow.core.NonEmptyList
+import arrow.core.flatMap
+import arrow.core.nel
+import arrow.core.raise.either
+import arrow.core.raise.ensure
+import arrow.core.raise.ensureNotNull
+import arrow.core.raise.zipOrAccumulate
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -8,7 +16,7 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
-import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
+import no.nav.mulighetsrommet.api.avtale.FrikobleKontaktpersonRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
@@ -16,17 +24,15 @@ import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.responses.BadRequest
-import no.nav.mulighetsrommet.api.responses.ServerError
-import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.api.responses.respondWithStatusResponseError
+import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.api.services.ExcelService
-import no.nav.mulighetsrommet.domain.Tiltakskoder.isForhaandsgodkjentTiltak
-import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.*
-import no.nav.mulighetsrommet.domain.serializers.AvbruttAarsakSerializer
-import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskoder.isForhaandsgodkjentTiltak
+import no.nav.mulighetsrommet.serializers.AvbruttAarsakSerializer
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
@@ -153,6 +159,30 @@ fun Route.gjennomforingRoutes() {
                     .mapLeft { BadRequest(errors = it) }
 
                 call.respondWithStatusResponse(response)
+            }
+
+            put("{id}/stengt-hos-arrangor") {
+                val id: UUID by call.pathParameters
+                val navIdent = getNavIdent()
+                val request = call.receive<SetStengtHosArrangorRequest>()
+
+                val result = request.validate()
+                    .flatMap { (periode, beskrivelse) ->
+                        gjennomforinger.setStengtHosArrangor(id, periode, beskrivelse, EndretAv.NavAnsatt(navIdent))
+                    }
+                    .mapLeft { BadRequest(errors = it) }
+
+                call.respondWithStatusResponse(result)
+            }
+
+            delete("{id}/stengt-hos-arrangor/{periodeId}") {
+                val id: UUID by call.pathParameters
+                val periodeId: Int by call.pathParameters
+                val navIdent = getNavIdent()
+
+                gjennomforinger.deleteStengtHosArrangor(id, periodeId, EndretAv.NavAnsatt(navIdent))
+
+                call.respond(HttpStatusCode.OK)
             }
 
             delete("kontaktperson") {
@@ -419,6 +449,56 @@ data class PublisertRequest(
 data class SetApentForPameldingRequest(
     val apentForPamelding: Boolean,
 )
+
+@Serializable
+data class SetStengtHosArrangorRequest(
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeStart: LocalDate? = null,
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeSlutt: LocalDate? = null,
+    val beskrivelse: String? = null,
+) {
+    fun validate(): Either<NonEmptyList<ValidationError>, Pair<Periode, String>> = either {
+        zipOrAccumulate(
+            {
+                ensure(!beskrivelse.isNullOrBlank()) {
+                    ValidationError.of(
+                        SetStengtHosArrangorRequest::beskrivelse,
+                        message = "Du må legge inn en beskrivelse",
+                    )
+                }
+                beskrivelse
+            },
+            {
+                ensureNotNull(periodeStart) {
+                    ValidationError.of(
+                        SetStengtHosArrangorRequest::periodeStart,
+                        message = "Du må legge inn start på perioden",
+                    )
+                }
+            },
+            {
+                ensureNotNull(periodeSlutt) {
+                    ValidationError.of(
+                        SetStengtHosArrangorRequest::periodeSlutt,
+                        message = "Du må legge inn slutt på perioden",
+                    )
+                }
+            },
+        ) { beskrivelse, start, slutt ->
+            ensure(!slutt.isBefore(start)) {
+                ValidationError.of(
+                    SetStengtHosArrangorRequest::periodeStart,
+                    message = "Start må være før slutt",
+                ).nel()
+            }
+
+            val periode = Periode.fromInclusiveDates(start, slutt)
+
+            Pair(periode, beskrivelse)
+        }
+    }
+}
 
 @Serializable
 data class SetTilgjengligForArrangorRequest(

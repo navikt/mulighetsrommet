@@ -1,8 +1,9 @@
 import { Alert, BodyShort, Button, Heading, HStack, Table, VStack } from "@navikt/ds-react";
-import { AvtaleDto, OpsjonLoggRegistrert, OpsjonStatus } from "@mr/api-client";
+import { AvtaleDto, OpsjonLoggRegistrert, OpsjonStatus } from "@mr/api-client-v2";
 import { useSlettOpsjon } from "@/api/avtaler/useSlettOpsjon";
 import { formaterDato } from "@/utils/Utils";
 import { useRevalidator } from "react-router";
+import { TrashIcon } from "@navikt/aksel-icons";
 
 interface Props {
   avtale: AvtaleDto;
@@ -24,9 +25,9 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
     mutation.mutate(
       { id, avtaleId: avtale.id },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
           mutation.reset();
-          revalidator.revalidate();
+          await revalidator.revalidate();
         },
       },
     );
@@ -68,11 +69,11 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
                   {kanSletteOpsjon(log) && !readOnly ? (
                     <>
                       <Button
-                        onClick={() => fjernOpsjon(log.id)}
-                        size="small"
-                        variant="primary"
                         type="button"
-                        className="bg-none text-surface-inverted hover"
+                        size="small"
+                        variant="secondary-neutral"
+                        icon={<TrashIcon aria-hidden />}
+                        onClick={() => fjernOpsjon(log.id)}
                       >
                         Fjern
                       </Button>

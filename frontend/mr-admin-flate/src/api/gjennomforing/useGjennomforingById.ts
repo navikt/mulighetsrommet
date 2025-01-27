@@ -1,16 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
+import { useApiQuery } from "@mr/frontend-common";
 import { useGetGjennomforingIdFromUrl } from "../../hooks/useGetGjennomforingIdFromUrl";
 import { QueryKeys } from "@/api/QueryKeys";
-import { GjennomforingerService } from "@mr/api-client";
+import { GjennomforingerService } from "@mr/api-client-v2";
 
 export function useGjennomforingById() {
   const id = useGetGjennomforingIdFromUrl();
 
-  return useQuery({
+  return useApiQuery({
     queryKey: QueryKeys.gjennomforing(id!),
     queryFn: () =>
       GjennomforingerService.getGjennomforing({
-        id: id!,
+        path: { id: id! },
       }),
     enabled: !!id,
   });

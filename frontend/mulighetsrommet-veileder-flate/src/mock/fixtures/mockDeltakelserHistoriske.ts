@@ -3,8 +3,8 @@ import {
   Deltakelse,
   DeltakelseEierskap,
   ArbeidsgiverAvtaleStatus,
-} from "@mr/api-client";
-import { tiltakAvklaring, tiltakOppfolging } from "./mockTiltaksgjennomforinger";
+} from "@mr/api-client-v2";
+import { tiltakAvklaring, tiltakOppfolging } from "./mockGjennomforinger";
 
 export const deltakelserHistoriske: Deltakelse[] = [
   {

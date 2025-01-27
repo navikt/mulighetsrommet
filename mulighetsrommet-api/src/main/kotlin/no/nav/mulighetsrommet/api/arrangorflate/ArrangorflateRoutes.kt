@@ -10,6 +10,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import kotliquery.TransactionalSession
+import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
@@ -31,13 +32,12 @@ import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.domain.dto.Kid
-import no.nav.mulighetsrommet.domain.dto.Kontonummer
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.domain.dto.amt.Melding
-import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.model.Kid
+import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -324,7 +324,7 @@ suspend fun toRefusjonskrav(
     krav: RefusjonskravDto,
 ): ArrFlateRefusjonKravAft = when (val beregning = krav.beregning) {
     is RefusjonKravBeregningAft -> {
-        val deltakere = db.session { queries.deltaker.getAll(krav.gjennomforing.id) }
+        val deltakere = db.session { queries.deltaker.getAll(gjennomforingId = krav.gjennomforing.id) }
 
         val deltakereById = deltakere.associateBy { it.id }
         val personerByNorskIdent: Map<NorskIdent, RefusjonKravDeltakelse.Person> = getPersoner(pdl, deltakere)

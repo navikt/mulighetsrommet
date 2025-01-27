@@ -13,7 +13,7 @@ import {
   SorteringGjennomforinger,
   SorteringTiltakstyper,
   GjennomforingStatus,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { z, ZodType } from "zod";
 
 type SetStateActionWithReset<Value> =
@@ -229,7 +229,7 @@ export const AvtaleFilterSchema = z.object({
   sortering: createSorteringProps(z.custom<SorteringAvtaler>()),
   arrangorer: z.string().array(),
   visMineAvtaler: z.boolean(),
-  personvernBekreftet: z.boolean().array(),
+  personvernBekreftet: z.boolean().optional(),
   page: z.number(),
   pageSize: z.number(),
   lagretFilterIdValgt: z.string().optional(),
@@ -251,7 +251,7 @@ export const defaultAvtaleFilter: AvtaleFilter = {
   },
   arrangorer: [],
   visMineAvtaler: false,
-  personvernBekreftet: [],
+  personvernBekreftet: undefined,
   page: 1,
   pageSize: AVTALE_PAGE_SIZE,
   lagretFilterIdValgt: undefined,

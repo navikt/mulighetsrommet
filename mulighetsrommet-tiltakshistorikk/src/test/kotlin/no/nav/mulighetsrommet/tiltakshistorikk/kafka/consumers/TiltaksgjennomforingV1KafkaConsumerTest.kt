@@ -5,11 +5,11 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingStatus
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tiltakshistorikk.databaseConfig
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.GruppetiltakRepository
 import java.time.LocalDate

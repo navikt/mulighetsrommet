@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import java.time.LocalDate
 
 class UpdateApentForPameldingTest : FunSpec({

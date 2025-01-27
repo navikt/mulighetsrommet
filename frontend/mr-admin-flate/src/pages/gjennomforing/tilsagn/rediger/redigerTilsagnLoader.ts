@@ -3,7 +3,7 @@ import {
   TilsagnService,
   TilsagnStatus,
   GjennomforingerService,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { LoaderFunctionArgs } from "react-router";
 
 export async function redigerTilsagnLoader({ params }: LoaderFunctionArgs) {
@@ -17,17 +17,26 @@ export async function redigerTilsagnLoader({ params }: LoaderFunctionArgs) {
     throw new Error("tilsagnId is missing");
   }
 
-  const [gjennomforing, tilsagn, godkjenteTilsagn] = await Promise.all([
-    GjennomforingerService.getGjennomforing({ id: gjennomforingId }),
-    TilsagnService.getTilsagn({ id: tilsagnId }),
-    TilsagnService.getAll({
-      gjennomforingId,
-      statuser: [TilsagnStatus.GODKJENT, TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.RETURNERT],
-    }),
-  ]);
+  const [{ data: gjennomforing }, { data: tilsagn }, { data: godkjenteTilsagn }] =
+    await Promise.all([
+      GjennomforingerService.getGjennomforing({ path: { id: gjennomforingId } }),
+      TilsagnService.getTilsagn({ path: { id: tilsagnId } }),
+      TilsagnService.getAll({
+        query: {
+          gjennomforingId,
+          statuser: [
+            TilsagnStatus.GODKJENT,
+            TilsagnStatus.TIL_GODKJENNING,
+            TilsagnStatus.RETURNERT,
+          ],
+        },
+      }),
+    ]);
 
   // TODO: utled fra url, eller embed prismodell direkte i gjennomføring? Da slipper vi fossefall-requester
-  const avtale = await AvtalerService.getAvtale({ id: gjennomforing.avtaleId! });
+  const { data: avtale } = await AvtalerService.getAvtale({
+    path: { id: gjennomforing.avtaleId! },
+  });
 
   return { avtale, gjennomforing, tilsagn, godkjenteTilsagn };
 }

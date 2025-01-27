@@ -1,16 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
+import { useApiQuery } from "@mr/frontend-common";
 import { useGetTiltakstypeIdFromUrlOrThrow } from "../../hooks/useGetTiltakstypeIdFromUrl";
 import { QueryKeys } from "@/api/QueryKeys";
-import { TiltakstyperService } from "@mr/api-client";
+import { TiltakstyperService } from "@mr/api-client-v2";
 
 export function useTiltakstypeById() {
   const tiltakstypeId = useGetTiltakstypeIdFromUrlOrThrow();
 
-  return useQuery({
+  return useApiQuery({
     queryKey: QueryKeys.tiltakstype(tiltakstypeId),
     queryFn: () =>
       TiltakstyperService.getTiltakstypeById({
-        id: tiltakstypeId,
+        path: { id: tiltakstypeId },
       }),
     staleTime: 1000,
   });

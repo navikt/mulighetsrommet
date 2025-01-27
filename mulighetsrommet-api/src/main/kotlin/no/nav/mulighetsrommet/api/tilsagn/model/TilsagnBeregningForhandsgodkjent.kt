@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import java.lang.Math.addExact
 import java.math.RoundingMode
 import java.time.LocalDate

@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.veilederflate.models
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
-import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
-import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDateTime
 import java.util.*
 

@@ -1,15 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
-import { ApiError, GjennomforingerService } from "@mr/api-client";
+import { GjennomforingerService } from "@mr/api-client-v2";
 
 export function useSetTilgjengeligForArrangor() {
   const queryClient = useQueryClient();
 
-  return useMutation<unknown, ApiError, { id: string; tilgjengeligForArrangorDato: string }>({
-    mutationFn: async (data) => {
+  return useMutation({
+    mutationFn: async ({ id, dato }: { id: string; dato: string }) => {
       return GjennomforingerService.setTilgjengeligForArrangor({
-        id: data.id,
-        requestBody: { tilgjengeligForArrangorDato: data.tilgjengeligForArrangorDato },
+        path: { id: id },
+        body: { tilgjengeligForArrangorDato: dato },
       });
     },
 

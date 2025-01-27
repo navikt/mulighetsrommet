@@ -1,14 +1,15 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { QueryKeys } from "../query-keys";
-import { JoyrideService, JoyrideType } from "@mr/api-client";
+import { JoyrideService, JoyrideType } from "@mr/api-client-v2";
+import { useApiQuery } from "@mr/frontend-common";
 
 export function useJoyride(joyrideType: JoyrideType) {
-  const query = useQuery({
+  const query = useApiQuery({
     queryKey: QueryKeys.harFullfortJoyride(joyrideType),
     queryFn: () => {
       return JoyrideService.veilederHarFullfortJoyride({
-        joyrideType,
+        path: { joyrideType },
       });
     },
   });
@@ -22,7 +23,7 @@ export function useJoyride(joyrideType: JoyrideType) {
   const mutation = useMutation({
     mutationFn: (data: { joyrideType: JoyrideType; fullfort: boolean }) =>
       JoyrideService.lagreJoyrideHarKjort({
-        requestBody: { ...data },
+        body: { ...data },
       }),
   });
 

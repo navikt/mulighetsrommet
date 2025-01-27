@@ -1,14 +1,13 @@
 import { AvtaleFilter } from "@/api/atoms";
 import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
-import { APPLICATION_NAME } from "@/constants";
 import {
   capitalizeEveryWord,
   createQueryParamsForExcelDownloadForAvtale,
   formaterDato,
   formaterNavEnheter,
 } from "@/utils/Utils";
-import { OpenAPI, SorteringAvtaler } from "@mr/api-client";
+import { AvtalerService, SorteringAvtaler } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
@@ -37,22 +36,9 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
   const link = createRef<HTMLAnchorElement>();
 
   async function lastNedFil(filter: AvtaleFilter) {
-    const headers = new Headers();
-    headers.append("Nav-Consumer-Id", APPLICATION_NAME);
-
-    if (import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN) {
-      headers.append(
-        "Authorization",
-        `Bearer ${import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN}`,
-      );
-    }
-    headers.append("accept", "application/json");
-
-    const queryParams = createQueryParamsForExcelDownloadForAvtale(filter);
-
-    return await fetch(`${OpenAPI.BASE}/api/v1/intern/avtaler/excel?${queryParams}`, {
-      headers,
-    });
+    const query = createQueryParamsForExcelDownloadForAvtale(filter);
+    const { data } = await AvtalerService.lastNedAvtalerSomExcel(query);
+    return data;
   }
 
   async function lastNedExcel() {
@@ -62,8 +48,7 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
     }
 
     const excelFil = await lastNedFil(filter);
-    const blob = await excelFil.blob();
-    const url = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(excelFil);
     setExcelUrl(url);
     setLasterExcel(false);
   }

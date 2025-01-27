@@ -20,12 +20,12 @@ import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dto.Kontonummer
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.ktor.createMockEngine
+import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
 import org.junit.jupiter.api.assertThrows
 import java.time.Instant
 import java.time.LocalDate
@@ -56,7 +56,7 @@ class JournalforRefusjonskravTest : FunSpec({
         fristForGodkjenning = LocalDateTime.now(),
         beregning = RefusjonKravBeregningAft(
             input = RefusjonKravBeregningAft.Input(
-                periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2024, 8, 1)),
+                periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
                 sats = 20205,
                 deltakelser = emptySet(),
             ),

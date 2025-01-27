@@ -1,4 +1,4 @@
-import { NotificationStatus } from "@mr/api-client";
+import { NotificationStatus } from "@mr/api-client-v2";
 import { useNotifikasjonerForAnsatt } from "@/api/notifikasjoner/useNotifikasjonerForAnsatt";
 import { Laster } from "@/components/laster/Laster";
 import { EmptyState } from "./EmptyState";

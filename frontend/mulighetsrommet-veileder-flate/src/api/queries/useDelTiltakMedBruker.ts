@@ -1,24 +1,26 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  ApiError,
   DelMedBrukerService,
   DelTiltakMedBrukerRequest,
   DelTiltakMedBrukerResponse,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { QueryKeys } from "../query-keys";
 
 interface Props {
   onSuccess: (response: DelTiltakMedBrukerResponse) => void;
+  onError: () => void;
 }
 
-export function useDelTiltakMedBruker({ onSuccess }: Props) {
+export function useDelTiltakMedBruker({ onSuccess, onError }: Props) {
   const queryClient = useQueryClient();
-  return useMutation<DelTiltakMedBrukerResponse, ApiError, DelTiltakMedBrukerRequest>({
+  return useMutation({
     mutationKey: QueryKeys.DeltMedBrukerStatus,
-    mutationFn: async (requestBody) => DelMedBrukerService.delTiltakMedBruker({ requestBody }),
+    mutationFn: async (body: DelTiltakMedBrukerRequest) =>
+      DelMedBrukerService.delTiltakMedBruker({ body }),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: QueryKeys.DeltMedBrukerStatus });
-      onSuccess(response);
+      onSuccess(response.data!);
     },
+    onError: () => onError(),
   });
 }

@@ -1,4 +1,4 @@
-import { RegelverkLenke } from "@mr/api-client";
+import { RegelverkLenke } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import styles from "./SidemenyInfo.module.scss";
 

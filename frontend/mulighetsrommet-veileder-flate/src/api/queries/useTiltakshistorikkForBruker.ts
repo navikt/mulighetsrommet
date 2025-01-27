@@ -1,13 +1,13 @@
 import { QueryKeys } from "@/api/query-keys";
 import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
-import { HistorikkService } from "@mr/api-client";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useApiSuspenseQuery } from "@mr/frontend-common";
+import { HistorikkService } from "@mr/api-client-v2";
 
 export function useTiltakshistorikkForBruker(type: "AKTIVE" | "HISTORISKE") {
   const { fnr: norskIdent } = useModiaContext();
 
-  return useSuspenseQuery({
+  return useApiSuspenseQuery({
     queryKey: QueryKeys.BrukerHistorikk(norskIdent, type),
-    queryFn: () => HistorikkService.getTiltakshistorikk({ requestBody: { norskIdent, type } }),
+    queryFn: () => HistorikkService.getTiltakshistorikk({ body: { norskIdent, type } }),
   });
 }

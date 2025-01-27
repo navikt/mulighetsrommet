@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing.db
 
+import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
@@ -11,6 +12,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -26,12 +28,15 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Lillehammer
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
+import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.Pagination
-import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -393,6 +398,76 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.get(Oppfolging1.id).shouldNotBeNull().should {
                     it.amoKategorisering shouldBe null
                 }
+            }
+        }
+
+        test("stengt hos arrangør lagres og hentes i periodens rekkefølge") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = GjennomforingQueries(session)
+
+                queries.upsert(Oppfolging1)
+                queries.setStengtHosArrangor(
+                    Oppfolging1.id,
+                    Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                    "Januarferie",
+                )
+                queries.setStengtHosArrangor(
+                    Oppfolging1.id,
+                    Periode.forMonthOf(LocalDate.of(2025, 7, 1)),
+                    "Sommerferie",
+                )
+                queries.setStengtHosArrangor(
+                    Oppfolging1.id,
+                    Periode.forMonthOf(LocalDate.of(2024, 12, 1)),
+                    "Forrige juleferie",
+                )
+
+                queries.get(Oppfolging1.id).shouldNotBeNull().stengt shouldContainExactly listOf(
+                    GjennomforingDto.StengtPeriode(
+                        3,
+                        LocalDate.of(2024, 12, 1),
+                        LocalDate.of(2024, 12, 31),
+                        "Forrige juleferie",
+                    ),
+                    GjennomforingDto.StengtPeriode(
+                        1,
+                        LocalDate.of(2025, 1, 1),
+                        LocalDate.of(2025, 1, 31),
+                        "Januarferie",
+                    ),
+                    GjennomforingDto.StengtPeriode(
+                        2,
+                        LocalDate.of(2025, 7, 1),
+                        LocalDate.of(2025, 7, 31),
+                        "Sommerferie",
+                    ),
+                )
+            }
+        }
+
+        test("tillater ikke lagring av overlappende perioder med stengt hos arrangør") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = GjennomforingQueries(session)
+
+                queries.upsert(Oppfolging1)
+
+                queries.setStengtHosArrangor(
+                    Oppfolging1.id,
+                    Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                    "Januarferie",
+                )
+
+                query {
+                    queries.setStengtHosArrangor(
+                        Oppfolging1.id,
+                        Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                        "Sommerferie",
+                    )
+                }.shouldBeLeft().shouldBeTypeOf<IntegrityConstraintViolation.ExclusionViolation>()
             }
         }
     }

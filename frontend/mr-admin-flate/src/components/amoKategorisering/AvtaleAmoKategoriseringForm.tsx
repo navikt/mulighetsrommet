@@ -1,0 +1,60 @@
+import { HGrid, Select } from "@navikt/ds-react";
+import { Kurstype } from "@mr/api-client-v2";
+import { useFormContext } from "react-hook-form";
+import { kurstypeToString } from "@/utils/Utils";
+import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
+import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
+import { AvtaleBransjeForm } from "./AvtaleBransjeForm";
+import { NorksopplaeringForm } from "./NorskopplaeringForm";
+import { InnholdElementerForm } from "./InnholdElementerForm";
+
+export function AvtaleAmoKategoriseringForm() {
+  const {
+    setValue,
+    watch,
+    formState: { errors },
+  } = useFormContext<InferredAvtaleSchema>();
+
+  const amoKategorisering = watch("amoKategorisering");
+
+  return (
+    <HGrid gap="4" columns={1}>
+      <Select
+        size="small"
+        label={gjennomforingTekster.kurstypeLabel}
+        value={amoKategorisering?.kurstype}
+        error={errors?.amoKategorisering?.kurstype?.message}
+        onChange={(type) => {
+          setValue("amoKategorisering.kurstype", type.target.value as Kurstype);
+        }}
+      >
+        <option value={undefined}>Velg kurstype</option>
+        <option value={Kurstype.BRANSJE_OG_YRKESRETTET}>
+          {kurstypeToString(Kurstype.BRANSJE_OG_YRKESRETTET)}
+        </option>
+        <option value={Kurstype.NORSKOPPLAERING}>
+          {kurstypeToString(Kurstype.NORSKOPPLAERING)}
+        </option>
+        <option value={Kurstype.GRUNNLEGGENDE_FERDIGHETER}>
+          {kurstypeToString(Kurstype.GRUNNLEGGENDE_FERDIGHETER)}
+        </option>
+        <option value={Kurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE}>
+          {kurstypeToString(Kurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE)}
+        </option>
+        <option value={Kurstype.STUDIESPESIALISERING}>
+          {kurstypeToString(Kurstype.STUDIESPESIALISERING)}
+        </option>
+      </Select>
+      {amoKategorisering?.kurstype === Kurstype.BRANSJE_OG_YRKESRETTET && <AvtaleBransjeForm />}
+      {amoKategorisering?.kurstype === Kurstype.NORSKOPPLAERING && (
+        <NorksopplaeringForm<InferredAvtaleSchema>
+          norskprovePath="amoKategorisering.norskprove"
+          innholdElementerPath="amoKategorisering.innholdElementer"
+        />
+      )}
+      {amoKategorisering?.kurstype === Kurstype.GRUNNLEGGENDE_FERDIGHETER && (
+        <InnholdElementerForm<InferredAvtaleSchema> path="amoKategorisering.innholdElementer" />
+      )}
+    </HGrid>
+  );
+}

@@ -1,9 +1,6 @@
-import { Alert, HelpText } from "@navikt/ds-react";
-import { GjennomforingOppstartstype } from "@mr/api-client";
+import { GjennomforingOppstartstype } from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useController } from "react-hook-form";
-import { useSuspenseGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
-import { useGetGjennomforingIdFromUrl } from "@/hooks/useGetGjennomforingIdFromUrl";
 
 interface SelectOppstartstypeProps {
   name: string;
@@ -11,64 +8,26 @@ interface SelectOppstartstypeProps {
 }
 
 export function SelectOppstartstype({ name, readonly = false }: SelectOppstartstypeProps) {
-  const id = useGetGjennomforingIdFromUrl();
-
-  const { field, fieldState } = useController({ name });
-
-  const valueHasChanged = id !== undefined && fieldState.isDirty;
+  const { field } = useController({ name });
 
   return (
-    <>
-      <ControlledSokeSelect
-        size="small"
-        label="Oppstartstype"
-        placeholder="Velg oppstart"
-        name={name}
-        onChange={field.onChange}
-        readOnly={readonly}
-        options={[
-          {
-            label: "Felles oppstartsdato",
-            value: GjennomforingOppstartstype.FELLES,
-          },
-          {
-            label: "Løpende oppstart",
-            value: GjennomforingOppstartstype.LOPENDE,
-          },
-        ]}
-      />
-      {valueHasChanged && <OppstartstypeWarning gjennomforingId={id} />}
-    </>
+    <ControlledSokeSelect
+      size="small"
+      label="Oppstartstype"
+      placeholder="Velg oppstart"
+      name={name}
+      onChange={field.onChange}
+      readOnly={readonly}
+      options={[
+        {
+          label: "Felles oppstartsdato",
+          value: GjennomforingOppstartstype.FELLES,
+        },
+        {
+          label: "Løpende oppstart",
+          value: GjennomforingOppstartstype.LOPENDE,
+        },
+      ]}
+    />
   );
-}
-
-interface OppstartstypePropsWarning {
-  gjennomforingId: string;
-}
-
-function OppstartstypeWarning({ gjennomforingId }: OppstartstypePropsWarning) {
-  const { data: summary } = useSuspenseGjennomforingDeltakerSummary(gjennomforingId);
-
-  return summary.antallDeltakere > 0 ? (
-    <Alert variant="warning">
-      Deltakerstatus påvirkes av oppstartstypen. Hvis du endrer oppstartstypen så kan deltakelser
-      som er avsluttet få en ny status. Statusen vises i aktivitetsplanen og deltakeroversikten.{" "}
-      <HelpText title="Hvilke konsekvenser får dette?">
-        <ul>
-          <li>
-            Avsluttende deltakere vil ha statusen &quot;Har sluttet&quot; på tiltak med løpende
-            inntak, og &quot;Fullført&quot; eller &quot;Avbrutt&quot; på tiltak med felles oppstart.
-            Statusen vises i aktivitetsplanen og Deltakeroversikten.
-          </li>
-          <li>
-            Dersom oppstartstypen blir endret, så endres også den avsluttende statusen, og
-            aktiviteten i aktivitetsplanen kan flyttes til enten fullført eller avbrutt.
-          </li>
-          <li>
-            En blå prikk vises på aktiviteten for å synliggjøre at det er en endring siden sist.
-          </li>
-        </ul>
-      </HelpText>
-    </Alert>
-  ) : null;
 }

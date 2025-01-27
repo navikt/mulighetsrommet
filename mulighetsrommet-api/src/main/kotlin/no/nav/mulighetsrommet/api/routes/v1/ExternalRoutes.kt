@@ -7,8 +7,8 @@ import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingArenaDataDto
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingArenaDataDto
 import org.koin.ktor.ext.inject
 import java.util.*
 

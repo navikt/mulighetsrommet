@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.utdanning.db
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.*
 
 @Serializable

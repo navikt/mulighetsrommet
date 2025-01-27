@@ -29,8 +29,8 @@
     "@amplitude/analytics-browser": "2.11.11",
     "@emotion/cache": "11.14.0",
     "@emotion/react": "11.14.0",
-    "@grafana/faro-web-sdk": "1.12.2",
-    "@mr/api-client": "workspace:*",
+    "@grafana/faro-web-sdk": "1.12.3",
+    "@mr/api-client-v2": "workspace:*",
     "@mr/frontend-common": "workspace:*",
     "@navikt/aksel-icons": "7.9.2",
     "@navikt/ds-css": "7.9.2",
@@ -41,7 +41,7 @@
     "@tanstack/react-query-devtools": "5.64.2",
     "axe-core": "4.10.2",
     "classnames": "2.5.1",
-    "jotai": "2.11.0",
+    "jotai": "2.11.1",
     "jotai-location": "0.5.5",
     "react": "18.3.1",
     "react-dom": "18.3.1",
@@ -58,7 +58,7 @@
     "@mr/eslint-config-react-app": "workspace:*",
     "@playwright/test": "1.49.1",
     "@tailwindcss/typography": "0.5.16",
-    "@types/node": "22.10.7",
+    "@types/node": "22.10.10",
     "@types/react": "18.3.13",
     "@types/react-dom": "18.3.1",
     "@vitejs/plugin-react": "4.3.4",
@@ -70,10 +70,10 @@
     "rollup-plugin-visualizer": "5.14.0",
     "sass-embedded": "1.83.4",
     "typescript": "5.7.3",
-    "vite": "6.0.7",
+    "vite": "6.0.11",
     "vite-plugin-shadow-style": "1.2.0",
     "vite-tsconfig-paths": "5.1.4",
-    "vitest": "2.1.8"
+    "vitest": "3.0.4"
   },
   "msw": {
     "workerDirectory": [

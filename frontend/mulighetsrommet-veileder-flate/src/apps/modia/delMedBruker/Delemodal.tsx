@@ -4,7 +4,7 @@ import { StatusModal } from "@/components/modal/StatusModal";
 import { useLogEvent } from "@/logging/amplitude";
 import { erPreview } from "@/utils/Utils";
 import { BodyShort, Button, Checkbox, Heading, HelpText, Modal } from "@navikt/ds-react";
-import { Bruker, DelMedBruker, VeilederflateTiltak } from "@mr/api-client";
+import { Bruker, DelMedBruker, VeilederflateTiltak } from "@mr/api-client-v2";
 import { useDelTiltakMedBruker } from "@/api/queries/useDelTiltakMedBruker";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import style from "./Delemodal.module.scss";
@@ -36,7 +36,12 @@ export function Delemodal({
   const mutation = useDelTiltakMedBruker({
     onSuccess: (response) => {
       dispatch({ type: "Sendt ok", payload: response.dialogId });
+      logDelMedbrukerEvent("Delte med bruker", tiltak.tiltakstype.navn);
       mutation.reset();
+    },
+    onError: () => {
+      dispatch({ type: "Sending feilet" });
+      logDelMedbrukerEvent("Del med bruker feilet", tiltak.tiltakstype.navn);
     },
   });
 
@@ -72,23 +77,16 @@ export function Delemodal({
       return;
     }
 
-    logDelMedbrukerEvent("Delte med bruker", tiltak.tiltakstype.navn);
-
     dispatch({ type: "Send melding" });
     const tekst = state.deletekst;
-    try {
-      mutation.mutate({
-        fnr: bruker.fnr,
-        overskrift: overskrift(tiltak),
-        tekst,
-        venterPaaSvarFraBruker,
-        gjennomforingId: isTiltakGruppe(tiltak) ? tiltak.id : null,
-        sanityId: !isTiltakGruppe(tiltak) ? tiltak.sanityId : null,
-      });
-    } catch {
-      dispatch({ type: "Sending feilet" });
-      logDelMedbrukerEvent("Del med bruker feilet", tiltak.tiltakstype.navn);
-    }
+    mutation.mutate({
+      fnr: bruker.fnr,
+      overskrift: overskrift(tiltak),
+      tekst,
+      venterPaaSvarFraBruker,
+      gjennomforingId: isTiltakGruppe(tiltak) ? tiltak.id : null,
+      sanityId: !isTiltakGruppe(tiltak) ? tiltak.sanityId : null,
+    });
   };
 
   const enableEndreDeletekst = () => {

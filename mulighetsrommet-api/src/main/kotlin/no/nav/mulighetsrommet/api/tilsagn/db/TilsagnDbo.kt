@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.tilsagn.db
 
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*

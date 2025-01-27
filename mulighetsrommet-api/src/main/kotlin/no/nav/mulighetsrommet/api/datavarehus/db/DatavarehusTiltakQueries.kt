@@ -7,8 +7,8 @@ import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltak
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakAmoDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakYrkesfagDto
-import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import org.intellij.lang.annotations.Language
 import java.util.*

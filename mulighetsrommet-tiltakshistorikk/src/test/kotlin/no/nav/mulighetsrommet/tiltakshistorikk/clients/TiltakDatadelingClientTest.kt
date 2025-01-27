@@ -31,7 +31,8 @@ class TiltakDatadelingClientTest : FunSpec({
                             "startDato": "2023-01-16",
                             "sluttDato": "2025-04-01",
                             "avtaleStatus": "GJENNOMFORES",
-                            "registrertTidspunkt": "2023-01-01T11:05:40.946+02:00"
+                            "opprettetTidspunkt": "2023-01-01T11:05:40.946+02:00",
+                            "endretTidspunkt": "2023-01-01T11:05:40.946+02:00"
                           },
                           {
                             "avtaleId": "32006ff3-76cb-4e15-b35e-3f049e4cdb0a",
@@ -42,7 +43,8 @@ class TiltakDatadelingClientTest : FunSpec({
                             "startDato": null,
                             "sluttDato": null,
                             "avtaleStatus": "ANNULLERT",
-                            "registrertTidspunkt": "2023-02-01T11:05:40.946+02:00"
+                            "opprettetTidspunkt": "2023-02-01T11:05:40.946+02:00"
+                            "endretTidspunkt": "2023-02-01T11:05:40.946+02:00"
                           },
                           {
                             "avtaleId": "67404e92-e4c4-4201-bee1-9b0f4b649b38",
@@ -53,7 +55,8 @@ class TiltakDatadelingClientTest : FunSpec({
                             "startDato": "2023-01-24",
                             "sluttDato": "2023-02-05",
                             "avtaleStatus": "AVSLUTTET",
-                            "registrertTidspunkt": "2023-01-01T11:05:40.946+02:00"
+                            "opprettetTidspunkt": "2023-01-01T11:05:40.946+02:00"
+                            "endretTidspunkt": "2023-01-01T11:05:40.946+02:00"
                           }
                         ]
                       }

@@ -1,4 +1,4 @@
-import { AmoKategorisering, Kurstype } from "@mr/api-client";
+import { AmoKategorisering, Kurstype } from "@mr/api-client-v2";
 import { Metadata } from "@/components/detaljside/Metadata";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";

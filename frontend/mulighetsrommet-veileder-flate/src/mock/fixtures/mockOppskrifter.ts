@@ -1,4 +1,4 @@
-import { Oppskrift } from "@mr/api-client";
+import { Oppskrift } from "@mr/api-client-v2";
 
 export const mockOppskrifter: { data: Oppskrift[] } = {
   data: [
@@ -1354,7 +1354,7 @@ export const mockOppskrifter: { data: Oppskrift[] } = {
             },
             {
               altText:
-                "Skjermbildet som viser søk på tiltaksnummer i Arena for å finne tiltaksgjennomføring",
+                "Skjermbildet som viser søk på tiltaksnummer i Arena for å finne gjennomføring",
               _type: "image",
               _key: "a82e267d8703",
               asset: {
@@ -2256,7 +2256,7 @@ export const mockOppskrifter: { data: Oppskrift[] } = {
               children: [
                 {
                   marks: ["strong"],
-                  text: "Vurderer du at tiltaksarrangøren trenger flere tilleggsopplysninger for å gjøre en god tiltaksgjennomføring?",
+                  text: "Vurderer du at tiltaksarrangøren trenger flere tilleggsopplysninger for å gjøre en god gjennomføring?",
                   _key: "60dc3a3846710",
                   _type: "span",
                 },

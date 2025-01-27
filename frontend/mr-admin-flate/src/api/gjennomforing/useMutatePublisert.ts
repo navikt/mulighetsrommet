@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
-import { GjennomforingerService } from "@mr/api-client";
+import { GjennomforingerService } from "@mr/api-client-v2";
 
 export function useMutatePublisert() {
   const queryClient = useQueryClient();
@@ -8,8 +8,8 @@ export function useMutatePublisert() {
   return useMutation({
     mutationFn: async (data: { id: string; publisert: boolean }) => {
       return GjennomforingerService.setPublisert({
-        id: data.id,
-        requestBody: { publisert: data.publisert },
+        path: { id: data.id },
+        body: { publisert: data.publisert },
       });
     },
 

@@ -1,4 +1,4 @@
-import { Toggles } from "@mr/api-client";
+import { Toggles } from "@mr/api-client-v2";
 import { ReactNode } from "react";
 import { useFeatureToggle } from "../../api/feature-toggles";
 

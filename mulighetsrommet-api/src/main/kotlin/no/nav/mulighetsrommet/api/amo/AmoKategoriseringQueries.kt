@@ -6,7 +6,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
-import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
+import no.nav.mulighetsrommet.model.AmoKategorisering
 import org.intellij.lang.annotations.Language
 import java.util.*
 

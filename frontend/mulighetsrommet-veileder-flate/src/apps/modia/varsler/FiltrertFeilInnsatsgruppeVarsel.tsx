@@ -1,6 +1,6 @@
 import { Alert } from "@navikt/ds-react";
-import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
-import { Innsatsgruppe } from "@mr/api-client";
+import { useBrukerdata } from "@/apps/modia/hooks/useBrukerdata";
+import { Innsatsgruppe } from "@mr/api-client-v2";
 import { ArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 
 interface FiltrertFeilInnsatsgruppeVarselProps {
@@ -8,7 +8,7 @@ interface FiltrertFeilInnsatsgruppeVarselProps {
 }
 
 export function FiltrertFeilInnsatsgruppeVarsel({ filter }: FiltrertFeilInnsatsgruppeVarselProps) {
-  const { data: brukerdata } = useHentBrukerdata();
+  const { data: brukerdata } = useBrukerdata();
   const innsatsgruppeBruker = brukerdata.innsatsgruppe;
   const innsatsgruppeFiltrert = filter.innsatsgruppe?.nokkel;
   const innsatsgruppeFiltrertNavn = filter.innsatsgruppe?.tittel;

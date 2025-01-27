@@ -5,17 +5,17 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
+import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.okonomi.BestillingDto
 import no.nav.mulighetsrommet.api.okonomi.OkonomiClient
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravPeriode
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.*
-import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDateTime
 import java.util.*
 
@@ -205,14 +205,14 @@ class TilsagnService(
 
     fun getTilsagnTilRefusjon(
         gjennomforingId: UUID,
-        periode: RefusjonskravPeriode,
+        periode: Periode,
     ): List<TilsagnDto> = db.session {
         return queries.tilsagn.getTilsagnTilRefusjon(gjennomforingId, periode)
     }
 
     fun getArrangorflateTilsagnTilRefusjon(
         gjennomforingId: UUID,
-        periode: RefusjonskravPeriode,
+        periode: Periode,
     ): List<ArrangorflateTilsagn> = db.session {
         return queries.tilsagn.getArrangorflateTilsagnTilRefusjon(gjennomforingId, periode)
     }

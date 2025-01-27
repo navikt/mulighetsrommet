@@ -1,4 +1,4 @@
-import { ApentForPamelding, Innsatsgruppe, NavEnhet } from "@mr/api-client";
+import { ApentForPamelding, Innsatsgruppe, NavEnhet } from "@mr/api-client-v2";
 import {
   atomWithStorage,
   createJSONStorage,
@@ -8,7 +8,7 @@ import { useAtom, useAtomValue } from "jotai";
 import { SyncStorage } from "jotai/vanilla/utils/atomWithStorage";
 import { z } from "zod";
 import { brukersEnhetFilterHasChanged } from "@/apps/modia/delMedBruker/helpers";
-import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
+import { useBrukerdata } from "@/apps/modia/hooks/useBrukerdata";
 
 export const ArbeidsmarkedstiltakFilterSchema = z.object({
   search: z.string(),
@@ -54,13 +54,13 @@ export function useArbeidsmarkedstiltakFilterValue() {
 export function useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst() {
   const [{ brukerIKontekst, filter }, setValue] = useAtom(filterAtom);
 
-  const { data: brukerdata } = useHentBrukerdata();
+  const { data: brukerdata } = useBrukerdata();
 
   const filterHasChanged =
     filter.search !== "" ||
     filter.apentForPamelding !== ApentForPamelding.APENT_ELLER_STENGT ||
-    filter.innsatsgruppe?.nokkel !== brukerdata.innsatsgruppe ||
-    brukersEnhetFilterHasChanged(filter, brukerdata) ||
+    filter.innsatsgruppe?.nokkel !== brukerdata?.innsatsgruppe ||
+    (brukerdata && brukersEnhetFilterHasChanged(filter, brukerdata)) ||
     filter.tiltakstyper.length > 0;
 
   return {

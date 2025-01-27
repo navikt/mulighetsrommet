@@ -3,7 +3,7 @@ import {
   Tiltakskode,
   TiltakskodeArena,
   VeilederflateTiltakstype,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 
 export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
   VTA: {
@@ -896,7 +896,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
             {
               _type: "span",
               marks: ["strong"],
-              text: "Søk inn på ditt fylkes tiltaksgjennomføring i Arena",
+              text: "Søk inn på ditt fylkes gjennomføring i Arena",
               _key: "216e96e14816",
             },
           ],

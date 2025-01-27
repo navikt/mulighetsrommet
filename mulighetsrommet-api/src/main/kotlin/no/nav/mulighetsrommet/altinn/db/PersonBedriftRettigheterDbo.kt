@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.altinn.db
 
 import no.nav.mulighetsrommet.altinn.model.BedriftRettigheter
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
+import no.nav.mulighetsrommet.model.NorskIdent
 import java.time.LocalDateTime
 
 data class PersonBedriftRettigheterDbo(

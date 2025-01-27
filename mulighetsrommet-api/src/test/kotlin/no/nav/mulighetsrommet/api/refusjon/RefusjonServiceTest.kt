@@ -14,9 +14,10 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
-import no.nav.mulighetsrommet.domain.dto.Kid
-import no.nav.mulighetsrommet.domain.dto.Kontonummer
+import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.Kid
+import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -70,7 +71,7 @@ class RefusjonServiceTest : FunSpec({
             krav.gjennomforing.id shouldBe AFT1.id
             krav.fristForGodkjenning shouldBe LocalDateTime.of(2024, 4, 1, 0, 0, 0)
             krav.beregning.input shouldBe RefusjonKravBeregningAft.Input(
-                periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2024, 1, 1)),
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
                 sats = 20205,
                 deltakelser = setOf(
                     DeltakelsePerioder(
@@ -312,7 +313,7 @@ class RefusjonServiceTest : FunSpec({
                 val krav = service.createRefusjonskravAft(
                     refusjonskravId = kravId,
                     gjennomforingId = AFT1.id,
-                    periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2024, 6, 1)),
+                    periode = Periode.forMonthOf(LocalDate.of(2024, 6, 1)),
                 )
                 queries.refusjonskrav.upsert(krav)
                 krav.beregning.output.shouldBeTypeOf<RefusjonKravBeregningAft.Output>().belop shouldBe 20205
@@ -359,7 +360,7 @@ class RefusjonServiceTest : FunSpec({
                 val krav = service.createRefusjonskravAft(
                     refusjonskravId = kravId,
                     gjennomforingId = AFT1.id,
-                    periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2024, 6, 1)),
+                    periode = Periode.forMonthOf(LocalDate.of(2024, 6, 1)),
                 )
                 queries.refusjonskrav.upsert(krav)
                 krav.beregning.output.shouldBeTypeOf<RefusjonKravBeregningAft.Output>().belop shouldBe 20205

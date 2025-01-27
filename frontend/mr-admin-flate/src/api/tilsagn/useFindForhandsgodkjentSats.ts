@@ -1,4 +1,4 @@
-import { Tiltakskode } from "@mr/api-client";
+import { Tiltakskode } from "@mr/api-client-v2";
 import { useForhandsgodkjenteSatser } from "./useForhandsgodkjenteSatser";
 
 export function useFindForhandsgodkjentSats(tiltakstype: Tiltakskode, periodeStart: string) {

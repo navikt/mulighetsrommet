@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ApiError, OpsjonerService, SlettOpsjonLoggRequest } from "@mr/api-client";
+import { OpsjonerService, SlettOpsjonLoggRequest } from "@mr/api-client-v2";
 import { QueryKeys } from "../QueryKeys";
 
 export function useSlettOpsjon() {
   const queryClient = useQueryClient();
 
-  return useMutation<string, ApiError, SlettOpsjonLoggRequest>({
-    mutationFn: (requestBody) => OpsjonerService.slettOpsjon({ requestBody }),
+  return useMutation({
+    mutationFn: (body: SlettOpsjonLoggRequest) => OpsjonerService.slettOpsjon({ body }),
     onSuccess(_, request) {
       return Promise.all([
         queryClient.invalidateQueries({

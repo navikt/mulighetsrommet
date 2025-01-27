@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.veilederflate.routes
 
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -17,10 +16,10 @@ import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.DeltakelserMelding
 import no.nav.mulighetsrommet.api.veilederflate.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.auditlog.AuditLog
-import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
-import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
 import java.util.*
@@ -70,8 +69,8 @@ fun Route.brukerRoutes() {
             call.respond(response)
         }
 
-        post("deltakelse-for-gjennomforing") {
-            val (norskIdent, gjennomforingId) = call.receive<GetAktivDeltakelseForBrukerRequest>()
+        post("deltakelse") {
+            val (norskIdent, tiltakId) = call.receive<GetAktivDeltakelseForBrukerRequest>()
             val obo = AccessType.OBO(call.getAccessToken())
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), norskIdent)
@@ -80,7 +79,7 @@ fun Route.brukerRoutes() {
 
             val response = deltakelser.aktive
                 .firstOrNull {
-                    it is Deltakelse.DeltakelseGruppetiltak && it.gjennomforingId == gjennomforingId
+                    it is Deltakelse.DeltakelseGruppetiltak && it.gjennomforingId == tiltakId
                 }
                 ?: HttpStatusCode.NoContent
 
@@ -115,7 +114,7 @@ data class GetDeltakelserForBrukerResponse(
 data class GetAktivDeltakelseForBrukerRequest(
     val norskIdent: NorskIdent,
     @Serializable(with = UUIDSerializer::class)
-    val gjennomforingId: UUID,
+    val tiltakId: UUID,
 )
 
 private fun createAuditMessage(msg: String, topic: String, navIdent: NavIdent, norskIdent: NorskIdent): CefMessage {

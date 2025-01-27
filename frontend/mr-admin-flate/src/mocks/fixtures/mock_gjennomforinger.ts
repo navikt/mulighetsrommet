@@ -4,14 +4,14 @@ import {
   Bransje,
   EstimertVentetidEnhet,
   ForerkortKlasse,
+  GjennomforingDto,
+  GjennomforingOppstartstype,
+  GjennomforingStatus,
   InnholdElement,
   Kurstype,
   Opphav,
   PaginertGjennomforing,
-  GjennomforingDto,
-  GjennomforingOppstartstype,
-  GjennomforingStatus,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { mockArrangorKontaktpersoner } from "./mock_arrangorKontaktperson";
 import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
@@ -53,7 +53,6 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     stedForGjennomforing: "Brummundal",
     kontaktpersoner: [petrusKontaktperson, nikolineKontaktperson],
     publisert: true,
-
     beskrivelse: "bla bla bla beskrivelse",
     faneinnhold: {
       forHvem: [
@@ -91,6 +90,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     },
     tilgjengeligForArrangorFraOgMedDato: null,
     amoKategorisering: null,
+    stengt: [],
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
@@ -124,9 +124,9 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     apentForPamelding: true,
     kontaktpersoner: [],
     publisert: false,
-
     tilgjengeligForArrangorFraOgMedDato: null,
     amoKategorisering: null,
+    stengt: [],
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
@@ -165,6 +165,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
       innholdElementer: [InnholdElement.GRUNNLEGGENDE_FERDIGHETER],
       sertifiseringer: [{ konseptId: 12, label: "Truckførerkurs" }],
     },
+    stengt: [],
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee364",
@@ -193,6 +194,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
 
     tilgjengeligForArrangorFraOgMedDato: null,
     amoKategorisering: null,
+    stengt: [],
   },
 ];
 
@@ -235,5 +237,6 @@ for (let i = 0; i < x; i++) {
 
     tilgjengeligForArrangorFraOgMedDato: null,
     amoKategorisering: null,
+    stengt: [],
   });
 }

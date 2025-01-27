@@ -12,8 +12,8 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.*

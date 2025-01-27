@@ -1,5 +1,5 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { AvtaleDto, EndringshistorikkEntry, PaginertAvtale } from "@mr/api-client";
+import { AvtaleDto, EndringshistorikkEntry, PaginertAvtale } from "@mr/api-client-v2";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 import { mockEndringshistorikkAvtaler } from "../fixtures/mock_endringshistorikk_avtaler";
 

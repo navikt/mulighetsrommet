@@ -1,4 +1,4 @@
-import { Bransje, ForerkortKlasse, InnholdElement, Sertifisering } from "@mr/api-client";
+import { Bransje, ForerkortKlasse, InnholdElement, Sertifisering } from "@mr/api-client-v2";
 import z from "zod";
 
 const InnholdElementerSchema = z

@@ -14,8 +14,8 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorTil
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.responses.*
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.*
 
@@ -85,7 +85,7 @@ fun Route.arrangorRoutes() {
             val virksomhetKontaktperson = call.receive<ArrangorKontaktpersonRequest>()
 
             val result = virksomhetKontaktperson.toDto(id)
-                .map { arrangorService.upsertKontaktperson(it) }
+                .onRight { arrangorService.upsertKontaktperson(it) }
                 .onLeft { application.log.warn("Klarte ikke opprette kontaktperson: $it") }
 
             call.respondWithStatusResponse(result)

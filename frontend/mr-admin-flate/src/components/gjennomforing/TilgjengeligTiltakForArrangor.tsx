@@ -2,7 +2,7 @@ import { useSetTilgjengeligForArrangor } from "@/api/gjennomforing/useSetTilgjen
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { formaterDato, max, subtractDays, subtractMonths } from "@/utils/Utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ApiError, GjennomforingDto } from "@mr/api-client";
+import { GjennomforingDto } from "@mr/api-client-v2";
 import { isValidationError } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, Heading, HStack, Modal } from "@navikt/ds-react";
 import { useRef } from "react";
@@ -39,7 +39,8 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
     modalRef.current?.close();
   };
 
-  const onError = (error: ApiError) => {
+  const onError = (error: any) => {
+    // TODO: fix any
     if (isValidationError(error)) {
       error.errors.forEach((error) => {
         form.setError(error.name as keyof InferredEditTilgjengeligForArrangorSchema, {
@@ -54,7 +55,7 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
     setTilgjengeligForArrangorMutation.mutate(
       {
         id: gjennomforing.id,
-        tilgjengeligForArrangorDato: values.tilgjengeligForArrangorFraOgMedDato!,
+        dato: values.tilgjengeligForArrangorFraOgMedDato!,
       },
       { onSuccess, onError },
     );

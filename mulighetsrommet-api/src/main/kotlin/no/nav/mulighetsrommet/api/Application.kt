@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
-import no.nav.mulighetsrommet.ktor.plugins.configureStatusPagesForStatusException
+import no.nav.mulighetsrommet.ktor.plugins.configureStatusPages
 import org.koin.ktor.ext.inject
 
 fun main() {
@@ -37,7 +37,7 @@ fun Application.configure(config: AppConfig) {
     configureHTTP()
     configureMonitoring({ db.isHealthy() })
     configureSerialization()
-    configureStatusPagesForStatusException()
+    configureStatusPages()
 
     FlywayMigrationManager(config.flyway).migrate(db)
 

@@ -1,5 +1,5 @@
 import { useSetApentForPamelding } from "@/api/gjennomforing/useSetApentForPamelding";
-import { GjennomforingDto } from "@mr/api-client";
+import { GjennomforingDto } from "@mr/api-client-v2";
 import { Alert, Button, Modal, Switch } from "@navikt/ds-react";
 import { RefObject } from "react";
 import { useRevalidator } from "react-router";

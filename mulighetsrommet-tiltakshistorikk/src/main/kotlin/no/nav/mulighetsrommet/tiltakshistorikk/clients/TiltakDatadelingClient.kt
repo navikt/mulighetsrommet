@@ -15,12 +15,12 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.domain.serializers.ZonedDateTimeSerializer
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
+import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.serializers.ZonedDateTimeSerializer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import java.time.LocalDate
@@ -69,7 +69,8 @@ class TiltakDatadelingClient(
                         startDato
                         sluttDato
                         avtaleStatus
-                        registrertTidspunkt
+                        opprettetTidspunkt
+                        endretTidspunkt
                     }
                 }
             """.trimIndent(),
@@ -183,7 +184,9 @@ data class Avtale(
     val sluttDato: LocalDate?,
     val avtaleStatus: Status,
     @Serializable(with = ZonedDateTimeSerializer::class)
-    val registrertTidspunkt: ZonedDateTime,
+    val opprettetTidspunkt: ZonedDateTime,
+    @Serializable(with = ZonedDateTimeSerializer::class)
+    val endretTidspunkt: ZonedDateTime,
 ) {
     enum class Tiltakstype {
         ARBEIDSTRENING,

@@ -1,10 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
-import { ApiError, TilsagnService } from "@mr/api-client";
+import { TilsagnService } from "@mr/api-client-v2";
 import { QueryKeys } from "../QueryKeys";
 
 export function useSlettTilsagn() {
-  return useMutation<unknown, ApiError, { id: string }>({
-    mutationFn: ({ id }) => TilsagnService.slettTilsagn({ id }),
+  return useMutation({
+    mutationFn: ({ id }: { id: string }) => TilsagnService.slettTilsagn({ path: { id } }),
     mutationKey: QueryKeys.slettTilsagn(),
   });
 }

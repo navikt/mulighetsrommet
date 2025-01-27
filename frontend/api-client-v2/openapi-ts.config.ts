@@ -9,6 +9,7 @@ export default defineConfig({
     {
       name: "@hey-api/sdk",
       asClass: true,
+      throwOnError: true,
     },
     {
       name: "@hey-api/typescript",

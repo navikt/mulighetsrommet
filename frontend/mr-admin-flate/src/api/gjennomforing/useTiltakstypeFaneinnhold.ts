@@ -1,13 +1,13 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
-import { TiltakstyperService } from "@mr/api-client";
+import { TiltakstyperService } from "@mr/api-client-v2";
 
 export function useTiltakstypeFaneinnhold(tiltakstypeId: string) {
-  return useSuspenseQuery({
+  return useApiSuspenseQuery({
     queryKey: QueryKeys.tiltakstypeFaneinnhold(tiltakstypeId),
     queryFn: () =>
       TiltakstyperService.getTiltakstypeFaneinnhold({
-        id: tiltakstypeId,
+        path: { id: tiltakstypeId },
       }),
   });
 }

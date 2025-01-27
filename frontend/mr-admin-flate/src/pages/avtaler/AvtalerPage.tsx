@@ -10,7 +10,7 @@ import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
-import { LagretDokumenttype } from "@mr/api-client";
+import { LagretDokumenttype } from "@mr/api-client-v2";
 import { LagredeFilterOversikt, useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
@@ -36,7 +36,7 @@ export function AvtalerPage() {
             filter={<AvtaleFilter filterAtom={avtaleFilterAtom} />}
             lagredeFilter={
               <LagredeFilterOversikt
-                deleteMutation={deleteFilterMutation}
+                onDelete={(id: string) => deleteFilterMutation.mutate(id)}
                 lagredeFilter={lagredeFilter}
                 setFilter={setFilter}
                 filter={filter}

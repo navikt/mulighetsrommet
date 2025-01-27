@@ -45,9 +45,6 @@ export const loader: LoaderFunction = async ({
       headers: await apiHeaders(request),
     }),
   ]);
-  if (krav.error || tilsagn.error || !krav?.data || !tilsagn?.data) {
-    throw krav.error ?? tilsagn.error;
-  }
 
   return { krav: krav.data, tilsagn: tilsagn.data };
 };
@@ -78,28 +75,27 @@ export const action: ActionFunction = async ({ request }) => {
     };
   }
 
-  const { error } = await ArrangorflateService.godkjennRefusjonskrav({
-    path: { id: refusjonskravId },
-    body: {
-      digest: refusjonskravDigest,
-      betalingsinformasjon: {
-        kontonummer: kontonummer.toString(),
-        kid: kid,
+  try {
+    await ArrangorflateService.godkjennRefusjonskrav({
+      path: { id: refusjonskravId },
+      body: {
+        digest: refusjonskravDigest,
+        betalingsinformasjon: {
+          kontonummer: kontonummer.toString(),
+          kid: kid,
+        },
       },
-    },
-    headers: await apiHeaders(request),
-  });
-
-  if (!error) {
-    return redirect(
-      `${internalNavigation(orgnr).kvittering(refusjonskravId)}?forside-tab=${currentTab}`,
-    );
-  } else {
+      headers: await apiHeaders(request),
+    });
+  } catch (error) {
     if (isValidationError(error)) {
       return { errors: error.errors };
     }
     throw error;
   }
+  return redirect(
+    `${internalNavigation(orgnr).kvittering(refusjonskravId)}?forside-tab=${currentTab}`,
+  );
 };
 
 export default function BekreftRefusjonskrav() {

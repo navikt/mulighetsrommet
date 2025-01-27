@@ -6,17 +6,17 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
-import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
-import no.nav.mulighetsrommet.api.services.cms.CacheUsage
-import no.nav.mulighetsrommet.api.services.cms.SanityService
+import no.nav.mulighetsrommet.api.sanity.CacheUsage
+import no.nav.mulighetsrommet.api.sanity.SanityService
+import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.*
 import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForPamelding
-import no.nav.mulighetsrommet.domain.Tiltakskoder
-import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus
-import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingStatus
+import no.nav.mulighetsrommet.model.Innsatsgruppe
+import no.nav.mulighetsrommet.model.Tiltakskoder
 import java.util.*
 
 class VeilederflateService(

@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.endringshistorikk
 import kotlinx.serialization.json.JsonElement
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*

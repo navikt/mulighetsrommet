@@ -1,6 +1,6 @@
 import { useFeatureToggle } from "@/api/feature-toggles";
 import { TegnestiftIkon } from "@/ikoner/TegnestiftIkon";
-import { Toggles, VeilederflateTiltak } from "@mr/api-client";
+import { Toggles, VeilederflateTiltak } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { BodyShort, GuidePanel, Heading, VStack } from "@navikt/ds-react";
 import styles from "./PameldingKometApnerSnart.module.scss";

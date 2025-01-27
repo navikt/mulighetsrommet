@@ -1,4 +1,4 @@
-import { RefusjonskravService, GjennomforingerService } from "@mr/api-client";
+import { RefusjonskravService, GjennomforingerService } from "@mr/api-client-v2";
 import { LoaderFunctionArgs } from "react-router";
 
 export async function refusjonskravDetaljerLoader({ params }: LoaderFunctionArgs) {
@@ -12,11 +12,11 @@ export async function refusjonskravDetaljerLoader({ params }: LoaderFunctionArgs
     throw new Error("refusjonskravId is missing");
   }
 
-  const [gjennomforing, refusjonskrav] = await Promise.all([
+  const [{ data: gjennomforing }, { data: refusjonskrav }] = await Promise.all([
     GjennomforingerService.getGjennomforing({
-      id: gjennomforingId,
+      path: { id: gjennomforingId },
     }),
-    RefusjonskravService.getRefusjonskrav({ id: refusjonskravId }),
+    RefusjonskravService.getRefusjonskrav({ path: { id: refusjonskravId } }),
   ]);
 
   return { gjennomforing, refusjonskrav };

@@ -7,7 +7,7 @@ import io.ktor.http.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
-import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
+import no.nav.mulighetsrommet.api.sanity.SanityResponse
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import java.util.*

@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 import java.util.*
 
@@ -131,7 +132,7 @@ class RefusjonKravBeregningAftTest : FunSpec({
                     ),
                 ),
             ) { deltakelser, expectedBeregning ->
-                val periode = RefusjonskravPeriode(periodeStart, periodeSlutt)
+                val periode = Periode(periodeStart, periodeSlutt)
                 val input = RefusjonKravBeregningAft.Input(periode, 100, deltakelser)
 
                 val beregning = RefusjonKravBeregningAft.beregn(input)

@@ -43,10 +43,11 @@ spec:
         - id: loki
   gcp:
     sqlInstances:
-      - type: POSTGRES_16
+      - name: tiltakshistorikk-v1
+        type: POSTGRES_17
         tier: db-custom-1-3840
         diskAutoresize: true
-        pointInTimeRecovery: true
+        pointInTimeRecovery: false
         databases:
           - name: tiltakshistorikk
             envVarPrefix: DB

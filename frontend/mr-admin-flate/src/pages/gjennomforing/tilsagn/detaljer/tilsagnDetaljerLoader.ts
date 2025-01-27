@@ -1,4 +1,4 @@
-import { AnsattService, TilsagnService, GjennomforingerService } from "@mr/api-client";
+import { AnsattService, TilsagnService, GjennomforingerService } from "@mr/api-client-v2";
 import { LoaderFunctionArgs } from "react-router";
 
 export async function tilsagnDetaljerLoader({ params }: LoaderFunctionArgs) {
@@ -12,14 +12,15 @@ export async function tilsagnDetaljerLoader({ params }: LoaderFunctionArgs) {
     throw new Error("tilsagnId is missing");
   }
 
-  const [ansatt, gjennomforing, tilsagn, historikk] = await Promise.all([
-    AnsattService.hentInfoOmAnsatt(),
-    GjennomforingerService.getGjennomforing({
-      id: gjennomforingId,
-    }),
-    TilsagnService.getTilsagn({ id: tilsagnId }),
-    TilsagnService.getTilsagnEndringshistorikk({ id: tilsagnId }),
-  ]);
+  const [{ data: ansatt }, { data: gjennomforing }, { data: tilsagn }, { data: historikk }] =
+    await Promise.all([
+      AnsattService.hentInfoOmAnsatt(),
+      GjennomforingerService.getGjennomforing({
+        path: { id: gjennomforingId },
+      }),
+      TilsagnService.getTilsagn({ path: { id: tilsagnId } }),
+      TilsagnService.getTilsagnEndringshistorikk({ path: { id: tilsagnId } }),
+    ]);
 
   return { ansatt, gjennomforing, tilsagn, historikk };
 }

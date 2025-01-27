@@ -22,9 +22,9 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
-import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus
-import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.model.AvbruttAarsak
+import no.nav.mulighetsrommet.model.GjennomforingStatus
+import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDate
 import java.time.LocalDateTime
 

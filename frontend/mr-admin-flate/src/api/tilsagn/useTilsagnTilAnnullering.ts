@@ -1,21 +1,21 @@
 import { useMutation } from "@tanstack/react-query";
-import { ApiError, TilsagnService, TilsagnTilAnnulleringAarsak } from "@mr/api-client";
+import { TilsagnService, TilsagnTilAnnulleringAarsak } from "@mr/api-client-v2";
 import { QueryKeys } from "../../api/QueryKeys";
 
 export function useTilsagnTilAnnullering() {
-  return useMutation<
-    unknown,
-    ApiError,
-    {
+  return useMutation({
+    mutationFn: ({
+      id,
+      aarsaker,
+      forklaring,
+    }: {
       id: string;
       aarsaker: TilsagnTilAnnulleringAarsak[];
-      forklaring?: string;
-    }
-  >({
-    mutationFn: ({ id, aarsaker, forklaring }) =>
+      forklaring: string | undefined;
+    }) =>
       TilsagnService.tilAnnullering({
-        id,
-        requestBody: {
+        path: { id },
+        body: {
           aarsaker,
           forklaring,
         },

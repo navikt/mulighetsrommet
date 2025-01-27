@@ -1,6 +1,5 @@
 import { Radio, RadioGroup, Textarea } from "@navikt/ds-react";
-import { UseMutationResult } from "@tanstack/react-query";
-import { ApiError, AvbrytAvtaleAarsak, AvbrytGjennomforingAarsak } from "@mr/api-client";
+import { AvbrytAvtaleAarsak, AvbrytGjennomforingAarsak } from "@mr/api-client-v2";
 import { AnnetEnum } from "@/api/annetEnum";
 
 interface Props {
@@ -9,7 +8,6 @@ interface Props {
   customAarsak?: string;
   setCustomAarsak: (a: string | undefined) => void;
   radioknapp: React.ReactNode;
-  mutation: UseMutationResult<unknown, ApiError, { id: string; aarsak: string }, unknown>;
   aarsakError?: string;
   customAarsakError?: string;
 }
@@ -19,7 +17,6 @@ export function AvbrytModalAarsaker({
   customAarsak,
   setCustomAarsak,
   radioknapp,
-  mutation,
   aarsakError,
   customAarsakError,
 }: Props) {
@@ -42,7 +39,6 @@ export function AvbrytModalAarsaker({
             placeholder="Beskrivelse"
             onChange={(e) => {
               setCustomAarsak(e.target.value);
-              mutation.reset();
             }}
             value={customAarsak ?? undefined}
             label={undefined}

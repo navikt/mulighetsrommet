@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.gjennomforing.db
 
-import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
-import no.nav.mulighetsrommet.domain.dto.Faneinnhold
-import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.model.AmoKategorisering
+import no.nav.mulighetsrommet.model.Faneinnhold
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.util.*

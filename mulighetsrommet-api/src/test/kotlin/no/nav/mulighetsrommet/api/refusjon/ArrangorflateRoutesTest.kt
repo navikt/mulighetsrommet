@@ -12,6 +12,8 @@ import io.ktor.http.content.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import kotliquery.Query
+import no.nav.amt.model.EndringAarsak
+import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedParty
 import no.nav.mulighetsrommet.api.*
@@ -27,14 +29,9 @@ import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag.Status
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
 import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
-import no.nav.mulighetsrommet.domain.dto.Kontonummer
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.domain.dto.amt.EndringAarsak
-import no.nav.mulighetsrommet.domain.dto.amt.Melding
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
+import no.nav.mulighetsrommet.model.*
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -79,7 +76,7 @@ class ArrangorflateRoutesTest : FunSpec({
         fristForGodkjenning = LocalDateTime.now(),
         beregning = RefusjonKravBeregningAft(
             input = RefusjonKravBeregningAft.Input(
-                periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2024, 8, 1)),
+                periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
                 sats = 20205,
                 deltakelser = setOf(
                     DeltakelsePerioder(

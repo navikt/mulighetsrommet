@@ -1,6 +1,6 @@
 import { Alert, BodyLong, Heading, HStack, Tabs, Textarea, VStack } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
-import { EmbeddedTiltakstype, VeilederflateTiltakstype } from "@mr/api-client";
+import { EmbeddedTiltakstype, VeilederflateTiltakstype } from "@mr/api-client-v2";
 import { useFormContext } from "react-hook-form";
 import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
 import { Separator } from "../detaljside/Metadata";

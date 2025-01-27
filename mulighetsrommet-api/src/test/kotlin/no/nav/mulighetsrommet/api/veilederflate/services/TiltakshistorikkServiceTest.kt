@@ -18,9 +18,9 @@ import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dto.*
-import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk.Arrangor
-import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk.Gjennomforing
+import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Tiltakshistorikk.Arrangor
+import no.nav.mulighetsrommet.model.Tiltakshistorikk.Gjennomforing
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -83,7 +83,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             visningstekst = "Venteliste",
             aarsak = null,
         ),
-        periode = Periode(
+        periode = DeltakelseFraKomet.Periode(
             startdato = LocalDate.of(2019, 1, 1),
             sluttdato = LocalDate.of(2019, 12, 3),
         ),

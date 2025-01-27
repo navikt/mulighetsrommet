@@ -1,7 +1,7 @@
 import { Alert, Button, Heading, HelpText, Modal, Search } from "@navikt/ds-react";
 import { useSetAvtaleForGjennomforing } from "@/api/gjennomforing/useSetAvtaleForGjennomforing";
 import { useState } from "react";
-import { AvtaleDto, GjennomforingDto } from "@mr/api-client";
+import { AvtaleDto, GjennomforingDto } from "@mr/api-client-v2";
 import { GjennomforingList } from "../gjennomforing/GjennomforingList";
 import { Link } from "react-router";
 

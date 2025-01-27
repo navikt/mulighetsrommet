@@ -5,7 +5,7 @@ import {
   GetAlleDeltMedBrukerRequest,
   GetDelMedBrukerRequest,
   TiltakDeltMedBruker,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { mockDeltMedBruker } from "../../fixtures/mockDeltMedBruker";
 import { mockHistorikkDeltMedBruker } from "../../fixtures/mockHistorikkDeltMedBruker";
 

@@ -8,9 +8,9 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.db.DokumentKoblingForKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
-import no.nav.mulighetsrommet.api.clients.brreg.BrregError
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.brreg.BrregClient
+import no.nav.mulighetsrommet.brreg.BrregError
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -28,11 +28,9 @@ class ArrangorService(
         log.info("Synkroniserer enhet fra brreg orgnr=$orgnr")
         return brregClient.getBrregVirksomhet(orgnr)
             .flatMap { virksomhet ->
-                if (virksomhet.overordnetEnhet == null) {
-                    virksomhet.right()
-                } else {
-                    getOrSyncArrangorFromBrreg(virksomhet.overordnetEnhet).map { virksomhet }
-                }
+                virksomhet.overordnetEnhet
+                    ?.let { getOrSyncArrangorFromBrreg(it).map { virksomhet } }
+                    ?: virksomhet.right()
             }
             .map { virksomhet ->
                 db.transaction {

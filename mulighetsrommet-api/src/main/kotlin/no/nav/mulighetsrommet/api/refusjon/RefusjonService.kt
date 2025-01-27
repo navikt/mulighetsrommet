@@ -4,16 +4,17 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
 import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
-import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 import java.util.*
 
 class RefusjonService(
     private val db: ApiDatabase,
 ) {
-    fun genererRefusjonskravForMonth(dayInMonth: LocalDate): List<RefusjonskravDto> = db.transaction {
-        val periode = RefusjonskravPeriode.fromDayInMonth(dayInMonth)
+    fun genererRefusjonskravForMonth(date: LocalDate): List<RefusjonskravDto> = db.transaction {
+        val periode = Periode.forMonthOf(date)
 
         queries.gjennomforing
             .getGjennomforesInPeriodeUtenRefusjonskrav(periode)
@@ -58,7 +59,7 @@ class RefusjonService(
     fun createRefusjonskravAft(
         refusjonskravId: UUID,
         gjennomforingId: UUID,
-        periode: RefusjonskravPeriode,
+        periode: Periode,
     ): RefusjonskravDbo {
         val frist = periode.slutt.plusMonths(2)
 
@@ -92,10 +93,10 @@ class RefusjonService(
 
     private fun getDeltakelser(
         gjennomforingId: UUID,
-        periode: RefusjonskravPeriode,
+        periode: Periode,
     ): Set<DeltakelsePerioder> {
         val deltakelser = db.session {
-            queries.deltaker.getAll(gjennomforingId)
+            queries.deltaker.getAll(gjennomforingId = gjennomforingId)
         }
 
         return deltakelser

@@ -1,10 +1,9 @@
 package no.nav.mulighetsrommet.oppgaver
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
-import java.util.*
 
 enum class OppgaveType {
     TILSAGN_TIL_BESLUTNING,

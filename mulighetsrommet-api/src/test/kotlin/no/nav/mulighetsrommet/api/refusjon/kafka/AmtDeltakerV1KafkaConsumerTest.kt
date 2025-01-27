@@ -14,6 +14,7 @@ import io.mockk.verify
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
@@ -24,10 +25,9 @@ import no.nav.mulighetsrommet.api.refusjon.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.refusjon.model.DeltakerDto
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
-import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
+import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.NorskIdent
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period

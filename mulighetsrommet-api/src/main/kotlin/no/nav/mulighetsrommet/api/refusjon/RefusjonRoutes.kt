@@ -12,8 +12,8 @@ import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravDto
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravStatus
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.*

@@ -4,8 +4,9 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.refusjon.model.DeltakerDto
-import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
+import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.NorskIdent
 import org.intellij.lang.annotations.Language
 import java.util.*
 
@@ -99,7 +100,10 @@ class DeltakerQueries(private val session: Session) {
         return single(queryOf(query, id)) { it.toDeltakerDto() }
     }
 
-    fun getAll(gjennomforingId: UUID? = null): List<DeltakerDto> = with(session) {
+    fun getAll(
+        pagination: Pagination = Pagination.all(),
+        gjennomforingId: UUID? = null,
+    ): List<DeltakerDto> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select id,
@@ -115,11 +119,16 @@ class DeltakerQueries(private val session: Session) {
                    status_opprettet_tidspunkt
             from deltaker
             where :gjennomforing_id::uuid is null or gjennomforing_id = :gjennomforing_id::uuid
+            limit :limit
+            offset :offset
         """.trimIndent()
 
         val params = mapOf("gjennomforing_id" to gjennomforingId)
 
-        return list(queryOf(query, params)) { it.toDeltakerDto() }
+        queryOf(query, params + pagination.parameters)
+            .map { it.toDeltakerDto() }
+            .asList
+            .runWithSession(session)
     }
 
     fun delete(id: UUID) = with(session) {

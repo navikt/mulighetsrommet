@@ -1,5 +1,5 @@
 import { Box } from "@navikt/ds-react";
-import { VeilederflateTiltak } from "@mr/api-client";
+import { VeilederflateTiltak } from "@mr/api-client-v2";
 import styles from "./SidemenyInfo.module.scss";
 
 interface Props {

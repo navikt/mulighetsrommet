@@ -1,11 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
-import { ApiError, TilsagnDto, TilsagnRequest } from "@mr/api-client";
-import { TilsagnService } from "@mr/api-client";
+import { TilsagnRequest } from "@mr/api-client-v2";
+import { TilsagnService } from "@mr/api-client-v2";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useOpprettTilsagn() {
-  return useMutation<TilsagnDto, ApiError, TilsagnRequest>({
-    mutationFn: (data) => TilsagnService.opprettTilsagn({ requestBody: data }),
+  return useMutation({
+    mutationFn: (body: TilsagnRequest) => TilsagnService.opprettTilsagn({ body }),
     mutationKey: QueryKeys.opprettTilsagn(),
   });
 }

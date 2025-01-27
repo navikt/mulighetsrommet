@@ -11,8 +11,9 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dto.Kid
-import no.nav.mulighetsrommet.domain.dto.Kontonummer
+import no.nav.mulighetsrommet.model.Kid
+import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.Periode
 import org.junit.jupiter.api.assertThrows
 import java.sql.SQLException
 import java.time.LocalDate
@@ -33,7 +34,7 @@ class RefusjonskravQueriesTest : FunSpec({
         val beregning = RefusjonKravBeregningAft(
             input = RefusjonKravBeregningAft.Input(
                 sats = 20_205,
-                periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2023, 1, 1)),
+                periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
                 deltakelser = setOf(
                     DeltakelsePerioder(
                         deltakelseId = deltakelse1Id,
@@ -189,7 +190,7 @@ class RefusjonskravQueriesTest : FunSpec({
                     fristForGodkjenning = LocalDate.of(2024, 10, 1).atStartOfDay(),
                     beregning = RefusjonKravBeregningAft(
                         input = RefusjonKravBeregningAft.Input(
-                            periode = RefusjonskravPeriode.fromDayInMonth(LocalDate.of(2023, 1, 1)),
+                            periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
                             sats = 20_205,
                             deltakelser = setOf(deltakelse),
                         ),

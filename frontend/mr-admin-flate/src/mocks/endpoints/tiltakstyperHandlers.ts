@@ -4,7 +4,7 @@ import {
   TiltakstypeDto,
   PaginertAvtale,
   VeilederflateTiltakstype,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import {
   paginertMockTiltakstyper,
   mockVeilederflateTiltakstypeAFT,

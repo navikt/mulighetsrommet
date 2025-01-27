@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.endringshistorikk
 
-import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.model.NavIdent
 
 const val ENDRINGSHISTORIKK_TILTAKSADMINISTRASJON_SYSTEM_BRUKER = "System"
 

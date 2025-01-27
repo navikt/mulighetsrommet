@@ -6,6 +6,7 @@ import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.right
 import io.ktor.http.*
+import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.clients.TiltakshistorikkClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
@@ -19,11 +20,10 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
-import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
-import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
-import no.nav.mulighetsrommet.domain.dto.ArenaDeltakerStatus
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
+import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltakskoder.isGruppetiltak
 
 class TiltakshistorikkEventProcessor(
     private val entities: ArenaEntityService,

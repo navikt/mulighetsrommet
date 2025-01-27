@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.navansatt.db
 
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattDto
-import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDate
 import java.util.*
 

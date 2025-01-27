@@ -1,5 +1,5 @@
 import { Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
-import { AvtaleDto, GjennomforingDto } from "@mr/api-client";
+import { AvtaleDto, GjennomforingDto } from "@mr/api-client-v2";
 import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
 import { useFormContext } from "react-hook-form";
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";

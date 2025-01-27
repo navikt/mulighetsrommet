@@ -7,9 +7,10 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.api.withTransaction
 import no.nav.mulighetsrommet.database.createEnumArray
-import no.nav.mulighetsrommet.domain.dto.Kid
-import no.nav.mulighetsrommet.domain.dto.Kontonummer
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Kid
+import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*
@@ -219,7 +220,7 @@ class RefusjonskravQueries(private val session: Session) {
 private fun Row.toRefusjonsKravAft(): RefusjonskravDto {
     val beregning = RefusjonKravBeregningAft(
         input = RefusjonKravBeregningAft.Input(
-            periode = RefusjonskravPeriode(localDate("periode_start"), localDate("periode_slutt")),
+            periode = Periode(localDate("periode_start"), localDate("periode_slutt")),
             sats = int("sats"),
             deltakelser = stringOrNull("perioder_json")?.let { Json.decodeFromString(it) } ?: setOf(),
         ),

@@ -1,8 +1,8 @@
 import { useRegioner } from "@/api/queries/useRegioner";
 import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
-import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
-import { useHentDeltMedBrukerStatus } from "@/apps/modia/hooks/useHentDeltMedbrukerStatus";
-import { useHentVeilederdata } from "@/apps/modia/hooks/useHentVeilederdata";
+import { useBrukerdata } from "@/apps/modia/hooks/useBrukerdata";
+import { useDelMedBrukerStatus } from "@/apps/modia/hooks/useDelMedbrukerStatus";
+import { useVeilederdata } from "@/apps/modia/hooks/useVeilederdata";
 import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
 import { BrukerKvalifisererIkkeVarsel } from "@/apps/modia/varsler/BrukerKvalifisererIkkeVarsel";
 import { DetaljerJoyride } from "@/components/joyride/DetaljerJoyride";
@@ -22,7 +22,7 @@ import {
   TiltakskodeArena,
   Toggles,
   VeilederflateTiltakstype,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { TilbakemeldingsLenke, useTitle } from "@mr/frontend-common";
 import { Chat2Icon } from "@navikt/aksel-icons";
 import { Alert, Button } from "@navikt/ds-react";
@@ -34,18 +34,18 @@ import {
 } from "@/api/queries/useArbeidsmarkedstiltakById";
 import { PameldingForGruppetiltak } from "@/components/pamelding/PameldingForGruppetiltak";
 import { VisibleWhenToggledOn } from "@/components/toggles/VisibleWhenToggledOn";
-import { useGetTiltakIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
+import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import { PameldingKometApnerSnart } from "../pamelding/PameldingKometApnerSnart";
 import { ArbeidsmarkedstiltakErrorBoundary } from "@/ErrorBoundary";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
-  const id = useGetTiltakIdFraUrl();
-  const { delMedBrukerInfo } = useHentDeltMedBrukerStatus(fnr, id);
+  const id = useTiltakIdFraUrl();
+  const { data: delMedBrukerInfo } = useDelMedBrukerStatus(fnr, id);
 
-  const { data: veilederdata } = useHentVeilederdata();
-  const { data: brukerdata } = useHentBrukerdata();
+  const { data: veilederdata } = useVeilederdata();
+  const { data: brukerdata } = useBrukerdata();
   const { data: tiltak } = useModiaArbeidsmarkedstiltakById();
   const { data: regioner } = useRegioner();
 
@@ -194,9 +194,9 @@ function isIndividueltTiltak(tiltakstype: VeilederflateTiltakstype): boolean {
 
 function lenkeTilOpprettAvtale(): string {
   const baseUrl = isProduction
-    ? "https://gjennomforing.intern.nav.no"
-    : "https://gjennomforing.intern.dev.nav.no";
-  return `${baseUrl}/gjennomforing/opprett-avtale`;
+    ? "https://tiltaksgjennomforing.intern.nav.no"
+    : "https://tiltaksgjennomforing.intern.dev.nav.no";
+  return `${baseUrl}/tiltaksgjennomforing/opprett-avtale`;
 }
 
 function harBrukerRettPaaValgtTiltak(

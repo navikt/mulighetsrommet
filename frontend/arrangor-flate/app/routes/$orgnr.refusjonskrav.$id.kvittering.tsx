@@ -35,9 +35,6 @@ export const loader: LoaderFunction = async ({
       headers: await apiHeaders(request),
     }),
   ]);
-  if (krav.error || tilsagn.error || !krav?.data || !tilsagn.data) {
-    throw krav.error ?? tilsagn.error;
-  }
 
   return { krav: krav.data, tilsagn: tilsagn.data };
 };

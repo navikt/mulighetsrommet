@@ -7,9 +7,11 @@ import {
   ForerkortKlasse,
   InnholdElement,
   Kurstype,
+  LastNedAvtalerSomExcelData,
+  LastNedGjennomforingerSomExcelData,
   TilsagnAvvisningAarsak,
   TilsagnTilAnnulleringAarsak,
-} from "@mr/api-client";
+} from "@mr/api-client-v2";
 import { AvtaleFilter, GjennomforingFilter } from "@/api/atoms";
 
 export function capitalize(text?: string): string {
@@ -185,62 +187,41 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
   }
 }
 
-export function createQueryParamsForExcelDownloadForAvtale(filter: AvtaleFilter): URLSearchParams {
-  const queryParams = new URLSearchParams();
-
-  if (filter.sok) {
-    queryParams.set("search", filter.sok);
-  }
-
-  filter.tiltakstyper.forEach((tiltakstype) => queryParams.append("tiltakstyper", tiltakstype));
-  filter.statuser.forEach((status) => queryParams.append("statuser", status));
-  filter.avtaletyper.forEach((type) => queryParams.append("avtaletyper", type));
-  filter.navRegioner.forEach((region) => queryParams.append("navRegioner", region));
-  filter.arrangorer.forEach((arrangorId) => queryParams.append("arrangorer", arrangorId));
-  filter.personvernBekreftet.forEach((b) =>
-    queryParams.append("personvernBekreftet", b ? "true" : "false"),
-  );
-
-  if (filter.visMineAvtaler) {
-    queryParams.set("visMineAvtaler", "true");
-  }
-
-  queryParams.set("size", "10000");
-  return queryParams;
+export function createQueryParamsForExcelDownloadForAvtale(
+  filter: AvtaleFilter,
+): LastNedAvtalerSomExcelData {
+  return {
+    query: {
+      search: filter.sok,
+      tiltakstyper: filter.tiltakstyper,
+      statuser: filter.statuser,
+      avtaletyper: filter.avtaletyper,
+      navRegioner: filter.navRegioner,
+      arrangorer: filter.arrangorer,
+      personvernBekreftet: filter.personvernBekreftet,
+      visMineAvtaler: filter.visMineAvtaler,
+      size: 10000,
+    },
+  };
 }
 
 export function createQueryParamsForExcelDownloadForGjennomforing(
   filter: GjennomforingFilter,
-): URLSearchParams {
-  const queryParams = new URLSearchParams();
-
-  if (filter.search) {
-    queryParams.set("search", filter.search);
-  }
-  filter.navEnheter.forEach((navEnhet) => queryParams.append("navEnheter", navEnhet.enhetsnummer));
-  filter.tiltakstyper.forEach((tiltakstype) => queryParams.append("tiltakstyper", tiltakstype));
-  filter.statuser.forEach((status) => queryParams.append("statuser", status));
-
-  if (filter.avtale) {
-    queryParams.set("avtale", filter.avtale);
-  }
-
-  filter.arrangorer.forEach((arrangorId) => queryParams.append("arrangorer", arrangorId));
-
-  if (filter.visMineGjennomforinger) {
-    queryParams.set("visMineGjennomforinger", "true");
-  }
-
-  const publisertStatus = getPublisertStatus(filter.publisert);
-
-  queryParams.set("size", filter.pageSize.toString());
-  queryParams.set("sort", filter.sortering.sortString);
-
-  if (publisertStatus !== null) {
-    queryParams.set("publisert", publisertStatus ? "true" : "false");
-  }
-
-  return queryParams;
+): LastNedGjennomforingerSomExcelData {
+  return {
+    query: {
+      search: filter.search,
+      navEnheter: filter.navEnheter.map((enhet) => enhet.enhetsnummer),
+      tiltakstyper: filter.tiltakstyper,
+      statuser: filter.statuser,
+      avtaleId: filter.avtale,
+      arrangorer: filter.arrangorer,
+      visMineTiltaksgjennomforinger: filter.visMineGjennomforinger,
+      size: filter.pageSize,
+      sort: filter.sortering.sortString,
+      publisert: getPublisertStatus(filter.publisert),
+    },
+  };
 }
 
 export function formatertVentetid(verdi: number, enhet: EstimertVentetidEnhet): string {
