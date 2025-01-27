@@ -24,6 +24,7 @@
     .deletekst {
       white-space: pre-wrap;
       border-radius: 5px;
+      padding: 0.2rem;
     }
 
     .preview_alert {
@@ -37,26 +38,6 @@
     padding: var(--a-spacing-2);
   }
 
-  &_footer {
-    flex-direction: column;
-
-    .delemodal_actions {
-      display: flex;
-      flex-direction: row;
-      gap: 2rem;
-    }
-
-    .delemodal_venter_pa_svar {
-      display: flex;
-      flex-direction: row;
-      gap: 0.5rem;
-    }
-    .knapperad {
-      display: flex;
-      gap: 2rem;
-      margin-top: 1rem;
-    }
-  }
   .hr {
     border-bottom: 1px solid var(--a-border-divider);
     display: block;

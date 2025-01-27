@@ -73,7 +73,7 @@ export function DelMedBrukerContent({
         <Textarea
           label="Tekst som deles med bruker"
           hideLabel
-          className={classNames(styles.deletekst, "prose")}
+          className={classNames(styles.deletekst, "prose min-w-full")}
           error={handleError()}
           ref={endreDeletekstRef}
           size="medium"

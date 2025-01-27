@@ -124,14 +124,14 @@ export function Delemodal({
           />
         </Modal.Body>
 
-        <Modal.Footer className={style.delemodal_footer}>
-          <div className={style.delemodal_actions}>
+        <Modal.Footer className="grid pt-5">
+          <div className="flex items-center gap-5">
             {enableRedigerDeletekst ? null : (
               <Button size="small" onClick={enableEndreDeletekst} variant="secondary">
                 Rediger melding
               </Button>
             )}
-            <div className={style.delemodal_venter_pa_svar}>
+            <div className="flex">
               <Checkbox
                 onChange={(e) => {
                   dispatch({
@@ -159,7 +159,6 @@ export function Delemodal({
               </HelpText>
             </div>
           </div>
-
           <BodyShort size="small">
             Kandidatene vil få et varsel fra Nav, og kan logge inn på nav.no for å lese meldingen.
           </BodyShort>
