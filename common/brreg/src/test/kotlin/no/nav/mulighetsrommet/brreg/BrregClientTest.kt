@@ -39,8 +39,8 @@ class BrregClientTest : FunSpec({
                 ),
             )
 
-            brregClient.sokOverordnetEnhet("Nav") shouldBeRight listOf(
-                BrregEnhetDto(
+            brregClient.sokHovedenhet("Nav") shouldBeRight listOf(
+                BrregHovedenhetDto(
                     organisasjonsnummer = Organisasjonsnummer("123456789"),
                     organisasjonsform = "AS",
                     navn = "Nav Hovedenhet",
@@ -60,7 +60,7 @@ class BrregClientTest : FunSpec({
                 ),
             )
 
-            brregClient.sokOverordnetEnhet("Nav") shouldBeRight emptyList()
+            brregClient.sokHovedenhet("Nav") shouldBeRight emptyList()
         }
     }
 
@@ -75,7 +75,7 @@ class BrregClientTest : FunSpec({
                 ),
             )
 
-            brregClient.getUnderenheterForOverordnetEnhet(Organisasjonsnummer("123456789")) shouldBeRight listOf(
+            brregClient.getUnderenheterForHovedenhet(Organisasjonsnummer("123456789")) shouldBeRight listOf(
                 BrregUnderenhetDto(
                     organisasjonsnummer = Organisasjonsnummer("123456780"),
                     organisasjonsform = "BEDR",
@@ -97,7 +97,7 @@ class BrregClientTest : FunSpec({
                 ),
             )
 
-            brregClient.getUnderenheterForOverordnetEnhet(Organisasjonsnummer("123456789")) shouldBeRight emptyList()
+            brregClient.getUnderenheterForHovedenhet(Organisasjonsnummer("123456789")) shouldBeRight emptyList()
         }
     }
 
@@ -115,7 +115,7 @@ class BrregClientTest : FunSpec({
                 ),
             )
 
-            brregClient.getEnhetMedUnderenheter(Organisasjonsnummer("123456789")) shouldBeRight BrregEnhetMedUnderenheterDto(
+            brregClient.getHovedenhetMedUnderenheter(Organisasjonsnummer("123456789")) shouldBeRight BrreHovedenhetMedUnderenheterDto(
                 organisasjonsnummer = Organisasjonsnummer("123456789"),
                 organisasjonsform = "AS",
                 navn = "Nav Hovedenhet",
@@ -138,7 +138,7 @@ class BrregClientTest : FunSpec({
                 ),
             )
 
-            brregClient.getEnhetMedUnderenheter(Organisasjonsnummer("123456789")) shouldBeRight BrregEnhetMedUnderenheterDto(
+            brregClient.getHovedenhetMedUnderenheter(Organisasjonsnummer("123456789")) shouldBeRight BrreHovedenhetMedUnderenheterDto(
                 organisasjonsnummer = Organisasjonsnummer("123456789"),
                 organisasjonsform = "AS",
                 navn = "Nav Hovedenhet",
@@ -172,7 +172,7 @@ class BrregClientTest : FunSpec({
                 ),
             )
 
-            brregClient.getEnhet(Organisasjonsnummer("123456789")) shouldBeRight BrregEnhetDto(
+            brregClient.getHovedenhet(Organisasjonsnummer("123456789")) shouldBeRight BrregHovedenhetDto(
                 organisasjonsnummer = Organisasjonsnummer("123456789"),
                 organisasjonsform = "AS",
                 navn = "Nav Hovedenhet",
@@ -201,7 +201,7 @@ class BrregClientTest : FunSpec({
                 ),
             )
 
-            brregClient.getEnhet(Organisasjonsnummer("974291657")) shouldBeRight SlettetBrregEnhetDto(
+            brregClient.getHovedenhet(Organisasjonsnummer("974291657")) shouldBeRight SlettetBrregHovedenhetDto(
                 organisasjonsnummer = Organisasjonsnummer("974291657"),
                 organisasjonsform = "AS",
                 navn = "Slettet bedrift",
@@ -258,7 +258,7 @@ class BrregClientTest : FunSpec({
         }
     }
 
-    context("getBrregVirksomhet") {
+    context("getBrregEnhet") {
         test("skal hente hovedenhet med underenheter fra brreg gitt orgnr til hovedenhet") {
             val brregClient = BrregClient(
                 baseUrl = "https://brreg.no",
@@ -272,7 +272,7 @@ class BrregClientTest : FunSpec({
                 ),
             )
 
-            brregClient.getBrregVirksomhet(Organisasjonsnummer("123456789")) shouldBeRight BrregEnhetMedUnderenheterDto(
+            brregClient.getBrregEnhet(Organisasjonsnummer("123456789")) shouldBeRight BrreHovedenhetMedUnderenheterDto(
                 organisasjonsnummer = Organisasjonsnummer("123456789"),
                 organisasjonsform = "AS",
                 navn = "Nav Hovedenhet",
@@ -304,7 +304,7 @@ class BrregClientTest : FunSpec({
                 ),
             )
 
-            brregClient.getBrregVirksomhet(Organisasjonsnummer("123456780")) shouldBeRight BrregUnderenhetDto(
+            brregClient.getBrregEnhet(Organisasjonsnummer("123456780")) shouldBeRight BrregUnderenhetDto(
                 organisasjonsnummer = Organisasjonsnummer("123456780"),
                 organisasjonsform = "BEDR",
                 navn = "Nav Underenhet",

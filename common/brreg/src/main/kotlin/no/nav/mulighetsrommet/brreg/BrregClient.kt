@@ -30,9 +30,9 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
         install(HttpCache)
     }
 
-    suspend fun getBrregVirksomhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregVirksomhet> {
+    suspend fun getBrregEnhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregEnhet> {
         // Sjekker først hovedenhet
-        return getEnhetMedUnderenheter(orgnr).fold(
+        return getHovedenhetMedUnderenheter(orgnr).fold(
             { error ->
                 if (error == BrregError.NotFound) {
                     // Ingen treff på hovedenhet, vi sjekker underenheter også
@@ -48,7 +48,7 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
         )
     }
 
-    suspend fun sokOverordnetEnhet(orgnr: String): Either<BrregError, List<BrregEnhetDto>> {
+    suspend fun sokHovedenhet(orgnr: String): Either<BrregError, List<BrregHovedenhetDto>> {
         val sokEllerOppslag = when (Organisasjonsnummer.isValid(orgnr)) {
             true -> "organisasjonsnummer"
             false -> "navn"
@@ -62,7 +62,7 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
         return parseResponse<EmbeddedEnheter>(response)
             .map { data ->
                 data._embedded?.enheter?.map {
-                    BrregEnhetDto(
+                    BrregHovedenhetDto(
                         organisasjonsnummer = it.organisasjonsnummer,
                         organisasjonsform = it.organisasjonsform.kode,
                         navn = it.navn,
@@ -73,7 +73,7 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
             }
     }
 
-    suspend fun getUnderenheterForOverordnetEnhet(orgnr: Organisasjonsnummer): Either<BrregError, List<BrregUnderenhetDto>> {
+    suspend fun getUnderenheterForHovedenhet(orgnr: Organisasjonsnummer): Either<BrregError, List<BrregUnderenhetDto>> {
         val underenheterResponse = client.get("$baseUrl/underenheter") {
             parameter("size", 1000)
             parameter("overordnetEnhet", orgnr.value)
@@ -94,12 +94,12 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
             }
     }
 
-    suspend fun getEnhetMedUnderenheter(orgnr: Organisasjonsnummer): Either<BrregError, BrregEnhet> = either {
+    suspend fun getHovedenhetMedUnderenheter(orgnr: Organisasjonsnummer): Either<BrregError, BrregHovedenhet> = either {
         val response = client.get("$baseUrl/enheter/${orgnr.value}")
 
         val enhet = parseResponse<OverordnetEnhet>(response).bind()
         if (enhet.slettedato != null) {
-            return@either SlettetBrregEnhetDto(
+            return@either SlettetBrregHovedenhetDto(
                 organisasjonsnummer = enhet.organisasjonsnummer,
                 organisasjonsform = enhet.organisasjonsform.kode,
                 navn = enhet.navn,
@@ -107,8 +107,8 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
             )
         }
 
-        val underenheter = getUnderenheterForOverordnetEnhet(orgnr).bind()
-        BrregEnhetMedUnderenheterDto(
+        val underenheter = getUnderenheterForHovedenhet(orgnr).bind()
+        BrreHovedenhetMedUnderenheterDto(
             organisasjonsnummer = enhet.organisasjonsnummer,
             organisasjonsform = enhet.organisasjonsform.kode,
             navn = enhet.navn,
@@ -118,20 +118,20 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
         )
     }
 
-    suspend fun getEnhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregEnhet> = either {
+    suspend fun getHovedenhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregHovedenhet> = either {
         val response = client.get("$baseUrl/enheter/${orgnr.value}")
 
         val enhet = parseResponse<OverordnetEnhet>(response).bind()
         if (enhet.slettedato != null) {
             logSlettetWarning(orgnr, enhet.slettedato)
-            SlettetBrregEnhetDto(
+            SlettetBrregHovedenhetDto(
                 organisasjonsnummer = enhet.organisasjonsnummer,
                 organisasjonsform = enhet.organisasjonsform.kode,
                 navn = enhet.navn,
                 slettetDato = enhet.slettedato,
             )
         } else {
-            BrregEnhetDto(
+            BrregHovedenhetDto(
                 organisasjonsnummer = enhet.organisasjonsnummer,
                 organisasjonsform = enhet.organisasjonsform.kode,
                 navn = enhet.navn,
