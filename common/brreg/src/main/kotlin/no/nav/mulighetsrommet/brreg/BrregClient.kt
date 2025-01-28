@@ -138,21 +138,30 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
         val response = client.get("$baseUrl/underenheter/${orgnr.value}")
 
         val enhet = parseResponse<Underenhet>(response).bind()
-        if (enhet.slettedato != null) {
-            logSlettetWarning(orgnr, enhet.slettedato)
-            SlettetBrregUnderenhet(
-                organisasjonsnummer = enhet.organisasjonsnummer,
-                navn = enhet.navn,
-                slettetDato = enhet.slettedato,
-            )
-        } else {
-            BrregUnderenhetDto(
-                organisasjonsnummer = enhet.organisasjonsnummer,
-                navn = enhet.navn,
-                overordnetEnhet = enhet.overordnetEnhet,
-                postnummer = enhet.beliggenhetsadresse?.postnummer,
-                poststed = enhet.beliggenhetsadresse?.poststed,
-            )
+
+        when {
+            enhet.slettedato != null -> {
+                logSlettetWarning(orgnr, enhet.slettedato)
+                SlettetBrregUnderenhetDto(
+                    organisasjonsnummer = enhet.organisasjonsnummer,
+                    navn = enhet.navn,
+                    slettetDato = enhet.slettedato,
+                )
+            }
+
+            enhet.overordnetEnhet == null -> {
+                throw IllegalStateException("Fant underenhet uten overordnet enhet bra brreg: ${enhet.organisasjonsnummer}")
+            }
+
+            else -> {
+                BrregUnderenhetDto(
+                    organisasjonsnummer = enhet.organisasjonsnummer,
+                    navn = enhet.navn,
+                    overordnetEnhet = enhet.overordnetEnhet,
+                    postnummer = enhet.beliggenhetsadresse?.postnummer,
+                    poststed = enhet.beliggenhetsadresse?.poststed,
+                )
+            }
         }
     }
 

@@ -7,6 +7,7 @@ import io.ktor.http.*
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import java.time.LocalDate
 
 class BrregClientTest : FunSpec({
 
@@ -168,6 +169,29 @@ class BrregClientTest : FunSpec({
                 poststed = "Oslo",
             )
         }
+
+        test("hent slettet enhet gitt orgnr") {
+            val brregClient = BrregClient(
+                baseUrl = "https://brreg.no",
+                clientEngine = createMockEngine(
+                    "/enheter/974291657" to {
+                        respondJson(
+                            Enhet(
+                                organisasjonsnummer = Organisasjonsnummer("974291657"),
+                                navn = "Slettet bedrift",
+                                slettedato = LocalDate.of(2020, 1, 1),
+                            ),
+                        )
+                    },
+                ),
+            )
+
+            brregClient.getEnhet(Organisasjonsnummer("974291657")) shouldBeRight SlettetBrregEnhetDto(
+                organisasjonsnummer = Organisasjonsnummer("974291657"),
+                navn = "Slettet bedrift",
+                slettetDato = LocalDate.of(2020, 1, 1),
+            )
+        }
     }
 
     context("getUnderenhet") {
@@ -185,6 +209,29 @@ class BrregClientTest : FunSpec({
                 overordnetEnhet = Organisasjonsnummer("123456789"),
                 postnummer = "1234",
                 poststed = "Oslo",
+            )
+        }
+
+        test("hent slettet underenhet gitt orgnr") {
+            val brregClient = BrregClient(
+                baseUrl = "https://brreg.no",
+                clientEngine = createMockEngine(
+                    "/underenheter/974291657" to {
+                        respondJson(
+                            Underenhet(
+                                organisasjonsnummer = Organisasjonsnummer("974291657"),
+                                navn = "Slettet bedrift",
+                                slettedato = LocalDate.of(2020, 1, 1),
+                            ),
+                        )
+                    },
+                ),
+            )
+
+            brregClient.getUnderenhet(Organisasjonsnummer("974291657")) shouldBeRight SlettetBrregUnderenhetDto(
+                organisasjonsnummer = Organisasjonsnummer("974291657"),
+                navn = "Slettet bedrift",
+                slettetDato = LocalDate.of(2020, 1, 1),
             )
         }
     }

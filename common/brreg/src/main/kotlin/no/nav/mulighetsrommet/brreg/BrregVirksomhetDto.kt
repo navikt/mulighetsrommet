@@ -49,7 +49,7 @@ data class BrregUnderenhetDto(
 ) : BrregUnderenhet()
 
 @Serializable
-data class SlettetBrregUnderenhet(
+data class SlettetBrregUnderenhetDto(
     override val organisasjonsnummer: Organisasjonsnummer,
     override val navn: String,
     @Serializable(with = LocalDateSerializer::class)

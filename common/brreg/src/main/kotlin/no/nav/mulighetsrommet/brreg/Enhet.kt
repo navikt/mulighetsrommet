@@ -19,7 +19,7 @@ internal data class Enhet(
 internal data class Underenhet(
     val organisasjonsnummer: Organisasjonsnummer,
     val navn: String,
-    val overordnetEnhet: Organisasjonsnummer,
+    val overordnetEnhet: Organisasjonsnummer? = null,
     val beliggenhetsadresse: Adresse? = null,
     @Serializable(with = LocalDateSerializer::class)
     val slettedato: LocalDate? = null,

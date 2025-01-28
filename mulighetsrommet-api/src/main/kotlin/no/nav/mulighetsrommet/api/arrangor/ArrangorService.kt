@@ -102,7 +102,7 @@ private fun BrregVirksomhet.toArrangorDto(id: UUID): ArrangorDto {
             slettetDato = null,
         )
 
-        is SlettetBrregUnderenhet -> ArrangorDto(
+        is SlettetBrregUnderenhetDto -> ArrangorDto(
             id = id,
             organisasjonsnummer = organisasjonsnummer,
             navn = navn,
