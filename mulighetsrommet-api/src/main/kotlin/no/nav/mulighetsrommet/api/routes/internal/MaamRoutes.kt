@@ -6,14 +6,16 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.refusjon.task.GenerateRefusjonskrav
-import no.nav.mulighetsrommet.api.tasks.*
+import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -23,15 +25,17 @@ import java.time.LocalDate
 import java.util.*
 
 fun Route.maamRoutes() {
+    val arrangor: ArrangorService by inject()
+
+    val generateValidationReport: GenerateValidationReport by inject()
+    val initialLoadGjennomforinger: InitialLoadGjennomforinger by inject()
+    val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
+    val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
+    val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
+    val generateRefusjonskrav: GenerateRefusjonskrav by inject()
+
     route("/api/intern/maam") {
         route("/tasks") {
-            val generateValidationReport: GenerateValidationReport by inject()
-            val initialLoadGjennomforinger: InitialLoadGjennomforinger by inject()
-            val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
-            val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
-            val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
-            val generateRefusjonskrav: GenerateRefusjonskrav by inject()
-
             post("generate-validation-report") {
                 val taskId = generateValidationReport.schedule()
 
@@ -74,6 +78,17 @@ fun Route.maamRoutes() {
                 call.respond(HttpStatusCode.OK, GeneralTaskResponse(id = "Synkronisering av utdanning.no OK"))
             }
 
+            post("sync-arrangorer") {
+                val input = call.receive<SynchronizeArrangorerRequest>()
+
+                input.organisasjonsnummer
+                    .split(",")
+                    .map { Organisasjonsnummer(it.trim()) }
+                    .forEach { arrangor.syncArrangorFromBrreg(it) }
+
+                call.respond(HttpStatusCode.OK, GeneralTaskResponse(id = "Synkronisert! :)"))
+            }
+
             post("generate-refusjonskrav") {
                 val (dayInMonth) = call.receive<GenerateRefusjonskravRequest>()
                 generateRefusjonskrav.runTask(dayInMonth)
@@ -109,6 +124,11 @@ data class StartInitialLoadTiltaksgjennomforingRequest(
     val id: String? = null,
     val tiltakstyper: List<Tiltakskode>? = null,
     val opphav: ArenaMigrering.Opphav? = null,
+)
+
+@Serializable
+data class SynchronizeArrangorerRequest(
+    val organisasjonsnummer: String,
 )
 
 @Serializable
