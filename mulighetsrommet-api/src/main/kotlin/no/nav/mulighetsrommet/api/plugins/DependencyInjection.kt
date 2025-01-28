@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtale.OpsjonLoggService
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
-import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient
@@ -59,8 +58,8 @@ import no.nav.mulighetsrommet.api.refusjon.kafka.AmtArrangorMeldingV1KafkaConsum
 import no.nav.mulighetsrommet.api.refusjon.kafka.AmtDeltakerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.refusjon.task.GenerateRefusjonskrav
 import no.nav.mulighetsrommet.api.refusjon.task.JournalforRefusjonskrav
+import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
-import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -71,6 +70,7 @@ import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
+import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.env.NaisEnv
@@ -186,8 +186,7 @@ private fun kafka(appConfig: AppConfig) = module {
             ),
             AmtVirksomheterV1KafkaConsumer(
                 config = config.consumers.amtVirksomheterV1,
-                db = get(),
-                brregClient = get(),
+                get(),
             ),
             AmtArrangorMeldingV1KafkaConsumer(
                 config = config.consumers.amtArrangorMeldingV1,

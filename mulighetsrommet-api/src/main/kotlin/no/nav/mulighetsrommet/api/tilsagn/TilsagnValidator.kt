@@ -8,7 +8,7 @@ import arrow.core.right
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.*
-import no.nav.mulighetsrommet.domain.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltakskode
 
 object TilsagnValidator {
     fun validate(

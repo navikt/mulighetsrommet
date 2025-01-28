@@ -1,9 +1,9 @@
+import { RegistrerStengtHosArrangorForm } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorForm";
+import { StengtHosArrangorTable } from "@/components/gjennomforing/stengt/StengtHosArrangorTable";
+import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { GjennomforingDto } from "@mr/api-client-v2";
 import { Button, Modal } from "@navikt/ds-react";
-import { RefObject } from "react";
-import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { StengtHosArrangorTable } from "@/components/gjennomforing/stengt/StengtHosArrangorTable";
-import { RegistrerStengtHosArrangorForm } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorForm";
+import { RefObject, useState } from "react";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
@@ -11,11 +11,27 @@ interface Props {
 }
 
 export function RegistrerStengtHosArrangorModal({ modalRef, gjennomforing }: Props) {
+  // This key is used to re-render the form when the modal is closed
+  const [key, setKey] = useState(0);
+
+  function handleCloseModal() {
+    modalRef.current?.close();
+    setKey((prev) => prev + 1);
+  }
+
   return (
-    <Modal ref={modalRef} header={{ heading: "Registrer stengt hos arrangør" }} width={800}>
+    <Modal
+      onClose={handleCloseModal}
+      ref={modalRef}
+      header={{ heading: "Registrer stengt periode hos arrangør" }}
+      width={1200}
+    >
       <Modal.Body>
         <div className="prose">
-          <p>Her kan du styre perioder der tiltaket er stengt hos arrangør.</p>
+          <p>
+            Her kan du legge inn perioder der tiltakstilbudet er stengt hos arrangør, for eksempel
+            ved stengt i en sommerperiode.
+          </p>
 
           <p>
             Arrangør vil ikke få betalt for deltakelser som er aktive i en periode der det er stengt
@@ -25,12 +41,18 @@ export function RegistrerStengtHosArrangorModal({ modalRef, gjennomforing }: Pro
         </div>
 
         <TwoColumnGrid separator>
-          <RegistrerStengtHosArrangorForm gjennomforing={gjennomforing} />
+          <RegistrerStengtHosArrangorForm key={key} gjennomforing={gjennomforing} />
           <StengtHosArrangorTable gjennomforing={gjennomforing} />
         </TwoColumnGrid>
       </Modal.Body>
       <Modal.Footer>
-        <Button type="button" onClick={() => modalRef.current?.close()}>
+        <Button
+          size="small"
+          type="button"
+          onClick={() => {
+            handleCloseModal();
+          }}
+        >
           Lukk
         </Button>
       </Modal.Footer>

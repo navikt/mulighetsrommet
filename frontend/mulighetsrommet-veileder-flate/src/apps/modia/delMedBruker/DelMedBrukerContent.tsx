@@ -6,6 +6,7 @@ import styles from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
 import { getDelMedBrukerTekst } from "@/apps/modia/delMedBruker/helpers";
 import Markdown from "react-markdown";
+import classNames from "classnames";
 
 export const MAKS_ANTALL_TEGN_DEL_MED_BRUKER = 500;
 
@@ -62,14 +63,17 @@ export function DelMedBrukerContent({
       ) : null}
 
       {!enableRedigerDeletekst ? (
-        <div className={styles.markdown} data-testid="textarea_deletekst">
+        <div
+          className={classNames("prose min-w-full", styles.markdown)}
+          data-testid="textarea_deletekst"
+        >
           <Markdown>{state.deletekst}</Markdown>
         </div>
       ) : (
         <Textarea
           label="Tekst som deles med bruker"
           hideLabel
-          className={styles.deletekst}
+          className={classNames(styles.deletekst, "prose min-w-full")}
           error={handleError()}
           ref={endreDeletekstRef}
           size="medium"

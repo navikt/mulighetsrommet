@@ -18,66 +18,25 @@ import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import React from "react";
 import { Laster } from "@/components/laster/Laster";
 
-function createBrodsmuler(
-  gjennomforingId: string,
-  avtaleId?: string,
-  tilsagn?: boolean,
-  refusjonskrav?: boolean,
-): Array<Brodsmule | undefined> {
-  return [
-    avtaleId
-      ? { tittel: "Avtaler", lenke: "/avtaler" }
-      : { tittel: "Gjennomføringer", lenke: "/gjennomforinger" },
-    avtaleId ? { tittel: "Avtale", lenke: `/avtaler/${avtaleId}` } : undefined,
-    avtaleId
-      ? {
-          tittel: "Gjennomføringer",
-          lenke: `/avtaler/${avtaleId}/gjennomforinger`,
-        }
-      : undefined,
-    {
-      tittel: "Gjennomføring",
-      lenke: `/gjennomforinger/${gjennomforingId}`,
-    },
-    tilsagn
-      ? { tittel: "Tilsagn", lenke: `/gjennomforinger/${gjennomforingId}/tilsagn` }
-      : undefined,
-    refusjonskrav
-      ? {
-          tittel: "Refusjonskrav",
-          lenke: `/gjennomforinger/${gjennomforingId}/refusjonskrav`,
-        }
-      : undefined,
-  ];
-}
+type GjennomforingTab = "tilsagn" | "deltakerliste" | "refusjonskrav" | "gjennomforing";
 
 export function GjennomforingPage() {
   const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { gjennomforing } = useLoaderData<typeof gjennomforingLoader>();
+
   const { data: enableOkonomi } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
     [gjennomforing.tiltakstype.tiltakskode],
   );
 
-  const currentTab = () => {
-    if (pathname.includes("tilsagn")) {
-      return "tilsagn";
-    } else if (pathname.includes("deltakere")) {
-      return "poc";
-    } else if (pathname.includes("refusjonskrav")) {
-      return "refusjonskrav";
-    } else {
-      return "gjennomforing";
-    }
-  };
-
-  const brodsmuler = createBrodsmuler(
-    gjennomforing.id,
-    gjennomforing.avtaleId,
-    currentTab() === "tilsagn",
-    currentTab() === "refusjonskrav",
+  const { data: enableDeltakerliste } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_DELTAKERLISTE,
   );
+
+  const currentTab = getCurrentTab(pathname);
+
+  const brodsmuler = getBrodsmuler(currentTab, gjennomforing.id, gjennomforing.avtaleId);
 
   return (
     <>
@@ -111,7 +70,7 @@ export function GjennomforingPage() {
         </div>
       </Header>
 
-      <Tabs value={currentTab()}>
+      <Tabs value={currentTab}>
         <Tabs.List className="p-[0 0.5rem] w-[1920px] flex items-start m-auto">
           <Tabs.Tab
             value="gjennomforing"
@@ -139,6 +98,16 @@ export function GjennomforingPage() {
               />
             </>
           ) : null}
+          {enableDeltakerliste && (
+            <Tabs.Tab
+              value="deltakerliste"
+              label="Deltakerliste"
+              onClick={() =>
+                navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/deltakerliste`)
+              }
+              aria-controls="panel"
+            />
+          )}
         </Tabs.List>
         <React.Suspense fallback={<Laster tekst="Laster innhold..." />}>
           <ContentBox>
@@ -152,4 +121,51 @@ export function GjennomforingPage() {
       </Tabs>
     </>
   );
+}
+
+function getCurrentTab(pathname: string): GjennomforingTab {
+  if (pathname.includes("tilsagn")) {
+    return "tilsagn";
+  } else if (pathname.includes("deltakerliste")) {
+    return "deltakerliste";
+  } else if (pathname.includes("refusjonskrav")) {
+    return "refusjonskrav";
+  } else {
+    return "gjennomforing";
+  }
+}
+
+function getBrodsmuler(
+  currentTab: GjennomforingTab,
+  gjennomforingId: string,
+  avtaleId?: string,
+): Array<Brodsmule | undefined> {
+  const brodsmulerForCurrentTab: Record<GjennomforingTab, Brodsmule[]> = {
+    tilsagn: [{ tittel: "Tilsagn", lenke: `/gjennomforinger/${gjennomforingId}/tilsagn` }],
+    refusjonskrav: [
+      { tittel: "Refusjonskrav", lenke: `/gjennomforinger/${gjennomforingId}/refusjonskrav` },
+    ],
+    deltakerliste: [
+      { tittel: "Deltakerliste", lenke: `/gjennomforinger/${gjennomforingId}/deltakerliste` },
+    ],
+    gjennomforing: [],
+  };
+
+  return [
+    avtaleId
+      ? { tittel: "Avtaler", lenke: "/avtaler" }
+      : { tittel: "Gjennomføringer", lenke: "/gjennomforinger" },
+    avtaleId ? { tittel: "Avtale", lenke: `/avtaler/${avtaleId}` } : undefined,
+    avtaleId
+      ? {
+          tittel: "Gjennomføringer",
+          lenke: `/avtaler/${avtaleId}/gjennomforinger`,
+        }
+      : undefined,
+    {
+      tittel: "Gjennomføring",
+      lenke: `/gjennomforinger/${gjennomforingId}`,
+    },
+    ...brodsmulerForCurrentTab[currentTab],
+  ];
 }

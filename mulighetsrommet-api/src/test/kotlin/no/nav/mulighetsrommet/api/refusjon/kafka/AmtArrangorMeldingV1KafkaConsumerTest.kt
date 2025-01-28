@@ -3,6 +3,8 @@ package no.nav.mulighetsrommet.api.refusjon.kafka
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
+import no.nav.amt.model.EndringAarsak
+import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
@@ -10,8 +12,6 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dto.amt.EndringAarsak
-import no.nav.mulighetsrommet.domain.dto.amt.Melding
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.utils.toUUID
 import java.util.*

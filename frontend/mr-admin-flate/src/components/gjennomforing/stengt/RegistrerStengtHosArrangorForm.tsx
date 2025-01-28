@@ -25,20 +25,27 @@ export function RegistrerStengtHosArrangorForm({
   const { register, handleSubmit, formState, setError } = form;
 
   function onSubmit(data: SetStengtHosArrangorRequest) {
-    setStengtHosArrangor.mutate(data, {
-      onSuccess: async () => {
-        form.reset();
-        await revalidator.revalidate();
+    setStengtHosArrangor.mutate(
+      {
+        beskrivelse: data.beskrivelse,
+        periodeStart: data.periodeStart || undefined,
+        periodeSlutt: data.periodeSlutt || undefined,
       },
-      onError: (error: ApiError) => {
-        if (isValidationError(error.body)) {
-          error.body.errors.forEach((error) => {
-            const name = error.name as keyof SetStengtHosArrangorRequest;
-            setError(name, { type: "custom", message: error.message });
-          });
-        }
+      {
+        onSuccess: async () => {
+          form.reset();
+          await revalidator.revalidate();
+        },
+        onError: (error: ApiError) => {
+          if (isValidationError(error.body)) {
+            error.body.errors.forEach((error) => {
+              const name = error.name as keyof SetStengtHosArrangorRequest;
+              setError(name, { type: "custom", message: error.message });
+            });
+          }
+        },
       },
-    });
+    );
   }
 
   const minDate = addYear(new Date(), -1);
@@ -82,14 +89,14 @@ export function RegistrerStengtHosArrangorForm({
         </FormGroup>
 
         {setStengtHosArrangor.error && (
-          <VStack>
+          <VStack className="my-5">
             <Alert inline variant="error">
               Klarte ikke lagre periode
             </Alert>
           </VStack>
         )}
 
-        <Button icon={<FloppydiskIcon area-hidden />} type="submit">
+        <Button size="small" icon={<FloppydiskIcon aria-hidden />} type="submit">
           Lagre periode
         </Button>
       </form>

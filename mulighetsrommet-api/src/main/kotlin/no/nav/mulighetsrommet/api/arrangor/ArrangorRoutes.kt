@@ -14,8 +14,8 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorTil
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.responses.*
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.*
 
@@ -36,7 +36,7 @@ fun Route.arrangorRoutes() {
                 }
             }
 
-            val response = arrangorService.getOrSyncArrangorFromBrreg(orgnr)
+            val response = arrangorService.getArrangorOrSyncFromBrreg(orgnr)
                 .mapLeft { toStatusResponseError(it) }
 
             call.respondWithStatusResponse(response)

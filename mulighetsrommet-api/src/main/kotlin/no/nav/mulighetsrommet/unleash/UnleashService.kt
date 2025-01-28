@@ -5,7 +5,7 @@ import io.getunleash.Unleash
 import io.getunleash.UnleashContext
 import io.getunleash.util.UnleashConfig
 import no.nav.common.client.axsys.AxsysClient
-import no.nav.mulighetsrommet.domain.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
 import no.nav.mulighetsrommet.unleash.strategies.ByNavIdentStrategy
 import no.nav.mulighetsrommet.unleash.strategies.ByTiltakskodeStrategy

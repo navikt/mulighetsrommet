@@ -9,7 +9,7 @@ kotlin = "2.1.0"
 ktor = "3.0.3"
 logback = "1.5.16"
 metrics = "4.2.30"
-arrow = "2.0.0"
+arrow = "2.0.1"
 
 [plugins]
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
@@ -17,7 +17,7 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktlint = "org.jlleitschuh.gradle.ktlint:12.1.2"
 shadow = "com.github.johnrengelman.shadow:8.1.1"
-openapi-generator = "org.openapi.generator:7.10.0"
+openapi-generator = "org.openapi.generator:7.11.0"
 
 [bundles]
 logging = [
@@ -41,7 +41,7 @@ dbScheduler = "com.github.kagkarlsson:db-scheduler:15.1.2"
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
-google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.22.0"
+google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.23.0"
 google-cloud-storage = "com.google.cloud:google-cloud-storage:2.47.0"
 
 hikaricp = "com.zaxxer:HikariCP:6.2.1"
@@ -70,6 +70,7 @@ ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-contentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
+ktor-client-resources = { module = "io.ktor:ktor-client-resources", version.ref = "ktor" }
 
 ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json-jvm", version.ref = "ktor" }
 
@@ -86,6 +87,7 @@ ktor-server-cors = { module = "io.ktor:ktor-server-cors-jvm", version.ref = "kto
 ktor-server-defaultHeaders = { module = "io.ktor:ktor-server-default-headers", version.ref = "ktor" }
 ktor-server-metricsMicrometer = { module = "io.ktor:ktor-server-metrics-micrometer", version.ref = "ktor" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
+ktor-server-resources = { module = "io.ktor:ktor-server-resources", version.ref = "ktor" }
 ktor-server-sessions = { module = "io.ktor:ktor-server-sessions", version.ref = "ktor" }
 ktor-server-statusPages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
 ktor-server-swagger = { module = "io.ktor:ktor-server-swagger", version.ref = "ktor" }
@@ -125,4 +127,4 @@ slf4j = "org.slf4j:slf4j-api:2.0.16"
 apache-poi = "org.apache.poi:poi:5.4.0"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.4.0"
 
-unleash = "io.getunleash:unleash-client-java:9.2.6"
+unleash = "io.getunleash:unleash-client-java:9.3.1"

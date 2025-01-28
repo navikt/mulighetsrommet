@@ -1,4 +1,4 @@
-import { useTitle } from "@mr/frontend-common";
+import { useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
 import { Select } from "@navikt/ds-react";
 import { useLoaderData } from "react-router";
 import { OppgaverFilter } from "../../../components/filter/OppgaverFilter";
@@ -10,6 +10,7 @@ import { GetOppgaverResponse } from "@mr/api-client-v2";
 import { useAtom } from "jotai/index";
 import { useOppgaver } from "@/api/oppgaver/useOppgaver";
 import { EmptyState } from "@/components/notifikasjoner/EmptyState";
+import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 
 type OppgaverSorting = "korteste-frist" | "nyeste" | "eldste";
 
@@ -43,6 +44,8 @@ function sort(oppgaver: GetOppgaverResponse, sorting: OppgaverSorting) {
 }
 
 export function OppgaverPage() {
+  const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
+
   const [sorting, setSorting] = useState<OppgaverSorting>("korteste-frist");
   useTitle("Oppgaver");
   const [filter] = useAtom(oppgaverFilterAtom);
@@ -52,7 +55,15 @@ export function OppgaverPage() {
 
   return (
     <main className="flex gap-4 self-start">
-      <OppgaverFilter filterAtom={oppgaverFilterAtom} tiltakstyper={tiltakstyper} />
+      <FilterAndTableLayout
+        filter={<OppgaverFilter filterAtom={oppgaverFilterAtom} tiltakstyper={tiltakstyper} />}
+        tags={null}
+        buttons={null}
+        table={null}
+        filterOpen={filterOpen}
+        setFilterOpen={setFilterOpen}
+        nullstillFilterButton={null}
+      />
       <div className="flex-1">
         <div className="flex justify-end">
           <div className="flex items-center gap-4">
@@ -64,7 +75,7 @@ export function OppgaverPage() {
                 setSorting(e.target.value as OppgaverSorting);
               }}
             >
-              <option value="korteste-frist">Korteste Frist</option>
+              <option value="korteste-frist">Korteste frist</option>
               <option value="nyeste">Nyeste</option>
               <option value="eldste">Eldste</option>
             </Select>
@@ -82,7 +93,7 @@ export function OppgaverPage() {
             );
           })}
           {sortedOppgaver.length === 0 && (
-            <EmptyState tittel={"Du har ingen nye Oppgaver"} beskrivelse={""} />
+            <EmptyState tittel={"Du har ingen nye oppgaver"} beskrivelse={""} />
           )}
         </div>
       </div>

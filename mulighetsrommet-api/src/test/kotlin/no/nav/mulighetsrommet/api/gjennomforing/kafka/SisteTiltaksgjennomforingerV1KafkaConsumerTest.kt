@@ -15,9 +15,9 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.ArenaMigreringTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dto.ArenaTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
+import no.nav.mulighetsrommet.model.ArenaTiltaksgjennomforingDto
+import no.nav.mulighetsrommet.model.Tiltakskode
 
 class SisteTiltaksgjennomforingerV1KafkaConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

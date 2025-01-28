@@ -5,14 +5,15 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.arrangor.model.BrregVirksomhetDto
-import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
-import no.nav.mulighetsrommet.api.clients.brreg.BrregError
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.NotFound
 import no.nav.mulighetsrommet.api.responses.ServerError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.brreg.BrregClient
+import no.nav.mulighetsrommet.brreg.BrregEnhetDto
+import no.nav.mulighetsrommet.brreg.BrregError
+import no.nav.mulighetsrommet.brreg.SlettetBrregEnhetDto
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import org.koin.ktor.ext.inject
 
 fun Route.brregVirksomhetRoutes() {
@@ -72,12 +73,19 @@ fun toStatusResponseError(it: BrregError) = when (it) {
     BrregError.Error -> ServerError()
 }
 
-private fun toBrregVirksomhetDto(arrangor: ArrangorDto) = BrregVirksomhetDto(
-    organisasjonsnummer = arrangor.organisasjonsnummer,
-    navn = arrangor.navn,
-    overordnetEnhet = arrangor.overordnetEnhet,
-    underenheter = listOf(),
-    postnummer = arrangor.postnummer,
-    poststed = arrangor.poststed,
-    slettetDato = arrangor.slettetDato,
-)
+private fun toBrregVirksomhetDto(arrangor: ArrangorDto) = when {
+    arrangor.slettetDato != null -> SlettetBrregEnhetDto(
+        organisasjonsnummer = arrangor.organisasjonsnummer,
+        organisasjonsform = "IKS", // Interkommunalt selskap (X i Arena)
+        navn = arrangor.navn,
+        slettetDato = arrangor.slettetDato,
+    )
+
+    else -> BrregEnhetDto(
+        organisasjonsnummer = arrangor.organisasjonsnummer,
+        organisasjonsform = "IKS", // Interkommunalt selskap (X i Arena)
+        navn = arrangor.navn,
+        postnummer = null,
+        poststed = null,
+    )
+}

@@ -11,19 +11,13 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.api.*
-import no.nav.mulighetsrommet.api.clients.brreg.BrregEmbeddedUnderenheter
-import no.nav.mulighetsrommet.api.clients.brreg.BrregEnhet
-import no.nav.mulighetsrommet.api.clients.brreg.BrregUnderenheter
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.domain.dto.allowedAvtaletypes
-import no.nav.mulighetsrommet.ktor.createMockEngine
-import no.nav.mulighetsrommet.ktor.respondJson
+import no.nav.mulighetsrommet.model.allowedAvtaletypes
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.*
 
@@ -95,18 +89,7 @@ class AvtaleRoutesTest : FunSpec({
     }
 
     test("Skal gi korrekt statuskode basert på om vi har tatt eierskap til tiltakstype eller ikke") {
-        val engine = createMockEngine(
-            "/brreg/enheter/${AvtaleFixtures.avtaleRequest.arrangorOrganisasjonsnummer}" to {
-                respondJson(BrregEnhet(organisasjonsnummer = Organisasjonsnummer("123456789"), navn = "Testvirksomhet"))
-            },
-            "/brreg/underenheter" to {
-                respondJson(BrregEmbeddedUnderenheter(_embedded = BrregUnderenheter(underenheter = emptyList())))
-            },
-        )
-        val config = appConfig(
-            engine = engine,
-        )
-        withTestApplication(config) {
+        withTestApplication(appConfig()) {
             val client = createClient {
                 install(ContentNegotiation) {
                     json()

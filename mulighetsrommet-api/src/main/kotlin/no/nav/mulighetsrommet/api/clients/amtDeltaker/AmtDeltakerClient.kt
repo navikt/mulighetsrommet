@@ -4,18 +4,17 @@ import arrow.core.Either
 import arrow.core.left
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
-import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
+import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.securelog.SecureLog
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import java.time.LocalDate
@@ -99,15 +98,15 @@ data class DeltakelseFraKomet(
         val visningstekst: String,
         val aarsak: String? = null,
     )
-}
 
-@Serializable
-data class Periode(
-    @Serializable(with = LocalDateSerializer::class)
-    val startdato: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class)
-    val sluttdato: LocalDate?,
-)
+    @Serializable
+    data class Periode(
+        @Serializable(with = LocalDateSerializer::class)
+        val startdato: LocalDate?,
+        @Serializable(with = LocalDateSerializer::class)
+        val sluttdato: LocalDate?,
+    )
+}
 
 @Serializable
 enum class GruppeTiltakstype {

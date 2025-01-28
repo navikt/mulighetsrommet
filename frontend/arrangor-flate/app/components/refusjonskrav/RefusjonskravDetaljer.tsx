@@ -1,4 +1,4 @@
-import { Box, Heading } from "@navikt/ds-react";
+import { Alert, Box, Heading } from "@navikt/ds-react";
 import { Separator } from "~/components/Separator";
 import { RefusjonDetaljer } from "~/components/refusjonskrav/RefusjonDetaljer";
 import { ArrangorflateTilsagn, RefusjonKravAft } from "@mr/api-client-v2";
@@ -16,6 +16,9 @@ export function RefusjonskravDetaljer({ krav, tilsagn }: Props) {
       <GenerelleDetaljer krav={krav} />
       <Separator />
       <Heading size="medium">Tilsagnsdetaljer</Heading>
+      {tilsagn.length === 0 && (
+        <Alert variant="info">Det finnes ingen tilsagn for utbetalingsperioden</Alert>
+      )}
       {tilsagn.map((t) => (
         <Box
           padding="2"

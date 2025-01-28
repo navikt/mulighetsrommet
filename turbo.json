@@ -30,6 +30,9 @@
       "dependsOn": ["^build"],
       "outputs": ["dist"]
     },
+    "build-storybook": {
+      "outputs": ["storybook-static"]
+    },
     "preview": {
       "cache": false,
       "persistent": true

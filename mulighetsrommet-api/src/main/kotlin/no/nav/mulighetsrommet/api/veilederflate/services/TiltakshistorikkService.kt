@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClien
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.hosTitleCaseArrangor
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
-import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -216,7 +216,7 @@ class TiltakshistorikkService(
     }
 
     private suspend fun getArrangorHovedenhetNavn(orgnr: Organisasjonsnummer): String? {
-        return arrangorService.getOrSyncArrangorFromBrreg(orgnr).fold({ error ->
+        return arrangorService.getArrangorOrSyncFromBrreg(orgnr).fold({ error ->
             log.warn("Klarte ikke hente arrangørs hovedenhet. BrregError: $error")
             null
         }, { virksomhet ->
@@ -225,7 +225,7 @@ class TiltakshistorikkService(
     }
 
     private suspend fun getArrangorNavn(orgnr: Organisasjonsnummer): String? {
-        return arrangorService.getOrSyncArrangorFromBrreg(orgnr).fold({ error ->
+        return arrangorService.getArrangorOrSyncFromBrreg(orgnr).fold({ error ->
             log.warn("Klarte ikke hente hente arrangør. BrregError: $error")
             null
         }, { virksomhet ->

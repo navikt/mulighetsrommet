@@ -48,6 +48,7 @@ import { UtbetalingskravPage } from "./pages/gjennomforing/utbetaling/Utbetaling
 import { utbetalingskravPageLoader } from "./pages/gjennomforing/utbetaling/utbetalingskravPageLoader";
 import { utbetalingskravForGjennomforingLoader } from "./pages/gjennomforing/utbetaling/utbetalingKravForGjennomforingLoader";
 import { UtbetalingskravForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/UtbetalingKravForGjennomforingContainer";
+import { DeltakerlisteContainer } from "@/pages/gjennomforing/deltakerliste/DeltakerlisteContainer";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -228,6 +229,19 @@ const router = () =>
                 element: <UtbetalingskravForGjennomforingContainer />,
                 errorElement: <ErrorPage />,
                 loader: utbetalingskravForGjennomforingLoader,
+              },
+            ],
+          },
+          {
+            path: "gjennomforinger/:gjennomforingId/deltakerliste",
+            element: <GjennomforingPage />,
+            errorElement: <ErrorPage />,
+            loader: gjennomforingLoader,
+            children: [
+              {
+                index: true,
+                element: <DeltakerlisteContainer />,
+                errorElement: <ErrorPage />,
               },
             ],
           },

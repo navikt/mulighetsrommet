@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures.underenhet1
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures.underenhet2
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
+import no.nav.mulighetsrommet.model.NorskIdent
 import java.time.LocalDateTime
 
 class AltinnRettigheterQueriesTest : FunSpec({

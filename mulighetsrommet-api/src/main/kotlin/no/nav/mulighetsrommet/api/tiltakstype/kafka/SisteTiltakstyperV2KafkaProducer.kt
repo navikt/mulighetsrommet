@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.tiltakstype.kafka
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeEksternV2Dto
+import no.nav.mulighetsrommet.model.TiltakstypeEksternV2Dto
 import org.apache.kafka.clients.producer.ProducerRecord
 
 class SisteTiltakstyperV2KafkaProducer(

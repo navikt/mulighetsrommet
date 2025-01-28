@@ -5,7 +5,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.refusjon.model.TilsagnUtbetalingDto
 import no.nav.mulighetsrommet.api.withTransaction
-import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.model.NavIdent
 import org.intellij.lang.annotations.Language
 import java.util.*
 

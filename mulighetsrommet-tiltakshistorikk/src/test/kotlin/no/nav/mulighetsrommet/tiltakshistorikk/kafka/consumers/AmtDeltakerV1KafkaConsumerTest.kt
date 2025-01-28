@@ -4,14 +4,14 @@ import io.kotest.core.spec.style.FunSpec
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
-import no.nav.mulighetsrommet.domain.dto.GjennomforingStatus
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
-import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
+import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingStatus
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tiltakshistorikk.databaseConfig
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.GruppetiltakRepository
@@ -46,6 +46,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             oppstart = GjennomforingOppstartstype.FELLES,
             tilgjengeligForArrangorFraOgMedDato = null,
             apentForPamelding = true,
+            antallPlasser = 10,
         )
 
         val deltakelsesdato = LocalDateTime.of(2023, 3, 1, 0, 0, 0)

@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api.refusjon.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.*
 
 @Serializable

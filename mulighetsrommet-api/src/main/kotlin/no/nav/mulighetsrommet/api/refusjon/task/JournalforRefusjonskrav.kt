@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuer
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravDto
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravStatus
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.tasks.transactionalSchedulerClient
 import no.nav.mulighetsrommet.tokenprovider.AccessType

@@ -10,4 +10,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 
 	CREATE DATABASE "mr-tiltakshistorikk";
 	GRANT ALL PRIVILEGES ON DATABASE "mr-tiltakshistorikk" TO valp;
+
+	CREATE DATABASE "mr-tiltaksokonomi";
+	GRANT ALL PRIVILEGES ON DATABASE "mr-tiltaksokonomi" TO valp;
 EOSQL

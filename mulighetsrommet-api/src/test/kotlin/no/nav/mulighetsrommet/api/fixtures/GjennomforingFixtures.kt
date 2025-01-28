@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.gjennomforing.EstimertVentetid
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDate
 import java.util.*
 

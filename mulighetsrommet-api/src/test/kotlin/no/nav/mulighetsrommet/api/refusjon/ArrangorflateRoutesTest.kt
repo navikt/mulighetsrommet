@@ -12,29 +12,35 @@ import io.ktor.http.content.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import kotliquery.Query
+import no.nav.amt.model.EndringAarsak
+import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedParty
-import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.GodkjennRefusjonskrav
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravAft
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponseDokument
+import no.nav.mulighetsrommet.api.createAuthConfig
+import no.nav.mulighetsrommet.api.createTestApplicationConfig
+import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag.Status
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
-import no.nav.mulighetsrommet.api.refusjon.model.*
+import no.nav.mulighetsrommet.api.refusjon.model.DeltakelseManedsverk
+import no.nav.mulighetsrommet.api.refusjon.model.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.refusjon.model.DeltakelsePerioder
+import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
+import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
-import no.nav.mulighetsrommet.domain.dto.Kontonummer
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.domain.dto.amt.EndringAarsak
-import no.nav.mulighetsrommet.domain.dto.amt.Melding
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
+import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -44,21 +50,10 @@ class ArrangorflateRoutesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val identMedTilgang = NorskIdent("01010199988")
-    val hovedenhet = ArrangorDto(
-        id = UUID.randomUUID(),
-        organisasjonsnummer = Organisasjonsnummer("883674471"),
-        navn = "Hovedenhet",
-        postnummer = "0102",
-        poststed = "Oslo",
-    )
-    val barnevernsNembda = ArrangorDto(
-        id = UUID.randomUUID(),
-        organisasjonsnummer = Organisasjonsnummer("973674471"),
-        navn = "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
-        postnummer = "0102",
-        poststed = "Oslo",
-        overordnetEnhet = hovedenhet.organisasjonsnummer,
-    )
+
+    val hovedenhet = ArrangorFixtures.hovedenhet
+    val underenhet = ArrangorFixtures.underenhet1
+
     val deltaker = DeltakerDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
@@ -115,12 +110,12 @@ class ArrangorflateRoutesTest : FunSpec({
         avtaler = listOf(
             AvtaleFixtures.AFT.copy(
                 arrangorId = hovedenhet.id,
-                arrangorUnderenheter = listOf(barnevernsNembda.id),
+                arrangorUnderenheter = listOf(underenhet.id),
             ),
         ),
-        gjennomforinger = listOf(GjennomforingFixtures.AFT1.copy(arrangorId = barnevernsNembda.id)),
+        gjennomforinger = listOf(GjennomforingFixtures.AFT1.copy(arrangorId = underenhet.id)),
         deltakere = listOf(deltaker),
-        arrangorer = listOf(hovedenhet, barnevernsNembda),
+        arrangorer = listOf(hovedenhet, underenhet),
         refusjonskrav = listOf(krav),
     )
     val oauth = MockOAuth2Server()
@@ -146,8 +141,8 @@ class ArrangorflateRoutesTest : FunSpec({
                 respondJson(
                     listOf(
                         AuthorizedParty(
-                            organizationNumber = barnevernsNembda.organisasjonsnummer.value,
-                            organizationName = barnevernsNembda.navn,
+                            organizationNumber = underenhet.organisasjonsnummer.value,
+                            organizationName = underenhet.navn,
                             type = "type",
                             authorizedResources = listOf("tiltak-arrangor-refusjon"),
                             subunits = emptyList(),
@@ -209,7 +204,7 @@ class ArrangorflateRoutesTest : FunSpec({
             val responseBody = response.bodyAsText()
             val tilganger: List<ArrangorDto> = Json.decodeFromString(responseBody)
             tilganger shouldHaveSize 1
-            tilganger[0].organisasjonsnummer shouldBe barnevernsNembda.organisasjonsnummer
+            tilganger[0].organisasjonsnummer shouldBe underenhet.organisasjonsnummer
         }
     }
 
