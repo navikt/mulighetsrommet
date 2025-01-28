@@ -34,10 +34,6 @@ import {
   gjennomforingFormLoader,
   gjennomforingLoader,
 } from "./pages/gjennomforing/gjennomforingLoaders";
-import { RefusjonskravForGjennomforingContainer } from "./pages/gjennomforing/refusjonskrav/RefusjonskravForGjennomforingContainer";
-import { RefusjonskravDetaljer } from "./pages/gjennomforing/refusjonskrav/detaljer/RefusjonskravDetaljer";
-import { refusjonskravDetaljerLoader } from "./pages/gjennomforing/refusjonskrav/detaljer/refusjonskravDetaljerLoader";
-import { refusjonskravForGjennomforingLoader } from "./pages/gjennomforing/refusjonskrav/refusjonskravForGjennomforingLoader";
 import { tilsagnDetaljerLoader } from "./pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
 import { opprettTilsagnLoader } from "./pages/gjennomforing/tilsagn/opprett/opprettTilsagnLoader";
 import { RedigerTilsagnFormPage } from "./pages/gjennomforing/tilsagn/rediger/RedigerTilsagnFormPage";
@@ -48,6 +44,10 @@ import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnD
 import { NotifikasjonerPage } from "./pages/arbeidsbenk/notifikasjoner/NotifikasjonerPage";
 import { notifikasjonLoader } from "./pages/arbeidsbenk/notifikasjoner/notifikasjonerLoader";
 import { TilsagnForGjennomforingContainer } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnForGjennomforingContainer";
+import { UtbetalingskravPage } from "./pages/gjennomforing/utbetaling/UtbetalingskravPage";
+import { utbetalingskravPageLoader } from "./pages/gjennomforing/utbetaling/utbetalingskravPageLoader";
+import { utbetalingskravForGjennomforingLoader } from "./pages/gjennomforing/utbetaling/utbetalingKravForGjennomforingLoader";
+import { UtbetalingskravForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/UtbetalingKravForGjennomforingContainer";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -225,9 +225,9 @@ const router = () =>
             children: [
               {
                 index: true,
-                element: <RefusjonskravForGjennomforingContainer />,
+                element: <UtbetalingskravForGjennomforingContainer />,
                 errorElement: <ErrorPage />,
-                loader: refusjonskravForGjennomforingLoader,
+                loader: utbetalingskravForGjennomforingLoader,
               },
             ],
           },
@@ -257,9 +257,9 @@ const router = () =>
           },
           {
             path: "gjennomforinger/:gjennomforingId/refusjonskrav/:refusjonskravId",
-            element: <RefusjonskravDetaljer />,
+            element: <UtbetalingskravPage />,
             errorElement: <ErrorPage />,
-            loader: refusjonskravDetaljerLoader,
+            loader: utbetalingskravPageLoader,
           },
           {
             path: "arrangorer",

@@ -10,7 +10,7 @@ interface Props {
   refusjonskrav: RefusjonKravKompakt[];
 }
 
-export function RefusjonskravTabell({ refusjonskrav }: Props) {
+export function UtbetalingKravTable({ refusjonskrav }: Props) {
   const { gjennomforingId } = useParams();
 
   function formaterKostnadsteder(

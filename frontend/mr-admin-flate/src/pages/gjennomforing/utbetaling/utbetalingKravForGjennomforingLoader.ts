@@ -1,7 +1,7 @@
 import { RefusjonskravService, GjennomforingerService } from "@mr/api-client-v2";
 import { LoaderFunctionArgs } from "react-router";
 
-export async function refusjonskravForGjennomforingLoader({ params }: LoaderFunctionArgs) {
+export async function utbetalingskravForGjennomforingLoader({ params }: LoaderFunctionArgs) {
   const { gjennomforingId } = params;
 
   if (!gjennomforingId) {

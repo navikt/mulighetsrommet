@@ -2,12 +2,12 @@ import { Alert } from "@navikt/ds-react";
 import { useLoaderData } from "react-router";
 import { Toggles } from "@mr/api-client-v2";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { RefusjonskravTabell } from "../refusjonskrav/RefusjonskravTabell";
-import { refusjonskravForGjennomforingLoader } from "./refusjonskravForGjennomforingLoader";
+import { utbetalingskravForGjennomforingLoader } from "./utbetalingKravForGjennomforingLoader";
+import { UtbetalingKravTable } from "./UtbetalingKravTable";
 
-export function RefusjonskravForGjennomforingContainer() {
+export function UtbetalingskravForGjennomforingContainer() {
   const { gjennomforing, refusjonskrav } =
-    useLoaderData<typeof refusjonskravForGjennomforingLoader>();
+    useLoaderData<typeof utbetalingskravForGjennomforingLoader>();
 
   const { data: enableOkonomi } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
@@ -21,7 +21,7 @@ export function RefusjonskravForGjennomforingContainer() {
   return (
     <>
       {refusjonskrav.length > 0 ? (
-        <RefusjonskravTabell refusjonskrav={refusjonskrav} />
+        <UtbetalingKravTable refusjonskrav={refusjonskrav} />
       ) : (
         <Alert style={{ marginTop: "1rem" }} variant="info">
           Det finnes ingen refusjonskrav for dette tiltaket

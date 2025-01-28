@@ -1956,6 +1956,45 @@ paths:
               schema:
                 $ref: "#/components/schemas/RefusjonKravKompakt"
 
+  /api/v1/intern/refusjonskrav/{id}/utbetaling:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Refusjonskrav
+      operationId: getUtbetaling
+      responses:
+        200:
+          description: Utbetaling
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UtbetalingPageResponse"
+    put:
+      tags:
+        - Refusjonskrav
+      operationId: opprettUtbetaling
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UtbetalingRequest"
+      responses:
+        200:
+          description: OK
+        400:
+          description: Respons med valideringsfeil
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        500:
+          description: "Kunne ikke opprette utbetaling"
+          content:
+            application/json:
+              schema:
+                type: string
+
   /api/v1/intern/tilsagn/beregn:
     post:
       tags:
@@ -5959,3 +5998,80 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TilsagnTilAnnulleringAarsak"
+
+    TilsagnUtbetaling:
+      type: object
+      properties:
+        tilsagnId:
+          type: string
+          format: uuid
+        refusjonskravId:
+          type: string
+          format: uuid
+        belop:
+          type: number
+        opprettetAv:
+          type: string
+        besluttetAv:
+          type: string
+      required:
+        - tilsagnId
+        - refusjonskravId
+        - belop
+        - opprettetAv
+
+    UtbetalingPageResponse:
+      oneOf:
+        - $ref: "#/components/schemas/BehandleUtbetaling"
+        - $ref: "#/components/schemas/Utbetaling"
+
+    BehandleUtbetaling:
+      type: object
+      properties:
+        type:
+          const: BEHANDLE_UTBETALING
+        krav:
+          $ref: "#/components/schemas/RefusjonKravKompakt"
+        tilsagn:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnDto"
+      required:
+        - type
+        - krav
+        - tilsagn
+
+    Utbetaling:
+      type: object
+      properties:
+        type:
+          const: UTBETALING
+        krav:
+          $ref: "#/components/schemas/RefusjonKravKompakt"
+        utbetalinger:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnUtbetaling"
+      required:
+        - type
+        - krav
+        - utbetalinger
+
+    UtbetalingRequest:
+      type: object
+      properties:
+        kostnadsfordeling:
+          type: array
+          items:
+            type: object
+            properties:
+              tilsagnId:
+                type: string
+                format: uuid
+              belop:
+                type: number
+            required:
+              - tilsagnId
+              - belop
+      required:
+        - kostnadsfordeling
