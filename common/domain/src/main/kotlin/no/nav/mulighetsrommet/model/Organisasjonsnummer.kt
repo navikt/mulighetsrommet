@@ -8,8 +8,12 @@ private val ORGANISASJONSNUMMER_REGEX = "^\\d{9}$".toRegex()
 @JvmInline
 value class Organisasjonsnummer(val value: String) {
     init {
-        require(ORGANISASJONSNUMMER_REGEX.matches(value)) {
+        require(isValid(value)) {
             "'Organisasjonsnummer' må være på formatet '${ORGANISASJONSNUMMER_REGEX}'"
         }
+    }
+
+    companion object {
+        fun isValid(value: String): Boolean = ORGANISASJONSNUMMER_REGEX.matches(value)
     }
 }

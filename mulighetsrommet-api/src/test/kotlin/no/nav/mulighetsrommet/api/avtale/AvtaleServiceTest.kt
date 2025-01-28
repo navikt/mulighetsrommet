@@ -89,7 +89,7 @@ class AvtaleServiceTest : FunSpec({
                 arrangorUnderenheter = listOf(),
             )
 
-            coEvery { brregClient.getBrregVirksomhet(Organisasjonsnummer("888777435")) } returns BrregError.NotFound.left()
+            coEvery { brregClient.getBrregEnhet(Organisasjonsnummer("888777435")) } returns BrregError.NotFound.left()
 
             avtaleService.upsert(request, bertilNavIdent).shouldBeLeft(
                 listOf(

@@ -29,7 +29,7 @@ class ArrangorServiceTest : FunSpec({
         postnummer = null,
         poststed = null,
     )
-    val hovedenhet = BrregEnhetMedUnderenheterDto(
+    val hovedenhet = BrreHovedenhetMedUnderenheterDto(
         organisasjonsnummer = Organisasjonsnummer("123456789"),
         organisasjonsform = "AS",
         navn = "Testbedriften AS",
@@ -48,7 +48,7 @@ class ArrangorServiceTest : FunSpec({
         }
 
         test("skal synkronisere hovedenhet uten underenheter fra brreg til databasen gitt orgnr til hovedenhet") {
-            coEvery { brregClient.getBrregVirksomhet(hovedenhet.organisasjonsnummer) } returns hovedenhet.right()
+            coEvery { brregClient.getBrregEnhet(hovedenhet.organisasjonsnummer) } returns hovedenhet.right()
 
             arrangorService.getArrangorOrSyncFromBrreg(hovedenhet.organisasjonsnummer).shouldBeRight()
 
@@ -64,8 +64,8 @@ class ArrangorServiceTest : FunSpec({
         }
 
         test("skal synkronisere hovedenhet i tillegg til underenhet fra brreg til databasen gitt orgnr til underenhet") {
-            coEvery { brregClient.getBrregVirksomhet(hovedenhet.organisasjonsnummer) } returns hovedenhet.right()
-            coEvery { brregClient.getBrregVirksomhet(underenhet.organisasjonsnummer) } returns underenhet.right()
+            coEvery { brregClient.getBrregEnhet(hovedenhet.organisasjonsnummer) } returns hovedenhet.right()
+            coEvery { brregClient.getBrregEnhet(underenhet.organisasjonsnummer) } returns underenhet.right()
 
             arrangorService.getArrangorOrSyncFromBrreg(underenhet.organisasjonsnummer).shouldBeRight()
 
@@ -83,14 +83,14 @@ class ArrangorServiceTest : FunSpec({
 
         test("skal synkronisere slettet enhet fra brreg og til databasen gitt orgnr til enheten") {
             val orgnr = Organisasjonsnummer("100200300")
-            val slettetVirksomhet = SlettetBrregEnhetDto(
+            val slettetVirksomhet = SlettetBrregHovedenhetDto(
                 organisasjonsnummer = orgnr,
                 organisasjonsform = "AS",
                 navn = "Slettet bedrift",
                 slettetDato = LocalDate.of(2020, 1, 1),
             )
 
-            coEvery { brregClient.getBrregVirksomhet(orgnr) } returns slettetVirksomhet.right()
+            coEvery { brregClient.getBrregEnhet(orgnr) } returns slettetVirksomhet.right()
 
             arrangorService.getArrangorOrSyncFromBrreg(orgnr).shouldBeRight()
 
@@ -106,8 +106,8 @@ class ArrangorServiceTest : FunSpec({
         test("NotFound error når enhet ikke finnes") {
             val orgnr = Organisasjonsnummer("123123123")
 
-            coEvery { brregClient.getBrregVirksomhet(orgnr) } returns BrregError.NotFound.left()
-            coEvery { brregClient.getBrregVirksomhet(orgnr) } returns BrregError.NotFound.left()
+            coEvery { brregClient.getBrregEnhet(orgnr) } returns BrregError.NotFound.left()
+            coEvery { brregClient.getBrregEnhet(orgnr) } returns BrregError.NotFound.left()
 
             arrangorService.getArrangorOrSyncFromBrreg(orgnr) shouldBeLeft BrregError.NotFound
 

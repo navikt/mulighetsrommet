@@ -15,8 +15,8 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.brreg.BrreHovedenhetMedUnderenheterDto
 import no.nav.mulighetsrommet.brreg.BrregClient
-import no.nav.mulighetsrommet.brreg.BrregEnhetMedUnderenheterDto
 import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -48,7 +48,7 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
             poststed = "Andeby",
         )
 
-        val virksomhetDto = BrregEnhetMedUnderenheterDto(
+        val virksomhetDto = BrreHovedenhetMedUnderenheterDto(
             organisasjonsnummer = amtVirksomhet.organisasjonsnummer,
             organisasjonsform = "AS",
             navn = amtVirksomhet.navn,
@@ -58,8 +58,8 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
         )
 
         val brregClient: BrregClient = mockk()
-        coEvery { brregClient.getBrregVirksomhet(amtVirksomhet.organisasjonsnummer) } returns virksomhetDto.right()
-        coEvery { brregClient.getBrregVirksomhet(amtUnderenhet.organisasjonsnummer) } returns underenhetDto.right()
+        coEvery { brregClient.getBrregEnhet(amtVirksomhet.organisasjonsnummer) } returns virksomhetDto.right()
+        coEvery { brregClient.getBrregEnhet(amtUnderenhet.organisasjonsnummer) } returns underenhetDto.right()
 
         val arrangorService = ArrangorService(
             db = database.db,
