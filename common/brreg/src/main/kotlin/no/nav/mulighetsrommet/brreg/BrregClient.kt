@@ -15,13 +15,6 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
-object OrgnummerUtil {
-    fun erOrgnr(verdi: String): Boolean {
-        val orgnrPattern = "^[0-9]{9}\$".toRegex()
-        return orgnrPattern.matches(verdi)
-    }
-}
-
 /**
  * Klient for å hente data fra Brreg.
  *
@@ -56,7 +49,7 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
     }
 
     suspend fun sokOverordnetEnhet(orgnr: String): Either<BrregError, List<BrregEnhetDto>> {
-        val sokEllerOppslag = when (OrgnummerUtil.erOrgnr(orgnr)) {
+        val sokEllerOppslag = when (Organisasjonsnummer.isValid(orgnr)) {
             true -> "organisasjonsnummer"
             false -> "navn"
         }
