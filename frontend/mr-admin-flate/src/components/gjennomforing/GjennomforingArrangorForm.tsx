@@ -26,7 +26,7 @@ export function GjennomforingArrangorForm({ readOnly, avtale }: Props) {
     setValue,
   } = useFormContext<InferredGjennomforingSchema>();
 
-  const { data: arrangorKontaktpersoner } = useArrangorKontaktpersoner(avtale.arrangor.id);
+  const { data: arrangorKontaktpersoner } = useArrangorKontaktpersoner(avtale.arrangor?.id);
 
   const arrangorOptions = getArrangorOptions(avtale);
   const kontaktpersonOptions = getKontaktpersonOptions(arrangorKontaktpersoner ?? []);
@@ -37,7 +37,7 @@ export function GjennomforingArrangorForm({ readOnly, avtale }: Props) {
           size="small"
           label={gjennomforingTekster.tiltaksarrangorHovedenhetLabel}
           placeholder=""
-          defaultValue={`${avtale.arrangor.navn} - ${avtale.arrangor.organisasjonsnummer}`}
+          defaultValue={`${avtale.arrangor?.navn} - ${avtale.arrangor?.organisasjonsnummer}`}
           readOnly
         />
         <ControlledSokeSelect
@@ -87,34 +87,38 @@ export function GjennomforingArrangorForm({ readOnly, avtale }: Props) {
           }
         />
       </VStack>
-      <ArrangorKontaktpersonerModal
-        arrangorId={avtale.arrangor.id}
-        modalRef={arrangorKontaktpersonerModalRef}
-        onOpprettSuccess={(kontaktperson) => {
-          if (!kontaktperson.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.GJENNOMFORING)) {
-            return;
-          }
+      {avtale.arrangor && (
+        <ArrangorKontaktpersonerModal
+          arrangorId={avtale.arrangor.id}
+          modalRef={arrangorKontaktpersonerModalRef}
+          onOpprettSuccess={(kontaktperson) => {
+            if (!kontaktperson.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.GJENNOMFORING)) {
+              return;
+            }
 
-          const kontaktpersoner = watch("arrangorKontaktpersoner") ?? [];
-          setValue("arrangorKontaktpersoner", [
-            ...kontaktpersoner.filter((k) => k !== kontaktperson.id),
-            kontaktperson.id,
-          ]);
-        }}
-      />
+            const kontaktpersoner = watch("arrangorKontaktpersoner") ?? [];
+            setValue("arrangorKontaktpersoner", [
+              ...kontaktpersoner.filter((k) => k !== kontaktperson.id),
+              kontaktperson.id,
+            ]);
+          }}
+        />
+      )}
     </>
   );
 }
 
 function getArrangorOptions(avtale: AvtaleDto) {
-  return avtale.arrangor.underenheter
-    .sort((a, b) => a.navn.localeCompare(b.navn))
-    .map((arrangor) => {
-      return {
-        label: `${arrangor.navn} - ${arrangor.organisasjonsnummer}`,
-        value: arrangor.id,
-      };
-    });
+  return avtale.arrangor
+    ? avtale.arrangor.underenheter
+        .sort((a, b) => a.navn.localeCompare(b.navn))
+        .map((arrangor) => {
+          return {
+            label: `${arrangor.navn} - ${arrangor.organisasjonsnummer}`,
+            value: arrangor.id,
+          };
+        })
+    : [];
 }
 
 function getKontaktpersonOptions(kontaktpersoner: ArrangorKontaktperson[]) {

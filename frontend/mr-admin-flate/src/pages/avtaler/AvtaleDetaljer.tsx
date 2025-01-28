@@ -219,8 +219,8 @@ export function AvtaleDetaljer() {
           <Metadata
             header={avtaletekster.tiltaksarrangorHovedenhetLabel}
             verdi={
-              <Link to={`/arrangorer/${arrangor.id}`}>
-                {arrangor.navn} - {arrangor.organisasjonsnummer}
+              <Link to={`/arrangorer/${arrangor?.id}`}>
+                {arrangor?.navn} - {arrangor?.organisasjonsnummer}
               </Link>
             }
           />
@@ -229,7 +229,7 @@ export function AvtaleDetaljer() {
             header={avtaletekster.tiltaksarrangorUnderenheterLabel}
             verdi={
               <ul>
-                {arrangor.underenheter.map((enhet) => (
+                {arrangor?.underenheter.map((enhet) => (
                   <li key={enhet.organisasjonsnummer}>
                     {`${enhet.navn} - ${enhet.organisasjonsnummer}`}
                   </li>
@@ -240,7 +240,7 @@ export function AvtaleDetaljer() {
         </VStack>
 
         <Separator />
-        {arrangor.kontaktpersoner.length > 0 && (
+        {arrangor && arrangor.kontaktpersoner.length > 0 && (
           <Metadata
             header={avtaletekster.kontaktpersonerHosTiltaksarrangorLabel}
             verdi={
