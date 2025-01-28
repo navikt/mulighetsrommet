@@ -22,6 +22,14 @@ object OrgnummerUtil {
     }
 }
 
+/**
+ * Klient for å hente data fra Brreg.
+ *
+ * Se [0] for dokumentasjon til API, i tillegg kan [1] være til hjelp for bedre forståelse av tilgjengelige data.
+ *
+ * [0]: https://data.brreg.no/enhetsregisteret/api/docs/index.html for dokumentasjon.
+ * [1]: https://www.brreg.no/bruke-data-fra-bronnoysundregistrene/apne-data/beskrivelse-av-tjenesten-data-fra-enhetsregisteret/
+ */
 class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -63,6 +71,7 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
                 data._embedded?.enheter?.map {
                     BrregEnhetDto(
                         organisasjonsnummer = it.organisasjonsnummer,
+                        organisasjonsform = it.organisasjonsform.kode,
                         navn = it.navn,
                         postnummer = it.postAdresse?.postnummer,
                         poststed = it.postAdresse?.poststed,
@@ -82,6 +91,7 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
                 data._embedded?.underenheter?.map { underenhet ->
                     BrregUnderenhetDto(
                         organisasjonsnummer = underenhet.organisasjonsnummer,
+                        organisasjonsform = underenhet.organisasjonsform.kode,
                         navn = underenhet.navn,
                         overordnetEnhet = orgnr,
                         poststed = underenhet.beliggenhetsadresse?.poststed,
@@ -94,10 +104,11 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
     suspend fun getEnhetMedUnderenheter(orgnr: Organisasjonsnummer): Either<BrregError, BrregEnhet> = either {
         val response = client.get("$baseUrl/enheter/${orgnr.value}")
 
-        val enhet = parseResponse<Enhet>(response).bind()
+        val enhet = parseResponse<OverordnetEnhet>(response).bind()
         if (enhet.slettedato != null) {
             return@either SlettetBrregEnhetDto(
                 organisasjonsnummer = enhet.organisasjonsnummer,
+                organisasjonsform = enhet.organisasjonsform.kode,
                 navn = enhet.navn,
                 slettetDato = enhet.slettedato,
             )
@@ -106,6 +117,7 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
         val underenheter = getUnderenheterForOverordnetEnhet(orgnr).bind()
         BrregEnhetMedUnderenheterDto(
             organisasjonsnummer = enhet.organisasjonsnummer,
+            organisasjonsform = enhet.organisasjonsform.kode,
             navn = enhet.navn,
             underenheter = underenheter,
             postnummer = enhet.postAdresse?.postnummer,
@@ -116,17 +128,19 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
     suspend fun getEnhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregEnhet> = either {
         val response = client.get("$baseUrl/enheter/${orgnr.value}")
 
-        val enhet = parseResponse<Enhet>(response).bind()
+        val enhet = parseResponse<OverordnetEnhet>(response).bind()
         if (enhet.slettedato != null) {
             logSlettetWarning(orgnr, enhet.slettedato)
             SlettetBrregEnhetDto(
                 organisasjonsnummer = enhet.organisasjonsnummer,
+                organisasjonsform = enhet.organisasjonsform.kode,
                 navn = enhet.navn,
                 slettetDato = enhet.slettedato,
             )
         } else {
             BrregEnhetDto(
                 organisasjonsnummer = enhet.organisasjonsnummer,
+                organisasjonsform = enhet.organisasjonsform.kode,
                 navn = enhet.navn,
                 postnummer = enhet.postAdresse?.postnummer,
                 poststed = enhet.postAdresse?.poststed,
@@ -144,6 +158,7 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
                 logSlettetWarning(orgnr, enhet.slettedato)
                 SlettetBrregUnderenhetDto(
                     organisasjonsnummer = enhet.organisasjonsnummer,
+                    organisasjonsform = enhet.organisasjonsform.kode,
                     navn = enhet.navn,
                     slettetDato = enhet.slettedato,
                 )
@@ -156,6 +171,7 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
             else -> {
                 BrregUnderenhetDto(
                     organisasjonsnummer = enhet.organisasjonsnummer,
+                    organisasjonsform = enhet.organisasjonsform.kode,
                     navn = enhet.navn,
                     overordnetEnhet = enhet.overordnetEnhet,
                     postnummer = enhet.beliggenhetsadresse?.postnummer,

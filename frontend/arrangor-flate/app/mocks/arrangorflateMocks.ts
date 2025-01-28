@@ -274,6 +274,7 @@ const arrangorer: Arrangor[] = [
   {
     id: uuid(),
     organisasjonsnummer: "123456789",
+    organisasjonsform: "AS",
     navn: "Fretex",
     overordnetEnhet: null,
   },

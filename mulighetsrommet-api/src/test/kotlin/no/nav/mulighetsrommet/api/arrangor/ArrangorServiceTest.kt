@@ -23,6 +23,7 @@ class ArrangorServiceTest : FunSpec({
 
     val underenhet = BrregUnderenhetDto(
         organisasjonsnummer = Organisasjonsnummer("234567891"),
+        organisasjonsform = "BEDR",
         navn = "Underenhet til Testbedriften AS",
         overordnetEnhet = Organisasjonsnummer("123456789"),
         postnummer = null,
@@ -30,6 +31,7 @@ class ArrangorServiceTest : FunSpec({
     )
     val hovedenhet = BrregEnhetMedUnderenheterDto(
         organisasjonsnummer = Organisasjonsnummer("123456789"),
+        organisasjonsform = "AS",
         navn = "Testbedriften AS",
         underenheter = listOf(underenhet),
         postnummer = null,
@@ -83,6 +85,7 @@ class ArrangorServiceTest : FunSpec({
             val orgnr = Organisasjonsnummer("100200300")
             val slettetVirksomhet = SlettetBrregEnhetDto(
                 organisasjonsnummer = orgnr,
+                organisasjonsform = "AS",
                 navn = "Slettet bedrift",
                 slettetDato = LocalDate.of(2020, 1, 1),
             )

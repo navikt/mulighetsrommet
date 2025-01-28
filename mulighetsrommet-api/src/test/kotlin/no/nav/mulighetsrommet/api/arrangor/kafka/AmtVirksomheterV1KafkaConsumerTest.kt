@@ -42,6 +42,7 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
         val underenhetDto = BrregUnderenhetDto(
             navn = amtUnderenhet.navn,
             organisasjonsnummer = amtUnderenhet.organisasjonsnummer,
+            organisasjonsform = "BEDR",
             overordnetEnhet = amtVirksomhet.organisasjonsnummer,
             postnummer = "1000",
             poststed = "Andeby",
@@ -49,6 +50,7 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
 
         val virksomhetDto = BrregEnhetMedUnderenheterDto(
             organisasjonsnummer = amtVirksomhet.organisasjonsnummer,
+            organisasjonsform = "AS",
             navn = amtVirksomhet.navn,
             underenheter = listOf(),
             postnummer = "1000",
@@ -84,6 +86,7 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
                     ArrangorDto(
                         id = id,
                         organisasjonsnummer = virksomhetDto.organisasjonsnummer,
+                        organisasjonsform = virksomhetDto.organisasjonsform,
                         navn = "Kiwi",
                     ),
                 )
@@ -96,6 +99,7 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
                 queries.arrangor.getAll().items.shouldHaveSize(1).first().should {
                     it.id shouldBe id
                     it.organisasjonsnummer shouldBe virksomhetDto.organisasjonsnummer
+                    it.organisasjonsform shouldBe virksomhetDto.organisasjonsform
                     it.navn shouldBe "REMA 1000 AS"
                 }
             }
@@ -108,6 +112,7 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
                         ArrangorDto(
                             id = UUID.randomUUID(),
                             organisasjonsnummer = underenhetDto.organisasjonsnummer,
+                            organisasjonsform = virksomhetDto.organisasjonsform,
                             navn = "Kiwi",
                         ),
                     )

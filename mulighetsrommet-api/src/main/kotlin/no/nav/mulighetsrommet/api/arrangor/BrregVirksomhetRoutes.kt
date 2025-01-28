@@ -76,12 +76,14 @@ fun toStatusResponseError(it: BrregError) = when (it) {
 private fun toBrregVirksomhetDto(arrangor: ArrangorDto) = when {
     arrangor.slettetDato != null -> SlettetBrregEnhetDto(
         organisasjonsnummer = arrangor.organisasjonsnummer,
+        organisasjonsform = "IKS", // Interkommunalt selskap (X i Arena)
         navn = arrangor.navn,
         slettetDato = arrangor.slettetDato,
     )
 
     else -> BrregEnhetDto(
         organisasjonsnummer = arrangor.organisasjonsnummer,
+        organisasjonsform = "IKS", // Interkommunalt selskap (X i Arena)
         navn = arrangor.navn,
         postnummer = null,
         poststed = null,

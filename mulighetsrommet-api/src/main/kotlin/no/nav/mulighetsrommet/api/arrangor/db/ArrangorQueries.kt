@@ -21,10 +21,11 @@ class ArrangorQueries(private val session: Session) {
     fun upsert(arrangor: ArrangorDto) {
         @Language("PostgreSQL")
         val query = """
-            insert into arrangor(id, organisasjonsnummer, navn, overordnet_enhet, slettet_dato)
-            values (:id, :organisasjonsnummer, :navn, :overordnet_enhet, :slettet_dato)
+            insert into arrangor(id, organisasjonsnummer, organisasjonsform, navn, overordnet_enhet, slettet_dato)
+            values (:id, :organisasjonsnummer, :organisasjonsform, :navn, :overordnet_enhet, :slettet_dato)
             on conflict (id) do update set
                 organisasjonsnummer = excluded.organisasjonsnummer,
+                organisasjonsform = excluded.organisasjonsform,
                 navn = excluded.navn,
                 overordnet_enhet = excluded.overordnet_enhet,
                 slettet_dato = excluded.slettet_dato
@@ -34,6 +35,7 @@ class ArrangorQueries(private val session: Session) {
             mapOf(
                 "id" to id,
                 "organisasjonsnummer" to organisasjonsnummer.value,
+                "organisasjonsform" to organisasjonsform,
                 "navn" to navn,
                 "overordnet_enhet" to overordnetEnhet?.value,
                 "slettet_dato" to slettetDato,
@@ -69,6 +71,7 @@ class ArrangorQueries(private val session: Session) {
             select distinct
                 arrangor.id,
                 arrangor.organisasjonsnummer,
+                arrangor.organisasjonsform,
                 arrangor.overordnet_enhet,
                 arrangor.navn,
                 arrangor.slettet_dato,
@@ -102,6 +105,7 @@ class ArrangorQueries(private val session: Session) {
             select
                 id,
                 organisasjonsnummer,
+                organisasjonsform,
                 overordnet_enhet,
                 navn,
                 slettet_dato
@@ -114,6 +118,7 @@ class ArrangorQueries(private val session: Session) {
             select
                 id,
                 organisasjonsnummer,
+                organisasjonsform,
                 overordnet_enhet,
                 navn,
                 slettet_dato
@@ -133,6 +138,7 @@ class ArrangorQueries(private val session: Session) {
             select
                 id,
                 organisasjonsnummer,
+                organisasjonsform,
                 overordnet_enhet,
                 navn,
                 slettet_dato
@@ -155,6 +161,7 @@ class ArrangorQueries(private val session: Session) {
             select
                 id,
                 organisasjonsnummer,
+                organisasjonsform,
                 overordnet_enhet,
                 navn,
                 slettet_dato
@@ -264,6 +271,7 @@ class ArrangorQueries(private val session: Session) {
     private fun Row.toVirksomhetDto() = ArrangorDto(
         id = uuid("id"),
         organisasjonsnummer = Organisasjonsnummer(string("organisasjonsnummer")),
+        organisasjonsform = stringOrNull("organisasjonsform"),
         navn = string("navn"),
         overordnetEnhet = stringOrNull("overordnet_enhet")?.let { Organisasjonsnummer(it) },
         slettetDato = localDateOrNull("slettet_dato"),

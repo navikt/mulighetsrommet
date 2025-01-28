@@ -4199,8 +4199,11 @@ components:
           type: string
         navn:
           type: string
+        organisasjonsform:
+          type: string
       required:
         - organisasjonsnummer
+        - organisasjonsform
         - navn
 
     Arrangor:
@@ -4210,6 +4213,8 @@ components:
           type: string
           format: uuid
         organisasjonsnummer:
+          type: string
+        organisasjonsform:
           type: string
         navn:
           type: string
@@ -4228,6 +4233,7 @@ components:
       required:
         - id
         - organisasjonsnummer
+        - organisasjonsform
         - navn
         - overordnetEnhet
 

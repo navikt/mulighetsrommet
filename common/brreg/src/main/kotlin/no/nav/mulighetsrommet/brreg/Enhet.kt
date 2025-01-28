@@ -6,9 +6,10 @@ import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import java.time.LocalDate
 
 @Serializable
-internal data class Enhet(
+internal data class OverordnetEnhet(
     val organisasjonsnummer: Organisasjonsnummer,
     val navn: String,
+    val organisasjonsform: Organisasjonsform,
     val overordnetEnhet: Organisasjonsnummer? = null,
     val postAdresse: Adresse? = null,
     @Serializable(with = LocalDateSerializer::class)
@@ -19,10 +20,19 @@ internal data class Enhet(
 internal data class Underenhet(
     val organisasjonsnummer: Organisasjonsnummer,
     val navn: String,
+    val organisasjonsform: Organisasjonsform,
     val overordnetEnhet: Organisasjonsnummer? = null,
     val beliggenhetsadresse: Adresse? = null,
     @Serializable(with = LocalDateSerializer::class)
     val slettedato: LocalDate? = null,
+)
+
+@Serializable
+internal data class Organisasjonsform(
+    val kode: String,
+    @Serializable(with = LocalDateSerializer::class)
+    val utgaatt: LocalDate? = null,
+    val beskrivelse: String,
 )
 
 @Serializable
@@ -43,7 +53,7 @@ internal data class EmbeddedEnheter(
 ) {
     @Serializable
     internal data class Enheter(
-        val enheter: List<Enhet>,
+        val enheter: List<OverordnetEnhet>,
     )
 }
 
