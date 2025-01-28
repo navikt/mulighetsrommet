@@ -78,6 +78,7 @@ private fun BrregVirksomhet.toArrangorDto(id: UUID): ArrangorDto {
         is BrregEnhetDto, is BrregEnhetMedUnderenheterDto -> ArrangorDto(
             id = id,
             organisasjonsnummer = organisasjonsnummer,
+            organisasjonsform = organisasjonsform,
             navn = navn,
             overordnetEnhet = null,
             underenheter = null,
@@ -87,6 +88,7 @@ private fun BrregVirksomhet.toArrangorDto(id: UUID): ArrangorDto {
         is SlettetBrregEnhetDto -> ArrangorDto(
             id = id,
             organisasjonsnummer = organisasjonsnummer,
+            organisasjonsform = organisasjonsform,
             navn = navn,
             slettetDato = slettetDato,
             overordnetEnhet = null,
@@ -96,6 +98,7 @@ private fun BrregVirksomhet.toArrangorDto(id: UUID): ArrangorDto {
         is BrregUnderenhetDto -> ArrangorDto(
             id = id,
             organisasjonsnummer = organisasjonsnummer,
+            organisasjonsform = organisasjonsform,
             navn = navn,
             overordnetEnhet = overordnetEnhet,
             underenheter = null,
@@ -105,6 +108,7 @@ private fun BrregVirksomhet.toArrangorDto(id: UUID): ArrangorDto {
         is SlettetBrregUnderenhetDto -> ArrangorDto(
             id = id,
             organisasjonsnummer = organisasjonsnummer,
+            organisasjonsform = organisasjonsform,
             navn = navn,
             slettetDato = slettetDato,
             overordnetEnhet = null,

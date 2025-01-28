@@ -17,6 +17,7 @@ data class ArrangorDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val organisasjonsnummer: Organisasjonsnummer,
+    val organisasjonsform: String?,
     val navn: String,
     val overordnetEnhet: Organisasjonsnummer? = null,
     val underenheter: List<ArrangorDto>? = null,

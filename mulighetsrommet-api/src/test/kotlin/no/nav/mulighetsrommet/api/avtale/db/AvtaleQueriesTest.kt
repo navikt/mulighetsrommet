@@ -687,16 +687,19 @@ class AvtaleQueriesTest : FunSpec({
             id = UUID.randomUUID(),
             navn = "alvdal",
             organisasjonsnummer = Organisasjonsnummer("987654321"),
+            organisasjonsform = "BEDR",
         )
         val arrangorB = ArrangorDto(
             id = UUID.randomUUID(),
             navn = "bjarne",
             organisasjonsnummer = Organisasjonsnummer("123456789"),
+            organisasjonsform = "BEDR",
         )
         val arrangorC = ArrangorDto(
             id = UUID.randomUUID(),
             navn = "chris",
             organisasjonsnummer = Organisasjonsnummer("999888777"),
+            organisasjonsform = "BEDR",
         )
         val domain = MulighetsrommetTestDomain(
             arrangorer = listOf(arrangorA, arrangorB, arrangorC),

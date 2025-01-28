@@ -30,12 +30,14 @@ class ArrangorQueriesTest : FunSpec({
                     id = UUID.randomUUID(),
                     navn = "REMA 1000 AS",
                     organisasjonsnummer = Organisasjonsnummer("982254604"),
+                    organisasjonsform = "AS",
                 )
                 queries.upsert(overordnet)
 
                 val underenhet1 = ArrangorDto(
                     id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("880907522"),
+                    organisasjonsform = "BEDR",
                     overordnetEnhet = overordnet.organisasjonsnummer,
                     navn = "REMA 1000 NORGE AS REGION NORDLAND",
                 )
@@ -44,6 +46,7 @@ class ArrangorQueriesTest : FunSpec({
                 val underenhet2 = ArrangorDto(
                     id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("912704327"),
+                    organisasjonsform = "BEDR",
                     overordnetEnhet = overordnet.organisasjonsnummer,
                     navn = "REMA 1000 NORGE AS REGION VESTRE ØSTLAND",
                 )
@@ -52,6 +55,7 @@ class ArrangorQueriesTest : FunSpec({
                 val utenlandsk = ArrangorDto(
                     id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("100000001"),
+                    organisasjonsform = "IKS",
                     navn = "X - Utenlandsk arrangør",
                 )
                 queries.upsert(utenlandsk)
@@ -82,6 +86,7 @@ class ArrangorQueriesTest : FunSpec({
                 val underenhet1 = ArrangorDto(
                     id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("880907522"),
+                    organisasjonsform = "BEDR",
                     overordnetEnhet = Organisasjonsnummer("982254604"),
                     navn = "REMA 1000 NORGE AS REGION NORDLAND",
                 )
@@ -90,6 +95,7 @@ class ArrangorQueriesTest : FunSpec({
                     id = UUID.randomUUID(),
                     navn = "REMA 1000 AS",
                     organisasjonsnummer = Organisasjonsnummer("982254604"),
+                    organisasjonsform = "AS",
                 )
 
                 queries.upsert(overordnet)
@@ -116,6 +122,7 @@ class ArrangorQueriesTest : FunSpec({
                 val underenhet1 = ArrangorDto(
                     id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("880907522"),
+                    organisasjonsform = "BEDR",
                     overordnetEnhet = Organisasjonsnummer("982254604"),
                     navn = "REMA 1000 NORGE AS REGION NORDLAND",
                     slettetDato = slettetDato,
@@ -125,6 +132,7 @@ class ArrangorQueriesTest : FunSpec({
                     id = UUID.randomUUID(),
                     navn = "REMA 1000 AS",
                     organisasjonsnummer = Organisasjonsnummer("982254604"),
+                    organisasjonsform = "AS",
                 )
 
                 queries.upsert(overordnet)
