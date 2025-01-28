@@ -273,6 +273,7 @@ private fun inititalizeData(database: FlywayDatabaseTestListener) {
         oppstart = GjennomforingOppstartstype.FELLES,
         tilgjengeligForArrangorFraOgMedDato = null,
         apentForPamelding = true,
+        antallPlasser = 10,
     )
     gruppetiltak.upsert(tiltak)
 

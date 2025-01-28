@@ -22,6 +22,7 @@ data class TiltaksgjennomforingEksternV1Dto(
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
     val apentForPamelding: Boolean,
+    val antallPlasser: Int,
 ) {
     @Serializable
     data class Tiltakstype(
