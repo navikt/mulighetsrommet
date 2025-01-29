@@ -32,7 +32,7 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
 
     suspend fun getBrregEnhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregEnhet> {
         // Sjekker først hovedenhet
-        return getHovedenhetMedUnderenheter(orgnr).fold(
+        return getHovedenhet(orgnr).fold(
             { error ->
                 if (error == BrregError.NotFound) {
                     // Ingen treff på hovedenhet, vi sjekker underenheter også
