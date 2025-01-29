@@ -29,7 +29,7 @@ class ArrangorService(
 
     suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): Either<BrregError, ArrangorDto> {
         log.info("Synkroniserer enhet fra brreg orgnr=$orgnr")
-        return brregClient.getBrregVirksomhet(orgnr)
+        return brregClient.getBrregEnhet(orgnr)
             .flatMap { virksomhet ->
                 when (virksomhet) {
                     is BrregUnderenhetDto -> getArrangorOrSyncFromBrreg(virksomhet.overordnetEnhet).map { virksomhet }
@@ -73,9 +73,9 @@ data class KoblingerForKontaktperson(
     val avtaler: List<DokumentKoblingForKontaktperson>,
 )
 
-private fun BrregVirksomhet.toArrangorDto(id: UUID): ArrangorDto {
+private fun BrregEnhet.toArrangorDto(id: UUID): ArrangorDto {
     return when (this) {
-        is BrregEnhetDto, is BrregEnhetMedUnderenheterDto -> ArrangorDto(
+        is BrregHovedenhetDto, is BrreHovedenhetMedUnderenheterDto -> ArrangorDto(
             id = id,
             organisasjonsnummer = organisasjonsnummer,
             organisasjonsform = organisasjonsform,
@@ -85,7 +85,7 @@ private fun BrregVirksomhet.toArrangorDto(id: UUID): ArrangorDto {
             slettetDato = null,
         )
 
-        is SlettetBrregEnhetDto -> ArrangorDto(
+        is SlettetBrregHovedenhetDto -> ArrangorDto(
             id = id,
             organisasjonsnummer = organisasjonsnummer,
             organisasjonsform = organisasjonsform,

@@ -27,6 +27,10 @@ update tiltakstype
 set deltaker_registrering_ledetekst = 'Du får oppfølging og støtte til jobbsøkingen. På kurset får du karriereveiledning, hjelp til å orientere deg på arbeidsmarkedet, skrive CV og jobbsøknad og trene på jobbintervju.'
 where tiltakskode = 'DIGITALT_OPPFOLGINGSTILTAK';
 
+update tiltakstype
+set deltaker_registrering_ledetekst = 'Du får oppfølging og støtte til jobbsøkingen. På kurset får du karriereveiledning, hjelp til å orientere deg på arbeidsmarkedet, skrive CV og jobbsøknad og trene på jobbintervju.'
+where tiltakskode = 'JOBBKLUBB';
+
 insert into deltaker_registrering_innholdselement(innholdskode, tekst)
 values ('jobbsoking', 'Støtte til å søke jobber'),
        ('arbeidspraksis', 'Arbeidspraksis'),

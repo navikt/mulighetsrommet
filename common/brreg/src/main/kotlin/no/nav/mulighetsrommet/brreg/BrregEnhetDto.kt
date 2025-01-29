@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import java.time.LocalDate
 
-sealed class BrregVirksomhet {
+sealed class BrregEnhet {
     /**
      * Nisifret nummer som entydig identifiserer virksomheter i Enhetsregisteret, både hovedenheter,
      * organisasjonsledd og underenheter.
@@ -28,40 +28,40 @@ sealed class BrregVirksomhet {
 /**
  * Hovedenhet eller organisasjonsledd i Enhetsregisteret.
  */
-sealed class BrregEnhet : BrregVirksomhet()
+sealed class BrregHovedenhet : BrregEnhet()
 
 /**
  * Underenhet i Enhetsregisteret.
  */
-sealed class BrregUnderenhet : BrregVirksomhet()
+sealed class BrregUnderenhet : BrregEnhet()
 
 @Serializable
-data class BrregEnhetDto(
+data class BrregHovedenhetDto(
     override val organisasjonsnummer: Organisasjonsnummer,
     override val organisasjonsform: String,
     override val navn: String,
     val postnummer: String?,
     val poststed: String?,
-) : BrregEnhet()
+) : BrregHovedenhet()
 
 @Serializable
-data class BrregEnhetMedUnderenheterDto(
+data class BrreHovedenhetMedUnderenheterDto(
     override val organisasjonsnummer: Organisasjonsnummer,
     override val organisasjonsform: String,
     override val navn: String,
     val underenheter: List<BrregUnderenhetDto>,
     val postnummer: String?,
     val poststed: String?,
-) : BrregEnhet()
+) : BrregHovedenhet()
 
 @Serializable
-data class SlettetBrregEnhetDto(
+data class SlettetBrregHovedenhetDto(
     override val organisasjonsnummer: Organisasjonsnummer,
     override val organisasjonsform: String,
     override val navn: String,
     @Serializable(with = LocalDateSerializer::class)
     val slettetDato: LocalDate,
-) : BrregEnhet()
+) : BrregHovedenhet()
 
 @Serializable
 data class BrregUnderenhetDto(
