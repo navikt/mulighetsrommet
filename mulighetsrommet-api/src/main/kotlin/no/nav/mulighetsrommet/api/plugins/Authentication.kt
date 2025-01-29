@@ -6,7 +6,6 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.routing.*
-import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
 import no.nav.mulighetsrommet.api.AuthConfig
@@ -272,7 +271,7 @@ fun Application.configureAuthentication(
                     .getOrElse { return@validate null }
 
                 val organisasjonsnummer = altinnRettigheterService.getRettigheter(norskIdent)
-                    .filter { AltinnRessurs.TILTAK_ARRANGOR_REFUSJON in it.rettigheter }
+                    .filter { AltinnRessurs.TILTAK_ARRANGOR_UTBETALING in it.rettigheter }
                     .map { it.organisasjonsnummer }
 
                 ArrangorflatePrincipal(organisasjonsnummer, JWTPrincipal(credentials.payload))
