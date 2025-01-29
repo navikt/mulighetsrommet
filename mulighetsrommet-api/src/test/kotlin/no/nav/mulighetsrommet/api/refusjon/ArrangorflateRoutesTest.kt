@@ -143,7 +143,7 @@ class ArrangorflateRoutesTest : FunSpec({
                         AuthorizedParty(
                             organizationNumber = underenhet.organisasjonsnummer.value,
                             organizationName = underenhet.navn,
-                            type = "type",
+                            type = "Organization",
                             authorizedResources = listOf("nav_tiltaksarrangor_be-om-utbetaling"),
                             subunits = emptyList(),
                         ),
