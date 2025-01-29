@@ -44,7 +44,14 @@ internal data class Adresse(
     val adresse: List<String>? = null,
     val kommune: String? = null,
     val kommunenummer: String? = null,
-)
+) {
+    fun toBrregPostAdresse(): BrregAdresse = BrregAdresse(
+        landkode = landkode,
+        postnummer = postnummer,
+        poststed = poststed,
+        adresse = adresse,
+    )
+}
 
 @Serializable
 internal data class EmbeddedEnheter(
