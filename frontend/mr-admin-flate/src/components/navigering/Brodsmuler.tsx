@@ -5,7 +5,7 @@ type Id = string;
 
 export interface Brodsmule {
   tittel: string;
-  lenke:
+  lenke?:
     | "/"
     | "/tiltakstyper"
     | `/tiltakstyper/${Id}`
@@ -18,30 +18,25 @@ export interface Brodsmule {
 }
 
 interface Props {
-  brodsmuler: Array<Brodsmule | undefined>;
-}
-
-function erBrodsmule(brodsmule: Brodsmule | undefined): brodsmule is Brodsmule {
-  return brodsmule !== undefined;
+  brodsmuler: (Brodsmule | undefined)[];
 }
 
 export function Brodsmuler({ brodsmuler }: Props) {
-  const filtrerteBrodsmuler = brodsmuler.filter(erBrodsmule);
+  const filtrerteBrodsmuler = brodsmuler.filter((b) => b !== undefined);
 
   return (
     <nav aria-label="Brødsmulesti" className={"bg-white pl-[0.5rem]"}>
       <ol className="flex list-none p-[0.5rem] m-0 gap-[0.5rem] flex-row">
-        {filtrerteBrodsmuler.filter(erBrodsmule).map((item, index) => {
-          const erSisteBrodsmule = index >= 0 && index === filtrerteBrodsmuler.length - 1;
+        {filtrerteBrodsmuler.map((item, index) => {
           return (
             <li key={index}>
-              {erSisteBrodsmule ? (
-                <span aria-current="page">{item.tittel}</span>
-              ) : (
+              {item.lenke ? (
                 <div className="flex justify-center items-center gap-[0.5rem]">
                   <Link to={item.lenke}>{item.tittel}</Link>
                   <ArrowRightIcon aria-hidden="true" aria-label="Ikon for pil til høyre" />
                 </div>
+              ) : (
+                <span aria-current="page">{item.tittel}</span>
               )}
             </li>
           );
