@@ -221,7 +221,7 @@ const router = () =>
             ],
           },
           {
-            path: "gjennomforinger/:gjennomforingId/refusjonskrav",
+            path: "gjennomforinger/:gjennomforingId/utbetalinger",
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
             loader: gjennomforingLoader,
@@ -272,13 +272,13 @@ const router = () =>
             loader: redigerTilsagnLoader,
           },
           {
-            path: "gjennomforinger/:gjennomforingId/refusjonskrav/:refusjonskravId",
+            path: "gjennomforinger/:gjennomforingId/utbetalinger/:refusjonskravId",
             element: <UtbetalingDetaljerPage />,
             errorElement: <ErrorPage />,
             loader: utbetalingDetaljerPageLoader,
           },
           {
-            path: "gjennomforinger/:gjennomforingId/refusjonskrav/:refusjonskravId/skjema",
+            path: "gjennomforinger/:gjennomforingId/utbetalinger/:refusjonskravId/skjema",
             element: <BehandleUtbetalingFormPage />,
             errorElement: <ErrorPage />,
             loader: behandleUtbetalingFormPageLoader,

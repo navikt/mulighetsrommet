@@ -70,11 +70,11 @@ export function UtbetalingerTable({ utbetalinger }: Props) {
               </Table.DataCell>
               <Table.DataCell>
                 {utbetalinger.length > 0 ? (
-                  <Link to={`/gjennomforinger/${gjennomforingId}/refusjonskrav/${id}`}>
+                  <Link to={`/gjennomforinger/${gjennomforingId}/utbetalinger/${id}`}>
                     Detaljer
                   </Link>
                 ) : (
-                  <Link to={`/gjennomforinger/${gjennomforingId}/refusjonskrav/${id}/skjema`}>
+                  <Link to={`/gjennomforinger/${gjennomforingId}/utbetalinger/${id}/skjema`}>
                     Behandle
                   </Link>
                 )}

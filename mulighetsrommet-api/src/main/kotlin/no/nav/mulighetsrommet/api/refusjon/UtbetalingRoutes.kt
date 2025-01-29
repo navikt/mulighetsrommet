@@ -22,7 +22,7 @@ import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.*
 
-fun Route.refusjonRoutes() {
+fun Route.utbetalingRoutes() {
     val db: ApiDatabase by inject()
     val tilsagnService: TilsagnService by inject()
 
@@ -33,7 +33,7 @@ fun Route.refusjonRoutes() {
         return RefusjonKravKompakt.fromRefusjonskravDto(krav, kostnadsteder)
     }
 
-    route("/refusjonskrav/{id}") {
+    route("/utbetaling/{id}") {
         get {
             val id = call.parameters.getOrFail<UUID>("id")
 
