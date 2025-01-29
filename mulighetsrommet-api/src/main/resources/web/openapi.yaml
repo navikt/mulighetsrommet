@@ -1924,44 +1924,29 @@ paths:
                 items:
                   $ref: "#/components/schemas/TilsagnDto"
 
-  /api/v1/intern/gjennomforinger/{gjennomforingId}/refusjonskrav:
+  /api/v1/intern/gjennomforinger/{gjennomforingId}/utbetalinger:
     parameters:
       - $ref: "#/components/parameters/gjennomforingId"
     get:
       tags:
-        - Refusjonskrav
-      operationId: refusjonskravByGjennomforing
+        - Utbetaling
+      operationId: utbetalingerByGjennomforing
       responses:
         200:
-          description: RefusjonKravKompakt
+          description: Utbetaling
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/RefusjonKravKompakt"
+                  $ref: "#/components/schemas/Utbetaling"
 
   /api/v1/intern/refusjonskrav/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
       tags:
-        - Refusjonskrav
-      operationId: getRefusjonskrav
-      responses:
-        200:
-          description: RefusjonKravKompakt
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/RefusjonKravKompakt"
-
-  /api/v1/intern/refusjonskrav/{id}/utbetaling:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    get:
-      tags:
-        - Refusjonskrav
+        - Utbetaling
       operationId: getUtbetaling
       responses:
         200:
@@ -1969,10 +1954,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UtbetalingPageResponse"
+                $ref: "#/components/schemas/Utbetaling"
+
+  /api/v1/intern/refusjonskrav/{id}/tilsagn:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Utbetaling
+      operationId: getTilsagnTilKrav
+      responses:
+        200:
+          description: Tilsagn til refusjonskrav
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TilsagnDto"
+
+  /api/v1/intern/refusjonskrav/{id}/behandling:
+    parameters:
+      - $ref: "#/components/parameters/ID"
     put:
       tags:
-        - Refusjonskrav
+        - Utbetaling
       operationId: opprettUtbetaling
       requestBody:
         content:

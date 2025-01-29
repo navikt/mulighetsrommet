@@ -1,5 +1,5 @@
 import { formaterDato } from "@/utils/Utils";
-import { RefusjonKravKompakt } from "@mr/api-client-v2";
+import { Utbetaling } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Table } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
@@ -7,10 +7,10 @@ import { Link, useParams } from "react-router";
 import { RefusjonskravStatusTag } from "./RefusjonskravStatusTag";
 
 interface Props {
-  refusjonskrav: RefusjonKravKompakt[];
+  utbetalinger: Utbetaling[];
 }
 
-export function UtbetalingKravTable({ refusjonskrav }: Props) {
+export function UtbetalingerTable({ utbetalinger }: Props) {
   const { gjennomforingId } = useParams();
 
   function formaterKostnadsteder(
@@ -48,7 +48,7 @@ export function UtbetalingKravTable({ refusjonskrav }: Props) {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {refusjonskrav.map((krav) => {
+        {utbetalinger.map(({ krav, utbetalinger }) => {
           const { beregning, id, status } = krav;
 
           return (
@@ -69,7 +69,15 @@ export function UtbetalingKravTable({ refusjonskrav }: Props) {
                 <RefusjonskravStatusTag status={status} />
               </Table.DataCell>
               <Table.DataCell>
-                <Link to={`/gjennomforinger/${gjennomforingId}/refusjonskrav/${id}`}>Detaljer</Link>
+                {utbetalinger.length > 0 ? (
+                  <Link to={`/gjennomforinger/${gjennomforingId}/refusjonskrav/${id}`}>
+                    Detaljer
+                  </Link>
+                ) : (
+                  <Link to={`/gjennomforinger/${gjennomforingId}/refusjonskrav/${id}/skjema`}>
+                    Behandle
+                  </Link>
+                )}
               </Table.DataCell>
             </Table.Row>
           );

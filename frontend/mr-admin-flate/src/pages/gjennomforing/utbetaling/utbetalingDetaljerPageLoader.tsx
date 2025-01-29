@@ -1,7 +1,7 @@
-import { RefusjonskravService, GjennomforingerService } from "@mr/api-client-v2";
+import { GjennomforingerService, UtbetalingService } from "@mr/api-client-v2";
 import { LoaderFunctionArgs } from "react-router";
 
-export async function utbetalingskravPageLoader({ params }: LoaderFunctionArgs) {
+export async function utbetalingDetaljerPageLoader({ params }: LoaderFunctionArgs) {
   const { gjennomforingId, refusjonskravId } = params;
 
   if (!gjennomforingId) {
@@ -15,7 +15,7 @@ export async function utbetalingskravPageLoader({ params }: LoaderFunctionArgs) 
     GjennomforingerService.getGjennomforing({
       path: { id: gjennomforingId },
     }),
-    RefusjonskravService.getUtbetaling({ path: { id: refusjonskravId } }),
+    UtbetalingService.getUtbetaling({ path: { id: refusjonskravId } }),
   ]);
 
   return { gjennomforing, utbetaling };

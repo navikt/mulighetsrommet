@@ -44,11 +44,13 @@ import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnD
 import { NotifikasjonerPage } from "./pages/arbeidsbenk/notifikasjoner/NotifikasjonerPage";
 import { notifikasjonLoader } from "./pages/arbeidsbenk/notifikasjoner/notifikasjonerLoader";
 import { TilsagnForGjennomforingContainer } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnForGjennomforingContainer";
-import { UtbetalingskravPage } from "./pages/gjennomforing/utbetaling/UtbetalingskravPage";
-import { utbetalingskravPageLoader } from "./pages/gjennomforing/utbetaling/utbetalingskravPageLoader";
-import { utbetalingskravForGjennomforingLoader } from "./pages/gjennomforing/utbetaling/utbetalingKravForGjennomforingLoader";
-import { UtbetalingskravForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/UtbetalingKravForGjennomforingContainer";
+import { UtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/UtbetalingerForGjennomforingContainer";
 import { DeltakerlisteContainer } from "@/pages/gjennomforing/deltakerliste/DeltakerlisteContainer";
+import { UtbetalingDetaljerPage } from "./pages/gjennomforing/utbetaling/UtbetalingDetaljerPage";
+import { utbetalingDetaljerPageLoader } from "./pages/gjennomforing/utbetaling/utbetalingDetaljerPageLoader";
+import { BehandleUtbetalingFormPage } from "./pages/gjennomforing/utbetaling/BehandleUtbetalingFormPage";
+import { behandleUtbetalingFormPageLoader } from "./pages/gjennomforing/utbetaling/behandleUtbetalingFormPageLoader";
+import { utbetalingerForGjennomforingLoader } from "./pages/gjennomforing/utbetaling/utbetalingerForGjennomforingLoader";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -226,9 +228,9 @@ const router = () =>
             children: [
               {
                 index: true,
-                element: <UtbetalingskravForGjennomforingContainer />,
+                element: <UtbetalingerForGjennomforingContainer />,
                 errorElement: <ErrorPage />,
-                loader: utbetalingskravForGjennomforingLoader,
+                loader: utbetalingerForGjennomforingLoader,
               },
             ],
           },
@@ -271,9 +273,15 @@ const router = () =>
           },
           {
             path: "gjennomforinger/:gjennomforingId/refusjonskrav/:refusjonskravId",
-            element: <UtbetalingskravPage />,
+            element: <UtbetalingDetaljerPage />,
             errorElement: <ErrorPage />,
-            loader: utbetalingskravPageLoader,
+            loader: utbetalingDetaljerPageLoader,
+          },
+          {
+            path: "gjennomforinger/:gjennomforingId/refusjonskrav/:refusjonskravId/skjema",
+            element: <BehandleUtbetalingFormPage />,
+            errorElement: <ErrorPage />,
+            loader: behandleUtbetalingFormPageLoader,
           },
           {
             path: "arrangorer",

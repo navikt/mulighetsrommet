@@ -1,16 +1,15 @@
+import { VStack } from "@navikt/ds-react";
 import { Header } from "@/components/detaljside/Header";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { Alert, Heading, HStack } from "@navikt/ds-react";
+import { Heading, HStack } from "@navikt/ds-react";
 import { useLoaderData } from "react-router";
-import { utbetalingskravPageLoader } from "./utbetalingskravPageLoader";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { UtbetalingDetaljer } from "./UtbetalingDetaljer";
-import { BehandleUtbetalingForm } from "./BehandleUtbetalingForm";
+import { utbetalingDetaljerPageLoader } from "./utbetalingDetaljerPageLoader";
 
-export function UtbetalingskravPage() {
-  const { gjennomforing, utbetaling } = useLoaderData<typeof utbetalingskravPageLoader>();
+export function UtbetalingDetaljerPage() {
+  const { gjennomforing, utbetaling } = useLoaderData<typeof utbetalingDetaljerPageLoader>();
 
   const brodsmuler: Brodsmule[] = [
     { tittel: "Gjennomføringer", lenke: `/gjennomforinger` },
@@ -22,7 +21,7 @@ export function UtbetalingskravPage() {
       tittel: "Refusjonskravoversikt",
       lenke: `/gjennomforinger/${gjennomforing.id}/refusjonskrav`,
     },
-    { tittel: "Behandle utbetaling" },
+    { tittel: "Utbetaling" },
   ];
 
   return (
@@ -38,13 +37,11 @@ export function UtbetalingskravPage() {
       </Header>
       <ContentBox>
         <WhitePaddedBox>
-          {utbetaling.type === "UTBETALING" && <UtbetalingDetaljer utbetaling={utbetaling} />}
-          {utbetaling.type === "BEHANDLE_UTBETALING" &&
-            (utbetaling.tilsagn.length === 0 ? (
-              <Alert variant="info">Tilsagn mangler</Alert>
-            ) : (
-              <BehandleUtbetalingForm gjennomforingId={gjennomforing.id} behandling={utbetaling} />
-            ))}
+          <VStack>
+            <div>Utbetaling detaljer side</div>
+            <div>{utbetaling.krav.id}</div>
+            <div>Not implemented</div>
+          </VStack>
         </WhitePaddedBox>
       </ContentBox>
     </>
