@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorTil
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
-import no.nav.mulighetsrommet.brreg.BrregVirksomhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.time.LocalDate
@@ -31,37 +30,33 @@ class ArrangorQueriesTest : FunSpec({
                     id = UUID.randomUUID(),
                     navn = "REMA 1000 AS",
                     organisasjonsnummer = Organisasjonsnummer("982254604"),
-                    postnummer = "5174",
-                    poststed = "Mathopen",
+                    organisasjonsform = "AS",
                 )
                 queries.upsert(overordnet)
 
                 val underenhet1 = ArrangorDto(
                     id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("880907522"),
+                    organisasjonsform = "BEDR",
                     overordnetEnhet = overordnet.organisasjonsnummer,
                     navn = "REMA 1000 NORGE AS REGION NORDLAND",
-                    postnummer = "5174",
-                    poststed = "Mathopen",
                 )
                 queries.upsert(underenhet1)
 
                 val underenhet2 = ArrangorDto(
                     id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("912704327"),
+                    organisasjonsform = "BEDR",
                     overordnetEnhet = overordnet.organisasjonsnummer,
                     navn = "REMA 1000 NORGE AS REGION VESTRE ØSTLAND",
-                    postnummer = "5174",
-                    poststed = "Mathopen",
                 )
                 queries.upsert(underenhet2)
 
                 val utenlandsk = ArrangorDto(
                     id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("100000001"),
+                    organisasjonsform = "IKS",
                     navn = "X - Utenlandsk arrangør",
-                    postnummer = null,
-                    poststed = null,
                 )
                 queries.upsert(utenlandsk)
                 session.execute(queryOf("update arrangor set er_utenlandsk_virksomhet = true where organisasjonsnummer = '${utenlandsk.organisasjonsnummer.value}'"))
@@ -88,20 +83,19 @@ class ArrangorQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 val queries = ArrangorQueries(session)
 
-                val underenhet1 = BrregVirksomhetDto(
+                val underenhet1 = ArrangorDto(
+                    id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("880907522"),
+                    organisasjonsform = "BEDR",
                     overordnetEnhet = Organisasjonsnummer("982254604"),
                     navn = "REMA 1000 NORGE AS REGION NORDLAND",
-                    postnummer = "5174",
-                    poststed = "Mathopen",
                 )
 
-                val overordnet = BrregVirksomhetDto(
+                val overordnet = ArrangorDto(
+                    id = UUID.randomUUID(),
                     navn = "REMA 1000 AS",
                     organisasjonsnummer = Organisasjonsnummer("982254604"),
-                    underenheter = listOf(),
-                    postnummer = "5174",
-                    poststed = "Mathopen",
+                    organisasjonsform = "AS",
                 )
 
                 queries.upsert(overordnet)
@@ -128,19 +122,17 @@ class ArrangorQueriesTest : FunSpec({
                 val underenhet1 = ArrangorDto(
                     id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("880907522"),
+                    organisasjonsform = "BEDR",
                     overordnetEnhet = Organisasjonsnummer("982254604"),
                     navn = "REMA 1000 NORGE AS REGION NORDLAND",
                     slettetDato = slettetDato,
-                    postnummer = "5174",
-                    poststed = "Mathopen",
                 )
 
                 val overordnet = ArrangorDto(
                     id = UUID.randomUUID(),
                     navn = "REMA 1000 AS",
                     organisasjonsnummer = Organisasjonsnummer("982254604"),
-                    postnummer = "5174",
-                    poststed = "Mathopen",
+                    organisasjonsform = "AS",
                 )
 
                 queries.upsert(overordnet)

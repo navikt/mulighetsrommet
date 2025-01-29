@@ -4198,26 +4198,11 @@ components:
           type: string
         navn:
           type: string
-        overordnetEnhet:
+        organisasjonsform:
           type: string
-          nullable: true
-        underenheter:
-          type: array
-          items:
-            $ref: "#/components/schemas/BrregVirksomhet"
-          nullable: true
-        postnummer:
-          type: string
-          nullable: true
-        poststed:
-          type: string
-          nullable: true
-        slettetDato:
-          type: string
-          format: date
-          nullable: true
       required:
         - organisasjonsnummer
+        - organisasjonsform
         - navn
 
     Arrangor:
@@ -4227,6 +4212,8 @@ components:
           type: string
           format: uuid
         organisasjonsnummer:
+          type: string
+        organisasjonsform:
           type: string
         navn:
           type: string
@@ -4238,12 +4225,6 @@ components:
           items:
             $ref: "#/components/schemas/Arrangor"
           nullable: true
-        postnummer:
-          type: string
-          nullable: true
-        poststed:
-          type: string
-          nullable: true
         slettetDato:
           type: string
           format: date
@@ -4251,6 +4232,7 @@ components:
       required:
         - id
         - organisasjonsnummer
+        - organisasjonsform
         - navn
         - overordnetEnhet
 

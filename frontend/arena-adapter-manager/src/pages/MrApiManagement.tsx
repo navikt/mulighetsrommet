@@ -36,6 +36,22 @@ export function MrApiManagement() {
 
         <RunTask
           base={ApiBase.MR_API}
+          task={"sync-arrangorer"}
+          input={{
+            type: "object",
+            required: ["organisasjonsnummer"],
+            properties: {
+              organisasjonsnummer: {
+                title: "Organisasjonsnummer til arrangør som skal synkroniseres med Brreg",
+                description: "Flere organisasjonsnummer kan separeres med et komma (,)",
+                type: "string",
+              },
+            },
+          }}
+        />
+
+        <RunTask
+          base={ApiBase.MR_API}
           task={"generate-refusjonskrav"}
           input={{
             type: "object",

@@ -114,6 +114,7 @@ data class GjennomforingDto(
         oppstart = oppstart,
         tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
         apentForPamelding = apentForPamelding,
+        antallPlasser = antallPlasser,
     )
 
     fun toTiltaksgjennomforingDbo() = GjennomforingDbo(
@@ -124,7 +125,7 @@ data class GjennomforingDto(
         arrangorKontaktpersoner = arrangor.kontaktpersoner.map { it.id },
         startDato = startDato,
         sluttDato = sluttDato,
-        antallPlasser = antallPlasser ?: -1,
+        antallPlasser = antallPlasser,
         avtaleId = avtaleId ?: id,
         administratorer = administratorer.map { it.navIdent },
         navRegion = navRegion?.enhetsnummer ?: "",

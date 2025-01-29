@@ -11,7 +11,8 @@ import no.nav.mulighetsrommet.api.responses.ServerError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregError
-import no.nav.mulighetsrommet.brreg.BrregVirksomhetDto
+import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
+import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import org.koin.ktor.ext.inject
 
@@ -27,7 +28,7 @@ fun Route.brregVirksomhetRoutes() {
                 throw BadRequestException("'sok' kan ikke være en tom streng")
             }
 
-            val response = brregClient.sokOverordnetEnhet(sok)
+            val response = brregClient.sokHovedenhet(sok)
                 .map { hovedenheter ->
                     val utenlandskeVirksomheter = db.session {
                         queries.arrangor.getAll(sok = sok, utenlandsk = true).items.map {
@@ -45,7 +46,7 @@ fun Route.brregVirksomhetRoutes() {
         get("{orgnr}/underenheter") {
             val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
 
-            val response = brregClient.getUnderenheterForOverordnetEnhet(orgnr)
+            val response = brregClient.getUnderenheterForHovedenhet(orgnr)
                 .map { underenheter ->
                     val slettedeVirksomheter = db.session {
                         queries.arrangor.getAll(overordnetEnhetOrgnr = orgnr, slettet = true).items.map {
@@ -72,12 +73,18 @@ fun toStatusResponseError(it: BrregError) = when (it) {
     BrregError.Error -> ServerError()
 }
 
-private fun toBrregVirksomhetDto(arrangor: ArrangorDto) = BrregVirksomhetDto(
-    organisasjonsnummer = arrangor.organisasjonsnummer,
-    navn = arrangor.navn,
-    overordnetEnhet = arrangor.overordnetEnhet,
-    underenheter = listOf(),
-    postnummer = arrangor.postnummer,
-    poststed = arrangor.poststed,
-    slettetDato = arrangor.slettetDato,
-)
+private fun toBrregVirksomhetDto(arrangor: ArrangorDto) = when {
+    arrangor.slettetDato != null -> SlettetBrregHovedenhetDto(
+        organisasjonsnummer = arrangor.organisasjonsnummer,
+        organisasjonsform = "IKS", // Interkommunalt selskap (X i Arena)
+        navn = arrangor.navn,
+        slettetDato = arrangor.slettetDato,
+    )
+
+    else -> BrregHovedenhetDto(
+        organisasjonsnummer = arrangor.organisasjonsnummer,
+        organisasjonsform = "IKS", // Interkommunalt selskap (X i Arena)
+        navn = arrangor.navn,
+        postadresse = null,
+    )
+}

@@ -10,7 +10,6 @@ import io.ktor.http.*
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
@@ -24,7 +23,6 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import org.junit.jupiter.api.assertThrows
 import java.time.Instant
@@ -35,21 +33,9 @@ import java.util.*
 class JournalforRefusjonskravTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
-    val hovedenhet = ArrangorDto(
-        id = UUID.randomUUID(),
-        organisasjonsnummer = Organisasjonsnummer("883674471"),
-        navn = "Hovedenhet",
-        postnummer = "0102",
-        poststed = "Oslo",
-    )
-    val barnevernsNembda = ArrangorDto(
-        id = UUID.randomUUID(),
-        organisasjonsnummer = Organisasjonsnummer("973674471"),
-        navn = "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
-        postnummer = "0102",
-        poststed = "Oslo",
-        overordnetEnhet = hovedenhet.organisasjonsnummer,
-    )
+    val hovedenhet = ArrangorFixtures.hovedenhet
+    val underenhet = ArrangorFixtures.underenhet1
+
     val krav = RefusjonskravDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
@@ -76,12 +62,12 @@ class JournalforRefusjonskravTest : FunSpec({
         avtaler = listOf(
             AvtaleFixtures.AFT.copy(
                 arrangorId = hovedenhet.id,
-                arrangorUnderenheter = listOf(barnevernsNembda.id),
+                arrangorUnderenheter = listOf(underenhet.id),
             ),
         ),
-        gjennomforinger = listOf(GjennomforingFixtures.AFT1.copy(arrangorId = barnevernsNembda.id)),
+        gjennomforinger = listOf(GjennomforingFixtures.AFT1.copy(arrangorId = underenhet.id)),
         deltakere = emptyList(),
-        arrangorer = listOf(hovedenhet, barnevernsNembda),
+        arrangorer = listOf(hovedenhet, underenhet),
         refusjonskrav = listOf(krav),
     )
 

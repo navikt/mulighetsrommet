@@ -36,7 +36,7 @@ fun Route.arrangorRoutes() {
                 }
             }
 
-            val response = arrangorService.getOrSyncArrangorFromBrreg(orgnr)
+            val response = arrangorService.getArrangorOrSyncFromBrreg(orgnr)
                 .mapLeft { toStatusResponseError(it) }
 
             call.respondWithStatusResponse(response)

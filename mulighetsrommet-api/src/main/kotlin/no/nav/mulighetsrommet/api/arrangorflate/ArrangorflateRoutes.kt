@@ -57,7 +57,7 @@ fun Route.arrangorflateRoutes() {
         call.principal<ArrangorflatePrincipal>()
             ?.organisasjonsnummer
             ?.map {
-                arrangorService.getOrSyncArrangorFromBrreg(it).getOrElse {
+                arrangorService.getArrangorOrSyncFromBrreg(it).getOrElse {
                     throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
                 }
             }

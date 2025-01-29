@@ -33,6 +33,7 @@ class DeltakerRepositoryTest : FunSpec({
         oppstart = GjennomforingOppstartstype.FELLES,
         tilgjengeligForArrangorFraOgMedDato = null,
         apentForPamelding = true,
+        antallPlasser = 10,
     )
     val amtDeltaker = AmtDeltakerV1Dto(
         id = UUID.randomUUID(),

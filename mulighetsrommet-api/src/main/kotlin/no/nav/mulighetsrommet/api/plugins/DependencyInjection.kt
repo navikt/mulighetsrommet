@@ -186,8 +186,7 @@ private fun kafka(appConfig: AppConfig) = module {
             ),
             AmtVirksomheterV1KafkaConsumer(
                 config = config.consumers.amtVirksomheterV1,
-                db = get(),
-                brregClient = get(),
+                get(),
             ),
             AmtArrangorMeldingV1KafkaConsumer(
                 config = config.consumers.amtArrangorMeldingV1,
@@ -309,7 +308,6 @@ private fun services(appConfig: AppConfig) = module {
     single {
         AltinnClient(
             baseUrl = appConfig.altinn.url,
-            altinnApiKey = appConfig.altinn.apiKey,
             clientEngine = appConfig.engine,
             tokenProvider = maskinportenTokenProvider?.withScope(
                 scope = appConfig.altinn.scope,

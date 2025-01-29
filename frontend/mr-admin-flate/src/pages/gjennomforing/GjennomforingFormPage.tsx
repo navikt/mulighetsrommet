@@ -7,18 +7,14 @@ import { ErrorMeldinger } from "@/components/gjennomforing/GjennomforingFormErro
 import { avtaleHarRegioner, inneholderUrl } from "@/utils/Utils";
 import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 import { Alert, Box, Heading } from "@navikt/ds-react";
-import { useLoaderData, useLocation, useMatch, useNavigate, useParams } from "react-router";
+import { useLoaderData, useLocation, useNavigate } from "react-router";
 import { gjennomforingFormLoader } from "./gjennomforingLoaders";
 import { ContentBox } from "@/layouts/ContentBox";
 
 export function GjennomforingFormPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { avtaleId } = useParams();
   const { gjennomforing, avtale, ansatt } = useLoaderData<typeof gjennomforingFormLoader>();
-  const erPaaGjennomforingerForAvtale = useMatch(
-    "/avtaler/:avtaleId/gjennomforinger/:gjennomforingId/skjema",
-  );
 
   const redigeringsModus = gjennomforing && inneholderUrl(gjennomforing?.id);
 
@@ -29,21 +25,10 @@ export function GjennomforingFormPage() {
   const isError = !avtale || !avtaleHarRegioner(avtale);
 
   const brodsmuler: Array<Brodsmule | undefined> = [
-    avtaleId
-      ? { tittel: "Avtaler", lenke: "/avtaler" }
-      : { tittel: "Gjennomføringer", lenke: "/gjennomforinger" },
-    avtaleId
-      ? {
-          tittel: "Avtale",
-          lenke: `/avtaler/${avtaleId}`,
-        }
-      : undefined,
-    erPaaGjennomforingerForAvtale
-      ? {
-          tittel: "Gjennomføringer",
-          lenke: `/avtaler/${avtaleId}/gjennomforinger`,
-        }
-      : undefined,
+    {
+      tittel: "Gjennomføringer",
+      lenke: "/gjennomforinger",
+    },
     redigeringsModus
       ? {
           tittel: "Gjennomføring",
@@ -52,9 +37,6 @@ export function GjennomforingFormPage() {
       : undefined,
     {
       tittel: redigeringsModus ? "Rediger gjennomføring" : "Ny gjennomføring",
-      lenke: redigeringsModus
-        ? `/gjennomforinger/${gjennomforing?.id}/skjema`
-        : "/gjennomforinger/skjema",
     },
   ];
 

@@ -8,8 +8,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.db.DokumentKoblingForKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.brreg.BrregClient
-import no.nav.mulighetsrommet.brreg.BrregError
+import no.nav.mulighetsrommet.brreg.*
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -20,24 +19,35 @@ class ArrangorService(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    suspend fun getOrSyncArrangorFromBrreg(orgnr: Organisasjonsnummer): Either<BrregError, ArrangorDto> {
-        return db.session { queries.arrangor.get(orgnr)?.right() } ?: syncArrangorFromBrreg(orgnr)
+    fun getArrangor(orgnr: Organisasjonsnummer): ArrangorDto? = db.session {
+        queries.arrangor.get(orgnr)
     }
 
-    private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): Either<BrregError, ArrangorDto> {
+    suspend fun getArrangorOrSyncFromBrreg(orgnr: Organisasjonsnummer): Either<BrregError, ArrangorDto> {
+        return getArrangor(orgnr)?.right() ?: syncArrangorFromBrreg(orgnr)
+    }
+
+    suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): Either<BrregError, ArrangorDto> {
         log.info("Synkroniserer enhet fra brreg orgnr=$orgnr")
-        return brregClient.getBrregVirksomhet(orgnr)
+        return brregClient.getBrregEnhet(orgnr)
             .flatMap { virksomhet ->
-                virksomhet.overordnetEnhet
-                    ?.let { getOrSyncArrangorFromBrreg(it).map { virksomhet } }
-                    ?: virksomhet.right()
+                when (virksomhet) {
+                    is BrregUnderenhetDto -> getArrangorOrSyncFromBrreg(virksomhet.overordnetEnhet).map { virksomhet }
+                    else -> virksomhet.right()
+                }
             }
             .map { virksomhet ->
                 db.transaction {
-                    queries.arrangor.upsert(virksomhet)
-                    queries.arrangor.get(virksomhet.organisasjonsnummer)!!
+                    val id = getArrangor(virksomhet.organisasjonsnummer)?.id ?: UUID.randomUUID()
+                    val arrangor = virksomhet.toArrangorDto(id)
+                    queries.arrangor.upsert(arrangor)
+                    queries.arrangor.getById(id)
                 }
             }
+    }
+
+    fun deleteArrangor(orgnr: Organisasjonsnummer): Unit = db.session {
+        queries.arrangor.delete(orgnr)
     }
 
     fun upsertKontaktperson(kontaktperson: ArrangorKontaktperson): Unit = db.session {
@@ -62,3 +72,47 @@ data class KoblingerForKontaktperson(
     val gjennomforinger: List<DokumentKoblingForKontaktperson>,
     val avtaler: List<DokumentKoblingForKontaktperson>,
 )
+
+private fun BrregEnhet.toArrangorDto(id: UUID): ArrangorDto {
+    return when (this) {
+        is BrregHovedenhetDto -> ArrangorDto(
+            id = id,
+            organisasjonsnummer = organisasjonsnummer,
+            organisasjonsform = organisasjonsform,
+            navn = navn,
+            overordnetEnhet = null,
+            underenheter = null,
+            slettetDato = null,
+        )
+
+        is SlettetBrregHovedenhetDto -> ArrangorDto(
+            id = id,
+            organisasjonsnummer = organisasjonsnummer,
+            organisasjonsform = organisasjonsform,
+            navn = navn,
+            slettetDato = slettetDato,
+            overordnetEnhet = null,
+            underenheter = null,
+        )
+
+        is BrregUnderenhetDto -> ArrangorDto(
+            id = id,
+            organisasjonsnummer = organisasjonsnummer,
+            organisasjonsform = organisasjonsform,
+            navn = navn,
+            overordnetEnhet = overordnetEnhet,
+            underenheter = null,
+            slettetDato = null,
+        )
+
+        is SlettetBrregUnderenhetDto -> ArrangorDto(
+            id = id,
+            organisasjonsnummer = organisasjonsnummer,
+            organisasjonsform = organisasjonsform,
+            navn = navn,
+            slettetDato = slettetDato,
+            overordnetEnhet = null,
+            underenheter = null,
+        )
+    }
+}

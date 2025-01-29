@@ -180,7 +180,6 @@ app:
 
   altinn:
     url: https://platform.tt02.altinn.no
-    apiKey: ${ALTINN_API_KEY}
     scope: ${MASKINPORTEN_SCOPES}
 
   utdanning:

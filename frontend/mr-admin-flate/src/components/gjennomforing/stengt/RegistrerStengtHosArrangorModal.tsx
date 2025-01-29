@@ -23,7 +23,7 @@ export function RegistrerStengtHosArrangorModal({ modalRef, gjennomforing }: Pro
     <Modal
       onClose={handleCloseModal}
       ref={modalRef}
-      header={{ heading: "Registrer stengt hos arrangør" }}
+      header={{ heading: "Registrer stengt periode hos arrangør" }}
       width={1200}
     >
       <Modal.Body>

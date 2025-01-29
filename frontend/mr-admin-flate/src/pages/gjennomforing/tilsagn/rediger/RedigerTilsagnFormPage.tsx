@@ -1,5 +1,5 @@
 import { Alert, Heading, VStack } from "@navikt/ds-react";
-import { useLoaderData, useMatch, useParams } from "react-router";
+import { useLoaderData } from "react-router";
 import { Header } from "@/components/detaljside/Header";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
@@ -12,40 +12,20 @@ import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 
 export function RedigerTilsagnFormPage() {
-  const { avtaleId } = useParams();
-
   const { avtale, gjennomforing, tilsagn, godkjenteTilsagn } =
     useLoaderData<typeof redigerTilsagnLoader>();
 
-  const erPaaGjennomforingerForAvtale = useMatch(
-    "/avtaler/:avtaleId/gjennomforinger/:gjennomforingId/rediger-tilsagn",
-  );
-
   const brodsmuler: Array<Brodsmule | undefined> = [
-    avtaleId
-      ? { tittel: "Avtaler", lenke: "/avtaler" }
-      : { tittel: "Gjennomføringer", lenke: "/gjennomforinger" },
-    avtaleId
-      ? {
-          tittel: "Avtale",
-          lenke: `/avtaler/${avtaleId}`,
-        }
-      : undefined,
-    erPaaGjennomforingerForAvtale
-      ? {
-          tittel: "Gjennomføringer",
-          lenke: `/avtaler/${avtaleId}/gjennomforinger`,
-        }
-      : undefined,
+    {
+      tittel: "Gjennomføringer",
+      lenke: `/gjennomforinger`,
+    },
     {
       tittel: "Gjennomføring",
-      lenke: avtaleId
-        ? `/avtaler/${avtaleId}/gjennomforinger/${gjennomforing.id}`
-        : `/gjennomforinger/${gjennomforing.id}`,
+      lenke: `/gjennomforinger/${gjennomforing.id}`,
     },
     {
       tittel: "Rediger tilsagn",
-      lenke: `/gjennomforinger/${gjennomforing.id}/rediger-tilsagn`,
     },
   ];
 

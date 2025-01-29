@@ -20,7 +20,7 @@ class AltinnRettigheterQueriesTest : FunSpec({
         bedriftRettigheter = listOf(
             BedriftRettigheter(
                 organisasjonsnummer = underenhet1.organisasjonsnummer,
-                rettigheter = listOf(AltinnRessurs.TILTAK_ARRANGOR_REFUSJON),
+                rettigheter = listOf(AltinnRessurs.TILTAK_ARRANGOR_BE_OM_UTBETALING),
             ),
         ),
         expiry = LocalDateTime.of(2024, 1, 1, 0, 0),
@@ -32,7 +32,7 @@ class AltinnRettigheterQueriesTest : FunSpec({
         bedriftRettigheter = listOf(
             BedriftRettigheter(
                 organisasjonsnummer = underenhet2.organisasjonsnummer,
-                rettigheter = listOf(AltinnRessurs.TILTAK_ARRANGOR_REFUSJON),
+                rettigheter = listOf(AltinnRessurs.TILTAK_ARRANGOR_BE_OM_UTBETALING),
             ),
         ),
         expiry = LocalDateTime.of(2024, 1, 1, 0, 0),
@@ -50,7 +50,7 @@ class AltinnRettigheterQueriesTest : FunSpec({
                     underenhet1.organisasjonsnummer,
                     listOf(
                         RettighetDbo(
-                            rettighet = AltinnRessurs.TILTAK_ARRANGOR_REFUSJON,
+                            rettighet = AltinnRessurs.TILTAK_ARRANGOR_BE_OM_UTBETALING,
                             expiry = LocalDateTime.of(2024, 1, 1, 0, 0),
                         ),
                     ),

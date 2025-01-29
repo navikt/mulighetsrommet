@@ -148,7 +148,6 @@ spec:
   envFrom:
     - secret: mulighetsrommet-api
     - secret: mr-admin-flate-unleash-api-token
-    - secret: altinn-api-key
   maskinporten:
     enabled: true
     scopes:

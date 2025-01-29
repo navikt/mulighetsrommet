@@ -179,9 +179,8 @@ app:
     url: https://data.brreg.no/enhetsregisteret/api
 
   altinn:
-    url: dummy
-    apiKey: dummy
-    scope: dummy
+    url: https://platform.altinn.no
+    scope: ${MASKINPORTEN_SCOPES}
 
   utdanning:
     url: https://api.utdanning.no
