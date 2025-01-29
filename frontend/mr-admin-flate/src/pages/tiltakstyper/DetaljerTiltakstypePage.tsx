@@ -9,21 +9,18 @@ import { Link, Outlet, useLoaderData, useLocation, useMatch } from "react-router
 import { tiltakstypeLoader } from "./tiltakstyperLoaders";
 import { ContentBox } from "@/layouts/ContentBox";
 
-function useTiltakstypeBrodsmuler(tiltakstypeId?: string): Array<Brodsmule | undefined> {
-  const match = useMatch("/tiltakstyper/:tiltakstypeId/avtaler");
-  return [
-    { tittel: "Tiltakstyper", lenke: "/tiltakstyper" },
-    { tittel: "Tiltakstype", lenke: `/tiltakstyper/${tiltakstypeId}` },
-    match ? { tittel: "Avtaler", lenke: `/tiltakstyper/${tiltakstypeId}/avtaler` } : undefined,
-  ];
-}
-
 export function DetaljerTiltakstypePage() {
   const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const tiltakstype = useLoaderData<typeof tiltakstypeLoader>();
   useTitle(`Tiltakstyper ${tiltakstype?.navn ? `- ${tiltakstype.navn}` : ""}`);
-  const brodsmuler = useTiltakstypeBrodsmuler(tiltakstype?.id);
+
+  const match = useMatch("/tiltakstyper/:tiltakstypeId/avtaler");
+  const brodsmuler: (Brodsmule | undefined)[] = [
+    { tittel: "Tiltakstyper", lenke: "/tiltakstyper" },
+    { tittel: "Tiltakstype", lenke: match ? undefined : `/tiltakstyper/${tiltakstype.id}` },
+    match ? { tittel: "Avtaler" } : undefined,
+  ];
 
   if (!tiltakstype) {
     return (

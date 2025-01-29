@@ -66,8 +66,7 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
                         organisasjonsnummer = it.organisasjonsnummer,
                         organisasjonsform = it.organisasjonsform.kode,
                         navn = it.navn,
-                        postnummer = it.postAdresse?.postnummer,
-                        poststed = it.postAdresse?.poststed,
+                        postadresse = it.postAdresse?.toBrregPostAdresse(),
                     )
                 } ?: emptyList()
             }
@@ -87,35 +86,9 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
                         organisasjonsform = underenhet.organisasjonsform.kode,
                         navn = underenhet.navn,
                         overordnetEnhet = orgnr,
-                        poststed = underenhet.beliggenhetsadresse?.poststed,
-                        postnummer = underenhet.beliggenhetsadresse?.postnummer,
                     )
                 } ?: emptyList()
             }
-    }
-
-    suspend fun getHovedenhetMedUnderenheter(orgnr: Organisasjonsnummer): Either<BrregError, BrregHovedenhet> = either {
-        val response = client.get("$baseUrl/enheter/${orgnr.value}")
-
-        val enhet = parseResponse<OverordnetEnhet>(response).bind()
-        if (enhet.slettedato != null) {
-            return@either SlettetBrregHovedenhetDto(
-                organisasjonsnummer = enhet.organisasjonsnummer,
-                organisasjonsform = enhet.organisasjonsform.kode,
-                navn = enhet.navn,
-                slettetDato = enhet.slettedato,
-            )
-        }
-
-        val underenheter = getUnderenheterForHovedenhet(orgnr).bind()
-        BrreHovedenhetMedUnderenheterDto(
-            organisasjonsnummer = enhet.organisasjonsnummer,
-            organisasjonsform = enhet.organisasjonsform.kode,
-            navn = enhet.navn,
-            underenheter = underenheter,
-            postnummer = enhet.postAdresse?.postnummer,
-            poststed = enhet.postAdresse?.poststed,
-        )
     }
 
     suspend fun getHovedenhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregHovedenhet> = either {
@@ -135,8 +108,7 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
                 organisasjonsnummer = enhet.organisasjonsnummer,
                 organisasjonsform = enhet.organisasjonsform.kode,
                 navn = enhet.navn,
-                postnummer = enhet.postAdresse?.postnummer,
-                poststed = enhet.postAdresse?.poststed,
+                postadresse = enhet.postAdresse?.toBrregPostAdresse(),
             )
         }
     }
@@ -167,8 +139,6 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
                     organisasjonsform = enhet.organisasjonsform.kode,
                     navn = enhet.navn,
                     overordnetEnhet = enhet.overordnetEnhet,
-                    postnummer = enhet.beliggenhetsadresse?.postnummer,
-                    poststed = enhet.beliggenhetsadresse?.poststed,
                 )
             }
         }

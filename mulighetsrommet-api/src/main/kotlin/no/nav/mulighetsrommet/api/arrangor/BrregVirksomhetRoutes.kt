@@ -85,7 +85,6 @@ private fun toBrregVirksomhetDto(arrangor: ArrangorDto) = when {
         organisasjonsnummer = arrangor.organisasjonsnummer,
         organisasjonsform = "IKS", // Interkommunalt selskap (X i Arena)
         navn = arrangor.navn,
-        postnummer = null,
-        poststed = null,
+        postadresse = null,
     )
 }

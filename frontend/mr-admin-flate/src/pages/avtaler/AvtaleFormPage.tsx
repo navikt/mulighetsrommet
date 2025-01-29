@@ -24,15 +24,9 @@ export function AvtaleFormPage() {
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     { tittel: "Avtaler", lenke: "/avtaler" },
-    redigeringsModus
-      ? {
-          tittel: "Avtale",
-          lenke: `/avtaler/${avtale?.id}`,
-        }
-      : undefined,
+    redigeringsModus ? { tittel: "Avtale", lenke: `/avtaler/${avtale?.id}` } : undefined,
     {
       tittel: redigeringsModus ? "Rediger avtale" : "Ny avtale",
-      lenke: redigeringsModus ? `/avtaler/${avtale?.id}/skjema` : "/avtaler/skjema",
     },
   ];
 

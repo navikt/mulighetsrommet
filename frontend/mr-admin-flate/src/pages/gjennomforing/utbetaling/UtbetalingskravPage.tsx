@@ -1,6 +1,6 @@
 import { Header } from "@/components/detaljside/Header";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
-import { Brodsmuler } from "@/components/navigering/Brodsmuler";
+import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { Alert, Heading, HStack } from "@navikt/ds-react";
 import { useLoaderData } from "react-router";
 import { utbetalingskravPageLoader } from "./utbetalingskravPageLoader";
@@ -12,9 +12,22 @@ import { BehandleUtbetalingForm } from "./BehandleUtbetalingForm";
 export function UtbetalingskravPage() {
   const { gjennomforing, utbetaling } = useLoaderData<typeof utbetalingskravPageLoader>();
 
+  const brodsmuler: Brodsmule[] = [
+    { tittel: "Gjennomføringer", lenke: `/gjennomforinger` },
+    {
+      tittel: "Gjennomføring",
+      lenke: `/gjennomforinger/${gjennomforing.id}`,
+    },
+    {
+      tittel: "Refusjonskravoversikt",
+      lenke: `/gjennomforinger/${gjennomforing.id}/refusjonskrav`,
+    },
+    { tittel: "Behandle utbetaling" },
+  ];
+
   return (
     <>
-      <Brodsmuler brodsmuler={[]} />
+      <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <GjennomforingIkon />
         <Heading size="large" level="2">

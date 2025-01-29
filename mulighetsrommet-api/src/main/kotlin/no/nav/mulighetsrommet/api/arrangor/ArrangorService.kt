@@ -75,7 +75,7 @@ data class KoblingerForKontaktperson(
 
 private fun BrregEnhet.toArrangorDto(id: UUID): ArrangorDto {
     return when (this) {
-        is BrregHovedenhetDto, is BrreHovedenhetMedUnderenheterDto -> ArrangorDto(
+        is BrregHovedenhetDto -> ArrangorDto(
             id = id,
             organisasjonsnummer = organisasjonsnummer,
             organisasjonsform = organisasjonsform,
