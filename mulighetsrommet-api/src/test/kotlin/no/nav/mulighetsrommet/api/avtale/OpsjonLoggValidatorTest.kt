@@ -16,7 +16,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class OpsjonLoggValidatorTest : FunSpec({
-    val avtale = AvtaleDto(
+    val avtale = AvtaleDto.WithArrangor(
         id = UUID.randomUUID(),
         tiltakstype = AvtaleDto.Tiltakstype(
             id = UUID.randomUUID(),

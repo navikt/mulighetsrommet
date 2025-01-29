@@ -21,38 +21,97 @@ import java.util.*
 
 // @Todo: Look into sealed classes
 @Serializable
-data class AvtaleDto(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    val tiltakstype: Tiltakstype,
-    val navn: String,
-    val avtalenummer: String?,
-    val websaknummer: Websaknummer?,
-    // research how it effects to code base
-    val arrangor: ArrangorHovedenhet,
-    @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate?,
-    val arenaAnsvarligEnhet: ArenaNavEnhet?,
-    val avtaletype: Avtaletype,
-    @Serializable(with = AvtaleStatusSerializer::class)
-    val status: AvtaleStatus,
-    val prisbetingelser: String?,
-    val administratorer: List<Administrator>,
-    val antallPlasser: Int?,
-    val opphav: ArenaMigrering.Opphav,
-    val kontorstruktur: List<Kontorstruktur>,
-    val beskrivelse: String?,
-    val faneinnhold: Faneinnhold?,
-    val personopplysninger: List<Personopplysning>,
-    val personvernBekreftet: Boolean,
-    val amoKategorisering: AmoKategorisering?,
-    val opsjonsmodellData: OpsjonsmodellData?,
-    val opsjonerRegistrert: List<OpsjonLoggRegistrert>?,
-    val utdanningslop: UtdanningslopDto?,
-    val prismodell: Prismodell?,
-) {
+sealed class AvtaleDto {
+    abstract val id: UUID
+    abstract val tiltakstype: Tiltakstype
+    abstract val navn: String
+    abstract val avtalenummer: String?
+    abstract val websaknummer: Websaknummer?
+    abstract val startDato: LocalDate
+    abstract val sluttDato: LocalDate?
+    abstract val arenaAnsvarligEnhet: ArenaNavEnhet?
+    abstract val avtaletype: Avtaletype
+    abstract val status: AvtaleStatus
+    abstract val prisbetingelser: String?
+    abstract val administratorer: List<Administrator>
+    abstract val antallPlasser: Int?
+    abstract val opphav: ArenaMigrering.Opphav
+    abstract val kontorstruktur: List<Kontorstruktur>
+    abstract val beskrivelse: String?
+    abstract val faneinnhold: Faneinnhold?
+    abstract val personopplysninger: List<Personopplysning>
+    abstract val personvernBekreftet: Boolean
+    abstract val amoKategorisering: AmoKategorisering?
+    abstract val opsjonsmodellData: OpsjonsmodellData?
+    abstract val opsjonerRegistrert: List<OpsjonLoggRegistrert>?
+    abstract val utdanningslop: UtdanningslopDto?
+    abstract val prismodell: Prismodell?
+
+    @Serializable
+    data class WithArrangor(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
+        override val tiltakstype: Tiltakstype,
+        override val navn: String,
+        override val avtalenummer: String?,
+        override val websaknummer: Websaknummer?,
+        val arrangor: ArrangorHovedenhet,
+        @Serializable(with = LocalDateSerializer::class)
+        override val startDato: LocalDate,
+        @Serializable(with = LocalDateSerializer::class)
+        override val sluttDato: LocalDate?,
+        override val arenaAnsvarligEnhet: ArenaNavEnhet?,
+        override val avtaletype: Avtaletype,
+        @Serializable(with = AvtaleStatusSerializer::class)
+        override val status: AvtaleStatus,
+        override val prisbetingelser: String?,
+        override val administratorer: List<Administrator>,
+        override val antallPlasser: Int?,
+        override val opphav: ArenaMigrering.Opphav,
+        override val kontorstruktur: List<Kontorstruktur>,
+        override val beskrivelse: String?,
+        override val faneinnhold: Faneinnhold?,
+        override val personopplysninger: List<Personopplysning>,
+        override val personvernBekreftet: Boolean,
+        override val amoKategorisering: AmoKategorisering?,
+        override val opsjonsmodellData: OpsjonsmodellData?,
+        override val opsjonerRegistrert: List<OpsjonLoggRegistrert>?,
+        override val utdanningslop: UtdanningslopDto?,
+        override val prismodell: Prismodell?,
+    ) : AvtaleDto()
+
+    @Serializable
+    data class WithoutArrangor(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
+        override val tiltakstype: Tiltakstype,
+        override val navn: String,
+        override val avtalenummer: String?,
+        override val websaknummer: Websaknummer?,
+        @Serializable(with = LocalDateSerializer::class)
+        override val startDato: LocalDate,
+        @Serializable(with = LocalDateSerializer::class)
+        override val sluttDato: LocalDate?,
+        override val arenaAnsvarligEnhet: ArenaNavEnhet?,
+        override val avtaletype: Avtaletype,
+        @Serializable(with = AvtaleStatusSerializer::class)
+        override val status: AvtaleStatus.UTKAST,
+        override val prisbetingelser: String?,
+        override val administratorer: List<Administrator>,
+        override val antallPlasser: Int?,
+        override val opphav: ArenaMigrering.Opphav,
+        override val kontorstruktur: List<Kontorstruktur>,
+        override val beskrivelse: String?,
+        override val faneinnhold: Faneinnhold?,
+        override val personopplysninger: List<Personopplysning>,
+        override val personvernBekreftet: Boolean,
+        override val amoKategorisering: AmoKategorisering?,
+        override val opsjonsmodellData: OpsjonsmodellData?,
+        override val opsjonerRegistrert: List<OpsjonLoggRegistrert>?,
+        override val utdanningslop: UtdanningslopDto?,
+        override val prismodell: Prismodell?,
+    ) : AvtaleDto()
+
     @Serializable
     data class Tiltakstype(
         @Serializable(with = UUIDSerializer::class)
@@ -102,8 +161,10 @@ data class AvtaleDto(
         val forrigeSluttdato: LocalDateTime?,
         val status: OpsjonLoggRequest.OpsjonsLoggStatus,
     )
+}
 
-    fun toDbo() = AvtaleDbo(
+fun AvtaleDto.toDbo() = when (this) {
+    is AvtaleDto.WithArrangor -> AvtaleDbo(
         id = id,
         navn = navn,
         tiltakstypeId = tiltakstype.id,
@@ -114,7 +175,7 @@ data class AvtaleDto(
         arrangorKontaktpersoner = arrangor.kontaktpersoner.map { it.id },
         startDato = startDato,
         sluttDato = sluttDato,
-        navEnheter = this.kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer },
+        navEnheter = kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer },
         avtaletype = avtaletype,
         prisbetingelser = prisbetingelser,
         antallPlasser = antallPlasser,
@@ -130,8 +191,11 @@ data class AvtaleDto(
         utdanningslop = utdanningslop?.toDbo(),
         prismodell = prismodell,
     )
+    is AvtaleDto.WithoutArrangor -> throw IllegalStateException("Cannot convert AvtaleDto without arrangor to AvtaleDbo")
+}
 
-    fun toArenaAvtaleDbo() = ArenaAvtaleDbo(
+fun AvtaleDto.toArenaAvtaleDbo() = when (this) {
+    is AvtaleDto.WithArrangor -> ArenaAvtaleDbo(
         id = id,
         navn = navn,
         tiltakstypeId = tiltakstype.id,
@@ -148,4 +212,5 @@ data class AvtaleDto(
         },
         prisbetingelser = prisbetingelser,
     )
+    is AvtaleDto.WithoutArrangor -> throw IllegalStateException("Cannot convert AvtaleDto without arrangor to ArenaAvtaleDbo")
 }

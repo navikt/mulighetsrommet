@@ -517,7 +517,7 @@ class AvtaleQueries(private val session: Session) {
         val utdanningslop = stringOrNull("utdanningslop_json")
             ?.let { Json.decodeFromString<UtdanningslopDto>(it) }
 
-        return AvtaleDto(
+        return AvtaleDto.WithArrangor(
             id = uuid("id"),
             navn = string("navn"),
             avtalenummer = stringOrNull("avtalenummer"),

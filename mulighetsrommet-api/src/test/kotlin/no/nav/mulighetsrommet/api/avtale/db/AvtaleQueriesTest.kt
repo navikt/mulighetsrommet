@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -77,8 +78,13 @@ class AvtaleQueriesTest : FunSpec({
                     it.tiltakstype.id shouldBe arenaAvtale.tiltakstypeId
                     it.navn shouldBe arenaAvtale.navn
                     it.avtalenummer shouldBe arenaAvtale.avtalenummer
-                    it.arrangor.id shouldBe ArrangorFixtures.hovedenhet.id
-                    it.arrangor.organisasjonsnummer.value shouldBe arenaAvtale.arrangorOrganisasjonsnummer
+                    when (it) {
+                        is AvtaleDto.WithArrangor -> {
+                            it.arrangor.id shouldBe ArrangorFixtures.hovedenhet.id
+                            it.arrangor.organisasjonsnummer.value shouldBe arenaAvtale.arrangorOrganisasjonsnummer
+                        }
+                        is AvtaleDto.WithoutArrangor -> {}
+                    }
                     it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = null, enhetsnummer = "9999")
                     it.startDato shouldBe arenaAvtale.startDato
                     it.sluttDato shouldBe arenaAvtale.sluttDato
@@ -221,22 +227,43 @@ class AvtaleQueriesTest : FunSpec({
                 val queries = AvtaleQueries(session)
 
                 queries.get(avtale.id).shouldNotBeNull().should {
-                    it.arrangor.kontaktpersoner shouldContainExactly listOf(p1)
+                    when (it) {
+                        is AvtaleDto.WithArrangor -> {
+                            it.arrangor.kontaktpersoner shouldContainExactly listOf(p1)
+                        }
+                        else -> {}
+                    }
                 }
 
                 queries.upsert(avtale.copy(arrangorKontaktpersoner = listOf(p2.id, p3.id)))
+
                 queries.get(avtale.id).shouldNotBeNull().should {
-                    it.arrangor.kontaktpersoner shouldContainExactlyInAnyOrder listOf(p2, p3)
+                    when (it) {
+                        is AvtaleDto.WithArrangor -> {
+                            it.arrangor.kontaktpersoner shouldContainExactlyInAnyOrder listOf(p2, p3)
+                        }
+                        else -> {}
+                    }
                 }
 
                 queries.frikobleKontaktpersonFraAvtale(p3.id, avtale.id)
                 queries.get(avtale.id).shouldNotBeNull().should {
-                    it.arrangor.kontaktpersoner shouldContainExactlyInAnyOrder listOf(p2)
+                    when (it) {
+                        is AvtaleDto.WithArrangor -> {
+                            it.arrangor.kontaktpersoner shouldContainExactlyInAnyOrder listOf(p2)
+                        }
+                        else -> {}
+                    }
                 }
 
                 queries.upsert(avtale.copy(arrangorKontaktpersoner = emptyList()))
                 queries.get(avtale.id).shouldNotBeNull().should {
-                    it.arrangor.kontaktpersoner shouldHaveSize 0
+                    when (it) {
+                        is AvtaleDto.WithArrangor -> {
+                            it.arrangor.kontaktpersoner shouldHaveSize 0
+                        }
+                        else -> {}
+                    }
                 }
             }
         }
@@ -281,11 +308,16 @@ class AvtaleQueriesTest : FunSpec({
                 queries.upsert(avtale)
 
                 queries.get(avtale.id).shouldNotBeNull().should {
-                    it.arrangor.organisasjonsnummer shouldBe ArrangorFixtures.hovedenhet.organisasjonsnummer
-                    it.arrangor.underenheter.map { enhet -> enhet.organisasjonsnummer } shouldContainExactlyInAnyOrder listOf(
-                        ArrangorFixtures.underenhet1.organisasjonsnummer,
-                        ArrangorFixtures.underenhet2.organisasjonsnummer,
-                    )
+                    when (it) {
+                        is AvtaleDto.WithArrangor -> {
+                            it.arrangor.organisasjonsnummer shouldBe ArrangorFixtures.hovedenhet.organisasjonsnummer
+                            it.arrangor.underenheter.map { enhet -> enhet.organisasjonsnummer } shouldContainExactlyInAnyOrder listOf(
+                                ArrangorFixtures.underenhet1.organisasjonsnummer,
+                                ArrangorFixtures.underenhet2.organisasjonsnummer,
+                            )
+                        }
+                        else -> {}
+                    }
                 }
             }
         }
@@ -811,14 +843,15 @@ class AvtaleQueriesTest : FunSpec({
 
                 val queries = AvtaleQueries(session)
 
-                val ascending = queries.getAll(sortering = "arrangor-ascending")
+                val ascending = queries.getAll(sortering = "arrangor-ascending") as PaginatedResult<AvtaleDto.WithArrangor>
+
                 ascending.items[0].arrangor shouldBe alvdal
                 ascending.items[1].arrangor shouldBe bjarne
                 ascending.items[2].arrangor shouldBe bjarne
                 ascending.items[3].arrangor shouldBe bjarne
                 ascending.items[4].arrangor shouldBe chris
 
-                val descending = queries.getAll(sortering = "arrangor-descending")
+                val descending = queries.getAll(sortering = "arrangor-descending") as PaginatedResult<AvtaleDto.WithArrangor>
                 descending.items[0].arrangor shouldBe chris
                 descending.items[1].arrangor shouldBe bjarne
                 descending.items[2].arrangor shouldBe bjarne
