@@ -15,6 +15,8 @@ import no.nav.mulighetsrommet.api.refusjon.db.TilsagnUtbetalingDbo
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravDto
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravStatus
 import no.nav.mulighetsrommet.api.refusjon.model.TilsagnUtbetalingDto
+import no.nav.mulighetsrommet.api.responses.BadRequest
+import no.nav.mulighetsrommet.api.responses.respondWithStatusResponseError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -68,8 +70,13 @@ fun Route.utbetalingRoutes() {
             val kravId = call.parameters.getOrFail<UUID>("id")
             val request = call.receive<UtbetalingRequest>()
             val navIdent = getNavIdent()
+            val utbetalinger = db.session {
+                queries.utbetaling.getByRefusjonskravId(kravId)
+            }
 
-            // TODO: Valider at ting stemmer. Belop ikke for stort osv.
+            UtbetalingValidator.validate(request, utbetalinger)
+                .mapLeft { BadRequest(errors = it) }
+                .onLeft { return@put call.respondWithStatusResponseError(it) }
 
             db.session {
                 queries.utbetaling.opprettTilsagnUtbetalinger(
