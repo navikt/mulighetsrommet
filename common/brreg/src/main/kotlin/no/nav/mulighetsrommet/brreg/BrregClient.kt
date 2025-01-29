@@ -66,8 +66,7 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
                         organisasjonsnummer = it.organisasjonsnummer,
                         organisasjonsform = it.organisasjonsform.kode,
                         navn = it.navn,
-                        postnummer = it.postAdresse?.postnummer,
-                        poststed = it.postAdresse?.poststed,
+                        postadresse = it.postAdresse?.toBrregPostAdresse(),
                     )
                 } ?: emptyList()
             }
@@ -87,8 +86,6 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
                         organisasjonsform = underenhet.organisasjonsform.kode,
                         navn = underenhet.navn,
                         overordnetEnhet = orgnr,
-                        poststed = underenhet.beliggenhetsadresse?.poststed,
-                        postnummer = underenhet.beliggenhetsadresse?.postnummer,
                     )
                 } ?: emptyList()
             }
@@ -111,8 +108,7 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
                 organisasjonsnummer = enhet.organisasjonsnummer,
                 organisasjonsform = enhet.organisasjonsform.kode,
                 navn = enhet.navn,
-                postnummer = enhet.postAdresse?.postnummer,
-                poststed = enhet.postAdresse?.poststed,
+                postadresse = enhet.postAdresse?.toBrregPostAdresse(),
             )
         }
     }
@@ -143,8 +139,6 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
                     organisasjonsform = enhet.organisasjonsform.kode,
                     navn = enhet.navn,
                     overordnetEnhet = enhet.overordnetEnhet,
-                    postnummer = enhet.beliggenhetsadresse?.postnummer,
-                    poststed = enhet.beliggenhetsadresse?.poststed,
                 )
             }
         }

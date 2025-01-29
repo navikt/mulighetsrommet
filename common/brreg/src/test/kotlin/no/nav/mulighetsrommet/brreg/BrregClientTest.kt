@@ -15,7 +15,7 @@ class BrregClientTest : FunSpec({
         organisasjonsnummer = Organisasjonsnummer("123456789"),
         organisasjonsform = Organisasjonsform(kode = "AS", beskrivelse = "Aksjeselskap"),
         navn = "Nav Hovedenhet",
-        postAdresse = Adresse(poststed = "Oslo", postnummer = "1234"),
+        postAdresse = Adresse(landkode = "NO", poststed = "Oslo", postnummer = "1234", adresse = listOf("Gateveien 1")),
     )
     val underenhet = Underenhet(
         organisasjonsnummer = Organisasjonsnummer("123456780"),
@@ -25,7 +25,7 @@ class BrregClientTest : FunSpec({
         ),
         navn = "Nav Underenhet",
         overordnetEnhet = Organisasjonsnummer("123456789"),
-        beliggenhetsadresse = Adresse(poststed = "Oslo", postnummer = "1234"),
+        beliggenhetsadresse = null,
     )
 
     context("sokOverordnetEnhet") {
@@ -44,8 +44,12 @@ class BrregClientTest : FunSpec({
                     organisasjonsnummer = Organisasjonsnummer("123456789"),
                     organisasjonsform = "AS",
                     navn = "Nav Hovedenhet",
-                    postnummer = "1234",
-                    poststed = "Oslo",
+                    postadresse = BrregAdresse(
+                        landkode = "NO",
+                        postnummer = "1234",
+                        poststed = "Oslo",
+                        adresse = listOf("Gateveien 1"),
+                    ),
                 ),
             )
         }
@@ -81,8 +85,6 @@ class BrregClientTest : FunSpec({
                     organisasjonsform = "BEDR",
                     navn = "Nav Underenhet",
                     overordnetEnhet = Organisasjonsnummer("123456789"),
-                    postnummer = "1234",
-                    poststed = "Oslo",
                 ),
             )
         }
@@ -119,8 +121,12 @@ class BrregClientTest : FunSpec({
                 organisasjonsnummer = Organisasjonsnummer("123456789"),
                 organisasjonsform = "AS",
                 navn = "Nav Hovedenhet",
-                postnummer = "1234",
-                poststed = "Oslo",
+                postadresse = BrregAdresse(
+                    landkode = "NO",
+                    postnummer = "1234",
+                    poststed = "Oslo",
+                    adresse = listOf("Gateveien 1"),
+                ),
             )
         }
 
@@ -167,8 +173,6 @@ class BrregClientTest : FunSpec({
                 organisasjonsform = "BEDR",
                 navn = "Nav Underenhet",
                 overordnetEnhet = Organisasjonsnummer("123456789"),
-                postnummer = "1234",
-                poststed = "Oslo",
             )
         }
 
@@ -216,8 +220,12 @@ class BrregClientTest : FunSpec({
                 organisasjonsnummer = Organisasjonsnummer("123456789"),
                 organisasjonsform = "AS",
                 navn = "Nav Hovedenhet",
-                postnummer = "1234",
-                poststed = "Oslo",
+                postadresse = BrregAdresse(
+                    landkode = "NO",
+                    postnummer = "1234",
+                    poststed = "Oslo",
+                    adresse = listOf("Gateveien 1"),
+                ),
             )
         }
 
@@ -239,8 +247,6 @@ class BrregClientTest : FunSpec({
                 organisasjonsform = "BEDR",
                 navn = "Nav Underenhet",
                 overordnetEnhet = Organisasjonsnummer("123456789"),
-                postnummer = "1234",
-                poststed = "Oslo",
             )
         }
     }

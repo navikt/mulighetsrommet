@@ -28,7 +28,9 @@ sealed class BrregEnhet {
 /**
  * Hovedenhet eller organisasjonsledd i Enhetsregisteret.
  */
-sealed class BrregHovedenhet : BrregEnhet()
+sealed class BrregHovedenhet : BrregEnhet() {
+    abstract val postadresse: BrregAdresse?
+}
 
 /**
  * Underenhet i Enhetsregisteret.
@@ -40,8 +42,7 @@ data class BrregHovedenhetDto(
     override val organisasjonsnummer: Organisasjonsnummer,
     override val organisasjonsform: String,
     override val navn: String,
-    val postnummer: String?,
-    val poststed: String?,
+    override val postadresse: BrregAdresse?,
 ) : BrregHovedenhet()
 
 @Serializable
@@ -51,7 +52,9 @@ data class SlettetBrregHovedenhetDto(
     override val navn: String,
     @Serializable(with = LocalDateSerializer::class)
     val slettetDato: LocalDate,
-) : BrregHovedenhet()
+) : BrregHovedenhet() {
+    override val postadresse: BrregAdresse? = null
+}
 
 @Serializable
 data class BrregUnderenhetDto(
@@ -59,8 +62,6 @@ data class BrregUnderenhetDto(
     override val organisasjonsform: String,
     override val navn: String,
     val overordnetEnhet: Organisasjonsnummer,
-    val postnummer: String?,
-    val poststed: String?,
 ) : BrregUnderenhet()
 
 @Serializable
@@ -71,3 +72,11 @@ data class SlettetBrregUnderenhetDto(
     @Serializable(with = LocalDateSerializer::class)
     val slettetDato: LocalDate,
 ) : BrregUnderenhet()
+
+@Serializable
+data class BrregAdresse(
+    val landkode: String?,
+    val postnummer: String?,
+    val poststed: String?,
+    val adresse: List<String>?,
+)

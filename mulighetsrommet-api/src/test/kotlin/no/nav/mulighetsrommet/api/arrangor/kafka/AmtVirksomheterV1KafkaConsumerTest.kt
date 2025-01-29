@@ -44,16 +44,13 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
             organisasjonsnummer = amtUnderenhet.organisasjonsnummer,
             organisasjonsform = "BEDR",
             overordnetEnhet = amtVirksomhet.organisasjonsnummer,
-            postnummer = "1000",
-            poststed = "Andeby",
         )
 
         val virksomhetDto = BrregHovedenhetDto(
             organisasjonsnummer = amtVirksomhet.organisasjonsnummer,
             organisasjonsform = "AS",
             navn = amtVirksomhet.navn,
-            postnummer = "1000",
-            poststed = "Andeby",
+            postadresse = null,
         )
 
         val brregClient: BrregClient = mockk()

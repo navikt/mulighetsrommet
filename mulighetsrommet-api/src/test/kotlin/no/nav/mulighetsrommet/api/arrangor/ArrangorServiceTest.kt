@@ -26,15 +26,12 @@ class ArrangorServiceTest : FunSpec({
         organisasjonsform = "BEDR",
         navn = "Underenhet til Testbedriften AS",
         overordnetEnhet = Organisasjonsnummer("123456789"),
-        postnummer = null,
-        poststed = null,
     )
     val hovedenhet = BrregHovedenhetDto(
         organisasjonsnummer = Organisasjonsnummer("123456789"),
         organisasjonsform = "AS",
         navn = "Testbedriften AS",
-        postnummer = null,
-        poststed = null,
+        postadresse = null,
     )
 
     context("get or sync arrangør fra brreg") {
