@@ -18,7 +18,7 @@ import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import React from "react";
 import { Laster } from "@/components/laster/Laster";
 
-type GjennomforingTab = "tilsagn" | "deltakerliste" | "refusjonskrav" | "gjennomforing";
+type GjennomforingTab = "tilsagn" | "deltakerliste" | "utbetalinger" | "gjennomforing";
 
 export function GjennomforingPage() {
   const { pathname } = useLocation();
@@ -39,8 +39,8 @@ export function GjennomforingPage() {
       return "tilsagn";
     } else if (pathname.includes("deltakerliste")) {
       return "deltakerliste";
-    } else if (pathname.includes("refusjonskrav")) {
-      return "refusjonskrav";
+    } else if (pathname.includes("utbetalinger")) {
+      return "utbetalinger";
     } else {
       return "gjennomforing";
     }
@@ -57,7 +57,7 @@ export function GjennomforingPage() {
       lenke: currentTab === "gjennomforing" ? undefined : `/gjennomforinger/${gjennomforing.id}`,
     },
     currentTab === "tilsagn" ? { tittel: "Tilsagnoversikt" } : undefined,
-    currentTab === "refusjonskrav" ? { tittel: "Refusjonskravoversikt" } : undefined,
+    currentTab === "utbetalinger" ? { tittel: "Utbetalinger" } : undefined,
     currentTab === "deltakerliste" ? { tittel: "Deltakerliste" } : undefined,
   ];
 
@@ -111,10 +111,10 @@ export function GjennomforingPage() {
                 aria-controls="panel"
               />
               <Tabs.Tab
-                value="refusjonskrav"
-                label="Refusjonskrav"
+                value="utbetalinger"
+                label="Utbetalinger"
                 onClick={() =>
-                  navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/refusjonskrav`)
+                  navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/utbetalinger`)
                 }
                 aria-controls="panel"
               />
