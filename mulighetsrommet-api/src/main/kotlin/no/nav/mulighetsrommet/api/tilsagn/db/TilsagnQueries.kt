@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.tilsagn.db
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
@@ -13,6 +12,7 @@ import no.nav.mulighetsrommet.database.createEnumArray
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*
@@ -330,6 +330,7 @@ class TilsagnQueries(private val session: Session) {
             id = uuid("id"),
             gjennomforing = TilsagnDto.Gjennomforing(
                 id = uuid("gjennomforing_id"),
+                tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
             ),
             periodeSlutt = localDate("periode_slutt"),
             periodeStart = localDate("periode_start"),

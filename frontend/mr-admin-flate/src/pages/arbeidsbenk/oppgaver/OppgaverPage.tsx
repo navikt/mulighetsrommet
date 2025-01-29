@@ -1,16 +1,16 @@
-import { useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
-import { Select } from "@navikt/ds-react";
-import { useLoaderData } from "react-router";
-import { OppgaverFilter } from "../../../components/filter/OppgaverFilter";
 import { oppgaverFilterAtom } from "@/api/atoms";
-import { oppgaverLoader } from "@/pages/arbeidsbenk/oppgaver/oppgaverLoader";
-import { Oppgave } from "@/components/oppgaver/Oppgave";
-import { useState } from "react";
-import { GetOppgaverResponse } from "@mr/api-client-v2";
-import { useAtom } from "jotai/index";
 import { useOppgaver } from "@/api/oppgaver/useOppgaver";
 import { EmptyState } from "@/components/notifikasjoner/EmptyState";
+import { Oppgave } from "@/components/oppgaver/Oppgave";
+import { oppgaverLoader } from "@/pages/arbeidsbenk/oppgaver/oppgaverLoader";
+import { GetOppgaverResponse } from "@mr/api-client-v2";
+import { useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
+import { Select } from "@navikt/ds-react";
+import { useAtom } from "jotai/index";
+import { useState } from "react";
+import { useLoaderData } from "react-router";
+import { OppgaverFilter } from "../../../components/filter/OppgaverFilter";
 
 type OppgaverSorting = "korteste-frist" | "nyeste" | "eldste";
 

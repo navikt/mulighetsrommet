@@ -44,6 +44,9 @@ export function OppgaverFilter({ filterAtom, tiltakstyper }: Props) {
                 <Checkbox size="small" value={OppgaveType.TILSAGN_TIL_BESLUTNING}>
                   Tilsagn til beslutning
                 </Checkbox>
+                <Checkbox size="small" value={OppgaveType.TILSAGN_RETURNERT_AV_BESLUTTER}>
+                  Tilsagn returnert fra beslutter
+                </Checkbox>
               </CheckboxGroup>
             </div>
           </Accordion.Content>
