@@ -13,9 +13,9 @@ data class AvtaleDbo(
     val avtalenummer: String?,
     val websaknummer: Websaknummer?,
     // @todo: Make nullable
-    val arrangorId: UUID,
-    val arrangorUnderenheter: List<UUID>,
-    val arrangorKontaktpersoner: List<UUID>,
+    val arrangorId: UUID?,
+    val arrangorUnderenheter: List<UUID>?,
+    val arrangorKontaktpersoner: List<UUID>?,
     val startDato: LocalDate,
     val sluttDato: LocalDate?,
     val opsjonMaksVarighet: LocalDate?,

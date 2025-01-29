@@ -95,7 +95,7 @@ sealed class AvtaleDto {
         override val arenaAnsvarligEnhet: ArenaNavEnhet?,
         override val avtaletype: Avtaletype,
         @Serializable(with = AvtaleStatusSerializer::class)
-        override val status: AvtaleStatus.UTKAST,
+        override val status: AvtaleStatus,
         override val prisbetingelser: String?,
         override val administratorer: List<Administrator>,
         override val antallPlasser: Int?,
@@ -208,6 +208,7 @@ fun AvtaleDto.toArenaAvtaleDbo() = when (this) {
         avslutningsstatus = when (status) {
             is AvtaleStatus.AKTIV -> Avslutningsstatus.IKKE_AVSLUTTET
             is AvtaleStatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
+            is AvtaleStatus.UTKAST -> Avslutningsstatus.UTKAST
             is AvtaleStatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
         },
         prisbetingelser = prisbetingelser,

@@ -26,10 +26,16 @@ export const AvtaleSchema = z
     }),
     arrangorOrganisasjonsnummer: z
       .string()
-      .min(9, "Du må velge en tiltaksarrangør")
-      .max(9, "Du må velge en tiltaksarrangør")
-      .regex(/^\d+$/, "Tiltaksarrangør må være et nummer"),
-    arrangorUnderenheter: z.string().array().nonempty("Du må velge minst en underenhet"),
+      .optional() // Makes the field optional
+      .refine(
+        (value) =>
+          !value || // Allow undefined (optional)
+          (value.length === 9 && /^\d+$/.test(value)), // Enforce rules if value is provided
+        {
+          message: "Tiltaksarrangør må være et 9-sifret nummer", // Custom error message
+        },
+      ),
+    arrangorUnderenheter: z.string().optional().array(), //.nonempty("Du må velge minst en underenhet"),
     arrangorKontaktpersoner: z.string().uuid().array(),
     navRegioner: z.string().array().nonempty({ message: "Du må velge minst én region" }),
     navEnheter: z.string().array().nonempty({ message: "Du må velge minst én enhet" }),

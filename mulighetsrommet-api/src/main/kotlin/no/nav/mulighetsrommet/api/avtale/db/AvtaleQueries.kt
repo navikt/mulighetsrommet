@@ -188,14 +188,22 @@ class AvtaleQueries(private val session: Session) {
         batchPreparedStatement(upsertEnhet, avtale.navEnheter.map { listOf(avtale.id, it) })
         execute(queryOf(deleteEnheter, avtale.id, createTextArray(avtale.navEnheter)))
 
-        batchPreparedStatement(setArrangorUnderenhet, avtale.arrangorUnderenheter.map { listOf(avtale.id, it) })
-        execute(queryOf(deleteUnderenheter, avtale.id, createUuidArray(avtale.arrangorUnderenheter)))
+        avtale.arrangorUnderenheter?.let { batchPreparedStatement(setArrangorUnderenhet, it.map { listOf(avtale.id, it) }) }
+        execute(queryOf(deleteUnderenheter, avtale.id, avtale.arrangorUnderenheter?.let { createUuidArray(it) }))
 
-        batchPreparedStatement(
-            upsertArrangorKontaktperson,
-            avtale.arrangorKontaktpersoner.map { listOf(avtale.id, it) },
+        avtale.arrangorKontaktpersoner?.let {
+            batchPreparedStatement(
+                upsertArrangorKontaktperson,
+                it.map { listOf(avtale.id, it) },
+            )
+        }
+        execute(
+            queryOf(
+                deleteArrangorKontaktpersoner,
+                avtale.id,
+                avtale.arrangorKontaktpersoner?.let { createUuidArray(it) },
+            ),
         )
-        execute(queryOf(deleteArrangorKontaktpersoner, avtale.id, createUuidArray(avtale.arrangorKontaktpersoner)))
 
         batchPreparedStatement(
             upsertPersonopplysninger,
@@ -452,6 +460,8 @@ class AvtaleQueries(private val session: Session) {
         val avbruttTidspunkt = when (avslutningsstatus) {
             Avslutningsstatus.AVLYST -> startDato.atStartOfDay().minusDays(1)
             Avslutningsstatus.AVBRUTT -> startDato.atStartOfDay()
+            // @todo: What should utkast be?
+            Avslutningsstatus.UTKAST -> startDato.atStartOfDay().minusDays(1)
             Avslutningsstatus.AVSLUTTET -> null
             Avslutningsstatus.IKKE_AVSLUTTET -> null
         }

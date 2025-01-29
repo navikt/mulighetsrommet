@@ -160,8 +160,8 @@ class AvtaleService(
     private suspend fun syncArrangorerFromBrreg(
         request: AvtaleRequest,
     ): Either<List<ValidationError>, Pair<ArrangorDto, List<ArrangorDto>>> = either {
-        val arrangor = syncArrangorFromBrreg(request.arrangorOrganisasjonsnummer).bind()
-        val underenheter = request.arrangorUnderenheter.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
+        val arrangor = syncArrangorFromBrreg(request.arrangorOrganisasjonsnummer!!).bind()
+        val underenheter = request.arrangorUnderenheter?.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
             syncArrangorFromBrreg(it).bind()
         }.bind()
         Pair(arrangor, underenheter)
