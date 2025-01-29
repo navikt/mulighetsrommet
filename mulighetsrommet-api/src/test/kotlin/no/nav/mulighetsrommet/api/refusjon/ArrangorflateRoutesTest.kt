@@ -142,7 +142,7 @@ class ArrangorflateRoutesTest : FunSpec({
                             organizationNumber = barnevernsNembda.organisasjonsnummer.value,
                             organizationName = barnevernsNembda.navn,
                             type = "type",
-                            authorizedResources = listOf("tiltak-arrangor-refusjon"),
+                            authorizedResources = listOf("nav_tiltaksarrangor_be-om-utbetaling"),
                             subunits = emptyList(),
                         ),
                     ),
