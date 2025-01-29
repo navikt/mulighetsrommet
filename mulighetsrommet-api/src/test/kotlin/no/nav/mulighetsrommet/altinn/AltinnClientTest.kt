@@ -26,7 +26,7 @@ class AltinnClientTest : FunSpec({
 							"name": "UEMOSJONELL KREATIV TIGER AS",
 							"type": "Organization",
 							"organizationNumber": "211267232",
-							"authorizedResources": ["tiltak-arrangor-refusjon"],
+							"authorizedResources": ["nav_tiltaksarrangor_be-om-utbetaling"],
 							"subunits": []
 						}
 					]
@@ -35,7 +35,7 @@ class AltinnClientTest : FunSpec({
 					"name": "FRYKTLØS OPPSTEMT STRUTS LTD",
 					"type": "Organization",
 					"organizationNumber": "312899485",
-					"authorizedResources": ["tiltak-arrangor-refusjon"],
+					"authorizedResources": ["nav_tiltaksarrangor_be-om-utbetaling"],
 					"subunits": []
 				}
 			]

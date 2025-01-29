@@ -221,7 +221,7 @@ class AuthenticationTest : FunSpec({
             @Language("PostgreSQL")
             val query = """
                 insert into altinn_person_rettighet (norsk_ident, organisasjonsnummer, rettighet, expiry)
-                values('$personMedRettighet', '123456789', 'TILTAK_ARRANGOR_UTBETALING', '3000-01-01') on conflict do nothing;
+                values('$personMedRettighet', '123456789', 'TILTAK_ARRANGOR_BE_OM_UTBETALING', '3000-01-01') on conflict do nothing;
             """.trimIndent()
             it.execute(queryOf(query))
         }

@@ -271,7 +271,7 @@ fun Application.configureAuthentication(
                     .getOrElse { return@validate null }
 
                 val organisasjonsnummer = altinnRettigheterService.getRettigheter(norskIdent)
-                    .filter { AltinnRessurs.TILTAK_ARRANGOR_UTBETALING in it.rettigheter }
+                    .filter { AltinnRessurs.TILTAK_ARRANGOR_BE_OM_UTBETALING in it.rettigheter }
                     .map { it.organisasjonsnummer }
 
                 ArrangorflatePrincipal(organisasjonsnummer, JWTPrincipal(credentials.payload))

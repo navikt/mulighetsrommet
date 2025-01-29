@@ -1,4 +1,1 @@
-delete from altinn_person_rettighet where rettighet = 'TILTAK_ARRANGOR_REFUSJON';
-drop type altinn_ressurs cascade;
-
-create type altinn_ressurs as enum ('TILTAK_ARRANGOR_UTBETALING')
+alter type altinn_ressurs rename value 'TILTAK_ARRANGOR_REFUSJON' to 'TILTAK_ARRANGOR_BE_OM_UTBETALING';
