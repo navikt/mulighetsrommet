@@ -2,7 +2,7 @@ import { Header } from "@/components/detaljside/Header";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { Heading, HStack } from "@navikt/ds-react";
-import { useLoaderData, useMatch, useParams } from "react-router";
+import { useLoaderData } from "react-router";
 import { refusjonskravDetaljerLoader } from "./refusjonskravDetaljerLoader";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata } from "@/components/detaljside/Metadata";
@@ -14,39 +14,21 @@ import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 export function RefusjonskravDetaljer() {
   const { gjennomforing, refusjonskrav } = useLoaderData<typeof refusjonskravDetaljerLoader>();
 
-  const { avtaleId, gjennomforingId } = useParams();
-  const erPaaGjennomforingerForAvtale = useMatch(
-    "/avtaler/:avtaleId/gjennomforinger/:gjennomforingId/opprett-tilsagn",
-  );
-
   const brodsmuler: Array<Brodsmule | undefined> = [
-    { tittel: "", lenke: "/" },
-    avtaleId
-      ? { tittel: "Avtaler", lenke: "/avtaler" }
-      : { tittel: "Gjennomføringer", lenke: "/gjennomforinger" },
-    avtaleId
-      ? {
-          tittel: "Avtale",
-          lenke: `/avtaler/${avtaleId}`,
-        }
-      : undefined,
-    erPaaGjennomforingerForAvtale
-      ? {
-          tittel: "Gjennomføringer",
-          lenke: `/avtaler/${avtaleId}/gjennomforinger`,
-        }
-      : undefined,
+    {
+      tittel: "Gjennomføringer",
+      lenke: `/gjennomforinger`,
+    },
     {
       tittel: "Gjennomføring",
-      lenke: `/gjennomforinger/${gjennomforingId}`,
+      lenke: `/gjennomforinger/${gjennomforing.id}`,
     },
     {
       tittel: "Refusjonskravoversikt",
-      lenke: `/gjennomforinger/${gjennomforingId}/refusjonskrav`,
+      lenke: `/gjennomforinger/${gjennomforing.id}/refusjonskrav`,
     },
     {
-      tittel: "Refusjonskravdetaljer",
-      lenke: `/gjennomforinger/${gjennomforingId}/refusjonskrav`,
+      tittel: "Refusjonskrav",
     },
   ];
 
