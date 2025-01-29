@@ -94,7 +94,6 @@ export function BehandleUtbetalingForm({ behandling, gjennomforingId }: Props) {
               <Table.Row>
                 <Table.HeaderCell>Kostnadssted</Table.HeaderCell>
                 <Table.HeaderCell>Gjenstående beløp</Table.HeaderCell>
-                <Table.HeaderCell>Kravbeløp</Table.HeaderCell>
                 <Table.HeaderCell>Utbetales</Table.HeaderCell>
                 <Table.HeaderCell></Table.HeaderCell>
               </Table.Row>
@@ -105,7 +104,6 @@ export function BehandleUtbetalingForm({ behandling, gjennomforingId }: Props) {
                   <Table.Row key={i}>
                     <Table.DataCell>{t.kostnadssted.navn}</Table.DataCell>
                     <Table.DataCell>{`${t.beregning.output.belop} //TODO: Bruk faktisk gjenstående når vi har den dataen`}</Table.DataCell>
-                    <Table.DataCell>-</Table.DataCell>
                     <Table.DataCell>
                       <TextField
                         type="number"
