@@ -68,12 +68,8 @@ export function TiltakstypeTabell() {
                 >
                   <Lenke to={`/tiltakstyper/${tiltakstype.id}`}>{tiltakstype.navn}</Lenke>
                 </Table.DataCell>
-                <Table.DataCell aria-label={`Startdato: ${startDato}`}>
-                  {startDato}
-                </Table.DataCell>
-                <Table.DataCell aria-label={`Sluttdato: ${sluttDato}`}>
-                  {sluttDato}
-                </Table.DataCell>
+                <Table.DataCell aria-label={`Startdato: ${startDato}`}>{startDato}</Table.DataCell>
+                <Table.DataCell aria-label={`Sluttdato: ${sluttDato}`}>{sluttDato}</Table.DataCell>
                 <Table.DataCell>
                   <TiltakstypestatusTag tiltakstype={tiltakstype} />
                 </Table.DataCell>
