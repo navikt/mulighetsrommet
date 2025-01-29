@@ -46,7 +46,7 @@ class AltinnClientTest : FunSpec({
             "https://altinn.no",
             tokenProvider = { "token" },
             createMockEngine(
-                "/accessmanagement/api/v1/resourceowner/authorizedparties?includeAltinn2=true" to {
+                "/accessmanagement/api/v1/resourceowner/authorizedparties" to {
                     respondJson(altinnResponse)
                 },
             ),

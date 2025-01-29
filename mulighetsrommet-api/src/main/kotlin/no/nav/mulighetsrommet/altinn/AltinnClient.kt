@@ -41,11 +41,11 @@ class AltinnClient(
 
     private fun findAltinnRoller(
         parties: List<AuthorizedParty>,
-    ): List<BedriftRettigheter> = parties
+    ): List<BedriftRettigheter> = parties.filter { it.type == "Organization" }
         .flatMap { party ->
             findAltinnRoller(party.subunits) +
                 BedriftRettigheter(
-                    organisasjonsnummer = Organisasjonsnummer(party.organizationNumber),
+                    organisasjonsnummer = Organisasjonsnummer(party.organizationNumber!!),
                     rettigheter = AltinnRessurs
                         .entries
                         .filter { it.ressursId in party.authorizedResources },
@@ -55,7 +55,6 @@ class AltinnClient(
 
     private suspend fun hentAuthorizedParties(norskIdent: NorskIdent): List<AuthorizedParty> {
         val response = client.post("$baseUrl/accessmanagement/api/v1/resourceowner/authorizedparties") {
-            parameter("includeAltinn2", "true") // TODO Kan denne tas bort?
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             setBody(
@@ -80,7 +79,7 @@ class AltinnClient(
 
     @Serializable
     data class AuthorizedParty(
-        val organizationNumber: String,
+        val organizationNumber: String?,
         @SerialName("name")
         val organizationName: String,
         val type: String,
