@@ -44,7 +44,6 @@ class AltinnClientTest : FunSpec({
     test("hentAlleOrganisasjoner 1 tilgang - kun et kall til Altinn") {
         val altinnClient = AltinnClient(
             "https://altinn.no",
-            altinnApiKey = "api-key",
             tokenProvider = { "token" },
             createMockEngine(
                 "/accessmanagement/api/v1/resourceowner/authorizedparties?includeAltinn2=true" to {

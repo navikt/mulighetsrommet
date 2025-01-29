@@ -56,7 +56,7 @@ fun createTestApplicationConfig() = AppConfig(
     tasks = createTaskConfig(),
     sanity = SanityClient.Config(projectId = "", token = "", dataset = "", apiVersion = ""),
     slack = SlackConfig(token = "", channel = "", enable = false),
-    altinn = AltinnClient.Config(url = "altinn", scope = "default", apiKey = "apiKey"),
+    altinn = AltinnClient.Config(url = "altinn", scope = "default"),
     veilarboppfolgingConfig = authenticatedHttpClientConfig("veilarboppfolging"),
     veilarbvedtaksstotteConfig = authenticatedHttpClientConfig("veilarbvedtaksstotte"),
     veilarbdialogConfig = authenticatedHttpClientConfig("veilarbdialog"),

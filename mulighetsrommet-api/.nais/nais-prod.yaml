@@ -146,6 +146,7 @@ spec:
         - host: dokarkiv.prod-fss-pub.nais.io
         - host: xegcworx.apicdn.sanity.io
         - host: xegcworx.api.sanity.io
+        - host: platform.altinn.no
         # Sanity IPs https://www.sanity.io/docs/api-cdn#5fa01dfe1285
         - ipv4: 35.241.31.122
         - ipv4: 35.190.70.79

@@ -308,7 +308,6 @@ private fun services(appConfig: AppConfig) = module {
     single {
         AltinnClient(
             baseUrl = appConfig.altinn.url,
-            altinnApiKey = appConfig.altinn.apiKey,
             clientEngine = appConfig.engine,
             tokenProvider = maskinportenTokenProvider?.withScope(
                 scope = appConfig.altinn.scope,
