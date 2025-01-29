@@ -144,7 +144,7 @@ class ArrangorflateRoutesTest : FunSpec({
                             organizationNumber = underenhet.organisasjonsnummer.value,
                             organizationName = underenhet.navn,
                             type = "type",
-                            authorizedResources = listOf("tiltak-arrangor-refusjon"),
+                            authorizedResources = listOf("nav_tiltaksarrangor_be-om-utbetaling"),
                             subunits = emptyList(),
                         ),
                     ),

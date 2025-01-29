@@ -26,7 +26,7 @@ class AltinnClientTest : FunSpec({
 							"name": "UEMOSJONELL KREATIV TIGER AS",
 							"type": "Organization",
 							"organizationNumber": "211267232",
-							"authorizedResources": ["tiltak-arrangor-refusjon"],
+							"authorizedResources": ["nav_tiltaksarrangor_be-om-utbetaling"],
 							"subunits": []
 						}
 					]
@@ -35,7 +35,7 @@ class AltinnClientTest : FunSpec({
 					"name": "FRYKTLØS OPPSTEMT STRUTS LTD",
 					"type": "Organization",
 					"organizationNumber": "312899485",
-					"authorizedResources": ["tiltak-arrangor-refusjon"],
+					"authorizedResources": ["nav_tiltaksarrangor_be-om-utbetaling"],
 					"subunits": []
 				}
 			]
@@ -44,7 +44,6 @@ class AltinnClientTest : FunSpec({
     test("hentAlleOrganisasjoner 1 tilgang - kun et kall til Altinn") {
         val altinnClient = AltinnClient(
             "https://altinn.no",
-            altinnApiKey = "api-key",
             tokenProvider = { "token" },
             createMockEngine(
                 "/accessmanagement/api/v1/resourceowner/authorizedparties?includeAltinn2=true" to {

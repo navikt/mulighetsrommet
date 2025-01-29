@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.altinn
 
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -20,7 +19,6 @@ import org.slf4j.LoggerFactory
 
 class AltinnClient(
     private val baseUrl: String,
-    private val altinnApiKey: String,
     private val tokenProvider: M2MTokenProvider,
     clientEngine: HttpClientEngine,
 ) {
@@ -31,7 +29,6 @@ class AltinnClient(
 
     data class Config(
         val url: String,
-        val apiKey: String,
         val scope: String,
     )
 
@@ -58,8 +55,7 @@ class AltinnClient(
 
     private suspend fun hentAuthorizedParties(norskIdent: NorskIdent): List<AuthorizedParty> {
         val response = client.post("$baseUrl/accessmanagement/api/v1/resourceowner/authorizedparties") {
-            parameter("includeAltinn2", "true")
-            header("Ocp-Apim-Subscription-Key", altinnApiKey)
+            parameter("includeAltinn2", "true") // TODO Kan denne tas bort?
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             setBody(
