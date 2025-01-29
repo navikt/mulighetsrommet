@@ -119,11 +119,15 @@ export function BehandleUtbetalingForm({ behandling, gjennomforingId }: Props) {
                       />
                     </Table.DataCell>
                     <Table.DataCell>
-                      <Link
-                        to={`/gjennomforinger/${gjennomforingId}/tilsagn/opprett-tilsagn?type=${TilsagnType.EKSTRATILSAGN}`}
-                      >
-                        Opprett ekstratilsagn
-                      </Link>
+                      {behandling.tilsagn.length === 1 &&
+                        t.beregning.output.belop < behandling.krav.beregning.belop && (
+                          <Link
+                            // TODO: Gi med belop, periode, fri prismodell i query params
+                            to={`/gjennomforinger/${gjennomforingId}/tilsagn/opprett-tilsagn?type=${TilsagnType.EKSTRATILSAGN}`}
+                          >
+                            Opprett ekstratilsagn
+                          </Link>
+                        )}
                     </Table.DataCell>
                   </Table.Row>
                 );
