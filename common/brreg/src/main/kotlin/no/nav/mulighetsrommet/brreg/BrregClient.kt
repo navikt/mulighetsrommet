@@ -94,30 +94,6 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
             }
     }
 
-    suspend fun getHovedenhetMedUnderenheter(orgnr: Organisasjonsnummer): Either<BrregError, BrregHovedenhet> = either {
-        val response = client.get("$baseUrl/enheter/${orgnr.value}")
-
-        val enhet = parseResponse<OverordnetEnhet>(response).bind()
-        if (enhet.slettedato != null) {
-            return@either SlettetBrregHovedenhetDto(
-                organisasjonsnummer = enhet.organisasjonsnummer,
-                organisasjonsform = enhet.organisasjonsform.kode,
-                navn = enhet.navn,
-                slettetDato = enhet.slettedato,
-            )
-        }
-
-        val underenheter = getUnderenheterForHovedenhet(orgnr).bind()
-        BrreHovedenhetMedUnderenheterDto(
-            organisasjonsnummer = enhet.organisasjonsnummer,
-            organisasjonsform = enhet.organisasjonsform.kode,
-            navn = enhet.navn,
-            underenheter = underenheter,
-            postnummer = enhet.postAdresse?.postnummer,
-            poststed = enhet.postAdresse?.poststed,
-        )
-    }
-
     suspend fun getHovedenhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregHovedenhet> = either {
         val response = client.get("$baseUrl/enheter/${orgnr.value}")
 

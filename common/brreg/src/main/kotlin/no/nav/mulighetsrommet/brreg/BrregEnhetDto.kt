@@ -45,16 +45,6 @@ data class BrregHovedenhetDto(
 ) : BrregHovedenhet()
 
 @Serializable
-data class BrreHovedenhetMedUnderenheterDto(
-    override val organisasjonsnummer: Organisasjonsnummer,
-    override val organisasjonsform: String,
-    override val navn: String,
-    val underenheter: List<BrregUnderenhetDto>,
-    val postnummer: String?,
-    val poststed: String?,
-) : BrregHovedenhet()
-
-@Serializable
 data class SlettetBrregHovedenhetDto(
     override val organisasjonsnummer: Organisasjonsnummer,
     override val organisasjonsform: String,

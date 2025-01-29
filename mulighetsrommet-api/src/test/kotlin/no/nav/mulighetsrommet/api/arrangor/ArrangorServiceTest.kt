@@ -29,11 +29,10 @@ class ArrangorServiceTest : FunSpec({
         postnummer = null,
         poststed = null,
     )
-    val hovedenhet = BrreHovedenhetMedUnderenheterDto(
+    val hovedenhet = BrregHovedenhetDto(
         organisasjonsnummer = Organisasjonsnummer("123456789"),
         organisasjonsform = "AS",
         navn = "Testbedriften AS",
-        underenheter = listOf(underenhet),
         postnummer = null,
         poststed = null,
     )
