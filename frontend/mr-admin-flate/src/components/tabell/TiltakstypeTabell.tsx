@@ -10,11 +10,11 @@ import { TiltakstypestatusTag } from "../statuselementer/TiltakstypestatusTag";
 
 export function TiltakstypeTabell() {
   const [filter, setFilter] = useAtom(tiltakstypeFilterAtom);
-  const data = useLoaderData() as PaginertTiltakstype;
+  const { data } = useLoaderData() as { data: PaginertTiltakstype };
   const sort = filter.sort?.tableSort;
   const tiltakstyper = data.data;
 
-  if (tiltakstyper.length === 0) {
+  if (!tiltakstyper || tiltakstyper.length === 0) {
     return <Alert variant="info">Fant ingen tiltakstyper</Alert>;
   }
 
@@ -32,6 +32,7 @@ export function TiltakstypeTabell() {
       },
     });
   };
+
   return (
     <TabellWrapper className="m-0">
       <Table
@@ -55,35 +56,31 @@ export function TiltakstypeTabell() {
             ))}
           </Table.Row>
         </Table.Header>
-        {tiltakstyper.length > 0 ? (
-          <Table.Body>
-            {tiltakstyper.map((tiltakstype, index) => {
-              const startDato = formaterDato(tiltakstype.startDato);
-              const sluttDato = tiltakstype.sluttDato ? formaterDato(tiltakstype.sluttDato) : "-";
-              return (
-                <Table.Row key={index}>
-                  <Table.DataCell
-                    aria-label={`Navn på tiltakstype: ${tiltakstype.navn}`}
-                    className="underline"
-                  >
-                    <Lenke to={`/tiltakstyper/${tiltakstype.id}`}>{tiltakstype.navn}</Lenke>
-                  </Table.DataCell>
-                  <Table.DataCell aria-label={`Startdato: ${startDato}`}>
-                    {startDato}
-                  </Table.DataCell>
-                  <Table.DataCell aria-label={`Sluttdato: ${sluttDato}`}>
-                    {sluttDato}
-                  </Table.DataCell>
-                  <Table.DataCell>
-                    <TiltakstypestatusTag tiltakstype={tiltakstype} />
-                  </Table.DataCell>
-                </Table.Row>
-              );
-            })}
-          </Table.Body>
-        ) : (
-          <></>
-        )}
+        <Table.Body>
+          {tiltakstyper.map((tiltakstype, index) => {
+            const startDato = formaterDato(tiltakstype.startDato);
+            const sluttDato = tiltakstype.sluttDato ? formaterDato(tiltakstype.sluttDato) : "-";
+            return (
+              <Table.Row key={index}>
+                <Table.DataCell
+                  aria-label={`Navn på tiltakstype: ${tiltakstype.navn}`}
+                  className="underline"
+                >
+                  <Lenke to={`/tiltakstyper/${tiltakstype.id}`}>{tiltakstype.navn}</Lenke>
+                </Table.DataCell>
+                <Table.DataCell aria-label={`Startdato: ${startDato}`}>
+                  {startDato}
+                </Table.DataCell>
+                <Table.DataCell aria-label={`Sluttdato: ${sluttDato}`}>
+                  {sluttDato}
+                </Table.DataCell>
+                <Table.DataCell>
+                  <TiltakstypestatusTag tiltakstype={tiltakstype} />
+                </Table.DataCell>
+              </Table.Row>
+            );
+          })}
+        </Table.Body>
       </Table>
     </TabellWrapper>
   );
