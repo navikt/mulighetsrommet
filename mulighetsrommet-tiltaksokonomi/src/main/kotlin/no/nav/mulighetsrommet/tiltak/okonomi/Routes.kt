@@ -1,14 +1,17 @@
 package no.nav.mulighetsrommet.tiltak.okonomi
 
+import io.ktor.http.*
 import io.ktor.resources.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.request.*
 import io.ktor.server.resources.*
 import io.ktor.server.resources.Resources
+import io.ktor.server.resources.post
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.util.*
-import no.nav.mulighetsrommet.tiltak.okonomi.oebs.OebsTiltakApiClient
+import no.nav.mulighetsrommet.tiltak.okonomi.oebs.OebsService
+import no.nav.mulighetsrommet.tiltak.okonomi.oebs.OpprettOebsBestilling
 
 private const val API_BASE_PATH = "/api/v1/okonomi"
 
@@ -20,15 +23,19 @@ class Bestilling {
 }
 
 fun Application.okonomiRoutes(
-    oebs: OebsTiltakApiClient,
+    oebs: OebsService,
 ) = routing {
     install(Resources)
 
     authenticate {
         get<Bestilling.Id> {
-            val id: String by call.parameters
+            call.respond(HttpStatusCode.NoContent)
+        }
 
-            val response = oebs.getBestillingStatus(id)
+        post<Bestilling> {
+            val bestilling = call.receive<OpprettOebsBestilling>()
+
+            val response = oebs.behandleBestilling(bestilling)
 
             call.respond(response)
         }

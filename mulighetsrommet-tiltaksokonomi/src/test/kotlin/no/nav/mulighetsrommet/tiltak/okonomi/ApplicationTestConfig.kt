@@ -32,6 +32,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server, engine: HttpClientEngin
     auth = createAuthConfig(oauth),
     clients = ClientConfig(
         oebsTiltakApi = AuthenticatedHttpClientConfig(url = "http://oebs-tiltak-api", scope = "default"),
+        brreg = HttpClientConfig(url = "http://brreg"),
     ),
 )
 
