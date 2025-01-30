@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.time.LocalDate
 
-class Periodetest : FunSpec({
+class PeriodeTest : FunSpec({
     test("should create period for month") {
         val period = Periode.forMonthOf(LocalDate.of(2021, 1, 1))
 
