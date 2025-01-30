@@ -12,7 +12,7 @@ interface Props {
 export function PageHeader({ title, tilbakeLenke }: Props) {
   return (
     <div className="flex flex-col relative">
-      <span className="hidden lg:inline-block absolute -left-[85px] top-[20px]">
+      <span className="hidden lg:inline-block absolute -left-[70px] top-[20px]">
         <RefusjonskravIkon />
       </span>
       <h1 className="mb-2" data-testid="header">
