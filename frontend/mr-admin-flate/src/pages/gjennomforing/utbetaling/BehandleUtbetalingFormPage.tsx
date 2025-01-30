@@ -138,20 +138,29 @@ export function BehandleUtbetalingFormPage() {
                   <Table.Body>
                     {tilsagn.map((t: TilsagnDto, i: number) => {
                       return (
-                        <Table.Row key={i}>
+                        <Table.Row
+                          key={i}
+                          className={
+                            t.status.type !== "GODKJENT" ? "bg-surface-warning-moderate" : ""
+                          }
+                        >
                           <Table.DataCell>{t.kostnadssted.navn}</Table.DataCell>
                           <Table.DataCell>{`${t.beregning.output.belop} //TODO: Bruk faktisk gjenstående når vi har den dataen`}</Table.DataCell>
                           <Table.DataCell>
-                            <TextField
-                              type="number"
-                              size="small"
-                              label=""
-                              hideLabel
-                              error={errors.kostnadsfordeling?.[i]?.belop?.message}
-                              {...register(`kostnadsfordeling.${i}.belop`, {
-                                valueAsNumber: true,
-                              })}
-                            />
+                            {t.status.type !== "GODKJENT" ? (
+                              "Tilsagn ikke godkjent"
+                            ) : (
+                              <TextField
+                                type="number"
+                                size="small"
+                                label=""
+                                hideLabel
+                                error={errors.kostnadsfordeling?.[i]?.belop?.message}
+                                {...register(`kostnadsfordeling.${i}.belop`, {
+                                  valueAsNumber: true,
+                                })}
+                              />
+                            )}
                           </Table.DataCell>
                           <Table.DataCell>
                             {tilsagn.length === 1 &&
