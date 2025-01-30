@@ -11,14 +11,8 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
-import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.tiltak.okonomi.oebs.OebsBestilling
-import no.nav.mulighetsrommet.tiltak.okonomi.oebs.OebsBestillingArrangor
-import no.nav.mulighetsrommet.tiltak.okonomi.oebs.OkonomiPart
-import no.nav.mulighetsrommet.tiltak.okonomi.oebs.OpprettOebsBestilling
+import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.tiltak.okonomi.oebs.Kilde
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
@@ -71,9 +65,8 @@ class TiltaksokonomiTest : FunSpec({
             }
         }
 
-        test("opprett bestilling") {
+        test("behandle og annuller bestilling") {
             val mockEngine = createMockEngine(
-                "http://oebs-tiltak-api/api/v1/oebs/bestilling" to { respondOk() },
                 "http://brreg/enheter/123456789" to {
                     @Language("json")
                     val brregResponse = """
@@ -97,6 +90,7 @@ class TiltaksokonomiTest : FunSpec({
                     """.trimIndent()
                     respondJson(brregResponse)
                 },
+                "http://oebs-tiltak-api/api/v1/oebs/bestilling" to { respondOk() },
             )
 
             withTestApplication(oauth, mockEngine) {
@@ -107,40 +101,91 @@ class TiltaksokonomiTest : FunSpec({
                     }
                 }
 
-                val response = client.post(Bestilling()) {
+                val bestillingsnummer = "A-1"
+
+                client.post(Bestilling()) {
                     bearerAuth(oauth.issueToken().serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
-                        OpprettOebsBestilling(
+                        OpprettBestilling(
                             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-                            arrangor = OebsBestillingArrangor(
+                            arrangor = OpprettBestilling.Arrangor(
                                 hovedenhet = Organisasjonsnummer("123456789"),
                                 underenhet = Organisasjonsnummer("234567891"),
                             ),
-                            bestillingsnummer = "T-123",
+                            bestillingsnummer = bestillingsnummer,
                             avtalenummer = "2025/1234",
                             belop = 1000,
-                            opprettetAv = OkonomiPart.Tiltaksadministrasjon,
+                            opprettetAv = OkonomiPart.System(Kilde.TILTADM),
                             opprettetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
-                            besluttetAv = OkonomiPart.Tiltaksadministrasjon,
+                            besluttetAv = OkonomiPart.System(Kilde.TILTADM),
                             besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
-                            periode = Periode(start = LocalDate.of(2025, 1, 1), slutt = LocalDate.of(2025, 2, 1)),
+                            periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                             kostnadssted = NavEnhetNummer("0400"),
                         ),
                     )
+                }.also {
+                    it.status shouldBe HttpStatusCode.Created
                 }
 
-                response.status shouldBe HttpStatusCode.OK
+                client.get(Bestilling.Id(id = bestillingsnummer)) {
+                    bearerAuth(oauth.issueToken().serialize())
+                }.also {
+                    it.status shouldBe HttpStatusCode.OK
+                    it.body<BestillingStatus>() shouldBe BestillingStatus(
+                        bestillingsnummer = bestillingsnummer,
+                        status = BestillingStatus.Type.AKTIV,
+                    )
+                }
 
-                response.body<OebsBestilling>() shouldBe OebsBestilling(
-                    bestillingsnummer = "T-123",
-                    status = OebsBestilling.Status.BEHANDLET,
-                )
+                client.post(Bestilling.Id.Status(Bestilling.Id(id = bestillingsnummer))) {
+                    bearerAuth(oauth.issueToken().serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(SetBestillingStatus(status = BestillingStatus.Type.ANNULLERT))
+                }.also {
+                    it.status shouldBe HttpStatusCode.OK
+                }
+
+                client.get(Bestilling.Id(id = bestillingsnummer)) {
+                    bearerAuth(oauth.issueToken().serialize())
+                }.also {
+                    it.status shouldBe HttpStatusCode.OK
+                    it.body<BestillingStatus>() shouldBe BestillingStatus(
+                        bestillingsnummer = bestillingsnummer,
+                        status = BestillingStatus.Type.ANNULLERT,
+                    )
+                }
             }
         }
 
-        xtest("hente status på bestilling") {
-            val mockEngine = createMockEngine()
+        test("behandle og send faktura") {
+            val mockEngine = createMockEngine(
+                "http://brreg/enheter/123456789" to {
+                    @Language("json")
+                    val brregResponse = """
+                        {
+                            "organisasjonsnummer": "123456789",
+                            "navn": "Tiltaksarrangør AS",
+                            "organisasjonsform": {
+                                "kode": "AS",
+                                "beskrivelse": "Aksjeselskap"
+                            },
+                            "postadresse": {
+                                "land": "Norge",
+                                "landkode": "NO",
+                                "postnummer": "0170",
+                                "poststed": "OSLO",
+                                "adresse": ["Gateveien 1"],
+                                "kommune": "OSLO",
+                                "kommunenummer": "0301"
+                            }
+                        }
+                    """.trimIndent()
+                    respondJson(brregResponse)
+                },
+                "http://oebs-tiltak-api/api/v1/oebs/bestilling" to { respondOk() },
+                "http://oebs-tiltak-api/api/v1/oebs/faktura" to { respondOk() },
+            )
 
             withTestApplication(oauth, mockEngine) {
                 val client = createClient {
@@ -150,16 +195,67 @@ class TiltaksokonomiTest : FunSpec({
                     }
                 }
 
-                val response = client.get(Bestilling.Id(id = "T-123")) {
+                val bestillingsnummer = "A-2"
+
+                client.post(Bestilling()) {
                     bearerAuth(oauth.issueToken().serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        OpprettBestilling(
+                            tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+                            arrangor = OpprettBestilling.Arrangor(
+                                hovedenhet = Organisasjonsnummer("123456789"),
+                                underenhet = Organisasjonsnummer("234567891"),
+                            ),
+                            bestillingsnummer = bestillingsnummer,
+                            avtalenummer = null,
+                            belop = 1000,
+                            opprettetAv = OkonomiPart.System(Kilde.TILTADM),
+                            opprettetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+                            besluttetAv = OkonomiPart.System(Kilde.TILTADM),
+                            besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+                            periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                            kostnadssted = NavEnhetNummer("0400"),
+                        ),
+                    )
+                }.also {
+                    it.status shouldBe HttpStatusCode.Created
                 }
 
-                response.status shouldBe HttpStatusCode.OK
+                val fakturanummer = "1"
 
-                response.body<OebsBestilling>() shouldBe OebsBestilling(
-                    bestillingsnummer = "T-123",
-                    status = OebsBestilling.Status.BEHANDLET,
-                )
+                client.post(Faktura()) {
+                    bearerAuth(oauth.issueToken().serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        OpprettFaktura(
+                            fakturanummer = fakturanummer,
+                            bestillingsnummer = bestillingsnummer,
+                            betalingsinformasjon = OpprettFaktura.Betalingsinformasjon(
+                                kontonummer = Kontonummer("12345678901"),
+                                kid = null,
+                            ),
+                            belop = 1000,
+                            periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                            opprettetAv = OkonomiPart.System(Kilde.TILTADM),
+                            opprettetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+                            besluttetAv = OkonomiPart.System(Kilde.TILTADM),
+                            besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+                        ),
+                    )
+                }.also {
+                    it.status shouldBe HttpStatusCode.Created
+                }
+
+                client.get(Faktura.Id(id = fakturanummer)) {
+                    bearerAuth(oauth.issueToken().serialize())
+                }.also {
+                    it.status shouldBe HttpStatusCode.OK
+                    it.body<FakturaStatus>() shouldBe FakturaStatus(
+                        fakturanummer = fakturanummer,
+                        status = FakturaStatus.Type.UTBETALT,
+                    )
+                }
             }
         }
     }

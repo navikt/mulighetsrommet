@@ -7,32 +7,73 @@ begin
 end;
 $$ language plpgsql;
 
-create table tilsagn
+create table bestilling
 (
-    id             int generated always as identity,
-    tilsagnsnummer text unique not null,
-    tiltakskode    text        not null,
-    deltaker_id    int         not null,
-    created_at     timestamptz default now(),
-    updated_at     timestamptz default now()
+    id                  int generated always as identity,
+    created_at          timestamptz default now(),
+    updated_at          timestamptz default now(),
+    bestillingsnummer   text unique not null,
+    avtalenummer        text,
+    tiltakskode         text        not null,
+    arrangor_hovedenhet text        not null,
+    arrangor_underenhet text        not null,
+    kostnadssted        text        not null,
+    belop               int         not null,
+    periode             daterange   not null,
+    annullert           boolean     not null,
+    opprettet_av        text        not null,
+    opprettet_tidspunkt timestamptz not null,
+    besluttet_av        text        not null,
+    besluttet_tidspunkt timestamptz not null
 );
 
 create trigger set_timestamp
     before update
-    on tilsagn
+    on bestilling
     for each row
 execute procedure trigger_set_timestamp();
 
-create table oebs_bestilling_status
+create table bestilling_linje
 (
-    id             int generated always as identity,
-    tilsagnsnummer text not null references tilsagn (tilsagnsnummer),
-    created_at     timestamptz default now(),
-    updated_at     timestamptz default now(),
-    status         text not null
+    id            int generated always as identity,
+    created_at    timestamptz default now(),
+    bestilling_id int,
+    linjenummer   int       not null,
+    periode       daterange not null,
+    belop         int       not null,
+    unique (bestilling_id, linjenummer)
 );
 
-create table oebs_faktura
+create table faktura
 (
-    id text primary key not null
+    id                  int generated always as identity,
+    created_at          timestamptz default now(),
+    updated_at          timestamptz default now(),
+    fakturanummer       text unique not null,
+    bestillingsnummer   text        not null references bestilling (bestillingsnummer),
+    kontonummer         text        not null,
+    kid                 text,
+    belop               int         not null,
+    periode             daterange   not null,
+    opprettet_av        text        not null,
+    opprettet_tidspunkt timestamptz not null,
+    besluttet_av        text        not null,
+    besluttet_tidspunkt timestamptz not null
+);
+
+create trigger set_timestamp
+    before update
+    on faktura
+    for each row
+execute procedure trigger_set_timestamp();
+
+create table faktura_linje
+(
+    id          int generated always as identity,
+    created_at  timestamptz default now(),
+    faktura_id  int       not null,
+    linjenummer int       not null,
+    periode     daterange not null,
+    belop       int       not null,
+    unique (faktura_id, linjenummer)
 );
