@@ -49,14 +49,20 @@ export function OppgaverPage() {
   const [sorting, setSorting] = useState<OppgaverSorting>("korteste-frist");
   useTitle("Oppgaver");
   const [filter] = useAtom(oppgaverFilterAtom);
-  const { tiltakstyper } = useLoaderData<typeof oppgaverLoader>();
+  const { tiltakstyper, regioner } = useLoaderData<typeof oppgaverLoader>();
   const oppgaver = useOppgaver(filter);
   const sortedOppgaver = sort(oppgaver.data || [], sorting);
 
   return (
     <main className="flex gap-4 self-start">
       <FilterAndTableLayout
-        filter={<OppgaverFilter filterAtom={oppgaverFilterAtom} tiltakstyper={tiltakstyper} />}
+        filter={
+          <OppgaverFilter
+            filterAtom={oppgaverFilterAtom}
+            tiltakstyper={tiltakstyper}
+            regioner={regioner}
+          />
+        }
         tags={null}
         buttons={null}
         table={null}

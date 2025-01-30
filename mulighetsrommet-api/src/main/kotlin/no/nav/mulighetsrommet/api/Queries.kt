@@ -55,7 +55,6 @@ class QueryContext(val session: Session) {
         val tilsagn = TilsagnQueries(session)
         val notifications = NotificationQueries(session)
         val endringshistorikk = EndringshistorikkQueries(session)
-
         val veilderTiltak = VeilederflateTiltakQueries(session)
         val veilederJoyride = VeilederJoyrideQueries(session)
     }

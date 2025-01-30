@@ -1,6 +1,6 @@
 import { oppgaverFilterAccordionAtom, OppgaverFilter as OppgaverFilterProps } from "@/api/atoms";
 import { addOrRemove } from "@/utils/Utils";
-import { OppgaveType, TiltakstypeDto } from "@mr/api-client-v2";
+import { NavRegion, OppgaveType, TiltakstypeDto } from "@mr/api-client-v2";
 import { FilterAccordionHeader } from "@mr/frontend-common";
 import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai/index";
@@ -8,9 +8,10 @@ import { useAtom, WritableAtom } from "jotai/index";
 interface Props {
   filterAtom: WritableAtom<OppgaverFilterProps, [newValue: OppgaverFilterProps], void>;
   tiltakstyper: TiltakstypeDto[];
+  regioner: NavRegion[];
 }
 
-export function OppgaverFilter({ filterAtom, tiltakstyper }: Props) {
+export function OppgaverFilter({ filterAtom, tiltakstyper, regioner }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const [accordionsOpen, setAccordionsOpen] = useAtom(oppgaverFilterAccordionAtom);
 
@@ -79,6 +80,38 @@ export function OppgaverFilter({ filterAtom, tiltakstyper }: Props) {
                   return (
                     <Checkbox size="small" key={t.tiltakskode} value={t.tiltakskode}>
                       {t.navn}
+                    </Checkbox>
+                  );
+                })}
+              </CheckboxGroup>
+            </div>
+          </Accordion.Content>
+        </Accordion.Item>
+        <Accordion.Item open={accordionsOpen.includes("regioner")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "regioner")]);
+            }}
+          >
+            <FilterAccordionHeader tittel="Region" antallValgteFilter={filter.regioner.length} />
+          </Accordion.Header>
+          <Accordion.Content>
+            <div style={{ marginLeft: "-2rem" }}>
+              <CheckboxGroup
+                value={filter.regioner}
+                legend="Velg regioner"
+                onChange={(value) => {
+                  setFilter({
+                    ...filter,
+                    regioner: [...value],
+                  });
+                }}
+                hideLegend
+              >
+                {regioner.map((region) => {
+                  return (
+                    <Checkbox size="small" key={region.enhetsnummer} value={region.enhetsnummer}>
+                      {region.navn}
                     </Checkbox>
                   );
                 })}

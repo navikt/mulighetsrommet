@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 enum class OppgaveType {
     TILSAGN_TIL_BESLUTNING,
     TILSAGN_TIL_ANNULLERING,
-    TILSAGN_RETURNERT_AV_BESLUTTER
+    TILSAGN_RETURNERT_AV_BESLUTTER,
 }
 
 @Serializable

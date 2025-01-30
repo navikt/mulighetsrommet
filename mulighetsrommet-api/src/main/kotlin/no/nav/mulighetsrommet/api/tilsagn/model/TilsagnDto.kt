@@ -42,7 +42,7 @@ data class TilsagnDto(
     data class Gjennomforing(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
-        val tiltakskode: Tiltakskode
+        val tiltakskode: Tiltakskode,
     )
 
     @Serializable

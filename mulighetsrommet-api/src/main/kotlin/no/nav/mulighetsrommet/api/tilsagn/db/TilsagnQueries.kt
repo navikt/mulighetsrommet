@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.database.createEnumArray
+import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
@@ -90,6 +91,7 @@ class TilsagnQueries(private val session: Session) {
         type: TilsagnType? = null,
         gjennomforingId: UUID? = null,
         statuser: List<TilsagnStatus>? = null,
+        regioner: List<String>? = null,
     ): List<TilsagnDto> {
         @Language("PostgreSQL")
         val query = """
@@ -97,7 +99,8 @@ class TilsagnQueries(private val session: Session) {
             from tilsagn_admin_dto_view
             where (:type::tilsagn_type is null or type = :type::tilsagn_type)
               and (:gjennomforing_id::uuid is null or gjennomforing_id = :gjennomforing_id::uuid)
-              and (:statuser::tilsagn_status[] is null or status = any(:statuser))
+              and (:statuser::tilsagn_status[] is null or status = any(:statuser)
+              and (:regioner::text[] is null or kostnadssted = any(:regioner)))
             order by lopenummer desc
         """.trimIndent()
 
@@ -105,6 +108,7 @@ class TilsagnQueries(private val session: Session) {
             "type" to type?.name,
             "gjennomforing_id" to gjennomforingId,
             "statuser" to statuser?.let { session.createArrayOf("tilsagn_status", statuser) },
+            "regioner" to regioner?.let { session.createTextArray(it) },
         )
 
         return session.list(queryOf(query, params)) { it.toTilsagnDto() }

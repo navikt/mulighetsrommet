@@ -301,6 +301,7 @@ const oppgaverFilterSchema = z.object({
     ])
     .array(),
   tiltakstyper: z.array(z.string()),
+  regioner: z.array(z.string()),
 });
 
 export type OppgaverFilter = z.infer<typeof oppgaverFilterSchema>;
@@ -308,6 +309,7 @@ export type OppgaverFilter = z.infer<typeof oppgaverFilterSchema>;
 const defaultOppgaverFilter: OppgaverFilter = {
   type: [],
   tiltakstyper: [],
+  regioner: [],
 };
 
 export const oppgaverFilterAtom = atomWithHashAndStorage<OppgaverFilter>(
