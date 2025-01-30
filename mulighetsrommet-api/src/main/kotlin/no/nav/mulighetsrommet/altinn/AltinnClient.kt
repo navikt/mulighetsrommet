@@ -41,12 +41,14 @@ class AltinnClient(
     private fun findAltinnRoller(
         parties: List<AuthorizedParty>,
     ): List<BedriftRettigheter> = parties.filter { it.type == AuthorizedPartyType.Organization }
-        .map { AuthorizedOrganization(
-            organizationNumber = requireNotNull(it.organizationNumber) {"Organisasjonsnummer mangler på type Organization"},
-            organizationName = it.name,
-            authorizedResources = it.authorizedResources,
-            subunits = it.subunits,
-        ) }
+        .map {
+            AuthorizedOrganization(
+                organizationNumber = requireNotNull(it.organizationNumber) { "Organisasjonsnummer mangler på type Organization" },
+                organizationName = it.name,
+                authorizedResources = it.authorizedResources,
+                subunits = it.subunits,
+            )
+        }
         .flatMap { party ->
             findAltinnRoller(party.subunits) +
                 BedriftRettigheter(
