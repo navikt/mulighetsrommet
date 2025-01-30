@@ -32,6 +32,7 @@ export function GjennomforingPage() {
 
   const { data: enableDeltakerliste } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_DELTAKERLISTE,
+    [gjennomforing.tiltakstype.tiltakskode],
   );
 
   function getCurrentTab(): GjennomforingTab {
