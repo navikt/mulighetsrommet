@@ -18,8 +18,8 @@ export function UtbetalingDetaljerPage() {
       lenke: `/gjennomforinger/${gjennomforing.id}`,
     },
     {
-      tittel: "Refusjonskravoversikt",
-      lenke: `/gjennomforinger/${gjennomforing.id}/refusjonskrav`,
+      tittel: "Utbetalinger",
+      lenke: `/gjennomforinger/${gjennomforing.id}/utbetalinger`,
     },
     { tittel: "Utbetaling" },
   ];

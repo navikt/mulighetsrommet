@@ -92,8 +92,8 @@ export function BehandleUtbetalingFormPage() {
       lenke: `/gjennomforinger/${gjennomforing.id}`,
     },
     {
-      tittel: "Refusjonskravoversikt",
-      lenke: `/gjennomforinger/${gjennomforing.id}/refusjonskrav`,
+      tittel: "Utbetalinger",
+      lenke: `/gjennomforinger/${gjennomforing.id}/utbetalinger`,
     },
     { tittel: "Behandle utbetaling" },
   ];
