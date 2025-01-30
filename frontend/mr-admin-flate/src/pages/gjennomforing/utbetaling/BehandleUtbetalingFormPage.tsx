@@ -163,11 +163,19 @@ export function BehandleUtbetalingFormPage() {
                             )}
                           </Table.DataCell>
                           <Table.DataCell>
+                            // TODO: Bruk belop basert på gjenstående ikke hele tilsagn belopet
                             {tilsagn.length === 1 &&
                               t.beregning.output.belop < krav.beregning.belop && (
                                 <Link
-                                  // TODO: Gi med belop, periode, fri prismodell i query params
-                                  to={`/gjennomforinger/${gjennomforing.id}/tilsagn/opprett-tilsagn?type=${TilsagnType.EKSTRATILSAGN}`}
+                                  to={
+                                    `/gjennomforinger/${gjennomforing.id}/tilsagn/opprett-tilsagn` +
+                                    `?type=${TilsagnType.EKSTRATILSAGN}` +
+                                    `&prismodell=FRI` +
+                                    `&belop=${krav.beregning.belop - t.beregning.output.belop}` +
+                                    `&periodeStart=${krav.beregning.periodeStart}` +
+                                    `&periodeSlutt=${krav.beregning.periodeSlutt}` +
+                                    `&kostnadssted=${t.kostnadssted.enhetsnummer}`
+                                  }
                                 >
                                   Opprett ekstratilsagn
                                 </Link>
