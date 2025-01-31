@@ -58,11 +58,21 @@ data class TilsagnUtbetalingDbo(
 )
 
 fun Row.toTilsagnUtbetalingDto(): TilsagnUtbetalingDto {
-    return TilsagnUtbetalingDto(
-        tilsagnId = uuid("tilsagn_id"),
-        refusjonskravId = uuid("refusjonskrav_id"),
-        opprettetAv = NavIdent(string("opprettet_av")),
-        besluttetAv = stringOrNull("besluttet_av")?.let { NavIdent(it) },
-        belop = int("belop"),
-    )
+    val besluttetAv = stringOrNull("besluttet_av")?.let { NavIdent(it) }
+
+    return when (besluttetAv) {
+        null -> TilsagnUtbetalingDto.TilsagnUtbetalingTilGodkjenning(
+            tilsagnId = uuid("tilsagn_id"),
+            refusjonskravId = uuid("refusjonskrav_id"),
+            opprettetAv = NavIdent(string("opprettet_av")),
+            belop = int("belop"),
+        )
+        else -> TilsagnUtbetalingDto.TilsagnUtbetalingGodkjent(
+            tilsagnId = uuid("tilsagn_id"),
+            refusjonskravId = uuid("refusjonskrav_id"),
+            opprettetAv = NavIdent(string("opprettet_av")),
+            besluttetAv = besluttetAv,
+            belop = int("belop"),
+        )
+    }
 }
