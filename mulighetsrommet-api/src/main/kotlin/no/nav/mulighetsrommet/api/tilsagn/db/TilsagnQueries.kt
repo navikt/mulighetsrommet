@@ -130,6 +130,7 @@ class TilsagnQueries(private val session: Session) {
             where gjennomforing_id = :gjennomforing_id::uuid
               and (periode_start <= :periode_slutt::date)
               and (periode_slutt >= :periode_start::date)
+              and status in ('RETURNERT', 'TIL_GODKJENNING', 'GODKJENT')
         """.trimIndent()
 
         val params = mapOf(

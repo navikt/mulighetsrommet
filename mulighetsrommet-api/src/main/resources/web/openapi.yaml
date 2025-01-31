@@ -2020,24 +2020,15 @@ paths:
                 $ref: "#/components/schemas/TilsagnBeregningOutput"
 
   /api/v1/intern/tilsagn/defaults:
-    parameters:
-      - name: gjennomforingId
-        in: query
-        description: Id til tilsagnets gjennomføring
-        required: true
-        schema:
-          type: string
-          format: uuid
-      - name: type
-        in: query
-        description: Tilsagnstype
-        required: true
-        schema:
-          $ref: "#/components/schemas/TilsagnType"
-    get:
+    post:
       tags:
         - Tilsagn
       operationId: getTilsagnDefaults
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TilsagnDefaultsRequest"
       responses:
         200:
           description: Standardverdier for neste tilsagn
@@ -5180,6 +5171,42 @@ components:
             required:
               - id
               - status
+
+    TilsagnDefaultsRequest:
+      type: object
+      properties:
+        gjennomforingId:
+          schema:
+            type: string
+            format: uuid
+        type:
+          schema:
+            $ref: "#/components/schemas/TilsagnType"
+        prismodell:
+          schema:
+            $ref: "#/components/schemas/Prismodell"
+        belop:
+          schema:
+            type: number
+        kostnadssted:
+          schema:
+            type: string
+        periodeStart:
+          schema:
+            type: string
+            format: date
+        periodeSlutt:
+          schema:
+            type: string
+            format: date
+      required:
+        - gjennomforingId
+        - type
+        - prismodell
+        - belop
+        - kostnadssted
+        - periodeStart
+        - periodeSlutt
 
     TilsagnDefaults:
       type: object

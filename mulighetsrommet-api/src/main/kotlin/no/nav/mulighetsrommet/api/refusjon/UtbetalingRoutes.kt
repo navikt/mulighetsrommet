@@ -28,13 +28,6 @@ fun Route.utbetalingRoutes() {
     val db: ApiDatabase by inject()
     val tilsagnService: TilsagnService by inject()
 
-    fun toRefusjonskravKompakt(krav: RefusjonskravDto): RefusjonKravKompakt {
-        val kostnadsteder = tilsagnService
-            .getTilsagnTilRefusjon(krav.gjennomforing.id, krav.beregning.input.periode)
-            .map { it.kostnadssted }
-        return RefusjonKravKompakt.fromRefusjonskravDto(krav, kostnadsteder)
-    }
-
     route("/utbetaling/{id}") {
         get {
             val id = call.parameters.getOrFail<UUID>("id")
@@ -45,10 +38,13 @@ fun Route.utbetalingRoutes() {
             val utbetalinger = db.session {
                 queries.utbetaling.getByRefusjonskravId(id)
             }
+            val tilsagn = db.session {
+                queries.tilsagn.getTilsagnTilRefusjon(krav.gjennomforing.id, periode = krav.beregning.input.periode)
+            }
 
             call.respond(
                 Utbetaling(
-                    krav = toRefusjonskravKompakt(krav),
+                    krav = RefusjonKravKompakt.fromRefusjonskravDto(krav, tilsagn.map { it.kostnadssted }),
                     utbetalinger = utbetalinger,
                 ),
             )
@@ -102,8 +98,9 @@ fun Route.utbetalingRoutes() {
                 val utbetalinger = db.session {
                     queries.refusjonskrav.getByGjennomforing(id)
                         .map {
+                            val tilsagn = queries.tilsagn.getTilsagnTilRefusjon(it.gjennomforing.id, it.beregning.input.periode)
                             Utbetaling(
-                                krav = toRefusjonskravKompakt(it),
+                                krav = RefusjonKravKompakt.fromRefusjonskravDto(it, tilsagn.map { it.kostnadssted }),
                                 utbetalinger = queries.utbetaling.getByRefusjonskravId(it.id),
                             )
                         }

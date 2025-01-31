@@ -92,8 +92,8 @@ export function BehandleUtbetalingFormPage() {
       lenke: `/gjennomforinger/${gjennomforing.id}`,
     },
     {
-      tittel: "Refusjonskravoversikt",
-      lenke: `/gjennomforinger/${gjennomforing.id}/refusjonskrav`,
+      tittel: "Utbetalinger",
+      lenke: `/gjennomforinger/${gjennomforing.id}/utbetalinger`,
     },
     { tittel: "Behandle utbetaling" },
   ];
@@ -138,27 +138,44 @@ export function BehandleUtbetalingFormPage() {
                   <Table.Body>
                     {tilsagn.map((t: TilsagnDto, i: number) => {
                       return (
-                        <Table.Row key={i}>
+                        <Table.Row
+                          key={i}
+                          className={
+                            t.status.type !== "GODKJENT" ? "bg-surface-warning-moderate" : ""
+                          }
+                        >
                           <Table.DataCell>{t.kostnadssted.navn}</Table.DataCell>
                           <Table.DataCell>{`${t.beregning.output.belop} //TODO: Bruk faktisk gjenstående når vi har den dataen`}</Table.DataCell>
                           <Table.DataCell>
-                            <TextField
-                              type="number"
-                              size="small"
-                              label=""
-                              hideLabel
-                              error={errors.kostnadsfordeling?.[i]?.belop?.message}
-                              {...register(`kostnadsfordeling.${i}.belop`, {
-                                valueAsNumber: true,
-                              })}
-                            />
+                            {t.status.type !== "GODKJENT" ? (
+                              "Tilsagn ikke godkjent"
+                            ) : (
+                              <TextField
+                                type="number"
+                                size="small"
+                                label=""
+                                hideLabel
+                                error={errors.kostnadsfordeling?.[i]?.belop?.message}
+                                {...register(`kostnadsfordeling.${i}.belop`, {
+                                  valueAsNumber: true,
+                                })}
+                              />
+                            )}
                           </Table.DataCell>
                           <Table.DataCell>
+                            // TODO: Bruk belop basert på gjenstående ikke hele tilsagn belopet
                             {tilsagn.length === 1 &&
                               t.beregning.output.belop < krav.beregning.belop && (
                                 <Link
-                                  // TODO: Gi med belop, periode, fri prismodell i query params
-                                  to={`/gjennomforinger/${gjennomforing.id}/tilsagn/opprett-tilsagn?type=${TilsagnType.EKSTRATILSAGN}`}
+                                  to={
+                                    `/gjennomforinger/${gjennomforing.id}/tilsagn/opprett-tilsagn` +
+                                    `?type=${TilsagnType.EKSTRATILSAGN}` +
+                                    `&prismodell=FRI` +
+                                    `&belop=${krav.beregning.belop - t.beregning.output.belop}` +
+                                    `&periodeStart=${krav.beregning.periodeStart}` +
+                                    `&periodeSlutt=${krav.beregning.periodeSlutt}` +
+                                    `&kostnadssted=${t.kostnadssted.enhetsnummer}`
+                                  }
                                 >
                                   Opprett ekstratilsagn
                                 </Link>
