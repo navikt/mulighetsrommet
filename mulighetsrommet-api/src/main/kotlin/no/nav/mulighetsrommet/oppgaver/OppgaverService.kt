@@ -70,14 +70,14 @@ class OppgaverService(val db: ApiDatabase) {
                         Oppgave(
                             type = it.status.toType(),
                             title = it.status.toTitle(),
-                            description = "Tilsagnet trenger behandling",
+                            description = it.status.toDescription(),
                             tiltakstype = it.gjennomforing.tiltakskode,
                             link = OppgaveLink(
                                 linkText = "Se tilsagn",
                                 link = "/gjennomforinger/${it.gjennomforing.id}/tilsagn/${it.id}",
                             ),
                             createdAt = it.status.createdAt(),
-                            deadline = it.periodeSlutt.atStartOfDay(),
+                            deadline = it.periodeStart.atStartOfDay(),
                         )
                     }
 
@@ -93,6 +93,17 @@ class OppgaverService(val db: ApiDatabase) {
             is TilGodkjenning -> "Tilsagn til godkjenning"
             is Returnert -> "Tilsagn returnert"
             is TilAnnullering -> "Tilsagn til annullering"
+            else -> {
+                throw IllegalStateException("Ukjent tilsagnstatus")
+            }
+        }
+    }
+
+    private fun TilsagnDto.TilsagnStatus.toDescription(): String {
+        return when (this) {
+            is TilGodkjenning -> "Tilsagnet er til godkjenning og må behandles"
+            is Returnert -> "Tilsagnet ble returnert av beslutter"
+            is TilAnnullering -> "Tilsagnet er til annullering og må behandles"
             else -> {
                 throw IllegalStateException("Ukjent tilsagnstatus")
             }

@@ -8,7 +8,7 @@ interface OppgaveProps {
 }
 
 export function Oppgave({ oppgave, tiltakstype }: OppgaveProps) {
-  const { title, description, link, deadline } = oppgave;
+  const { title, description, link, deadline, createdAt } = oppgave;
   const deadlineDate = new Date(deadline);
 
   return (
@@ -16,7 +16,7 @@ export function Oppgave({ oppgave, tiltakstype }: OppgaveProps) {
       <div className="bg-white p-4" data-testid="oppgaver">
         <div className="flex justify-between items-center">
           <span>{tiltakstype.navn}</span>
-          <span>{formaterDato(deadlineDate)}</span>
+          <span>Frist: {formaterDato(deadlineDate)}</span>
         </div>
         <div>
           <div className="flex justify-between mt-4">
@@ -27,6 +27,9 @@ export function Oppgave({ oppgave, tiltakstype }: OppgaveProps) {
           <Link className="mt-3" href={link.link}>
             {link.linkText}
           </Link>
+        </div>
+        <div className="flex justify-end text-small">
+          <span>Opprettet {formaterDato(createdAt)}</span>
         </div>
       </div>
     </>
