@@ -181,7 +181,7 @@ class OppgaverServiceTest : FunSpec({
                 tiltakstyper = emptyList(),
                 regioner = listOf(NavEnhetFixtures.Innlandet.enhetsnummer),
             ),
-            ansattRoller = emptySet()
+            ansattRoller = emptySet(),
         )
 
         oppgaver.size shouldBe 0
