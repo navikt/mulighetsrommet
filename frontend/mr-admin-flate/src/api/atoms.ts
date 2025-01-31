@@ -306,7 +306,7 @@ const oppgaverFilterSchema = z.object({
 
 export type OppgaverFilter = z.infer<typeof oppgaverFilterSchema>;
 
-const defaultOppgaverFilter: OppgaverFilter = {
+export const defaultOppgaverFilter: OppgaverFilter = {
   type: [],
   tiltakstyper: [],
   regioner: [],
