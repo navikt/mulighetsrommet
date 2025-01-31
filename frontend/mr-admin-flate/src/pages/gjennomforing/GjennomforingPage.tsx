@@ -5,7 +5,7 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { DupliserGjennomforing } from "@/components/gjennomforing/DupliserGjennomforing";
 import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "@/constants";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
-import { Toggles } from "@mr/api-client-v2";
+import { GjennomforingOppstartstype, Toggles } from "@mr/api-client-v2";
 import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
@@ -32,7 +32,6 @@ export function GjennomforingPage() {
 
   const { data: enableDeltakerliste } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_DELTAKERLISTE,
-    [gjennomforing.tiltakstype.tiltakskode],
   );
 
   function getCurrentTab(): GjennomforingTab {
@@ -121,7 +120,7 @@ export function GjennomforingPage() {
               />
             </>
           ) : null}
-          {enableDeltakerliste && (
+          {enableDeltakerliste && gjennomforing.oppstart === GjennomforingOppstartstype.FELLES && (
             <Tabs.Tab
               value="deltakerliste"
               label="Deltakerliste"
