@@ -13,16 +13,11 @@ import { ContentBox } from "@/layouts/ContentBox";
 import React from "react";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
-  const erPaaGjennomforingerForAvtale = useMatch("/avtaler/:avtaleId/gjennomforinger");
+  const match = useMatch("/avtaler/:avtaleId/gjennomforinger");
   return [
     { tittel: "Avtaler", lenke: "/avtaler" },
-    { tittel: "Avtale", lenke: `/avtaler/${avtaleId}` },
-    erPaaGjennomforingerForAvtale
-      ? {
-          tittel: "Gjennomføringer",
-          lenke: `/avtaler/${avtaleId}/gjennomforinger`,
-        }
-      : undefined,
+    { tittel: "Avtale", lenke: match ? `/avtaler/${avtaleId}` : undefined },
+    match ? { tittel: "Gjennomføringer" } : undefined,
   ];
 }
 

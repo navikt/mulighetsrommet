@@ -23,7 +23,7 @@ import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { EraserIcon, PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
 import { ActionMenu, Alert, BodyShort, Box, Button, Heading, HStack } from "@navikt/ds-react";
 import { useRef, useState } from "react";
-import { Link, useLoaderData, useMatch, useNavigate, useParams } from "react-router";
+import { Link, useLoaderData, useNavigate } from "react-router";
 import { AvvistAlert, TilAnnulleringAlert } from "../AarsakerAlert";
 import { AvvisTilsagnModal } from "../AvvisTilsagnModal";
 import { TilAnnulleringModal } from "../TilAnnulleringModal";
@@ -35,7 +35,6 @@ export function TilsagnDetaljer() {
   const { gjennomforing, tilsagn, ansatt, historikk } =
     useLoaderData<typeof tilsagnDetaljerLoader>();
 
-  const { avtaleId, gjennomforingId } = useParams();
   const besluttMutation = useBesluttTilsagn();
   const tilAnnulleringMutation = useTilsagnTilAnnullering();
   const slettMutation = useSlettTilsagn();
@@ -44,42 +43,26 @@ export function TilsagnDetaljer() {
   const slettTilsagnModalRef = useRef<HTMLDialogElement>(null);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
 
-  const erPaaGjennomforingerForAvtale = useMatch(
-    "/avtaler/:avtaleId/gjennomforinger/:gjennomforingId/opprett-tilsagn",
-  );
-
   const brodsmuler: Array<Brodsmule | undefined> = [
-    avtaleId
-      ? { tittel: "Avtaler", lenke: "/avtaler" }
-      : { tittel: "Gjennomføringer", lenke: "/gjennomforinger" },
-    avtaleId
-      ? {
-          tittel: "Avtale",
-          lenke: `/avtaler/${avtaleId}`,
-        }
-      : undefined,
-    erPaaGjennomforingerForAvtale
-      ? {
-          tittel: "Gjennomføringer",
-          lenke: `/avtaler/${avtaleId}/gjennomforinger`,
-        }
-      : undefined,
+    {
+      tittel: "Gjennomføringer",
+      lenke: `/gjennomforinger`,
+    },
     {
       tittel: "Gjennomføring",
-      lenke: `/gjennomforinger/${gjennomforingId}`,
+      lenke: `/gjennomforinger/${gjennomforing.id}`,
     },
     {
       tittel: "Tilsagnsoversikt",
-      lenke: `/gjennomforinger/${gjennomforingId}/tilsagn`,
+      lenke: `/gjennomforinger/${gjennomforing.id}/tilsagn`,
     },
     {
-      tittel: "Tilsagnsdetaljer",
-      lenke: `/gjennomforinger/${gjennomforingId}/tilsagn`,
+      tittel: "Tilsagn",
     },
   ];
 
   function navigerTilTilsagnTabell() {
-    navigate(`/gjennomforinger/${gjennomforingId}/tilsagn`);
+    navigate(`/gjennomforinger/${gjennomforing.id}/tilsagn`);
   }
 
   function besluttTilsagn(request: BesluttTilsagnRequest) {

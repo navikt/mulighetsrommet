@@ -61,6 +61,8 @@ spec:
     outbound:
       rules:
         - application: mulighetsrommet-api
+        - application: amt-deltaker-bff
+          namespace: amt
   env:
     - name: JSON_CONFIG
       value: >
@@ -85,6 +87,16 @@ spec:
               "toApp": {
                 "name": "mulighetsrommet-api",
                 "namespace": "team-mulighetsrommet",
+                "cluster": "prod-gcp"
+              }
+            },
+            {
+              "fromPath": "/amt-deltaker-bff",
+              "preserveFromPath": false,
+              "toUrl": "http://amt-deltaker-bff.amt",
+              "toApp": {
+                "name": "amt-deltaker-bff",
+                "namespace": "amt",
                 "cluster": "prod-gcp"
               }
             }

@@ -18,7 +18,7 @@ import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import React from "react";
 import { Laster } from "@/components/laster/Laster";
 
-type GjennomforingTab = "tilsagn" | "deltakerliste" | "refusjonskrav" | "gjennomforing";
+type GjennomforingTab = "tilsagn" | "deltakerliste" | "utbetalinger" | "gjennomforing";
 
 export function GjennomforingPage() {
   const { pathname } = useLocation();
@@ -32,11 +32,35 @@ export function GjennomforingPage() {
 
   const { data: enableDeltakerliste } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_DELTAKERLISTE,
+    [gjennomforing.tiltakstype.tiltakskode],
   );
 
-  const currentTab = getCurrentTab(pathname);
+  function getCurrentTab(): GjennomforingTab {
+    if (pathname.includes("tilsagn")) {
+      return "tilsagn";
+    } else if (pathname.includes("deltakerliste")) {
+      return "deltakerliste";
+    } else if (pathname.includes("utbetalinger")) {
+      return "utbetalinger";
+    } else {
+      return "gjennomforing";
+    }
+  }
 
-  const brodsmuler = getBrodsmuler(currentTab, gjennomforing.id, gjennomforing.avtaleId);
+  const currentTab = getCurrentTab();
+  const brodsmuler: (Brodsmule | undefined)[] = [
+    {
+      tittel: "Gjennomføringer",
+      lenke: `/gjennomforinger`,
+    },
+    {
+      tittel: "Gjennomføring",
+      lenke: currentTab === "gjennomforing" ? undefined : `/gjennomforinger/${gjennomforing.id}`,
+    },
+    currentTab === "tilsagn" ? { tittel: "Tilsagnoversikt" } : undefined,
+    currentTab === "utbetalinger" ? { tittel: "Utbetalinger" } : undefined,
+    currentTab === "deltakerliste" ? { tittel: "Deltakerliste" } : undefined,
+  ];
 
   return (
     <>
@@ -69,7 +93,6 @@ export function GjennomforingPage() {
           )}
         </div>
       </Header>
-
       <Tabs value={currentTab}>
         <Tabs.List className="p-[0 0.5rem] w-[1920px] flex items-start m-auto">
           <Tabs.Tab
@@ -89,10 +112,10 @@ export function GjennomforingPage() {
                 aria-controls="panel"
               />
               <Tabs.Tab
-                value="refusjonskrav"
-                label="Refusjonskrav"
+                value="utbetalinger"
+                label="Utbetalinger"
                 onClick={() =>
-                  navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/refusjonskrav`)
+                  navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/utbetalinger`)
                 }
                 aria-controls="panel"
               />
@@ -121,51 +144,4 @@ export function GjennomforingPage() {
       </Tabs>
     </>
   );
-}
-
-function getCurrentTab(pathname: string): GjennomforingTab {
-  if (pathname.includes("tilsagn")) {
-    return "tilsagn";
-  } else if (pathname.includes("deltakerliste")) {
-    return "deltakerliste";
-  } else if (pathname.includes("refusjonskrav")) {
-    return "refusjonskrav";
-  } else {
-    return "gjennomforing";
-  }
-}
-
-function getBrodsmuler(
-  currentTab: GjennomforingTab,
-  gjennomforingId: string,
-  avtaleId?: string,
-): Array<Brodsmule | undefined> {
-  const brodsmulerForCurrentTab: Record<GjennomforingTab, Brodsmule[]> = {
-    tilsagn: [{ tittel: "Tilsagn", lenke: `/gjennomforinger/${gjennomforingId}/tilsagn` }],
-    refusjonskrav: [
-      { tittel: "Refusjonskrav", lenke: `/gjennomforinger/${gjennomforingId}/refusjonskrav` },
-    ],
-    deltakerliste: [
-      { tittel: "Deltakerliste", lenke: `/gjennomforinger/${gjennomforingId}/deltakerliste` },
-    ],
-    gjennomforing: [],
-  };
-
-  return [
-    avtaleId
-      ? { tittel: "Avtaler", lenke: "/avtaler" }
-      : { tittel: "Gjennomføringer", lenke: "/gjennomforinger" },
-    avtaleId ? { tittel: "Avtale", lenke: `/avtaler/${avtaleId}` } : undefined,
-    avtaleId
-      ? {
-          tittel: "Gjennomføringer",
-          lenke: `/avtaler/${avtaleId}/gjennomforinger`,
-        }
-      : undefined,
-    {
-      tittel: "Gjennomføring",
-      lenke: `/gjennomforinger/${gjennomforingId}`,
-    },
-    ...brodsmulerForCurrentTab[currentTab],
-  ];
 }

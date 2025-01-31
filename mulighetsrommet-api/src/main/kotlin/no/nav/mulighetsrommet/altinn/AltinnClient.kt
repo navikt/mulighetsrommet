@@ -6,7 +6,6 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
 import no.nav.mulighetsrommet.altinn.model.BedriftRettigheter
@@ -41,7 +40,15 @@ class AltinnClient(
 
     private fun findAltinnRoller(
         parties: List<AuthorizedParty>,
-    ): List<BedriftRettigheter> = parties
+    ): List<BedriftRettigheter> = parties.filter { it.type == AuthorizedPartyType.Organization }
+        .map {
+            AuthorizedOrganization(
+                organizationNumber = requireNotNull(it.organizationNumber) { "Organisasjonsnummer mangler på type Organization" },
+                organizationName = it.name,
+                authorizedResources = it.authorizedResources,
+                subunits = it.subunits,
+            )
+        }
         .flatMap { party ->
             findAltinnRoller(party.subunits) +
                 BedriftRettigheter(
@@ -55,7 +62,6 @@ class AltinnClient(
 
     private suspend fun hentAuthorizedParties(norskIdent: NorskIdent): List<AuthorizedParty> {
         val response = client.post("$baseUrl/accessmanagement/api/v1/resourceowner/authorizedparties") {
-            parameter("includeAltinn2", "true") // TODO Kan denne tas bort?
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             setBody(
@@ -80,13 +86,25 @@ class AltinnClient(
 
     @Serializable
     data class AuthorizedParty(
-        val organizationNumber: String,
-        @SerialName("name")
-        val organizationName: String,
-        val type: String,
+        val organizationNumber: String?,
+        val name: String,
+        val type: AuthorizedPartyType,
         val authorizedResources: List<String>,
         val subunits: List<AuthorizedParty>,
     )
+
+    @Serializable
+    data class AuthorizedOrganization(
+        val organizationNumber: String,
+        val organizationName: String,
+        val authorizedResources: List<String>,
+        val subunits: List<AuthorizedParty>,
+    )
+
+    enum class AuthorizedPartyType {
+        Person,
+        Organization,
+    }
 
     @Serializable
     data class AltinnRequest(

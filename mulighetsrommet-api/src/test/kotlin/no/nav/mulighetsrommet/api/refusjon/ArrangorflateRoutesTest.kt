@@ -16,6 +16,7 @@ import no.nav.amt.model.EndringAarsak
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedParty
+import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedPartyType
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.GodkjennRefusjonskrav
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravAft
@@ -142,8 +143,8 @@ class ArrangorflateRoutesTest : FunSpec({
                     listOf(
                         AuthorizedParty(
                             organizationNumber = underenhet.organisasjonsnummer.value,
-                            organizationName = underenhet.navn,
-                            type = "type",
+                            name = underenhet.navn,
+                            type = AuthorizedPartyType.Organization,
                             authorizedResources = listOf("nav_tiltaksarrangor_be-om-utbetaling"),
                             subunits = emptyList(),
                         ),

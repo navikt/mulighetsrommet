@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetQueries
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagQueries
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerQueries
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravQueries
+import no.nav.mulighetsrommet.api.refusjon.db.UtbetalingQueries
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.veilederflate.VeilederJoyrideQueries
@@ -55,6 +56,8 @@ class QueryContext(val session: Session) {
         val tilsagn = TilsagnQueries(session)
         val notifications = NotificationQueries(session)
         val endringshistorikk = EndringshistorikkQueries(session)
+        val utbetaling = UtbetalingQueries(session)
+
         val veilderTiltak = VeilederflateTiltakQueries(session)
         val veilederJoyride = VeilederJoyrideQueries(session)
     }

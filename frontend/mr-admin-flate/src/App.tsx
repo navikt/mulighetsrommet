@@ -34,10 +34,6 @@ import {
   gjennomforingFormLoader,
   gjennomforingLoader,
 } from "./pages/gjennomforing/gjennomforingLoaders";
-import { RefusjonskravForGjennomforingContainer } from "./pages/gjennomforing/refusjonskrav/RefusjonskravForGjennomforingContainer";
-import { RefusjonskravDetaljer } from "./pages/gjennomforing/refusjonskrav/detaljer/RefusjonskravDetaljer";
-import { refusjonskravDetaljerLoader } from "./pages/gjennomforing/refusjonskrav/detaljer/refusjonskravDetaljerLoader";
-import { refusjonskravForGjennomforingLoader } from "./pages/gjennomforing/refusjonskrav/refusjonskravForGjennomforingLoader";
 import { tilsagnDetaljerLoader } from "./pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
 import { opprettTilsagnLoader } from "./pages/gjennomforing/tilsagn/opprett/opprettTilsagnLoader";
 import { RedigerTilsagnFormPage } from "./pages/gjennomforing/tilsagn/rediger/RedigerTilsagnFormPage";
@@ -48,7 +44,13 @@ import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnD
 import { NotifikasjonerPage } from "./pages/arbeidsbenk/notifikasjoner/NotifikasjonerPage";
 import { notifikasjonLoader } from "./pages/arbeidsbenk/notifikasjoner/notifikasjonerLoader";
 import { TilsagnForGjennomforingContainer } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnForGjennomforingContainer";
+import { UtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/UtbetalingerForGjennomforingContainer";
 import { DeltakerlisteContainer } from "@/pages/gjennomforing/deltakerliste/DeltakerlisteContainer";
+import { UtbetalingDetaljerPage } from "./pages/gjennomforing/utbetaling/UtbetalingDetaljerPage";
+import { utbetalingDetaljerPageLoader } from "./pages/gjennomforing/utbetaling/utbetalingDetaljerPageLoader";
+import { BehandleUtbetalingFormPage } from "./pages/gjennomforing/utbetaling/BehandleUtbetalingFormPage";
+import { behandleUtbetalingFormPageLoader } from "./pages/gjennomforing/utbetaling/behandleUtbetalingFormPageLoader";
+import { utbetalingerForGjennomforingLoader } from "./pages/gjennomforing/utbetaling/utbetalingerForGjennomforingLoader";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -219,16 +221,16 @@ const router = () =>
             ],
           },
           {
-            path: "gjennomforinger/:gjennomforingId/refusjonskrav",
+            path: "gjennomforinger/:gjennomforingId/utbetalinger",
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
             loader: gjennomforingLoader,
             children: [
               {
                 index: true,
-                element: <RefusjonskravForGjennomforingContainer />,
+                element: <UtbetalingerForGjennomforingContainer />,
                 errorElement: <ErrorPage />,
-                loader: refusjonskravForGjennomforingLoader,
+                loader: utbetalingerForGjennomforingLoader,
               },
             ],
           },
@@ -270,10 +272,16 @@ const router = () =>
             loader: redigerTilsagnLoader,
           },
           {
-            path: "gjennomforinger/:gjennomforingId/refusjonskrav/:refusjonskravId",
-            element: <RefusjonskravDetaljer />,
+            path: "gjennomforinger/:gjennomforingId/utbetalinger/:refusjonskravId",
+            element: <UtbetalingDetaljerPage />,
             errorElement: <ErrorPage />,
-            loader: refusjonskravDetaljerLoader,
+            loader: utbetalingDetaljerPageLoader,
+          },
+          {
+            path: "gjennomforinger/:gjennomforingId/utbetalinger/:refusjonskravId/skjema",
+            element: <BehandleUtbetalingFormPage />,
+            errorElement: <ErrorPage />,
+            loader: behandleUtbetalingFormPageLoader,
           },
           {
             path: "arrangorer",

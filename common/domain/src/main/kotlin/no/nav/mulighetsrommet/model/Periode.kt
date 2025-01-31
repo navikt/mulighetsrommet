@@ -44,4 +44,18 @@ data class Periode(
     operator fun contains(date: LocalDate): Boolean {
         return date == start || date.isAfter(start) && date.isBefore(slutt)
     }
+
+    fun splitByMonth(): List<Periode> {
+        val perioder = mutableListOf<Periode>()
+        var currentDate = start
+
+        while (currentDate < slutt) {
+            val endOfMonth = currentDate.with(TemporalAdjusters.lastDayOfMonth()).plusDays(1)
+            val monthEnd = minOf(endOfMonth, slutt)
+            perioder.add(Periode(currentDate, monthEnd))
+            currentDate = monthEnd
+        }
+
+        return perioder
+    }
 }

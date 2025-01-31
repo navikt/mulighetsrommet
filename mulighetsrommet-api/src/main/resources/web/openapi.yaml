@@ -1924,37 +1924,82 @@ paths:
                 items:
                   $ref: "#/components/schemas/TilsagnDto"
 
-  /api/v1/intern/gjennomforinger/{gjennomforingId}/refusjonskrav:
+  /api/v1/intern/gjennomforinger/{gjennomforingId}/utbetalinger:
     parameters:
       - $ref: "#/components/parameters/gjennomforingId"
     get:
       tags:
-        - Refusjonskrav
-      operationId: refusjonskravByGjennomforing
+        - Utbetaling
+      operationId: utbetalingerByGjennomforing
       responses:
         200:
-          description: RefusjonKravKompakt
+          description: Utbetaling
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/RefusjonKravKompakt"
+                  $ref: "#/components/schemas/Utbetaling"
 
-  /api/v1/intern/refusjonskrav/{id}:
+  /api/v1/intern/utbetaling/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
       tags:
-        - Refusjonskrav
-      operationId: getRefusjonskrav
+        - Utbetaling
+      operationId: getUtbetaling
       responses:
         200:
-          description: RefusjonKravKompakt
+          description: Utbetaling
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RefusjonKravKompakt"
+                $ref: "#/components/schemas/Utbetaling"
+
+  /api/v1/intern/utbetaling/{id}/tilsagn:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Utbetaling
+      operationId: getTilsagnTilKrav
+      responses:
+        200:
+          description: Tilsagn til refusjonskrav
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TilsagnDto"
+
+  /api/v1/intern/utbetaling/{id}/behandling:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    put:
+      tags:
+        - Utbetaling
+      operationId: opprettUtbetaling
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UtbetalingRequest"
+      responses:
+        200:
+          description: OK
+        400:
+          description: Respons med valideringsfeil
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        500:
+          description: "Kunne ikke opprette utbetaling"
+          content:
+            application/json:
+              schema:
+                type: string
 
   /api/v1/intern/tilsagn/beregn:
     post:
@@ -1975,24 +2020,15 @@ paths:
                 $ref: "#/components/schemas/TilsagnBeregningOutput"
 
   /api/v1/intern/tilsagn/defaults:
-    parameters:
-      - name: gjennomforingId
-        in: query
-        description: Id til tilsagnets gjennomføring
-        required: true
-        schema:
-          type: string
-          format: uuid
-      - name: type
-        in: query
-        description: Tilsagnstype
-        required: true
-        schema:
-          $ref: "#/components/schemas/TilsagnType"
-    get:
+    post:
       tags:
         - Tilsagn
       operationId: getTilsagnDefaults
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TilsagnDefaultsRequest"
       responses:
         200:
           description: Standardverdier for neste tilsagn
@@ -5123,6 +5159,42 @@ components:
               - id
               - status
 
+    TilsagnDefaultsRequest:
+      type: object
+      properties:
+        gjennomforingId:
+          schema:
+            type: string
+            format: uuid
+        type:
+          schema:
+            $ref: "#/components/schemas/TilsagnType"
+        prismodell:
+          schema:
+            $ref: "#/components/schemas/Prismodell"
+        belop:
+          schema:
+            type: number
+        kostnadssted:
+          schema:
+            type: string
+        periodeStart:
+          schema:
+            type: string
+            format: date
+        periodeSlutt:
+          schema:
+            type: string
+            format: date
+      required:
+        - gjennomforingId
+        - type
+        - prismodell
+        - belop
+        - kostnadssted
+        - periodeStart
+        - periodeSlutt
+
     TilsagnDefaults:
       type: object
       properties:
@@ -5945,3 +6017,80 @@ components:
           type: array
           items:
             type: string
+
+    TilsagnUtbetaling:
+      type: object
+      properties:
+        tilsagnId:
+          type: string
+          format: uuid
+        refusjonskravId:
+          type: string
+          format: uuid
+        belop:
+          type: number
+        opprettetAv:
+          type: string
+        besluttetAv:
+          type: string
+      required:
+        - tilsagnId
+        - refusjonskravId
+        - belop
+        - opprettetAv
+
+    UtbetalingPageResponse:
+      oneOf:
+        - $ref: "#/components/schemas/BehandleUtbetaling"
+        - $ref: "#/components/schemas/Utbetaling"
+
+    BehandleUtbetaling:
+      type: object
+      properties:
+        type:
+          const: BEHANDLE_UTBETALING
+        krav:
+          $ref: "#/components/schemas/RefusjonKravKompakt"
+        tilsagn:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnDto"
+      required:
+        - type
+        - krav
+        - tilsagn
+
+    Utbetaling:
+      type: object
+      properties:
+        type:
+          const: UTBETALING
+        krav:
+          $ref: "#/components/schemas/RefusjonKravKompakt"
+        utbetalinger:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnUtbetaling"
+      required:
+        - type
+        - krav
+        - utbetalinger
+
+    UtbetalingRequest:
+      type: object
+      properties:
+        kostnadsfordeling:
+          type: array
+          items:
+            type: object
+            properties:
+              tilsagnId:
+                type: string
+                format: uuid
+              belop:
+                type: number
+            required:
+              - tilsagnId
+              - belop
+      required:
+        - kostnadsfordeling
