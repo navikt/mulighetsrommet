@@ -77,6 +77,7 @@ import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.notifications.NotificationTask
+import no.nav.mulighetsrommet.oppgaver.OppgaverService
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
@@ -377,6 +378,7 @@ private fun services(appConfig: AppConfig) = module {
     single { LagretFilterService(get()) }
     single { TilsagnService(get()) }
     single { AltinnRettigheterService(get(), get()) }
+    single { OppgaverService(get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {

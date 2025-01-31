@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
+import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeDbo
 
 data class MulighetsrommetTestDomain(
@@ -43,6 +44,7 @@ data class MulighetsrommetTestDomain(
     val gjennomforinger: List<GjennomforingDbo> = listOf(),
     val deltakere: List<DeltakerDbo> = listOf(),
     val refusjonskrav: List<RefusjonskravDbo> = listOf(),
+    val tilsagn: List<TilsagnDbo> = listOf(),
     val additionalSetup: (QueryContext.() -> Unit)? = null,
 ) {
     fun initialize(database: ApiDatabase): MulighetsrommetTestDomain = database.transaction {
@@ -55,6 +57,7 @@ data class MulighetsrommetTestDomain(
         gjennomforinger.forEach { queries.gjennomforing.upsert(it) }
         deltakere.forEach { queries.deltaker.upsert(it) }
         refusjonskrav.forEach { queries.refusjonskrav.upsert(it) }
+        tilsagn.forEach { queries.tilsagn.upsert(it) }
 
         additionalSetup?.invoke(this)
 

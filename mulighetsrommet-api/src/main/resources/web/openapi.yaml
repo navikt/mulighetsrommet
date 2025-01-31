@@ -2311,29 +2311,16 @@ paths:
                   $ref: "#/components/schemas/UtdanningsprogramMedUtdanninger"
 
   /api/v1/intern/oppgaver:
-    get:
+    post:
       tags:
         - Oppgaver
       operationId: getOppgaver
-      parameters:
-        - in: query
-          name: oppgavetyper
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/OppgaveType"
-
-          description: Typer for oppgaver
-
-        - in: query
-          name: tiltakstyper
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/Tiltakskode"
-
-          description: Tiltakstyper for oppgaver
-
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetOppgaverRequest"
+        required: true
       responses:
         200:
           description: Notifications for the user that is currently signed in.
@@ -2918,6 +2905,7 @@ components:
       enum:
         - TILSAGN_TIL_BESLUTNING
         - TILSAGN_TIL_ANNULLERING
+        - TILSAGN_RETURNERT_AV_BESLUTTER
 
     SorteringAvtaler:
       type: string
@@ -4356,7 +4344,6 @@ components:
               type: string
             link:
               type: string
-
           required:
             - linkText
             - link
@@ -6014,6 +6001,22 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TilsagnTilAnnulleringAarsak"
+
+    GetOppgaverRequest:
+      type: object
+      properties:
+        oppgavetyper:
+          type: array
+          items:
+              $ref: "#/components/schemas/OppgaveType"
+        tiltakstyper:
+          type: array
+          items:
+              $ref: "#/components/schemas/Tiltakskode"
+        regioner:
+          type: array
+          items:
+            type: string
 
     TilsagnUtbetaling:
       type: object

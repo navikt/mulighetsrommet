@@ -1,41 +1,34 @@
 package no.nav.mulighetsrommet.oppgaver
 
+import io.ktor.server.request.receive
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
+import org.koin.ktor.ext.inject
 
 fun Route.oppgaverRoutes() {
+    val db: ApiDatabase by inject()
+    val oppgaverService: OppgaverService by inject()
     route("oppgaver") {
-        get {
+        post {
             val userId = getNavIdent()
-            val filter = getOppgaverFilter()
+            val ansatt = db.session { queries.ansatt.getByNavIdent(userId) }
+                ?: throw IllegalStateException("Fant ikke ansatt med navIdent $userId")
 
-            val oppgaver = emptyList<Oppgave>()
+            val filter = call.receive<OppgaverFilter>()
+            val tilsagnsOppgaver = oppgaverService.getOppgaverForTilsagn(filter, ansatt.roller)
 
-            val sortedOppgaver = oppgaver.filter { oppgave ->
-                val matcherOppgaveType = filter.oppgavetyper.isEmpty() || filter.oppgavetyper.contains(oppgave.type)
-                val matcherTiltakstype = filter.tiltakstyper.isEmpty() || filter.tiltakstyper.contains(oppgave.tiltakstype)
-
-                matcherOppgaveType && matcherTiltakstype
-            }
-
-            call.respond(sortedOppgaver)
+            call.respond(tilsagnsOppgaver)
         }
     }
 }
 
-fun RoutingContext.getOppgaverFilter(): OppgaverFilter {
-    val oppgavetyper = call.parameters.getAll("oppgavetyper") ?: emptyList()
-    val tiltakstyper = call.parameters.getAll("tiltakstyper") ?: emptyList()
-
-    return OppgaverFilter(
-        oppgavetyper = oppgavetyper.map { OppgaveType.valueOf(it) },
-        tiltakstyper = tiltakstyper.map { Tiltakskode.valueOf(it) },
-    )
-}
-
+@Serializable
 data class OppgaverFilter(
     val oppgavetyper: List<OppgaveType>,
     val tiltakstyper: List<Tiltakskode>,
+    val regioner: List<String>,
 )

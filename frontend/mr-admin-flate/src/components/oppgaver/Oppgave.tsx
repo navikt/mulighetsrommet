@@ -33,14 +33,18 @@ export function Oppgave({ oppgave, tiltakstype }: OppgaveProps) {
   );
 }
 
-const labels: Record<string, { label: string; color: string }> = {
+const labels: Record<OppgaveType, { label: string; color: string }> = {
   TILSAGN_TIL_BESLUTNING: {
-    label: "Tilsagn til annullering",
+    label: "Tilsagn til godkjenning",
     color: "#FFD799",
   },
   TILSAGN_TIL_ANNULLERING: {
-    label: "Tilsagn til beslutning",
+    label: "Tilsagn til annullering",
     color: "#CCE2F0",
+  },
+  TILSAGN_RETURNERT_AV_BESLUTTER: {
+    label: "Tilsagn returnert",
+    color: "#FF9100",
   },
 };
 
