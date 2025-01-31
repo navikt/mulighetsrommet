@@ -18,7 +18,6 @@ fun Route.oppgaverRoutes() {
             val ansatt = db.session { queries.ansatt.getByNavIdent(userId) }
                 ?: throw IllegalStateException("Fant ikke ansatt med navIdent $userId")
 
-            // TODO Fiks filter for region siden kostnadssted kan være et lokalkontor og ikke bare regionen.
             val filter = call.receive<OppgaverFilter>()
             val tilsagnsOppgaver = oppgaverService.getOppgaverForTilsagn(filter, ansatt.roller)
 
