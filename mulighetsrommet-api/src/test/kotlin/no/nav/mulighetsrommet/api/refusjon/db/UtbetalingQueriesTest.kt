@@ -92,12 +92,11 @@ class UtbetalingQueriesTest : FunSpec({
             UtbetalingQueries(session).opprettTilsagnUtbetalinger(listOf(utbetaling))
 
             val dto = UtbetalingQueries(session).getByRefusjonskravId(krav.id)[0]
-            dto shouldBe TilsagnUtbetalingDto(
+            dto shouldBe TilsagnUtbetalingDto.TilsagnUtbetalingTilGodkjenning(
                 tilsagnId = tilsagn.id,
                 refusjonskravId = krav.id,
                 belop = 100,
                 opprettetAv = NavAnsattFixture.ansatt1.navIdent,
-                besluttetAv = null,
             )
         }
     }

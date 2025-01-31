@@ -6019,8 +6019,15 @@ components:
             type: string
 
     TilsagnUtbetaling:
+      oneOf:
+        - $ref: "#/components/schemas/TilsagnUtbetalingGodkjent"
+        - $ref: "#/components/schemas/TilsagnUtbetalingTilGodkjenning"
+
+    TilsagnUtbetalingGodkjent:
       type: object
       properties:
+        type:
+          const: TILSAGN_UTBETALING_GODKJENT
         tilsagnId:
           type: string
           format: uuid
@@ -6034,37 +6041,61 @@ components:
         besluttetAv:
           type: string
       required:
+        - type
+        - tilsagnId
+        - refusjonskravId
+        - belop
+        - opprettetAv
+        - besluttetAv
+
+    TilsagnUtbetalingTilGodkjenning:
+      type: object
+      properties:
+        type:
+          const: TILSAGN_UTBETALING_TIL_GODKJENNING
+        tilsagnId:
+          type: string
+          format: uuid
+        refusjonskravId:
+          type: string
+          format: uuid
+        belop:
+          type: number
+        opprettetAv:
+          type: string
+      required:
+        - type
         - tilsagnId
         - refusjonskravId
         - belop
         - opprettetAv
 
-    UtbetalingPageResponse:
+    Utbetaling:
       oneOf:
-        - $ref: "#/components/schemas/BehandleUtbetaling"
-        - $ref: "#/components/schemas/Utbetaling"
+        - $ref: "#/components/schemas/UtbetalingGodkjent"
+        - $ref: "#/components/schemas/UtbetalingTilGodkjenning"
 
-    BehandleUtbetaling:
+    UtbetalingGodkjent:
       type: object
       properties:
         type:
-          const: BEHANDLE_UTBETALING
+          const: UTBETALING_GODKJENT
         krav:
           $ref: "#/components/schemas/RefusjonKravKompakt"
-        tilsagn:
+        utbetalinger:
           type: array
           items:
-            $ref: "#/components/schemas/TilsagnDto"
+            $ref: "#/components/schemas/TilsagnUtbetalingGodkjent"
       required:
         - type
         - krav
-        - tilsagn
+        - utbetalinger
 
-    Utbetaling:
+    UtbetalingTilGodkjenning:
       type: object
       properties:
         type:
-          const: UTBETALING
+          const: UTBETALING_TIL_GODKJENNING
         krav:
           $ref: "#/components/schemas/RefusjonKravKompakt"
         utbetalinger:

@@ -5,6 +5,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
@@ -17,7 +18,6 @@ import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravStatus
 import no.nav.mulighetsrommet.api.refusjon.model.TilsagnUtbetalingDto
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponseError
-import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -26,7 +26,6 @@ import java.util.*
 
 fun Route.utbetalingRoutes() {
     val db: ApiDatabase by inject()
-    val tilsagnService: TilsagnService by inject()
 
     route("/utbetaling/{id}") {
         get {
@@ -43,9 +42,9 @@ fun Route.utbetalingRoutes() {
             }
 
             call.respond(
-                Utbetaling(
-                    krav = RefusjonKravKompakt.fromRefusjonskravDto(krav, tilsagn.map { it.kostnadssted }),
-                    utbetalinger = utbetalinger,
+                Utbetaling.from(
+                    RefusjonKravKompakt.fromRefusjonskravDto(krav, tilsagn.map { it.kostnadssted }),
+                    utbetalinger,
                 ),
             )
         }
@@ -97,12 +96,12 @@ fun Route.utbetalingRoutes() {
 
                 val utbetalinger = db.session {
                     queries.refusjonskrav.getByGjennomforing(id)
-                        .map {
-                            val tilsagn = queries.tilsagn.getTilsagnTilRefusjon(it.gjennomforing.id, it.beregning.input.periode)
-                            Utbetaling(
-                                krav = RefusjonKravKompakt.fromRefusjonskravDto(it, tilsagn.map { it.kostnadssted }),
-                                utbetalinger = queries.utbetaling.getByRefusjonskravId(it.id),
-                            )
+                        .map { krav ->
+                            val tilsagn = queries.tilsagn.getTilsagnTilRefusjon(krav.gjennomforing.id, krav.beregning.input.periode)
+                            val kravKompakt = RefusjonKravKompakt.fromRefusjonskravDto(krav, tilsagn.map { it.kostnadssted })
+                            val utbetalinger = queries.utbetaling.getByRefusjonskravId(krav.id)
+
+                            Utbetaling.from(kravKompakt, utbetalinger)
                         }
                 }
 
@@ -125,10 +124,38 @@ data class UtbetalingRequest(
 }
 
 @Serializable
-data class Utbetaling(
-    val krav: RefusjonKravKompakt,
-    val utbetalinger: List<TilsagnUtbetalingDto>,
-)
+sealed class Utbetaling {
+    @Serializable
+    @SerialName("UTBETALING_TIL_GODKJENNING")
+    data class UtbetalingTilGodkjenning(
+        val krav: RefusjonKravKompakt,
+        val utbetalinger: List<TilsagnUtbetalingDto>,
+    ) : Utbetaling()
+
+    @Serializable
+    @SerialName("UTBETALING_GODKJENT")
+    data class UtbetalingGodkjent(
+        val krav: RefusjonKravKompakt,
+        val utbetalinger: List<TilsagnUtbetalingDto.TilsagnUtbetalingGodkjent>,
+    ) : Utbetaling()
+
+    companion object {
+        fun from(krav: RefusjonKravKompakt, utbetalinger: List<TilsagnUtbetalingDto>): Utbetaling {
+            return when (utbetalinger.all { it is TilsagnUtbetalingDto.TilsagnUtbetalingGodkjent }) {
+                true -> UtbetalingGodkjent(
+                    krav = krav,
+                    // Alle er godkjent, gitt sjekken i when
+                    utbetalinger = utbetalinger.filterIsInstance<TilsagnUtbetalingDto.TilsagnUtbetalingGodkjent>(),
+                )
+
+                false -> UtbetalingTilGodkjenning(
+                    krav = krav,
+                    utbetalinger = utbetalinger,
+                )
+            }
+        }
+    }
+}
 
 @Serializable
 data class RefusjonKravKompakt(
