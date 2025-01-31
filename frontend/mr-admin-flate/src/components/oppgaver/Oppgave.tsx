@@ -44,7 +44,7 @@ const labels: Record<OppgaveType, { label: string; color: string }> = {
   },
   TILSAGN_RETURNERT_AV_BESLUTTER: {
     label: "Tilsagn returnert",
-    color: "#CCE2F0",
+    color: "#FF9100",
   },
 };
 

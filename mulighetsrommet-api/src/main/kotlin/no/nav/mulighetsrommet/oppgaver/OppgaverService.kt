@@ -47,7 +47,7 @@ class OppgaverService(val db: ApiDatabase) {
             }.flatten()
 
             val enheter = db.session { queries.enhet.getAll(statuser = listOf(NavEnhetStatus.AKTIV, NavEnhetStatus.UNDER_ETABLERING)) }
-            val enheterToLokalkontor =  enheter
+            val enheterToLokalkontor = enheter
                 .groupBy { it.overordnetEnhet }
                 .mapValues { it.value.map { enhet -> enhet.enhetsnummer } }
                 .filterKeys { key -> filter.regioner.isEmpty() || filter.regioner.contains(key) }
@@ -58,7 +58,7 @@ class OppgaverService(val db: ApiDatabase) {
                         statuser = tilsagnStatuser,
                     )
                     .filter { oppgave ->
-                        if(filter.regioner.isEmpty()) {
+                        if (filter.regioner.isEmpty()) {
                             return@filter true
                         }
                         enheterToLokalkontor.any { (_, underenheter) ->
