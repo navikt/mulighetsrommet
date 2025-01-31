@@ -39,6 +39,9 @@ export function UtbetalingDetaljerPage() {
         <WhitePaddedBox>
           <VStack>
             <div>Utbetaling detaljer side</div>
+            {utbetaling.utbetalinger.some((u) => !u.besluttetAv) && (
+              <div>utbetalingen er ikke godkjent ennå</div>
+            )}
             <div>{utbetaling.krav.id}</div>
             <div>Not implemented</div>
           </VStack>
