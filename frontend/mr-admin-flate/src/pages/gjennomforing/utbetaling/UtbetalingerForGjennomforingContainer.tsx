@@ -2,7 +2,7 @@ import { Alert } from "@navikt/ds-react";
 import { useLoaderData } from "react-router";
 import { Toggles } from "@mr/api-client-v2";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { UtbetalingerTable } from "./UtbetalingerTable";
+import { UtbetalingerTable } from "../../../components/utbetaling/UtbetalingerTable";
 import { utbetalingerForGjennomforingLoader } from "./utbetalingerForGjennomforingLoader";
 
 export function UtbetalingerForGjennomforingContainer() {
