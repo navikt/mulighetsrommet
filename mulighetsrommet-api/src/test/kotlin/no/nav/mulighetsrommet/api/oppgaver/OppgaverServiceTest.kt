@@ -159,4 +159,31 @@ class OppgaverServiceTest : FunSpec({
 
         oppgaver.size shouldBe 1
     }
+
+    test("Skal ikke se oppgaver hvis du ikke har korrekte roller") {
+        MulighetsrommetTestDomain(
+            tiltakstyper = listOf(TiltakstypeFixtures.AFT),
+            avtaler = listOf(AvtaleFixtures.AFT),
+            gjennomforinger = listOf(AFT1),
+            enheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.Oslo),
+            tilsagn = listOf(
+                TilsagnFixtures.Tilsagn1,
+                TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.Gjovik.enhetsnummer),
+                TilsagnFixtures.Tilsagn3.copy(kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer),
+            ),
+        ).initialize(database.db)
+
+        val service = OppgaverService(database.db)
+
+        val oppgaver = service.getOppgaverForTilsagn(
+            filter = OppgaverFilter(
+                oppgavetyper = emptyList(),
+                tiltakstyper = emptyList(),
+                regioner = listOf(NavEnhetFixtures.Innlandet.enhetsnummer),
+            ),
+            ansattRoller = emptySet()
+        )
+
+        oppgaver.size shouldBe 0
+    }
 })
