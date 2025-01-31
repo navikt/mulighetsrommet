@@ -342,4 +342,4 @@ export const avtaleDetaljerTabAtom = atom<
 
 export const gjennomforingFilterAccordionAtom = atom<string[]>(["navEnhet"]);
 export const avtaleFilterAccordionAtom = atom<string[]>(["region"]);
-export const oppgaverFilterAccordionAtom = atom<string[]>(["type"]);
+export const oppgaverFilterAccordionAtom = atom<string[]>(["type", "regioner"]);

@@ -150,7 +150,7 @@ class OppgaverServiceTest : FunSpec({
             filter = OppgaverFilter(
                 oppgavetyper = emptyList(),
                 tiltakstyper = emptyList(),
-                regioner = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+                regioner = listOf(NavEnhetFixtures.Innlandet.enhetsnummer),
             ),
             ansattRoller = setOf(
                 NavAnsattRolle.OKONOMI_BESLUTTER,

@@ -52,6 +52,39 @@ export function OppgaverFilter({ filterAtom, tiltakstyper, regioner }: Props) {
             </div>
           </Accordion.Content>
         </Accordion.Item>
+
+        <Accordion.Item open={accordionsOpen.includes("regioner")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "regioner")]);
+            }}
+          >
+            <FilterAccordionHeader tittel="Region" antallValgteFilter={filter.regioner.length} />
+          </Accordion.Header>
+          <Accordion.Content>
+            <div style={{ marginLeft: "-2rem" }}>
+              <CheckboxGroup
+                value={filter.regioner}
+                legend="Velg regioner"
+                onChange={(value) => {
+                  setFilter({
+                    ...filter,
+                    regioner: [...value],
+                  });
+                }}
+                hideLegend
+              >
+                {regioner.map((region) => {
+                  return (
+                    <Checkbox size="small" key={region.enhetsnummer} value={region.enhetsnummer}>
+                      {region.navn}
+                    </Checkbox>
+                  );
+                })}
+              </CheckboxGroup>
+            </div>
+          </Accordion.Content>
+        </Accordion.Item>
         <Accordion.Item open={accordionsOpen.includes("tiltakstype")}>
           <Accordion.Header
             onClick={() => {
@@ -80,38 +113,6 @@ export function OppgaverFilter({ filterAtom, tiltakstyper, regioner }: Props) {
                   return (
                     <Checkbox size="small" key={t.tiltakskode} value={t.tiltakskode}>
                       {t.navn}
-                    </Checkbox>
-                  );
-                })}
-              </CheckboxGroup>
-            </div>
-          </Accordion.Content>
-        </Accordion.Item>
-        <Accordion.Item open={accordionsOpen.includes("regioner")}>
-          <Accordion.Header
-            onClick={() => {
-              setAccordionsOpen([...addOrRemove(accordionsOpen, "regioner")]);
-            }}
-          >
-            <FilterAccordionHeader tittel="Region" antallValgteFilter={filter.regioner.length} />
-          </Accordion.Header>
-          <Accordion.Content>
-            <div style={{ marginLeft: "-2rem" }}>
-              <CheckboxGroup
-                value={filter.regioner}
-                legend="Velg regioner"
-                onChange={(value) => {
-                  setFilter({
-                    ...filter,
-                    regioner: [...value],
-                  });
-                }}
-                hideLegend
-              >
-                {regioner.map((region) => {
-                  return (
-                    <Checkbox size="small" key={region.enhetsnummer} value={region.enhetsnummer}>
-                      {region.navn}
                     </Checkbox>
                   );
                 })}
