@@ -14,7 +14,7 @@ export const mockOppgaver: Oppgave[] = [
     deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toString(),
   },
   {
-    type: OppgaveType.TILSAGN_TIL_BESLUTNING,
+    type: OppgaveType.TILSAGN_TIL_GODKJENNING,
     title: "Send tilsagn til beslutning",
     description: "Tilsagn opprettet av Benny Beslutter er klar og venter beslutning",
     tiltakstype: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
@@ -26,7 +26,7 @@ export const mockOppgaver: Oppgave[] = [
     deadline: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toString(),
   },
   {
-    type: OppgaveType.TILSAGN_TIL_BESLUTNING,
+    type: OppgaveType.TILSAGN_TIL_GODKJENNING,
     title: "Send tilsagn til beslutning",
     description: "Tilsagn opprettet av Benny Beslutter er klar og venter beslutning",
     tiltakstype: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
