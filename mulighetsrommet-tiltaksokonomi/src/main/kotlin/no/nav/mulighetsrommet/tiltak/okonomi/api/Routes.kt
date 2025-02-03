@@ -1,38 +1,15 @@
-package no.nav.mulighetsrommet.tiltak.okonomi
+package no.nav.mulighetsrommet.tiltak.okonomi.api
 
 import io.ktor.http.*
-import io.ktor.resources.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.*
-import io.ktor.server.resources.Resources
 import io.ktor.server.resources.post
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.mulighetsrommet.tiltak.okonomi.oebs.OebsService
-
-private const val API_BASE_PATH = "/api/v1/okonomi"
-
-@Resource("$API_BASE_PATH/bestilling")
-class Bestilling {
-
-    @Resource("{id}")
-    class Id(val parent: Bestilling = Bestilling(), val id: String) {
-
-        @Resource("status")
-        class Status(val parent: Id)
-    }
-}
-
-@Resource("$API_BASE_PATH/faktura")
-class Faktura {
-
-    @Resource("{id}")
-    class Id(val parent: Faktura = Faktura(), val id: String)
-}
 
 fun Application.okonomiRoutes(
     db: OkonomiDatabase,
@@ -120,34 +97,5 @@ fun Application.okonomiRoutes(
                 call.respond(status)
             }
         }
-    }
-}
-
-@Serializable
-data class BestillingStatus(
-    val bestillingsnummer: String,
-    val status: Type,
-) {
-
-    enum class Type {
-        AKTIV,
-        ANNULLERT,
-        OPPGJORT,
-    }
-}
-
-@Serializable
-data class SetBestillingStatus(
-    val status: BestillingStatus.Type,
-)
-
-@Serializable
-data class FakturaStatus(
-    val fakturanummer: String,
-    val status: Type,
-) {
-
-    enum class Type {
-        UTBETALT,
     }
 }

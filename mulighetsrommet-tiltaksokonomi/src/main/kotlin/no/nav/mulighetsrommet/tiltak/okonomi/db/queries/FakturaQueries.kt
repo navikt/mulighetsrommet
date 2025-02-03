@@ -5,7 +5,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.tiltak.okonomi.OkonomiPart
+import no.nav.mulighetsrommet.tiltak.okonomi.api.OkonomiPart
 import no.nav.mulighetsrommet.tiltak.okonomi.db.FakturaDbo
 import no.nav.mulighetsrommet.tiltak.okonomi.db.LinjeDbo
 import no.nav.mulighetsrommet.tiltak.okonomi.db.periode

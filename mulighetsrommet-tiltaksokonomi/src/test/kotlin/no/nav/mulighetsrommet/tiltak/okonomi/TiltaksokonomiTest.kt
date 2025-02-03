@@ -12,6 +12,7 @@ import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.tiltak.okonomi.api.*
 import no.nav.mulighetsrommet.tiltak.okonomi.oebs.Kilde
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.intellij.lang.annotations.Language

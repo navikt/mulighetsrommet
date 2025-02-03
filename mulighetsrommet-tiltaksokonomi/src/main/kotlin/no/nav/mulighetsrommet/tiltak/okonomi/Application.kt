@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
+import no.nav.mulighetsrommet.tiltak.okonomi.api.okonomiRoutes
 import no.nav.mulighetsrommet.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.mulighetsrommet.tiltak.okonomi.oebs.OebsService
 import no.nav.mulighetsrommet.tiltak.okonomi.oebs.OebsTiltakApiClient

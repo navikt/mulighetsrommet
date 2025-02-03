@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.tiltak.okonomi.OkonomiPart
+import no.nav.mulighetsrommet.tiltak.okonomi.api.OkonomiPart
 import no.nav.mulighetsrommet.tiltak.okonomi.db.BestillingDbo
 import no.nav.mulighetsrommet.tiltak.okonomi.db.LinjeDbo
 import no.nav.mulighetsrommet.tiltak.okonomi.db.periode

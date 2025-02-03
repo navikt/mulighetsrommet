@@ -9,8 +9,8 @@ import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.tiltak.okonomi.OpprettBestilling
-import no.nav.mulighetsrommet.tiltak.okonomi.OpprettFaktura
+import no.nav.mulighetsrommet.tiltak.okonomi.api.OpprettBestilling
+import no.nav.mulighetsrommet.tiltak.okonomi.api.OpprettFaktura
 import no.nav.mulighetsrommet.tiltak.okonomi.db.BestillingDbo
 import no.nav.mulighetsrommet.tiltak.okonomi.db.FakturaDbo
 import no.nav.mulighetsrommet.tiltak.okonomi.db.LinjeDbo

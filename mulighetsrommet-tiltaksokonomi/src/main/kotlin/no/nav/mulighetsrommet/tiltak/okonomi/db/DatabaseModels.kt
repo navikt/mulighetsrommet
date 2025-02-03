@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.tiltak.okonomi.db
 
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.tiltak.okonomi.OkonomiPart
+import no.nav.mulighetsrommet.tiltak.okonomi.api.OkonomiPart
 import java.time.LocalDateTime
 
 data class BestillingDbo(
