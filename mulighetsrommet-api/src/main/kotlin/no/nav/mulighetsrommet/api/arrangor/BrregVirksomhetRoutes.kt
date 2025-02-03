@@ -10,6 +10,9 @@ import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
+import no.nav.mulighetsrommet.ktor.exception.BadRequest
+import no.nav.mulighetsrommet.ktor.exception.InternalServerError
+import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import org.koin.ktor.ext.inject
 
@@ -65,9 +68,9 @@ fun isUtenlandskOrgnr(orgnr: Organisasjonsnummer): Boolean {
 }
 
 fun toStatusResponseError(it: BrregError) = when (it) {
-    BrregError.NotFound -> NotFound()
-    BrregError.BadRequest -> BadRequest()
-    BrregError.Error -> InternalServerError()
+    BrregError.NotFound -> NotFound("not found fra brreg")
+    BrregError.BadRequest -> BadRequest("bad request mot brreg")
+    BrregError.Error -> InternalServerError("brreg internal server error")
 }
 
 private fun toBrregVirksomhetDto(arrangor: ArrangorDto) = when {

@@ -6,6 +6,8 @@ import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.ktor.exception.BadRequest
+import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.exception.toProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -15,14 +17,10 @@ fun Application.configureStatusPages() {
     install(StatusPages) {
         exception<IllegalArgumentException> { call, cause ->
             val requestId = MDC.get("correlationId")
-            val problemDetail = object : ProblemDetail() {
-                override val type = "illegal-argument-exception"
-                override val title = HttpStatusCode.BadRequest.description
-                override val status = HttpStatusCode.BadRequest.value
-                override val detail = cause.message ?: "IllegalArgumentException"
-                override val instance = null
-                override val extensions = mapOf("requestId" to requestId)
-            }
+            val problemDetail = BadRequest(
+                detail = cause.message ?: "IllegalArgumentException",
+                extensions = mapOf("requestId" to requestId),
+            )
             call.respondWithProblemDetail(problemDetail)
         }
 
@@ -31,16 +29,12 @@ fun Application.configureStatusPages() {
             call.respondWithProblemDetail(cause.toProblemDetail(requestId))
         }
 
-        exception<Throwable> { call, _ ->
+        exception<Throwable> { call, cause ->
             val requestId = MDC.get("correlationId")
-            val problemDetail = object : ProblemDetail() {
-                override val type = "internal-server-error"
-                override val title = HttpStatusCode.InternalServerError.description
-                override val status = HttpStatusCode.InternalServerError.value
-                override val detail = "Unknown Internal Server Error"
-                override val instance = null
-                override val extensions = mapOf("requestId" to requestId)
-            }
+            val problemDetail = InternalServerError(
+                detail = cause.message ?: "Unknown Internal Server Error",
+                extensions = mapOf("requestId" to requestId),
+            )
 
             call.respondWithProblemDetail(problemDetail)
         }

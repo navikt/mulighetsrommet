@@ -17,26 +17,6 @@ import kotlin.reflect.KProperty1
  */
 typealias StatusResponse<T> = Either<ProblemDetail, T>
 
-data class InternalServerError(
-    override val detail: String = "Unknown Internal Server Error",
-) : ProblemDetail() {
-    override val type = "internal-server-error"
-    override val title = HttpStatusCode.InternalServerError.description
-    override val status: Int = HttpStatusCode.InternalServerError.value
-    override val extensions = null
-    override val instance = null
-}
-
-data class BadRequest(
-    override val detail: String = "Unknown Bad Request",
-) : ProblemDetail() {
-    override val type = "bad-request"
-    override val title = HttpStatusCode.BadRequest.description
-    override val status: Int = HttpStatusCode.BadRequest.value
-    override val extensions = null
-    override val instance = null
-}
-
 data class ValidationError(
     override val detail: String = "Unknown Validation Error",
     val errors: List<FieldError>,
@@ -46,26 +26,6 @@ data class ValidationError(
     override val status: Int = HttpStatusCode.BadRequest.value
     override val extensions = mapOf("errors" to Json.encodeToJsonElement(errors))
     override val instance = null
-}
-
-data class NotFound(
-    override val detail: String = "Unknown not found",
-) : ProblemDetail() {
-    override val type = "not-found"
-    override val title = HttpStatusCode.NotFound.description
-    override val status: Int = HttpStatusCode.NotFound.value
-    override val instance = null
-    override val extensions = null
-}
-
-data class Forbidden(
-    override val detail: String = "Unknown forbidden",
-) : ProblemDetail() {
-    override val type = "forbidden"
-    override val title = HttpStatusCode.Forbidden.description
-    override val status: Int = HttpStatusCode.Forbidden.value
-    override val instance = null
-    override val extensions = null
 }
 
 @Serializable
