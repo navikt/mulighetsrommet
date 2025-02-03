@@ -18,7 +18,7 @@
     "@storybook/addon-interactions": "8.6.0-alpha.0",
     "@storybook/addon-onboarding": "8.6.0-alpha.0",
     "@storybook/blocks": "8.6.0-alpha.0",
-    "@storybook/react": "^8.6.0-alpha.0",
+    "@storybook/react": "^8.6.0-alpha.3",
     "@storybook/react-vite": "8.6.0-alpha.0",
     "@storybook/test": "8.6.0-alpha.0",
     "@types/react": "18.3.13",
