@@ -14,7 +14,7 @@
     "react-router": "7.1.5"
   },
   "devDependencies": {
-    "@storybook/addon-essentials": "8.6.0-alpha.0",
+    "@storybook/addon-essentials": "8.6.0-alpha.3",
     "@storybook/addon-interactions": "8.6.0-alpha.0",
     "@storybook/addon-onboarding": "8.6.0-alpha.0",
     "@storybook/blocks": "8.6.0-alpha.0",
