@@ -4,40 +4,47 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.ktor.exception.BadRequest
+import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.ktor.exception.toProblemDetail
+import no.nav.mulighetsrommet.model.ProblemDetail
 import org.slf4j.MDC
 
 fun Application.configureStatusPages() {
     install(StatusPages) {
         exception<IllegalArgumentException> { call, cause ->
             val requestId = MDC.get("correlationId")
-
-            val status = HttpStatusCode.BadRequest
-
-            val message = ErrorMessage(
-                requestId = requestId,
-                description = cause.message ?: status.description,
+            val problemDetail = BadRequest(
+                detail = cause.message ?: "IllegalArgumentException",
+                extensions = mapOf("requestId" to requestId),
             )
-
-            call.respond(status, message)
+            call.respondWithProblemDetail(problemDetail)
         }
 
         exception<StatusException> { call, cause ->
             val requestId = MDC.get("correlationId")
+            call.respondWithProblemDetail(cause.toProblemDetail(requestId))
+        }
 
-            val message = ErrorMessage(
-                requestId = requestId,
-                description = cause.description ?: cause.status.description,
+        exception<Throwable> { call, cause ->
+            val requestId = MDC.get("correlationId")
+            val problemDetail = InternalServerError(
+                detail = cause.message ?: "Unknown Internal Server Error",
+                extensions = mapOf("requestId" to requestId),
             )
 
-            call.respond(cause.status, message)
+            call.respondWithProblemDetail(problemDetail)
         }
     }
 }
 
-@Serializable
-data class ErrorMessage(
-    val requestId: String? = null,
-    val description: String,
-)
+suspend fun ApplicationCall.respondWithProblemDetail(problem: ProblemDetail) {
+    respondText(
+        text = Json.encodeToString(problem),
+        status = HttpStatusCode.fromValue(problem.status),
+        contentType = ContentType.Application.ProblemJson,
+    )
+}

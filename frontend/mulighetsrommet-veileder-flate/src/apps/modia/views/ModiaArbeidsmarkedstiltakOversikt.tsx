@@ -17,6 +17,7 @@ import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFi
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useState } from "react";
 import { ModiaOversiktBrukerVarsler } from "../varsler/ModiaOversiktBrukerVarsler";
+import { BodyShort } from "@navikt/ds-react";
 
 export function ModiaArbeidsmarkedstiltakOversikt() {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
@@ -71,11 +72,11 @@ export function ModiaArbeidsmarkedstiltakOversikt() {
                 isPending ? (
                   <ListSkeleton />
                 ) : (
-                  <Feilmelding
-                    header="Ingen tiltak funnet"
-                    beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
-                    ikonvariant="warning"
-                  />
+                  <Feilmelding header="Ingen tiltak funnet" ikonvariant="warning">
+                    <BodyShort size="small">
+                      Prøv å justere søket eller filteret for å finne det du leter etter
+                    </BodyShort>
+                  </Feilmelding>
                 )
               ) : null
             }

@@ -15,7 +15,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.responses.BadRequest
+import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.model.Prismodell
@@ -100,7 +100,7 @@ fun Route.tilsagnRoutes() {
 
             val result = service.beregnTilsagn(request)
                 .map { it.output }
-                .mapLeft { BadRequest(errors = it) }
+                .mapLeft { ValidationError(errors = it) }
 
             call.respondWithStatusResponse(result)
         }
@@ -111,7 +111,7 @@ fun Route.tilsagnRoutes() {
                 val navIdent = getNavIdent()
 
                 val result = service.upsert(request, navIdent)
-                    .mapLeft { BadRequest(errors = it) }
+                    .mapLeft { ValidationError(errors = it) }
 
                 call.respondWithStatusResponse(result)
             }

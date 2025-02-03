@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import styles from "./Feilmelding.module.scss";
-import { BodyShort, Heading } from "@navikt/ds-react";
+import { Heading } from "@navikt/ds-react";
 import classNames from "classnames";
 import {
   ExclamationmarkTriangleFillIcon,
@@ -10,19 +10,12 @@ import {
 
 interface FeilmeldingProps {
   header: ReactNode;
-  beskrivelse?: ReactNode;
   children?: ReactNode;
   ikonvariant?: string;
   utenMargin?: boolean;
 }
 
-export function Feilmelding({
-  header,
-  beskrivelse,
-  children,
-  ikonvariant,
-  utenMargin,
-}: FeilmeldingProps) {
+export function Feilmelding({ header, children, ikonvariant, utenMargin }: FeilmeldingProps) {
   const ikon = () => {
     if (ikonvariant === "info") {
       return (
@@ -51,9 +44,6 @@ export function Feilmelding({
       <Heading level="4" size={"small"}>
         {header}
       </Heading>
-      <BodyShort as="div" size={"small"} className={styles.beskrivelse}>
-        {beskrivelse}
-      </BodyShort>
       {children}
     </div>
   );

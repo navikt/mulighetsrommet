@@ -1,10 +1,12 @@
 import { useOpprettUtbetaling } from "@/api/utbetaling/useOpprettUtbetaling";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  ProblemDetail,
   RefusjonKravKompakt,
   TilsagnDto,
   TilsagnStatus,
   UtbetalingRequest,
+  FieldError,
 } from "@mr/api-client-v2";
 import { Button, Heading, HStack, Stepper, VStack } from "@navikt/ds-react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
@@ -21,6 +23,7 @@ import {
 } from "@/components/utbetaling/UtbetalingSchema";
 import { KostnadsfordelingSteg } from "@/components/utbetaling/KostnadsfordelingSteg";
 import { useState } from "react";
+import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 
 // TODO: Potensielt flyttes til backend
 function defaultValues(
@@ -61,6 +64,16 @@ export function BehandleUtbetalingFormPage() {
     mutation.mutate(body, {
       onSuccess: () => {
         navigate(-1);
+      },
+      onError: (error: ProblemDetail) => {
+        if (isValidationError(error)) {
+          error.errors.forEach((fieldError: FieldError) => {
+            form.setError(
+              jsonPointerToFieldPath(fieldError.pointer) as keyof InferredUtbetalingSchema,
+              { type: "custom", message: fieldError.detail },
+            );
+          });
+        }
       },
     });
   };

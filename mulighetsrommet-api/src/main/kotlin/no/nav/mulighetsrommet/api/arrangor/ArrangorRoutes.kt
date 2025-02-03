@@ -154,18 +154,18 @@ data class ArrangorKontaktpersonRequest(
 
         val errors = buildList {
             if (navn.isEmpty()) {
-                add(ValidationError.of(ArrangorKontaktperson::navn, "Navn er påkrevd"))
+                add(FieldError.of(ArrangorKontaktperson::navn, "Navn er påkrevd"))
             }
             if (epost.isEmpty()) {
-                add(ValidationError.of(ArrangorKontaktperson::epost, "E-post er påkrevd"))
+                add(FieldError.of(ArrangorKontaktperson::epost, "E-post er påkrevd"))
             }
             if (ansvarligFor.isEmpty()) {
-                add(ValidationError.of(ArrangorKontaktperson::ansvarligFor, "Du må velge minst ett ansvarsområde"))
+                add(FieldError.of(ArrangorKontaktperson::ansvarligFor, "Du må velge minst ett ansvarsområde"))
             }
         }
 
         if (errors.isNotEmpty()) {
-            return Either.Left(BadRequest(errors = errors))
+            return Either.Left(ValidationError(errors = errors))
         }
 
         return Either.Right(

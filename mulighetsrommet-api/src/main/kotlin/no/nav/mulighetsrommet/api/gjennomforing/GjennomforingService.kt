@@ -16,8 +16,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.NavAnsattService
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
-import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.routes.v1.EksternTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
@@ -46,7 +46,7 @@ class GjennomforingService(
     suspend fun upsert(
         request: GjennomforingRequest,
         navIdent: NavIdent,
-    ): Either<List<ValidationError>, GjennomforingDto> = either {
+    ): Either<List<FieldError>, GjennomforingDto> = either {
         val previous = get(request.id)
 
         val dbo = validator.validate(request.toDbo(), previous)
@@ -139,7 +139,7 @@ class GjennomforingService(
         id: UUID,
         tilgjengeligForArrangorDato: LocalDate,
         navIdent: NavIdent,
-    ): Either<List<ValidationError>, Unit> = db.transaction {
+    ): Either<List<FieldError>, Unit> = db.transaction {
         val gjennomforing = getOrError(id)
 
         validator
@@ -206,12 +206,12 @@ class GjennomforingService(
         periode: Periode,
         beskrivelse: String,
         bruker: EndretAv,
-    ): Either<NonEmptyList<ValidationError>, GjennomforingDto> = db.transaction {
+    ): Either<NonEmptyList<FieldError>, GjennomforingDto> = db.transaction {
         return query {
             queries.gjennomforing.setStengtHosArrangor(id, periode, beskrivelse)
         }.mapLeft {
             if (it is IntegrityConstraintViolation.ExclusionViolation) {
-                ValidationError.of(
+                FieldError.of(
                     SetStengtHosArrangorRequest::periodeStart,
                     "Perioden kan ikke overlappe med andre perioder",
                 ).nel()

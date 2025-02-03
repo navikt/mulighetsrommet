@@ -1,4 +1,9 @@
-import { ArrangorflateService, ArrangorflateTilsagn, RefusjonKravAft } from "@mr/api-client-v2";
+import {
+  ArrangorflateService,
+  ArrangorflateTilsagn,
+  FieldError,
+  RefusjonKravAft,
+} from "@mr/api-client-v2";
 import { Button, Checkbox, ErrorSummary, Heading, TextField, VStack } from "@navikt/ds-react";
 import {
   ActionFunction,
@@ -11,13 +16,13 @@ import {
 import { Definisjon } from "~/components/Definisjon";
 import { PageHeader } from "~/components/PageHeader";
 import { RefusjonskravDetaljer } from "~/components/refusjonskrav/RefusjonskravDetaljer";
-import { FormError, getOrError, getOrThrowError } from "~/form/form-helpers";
+import { getOrError, getOrThrowError } from "~/form/form-helpers";
 import { internalNavigation } from "~/internal-navigation";
 import { useOrgnrFromUrl } from "~/utils";
 import { getCurrentTab } from "~/utils/currentTab";
 import { Separator } from "../components/Separator";
 import { apiHeaders } from "~/auth/auth.server";
-import { isValidationError } from "@mr/frontend-common/utils/utils";
+import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 
 type BekreftRefusjonskravData = {
   krav: RefusjonKravAft;
@@ -25,7 +30,7 @@ type BekreftRefusjonskravData = {
 };
 
 interface ActionData {
-  errors?: FormError[];
+  errors?: FieldError[];
 }
 
 export const loader: LoaderFunction = async ({
@@ -122,7 +127,7 @@ export default function BekreftRefusjonskrav() {
                 label="Kontonummer"
                 hideLabel
                 size="small"
-                error={data?.errors?.find((error) => error.name === "kontonummer")?.message}
+                error={data?.errors?.find((error) => error.pointer === "/kontonummer")?.detail}
                 name="kontonummer"
                 className="border border-[#0214317D] rounded-md"
                 defaultValue={krav.betalingsinformasjon?.kontonummer}
@@ -148,7 +153,7 @@ export default function BekreftRefusjonskrav() {
             <Checkbox
               name="bekreftelse"
               value="bekreftet"
-              error={!!data?.errors?.find((error) => error.name === "bekreftelse")?.message}
+              error={!!data?.errors?.find((error) => error.pointer === "/bekreftelse")?.detail}
             >
               Det erklæres herved at alle opplysninger er gitt i henhold til de faktiske forhold
             </Checkbox>
@@ -157,8 +162,12 @@ export default function BekreftRefusjonskrav() {
             <input type="hidden" name="orgnr" value={orgnr} />
             {data?.errors && data.errors.length > 0 && (
               <ErrorSummary>
-                {data.errors.map((error: FormError) => {
-                  return <ErrorSummary.Item key={error.name}>{error.message}</ErrorSummary.Item>;
+                {data.errors.map((error: FieldError) => {
+                  return (
+                    <ErrorSummary.Item key={jsonPointerToFieldPath(error.pointer)}>
+                      {error.detail}
+                    </ErrorSummary.Item>
+                  );
                 })}
               </ErrorSummary>
             )}

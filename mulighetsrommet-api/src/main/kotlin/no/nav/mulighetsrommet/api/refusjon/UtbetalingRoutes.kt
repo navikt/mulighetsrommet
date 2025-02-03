@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.refusjon
 
+import arrow.core.left
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -16,8 +17,8 @@ import no.nav.mulighetsrommet.api.refusjon.db.TilsagnUtbetalingDbo
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravDto
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravStatus
 import no.nav.mulighetsrommet.api.refusjon.model.TilsagnUtbetalingDto
-import no.nav.mulighetsrommet.api.responses.BadRequest
-import no.nav.mulighetsrommet.api.responses.respondWithStatusResponseError
+import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -70,8 +71,9 @@ fun Route.utbetalingRoutes() {
             }
 
             UtbetalingValidator.validate(request, utbetalinger)
-                .mapLeft { BadRequest(errors = it) }
-                .onLeft { return@put call.respondWithStatusResponseError(it) }
+                .onLeft {
+                    return@put call.respondWithStatusResponse(ValidationError(errors = it).left())
+                }
 
             db.session {
                 queries.utbetaling.opprettTilsagnUtbetalinger(

@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinx.serialization.json)
+    implementation(kotlin("reflect"))
 
     testImplementation(libs.kotest.junit)
     testImplementation(libs.kotest.assertions.core)

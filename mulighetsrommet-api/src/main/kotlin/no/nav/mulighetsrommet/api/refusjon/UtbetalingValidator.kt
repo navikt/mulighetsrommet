@@ -6,28 +6,30 @@ import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.refusjon.model.TilsagnUtbetalingDto
-import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.responses.FieldError
 
 object UtbetalingValidator {
     fun validate(
         request: UtbetalingRequest,
         utbetalinger: List<TilsagnUtbetalingDto>,
-    ): Either<List<ValidationError>, UtbetalingRequest> = either {
+    ): Either<List<FieldError>, UtbetalingRequest> = either {
         if (utbetalinger.isNotEmpty()) {
-            return ValidationError
+            return FieldError
                 .of(UtbetalingRequest::kostnadsfordeling, "Utbetaling allerede opprettet.")
                 .nel()
                 .left()
         }
 
         val errors = buildList {
-            if (request.kostnadsfordeling.any { it.belop <= 0 }) {
-                add(
-                    ValidationError.of(
-                        UtbetalingRequest::kostnadsfordeling,
-                        "Beløp må være positivt",
-                    ),
-                )
+            request.kostnadsfordeling.forEachIndexed { index, tilsagnOgBelop ->
+                if (tilsagnOgBelop.belop <= 0) {
+                    add(
+                        FieldError.ofPointer(
+                            "/kostnadsfordeling/$index/belop",
+                            "Beløp må være positivt",
+                        ),
+                    )
+                }
             }
         }
 

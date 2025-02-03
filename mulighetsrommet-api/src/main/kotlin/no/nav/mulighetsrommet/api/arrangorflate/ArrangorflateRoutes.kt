@@ -28,7 +28,7 @@ import no.nav.mulighetsrommet.api.refusjon.model.DeltakerDto
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravDto
 import no.nav.mulighetsrommet.api.refusjon.task.JournalforRefusjonskrav
-import no.nav.mulighetsrommet.api.responses.BadRequest
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -61,7 +61,7 @@ fun Route.arrangorflateRoutes() {
                     throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
                 }
             }
-            ?: throw StatusException(HttpStatusCode.Unauthorized)
+            ?: throw StatusException(HttpStatusCode.Unauthorized, "Mangler altinn tilgang")
     }
 
     fun RoutingContext.requireTilgangHosArrangor(organisasjonsnummer: Organisasjonsnummer) {
@@ -163,7 +163,7 @@ fun Route.arrangorflateRoutes() {
                     krav,
                     forslagByDeltakerId,
                 ).onLeft {
-                    return@post call.respondWithStatusResponse(BadRequest(errors = it).left())
+                    return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
                 }
 
                 db.transaction {
@@ -293,7 +293,7 @@ fun validerGodkjennRefusjonskrav(
     request: GodkjennRefusjonskrav,
     krav: RefusjonskravDto,
     forslagByDeltakerId: Map<UUID, List<DeltakerForslag>>,
-): Either<List<ValidationError>, GodkjennRefusjonskrav> {
+): Either<List<FieldError>, GodkjennRefusjonskrav> {
     val finnesRelevanteForslag = forslagByDeltakerId
         .any { (_, forslag) ->
             forslag.count { it.relevantForDeltakelse(krav) } > 0
@@ -301,15 +301,15 @@ fun validerGodkjennRefusjonskrav(
 
     return if (finnesRelevanteForslag) {
         listOf(
-            ValidationError.ofCustomLocation(
-                "info",
+            FieldError.ofPointer(
+                "/info",
                 "Det finnes forslag på deltakere som påvirker refusjonen. Disse må behandles av Nav før refusjonskravet kan sendes inn.",
             ),
         ).left()
     } else if (request.digest != krav.beregning.getDigest()) {
         listOf(
-            ValidationError.ofCustomLocation(
-                "info",
+            FieldError.ofPointer(
+                "/info",
                 "Informasjonen i kravet har endret seg. Vennligst se over på nytt.",
             ),
         ).left()
@@ -400,7 +400,7 @@ private suspend fun getPersoner(
         .getOrElse {
             throw StatusException(
                 status = HttpStatusCode.InternalServerError,
-                description = "Klarte ikke hente informasjon om deltakere i refusjonskravet.",
+                detail = "Klarte ikke hente informasjon om deltakere i refusjonskravet.",
             )
         }
 }

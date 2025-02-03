@@ -7,7 +7,7 @@ import io.kotest.matchers.collections.shouldContainAll
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
-import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -72,7 +72,7 @@ class OpsjonLoggValidatorTest : FunSpec({
             registrertAv = NavIdent("M123456"),
         )
         OpsjonLoggValidator.validate(entry, avtaleUtenOpsjonsmodell).shouldBeLeft().shouldContainAll(
-            ValidationError.of(OpsjonsmodellData::opsjonsmodell, "Kan ikke registrer opsjon uten en opsjonsmodell"),
+            FieldError.of(OpsjonsmodellData::opsjonsmodell, "Kan ikke registrer opsjon uten en opsjonsmodell"),
         )
     }
 
@@ -95,7 +95,7 @@ class OpsjonLoggValidatorTest : FunSpec({
         )
 
         OpsjonLoggValidator.validate(entry, avtale2Pluss1).shouldBeLeft().shouldContainAll(
-            ValidationError.of(
+            FieldError.of(
                 OpsjonLoggEntry::sluttdato,
                 "Ny sluttdato er forbi maks varighet av avtalen",
             ),
@@ -121,7 +121,7 @@ class OpsjonLoggValidatorTest : FunSpec({
         )
 
         OpsjonLoggValidator.validate(entry, avtale2Pluss1).shouldBeLeft().shouldContainAll(
-            ValidationError.of(
+            FieldError.of(
                 OpsjonLoggEntry::forrigeSluttdato,
                 "Forrige sluttdato må være satt",
             ),
@@ -156,7 +156,7 @@ class OpsjonLoggValidatorTest : FunSpec({
         )
 
         OpsjonLoggValidator.validate(entry, avtale2Pluss1).shouldBeLeft().shouldContainAll(
-            ValidationError.of(
+            FieldError.of(
                 OpsjonLoggEntry::status,
                 "Kan ikke utløse opsjon for avtale som har en opsjon som ikke skal utløses",
             ),

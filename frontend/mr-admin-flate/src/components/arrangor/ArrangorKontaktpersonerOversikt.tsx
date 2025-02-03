@@ -1,7 +1,12 @@
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
 import { useUpsertArrangorKontaktperson } from "@/api/arrangor/useUpsertArrangorKontaktperson";
-import { Arrangor, ArrangorKontaktperson, ArrangorKontaktpersonAnsvar } from "@mr/api-client-v2";
-import { isValidationError } from "@mr/frontend-common/utils/utils";
+import {
+  Arrangor,
+  ArrangorKontaktperson,
+  ArrangorKontaktpersonAnsvar,
+  ProblemDetail,
+} from "@mr/api-client-v2";
+import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
   Button,
   HStack,
@@ -253,11 +258,10 @@ function RedigerbarRad({ kontaktperson, setRedigerKontaktperson, arrangor }: Red
     mutation.reset();
   };
 
-  const onError = (error: any) => {
-    // TODO: fix any
+  const onError = (error: ProblemDetail) => {
     if (isValidationError(error)) {
       const errors = error.errors.reduce((errors: Record<string, string>, error) => {
-        return { ...errors, [error.name]: error.message };
+        return { ...errors, [jsonPointerToFieldPath(error.pointer)]: error.detail };
       }, {});
       setState({ ...state, errors });
     }
