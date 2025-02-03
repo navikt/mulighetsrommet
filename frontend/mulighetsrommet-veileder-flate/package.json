@@ -29,7 +29,7 @@
     "@amplitude/analytics-browser": "2.11.11",
     "@emotion/cache": "11.14.0",
     "@emotion/react": "11.14.0",
-    "@grafana/faro-web-sdk": "1.12.3",
+    "@grafana/faro-web-sdk": "1.13.0",
     "@mr/api-client-v2": "workspace:*",
     "@mr/frontend-common": "workspace:*",
     "@navikt/aksel-icons": "7.10.0",
