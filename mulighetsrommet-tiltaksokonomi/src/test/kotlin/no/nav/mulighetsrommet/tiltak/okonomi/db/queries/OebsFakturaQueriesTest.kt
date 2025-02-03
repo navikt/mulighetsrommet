@@ -6,16 +6,14 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.tiltak.okonomi.api.OkonomiPart
 import no.nav.mulighetsrommet.tiltak.okonomi.databaseConfig
-import no.nav.mulighetsrommet.tiltak.okonomi.db.BestillingDbo
-import no.nav.mulighetsrommet.tiltak.okonomi.db.FakturaDbo
-import no.nav.mulighetsrommet.tiltak.okonomi.db.LinjeDbo
+import no.nav.mulighetsrommet.tiltak.okonomi.db.*
 import no.nav.mulighetsrommet.tiltak.okonomi.oebs.Kilde
 import java.time.LocalDate
 
 class OebsFakturaQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
-    val bestillingDbo = BestillingDbo(
+    val bestilling = Bestilling(
         tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         arrangorHovedenhet = Organisasjonsnummer("123456789"),
         arrangorUnderenhet = Organisasjonsnummer("234567890"),
@@ -27,11 +25,11 @@ class OebsFakturaQueriesTest : FunSpec({
             LocalDate.of(2025, 1, 1),
             LocalDate.of(2025, 3, 1),
         ),
+        status = BestillingStatusType.AKTIV,
         opprettetAv = OkonomiPart.System(Kilde.TILTADM),
         opprettetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
         besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
         besluttetTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
-        annullert = false,
         linjer = listOf(
             LinjeDbo(
                 linjenummer = 1,
@@ -53,13 +51,14 @@ class OebsFakturaQueriesTest : FunSpec({
     )
 
     test("opprett faktura") {
-        val fakturaDbo = FakturaDbo(
+        val faktura = Faktura(
             fakturanummer = "4567",
             bestillingsnummer = "A-1",
             kontonummer = Kontonummer("12345678901"),
             kid = Kid("123123123123123"),
             belop = 500,
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+            status = FakturaStatusType.UTBETALT,
             opprettetAv = OkonomiPart.System(Kilde.TILTADM),
             opprettetTidspunkt = LocalDate.of(2025, 2, 1).atStartOfDay(),
             besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
@@ -85,14 +84,14 @@ class OebsFakturaQueriesTest : FunSpec({
         )
 
         database.runAndRollback {
-            val bestilling = BestillingQueries(it)
-            bestilling.createBestilling(bestillingDbo)
+            val bestillingQueries = BestillingQueries(it)
+            bestillingQueries.createBestilling(bestilling)
 
-            val faktura = FakturaQueries(it)
+            val fakturaQueries = FakturaQueries(it)
 
-            faktura.opprettFaktura(fakturaDbo)
+            fakturaQueries.opprettFaktura(faktura)
 
-            faktura.getFaktura("4567") shouldBe fakturaDbo
+            fakturaQueries.getFaktura("4567") shouldBe faktura
         }
     }
 })

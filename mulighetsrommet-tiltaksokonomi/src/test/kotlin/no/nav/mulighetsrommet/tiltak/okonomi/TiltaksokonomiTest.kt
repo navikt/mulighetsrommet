@@ -13,6 +13,8 @@ import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.tiltak.okonomi.api.*
+import no.nav.mulighetsrommet.tiltak.okonomi.db.BestillingStatusType
+import no.nav.mulighetsrommet.tiltak.okonomi.db.FakturaStatusType
 import no.nav.mulighetsrommet.tiltak.okonomi.oebs.Kilde
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.intellij.lang.annotations.Language
@@ -135,14 +137,14 @@ class TiltaksokonomiTest : FunSpec({
                     it.status shouldBe HttpStatusCode.OK
                     it.body<BestillingStatus>() shouldBe BestillingStatus(
                         bestillingsnummer = bestillingsnummer,
-                        status = BestillingStatus.Type.AKTIV,
+                        status = BestillingStatusType.AKTIV,
                     )
                 }
 
                 client.post(Bestilling.Id.Status(Bestilling.Id(id = bestillingsnummer))) {
                     bearerAuth(oauth.issueToken().serialize())
                     contentType(ContentType.Application.Json)
-                    setBody(SetBestillingStatus(status = BestillingStatus.Type.ANNULLERT))
+                    setBody(SetBestillingStatus(status = BestillingStatusType.ANNULLERT))
                 }.also {
                     it.status shouldBe HttpStatusCode.OK
                 }
@@ -153,7 +155,7 @@ class TiltaksokonomiTest : FunSpec({
                     it.status shouldBe HttpStatusCode.OK
                     it.body<BestillingStatus>() shouldBe BestillingStatus(
                         bestillingsnummer = bestillingsnummer,
-                        status = BestillingStatus.Type.ANNULLERT,
+                        status = BestillingStatusType.ANNULLERT,
                     )
                 }
             }
@@ -272,7 +274,7 @@ class TiltaksokonomiTest : FunSpec({
                     it.status shouldBe HttpStatusCode.OK
                     it.body<FakturaStatus>() shouldBe FakturaStatus(
                         fakturanummer = fakturanummer,
-                        status = FakturaStatus.Type.UTBETALT,
+                        status = FakturaStatusType.UTBETALT,
                     )
                 }
             }

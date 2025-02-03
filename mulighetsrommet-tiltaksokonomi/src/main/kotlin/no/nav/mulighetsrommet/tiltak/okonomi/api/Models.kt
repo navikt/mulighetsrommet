@@ -3,6 +3,8 @@ package no.nav.mulighetsrommet.tiltak.okonomi.api
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
+import no.nav.mulighetsrommet.tiltak.okonomi.db.BestillingStatusType
+import no.nav.mulighetsrommet.tiltak.okonomi.db.FakturaStatusType
 import no.nav.mulighetsrommet.tiltak.okonomi.oebs.Kilde
 import java.time.LocalDateTime
 
@@ -73,28 +75,16 @@ sealed class OkonomiPart(val part: String) {
 @Serializable
 data class BestillingStatus(
     val bestillingsnummer: String,
-    val status: Type,
-) {
-
-    enum class Type {
-        AKTIV,
-        ANNULLERT,
-        OPPGJORT,
-    }
-}
+    val status: BestillingStatusType,
+)
 
 @Serializable
 data class SetBestillingStatus(
-    val status: BestillingStatus.Type,
+    val status: BestillingStatusType,
 )
 
 @Serializable
 data class FakturaStatus(
     val fakturanummer: String,
-    val status: Type,
-) {
-
-    enum class Type {
-        UTBETALT,
-    }
-}
+    val status: FakturaStatusType,
+)

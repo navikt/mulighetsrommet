@@ -8,6 +8,8 @@ import io.ktor.server.resources.*
 import io.ktor.server.resources.post
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.mulighetsrommet.tiltak.okonomi.db.BestillingStatusType
+import no.nav.mulighetsrommet.tiltak.okonomi.db.FakturaStatusType
 import no.nav.mulighetsrommet.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.mulighetsrommet.tiltak.okonomi.oebs.OebsService
 
@@ -21,7 +23,7 @@ fun Application.okonomiRoutes(
         post<Bestilling> {
             val bestilling = call.receive<OpprettBestilling>()
 
-            oebs.behandleBestilling(bestilling)
+            oebs.opprettBestilling(bestilling)
                 .onLeft {
                     application.log.warn("Feil ved opprettelse av bestilling", it)
                     call.respond(HttpStatusCode.InternalServerError)
@@ -35,7 +37,7 @@ fun Application.okonomiRoutes(
             val body = call.receive<SetBestillingStatus>()
 
             when (body.status) {
-                BestillingStatus.Type.ANNULLERT -> oebs.behandleAnnullering(bestilling.parent.id)
+                BestillingStatusType.ANNULLERT -> oebs.annullerBestilling(bestilling.parent.id)
                     .onLeft {
                         application.log.warn("Feil ved annullering", it)
                         call.respond(HttpStatusCode.InternalServerError)
@@ -53,10 +55,7 @@ fun Application.okonomiRoutes(
                 queries.bestilling.getBestilling(bestilling.id)?.let {
                     BestillingStatus(
                         bestillingsnummer = it.bestillingsnummer,
-                        status = when {
-                            it.annullert -> BestillingStatus.Type.ANNULLERT
-                            else -> BestillingStatus.Type.AKTIV
-                        },
+                        status = it.status,
                     )
                 }
             }
@@ -71,7 +70,7 @@ fun Application.okonomiRoutes(
         post<Faktura> {
             val body = call.receive<OpprettFaktura>()
 
-            oebs.behandleFaktura(body)
+            oebs.opprettFaktura(body)
                 .onLeft {
                     application.log.warn("Feil ved opprettelse av faktura", it)
                     call.respond(HttpStatusCode.InternalServerError)
@@ -86,7 +85,7 @@ fun Application.okonomiRoutes(
                 queries.faktura.getFaktura(faktura.id)?.let {
                     FakturaStatus(
                         fakturanummer = it.fakturanummer,
-                        status = FakturaStatus.Type.UTBETALT,
+                        status = FakturaStatusType.UTBETALT,
                     )
                 }
             }

@@ -7,14 +7,15 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tiltak.okonomi.api.OkonomiPart
-import no.nav.mulighetsrommet.tiltak.okonomi.db.BestillingDbo
+import no.nav.mulighetsrommet.tiltak.okonomi.db.Bestilling
+import no.nav.mulighetsrommet.tiltak.okonomi.db.BestillingStatusType
 import no.nav.mulighetsrommet.tiltak.okonomi.db.LinjeDbo
 import no.nav.mulighetsrommet.tiltak.okonomi.db.periode
 import org.intellij.lang.annotations.Language
 
 class BestillingQueries(private val session: Session) {
 
-    fun createBestilling(bestilling: BestillingDbo) = withTransaction(session) {
+    fun createBestilling(bestilling: Bestilling) = withTransaction(session) {
         @Language("PostgreSQL")
         val insertBestilling = """
             insert into bestilling (
@@ -26,7 +27,7 @@ class BestillingQueries(private val session: Session) {
                 kostnadssted,
                 belop,
                 periode,
-                annullert,
+                status,
                 opprettet_av,
                 opprettet_tidspunkt,
                 besluttet_av,
@@ -40,7 +41,7 @@ class BestillingQueries(private val session: Session) {
                 :kostnadssted,
                 :belop,
                 daterange(:periode_start, :periode_slutt),
-                :annullert,
+                :status,
                 :opprettet_av,
                 :opprettet_tidspunkt,
                 :besluttet_av,
@@ -58,11 +59,11 @@ class BestillingQueries(private val session: Session) {
             "belop" to bestilling.belop,
             "periode_start" to bestilling.periode.start,
             "periode_slutt" to bestilling.periode.slutt,
+            "status" to bestilling.status.name,
             "opprettet_av" to bestilling.opprettetAv.part,
             "opprettet_tidspunkt" to bestilling.opprettetTidspunkt,
             "besluttet_av" to bestilling.besluttetAv.part,
             "besluttet_tidspunkt" to bestilling.besluttetTidspunkt,
-            "annullert" to bestilling.annullert,
         )
         val bestillingId = single(queryOf(insertBestilling, params)) { it.int("id") }
 
@@ -83,7 +84,7 @@ class BestillingQueries(private val session: Session) {
         batchPreparedNamedStatement(insertLinje, linjer)
     }
 
-    fun getBestilling(bestillingsnummer: String): BestillingDbo? {
+    fun getBestilling(bestillingsnummer: String): Bestilling? {
         @Language("PostgreSQL")
         val selectLinje = """
             select linjenummer, periode, belop
@@ -104,11 +105,11 @@ class BestillingQueries(private val session: Session) {
                 kostnadssted,
                 belop,
                 periode,
+                status,
                 opprettet_av,
                 opprettet_tidspunkt,
                 besluttet_av,
-                besluttet_tidspunkt,
-                annullert
+                besluttet_tidspunkt
             from bestilling
             where bestillingsnummer = ?
         """.trimIndent()
@@ -121,7 +122,7 @@ class BestillingQueries(private val session: Session) {
                 )
             }
 
-            BestillingDbo(
+            Bestilling(
                 tiltakskode = Tiltakskode.valueOf(bestilling.string("tiltakskode")),
                 arrangorHovedenhet = Organisasjonsnummer(bestilling.string("arrangor_hovedenhet")),
                 arrangorUnderenhet = Organisasjonsnummer(bestilling.string("arrangor_underenhet")),
@@ -130,27 +131,23 @@ class BestillingQueries(private val session: Session) {
                 avtalenummer = bestilling.stringOrNull("avtalenummer"),
                 belop = bestilling.int("belop"),
                 periode = bestilling.periode("periode"),
+                status = BestillingStatusType.valueOf(bestilling.string("status")),
                 opprettetAv = OkonomiPart.fromString(bestilling.string("opprettet_av")),
                 opprettetTidspunkt = bestilling.localDateTime("opprettet_tidspunkt"),
                 besluttetAv = OkonomiPart.fromString(bestilling.string("besluttet_av")),
                 besluttetTidspunkt = bestilling.localDateTime("besluttet_tidspunkt"),
-                annullert = bestilling.boolean("annullert"),
                 linjer = linjer,
             )
         }
     }
 
-    fun setAnnullert(bestillingsnummer: String, annullert: Boolean) {
+    fun setStatus(bestillingsnummer: String, status: BestillingStatusType) {
         @Language("PostgreSQL")
         val query = """
             update bestilling
-            set annullert = :annullert
-            where bestillingsnummer = :bestillingsnummer
+            set status = ?
+            where bestillingsnummer = ?
         """.trimIndent()
-        val params = mapOf(
-            "bestillingsnummer" to bestillingsnummer,
-            "annullert" to annullert,
-        )
-        session.execute(queryOf(query, params))
+        session.execute(queryOf(query, status.name, bestillingsnummer))
     }
 }
