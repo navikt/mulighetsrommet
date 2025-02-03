@@ -3,9 +3,22 @@ package no.nav.mulighetsrommet.database
 import kotliquery.Query
 import kotliquery.Row
 import kotliquery.Session
+import kotliquery.TransactionalSession
 import java.sql.Array
 import java.sql.SQLException
 import java.util.*
+
+/**
+ * Kjører [block] i kontekst av en [TransactionalSession], utledet fra [session] (som allerede kan være en [Session]
+ * eller en [TransactionalSession]).
+ */
+inline fun <R> withTransaction(session: Session, block: TransactionalSession.() -> R): R {
+    return if (session is TransactionalSession) {
+        session.block()
+    } else {
+        session.transaction { it.block() }
+    }
+}
 
 fun Session.createTextArray(list: Collection<Any>): Array {
     return createArrayOf("text", list)
