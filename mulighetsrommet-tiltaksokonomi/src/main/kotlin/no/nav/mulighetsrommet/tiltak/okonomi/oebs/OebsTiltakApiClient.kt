@@ -32,6 +32,10 @@ class OebsTiltakApiClient(
         return request(HttpMethod.Post, "$baseUrl/api/v1/oebs/bestilling", annullering)
     }
 
+    suspend fun sendFaktura(melding: OebsFakturaMelding): Either<ResponseException, HttpResponse> {
+        return request(HttpMethod.Post, "$baseUrl/api/v1/oebs/faktura", melding)
+    }
+
     private suspend inline fun <reified T> request(
         method: HttpMethod,
         requestUri: String,

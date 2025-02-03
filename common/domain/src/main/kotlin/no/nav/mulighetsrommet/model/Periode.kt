@@ -15,11 +15,15 @@ data class Periode(
     val start: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val slutt: LocalDate,
-) {
+) : Comparable<Periode> {
     init {
         require(start < slutt) {
             "start ($start) må være mindre enn slutt ($slutt)"
         }
+    }
+
+    override fun compareTo(other: Periode): Int {
+        return compareValuesBy(this, other, Periode::start, Periode::slutt)
     }
 
     companion object {

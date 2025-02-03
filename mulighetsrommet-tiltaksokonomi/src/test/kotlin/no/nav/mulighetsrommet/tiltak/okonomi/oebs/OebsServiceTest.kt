@@ -7,37 +7,19 @@ import java.time.LocalDate
 
 class OebsServiceTest : FunSpec({
 
-    context("splitBelopByMonthsInPeriode") {
+    context("divideBelopByMonthsInPeriode") {
         test("splitter beløpet fordelt på antall dager per måned i perioden") {
             val bestillingsperiode = Periode(
                 start = LocalDate.of(2023, 2, 1),
                 slutt = LocalDate.of(2023, 4, 15),
             )
 
-            val result = splitBelopByMonthsInPeriode(bestillingsperiode, 3000)
+            val perioder = divideBelopByMonthsInPeriode(bestillingsperiode, 3000)
 
-            result shouldBe listOf(
-                OebsBestillingMelding.Linje(
-                    linjeNummer = 1,
-                    periode = 2,
-                    antall = 1152,
-                    startDato = LocalDate.of(2023, 2, 1),
-                    sluttDato = LocalDate.of(2023, 2, 28),
-                ),
-                OebsBestillingMelding.Linje(
-                    linjeNummer = 2,
-                    periode = 3,
-                    antall = 1273,
-                    startDato = LocalDate.of(2023, 3, 1),
-                    sluttDato = LocalDate.of(2023, 3, 31),
-                ),
-                OebsBestillingMelding.Linje(
-                    linjeNummer = 3,
-                    periode = 4,
-                    antall = 575,
-                    startDato = LocalDate.of(2023, 4, 1),
-                    sluttDato = LocalDate.of(2023, 4, 14),
-                ),
+            perioder shouldBe listOf(
+                Periode(LocalDate.of(2023, 2, 1), LocalDate.of(2023, 3, 1)) to 1152,
+                Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 4, 1)) to 1273,
+                Periode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 4, 15)) to 575,
             )
         }
 
@@ -47,23 +29,11 @@ class OebsServiceTest : FunSpec({
                 slutt = LocalDate.of(2023, 3, 1),
             )
 
-            val result = splitBelopByMonthsInPeriode(bestillingsperiode, 3)
+            val perioder = divideBelopByMonthsInPeriode(bestillingsperiode, 3)
 
-            result shouldBe listOf(
-                OebsBestillingMelding.Linje(
-                    linjeNummer = 1,
-                    periode = 1,
-                    antall = 2,
-                    startDato = LocalDate.of(2023, 1, 1),
-                    sluttDato = LocalDate.of(2023, 1, 31),
-                ),
-                OebsBestillingMelding.Linje(
-                    linjeNummer = 2,
-                    periode = 2,
-                    antall = 1,
-                    startDato = LocalDate.of(2023, 2, 1),
-                    sluttDato = LocalDate.of(2023, 2, 28),
-                ),
+            perioder shouldBe listOf(
+                Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 2, 1)) to 2,
+                Periode(LocalDate.of(2023, 2, 1), LocalDate.of(2023, 3, 1)) to 1,
             )
         }
     }

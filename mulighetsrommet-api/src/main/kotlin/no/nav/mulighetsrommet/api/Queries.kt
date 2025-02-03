@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api
 
 import kotliquery.Session
-import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.altinn.db.AltinnRettigheterQueries
 import no.nav.mulighetsrommet.api.arrangor.db.ArrangorQueries
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleQueries
@@ -23,18 +22,6 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.notifications.NotificationQueries
 import no.nav.mulighetsrommet.utdanning.db.UtdanningQueries
 import javax.sql.DataSource
-
-/**
- * Kjører [block] i kontekst av en [TransactionalSession], utledet fra [session] (som allerede kan være en [Session]
- * eller en [TransactionalSession]).
- */
-inline fun <R> withTransaction(session: Session, block: TransactionalSession.() -> R): R {
-    return if (session is TransactionalSession) {
-        session.block()
-    } else {
-        session.transaction { it.block() }
-    }
-}
 
 class QueryContext(val session: Session) {
     val queries by lazy { Queries() }

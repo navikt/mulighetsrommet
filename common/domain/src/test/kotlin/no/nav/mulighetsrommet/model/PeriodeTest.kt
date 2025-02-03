@@ -46,4 +46,18 @@ class PeriodeTest : FunSpec({
             Periode(LocalDate.of(2021, 3, 1), LocalDate.of(2021, 3, 15)),
         )
     }
+
+    test("should compare periods") {
+        val period1 = Periode(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 31))
+        val period2 = Periode(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 31))
+        period1.compareTo(period2) shouldBe 0
+
+        val period3 = Periode(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 30))
+        period1.compareTo(period3) shouldBe 1
+        period3.compareTo(period1) shouldBe -1
+
+        val period4 = Periode(LocalDate.of(2021, 1, 2), LocalDate.of(2021, 1, 31))
+        period1.compareTo(period4) shouldBe -1
+        period4.compareTo(period1) shouldBe 1
+    }
 })
