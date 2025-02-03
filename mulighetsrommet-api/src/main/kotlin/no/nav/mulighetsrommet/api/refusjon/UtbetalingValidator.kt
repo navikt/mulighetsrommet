@@ -21,13 +21,15 @@ object UtbetalingValidator {
         }
 
         val errors = buildList {
-            if (request.kostnadsfordeling.any { it.belop <= 0 }) {
-                add(
-                    FieldError.of(
-                        UtbetalingRequest::kostnadsfordeling,
-                        "Beløp må være positivt",
-                    ),
-                )
+            request.kostnadsfordeling.forEachIndexed { index, tilsagnOgBelop ->
+                if (tilsagnOgBelop.belop <= 0) {
+                    add(
+                        FieldError.ofPointer(
+                            "/kostnadsfordeling/$index/belop",
+                            "Beløp må være positivt",
+                        ),
+                    )
+                }
             }
         }
 
