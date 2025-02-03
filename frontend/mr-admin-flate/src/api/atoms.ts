@@ -295,7 +295,7 @@ export const arrangorerFilterAtom = atomWithHashAndStorage<ArrangorerFilter>(
 const oppgaverFilterSchema = z.object({
   type: z
     .enum([
-      OppgaveType.TILSAGN_TIL_BESLUTNING,
+      OppgaveType.TILSAGN_TIL_GODKJENNING,
       OppgaveType.TILSAGN_TIL_ANNULLERING,
       OppgaveType.TILSAGN_RETURNERT_AV_BESLUTTER,
     ])
