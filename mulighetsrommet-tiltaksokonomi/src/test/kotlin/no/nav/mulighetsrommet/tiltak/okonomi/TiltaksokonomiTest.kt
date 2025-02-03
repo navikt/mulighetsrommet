@@ -40,9 +40,9 @@ class TiltaksokonomiTest : FunSpec({
                     }
                 }
 
-                val response = client.get(Bestilling.Id(id = "T-123"))
-
-                response.status shouldBe HttpStatusCode.Unauthorized
+                client.post(Bestilling()).status shouldBe HttpStatusCode.Unauthorized
+                client.post(Bestilling.Id.Status(Bestilling.Id(id = "A-1"))).status shouldBe HttpStatusCode.Unauthorized
+                client.get(Bestilling.Id(id = "A-1")).status shouldBe HttpStatusCode.Unauthorized
             }
         }
 
@@ -155,6 +155,24 @@ class TiltaksokonomiTest : FunSpec({
                         status = BestillingStatus.Type.ANNULLERT,
                     )
                 }
+            }
+        }
+    }
+
+    context("faktura") {
+        test("unauthorized når token mangler") {
+            val mockEngine = createMockEngine()
+
+            withTestApplication(oauth, mockEngine) {
+                val client = createClient {
+                    install(Resources)
+                    install(ContentNegotiation) {
+                        json()
+                    }
+                }
+
+                client.post(Faktura()).status shouldBe HttpStatusCode.Unauthorized
+                client.get(Faktura.Id(id = "A-1")).status shouldBe HttpStatusCode.Unauthorized
             }
         }
 
