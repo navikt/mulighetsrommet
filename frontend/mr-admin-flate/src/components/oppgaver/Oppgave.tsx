@@ -37,7 +37,7 @@ export function Oppgave({ oppgave, tiltakstype }: OppgaveProps) {
 }
 
 const labels: Record<OppgaveType, { label: string; color: string }> = {
-  TILSAGN_TIL_BESLUTNING: {
+  TILSAGN_TIL_GODKJENNING: {
     label: "Tilsagn til godkjenning",
     color: "#FFD799",
   },
