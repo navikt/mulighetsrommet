@@ -30,7 +30,7 @@ class OppgaverService(val db: ApiDatabase) {
 
             val tilsagnStatuser = oppgavetyper.mapNotNull { oppgavetype ->
                 when {
-                    oppgavetype == OppgaveType.TILSAGN_TIL_BESLUTNING && ansattRoller.contains(NavAnsattRolle.OKONOMI_BESLUTTER) -> listOf(
+                    oppgavetype == OppgaveType.TILSAGN_TIL_GODKJENNING && ansattRoller.contains(NavAnsattRolle.OKONOMI_BESLUTTER) -> listOf(
                         TilsagnStatus.TIL_GODKJENNING,
                     )
 
@@ -112,7 +112,7 @@ class OppgaverService(val db: ApiDatabase) {
 
     private fun TilsagnDto.TilsagnStatus.toType(): OppgaveType {
         return when (this) {
-            is TilGodkjenning -> OppgaveType.TILSAGN_TIL_BESLUTNING
+            is TilGodkjenning -> OppgaveType.TILSAGN_TIL_GODKJENNING
             is Returnert -> OppgaveType.TILSAGN_RETURNERT_AV_BESLUTTER
             is TilAnnullering -> OppgaveType.TILSAGN_TIL_ANNULLERING
             else -> throw IllegalStateException("Ukjent tilsagnstatus")

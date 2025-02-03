@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
 enum class OppgaveType {
-    TILSAGN_TIL_BESLUTNING,
+    TILSAGN_TIL_GODKJENNING,
     TILSAGN_TIL_ANNULLERING,
     TILSAGN_RETURNERT_AV_BESLUTTER,
 }

@@ -42,8 +42,8 @@ export function OppgaverFilter({ filterAtom, tiltakstyper, regioner }: Props) {
                 <Checkbox size="small" value={OppgaveType.TILSAGN_TIL_ANNULLERING}>
                   Tilsagn til annullering
                 </Checkbox>
-                <Checkbox size="small" value={OppgaveType.TILSAGN_TIL_BESLUTNING}>
-                  Tilsagn til beslutning
+                <Checkbox size="small" value={OppgaveType.TILSAGN_TIL_GODKJENNING}>
+                  Tilsagn til godkjenning
                 </Checkbox>
                 <Checkbox size="small" value={OppgaveType.TILSAGN_RETURNERT_AV_BESLUTTER}>
                   Tilsagn returnert fra beslutter

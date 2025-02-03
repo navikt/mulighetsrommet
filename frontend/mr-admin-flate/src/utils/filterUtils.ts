@@ -68,8 +68,8 @@ export const AVTALE_TYPE_OPTIONS: { label: string; value: Avtaletype }[] = [
 
 export const OPPGAVER_TYPE_STATUS: { label: string; value: OppgaveType }[] = [
   {
-    label: "Tilsagn til beslutning",
-    value: OppgaveType.TILSAGN_TIL_BESLUTNING,
+    label: "Tilsagn til godkjenning",
+    value: OppgaveType.TILSAGN_TIL_GODKJENNING,
   },
   {
     label: "Tilsagn til annullering",
