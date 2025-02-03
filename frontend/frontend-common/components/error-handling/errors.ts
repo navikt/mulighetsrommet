@@ -8,6 +8,6 @@ export function resolveErrorMessage(error: any): string {
   if (isProblemDetail(error)) {
     return error.detail;
   }
-  return "foo";
+  return "Det skjedde en uventet feil";
 }
 

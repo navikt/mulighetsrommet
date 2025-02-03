@@ -169,7 +169,7 @@ export const AvbrytGjennomforingModal = ({ modalRef, gjennomforing }: Props) => 
               <AvbrytModalError
                 aarsak={state.aarsak}
                 customAarsak={state?.customAarsak}
-                mutation={mutation}
+                error={mutation.error.detail}
               />
             </BodyShort>
           )}

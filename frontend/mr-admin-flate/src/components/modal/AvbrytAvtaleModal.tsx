@@ -172,7 +172,7 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
               <AvbrytModalError
                 aarsak={state.aarsak}
                 customAarsak={state?.customAarsak}
-                mutation={mutation}
+                error={mutation.error.detail}
               />
             </BodyShort>
           )}

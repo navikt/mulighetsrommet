@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrangorService } from "@mr/api-client-v2";
+import { ArrangorService, ProblemDetail } from "@mr/api-client-v2";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useDeleteArrangorKontaktperson(arrangorId: string) {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<unknown, ProblemDetail, { kontaktpersonId: string }>({
     mutationFn({ kontaktpersonId }: { kontaktpersonId: string }) {
       return ArrangorService.deleteArrangorKontaktperson({
         path: { id: kontaktpersonId },

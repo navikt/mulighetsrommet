@@ -6,7 +6,6 @@ import {
   ArrangorKontaktpersonAnsvar,
   ProblemDetail,
 } from "@mr/api-client-v2";
-import { resolveErrorMessage } from "@mr/frontend-common/components/error-handling/errors";
 import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Button, HGrid, TextField, UNSAFE_Combobox } from "@navikt/ds-react";
 import { useState } from "react";
@@ -199,7 +198,7 @@ export function ArrangorKontaktpersonForm({
       </HGrid>
       {deleteMutation.isError && (
         <div className="text-[16px] mt-[8px] text-[#c30000]">
-          <b>• {resolveErrorMessage(deleteMutation.error)}</b>
+          <b>• {deleteMutation.error.detail}</b>
         </div>
       )}
     </HGrid>
