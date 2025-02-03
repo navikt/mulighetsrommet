@@ -1,12 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
-import { GjennomforingerService, SetStengtHosArrangorRequest } from "@mr/api-client-v2";
-import { ApiError } from "@mr/frontend-common/components/error-handling/errors";
+import {
+  GjennomforingerService,
+  ProblemDetail,
+  SetStengtHosArrangorRequest,
+} from "@mr/api-client-v2";
 
 export function useSetStengtHosArrangor(gjennomforingId: string) {
   const queryClient = useQueryClient();
 
-  return useMutation<unknown, ApiError, SetStengtHosArrangorRequest>({
+  return useMutation<unknown, ProblemDetail, SetStengtHosArrangorRequest>({
     mutationFn: async (data) => {
       return GjennomforingerService.setStengtHosArrangor({
         path: { id: gjennomforingId },

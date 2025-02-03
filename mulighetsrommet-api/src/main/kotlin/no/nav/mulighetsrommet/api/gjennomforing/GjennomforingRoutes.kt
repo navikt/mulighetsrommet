@@ -1,9 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing
 
-import arrow.core.Either
-import arrow.core.NonEmptyList
-import arrow.core.flatMap
-import arrow.core.nel
+import arrow.core.*
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
@@ -51,7 +48,7 @@ fun Route.gjennomforingRoutes() {
                 val navIdent = getNavIdent()
 
                 val result = gjennomforinger.upsert(request, navIdent)
-                    .mapLeft { BadRequest(errors = it) }
+                    .mapLeft { ValidationError(errors = it) }
                 call.respondWithStatusResponse(result)
             }
 
@@ -156,7 +153,7 @@ fun Route.gjennomforingRoutes() {
                         request.tilgjengeligForArrangorDato,
                         navIdent,
                     )
-                    .mapLeft { BadRequest(errors = it) }
+                    .mapLeft { ValidationError(errors = it) }
 
                 call.respondWithStatusResponse(response)
             }
@@ -170,7 +167,7 @@ fun Route.gjennomforingRoutes() {
                     .flatMap { (periode, beskrivelse) ->
                         gjennomforinger.setStengtHosArrangor(id, periode, beskrivelse, EndretAv.NavAnsatt(navIdent))
                     }
-                    .mapLeft { BadRequest(errors = it) }
+                    .mapLeft { ValidationError(errors = it) }
 
                 call.respondWithStatusResponse(result)
             }
@@ -199,8 +196,8 @@ fun Route.gjennomforingRoutes() {
                         "Klarte ikke fjerne kontaktperson fra gjennomføring: $request",
                         e,
                     )
-                    call.respondWithStatusResponseError(
-                        ServerError("Klarte ikke fjerne kontaktperson fra gjennomføringen"),
+                    call.respondWithStatusResponse(
+                        InternalServerError("Klarte ikke fjerne kontaktperson fra gjennomføringen").left(),
                     )
                 }
             }
@@ -458,38 +455,38 @@ data class SetStengtHosArrangorRequest(
     val periodeSlutt: LocalDate? = null,
     val beskrivelse: String? = null,
 ) {
-    fun validate(): Either<NonEmptyList<ValidationError>, Pair<Periode, String>> = either {
+    fun validate(): Either<NonEmptyList<FieldError>, Pair<Periode, String>> = either {
         zipOrAccumulate(
             {
                 ensure(!beskrivelse.isNullOrBlank()) {
-                    ValidationError.of(
+                    FieldError.of(
                         SetStengtHosArrangorRequest::beskrivelse,
-                        message = "Du må legge inn en beskrivelse",
+                        detail = "Du må legge inn en beskrivelse",
                     )
                 }
                 beskrivelse
             },
             {
                 ensureNotNull(periodeStart) {
-                    ValidationError.of(
+                    FieldError.of(
                         SetStengtHosArrangorRequest::periodeStart,
-                        message = "Du må legge inn start på perioden",
+                        detail = "Du må legge inn start på perioden",
                     )
                 }
             },
             {
                 ensureNotNull(periodeSlutt) {
-                    ValidationError.of(
+                    FieldError.of(
                         SetStengtHosArrangorRequest::periodeSlutt,
-                        message = "Du må legge inn slutt på perioden",
+                        detail = "Du må legge inn slutt på perioden",
                     )
                 }
             },
         ) { beskrivelse, start, slutt ->
             ensure(!slutt.isBefore(start)) {
-                ValidationError.of(
+                FieldError.of(
                     SetStengtHosArrangorRequest::periodeStart,
-                    message = "Start må være før slutt",
+                    detail = "Start må være før slutt",
                 ).nel()
             }
 

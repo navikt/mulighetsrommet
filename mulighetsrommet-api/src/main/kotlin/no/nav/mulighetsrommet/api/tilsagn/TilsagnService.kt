@@ -22,9 +22,9 @@ import java.util.*
 class TilsagnService(
     private val db: ApiDatabase,
 ) {
-    fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<ValidationError>, TilsagnDto> = db.transaction {
+    fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<FieldError>, TilsagnDto> = db.transaction {
         val gjennomforing = queries.gjennomforing.get(request.gjennomforingId)
-            ?: return ValidationError
+            ?: return FieldError
                 .of(TilsagnRequest::gjennomforingId, "Tiltaksgjennomforingen finnes ikke")
                 .nel()
                 .left()
@@ -63,7 +63,7 @@ class TilsagnService(
             }
     }
 
-    fun beregnTilsagn(input: TilsagnBeregningInput): Either<List<ValidationError>, TilsagnBeregning> {
+    fun beregnTilsagn(input: TilsagnBeregningInput): Either<List<FieldError>, TilsagnBeregning> {
         return TilsagnValidator.validateBeregningInput(input)
             .map {
                 when (input) {
@@ -121,7 +121,7 @@ class TilsagnService(
         if (navIdent == tilsagn.status.endretAv) {
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         } else if (besluttelse.aarsaker.isEmpty()) {
-            return BadRequest(message = "Årsaker er påkrevd").left()
+            return BadRequest(detail = "Årsaker er påkrevd").left()
         }
 
         queries.tilsagn.returner(
@@ -245,7 +245,7 @@ class TilsagnService(
     private fun validateGjennomforingBeregningInput(
         gjennomforing: GjennomforingDto,
         input: TilsagnBeregningInput,
-    ): Either<List<ValidationError>, TilsagnBeregningInput> {
+    ): Either<List<FieldError>, TilsagnBeregningInput> {
         return when (input) {
             is TilsagnBeregningForhandsgodkjent.Input -> TilsagnValidator.validateForhandsgodkjentSats(
                 gjennomforing.tiltakstype.tiltakskode,

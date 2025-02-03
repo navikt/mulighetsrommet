@@ -36,7 +36,7 @@ class AvtaleService(
     suspend fun upsert(
         request: AvtaleRequest,
         navIdent: NavIdent,
-    ): Either<List<ValidationError>, AvtaleDto> = either {
+    ): Either<List<FieldError>, AvtaleDto> = either {
         val (arrangor, underenheter) = syncArrangorerFromBrreg(request).bind()
         val previous = get(request.id)
         val dbo = validator.validate(toAvtaleDbo(request, arrangor, underenheter), previous).bind()
@@ -90,20 +90,20 @@ class AvtaleService(
 
     fun avbrytAvtale(id: UUID, navIdent: NavIdent, aarsak: AvbruttAarsak?): StatusResponse<Unit> = db.transaction {
         if (aarsak == null) {
-            return Either.Left(BadRequest(message = "Årsak mangler"))
+            return Either.Left(BadRequest(detail = "Årsak mangler"))
         }
         val avtale = queries.avtale.get(id) ?: return Either.Left(NotFound("Avtalen finnes ikke"))
 
         if (aarsak is AvbruttAarsak.Annet && aarsak.name.length > 100) {
-            return Either.Left(BadRequest(message = "Beskrivelse kan ikke inneholde mer enn 100 tegn"))
+            return Either.Left(BadRequest(detail = "Beskrivelse kan ikke inneholde mer enn 100 tegn"))
         }
 
         if (aarsak is AvbruttAarsak.Annet && aarsak.name.isEmpty()) {
-            return Either.Left(BadRequest(message = "Beskrivelse er obligatorisk når “Annet” er valgt som årsak"))
+            return Either.Left(BadRequest(detail = "Beskrivelse er obligatorisk når “Annet” er valgt som årsak"))
         }
 
         if (avtale.status != AvtaleStatus.AKTIV) {
-            return Either.Left(BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
+            return Either.Left(BadRequest(detail = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
         }
 
         val (_, gjennomforinger) = queries.gjennomforing.getAll(
@@ -158,7 +158,7 @@ class AvtaleService(
 
     private suspend fun syncArrangorerFromBrreg(
         request: AvtaleRequest,
-    ): Either<List<ValidationError>, Pair<ArrangorDto, List<ArrangorDto>>> = either {
+    ): Either<List<FieldError>, Pair<ArrangorDto, List<ArrangorDto>>> = either {
         val arrangor = syncArrangorFromBrreg(request.arrangorOrganisasjonsnummer).bind()
         val underenheter = request.arrangorUnderenheter.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
             syncArrangorFromBrreg(it).bind()
@@ -168,10 +168,10 @@ class AvtaleService(
 
     private suspend fun syncArrangorFromBrreg(
         orgnr: Organisasjonsnummer,
-    ): Either<List<ValidationError>, ArrangorDto> = arrangorService
+    ): Either<List<FieldError>, ArrangorDto> = arrangorService
         .getArrangorOrSyncFromBrreg(orgnr)
         .mapLeft {
-            ValidationError.of(
+            FieldError.of(
                 AvtaleRequest::arrangorOrganisasjonsnummer,
                 "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
             ).nel()

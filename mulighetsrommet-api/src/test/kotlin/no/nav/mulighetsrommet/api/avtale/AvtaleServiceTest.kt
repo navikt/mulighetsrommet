@@ -22,8 +22,8 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.responses.BadRequest
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.NotFound
-import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -75,11 +75,11 @@ class AvtaleServiceTest : FunSpec({
             val request = AvtaleFixtures.avtaleRequest
 
             every { validator.validate(any(), any()) } returns listOf(
-                ValidationError("navn", "Dårlig navn"),
+                FieldError("navn", "Dårlig navn"),
             ).left()
 
             avtaleService.upsert(request, bertilNavIdent).shouldBeLeft(
-                listOf(ValidationError("navn", "Dårlig navn")),
+                listOf(FieldError("navn", "Dårlig navn")),
             )
         }
 
@@ -93,8 +93,8 @@ class AvtaleServiceTest : FunSpec({
 
             avtaleService.upsert(request, bertilNavIdent).shouldBeLeft(
                 listOf(
-                    ValidationError(
-                        "arrangorOrganisasjonsnummer",
+                    FieldError(
+                        "/arrangorOrganisasjonsnummer",
                         "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
                     ),
                 ),
@@ -136,7 +136,7 @@ class AvtaleServiceTest : FunSpec({
             database.run { queries.avtale.upsert(avtale) }
 
             avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
-                BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."),
+                BadRequest(detail = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."),
             )
         }
 

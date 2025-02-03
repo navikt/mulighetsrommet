@@ -5,72 +5,81 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
+import no.nav.mulighetsrommet.model.ProblemDetail
 import kotlin.reflect.KProperty1
 
 /**
  * Et forsøk på å definere noen utility-klasser som gjør det lettere å benytte Arrow's [Either] i kombinasjon
  * med ktor routes.
  */
-typealias StatusResponse<T> = Either<StatusResponseError, T>
+typealias StatusResponse<T> = Either<ProblemDetail, T>
 
-sealed class StatusResponseError(
-    val status: HttpStatusCode,
-    val message: String?,
-    val errors: List<ValidationError>?,
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is StatusResponseError) return false
-
-        if (status != other.status) return false
-        if (message != other.message) return false
-        if (errors != other.errors) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = status.hashCode()
-        result = 31 * result + (message?.hashCode() ?: 0)
-        result = 31 * result + errors.hashCode()
-        return result
-    }
-
-    override fun toString(): String {
-        return "StatusResponseError(status=$status, message=$message, errors=$errors)"
-    }
+data class InternalServerError(
+    override val detail: String = "Unknown Internal Server Error",
+) : ProblemDetail() {
+    override val type = "internal-server-error"
+    override val title = HttpStatusCode.InternalServerError.description
+    override val status: Int = HttpStatusCode.InternalServerError.value
+    override val extensions = null
+    override val instance = null
 }
 
-class ServerError(message: String? = null) : StatusResponseError(HttpStatusCode.InternalServerError, message, null)
+data class BadRequest(
+    override val detail: String = "Unknown Bad Request",
+) : ProblemDetail() {
+    override val type = "bad-request"
+    override val title = HttpStatusCode.BadRequest.description
+    override val status: Int = HttpStatusCode.BadRequest.value
+    override val extensions = null
+    override val instance = null
+}
 
-class BadRequest(message: String? = null, errors: List<ValidationError>? = null) : StatusResponseError(
-    HttpStatusCode.BadRequest,
-    message,
-    errors,
-)
-
-class NotFound(message: String? = null) : StatusResponseError(HttpStatusCode.NotFound, message, null)
-
-class Forbidden(message: String? = null) : StatusResponseError(HttpStatusCode.Forbidden, message, null)
-
-@Serializable
-data class ValidationErrorResponse(
-    val message: String?,
-    val errors: List<ValidationError>,
-)
-
-@Serializable
 data class ValidationError(
-    val name: String,
-    val message: String,
+    override val detail: String = "Unknown Validation Error",
+    val errors: List<FieldError>,
+) : ProblemDetail() {
+    override val type = "validation-error"
+    override val title = "Validation error"
+    override val status: Int = HttpStatusCode.BadRequest.value
+    override val extensions = mapOf("errors" to Json.encodeToJsonElement(errors))
+    override val instance = null
+}
+
+data class NotFound(
+    override val detail: String = "Unknown not found",
+) : ProblemDetail() {
+    override val type = "not-found"
+    override val title = HttpStatusCode.NotFound.description
+    override val status: Int = HttpStatusCode.NotFound.value
+    override val instance = null
+    override val extensions = null
+}
+
+data class Forbidden(
+    override val detail: String = "Unknown forbidden",
+) : ProblemDetail() {
+    override val type = "forbidden"
+    override val title = HttpStatusCode.Forbidden.description
+    override val status: Int = HttpStatusCode.Forbidden.value
+    override val instance = null
+    override val extensions = null
+}
+
+@Serializable
+data class FieldError(
+    val pointer: String,
+    val detail: String,
 ) {
     companion object {
-        fun of(property: KProperty1<*, *>, message: String): ValidationError {
-            return ValidationError(name = property.name, message = message)
+        fun of(property: KProperty1<*, *>, detail: String): FieldError {
+            return FieldError(pointer = "/${property.name}", detail = detail)
         }
 
-        fun ofCustomLocation(location: String, message: String): ValidationError {
-            return ValidationError(name = location, message = message)
+        fun ofPointer(pointer: String, detail: String): FieldError {
+            return FieldError(pointer = pointer, detail = detail)
         }
     }
 }
@@ -81,16 +90,6 @@ suspend inline fun <reified T : Any> ApplicationCall.respondWithStatusResponse(r
             respond(message)
         }
         .onLeft { error ->
-            respondWithStatusResponseError(error)
+            respondWithProblemDetail(error)
         }
-}
-
-suspend fun ApplicationCall.respondWithStatusResponseError(error: StatusResponseError) {
-    if (error.errors == null) {
-        val message = error.message ?: error.status.description
-        respond(error.status, message)
-    } else {
-        val message = ValidationErrorResponse(message = error.message, errors = error.errors)
-        respond(error.status, message)
-    }
 }

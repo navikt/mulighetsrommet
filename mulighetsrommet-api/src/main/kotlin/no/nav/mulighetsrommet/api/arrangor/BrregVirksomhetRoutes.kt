@@ -5,10 +5,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.responses.BadRequest
-import no.nav.mulighetsrommet.api.responses.NotFound
-import no.nav.mulighetsrommet.api.responses.ServerError
-import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
@@ -70,7 +67,7 @@ fun isUtenlandskOrgnr(orgnr: Organisasjonsnummer): Boolean {
 fun toStatusResponseError(it: BrregError) = when (it) {
     BrregError.NotFound -> NotFound()
     BrregError.BadRequest -> BadRequest()
-    BrregError.Error -> ServerError()
+    BrregError.Error -> InternalServerError()
 }
 
 private fun toBrregVirksomhetDto(arrangor: ArrangorDto) = when {

@@ -11,7 +11,6 @@ import ReactDOM from "react-dom/client";
 import { AppWithRouter } from "./App";
 import { client } from "@mr/api-client-v2";
 import "./index.css";
-import { ApiError } from "@mr/frontend-common/components/error-handling/errors";
 import { v4 as uuidv4 } from "uuid";
 import { APPLICATION_NAME } from "@/constants";
 
@@ -26,23 +25,6 @@ const queryClient = new QueryClient({
 
 client.setConfig({
   baseUrl: import.meta.env.VITE_MULIGHETSROMMET_API_BASE ?? "",
-});
-
-client.interceptors.response.use(async (response) => {
-  if (response.status < 200 || response.status >= 300) {
-    let body: unknown;
-    try {
-      body = await response.json();
-    } catch {
-      // Do nothing
-    }
-
-    throw {
-      status: response.status,
-      body,
-    } as ApiError;
-  }
-  return response;
 });
 
 client.interceptors.request.use((request) => {

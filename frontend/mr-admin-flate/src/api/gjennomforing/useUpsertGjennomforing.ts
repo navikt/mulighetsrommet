@@ -1,11 +1,16 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { GjennomforingerService, GjennomforingRequest } from "@mr/api-client-v2";
+import {
+  GjennomforingDto,
+  GjennomforingerService,
+  GjennomforingRequest,
+  ProblemDetail,
+} from "@mr/api-client-v2";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useUpsertGjennomforing() {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<{ data: GjennomforingDto }, ProblemDetail, GjennomforingRequest>({
     mutationFn: (body: GjennomforingRequest) =>
       GjennomforingerService.upsertGjennomforing({
         body,

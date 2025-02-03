@@ -1,9 +1,13 @@
 import { useDeleteArrangorKontaktperson } from "@/api/arrangor/useDeleteArrangorKontaktperson";
 import { useUpsertArrangorKontaktperson } from "@/api/arrangor/useUpsertArrangorKontaktperson";
 import { validEmail } from "@/utils/Utils";
-import { ArrangorKontaktperson, ArrangorKontaktpersonAnsvar } from "@mr/api-client-v2";
+import {
+  ArrangorKontaktperson,
+  ArrangorKontaktpersonAnsvar,
+  ProblemDetail,
+} from "@mr/api-client-v2";
 import { resolveErrorMessage } from "@mr/frontend-common/components/error-handling/errors";
-import { isValidationError } from "@mr/frontend-common/utils/utils";
+import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Button, HGrid, TextField, UNSAFE_Combobox } from "@navikt/ds-react";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -86,12 +90,10 @@ export function ArrangorKontaktpersonForm({
           putMutation.reset();
           onSubmit();
         },
-        onError: (error: any) => {
-          // TODO: Fix typing
-          const body = error?.body;
-          if (isValidationError(body)) {
-            const errors = body.errors.reduce((errors: Record<string, string>, error) => {
-              return { ...errors, [error.name]: error.message };
+        onError: (error: ProblemDetail) => {
+          if (isValidationError(error)) {
+            const errors = error.errors.reduce((errors: Record<string, string>, error) => {
+              return { ...errors, [jsonPointerToFieldPath(error.pointer)]: error.detail };
             }, {});
             setState({ ...state, errors });
           }
