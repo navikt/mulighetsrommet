@@ -108,11 +108,12 @@ class AvtaleValidator(
                 add(ValidationError.of(AvtaleDbo::websaknummer, "Du må skrive inn Websaknummer til avtalesaken"))
             }
 
-            if (avtale.arrangorUnderenheter?.isEmpty()!!) {
+            if (avtale.arrangor?.underenheter?.isEmpty()!!) {
                 add(
                     ValidationError.of(
-                        AvtaleDbo::arrangorUnderenheter,
                         "Du må velge minst én underenhet for tiltaksarrangør",
+                        AvtaleDbo::arrangor,
+                        AvtaleDbo.Arrangor::hovedenhet,
                     ),
                 )
             }
@@ -181,27 +182,29 @@ class AvtaleValidator(
     private fun MutableList<ValidationError>.validateCreateAvtale(
         avtale: AvtaleDbo,
     ) = db.session {
-        if (avtale.arrangorId !== null) {
-            val hovedenhet = queries.arrangor.getById(avtale.arrangorId)
+        if (avtale.arrangor?.hovedenhet !== null) {
+            val hovedenhet = queries.arrangor.getById(avtale.arrangor.hovedenhet)
 
             if (hovedenhet.slettetDato != null) {
                 add(
                     ValidationError.of(
-                        AvtaleDbo::arrangorId,
                         "Arrangøren ${hovedenhet.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
+                        AvtaleDbo::arrangor,
+                        AvtaleDbo.Arrangor::hovedenhet,
                     ),
                 )
             }
 
             // @todo: Make arrangor optional
-            avtale.arrangorUnderenheter?.forEach { underenhetId ->
+            avtale.arrangor.underenheter?.forEach { underenhetId ->
                 val underenhet = queries.arrangor.getById(underenhetId)
 
                 if (underenhet.slettetDato != null) {
                     add(
                         ValidationError.of(
-                            AvtaleDbo::arrangorUnderenheter,
                             "Arrangøren ${underenhet.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
+                            AvtaleDbo::arrangor,
+                            AvtaleDbo.Arrangor::underenheter,
                         ),
                     )
                 }
@@ -209,8 +212,9 @@ class AvtaleValidator(
                 if (underenhet.overordnetEnhet != hovedenhet.organisasjonsnummer) {
                     add(
                         ValidationError.of(
-                            AvtaleDbo::arrangorUnderenheter,
                             "Arrangøren ${underenhet.navn} er ikke en gyldig underenhet til hovedenheten ${hovedenhet.navn}.",
+                            AvtaleDbo::arrangor,
+                            AvtaleDbo.Arrangor::underenheter,
                         ),
                     )
                 }
@@ -243,12 +247,13 @@ class AvtaleValidator(
 
             gjennomforinger.forEach { gjennomforing ->
                 val arrangorId = gjennomforing.arrangor.id
-                if (avtale.arrangorUnderenheter?.contains(arrangorId) != true) {
+                if (avtale.arrangor?.underenheter?.contains(arrangorId) != true) {
                     val arrangor = queries.arrangor.getById(arrangorId)
                     add(
                         ValidationError.of(
-                            AvtaleDbo::arrangorUnderenheter,
                             "Arrangøren ${arrangor.navn} er i bruk på en av avtalens gjennomføringer, men mangler blant tiltaksarrangørens underenheter",
+                            AvtaleDbo::arrangor,
+                            AvtaleDbo.Arrangor::underenheter,
                         ),
                     )
                 }

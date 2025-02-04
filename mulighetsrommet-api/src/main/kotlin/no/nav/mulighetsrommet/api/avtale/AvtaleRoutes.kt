@@ -31,12 +31,7 @@ data class AvtaleRequest(
     val navn: String,
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
-    val arrangorOrganisasjonsnummer: Organisasjonsnummer?,
-    val arrangorUnderenheter: List<Organisasjonsnummer>?,
-    val arrangorKontaktpersoner: List<
-        @Serializable(with = UUIDSerializer::class)
-        UUID,
-        >?,
+    val arrangor: Arrangor?,
     val avtalenummer: String?,
     val websaknummer: Websaknummer?,
     @Serializable(with = LocalDateSerializer::class)
@@ -55,7 +50,18 @@ data class AvtaleRequest(
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo?,
     val prismodell: Prismodell?,
-)
+) {
+
+    @Serializable
+    data class Arrangor(
+        val hovedenhet: Organisasjonsnummer,
+        val underenheter: List<Organisasjonsnummer>,
+        val kontaktpersoner: List<
+            @Serializable(with = UUIDSerializer::class)
+            UUID,
+            >,
+    )
+}
 
 @Serializable
 data class OpsjonsmodellData(

@@ -13,9 +13,7 @@ data class AvtaleDbo(
     val avtalenummer: String?,
     val websaknummer: Websaknummer?,
     // @todo: Make nullable
-    val arrangorId: UUID?,
-    val arrangorUnderenheter: List<UUID>?,
-    val arrangorKontaktpersoner: List<UUID>?,
+    val arrangor: Arrangor?,
     val startDato: LocalDate,
     val sluttDato: LocalDate?,
     val opsjonMaksVarighet: LocalDate?,
@@ -33,4 +31,10 @@ data class AvtaleDbo(
     val customOpsjonsmodellNavn: String?,
     val utdanningslop: UtdanningslopDbo?,
     val prismodell: Prismodell?,
-)
+) {
+    data class Arrangor(
+        val hovedenhet: UUID,
+        val underenheter: List<UUID>,
+        val kontaktpersoner: List<UUID>,
+    )
+}

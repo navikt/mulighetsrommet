@@ -72,6 +72,10 @@ data class ValidationError(
         fun ofCustomLocation(location: String, message: String): ValidationError {
             return ValidationError(name = location, message = message)
         }
+
+        fun of(message: String, vararg property: KProperty1<*, *>): ValidationError {
+            return ValidationError(name = property.joinToString(prefix = "/", separator = "/") { it.name }, message = message)
+        }
     }
 }
 

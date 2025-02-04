@@ -188,10 +188,10 @@ class AvtaleQueries(private val session: Session) {
         batchPreparedStatement(upsertEnhet, avtale.navEnheter.map { listOf(avtale.id, it) })
         execute(queryOf(deleteEnheter, avtale.id, createTextArray(avtale.navEnheter)))
 
-        avtale.arrangorUnderenheter?.let { batchPreparedStatement(setArrangorUnderenhet, it.map { listOf(avtale.id, it) }) }
-        execute(queryOf(deleteUnderenheter, avtale.id, avtale.arrangorUnderenheter?.let { createUuidArray(it) }))
+        avtale.arrangor?.underenheter?.let { batchPreparedStatement(setArrangorUnderenhet, it.map { listOf(avtale.id, it) }) }
+        execute(queryOf(deleteUnderenheter, avtale.id, avtale.arrangor?.underenheter?.let { createUuidArray(it) }))
 
-        avtale.arrangorKontaktpersoner?.let {
+        avtale.arrangor?.kontaktpersoner?.let {
             batchPreparedStatement(
                 upsertArrangorKontaktperson,
                 it.map { listOf(avtale.id, it) },
@@ -201,7 +201,7 @@ class AvtaleQueries(private val session: Session) {
             queryOf(
                 deleteArrangorKontaktpersoner,
                 avtale.id,
-                avtale.arrangorKontaktpersoner?.let { createUuidArray(it) },
+                avtale.arrangor?.kontaktpersoner?.let { createUuidArray(it) },
             ),
         )
 
@@ -441,7 +441,7 @@ class AvtaleQueries(private val session: Session) {
         "tiltakstype_id" to tiltakstypeId,
         "avtalenummer" to avtalenummer,
         "websaknummer" to websaknummer?.value,
-        "arrangor_hovedenhet_id" to arrangorId,
+        "arrangor_hovedenhet_id" to arrangor?.hovedenhet,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
         "opsjonMaksVarighet" to opsjonMaksVarighet,
