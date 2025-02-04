@@ -20,13 +20,14 @@ class RefusjonskravQueries(private val session: Session) {
     fun upsert(dbo: RefusjonskravDbo) = withTransaction(session) {
         @Language("PostgreSQL")
         val refusjonskravQuery = """
-            insert into refusjonskrav (id, gjennomforing_id, frist_for_godkjenning, kontonummer, kid)
-            values (:id::uuid, :gjennomforing_id::uuid, :frist_for_godkjenning, :kontonummer, :kid)
+            insert into refusjonskrav (id, gjennomforing_id, frist_for_godkjenning, kontonummer, kid, periode)
+            values (:id::uuid, :gjennomforing_id::uuid, :frist_for_godkjenning, :kontonummer, :kid, daterange(:periode_start, :periode_slutt))
             on conflict (id) do update set
                 gjennomforing_id = excluded.gjennomforing_id,
                 frist_for_godkjenning = excluded.frist_for_godkjenning,
                 kontonummer = excluded.kontonummer,
-                kid = excluded.kid
+                kid = excluded.kid,
+                periode = excluded.periode
         """.trimIndent()
 
         val params = mapOf(
@@ -35,6 +36,8 @@ class RefusjonskravQueries(private val session: Session) {
             "frist_for_godkjenning" to dbo.fristForGodkjenning,
             "kontonummer" to dbo.kontonummer?.value,
             "kid" to dbo.kid?.value,
+            "periode_start" to dbo.periode.start,
+            "periode_slutt" to dbo.periode.slutt,
         )
 
         execute(queryOf(refusjonskravQuery, params))
@@ -220,7 +223,7 @@ class RefusjonskravQueries(private val session: Session) {
 private fun Row.toRefusjonsKravAft(): RefusjonskravDto {
     val beregning = RefusjonKravBeregningAft(
         input = RefusjonKravBeregningAft.Input(
-            periode = Periode(localDate("periode_start"), localDate("periode_slutt")),
+            periode = Periode(localDate("beregning_periode_start"), localDate("beregning_periode_slutt")),
             sats = int("sats"),
             deltakelser = stringOrNull("perioder_json")?.let { Json.decodeFromString(it) } ?: setOf(),
         ),
@@ -256,5 +259,7 @@ private fun Row.toRefusjonskravDto(beregning: RefusjonKravBeregning): Refusjonsk
             kid = stringOrNull("kid")?.let { Kid(it) },
         ),
         journalpostId = stringOrNull("journalpost_id"),
+        periodeStart = localDate("periode_start"),
+        periodeSlutt = localDate("periode_slutt"),
     )
 }
