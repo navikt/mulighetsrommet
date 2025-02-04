@@ -12,6 +12,7 @@ import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
@@ -215,7 +216,9 @@ class AvtaleQueriesTest : FunSpec({
                 telefon = "84322",
             )
             val avtale = AvtaleFixtures.oppfolging.copy(
-                arrangorKontaktpersoner = listOf(p1.id),
+                arrangor = AvtaleFixtures.oppfolging.arrangor?.copy(
+                    kontaktpersoner = listOf(p1.id),
+                ),
             )
 
             database.runAndRollback { session ->
@@ -226,44 +229,35 @@ class AvtaleQueriesTest : FunSpec({
 
                 val queries = AvtaleQueries(session)
 
-                queries.get(avtale.id).shouldNotBeNull().should {
-                    when (it) {
-                        is AvtaleDto.WithArrangor -> {
-                            it.arrangor.kontaktpersoner shouldContainExactly listOf(p1)
-                        }
-                        else -> {}
-                    }
+                queries.get(avtale.id).shouldNotBeNull().shouldBeTypeOf<AvtaleDto.WithArrangor>().should {
+                    it.arrangor.kontaktpersoner shouldContainExactly listOf(p1)
                 }
+                val avtaleMedKontaktpersoner = avtale.copy(
+                    arrangor = avtale.arrangor?.copy(
+                        kontaktpersoner = listOf(p2.id, p3.id),
+                    ),
+                )
 
-                queries.upsert(avtale.copy(arrangorKontaktpersoner = listOf(p2.id, p3.id)))
+                queries.upsert(avtaleMedKontaktpersoner)
 
-                queries.get(avtale.id).shouldNotBeNull().should {
-                    when (it) {
-                        is AvtaleDto.WithArrangor -> {
-                            it.arrangor.kontaktpersoner shouldContainExactlyInAnyOrder listOf(p2, p3)
-                        }
-                        else -> {}
-                    }
+                queries.get(avtale.id).shouldNotBeNull().shouldBeTypeOf<AvtaleDto.WithArrangor>().should {
+                    it.arrangor.kontaktpersoner shouldContainExactlyInAnyOrder listOf(p2, p3)
                 }
 
                 queries.frikobleKontaktpersonFraAvtale(p3.id, avtale.id)
-                queries.get(avtale.id).shouldNotBeNull().should {
-                    when (it) {
-                        is AvtaleDto.WithArrangor -> {
-                            it.arrangor.kontaktpersoner shouldContainExactlyInAnyOrder listOf(p2)
-                        }
-                        else -> {}
-                    }
+                queries.get(avtale.id).shouldNotBeNull().shouldBeTypeOf<AvtaleDto.WithArrangor>().should {
+                    it.arrangor.kontaktpersoner shouldContainExactlyInAnyOrder listOf(p2)
                 }
 
-                queries.upsert(avtale.copy(arrangorKontaktpersoner = emptyList()))
-                queries.get(avtale.id).shouldNotBeNull().should {
-                    when (it) {
-                        is AvtaleDto.WithArrangor -> {
-                            it.arrangor.kontaktpersoner shouldHaveSize 0
-                        }
-                        else -> {}
-                    }
+                val avtaleUtenKontaktpersoner = avtale.copy(
+                    arrangor = avtale.arrangor?.copy(
+                        kontaktpersoner = emptyList(),
+                    ),
+                )
+
+                queries.upsert(avtaleUtenKontaktpersoner)
+                queries.get(avtale.id).shouldNotBeNull().shouldBeTypeOf<AvtaleDto.WithArrangor>().should {
+                    it.arrangor.kontaktpersoner.shouldBeEmpty()
                 }
             }
         }
@@ -296,8 +290,11 @@ class AvtaleQueriesTest : FunSpec({
 
         test("Underenheter blir riktig med fra spørring") {
             val avtale = AvtaleFixtures.oppfolging.copy(
-                arrangorId = ArrangorFixtures.hovedenhet.id,
-                arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id, ArrangorFixtures.underenhet2.id),
+                arrangor = AvtaleDbo.Arrangor(
+                    hovedenhet = ArrangorFixtures.hovedenhet.id,
+                    underenheter = listOf(ArrangorFixtures.underenhet1.id, ArrangorFixtures.underenhet2.id),
+                    kontaktpersoner = emptyList(),
+                ),
             )
 
             database.runAndRollback { session ->
@@ -307,17 +304,12 @@ class AvtaleQueriesTest : FunSpec({
 
                 queries.upsert(avtale)
 
-                queries.get(avtale.id).shouldNotBeNull().should {
-                    when (it) {
-                        is AvtaleDto.WithArrangor -> {
-                            it.arrangor.organisasjonsnummer shouldBe ArrangorFixtures.hovedenhet.organisasjonsnummer
-                            it.arrangor.underenheter.map { enhet -> enhet.organisasjonsnummer } shouldContainExactlyInAnyOrder listOf(
-                                ArrangorFixtures.underenhet1.organisasjonsnummer,
-                                ArrangorFixtures.underenhet2.organisasjonsnummer,
-                            )
-                        }
-                        else -> {}
-                    }
+                queries.get(avtale.id).shouldNotBeNull().shouldBeTypeOf<AvtaleDto.WithArrangor>().should {
+                    it.arrangor.organisasjonsnummer shouldBe ArrangorFixtures.hovedenhet.organisasjonsnummer
+                    it.arrangor.underenheter.map { enhet -> enhet.organisasjonsnummer } shouldContainExactlyInAnyOrder listOf(
+                        ArrangorFixtures.underenhet1.organisasjonsnummer,
+                        ArrangorFixtures.underenhet2.organisasjonsnummer,
+                    )
                 }
             }
         }
@@ -677,9 +669,23 @@ class AvtaleQueriesTest : FunSpec({
                     annenArrangor,
                 ),
                 avtaler = listOf(
-                    AvtaleFixtures.oppfolging.copy(arrangorId = ArrangorFixtures.hovedenhet.id),
-                    AvtaleFixtures.oppfolging.copy(id = UUID.randomUUID(), arrangorId = ArrangorFixtures.hovedenhet.id),
-                    AvtaleFixtures.oppfolging.copy(id = UUID.randomUUID(), arrangorId = annenArrangor.id),
+                    AvtaleFixtures.oppfolging.copy(
+                        arrangor = AvtaleFixtures.oppfolging.arrangor?.copy(
+                            hovedenhet = ArrangorFixtures.hovedenhet.id,
+                        ),
+                    ),
+                    AvtaleFixtures.oppfolging.copy(
+                        id = UUID.randomUUID(),
+                        arrangor = AvtaleFixtures.oppfolging.arrangor?.copy(
+                            hovedenhet = ArrangorFixtures.hovedenhet.id,
+                        ),
+                    ),
+                    AvtaleFixtures.oppfolging.copy(
+                        id = UUID.randomUUID(),
+                        arrangor = AvtaleFixtures.oppfolging.arrangor?.copy(
+                            hovedenhet = ArrangorFixtures.hovedenhet.id,
+                        ),
+                    ),
                 ),
             )
 
@@ -740,36 +746,31 @@ class AvtaleQueriesTest : FunSpec({
                 AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Anders",
-                    arrangorId = arrangorB.id,
-                    arrangorUnderenheter = emptyList(),
+                    arrangor = arrangorFromHovedenhet(arrangorA.id),
                     sluttDato = LocalDate.of(2010, 1, 31),
                 ),
                 AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Åse",
-                    arrangorId = arrangorA.id,
-                    arrangorUnderenheter = emptyList(),
+                    arrangor = arrangorFromHovedenhet(arrangorA.id),
                     sluttDato = LocalDate.of(2009, 1, 1),
                 ),
                 AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Øyvind",
-                    arrangorId = arrangorB.id,
-                    arrangorUnderenheter = emptyList(),
+                    arrangor = arrangorFromHovedenhet(arrangorB.id),
                     sluttDato = LocalDate.of(2010, 1, 1),
                 ),
                 AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Kjetil",
-                    arrangorId = arrangorC.id,
-                    arrangorUnderenheter = emptyList(),
+                    arrangor = arrangorFromHovedenhet(arrangorC.id),
                     sluttDato = LocalDate.of(2011, 1, 1),
                 ),
                 AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Ærfuglen Ærle",
-                    arrangorId = arrangorB.id,
-                    arrangorUnderenheter = emptyList(),
+                    arrangor = arrangorFromHovedenhet(arrangorB.id),
                     sluttDato = LocalDate.of(2023, 1, 1),
                 ),
             ),
@@ -950,4 +951,12 @@ class AvtaleQueriesTest : FunSpec({
 
 private infix fun Collection<AvtaleDto>.shouldContainExactlyIds(listOf: Collection<UUID>) {
     map { it.id }.shouldContainExactlyInAnyOrder(listOf)
+}
+
+private fun arrangorFromHovedenhet(hovedenhet: UUID): AvtaleDbo.Arrangor {
+    return AvtaleDbo.Arrangor(
+        hovedenhet = hovedenhet,
+        underenheter = emptyList(),
+        kontaktpersoner = emptyList(),
+    )
 }

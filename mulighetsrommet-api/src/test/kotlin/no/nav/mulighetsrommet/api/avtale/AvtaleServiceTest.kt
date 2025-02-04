@@ -85,8 +85,10 @@ class AvtaleServiceTest : FunSpec({
 
         test("får ikke opprette avtale dersom virksomhet ikke finnes i Brreg") {
             val request = AvtaleFixtures.avtaleRequest.copy(
-                arrangorOrganisasjonsnummer = Organisasjonsnummer("888777435"),
-                arrangorUnderenheter = listOf(),
+                arrangor = AvtaleFixtures.avtaleRequest.arrangor?.copy(
+                    hovedenhet = Organisasjonsnummer("888777435"),
+                    underenheter = listOf(),
+                ),
             )
 
             coEvery { brregClient.getBrregEnhet(Organisasjonsnummer("888777435")) } returns BrregError.NotFound.left()

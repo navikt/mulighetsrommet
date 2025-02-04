@@ -48,9 +48,11 @@ class AvtaleValidatorTest : FunSpec({
         id = UUID.randomUUID(),
         navn = "Avtale",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-        arrangorId = ArrangorFixtures.hovedenhet.id,
-        arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
-        arrangorKontaktpersoner = emptyList(),
+        arrangor = AvtaleDbo.Arrangor(
+            hovedenhet = ArrangorFixtures.hovedenhet.id,
+            underenheter = listOf(ArrangorFixtures.underenhet1.id),
+            kontaktpersoner = emptyList(),
+        ),
         avtalenummer = "123456",
         websaknummer = Websaknummer("24/1234"),
         startDato = LocalDate.now().minusDays(1),
@@ -96,7 +98,11 @@ class AvtaleValidatorTest : FunSpec({
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2020, 1, 1),
             navEnheter = emptyList(),
-            arrangorUnderenheter = emptyList(),
+            arrangor = AvtaleDbo.Arrangor(
+                hovedenhet = ArrangorFixtures.hovedenhet.id,
+                underenheter = emptyList(),
+                kontaktpersoner = emptyList(),
+            ),
         )
 
         validator.validate(dbo, null).shouldBeLeft().shouldContainAll(
@@ -322,8 +328,10 @@ class AvtaleValidatorTest : FunSpec({
         val validator = createValidator()
 
         val avtale1 = AvtaleFixtures.oppfolging.copy(
-            arrangorId = ArrangorFixtures.Fretex.hovedenhet.id,
-            arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
+            arrangor = AvtaleFixtures.oppfolging.arrangor?.copy(
+                hovedenhet = ArrangorFixtures.Fretex.hovedenhet.id,
+                underenheter = listOf(ArrangorFixtures.underenhet1.id),
+            ),
         )
 
         validator.validate(avtale1, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
@@ -334,8 +342,10 @@ class AvtaleValidatorTest : FunSpec({
         )
 
         val avtale2 = AvtaleFixtures.oppfolging.copy(
-            arrangorId = ArrangorFixtures.Fretex.hovedenhet.id,
-            arrangorUnderenheter = listOf(ArrangorFixtures.Fretex.underenhet1.id),
+            arrangor = AvtaleFixtures.oppfolging.arrangor?.copy(
+                hovedenhet = ArrangorFixtures.Fretex.hovedenhet.id,
+                underenheter = listOf(ArrangorFixtures.underenhet1.id),
+            ),
         )
         validator.validate(avtale2, null).shouldBeRight()
     }
@@ -347,8 +357,10 @@ class AvtaleValidatorTest : FunSpec({
         }
 
         val avtale1 = AvtaleFixtures.oppfolging.copy(
-            arrangorId = ArrangorFixtures.Fretex.hovedenhet.id,
-            arrangorUnderenheter = listOf(ArrangorFixtures.Fretex.underenhet1.id),
+            arrangor = AvtaleFixtures.oppfolging.arrangor?.copy(
+                hovedenhet = ArrangorFixtures.Fretex.hovedenhet.id,
+                underenheter = listOf(ArrangorFixtures.underenhet1.id),
+            ),
         )
 
         createValidator().validate(avtale1, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
