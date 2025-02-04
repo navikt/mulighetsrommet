@@ -112,12 +112,9 @@ class GjennomforingValidator(
                 }
             }
 
-            val avtaleHasArrangor = when (avtale) {
-                is AvtaleDto.WithArrangor -> avtale.arrangor.underenheter.any {
-                    it.id == next.arrangorId
-                }
-                is AvtaleDto.WithoutArrangor -> false
-            }
+            val avtaleHasArrangor = avtale.arrangor?.underenheter?.any {
+                it.id == next.arrangorId
+            } ?: false
 
             if (!avtaleHasArrangor) {
                 add(ValidationError.of(GjennomforingDbo::arrangorId, "Du må velge en arrangør for avtalen"))
@@ -167,10 +164,7 @@ class GjennomforingValidator(
                         ),
                     )
                 } else {
-                    val avtalensUtdanninger = when (avtale) {
-                        is AvtaleDto.WithArrangor -> avtale.utdanningslop?.utdanninger?.map { it.id } ?: emptyList()
-                        is AvtaleDto.WithoutArrangor -> avtale.utdanningslop?.utdanninger?.map { it.id } ?: emptyList()
-                    }
+                    val avtalensUtdanninger = avtale.utdanningslop?.utdanninger?.map { it.id } ?: emptyList()
 
                     if (!avtalensUtdanninger.containsAll(utdanningslop.utdanninger)) {
                         add(

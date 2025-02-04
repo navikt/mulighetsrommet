@@ -527,7 +527,18 @@ class AvtaleQueries(private val session: Session) {
         val utdanningslop = stringOrNull("utdanningslop_json")
             ?.let { Json.decodeFromString<UtdanningslopDto>(it) }
 
-        return AvtaleDto.WithArrangor(
+        val arrangor = uuidOrNull("arrangor_hovedenhet_id")?.let {
+            AvtaleDto.ArrangorHovedenhet(
+                id = it,
+                organisasjonsnummer = Organisasjonsnummer(string("arrangor_hovedenhet_organisasjonsnummer")),
+                navn = string("arrangor_hovedenhet_navn"),
+                slettet = boolean("arrangor_hovedenhet_slettet"),
+                underenheter = underenheter,
+                kontaktpersoner = arrangorKontaktpersoner,
+            )
+        }
+
+        return AvtaleDto(
             id = uuid("id"),
             navn = string("navn"),
             avtalenummer = stringOrNull("avtalenummer"),
@@ -543,14 +554,7 @@ class AvtaleQueries(private val session: Session) {
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
             administratorer = administratorer,
             kontorstruktur = kontorstruktur,
-            arrangor = AvtaleDto.ArrangorHovedenhet(
-                id = uuid("arrangor_hovedenhet_id"),
-                organisasjonsnummer = Organisasjonsnummer(string("arrangor_hovedenhet_organisasjonsnummer")),
-                navn = string("arrangor_hovedenhet_navn"),
-                slettet = boolean("arrangor_hovedenhet_slettet"),
-                underenheter = underenheter,
-                kontaktpersoner = arrangorKontaktpersoner,
-            ),
+            arrangor = arrangor,
             arenaAnsvarligEnhet = stringOrNull("arena_nav_enhet_enhetsnummer")?.let {
                 ArenaNavEnhet(
                     navn = stringOrNull("arena_nav_enhet_navn"),
