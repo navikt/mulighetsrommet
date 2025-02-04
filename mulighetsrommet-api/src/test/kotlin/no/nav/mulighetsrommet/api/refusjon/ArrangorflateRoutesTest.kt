@@ -109,8 +109,10 @@ class ArrangorflateRoutesTest : FunSpec({
         tiltakstyper = listOf(TiltakstypeFixtures.AFT),
         avtaler = listOf(
             AvtaleFixtures.AFT.copy(
-                arrangorId = hovedenhet.id,
-                arrangorUnderenheter = listOf(underenhet.id),
+                arrangor = AvtaleFixtures.AFT.arrangor?.copy(
+                    hovedenhet = hovedenhet.id,
+                    underenheter = listOf(underenhet.id),
+                ),
             ),
         ),
         gjennomforinger = listOf(GjennomforingFixtures.AFT1.copy(arrangorId = underenhet.id)),

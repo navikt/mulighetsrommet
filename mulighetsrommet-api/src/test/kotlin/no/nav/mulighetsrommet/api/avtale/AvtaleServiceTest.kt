@@ -96,7 +96,7 @@ class AvtaleServiceTest : FunSpec({
             avtaleService.upsert(request, bertilNavIdent).shouldBeLeft(
                 listOf(
                     ValidationError(
-                        "arrangorOrganisasjonsnummer",
+                        "/arrangor/hovedenhet",
                         "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
                     ),
                 ),
