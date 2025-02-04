@@ -108,7 +108,7 @@ class AvtaleValidator(
                 add(ValidationError.of(AvtaleDbo::websaknummer, "Du må skrive inn Websaknummer til avtalesaken"))
             }
 
-            if (avtale.arrangor?.underenheter?.isEmpty()!!) {
+            if (avtale.arrangor?.underenheter?.isEmpty() == true) {
                 add(
                     ValidationError.of(
                         "Du må velge minst én underenhet for tiltaksarrangør",

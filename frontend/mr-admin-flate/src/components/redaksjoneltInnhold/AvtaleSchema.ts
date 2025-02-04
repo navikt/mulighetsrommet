@@ -35,7 +35,7 @@ export const AvtaleSchema = z
           message: "Tiltaksarrangør må være et 9-sifret nummer", // Custom error message
         },
       ),
-    arrangorUnderenheter: z.string().optional().array(), //.nonempty("Du må velge minst en underenhet"),
+    arrangorUnderenheter: z.string().array(), //.nonempty("Du må velge minst en underenhet"),
     arrangorKontaktpersoner: z.string().uuid().array(),
     navRegioner: z.string().array().nonempty({ message: "Du må velge minst én region" }),
     navEnheter: z.string().array().nonempty({ message: "Du må velge minst én enhet" }),

@@ -2720,17 +2720,25 @@ components:
         websaknummer:
           type: string
           nullable: true
-        arrangorOrganisasjonsnummer:
-          type: string
-        arrangorUnderenheter:
-          type: array
-          items:
-            type: string
-        arrangorKontaktpersoner:
-          type: array
-          items:
-            type: string
-            format: UUID
+        arrangor:
+            type: object
+            nullable: true
+            properties:
+              hovedenhet:
+                type: string
+              underenheter:
+                type: array
+                items:
+                  type: string
+              kontaktpersoner:
+                type: array
+                items:
+                  type: string
+                  format: UUID
+            required:
+              - hovedenhet
+              - underenheter
+              - kontaktpersoner
         startDato:
           type: string
           format: date

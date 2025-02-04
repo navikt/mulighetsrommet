@@ -81,9 +81,16 @@ export function AvtaleFormContainer({
       avtalenummer: avtale?.avtalenummer || null,
       websaknummer: data.websaknummer || null,
       // @todo: Make these fields optional
-      arrangorOrganisasjonsnummer: data.arrangorOrganisasjonsnummer,
-      arrangorUnderenheter: data.arrangorUnderenheter,
-      arrangorKontaktpersoner: data.arrangorKontaktpersoner,
+      arrangor:
+        data.arrangorOrganisasjonsnummer &&
+        data.arrangorUnderenheter &&
+        data.arrangorKontaktpersoner
+          ? {
+              hovedenhet: data.arrangorOrganisasjonsnummer,
+              underenheter: data.arrangorUnderenheter,
+              kontaktpersoner: data.arrangorKontaktpersoner,
+            }
+          : null,
       navn: data.navn,
       sluttDato: data.startOgSluttDato.sluttDato || null,
       startDato: data.startOgSluttDato.startDato,
