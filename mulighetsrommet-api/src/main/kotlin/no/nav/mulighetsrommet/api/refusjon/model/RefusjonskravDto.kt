@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -18,6 +19,8 @@ data class RefusjonskravDto(
     val beregning: RefusjonKravBeregning,
     val betalingsinformasjon: Betalingsinformasjon,
     val journalpostId: String?,
+    val periodeStart: LocalDate,
+    val periodeSlutt: LocalDate,
 ) {
     @Serializable
     data class Gjennomforing(

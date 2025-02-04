@@ -80,6 +80,7 @@ class UtbetalingQueriesTest : FunSpec({
                 beregning = beregning,
                 kontonummer = Kontonummer("11111111111"),
                 kid = Kid("12345"),
+                periode = beregning.input.periode,
             )
             RefusjonskravQueries(session).upsert(krav)
 
