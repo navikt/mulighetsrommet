@@ -203,13 +203,6 @@ class TilsagnService(
         queries.tilsagn.getAll()
     }
 
-    fun getTilsagnTilRefusjon(
-        gjennomforingId: UUID,
-        periode: Periode,
-    ): List<TilsagnDto> = db.session {
-        return queries.tilsagn.getTilsagnTilRefusjon(gjennomforingId, periode)
-    }
-
     fun getArrangorflateTilsagnTilRefusjon(
         gjennomforingId: UUID,
         periode: Periode,

@@ -1,7 +1,7 @@
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { Toggles } from "@mr/api-client-v2";
 import { Alert } from "@navikt/ds-react";
 import { useLoaderData } from "react-router";
-import { Toggles } from "@mr/api-client-v2";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { UtbetalingerTable } from "../../../components/utbetaling/UtbetalingerTable";
 import { utbetalingerForGjennomforingLoader } from "./utbetalingerForGjennomforingLoader";
 
@@ -24,7 +24,7 @@ export function UtbetalingerForGjennomforingContainer() {
         <UtbetalingerTable utbetalinger={utbetalinger} />
       ) : (
         <Alert style={{ marginTop: "1rem" }} variant="info">
-          Det finnes ingen refusjonskrav for dette tiltaket
+          Det er ikke opprettet noen utbetalinger til godkjenning av arrangør for dette tiltaket
         </Alert>
       )}
     </>

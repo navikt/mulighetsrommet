@@ -29,6 +29,39 @@ object UtbetalingValidator {
                     ),
                 )
             }
+
+
+        }
+
+        return errors.takeIf { it.isNotEmpty() }?.left() ?: request.right()
+    }
+
+    fun validateManuellUtbetalingskrav(
+        request: OpprettManuellUtbetalingkravRequest
+    ): Either<List<ValidationError>, OpprettManuellUtbetalingkravRequest> {
+
+        val errors = buildList {
+
+            if (request.periode.slutt.isBefore(request.periode.start)) {
+                add(
+                    ValidationError.ofCustomLocation(
+                        "arrangorinfo.periode.slutt",
+                        "Periodeslutt må være etter periodestart"
+                    )
+                )
+            }
+
+            if (request.belop < 1) {
+                add(ValidationError.ofCustomLocation("arrangorinfo.belop", "Beløp må være positivt"))
+            }
+
+            if (request.beskrivelse.length < 10) {
+                add(ValidationError.ofCustomLocation("arrangorinfo.beskrivelse", "Du må beskrive utbetalingen"))
+            }
+
+            if (request.kontonummer.value.length != 11) {
+                add(ValidationError.ofCustomLocation("arrangorinfo.kontonummer", "Kontonummer må være 11 tegn"))
+            }
         }
 
         return errors.takeIf { it.isNotEmpty() }?.left() ?: request.right()

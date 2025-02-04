@@ -120,7 +120,7 @@ class TilsagnQueries(private val session: Session) {
         return session.list(queryOf(query, organisasjonsnummer.value)) { it.toArrangorflateTilsagn() }
     }
 
-    fun getTilsagnTilRefusjon(
+    fun getTilsagnForGjennomforing(
         gjennomforingId: UUID,
         periode: Periode,
     ): List<TilsagnDto> {

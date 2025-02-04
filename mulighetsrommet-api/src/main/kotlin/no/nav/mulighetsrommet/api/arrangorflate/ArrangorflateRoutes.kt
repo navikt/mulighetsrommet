@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.refusjon.HentPersonBolkResponse
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.refusjon.model.DeltakerDto
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
+import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningFri
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravDto
 import no.nav.mulighetsrommet.api.refusjon.task.JournalforRefusjonskrav
 import no.nav.mulighetsrommet.api.responses.BadRequest
@@ -136,7 +137,7 @@ fun Route.arrangorflateRoutes() {
                     .map { (deltakerId, forslag) ->
                         RelevanteForslag(
                             deltakerId = deltakerId,
-                            antallRelevanteForslag = forslag.count { it.relevantForDeltakelse(krav) },
+                            antallRelevanteForslag = forslag.count { forslagErRelevantForKrav(it, krav) },
                         )
                     }
 
@@ -237,36 +238,39 @@ fun Route.arrangorflateRoutes() {
     }
 }
 
-fun DeltakerForslag.relevantForDeltakelse(
+fun forslagErRelevantForKrav(
+    forslag: DeltakerForslag,
     refusjonskrav: RefusjonskravDto,
 ): Boolean = when (refusjonskrav.beregning) {
-    is RefusjonKravBeregningAft -> this.relevantForDeltakelse(refusjonskrav.beregning)
+    is RefusjonKravBeregningAft -> relevantForDeltakelse(forslag, refusjonskrav.beregning)
+    is RefusjonKravBeregningFri -> false
 }
 
-fun DeltakerForslag.relevantForDeltakelse(
+fun relevantForDeltakelse(
+    forslag: DeltakerForslag,
     beregning: RefusjonKravBeregningAft,
 ): Boolean {
     val deltakelser = beregning.input.deltakelser
-        .find { it.deltakelseId == this.deltakerId }
+        .find { it.deltakelseId == forslag.deltakerId }
         ?: return false
 
     val periode = beregning.input.periode
     val sisteSluttDato = deltakelser.perioder.maxOf { it.slutt }
     val forsteStartDato = deltakelser.perioder.minOf { it.start }
 
-    return when (this.endring) {
+    return when (forslag.endring) {
         is Melding.Forslag.Endring.AvsluttDeltakelse -> {
-            val sluttDato = this.endring.sluttdato
+            val sluttDato = forslag.endring.sluttdato
 
-            this.endring.harDeltatt == false || (sluttDato != null && sluttDato.isBefore(sisteSluttDato))
+            forslag.endring.harDeltatt == false || (sluttDato != null && sluttDato.isBefore(sisteSluttDato))
         }
 
         is Melding.Forslag.Endring.Deltakelsesmengde -> {
-            this.endring.gyldigFra?.isBefore(sisteSluttDato) ?: true
+            forslag.endring.gyldigFra?.isBefore(sisteSluttDato) != false
         }
 
         is Melding.Forslag.Endring.ForlengDeltakelse -> {
-            this.endring.sluttdato.isAfter(sisteSluttDato) && this.endring.sluttdato.isBefore(periode.slutt)
+            forslag.endring.sluttdato.isAfter(sisteSluttDato) && forslag.endring.sluttdato.isBefore(periode.slutt)
         }
 
         is Melding.Forslag.Endring.IkkeAktuell -> {
@@ -278,11 +282,11 @@ fun DeltakerForslag.relevantForDeltakelse(
         }
 
         is Melding.Forslag.Endring.Sluttdato -> {
-            this.endring.sluttdato.isBefore(sisteSluttDato)
+            forslag.endring.sluttdato.isBefore(sisteSluttDato)
         }
 
         is Melding.Forslag.Endring.Startdato -> {
-            this.endring.startdato.isAfter(forsteStartDato)
+            forslag.endring.startdato.isAfter(forsteStartDato)
         }
 
         Melding.Forslag.Endring.FjernOppstartsdato -> true
@@ -296,7 +300,7 @@ fun validerGodkjennRefusjonskrav(
 ): Either<List<ValidationError>, GodkjennRefusjonskrav> {
     val finnesRelevanteForslag = forslagByDeltakerId
         .any { (_, forslag) ->
-            forslag.count { it.relevantForDeltakelse(krav) } > 0
+            forslag.count { forslagErRelevantForKrav(it, krav) } > 0
         }
 
     return if (finnesRelevanteForslag) {
@@ -377,6 +381,11 @@ suspend fun toRefusjonskrav(
             betalingsinformasjon = krav.betalingsinformasjon,
         )
     }
+
+    is RefusjonKravBeregningFri -> throw StatusException(
+        status = HttpStatusCode.NotImplemented,
+        description = "Kan ikke vise refusjonskrav med fri beregning.",
+    )
 }
 
 private suspend fun getPersoner(

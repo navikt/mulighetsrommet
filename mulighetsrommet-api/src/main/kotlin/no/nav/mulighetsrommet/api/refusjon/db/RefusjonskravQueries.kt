@@ -4,6 +4,7 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.refusjon.RefusjonKravKompakt
 import no.nav.mulighetsrommet.api.refusjon.model.*
 import no.nav.mulighetsrommet.api.withTransaction
 import no.nav.mulighetsrommet.database.createEnumArray
@@ -42,6 +43,10 @@ class RefusjonskravQueries(private val session: Session) {
         when (dbo.beregning) {
             is RefusjonKravBeregningAft -> {
                 upsertRefusjonskravBeregningAft(dbo.id, dbo.beregning)
+            }
+
+            is RefusjonKravBeregningFri -> {
+                upsertRefusjonskravBeregningFri(dbo.id, dbo.beregning)
             }
         }
     }
@@ -120,6 +125,26 @@ class RefusjonskravQueries(private val session: Session) {
         batchPreparedNamedStatement(insertManedsverkQuery, manedsverk)
     }
 
+    fun upsertRefusjonskravBeregningFri(id: UUID, beregning: RefusjonKravBeregningFri) {
+        @Language("PostgreSQL")
+        val query = """
+            insert into refusjonskrav_beregning_fri (refusjonskrav_id, periode, belop)
+            values (:refusjonskrav_id::uuid, daterange(:periode_start, :periode_slutt), :belop)
+            on conflict (refusjonskrav_id) do update set
+                periode = excluded.periode,
+                belop = excluded.belop
+        """.trimIndent()
+
+        val params = mapOf(
+            "refusjonskrav_id" to id,
+            "periode_start" to beregning.input.periode.start,
+            "periode_slutt" to beregning.input.periode.slutt,
+            "belop" to beregning.output.belop
+        )
+
+        session.execute(queryOf(query, params))
+    }
+
     fun setGodkjentAvArrangor(id: UUID, tidspunkt: LocalDateTime) = with(session) {
         @Language("PostgreSQL")
         val query = """
@@ -161,15 +186,15 @@ class RefusjonskravQueries(private val session: Session) {
         execute(queryOf(query, params))
     }
 
-    fun get(id: UUID): RefusjonskravDto? = with(session) {
+    fun get(id: UUID): RefusjonKravKompakt? = with(session) {
         @Language("PostgreSQL")
         val refusjonskravQuery = """
             select *
-            from refusjonskrav_aft_view
+            from refusjonskrav_kompakt_admin_dto_view
             where id = ?::uuid
         """.trimIndent()
 
-        return single(queryOf(refusjonskravQuery, id)) { it.toRefusjonsKravAft() }
+        return single(queryOf(refusjonskravQuery, id)) { it.toRefusjonskravKompakt() }
     }
 
     fun getByArrangorIds(
@@ -185,9 +210,10 @@ class RefusjonskravQueries(private val session: Session) {
         return list(queryOf(query, organisasjonsnummer.value)) { it.toRefusjonsKravAft() }
     }
 
-    fun getByGjennomforing(id: UUID, statuser: List<RefusjonskravStatus>? = null): List<RefusjonskravDto> = with(session) {
-        @Language("PostgreSQL")
-        val query = """
+    fun getByGjennomforing(gjennomforingId: UUID, statuser: List<RefusjonskravStatus>? = null): List<RefusjonskravDto> =
+        with(session) {
+            @Language("PostgreSQL")
+            val query = """
             select *
             from refusjonskrav_aft_view
             where
@@ -195,12 +221,46 @@ class RefusjonskravQueries(private val session: Session) {
                 and (:statuser::refusjonskrav_status[] is null or status = any(:statuser))
         """.trimIndent()
 
+            val params = mapOf(
+                "id" to gjennomforingId,
+                "statuser" to statuser?.ifEmpty { null }?.let { createEnumArray("refusjonskrav_status", it) },
+            )
+
+            return list(queryOf(query, params)) { it.toRefusjonsKravAft() }
+        }
+
+    fun getRefusjonskravKompaktByGjennomforing(
+        gjennomforingId: UUID,
+        statuser: List<RefusjonskravStatus>? = null
+    ): List<RefusjonKravKompakt> = with(session) {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from refusjonskrav_kompakt_admin_dto_view
+            where
+                gjennomforing_id = :id::uuid
+                and (:statuser::refusjonskrav_status[] is null or status = any(:statuser))
+        """.trimIndent()
+
         val params = mapOf(
-            "id" to id,
+            "id" to gjennomforingId,
             "statuser" to statuser?.ifEmpty { null }?.let { createEnumArray("refusjonskrav_status", it) },
         )
 
-        return list(queryOf(query, params)) { it.toRefusjonsKravAft() }
+        return list(queryOf(query, params)) { it.toRefusjonskravKompakt() }
+    }
+
+    fun Row.toRefusjonskravKompakt(): RefusjonKravKompakt {
+        return RefusjonKravKompakt(
+            gjennomforingId = uuid("id"),
+            id = uuid("id"),
+            status = RefusjonskravStatus.valueOf(string("status")),
+            beregning = RefusjonKravKompakt.Beregning(
+                periodeStart = localDate("periode_start"),
+                periodeSlutt = localDate("periode_slutt"),
+                belop = int("belop")
+            ),
+        )
     }
 
     fun getSisteGodkjenteRefusjonskrav(gjennomforingId: UUID): RefusjonskravDto? = with(session) {

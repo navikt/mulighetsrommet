@@ -47,9 +47,10 @@ class RefusjonService(
                         gjennomforingId = gjeldendeKrav.gjennomforing.id,
                         periode = gjeldendeKrav.beregning.input.periode,
                     )
+                    is RefusjonKravBeregningFri -> null
                 }
 
-                nyttKrav.takeIf { it.beregning != gjeldendeKrav.beregning }
+                nyttKrav?.takeIf { it.beregning != gjeldendeKrav.beregning }
             }
             .forEach { krav ->
                 queries.refusjonskrav.upsert(krav)
