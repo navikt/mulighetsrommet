@@ -111,11 +111,13 @@ fun AvtaleDto.toDbo(): AvtaleDbo {
         tiltakstypeId = tiltakstype.id,
         avtalenummer = avtalenummer,
         websaknummer = websaknummer,
-        arrangor = AvtaleDbo.Arrangor(
-            hovedenhet = arrangor.id,
-            underenheter = arrangor.underenheter.map { it.id },
-            kontaktpersoner = arrangor.kontaktpersoner.map { it.id },
-        ),
+        arrangor = arrangor?.id?.let {
+            AvtaleDbo.Arrangor(
+                hovedenhet = it,
+                underenheter = arrangor.underenheter.map { it.id },
+                kontaktpersoner = arrangor.kontaktpersoner.map { it.id },
+            )
+        },
         startDato = startDato,
         sluttDato = sluttDato,
         navEnheter = kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer },
@@ -136,23 +138,25 @@ fun AvtaleDto.toDbo(): AvtaleDbo {
     )
 }
 
-fun AvtaleDto.toArenaAvtaleDbo(): ArenaAvtaleDbo {
-    return ArenaAvtaleDbo(
-        id = id,
-        navn = navn,
-        tiltakstypeId = tiltakstype.id,
-        avtalenummer = avtalenummer,
-        arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer.value,
-        startDato = startDato,
-        sluttDato = sluttDato,
-        arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,
-        avtaletype = avtaletype,
-        avslutningsstatus = when (status) {
-            is AvtaleStatus.AKTIV -> Avslutningsstatus.IKKE_AVSLUTTET
-            is AvtaleStatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
-            is AvtaleStatus.UTKAST -> Avslutningsstatus.UTKAST
-            is AvtaleStatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
-        },
-        prisbetingelser = prisbetingelser,
-    )
+fun AvtaleDto.toArenaAvtaleDbo(): ArenaAvtaleDbo? {
+    return arrangor?.organisasjonsnummer?.value?.let {
+        ArenaAvtaleDbo(
+            id = id,
+            navn = navn,
+            tiltakstypeId = tiltakstype.id,
+            avtalenummer = avtalenummer,
+            arrangorOrganisasjonsnummer = it,
+            startDato = startDato,
+            sluttDato = sluttDato,
+            arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,
+            avtaletype = avtaletype,
+            avslutningsstatus = when (status) {
+                is AvtaleStatus.AKTIV -> Avslutningsstatus.IKKE_AVSLUTTET
+                is AvtaleStatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
+                is AvtaleStatus.UTKAST -> Avslutningsstatus.UTKAST
+                is AvtaleStatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
+            },
+            prisbetingelser = prisbetingelser,
+        )
+    }
 }
