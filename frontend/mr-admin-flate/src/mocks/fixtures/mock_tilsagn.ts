@@ -3,8 +3,10 @@ import {
   NavEnhetType,
   TilsagnAvvisningAarsak,
   TilsagnDto,
+  TilsagnStatus,
   TilsagnTilAnnulleringAarsak,
   TilsagnType,
+  ToTrinnskontrollHandling,
 } from "@mr/api-client-v2";
 import { mockArrangorer } from "./mock_arrangorer";
 
@@ -28,10 +30,13 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 1,
     periodeStart: "2024-01-05",
     periodeSlutt: "2024-01-06",
-    status: {
-      endretAv: "B123456",
-      type: "TIL_GODKJENNING",
-      endretTidspunkt: "2024-01-01T22:00:00",
+    status: TilsagnStatus.TIL_GODKJENNING,
+    sistHandling: {
+      opprettetAv: "B123456",
+      opprettetAvNavn: "Bertil",
+      createdAt: "2024-01-01T22:00:00",
+      handling: ToTrinnskontrollHandling.GODKJENN,
+      aarsaker: [],
     },
   },
   {
@@ -53,11 +58,12 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 1,
     periodeStart: "2024-01-03",
     periodeSlutt: "2024-01-04",
-    status: {
-      endretAv: "F123456",
-      endretAvNavn: "Donald Duck",
-      type: "TIL_ANNULLERING",
-      endretTidspunkt: "2024-01-01T22:00:00",
+    status: TilsagnStatus.TIL_ANNULLERING,
+    sistHandling: {
+      opprettetAv: "B123456",
+      opprettetAvNavn: "Bertil",
+      createdAt: "2024-01-01T22:00:00",
+      handling: ToTrinnskontrollHandling.FORESLA_ANNULLER,
       aarsaker: [
         TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
         TilsagnTilAnnulleringAarsak.FEIL_ANNET,
@@ -84,8 +90,13 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 4,
     periodeStart: "2024-01-01",
     periodeSlutt: "2024-01-02",
-    status: {
-      type: "GODKJENT",
+    status: TilsagnStatus.GODKJENT,
+    sistHandling: {
+      opprettetAv: "B123456",
+      opprettetAvNavn: "Bertil",
+      createdAt: "2024-01-01T22:00:00",
+      handling: ToTrinnskontrollHandling.GODKJENN,
+      aarsaker: [ ],
     },
   },
   {
@@ -107,16 +118,13 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 4,
     periodeStart: "2024-01-01",
     periodeSlutt: "2024-01-02",
-    status: {
-      endretAv: "F123456",
-      godkjentAv: "N12345",
-      type: "ANNULLERT",
-      endretTidspunkt: "2024-01-01T22:00:00",
-      aarsaker: [
-        TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
-        TilsagnTilAnnulleringAarsak.FEIL_ANNET,
-      ],
-      forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
+    status: TilsagnStatus.ANNULLERT,
+    sistHandling: {
+      opprettetAv: "B123456",
+      opprettetAvNavn: "Bertil",
+      createdAt: "2024-01-01T22:00:00",
+      handling: ToTrinnskontrollHandling.GODKJENN,
+      aarsaker: [],
     },
   },
   {
@@ -138,12 +146,12 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 4,
     periodeStart: "2024-01-01",
     periodeSlutt: "2024-01-02",
-    status: {
-      endretAv: "B123456",
-      returnertAv: "N12345",
-      returnertAvNavn: "Nils Fjordstrand",
-      type: "RETURNERT",
-      endretTidspunkt: "2024-01-10",
+    status: TilsagnStatus.RETURNERT,
+    sistHandling: {
+      opprettetAv: "B123456",
+      opprettetAvNavn: "Bertil",
+      createdAt: "2024-01-01T22:00:00",
+      handling: ToTrinnskontrollHandling.AVVIS,
       aarsaker: [TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER, TilsagnAvvisningAarsak.FEIL_ANNET],
       forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
     },

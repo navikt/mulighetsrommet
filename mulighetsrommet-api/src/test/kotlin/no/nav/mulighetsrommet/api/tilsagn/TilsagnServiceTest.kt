@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -74,7 +75,7 @@ class TilsagnServiceTest : FunSpec({
                 id = tilsagn.id,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
                 navIdent = NavAnsattFixture.ansatt2.navIdent,
-            ) shouldBe BadRequest("Tilsagnet kan ikke besluttes fordi det har status Godkjent").left()
+            ) shouldBe BadRequest("Tilsagnet kan ikke besluttes fordi det har status ${TilsagnStatus.GODKJENT}").left()
         }
     }
 

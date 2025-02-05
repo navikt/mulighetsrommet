@@ -5,7 +5,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeTypeOf
+import io.kotest.matchers.shouldNotBe
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
@@ -50,32 +50,37 @@ class TilsagnQueriesTest : FunSpec({
 
                 queries.upsert(tilsagn)
 
-                queries.get(tilsagn.id) shouldBe TilsagnDto(
-                    id = tilsagn.id,
-                    gjennomforing = TilsagnDto.Gjennomforing(
+                val tilsagnDto = queries.get(tilsagn.id)
+                tilsagnDto should {
+                    it!! shouldNotBe null
+                    it.id shouldBe tilsagn.id
+                    it.gjennomforing shouldBe TilsagnDto.Gjennomforing(
                         id = AFT1.id,
                         tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
-                    ),
-                    periodeStart = LocalDate.of(2023, 1, 1),
-                    periodeSlutt = LocalDate.of(2023, 2, 1),
-                    kostnadssted = Gjovik,
-                    lopenummer = 1,
-                    arrangor = TilsagnDto.Arrangor(
+                    )
+                    it.periodeStart shouldBe LocalDate.of(2023, 1, 1)
+                    it.periodeSlutt shouldBe LocalDate.of(2023, 2, 1)
+                    it.kostnadssted shouldBe Gjovik
+                    it.lopenummer shouldBe 1
+                    it.arrangor shouldBe TilsagnDto.Arrangor(
                         navn = ArrangorFixtures.underenhet1.navn,
                         id = ArrangorFixtures.underenhet1.id,
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                         slettet = ArrangorFixtures.underenhet1.slettetDato != null,
-                    ),
-                    beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
-                    status = TilsagnDto.TilsagnStatus.TilGodkjenning(
-                        endretAv = NavAnsattFixture.ansatt1.navIdent,
-                        endretTidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-                    ),
-                    type = TilsagnType.TILSAGN,
-                )
+                    )
+                    it.beregning shouldBe TilsagnBeregningFri(
+                        TilsagnBeregningFri.Input(123),
+                        TilsagnBeregningFri.Output(123),
+                    )
+                    it.type shouldBe TilsagnType.TILSAGN
+                    it.status shouldBe TilsagnStatus.TIL_GODKJENNING
+                    it.sistHandling.opprettetAv shouldBe NavAnsattFixture.ansatt1.navIdent
+                    it.sistHandling.opprettetAvNavn shouldBe "${NavAnsattFixture.ansatt1.fornavn} ${NavAnsattFixture.ansatt1.etternavn}"
+                    it.sistHandling.aarsaker shouldHaveSize 0
+                    it.sistHandling.forklaring shouldBe null
+                }
 
                 queries.delete(tilsagn.id)
-
                 queries.get(tilsagn.id) shouldBe null
             }
         }
@@ -108,39 +113,43 @@ class TilsagnQueriesTest : FunSpec({
                 val queries = TilsagnQueries(session)
                 queries.upsert(tilsagn)
 
-                val endretTidspunkt = LocalDateTime.now()
+                queries.godkjenn(
+                    tilsagn.id,
+                    NavIdent("B123456"),
+                )
 
                 // Send til annullering
                 queries.tilAnnullering(
                     tilsagn.id,
                     tilsagn.endretAv,
-                    endretTidspunkt,
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_ANNET),
                     forklaring = "Min forklaring",
                 )
 
-                queries.get(tilsagn.id).shouldNotBeNull()
-                    .status.shouldBeTypeOf<TilsagnDto.TilsagnStatus.TilAnnullering>().should { status ->
-                        status.endretAv shouldBe tilsagn.endretAv
-                        status.endretAvNavn shouldBe "${NavAnsattFixture.ansatt1.fornavn} ${NavAnsattFixture.ansatt1.etternavn}"
-                        status.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_ANNET)
-                        status.forklaring shouldBe "Min forklaring"
+                queries.get(tilsagn.id).shouldNotBeNull() should {
+                    it.status shouldBe TilsagnStatus.TIL_ANNULLERING
+                    it.sistHandling should { handling ->
+                        handling.opprettetAv shouldBe tilsagn.endretAv
+                        handling.opprettetAvNavn shouldBe "${NavAnsattFixture.ansatt1.fornavn} ${NavAnsattFixture.ansatt1.etternavn}"
+                        handling.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_ANNET)
+                        handling.forklaring shouldBe "Min forklaring"
                     }
+                }
 
                 // Beslutt annullering
-                queries.besluttAnnullering(
+                queries.godkjennAnnullering(
                     tilsagn.id,
                     NavIdent("B123456"),
-                    endretTidspunkt,
                 )
 
-                queries.get(tilsagn.id).shouldNotBeNull()
-                    .status.shouldBeTypeOf<TilsagnDto.TilsagnStatus.Annullert>().should { status ->
-                        status.endretAv shouldBe tilsagn.endretAv
-                        status.godkjentAv shouldBe NavIdent("B123456")
-                        status.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_ANNET)
-                        status.forklaring shouldBe "Min forklaring"
+                queries.get(tilsagn.id).shouldNotBeNull() should {
+                    it.status shouldBe TilsagnStatus.ANNULLERT
+                    it.sistHandling should { handling ->
+                        handling.opprettetAv shouldBe NavIdent("B123456")
+                        handling.aarsaker shouldHaveSize 0
+                        handling.forklaring shouldBe null
                     }
+                }
             }
         }
 
@@ -152,24 +161,25 @@ class TilsagnQueriesTest : FunSpec({
                 queries.upsert(tilsagn)
 
                 val endretTidspunkt = LocalDateTime.now()
-
+                queries.godkjenn(
+                    tilsagn.id,
+                    NavIdent("B123456"),
+                )
                 // Send til annullering
                 queries.tilAnnullering(
                     tilsagn.id,
                     tilsagn.endretAv,
-                    endretTidspunkt,
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_ANNET),
                     forklaring = "Min forklaring",
                 )
 
                 // Avbryt annullering
-                queries.avbrytAnnullering(
+                queries.avvisAnnullering(
                     tilsagn.id,
                     NavIdent("B123456"),
-                    endretTidspunkt,
                 )
 
-                queries.get(tilsagn.id).shouldNotBeNull().status shouldBe TilsagnDto.TilsagnStatus.Godkjent
+                queries.get(tilsagn.id).shouldNotBeNull().status shouldBe TilsagnStatus.GODKJENT
             }
         }
 
@@ -182,13 +192,12 @@ class TilsagnQueriesTest : FunSpec({
 
                 val besluttetTidspunkt = LocalDateTime.of(2024, 12, 12, 0, 0)
 
-                queries.besluttGodkjennelse(
+                queries.godkjenn(
                     tilsagn.id,
                     NavIdent("B123456"),
-                    besluttetTidspunkt,
                 )
 
-                queries.get(tilsagn.id).shouldNotBeNull().status shouldBe TilsagnDto.TilsagnStatus.Godkjent
+                queries.get(tilsagn.id).shouldNotBeNull().status shouldBe TilsagnStatus.GODKJENT
             }
         }
 
@@ -199,22 +208,19 @@ class TilsagnQueriesTest : FunSpec({
                 val queries = TilsagnQueries(session)
                 queries.upsert(tilsagn)
 
-                val returnertTidspunkt = LocalDateTime.of(2024, 12, 12, 0, 0)
-
                 queries.returner(
                     tilsagn.id,
                     NavAnsattFixture.ansatt2.navIdent,
-                    returnertTidspunkt,
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_ANNET),
                     forklaring = "Min forklaring",
                 )
-                queries.get(tilsagn.id).shouldNotBeNull()
-                    .status.shouldBeTypeOf<TilsagnDto.TilsagnStatus.Returnert>().should { status ->
-                        status.endretAv shouldBe tilsagn.endretAv
-                        status.returnertAvNavn shouldBe "${NavAnsattFixture.ansatt2.fornavn} ${NavAnsattFixture.ansatt2.etternavn}"
-                        status.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_ANNET)
-                        status.forklaring shouldBe "Min forklaring"
-                    }
+                queries.get(tilsagn.id).shouldNotBeNull() should {
+                    it.status shouldBe TilsagnStatus.RETURNERT
+                    it.sistHandling.opprettetAv shouldBe NavAnsattFixture.ansatt2.navIdent
+                    it.sistHandling.opprettetAvNavn shouldBe "${NavAnsattFixture.ansatt2.fornavn} ${NavAnsattFixture.ansatt2.etternavn}"
+                    it.sistHandling.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_ANNET)
+                    it.sistHandling.forklaring shouldBe "Min forklaring"
+                }
             }
         }
 
@@ -225,10 +231,10 @@ class TilsagnQueriesTest : FunSpec({
                 val queries = TilsagnQueries(session)
                 queries.upsert(tilsagn)
 
-                queries.get(tilsagn.id).shouldNotBeNull()
-                    .status.shouldBeTypeOf<TilsagnDto.TilsagnStatus.TilGodkjenning>().should { status ->
-                        status.endretAv shouldBe tilsagn.endretAv
-                    }
+                queries.get(tilsagn.id).shouldNotBeNull() should {
+                    it.status shouldBe TilsagnStatus.TIL_GODKJENNING
+                    it.sistHandling.opprettetAv shouldBe tilsagn.endretAv
+                }
             }
         }
     }
@@ -240,7 +246,7 @@ class TilsagnQueriesTest : FunSpec({
 
                 val queries = TilsagnQueries(session)
                 queries.upsert(tilsagn)
-                queries.besluttGodkjennelse(tilsagn.id, NavIdent("B123456"), LocalDateTime.now())
+                queries.godkjenn(tilsagn.id, NavIdent("B123456"))
 
                 queries.getAllArrangorflateTilsagn(ArrangorFixtures.underenhet1.organisasjonsnummer) shouldBe listOf(
                     ArrangorflateTilsagn(
@@ -280,7 +286,7 @@ class TilsagnQueriesTest : FunSpec({
 
                 val queries = TilsagnQueries(session)
                 queries.upsert(tilsagn)
-                queries.besluttGodkjennelse(tilsagn.id, NavIdent("B123456"), LocalDateTime.now())
+                queries.godkjenn(tilsagn.id, NavIdent("B123456"))
 
                 queries.getArrangorflateTilsagnTilRefusjon(
                     tilsagn.gjennomforingId,

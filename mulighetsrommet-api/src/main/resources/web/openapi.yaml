@@ -5303,15 +5303,13 @@ components:
             overordnetEnhet:
               type: string
               nullable: true
-          required:
-            - id
-            - organisasjonsnummer
-            - navn
-            - overordnetEnhet
+          required: [id, organisasjonsnummer, navn, overordnetEnhet]
         status:
-          $ref: "#/components/schemas/TilsagnStatusDto"
+          $ref: "#/components/schemas/TilsagnStatus"
         type:
           $ref: "#/components/schemas/TilsagnType"
+        sistHandling:
+          $ref: "#/components/schemas/ToTrinnskontrollHandlingDto"
       required:
         - id
         - gjennomforingId
@@ -5324,6 +5322,7 @@ components:
         - lopenummer
         - status
         - type
+        - sistHandling
 
     TilsagnStatus:
       type: string
@@ -5334,128 +5333,7 @@ components:
         - TIL_ANNULLERING
         - ANNULLERT
 
-    TilsagnStatusDto:
-      oneOf:
-        - $ref: "#/components/schemas/TilsagnStatusTilGodkjenning"
-        - $ref: "#/components/schemas/TilsagnStatusGodkjent"
-        - $ref: "#/components/schemas/TilsagnStatusReturnert"
-        - $ref: "#/components/schemas/TilsagnStatusTilAnnullering"
-        - $ref: "#/components/schemas/TilsagnStatusAnnullert"
-
-    TilsagnStatusTilGodkjenning:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-            - "TIL_GODKJENNING"
-        endretAv:
-          type: string
-        endretTidspunkt:
-          type: string
-          format: date-time
-      required:
-        - endretAv
-        - endretTidspunkt
-        - type
-
-    TilsagnStatusGodkjent:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-            - "GODKJENT"
-      required:
-        - type
-
-    TilsagnStatusReturnert:
-      type: object
-      properties:
-        endretAv:
-          type: string
-        type:
-          type: string
-          enum:
-            - "RETURNERT"
-        returnertAv:
-          type: string
-        returnertAvNavn:
-          type: string
-        aarsaker:
-          type: array
-          items:
-            $ref: "#/components/schemas/TilsagnAvvisningAarsak"
-        forklaring:
-          type: string
-        endretTidspunkt:
-          type: string
-          format: date-time
-      required:
-        - returnertAv
-        - returnertAvNavn
-        - aarsaker
-        - endretTidspunkt
-        - endretAv
-        - type
-
-    TilsagnStatusTilAnnullering:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-            - "TIL_ANNULLERING"
-        endretAv:
-          type: string
-        endretAvNavn:
-          type: string
-        endretTidspunkt:
-          type: string
-          format: date-time
-        aarsaker:
-          type: array
-          items:
-            $ref: "#/components/schemas/TilsagnTilAnnulleringAarsak"
-        forklaring:
-          type: string
-      required:
-        - endretAv
-        - endretAvNavn
-        - endretTidspunkt
-        - aarsaker
-        - forklaring
-        - type
-
-    TilsagnStatusAnnullert:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-            - "ANNULLERT"
-        endretAv:
-          type: string
-        godkjentAv:
-          type: string
-        endretTidspunkt:
-          type: string
-          format: date-time
-        aarsaker:
-          type: array
-          items:
-            $ref: "#/components/schemas/TilsagnTilAnnulleringAarsak"
-        forklaring:
-          type: string
-      required:
-        - type
-        - endretAv
-        - godkjentAv
-        - endretTidspunkt
-        - aarsaker
-        - forklaring
-
-    TilsagnStatusBesluttelse:
+    Besluttelse:
       type: string
       enum:
         - GODKJENT
@@ -5470,7 +5348,7 @@ components:
       type: object
       properties:
         besluttelse:
-          $ref: "#/components/schemas/TilsagnStatusBesluttelse"
+          $ref: "#/components/schemas/Besluttelse"
       required:
         - besluttelse
 
@@ -5478,7 +5356,7 @@ components:
       type: object
       properties:
         besluttelse:
-          $ref: "#/components/schemas/TilsagnStatusBesluttelse"
+          $ref: "#/components/schemas/Besluttelse"
         aarsaker:
           type: array
           items:
@@ -6141,3 +6019,31 @@ components:
               - belop
       required:
         - kostnadsfordeling
+
+    ToTrinnskontrollHandling:
+      type: string
+      enum:
+        - FORESLA_OPPRETT
+        - FORESLA_ANNULLER
+        - GODKJENN
+        - AVVIS
+
+    ToTrinnskontrollHandlingDto:
+      type: object
+      properties:
+        opprettetAv:
+          type: string
+        opprettetAvNavn:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        handling:
+          $ref: "#/components/schemas/ToTrinnskontrollHandling"
+        aarsaker:
+          type: array
+          items:
+            type: string
+        forklaring:
+          type: string
+      required: [ opprettetAv, opprettetAvNavn, createdAt, handling, aarsaker ]

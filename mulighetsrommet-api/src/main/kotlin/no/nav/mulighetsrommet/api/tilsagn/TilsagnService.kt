@@ -80,33 +80,33 @@ class TilsagnService(
         val tilsagn = queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
 
         return when (tilsagn.status) {
-            is TilsagnDto.TilsagnStatus.Annullert, is TilsagnDto.TilsagnStatus.Godkjent, is TilsagnDto.TilsagnStatus.Returnert ->
-                BadRequest("Tilsagnet kan ikke besluttes fordi det har status ${tilsagn.status.javaClass.simpleName}").left()
+            TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.RETURNERT ->
+                BadRequest("Tilsagnet kan ikke besluttes fordi det har status ${tilsagn.status}").left()
 
-            is TilsagnDto.TilsagnStatus.TilGodkjenning -> {
+            TilsagnStatus.TIL_GODKJENNING -> {
                 when (besluttelse) {
                     BesluttTilsagnRequest.GodkjentTilsagnRequest -> godkjennTilsagn(tilsagn, navIdent)
                     is BesluttTilsagnRequest.AvvistTilsagnRequest -> returnerTilsagn(tilsagn, besluttelse, navIdent)
                 }
             }
 
-            is TilsagnDto.TilsagnStatus.TilAnnullering -> {
+            TilsagnStatus.TIL_ANNULLERING -> {
                 when (besluttelse.besluttelse) {
-                    TilsagnBesluttelseStatus.GODKJENT -> annullerTilsagn(tilsagn, navIdent)
-                    TilsagnBesluttelseStatus.AVVIST -> avvisAnnullering(tilsagn, navIdent)
+                    Besluttelse.GODKJENT -> annullerTilsagn(tilsagn, navIdent)
+                    Besluttelse.AVVIST -> avvisAnnullering(tilsagn, navIdent)
                 }
             }
         }
     }
 
     private suspend fun godkjennTilsagn(tilsagn: TilsagnDto, navIdent: NavIdent): StatusResponse<TilsagnDto> = db.transaction {
-        require(tilsagn.status is TilsagnDto.TilsagnStatus.TilGodkjenning)
+        require(tilsagn.status == TilsagnStatus.TIL_GODKJENNING)
 
-        if (navIdent == tilsagn.status.endretAv) {
+        if (navIdent == tilsagn.sistHandling.opprettetAv) {
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
-        queries.tilsagn.besluttGodkjennelse(tilsagn.id, navIdent, LocalDateTime.now())
+        queries.tilsagn.godkjenn(tilsagn.id, navIdent)
         lagOgSendBestilling(tilsagn)
 
         val dto = getOrError(tilsagn.id)
@@ -119,9 +119,9 @@ class TilsagnService(
         besluttelse: BesluttTilsagnRequest.AvvistTilsagnRequest,
         navIdent: NavIdent,
     ): StatusResponse<TilsagnDto> = db.transaction {
-        require(tilsagn.status is TilsagnDto.TilsagnStatus.TilGodkjenning)
+        require(tilsagn.status == TilsagnStatus.TIL_GODKJENNING)
 
-        if (navIdent == tilsagn.status.endretAv) {
+        if (navIdent == tilsagn.sistHandling.opprettetAv) {
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         } else if (besluttelse.aarsaker.isEmpty()) {
             return BadRequest(detail = "Årsaker er påkrevd").left()
@@ -130,7 +130,6 @@ class TilsagnService(
         queries.tilsagn.returner(
             tilsagn.id,
             navIdent,
-            LocalDateTime.now(),
             besluttelse.aarsaker,
             besluttelse.forklaring,
         )
@@ -141,13 +140,13 @@ class TilsagnService(
     }
 
     private fun annullerTilsagn(tilsagn: TilsagnDto, navIdent: NavIdent): StatusResponse<TilsagnDto> = db.transaction {
-        require(tilsagn.status is TilsagnDto.TilsagnStatus.TilAnnullering)
+        require(tilsagn.status == TilsagnStatus.TIL_ANNULLERING)
 
-        if (navIdent == tilsagn.status.endretAv) {
+        if (navIdent == tilsagn.sistHandling.opprettetAv) {
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
-        queries.tilsagn.besluttAnnullering(tilsagn.id, navIdent, LocalDateTime.now())
+        queries.tilsagn.godkjennAnnullering(tilsagn.id, navIdent)
 
         val dto = getOrError(tilsagn.id)
         logEndring("Tilsagn annullert", dto, EndretAv.NavAnsatt(navIdent))
@@ -155,13 +154,13 @@ class TilsagnService(
     }
 
     private fun avvisAnnullering(tilsagn: TilsagnDto, navIdent: NavIdent): StatusResponse<TilsagnDto> = db.transaction {
-        require(tilsagn.status is TilsagnDto.TilsagnStatus.TilAnnullering)
+        require(tilsagn.status == TilsagnStatus.TIL_ANNULLERING)
 
-        if (navIdent == tilsagn.status.endretAv) {
+        if (navIdent == tilsagn.sistHandling.opprettetAv) {
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
-        queries.tilsagn.avbrytAnnullering(tilsagn.id, navIdent, LocalDateTime.now())
+        queries.tilsagn.avvisAnnullering(tilsagn.id, navIdent)
 
         val dto = getOrError(tilsagn.id)
         logEndring("Annullering avvist", dto, EndretAv.NavAnsatt(navIdent))
@@ -175,14 +174,13 @@ class TilsagnService(
     ): StatusResponse<TilsagnDto> = db.transaction {
         val tilsagn = queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
 
-        if (tilsagn.status !is TilsagnDto.TilsagnStatus.Godkjent) {
+        if (tilsagn.status != TilsagnStatus.GODKJENT) {
             return BadRequest("Kan bare annullere godkjente tilsagn").left()
         }
 
         queries.tilsagn.tilAnnullering(
             id,
             navIdent,
-            LocalDateTime.now(),
             request.aarsaker,
             request.forklaring,
         )
@@ -195,7 +193,7 @@ class TilsagnService(
     fun slettTilsagn(id: UUID): StatusResponse<Unit> = db.transaction {
         val tilsagn = queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
 
-        if (tilsagn.status !is TilsagnDto.TilsagnStatus.Returnert) {
+        if (tilsagn.status != TilsagnStatus.RETURNERT) {
             return BadRequest("Kan ikke slette tilsagn som er godkjent").left()
         }
 
@@ -204,13 +202,6 @@ class TilsagnService(
 
     fun getAll() = db.session {
         queries.tilsagn.getAll()
-    }
-
-    fun getTilsagnTilRefusjon(
-        gjennomforingId: UUID,
-        periode: Periode,
-    ): List<TilsagnDto> = db.session {
-        return queries.tilsagn.getTilsagnTilRefusjon(gjennomforingId, periode)
     }
 
     fun getArrangorflateTilsagnTilRefusjon(

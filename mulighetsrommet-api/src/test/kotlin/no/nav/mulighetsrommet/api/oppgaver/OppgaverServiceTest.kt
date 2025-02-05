@@ -2,18 +2,13 @@
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
-import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
-import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.oppgaver.OppgaverFilter
 import no.nav.mulighetsrommet.oppgaver.OppgaverService
-import java.time.LocalDateTime
 
 class OppgaverServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -61,18 +56,19 @@ class OppgaverServiceTest : FunSpec({
                 TilsagnFixtures.Tilsagn3,
             ),
         ) {
+            queries.tilsagn.godkjenn(
+                id = TilsagnFixtures.Tilsagn2.id,
+                navIdent = NavIdent("Z123456"),
+            )
             queries.tilsagn.tilAnnullering(
                 id = TilsagnFixtures.Tilsagn2.id,
                 navIdent = NavIdent("Z123456"),
-                tidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0),
                 aarsaker = emptyList(),
                 forklaring = null,
             )
-
-            queries.tilsagn.besluttAnnullering(
+            queries.tilsagn.godkjennAnnullering(
                 id = TilsagnFixtures.Tilsagn2.id,
-                navIdent = NavIdent("Z123456"),
-                tidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0),
+                navIdent = NavIdent("G523456"),
             )
         }
 
@@ -106,8 +102,7 @@ class OppgaverServiceTest : FunSpec({
         ) {
             queries.tilsagn.returner(
                 id = TilsagnFixtures.Tilsagn3.id,
-                navIdent = NavIdent("Z123456"),
-                tidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0),
+                navIdent = NavAnsattFixture.ansatt1.navIdent,
                 aarsaker = emptyList(),
                 forklaring = null,
             )

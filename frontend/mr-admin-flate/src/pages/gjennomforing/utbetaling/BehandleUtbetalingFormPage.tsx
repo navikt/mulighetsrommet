@@ -35,7 +35,7 @@ function defaultValues(
     kostnadsfordeling: tilsagn.map((t) => ({
       tilsagnId: t.id,
       belop:
-        kunEttTilsagn && t.status.type === TilsagnStatus.GODKJENT
+        kunEttTilsagn && t.status === TilsagnStatus.GODKJENT
           ? Math.min(krav.beregning.belop, t.beregning.output.belop)
           : 0,
     })),

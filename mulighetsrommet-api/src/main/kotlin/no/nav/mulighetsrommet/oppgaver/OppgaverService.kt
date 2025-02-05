@@ -3,12 +3,7 @@ package no.nav.mulighetsrommet.oppgaver
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatus.Returnert
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatus.TilAnnullering
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatus.TilGodkjenning
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import java.time.LocalDateTime
 import kotlin.collections.component1
 import kotlin.collections.component2
 
@@ -76,7 +71,7 @@ class OppgaverService(val db: ApiDatabase) {
                                 linkText = "Se tilsagn",
                                 link = "/gjennomforinger/${it.gjennomforing.id}/tilsagn/${it.id}",
                             ),
-                            createdAt = it.status.createdAt(),
+                            createdAt = it.sistHandling.createdAt,
                             deadline = it.periodeStart.atStartOfDay(),
                         )
                     }
@@ -88,42 +83,33 @@ class OppgaverService(val db: ApiDatabase) {
         return oppgaver
     }
 
-    private fun TilsagnDto.TilsagnStatus.toTitle(): String {
+    private fun TilsagnStatus.toTitle(): String {
         return when (this) {
-            is TilGodkjenning -> "Tilsagn til godkjenning"
-            is Returnert -> "Tilsagn returnert"
-            is TilAnnullering -> "Tilsagn til annullering"
+            TilsagnStatus.TIL_GODKJENNING -> "Tilsagn til godkjenning"
+            TilsagnStatus.RETURNERT -> "Tilsagn returnert"
+            TilsagnStatus.TIL_ANNULLERING -> "Tilsagn til annullering"
             else -> {
                 throw IllegalStateException("Ukjent tilsagnstatus")
             }
         }
     }
 
-    private fun TilsagnDto.TilsagnStatus.toDescription(): String {
+    private fun TilsagnStatus.toDescription(): String {
         return when (this) {
-            is TilGodkjenning -> "Tilsagnet er til godkjenning og må behandles"
-            is Returnert -> "Tilsagnet ble returnert av beslutter"
-            is TilAnnullering -> "Tilsagnet er til annullering og må behandles"
+            TilsagnStatus.TIL_GODKJENNING -> "Tilsagnet er til godkjenning og må behandles"
+            TilsagnStatus.RETURNERT -> "Tilsagnet ble returnert av beslutter"
+            TilsagnStatus.TIL_ANNULLERING -> "Tilsagnet er til annullering og må behandles"
             else -> {
                 throw IllegalStateException("Ukjent tilsagnstatus")
             }
         }
     }
 
-    private fun TilsagnDto.TilsagnStatus.toType(): OppgaveType {
+    private fun TilsagnStatus.toType(): OppgaveType {
         return when (this) {
-            is TilGodkjenning -> OppgaveType.TILSAGN_TIL_GODKJENNING
-            is Returnert -> OppgaveType.TILSAGN_RETURNERT_AV_BESLUTTER
-            is TilAnnullering -> OppgaveType.TILSAGN_TIL_ANNULLERING
-            else -> throw IllegalStateException("Ukjent tilsagnstatus")
-        }
-    }
-
-    private fun TilsagnDto.TilsagnStatus.createdAt(): LocalDateTime {
-        return when (this) {
-            is TilGodkjenning -> this.endretTidspunkt
-            is Returnert -> this.endretTidspunkt
-            is TilAnnullering -> this.endretTidspunkt
+            TilsagnStatus.TIL_GODKJENNING -> OppgaveType.TILSAGN_TIL_GODKJENNING
+            TilsagnStatus.RETURNERT -> OppgaveType.TILSAGN_RETURNERT_AV_BESLUTTER
+            TilsagnStatus.TIL_ANNULLERING -> OppgaveType.TILSAGN_TIL_ANNULLERING
             else -> throw IllegalStateException("Ukjent tilsagnstatus")
         }
     }
