@@ -8,19 +8,27 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.tilsagn.kafka.OkonomiBestillingProducer
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 import java.util.*
 
@@ -28,6 +36,7 @@ class TilsagnServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
+        arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
         avtaler = listOf(AvtaleFixtures.AFT),
         gjennomforinger = listOf(AFT1),
     )
@@ -40,8 +49,11 @@ class TilsagnServiceTest : FunSpec({
         database.truncateAll()
     }
 
-    fun createTilsagnService() = TilsagnService(
+    fun createTilsagnService(
+        okonomiBestillingProducer: OkonomiBestillingProducer = mockk(relaxed = true),
+    ) = TilsagnService(
         db = database.db,
+        okonomi = okonomiBestillingProducer,
     )
 
     context("opprett tilsagn") {
@@ -157,8 +169,6 @@ class TilsagnServiceTest : FunSpec({
     }
 
     context("beslutt") {
-        val service = createTilsagnService()
-
         val tilsagn = TilsagnRequest(
             id = UUID.randomUUID(),
             gjennomforingId = AFT1.id,
@@ -166,10 +176,12 @@ class TilsagnServiceTest : FunSpec({
             periodeStart = LocalDate.of(2023, 1, 1),
             periodeSlutt = LocalDate.of(2023, 2, 1),
             kostnadssted = Gjovik.enhetsnummer,
-            beregning = TilsagnBeregningFri.Input(belop = 0),
+            beregning = TilsagnBeregningFri.Input(belop = 1),
         )
 
         test("kan ikke beslutte egne") {
+            val service = createTilsagnService()
+
             service.upsert(tilsagn, NavAnsattFixture.ansatt1.navIdent).shouldBeRight()
 
             service.beslutt(
@@ -180,6 +192,8 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("kan ikke beslutte to ganger") {
+            val service = createTilsagnService()
+
             service.upsert(tilsagn, NavAnsattFixture.ansatt1.navIdent).shouldBeRight()
 
             service.beslutt(
@@ -194,6 +208,34 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = NavAnsattFixture.ansatt2.navIdent,
             ) shouldBe BadRequest("Tilsagnet kan ikke besluttes fordi det har status Godkjent").left()
         }
+
+        test("publiserer tilsagn som bestilling til økonomi-tjenesten") {
+            val producer = mockk<OkonomiBestillingProducer>()
+            every { producer.publishBestilling(any()) } returns Unit
+
+            val service = createTilsagnService(producer)
+            val opprettetTilsagn = service.upsert(tilsagn, NavAnsattFixture.ansatt1.navIdent).shouldBeRight()
+
+            service.beslutt(
+                id = tilsagn.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
+            ).shouldBeRight()
+
+            verify {
+                producer.publishBestilling(
+                    match {
+                        it.belop == 1 &&
+                            it.tiltakskode == Tiltakskode.ARBEIDSFORBEREDENDE_TRENING &&
+                            it.bestillingsnummer == opprettetTilsagn.bestillingsnummer &&
+                            it.periode == Periode.forMonthOf(LocalDate.of(2023, 1, 1)) &&
+                            it.arrangor.hovedenhet == ArrangorFixtures.hovedenhet.organisasjonsnummer &&
+                            it.arrangor.underenhet == ArrangorFixtures.underenhet1.organisasjonsnummer &&
+                            it.kostnadssted == NavEnhetNummer(Gjovik.enhetsnummer)
+                    },
+                )
+            }
+        }
     }
 
     context("slett tilsagn") {
@@ -206,7 +248,7 @@ class TilsagnServiceTest : FunSpec({
             periodeStart = LocalDate.of(2023, 1, 1),
             periodeSlutt = LocalDate.of(2023, 2, 1),
             kostnadssted = Gjovik.enhetsnummer,
-            beregning = TilsagnBeregningFri.Input(belop = 0),
+            beregning = TilsagnBeregningFri.Input(belop = 1),
         )
 
         test("kan slette tilsagn når det er avvist") {

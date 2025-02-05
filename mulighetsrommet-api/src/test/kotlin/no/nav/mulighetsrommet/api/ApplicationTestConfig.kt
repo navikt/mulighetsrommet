@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
+import no.nav.mulighetsrommet.api.tilsagn.kafka.OkonomiBestillingProducer
 import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
@@ -114,6 +115,9 @@ fun createKafkaConfig(): KafkaConfig = KafkaConfig(
             consumerGroupId = "mulighetsrommet-api.dvh-gjennomforing.v1",
             consumerTopic = "siste-tiltaksgjennomforinger-v1",
             producerTopic = "dvh-gjennomforinger-v1",
+        ),
+        okonomiBestilling = OkonomiBestillingProducer.Config(
+            topic = "okonomi-bestilling",
         ),
     ),
     producers = KafkaProducers(

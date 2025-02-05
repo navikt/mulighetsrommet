@@ -9,8 +9,8 @@ import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.tiltak.okonomi.api.OpprettBestilling
-import no.nav.tiltak.okonomi.api.OpprettFaktura
+import no.nav.tiltak.okonomi.OpprettBestilling
+import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.db.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

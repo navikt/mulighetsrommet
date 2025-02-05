@@ -57,6 +57,7 @@ import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.tilsagn.kafka.OkonomiBestillingProducer
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
@@ -153,6 +154,7 @@ private fun kafka(appConfig: AppConfig) = module {
     }
     single { SisteTiltaksgjennomforingerV1KafkaProducer(producerClient, config.producers.gjennomforinger) }
     single { SisteTiltakstyperV2KafkaProducer(producerClient, config.producers.tiltakstyper) }
+    single { OkonomiBestillingProducer(producerClient, config.clients.okonomiBestilling) }
 
     val consumerPreset = when (NaisEnv.current()) {
         NaisEnv.Local -> KafkaPropertiesBuilder.consumerBuilder()
@@ -376,7 +378,7 @@ private fun services(appConfig: AppConfig) = module {
     single { GjennomforingValidator(get()) }
     single { OpsjonLoggService(get()) }
     single { LagretFilterService(get()) }
-    single { TilsagnService(get()) }
+    single { TilsagnService(get(), get()) }
     single { AltinnRettigheterService(get(), get()) }
     single { OppgaverService(get()) }
 }
