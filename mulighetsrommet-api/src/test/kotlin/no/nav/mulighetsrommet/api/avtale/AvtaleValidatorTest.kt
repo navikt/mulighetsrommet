@@ -344,7 +344,7 @@ class AvtaleValidatorTest : FunSpec({
         val avtale2 = AvtaleFixtures.oppfolging.copy(
             arrangor = AvtaleFixtures.oppfolging.arrangor?.copy(
                 hovedenhet = ArrangorFixtures.Fretex.hovedenhet.id,
-                underenheter = listOf(ArrangorFixtures.underenhet1.id),
+                underenheter = listOf(ArrangorFixtures.Fretex.underenhet1.id),
             ),
         )
         validator.validate(avtale2, null).shouldBeRight()
@@ -359,17 +359,17 @@ class AvtaleValidatorTest : FunSpec({
         val avtale1 = AvtaleFixtures.oppfolging.copy(
             arrangor = AvtaleFixtures.oppfolging.arrangor?.copy(
                 hovedenhet = ArrangorFixtures.Fretex.hovedenhet.id,
-                underenheter = listOf(ArrangorFixtures.underenhet1.id),
+                underenheter = listOf(ArrangorFixtures.Fretex.underenhet1.id),
             ),
         )
 
         createValidator().validate(avtale1, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             ValidationError(
-                "arrangorId",
+                "/arrangor/hovedenhet",
                 "Arrangøren FRETEX AS er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
             ),
             ValidationError(
-                "arrangorUnderenheter",
+                "/arrangor/underenheter",
                 "Arrangøren FRETEX AS AVD OSLO er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
             ),
         )
@@ -523,7 +523,7 @@ class AvtaleValidatorTest : FunSpec({
                         "Tiltakstype kan ikke endres fordi det finnes gjennomføringer for avtalen",
                     ),
                     ValidationError(
-                        "arrangorUnderenheter",
+                        "/arrangor/underenheter",
                         "Arrangøren Underenhet 2 AS er i bruk på en av avtalens gjennomføringer, men mangler blant tiltaksarrangørens underenheter",
                     ),
                     ValidationError(
