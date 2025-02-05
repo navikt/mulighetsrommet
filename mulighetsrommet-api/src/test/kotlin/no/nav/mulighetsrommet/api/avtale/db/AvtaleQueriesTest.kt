@@ -686,13 +686,13 @@ class AvtaleQueriesTest : FunSpec({
                     AvtaleFixtures.oppfolging.copy(
                         id = UUID.randomUUID(),
                         arrangor = AvtaleFixtures.oppfolging.arrangor?.copy(
-                            hovedenhet = ArrangorFixtures.hovedenhet.id,
+                            hovedenhet = ArrangorFixtures.underenhet1.id,
                         ),
                     ),
                     AvtaleFixtures.oppfolging.copy(
                         id = UUID.randomUUID(),
                         arrangor = AvtaleFixtures.oppfolging.arrangor?.copy(
-                            hovedenhet = ArrangorFixtures.hovedenhet.id,
+                            hovedenhet = annenArrangor.id,
                         ),
                     ),
                 ),
@@ -703,7 +703,8 @@ class AvtaleQueriesTest : FunSpec({
 
                 val queries = AvtaleQueries(session)
 
-                queries.getAll(search = "enhet").totalCount shouldBe 2
+                var result = queries.getAll(search = "enhet")
+                result.totalCount shouldBe 2
                 queries.getAll(search = "annen").totalCount shouldBe 1
             }
         }

@@ -109,7 +109,7 @@ class AvtaleValidatorTest : FunSpec({
             listOf(
                 ValidationError("startDato", "Startdato må være før sluttdato"),
                 ValidationError("navEnheter", "Du må velge minst én Nav-region"),
-                ValidationError("arrangorUnderenheter", "Du må velge minst én underenhet for tiltaksarrangør"),
+                ValidationError("/arrangor/underenheter", "Du må velge minst én underenhet for tiltaksarrangør"),
             ),
         )
     }

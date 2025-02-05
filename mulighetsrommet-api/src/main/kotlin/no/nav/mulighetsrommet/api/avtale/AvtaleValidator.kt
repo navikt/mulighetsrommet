@@ -113,7 +113,7 @@ class AvtaleValidator(
                     ValidationError.of(
                         "Du må velge minst én underenhet for tiltaksarrangør",
                         AvtaleDbo::arrangor,
-                        AvtaleDbo.Arrangor::hovedenhet,
+                        AvtaleDbo.Arrangor::underenheter,
                     ),
                 )
             }
