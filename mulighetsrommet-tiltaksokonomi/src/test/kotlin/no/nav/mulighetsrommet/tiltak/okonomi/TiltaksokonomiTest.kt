@@ -12,8 +12,11 @@ import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.tiltak.okonomi.oebs.Kilde
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import no.nav.tiltak.okonomi.api.*
+import no.nav.tiltak.okonomi.db.BestillingStatusType
+import no.nav.tiltak.okonomi.db.FakturaStatusType
+import no.nav.tiltak.okonomi.oebs.Kilde
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 
@@ -134,14 +137,14 @@ class TiltaksokonomiTest : FunSpec({
                     it.status shouldBe HttpStatusCode.OK
                     it.body<BestillingStatus>() shouldBe BestillingStatus(
                         bestillingsnummer = bestillingsnummer,
-                        status = BestillingStatus.Type.AKTIV,
+                        status = BestillingStatusType.AKTIV,
                     )
                 }
 
                 client.post(Bestilling.Id.Status(Bestilling.Id(id = bestillingsnummer))) {
                     bearerAuth(oauth.issueToken().serialize())
                     contentType(ContentType.Application.Json)
-                    setBody(SetBestillingStatus(status = BestillingStatus.Type.ANNULLERT))
+                    setBody(SetBestillingStatus(status = BestillingStatusType.ANNULLERT))
                 }.also {
                     it.status shouldBe HttpStatusCode.OK
                 }
@@ -152,7 +155,7 @@ class TiltaksokonomiTest : FunSpec({
                     it.status shouldBe HttpStatusCode.OK
                     it.body<BestillingStatus>() shouldBe BestillingStatus(
                         bestillingsnummer = bestillingsnummer,
-                        status = BestillingStatus.Type.ANNULLERT,
+                        status = BestillingStatusType.ANNULLERT,
                     )
                 }
             }
@@ -271,7 +274,7 @@ class TiltaksokonomiTest : FunSpec({
                     it.status shouldBe HttpStatusCode.OK
                     it.body<FakturaStatus>() shouldBe FakturaStatus(
                         fakturanummer = fakturanummer,
-                        status = FakturaStatus.Type.UTBETALT,
+                        status = FakturaStatusType.UTBETALT,
                     )
                 }
             }

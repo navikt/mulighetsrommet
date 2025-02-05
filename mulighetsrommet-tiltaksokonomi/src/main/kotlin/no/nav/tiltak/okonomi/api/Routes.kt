@@ -1,38 +1,17 @@
-package no.nav.mulighetsrommet.tiltak.okonomi
+package no.nav.tiltak.okonomi.api
 
 import io.ktor.http.*
-import io.ktor.resources.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.*
-import io.ktor.server.resources.Resources
 import io.ktor.server.resources.post
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.tiltak.okonomi.db.OkonomiDatabase
-import no.nav.mulighetsrommet.tiltak.okonomi.oebs.OebsService
-
-private const val API_BASE_PATH = "/api/v1/okonomi"
-
-@Resource("$API_BASE_PATH/bestilling")
-class Bestilling {
-
-    @Resource("{id}")
-    class Id(val parent: Bestilling = Bestilling(), val id: String) {
-
-        @Resource("status")
-        class Status(val parent: Id)
-    }
-}
-
-@Resource("$API_BASE_PATH/faktura")
-class Faktura {
-
-    @Resource("{id}")
-    class Id(val parent: Faktura = Faktura(), val id: String)
-}
+import no.nav.tiltak.okonomi.db.BestillingStatusType
+import no.nav.tiltak.okonomi.db.FakturaStatusType
+import no.nav.tiltak.okonomi.db.OkonomiDatabase
+import no.nav.tiltak.okonomi.oebs.OebsService
 
 fun Application.okonomiRoutes(
     db: OkonomiDatabase,
@@ -44,7 +23,7 @@ fun Application.okonomiRoutes(
         post<Bestilling> {
             val bestilling = call.receive<OpprettBestilling>()
 
-            oebs.behandleBestilling(bestilling)
+            oebs.opprettBestilling(bestilling)
                 .onLeft {
                     application.log.warn("Feil ved opprettelse av bestilling", it)
                     call.respond(HttpStatusCode.InternalServerError)
@@ -58,7 +37,7 @@ fun Application.okonomiRoutes(
             val body = call.receive<SetBestillingStatus>()
 
             when (body.status) {
-                BestillingStatus.Type.ANNULLERT -> oebs.behandleAnnullering(bestilling.parent.id)
+                BestillingStatusType.ANNULLERT -> oebs.annullerBestilling(bestilling.parent.id)
                     .onLeft {
                         application.log.warn("Feil ved annullering", it)
                         call.respond(HttpStatusCode.InternalServerError)
@@ -76,10 +55,7 @@ fun Application.okonomiRoutes(
                 queries.bestilling.getBestilling(bestilling.id)?.let {
                     BestillingStatus(
                         bestillingsnummer = it.bestillingsnummer,
-                        status = when {
-                            it.annullert -> BestillingStatus.Type.ANNULLERT
-                            else -> BestillingStatus.Type.AKTIV
-                        },
+                        status = it.status,
                     )
                 }
             }
@@ -94,7 +70,7 @@ fun Application.okonomiRoutes(
         post<Faktura> {
             val body = call.receive<OpprettFaktura>()
 
-            oebs.behandleFaktura(body)
+            oebs.opprettFaktura(body)
                 .onLeft {
                     application.log.warn("Feil ved opprettelse av faktura", it)
                     call.respond(HttpStatusCode.InternalServerError)
@@ -109,7 +85,7 @@ fun Application.okonomiRoutes(
                 queries.faktura.getFaktura(faktura.id)?.let {
                     FakturaStatus(
                         fakturanummer = it.fakturanummer,
-                        status = FakturaStatus.Type.UTBETALT,
+                        status = FakturaStatusType.UTBETALT,
                     )
                 }
             }
@@ -120,34 +96,5 @@ fun Application.okonomiRoutes(
                 call.respond(status)
             }
         }
-    }
-}
-
-@Serializable
-data class BestillingStatus(
-    val bestillingsnummer: String,
-    val status: Type,
-) {
-
-    enum class Type {
-        AKTIV,
-        ANNULLERT,
-        OPPGJORT,
-    }
-}
-
-@Serializable
-data class SetBestillingStatus(
-    val status: BestillingStatus.Type,
-)
-
-@Serializable
-data class FakturaStatus(
-    val fakturanummer: String,
-    val status: Type,
-) {
-
-    enum class Type {
-        UTBETALT,
     }
 }

@@ -4,17 +4,19 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.tiltak.okonomi.OkonomiPart
 import no.nav.mulighetsrommet.tiltak.okonomi.databaseConfig
-import no.nav.mulighetsrommet.tiltak.okonomi.db.BestillingDbo
-import no.nav.mulighetsrommet.tiltak.okonomi.db.LinjeDbo
-import no.nav.mulighetsrommet.tiltak.okonomi.oebs.Kilde
+import no.nav.tiltak.okonomi.api.OkonomiPart
+import no.nav.tiltak.okonomi.db.Bestilling
+import no.nav.tiltak.okonomi.db.BestillingStatusType
+import no.nav.tiltak.okonomi.db.LinjeDbo
+import no.nav.tiltak.okonomi.db.queries.BestillingQueries
+import no.nav.tiltak.okonomi.oebs.Kilde
 import java.time.LocalDate
 
 class OebsBestillingQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
-    val dbo = BestillingDbo(
+    val dbo = Bestilling(
         tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         arrangorHovedenhet = Organisasjonsnummer("123456789"),
         arrangorUnderenhet = Organisasjonsnummer("234567890"),
@@ -26,11 +28,11 @@ class OebsBestillingQueriesTest : FunSpec({
             LocalDate.of(2025, 1, 1),
             LocalDate.of(2025, 3, 1),
         ),
+        status = BestillingStatusType.AKTIV,
         opprettetAv = OkonomiPart.System(Kilde.TILTADM),
         opprettetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
         besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
         besluttetTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
-        annullert = false,
         linjer = listOf(
             LinjeDbo(
                 linjenummer = 1,
@@ -67,9 +69,9 @@ class OebsBestillingQueriesTest : FunSpec({
 
             queries.createBestilling(dbo)
 
-            queries.setAnnullert("A-1", true)
+            queries.setStatus("A-1", BestillingStatusType.ANNULLERT)
 
-            queries.getBestilling("A-1") shouldBe dbo.copy(annullert = true)
+            queries.getBestilling("A-1") shouldBe dbo.copy(status = BestillingStatusType.ANNULLERT)
         }
     }
 })

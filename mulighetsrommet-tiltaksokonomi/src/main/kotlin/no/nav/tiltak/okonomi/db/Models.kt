@@ -1,10 +1,10 @@
-package no.nav.mulighetsrommet.tiltak.okonomi.db
+package no.nav.tiltak.okonomi.db
 
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.tiltak.okonomi.OkonomiPart
+import no.nav.tiltak.okonomi.api.OkonomiPart
 import java.time.LocalDateTime
 
-data class BestillingDbo(
+data class Bestilling(
     val tiltakskode: Tiltakskode,
     val arrangorHovedenhet: Organisasjonsnummer,
     val arrangorUnderenhet: Organisasjonsnummer,
@@ -13,27 +13,38 @@ data class BestillingDbo(
     val avtalenummer: String?,
     val belop: Int,
     val periode: Periode,
+    val status: BestillingStatusType,
     val opprettetAv: OkonomiPart,
     val opprettetTidspunkt: LocalDateTime,
     val besluttetAv: OkonomiPart,
     val besluttetTidspunkt: LocalDateTime,
-    val annullert: Boolean,
     val linjer: List<LinjeDbo>,
 )
 
-data class FakturaDbo(
+enum class BestillingStatusType {
+    AKTIV,
+    ANNULLERT,
+    OPPGJORT,
+}
+
+data class Faktura(
     val bestillingsnummer: String,
     val fakturanummer: String,
     val kontonummer: Kontonummer,
     val kid: Kid?,
     val belop: Int,
     val periode: Periode,
+    val status: FakturaStatusType,
     val opprettetAv: OkonomiPart,
     val opprettetTidspunkt: LocalDateTime,
     val besluttetAv: OkonomiPart,
     val besluttetTidspunkt: LocalDateTime,
     val linjer: List<LinjeDbo>,
 )
+
+enum class FakturaStatusType {
+    UTBETALT,
+}
 
 data class LinjeDbo(
     val linjenummer: Int,

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.tiltak.okonomi.plugins
+package no.nav.tiltak.okonomi.plugins
 
 import io.ktor.http.*
 import io.ktor.server.application.*

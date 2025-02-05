@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.tiltak.okonomi.oebs
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.tiltak.okonomi.oebs.divideBelopByMonthsInPeriode
 import java.time.LocalDate
 
 class OebsServiceTest : FunSpec({

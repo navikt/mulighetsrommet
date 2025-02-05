@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.tiltak.okonomi.oebs
+package no.nav.tiltak.okonomi.oebs
 
 import arrow.core.Either
 import arrow.core.flatMap
@@ -9,12 +9,9 @@ import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.tiltak.okonomi.OpprettBestilling
-import no.nav.mulighetsrommet.tiltak.okonomi.OpprettFaktura
-import no.nav.mulighetsrommet.tiltak.okonomi.db.BestillingDbo
-import no.nav.mulighetsrommet.tiltak.okonomi.db.FakturaDbo
-import no.nav.mulighetsrommet.tiltak.okonomi.db.LinjeDbo
-import no.nav.mulighetsrommet.tiltak.okonomi.db.OkonomiDatabase
+import no.nav.tiltak.okonomi.api.OpprettBestilling
+import no.nav.tiltak.okonomi.api.OpprettFaktura
+import no.nav.tiltak.okonomi.db.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.collections.set
@@ -33,16 +30,16 @@ class OebsService(
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun behandleBestilling(
+    suspend fun opprettBestilling(
         bestilling: OpprettBestilling,
-    ): Either<OpprettBestillingError, BestillingDbo> = db.session {
+    ): Either<OpprettBestillingError, Bestilling> = db.session {
         queries.bestilling.getBestilling(bestilling.bestillingsnummer)?.let {
             log.info("Bestilling ${bestilling.bestillingsnummer} er allerede opprettet")
             return it.right()
         }
 
         val perioder = divideBelopByMonthsInPeriode(bestilling.periode, bestilling.belop)
-        val dbo = BestillingDbo(
+        val dbo = Bestilling(
             tiltakskode = bestilling.tiltakskode,
             arrangorHovedenhet = bestilling.arrangor.hovedenhet,
             arrangorUnderenhet = bestilling.arrangor.hovedenhet,
@@ -51,11 +48,11 @@ class OebsService(
             avtalenummer = bestilling.avtalenummer,
             belop = bestilling.belop,
             periode = bestilling.periode,
+            status = BestillingStatusType.AKTIV,
             opprettetAv = bestilling.opprettetAv,
             opprettetTidspunkt = bestilling.opprettetTidspunkt,
             besluttetAv = bestilling.besluttetAv,
             besluttetTidspunkt = bestilling.besluttetTidspunkt,
-            annullert = false,
             linjer = perioder.mapIndexed { index, (periode, belop) ->
                 LinjeDbo(
                     linjenummer = (index + 1),
@@ -107,11 +104,16 @@ class OebsService(
             }
     }
 
-    suspend fun behandleAnnullering(
+    suspend fun annullerBestilling(
         bestillingsnummer: String,
-    ): Either<AnnullerBestillingError, BestillingDbo> = db.session {
-        val bestilling = requireNotNull(queries.bestilling.getBestilling(bestillingsnummer)) {
-            "Bestilling $bestillingsnummer mangler"
+    ): Either<AnnullerBestillingError, Bestilling> = db.session {
+        val bestilling = queries.bestilling.getBestilling(bestillingsnummer)
+            ?: return AnnullerBestillingError("Bestilling $bestillingsnummer finnes ikke").left()
+
+        if (bestilling.status == BestillingStatusType.ANNULLERT) {
+            return bestilling.right()
+        } else if (bestilling.status != BestillingStatusType.AKTIV) {
+            return AnnullerBestillingError("Kan ikke annullere bestilling $bestillingsnummer med status ${bestilling.status}").left()
         }
 
         val melding = OebsAnnulleringMelding(
@@ -128,26 +130,27 @@ class OebsService(
                 AnnullerBestillingError("Klarte ikke annullere bestilling $bestillingsnummer hos oebs", it)
             }
             .map {
-                queries.bestilling.setAnnullert(bestillingsnummer, annullert = true)
+                queries.bestilling.setStatus(bestillingsnummer, BestillingStatusType.ANNULLERT)
                 checkNotNull(queries.bestilling.getBestilling(bestillingsnummer))
             }
     }
 
-    suspend fun behandleFaktura(
+    suspend fun opprettFaktura(
         faktura: OpprettFaktura,
-    ): Either<OpprettFakturaError, FakturaDbo> = db.session {
+    ): Either<OpprettFakturaError, Faktura> = db.session {
         val bestilling = queries.bestilling.getBestilling(faktura.bestillingsnummer)
             ?: return OpprettFakturaError("Bestilling ${faktura.bestillingsnummer} mangler for faktura ${faktura.fakturanummer}").left()
 
         val bestillingLinjerByMonth = bestilling.linjer.associateBy { it.periode.start.month }
         val perioder = divideBelopByMonthsInPeriode(faktura.periode, faktura.belop)
-        val dbo = FakturaDbo(
+        val dbo = Faktura(
             bestillingsnummer = faktura.bestillingsnummer,
             fakturanummer = faktura.fakturanummer,
             kontonummer = faktura.betalingsinformasjon.kontonummer,
             kid = faktura.betalingsinformasjon.kid,
             belop = faktura.belop,
             periode = faktura.periode,
+            status = FakturaStatusType.UTBETALT,
             opprettetAv = faktura.opprettetAv,
             opprettetTidspunkt = faktura.opprettetTidspunkt,
             besluttetAv = faktura.opprettetAv,
@@ -176,7 +179,7 @@ class OebsService(
 }
 
 private fun toOebsBestillingMelding(
-    bestilling: BestillingDbo,
+    bestilling: Bestilling,
     arrangorHovedenhet: BrregHovedenhetDto,
     linjer: List<OebsBestillingMelding.Linje>,
 ): OebsBestillingMelding {
@@ -219,8 +222,8 @@ private fun toOebsBestillingMelding(
 }
 
 private fun toOebsFakturaMelding(
-    bestilling: BestillingDbo,
-    faktura: FakturaDbo,
+    bestilling: Bestilling,
+    faktura: Faktura,
 ): OebsFakturaMelding {
     return OebsFakturaMelding(
         kilde = Kilde.TILTADM,

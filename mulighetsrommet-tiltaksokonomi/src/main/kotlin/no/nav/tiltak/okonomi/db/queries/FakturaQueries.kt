@@ -1,19 +1,20 @@
-package no.nav.mulighetsrommet.tiltak.okonomi.db.queries
+package no.nav.tiltak.okonomi.db.queries
 
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.tiltak.okonomi.OkonomiPart
-import no.nav.mulighetsrommet.tiltak.okonomi.db.FakturaDbo
-import no.nav.mulighetsrommet.tiltak.okonomi.db.LinjeDbo
-import no.nav.mulighetsrommet.tiltak.okonomi.db.periode
+import no.nav.tiltak.okonomi.api.OkonomiPart
+import no.nav.tiltak.okonomi.db.Faktura
+import no.nav.tiltak.okonomi.db.FakturaStatusType
+import no.nav.tiltak.okonomi.db.LinjeDbo
+import no.nav.tiltak.okonomi.db.periode
 import org.intellij.lang.annotations.Language
 
 class FakturaQueries(private val session: Session) {
 
-    fun opprettFaktura(faktura: FakturaDbo) = withTransaction(session) {
+    fun opprettFaktura(faktura: Faktura) = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
             insert into faktura (
@@ -23,6 +24,7 @@ class FakturaQueries(private val session: Session) {
                 kid,
                 belop,
                 periode,
+                status,
                 opprettet_av,
                 opprettet_tidspunkt,
                 besluttet_av,
@@ -34,6 +36,7 @@ class FakturaQueries(private val session: Session) {
                 :kid,
                 :belop,
                 daterange(:periode_start, :periode_slutt),
+                :status,
                 :opprettet_av,
                 :opprettet_tidspunkt,
                 :besluttet_av,
@@ -49,6 +52,7 @@ class FakturaQueries(private val session: Session) {
             "belop" to faktura.belop,
             "periode_start" to faktura.periode.start,
             "periode_slutt" to faktura.periode.slutt,
+            "status" to faktura.status.name,
             "opprettet_av" to faktura.opprettetAv.part,
             "opprettet_tidspunkt" to faktura.opprettetTidspunkt,
             "besluttet_av" to faktura.besluttetAv.part,
@@ -73,7 +77,7 @@ class FakturaQueries(private val session: Session) {
         batchPreparedNamedStatement(insertLinje, linjer)
     }
 
-    fun getFaktura(fakturanummer: String): FakturaDbo? {
+    fun getFaktura(fakturanummer: String): Faktura? {
         @Language("PostgreSQL")
         val selectLinje = """
             select linjenummer, periode, belop
@@ -92,6 +96,7 @@ class FakturaQueries(private val session: Session) {
                 kid,
                 belop,
                 periode,
+                status,
                 opprettet_av,
                 opprettet_tidspunkt,
                 besluttet_av,
@@ -109,13 +114,14 @@ class FakturaQueries(private val session: Session) {
                 )
             }
 
-            FakturaDbo(
+            Faktura(
                 bestillingsnummer = faktura.string("bestillingsnummer"),
                 fakturanummer = faktura.string("fakturanummer"),
                 kontonummer = Kontonummer(faktura.string("kontonummer")),
                 kid = faktura.stringOrNull("kid")?.let { kid -> Kid(kid) },
                 belop = faktura.int("belop"),
                 periode = faktura.periode("periode"),
+                status = FakturaStatusType.valueOf(faktura.string("status")),
                 opprettetAv = OkonomiPart.fromString(faktura.string("opprettet_av")),
                 opprettetTidspunkt = faktura.localDateTime("opprettet_tidspunkt"),
                 besluttetAv = OkonomiPart.fromString(faktura.string("besluttet_av")),

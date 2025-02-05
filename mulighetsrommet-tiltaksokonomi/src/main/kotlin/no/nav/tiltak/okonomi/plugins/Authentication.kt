@@ -1,10 +1,10 @@
-package no.nav.mulighetsrommet.tiltak.okonomi.plugins
+package no.nav.tiltak.okonomi.plugins
 
 import com.auth0.jwk.JwkProviderBuilder
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import no.nav.mulighetsrommet.tiltak.okonomi.AuthConfig
+import no.nav.tiltak.okonomi.AuthConfig
 import java.net.URI
 import java.util.concurrent.TimeUnit
 
