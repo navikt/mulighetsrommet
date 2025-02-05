@@ -15,7 +15,7 @@ import { LagretDokumenttype } from "@mr/api-client-v2";
 import { LagredeFilterOversikt, LagreFilterButton, ListSkeleton } from "@mr/frontend-common";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { HStack } from "@navikt/ds-react";
+import { BodyShort, HStack } from "@navikt/ds-react";
 import { Suspense, useState } from "react";
 import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
@@ -92,11 +92,11 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
                 isPending ? (
                   <ListSkeleton />
                 ) : (
-                  <Feilmelding
-                    header="Ingen tiltak funnet"
-                    beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
-                    ikonvariant="warning"
-                  />
+                  <Feilmelding header="Ingen tiltak funnet" ikonvariant="warning">
+                    <BodyShort size="small">
+                      Prøv å justere søket eller filteret for å finne det du leter etter
+                    </BodyShort>
+                  </Feilmelding>
                 )
               ) : null
             }

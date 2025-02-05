@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.altinn.db
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
-import no.nav.mulighetsrommet.api.withTransaction
 import no.nav.mulighetsrommet.database.createEnumArray
+import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import org.intellij.lang.annotations.Language

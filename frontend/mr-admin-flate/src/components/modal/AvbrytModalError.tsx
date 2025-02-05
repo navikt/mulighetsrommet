@@ -1,20 +1,19 @@
-import { resolveErrorMessage } from "@mr/frontend-common/components/error-handling/errors";
 import { AvbrytAvtaleAarsak, AvbrytGjennomforingAarsak } from "@mr/api-client-v2";
 import { AnnetEnum } from "@/api/annetEnum";
 
 interface Props {
-  mutation: any;
+  error?: string;
   aarsak?: AvbrytAvtaleAarsak | AvbrytGjennomforingAarsak | AnnetEnum;
   customAarsak?: string;
 }
-export function AvbrytModalError({ mutation, aarsak, customAarsak }: Props) {
+export function AvbrytModalError({ error, aarsak, customAarsak }: Props) {
   const beskrivelser = () => {
     if (aarsak?.length === 0) return "Du må velge en årsak";
     else if (aarsak === "annet" && !customAarsak)
       return "Beskrivelse er obligatorisk når “Annet” er valgt som årsak";
     else if (aarsak === "annet" && customAarsak!.length > 100)
       return "Beskrivelse kan ikke inneholde mer enn 100 tegn";
-    return resolveErrorMessage(mutation.error);
+    return error;
   };
 
   return (

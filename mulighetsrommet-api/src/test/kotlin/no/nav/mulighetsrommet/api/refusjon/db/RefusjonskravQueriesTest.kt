@@ -91,6 +91,7 @@ class RefusjonskravQueriesTest : FunSpec({
                     beregning = beregning,
                     kontonummer = Kontonummer("11111111111"),
                     kid = Kid("12345"),
+                    periode = beregning.input.periode,
                 )
 
                 queries.upsert(krav)
@@ -118,6 +119,8 @@ class RefusjonskravQueriesTest : FunSpec({
                         kid = Kid("12345"),
                     ),
                     journalpostId = null,
+                    periodeStart = LocalDate.of(2023, 1, 1),
+                    periodeSlutt = LocalDate.of(2023, 2, 1),
                 )
             }
         }
@@ -135,6 +138,7 @@ class RefusjonskravQueriesTest : FunSpec({
                     beregning = beregning,
                     kontonummer = null,
                     kid = null,
+                    periode = beregning.input.periode,
                 )
 
                 queries.upsert(krav)
@@ -162,6 +166,7 @@ class RefusjonskravQueriesTest : FunSpec({
                     beregning = beregning,
                     kontonummer = null,
                     kid = null,
+                    periode = beregning.input.periode,
                 )
                 queries.upsert(krav)
 
@@ -201,6 +206,7 @@ class RefusjonskravQueriesTest : FunSpec({
                     ),
                     kontonummer = null,
                     kid = null,
+                    periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
                 )
 
                 assertThrows<SQLException> {

@@ -1,11 +1,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AvbrytGjennomforingAarsak, GjennomforingerService } from "@mr/api-client-v2";
+import {
+  AvbrytGjennomforingAarsak,
+  GjennomforingerService,
+  ProblemDetail,
+} from "@mr/api-client-v2";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useAvbrytGjennomforing() {
   const client = useQueryClient();
 
-  return useMutation({
+  return useMutation<
+    unknown,
+    ProblemDetail,
+    { id: string; aarsak?: AvbrytGjennomforingAarsak | string }
+  >({
     mutationFn: (data: { id: string; aarsak?: AvbrytGjennomforingAarsak | string }) => {
       return GjennomforingerService.avbrytGjennomforing({
         path: { id: data.id },

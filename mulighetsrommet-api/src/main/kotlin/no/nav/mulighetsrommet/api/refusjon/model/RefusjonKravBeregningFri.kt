@@ -1,14 +1,11 @@
 package no.nav.mulighetsrommet.api.refusjon.model
 
-import no.nav.mulighetsrommet.model.Periode
-
 data class RefusjonKravBeregningFri(
     override val input: Input,
     override val output: Output,
 ) : RefusjonKravBeregning() {
 
     data class Input(
-        override val periode: Periode,
         val belop: Int,
     ) : RefusjonKravBeregningInput()
 

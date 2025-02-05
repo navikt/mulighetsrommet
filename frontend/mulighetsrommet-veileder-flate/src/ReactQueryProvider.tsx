@@ -4,7 +4,6 @@ import { ReactNode } from "react";
 import { client } from "@mr/api-client-v2";
 import { v4 as uuidv4 } from "uuid";
 import { APPLICATION_NAME } from "@/constants";
-import { ApiError } from "@mr/frontend-common/components/error-handling/errors";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,23 +16,6 @@ const queryClient = new QueryClient({
 
 client.setConfig({
   baseUrl: import.meta.env.VITE_MULIGHETSROMMET_API_BASE ?? "",
-});
-
-client.interceptors.response.use(async (response) => {
-  if (response.status < 200 || response.status >= 300) {
-    let body: unknown;
-    try {
-      body = await response.json();
-    } catch {
-      // Do nothing
-    }
-
-    throw {
-      status: response.status,
-      body,
-    } as ApiError;
-  }
-  return response;
 });
 
 client.interceptors.request.use((request) => {

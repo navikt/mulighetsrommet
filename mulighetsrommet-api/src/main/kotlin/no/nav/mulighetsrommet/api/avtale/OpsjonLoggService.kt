@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
-import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.model.NavIdent
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -20,7 +20,7 @@ class OpsjonLoggService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun lagreOpsjonLoggEntry(entry: OpsjonLoggEntry): Either<List<ValidationError>, Unit> = db.transaction {
+    fun lagreOpsjonLoggEntry(entry: OpsjonLoggEntry): Either<List<FieldError>, Unit> = db.transaction {
         val avtale = requireNotNull(queries.avtale.get(entry.avtaleId))
         OpsjonLoggValidator.validate(entry, avtale).map {
             if (entry.sluttdato != null) {

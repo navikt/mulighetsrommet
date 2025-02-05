@@ -174,7 +174,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ValidationErrorResponse"
+                $ref: "#/components/schemas/ValidationError"
         500:
           description: "Kunne ikke opprette avtale"
           content:
@@ -523,7 +523,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ValidationErrorResponse"
+                $ref: "#/components/schemas/ValidationError"
         500:
           description: "Kunne ikke opprette gjennomforing"
           content:
@@ -841,7 +841,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ValidationErrorResponse"
+                $ref: "#/components/schemas/ValidationError"
 
   /api/v1/intern/gjennomforinger/{id}/stengt-hos-arrangor/{periodeId}:
     parameters:
@@ -1993,7 +1993,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ValidationErrorResponse"
+                $ref: "#/components/schemas/ValidationError"
         500:
           description: "Kunne ikke opprette utbetaling"
           content:
@@ -2290,7 +2290,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ValidationErrorResponse"
+                $ref: "#/components/schemas/ValidationError"
 
   /api/v1/intern/arrangorflate/refusjonskrav/{id}/kvittering:
     parameters:
@@ -2445,25 +2445,41 @@ components:
         type: string
 
   schemas:
-    ValidationErrorResponse:
+    ProblemDetail:
       type: object
       properties:
-        message:
+        type:
           type: string
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              name:
-                type: string
-              message:
-                type: string
-            required:
-              - name
-              - message
-      required:
-        - errors
+        title:
+          type: string
+        status:
+          type: number
+        detail:
+          type: string
+        instance:
+          type: string
+      required: [type, title, status, detail]
+      additionalProperties: true
+
+    ValidationError:
+      allOf:
+        - $ref: "#/components/schemas/ProblemDetail"
+        - type: object
+          properties:
+            errors:
+              type: array
+              items:
+                $ref: "#/components/schemas/FieldError"
+          required: [errors]
+
+    FieldError:
+      type: object
+      properties:
+        detail:
+          type: string
+        pointer:
+          type: string
+      required: [detail, pointer]
 
     GetBrukerRequest:
       type: object

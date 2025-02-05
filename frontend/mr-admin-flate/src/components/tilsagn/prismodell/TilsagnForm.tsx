@@ -3,8 +3,8 @@ import { InferredTilsagn, TilsagnSchema } from "@/components/tilsagn/prismodell/
 import { VelgKostnadssted } from "@/components/tilsagn/prismodell/VelgKostnadssted";
 import { VelgPeriode } from "@/components/tilsagn/prismodell/VelgPeriode";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { GjennomforingDto, TilsagnRequest, TilsagnType } from "@mr/api-client-v2";
-import { isValidationError } from "@mr/frontend-common/utils/utils";
+import { GjennomforingDto, ProblemDetail, TilsagnRequest, TilsagnType } from "@mr/api-client-v2";
+import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Button, Heading, HStack, TextField } from "@navikt/ds-react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router";
@@ -43,11 +43,11 @@ export function TilsagnForm(props: Props) {
 
     mutation.mutate(request, {
       onSuccess: onSuccess,
-      onError: (error: any) => {
-        if (isValidationError(error.body)) {
-          error.body.errors.forEach((error: { message: string; name: string }) => {
-            const name = error.name as keyof InferredTilsagn;
-            setError(name, { type: "custom", message: error.message });
+      onError: (error: ProblemDetail) => {
+        if (isValidationError(error)) {
+          error.errors.forEach((error: { pointer: string; detail: string }) => {
+            const name = jsonPointerToFieldPath(error.pointer) as keyof InferredTilsagn;
+            setError(name, { type: "custom", message: error.detail });
           });
         }
       },

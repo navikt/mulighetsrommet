@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingValidator
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
-import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.tasks.executeSuspend
@@ -105,7 +105,7 @@ class GenerateValidationReport(
         return workbook
     }
 
-    private suspend fun validateAvtaler(): Map<AvtaleDto, List<ValidationError>> = db.session {
+    private suspend fun validateAvtaler(): Map<AvtaleDto, List<FieldError>> = db.session {
         buildMap {
             paginateFanOut({ pagination -> queries.avtale.getAll(pagination).items }) {
                 avtaleValidator.validate(it.toDbo(), it).onLeft { validationErrors ->
@@ -117,7 +117,7 @@ class GenerateValidationReport(
 
     private fun createAvtalerSheet(
         workbook: XSSFWorkbook,
-        result: Map<AvtaleDto, List<ValidationError>>,
+        result: Map<AvtaleDto, List<FieldError>>,
     ) {
         val workSheet = workbook.createSheet("Avtaler")
         createHeader(workSheet)
@@ -130,7 +130,7 @@ class GenerateValidationReport(
         }
     }
 
-    private suspend fun validateGjennomforinger(): Map<GjennomforingDto, List<ValidationError>> = db.session {
+    private suspend fun validateGjennomforinger(): Map<GjennomforingDto, List<FieldError>> = db.session {
         buildMap {
             paginateFanOut({ pagination ->
                 queries.gjennomforing.getAll(
@@ -147,7 +147,7 @@ class GenerateValidationReport(
 
     private fun createGjennomforingerSheet(
         workbook: XSSFWorkbook,
-        result: Map<GjennomforingDto, List<ValidationError>>,
+        result: Map<GjennomforingDto, List<FieldError>>,
     ) {
         val workSheet = workbook.createSheet("Gjennomføringer")
         createHeader(workSheet)
@@ -177,14 +177,14 @@ class GenerateValidationReport(
         navn: String,
         opphav: String,
         status: String,
-        error: ValidationError,
+        error: FieldError,
     ) {
         val row = workSheet.createRow(rowNumber)
         row.createCell(0, CellType.STRING).setCellValue(uuid.toString())
         row.createCell(1, CellType.STRING).setCellValue(navn)
         row.createCell(2, CellType.STRING).setCellValue(opphav)
         row.createCell(3, CellType.STRING).setCellValue(status)
-        row.createCell(4, CellType.STRING).setCellValue(error.name)
-        row.createCell(5, CellType.STRING).setCellValue(error.message)
+        row.createCell(4, CellType.STRING).setCellValue(error.pointer)
+        row.createCell(5, CellType.STRING).setCellValue(error.detail)
     }
 }

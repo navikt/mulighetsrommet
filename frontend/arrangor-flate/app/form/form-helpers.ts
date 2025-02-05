@@ -1,7 +1,4 @@
-export type FormError = {
-  name: string;
-  message: string;
-};
+import { FieldError } from "@mr/api-client-v2";
 
 export function getOrThrowError(formData: FormData, property: string) {
   const data = formData.get(property);
@@ -14,11 +11,11 @@ export function getOrThrowError(formData: FormData, property: string) {
 export function getOrError(
   formData: FormData,
   property: string,
-  message: string,
-): { error: FormError; data?: undefined } | { error?: undefined; data: FormDataEntryValue } {
+  detail: string,
+): { error: FieldError; data?: undefined } | { error?: undefined; data: FormDataEntryValue } {
   const data = formData.get(property);
   if (!data) {
-    return { error: { name: property, message } };
+    return { error: { pointer: `/${property}`, detail } };
   }
   return { data };
 }

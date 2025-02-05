@@ -31,8 +31,8 @@ data class RefusjonKravBeregningAft(
             val totalDuration = periode.getDurationInDays().toBigDecimal()
 
             val manedsverk = deltakelser
-                .map { deltkelse ->
-                    val perioder = deltkelse.perioder.map { deltakelsePeriode ->
+                .map { deltakelse ->
+                    val perioder = deltakelse.perioder.map { deltakelsePeriode ->
                         val start = maxOf(periode.start, deltakelsePeriode.start)
                         val slutt = minOf(periode.slutt, deltakelsePeriode.slutt)
                         val overlapDuration = Periode(start, slutt).getDurationInDays().toBigDecimal()
@@ -51,7 +51,7 @@ data class RefusjonKravBeregningAft(
                     }
 
                     DeltakelseManedsverk(
-                        deltakelseId = deltkelse.deltakelseId,
+                        deltakelseId = deltakelse.deltakelseId,
                         manedsverk = perioder.sumOf { it }.toDouble(),
                     )
                 }

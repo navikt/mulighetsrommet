@@ -11,11 +11,12 @@ import {
   AvtaleDto,
   GjennomforingDto,
   GjennomforingRequest,
+  ProblemDetail,
   Tiltakskode,
-  ValidationErrorResponse,
+  ValidationError,
 } from "@mr/api-client-v2";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
-import { isValidationError } from "@mr/frontend-common/utils/utils";
+import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Box, Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import React, { useCallback } from "react";
@@ -70,13 +71,13 @@ export function GjennomforingFormContainer({
     [onSuccess],
   );
   const handleValidationError = useCallback(
-    (validation: ValidationErrorResponse) => {
+    (validation: ValidationError) => {
       validation.errors.forEach((error) => {
-        const name = mapErrorToSchemaPropertyName(error.name);
-        form.setError(name, { type: "custom", message: error.message });
+        const name = mapFieldToSchemaPropertyName(jsonPointerToFieldPath(error.pointer));
+        form.setError(name, { type: "custom", message: error.detail });
       });
 
-      function mapErrorToSchemaPropertyName(name: string) {
+      function mapFieldToSchemaPropertyName(name: string) {
         const mapping: { [name: string]: string } = {
           startDato: "startOgSluttDato.startDato",
           sluttDato: "startOgSluttDato.sluttDato",
@@ -134,10 +135,9 @@ export function GjennomforingFormContainer({
 
     mutation.mutate(body, {
       onSuccess: handleSuccess,
-      onError: (error: any) => {
-        // TODO: fix any
-        if (isValidationError(error.body)) {
-          handleValidationError(error.body);
+      onError: (error: ProblemDetail) => {
+        if (isValidationError(error)) {
+          handleValidationError(error);
         }
       },
     });

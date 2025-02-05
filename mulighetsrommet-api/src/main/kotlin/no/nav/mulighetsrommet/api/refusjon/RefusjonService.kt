@@ -89,6 +89,7 @@ class RefusjonService(
             beregning = beregning,
             kontonummer = forrigeKrav?.betalingsinformasjon?.kontonummer,
             kid = forrigeKrav?.betalingsinformasjon?.kid,
+            periode = periode,
         )
     }
 

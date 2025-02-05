@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
+import no.nav.mulighetsrommet.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.mulighetsrommet.tiltak.okonomi.oebs.OebsService
 import no.nav.mulighetsrommet.tiltak.okonomi.oebs.OebsTiltakApiClient
 import no.nav.mulighetsrommet.tiltak.okonomi.plugins.configureAuthentication
@@ -36,6 +37,8 @@ fun Application.configure(config: AppConfig) {
     configureMonitoring({ db.isHealthy() })
     configureHTTP()
 
+    val okonomiDb = OkonomiDatabase(db)
+
     val cachedTokenProvider = CachedTokenProvider.init(config.auth.azure.audience, config.auth.azure.tokenEndpointUrl)
 
     val oebsClient = OebsTiltakApiClient(
@@ -46,9 +49,9 @@ fun Application.configure(config: AppConfig) {
 
     val brreg = BrregClient(config.httpClientEngine, config.clients.brreg.url)
 
-    val oebsService = OebsService(oebsClient, brreg)
+    val oebsService = OebsService(okonomiDb, oebsClient, brreg)
 
-    okonomiRoutes(oebsService)
+    okonomiRoutes(okonomiDb, oebsService)
 
     monitor.subscribe(ApplicationStopPreparing) {
         db.close()

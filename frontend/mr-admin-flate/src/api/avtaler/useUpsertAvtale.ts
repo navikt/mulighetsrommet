@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AvtaleRequest, AvtalerService } from "@mr/api-client-v2";
+import { AvtaleDto, AvtaleRequest, AvtalerService, ProblemDetail } from "@mr/api-client-v2";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useUpsertAvtale() {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<{ data: AvtaleDto }, ProblemDetail, AvtaleRequest>({
     mutationFn: (body: AvtaleRequest) => AvtalerService.upsertAvtale({ body }),
 
     onSuccess(_, request) {

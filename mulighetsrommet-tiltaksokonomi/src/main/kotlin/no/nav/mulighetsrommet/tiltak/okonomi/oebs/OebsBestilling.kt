@@ -1,55 +1,10 @@
 package no.nav.mulighetsrommet.tiltak.okonomi.oebs
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
-import no.nav.mulighetsrommet.tiltak.okonomi.oebs.OebsBestillingMelding.Kilde
 import java.time.LocalDate
 import java.time.LocalDateTime
-
-@Serializable
-data class OpprettOebsBestilling(
-    val tiltakskode: Tiltakskode,
-    val arrangor: OebsBestillingArrangor,
-    val bestillingsnummer: String,
-    val avtalenummer: String?,
-    val belop: Int,
-    val opprettetAv: OkonomiPart,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val opprettetTidspunkt: LocalDateTime,
-    val besluttetAv: OkonomiPart,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val besluttetTidspunkt: LocalDateTime,
-    val periode: Periode,
-    val kostnadssted: NavEnhetNummer,
-)
-
-@Serializable
-data class AnnullerOebsBestilling(
-    val bestillingsnummer: String,
-    val arrangor: OebsBestillingArrangor,
-)
-
-@Serializable
-data class OebsBestillingArrangor(
-    val hovedenhet: Organisasjonsnummer,
-    val underenhet: Organisasjonsnummer,
-)
-
-@Serializable
-data class OebsBestilling(
-    val bestillingsnummer: String,
-    val status: Status,
-) {
-
-    enum class Status {
-        BEHANDLET,
-    }
-}
 
 enum class OebsBestillingType {
     NY,
@@ -59,7 +14,7 @@ enum class OebsBestillingType {
 @Serializable
 data class OebsBestillingMelding(
     /**
-     * Unik ID for bestillingen som benyttes som primærnøkkel i kommunikasjonen med OeBS.
+     * Unik ID for bestillingen og benyttes som primærnøkkel i kommunikasjonen med OeBS.
      */
     val bestillingsNummer: String,
 
@@ -95,18 +50,15 @@ data class OebsBestillingMelding(
     /**
      * Indikerer hvem som har opprettet og sendt bestillingen (tilsagnet) til godkjenning.
      *
-     * Nav-ident hvis det er en person.
-     *
-     * TODO [Kilde] hvis det er et system?
+     * Nav-ident hvis det er en person, evt. systemnavn hvis det er et system.
      */
     val saksbehandler: String,
 
     /**
-     * Indikerer hvem som har godkjent bestillingen (tilsagnet).
+     * Indikerer hvem som har godkjent fakturaen. Dette benyttes til sporing og er bl.a. relevant ifm. revisjon.
+     * Personer må ha budsjettsdisponeringsmyndighet (bdm) for å kunne godkjenne en faktura.
      *
-     * Nav-ident hvis det er en person og må ha budsjettsdisponeringsmyndighet (bdm) for å kunne godkjenne bestillingen.
-     *
-     * TODO [Kilde] hvis det er et system?
+     * Nav-ident hvis det er en person, evt. systemnavn hvis det er et system.
      */
     val bdmGodkjenner: String,
 
@@ -169,16 +121,13 @@ data class OebsBestillingMelding(
      */
     val tilsagnsAar: Int,
 ) {
-    enum class Kilde {
-        TILTADM,
-    }
-
     @Serializable
     data class Selger(
         /**
          * Organisasjonsnummer for hovedenhet til bedriften som det skal utbetales til.
          */
         val organisasjonsNummer: String,
+
         /**
          * Navn på hovedenhet til bedriften som det skal utbetales til.
          *
@@ -188,6 +137,7 @@ data class OebsBestillingMelding(
          * TODO: Fjern om OeBS får implementert denne funksjonaliteten selv.
          */
         val organisasjonsNavn: String,
+
         /**
          * Postadresse til hovedenheten til bedriften som det skal utbetales til.
          *
@@ -197,6 +147,7 @@ data class OebsBestillingMelding(
          * TODO: Fjern om OeBS får implementert denne funksjonaliteten selv.
          */
         val postAdresse: List<PostAdresse>,
+
         /**
          * Organisasjonsnummer for bedriften som det skal utbetales til.
          * Dette må være en underenhet av hovedenheten.
@@ -218,37 +169,48 @@ data class OebsBestillingMelding(
          * Indeks for linjen i bestillingen, starter på 1.
          */
         val linjeNummer: Int,
+
         /**
-         * Total pris for linjen.
+         * Antall enheter som bestilles. Total pris for en linje er [antall] * [pris].
          *
-         * I stedet for å spesifisere et "riktig" antall og en full pris, så splittes bestillingen opp i like
-         * mange "antall" som selve beløpet på bestillingen.
-         * Dette antallet ganges opp med "pris" (som alltid er 1) i OeBS - og slik at totalbeløpet blir riktig.
+         * For å tillate flere del-utbetaling av bestillinger (tilsagn) så settes pris alltid til 1, mens antallet
+         * settes til det som ellers ville vært totalbeløpet for en periode (linje).
+         *
+         * Hvis man hadde gjort det motsatte, altså satt antall til 1 og pris til totalbeløpet, så ville man "brukt opp"
+         * tilaket (antallet) ved første utbetaling.
          */
         val antall: Int,
+
         /**
-         * Alltid satt til 1 (NOK).
+         * Pris per enhet. Total pris for en linje er [antall] * [pris].
+         *
+         * Alltid satt til 1 for tiltaksøkonomien.
          */
         val pris: Int = 1,
+
         /**
          * Hvilken måned gjelder dette for?
          * 1 = januar, 2 = februar, ..., 12 = desember
          */
         val periode: Int,
+
         /**
          * Alltid i samme måned som periode.
          */
         @Serializable(with = LocalDateSerializer::class)
         val startDato: LocalDate,
+
         /**
          * Alltid i samme måned som periode.
          */
         @Serializable(with = LocalDateSerializer::class)
         val sluttDato: LocalDate,
+
         /**
          * Alltid 900000 for tiltak. Dette er oebs sitt artikkelnummer for tiltak
          */
         val artikkelNummer: String = "900000",
+
         /**
          * Mva, alltid 00 for tiltak
          */
@@ -262,10 +224,12 @@ data class OebsAnnulleringMelding(
      * Refererer til en bestilling som først må ha blitt opprettet via en [OebsBestillingMelding].
      */
     val bestillingsNummer: String,
+
     /**
      * Alltid [OebsBestillingType.ANNULLER]for annullering av bestillinger (tilsagn).
      */
     val bestillingsType: OebsBestillingType,
+
     /**
      * Må være de samme verdiene som ble brukt i [OebsBestillingMelding], selv om en enhet potensielt kan ha
      * blitt nedlagt/erstattet i Brreg i perioden mellom en bestilling og en annullering.
@@ -278,6 +242,7 @@ data class OebsAnnulleringMelding(
          * Organisasjonsnummer for hovedenhet til bedriften som det skal utbetales til.
          */
         val organisasjonsNummer: String,
+
         /**
          * Organisasjonsnummer for bedriften som det skal utbetales til.
          * Dette må være en underenhet av hovedenheten.

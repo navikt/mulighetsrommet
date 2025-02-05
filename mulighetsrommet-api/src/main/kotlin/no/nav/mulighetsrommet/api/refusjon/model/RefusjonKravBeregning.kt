@@ -1,7 +1,8 @@
 package no.nav.mulighetsrommet.api.refusjon.model
 
-import no.nav.mulighetsrommet.model.Periode
+import kotlinx.serialization.Serializable
 
+@Serializable
 sealed class RefusjonKravBeregning {
     abstract val input: RefusjonKravBeregningInput
     abstract val output: RefusjonKravBeregningOutput
@@ -13,7 +14,6 @@ sealed class RefusjonKravBeregning {
 }
 
 abstract class RefusjonKravBeregningInput {
-    abstract val periode: Periode
 }
 
 abstract class RefusjonKravBeregningOutput {

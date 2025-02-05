@@ -20,7 +20,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
-import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvbruttAarsak
 import no.nav.mulighetsrommet.model.GjennomforingStatus
@@ -65,11 +65,11 @@ class GjennomforingServiceTest : FunSpec({
             val gjennomforing = GjennomforingFixtures.Oppfolging1Request
 
             every { validator.validate(gjennomforing.toDbo(), any()) } returns listOf(
-                ValidationError("navn", "Dårlig navn"),
+                FieldError("navn", "Dårlig navn"),
             ).left()
 
             service.upsert(gjennomforing, bertilNavIdent).shouldBeLeft(
-                listOf(ValidationError("navn", "Dårlig navn")),
+                listOf(FieldError("navn", "Dårlig navn")),
             )
         }
 

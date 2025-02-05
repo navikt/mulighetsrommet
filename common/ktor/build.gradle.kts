@@ -14,6 +14,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 dependencies {
     implementation(projects.common.nais)
     implementation(projects.common.metrics)
+    implementation(projects.common.domain)
 
     testFixturesImplementation(libs.ktor.client.core)
     testFixturesImplementation(libs.ktor.client.mock)

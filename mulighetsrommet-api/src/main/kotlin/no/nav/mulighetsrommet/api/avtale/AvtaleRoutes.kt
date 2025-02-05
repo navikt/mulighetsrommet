@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.responses.BadRequest
+import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.model.*
@@ -122,7 +122,7 @@ fun Route.avtaleRoutes() {
                 val request = call.receive<AvtaleRequest>()
 
                 val result = avtaler.upsert(request, navIdent)
-                    .mapLeft { BadRequest(errors = it) }
+                    .mapLeft { ValidationError(errors = it) }
 
                 call.respondWithStatusResponse(result)
             }

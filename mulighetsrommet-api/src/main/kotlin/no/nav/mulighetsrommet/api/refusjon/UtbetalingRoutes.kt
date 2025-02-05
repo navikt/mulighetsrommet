@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.refusjon
 
+import arrow.core.left
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -17,8 +18,8 @@ import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningFri
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravDto
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravStatus
 import no.nav.mulighetsrommet.api.refusjon.model.TilsagnUtbetalingDto
-import no.nav.mulighetsrommet.api.responses.BadRequest
-import no.nav.mulighetsrommet.api.responses.respondWithStatusResponseError
+import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
@@ -38,7 +39,7 @@ fun Route.utbetalingRoutes() {
             val utbetaling = db.session {
                 val krav = queries.refusjonskrav.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
                 val utbetalinger = queries.utbetaling.getByRefusjonskravId(id)
-                Utbetaling.from(krav, utbetalinger)
+                Utbetaling.from(RefusjonKravKompakt.fromRefusjonskravDto(krav), utbetalinger)
             }
 
             call.respond(utbetaling)
@@ -51,8 +52,8 @@ fun Route.utbetalingRoutes() {
             }
             val tilsagn = db.session {
                 queries.tilsagn.getTilsagnForGjennomforing(
-                    krav.gjennomforingId,
-                    periode = Periode(start = krav.beregning.periodeStart, slutt = krav.beregning.periodeSlutt)
+                    krav.gjennomforing.id,
+                    periode = Periode(start = krav.periodeStart, slutt = krav.periodeSlutt)
                 )
             }
 
@@ -65,8 +66,9 @@ fun Route.utbetalingRoutes() {
             val request = call.receive<OpprettManuellUtbetalingkravRequest>()
 
             UtbetalingValidator.validateManuellUtbetalingskrav(request)
-                .mapLeft { BadRequest(errors = it) }
-                .onLeft { return@post call.respondWithStatusResponseError(it) }
+                .onLeft {
+                    return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
+                }
 
             db.session {
                 queries.refusjonskrav.upsert(
@@ -78,13 +80,13 @@ fun Route.utbetalingRoutes() {
                         kid = request.kidNummer,
                         beregning = RefusjonKravBeregningFri.beregn(
                             input = RefusjonKravBeregningFri.Input(
-                                periode = Periode.fromInclusiveDates(
-                                    request.periode.start,
-                                    request.periode.slutt
-                                ),
                                 belop = request.belop
                             )
-                        )
+                        ),
+                        periode = Periode.fromInclusiveDates(
+                            request.periode.start,
+                            request.periode.slutt
+                        ),
                     )
                 )
             }
@@ -101,8 +103,9 @@ fun Route.utbetalingRoutes() {
             }
 
             UtbetalingValidator.validate(request, utbetalinger)
-                .mapLeft { BadRequest(errors = it) }
-                .onLeft { return@put call.respondWithStatusResponseError(it) }
+                .onLeft {
+                    return@put call.respondWithStatusResponse(ValidationError(errors = it).left())
+                }
 
             db.session {
                 queries.utbetaling.opprettTilsagnUtbetalinger(
@@ -126,10 +129,11 @@ fun Route.utbetalingRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 val utbetalinger = db.session {
-                    queries.refusjonskrav.getRefusjonskravKompaktByGjennomforing(id)
+                    queries.refusjonskrav.getByGjennomforing(id)
                         .map { krav ->
                             val utbetalinger = queries.utbetaling.getByRefusjonskravId(krav.id)
-                            Utbetaling.from(krav, utbetalinger)
+
+                            Utbetaling.from(RefusjonKravKompakt.fromRefusjonskravDto(krav), utbetalinger)
                         }
                 }
 
@@ -207,8 +211,6 @@ sealed class Utbetaling {
 @Serializable
 data class RefusjonKravKompakt(
     @Serializable(with = UUIDSerializer::class)
-    val gjennomforingId: UUID,
-    @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val status: RefusjonskravStatus,
     val beregning: Beregning,
@@ -222,4 +224,15 @@ data class RefusjonKravKompakt(
         val belop: Int,
     )
 
+    companion object {
+        fun fromRefusjonskravDto(krav: RefusjonskravDto) = RefusjonKravKompakt(
+            id = krav.id,
+            status = krav.status,
+            beregning = Beregning(
+                periodeStart = krav.periodeStart,
+                periodeSlutt = krav.periodeSlutt,
+                belop = krav.beregning.output.belop,
+            ),
+        )
+    }
 }

@@ -11,10 +11,12 @@ import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  ProblemDetail,
   RefusjonKravKompakt,
   TilsagnDto,
   TilsagnStatus,
   UtbetalingRequest,
+  FieldError,
 } from "@mr/api-client-v2";
 import { Button, Heading, HStack, Stepper, VStack } from "@navikt/ds-react";
 import { useState } from "react";
@@ -22,6 +24,7 @@ import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-fo
 import { useLoaderData, useNavigate } from "react-router";
 import { behandleUtbetalingFormPageLoader } from "./behandleUtbetalingFormPageLoader";
 import { BehandleUtbetalingFormSummaryPage } from "./BehandleUtbetalingFormSummaryPage";
+import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 
 // TODO: Potensielt flyttes til backend
 function defaultValues(
@@ -61,6 +64,16 @@ export function BehandleUtbetalingFormPage() {
     mutation.mutate(body, {
       onSuccess: () => {
         navigate(-1);
+      },
+      onError: (error: ProblemDetail) => {
+        if (isValidationError(error)) {
+          error.errors.forEach((fieldError: FieldError) => {
+            form.setError(
+              jsonPointerToFieldPath(fieldError.pointer) as keyof InferredUtbetalingSchema,
+              { type: "custom", message: fieldError.detail },
+            );
+          });
+        }
       },
     });
   };

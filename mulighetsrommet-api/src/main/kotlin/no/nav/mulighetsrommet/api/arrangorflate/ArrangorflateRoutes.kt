@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravAft
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravAft.Beregning
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.model.RefusjonKravDeltakelse
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
@@ -29,15 +30,12 @@ import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningFri
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravDto
 import no.nav.mulighetsrommet.api.refusjon.task.JournalforRefusjonskrav
-import no.nav.mulighetsrommet.api.responses.BadRequest
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.model.Kid
-import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.NorskIdent
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.math.BigDecimal
@@ -62,7 +60,7 @@ fun Route.arrangorflateRoutes() {
                     throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
                 }
             }
-            ?: throw StatusException(HttpStatusCode.Unauthorized)
+            ?: throw StatusException(HttpStatusCode.Unauthorized, "Mangler altinn tilgang")
     }
 
     fun RoutingContext.requireTilgangHosArrangor(organisasjonsnummer: Organisasjonsnummer) {
@@ -137,7 +135,7 @@ fun Route.arrangorflateRoutes() {
                     .map { (deltakerId, forslag) ->
                         RelevanteForslag(
                             deltakerId = deltakerId,
-                            antallRelevanteForslag = forslag.count { forslagErRelevantForKrav(it, krav) },
+                            antallRelevanteForslag = forslag.count { it.relevantForDeltakelse(krav) },
                         )
                     }
 
@@ -164,7 +162,7 @@ fun Route.arrangorflateRoutes() {
                     krav,
                     forslagByDeltakerId,
                 ).onLeft {
-                    return@post call.respondWithStatusResponse(BadRequest(errors = it).left())
+                    return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
                 }
 
                 db.transaction {
@@ -191,7 +189,10 @@ fun Route.arrangorflateRoutes() {
 
                 val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
                     gjennomforingId = krav.gjennomforing.id,
-                    periode = krav.beregning.input.periode,
+                    periode = Periode.fromInclusiveDates(
+                        inclusiveStart = krav.periodeStart,
+                        inclusiveEnd = krav.periodeSlutt
+                    ),
                 )
                 val refusjonsKravAft = toRefusjonskrav(db, pdl, krav)
                 val pdfContent = pdfClient.getRefusjonKvittering(refusjonsKravAft, tilsagn)
@@ -215,7 +216,10 @@ fun Route.arrangorflateRoutes() {
 
                 val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
                     gjennomforingId = krav.gjennomforing.id,
-                    periode = krav.beregning.input.periode,
+                    periode = Periode.fromInclusiveDates(
+                        inclusiveStart = krav.periodeStart,
+                        inclusiveEnd = krav.periodeSlutt
+                    ),
                 )
 
                 call.respond(tilsagn)
@@ -238,39 +242,37 @@ fun Route.arrangorflateRoutes() {
     }
 }
 
-fun forslagErRelevantForKrav(
-    forslag: DeltakerForslag,
+fun DeltakerForslag.relevantForDeltakelse(
     refusjonskrav: RefusjonskravDto,
 ): Boolean = when (refusjonskrav.beregning) {
-    is RefusjonKravBeregningAft -> relevantForDeltakelse(forslag, refusjonskrav.beregning)
+    is RefusjonKravBeregningAft -> this.relevantForDeltakelse(refusjonskrav.beregning)
     is RefusjonKravBeregningFri -> false
 }
 
-fun relevantForDeltakelse(
-    forslag: DeltakerForslag,
+fun DeltakerForslag.relevantForDeltakelse(
     beregning: RefusjonKravBeregningAft,
 ): Boolean {
     val deltakelser = beregning.input.deltakelser
-        .find { it.deltakelseId == forslag.deltakerId }
+        .find { it.deltakelseId == this.deltakerId }
         ?: return false
 
     val periode = beregning.input.periode
     val sisteSluttDato = deltakelser.perioder.maxOf { it.slutt }
     val forsteStartDato = deltakelser.perioder.minOf { it.start }
 
-    return when (forslag.endring) {
+    return when (this.endring) {
         is Melding.Forslag.Endring.AvsluttDeltakelse -> {
-            val sluttDato = forslag.endring.sluttdato
+            val sluttDato = this.endring.sluttdato
 
-            forslag.endring.harDeltatt == false || (sluttDato != null && sluttDato.isBefore(sisteSluttDato))
+            this.endring.harDeltatt == false || (sluttDato != null && sluttDato.isBefore(sisteSluttDato))
         }
 
         is Melding.Forslag.Endring.Deltakelsesmengde -> {
-            forslag.endring.gyldigFra?.isBefore(sisteSluttDato) != false
+            this.endring.gyldigFra?.isBefore(sisteSluttDato) ?: true
         }
 
         is Melding.Forslag.Endring.ForlengDeltakelse -> {
-            forslag.endring.sluttdato.isAfter(sisteSluttDato) && forslag.endring.sluttdato.isBefore(periode.slutt)
+            this.endring.sluttdato.isAfter(sisteSluttDato) && this.endring.sluttdato.isBefore(periode.slutt)
         }
 
         is Melding.Forslag.Endring.IkkeAktuell -> {
@@ -282,11 +284,11 @@ fun relevantForDeltakelse(
         }
 
         is Melding.Forslag.Endring.Sluttdato -> {
-            forslag.endring.sluttdato.isBefore(sisteSluttDato)
+            this.endring.sluttdato.isBefore(sisteSluttDato)
         }
 
         is Melding.Forslag.Endring.Startdato -> {
-            forslag.endring.startdato.isAfter(forsteStartDato)
+            this.endring.startdato.isAfter(forsteStartDato)
         }
 
         Melding.Forslag.Endring.FjernOppstartsdato -> true
@@ -297,23 +299,23 @@ fun validerGodkjennRefusjonskrav(
     request: GodkjennRefusjonskrav,
     krav: RefusjonskravDto,
     forslagByDeltakerId: Map<UUID, List<DeltakerForslag>>,
-): Either<List<ValidationError>, GodkjennRefusjonskrav> {
+): Either<List<FieldError>, GodkjennRefusjonskrav> {
     val finnesRelevanteForslag = forslagByDeltakerId
         .any { (_, forslag) ->
-            forslag.count { forslagErRelevantForKrav(it, krav) } > 0
+            forslag.count { it.relevantForDeltakelse(krav) } > 0
         }
 
     return if (finnesRelevanteForslag) {
         listOf(
-            ValidationError.ofCustomLocation(
-                "info",
+            FieldError.ofPointer(
+                "/info",
                 "Det finnes forslag på deltakere som påvirker refusjonen. Disse må behandles av Nav før refusjonskravet kan sendes inn.",
             ),
         ).left()
     } else if (request.digest != krav.beregning.getDigest()) {
         listOf(
-            ValidationError.ofCustomLocation(
-                "info",
+            FieldError.ofPointer(
+                "/info",
                 "Informasjonen i kravet har endret seg. Vennligst se over på nytt.",
             ),
         ).left()
@@ -371,7 +373,7 @@ suspend fun toRefusjonskrav(
             gjennomforing = krav.gjennomforing,
             arrangor = krav.arrangor,
             deltakelser = deltakelser,
-            beregning = ArrFlateRefusjonKravAft.Beregning(
+            beregning = Beregning(
                 periodeStart = beregning.input.periode.start,
                 periodeSlutt = beregning.input.periode.getLastDate(),
                 antallManedsverk = antallManedsverk,
@@ -384,7 +386,7 @@ suspend fun toRefusjonskrav(
 
     is RefusjonKravBeregningFri -> throw StatusException(
         status = HttpStatusCode.NotImplemented,
-        description = "Kan ikke vise refusjonskrav med fri beregning.",
+        detail = "Visning av frimodell er ikke implementert",
     )
 }
 
@@ -409,7 +411,7 @@ private suspend fun getPersoner(
         .getOrElse {
             throw StatusException(
                 status = HttpStatusCode.InternalServerError,
-                description = "Klarte ikke hente informasjon om deltakere i refusjonskravet.",
+                detail = "Klarte ikke hente informasjon om deltakere i refusjonskravet.",
             )
         }
 }

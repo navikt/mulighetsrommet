@@ -3,13 +3,14 @@ import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonRequest,
   ArrangorService,
+  ProblemDetail,
 } from "@mr/api-client-v2";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useUpsertArrangorKontaktperson(arrangorId: string) {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<any, ProblemDetail, ArrangorKontaktpersonRequest>({
     mutationFn: (body: ArrangorKontaktpersonRequest) =>
       ArrangorService.upsertArrangorKontaktperson({
         path: { id: arrangorId },

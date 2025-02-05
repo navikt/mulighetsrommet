@@ -1,7 +1,6 @@
 -- touch
 drop view if exists refusjonskrav_aft_view;
 drop view if exists refusjonskrav_admin_dto_view;
-drop view if exists refusjonskrav_kompakt_admin_dto_view;
 
 create view refusjonskrav_admin_dto_view as
 select refusjonskrav.id,
@@ -14,6 +13,8 @@ select refusjonskrav.id,
        refusjonskrav.kontonummer,
        refusjonskrav.kid,
        refusjonskrav.journalpost_id,
+       lower(periode)                    as periode_start,
+       upper(periode)                    as periode_slutt,
        gjennomforing.id                  as gjennomforing_id,
        gjennomforing.navn                as gjennomforing_navn,
        arrangor.id                       as arrangor_id,
@@ -25,35 +26,6 @@ from refusjonskrav
          inner join gjennomforing on gjennomforing.id = refusjonskrav.gjennomforing_id
          inner join arrangor on gjennomforing.arrangor_id = arrangor.id
          inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id;
-
-create view refusjonskrav_kompakt_admin_dto_view as
-select refusjonskrav.id,
-       gjennomforing_id,
-       case
-           when godkjent_av_arrangor_tidspunkt is not null then 'GODKJENT_AV_ARRANGOR'
-           else 'KLAR_FOR_GODKJENNING'
-           end::refusjonskrav_status as status,
-       beregning.belop,
-       lower(beregning.periode)      as periode_start,
-       upper(beregning.periode)      as periode_slutt,
-       gjennomforing.id              as gjennomforing_id
-from refusjonskrav
-         inner join gjennomforing on gjennomforing.id = refusjonskrav.gjennomforing_id
-         inner join refusjonskrav_beregning_aft beregning on beregning.refusjonskrav_id = refusjonskrav.id
-union all
-select refusjonskrav.id,
-       gjennomforing_id,
-       case
-           when godkjent_av_arrangor_tidspunkt is not null then 'GODKJENT_AV_ARRANGOR'
-           else 'KLAR_FOR_GODKJENNING'
-           end::refusjonskrav_status as status,
-       beregning.belop,
-       lower(beregning.periode)      as periode_start,
-       upper(beregning.periode)      as periode_slutt,
-       gjennomforing.id              as gjennomforing_id
-from refusjonskrav
-         inner join gjennomforing on gjennomforing.id = refusjonskrav.gjennomforing_id
-         inner join refusjonskrav_beregning_fri beregning on beregning.refusjonskrav_id = refusjonskrav.id;
 
 create view refusjonskrav_aft_view as
 with deltakelse_perioder as (select refusjonskrav_id,
@@ -82,8 +54,8 @@ with deltakelse_perioder as (select refusjonskrav_id,
 select krav.*,
        beregning.belop,
        beregning.sats,
-       lower(beregning.periode)                           as periode_start,
-       upper(beregning.periode)                           as periode_slutt,
+       lower(beregning.periode)                           as beregning_periode_start,
+       upper(beregning.periode)                           as beregning_periode_slutt,
        coalesce(krav_perioder.deltakelser, '[]'::jsonb)   as perioder_json,
        coalesce(krav_manedsverk.deltakelser, '[]'::jsonb) as manedsverk_json
 from refusjonskrav_admin_dto_view krav

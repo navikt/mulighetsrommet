@@ -1,23 +1,13 @@
-export interface ApiError {
-  message: string;
-  body: any;
-  status: number;
+import { ProblemDetail } from "@mr/api-client-v2";
+
+export function isProblemDetail(error: any): error is ProblemDetail {
+  return 'status' in error && 'detail' in error && 'type' in error && 'title' in error;
 }
 
 export function resolveErrorMessage(error: any): string {
-  if (typeof error.body === "string") {
-    return error.body;
-  } else if (typeof (error.body as any)?.description === "string") {
-    return (error.body as any).description;
-  } else {
-    return error.message;
+  if (isProblemDetail(error)) {
+    return error.detail;
   }
+  return "Det skjedde en uventet feil";
 }
 
-export function resolveRequestId(error: any): string | undefined {
-  if (typeof (error.body as any)?.requestId === "string") {
-    return (error.body as any).requestId;
-  }
-
-  return undefined;
-}

@@ -2,8 +2,8 @@ import { useSetTilgjengeligForArrangor } from "@/api/gjennomforing/useSetTilgjen
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { formaterDato, max, subtractDays, subtractMonths } from "@/utils/Utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { GjennomforingDto } from "@mr/api-client-v2";
-import { isValidationError } from "@mr/frontend-common/utils/utils";
+import { FieldError, GjennomforingDto, ProblemDetail } from "@mr/api-client-v2";
+import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, Heading, HStack, Modal } from "@navikt/ds-react";
 import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -39,14 +39,16 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
     modalRef.current?.close();
   };
 
-  const onError = (error: any) => {
-    // TODO: fix any
+  const onError = (error: ProblemDetail) => {
     if (isValidationError(error)) {
-      error.errors.forEach((error) => {
-        form.setError(error.name as keyof InferredEditTilgjengeligForArrangorSchema, {
-          type: "custom",
-          message: error.message,
-        });
+      error.errors.forEach((error: FieldError) => {
+        form.setError(
+          jsonPointerToFieldPath(error.pointer) as keyof InferredEditTilgjengeligForArrangorSchema,
+          {
+            type: "custom",
+            message: error.detail,
+          },
+        );
       });
     }
   };
