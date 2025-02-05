@@ -9,9 +9,9 @@
   "dependencies": {
     "@hookform/resolvers": "3.10.0",
     "@mr/api-client-v2": "workspace:*",
-    "@navikt/aksel-icons": "7.10.0",
-    "@navikt/ds-css": "7.10.0",
-    "@navikt/ds-react": "7.10.0",
+    "@navikt/aksel-icons": "7.11.0",
+    "@navikt/ds-css": "7.11.0",
+    "@navikt/ds-react": "7.11.0",
     "@tanstack/react-query": "5.66.0",
     "classnames": "2.5.1",
     "debounce": "2.2.0",
