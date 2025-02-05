@@ -336,7 +336,7 @@ class AvtaleValidatorTest : FunSpec({
 
         validator.validate(avtale1, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             ValidationError(
-                "arrangorUnderenheter",
+                "/arrangor/underenheter",
                 "Arrangøren Underenhet 1 AS er ikke en gyldig underenhet til hovedenheten FRETEX AS.",
             ),
         )

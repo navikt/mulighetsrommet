@@ -854,7 +854,7 @@ class AvtaleQueriesTest : FunSpec({
                 val ascending = queries.getAll(sortering = "arrangor-ascending")
 
                 ascending.items[0].arrangor shouldBe alvdal
-                ascending.items[1].arrangor shouldBe bjarne
+                ascending.items[1].arrangor shouldBe alvdal
                 ascending.items[2].arrangor shouldBe bjarne
                 ascending.items[3].arrangor shouldBe bjarne
                 ascending.items[4].arrangor shouldBe chris
@@ -863,7 +863,7 @@ class AvtaleQueriesTest : FunSpec({
                 descending.items[0].arrangor shouldBe chris
                 descending.items[1].arrangor shouldBe bjarne
                 descending.items[2].arrangor shouldBe bjarne
-                descending.items[3].arrangor shouldBe bjarne
+                descending.items[3].arrangor shouldBe alvdal
                 descending.items[4].arrangor shouldBe alvdal
             }
         }
