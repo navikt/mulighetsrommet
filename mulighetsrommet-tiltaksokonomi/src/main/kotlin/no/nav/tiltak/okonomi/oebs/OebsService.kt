@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.tiltak.okonomi.oebs
+package no.nav.tiltak.okonomi.oebs
 
 import arrow.core.Either
 import arrow.core.flatMap
@@ -9,9 +9,9 @@ import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.tiltak.okonomi.api.OpprettBestilling
-import no.nav.mulighetsrommet.tiltak.okonomi.api.OpprettFaktura
-import no.nav.mulighetsrommet.tiltak.okonomi.db.*
+import no.nav.tiltak.okonomi.api.OpprettBestilling
+import no.nav.tiltak.okonomi.api.OpprettFaktura
+import no.nav.tiltak.okonomi.db.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.collections.set

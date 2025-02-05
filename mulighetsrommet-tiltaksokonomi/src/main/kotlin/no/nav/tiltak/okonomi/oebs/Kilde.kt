@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.tiltak.okonomi.oebs
+package no.nav.tiltak.okonomi.oebs
 
 /**
  * Representerer hvilket system som har sendt bestillinger eller fakturaer til OeBS.

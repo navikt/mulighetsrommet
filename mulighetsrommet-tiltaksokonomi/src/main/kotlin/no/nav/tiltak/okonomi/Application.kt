@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.tiltak.okonomi
+package no.nav.tiltak.okonomi
 
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -8,14 +8,14 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
-import no.nav.mulighetsrommet.tiltak.okonomi.api.okonomiRoutes
-import no.nav.mulighetsrommet.tiltak.okonomi.db.OkonomiDatabase
-import no.nav.mulighetsrommet.tiltak.okonomi.oebs.OebsService
-import no.nav.mulighetsrommet.tiltak.okonomi.oebs.OebsTiltakApiClient
-import no.nav.mulighetsrommet.tiltak.okonomi.plugins.configureAuthentication
-import no.nav.mulighetsrommet.tiltak.okonomi.plugins.configureHTTP
-import no.nav.mulighetsrommet.tiltak.okonomi.plugins.configureSerialization
 import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
+import no.nav.tiltak.okonomi.api.okonomiRoutes
+import no.nav.tiltak.okonomi.db.OkonomiDatabase
+import no.nav.tiltak.okonomi.oebs.OebsService
+import no.nav.tiltak.okonomi.oebs.OebsTiltakApiClient
+import no.nav.tiltak.okonomi.plugins.configureAuthentication
+import no.nav.tiltak.okonomi.plugins.configureHTTP
+import no.nav.tiltak.okonomi.plugins.configureSerialization
 
 fun main() {
     val (server, app) = loadConfiguration<Config>()

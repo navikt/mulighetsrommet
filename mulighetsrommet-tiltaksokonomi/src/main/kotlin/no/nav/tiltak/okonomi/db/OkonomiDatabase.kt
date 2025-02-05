@@ -1,9 +1,9 @@
-package no.nav.mulighetsrommet.tiltak.okonomi.db
+package no.nav.tiltak.okonomi.db
 
 import kotliquery.Session
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.tiltak.okonomi.db.queries.BestillingQueries
-import no.nav.mulighetsrommet.tiltak.okonomi.db.queries.FakturaQueries
+import no.nav.tiltak.okonomi.db.queries.BestillingQueries
+import no.nav.tiltak.okonomi.db.queries.FakturaQueries
 import javax.sql.DataSource
 
 class OkonomiDatabase(

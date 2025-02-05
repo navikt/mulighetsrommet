@@ -1,9 +1,9 @@
-package no.nav.mulighetsrommet.tiltak.okonomi.oebs
+package no.nav.tiltak.okonomi.oebs
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
-import no.nav.mulighetsrommet.tiltak.okonomi.oebs.OebsFakturaMelding.Linje
+import no.nav.tiltak.okonomi.oebs.OebsFakturaMelding.Linje
 import java.time.LocalDate
 import java.time.LocalDateTime
 

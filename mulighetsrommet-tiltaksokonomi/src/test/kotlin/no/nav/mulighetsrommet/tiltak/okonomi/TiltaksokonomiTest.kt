@@ -12,11 +12,11 @@ import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.tiltak.okonomi.api.*
-import no.nav.mulighetsrommet.tiltak.okonomi.db.BestillingStatusType
-import no.nav.mulighetsrommet.tiltak.okonomi.db.FakturaStatusType
-import no.nav.mulighetsrommet.tiltak.okonomi.oebs.Kilde
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import no.nav.tiltak.okonomi.api.*
+import no.nav.tiltak.okonomi.db.BestillingStatusType
+import no.nav.tiltak.okonomi.db.FakturaStatusType
+import no.nav.tiltak.okonomi.oebs.Kilde
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 

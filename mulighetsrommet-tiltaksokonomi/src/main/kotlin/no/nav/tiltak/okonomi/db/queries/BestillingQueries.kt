@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.tiltak.okonomi.db.queries
+package no.nav.tiltak.okonomi.db.queries
 
 import kotliquery.Session
 import kotliquery.queryOf
@@ -6,11 +6,11 @@ import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.tiltak.okonomi.api.OkonomiPart
-import no.nav.mulighetsrommet.tiltak.okonomi.db.Bestilling
-import no.nav.mulighetsrommet.tiltak.okonomi.db.BestillingStatusType
-import no.nav.mulighetsrommet.tiltak.okonomi.db.LinjeDbo
-import no.nav.mulighetsrommet.tiltak.okonomi.db.periode
+import no.nav.tiltak.okonomi.api.OkonomiPart
+import no.nav.tiltak.okonomi.db.Bestilling
+import no.nav.tiltak.okonomi.db.BestillingStatusType
+import no.nav.tiltak.okonomi.db.LinjeDbo
+import no.nav.tiltak.okonomi.db.periode
 import org.intellij.lang.annotations.Language
 
 class BestillingQueries(private val session: Session) {

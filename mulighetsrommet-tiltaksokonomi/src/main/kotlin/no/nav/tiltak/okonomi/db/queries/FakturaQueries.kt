@@ -1,15 +1,15 @@
-package no.nav.mulighetsrommet.tiltak.okonomi.db.queries
+package no.nav.tiltak.okonomi.db.queries
 
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.tiltak.okonomi.api.OkonomiPart
-import no.nav.mulighetsrommet.tiltak.okonomi.db.Faktura
-import no.nav.mulighetsrommet.tiltak.okonomi.db.FakturaStatusType
-import no.nav.mulighetsrommet.tiltak.okonomi.db.LinjeDbo
-import no.nav.mulighetsrommet.tiltak.okonomi.db.periode
+import no.nav.tiltak.okonomi.api.OkonomiPart
+import no.nav.tiltak.okonomi.db.Faktura
+import no.nav.tiltak.okonomi.db.FakturaStatusType
+import no.nav.tiltak.okonomi.db.LinjeDbo
+import no.nav.tiltak.okonomi.db.periode
 import org.intellij.lang.annotations.Language
 
 class FakturaQueries(private val session: Session) {

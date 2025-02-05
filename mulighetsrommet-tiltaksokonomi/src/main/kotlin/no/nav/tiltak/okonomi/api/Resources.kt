@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.tiltak.okonomi.api
+package no.nav.tiltak.okonomi.api
 
 import io.ktor.resources.*
 

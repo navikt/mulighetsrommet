@@ -6,7 +6,7 @@ plugins {
 }
 
 application {
-    mainClass.set("no.nav.mulighetsrommet.tiltak.okonomi.ApplicationKt")
+    mainClass.set("no.nav.tiltak.okonomi.ApplicationKt")
 }
 
 tasks.shadowJar {

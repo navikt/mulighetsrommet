@@ -1,11 +1,11 @@
-package no.nav.mulighetsrommet.tiltak.okonomi.api
+package no.nav.tiltak.okonomi.api
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
-import no.nav.mulighetsrommet.tiltak.okonomi.db.BestillingStatusType
-import no.nav.mulighetsrommet.tiltak.okonomi.db.FakturaStatusType
-import no.nav.mulighetsrommet.tiltak.okonomi.oebs.Kilde
+import no.nav.tiltak.okonomi.db.BestillingStatusType
+import no.nav.tiltak.okonomi.db.FakturaStatusType
+import no.nav.tiltak.okonomi.oebs.Kilde
 import java.time.LocalDateTime
 
 @Serializable
