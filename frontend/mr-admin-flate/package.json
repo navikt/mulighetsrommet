@@ -81,7 +81,7 @@
     "@storybook/react-vite": "8.5.3",
     "@storybook/test": "8.5.3",
     "storybook": "8.5.3",
-    "vitest": "3.0.4"
+    "vitest": "3.0.5"
   },
   "msw": {
     "workerDirectory": [
