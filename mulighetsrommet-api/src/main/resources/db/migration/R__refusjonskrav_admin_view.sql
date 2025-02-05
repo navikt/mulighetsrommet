@@ -52,14 +52,17 @@ with deltakelse_perioder as (select refusjonskrav_id,
                                           )) as deltakelser
                          from refusjonskrav_deltakelse_manedsverk
                          group by refusjonskrav_id)
-select beregning.refusjonskrav_id,
+select krav.*,
+       beregning.refusjonskrav_id,
        beregning.belop,
        beregning.sats,
        lower(beregning.periode)                           as beregning_periode_start,
        upper(beregning.periode)                           as beregning_periode_slutt,
        coalesce(krav_perioder.deltakelser, '[]'::jsonb)   as perioder_json,
        coalesce(krav_manedsverk.deltakelser, '[]'::jsonb) as manedsverk_json
-from refusjonskrav_beregning_aft beregning
+from refusjonskrav_admin_dto_view krav
+         join
+     refusjonskrav_beregning_aft beregning on krav.id = beregning.refusjonskrav_id
          left join
      krav_perioder on beregning.refusjonskrav_id = krav_perioder.refusjonskrav_id
          left join
