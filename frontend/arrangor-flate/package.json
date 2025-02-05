@@ -27,7 +27,7 @@
     "@navikt/ds-css": "7.10.0",
     "@navikt/ds-react": "7.10.0",
     "@navikt/ds-tailwind": "7.10.0",
-    "@navikt/nav-dekoratoren-moduler": "3.2.0",
+    "@navikt/nav-dekoratoren-moduler": "3.2.1",
     "@navikt/oasis": "3.6.0",
     "@react-router/express": "7.1.5",
     "@react-router/node": "7.1.5",
