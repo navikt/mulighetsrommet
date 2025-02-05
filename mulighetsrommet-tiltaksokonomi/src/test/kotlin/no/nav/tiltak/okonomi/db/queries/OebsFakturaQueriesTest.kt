@@ -1,11 +1,11 @@
-package no.nav.mulighetsrommet.tiltak.okonomi.db.queries
+package no.nav.tiltak.okonomi.db.queries
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.tiltak.okonomi.databaseConfig
 import no.nav.tiltak.okonomi.api.OkonomiPart
+import no.nav.tiltak.okonomi.databaseConfig
 import no.nav.tiltak.okonomi.db.*
 import no.nav.tiltak.okonomi.db.queries.BestillingQueries
 import no.nav.tiltak.okonomi.db.queries.FakturaQueries
