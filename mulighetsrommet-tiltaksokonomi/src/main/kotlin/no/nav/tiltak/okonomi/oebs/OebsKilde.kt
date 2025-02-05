@@ -5,7 +5,7 @@ package no.nav.tiltak.okonomi.oebs
  *
  * Lengden på kildeverdien er begrenset til 8 tegn (tror vi).
  */
-enum class Kilde {
+enum class OebsKilde {
     /**
      * Tiltaksadministrasjon
      */

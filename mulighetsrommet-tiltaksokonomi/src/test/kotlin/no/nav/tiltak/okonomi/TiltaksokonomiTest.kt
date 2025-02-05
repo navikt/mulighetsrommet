@@ -16,7 +16,6 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.api.*
 import no.nav.tiltak.okonomi.db.BestillingStatusType
 import no.nav.tiltak.okonomi.db.FakturaStatusType
-import no.nav.tiltak.okonomi.oebs.Kilde
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 
@@ -119,9 +118,9 @@ class TiltaksokonomiTest : FunSpec({
                             bestillingsnummer = bestillingsnummer,
                             avtalenummer = "2025/1234",
                             belop = 1000,
-                            opprettetAv = OkonomiPart.System(Kilde.TILTADM),
+                            opprettetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
                             opprettetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
-                            besluttetAv = OkonomiPart.System(Kilde.TILTADM),
+                            besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
                             besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
                             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                             kostnadssted = NavEnhetNummer("0400"),
@@ -231,9 +230,9 @@ class TiltaksokonomiTest : FunSpec({
                             bestillingsnummer = bestillingsnummer,
                             avtalenummer = null,
                             belop = 1000,
-                            opprettetAv = OkonomiPart.System(Kilde.TILTADM),
+                            opprettetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
                             opprettetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
-                            besluttetAv = OkonomiPart.System(Kilde.TILTADM),
+                            besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
                             besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
                             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                             kostnadssted = NavEnhetNummer("0400"),
@@ -258,9 +257,9 @@ class TiltaksokonomiTest : FunSpec({
                             ),
                             belop = 1000,
                             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-                            opprettetAv = OkonomiPart.System(Kilde.TILTADM),
+                            opprettetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
                             opprettetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
-                            besluttetAv = OkonomiPart.System(Kilde.TILTADM),
+                            besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
                             besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
                         ),
                     )

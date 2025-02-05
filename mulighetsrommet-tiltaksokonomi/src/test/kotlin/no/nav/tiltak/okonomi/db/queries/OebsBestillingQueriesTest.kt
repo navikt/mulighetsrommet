@@ -5,12 +5,11 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.api.OkonomiPart
+import no.nav.tiltak.okonomi.api.OkonomiSystem
 import no.nav.tiltak.okonomi.databaseConfig
 import no.nav.tiltak.okonomi.db.Bestilling
 import no.nav.tiltak.okonomi.db.BestillingStatusType
 import no.nav.tiltak.okonomi.db.LinjeDbo
-import no.nav.tiltak.okonomi.db.queries.BestillingQueries
-import no.nav.tiltak.okonomi.oebs.Kilde
 import java.time.LocalDate
 
 class OebsBestillingQueriesTest : FunSpec({
@@ -29,7 +28,7 @@ class OebsBestillingQueriesTest : FunSpec({
             LocalDate.of(2025, 3, 1),
         ),
         status = BestillingStatusType.AKTIV,
-        opprettetAv = OkonomiPart.System(Kilde.TILTADM),
+        opprettetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
         opprettetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
         besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
         besluttetTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
