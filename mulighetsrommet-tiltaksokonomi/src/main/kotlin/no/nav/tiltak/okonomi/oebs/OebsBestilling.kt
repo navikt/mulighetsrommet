@@ -34,7 +34,7 @@ data class OebsBestillingMelding(
     /**
      * Indikerer hvilket fagsystem som er kilden til bestillingen.
      */
-    val kilde: Kilde,
+    val kilde: OebsKilde,
 
     /**
      * Totalt beløp for bestillingen.

@@ -201,7 +201,7 @@ private fun toOebsBestillingMelding(
     )
 
     return OebsBestillingMelding(
-        kilde = Kilde.TILTADM,
+        kilde = OebsKilde.TILTADM,
         bestillingsNummer = bestilling.bestillingsnummer,
         opprettelsesTidspunkt = bestilling.opprettetTidspunkt,
         bestillingsType = OebsBestillingType.NY,
@@ -226,7 +226,7 @@ private fun toOebsFakturaMelding(
     faktura: Faktura,
 ): OebsFakturaMelding {
     return OebsFakturaMelding(
-        kilde = Kilde.TILTADM,
+        kilde = OebsKilde.TILTADM,
         fakturaNummer = faktura.fakturanummer,
         opprettelsesTidspunkt = faktura.opprettetTidspunkt,
         organisasjonsNummer = bestilling.arrangorHovedenhet.value,

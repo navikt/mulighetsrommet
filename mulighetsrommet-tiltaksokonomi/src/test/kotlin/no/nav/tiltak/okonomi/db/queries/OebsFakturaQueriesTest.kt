@@ -5,11 +5,9 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.api.OkonomiPart
+import no.nav.tiltak.okonomi.api.OkonomiSystem
 import no.nav.tiltak.okonomi.databaseConfig
 import no.nav.tiltak.okonomi.db.*
-import no.nav.tiltak.okonomi.db.queries.BestillingQueries
-import no.nav.tiltak.okonomi.db.queries.FakturaQueries
-import no.nav.tiltak.okonomi.oebs.Kilde
 import java.time.LocalDate
 
 class OebsFakturaQueriesTest : FunSpec({
@@ -28,7 +26,7 @@ class OebsFakturaQueriesTest : FunSpec({
             LocalDate.of(2025, 3, 1),
         ),
         status = BestillingStatusType.AKTIV,
-        opprettetAv = OkonomiPart.System(Kilde.TILTADM),
+        opprettetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
         opprettetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
         besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
         besluttetTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
@@ -61,7 +59,7 @@ class OebsFakturaQueriesTest : FunSpec({
             belop = 500,
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             status = FakturaStatusType.UTBETALT,
-            opprettetAv = OkonomiPart.System(Kilde.TILTADM),
+            opprettetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
             opprettetTidspunkt = LocalDate.of(2025, 2, 1).atStartOfDay(),
             besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
             besluttetTidspunkt = LocalDate.of(2025, 2, 2).atStartOfDay(),

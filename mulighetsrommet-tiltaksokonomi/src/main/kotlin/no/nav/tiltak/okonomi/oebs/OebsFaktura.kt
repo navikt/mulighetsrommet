@@ -23,7 +23,7 @@ data class OebsFakturaMelding(
     /**
      * Indikerer hvilket fagsystem som er kilden til fakturaen.
      */
-    val kilde: Kilde,
+    val kilde: OebsKilde,
 
     /**
      * Organisasjonsnummer for hovedenhet til bedriften som det skal utbetales til.

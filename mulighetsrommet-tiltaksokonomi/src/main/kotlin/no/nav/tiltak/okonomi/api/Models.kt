@@ -5,7 +5,6 @@ import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.tiltak.okonomi.db.BestillingStatusType
 import no.nav.tiltak.okonomi.db.FakturaStatusType
-import no.nav.tiltak.okonomi.oebs.Kilde
 import java.time.LocalDateTime
 
 @Serializable
@@ -59,17 +58,21 @@ sealed class OkonomiPart(val part: String) {
     data class NavAnsatt(val navIdent: NavIdent) : OkonomiPart(navIdent.value)
 
     @Serializable
-    data class System(val kilde: Kilde) : OkonomiPart(kilde.name)
+    data class System(val kilde: OkonomiSystem) : OkonomiPart(kilde.name)
 
     companion object {
         fun fromString(value: String): OkonomiPart {
             return try {
-                System(Kilde.valueOf(value))
+                System(OkonomiSystem.valueOf(value))
             } catch (e: IllegalArgumentException) {
                 NavAnsatt(NavIdent(value))
             }
         }
     }
+}
+
+enum class OkonomiSystem {
+    TILTAKSADMINISTRASJON,
 }
 
 @Serializable
