@@ -31,37 +31,34 @@ object UtbetalingValidator {
                     )
                 }
             }
-
-
         }
 
         return errors.takeIf { it.isNotEmpty() }?.left() ?: request.right()
     }
 
     fun validateManuellUtbetalingskrav(
-        request: OpprettManuellUtbetalingkravRequest
+        request: OpprettManuellUtbetalingkravRequest,
     ): Either<List<FieldError>, OpprettManuellUtbetalingkravRequest> {
-
         val errors = buildList {
             if (request.periode.slutt.isBefore(request.periode.start)) {
                 add(
                     FieldError.ofPointer(
                         "/arrangorinfo/periode/slutt",
-                        "Periodeslutt må være etter periodestart"
-                    )
+                        "Periodeslutt må være etter periodestart",
+                    ),
                 )
             }
 
             if (request.belop < 1) {
-                add( FieldError.ofPointer("/arrangorinfo/belop", "Beløp må være positivt"))
+                add(FieldError.ofPointer("/arrangorinfo/belop", "Beløp må være positivt"))
             }
 
             if (request.beskrivelse.length < 10) {
-                add( FieldError.ofPointer("/arrangorinfo/beskrivelse", "Du må beskrive utbetalingen"))
+                add(FieldError.ofPointer("/arrangorinfo/beskrivelse", "Du må beskrive utbetalingen"))
             }
 
             if (request.kontonummer.value.length != 11) {
-                add( FieldError.ofPointer("/arrangorinfo/kontonummer", "Kontonummer må være 11 tegn"))
+                add(FieldError.ofPointer("/arrangorinfo/kontonummer", "Kontonummer må være 11 tegn"))
             }
         }
 

@@ -15,7 +15,6 @@ data class RefusjonKravBeregningFri(
 
     companion object {
         fun beregn(input: Input): RefusjonKravBeregningFri {
-
             return RefusjonKravBeregningFri(
                 input = input,
                 output = Output(

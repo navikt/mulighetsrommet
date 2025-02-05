@@ -68,7 +68,7 @@ class JournalforRefusjonskrav(
         val pdf = run {
             val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
                 gjennomforingId = krav.gjennomforing.id,
-                periode = krav.beregning.input.periode,
+                periode = krav.periode,
             )
             val refusjonsKravAft = toRefusjonskrav(db, pdl, krav)
             pdf.refusjonJournalpost(refusjonsKravAft, tilsagn)

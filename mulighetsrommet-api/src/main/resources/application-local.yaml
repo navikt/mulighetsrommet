@@ -10,7 +10,7 @@ app:
     # Kjører repeatable migrasjoner hver gang applikasjon startes
     strategy: ForceClearRepeatableAndMigrate
     # Kan benyttes når du må kjøre flyway repair lokalt
-    # strategy: RepairAndMigrate
+    #strategy: RepairAndMigrate
 
   kafka:
     brokerUrl: localhost:29092

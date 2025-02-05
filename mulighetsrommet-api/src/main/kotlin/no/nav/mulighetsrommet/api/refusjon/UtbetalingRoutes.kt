@@ -53,13 +53,12 @@ fun Route.utbetalingRoutes() {
             val tilsagn = db.session {
                 queries.tilsagn.getTilsagnForGjennomforing(
                     krav.gjennomforing.id,
-                    periode = Periode(start = krav.periodeStart, slutt = krav.periodeSlutt)
+                    periode = krav.periode,
                 )
             }
 
             call.respond(tilsagn)
         }
-
 
         post("/opprett-utbetalingskrav") {
             val kravId = call.parameters.getOrFail<UUID>("id")
@@ -80,14 +79,14 @@ fun Route.utbetalingRoutes() {
                         kid = request.kidNummer,
                         beregning = RefusjonKravBeregningFri.beregn(
                             input = RefusjonKravBeregningFri.Input(
-                                belop = request.belop
-                            )
+                                belop = request.belop,
+                            ),
                         ),
                         periode = Periode.fromInclusiveDates(
                             request.periode.start,
-                            request.periode.slutt
+                            request.periode.slutt,
                         ),
-                    )
+                    ),
                 )
             }
 
@@ -170,7 +169,7 @@ data class OpprettManuellUtbetalingkravRequest(
         @Serializable(with = LocalDateSerializer::class)
         val start: LocalDate,
         @Serializable(with = LocalDateSerializer::class)
-        val slutt: LocalDate
+        val slutt: LocalDate,
     )
 }
 
@@ -229,8 +228,8 @@ data class RefusjonKravKompakt(
             id = krav.id,
             status = krav.status,
             beregning = Beregning(
-                periodeStart = krav.periodeStart,
-                periodeSlutt = krav.periodeSlutt,
+                periodeStart = krav.periode.start,
+                periodeSlutt = krav.periode.getLastDate(),
                 belop = krav.beregning.output.belop,
             ),
         )

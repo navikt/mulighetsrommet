@@ -119,8 +119,7 @@ class RefusjonskravQueriesTest : FunSpec({
                         kid = Kid("12345"),
                     ),
                     journalpostId = null,
-                    periodeStart = LocalDate.of(2023, 1, 1),
-                    periodeSlutt = LocalDate.of(2023, 2, 1),
+                    periode = beregning.input.periode,
                 )
             }
         }

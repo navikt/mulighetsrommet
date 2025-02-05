@@ -4,23 +4,21 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
 enum class Beregningsmodell {
     FORHANDSGODKJENT,
-    FRI
+    FRI,
 }
 
 @Serializable
 data class RefusjonskravDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val beregningsmodell: Beregningsmodell,
     val status: RefusjonskravStatus,
     @Serializable(with = LocalDateTimeSerializer::class)
     val fristForGodkjenning: LocalDateTime,
@@ -30,10 +28,7 @@ data class RefusjonskravDto(
     val beregning: RefusjonKravBeregning,
     val betalingsinformasjon: Betalingsinformasjon,
     val journalpostId: String?,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeStart: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeSlutt: LocalDate,
+    val periode: Periode,
 ) {
     @Serializable
     data class Gjennomforing(

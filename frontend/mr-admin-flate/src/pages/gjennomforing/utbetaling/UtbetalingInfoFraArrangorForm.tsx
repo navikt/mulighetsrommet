@@ -1,4 +1,8 @@
-import { GjennomforingDto, OpprettManuellUtbetalingkravRequest } from "@mr/api-client-v2";
+import {
+  GjennomforingDto,
+  OpprettManuellUtbetalingkravRequest,
+  ProblemDetail,
+} from "@mr/api-client-v2";
 import { Button, Heading, HStack, Textarea, TextField, VStack } from "@navikt/ds-react";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
@@ -8,8 +12,7 @@ import { TwoColumnGrid } from "../../../layouts/TwoColumGrid";
 import { addYear } from "../../../utils/Utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useManueltUtbetalingskrav } from "../../../api/utbetaling/useOpprettManueltUtbetalingskrav";
-import { ApiError } from "@mr/frontend-common/components/error-handling/errors";
-import { isValidationError } from "@mr/frontend-common/utils/utils";
+import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -73,14 +76,14 @@ export function UtbetalingInfoFraArrangorForm({ gjennomforing }: Props) {
         onSuccess: () => {
           form.reset();
         },
-        onError: (error: ApiError) => {
-          if (isValidationError(error.body)) {
-            error.body.errors.forEach((error) => {
-              const name = error.name as keyof Omit<
+        onError: (error: ProblemDetail) => {
+          if (isValidationError(error)) {
+            error.errors.forEach((error) => {
+              const name = jsonPointerToFieldPath(error.pointer) as keyof Omit<
                 OpprettManuellUtbetalingkravRequest,
                 "gjennomforingId"
               >;
-              setError(name, { type: "custom", message: error.message });
+              setError(name, { type: "custom", message: error.detail });
             });
           }
         },

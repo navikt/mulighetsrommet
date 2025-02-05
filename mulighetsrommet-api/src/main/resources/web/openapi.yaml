@@ -2021,7 +2021,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ValidationErrorResponse"
+                $ref: "#/components/schemas/ValidationError"
         500:
           description: "Kunne ikke opprette manuelt utbetalingskrav"
           content:

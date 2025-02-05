@@ -15,7 +15,7 @@ data class RefusjonKravBeregningAft(
 ) : RefusjonKravBeregning() {
 
     data class Input(
-        override val periode: Periode,
+        val periode: Periode,
         val sats: Int,
         val deltakelser: Set<DeltakelsePerioder>,
     ) : RefusjonKravBeregningInput()

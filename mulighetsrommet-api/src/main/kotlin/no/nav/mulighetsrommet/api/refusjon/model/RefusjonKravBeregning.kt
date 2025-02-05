@@ -13,8 +13,7 @@ sealed class RefusjonKravBeregning {
     }
 }
 
-abstract class RefusjonKravBeregningInput {
-}
+abstract class RefusjonKravBeregningInput
 
 abstract class RefusjonKravBeregningOutput {
     abstract val belop: Int

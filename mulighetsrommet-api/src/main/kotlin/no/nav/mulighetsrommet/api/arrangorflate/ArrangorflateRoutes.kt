@@ -35,7 +35,10 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Kid
+import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.math.BigDecimal
@@ -189,10 +192,7 @@ fun Route.arrangorflateRoutes() {
 
                 val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
                     gjennomforingId = krav.gjennomforing.id,
-                    periode = Periode.fromInclusiveDates(
-                        inclusiveStart = krav.periodeStart,
-                        inclusiveEnd = krav.periodeSlutt
-                    ),
+                    periode = krav.periode,
                 )
                 val refusjonsKravAft = toRefusjonskrav(db, pdl, krav)
                 val pdfContent = pdfClient.getRefusjonKvittering(refusjonsKravAft, tilsagn)
@@ -216,10 +216,7 @@ fun Route.arrangorflateRoutes() {
 
                 val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
                     gjennomforingId = krav.gjennomforing.id,
-                    periode = Periode.fromInclusiveDates(
-                        inclusiveStart = krav.periodeStart,
-                        inclusiveEnd = krav.periodeSlutt
-                    ),
+                    periode = krav.periode,
                 )
 
                 call.respond(tilsagn)
