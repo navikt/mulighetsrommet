@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.tiltak.okonomi
+package no.nav.tiltak.okonomi
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

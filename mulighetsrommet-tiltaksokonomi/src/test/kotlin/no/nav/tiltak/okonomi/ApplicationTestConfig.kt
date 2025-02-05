@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.tiltak.okonomi
+package no.nav.tiltak.okonomi
 
 import io.ktor.client.engine.*
 import io.ktor.server.testing.*
