@@ -1,8 +1,8 @@
 {
   "refusjon": {
+    "periodeStart": "2024-01-01",
+    "periodeSlutt": "2024-01-29",
     "beregning": {
-      "periodeStart": "2024-01-01",
-      "periodeSlutt": "2024-01-29",
       "antallManedsverk": 2.3,
       "belop": "44000"
     },
@@ -23,9 +23,13 @@
       "periodeStart": "2024-01-01",
       "periodeSlutt": "2024-06-30",
       "beregning": {
-        "antallPlasser": 20,
-        "sats": "22000",
-        "belop": "2200000"
+        "input": {
+          "antallPlasser": 20,
+          "sats": "22000"
+        },
+        "output": {
+          "belop": "2200000"
+        }
       }
     }
   ]
