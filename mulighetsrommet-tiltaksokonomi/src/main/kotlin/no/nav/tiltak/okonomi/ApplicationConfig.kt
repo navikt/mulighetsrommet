@@ -7,12 +7,8 @@ import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
 
-data class Config(
-    val server: ServerConfig,
-    val app: AppConfig,
-)
-
 data class AppConfig(
+    val server: ServerConfig = ServerConfig(),
     val httpClientEngine: HttpClientEngine = CIO.create(),
     val database: DatabaseConfig,
     val flyway: FlywayMigrationManager.MigrationConfig = FlywayMigrationManager.MigrationConfig(),

@@ -14,7 +14,7 @@ val databaseConfig: DatabaseConfig = createRandomDatabaseConfig("mr-tiltaksokono
 fun <R> withTestApplication(
     oauth: MockOAuth2Server = MockOAuth2Server(),
     httpClientEngine: HttpClientEngine = createMockEngine(),
-    config: AppConfig = createTestApplicationConfig(oauth, httpClientEngine),
+    config: AppConfig = createTestApplicationConfig(httpClientEngine, createAuthConfig(oauth), databaseConfig),
     test: suspend ApplicationTestBuilder.() -> R,
 ) {
     testApplication {
@@ -26,11 +26,15 @@ fun <R> withTestApplication(
     }
 }
 
-fun createTestApplicationConfig(oauth: MockOAuth2Server, engine: HttpClientEngine) = AppConfig(
+fun createTestApplicationConfig(
+    engine: HttpClientEngine,
+    auth: AuthConfig,
+    database: DatabaseConfig,
+): AppConfig = AppConfig(
     httpClientEngine = engine,
-    database = databaseConfig,
+    database = database,
     flyway = FlywayMigrationManager.MigrationConfig(),
-    auth = createAuthConfig(oauth),
+    auth = auth,
     clients = ClientConfig(
         oebsTiltakApi = AuthenticatedHttpClientConfig(url = "http://oebs-tiltak-api", scope = "default"),
     ),

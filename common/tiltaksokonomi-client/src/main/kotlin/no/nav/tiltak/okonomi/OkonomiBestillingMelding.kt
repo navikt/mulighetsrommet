@@ -9,14 +9,17 @@ import java.time.LocalDateTime
 @Serializable
 sealed class OkonomiBestillingMelding {
 
+    @Serializable
     @SerialName("BESTILLING")
     data class Bestilling(
         val payload: OpprettBestilling,
     ) : OkonomiBestillingMelding()
 
+    @Serializable
     @SerialName("ANNULLERING")
     data object Annullering : OkonomiBestillingMelding()
 
+    @Serializable
     @SerialName("FAKTURA")
     data class Faktura(
         val payload: OpprettFaktura,

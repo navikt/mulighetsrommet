@@ -29,6 +29,8 @@ app:
         consumerGroupId: mulighetsrommet-api.datavarehus-gjennomforing.v1
         consumerTopic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1
         producerTopic: team-mulighetsrommet.datavarehus-tiltak-v1
+      okonomiBestilling:
+        topic: okonomi-bestilling
     consumers:
       gjennomforingerV1:
         id: siste-tiltaksgjennomforinger
