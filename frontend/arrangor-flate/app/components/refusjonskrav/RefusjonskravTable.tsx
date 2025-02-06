@@ -40,18 +40,25 @@ export function RefusjonskravTable({ krav }: Props) {
         </Table.Header>
         <Table.Body>
           {krav.map(
-            ({ id, status, fristForGodkjenning, beregning, gjennomforing, tiltakstype }) => {
+            ({
+              id,
+              status,
+              fristForGodkjenning,
+              belop,
+              periodeStart,
+              periodeSlutt,
+              gjennomforing,
+              tiltakstype,
+            }) => {
               return (
                 <React.Fragment key={id}>
                   <Table.Row className={getRowStyle(status)}>
                     <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
                     <Table.DataCell>{gjennomforing.navn}</Table.DataCell>
                     <Table.DataCell colSpan={3} className="w-80">
-                      {`${formaterDato(beregning.periodeStart)} - ${formaterDato(beregning.periodeSlutt)}`}
+                      {`${formaterDato(periodeStart)} - ${formaterDato(periodeSlutt)}`}
                     </Table.DataCell>
-                    <Table.DataCell className="min-w-44">
-                      {formaterNOK(beregning.belop)}
-                    </Table.DataCell>
+                    <Table.DataCell className="min-w-44">{formaterNOK(belop)}</Table.DataCell>
                     <Table.DataCell>{formaterDato(fristForGodkjenning)}</Table.DataCell>
                     <Table.DataCell>{statusTilTag(status)}</Table.DataCell>
                     <Table.DataCell>
