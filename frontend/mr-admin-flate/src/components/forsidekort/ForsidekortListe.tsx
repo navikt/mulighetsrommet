@@ -32,11 +32,11 @@ export function ForsidekortListe() {
         tekst="Her finner du informasjon om Gjennomføringer for gruppetiltak"
       />
       <Forsidekort
-        navn="Individuelle Gjennomføringer"
+        navn="Individuelle gjennomføringer"
         ikon={<img className="h-16 w-16" src="./sanity_logo.png" alt="Sanity-logo" />}
         url={SANITY_STUDIO_URL}
         apneINyTab
-        tekst="Her administrerer du individuelle Gjennomføringer"
+        tekst="Her administrerer du individuelle gjennomføringer"
       />
       <Forsidekort
         navn="Veilederflate forhåndsvisning"
