@@ -182,9 +182,6 @@ app:
   norg2:
     url: http://localhost:8090/norg2
 
-  brreg:
-    url: https://data.brreg.no/enhetsregisteret/api
-
   altinn:
     url: http://localhost:8090/altinn
     scope: default

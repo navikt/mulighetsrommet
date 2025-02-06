@@ -72,7 +72,6 @@ fun createTestApplicationConfig() = AppConfig(
     dokark = authenticatedHttpClientConfig("dokark"),
     pdfgen = HttpClientConfig("pdfgen"),
     norg2 = HttpClientConfig("norg2"),
-    brreg = HttpClientConfig("brreg"),
     utdanning = HttpClientConfig("utdanning.no"),
 )
 

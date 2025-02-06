@@ -49,7 +49,6 @@ data class AppConfig(
     val norg2: HttpClientConfig,
     val tasks: TaskConfig,
     val slack: SlackConfig,
-    val brreg: HttpClientConfig,
     val pamOntologi: AuthenticatedHttpClientConfig,
     val unleash: UnleashService.Config,
     val axsys: AuthenticatedHttpClientConfig,

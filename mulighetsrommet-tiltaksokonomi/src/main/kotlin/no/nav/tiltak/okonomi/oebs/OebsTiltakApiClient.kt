@@ -22,18 +22,21 @@ class OebsTiltakApiClient(
         install(HttpTimeout) {
             requestTimeoutMillis = 5000
         }
+        defaultRequest {
+            url(baseUrl)
+        }
     }
 
     suspend fun sendBestilling(bestilling: OebsBestillingMelding): Either<ResponseException, HttpResponse> {
-        return request(HttpMethod.Post, "$baseUrl/api/v1/oebs/bestilling", bestilling)
+        return request(HttpMethod.Post, "/api/v1/oebs/bestilling", bestilling)
     }
 
     suspend fun sendAnnullering(annullering: OebsAnnulleringMelding): Either<ResponseException, HttpResponse> {
-        return request(HttpMethod.Post, "$baseUrl/api/v1/oebs/bestilling", annullering)
+        return request(HttpMethod.Post, "/api/v1/oebs/bestilling", annullering)
     }
 
     suspend fun sendFaktura(faktura: OebsFakturaMelding): Either<ResponseException, HttpResponse> {
-        return request(HttpMethod.Post, "$baseUrl/api/v1/oebs/faktura", faktura)
+        return request(HttpMethod.Post, "/api/v1/oebs/faktura", faktura)
     }
 
     private suspend inline fun <reified T> request(

@@ -175,9 +175,6 @@ app:
   norg2:
     url: http://norg2.org
 
-  brreg:
-    url: https://data.brreg.no/enhetsregisteret/api
-
   altinn:
     url: https://platform.tt02.altinn.no
     scope: ${MASKINPORTEN_SCOPES}
