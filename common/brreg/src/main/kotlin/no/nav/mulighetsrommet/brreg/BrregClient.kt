@@ -13,7 +13,6 @@ import io.ktor.http.*
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import org.slf4j.LoggerFactory
-import java.time.LocalDate
 
 /**
  * Klient for å hente data fra Brreg.
@@ -96,7 +95,6 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
 
         val enhet = parseResponse<OverordnetEnhet>(response).bind()
         if (enhet.slettedato != null) {
-            logSlettetWarning(orgnr, enhet.slettedato)
             SlettetBrregHovedenhetDto(
                 organisasjonsnummer = enhet.organisasjonsnummer,
                 organisasjonsform = enhet.organisasjonsform.kode,
@@ -120,7 +118,6 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
 
         when {
             enhet.slettedato != null -> {
-                logSlettetWarning(orgnr, enhet.slettedato)
                 SlettetBrregUnderenhetDto(
                     organisasjonsnummer = enhet.organisasjonsnummer,
                     organisasjonsform = enhet.organisasjonsform.kode,
@@ -142,10 +139,6 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
                 )
             }
         }
-    }
-
-    private fun logSlettetWarning(organisasjonsnummer: Organisasjonsnummer, localDate: LocalDate) {
-        log.warn("Enhet med orgnr: $organisasjonsnummer er slettet fra Brreg. Slettedato: $localDate.")
     }
 
     private suspend inline fun <reified T> parseResponse(response: HttpResponse): Either<BrregError, T> {
