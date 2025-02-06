@@ -58,10 +58,10 @@ const Schema = z
     },
   );
 
-type InferredArrangorInfoForUtbetaling = z.infer<typeof Schema>;
+type InferredOpprettUtbetalingFormSchema = z.infer<typeof Schema>;
 
-export function UtbetalingInfoFraArrangorForm({ gjennomforing }: Props) {
-  const form = useForm<InferredArrangorInfoForUtbetaling>({
+export function OpprettUtbetalingForm({ gjennomforing }: Props) {
+  const form = useForm<InferredOpprettUtbetalingFormSchema>({
     resolver: zodResolver(Schema),
   });
 
@@ -69,7 +69,7 @@ export function UtbetalingInfoFraArrangorForm({ gjennomforing }: Props) {
 
   const mutation = useManueltUtbetalingskrav(window.crypto.randomUUID());
 
-  function postData(data: InferredArrangorInfoForUtbetaling) {
+  function postData(data: InferredOpprettUtbetalingFormSchema) {
     mutation.mutate(
       { ...data, gjennomforingId: gjennomforing.id },
       {
@@ -93,69 +93,67 @@ export function UtbetalingInfoFraArrangorForm({ gjennomforing }: Props) {
 
   const errors = formState.errors;
   return (
-    <>
-      <FormProvider {...form}>
-        <form onSubmit={handleSubmit(postData)}>
-          <FormGroup>
-            <Heading size="medium" level="2">
-              Utbetalingsinformasjon
-            </Heading>
-            <HStack gap="20">
-              <ControlledDateInput
+    <FormProvider {...form}>
+      <form onSubmit={handleSubmit(postData)}>
+        <FormGroup>
+          <Heading size="medium" level="2">
+            Utbetalingsinformasjon
+          </Heading>
+          <HStack gap="20">
+            <ControlledDateInput
+              size="small"
+              label="Periodestart"
+              fromDate={new Date(gjennomforing.startDato)}
+              toDate={addYear(new Date(), 5)}
+              format="iso-string"
+              {...register("periode.start")}
+            />
+            <ControlledDateInput
+              size="small"
+              label="Periodeslutt"
+              fromDate={new Date(gjennomforing.startDato)}
+              toDate={addYear(new Date(), 5)}
+              format="iso-string"
+              {...register("periode.slutt")}
+            />
+          </HStack>
+          <TwoColumnGrid>
+            <VStack gap="5">
+              <Textarea
                 size="small"
-                label="Periodestart"
-                fromDate={new Date(gjennomforing.startDato)}
-                toDate={addYear(new Date(), 5)}
-                format="iso-string"
-                {...register("periode.start")}
+                label="Beskrivelse"
+                {...register("beskrivelse")}
+                error={errors.beskrivelse?.message}
+                resize
               />
-              <ControlledDateInput
+              <TextField
                 size="small"
-                label="Periodeslutt"
-                fromDate={new Date(gjennomforing.startDato)}
-                toDate={addYear(new Date(), 5)}
-                format="iso-string"
-                {...register("periode.slutt")}
+                label="Kontonummer"
+                {...register("kontonummer")}
+                minLength={11}
+                maxLength={11}
+                error={errors.kontonummer?.message}
               />
-            </HStack>
-            <TwoColumnGrid>
-              <VStack gap="5">
-                <Textarea
-                  size="small"
-                  label="Beskrivelse"
-                  {...register("beskrivelse")}
-                  error={errors.beskrivelse?.message}
-                  resize
-                />
-                <TextField
-                  size="small"
-                  label="Kontonummer"
-                  {...register("kontonummer")}
-                  minLength={11}
-                  maxLength={11}
-                  error={errors.kontonummer?.message}
-                />
-                <TextField size="small" label="Valgfritt KID-nummer" {...register("kidNummer")} />
-                <TextField
-                  size="small"
-                  label="Beløp (NOK)"
-                  type="number"
-                  {...register("belop")}
-                  error={errors.belop?.message}
-                />
-                <p>
-                  <b>Tilgjengelig på tilsagn:</b> TODO
-                </p>
-                <HStack align={"start"} justify={"end"}>
-                  <Button size="small" type="submit">
-                    Opprett utbetaling
-                  </Button>
-                </HStack>
-              </VStack>
-            </TwoColumnGrid>
-          </FormGroup>
-        </form>
-      </FormProvider>
-    </>
+              <TextField size="small" label="Valgfritt KID-nummer" {...register("kidNummer")} />
+              <TextField
+                size="small"
+                label="Beløp (NOK)"
+                type="number"
+                {...register("belop")}
+                error={errors.belop?.message}
+              />
+              <p>
+                <b>Tilgjengelig på tilsagn:</b> TODO
+              </p>
+              <HStack align={"start"} justify={"end"}>
+                <Button size="small" type="submit">
+                  Opprett utbetaling
+                </Button>
+              </HStack>
+            </VStack>
+          </TwoColumnGrid>
+        </FormGroup>
+      </form>
+    </FormProvider>
   );
 }

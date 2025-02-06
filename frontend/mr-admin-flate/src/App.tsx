@@ -42,7 +42,7 @@ import { redigerTilsagnLoader } from "./pages/gjennomforing/tilsagn/rediger/redi
 import { tilsagnForGjennomforingLoader } from "./pages/gjennomforing/tilsagn/tabell/tilsagnForGjennomforingLoader";
 import { BehandleUtbetalingFormPage } from "./pages/gjennomforing/utbetaling/BehandleUtbetalingFormPage";
 import { UtbetalingDetaljerPage } from "./pages/gjennomforing/utbetaling/UtbetalingDetaljerPage";
-import { UtbetalingInfoFraArrangorPage } from "./pages/gjennomforing/utbetaling/UtbetalingInfoFraArrangorParge";
+import { OpprettUtbetalingPage } from "./pages/gjennomforing/utbetaling/OpprettUtbetalingPage";
 import { UtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/UtbetalingerForGjennomforingContainer";
 import { behandleUtbetalingFormPageLoader } from "./pages/gjennomforing/utbetaling/behandleUtbetalingFormPageLoader";
 import { utbetalingDetaljerPageLoader } from "./pages/gjennomforing/utbetaling/utbetalingDetaljerPageLoader";
@@ -243,7 +243,7 @@ const router = () =>
             children: [
               {
                 index: true,
-                element: <UtbetalingInfoFraArrangorPage />,
+                element: <OpprettUtbetalingPage />,
                 errorElement: <ErrorPage />,
                 loader: utbetalingerForGjennomforingLoader,
               },
