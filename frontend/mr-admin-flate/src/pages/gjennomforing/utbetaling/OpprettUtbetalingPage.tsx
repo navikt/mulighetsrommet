@@ -1,18 +1,18 @@
 import { GjennomforingDto } from "@mr/api-client-v2";
 import { Link, useLoaderData } from "react-router";
-import { UtbetalingInfoFraArrangorForm } from "./UtbetalingInfoFraArrangorForm";
+import { OpprettUtbetalingForm } from "./OpprettUtbetalingForm";
 
 interface LoaderData {
   gjennomforing: GjennomforingDto;
 }
 
-export function UtbetalingInfoFraArrangorPage() {
+export function OpprettUtbetalingPage() {
   const { gjennomforing } = useLoaderData<LoaderData>();
 
   return (
     <>
       <Link to={`/gjennomforinger/${gjennomforing.id}/utbetalinger`}>Tilbake</Link>
-      <UtbetalingInfoFraArrangorForm gjennomforing={gjennomforing} />
+      <OpprettUtbetalingForm gjennomforing={gjennomforing} />
     </>
   );
 }
