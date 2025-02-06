@@ -1,42 +1,43 @@
 import {
   ArrangorflateService,
-  RefusjonKravAft,
+  ArrFlateBeregningForhandsgodkjent,
+  ArrFlateRefusjonKrav,
   RefusjonKravDeltakelse,
   RefusjonKravDeltakelsePerson,
   RelevanteForslag,
 } from "@mr/api-client-v2";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { ExclamationmarkTriangleIcon } from "@navikt/aksel-icons";
 import {
   Alert,
   Button,
   GuidePanel,
   HGrid,
+  HStack,
   List,
   SortState,
   Table,
   Tooltip,
   VStack,
 } from "@navikt/ds-react";
+import { useState } from "react";
 import type { LoaderFunction, MetaFunction } from "react-router";
 import { Link, useLoaderData } from "react-router";
-import { useState } from "react";
-import { Definisjonsliste } from "~/components/Definisjonsliste";
+import { apiHeaders } from "~/auth/auth.server";
+import { LinkWithTabState } from "~/components/LinkWithTabState";
 import { PageHeader } from "~/components/PageHeader";
 import { GenerelleDetaljer } from "~/components/refusjonskrav/GenerelleDetaljer";
-import { formaterDato, useOrgnrFromUrl } from "~/utils";
-import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
-import { LinkWithTabState } from "~/components/LinkWithTabState";
 import { internalNavigation } from "~/internal-navigation";
 import { hentMiljø, Miljø } from "~/services/miljø";
-import { ExclamationmarkTriangleIcon } from "@navikt/aksel-icons";
-import { apiHeaders } from "~/auth/auth.server";
+import { formaterDato, useOrgnrFromUrl } from "~/utils";
+import { sortBy, SortBySelector, SortOrder } from "~/utils/sort-by";
+import { BeregningDetaljer } from "../components/refusjonskrav/BeregningDetaljer";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Refusjon" }, { name: "description", content: "Refusjonsdetaljer" }];
 };
 
 type LoaderData = {
-  krav: RefusjonKravAft;
+  krav: ArrFlateRefusjonKrav;
   relevanteForslag: RelevanteForslag[];
   deltakerlisteUrl: string;
 };
@@ -73,6 +74,56 @@ enum DeltakerSortKey {
 export default function RefusjonskravBeregning() {
   const orgnr = useOrgnrFromUrl();
   const { krav, deltakerlisteUrl, relevanteForslag } = useLoaderData<LoaderData>();
+
+  let beregning = null;
+  if (krav.beregning.type === "FORHANDSGODKJENT") {
+    beregning = (
+      <ForhandsgodkjentBeregning
+        beregning={krav.beregning}
+        relevanteForslag={relevanteForslag}
+        deltakerlisteUrl={deltakerlisteUrl}
+      />
+    );
+  }
+
+  return (
+    <>
+      <PageHeader
+        title="Beregning"
+        tilbakeLenke={{
+          navn: "Tilbake til refusjonskravliste",
+          url: internalNavigation(orgnr).root,
+        }}
+      />
+      <HGrid gap="5" columns={1}>
+        <GenerelleDetaljer className="max-w-[50%]" krav={krav} />
+      </HGrid>
+      <div className="mt-4">{beregning}</div>
+      <VStack align="end">
+        <BeregningDetaljer beregning={krav.beregning} />
+      </VStack>
+      <HStack justify="end" className="mt-4">
+        <Button
+          as={LinkWithTabState}
+          className="justify-self-end"
+          to={internalNavigation(orgnr).bekreft(krav.id)}
+        >
+          Neste
+        </Button>
+      </HStack>
+    </>
+  );
+}
+
+function ForhandsgodkjentBeregning({
+  beregning,
+  relevanteForslag,
+  deltakerlisteUrl,
+}: {
+  beregning: ArrFlateBeregningForhandsgodkjent;
+  relevanteForslag: RelevanteForslag[];
+  deltakerlisteUrl: string;
+}) {
   const [sort, setSort] = useState<DeltakerSortState | undefined>();
 
   const handleSort = (orderBy: string) => {
@@ -92,8 +143,8 @@ export default function RefusjonskravBeregning() {
   };
 
   const sortedData = sort
-    ? sortBy(krav.deltakelser, sort.direction, getDeltakerSelector(sort.orderBy))
-    : krav.deltakelser;
+    ? sortBy(beregning.deltakelser, sort.direction, getDeltakerSelector(sort.orderBy))
+    : beregning.deltakelser;
 
   function hasRelevanteForslag(id: string): boolean {
     return (relevanteForslag.find((r) => r.deltakerId === id)?.antallRelevanteForslag ?? 0) > 0;
@@ -105,15 +156,7 @@ export default function RefusjonskravBeregning() {
 
   return (
     <>
-      <PageHeader
-        title="Beregning"
-        tilbakeLenke={{
-          navn: "Tilbake til refusjonskravliste",
-          url: internalNavigation(orgnr).root,
-        }}
-      />
       <HGrid gap="5" columns={1}>
-        <GenerelleDetaljer className="max-w-[50%]" krav={krav} />
         <GuidePanel>
           Hvis noen av opplysningene om deltakerne ikke stemmer, må det sendes forslag til Nav om
           endring via <Link to={deltakerlisteUrl}>Deltakeroversikten</Link>.
@@ -188,27 +231,6 @@ export default function RefusjonskravBeregning() {
             })}
           </Table.Body>
         </Table>
-        <VStack align="end">
-          <Definisjonsliste
-            definitions={[
-              {
-                key: "Antall månedsverk",
-                value: String(krav.beregning.antallManedsverk),
-              },
-              {
-                key: "Beløp",
-                value: formaterNOK(krav.beregning.belop),
-              },
-            ]}
-          />
-        </VStack>
-        <Button
-          as={LinkWithTabState}
-          className="justify-self-end"
-          to={internalNavigation(orgnr).bekreft(krav.id)}
-        >
-          Neste
-        </Button>
       </HGrid>
     </>
   );

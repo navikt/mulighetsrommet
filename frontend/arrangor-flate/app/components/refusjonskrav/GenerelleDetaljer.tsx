@@ -1,8 +1,8 @@
+import { ArrFlateRefusjonKrav } from "@mr/api-client-v2";
 import { Definisjonsliste } from "../Definisjonsliste";
-import { RefusjonKravAft } from "@mr/api-client-v2";
 
 interface Props {
-  krav: RefusjonKravAft;
+  krav: ArrFlateRefusjonKrav;
   className?: string;
 }
 

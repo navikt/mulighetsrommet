@@ -1,12 +1,12 @@
 import { Alert, Box, Heading } from "@navikt/ds-react";
 import { Separator } from "~/components/Separator";
 import { RefusjonDetaljer } from "~/components/refusjonskrav/RefusjonDetaljer";
-import { ArrangorflateTilsagn, RefusjonKravAft } from "@mr/api-client-v2";
+import { ArrangorflateTilsagn, ArrFlateRefusjonKrav } from "@mr/api-client-v2";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { GenerelleDetaljer } from "~/components/refusjonskrav/GenerelleDetaljer";
 
 interface Props {
-  krav: RefusjonKravAft;
+  krav: ArrFlateRefusjonKrav;
   tilsagn: ArrangorflateTilsagn[];
 }
 

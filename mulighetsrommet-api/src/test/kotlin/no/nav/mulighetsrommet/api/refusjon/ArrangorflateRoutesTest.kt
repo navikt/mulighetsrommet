@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedParty
 import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedPartyType
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.GodkjennRefusjonskrav
-import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravAft
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKrav
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponseDokument
 import no.nav.mulighetsrommet.api.createAuthConfig
@@ -228,7 +228,7 @@ class ArrangorflateRoutesTest : FunSpec({
             }
             response.status shouldBe HttpStatusCode.OK
             val responseBody = response.bodyAsText()
-            val kravResponse: ArrFlateRefusjonKravAft = Json.decodeFromString(responseBody)
+            val kravResponse: ArrFlateRefusjonKrav = Json.decodeFromString(responseBody)
             kravResponse.id shouldBe krav.id
         }
     }

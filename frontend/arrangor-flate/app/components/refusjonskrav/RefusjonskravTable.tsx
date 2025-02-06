@@ -22,65 +22,63 @@ export function RefusjonskravTable({ krav }: Props) {
   }
 
   return (
-    <>
-      <Table aria-label="Refusjonskrav">
-        <Table.Header>
-          <Table.Row>
-            <Table.HeaderCell scope="col">Tiltakstype</Table.HeaderCell>
-            <Table.HeaderCell scope="col">Navn</Table.HeaderCell>
-            <Table.HeaderCell scope="col" colSpan={3}>
-              Periode
-            </Table.HeaderCell>
-            <Table.HeaderCell scope="col">Beløp</Table.HeaderCell>
-            <Table.HeaderCell scope="col">Frist for godkjenning</Table.HeaderCell>
-            <Table.HeaderCell scope="col">Status</Table.HeaderCell>
-            <Table.HeaderCell scope="col"></Table.HeaderCell>
-            <Table.HeaderCell scope="col"></Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {krav.map(
-            ({
-              id,
-              status,
-              fristForGodkjenning,
-              belop,
-              periodeStart,
-              periodeSlutt,
-              gjennomforing,
-              tiltakstype,
-            }) => {
-              return (
-                <React.Fragment key={id}>
-                  <Table.Row className={getRowStyle(status)}>
-                    <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
-                    <Table.DataCell>{gjennomforing.navn}</Table.DataCell>
-                    <Table.DataCell colSpan={3} className="w-80">
-                      {`${formaterDato(periodeStart)} - ${formaterDato(periodeSlutt)}`}
-                    </Table.DataCell>
-                    <Table.DataCell className="min-w-44">{formaterNOK(belop)}</Table.DataCell>
-                    <Table.DataCell>{formaterDato(fristForGodkjenning)}</Table.DataCell>
-                    <Table.DataCell>{statusTilTag(status)}</Table.DataCell>
-                    <Table.DataCell>
-                      <LinkWithTabState
-                        className="hover:underline font-bold no-underline"
-                        to={
-                          status === RefusjonskravStatus.GODKJENT_AV_ARRANGOR
-                            ? internalNavigation(orgnr).kvittering(id)
-                            : internalNavigation(orgnr).beregning(id)
-                        }
-                      >
-                        Detaljer
-                      </LinkWithTabState>
-                    </Table.DataCell>
-                  </Table.Row>
-                </React.Fragment>
-              );
-            },
-          )}
-        </Table.Body>
-      </Table>
-    </>
+    <Table aria-label="Refusjonskrav">
+      <Table.Header>
+        <Table.Row>
+          <Table.HeaderCell scope="col">Tiltakstype</Table.HeaderCell>
+          <Table.HeaderCell scope="col">Navn</Table.HeaderCell>
+          <Table.HeaderCell scope="col" colSpan={3}>
+            Periode
+          </Table.HeaderCell>
+          <Table.HeaderCell scope="col">Beløp</Table.HeaderCell>
+          <Table.HeaderCell scope="col">Frist for godkjenning</Table.HeaderCell>
+          <Table.HeaderCell scope="col">Status</Table.HeaderCell>
+          <Table.HeaderCell scope="col"></Table.HeaderCell>
+          <Table.HeaderCell scope="col"></Table.HeaderCell>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
+        {krav.map(
+          ({
+            id,
+            status,
+            fristForGodkjenning,
+            belop,
+            periodeStart,
+            periodeSlutt,
+            gjennomforing,
+            tiltakstype,
+          }) => {
+            return (
+              <React.Fragment key={id}>
+                <Table.Row className={getRowStyle(status)}>
+                  <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
+                  <Table.DataCell>{gjennomforing.navn}</Table.DataCell>
+                  <Table.DataCell colSpan={3} className="w-80">
+                    {`${formaterDato(periodeStart)} - ${formaterDato(periodeSlutt)}`}
+                  </Table.DataCell>
+                  <Table.DataCell className="min-w-44">{formaterNOK(belop)}</Table.DataCell>
+                  <Table.DataCell>{formaterDato(fristForGodkjenning)}</Table.DataCell>
+                  <Table.DataCell>{statusTilTag(status)}</Table.DataCell>
+                  <Table.DataCell>
+                    <LinkWithTabState
+                      className="hover:underline font-bold no-underline"
+                      to={
+                        status === RefusjonskravStatus.GODKJENT_AV_ARRANGOR
+                          ? internalNavigation(orgnr).kvittering(id)
+                          : internalNavigation(orgnr).beregning(id)
+                      }
+                    >
+                      Detaljer
+                    </LinkWithTabState>
+                  </Table.DataCell>
+                </Table.Row>
+              </React.Fragment>
+            );
+          },
+        )}
+      </Table.Body>
+    </Table>
   );
 }
 

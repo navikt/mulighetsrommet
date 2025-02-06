@@ -1,10 +1,10 @@
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { Definisjonsliste } from "../Definisjonsliste";
+import { ArrFlateRefusjonKrav } from "@mr/api-client-v2";
 import { formaterDato } from "../../utils";
-import { RefusjonKravAft } from "@mr/api-client-v2";
+import { Definisjonsliste } from "../Definisjonsliste";
+import { BeregningDetaljer } from "./BeregningDetaljer";
 
 interface Props {
-  krav: RefusjonKravAft;
+  krav: ArrFlateRefusjonKrav;
 }
 
 export function RefusjonDetaljer({ krav }: Props) {
@@ -15,18 +15,12 @@ export function RefusjonDetaljer({ krav }: Props) {
         definitions={[
           {
             key: "Refusjonskravperiode",
-            value: `${formaterDato(krav.beregning.periodeStart)} - ${formaterDato(krav.beregning.periodeSlutt)}`,
+            value: `${formaterDato(krav.periodeStart)} - ${formaterDato(krav.periodeSlutt)}`,
           },
           { key: "Frist for innsending", value: formaterDato(krav.fristForGodkjenning) },
         ]}
       />
-      <Definisjonsliste
-        className="mt-4"
-        definitions={[
-          { key: "Antall månedsverk", value: String(krav.beregning.antallManedsverk) },
-          { key: "Total refusjonskrav", value: formaterNOK(krav.beregning.belop) },
-        ]}
-      />
+      <BeregningDetaljer beregning={krav.beregning} />
     </>
   );
 }
