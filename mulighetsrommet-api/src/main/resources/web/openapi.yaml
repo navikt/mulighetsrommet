@@ -2267,7 +2267,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RefusjonKravAft"
+                $ref: "#/components/schemas/ArrFlateRefusjonKrav"
 
   /api/v1/intern/arrangorflate/refusjonskrav/{id}/godkjenn-refusjon:
     post:
@@ -5739,7 +5739,7 @@ components:
         - periodeSlutt
         - belop
 
-    RefusjonKravAft:
+    ArrFlateRefusjonKrav:
       type: object
       properties:
         type:
@@ -5758,14 +5758,16 @@ components:
           $ref: "#/components/schemas/RefusjonKravGjennomforing"
         arrangor:
           $ref: "#/components/schemas/RefusjonKravArrangor"
-        deltakelser:
-          type: array
-          items:
-            $ref: "#/components/schemas/RefusjonKravDeltakelse"
         beregning:
-          $ref: "#/components/schemas/RefusjonKravAftBeregning"
+          $ref: "#/components/schemas/ArrFlateBeregning"
         betalingsinformasjon:
           $ref: "#/components/schemas/Betalingsinformasjon"
+        periodeStart:
+          type: string
+          format: date-time
+        periodeSlutt:
+          type: string
+          format: date-time
       required:
         - type
         - id
@@ -5774,9 +5776,10 @@ components:
         - tiltakstype
         - gjennomforing
         - arrangor
-        - deltakelser
         - beregning
         - betalingsinformasjon
+        - periodeStart
+        - periodeSlutt
 
     RefusjonKravTiltakstype:
       type: object
@@ -5816,27 +5819,47 @@ components:
         - navn
         - slettet
 
-    RefusjonKravAftBeregning:
+    ArrFlateBeregningForhandsgodkjent:
       type: object
       properties:
-        periodeStart:
-          type: string
-          format: date-time
-        periodeSlutt:
-          type: string
-          format: date-time
-        antallManedsverk:
-          type: number
         belop:
           type: integer
+        antallManedsverk:
+          type: number
+        digest:
+          type: string
+        deltakelser:
+          type: array
+          items:
+            $ref: "#/components/schemas/RefusjonKravDeltakelse"
+        type:
+          const: FORHANDSGODKJENT
+      required:
+        - belop
+        - antallManedsverk
+        - digest
+        - deltakelser
+        - type
+
+    ArrFlateBeregningFri:
+      type: object
+      properties:
+        belop:
+          type: integer
+        type:
+          const: FRI
         digest:
           type: string
       required:
-        - periodeStart
-        - periodeSlutt
-        - antallManedsverk
         - belop
+        - type
         - digest
+
+    ArrFlateBeregning:
+      type: object
+      oneOf:
+        - $ref: "#/components/schemas/ArrFlateBeregningForhandsgodkjent"
+        - $ref: "#/components/schemas/ArrFlateBeregningFri"
 
     RefusjonKravDeltakelse:
       type: object

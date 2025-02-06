@@ -1,4 +1,8 @@
-import { ArrangorflateService, ArrangorflateTilsagn, RefusjonKravAft } from "@mr/api-client-v2";
+import {
+  ArrangorflateService,
+  ArrangorflateTilsagn,
+  ArrFlateRefusjonKrav,
+} from "@mr/api-client-v2";
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
 import { Button, VStack } from "@navikt/ds-react";
@@ -14,7 +18,7 @@ import { LinkWithTabState } from "../components/LinkWithTabState";
 import { apiHeaders } from "~/auth/auth.server";
 
 type RefusjonskavKvitteringData = {
-  krav: RefusjonKravAft;
+  krav: ArrFlateRefusjonKrav;
   tilsagn: ArrangorflateTilsagn[];
 };
 

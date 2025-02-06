@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate.model
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravDto
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravStatus
@@ -11,7 +12,29 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-data class ArrFlateRefusjonKravAft(
+sealed class Beregning {
+    abstract val belop: Int
+    abstract val digest: String
+
+    @Serializable
+    @SerialName("FORHANDSGODKJENT")
+    data class Forhandsgodkjent(
+        val antallManedsverk: Double,
+        override val belop: Int,
+        override val digest: String,
+        val deltakelser: List<RefusjonKravDeltakelse>,
+    ) : Beregning()
+
+    @Serializable
+    @SerialName("FRI")
+    data class Fri(
+        override val belop: Int,
+        override val digest: String,
+    ) : Beregning()
+}
+
+@Serializable
+data class ArrFlateRefusjonKrav(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val status: RefusjonskravStatus,
@@ -20,21 +43,13 @@ data class ArrFlateRefusjonKravAft(
     val tiltakstype: RefusjonskravDto.Tiltakstype,
     val gjennomforing: RefusjonskravDto.Gjennomforing,
     val arrangor: RefusjonskravDto.Arrangor,
-    val deltakelser: List<RefusjonKravDeltakelse>,
     val beregning: Beregning,
     val betalingsinformasjon: RefusjonskravDto.Betalingsinformasjon,
-) {
-    @Serializable
-    data class Beregning(
-        @Serializable(with = LocalDateSerializer::class)
-        val periodeStart: LocalDate,
-        @Serializable(with = LocalDateSerializer::class)
-        val periodeSlutt: LocalDate,
-        val antallManedsverk: Double,
-        val belop: Int,
-        val digest: String,
-    )
-}
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeStart: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeSlutt: LocalDate,
+)
 
 @Serializable
 data class RefusjonKravDeltakelse(

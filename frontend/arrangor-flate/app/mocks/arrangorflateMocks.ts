@@ -1,7 +1,7 @@
 import {
   Arrangor,
   ArrangorflateTilsagn,
-  RefusjonKravAft,
+  ArrFlateRefusjonKrav,
   RefusjonskravStatus,
   RelevanteForslag,
   TilsagnStatus,
@@ -50,7 +50,7 @@ const mockDeltakelser = [
   },
 ];
 
-const mockKrav: RefusjonKravAft[] = [
+const mockKrav: ArrFlateRefusjonKrav[] = [
   {
     type: "AFT",
     id: uuid(),
@@ -73,13 +73,14 @@ const mockKrav: RefusjonKravAft[] = [
       navn: "Fretex",
       slettet: false,
     },
-    deltakelser: mockDeltakelser,
+    periodeStart: "2024-06-01",
+    periodeSlutt: "2024-06-30",
     beregning: {
-      periodeStart: "2024-06-01",
-      periodeSlutt: "2024-06-30",
       antallManedsverk: 17.5,
       belop: 308530,
       digest: "ac6b2cdcbfc885e64121cf4e0ebee5dd",
+      deltakelser: mockDeltakelser,
+      type: "FORHANDSGODKJENT",
     },
   },
   {
@@ -104,13 +105,14 @@ const mockKrav: RefusjonKravAft[] = [
       navn: "Fretex",
       slettet: false,
     },
-    deltakelser: mockDeltakelser,
+    periodeStart: "2024-06-01",
+    periodeSlutt: "2024-06-30",
     beregning: {
-      periodeStart: "2024-06-01",
-      periodeSlutt: "2024-06-30",
       antallManedsverk: 4,
       belop: 85000,
       digest: "5c25b2ae0d9b5f2c76e4a6065125cbdb",
+      deltakelser: mockDeltakelser,
+      type: "FORHANDSGODKJENT",
     },
   },
   {
@@ -135,38 +137,39 @@ const mockKrav: RefusjonKravAft[] = [
       navn: "Fretex",
       slettet: false,
     },
-    deltakelser: [
-      {
-        id: uuid(),
-        person: {
-          navn: "Per Petterson",
-          fodselsdato: "1980-01-01",
-          fodselsaar: 1980,
-        },
-        startDato: "2024-06-01",
-        forstePeriodeStartDato: "2024-06-01",
-        sistePeriodeSluttDato: "2024-06-30",
-        sistePeriodeDeltakelsesprosent: 30,
-        manedsverk: 0.3,
-      },
-      {
-        id: uuid(),
-        person: {
-          navn: "Stian Bjærvik",
-        },
-        startDato: "2024-06-01",
-        forstePeriodeStartDato: "2024-06-01",
-        sistePeriodeSluttDato: "2024-06-30",
-        sistePeriodeDeltakelsesprosent: 100,
-        manedsverk: 1,
-      },
-    ],
+    periodeStart: "2024-06-01",
+    periodeSlutt: "2024-06-30",
     beregning: {
-      periodeStart: "2024-06-01",
-      periodeSlutt: "2024-06-30",
+      deltakelser: [
+        {
+          id: uuid(),
+          person: {
+            navn: "Per Petterson",
+            fodselsdato: "1980-01-01",
+            fodselsaar: 1980,
+          },
+          startDato: "2024-06-01",
+          forstePeriodeStartDato: "2024-06-01",
+          sistePeriodeSluttDato: "2024-06-30",
+          sistePeriodeDeltakelsesprosent: 30,
+          manedsverk: 0.3,
+        },
+        {
+          id: uuid(),
+          person: {
+            navn: "Stian Bjærvik",
+          },
+          startDato: "2024-06-01",
+          forstePeriodeStartDato: "2024-06-01",
+          sistePeriodeSluttDato: "2024-06-30",
+          sistePeriodeDeltakelsesprosent: 100,
+          manedsverk: 1,
+        },
+      ],
       antallManedsverk: 4,
       belop: 85000,
       digest: "5c25b2ae0d9b5f2c76e4a6065125cbdb",
+      type: "FORHANDSGODKJENT",
     },
   },
 ];
@@ -292,38 +295,38 @@ const mockRelevanteForslag: RelevanteForslag[] = [
 ];
 
 export const arrangorflateHandlers = [
-  http.get<PathParams, RefusjonKravAft[]>(
+  http.get<PathParams, ArrFlateRefusjonKrav[]>(
     "*/api/v1/intern/arrangorflate/arrangor/:orgnr/refusjonskrav",
     () => HttpResponse.json(mockKrav),
   ),
-  http.get<PathParams, RefusjonKravAft[]>(
+  http.get<PathParams, ArrFlateRefusjonKrav[]>(
     "*/api/v1/intern/arrangorflate/refusjonskrav/:id",
     ({ params }) => {
       const { id } = params;
       return HttpResponse.json(mockKrav.find((k) => k.id === id));
     },
   ),
-  http.post<PathParams, RefusjonKravAft[]>(
+  http.post<PathParams, ArrFlateRefusjonKrav[]>(
     "*/api/v1/intern/arrangorflate/refusjonskrav/:id/godkjenn-refusjon",
     () => HttpResponse.json({}),
   ),
-  http.get<PathParams, RefusjonKravAft[]>(
+  http.get<PathParams, ArrFlateRefusjonKrav[]>(
     "*/api/v1/intern/arrangorflate/:orgnr/refusjonskrav/:id/kvittering",
     () => HttpResponse.json(undefined, { status: 501 }),
   ),
-  http.get<PathParams, RefusjonKravAft[]>(
+  http.get<PathParams, ArrFlateRefusjonKrav[]>(
     "*/api/v1/intern/arrangorflate/refusjonskrav/:id/tilsagn",
     () => HttpResponse.json(mockTilsagn),
   ),
-  http.get<PathParams, RefusjonKravAft[]>(
+  http.get<PathParams, ArrFlateRefusjonKrav[]>(
     "*/api/v1/intern/arrangorflate/refusjonskrav/:id/relevante-forslag",
     () => HttpResponse.json(mockRelevanteForslag),
   ),
-  http.get<PathParams, RefusjonKravAft[]>(
+  http.get<PathParams, ArrFlateRefusjonKrav[]>(
     "*/api/v1/intern/arrangorflate/arrangor/:orgnr/tilsagn",
     () => HttpResponse.json(mockTilsagn),
   ),
-  http.get<PathParams, RefusjonKravAft[]>(
+  http.get<PathParams, ArrFlateRefusjonKrav[]>(
     "*/api/v1/intern/arrangorflate/:orgnr/tilsagn/:id",
     ({ params }) => {
       const { id } = params;

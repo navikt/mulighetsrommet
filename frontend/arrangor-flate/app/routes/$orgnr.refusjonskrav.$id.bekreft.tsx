@@ -2,7 +2,7 @@ import {
   ArrangorflateService,
   ArrangorflateTilsagn,
   FieldError,
-  RefusjonKravAft,
+  ArrFlateRefusjonKrav,
 } from "@mr/api-client-v2";
 import { Button, Checkbox, ErrorSummary, Heading, TextField, VStack } from "@navikt/ds-react";
 import {
@@ -25,7 +25,7 @@ import { apiHeaders } from "~/auth/auth.server";
 import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 
 type BekreftRefusjonskravData = {
-  krav: RefusjonKravAft;
+  krav: ArrFlateRefusjonKrav;
   tilsagn: ArrangorflateTilsagn[];
 };
 

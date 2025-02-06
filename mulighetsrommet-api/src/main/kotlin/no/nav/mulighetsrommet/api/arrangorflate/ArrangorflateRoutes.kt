@@ -14,9 +14,9 @@ import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravAft
-import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravAft.Beregning
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKrav
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravKompakt
+import no.nav.mulighetsrommet.api.arrangorflate.model.Beregning
 import no.nav.mulighetsrommet.api.arrangorflate.model.RefusjonKravDeltakelse
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
@@ -325,7 +325,7 @@ suspend fun toRefusjonskrav(
     db: ApiDatabase,
     pdl: HentAdressebeskyttetPersonBolkPdlQuery,
     krav: RefusjonskravDto,
-): ArrFlateRefusjonKravAft = when (val beregning = krav.beregning) {
+): ArrFlateRefusjonKrav = when (val beregning = krav.beregning) {
     is RefusjonKravBeregningAft -> {
         val deltakere = db.session { queries.deltaker.getAll(gjennomforingId = krav.gjennomforing.id) }
 
@@ -362,28 +362,39 @@ suspend fun toRefusjonskrav(
             .setScale(2, RoundingMode.HALF_UP)
             .toDouble()
 
-        ArrFlateRefusjonKravAft(
+        ArrFlateRefusjonKrav(
             id = krav.id,
             status = krav.status,
             fristForGodkjenning = krav.fristForGodkjenning,
             tiltakstype = krav.tiltakstype,
             gjennomforing = krav.gjennomforing,
             arrangor = krav.arrangor,
-            deltakelser = deltakelser,
-            beregning = Beregning(
-                periodeStart = beregning.input.periode.start,
-                periodeSlutt = beregning.input.periode.getLastDate(),
+            periodeStart = krav.periode.start,
+            periodeSlutt = krav.periode.getLastDate(),
+            beregning = Beregning.Forhandsgodkjent(
                 antallManedsverk = antallManedsverk,
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
+                deltakelser = deltakelser,
             ),
             betalingsinformasjon = krav.betalingsinformasjon,
         )
     }
 
-    is RefusjonKravBeregningFri -> throw StatusException(
-        status = HttpStatusCode.NotImplemented,
-        detail = "Visning av frimodell er ikke implementert",
+    is RefusjonKravBeregningFri -> ArrFlateRefusjonKrav(
+        id = krav.id,
+        status = krav.status,
+        fristForGodkjenning = krav.fristForGodkjenning,
+        tiltakstype = krav.tiltakstype,
+        gjennomforing = krav.gjennomforing,
+        arrangor = krav.arrangor,
+        periodeStart = krav.periode.start,
+        periodeSlutt = krav.periode.getLastDate(),
+        beregning = Beregning.Fri(
+            belop = beregning.output.belop,
+            digest = beregning.getDigest(),
+        ),
+        betalingsinformasjon = krav.betalingsinformasjon,
     )
 }
 

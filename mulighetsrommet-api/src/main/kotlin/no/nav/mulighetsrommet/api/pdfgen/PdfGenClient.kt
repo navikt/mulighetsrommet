@@ -9,7 +9,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravAft
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKrav
 import no.nav.mulighetsrommet.api.tilsagn.model.ArrangorflateTilsagn
 
 class PdfGenClient(
@@ -22,10 +22,10 @@ class PdfGenClient(
         }
     }
 
-    suspend fun getRefusjonKvittering(refusjon: ArrFlateRefusjonKravAft, tilsagn: List<ArrangorflateTilsagn>): ByteArray {
+    suspend fun getRefusjonKvittering(refusjon: ArrFlateRefusjonKrav, tilsagn: List<ArrangorflateTilsagn>): ByteArray {
         @Serializable
         data class PdfData(
-            val refusjon: ArrFlateRefusjonKravAft,
+            val refusjon: ArrFlateRefusjonKrav,
             val tilsagn: List<ArrangorflateTilsagn>,
         )
 
@@ -36,10 +36,10 @@ class PdfGenClient(
         )
     }
 
-    suspend fun refusjonJournalpost(refusjon: ArrFlateRefusjonKravAft, tilsagn: List<ArrangorflateTilsagn>): ByteArray {
+    suspend fun refusjonJournalpost(refusjon: ArrFlateRefusjonKrav, tilsagn: List<ArrangorflateTilsagn>): ByteArray {
         @Serializable
         data class PdfData(
-            val refusjon: ArrFlateRefusjonKravAft,
+            val refusjon: ArrFlateRefusjonKrav,
             val tilsagn: List<ArrangorflateTilsagn>,
         )
 
