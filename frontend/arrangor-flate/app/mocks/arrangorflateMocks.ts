@@ -1,11 +1,11 @@
 import {
   Arrangor,
   ArrangorflateTilsagn,
-  ArrFlateRefusjonKrav,
-  RefusjonskravStatus,
+  ArrFlateUtbetaling,
   RelevanteForslag,
   TilsagnStatus,
   TilsagnType,
+  UtbetalingStatus,
 } from "@mr/api-client-v2";
 import { http, HttpResponse, PathParams } from "msw";
 import { v4 as uuid } from "uuid";
@@ -50,11 +50,11 @@ const mockDeltakelser = [
   },
 ];
 
-const mockKrav: ArrFlateRefusjonKrav[] = [
+const mockKrav: ArrFlateUtbetaling[] = [
   {
     type: "AFT",
     id: uuid(),
-    status: RefusjonskravStatus.KLAR_FOR_GODKJENNING,
+    status: UtbetalingStatus.KLAR_FOR_GODKJENNING,
     fristForGodkjenning: "2024-08-01T00:00:00",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
@@ -86,7 +86,7 @@ const mockKrav: ArrFlateRefusjonKrav[] = [
   {
     type: "AFT",
     id: uuid(),
-    status: RefusjonskravStatus.KLAR_FOR_GODKJENNING,
+    status: UtbetalingStatus.KLAR_FOR_GODKJENNING,
     fristForGodkjenning: "2024-08-01T00:00:00",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
@@ -118,7 +118,7 @@ const mockKrav: ArrFlateRefusjonKrav[] = [
   {
     type: "AFT",
     id: uuid(),
-    status: RefusjonskravStatus.GODKJENT_AV_ARRANGOR,
+    status: UtbetalingStatus.GODKJENT_AV_ARRANGOR,
     fristForGodkjenning: "2024-08-01T00:00:00",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
@@ -295,38 +295,38 @@ const mockRelevanteForslag: RelevanteForslag[] = [
 ];
 
 export const arrangorflateHandlers = [
-  http.get<PathParams, ArrFlateRefusjonKrav[]>(
-    "*/api/v1/intern/arrangorflate/arrangor/:orgnr/refusjonskrav",
+  http.get<PathParams, ArrFlateUtbetaling[]>(
+    "*/api/v1/intern/arrangorflate/arrangor/:orgnr/utbetaling",
     () => HttpResponse.json(mockKrav),
   ),
-  http.get<PathParams, ArrFlateRefusjonKrav[]>(
-    "*/api/v1/intern/arrangorflate/refusjonskrav/:id",
+  http.get<PathParams, ArrFlateUtbetaling[]>(
+    "*/api/v1/intern/arrangorflate/utbetaling/:id",
     ({ params }) => {
       const { id } = params;
       return HttpResponse.json(mockKrav.find((k) => k.id === id));
     },
   ),
-  http.post<PathParams, ArrFlateRefusjonKrav[]>(
-    "*/api/v1/intern/arrangorflate/refusjonskrav/:id/godkjenn-refusjon",
+  http.post<PathParams, ArrFlateUtbetaling[]>(
+    "*/api/v1/intern/arrangorflate/utbetaling/:id/godkjenn-utbetaling",
     () => HttpResponse.json({}),
   ),
-  http.get<PathParams, ArrFlateRefusjonKrav[]>(
-    "*/api/v1/intern/arrangorflate/:orgnr/refusjonskrav/:id/kvittering",
+  http.get<PathParams, ArrFlateUtbetaling[]>(
+    "*/api/v1/intern/arrangorflate/:orgnr/utbetaling/:id/kvittering",
     () => HttpResponse.json(undefined, { status: 501 }),
   ),
-  http.get<PathParams, ArrFlateRefusjonKrav[]>(
-    "*/api/v1/intern/arrangorflate/refusjonskrav/:id/tilsagn",
+  http.get<PathParams, ArrFlateUtbetaling[]>(
+    "*/api/v1/intern/arrangorflate/utbetaling/:id/tilsagn",
     () => HttpResponse.json(mockTilsagn),
   ),
-  http.get<PathParams, ArrFlateRefusjonKrav[]>(
-    "*/api/v1/intern/arrangorflate/refusjonskrav/:id/relevante-forslag",
+  http.get<PathParams, ArrFlateUtbetaling[]>(
+    "*/api/v1/intern/arrangorflate/utbetaling/:id/relevante-forslag",
     () => HttpResponse.json(mockRelevanteForslag),
   ),
-  http.get<PathParams, ArrFlateRefusjonKrav[]>(
+  http.get<PathParams, ArrFlateUtbetaling[]>(
     "*/api/v1/intern/arrangorflate/arrangor/:orgnr/tilsagn",
     () => HttpResponse.json(mockTilsagn),
   ),
-  http.get<PathParams, ArrFlateRefusjonKrav[]>(
+  http.get<PathParams, ArrFlateUtbetaling[]>(
     "*/api/v1/intern/arrangorflate/:orgnr/tilsagn/:id",
     ({ params }) => {
       const { id } = params;

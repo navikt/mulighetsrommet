@@ -287,13 +287,13 @@ const router = () =>
             loader: redigerTilsagnLoader,
           },
           {
-            path: "gjennomforinger/:gjennomforingId/utbetalinger/:refusjonskravId",
+            path: "gjennomforinger/:gjennomforingId/utbetalinger/:utbetalingId",
             element: <UtbetalingDetaljerPage />,
             errorElement: <ErrorPage />,
             loader: utbetalingDetaljerPageLoader,
           },
           {
-            path: "gjennomforinger/:gjennomforingId/utbetalinger/:refusjonskravId/skjema",
+            path: "gjennomforinger/:gjennomforingId/utbetalinger/:utbetalingId/skjema",
             element: <BehandleUtbetalingFormPage />,
             errorElement: <ErrorPage />,
             loader: behandleUtbetalingFormPageLoader,

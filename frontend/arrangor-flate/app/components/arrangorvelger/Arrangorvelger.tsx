@@ -19,7 +19,7 @@ export function Arrangorvelger({ arrangorer }: Props) {
       hideLabel
       name="orgnr"
       onChange={(e) => {
-        navigate(`${e.target.value}/refusjonskrav`);
+        navigate(`${e.target.value}/utbetaling`);
       }}
     >
       {arrangorer.sort(alfabetisk).map((arrangor) => (

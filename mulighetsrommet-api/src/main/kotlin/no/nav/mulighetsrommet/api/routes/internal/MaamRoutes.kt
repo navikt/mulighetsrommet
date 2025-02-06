@@ -9,9 +9,9 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
-import no.nav.mulighetsrommet.api.refusjon.task.GenerateRefusjonskrav
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
+import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
@@ -32,7 +32,7 @@ fun Route.maamRoutes() {
     val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
     val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
     val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
-    val generateRefusjonskrav: GenerateRefusjonskrav by inject()
+    val generateUtbetaling: GenerateUtbetaling by inject()
 
     route("/api/intern/maam") {
         route("/tasks") {
@@ -89,10 +89,10 @@ fun Route.maamRoutes() {
                 call.respond(HttpStatusCode.OK, GeneralTaskResponse(id = "Synkronisert! :)"))
             }
 
-            post("generate-refusjonskrav") {
-                val (dayInMonth) = call.receive<GenerateRefusjonskravRequest>()
-                generateRefusjonskrav.runTask(dayInMonth)
-                call.respond(HttpStatusCode.OK, GeneralTaskResponse(id = "Generering av refusjonskrav OK"))
+            post("generate-utbetaling") {
+                val (dayInMonth) = call.receive<GenerateUtbetalingRequest>()
+                generateUtbetaling.runTask(dayInMonth)
+                call.respond(HttpStatusCode.OK, GeneralTaskResponse(id = "Generering av utbetaling OK"))
             }
         }
 
@@ -114,7 +114,7 @@ fun Route.maamRoutes() {
 }
 
 @Serializable
-data class GenerateRefusjonskravRequest(
+data class GenerateUtbetalingRequest(
     @Serializable(with = LocalDateSerializer::class)
     val dayInMonth: LocalDate,
 )

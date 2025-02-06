@@ -16,7 +16,7 @@
         "type": "Organization",
         "organizationNumber": "973674471",
         "authorizedResources": [
-          "tiltak-arrangor-refusjon"
+          "nav_tiltaksarrangor_be-om-utbetaling"
         ],
         "subunits": []
       },
@@ -25,7 +25,7 @@
         "type": "Organization",
         "organizationNumber": "992943084",
         "authorizedResources": [
-          "tiltak-arrangor-refusjon"
+          "nav_tiltaksarrangor_be-om-utbetaling"
         ],
         "subunits": []
       }

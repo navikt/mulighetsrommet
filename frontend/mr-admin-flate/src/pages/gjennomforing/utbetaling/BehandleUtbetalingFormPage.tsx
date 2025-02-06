@@ -12,11 +12,11 @@ import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ProblemDetail,
-  RefusjonKravKompakt,
   TilsagnDto,
   TilsagnStatus,
   UtbetalingRequest,
   FieldError,
+  UtbetalingKompakt,
 } from "@mr/api-client-v2";
 import { Button, Heading, HStack, Stepper, VStack } from "@navikt/ds-react";
 import { useState } from "react";
@@ -28,7 +28,7 @@ import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/u
 
 // TODO: Potensielt flyttes til backend
 function defaultValues(
-  krav: RefusjonKravKompakt,
+  utbetaling: UtbetalingKompakt,
   tilsagn: TilsagnDto[],
 ): DeepPartial<InferredUtbetalingSchema> {
   const kunEttTilsagn = tilsagn.length === 1;
@@ -37,21 +37,22 @@ function defaultValues(
       tilsagnId: t.id,
       belop:
         kunEttTilsagn && t.status.type === TilsagnStatus.GODKJENT
-          ? Math.min(krav.beregning.belop, t.beregning.output.belop)
+          ? Math.min(utbetaling.beregning.belop, t.beregning.output.belop)
           : 0,
     })),
   };
 }
 
 export function BehandleUtbetalingFormPage() {
-  const { gjennomforing, krav, tilsagn } = useLoaderData<typeof behandleUtbetalingFormPageLoader>();
-  const mutation = useOpprettUtbetaling(krav.id);
+  const { gjennomforing, utbetaling, tilsagn } =
+    useLoaderData<typeof behandleUtbetalingFormPageLoader>();
+  const mutation = useOpprettUtbetaling(utbetaling.id);
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState<number>(1);
 
   const form = useForm<InferredUtbetalingSchema>({
     resolver: zodResolver(UtbetalingSchema),
-    defaultValues: defaultValues(krav, tilsagn),
+    defaultValues: defaultValues(utbetaling, tilsagn),
   });
 
   const { handleSubmit } = form;
@@ -119,7 +120,7 @@ export function BehandleUtbetalingFormPage() {
                 {activeStep === 1 && (
                   <KostnadsfordelingSteg
                     gjennomforing={gjennomforing}
-                    krav={krav}
+                    utbetaling={utbetaling}
                     tilsagn={tilsagn}
                   />
                 )}

@@ -1,0 +1,52 @@
+{
+  "utbetaling": {
+    "beregning": {
+      "periodeStart": "2024-01-01",
+      "periodeSlutt": "2024-01-31",
+      "antallManedsverk": 2.3,
+      "belop": "44000"
+    },
+    "fristForGodkjenning": "2024-03-01",
+    "betalingsinformasjon": {
+      "kontonummer": "12312312312",
+      "kid": ":)"
+    },
+    "tiltakstype": {
+      "navn": "Arbeidsforberedende trening"
+    },
+    "gjennomforing": {
+      "navn": "Arbeidsforberedende gjennomføring"
+    },
+    "deltakelser": [
+      {
+        "person": {
+          "navn": "Donald Duck",
+          "fodselsdato": "1934-06-09"
+        },
+        "startDato": "2024-01-01",
+        "sluttDato": "2024-01-31",
+        "manedsverk": 1
+      },
+      {
+        "person": {
+          "navn": "Dolly Duck",
+          "fodselsdato": "1937-01-09"
+        },
+        "startDato": "2024-01-01",
+        "sluttDato": "2024-01-31",
+        "manedsverk": 1
+      }
+    ]
+  },
+  "tilsagn": [
+    {
+      "periodeStart": "2024-01-01",
+      "periodeSlutt": "2024-06-30",
+      "beregning": {
+        "antallPlasser": 20,
+        "sats": "22000",
+        "belop": "2200000"
+      }
+    }
+  ]
+}

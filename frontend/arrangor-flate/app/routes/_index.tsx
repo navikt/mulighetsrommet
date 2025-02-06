@@ -8,7 +8,7 @@ import { apiHeaders } from "~/auth/auth.server";
 export const meta: MetaFunction = () => {
   return [
     { title: "Arrangørflate" },
-    { name: "description", content: "Arrangørflate for refusjon" },
+    { name: "description", content: "Arrangørflate for utbetalinger" },
   ];
 };
 
@@ -25,6 +25,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   return redirect(
-    `${internalNavigation(arrangorer[0].organisasjonsnummer).refusjonskravliste}?forside-tab=${currentTab}`,
+    `${internalNavigation(arrangorer[0].organisasjonsnummer).utbetalinger}?forside-tab=${currentTab}`,
   );
 }

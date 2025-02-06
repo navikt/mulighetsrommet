@@ -14,26 +14,26 @@ import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKrav
-import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravKompakt
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateUtbetaling
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateUtbetalingKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.model.Beregning
-import no.nav.mulighetsrommet.api.arrangorflate.model.RefusjonKravDeltakelse
+import no.nav.mulighetsrommet.api.arrangorflate.model.UtbetalingDeltakelse
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
-import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
-import no.nav.mulighetsrommet.api.refusjon.HentPersonBolkResponse
-import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
-import no.nav.mulighetsrommet.api.refusjon.model.DeltakerDto
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningFri
-import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravDto
-import no.nav.mulighetsrommet.api.refusjon.task.JournalforRefusjonskrav
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.utbetaling.HentAdressebeskyttetPersonBolkPdlQuery
+import no.nav.mulighetsrommet.api.utbetaling.HentPersonBolkResponse
+import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerDto
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAft
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
+import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -51,7 +51,7 @@ fun Route.arrangorflateRoutes() {
     val tilsagnService: TilsagnService by inject()
     val arrangorService: ArrangorService by inject()
     val pdl: HentAdressebeskyttetPersonBolkPdlQuery by inject()
-    val journalforRefusjonskrav: JournalforRefusjonskrav by inject()
+    val journalforUtbetaling: JournalforUtbetaling by inject()
     val db: ApiDatabase by inject()
     val pdfClient: PdfGenClient by inject()
 
@@ -79,18 +79,18 @@ fun Route.arrangorflateRoutes() {
         }
 
         route("/arrangor/{orgnr}") {
-            get("/refusjonskrav") {
+            get("/utbetaling") {
                 val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
 
                 requireTilgangHosArrangor(orgnr)
 
-                val krav = db.session {
-                    queries.refusjonskrav.getByArrangorIds(orgnr).map {
-                        ArrFlateRefusjonKravKompakt.fromRefusjonskravDto(it)
+                val utbetaling = db.session {
+                    queries.utbetaling.getByArrangorIds(orgnr).map {
+                        ArrFlateUtbetalingKompakt.fromUtbetalingDto(it)
                     }
                 }
 
-                call.respond(krav)
+                call.respond(utbetaling)
             }
 
             get("/tilsagn") {
@@ -106,17 +106,17 @@ fun Route.arrangorflateRoutes() {
             }
         }
 
-        route("/refusjonskrav/{id}") {
+        route("/utbetaling/{id}") {
             get {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val krav = db.session {
-                    queries.refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                val utbetaling = db.session {
+                    queries.utbetaling.get(id) ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
                 }
 
-                requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
+                requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
-                val oppsummering = toRefusjonskrav(db, pdl, krav)
+                val oppsummering = toArrFlateUtbetaling(db, pdl, utbetaling)
 
                 call.respond(oppsummering)
             }
@@ -124,58 +124,58 @@ fun Route.arrangorflateRoutes() {
             get("/relevante-forslag") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val krav = db.session {
-                    queries.refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                val utbetaling = db.session {
+                    queries.utbetaling.get(id) ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
                 }
 
-                requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
+                requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
                 val forslagByDeltakerId = db.session {
-                    queries.deltakerForslag.getForslagByGjennomforing(krav.gjennomforing.id)
+                    queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
                 }
 
                 val relevanteForslag = forslagByDeltakerId
                     .map { (deltakerId, forslag) ->
                         RelevanteForslag(
                             deltakerId = deltakerId,
-                            antallRelevanteForslag = forslag.count { it.relevantForDeltakelse(krav) },
+                            antallRelevanteForslag = forslag.count { it.relevantForDeltakelse(utbetaling) },
                         )
                     }
 
                 call.respond(relevanteForslag)
             }
 
-            post("/godkjenn-refusjon") {
+            post("/godkjenn-utbetaling") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val krav = db.session {
-                    queries.refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                val utbetaling = db.session {
+                    queries.utbetaling.get(id) ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
                 }
 
-                requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
+                requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
-                val request = call.receive<GodkjennRefusjonskrav>()
+                val request = call.receive<GodkjennUtbetaling>()
 
                 val forslagByDeltakerId = db.session {
-                    queries.deltakerForslag.getForslagByGjennomforing(krav.gjennomforing.id)
+                    queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
                 }
 
-                validerGodkjennRefusjonskrav(
+                validerGodkjennUtbetaling(
                     request,
-                    krav,
+                    utbetaling,
                     forslagByDeltakerId,
                 ).onLeft {
                     return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
                 }
 
                 db.transaction {
-                    queries.refusjonskrav.setGodkjentAvArrangor(id, LocalDateTime.now())
-                    queries.refusjonskrav.setBetalingsInformasjon(
+                    queries.utbetaling.setGodkjentAvArrangor(id, LocalDateTime.now())
+                    queries.utbetaling.setBetalingsInformasjon(
                         id,
                         request.betalingsinformasjon.kontonummer,
                         request.betalingsinformasjon.kid,
                     )
-                    journalforRefusjonskrav.schedule(krav.id, Instant.now(), session as TransactionalSession)
+                    journalforUtbetaling.schedule(utbetaling.id, Instant.now(), session as TransactionalSession)
                 }
 
                 call.respond(HttpStatusCode.OK)
@@ -184,18 +184,18 @@ fun Route.arrangorflateRoutes() {
             get("/kvittering") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val krav = db.session {
-                    queries.refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                val utbetaling = db.session {
+                    queries.utbetaling.get(id) ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
                 }
 
-                requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
+                requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
-                val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
-                    gjennomforingId = krav.gjennomforing.id,
-                    periode = krav.periode,
+                val tilsagn = tilsagnService.getArrangorflateTilsagnTilUtbetaling(
+                    gjennomforingId = utbetaling.gjennomforing.id,
+                    periode = utbetaling.periode,
                 )
-                val refusjonsKravAft = toRefusjonskrav(db, pdl, krav)
-                val pdfContent = pdfClient.getRefusjonKvittering(refusjonsKravAft, tilsagn)
+                val utbetalingAft = toArrFlateUtbetaling(db, pdl, utbetaling)
+                val pdfContent = pdfClient.getUtbetalingKvittering(utbetalingAft, tilsagn)
 
                 call.response.headers.append(
                     "Content-Disposition",
@@ -208,15 +208,15 @@ fun Route.arrangorflateRoutes() {
             get("/tilsagn") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val krav = db.session {
-                    queries.refusjonskrav.get(id) ?: throw NotFoundException("Fant ikke refusjonskrav med id=$id")
+                val utbetaling = db.session {
+                    queries.utbetaling.get(id) ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
                 }
 
-                requireTilgangHosArrangor(krav.arrangor.organisasjonsnummer)
+                requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
-                val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
-                    gjennomforingId = krav.gjennomforing.id,
-                    periode = krav.periode,
+                val tilsagn = tilsagnService.getArrangorflateTilsagnTilUtbetaling(
+                    gjennomforingId = utbetaling.gjennomforing.id,
+                    periode = utbetaling.periode,
                 )
 
                 call.respond(tilsagn)
@@ -240,14 +240,14 @@ fun Route.arrangorflateRoutes() {
 }
 
 fun DeltakerForslag.relevantForDeltakelse(
-    refusjonskrav: RefusjonskravDto,
-): Boolean = when (refusjonskrav.beregning) {
-    is RefusjonKravBeregningAft -> this.relevantForDeltakelse(refusjonskrav.beregning)
-    is RefusjonKravBeregningFri -> false
+    utbetaling: UtbetalingDto,
+): Boolean = when (utbetaling.beregning) {
+    is UtbetalingBeregningAft -> this.relevantForDeltakelse(utbetaling.beregning)
+    is UtbetalingBeregningFri -> false
 }
 
 fun DeltakerForslag.relevantForDeltakelse(
-    beregning: RefusjonKravBeregningAft,
+    beregning: UtbetalingBeregningAft,
 ): Boolean {
     val deltakelser = beregning.input.deltakelser
         .find { it.deltakelseId == this.deltakerId }
@@ -292,24 +292,24 @@ fun DeltakerForslag.relevantForDeltakelse(
     }
 }
 
-fun validerGodkjennRefusjonskrav(
-    request: GodkjennRefusjonskrav,
-    krav: RefusjonskravDto,
+fun validerGodkjennUtbetaling(
+    request: GodkjennUtbetaling,
+    utbetaling: UtbetalingDto,
     forslagByDeltakerId: Map<UUID, List<DeltakerForslag>>,
-): Either<List<FieldError>, GodkjennRefusjonskrav> {
+): Either<List<FieldError>, GodkjennUtbetaling> {
     val finnesRelevanteForslag = forslagByDeltakerId
         .any { (_, forslag) ->
-            forslag.count { it.relevantForDeltakelse(krav) } > 0
+            forslag.count { it.relevantForDeltakelse(utbetaling) } > 0
         }
 
     return if (finnesRelevanteForslag) {
         listOf(
             FieldError.ofPointer(
                 "/info",
-                "Det finnes forslag på deltakere som påvirker refusjonen. Disse må behandles av Nav før refusjonskravet kan sendes inn.",
+                "Det finnes forslag på deltakere som påvirker utbetalingen. Disse må behandles av Nav før utbetalingen kan sendes inn.",
             ),
         ).left()
-    } else if (request.digest != krav.beregning.getDigest()) {
+    } else if (request.digest != utbetaling.beregning.getDigest()) {
         listOf(
             FieldError.ofPointer(
                 "/info",
@@ -321,16 +321,16 @@ fun validerGodkjennRefusjonskrav(
     }
 }
 
-suspend fun toRefusjonskrav(
+suspend fun toArrFlateUtbetaling(
     db: ApiDatabase,
     pdl: HentAdressebeskyttetPersonBolkPdlQuery,
-    krav: RefusjonskravDto,
-): ArrFlateRefusjonKrav = when (val beregning = krav.beregning) {
-    is RefusjonKravBeregningAft -> {
-        val deltakere = db.session { queries.deltaker.getAll(gjennomforingId = krav.gjennomforing.id) }
+    utbetaling: UtbetalingDto,
+): ArrFlateUtbetaling = when (val beregning = utbetaling.beregning) {
+    is UtbetalingBeregningAft -> {
+        val deltakere = db.session { queries.deltaker.getAll(gjennomforingId = utbetaling.gjennomforing.id) }
 
         val deltakereById = deltakere.associateBy { it.id }
-        val personerByNorskIdent: Map<NorskIdent, RefusjonKravDeltakelse.Person> = getPersoner(pdl, deltakere)
+        val personerByNorskIdent: Map<NorskIdent, UtbetalingDeltakelse.Person> = getPersoner(pdl, deltakere)
         val perioderById = beregning.input.deltakelser.associateBy { it.deltakelseId }
         val manedsverkById = beregning.output.deltakelser.associateBy { it.deltakelseId }
 
@@ -342,7 +342,7 @@ suspend fun toRefusjonskrav(
             val forstePeriode = deltakelse.perioder.first()
             val sistePeriode = deltakelse.perioder.last()
 
-            RefusjonKravDeltakelse(
+            UtbetalingDeltakelse(
                 id = id,
                 startDato = deltaker.startDato,
                 sluttDato = deltaker.startDato,
@@ -362,46 +362,46 @@ suspend fun toRefusjonskrav(
             .setScale(2, RoundingMode.HALF_UP)
             .toDouble()
 
-        ArrFlateRefusjonKrav(
-            id = krav.id,
-            status = krav.status,
-            fristForGodkjenning = krav.fristForGodkjenning,
-            tiltakstype = krav.tiltakstype,
-            gjennomforing = krav.gjennomforing,
-            arrangor = krav.arrangor,
-            periodeStart = krav.periode.start,
-            periodeSlutt = krav.periode.getLastDate(),
+        ArrFlateUtbetaling(
+            id = utbetaling.id,
+            status = utbetaling.status,
+            fristForGodkjenning = utbetaling.fristForGodkjenning,
+            tiltakstype = utbetaling.tiltakstype,
+            gjennomforing = utbetaling.gjennomforing,
+            arrangor = utbetaling.arrangor,
+            periodeStart = utbetaling.periode.start,
+            periodeSlutt = utbetaling.periode.getLastDate(),
             beregning = Beregning.Forhandsgodkjent(
                 antallManedsverk = antallManedsverk,
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
                 deltakelser = deltakelser,
             ),
-            betalingsinformasjon = krav.betalingsinformasjon,
+            betalingsinformasjon = utbetaling.betalingsinformasjon,
         )
     }
 
-    is RefusjonKravBeregningFri -> ArrFlateRefusjonKrav(
-        id = krav.id,
-        status = krav.status,
-        fristForGodkjenning = krav.fristForGodkjenning,
-        tiltakstype = krav.tiltakstype,
-        gjennomforing = krav.gjennomforing,
-        arrangor = krav.arrangor,
-        periodeStart = krav.periode.start,
-        periodeSlutt = krav.periode.getLastDate(),
+    is UtbetalingBeregningFri -> ArrFlateUtbetaling(
+        id = utbetaling.id,
+        status = utbetaling.status,
+        fristForGodkjenning = utbetaling.fristForGodkjenning,
+        tiltakstype = utbetaling.tiltakstype,
+        gjennomforing = utbetaling.gjennomforing,
+        arrangor = utbetaling.arrangor,
+        periodeStart = utbetaling.periode.start,
+        periodeSlutt = utbetaling.periode.getLastDate(),
         beregning = Beregning.Fri(
             belop = beregning.output.belop,
             digest = beregning.getDigest(),
         ),
-        betalingsinformasjon = krav.betalingsinformasjon,
+        betalingsinformasjon = utbetaling.betalingsinformasjon,
     )
 }
 
 private suspend fun getPersoner(
     pdl: HentAdressebeskyttetPersonBolkPdlQuery,
     deltakere: List<DeltakerDto>,
-): Map<NorskIdent, RefusjonKravDeltakelse.Person> {
+): Map<NorskIdent, UtbetalingDeltakelse.Person> {
     val identer = deltakere
         .mapNotNull { deltaker -> deltaker.norskIdent?.value?.let { PdlIdent(it) } }
         .toNonEmptySetOrNull()
@@ -411,20 +411,20 @@ private suspend fun getPersoner(
         .map {
             buildMap {
                 it.entries.forEach { (ident, person) ->
-                    val refusjonskravPerson = toRefusjonskravPerson(person)
-                    put(NorskIdent(ident.value), refusjonskravPerson)
+                    val utbetalingPerson = toUtbetalingPerson(person)
+                    put(NorskIdent(ident.value), utbetalingPerson)
                 }
             }
         }
         .getOrElse {
             throw StatusException(
                 status = HttpStatusCode.InternalServerError,
-                detail = "Klarte ikke hente informasjon om deltakere i refusjonskravet.",
+                detail = "Klarte ikke hente informasjon om deltakere i utbetalingen",
             )
         }
 }
 
-private fun toRefusjonskravPerson(person: HentPersonBolkResponse.Person): RefusjonKravDeltakelse.Person {
+private fun toUtbetalingPerson(person: HentPersonBolkResponse.Person): UtbetalingDeltakelse.Person {
     val gradering = person.adressebeskyttelse.firstOrNull()?.gradering ?: PdlGradering.UGRADERT
     return when (gradering) {
         PdlGradering.UGRADERT -> {
@@ -433,14 +433,14 @@ private fun toRefusjonskravPerson(person: HentPersonBolkResponse.Person): Refusj
                 listOf(navn.etternavn, fornavnOgMellomnavn).joinToString(", ")
             }
             val foedselsdato = person.foedselsdato.first()
-            RefusjonKravDeltakelse.Person(
+            UtbetalingDeltakelse.Person(
                 navn = navn,
                 fodselsaar = foedselsdato.foedselsaar,
                 fodselsdato = foedselsdato.foedselsdato,
             )
         }
 
-        else -> RefusjonKravDeltakelse.Person(
+        else -> UtbetalingDeltakelse.Person(
             navn = "Adressebeskyttet",
             fodselsaar = null,
             fodselsdato = null,
@@ -449,7 +449,7 @@ private fun toRefusjonskravPerson(person: HentPersonBolkResponse.Person): Refusj
 }
 
 @Serializable
-data class GodkjennRefusjonskrav(
+data class GodkjennUtbetaling(
     val betalingsinformasjon: Betalingsinformasjon,
     val digest: String,
 ) {

@@ -7,7 +7,7 @@ export default function IngenTilgang() {
       <PageHeader title="Mangler tilgang" />
       <VStack align="start" gap="4">
         <Alert variant="warning">
-          Du mangler tilgang til refusjonsløsningen. Tilgang delegeres i Altinn som en
+          Du mangler tilgang til utbetalingsløsningen. Tilgang delegeres i Altinn som en
           enkeltrettighet av din arbeidsgiver.
           <br />
           Det er enkeltrettigheten <b>Be om utbetaling - Nav Arbeidsmarkedstiltak</b> du må få via

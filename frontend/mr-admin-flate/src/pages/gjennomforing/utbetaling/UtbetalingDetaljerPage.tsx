@@ -1,4 +1,4 @@
-import { Button, VStack } from "@navikt/ds-react";
+import { VStack } from "@navikt/ds-react";
 import { Header } from "@/components/detaljside/Header";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
@@ -39,13 +39,7 @@ export function UtbetalingDetaljerPage() {
         <WhitePaddedBox>
           <VStack>
             <div>Utbetaling detaljer side</div>
-            {utbetaling.type === "UTBETALING_TIL_GODKJENNING" && (
-              <>
-                <div>utbetalingen er ikke godkjent ennå</div>
-                <Button>Godkjenn</Button>
-              </>
-            )}
-            <div>{utbetaling.krav.id}</div>
+            <div>{utbetaling.id}</div>
             <div>Not implemented</div>
           </VStack>
         </WhitePaddedBox>

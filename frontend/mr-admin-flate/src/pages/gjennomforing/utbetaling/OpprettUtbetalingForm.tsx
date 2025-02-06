@@ -1,6 +1,6 @@
 import {
   GjennomforingDto,
-  OpprettManuellUtbetalingkravRequest,
+  OpprettManuellUtbetalingRequest,
   ProblemDetail,
 } from "@mr/api-client-v2";
 import { Button, Heading, HStack, Textarea, TextField, VStack } from "@navikt/ds-react";
@@ -11,8 +11,8 @@ import { FormGroup } from "../../../components/skjema/FormGroup";
 import { TwoColumnGrid } from "../../../layouts/TwoColumGrid";
 import { addYear } from "../../../utils/Utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useManueltUtbetalingskrav } from "../../../api/utbetaling/useOpprettManueltUtbetalingskrav";
 import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { useManuellUtbetaling } from "@/api/utbetaling/useOpprettManuellUtbetaling";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -67,7 +67,7 @@ export function OpprettUtbetalingForm({ gjennomforing }: Props) {
 
   const { register, formState, handleSubmit, setError } = form;
 
-  const mutation = useManueltUtbetalingskrav(window.crypto.randomUUID());
+  const mutation = useManuellUtbetaling(window.crypto.randomUUID());
 
   function postData(data: InferredOpprettUtbetalingFormSchema) {
     mutation.mutate(
@@ -80,7 +80,7 @@ export function OpprettUtbetalingForm({ gjennomforing }: Props) {
           if (isValidationError(error)) {
             error.errors.forEach((error) => {
               const name = jsonPointerToFieldPath(error.pointer) as keyof Omit<
-                OpprettManuellUtbetalingkravRequest,
+                OpprettManuellUtbetalingRequest,
                 "gjennomforingId"
               >;
               setError(name, { type: "custom", message: error.detail });

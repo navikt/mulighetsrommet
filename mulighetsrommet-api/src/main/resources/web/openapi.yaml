@@ -1939,7 +1939,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Utbetaling"
+                  $ref: "#/components/schemas/UtbetalingKompakt"
 
   /api/v1/intern/utbetaling/{id}:
     parameters:
@@ -1954,7 +1954,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Utbetaling"
+                $ref: "#/components/schemas/UtbetalingKompakt"
 
   /api/v1/intern/utbetaling/{id}/tilsagn:
     parameters:
@@ -1962,10 +1962,10 @@ paths:
     get:
       tags:
         - Utbetaling
-      operationId: getTilsagnTilKrav
+      operationId: getTilsagnTilUtbetaling
       responses:
         200:
-          description: Tilsagn til refusjonskrav
+          description: Tilsagn til utbetaling
           content:
             application/json:
               schema:
@@ -2001,18 +2001,18 @@ paths:
               schema:
                 type: string
 
-  /api/v1/intern/utbetaling/{id}/opprett-utbetalingskrav:
+  /api/v1/intern/utbetaling/{id}/opprett-utbetaling:
     parameters:
       - $ref: "#/components/parameters/ID"
     post:
       tags:
         - Utbetaling
-      operationId: opprettManuellUtbetalingKrav
+      operationId: opprettManuellUtbetaling
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/OpprettManuellUtbetalingkravRequest"
+              $ref: "#/components/schemas/OpprettManuellUtbetalingRequest"
       responses:
         200:
           description: OK
@@ -2023,7 +2023,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ValidationError"
         500:
-          description: "Kunne ikke opprette manuelt utbetalingskrav"
+          description: "Kunne ikke opprette manuell utbetaling"
           content:
             application/json:
               schema:
@@ -2171,22 +2171,22 @@ paths:
                 items:
                   $ref: "#/components/schemas/AvtaltSats"
 
-  /api/v1/intern/arrangorflate/arrangor/{orgnr}/refusjonskrav:
+  /api/v1/intern/arrangorflate/arrangor/{orgnr}/utbetaling:
     get:
       tags:
         - Arrangorflate
       parameters:
         - $ref: "#/components/parameters/OrgnrParam"
-      operationId: getAllRefusjonKrav
+      operationId: getAllUtbetaling
       responses:
         200:
-          description: Hent refusjonskrav til arrangør
+          description: Hent utbetaling til arrangør
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ArrFlateRefusjonKravKompakt"
+                  $ref: "#/components/schemas/ArrFlateUtbetalingKompakt"
 
   /api/v1/intern/arrangorflate/arrangor/{orgnr}/tilsagn:
     get:
@@ -2205,16 +2205,16 @@ paths:
                 items:
                   $ref: "#/components/schemas/ArrangorflateTilsagn"
 
-  /api/v1/intern/arrangorflate/refusjonskrav/{id}/tilsagn:
+  /api/v1/intern/arrangorflate/utbetaling/{id}/tilsagn:
     get:
       tags:
         - Arrangorflate
-      operationId: getArrangorflateTilsagnTilRefusjon
+      operationId: getArrangorflateTilsagnTilUtbetaling
       parameters:
         - $ref: "#/components/parameters/ID"
       responses:
         200:
-          description: Hent tilsagn til refusjonskrav
+          description: Hent tilsagn til utbetaling
           content:
             application/json:
               schema:
@@ -2222,7 +2222,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/ArrangorflateTilsagn"
 
-  /api/v1/intern/arrangorflate/refusjonskrav/{id}/relevante-forslag:
+  /api/v1/intern/arrangorflate/utbetaling/{id}/relevante-forslag:
     get:
       tags:
         - Arrangorflate
@@ -2231,7 +2231,7 @@ paths:
         - $ref: "#/components/parameters/ID"
       responses:
         200:
-          description: Hent relevante deltakerforslag til deltakere på refusjonskrav
+          description: Hent relevante deltakerforslag til deltakere på utbetaling
           content:
             application/json:
               schema:
@@ -2254,37 +2254,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/ArrangorflateTilsagn"
 
-  /api/v1/intern/arrangorflate/refusjonskrav/{id}:
+  /api/v1/intern/arrangorflate/utbetaling/{id}:
     get:
       parameters:
         - $ref: "#/components/parameters/ID"
       tags:
         - Arrangorflate
-      operationId: getRefusjonkrav
+      operationId: getArrFlateUtbetaling
       responses:
         200:
-          description: Hent refusjonskrav til arrangør
+          description: Hent utbetaling til arrangør
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ArrFlateRefusjonKrav"
+                $ref: "#/components/schemas/ArrFlateUtbetaling"
 
-  /api/v1/intern/arrangorflate/refusjonskrav/{id}/godkjenn-refusjon:
+  /api/v1/intern/arrangorflate/utbetaling/{id}/godkjenn-utbetaling:
     post:
       parameters:
         - $ref: "#/components/parameters/ID"
       tags:
         - Arrangorflate
-      operationId: godkjennRefusjonskrav
+      operationId: godkjennUtbetaling
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GodkjennRefusjonskrav"
+              $ref: "#/components/schemas/GodkjennUtbetaling"
         required: true
       responses:
         200:
-          description: Godkjenn et refusjonskrav
+          description: Godkjenn et utbetaling
         400:
           description: Respons med valideringsfeil
           content:
@@ -2292,16 +2292,16 @@ paths:
               schema:
                 $ref: "#/components/schemas/ValidationError"
 
-  /api/v1/intern/arrangorflate/refusjonskrav/{id}/kvittering:
+  /api/v1/intern/arrangorflate/utbetaling/{id}/kvittering:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
       tags:
         - Arrangorflate
-      operationId: getRefusjonkravKvittering
+      operationId: getUtbetalingKvittering
       responses:
         200:
-          description: Generer PDF kvittering for refusjonskrav
+          description: Generer PDF kvittering for utbetaling
           content:
             application/pdf:
               schema:
@@ -5665,45 +5665,46 @@ components:
         - pris
         - valuta
 
-    RefusjonskravStatus:
+    UtbetalingStatus:
       type: string
       enum:
         - NARMER_SEG_FRIST
         - KLAR_FOR_GODKJENNING
         - GODKJENT_AV_ARRANGOR
 
-    RefusjonKravKompakt:
+    UtbetalingKompakt:
       type: object
       properties:
         id:
           type: string
           format: uuid
         status:
-          $ref: "#/components/schemas/RefusjonskravStatus"
+          $ref: "#/components/schemas/UtbetalingStatus"
         beregning:
-          $ref: "#/components/schemas/RefusjonKravKompaktBeregning"
-      required:
-        - id
-        - status
-        - beregning
+          $ref: "#/components/schemas/UtbetalingKompaktBeregning"
+        delutbetalinger:
+          type: array
+          items:
+            $ref: "#/components/schemas/DelutbetalingDto"
+      required: [id, status, beregning, delutbetalinger]
 
-    ArrFlateRefusjonKravKompakt:
+    ArrFlateUtbetalingKompakt:
       type: object
       properties:
         id:
           type: string
           format: uuid
         status:
-          $ref: "#/components/schemas/RefusjonskravStatus"
+          $ref: "#/components/schemas/UtbetalingStatus"
         fristForGodkjenning:
           type: string
           format: date-time
         tiltakstype:
-          $ref: "#/components/schemas/RefusjonKravTiltakstype"
+          $ref: "#/components/schemas/UtbetalingTiltakstype"
         gjennomforing:
-          $ref: "#/components/schemas/RefusjonKravGjennomforing"
+          $ref: "#/components/schemas/UtbetalingGjennomforing"
         arrangor:
-          $ref: "#/components/schemas/RefusjonKravArrangor"
+          $ref: "#/components/schemas/UtbetalingArrangor"
         periodeStart:
           type: string
           format: date
@@ -5723,7 +5724,7 @@ components:
         - periodeSlutt
         - belop
 
-    RefusjonKravKompaktBeregning:
+    UtbetalingKompaktBeregning:
       type: object
       properties:
         periodeStart:
@@ -5739,7 +5740,7 @@ components:
         - periodeSlutt
         - belop
 
-    ArrFlateRefusjonKrav:
+    ArrFlateUtbetaling:
       type: object
       properties:
         type:
@@ -5748,16 +5749,16 @@ components:
           type: string
           format: uuid
         status:
-          $ref: "#/components/schemas/RefusjonskravStatus"
+          $ref: "#/components/schemas/UtbetalingStatus"
         fristForGodkjenning:
           type: string
           format: date-time
         tiltakstype:
-          $ref: "#/components/schemas/RefusjonKravTiltakstype"
+          $ref: "#/components/schemas/UtbetalingTiltakstype"
         gjennomforing:
-          $ref: "#/components/schemas/RefusjonKravGjennomforing"
+          $ref: "#/components/schemas/UtbetalingGjennomforing"
         arrangor:
-          $ref: "#/components/schemas/RefusjonKravArrangor"
+          $ref: "#/components/schemas/UtbetalingArrangor"
         beregning:
           $ref: "#/components/schemas/ArrFlateBeregning"
         betalingsinformasjon:
@@ -5781,7 +5782,7 @@ components:
         - periodeStart
         - periodeSlutt
 
-    RefusjonKravTiltakstype:
+    UtbetalingTiltakstype:
       type: object
       properties:
         navn:
@@ -5789,7 +5790,7 @@ components:
       required:
         - navn
 
-    RefusjonKravGjennomforing:
+    UtbetalingGjennomforing:
       type: object
       properties:
         id:
@@ -5801,7 +5802,7 @@ components:
         - id
         - navn
 
-    RefusjonKravArrangor:
+    UtbetalingArrangor:
       type: object
       properties:
         id:
@@ -5831,7 +5832,7 @@ components:
         deltakelser:
           type: array
           items:
-            $ref: "#/components/schemas/RefusjonKravDeltakelse"
+            $ref: "#/components/schemas/UtbetalingDeltakelse"
         type:
           const: FORHANDSGODKJENT
       required:
@@ -5861,7 +5862,7 @@ components:
         - $ref: "#/components/schemas/ArrFlateBeregningForhandsgodkjent"
         - $ref: "#/components/schemas/ArrFlateBeregningFri"
 
-    RefusjonKravDeltakelse:
+    UtbetalingDeltakelse:
       type: object
       properties:
         id:
@@ -5884,7 +5885,7 @@ components:
         manedsverk:
           type: number
         person:
-          $ref: "#/components/schemas/RefusjonKravDeltakelsePerson"
+          $ref: "#/components/schemas/UtbetalingDeltakelsePerson"
         veileder:
           type: string
       required:
@@ -5896,7 +5897,7 @@ components:
         - manedsverk
         - person
 
-    RefusjonKravDeltakelsePerson:
+    UtbetalingDeltakelsePerson:
       type: object
       properties:
         navn:
@@ -6039,7 +6040,7 @@ components:
         kid:
           type: string
 
-    GodkjennRefusjonskrav:
+    GodkjennUtbetaling:
       type: object
       properties:
         digest:
@@ -6088,20 +6089,20 @@ components:
           items:
             type: string
 
-    TilsagnUtbetaling:
+    DelutbetalingDto:
       oneOf:
-        - $ref: "#/components/schemas/TilsagnUtbetalingGodkjent"
-        - $ref: "#/components/schemas/TilsagnUtbetalingTilGodkjenning"
+        - $ref: "#/components/schemas/DelutbetalingGodkjent"
+        - $ref: "#/components/schemas/DelutbetalingTilGodkjenning"
 
-    TilsagnUtbetalingGodkjent:
+    DelutbetalingGodkjent:
       type: object
       properties:
         type:
-          const: TILSAGN_UTBETALING_GODKJENT
+          const: DELUTBETALING_GODKJENT
         tilsagnId:
           type: string
           format: uuid
-        refusjonskravId:
+        utbetalingId:
           type: string
           format: uuid
         belop:
@@ -6113,20 +6114,20 @@ components:
       required:
         - type
         - tilsagnId
-        - refusjonskravId
+        - utbetalingId
         - belop
         - opprettetAv
         - besluttetAv
 
-    TilsagnUtbetalingTilGodkjenning:
+    DelutbetalingTilGodkjenning:
       type: object
       properties:
         type:
-          const: TILSAGN_UTBETALING_TIL_GODKJENNING
+          const: DELUTBETALING_TIL_GODKJENNING
         tilsagnId:
           type: string
           format: uuid
-        refusjonskravId:
+        utbetalingId:
           type: string
           format: uuid
         belop:
@@ -6136,46 +6137,9 @@ components:
       required:
         - type
         - tilsagnId
-        - refusjonskravId
+        - utbetalingId
         - belop
         - opprettetAv
-
-    Utbetaling:
-      oneOf:
-        - $ref: "#/components/schemas/UtbetalingGodkjent"
-        - $ref: "#/components/schemas/UtbetalingTilGodkjenning"
-
-    UtbetalingGodkjent:
-      type: object
-      properties:
-        type:
-          const: UTBETALING_GODKJENT
-        krav:
-          $ref: "#/components/schemas/RefusjonKravKompakt"
-        utbetalinger:
-          type: array
-          items:
-            $ref: "#/components/schemas/TilsagnUtbetalingGodkjent"
-      required:
-        - type
-        - krav
-        - utbetalinger
-
-    UtbetalingTilGodkjenning:
-      type: object
-      properties:
-        type:
-          const: UTBETALING_TIL_GODKJENNING
-        krav:
-          $ref: "#/components/schemas/RefusjonKravKompakt"
-        utbetalinger:
-          type: array
-          items:
-            $ref: "#/components/schemas/TilsagnUtbetaling"
-      required:
-        - type
-        - krav
-        - utbetalinger
 
     UtbetalingRequest:
       type: object
@@ -6196,14 +6160,14 @@ components:
       required:
         - kostnadsfordeling
 
-    OpprettManuellUtbetalingkravRequest:
+    OpprettManuellUtbetalingRequest:
       type: object
       properties:
         gjennomforingId:
           type: string
           format: UUID
         periode:
-          $ref: "#/components/schemas/ManuellUtbetalingKravPeriode"
+          $ref: "#/components/schemas/ManuellUtbetalingPeriode"
         beskrivelse:
           type: string
         kontonummer:
@@ -6220,7 +6184,7 @@ components:
         - kontonummer
         - belop
 
-    ManuellUtbetalingKravPeriode:
+    ManuellUtbetalingPeriode:
       type: object
       properties:
         start:

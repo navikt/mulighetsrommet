@@ -10,12 +10,12 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkQueries
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingQueries
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattQueries
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetQueries
-import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslagQueries
-import no.nav.mulighetsrommet.api.refusjon.db.DeltakerQueries
-import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravQueries
-import no.nav.mulighetsrommet.api.refusjon.db.UtbetalingQueries
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeQueries
+import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslagQueries
+import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerQueries
+import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingQueries
+import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingQueries
 import no.nav.mulighetsrommet.api.veilederflate.VeilederJoyrideQueries
 import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakQueries
 import no.nav.mulighetsrommet.database.Database
@@ -36,14 +36,14 @@ class QueryContext(val session: Session) {
         val gjennomforing = GjennomforingQueries(session)
         val deltaker = DeltakerQueries(session)
         val deltakerForslag = DeltakerForslagQueries(session)
-        val refusjonskrav = RefusjonskravQueries(session)
+        val utbetaling = UtbetalingQueries(session)
         val utdanning = UtdanningQueries(session)
         val dvh = DatavarehusTiltakQueries(session)
         val altinnRettigheter = AltinnRettigheterQueries(session)
         val tilsagn = TilsagnQueries(session)
         val notifications = NotificationQueries(session)
         val endringshistorikk = EndringshistorikkQueries(session)
-        val utbetaling = UtbetalingQueries(session)
+        val delutbetaling = DelutbetalingQueries(session)
 
         val veilderTiltak = VeilederflateTiltakQueries(session)
         val veilederJoyride = VeilederJoyrideQueries(session)
