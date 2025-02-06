@@ -80,7 +80,11 @@ export function AdministratorHeader() {
               onClick={() => notifikasjonerLinkRef.current?.click()}
               as="span"
             >
-              <Link ref={notifikasjonerLinkRef} to="/notifikasjoner" className={menylenke}>
+              <Link
+                ref={notifikasjonerLinkRef}
+                to="/arbeidsbenk/notifikasjoner"
+                className={menylenke}
+              >
                 Notifikasjoner
               </Link>
             </Dropdown.Menu.GroupedList.Item>
