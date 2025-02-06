@@ -392,7 +392,7 @@ suspend fun toRefusjonskrav(
         periodeSlutt = krav.periode.getLastDate(),
         beregning = Beregning.Fri(
             belop = beregning.output.belop,
-            digest = beregning.getDigest()
+            digest = beregning.getDigest(),
         ),
         betalingsinformasjon = krav.betalingsinformasjon,
     )
