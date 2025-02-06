@@ -5704,8 +5704,14 @@ components:
           $ref: "#/components/schemas/RefusjonKravGjennomforing"
         arrangor:
           $ref: "#/components/schemas/RefusjonKravArrangor"
-        beregning:
-          $ref: "#/components/schemas/RefusjonKravKompaktBeregning"
+        periodeStart:
+          type: string
+          format: date
+        periodeSlutt:
+          type: string
+          format: date
+        belop:
+          type: number
       required:
         - id
         - status
@@ -5713,7 +5719,9 @@ components:
         - tiltakstype
         - gjennomforing
         - arrangor
-        - beregning
+        - periodeStart
+        - periodeSlutt
+        - belop
 
     RefusjonKravKompaktBeregning:
       type: object
