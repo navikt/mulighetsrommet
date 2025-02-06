@@ -1,9 +1,4 @@
-import {
-  NavEnhetStatus,
-  NavEnhetType,
-  RefusjonKravKompakt,
-  RefusjonskravStatus,
-} from "@mr/api-client-v2";
+import { RefusjonKravKompakt, RefusjonskravStatus } from "@mr/api-client-v2";
 import { http, HttpResponse, PathParams } from "msw";
 
 const mockRefusjonskravKompakt: RefusjonKravKompakt[] = [
@@ -15,7 +10,6 @@ const mockRefusjonskravKompakt: RefusjonKravKompakt[] = [
     },
     id: "10e393b0-1b7c-4c68-9a42-b541b2f114b8",
     status: RefusjonskravStatus.GODKJENT_AV_ARRANGOR,
-    kostnadsteder: [],
   },
   {
     beregning: {
@@ -24,19 +18,9 @@ const mockRefusjonskravKompakt: RefusjonKravKompakt[] = [
       belop: 89000,
     },
     id: "73e393b0-1b7c-4c68-9a42-b541b2f114b8",
-    kostnadsteder: [],
     status: RefusjonskravStatus.KLAR_FOR_GODKJENNING,
   },
   {
-    kostnadsteder: [
-      {
-        enhetsnummer: "0234",
-        navn: "Nav Oslo",
-        status: NavEnhetStatus.AKTIV,
-        overordnetEnhet: null,
-        type: NavEnhetType.FYLKE,
-      },
-    ],
     beregning: {
       periodeStart: "2024-10-01",
       periodeSlutt: "2024-10-31",

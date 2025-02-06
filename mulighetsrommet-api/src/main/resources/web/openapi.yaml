@@ -2001,6 +2001,34 @@ paths:
               schema:
                 type: string
 
+  /api/v1/intern/utbetaling/{id}/opprett-utbetalingskrav:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    post:
+      tags:
+        - Utbetaling
+      operationId: opprettManuellUtbetalingKrav
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpprettManuellUtbetalingkravRequest"
+      responses:
+        200:
+          description: OK
+        400:
+          description: Respons med valideringsfeil
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        500:
+          description: "Kunne ikke opprette manuelt utbetalingskrav"
+          content:
+            application/json:
+              schema:
+                type: string
+
   /api/v1/intern/tilsagn/beregn:
     post:
       tags:
@@ -5654,15 +5682,10 @@ components:
           $ref: "#/components/schemas/RefusjonskravStatus"
         beregning:
           $ref: "#/components/schemas/RefusjonKravKompaktBeregning"
-        kostnadsteder:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavEnhet"
       required:
         - id
         - status
         - beregning
-        - kostnadsteder
 
     ArrFlateRefusjonKravKompakt:
       type: object
@@ -6141,3 +6164,37 @@ components:
               - belop
       required:
         - kostnadsfordeling
+
+    OpprettManuellUtbetalingkravRequest:
+      type: object
+      properties:
+        gjennomforingId:
+          type: string
+          format: UUID
+        periode:
+          $ref: "#/components/schemas/ManuellUtbetalingKravPeriode"
+        beskrivelse:
+          type: string
+        kontonummer:
+          type: string
+        kidNummer:
+          type: string
+        belop:
+          type: string
+      required:
+        - gjennomforingId
+        - periodestart
+        - periodeslutt
+        - beskrivelse
+        - kontonummer
+        - belop
+
+    ManuellUtbetalingKravPeriode:
+      type: object
+      properties:
+        start:
+          type: string
+          format: date
+        slutt:
+          type: string
+          format: date

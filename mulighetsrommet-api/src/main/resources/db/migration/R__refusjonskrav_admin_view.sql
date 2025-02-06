@@ -4,6 +4,7 @@ drop view if exists refusjonskrav_admin_dto_view;
 
 create view refusjonskrav_admin_dto_view as
 select refusjonskrav.id,
+       refusjonskrav.beregningsmodell,
        case
            when godkjent_av_arrangor_tidspunkt is not null then 'GODKJENT_AV_ARRANGOR'
            else 'KLAR_FOR_GODKJENNING'
@@ -52,6 +53,7 @@ with deltakelse_perioder as (select refusjonskrav_id,
                          from refusjonskrav_deltakelse_manedsverk
                          group by refusjonskrav_id)
 select krav.*,
+       beregning.refusjonskrav_id,
        beregning.belop,
        beregning.sats,
        lower(beregning.periode)                           as beregning_periode_start,
@@ -62,6 +64,6 @@ from refusjonskrav_admin_dto_view krav
          join
      refusjonskrav_beregning_aft beregning on krav.id = beregning.refusjonskrav_id
          left join
-     krav_perioder on krav.id = krav_perioder.refusjonskrav_id
+     krav_perioder on beregning.refusjonskrav_id = krav_perioder.refusjonskrav_id
          left join
-     krav_manedsverk on krav.id = krav_manedsverk.refusjonskrav_id;
+     krav_manedsverk on beregning.refusjonskrav_id = krav_manedsverk.refusjonskrav_id;

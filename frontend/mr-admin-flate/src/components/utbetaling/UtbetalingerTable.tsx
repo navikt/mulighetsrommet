@@ -13,30 +13,12 @@ interface Props {
 export function UtbetalingerTable({ utbetalinger }: Props) {
   const { gjennomforingId } = useParams();
 
-  function formaterKostnadsteder(
-    kostnadsteder: {
-      navn: string;
-      enhetsnummer: string;
-    }[],
-  ) {
-    const liste = [...kostnadsteder];
-    if (!liste) return "";
-
-    const forsteEnhet = liste.shift();
-    if (!forsteEnhet) return "";
-
-    return `${forsteEnhet?.navn} ${liste.length > 0 ? `+ ${liste.length}` : ""}`;
-  }
-
   return (
     <Table>
       <Table.Header>
         <Table.Row>
           <TableColumnHeader sortKey="periodeStart" sortable>
             Periode
-          </TableColumnHeader>
-          <TableColumnHeader sortKey="navnForKostnadssted" sortable>
-            Kostnadssted
           </TableColumnHeader>
           <TableColumnHeader sortKey="belop" sortable align="right">
             Beløp
@@ -54,16 +36,6 @@ export function UtbetalingerTable({ utbetalinger }: Props) {
           return (
             <Table.Row key={id}>
               <Table.DataCell>{`${formaterDato(beregning.periodeStart)}-${formaterDato(beregning.periodeSlutt)}`}</Table.DataCell>
-              <Table.DataCell
-                aria-label={`Kostnadsteder: ${krav.kostnadsteder
-                  .map((enhet) => enhet?.navn)
-                  .join(", ")}`}
-                title={`Kostnadsteder: ${krav.kostnadsteder
-                  .map((enhet) => enhet?.navn)
-                  .join(", ")}`}
-              >
-                {formaterKostnadsteder(krav.kostnadsteder)}
-              </Table.DataCell>
               <Table.DataCell align="right">{formaterNOK(beregning.belop)}</Table.DataCell>
               <Table.DataCell align="right">
                 <RefusjonskravStatusTag status={status} />

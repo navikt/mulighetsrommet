@@ -12,7 +12,10 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.refusjon.model.*
+import no.nav.mulighetsrommet.api.refusjon.model.DeltakelseManedsverk
+import no.nav.mulighetsrommet.api.refusjon.model.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.refusjon.model.DeltakelsePerioder
+import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.Kid
@@ -230,7 +233,7 @@ class RefusjonServiceTest : FunSpec({
         }
 
         test("genererer ikke refusjonskrav hvis det finnes et med overlappende periode") {
-            val domain = MulighetsrommetTestDomain(
+            MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltaker(

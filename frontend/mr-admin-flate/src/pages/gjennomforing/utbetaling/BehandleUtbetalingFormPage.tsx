@@ -1,4 +1,14 @@
 import { useOpprettUtbetaling } from "@/api/utbetaling/useOpprettUtbetaling";
+import { Header } from "@/components/detaljside/Header";
+import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
+import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
+import { KostnadsfordelingSteg } from "@/components/utbetaling/KostnadsfordelingSteg";
+import {
+  InferredUtbetalingSchema,
+  UtbetalingSchema,
+} from "@/components/utbetaling/UtbetalingSchema";
+import { ContentBox } from "@/layouts/ContentBox";
+import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ProblemDetail,
@@ -9,20 +19,11 @@ import {
   FieldError,
 } from "@mr/api-client-v2";
 import { Button, Heading, HStack, Stepper, VStack } from "@navikt/ds-react";
+import { useState } from "react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useLoaderData, useNavigate } from "react-router";
 import { behandleUtbetalingFormPageLoader } from "./behandleUtbetalingFormPageLoader";
-import { ContentBox } from "@/layouts/ContentBox";
-import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { Header } from "@/components/detaljside/Header";
-import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
-import {
-  InferredUtbetalingSchema,
-  UtbetalingSchema,
-} from "@/components/utbetaling/UtbetalingSchema";
-import { KostnadsfordelingSteg } from "@/components/utbetaling/KostnadsfordelingSteg";
-import { useState } from "react";
+import { BehandleUtbetalingFormSummaryPage } from "./BehandleUtbetalingFormSummaryPage";
 import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 
 // TODO: Potensielt flyttes til backend
@@ -44,10 +45,9 @@ function defaultValues(
 
 export function BehandleUtbetalingFormPage() {
   const { gjennomforing, krav, tilsagn } = useLoaderData<typeof behandleUtbetalingFormPageLoader>();
-
   const mutation = useOpprettUtbetaling(krav.id);
   const navigate = useNavigate();
-  const [activeStep, setActiveStep] = useState<number>(2);
+  const [activeStep, setActiveStep] = useState<number>(1);
 
   const form = useForm<InferredUtbetalingSchema>({
     resolver: zodResolver(UtbetalingSchema),
@@ -112,19 +112,18 @@ export function BehandleUtbetalingFormPage() {
                   onStepChange={setActiveStep}
                   orientation="horizontal"
                 >
-                  <Stepper.Step completed>Utbetalingsinfo</Stepper.Step>
                   <Stepper.Step>Kostnadsfordeling</Stepper.Step>
                   <Stepper.Step>Oppsummering</Stepper.Step>
                 </Stepper>
-                {activeStep === 1 && <div>Utbetalingsinfo - not implemented</div>}
-                {activeStep === 2 && (
+
+                {activeStep === 1 && (
                   <KostnadsfordelingSteg
                     gjennomforing={gjennomforing}
                     krav={krav}
                     tilsagn={tilsagn}
                   />
                 )}
-                {activeStep === 3 && <div>oppsummering - not implemented</div>}
+                {activeStep === 2 && <BehandleUtbetalingFormSummaryPage />}
                 <HStack justify="space-between">
                   {activeStep > 1 ? (
                     <Button

@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravAft
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravAft.Beregning
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.model.RefusjonKravDeltakelse
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
@@ -26,6 +27,7 @@ import no.nav.mulighetsrommet.api.refusjon.HentPersonBolkResponse
 import no.nav.mulighetsrommet.api.refusjon.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.refusjon.model.DeltakerDto
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningAft
+import no.nav.mulighetsrommet.api.refusjon.model.RefusjonKravBeregningFri
 import no.nav.mulighetsrommet.api.refusjon.model.RefusjonskravDto
 import no.nav.mulighetsrommet.api.refusjon.task.JournalforRefusjonskrav
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -190,7 +192,7 @@ fun Route.arrangorflateRoutes() {
 
                 val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
                     gjennomforingId = krav.gjennomforing.id,
-                    periode = krav.beregning.input.periode,
+                    periode = krav.periode,
                 )
                 val refusjonsKravAft = toRefusjonskrav(db, pdl, krav)
                 val pdfContent = pdfClient.getRefusjonKvittering(refusjonsKravAft, tilsagn)
@@ -214,7 +216,7 @@ fun Route.arrangorflateRoutes() {
 
                 val tilsagn = tilsagnService.getArrangorflateTilsagnTilRefusjon(
                     gjennomforingId = krav.gjennomforing.id,
-                    periode = krav.beregning.input.periode,
+                    periode = krav.periode,
                 )
 
                 call.respond(tilsagn)
@@ -241,6 +243,7 @@ fun DeltakerForslag.relevantForDeltakelse(
     refusjonskrav: RefusjonskravDto,
 ): Boolean = when (refusjonskrav.beregning) {
     is RefusjonKravBeregningAft -> this.relevantForDeltakelse(refusjonskrav.beregning)
+    is RefusjonKravBeregningFri -> false
 }
 
 fun DeltakerForslag.relevantForDeltakelse(
@@ -367,7 +370,7 @@ suspend fun toRefusjonskrav(
             gjennomforing = krav.gjennomforing,
             arrangor = krav.arrangor,
             deltakelser = deltakelser,
-            beregning = ArrFlateRefusjonKravAft.Beregning(
+            beregning = Beregning(
                 periodeStart = beregning.input.periode.start,
                 periodeSlutt = beregning.input.periode.getLastDate(),
                 antallManedsverk = antallManedsverk,
@@ -377,6 +380,11 @@ suspend fun toRefusjonskrav(
             betalingsinformasjon = krav.betalingsinformasjon,
         )
     }
+
+    is RefusjonKravBeregningFri -> throw StatusException(
+        status = HttpStatusCode.NotImplemented,
+        detail = "Visning av frimodell er ikke implementert",
+    )
 }
 
 private suspend fun getPersoner(

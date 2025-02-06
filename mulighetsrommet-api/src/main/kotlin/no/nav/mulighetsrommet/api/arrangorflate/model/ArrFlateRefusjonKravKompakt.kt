@@ -12,25 +12,17 @@ import java.util.*
 
 @Serializable
 data class ArrFlateRefusjonKravKompakt(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
+    @Serializable(with = UUIDSerializer::class) val id: UUID,
     val status: RefusjonskravStatus,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val fristForGodkjenning: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class) val fristForGodkjenning: LocalDateTime,
     val tiltakstype: RefusjonskravDto.Tiltakstype,
     val gjennomforing: RefusjonskravDto.Gjennomforing,
     val arrangor: RefusjonskravDto.Arrangor,
-    val beregning: Beregning,
-) {
-    @Serializable
-    data class Beregning(
-        @Serializable(with = LocalDateSerializer::class)
-        val periodeStart: LocalDate,
-        @Serializable(with = LocalDateSerializer::class)
-        val periodeSlutt: LocalDate,
-        val belop: Int,
-    )
+    @Serializable(with = LocalDateSerializer::class) val periodeStart: LocalDate,
+    @Serializable(with = LocalDateSerializer::class) val periodeSlutt: LocalDate,
+    val belop: Int,
 
+) {
     companion object {
         fun fromRefusjonskravDto(krav: RefusjonskravDto) = ArrFlateRefusjonKravKompakt(
             id = krav.id,
@@ -39,13 +31,9 @@ data class ArrFlateRefusjonKravKompakt(
             tiltakstype = krav.tiltakstype,
             gjennomforing = krav.gjennomforing,
             arrangor = krav.arrangor,
-            beregning = krav.beregning.let {
-                Beregning(
-                    periodeStart = it.input.periode.start,
-                    periodeSlutt = it.input.periode.getLastDate(),
-                    belop = it.output.belop,
-                )
-            },
+            periodeStart = krav.periode.start,
+            periodeSlutt = krav.periode.getLastDate(),
+            belop = krav.beregning.output.belop,
         )
     }
 }
