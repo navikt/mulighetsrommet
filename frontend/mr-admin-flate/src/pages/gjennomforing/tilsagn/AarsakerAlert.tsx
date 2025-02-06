@@ -1,9 +1,16 @@
-import { TilsagnStatusReturnert, TilsagnStatusTilAnnullering } from "@mr/api-client-v2";
 import { Alert, Heading } from "@navikt/ds-react";
 import { formaterDato, tilsagnAarsakTilTekst } from "../../../utils/Utils";
+import {
+  TilsagnAvvisningAarsak,
+  TilsagnTilAnnulleringAarsak,
+  ToTrinnskontroll,
+} from "@mr/api-client-v2";
 
-export function AvvistAlert({ status }: { status: TilsagnStatusReturnert }) {
-  const aarsaker = status?.aarsaker?.map((aarsak) => tilsagnAarsakTilTekst(aarsak)) || [];
+export function AvvistAlert({ godkjennelse }: { godkjennelse: ToTrinnskontroll }) {
+  const aarsaker =
+    godkjennelse.aarsaker?.map((aarsak) =>
+      tilsagnAarsakTilTekst(aarsak as TilsagnAvvisningAarsak | TilsagnTilAnnulleringAarsak),
+    ) || [];
 
   return (
     <Alert variant="warning" size="small" style={{ marginTop: "1rem" }}>
@@ -11,14 +18,14 @@ export function AvvistAlert({ status }: { status: TilsagnStatusReturnert }) {
         Tilsagnet ble returnert
       </Heading>
       <p>
-        {status.returnertAvNavn} {status.returnertAv} returnerte tilsagnet den{" "}
-        {formaterDato(status.endretTidspunkt)} med følgende{" "}
+        {godkjennelse.beslutt?.navn} {godkjennelse.beslutt?.navIdent} returnerte tilsagnet den{" "}
+        {formaterDato(godkjennelse.beslutt?.tidspunkt)} med følgende{" "}
         {aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
         <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker))}</b>
-        {status?.forklaring ? (
+        {godkjennelse.forklaring ? (
           <>
             {" "}
-            med forklaringen: <b>"{status?.forklaring}"</b>
+            med forklaringen: <b>"{godkjennelse.forklaring}"</b>
           </>
         ) : null}
         .
@@ -27,8 +34,11 @@ export function AvvistAlert({ status }: { status: TilsagnStatusReturnert }) {
   );
 }
 
-export function TilAnnulleringAlert({ status }: { status: TilsagnStatusTilAnnullering }) {
-  const aarsaker = status?.aarsaker?.map((aarsak) => tilsagnAarsakTilTekst(aarsak)) || [];
+export function TilAnnulleringAlert({ annullering }: { annullering: ToTrinnskontroll }) {
+  const aarsaker =
+    annullering.aarsaker?.map((aarsak) =>
+      tilsagnAarsakTilTekst(aarsak as TilsagnAvvisningAarsak | TilsagnTilAnnulleringAarsak),
+    ) || [];
 
   return (
     <Alert variant="warning" size="small" style={{ marginTop: "1rem" }}>
@@ -36,14 +46,14 @@ export function TilAnnulleringAlert({ status }: { status: TilsagnStatusTilAnnull
         Tilsagnet annulleres
       </Heading>
       <p>
-        {status.endretAvNavn} {status.endretAv} sendte tilsagnet til annullering den{" "}
-        {formaterDato(status.endretTidspunkt)} med følgende{" "}
+        {annullering.opprett.navn} {annullering.opprett.navIdent} sendte tilsagnet til annullering
+        den {formaterDato(annullering.opprett.tidspunkt)} med følgende{" "}
         {aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
         <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker))}</b>
-        {status?.forklaring ? (
+        {annullering.forklaring ? (
           <>
             {" "}
-            med forklaringen: <b>"{status?.forklaring}"</b>
+            med forklaringen: <b>"{annullering.forklaring}"</b>
           </>
         ) : null}
         .

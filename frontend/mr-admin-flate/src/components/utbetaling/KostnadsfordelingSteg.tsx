@@ -79,7 +79,7 @@ export function KostnadsfordelingSteg({ gjennomforing, krav, tilsagn }: Props) {
               return (
                 <Table.Row
                   key={i}
-                  className={t.status.type !== "GODKJENT" ? "bg-surface-warning-subtle" : ""}
+                  className={t.status !== "GODKJENT" ? "bg-surface-warning-subtle" : ""}
                 >
                   <Table.DataCell>{t.id}</Table.DataCell>
                   <Table.DataCell>{formaterDato(t.periodeStart)}</Table.DataCell>
@@ -88,7 +88,7 @@ export function KostnadsfordelingSteg({ gjennomforing, krav, tilsagn }: Props) {
                   <Table.DataCell>{`${formaterNOK(t.beregning.output.belop)} //TODO: Bruk faktisk gjenstående`}</Table.DataCell>
                   <Table.DataCell>
                     <TextField
-                      disabled={t.status.type !== "GODKJENT"}
+                      disabled={t.status !== "GODKJENT"}
                       type="number"
                       size="small"
                       label=""

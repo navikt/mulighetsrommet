@@ -1,8 +1,10 @@
 import {
+  Besluttelse,
   NavEnhetStatus,
   NavEnhetType,
   TilsagnAvvisningAarsak,
   TilsagnDto,
+  TilsagnStatus,
   TilsagnTilAnnulleringAarsak,
   TilsagnType,
 } from "@mr/api-client-v2";
@@ -28,10 +30,13 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 1,
     periodeStart: "2024-01-05",
     periodeSlutt: "2024-01-06",
-    status: {
-      endretAv: "B123456",
-      type: "TIL_GODKJENNING",
-      endretTidspunkt: "2024-01-01T22:00:00",
+    status: TilsagnStatus.TIL_GODKJENNING,
+    godkjennelse: {
+      opprett: {
+        navIdent: "B123456",
+        navn: "Bertil",
+        tidspunkt: "2024-01-01T22:00:00",
+      },
     },
   },
   {
@@ -53,11 +58,26 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 1,
     periodeStart: "2024-01-03",
     periodeSlutt: "2024-01-04",
-    status: {
-      endretAv: "F123456",
-      endretAvNavn: "Donald Duck",
-      type: "TIL_ANNULLERING",
-      endretTidspunkt: "2024-01-01T22:00:00",
+    status: TilsagnStatus.TIL_ANNULLERING,
+    godkjennelse: {
+      opprett: {
+        navIdent: "F123456",
+        navn: "Franz",
+        tidspunkt: "2024-01-01T22:00:00",
+      },
+      beslutt: {
+        navIdent: "N123456",
+        navn: "Nilz",
+        tidspunkt: "2024-01-01T22:00:00",
+        besluttelse: Besluttelse.GODKJENT,
+      },
+    },
+    annullering: {
+      opprett: {
+        navIdent: "F123456",
+        navn: "Franz",
+        tidspunkt: "2024-01-01T22:00:00",
+      },
       aarsaker: [
         TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
         TilsagnTilAnnulleringAarsak.FEIL_ANNET,
@@ -84,8 +104,19 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 4,
     periodeStart: "2024-01-01",
     periodeSlutt: "2024-01-02",
-    status: {
-      type: "GODKJENT",
+    status: TilsagnStatus.GODKJENT,
+    godkjennelse: {
+      opprett: {
+        navIdent: "F123456",
+        navn: "Franz",
+        tidspunkt: "2024-01-01T22:00:00",
+      },
+      beslutt: {
+        navIdent: "N123456",
+        navn: "Nilz",
+        tidspunkt: "2024-01-01T22:00:00",
+        besluttelse: Besluttelse.GODKJENT,
+      },
     },
   },
   {
@@ -107,11 +138,32 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 4,
     periodeStart: "2024-01-01",
     periodeSlutt: "2024-01-02",
-    status: {
-      endretAv: "F123456",
-      godkjentAv: "N12345",
-      type: "ANNULLERT",
-      endretTidspunkt: "2024-01-01T22:00:00",
+    status: TilsagnStatus.ANNULLERT,
+    godkjennelse: {
+      opprett: {
+        navIdent: "F123456",
+        navn: "Franz",
+        tidspunkt: "2024-01-01T22:00:00",
+      },
+      beslutt: {
+        navIdent: "N123456",
+        navn: "Nilz",
+        tidspunkt: "2024-01-01T22:00:00",
+        besluttelse: Besluttelse.GODKJENT,
+      },
+    },
+    annullering: {
+      opprett: {
+        navIdent: "F123456",
+        navn: "Franz",
+        tidspunkt: "2024-01-01T22:00:00",
+      },
+      beslutt: {
+        navIdent: "N123456",
+        navn: "Nilz",
+        tidspunkt: "2024-01-01T22:00:00",
+        besluttelse: Besluttelse.GODKJENT,
+      },
       aarsaker: [
         TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
         TilsagnTilAnnulleringAarsak.FEIL_ANNET,
@@ -138,12 +190,19 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 4,
     periodeStart: "2024-01-01",
     periodeSlutt: "2024-01-02",
-    status: {
-      endretAv: "B123456",
-      returnertAv: "N12345",
-      returnertAvNavn: "Nils Fjordstrand",
-      type: "RETURNERT",
-      endretTidspunkt: "2024-01-10",
+    status: TilsagnStatus.RETURNERT,
+    godkjennelse: {
+      opprett: {
+        navIdent: "F123456",
+        navn: "Franz",
+        tidspunkt: "2024-01-01T22:00:00",
+      },
+      beslutt: {
+        navIdent: "N123456",
+        navn: "Nilz",
+        tidspunkt: "2024-01-01T22:00:00",
+        besluttelse: Besluttelse.AVVIST,
+      },
       aarsaker: [TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER, TilsagnAvvisningAarsak.FEIL_ANNET],
       forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
     },
