@@ -60,12 +60,16 @@ inline fun <reified T : Any> MockRequestHandleScope.respondJson(
  * [IllegalStateException] if it receives an HTTP request without a corresponding handler.
  */
 fun createMockEngine(
-    vararg requestHandlers: Pair<String, suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData>,
+    vararg requestHandlers: Pair<Any, suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData>,
 ) = MockEngine { request ->
-    for ((uri, handler) in requestHandlers) {
-        val mockUrl = Url(uri)
+    for ((uriPattern, handler) in requestHandlers) {
+        val isMatch = when (uriPattern) {
+            is Regex -> urlMatchesRegex(uriPattern, request.url)
+            is String -> urlMatchesPath(Url(uriPattern), request.url)
+            else -> throw IllegalArgumentException("URI pattern must be either a String or Regex")
+        }
 
-        if (urlMatches(expectedUrl = mockUrl, actualUrl = request.url)) {
+        if (isMatch) {
             return@MockEngine handler(request)
         }
     }
@@ -73,16 +77,13 @@ fun createMockEngine(
     throw IllegalStateException("Mock-response is missing for request method=${request.method.value} url=${request.url}")
 }
 
-private fun urlMatches(expectedUrl: Url, actualUrl: Url): Boolean {
-    if (actualUrl.encodedPath != expectedUrl.encodedPath) {
-        return false
-    }
+private fun urlMatchesRegex(expectedRegex: Regex, actualUrl: Url): Boolean {
+    return expectedRegex.matches(actualUrl.toString())
+}
 
-    if (!parametersMatches(expectedUrl.parameters, actualUrl.parameters)) {
-        return false
-    }
-
-    return true
+private fun urlMatchesPath(expectedUrl: Url, actualUrl: Url): Boolean {
+    return expectedUrl.encodedPath == actualUrl.encodedPath &&
+        parametersMatches(expectedUrl.parameters, actualUrl.parameters)
 }
 
 private fun parametersMatches(expectedParameters: Parameters, actualParameters: Parameters): Boolean {
@@ -90,12 +91,11 @@ private fun parametersMatches(expectedParameters: Parameters, actualParameters: 
         return true
     }
 
-    return expectedParameters.entries()
-        .all { (key, expectedValue) ->
-            val actualValue = actualParameters.getAll(key)
-                ?: throw IllegalStateException("Expected to find '$key' in request parameters, but it was missing")
-            return actualValue == expectedValue
-        }
+    return expectedParameters.entries().all { (key, expectedValue) ->
+        val actualValue = actualParameters.getAll(key)
+            ?: throw IllegalStateException("Expected to find '$key' in request parameters, but it was missing")
+        return actualValue == expectedValue
+    }
 }
 
 fun Url.getLastPathParameterAsUUID(): UUID {
