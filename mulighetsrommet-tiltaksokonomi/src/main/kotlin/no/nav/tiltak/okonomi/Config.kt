@@ -21,7 +21,6 @@ data class AppConfig(
 
 data class ClientConfig(
     val oebsTiltakApi: AuthenticatedHttpClientConfig,
-    val brreg: HttpClientConfig,
 )
 
 data class AuthConfig(
@@ -38,8 +37,4 @@ data class AuthProvider(
 data class AuthenticatedHttpClientConfig(
     val url: String,
     val scope: String,
-)
-
-data class HttpClientConfig(
-    val url: String,
 )

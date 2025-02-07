@@ -48,7 +48,7 @@ fun Application.configure(config: AppConfig) {
         tokenProvider = cachedTokenProvider.withScope(config.clients.oebsTiltakApi.scope),
     )
 
-    val brreg = BrregClient(config.httpClientEngine, config.clients.brreg.url)
+    val brreg = BrregClient(config.httpClientEngine)
 
     val oebsService = OebsService(okonomiDb, oebsClient, brreg)
 

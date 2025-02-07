@@ -289,7 +289,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { SanityService(get()) }
     single {
-        BrregClient(clientEngine = appConfig.engine, baseUrl = appConfig.brreg.url)
+        BrregClient(clientEngine = appConfig.engine)
     }
     single {
         AmtDeltakerClient(
