@@ -394,13 +394,11 @@ class UtbetalingServiceTest : FunSpec({
     context("bekreft utbetaling") {
         test("når utbetaling bekreftes opprettes delutbetaling for perioden som overlapper med tilsagnet") {
             val tilsagn1 = TilsagnFixtures.Tilsagn1.copy(
-                periodeStart = LocalDate.of(2024, 1, 1),
-                periodeSlutt = LocalDate.of(2024, 3, 1),
+                periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 3, 1)),
             )
 
             val tilsagn2 = TilsagnFixtures.Tilsagn2.copy(
-                periodeStart = LocalDate.of(2023, 12, 1),
-                periodeSlutt = LocalDate.of(2024, 1, 15),
+                periode = Periode(LocalDate.of(2023, 12, 1), LocalDate.of(2024, 1, 15)),
             )
 
             val utbetaling = UtbetalingFixtures.utbetaling.copy(
@@ -433,8 +431,7 @@ class UtbetalingServiceTest : FunSpec({
 
         test("når utbetaling bekreftes opprettes delutbetaling for perioden som overlapper med tilsagnet") {
             val tilsagn1 = TilsagnFixtures.Tilsagn1.copy(
-                periodeStart = LocalDate.of(2024, 1, 1),
-                periodeSlutt = LocalDate.of(2024, 2, 1),
+                periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 2, 1)),
             )
 
             val utbetaling = UtbetalingFixtures.utbetaling.copy(

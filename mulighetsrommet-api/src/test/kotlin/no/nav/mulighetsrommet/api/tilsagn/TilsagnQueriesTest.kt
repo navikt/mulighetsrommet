@@ -1,7 +1,10 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
+import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -14,6 +17,8 @@ import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
+import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
@@ -31,8 +36,9 @@ class TilsagnQueriesTest : FunSpec({
     val tilsagn = TilsagnDbo(
         id = UUID.randomUUID(),
         gjennomforingId = AFT1.id,
-        periodeStart = LocalDate.of(2023, 1, 1),
-        periodeSlutt = LocalDate.of(2023, 2, 1),
+        periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
+        lopenummer = 1,
+        bestillingsnummer = "1",
         kostnadssted = Gjovik.enhetsnummer,
         arrangorId = ArrangorFixtures.underenhet1.id,
         beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
@@ -57,14 +63,15 @@ class TilsagnQueriesTest : FunSpec({
                         tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
                     ),
                     periodeStart = LocalDate.of(2023, 1, 1),
-                    periodeSlutt = LocalDate.of(2023, 2, 1),
+                    periodeSlutt = LocalDate.of(2023, 1, 31),
                     kostnadssted = Gjovik,
                     lopenummer = 1,
+                    bestillingsnummer = "1",
                     arrangor = TilsagnDto.Arrangor(
                         navn = ArrangorFixtures.underenhet1.navn,
                         id = ArrangorFixtures.underenhet1.id,
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
-                        slettet = ArrangorFixtures.underenhet1.slettetDato != null,
+                        slettet = false,
                     ),
                     beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
                     status = TilsagnDto.TilsagnStatus.TilGodkjenning(
@@ -77,6 +84,76 @@ class TilsagnQueriesTest : FunSpec({
                 queries.delete(tilsagn.id)
 
                 queries.get(tilsagn.id) shouldBe null
+            }
+        }
+
+        test("løpenummer er unikt per gjennomføring") {
+            val aft2 = AFT1.copy(id = UUID.randomUUID())
+
+            val domain2 = MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1, aft2),
+            )
+
+            database.runAndRollback { session ->
+                domain2.setup(session)
+
+                val queries = TilsagnQueries(session)
+
+                queries.upsert(
+                    tilsagn.copy(
+                        id = UUID.randomUUID(),
+                        lopenummer = 1,
+                        bestillingsnummer = "1",
+                        gjennomforingId = AFT1.id,
+                    ),
+                )
+
+                queries.upsert(
+                    tilsagn.copy(
+                        id = UUID.randomUUID(),
+                        lopenummer = 1,
+                        bestillingsnummer = "2",
+                        gjennomforingId = aft2.id,
+                    ),
+                )
+
+                query {
+                    queries.upsert(
+                        tilsagn.copy(
+                            id = UUID.randomUUID(),
+                            lopenummer = 1,
+                            bestillingsnummer = "3",
+                            gjennomforingId = AFT1.id,
+                        ),
+                    )
+                }.shouldBeLeft().shouldBeTypeOf<IntegrityConstraintViolation.UniqueViolation>()
+            }
+        }
+
+        test("bestillingsnummer er unikt per tilsagn") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = TilsagnQueries(session)
+
+                queries.upsert(
+                    tilsagn.copy(
+                        id = UUID.randomUUID(),
+                        lopenummer = 1,
+                        bestillingsnummer = "1",
+                    ),
+                )
+
+                query {
+                    queries.upsert(
+                        tilsagn.copy(
+                            id = UUID.randomUUID(),
+                            lopenummer = 2,
+                            bestillingsnummer = "1",
+                        ),
+                    )
+                }.shouldBeLeft().shouldBeTypeOf<IntegrityConstraintViolation.UniqueViolation>()
             }
         }
 
@@ -234,84 +311,69 @@ class TilsagnQueriesTest : FunSpec({
     }
 
     context("tilsagn for arrangører") {
-        test("get by arrangor_ids") {
+        val periodeMedTilsagn = Periode.forMonthOf(LocalDate.of(2023, 1, 1))
+        val periodeUtenTilsagn = Periode.forMonthOf(LocalDate.of(2023, 2, 1))
+
+        test("blir tilgjengelig for arrangør når tilsagnet er godkjent") {
             database.runAndRollback { session ->
                 domain.setup(session)
 
                 val queries = TilsagnQueries(session)
                 queries.upsert(tilsagn)
+
+                queries.getArrangorflateTilsagn(tilsagn.id).shouldBeNull()
+                queries.getAllArrangorflateTilsagn(ArrangorFixtures.underenhet1.organisasjonsnummer).shouldBeEmpty()
+
                 queries.besluttGodkjennelse(tilsagn.id, NavIdent("B123456"), LocalDateTime.now())
 
-                queries.getAllArrangorflateTilsagn(ArrangorFixtures.underenhet1.organisasjonsnummer) shouldBe listOf(
-                    ArrangorflateTilsagn(
-                        id = tilsagn.id,
-                        gjennomforing = ArrangorflateTilsagn.Gjennomforing(
-                            navn = AFT1.navn,
-                        ),
-                        tiltakstype = ArrangorflateTilsagn.Tiltakstype(
-                            navn = TiltakstypeFixtures.AFT.navn,
-                        ),
-                        periodeStart = LocalDate.of(2023, 1, 1),
-                        periodeSlutt = LocalDate.of(2023, 2, 1),
-                        arrangor = ArrangorflateTilsagn.Arrangor(
-                            navn = ArrangorFixtures.underenhet1.navn,
-                            id = ArrangorFixtures.underenhet1.id,
-                            organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
-                        ),
-                        beregning = TilsagnBeregningFri(
-                            TilsagnBeregningFri.Input(123),
-                            TilsagnBeregningFri.Output(123),
-                        ),
-                        status = ArrangorflateTilsagn.StatusOgAarsaker(
-                            status = TilsagnStatus.GODKJENT,
-                            aarsaker = emptyList(),
-                        ),
-                        type = TilsagnType.TILSAGN,
+                queries.getArrangorflateTilsagn(tilsagn.id) shouldBe ArrangorflateTilsagn(
+                    id = tilsagn.id,
+                    gjennomforing = ArrangorflateTilsagn.Gjennomforing(
+                        navn = AFT1.navn,
                     ),
+                    tiltakstype = ArrangorflateTilsagn.Tiltakstype(
+                        navn = TiltakstypeFixtures.AFT.navn,
+                    ),
+                    periodeStart = periodeMedTilsagn.start,
+                    periodeSlutt = periodeMedTilsagn.getLastDate(),
+                    arrangor = ArrangorflateTilsagn.Arrangor(
+                        navn = ArrangorFixtures.underenhet1.navn,
+                        id = ArrangorFixtures.underenhet1.id,
+                        organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+                    ),
+                    beregning = TilsagnBeregningFri(
+                        TilsagnBeregningFri.Input(123),
+                        TilsagnBeregningFri.Output(123),
+                    ),
+                    status = ArrangorflateTilsagn.StatusOgAarsaker(
+                        status = TilsagnStatus.GODKJENT,
+                        aarsaker = emptyList(),
+                    ),
+                    type = TilsagnType.TILSAGN,
                 )
 
-                queries.getArrangorflateTilsagn(tilsagn.id).shouldNotBeNull().id shouldBe tilsagn.id
+                queries.getAllArrangorflateTilsagn(ArrangorFixtures.underenhet1.organisasjonsnummer).shouldHaveSize(1)
             }
         }
 
-        test("get til utbetaling") {
+        test("henter relevante tilsagn basert på periode") {
             database.runAndRollback { session ->
                 domain.setup(session)
 
                 val queries = TilsagnQueries(session)
                 queries.upsert(tilsagn)
+
+                queries.getArrangorflateTilsagnTilUtbetaling(tilsagn.gjennomforingId, periodeMedTilsagn)
+                    .shouldBeEmpty()
+                queries.getArrangorflateTilsagnTilUtbetaling(tilsagn.gjennomforingId, periodeUtenTilsagn)
+                    .shouldBeEmpty()
+
                 queries.besluttGodkjennelse(tilsagn.id, NavIdent("B123456"), LocalDateTime.now())
 
-                queries.getArrangorflateTilsagnTilUtbetaling(
-                    tilsagn.gjennomforingId,
-                    Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
-                ) shouldBe listOf(
-                    ArrangorflateTilsagn(
-                        id = tilsagn.id,
-                        gjennomforing = ArrangorflateTilsagn.Gjennomforing(
-                            navn = AFT1.navn,
-                        ),
-                        tiltakstype = ArrangorflateTilsagn.Tiltakstype(
-                            navn = TiltakstypeFixtures.AFT.navn,
-                        ),
-                        periodeStart = LocalDate.of(2023, 1, 1),
-                        periodeSlutt = LocalDate.of(2023, 2, 1),
-                        arrangor = ArrangorflateTilsagn.Arrangor(
-                            navn = ArrangorFixtures.underenhet1.navn,
-                            id = ArrangorFixtures.underenhet1.id,
-                            organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
-                        ),
-                        beregning = TilsagnBeregningFri(
-                            TilsagnBeregningFri.Input(123),
-                            TilsagnBeregningFri.Output(123),
-                        ),
-                        status = ArrangorflateTilsagn.StatusOgAarsaker(
-                            status = TilsagnStatus.GODKJENT,
-                            aarsaker = emptyList(),
-                        ),
-                        type = TilsagnType.TILSAGN,
-                    ),
-                )
+                queries.getArrangorflateTilsagnTilUtbetaling(tilsagn.gjennomforingId, periodeMedTilsagn)
+                    .shouldHaveSize(1)
+                queries.getArrangorflateTilsagnTilUtbetaling(tilsagn.gjennomforingId, periodeUtenTilsagn)
+                    .shouldBeEmpty()
             }
         }
     }
