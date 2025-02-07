@@ -4,6 +4,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
+import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.periode
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.NavIdent
@@ -19,12 +20,16 @@ class DelutbetalingQueries(private val session: Session) {
                 utbetaling_id,
                 belop,
                 periode,
+                lopenummer,
+                fakturanummer,
                 opprettet_av
             ) values (
                 :tilsagn_id::uuid,
                 :utbetaling_id::uuid,
                 :belop,
                 daterange(:periode_start, :periode_slutt),
+                :lopenummer,
+                :fakturanummer,
                 :opprettet_av
             );
         """.trimIndent()
@@ -36,10 +41,23 @@ class DelutbetalingQueries(private val session: Session) {
                 "belop" to it.belop,
                 "periode_start" to it.periode.start,
                 "periode_slutt" to it.periode.slutt,
+                "lopenummer" to it.lopenummer,
+                "fakturanummer" to it.fakturanummer,
                 "opprettet_av" to it.opprettetAv.value,
             )
         }
         batchPreparedNamedStatement(query, params)
+    }
+
+    fun getNextLopenummerByTilsagn(tilsagnId: UUID): Int {
+        @Language("PostgreSQL")
+        val query = """
+            select coalesce(max(lopenummer), 0) + 1 as lopenummer
+            from delutbetaling
+            where tilsagn_id = ?
+        """.trimIndent()
+
+        return session.requireSingle(queryOf(query, tilsagnId)) { it.int("lopenummer") }
     }
 
     fun getByUtbetalingId(id: UUID): List<DelutbetalingDto> = with(session) {
@@ -50,6 +68,8 @@ class DelutbetalingQueries(private val session: Session) {
                 utbetaling_id,
                 belop,
                 periode,
+                lopenummer,
+                fakturanummer,
                 opprettet_av,
                 besluttet_av
             from delutbetaling
@@ -67,9 +87,11 @@ private fun Row.toDelutbetalingDto(): DelutbetalingDto {
         null -> DelutbetalingDto.DelutbetalingTilGodkjenning(
             tilsagnId = uuid("tilsagn_id"),
             utbetalingId = uuid("utbetaling_id"),
-            opprettetAv = NavIdent(string("opprettet_av")),
             belop = int("belop"),
             periode = periode("periode"),
+            lopenummer = int("lopenummer"),
+            fakturanummer = string("fakturanummer"),
+            opprettetAv = NavIdent(string("opprettet_av")),
         )
 
         else -> DelutbetalingDto.DelutbetalingGodkjent(
@@ -77,6 +99,8 @@ private fun Row.toDelutbetalingDto(): DelutbetalingDto {
             utbetalingId = uuid("utbetaling_id"),
             belop = int("belop"),
             periode = periode("periode"),
+            lopenummer = int("lopenummer"),
+            fakturanummer = string("fakturanummer"),
             opprettetAv = NavIdent(string("opprettet_av")),
             besluttetAv = besluttetAv,
         )

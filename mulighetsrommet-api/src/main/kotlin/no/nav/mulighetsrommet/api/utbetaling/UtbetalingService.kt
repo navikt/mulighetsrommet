@@ -97,11 +97,13 @@ class UtbetalingService(
     }
 
     // TODO: ValidationError i stedet for IllegalArgumentException?
-    fun bekreftUtbetaling(
-        utbetalingId: UUID,
-        kostnadsfordeling: List<BehandleUtbetalingRequest.TilsagnOgBelop>,
-        opprettetAv: NavIdent,
-    ): Unit = db.session {
+    fun behandleUtbetaling(bekreft: BehandleUtbetaling, opprettetAv: NavIdent): Unit = db.transaction {
+        val (utbetalingId, kostnadsfordeling) = bekreft
+
+        if (queries.delutbetaling.getByUtbetalingId(utbetalingId).isNotEmpty()) {
+            throw IllegalArgumentException("Utbetaling er allerede bekreftet")
+        }
+
         val utbetaling = queries.utbetaling.get(utbetalingId)
             ?: throw IllegalArgumentException("Utbetaling med id=$utbetalingId finnes ikke")
 
@@ -109,14 +111,20 @@ class UtbetalingService(
             val tilsagn = queries.tilsagn.get(it.tilsagnId)
                 ?: throw IllegalArgumentException("Tilsagn med id=${it.tilsagnId} finnes ikke")
 
-            val periode = Periode.intersect(utbetaling.periode, Periode(tilsagn.periodeStart, tilsagn.periodeSlutt))
-                ?: throw IllegalArgumentException("Utbetalingsperiode og tilsagnsperiode overlapper ikke")
+            val periode = Periode.intersect(
+                utbetaling.periode,
+                Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt),
+            ) ?: throw IllegalArgumentException("Utbetalingsperiode og tilsagnsperiode overlapper ikke")
+
+            val lopenummer = queries.delutbetaling.getNextLopenummerByTilsagn(it.tilsagnId)
 
             DelutbetalingDbo(
                 utbetalingId = utbetalingId,
                 tilsagnId = it.tilsagnId,
                 periode = periode,
                 belop = it.belop,
+                lopenummer = lopenummer,
+                fakturanummer = "${tilsagn.bestillingsnummer}/$lopenummer",
                 opprettetAv = opprettetAv,
             )
         }
