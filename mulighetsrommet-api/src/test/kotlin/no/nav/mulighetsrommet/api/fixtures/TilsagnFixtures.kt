@@ -20,7 +20,7 @@ object TilsagnFixtures {
             output = TilsagnBeregningFri.Output(1000),
         ),
         arrangorId = ArrangorFixtures.underenhet1.id,
-        endretAv = NavIdent("Z123456"),
+        endretAv = NavAnsattFixture.ansatt1.navIdent,
         endretTidspunkt = LocalDateTime.now(),
         type = TilsagnType.TILSAGN,
     )

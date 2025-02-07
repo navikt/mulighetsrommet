@@ -2,9 +2,11 @@ package no.nav.mulighetsrommet.api.utbetaling
 
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
+import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
@@ -47,6 +49,7 @@ class UtbetalingService(
                         gjennomforingId = gjeldendeKrav.gjennomforing.id,
                         periode = gjeldendeKrav.beregning.input.periode,
                     )
+
                     is UtbetalingBeregningFri -> null
                 }
 
@@ -91,6 +94,34 @@ class UtbetalingService(
             kid = forrigeKrav?.betalingsinformasjon?.kid,
             periode = periode,
         )
+    }
+
+    // TODO: ValidationError i stedet for IllegalArgumentException?
+    fun bekreftUtbetaling(
+        utbetalingId: UUID,
+        kostnadsfordeling: List<BehandleUtbetalingRequest.TilsagnOgBelop>,
+        opprettetAv: NavIdent,
+    ): Unit = db.session {
+        val utbetaling = queries.utbetaling.get(utbetalingId)
+            ?: throw IllegalArgumentException("Utbetaling med id=$utbetalingId finnes ikke")
+
+        val delutbetalinger = kostnadsfordeling.map {
+            val tilsagn = queries.tilsagn.get(it.tilsagnId)
+                ?: throw IllegalArgumentException("Tilsagn med id=${it.tilsagnId} finnes ikke")
+
+            val periode = Periode.intersect(utbetaling.periode, Periode(tilsagn.periodeStart, tilsagn.periodeSlutt))
+                ?: throw IllegalArgumentException("Utbetalingsperiode og tilsagnsperiode overlapper ikke")
+
+            DelutbetalingDbo(
+                utbetalingId = utbetalingId,
+                tilsagnId = it.tilsagnId,
+                periode = periode,
+                belop = it.belop,
+                opprettetAv = opprettetAv,
+            )
+        }
+
+        queries.delutbetaling.opprettDelutbetalinger(delutbetalinger)
     }
 
     private fun getDeltakelser(

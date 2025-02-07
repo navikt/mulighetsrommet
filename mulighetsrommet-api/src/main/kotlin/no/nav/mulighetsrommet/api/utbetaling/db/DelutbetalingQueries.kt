@@ -4,6 +4,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
+import no.nav.mulighetsrommet.database.utils.periode
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.NavIdent
 import org.intellij.lang.annotations.Language
@@ -17,11 +18,13 @@ class DelutbetalingQueries(private val session: Session) {
                 tilsagn_id,
                 utbetaling_id,
                 belop,
+                periode,
                 opprettet_av
             ) values (
                 :tilsagn_id::uuid,
                 :utbetaling_id::uuid,
                 :belop,
+                daterange(:periode_start, :periode_slutt),
                 :opprettet_av
             );
         """.trimIndent()
@@ -31,6 +34,8 @@ class DelutbetalingQueries(private val session: Session) {
                 "tilsagn_id" to it.tilsagnId,
                 "utbetaling_id" to it.utbetalingId,
                 "belop" to it.belop,
+                "periode_start" to it.periode.start,
+                "periode_slutt" to it.periode.slutt,
                 "opprettet_av" to it.opprettetAv.value,
             )
         }
@@ -40,11 +45,18 @@ class DelutbetalingQueries(private val session: Session) {
     fun getByUtbetalingId(id: UUID): List<DelutbetalingDto> = with(session) {
         @Language("PostgreSQL")
         val query = """
-            select * from delutbetaling
-            where utbetaling_id = :id::uuid
+            select
+                tilsagn_id,
+                utbetaling_id,
+                belop,
+                periode,
+                opprettet_av,
+                besluttet_av
+            from delutbetaling
+            where utbetaling_id = ?
         """.trimIndent()
 
-        return list(queryOf(query, mapOf("id" to id))) { it.toDelutbetalingDto() }
+        return list(queryOf(query, id)) { it.toDelutbetalingDto() }
     }
 }
 
@@ -57,14 +69,16 @@ private fun Row.toDelutbetalingDto(): DelutbetalingDto {
             utbetalingId = uuid("utbetaling_id"),
             opprettetAv = NavIdent(string("opprettet_av")),
             belop = int("belop"),
+            periode = periode("periode"),
         )
 
         else -> DelutbetalingDto.DelutbetalingGodkjent(
             tilsagnId = uuid("tilsagn_id"),
             utbetalingId = uuid("utbetaling_id"),
+            belop = int("belop"),
+            periode = periode("periode"),
             opprettetAv = NavIdent(string("opprettet_av")),
             besluttetAv = besluttetAv,
-            belop = int("belop"),
         )
     }
 }

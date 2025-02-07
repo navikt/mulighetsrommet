@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -30,6 +29,7 @@ import java.util.*
 
 fun Route.utbetalingRoutes() {
     val db: ApiDatabase by inject()
+    val service: UtbetalingService by inject()
 
     route("/utbetaling/{id}") {
         get {
@@ -96,27 +96,16 @@ fun Route.utbetalingRoutes() {
             val utbetalingId = call.parameters.getOrFail<UUID>("id")
             val request = call.receive<BehandleUtbetalingRequest>()
             val navIdent = getNavIdent()
-            val utbetalinger = db.session {
+
+            val delutbetalinger = db.session {
                 queries.delutbetaling.getByUtbetalingId(utbetalingId)
             }
-
-            UtbetalingValidator.validate(request, utbetalinger)
-                .onLeft {
-                    return@put call.respondWithStatusResponse(ValidationError(errors = it).left())
-                }
-
-            db.session {
-                queries.delutbetaling.opprettDelutbetalinger(
-                    request.kostnadsfordeling.map {
-                        DelutbetalingDbo(
-                            utbetalingId = utbetalingId,
-                            tilsagnId = it.tilsagnId,
-                            belop = it.belop,
-                            opprettetAv = navIdent,
-                        )
-                    },
-                )
+            UtbetalingValidator.validate(request, delutbetalinger).onLeft {
+                return@put call.respondWithStatusResponse(ValidationError(errors = it).left())
             }
+
+            service.bekreftUtbetaling(utbetalingId, request.kostnadsfordeling, navIdent)
+
             call.respond(HttpStatusCode.OK)
         }
     }
