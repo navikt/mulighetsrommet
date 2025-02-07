@@ -52,7 +52,7 @@ export function MrApiManagement() {
 
         <RunTask
           base={ApiBase.MR_API}
-          task={"generate-refusjonskrav"}
+          task={"generate-utbetaling"}
           input={{
             type: "object",
             required: ["dayInMonth"],

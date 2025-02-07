@@ -63,7 +63,7 @@ export const byggBrødsmulesti = (miljø: Miljø) => {
     return [
       // {
       //   title: "Min side – arbeidsgiver",
-      //   url: "https://arrangor-refusjon.intern.dev.nav.no/",
+      //   url: "https://arrangor-utbetaling.intern.dev.nav.no/",
       // },
     ];
   }

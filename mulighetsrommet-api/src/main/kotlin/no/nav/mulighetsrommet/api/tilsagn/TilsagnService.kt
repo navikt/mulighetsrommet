@@ -206,11 +206,11 @@ class TilsagnService(
         queries.tilsagn.getAll()
     }
 
-    fun getArrangorflateTilsagnTilRefusjon(
+    fun getArrangorflateTilsagnTilUtbetaling(
         gjennomforingId: UUID,
         periode: Periode,
     ): List<ArrangorflateTilsagn> = db.session {
-        return queries.tilsagn.getArrangorflateTilsagnTilRefusjon(gjennomforingId, periode)
+        return queries.tilsagn.getArrangorflateTilsagnTilUtbetaling(gjennomforingId, periode)
     }
 
     private fun lagOkonomiId(tilsagn: TilsagnDto): String {

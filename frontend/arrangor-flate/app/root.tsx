@@ -21,7 +21,7 @@ import useInjectDecoratorScript from "./services/dekoratør/useInjectScript";
 import "./tailwind.css";
 import { apiHeaders } from "./auth/auth.server";
 
-export const meta: MetaFunction = () => [{ title: "Refusjoner" }];
+export const meta: MetaFunction = () => [{ title: "Utbetalinger" }];
 
 export const loader: LoaderFunction = async ({ request }) => {
   const { data: arrangortilganger } =

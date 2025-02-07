@@ -1,6 +1,6 @@
 import { useSearchParams } from "react-router";
 import { useEffect } from "react";
-import { Tabs } from "../routes/$orgnr_.refusjonskrav";
+import { Tabs } from "../routes/$orgnr_.utbetaling";
 
 export function useTabState(
   key: "forside-tab" = "forside-tab",

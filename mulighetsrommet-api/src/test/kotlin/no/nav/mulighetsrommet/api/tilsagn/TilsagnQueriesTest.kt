@@ -274,7 +274,7 @@ class TilsagnQueriesTest : FunSpec({
             }
         }
 
-        test("get til refusjon") {
+        test("get til utbetaling") {
             database.runAndRollback { session ->
                 domain.setup(session)
 
@@ -282,7 +282,7 @@ class TilsagnQueriesTest : FunSpec({
                 queries.upsert(tilsagn)
                 queries.besluttGodkjennelse(tilsagn.id, NavIdent("B123456"), LocalDateTime.now())
 
-                queries.getArrangorflateTilsagnTilRefusjon(
+                queries.getArrangorflateTilsagnTilUtbetaling(
                     tilsagn.gjennomforingId,
                     Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
                 ) shouldBe listOf(

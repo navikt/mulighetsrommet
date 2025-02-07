@@ -112,7 +112,7 @@ export type MrApiTask =
   | "initial-load-gjennomforinger"
   | "sync-navansatte"
   | "sync-utdanning"
-  | "generate-refusjonskrav"
+  | "generate-utbetaling"
   | "sync-arrangorer";
 
 export const runTask = (base: ApiBase, task: MrApiTask, input?: object) =>

@@ -1,6 +1,6 @@
-# Arrangørflate for refusjoner
+# Arrangørflate for utbetalinger
 
-Flate for tiltaksarrangører som skal be om refusjon for arbeidsmarkedstiltak
+Flate for tiltaksarrangører som skal be om utbetalinger for arbeidsmarkedstiltak
 
 ## Utvikling mot mock server
 
@@ -29,7 +29,7 @@ turbo run backend
 
 
 ## Miljøer
-- [Flate for arrangører i dev-miljø](https://arrangor-refusjon.intern.dev.nav.no/)
+- [Flate for arrangører i dev-miljø](https://arrangor-utbetaling.intern.dev.nav.no/)
 - PROD-miljø er per 23.09.24 ikke satt opp enda.
 
 ## Tilgang i dev og prod
@@ -51,8 +51,8 @@ For å få tilgang i dev-miljø gjør du følgende:
 13. Velg «Legge til ny person eller virksomhet»
 14. Søk opp fødselsnr på ansatt fra steg 6 og skriv inn etternavn og velg neste
 15.  Velg så «Gi tilgang til enkelttjenester»
-16. Søk opp tjenesten «Tiltaksarrangør refusjon - Nav Arbeidsmarkedstiltak» og velg «Legg til»
+16. Søk opp tjenesten «Tiltaksarrangør utbetaling - Nav Arbeidsmarkedstiltak» og velg «Legg til»
 17. Trykk Gå videre
 18. Velg så «Fullfør delegering» og trykk deg til ferdig
 
-For prod så er det bedriftene selv som delegerer korrekt tilgang. Korrekt tilgang er ***Tiltaksarrangør refusjon - Nav Arbeidsmarkedstiltak***
+For prod så er det bedriftene selv som delegerer korrekt tilgang. Korrekt tilgang er ***Tiltaksarrangør utbetaling - Nav Arbeidsmarkedstiltak***

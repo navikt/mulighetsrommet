@@ -58,7 +58,7 @@ app:
     updateApentForPamelding:
       disabled: false
       cronPattern: "0 55 23 * * *" # 23.55 hver kveld
-    generateRefusjonskrav:
+    generateUtbetaling:
       disabled: true
       cronPattern: "0 0 5 7 * *"
 

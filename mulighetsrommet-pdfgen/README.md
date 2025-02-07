@@ -6,9 +6,9 @@ sammen med [pdfgen](https://github.com/navikt/pdfgen) og som deretter deployes t
 
 Foreløpig er følgende templates er støttet:
 
-- Refusjon
-    - Refusjonskrav fra tiltaksarrangører som arkiveres til Joark
-    - Kvittering av refusjonskrav som arrangører kan laste ned til egen bruk
+- Utbetaling
+    - Innsendelse fra tiltaksarrangører som arkiveres til Joark
+    - Kvittering av utbetaling som arrangører kan laste ned til egen bruk
 
 ## Utvikling av maler
 
@@ -31,8 +31,8 @@ Man kan endre mockdata for å se hvordan PDF-filene blir seendes ut uten å rest
 selve malene så må applikasjonen restartes. Eksempel:
 
 ```sh
-# Last ned refusjon/journalpost til filen `mal.pdf` (gitt at du har curl installert)
-curl localhost:8888/api/v1/genpdf/refusjon/journalpost --output mal.pdf
+# Last ned utbetaling/journalpost til filen `mal.pdf` (gitt at du har curl installert)
+curl localhost:8888/api/v1/genpdf/utbetaling/journalpost --output mal.pdf
 
 # Restart pdfgen etter endringer på malene
 docker compose restart pdfgen
