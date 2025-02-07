@@ -65,16 +65,16 @@ class UtbetalingQueries(private val session: Session) {
     ) = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
-            insert into utbetaling_beregning_aft (utbetaling_id, periode, sats, belop)
-            values (:utbetaling_id::uuid, daterange(:periode_start, :periode_slutt), :sats, :belop)
-            on conflict (utbetaling_id) do update set
+            insert into utbetaling_beregning_aft (refusjonskrav_id, periode, sats, belop)
+            values (:refusjonskrav_id::uuid, daterange(:periode_start, :periode_slutt), :sats, :belop)
+            on conflict (refusjonskrav_id) do update set
                 periode = excluded.periode,
                 sats = excluded.sats,
                 belop = excluded.belop
         """.trimIndent()
 
         val params = mapOf(
-            "utbetaling_id" to id,
+            "refusjonskrav_id" to id,
             "periode_start" to beregning.input.periode.start,
             "periode_slutt" to beregning.input.periode.slutt,
             "sats" to beregning.input.sats,
@@ -86,20 +86,20 @@ class UtbetalingQueries(private val session: Session) {
         val deletePerioderQuery = """
             delete
             from utbetaling_deltakelse_periode
-            where utbetaling_id = ?::uuid;
+            where refusjonskrav_id = ?::uuid;
         """
         execute(queryOf(deletePerioderQuery, id))
 
         @Language("PostgreSQL")
         val insertPeriodeQuery = """
-            insert into utbetaling_deltakelse_periode (utbetaling_id, deltakelse_id, periode, deltakelsesprosent)
-            values (:utbetaling_id, :deltakelse_id, daterange(:start, :slutt), :deltakelsesprosent)
+            insert into utbetaling_deltakelse_periode (refusjonskrav_id, deltakelse_id, periode, deltakelsesprosent)
+            values (:refusjonskrav_id, :deltakelse_id, daterange(:start, :slutt), :deltakelsesprosent)
         """.trimIndent()
 
         val perioder = beregning.input.deltakelser.flatMap { deltakelse ->
             deltakelse.perioder.map { periode ->
                 mapOf(
-                    "utbetaling_id" to id,
+                    "refusjonskrav_id" to id,
                     "deltakelse_id" to deltakelse.deltakelseId,
                     "start" to periode.start,
                     "slutt" to periode.slutt,
@@ -113,19 +113,19 @@ class UtbetalingQueries(private val session: Session) {
         val deleteManedsverk = """
             delete
             from utbetaling_deltakelse_manedsverk
-            where utbetaling_id = ?::uuid
+            where refusjonskrav_id = ?::uuid
         """
         execute(queryOf(deleteManedsverk, id))
 
         @Language("PostgreSQL")
         val insertManedsverkQuery = """
-            insert into utbetaling_deltakelse_manedsverk (utbetaling_id, deltakelse_id, manedsverk)
-            values (:utbetaling_id, :deltakelse_id, :manedsverk)
+            insert into utbetaling_deltakelse_manedsverk (refusjonskrav_id, deltakelse_id, manedsverk)
+            values (:refusjonskrav_id, :deltakelse_id, :manedsverk)
         """.trimIndent()
 
         val manedsverk = beregning.output.deltakelser.map { deltakelse ->
             mapOf(
-                "utbetaling_id" to id,
+                "refusjonskrav_id" to id,
                 "deltakelse_id" to deltakelse.deltakelseId,
                 "manedsverk" to deltakelse.manedsverk,
             )
@@ -136,14 +136,14 @@ class UtbetalingQueries(private val session: Session) {
     fun upsertUtbetalingBeregningFri(id: UUID, beregning: UtbetalingBeregningFri) {
         @Language("PostgreSQL")
         val query = """
-            insert into utbetaling_beregning_fri (utbetaling_id, belop)
-            values (:utbetaling_id::uuid, :belop)
-            on conflict (utbetaling_id) do update set
+            insert into refusjonskrav_beregning_fri (refusjonskrav_id, belop)
+            values (:refusjonskrav_id::uuid, :belop)
+            on conflict (refusjonskrav_id) do update set
                 belop = excluded.belop
         """.trimIndent()
 
         val params = mapOf(
-            "utbetaling_id" to id,
+            "refusjonskrav_id" to id,
             "belop" to beregning.output.belop,
         )
 
@@ -247,7 +247,7 @@ class UtbetalingQueries(private val session: Session) {
             select *
             from utbetaling_aft_view
             where
-                utbetaling_id = :id::uuid
+                refusjonskrav_id = :id::uuid
         """.trimIndent()
 
         return session.requireSingle(queryOf(query, mapOf("id" to id))) {
@@ -271,7 +271,7 @@ class UtbetalingQueries(private val session: Session) {
             select *
             from utbetaling_beregning_fri
             where
-                utbetaling_id = :id::uuid
+                refusjonskrav_id = :id::uuid
         """.trimIndent()
 
         return session.requireSingle(queryOf(query, mapOf("id" to id))) {
