@@ -140,13 +140,13 @@ class AvtaleInfoEventProcessorTest : FunSpec({
             test("should treat all operations as upserts") {
                 val (e1, mapping) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
 
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
+                val engine = createMockEngine {
+                    get("/ords/arbeidsgiver") {
                         respondJson(ArenaOrdsArrangor("123456", "1000000"))
-                    },
-                    "/api/v1/intern/arena/avtale" to { respondOk() },
-                    "/api/v1/intern/arena/avtale/${mapping.entityId}" to { respondOk() },
-                )
+                    }
+                    put("/api/v1/intern/arena/avtale") { respondOk() }
+                    delete("/api/v1/intern/arena/avtale/${mapping.entityId}") { respondOk() }
+                }
                 val processor = createProcessor(engine)
 
                 processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
@@ -172,11 +172,11 @@ class AvtaleInfoEventProcessorTest : FunSpec({
             }
 
             test("should mark the event as Failed when arena ords proxy responds with an error") {
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
+                val engine = createMockEngine {
+                    get("/ords/arbeidsgiver") {
                         respondError(HttpStatusCode.InternalServerError)
-                    },
-                )
+                    }
+                }
                 val processor = createProcessor(engine)
 
                 val (event) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
@@ -189,11 +189,11 @@ class AvtaleInfoEventProcessorTest : FunSpec({
             }
 
             test("should mark the event as Invalid when arena ords proxy responds with NotFound") {
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
+                val engine = createMockEngine {
+                    get("/ords/arbeidsgiver") {
                         respondError(HttpStatusCode.NotFound)
-                    },
-                )
+                    }
+                }
                 val processor = createProcessor(engine)
 
                 val (event) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
@@ -206,16 +206,16 @@ class AvtaleInfoEventProcessorTest : FunSpec({
             }
 
             test("should mark the event as Failed when api responds with an error") {
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
+                val engine = createMockEngine {
+                    get("/ords/arbeidsgiver") {
                         respondJson(
                             ArenaOrdsArrangor("123456", "100000"),
                         )
-                    },
-                    "/api/v1/intern/arena/avtale" to {
+                    }
+                    put("/api/v1/intern/arena/avtale") {
                         respondError(HttpStatusCode.InternalServerError)
-                    },
-                )
+                    }
+                }
                 val processor = createProcessor(engine)
 
                 val (event) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
@@ -230,13 +230,13 @@ class AvtaleInfoEventProcessorTest : FunSpec({
             test("should call api with mapped event payload when all services responds with success") {
                 val (event, mapping) = prepareEvent(createArenaAvtaleInfoEvent(Insert))
 
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
+                val engine = createMockEngine {
+                    get("/ords/arbeidsgiver") {
                         respondJson(ArenaOrdsArrangor("123456", "1000000"))
-                    },
-                    "/api/v1/intern/arena/avtale" to { respondOk() },
-                    "/api/v1/intern/arena/avtale/${mapping.entityId}" to { respondOk() },
-                )
+                    }
+                    put("/api/v1/intern/arena/avtale") { respondOk() }
+                    delete("/api/v1/intern/arena/avtale/${mapping.entityId}") { respondOk() }
+                }
                 val processor = createProcessor(engine)
 
                 processor.handleEvent(event).shouldBeRight()
@@ -272,13 +272,13 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                     },
                 )
 
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
+                val engine = createMockEngine {
+                    get("/ords/arbeidsgiver") {
                         respondJson(ArenaOrdsArrangor("123456", "1000000"))
-                    },
-                    "/api/v1/intern/arena/avtale" to { respondOk() },
-                    "/api/v1/intern/arena/avtale/${mapping.entityId}" to { respondOk() },
-                )
+                    }
+                    put("/api/v1/intern/arena/avtale") { respondOk() }
+                    put("/api/v1/intern/arena/avtale/${mapping.entityId}") { respondOk() }
+                }
                 val processor = createProcessor(engine)
 
                 processor.handleEvent(event).shouldBeRight()

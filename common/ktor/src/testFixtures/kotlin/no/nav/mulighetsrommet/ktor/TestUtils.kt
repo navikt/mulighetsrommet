@@ -54,27 +54,79 @@ inline fun <reified T : Any> MockRequestHandleScope.respondJson(
 }
 
 /**
- * Utility to create a [MockEngine] based on the provided [requestHandlers].
+ * Utility to create a [MockEngine] based on the provided [MockEngineBuilder].
  *
  * The created [MockEngine] needs an explicit handler for each possible HTTP request it receives and throws an
  * [IllegalStateException] if it receives an HTTP request without a corresponding handler.
  */
-fun createMockEngine(
-    vararg requestHandlers: Pair<Any, suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData>,
-) = MockEngine { request ->
-    for ((uriPattern, handler) in requestHandlers) {
-        val isMatch = when (uriPattern) {
-            is Regex -> urlMatchesRegex(uriPattern, request.url)
-            is String -> urlMatchesPath(Url(uriPattern), request.url)
-            else -> throw IllegalArgumentException("URI pattern must be either a String or Regex")
+fun createMockEngine(builder: MockEngineBuilder.() -> Unit = {}): MockEngine {
+    val engineBuilder = MockEngineBuilder().apply(builder)
+    return MockEngine { request ->
+        for ((method, uriPattern, handler) in engineBuilder.requestHandlers) {
+            val isMatch = method == request.method &&
+                when (uriPattern) {
+                    is Regex -> urlMatchesRegex(uriPattern, request.url)
+                    is String -> urlMatchesPath(Url(uriPattern), request.url)
+                    else -> throw IllegalArgumentException("URI pattern must be either a String or Regex")
+                }
+
+            if (isMatch) {
+                return@MockEngine handler(request)
+            }
         }
 
-        if (isMatch) {
-            return@MockEngine handler(request)
-        }
+        throw IllegalStateException("Mock-response is missing for request method=${request.method.value} url=${request.url}")
+    }
+}
+
+typealias MockRequestHandler = suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData
+
+@DslMarker
+annotation class MockEngineDsl
+
+@MockEngineDsl
+class MockEngineBuilder {
+    internal val requestHandlers = mutableListOf<Triple<HttpMethod, Any, MockRequestHandler>>()
+
+    @MockEngineDsl
+    fun get(uri: String, handler: MockRequestHandler) {
+        requestHandlers.add(Triple(HttpMethod.Get, uri, handler))
     }
 
-    throw IllegalStateException("Mock-response is missing for request method=${request.method.value} url=${request.url}")
+    @MockEngineDsl
+    fun post(uri: String, handler: MockRequestHandler) {
+        requestHandlers.add(Triple(HttpMethod.Post, uri, handler))
+    }
+
+    @MockEngineDsl
+    fun put(uri: String, handler: MockRequestHandler) {
+        requestHandlers.add(Triple(HttpMethod.Put, uri, handler))
+    }
+
+    @MockEngineDsl
+    fun delete(uri: String, handler: MockRequestHandler) {
+        requestHandlers.add(Triple(HttpMethod.Delete, uri, handler))
+    }
+
+    @MockEngineDsl
+    fun get(uri: Regex, handler: MockRequestHandler) {
+        requestHandlers.add(Triple(HttpMethod.Get, uri, handler))
+    }
+
+    @MockEngineDsl
+    fun post(uri: Regex, handler: MockRequestHandler) {
+        requestHandlers.add(Triple(HttpMethod.Post, uri, handler))
+    }
+
+    @MockEngineDsl
+    fun put(uri: Regex, handler: MockRequestHandler) {
+        requestHandlers.add(Triple(HttpMethod.Put, uri, handler))
+    }
+
+    @MockEngineDsl
+    fun delete(uri: Regex, handler: MockRequestHandler) {
+        requestHandlers.add(Triple(HttpMethod.Delete, uri, handler))
+    }
 }
 
 private fun urlMatchesRegex(expectedRegex: Regex, actualUrl: Url): Boolean {

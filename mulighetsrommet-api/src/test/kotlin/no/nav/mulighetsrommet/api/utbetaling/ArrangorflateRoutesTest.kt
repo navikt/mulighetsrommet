@@ -36,6 +36,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePerioder
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAft
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.ktor.MockEngineBuilder
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.DeltakerStatus
@@ -134,8 +135,8 @@ class ArrangorflateRoutesTest : FunSpec({
         oauth.shutdown()
     }
 
-    val altinnRequestHandler: Pair<String, suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData> =
-        "/altinn/accessmanagement/api/v1/resourceowner/authorizedparties" to {
+    fun MockEngineBuilder.mockAltinnAuthorizedParties() {
+        post("/altinn/accessmanagement/api/v1/resourceowner/authorizedparties") {
             val body = Json.decodeFromString<AltinnClient.AltinnRequest>(
                 (it.body as TextContent).text,
             )
@@ -155,8 +156,10 @@ class ArrangorflateRoutesTest : FunSpec({
                 respondJson(emptyList<AuthorizedParty>())
             }
         }
-    val dokarkRequestHandler: Pair<String, suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData> =
-        "/dokark/rest/journalpostapi/v1/journalpost" to {
+    }
+
+    fun MockEngineBuilder.mockJournalpost() {
+        post("/dokark/rest/journalpostapi/v1/journalpost") {
             respondJson(
                 DokarkResponse(
                     journalpostId = "123",
@@ -167,14 +170,17 @@ class ArrangorflateRoutesTest : FunSpec({
                 ),
             )
         }
+    }
 
     fun appConfig(
-        requestHandlers: List<Pair<String, suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData>> =
-            listOf(altinnRequestHandler, dokarkRequestHandler),
+        engine: MockEngine = createMockEngine {
+            mockAltinnAuthorizedParties()
+            mockJournalpost()
+        },
     ) = createTestApplicationConfig().copy(
         database = databaseConfig,
         auth = createAuthConfig(oauth, roles = emptyList()),
-        engine = createMockEngine(*requestHandlers.toTypedArray()),
+        engine = engine,
     )
 
     test("401 Unauthorized uten pid i claims") {
@@ -289,16 +295,15 @@ class ArrangorflateRoutesTest : FunSpec({
     }
 
     test("feil mot dokark gir fortsatt 200 på godkjenn siden det skjer i en task") {
-        withTestApplication(
-            appConfig(
-                listOf(
-                    altinnRequestHandler,
-                    "/dokark/rest/journalpostapi/v1/journalpost" to {
-                        respondError(HttpStatusCode.InternalServerError)
-                    },
-                ),
-            ),
-        ) {
+        val clientEngine = createMockEngine {
+            mockAltinnAuthorizedParties()
+
+            post("/dokark/rest/journalpostapi/v1/journalpost") {
+                respondError(HttpStatusCode.InternalServerError)
+            }
+        }
+
+        withTestApplication(appConfig(clientEngine)) {
             val client = createClient {
                 install(ContentNegotiation) {
                     json()

@@ -15,8 +15,8 @@ class HentAdressebeskyttetPersonBolkPdlQueryTest : FunSpec({
     test("happy case hentPersonBolk") {
         val identer = nonEmptySetOf(PdlIdent("12345678910"), PdlIdent("12345678911"), PdlIdent("test"))
 
-        val clientEngine = createMockEngine(
-            "/graphql" to {
+        val clientEngine = createMockEngine {
+            post("/graphql") {
                 val body = Json.decodeFromString<GraphqlRequest<GraphqlRequest.Identer>>(
                     (it.body as TextContent).text,
                 )
@@ -66,8 +66,8 @@ class HentAdressebeskyttetPersonBolkPdlQueryTest : FunSpec({
                         }
                     """.trimIndent(),
                 )
-            },
-        )
+            }
+        }
 
         val query = HentAdressebeskyttetPersonBolkPdlQuery(mockPdlClient(clientEngine))
 
@@ -87,8 +87,8 @@ class HentAdressebeskyttetPersonBolkPdlQueryTest : FunSpec({
     }
 
     test("tolker manglende gradering som UGRADERT") {
-        val clientEngine = createMockEngine(
-            "/graphql" to {
+        val clientEngine = createMockEngine {
+            post("/graphql") {
                 respondJson(
                     """
                         {
@@ -133,8 +133,8 @@ class HentAdressebeskyttetPersonBolkPdlQueryTest : FunSpec({
                         }
                     """.trimIndent(),
                 )
-            },
-        )
+            }
+        }
 
         val query = HentAdressebeskyttetPersonBolkPdlQuery(mockPdlClient(clientEngine))
 

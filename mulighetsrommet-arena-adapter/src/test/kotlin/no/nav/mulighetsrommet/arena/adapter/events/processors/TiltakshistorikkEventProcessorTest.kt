@@ -146,12 +146,16 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
             test("should upsert tiltakshistorikk for ArenaDeltaker events") {
                 val (deltakerEvent, mapping) = prepareEvent(createArenaTiltakdeltakerEvent(Insert), Ignored)
 
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to { respondJson(ArenaOrdsArrangor("123456789", "000000000")) },
-                    "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/intern/arena/deltaker" to { respondOk() },
-                    "/api/v1/intern/arena/deltaker/${mapping.entityId}" to { respondOk() },
-                )
+                val engine = createMockEngine {
+                    get("/ords/arbeidsgiver") {
+                        respondJson(ArenaOrdsArrangor("123456789", "000000000"))
+                    }
+                    get("/ords/fnr") {
+                        respondJson(ArenaOrdsFnr("12345678910"))
+                    }
+                    put("/api/v1/intern/arena/deltaker") { respondOk() }
+                    delete("/api/v1/intern/arena/deltaker/${mapping.entityId}") { respondOk() }
+                }
                 val processor = createProcessor(engine)
 
                 processor.handleEvent(deltakerEvent).shouldBeRight().should { it.status shouldBe Handled }
@@ -180,11 +184,15 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
                     Ignored,
                 )
 
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to { respondJson(ArenaOrdsArrangor("123456789", "000000000")) },
-                    "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/intern/arena/deltaker" to { respondOk() },
-                )
+                val engine = createMockEngine {
+                    get("/ords/arbeidsgiver") {
+                        respondJson(ArenaOrdsArrangor("123456789", "000000000"))
+                    }
+                    get("/ords/fnr") {
+                        respondJson(ArenaOrdsFnr("12345678910"))
+                    }
+                    put("/api/v1/intern/arena/deltaker") { respondOk() }
+                }
                 val processor = createProcessor(engine)
 
                 processor.handleEvent(histDeltakerEvent).shouldBeRight()

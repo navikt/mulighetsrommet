@@ -68,8 +68,8 @@ class TiltaksokonomiTest : FunSpec({
         }
 
         test("behandle og annuller bestilling") {
-            val mockEngine = createMockEngine(
-                "http://brreg/enheter/123456789" to {
+            val mockEngine = createMockEngine {
+                get("http://brreg/enheter/123456789") {
                     @Language("json")
                     val brregResponse = """
                         {
@@ -91,9 +91,9 @@ class TiltaksokonomiTest : FunSpec({
                         }
                     """.trimIndent()
                     respondJson(brregResponse)
-                },
-                "http://oebs-tiltak-api/api/v1/oebs/bestilling" to { respondOk() },
-            )
+                }
+                post("http://oebs-tiltak-api/api/v1/oebs/bestilling") { respondOk() }
+            }
 
             withTestApplication(oauth, mockEngine) {
                 val client = createClient {
@@ -179,8 +179,8 @@ class TiltaksokonomiTest : FunSpec({
         }
 
         test("behandle og send faktura") {
-            val mockEngine = createMockEngine(
-                "http://brreg/enheter/123456789" to {
+            val mockEngine = createMockEngine {
+                get("http://brreg/enheter/123456789") {
                     @Language("json")
                     val brregResponse = """
                         {
@@ -202,10 +202,10 @@ class TiltaksokonomiTest : FunSpec({
                         }
                     """.trimIndent()
                     respondJson(brregResponse)
-                },
-                "http://oebs-tiltak-api/api/v1/oebs/bestilling" to { respondOk() },
-                "http://oebs-tiltak-api/api/v1/oebs/faktura" to { respondOk() },
-            )
+                }
+                post("http://oebs-tiltak-api/api/v1/oebs/bestilling") { respondOk() }
+                post("http://oebs-tiltak-api/api/v1/oebs/faktura") { respondOk() }
+            }
 
             withTestApplication(oauth, mockEngine) {
                 val client = createClient {

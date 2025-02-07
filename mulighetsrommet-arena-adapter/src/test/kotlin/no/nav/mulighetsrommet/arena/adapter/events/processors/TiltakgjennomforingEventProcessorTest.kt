@@ -196,7 +196,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 }
 
                 test("should not send gjennomføringer to mr-api") {
-                    val engine = MockEngine { respondOk() }
+                    val engine = createMockEngine { }
                     val processor = createProcessor(engine)
 
                     val (event) = prepareEvent(
@@ -236,17 +236,17 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     },
                 )
 
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
+                val engine = createMockEngine {
+                    get("/ords/arbeidsgiver") {
                         respondJson(
                             ArenaOrdsArrangor("123456", "000000"),
                         )
-                    },
-                    "/api/v1/intern/arena/tiltaksgjennomforing" to {
+                    }
+                    put("/api/v1/intern/arena/tiltaksgjennomforing") {
                         respondJson(UpsertTiltaksgjennomforingResponse(sanityId = null))
-                    },
-                    "/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
-                )
+                    }
+                    delete("/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}") { respondOk() }
+                }
                 val processor = createProcessor(engine)
 
                 processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
@@ -275,11 +275,11 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             }
 
             test("should mark the event as Failed when arena ords proxy responds with an error") {
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
+                val engine = createMockEngine {
+                    get("/ords/arbeidsgiver") {
                         respondError(HttpStatusCode.InternalServerError)
-                    },
-                )
+                    }
+                }
                 val processor = createProcessor(engine)
 
                 val (event) = prepareEvent(createArenaTiltakgjennomforingEvent(Insert))
@@ -291,11 +291,11 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             }
 
             test("should mark the event as Invalid when arena ords proxy responds with NotFound") {
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
+                val engine = createMockEngine {
+                    get("/ords/arbeidsgiver") {
                         respondError(HttpStatusCode.NotFound)
-                    },
-                )
+                    }
+                }
                 val processor = createProcessor(engine)
                 val (event) = prepareEvent(createArenaTiltakgjennomforingEvent(Insert))
 
@@ -306,16 +306,16 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             }
 
             test("should mark the event as Failed when api responds with an error") {
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
+                val engine = createMockEngine {
+                    get("/ords/arbeidsgiver") {
                         respondJson(
                             ArenaOrdsArrangor("123456", "000000"),
                         )
-                    },
-                    "/api/v1/intern/arena/tiltaksgjennomforing" to {
+                    }
+                    put("/api/v1/intern/arena/tiltaksgjennomforing") {
                         respondError(HttpStatusCode.InternalServerError)
-                    },
-                )
+                    }
+                }
                 val processor = createProcessor(engine)
 
                 val (event) = prepareEvent(createArenaTiltakgjennomforingEvent(Insert))
@@ -337,17 +337,17 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     },
                 )
 
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
+                val engine = createMockEngine {
+                    get("/ords/arbeidsgiver") {
                         respondJson(
                             ArenaOrdsArrangor("123456", "000000"),
                         )
-                    },
-                    "/api/v1/intern/arena/tiltaksgjennomforing" to {
+                    }
+                    put("/api/v1/intern/arena/tiltaksgjennomforing") {
                         respondJson(UpsertTiltaksgjennomforingResponse(null))
-                    },
-                    "/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
-                )
+                    }
+                    delete("/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}") { respondOk() }
+                }
                 val processor = createProcessor(engine)
 
                 processor.handleEvent(event).shouldBeRight()
@@ -410,17 +410,15 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     runBlocking {
                         val (event, mapping) = prepareEvent(event2)
 
-                        val engine = createMockEngine(
-                            "/ords/arbeidsgiver" to {
-                                respondJson(
-                                    ArenaOrdsArrangor("123456", "000000"),
-                                )
-                            },
-                            "/api/v1/intern/arena/tiltaksgjennomforing" to {
+                        val engine = createMockEngine {
+                            get("/ords/arbeidsgiver") {
+                                respondJson(ArenaOrdsArrangor("123456", "000000"))
+                            }
+                            put("/api/v1/intern/arena/tiltaksgjennomforing") {
                                 respondJson(UpsertTiltaksgjennomforingResponse(null))
-                            },
-                            "/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
-                        )
+                            }
+                            delete("/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}") { respondOk() }
+                        }
                         val processor = createProcessor(engine)
 
                         processor.handleEvent(event).shouldBeRight()
@@ -469,14 +467,14 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             }
 
             test("should not keep reference to avtale when avtale is Ignored") {
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
+                val engine = createMockEngine {
+                    get("/ords/arbeidsgiver") {
                         respondJson(ArenaOrdsArrangor("123456", "000000"))
-                    },
-                    "/api/v1/intern/arena/tiltaksgjennomforing" to {
+                    }
+                    put("/api/v1/intern/arena/tiltaksgjennomforing") {
                         respondJson(UpsertTiltaksgjennomforingResponse(null))
-                    },
-                )
+                    }
+                }
                 val processor = createProcessor(engine)
 
                 val (avtaleEvent, avtaleMapping) = prepareEvent(
@@ -496,16 +494,14 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             }
 
             test("should keep reference to avtale when avtale is Handled") {
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
-                        respondJson(
-                            ArenaOrdsArrangor("123456", "000000"),
-                        )
-                    },
-                    "/api/v1/intern/arena/tiltaksgjennomforing" to {
+                val engine = createMockEngine {
+                    get("/ords/arbeidsgiver") {
+                        respondJson(ArenaOrdsArrangor("123456", "000000"))
+                    }
+                    put("/api/v1/intern/arena/tiltaksgjennomforing") {
                         respondJson(UpsertTiltaksgjennomforingResponse(null))
-                    },
-                )
+                    }
+                }
                 val processor = createProcessor(engine)
 
                 val (avtaleEvent, avtaleMapping) = prepareEvent(
@@ -542,17 +538,15 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 )
 
                 val sanityId = UUID.randomUUID()
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
-                        respondJson(
-                            ArenaOrdsArrangor("123456", "000000"),
-                        )
-                    },
-                    "/api/v1/intern/arena/tiltaksgjennomforing" to {
+                val engine = createMockEngine {
+                    get("/ords/arbeidsgiver") {
+                        respondJson(ArenaOrdsArrangor("123456", "000000"))
+                    }
+                    put("/api/v1/intern/arena/tiltaksgjennomforing") {
                         respondJson(UpsertTiltaksgjennomforingResponse(sanityId))
-                    },
-                    "/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
-                )
+                    }
+                    delete("/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}") { respondOk() }
+                }
                 val processor = createProcessor(engine)
 
                 processor.handleEvent(event).shouldBeRight()

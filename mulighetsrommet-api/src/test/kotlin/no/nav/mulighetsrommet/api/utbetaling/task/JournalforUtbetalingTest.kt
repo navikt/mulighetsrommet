@@ -78,11 +78,11 @@ class JournalforUtbetalingTest : FunSpec({
 
     val pdl: PdlClient = mockk(relaxed = true)
     val pdf = PdfGenClient(
-        clientEngine = createMockEngine(
-            "http://pdfgen/api/v1/genpdf/utbetaling/journalpost" to {
+        clientEngine = createMockEngine {
+            post("http://pdfgen/api/v1/genpdf/utbetaling/journalpost") {
                 respond(":)".toByteArray(), HttpStatusCode.OK)
-            },
-        ),
+            }
+        },
         baseUrl = "http://pdfgen",
     )
     val tilsagnService: TilsagnService = mockk()
