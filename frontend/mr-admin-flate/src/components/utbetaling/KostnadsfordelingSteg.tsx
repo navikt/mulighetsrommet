@@ -2,7 +2,7 @@ import { formaterDato } from "@/utils/Utils";
 import {
   GjennomforingDto,
   Prismodell,
-  RefusjonKravKompakt,
+  UtbetalingKompakt,
   TilsagnDefaultsRequest,
   TilsagnDto,
   TilsagnType,
@@ -16,11 +16,11 @@ import { TilsagnTag } from "@/pages/gjennomforing/tilsagn/TilsagnTag";
 
 interface Props {
   gjennomforing: GjennomforingDto;
-  krav: RefusjonKravKompakt;
+  utbetaling: UtbetalingKompakt;
   tilsagn: TilsagnDto[];
 }
 
-export function KostnadsfordelingSteg({ gjennomforing, krav, tilsagn }: Props) {
+export function KostnadsfordelingSteg({ gjennomforing, utbetaling: krav, tilsagn }: Props) {
   const {
     watch,
     register,

@@ -9,6 +9,7 @@ import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import no.nav.mulighetsrommet.ktor.MockEngineBuilder
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.*
@@ -68,32 +69,11 @@ class TiltaksokonomiTest : FunSpec({
         }
 
         test("behandle og annuller bestilling") {
-            val mockEngine = createMockEngine(
-                "http://brreg/enheter/123456789" to {
-                    @Language("json")
-                    val brregResponse = """
-                        {
-                            "organisasjonsnummer": "123456789",
-                            "navn": "Tiltaksarrangør AS",
-                            "organisasjonsform": {
-                                "kode": "AS",
-                                "beskrivelse": "Aksjeselskap"
-                            },
-                            "postadresse": {
-                                "land": "Norge",
-                                "landkode": "NO",
-                                "postnummer": "0170",
-                                "poststed": "OSLO",
-                                "adresse": ["Gateveien 1"],
-                                "kommune": "OSLO",
-                                "kommunenummer": "0301"
-                            }
-                        }
-                    """.trimIndent()
-                    respondJson(brregResponse)
-                },
-                "http://oebs-tiltak-api/api/v1/oebs/bestilling" to { respondOk() },
-            )
+            val mockEngine = createMockEngine {
+                mockBrregHovedenhet()
+
+                post("http://oebs-tiltak-api/api/v1/oebs/bestilling") { respondOk() }
+            }
 
             withTestApplication(oauth, mockEngine) {
                 val client = createClient {
@@ -179,33 +159,13 @@ class TiltaksokonomiTest : FunSpec({
         }
 
         test("behandle og send faktura") {
-            val mockEngine = createMockEngine(
-                "http://brreg/enheter/123456789" to {
-                    @Language("json")
-                    val brregResponse = """
-                        {
-                            "organisasjonsnummer": "123456789",
-                            "navn": "Tiltaksarrangør AS",
-                            "organisasjonsform": {
-                                "kode": "AS",
-                                "beskrivelse": "Aksjeselskap"
-                            },
-                            "postadresse": {
-                                "land": "Norge",
-                                "landkode": "NO",
-                                "postnummer": "0170",
-                                "poststed": "OSLO",
-                                "adresse": ["Gateveien 1"],
-                                "kommune": "OSLO",
-                                "kommunenummer": "0301"
-                            }
-                        }
-                    """.trimIndent()
-                    respondJson(brregResponse)
-                },
-                "http://oebs-tiltak-api/api/v1/oebs/bestilling" to { respondOk() },
-                "http://oebs-tiltak-api/api/v1/oebs/faktura" to { respondOk() },
-            )
+            val mockEngine = createMockEngine {
+                mockBrregHovedenhet()
+
+                post("http://oebs-tiltak-api/api/v1/oebs/bestilling") { respondOk() }
+
+                post("http://oebs-tiltak-api/api/v1/oebs/faktura") { respondOk() }
+            }
 
             withTestApplication(oauth, mockEngine) {
                 val client = createClient {
@@ -280,3 +240,29 @@ class TiltaksokonomiTest : FunSpec({
         }
     }
 })
+
+private fun MockEngineBuilder.mockBrregHovedenhet() {
+    get("https://data.brreg.no/enhetsregisteret/api/enheter/123456789") {
+        @Language("json")
+        val brregResponse = """
+            {
+                "organisasjonsnummer": "123456789",
+                "navn": "Tiltaksarrangør AS",
+                "organisasjonsform": {
+                    "kode": "AS",
+                    "beskrivelse": "Aksjeselskap"
+                },
+                "postadresse": {
+                    "land": "Norge",
+                    "landkode": "NO",
+                    "postnummer": "0170",
+                    "poststed": "OSLO",
+                    "adresse": ["Gateveien 1"],
+                    "kommune": "OSLO",
+                    "kommunenummer": "0301"
+                }
+            }
+        """.trimIndent()
+        respondJson(brregResponse)
+    }
+}

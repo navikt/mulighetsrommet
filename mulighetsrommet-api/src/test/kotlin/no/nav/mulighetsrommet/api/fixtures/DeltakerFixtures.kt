@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import no.nav.mulighetsrommet.api.refusjon.db.DeltakerDbo
+import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import java.time.LocalDate
 import java.time.LocalDateTime

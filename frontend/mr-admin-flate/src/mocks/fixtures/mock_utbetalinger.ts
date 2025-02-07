@@ -1,17 +1,14 @@
-import { RefusjonskravStatus, Utbetaling } from "@mr/api-client-v2";
+import { UtbetalingKompakt, UtbetalingStatus } from "@mr/api-client-v2";
 
-export const mockUtbetalinger: Utbetaling[] = [
+export const mockUtbetalinger: UtbetalingKompakt[] = [
   {
-    krav: {
-      beregning: {
-        belop: 1000,
-        periodeStart: "2025-1-1",
-        periodeSlutt: "2026-6-1",
-      },
-      id: "",
-      status: RefusjonskravStatus.KLAR_FOR_GODKJENNING,
+    beregning: {
+      belop: 1000,
+      periodeStart: "2025-1-1",
+      periodeSlutt: "2026-6-1",
     },
-    type: "UTBETALING_TIL_GODKJENNING",
-    utbetalinger: [],
+    id: "",
+    status: UtbetalingStatus.KLAR_FOR_GODKJENNING,
+    delutbetalinger: [],
   },
 ];

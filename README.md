@@ -232,12 +232,12 @@ Administrasjonsflate for tiltak- og fagansvarlige i Nav som jobber med tiltaksty
 
 ### `arrangør-flate`
 
-Flate på nav.no for arrangører som skal be om refusjon
+Flate på nav.no for arrangører som skal be om utbetaling
 
 |                  |                                                                                         |
 |------------------|-----------------------------------------------------------------------------------------|
 | README           | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/arrangor-flate/README.md> |
-| Url (dev-miljø)  | <https://arrangor-refusjon.intern.dev.nav.no/>                                          |
+| Url (dev-miljø)  | <https://arrangor-utbetaling.intern.dev.nav.no/>                                          |
 | Url (prod-miljø) | <TBD - Ikke prodsatt per 06.09.2024>                                                    |
 
 ## Overvåking av automatiske jobber

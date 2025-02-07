@@ -15,8 +15,8 @@ import no.nav.mulighetsrommet.tokenprovider.AccessType
 
 class TiltakDatadelingClientTest : FunSpec({
     test("get avtaler for person") {
-        val clientEngine = createMockEngine(
-            "/graphql" to {
+        val clientEngine = createMockEngine {
+            post("/graphql") {
                 respondJson(
                     """
                     {
@@ -63,8 +63,8 @@ class TiltakDatadelingClientTest : FunSpec({
                     }
                     """.trimIndent(),
                 )
-            },
-        )
+            }
+        }
 
         val client = TiltakDatadelingClient(
             engine = clientEngine,
@@ -85,15 +85,15 @@ class TiltakDatadelingClientTest : FunSpec({
                 extensions = GraphqlResponse.Extensions(classification = "InvalidSyntax"),
             ),
         )
-        val clientEngine = createMockEngine(
-            "/graphql" to {
+        val clientEngine = createMockEngine {
+            post("/graphql") {
                 respondJson(
                     JsonIgnoreUnknownKeys.encodeToString<GraphqlResponse<Nothing>>(
                         GraphqlResponse(errors = errors),
                     ),
                 )
-            },
-        )
+            }
+        }
 
         val client = TiltakDatadelingClient(
             engine = clientEngine,

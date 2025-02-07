@@ -142,7 +142,7 @@ class TilsagnQueries(private val session: Session) {
         return session.list(queryOf(query, params)) { it.toTilsagnDto() }
     }
 
-    fun getArrangorflateTilsagnTilRefusjon(
+    fun getArrangorflateTilsagnTilUtbetaling(
         gjennomforingId: UUID,
         periode: Periode,
     ): List<ArrangorflateTilsagn> {

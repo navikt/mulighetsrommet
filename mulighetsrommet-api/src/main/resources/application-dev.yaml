@@ -7,7 +7,7 @@ app:
     jdbcUrl: ${DB_JDBC_URL}
     maximumPoolSize: 10
   flyway:
-    strategy: Migrate
+    strategy: RepairAndMigrate
 
   kafka:
     producerId: mulighetsrommet-api-kafka-producer.v1
@@ -59,7 +59,7 @@ app:
     updateApentForPamelding:
       disabled: false
       cronPattern: "0 55 23 * * *" # 23.55 hver kveld
-    generateRefusjonskrav:
+    generateUtbetaling:
       cronPattern: "0 0 5 7 * *"
 
   auth:
@@ -174,9 +174,6 @@ app:
 
   norg2:
     url: http://norg2.org
-
-  brreg:
-    url: https://data.brreg.no/enhetsregisteret/api
 
   altinn:
     url: https://platform.tt02.altinn.no

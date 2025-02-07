@@ -7,7 +7,6 @@ import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.database.kotest.extensions.createRandomDatabaseConfig
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import no.nav.tiltak.okonomi.*
 
 val databaseConfig: DatabaseConfig = createRandomDatabaseConfig("mr-tiltaksokonomi")
 
@@ -33,7 +32,6 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server, engine: HttpClientEngin
     auth = createAuthConfig(oauth),
     clients = ClientConfig(
         oebsTiltakApi = AuthenticatedHttpClientConfig(url = "http://oebs-tiltak-api", scope = "default"),
-        brreg = HttpClientConfig(url = "http://brreg"),
     ),
 )
 

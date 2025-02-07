@@ -52,12 +52,6 @@ import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.NavEnheterSyncService
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
-import no.nav.mulighetsrommet.api.refusjon.HentAdressebeskyttetPersonBolkPdlQuery
-import no.nav.mulighetsrommet.api.refusjon.RefusjonService
-import no.nav.mulighetsrommet.api.refusjon.kafka.AmtArrangorMeldingV1KafkaConsumer
-import no.nav.mulighetsrommet.api.refusjon.kafka.AmtDeltakerV1KafkaConsumer
-import no.nav.mulighetsrommet.api.refusjon.task.GenerateRefusjonskrav
-import no.nav.mulighetsrommet.api.refusjon.task.JournalforRefusjonskrav
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
@@ -66,6 +60,12 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
+import no.nav.mulighetsrommet.api.utbetaling.HentAdressebeskyttetPersonBolkPdlQuery
+import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
+import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
+import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtDeltakerV1KafkaConsumer
+import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
+import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.TiltakshistorikkService
@@ -183,7 +183,7 @@ private fun kafka(appConfig: AppConfig) = module {
                 config = config.consumers.amtDeltakerV1,
                 tiltakstyper = get(),
                 db = get(),
-                refusjonService = get(),
+                utbetalingService = get(),
             ),
             AmtVirksomheterV1KafkaConsumer(
                 config = config.consumers.amtVirksomheterV1,
@@ -289,7 +289,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { SanityService(get()) }
     single {
-        BrregClient(clientEngine = appConfig.engine, baseUrl = appConfig.brreg.url)
+        BrregClient(clientEngine = appConfig.engine)
     }
     single {
         AmtDeltakerClient(
@@ -365,7 +365,7 @@ private fun services(appConfig: AppConfig) = module {
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
     single { ArrangorService(get(), get()) }
-    single { RefusjonService(get()) }
+    single { UtbetalingService(get()) }
     single { UnleashService(appConfig.unleash, get()) }
     single<AxsysClient> {
         AxsysV2ClientImpl(
@@ -387,8 +387,8 @@ private fun tasks(config: TaskConfig) = module {
     single { InitialLoadTiltakstyper(get(), get(), get()) }
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get()) }
     single { SynchronizeUtdanninger(config.synchronizeUtdanninger, get(), get()) }
-    single { GenerateRefusjonskrav(config.generateRefusjonskrav, get()) }
-    single { JournalforRefusjonskrav(get(), get(), get(), get(), get()) }
+    single { GenerateUtbetaling(config.generateUtbetaling, get()) }
+    single { JournalforUtbetaling(get(), get(), get(), get(), get()) }
     single { NotificationTask(get()) }
     single {
         val updateGjennomforingStatus = UpdateGjennomforingStatus(
@@ -418,8 +418,8 @@ private fun tasks(config: TaskConfig) = module {
         val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
         val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
         val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
-        val generateRefusjonskrav: GenerateRefusjonskrav by inject()
-        val journalforRefusjonskrav: JournalforRefusjonskrav by inject()
+        val generateUtbetaling: GenerateUtbetaling by inject()
+        val journalforUtbetaling: JournalforUtbetaling by inject()
 
         val db: Database by inject()
 
@@ -430,7 +430,7 @@ private fun tasks(config: TaskConfig) = module {
                 generateValidationReport.task,
                 initialLoadGjennomforinger.task,
                 initialLoadTiltakstyper.task,
-                journalforRefusjonskrav.task,
+                journalforUtbetaling.task,
             )
             .addSchedulerListener(SlackNotifierSchedulerListener(get()))
             .addSchedulerListener(OpenTelemetrySchedulerListener())
@@ -443,7 +443,7 @@ private fun tasks(config: TaskConfig) = module {
                 notifySluttdatoForAvtalerNarmerSeg.task,
                 notifyFailedKafkaEvents.task,
                 updateApentForPamelding.task,
-                generateRefusjonskrav.task,
+                generateUtbetaling.task,
             )
             .serializer(DbSchedulerKotlinSerializer())
             .registerShutdownHook()

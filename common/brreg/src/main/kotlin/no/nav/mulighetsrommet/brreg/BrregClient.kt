@@ -6,6 +6,7 @@ import arrow.core.raise.either
 import arrow.core.right
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -22,11 +23,17 @@ import org.slf4j.LoggerFactory
  * [0]: https://data.brreg.no/enhetsregisteret/api/docs/index.html for dokumentasjon.
  * [1]: https://www.brreg.no/bruke-data-fra-bronnoysundregistrene/apne-data/beskrivelse-av-tjenesten-data-fra-enhetsregisteret/
  */
-class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
+class BrregClient(
+    clientEngine: HttpClientEngine,
+    private val baseUrl: String = "https://data.brreg.no",
+) {
     private val log = LoggerFactory.getLogger(javaClass)
 
     private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
+        defaultRequest {
+            url(baseUrl)
+        }
     }
 
     suspend fun getBrregEnhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregEnhet> {
@@ -53,7 +60,7 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
             false -> "navn"
         }
 
-        val response = client.get("$baseUrl/enheter") {
+        val response = client.get("/enhetsregisteret/api/enheter") {
             parameter("size", 20)
             parameter(sokEllerOppslag, orgnr)
         }
@@ -72,7 +79,7 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
     }
 
     suspend fun getUnderenheterForHovedenhet(orgnr: Organisasjonsnummer): Either<BrregError, List<BrregUnderenhetDto>> {
-        val underenheterResponse = client.get("$baseUrl/underenheter") {
+        val underenheterResponse = client.get("/enhetsregisteret/api/underenheter") {
             parameter("size", 1000)
             parameter("overordnetEnhet", orgnr.value)
         }
@@ -91,7 +98,7 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
     }
 
     suspend fun getHovedenhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregHovedenhet> = either {
-        val response = client.get("$baseUrl/enheter/${orgnr.value}")
+        val response = client.get("/enhetsregisteret/api/enheter/${orgnr.value}")
 
         val enhet = parseResponse<OverordnetEnhet>(response).bind()
         if (enhet.slettedato != null) {
@@ -112,7 +119,7 @@ class BrregClient(clientEngine: HttpClientEngine, private val baseUrl: String) {
     }
 
     suspend fun getUnderenhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregUnderenhet> = either {
-        val response = client.get("$baseUrl/underenheter/${orgnr.value}")
+        val response = client.get("/enhetsregisteret/api/underenheter/${orgnr.value}")
 
         val enhet = parseResponse<Underenhet>(response).bind()
 

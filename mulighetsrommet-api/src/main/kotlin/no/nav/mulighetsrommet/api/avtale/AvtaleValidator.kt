@@ -224,7 +224,7 @@ class AvtaleValidator(
         /**
          * Når avtalen har blitt godkjent så skal alle datafelter som påvirker økonomien, påmelding, osv. være låst.
          *
-         * Vi mangler fortsatt en del innsikt og løsning rundt tilsagn og refusjon (f.eks. når blir avtalen godkjent?),
+         * Vi mangler fortsatt en del innsikt og løsning rundt tilsagn og utbetaling (f.eks. når blir avtalen godkjent?),
          * så reglene for når en avtale er låst er foreløpig ganske naive og baserer seg kun på om det finnes
          * gjennomføringer på avtalen eller ikke...
          */
