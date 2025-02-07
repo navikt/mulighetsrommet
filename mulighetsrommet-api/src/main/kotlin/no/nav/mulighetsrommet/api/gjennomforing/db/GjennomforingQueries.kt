@@ -22,9 +22,6 @@ import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
@@ -576,7 +573,7 @@ class GjennomforingQueries(private val session: Session) {
             id = uuid("id"),
             navn = string("navn"),
             tiltaksnummer = stringOrNull("tiltaksnummer"),
-            lopenummer = stringOrNull("lopenummer"),
+            lopenummer = string("lopenummer"),
             startDato = startDato,
             sluttDato = sluttDato,
             status = GjennomforingStatusDto(status, avbrutt),

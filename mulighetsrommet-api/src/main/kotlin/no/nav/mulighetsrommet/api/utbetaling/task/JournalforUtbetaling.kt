@@ -62,8 +62,8 @@ class JournalforUtbetaling(
 
         val gjennomforing = queries.gjennomforing.get(utbetaling.gjennomforing.id)
         requireNotNull(gjennomforing) { "Fant ikke gjennomforing til utbetaling med id=$id" }
+
         val fagsakId = gjennomforing.tiltaksnummer ?: gjennomforing.lopenummer
-        requireNotNull(fagsakId) { "FagsakId var null for gjennomføring med id=${gjennomforing.id}" }
 
         val pdf = run {
             val tilsagn = tilsagnService.getArrangorflateTilsagnTilUtbetaling(
