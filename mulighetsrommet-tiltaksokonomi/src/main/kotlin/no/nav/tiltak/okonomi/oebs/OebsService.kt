@@ -156,7 +156,8 @@ class OebsService(
             besluttetAv = faktura.opprettetAv,
             besluttetTidspunkt = faktura.opprettetTidspunkt,
             linjer = perioder.map { (periode, belop) ->
-                val bestillingLinje = bestillingLinjerByMonth.getValue(periode.start.month)
+                val bestillingLinje = bestillingLinjerByMonth[periode.start.month]
+                    ?: return OpprettFakturaError("Bestillingslinje mangler for måned ${periode.start.month}").left()
                 LinjeDbo(
                     linjenummer = bestillingLinje.linjenummer,
                     periode = periode,
