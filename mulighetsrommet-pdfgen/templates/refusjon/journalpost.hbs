@@ -21,7 +21,6 @@
             font-size: 12px;
         }
         table th {
-            width: 25%;
             font-weight: normal;
         }
         table td {
@@ -37,6 +36,17 @@
         }
         .text-align-right {
             text-align: right;
+        }
+        .deltaker-liste {
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .deltaker-liste th,
+        .deltaker-liste td {
+            width: auto;
+            padding: 8px;
+            text-align: left;
         }
     </style>
 </head>
@@ -96,11 +106,11 @@
         <thead>
             <tr>
                 <th>Navn</th>
-                <th>Fødselsdato</th>
+                <th>F.dato</th>
                 <th>Startdato i tiltaket</th>
                 <th>Startdato i perioden</th>
                 <th>Sluttdato i perioden</th>
-                <th>Deltakelsesprosent</th>
+                <th>Deltakelses<br/>-prosent</th>
                 <th>Månedsverk</th>
             </tr>
         </thead>
