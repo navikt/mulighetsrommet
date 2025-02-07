@@ -4,7 +4,7 @@ import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 import { logEvent } from "@/logging/amplitude";
 import { ReactNode } from "react";
 
-interface ForsidekortProps {
+export interface ForsideKortProps {
   navn: string;
   ikon: ReactNode;
   url: string;
@@ -21,7 +21,7 @@ function loggKlikkPaKort(forsidekort: string) {
   });
 }
 
-export function Forsidekort({ navn, ikon, url, tekst, apneINyTab = false }: ForsidekortProps) {
+export function Forsidekort({ navn, ikon, url, tekst, apneINyTab = false }: ForsideKortProps) {
   return (
     <Link
       key={url}
