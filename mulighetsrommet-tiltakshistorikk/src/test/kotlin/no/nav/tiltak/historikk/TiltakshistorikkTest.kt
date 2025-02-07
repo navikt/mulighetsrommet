@@ -242,13 +242,12 @@ private fun mockTiltakDatadeling(
         data = GetAvtalerForPersonResponse(avtalerForPerson = listOf()),
     ),
 ): MockEngine {
-    val mockEngine = createMockEngine(
-        "http://tiltak-datadeling/graphql" to {
+    return createMockEngine {
+        post("http://tiltak-datadeling/graphql") {
             val serializer = GraphqlResponse.serializer(GetAvtalerForPersonResponse.serializer())
             respondJson(response, serializer)
-        },
-    )
-    return mockEngine
+        }
+    }
 }
 
 private fun inititalizeData(database: FlywayDatabaseTestListener) {
