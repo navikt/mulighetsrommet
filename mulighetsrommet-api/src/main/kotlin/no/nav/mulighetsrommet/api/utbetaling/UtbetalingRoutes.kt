@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.api.utbetaling.db.TilsagnUtbetalingDbo
+import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -37,7 +37,7 @@ fun Route.utbetalingRoutes() {
 
             val utbetaling = db.session {
                 val utbetaling = queries.utbetaling.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
-                val delutbetalinger = queries.delutbetaling.getByutbetalingId(id)
+                val delutbetalinger = queries.delutbetaling.getByUtbetalingId(id)
                 UtbetalingKompakt.fromUtbetalingDto(utbetaling, delutbetalinger)
             }
 
@@ -97,7 +97,7 @@ fun Route.utbetalingRoutes() {
             val request = call.receive<BehandleUtbetalingRequest>()
             val navIdent = getNavIdent()
             val utbetalinger = db.session {
-                queries.delutbetaling.getByutbetalingId(utbetalingId)
+                queries.delutbetaling.getByUtbetalingId(utbetalingId)
             }
 
             UtbetalingValidator.validate(request, utbetalinger)
@@ -106,9 +106,9 @@ fun Route.utbetalingRoutes() {
                 }
 
             db.session {
-                queries.delutbetaling.opprettTilsagnUtbetalinger(
+                queries.delutbetaling.opprettDelutbetalinger(
                     request.kostnadsfordeling.map {
-                        TilsagnUtbetalingDbo(
+                        DelutbetalingDbo(
                             utbetalingId = utbetalingId,
                             tilsagnId = it.tilsagnId,
                             belop = it.belop,
@@ -129,7 +129,7 @@ fun Route.utbetalingRoutes() {
                 val utbetalinger = db.session {
                     queries.utbetaling.getByGjennomforing(id)
                         .map { utbetaling ->
-                            val delutbetalinger = queries.delutbetaling.getByutbetalingId(utbetaling.id)
+                            val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
 
                             UtbetalingKompakt.fromUtbetalingDto(utbetaling, delutbetalinger)
                         }

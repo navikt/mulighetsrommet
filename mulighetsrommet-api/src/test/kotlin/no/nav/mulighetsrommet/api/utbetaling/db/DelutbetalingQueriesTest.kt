@@ -84,15 +84,15 @@ class DelutbetalingQueriesTest : FunSpec({
             )
             UtbetalingQueries(session).upsert(utbetaling)
 
-            val delutbetaling = TilsagnUtbetalingDbo(
+            val delutbetaling = DelutbetalingDbo(
                 tilsagnId = tilsagn.id,
                 utbetalingId = utbetaling.id,
                 belop = 100,
                 opprettetAv = NavAnsattFixture.ansatt1.navIdent,
             )
-            DelutbetalingQueries(session).opprettTilsagnUtbetalinger(listOf(delutbetaling))
+            DelutbetalingQueries(session).opprettDelutbetalinger(listOf(delutbetaling))
 
-            val dto = DelutbetalingQueries(session).getByutbetalingId(utbetaling.id)[0]
+            val dto = DelutbetalingQueries(session).getByUtbetalingId(utbetaling.id)[0]
             dto shouldBe DelutbetalingDto.DelutbetalingTilGodkjenning(
                 tilsagnId = tilsagn.id,
                 utbetalingId = utbetaling.id,

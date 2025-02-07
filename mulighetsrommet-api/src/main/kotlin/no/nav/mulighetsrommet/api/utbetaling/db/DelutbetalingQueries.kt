@@ -10,7 +10,7 @@ import org.intellij.lang.annotations.Language
 import java.util.*
 
 class DelutbetalingQueries(private val session: Session) {
-    fun opprettTilsagnUtbetalinger(dbos: List<TilsagnUtbetalingDbo>) = withTransaction(session) {
+    fun opprettDelutbetalinger(delutbetalinger: List<DelutbetalingDbo>) = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
             insert into delutbetaling (
@@ -26,38 +26,29 @@ class DelutbetalingQueries(private val session: Session) {
             );
         """.trimIndent()
 
-        batchPreparedNamedStatement(
-            query,
-            dbos.map { it ->
-                mapOf(
-                    "tilsagn_id" to it.tilsagnId,
-                    "utbetaling_id" to it.utbetalingId,
-                    "belop" to it.belop,
-                    "opprettet_av" to it.opprettetAv.value,
-                )
-            },
-        )
+        val params = delutbetalinger.map {
+            mapOf(
+                "tilsagn_id" to it.tilsagnId,
+                "utbetaling_id" to it.utbetalingId,
+                "belop" to it.belop,
+                "opprettet_av" to it.opprettetAv.value,
+            )
+        }
+        batchPreparedNamedStatement(query, params)
     }
 
-    fun getByutbetalingId(id: UUID): List<DelutbetalingDto> = with(session) {
+    fun getByUtbetalingId(id: UUID): List<DelutbetalingDto> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select * from delutbetaling
             where utbetaling_id = :id::uuid
         """.trimIndent()
 
-        return list(queryOf(query, mapOf("id" to id))) { it.toTilsagnUtbetalingDto() }
+        return list(queryOf(query, mapOf("id" to id))) { it.toDelutbetalingDto() }
     }
 }
 
-data class TilsagnUtbetalingDbo(
-    val tilsagnId: UUID,
-    val utbetalingId: UUID,
-    val opprettetAv: NavIdent,
-    val belop: Int,
-)
-
-fun Row.toTilsagnUtbetalingDto(): DelutbetalingDto {
+private fun Row.toDelutbetalingDto(): DelutbetalingDto {
     val besluttetAv = stringOrNull("besluttet_av")?.let { NavIdent(it) }
 
     return when (besluttetAv) {
@@ -67,6 +58,7 @@ fun Row.toTilsagnUtbetalingDto(): DelutbetalingDto {
             opprettetAv = NavIdent(string("opprettet_av")),
             belop = int("belop"),
         )
+
         else -> DelutbetalingDto.DelutbetalingGodkjent(
             tilsagnId = uuid("tilsagn_id"),
             utbetalingId = uuid("utbetaling_id"),
