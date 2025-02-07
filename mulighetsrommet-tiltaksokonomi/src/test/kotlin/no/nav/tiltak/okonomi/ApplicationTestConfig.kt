@@ -3,9 +3,7 @@ package no.nav.tiltak.okonomi
 import io.ktor.client.engine.*
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
-import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.database.kotest.extensions.createRandomDatabaseConfig
-import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
@@ -30,24 +28,10 @@ fun createTestApplicationConfig(
     engine: HttpClientEngine,
     auth: AuthConfig,
     database: DatabaseConfig,
-): AppConfig = AppConfig(
+): AppConfig = ApplicationConfigLocal.copy(
     httpClientEngine = engine,
     database = database,
-    flyway = FlywayMigrationManager.MigrationConfig(),
     auth = auth,
-    clients = ClientConfig(
-        oebsTiltakApi = AuthenticatedHttpClientConfig(url = "http://oebs-tiltak-api", scope = "default"),
-    ),
-    kafka = KafkaConfig(
-        brokerUrl = "localhost:29092",
-        defaultConsumerGroupId = "1",
-        clients = KafkaClients(
-            okonomiBestillingConsumer = KafkaTopicConsumer.Config(
-                id = "okonomi-bestilling",
-                topic = "okonomi-bestilling",
-            ),
-        ),
-    ),
 )
 
 // Default values for 'iss' og 'aud' in tokens issued by mock-oauth2-server is 'default'.
