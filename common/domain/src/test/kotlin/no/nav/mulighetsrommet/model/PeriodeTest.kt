@@ -60,4 +60,14 @@ class PeriodeTest : FunSpec({
         period1.compareTo(period4) shouldBe -1
         period4.compareTo(period1) shouldBe 1
     }
+
+    test("should intersect periods") {
+        val period1 = Periode(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 31))
+        val period2 = Periode(LocalDate.of(2021, 1, 15), LocalDate.of(2021, 2, 15))
+
+        Periode.intersect(period1, period2) shouldBe Periode(LocalDate.of(2021, 1, 15), LocalDate.of(2021, 1, 31))
+
+        val period3 = Periode(LocalDate.of(2021, 2, 1), LocalDate.of(2021, 2, 15))
+        Periode.intersect(period1, period3) shouldBe null
+    }
 })

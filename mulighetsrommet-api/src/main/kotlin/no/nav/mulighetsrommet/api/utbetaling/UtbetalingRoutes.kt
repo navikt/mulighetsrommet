@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.api.utbetaling.db.TilsagnUtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -30,6 +29,7 @@ import java.util.*
 
 fun Route.utbetalingRoutes() {
     val db: ApiDatabase by inject()
+    val service: UtbetalingService by inject()
 
     route("/utbetaling/{id}") {
         get {
@@ -37,7 +37,7 @@ fun Route.utbetalingRoutes() {
 
             val utbetaling = db.session {
                 val utbetaling = queries.utbetaling.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
-                val delutbetalinger = queries.delutbetaling.getByutbetalingId(id)
+                val delutbetalinger = queries.delutbetaling.getByUtbetalingId(id)
                 UtbetalingKompakt.fromUtbetalingDto(utbetaling, delutbetalinger)
             }
 
@@ -96,27 +96,16 @@ fun Route.utbetalingRoutes() {
             val utbetalingId = call.parameters.getOrFail<UUID>("id")
             val request = call.receive<BehandleUtbetalingRequest>()
             val navIdent = getNavIdent()
-            val utbetalinger = db.session {
-                queries.delutbetaling.getByutbetalingId(utbetalingId)
+
+            val delutbetalinger = db.session {
+                queries.delutbetaling.getByUtbetalingId(utbetalingId)
+            }
+            UtbetalingValidator.validate(request, delutbetalinger).onLeft {
+                return@put call.respondWithStatusResponse(ValidationError(errors = it).left())
             }
 
-            UtbetalingValidator.validate(request, utbetalinger)
-                .onLeft {
-                    return@put call.respondWithStatusResponse(ValidationError(errors = it).left())
-                }
+            service.bekreftUtbetaling(utbetalingId, request.kostnadsfordeling, navIdent)
 
-            db.session {
-                queries.delutbetaling.opprettTilsagnUtbetalinger(
-                    request.kostnadsfordeling.map {
-                        TilsagnUtbetalingDbo(
-                            utbetalingId = utbetalingId,
-                            tilsagnId = it.tilsagnId,
-                            belop = it.belop,
-                            opprettetAv = navIdent,
-                        )
-                    },
-                )
-            }
             call.respond(HttpStatusCode.OK)
         }
     }
@@ -129,7 +118,7 @@ fun Route.utbetalingRoutes() {
                 val utbetalinger = db.session {
                     queries.utbetaling.getByGjennomforing(id)
                         .map { utbetaling ->
-                            val delutbetalinger = queries.delutbetaling.getByutbetalingId(utbetaling.id)
+                            val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
 
                             UtbetalingKompakt.fromUtbetalingDto(utbetaling, delutbetalinger)
                         }

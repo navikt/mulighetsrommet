@@ -7,11 +7,8 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
+import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePerioder
@@ -21,6 +18,7 @@ import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
+import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -390,6 +388,78 @@ class UtbetalingServiceTest : FunSpec({
                     )
                 }
             }
+        }
+    }
+
+    context("bekreft utbetaling") {
+        test("når utbetaling bekreftes opprettes delutbetaling for perioden som overlapper med tilsagnet") {
+            val tilsagn1 = TilsagnFixtures.Tilsagn1.copy(
+                periodeStart = LocalDate.of(2024, 1, 1),
+                periodeSlutt = LocalDate.of(2024, 3, 1),
+            )
+
+            val tilsagn2 = TilsagnFixtures.Tilsagn2.copy(
+                periodeStart = LocalDate.of(2023, 12, 1),
+                periodeSlutt = LocalDate.of(2024, 1, 15),
+            )
+
+            val utbetaling = UtbetalingFixtures.utbetaling.copy(
+                periode = Periode(LocalDate.of(2023, 12, 1), LocalDate.of(2024, 2, 1)),
+            )
+
+            val domain = MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.ansatt1),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(tilsagn1, tilsagn2),
+                utbetalinger = listOf(utbetaling),
+            ).initialize(database.db)
+
+            val service = UtbetalingService(db = database.db)
+
+            val kostnadsfordeling = listOf(
+                BehandleUtbetalingRequest.TilsagnOgBelop(tilsagnId = tilsagn1.id, belop = 100),
+                BehandleUtbetalingRequest.TilsagnOgBelop(tilsagnId = tilsagn2.id, belop = 50),
+            )
+
+            service.bekreftUtbetaling(utbetaling.id, kostnadsfordeling, domain.ansatte[0].navIdent)
+
+            database.run {
+                val (first, second) = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+                first.periode shouldBe Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 2, 1))
+                second.periode shouldBe Periode(LocalDate.of(2023, 12, 1), LocalDate.of(2024, 1, 15))
+            }
+        }
+
+        test("når utbetaling bekreftes opprettes delutbetaling for perioden som overlapper med tilsagnet") {
+            val tilsagn1 = TilsagnFixtures.Tilsagn1.copy(
+                periodeStart = LocalDate.of(2024, 1, 1),
+                periodeSlutt = LocalDate.of(2024, 2, 1),
+            )
+
+            val utbetaling = UtbetalingFixtures.utbetaling.copy(
+                periode = Periode(LocalDate.of(2024, 2, 1), LocalDate.of(2024, 3, 1)),
+            )
+
+            val domain = MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.ansatt1),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(tilsagn1),
+                utbetalinger = listOf(utbetaling),
+            ).initialize(database.db)
+
+            val service = UtbetalingService(db = database.db)
+
+            val kostnadsfordeling = listOf(
+                BehandleUtbetalingRequest.TilsagnOgBelop(tilsagnId = tilsagn1.id, belop = 100),
+            )
+
+            val exception = assertThrows<IllegalArgumentException> {
+                service.bekreftUtbetaling(utbetaling.id, kostnadsfordeling, domain.ansatte[0].navIdent)
+            }
+
+            exception.message shouldBe "Utbetalingsperiode og tilsagnsperiode overlapper ikke"
         }
     }
 })

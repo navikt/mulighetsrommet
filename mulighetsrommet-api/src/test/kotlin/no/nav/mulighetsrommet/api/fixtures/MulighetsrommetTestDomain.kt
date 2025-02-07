@@ -56,8 +56,8 @@ data class MulighetsrommetTestDomain(
         avtaler.forEach { queries.avtale.upsert(it) }
         gjennomforinger.forEach { queries.gjennomforing.upsert(it) }
         deltakere.forEach { queries.deltaker.upsert(it) }
-        utbetalinger.forEach { queries.utbetaling.upsert(it) }
         tilsagn.forEach { queries.tilsagn.upsert(it) }
+        utbetalinger.forEach { queries.utbetaling.upsert(it) }
 
         additionalSetup?.invoke(this)
 
@@ -76,6 +76,7 @@ data class MulighetsrommetTestDomain(
             avtaler.forEach { queries.avtale.upsert(it) }
             gjennomforinger.forEach { queries.gjennomforing.upsert(it) }
             deltakere.forEach { queries.deltaker.upsert(it) }
+            tilsagn.forEach { queries.tilsagn.upsert(it) }
             utbetalinger.forEach { queries.utbetaling.upsert(it) }
         }
 
