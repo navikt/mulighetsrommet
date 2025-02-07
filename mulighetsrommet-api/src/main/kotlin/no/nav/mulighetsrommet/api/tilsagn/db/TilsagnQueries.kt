@@ -26,8 +26,7 @@ class TilsagnQueries(private val session: Session) {
             insert into tilsagn (
                 id,
                 gjennomforing_id,
-                periode_start,
-                periode_slutt,
+                periode,
                 lopenummer,
                 bestillingsnummer,
                 kostnadssted,
@@ -40,8 +39,7 @@ class TilsagnQueries(private val session: Session) {
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
-                :periode_start,
-                :periode_slutt,
+                daterange(:periode_start, :periode_slutt),
                 :lopenummer,
                 :bestillingsnummer,
                 :kostnadssted,
@@ -53,9 +51,8 @@ class TilsagnQueries(private val session: Session) {
                 :type::tilsagn_type
             )
             on conflict (id) do update set
-                gjennomforing_id = excluded.gjennomforing_id,
-                periode_start           = excluded.periode_start,
-                periode_slutt           = excluded.periode_slutt,
+                gjennomforing_id        = excluded.gjennomforing_id,
+                periode                 = excluded.periode,
                 lopenummer              = excluded.lopenummer,
                 bestillingsnummer       = excluded.bestillingsnummer,
                 kostnadssted            = excluded.kostnadssted,

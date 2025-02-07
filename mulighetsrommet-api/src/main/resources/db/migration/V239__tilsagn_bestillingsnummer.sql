@@ -18,7 +18,10 @@ alter table tilsagn
     alter column lopenummer set data type int;
 
 alter table tilsagn
-    add bestillingsnummer text unique not null;
+    drop periode_start,
+    drop periode_slutt,
+    add bestillingsnummer text unique not null,
+    add periode           daterange   not null;
 
 alter table tilsagn
     add constraint unique_gjennomforing_id_lopenummer unique (gjennomforing_id, lopenummer);
