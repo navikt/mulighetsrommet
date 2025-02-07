@@ -6,6 +6,7 @@ export function ErrorPage() {
   const error = useRouteError() as
     | {
         statusText?: string;
+        detail?: string;
         message?: string;
       }
     | undefined;
@@ -26,7 +27,7 @@ export function ErrorPage() {
         <Heading size="large">Oops!</Heading>
         <BodyShort>Her har det skjedd en feil!</BodyShort>
         <BodyShort>
-          Feilmelding: <i>{error?.statusText || error?.message || "N/A"}</i>
+          Feilmelding: <i>{error?.statusText || error?.message || error?.detail || "N/A"}</i>
         </BodyShort>
         <BodyShort>
           Dersom feilen vedvarer, vennligst ta kontakt med Team Valp via{" "}
