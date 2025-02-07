@@ -99,7 +99,7 @@ export function GjennomforingFormContainer({
       navEnheter: data.navEnheter,
       navn: data.navn,
       startDato: data.startOgSluttDato.startDato,
-      sluttDato: data.startOgSluttDato.sluttDato ?? null,
+      sluttDato: data.startOgSluttDato.sluttDato || null,
       avtaleId: avtale.id,
       administratorer: data.administratorer,
       arrangorId: data.arrangorId,
