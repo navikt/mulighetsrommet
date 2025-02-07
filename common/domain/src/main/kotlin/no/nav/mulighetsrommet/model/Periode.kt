@@ -35,6 +35,16 @@ data class Periode(
         fun fromInclusiveDates(inclusiveStart: LocalDate, inclusiveEnd: LocalDate): Periode {
             return Periode(inclusiveStart, inclusiveEnd.plusDays(1))
         }
+
+        fun intersect(first: Periode, second: Periode): Periode? {
+            val start = maxOf(first.start, second.start)
+            val slutt = minOf(first.slutt, second.slutt)
+            return if (start < slutt) {
+                Periode(start, slutt)
+            } else {
+                null
+            }
+        }
     }
 
     fun getDurationInDays(): Long {
