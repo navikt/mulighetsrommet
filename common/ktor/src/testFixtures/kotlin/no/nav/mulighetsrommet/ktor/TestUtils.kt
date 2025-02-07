@@ -9,8 +9,6 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.serializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
-import no.nav.mulighetsrommet.utils.toUUID
-import java.util.*
 
 /**
  * Utility to decode the body of [HttpRequestData] to the type [T].
@@ -148,8 +146,4 @@ private fun parametersMatches(expectedParameters: Parameters, actualParameters: 
             ?: throw IllegalStateException("Expected to find '$key' in request parameters, but it was missing")
         return actualValue == expectedValue
     }
-}
-
-fun Url.getLastPathParameterAsUUID(): UUID {
-    return encodedPath.split("/").last().toUUID()
 }

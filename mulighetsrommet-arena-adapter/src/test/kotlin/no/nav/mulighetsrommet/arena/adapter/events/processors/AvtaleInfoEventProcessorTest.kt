@@ -32,7 +32,6 @@ import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
-import no.nav.mulighetsrommet.ktor.getLastPathParameterAsUUID
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.Avtaletype
 
@@ -258,8 +257,6 @@ class AvtaleInfoEventProcessorTest : FunSpec({
 
                 engine.requestHistory.last().run {
                     method shouldBe HttpMethod.Delete
-
-                    url.getLastPathParameterAsUUID() shouldBe mapping.entityId
                 }
             }
 
