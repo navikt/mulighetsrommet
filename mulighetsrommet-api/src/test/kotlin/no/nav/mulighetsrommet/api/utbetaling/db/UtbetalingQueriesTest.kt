@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.utbetaling.db
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
@@ -121,6 +122,35 @@ class UtbetalingQueriesTest : FunSpec({
                     journalpostId = null,
                     periode = beregning.input.periode,
                 )
+            }
+        }
+
+        test("upsert fri beregning") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = UtbetalingQueries(session)
+
+                val frist = LocalDate.of(2024, 10, 1).atStartOfDay()
+                val friberegning = UtbetalingBeregningFri(
+                    input = UtbetalingBeregningFri.Input(belop = 137_077),
+                    output = UtbetalingBeregningFri.Output(belop = 137_077),
+                )
+                val utbetaling = UtbetalingDbo(
+                    id = UUID.randomUUID(),
+                    gjennomforingId = AFT1.id,
+                    fristForGodkjenning = frist,
+                    beregning = friberegning,
+                    kontonummer = Kontonummer("11111111111"),
+                    kid = Kid("12345"),
+                    periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 5, 5)),
+                )
+
+                queries.upsert(utbetaling)
+                queries.get(utbetaling.id).shouldNotBeNull() should {
+                    it.id shouldBe utbetaling.id
+                    it.beregning shouldBe friberegning
+                }
             }
         }
 
