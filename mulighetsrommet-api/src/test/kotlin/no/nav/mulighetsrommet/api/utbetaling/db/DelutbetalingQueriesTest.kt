@@ -14,7 +14,7 @@ class DelutbetalingQueriesTest : FunSpec({
 
     val tilsagn = TilsagnFixtures.Tilsagn1
 
-    val utbetaling = UtbetalingFixtures.utbetaling
+    val utbetaling = UtbetalingFixtures.utbetaling1
 
     val domain = MulighetsrommetTestDomain(
         ansatte = listOf(NavAnsattFixture.ansatt1),
@@ -35,6 +35,8 @@ class DelutbetalingQueriesTest : FunSpec({
                 utbetalingId = utbetaling.id,
                 belop = 100,
                 periode = utbetaling.periode,
+                lopenummer = 1,
+                fakturanummer = "1",
                 opprettetAv = NavAnsattFixture.ansatt1.navIdent,
             )
             queries.opprettDelutbetalinger(listOf(delutbetaling))
@@ -45,6 +47,8 @@ class DelutbetalingQueriesTest : FunSpec({
                 belop = 100,
                 periode = utbetaling.periode,
                 opprettetAv = NavAnsattFixture.ansatt1.navIdent,
+                lopenummer = 1,
+                fakturanummer = "1",
             )
         }
     }

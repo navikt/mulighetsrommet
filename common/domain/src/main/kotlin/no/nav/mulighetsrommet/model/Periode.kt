@@ -35,16 +35,10 @@ data class Periode(
         fun fromInclusiveDates(inclusiveStart: LocalDate, inclusiveEnd: LocalDate): Periode {
             return Periode(inclusiveStart, inclusiveEnd.plusDays(1))
         }
+    }
 
-        fun intersect(first: Periode, second: Periode): Periode? {
-            val start = maxOf(first.start, second.start)
-            val slutt = minOf(first.slutt, second.slutt)
-            return if (start < slutt) {
-                Periode(start, slutt)
-            } else {
-                null
-            }
-        }
+    operator fun contains(date: LocalDate): Boolean {
+        return date == start || date.isAfter(start) && date.isBefore(slutt)
     }
 
     fun getDurationInDays(): Long {
@@ -55,8 +49,14 @@ data class Periode(
         return slutt.minusDays(1)
     }
 
-    operator fun contains(date: LocalDate): Boolean {
-        return date == start || date.isAfter(start) && date.isBefore(slutt)
+    fun intersect(periode: Periode): Periode? {
+        val start = maxOf(start, periode.start)
+        val slutt = minOf(slutt, periode.slutt)
+        return if (start < slutt) {
+            Periode(start, slutt)
+        } else {
+            null
+        }
     }
 
     fun splitByMonth(): List<Periode> {

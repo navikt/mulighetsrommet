@@ -13,6 +13,8 @@ sealed class DelutbetalingDto {
     abstract val utbetalingId: UUID
     abstract val belop: Int
     abstract val periode: Periode
+    abstract val lopenummer: Int
+    abstract val fakturanummer: String
     abstract val opprettetAv: NavIdent
 
     @Serializable
@@ -24,6 +26,8 @@ sealed class DelutbetalingDto {
         override val utbetalingId: UUID,
         override val belop: Int,
         override val periode: Periode,
+        override val lopenummer: Int,
+        override val fakturanummer: String,
         override val opprettetAv: NavIdent,
     ) : DelutbetalingDto()
 
@@ -36,6 +40,8 @@ sealed class DelutbetalingDto {
         override val utbetalingId: UUID,
         override val belop: Int,
         override val periode: Periode,
+        override val lopenummer: Int,
+        override val fakturanummer: String,
         override val opprettetAv: NavIdent,
         val besluttetAv: NavIdent,
     ) : DelutbetalingDto()

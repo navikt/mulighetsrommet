@@ -43,8 +43,8 @@ data class MulighetsrommetTestDomain(
     ),
     val gjennomforinger: List<GjennomforingDbo> = listOf(),
     val deltakere: List<DeltakerDbo> = listOf(),
-    val utbetalinger: List<UtbetalingDbo> = listOf(),
     val tilsagn: List<TilsagnDbo> = listOf(),
+    val utbetalinger: List<UtbetalingDbo> = listOf(),
     val additionalSetup: (QueryContext.() -> Unit)? = null,
 ) {
     fun initialize(database: ApiDatabase): MulighetsrommetTestDomain = database.transaction {

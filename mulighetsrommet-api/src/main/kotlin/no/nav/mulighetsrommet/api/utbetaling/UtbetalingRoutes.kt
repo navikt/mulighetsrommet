@@ -14,10 +14,7 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
@@ -97,14 +94,11 @@ fun Route.utbetalingRoutes() {
             val request = call.receive<BehandleUtbetalingRequest>()
             val navIdent = getNavIdent()
 
-            val delutbetalinger = db.session {
-                queries.delutbetaling.getByUtbetalingId(utbetalingId)
-            }
-            UtbetalingValidator.validate(request, delutbetalinger).onLeft {
-                return@put call.respondWithStatusResponse(ValidationError(errors = it).left())
-            }
-
-            service.bekreftUtbetaling(utbetalingId, request.kostnadsfordeling, navIdent)
+            val behandleUtbetaling = BehandleUtbetaling(
+                utbetalingId,
+                request.kostnadsfordeling.map { BehandleUtbetaling.Kostnad(it.tilsagnId, it.belop) },
+            )
+            service.behandleUtbetaling(behandleUtbetaling, navIdent)
 
             call.respond(HttpStatusCode.OK)
         }

@@ -23,7 +23,7 @@ object TilsagnValidator {
         }
 
         val errors = buildList {
-            if (next.periodeStart.year != next.periodeSlutt.year) {
+            if (next.periode.start.year != next.periode.getLastDate().year) {
                 add(
                     FieldError.of(
                         TilsagnRequest::periodeSlutt,
