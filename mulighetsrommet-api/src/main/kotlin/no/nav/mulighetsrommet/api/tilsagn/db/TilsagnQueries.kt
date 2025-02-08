@@ -136,7 +136,7 @@ class TilsagnQueries(private val session: Session) {
         val params = mapOf(
             "gjennomforing_id" to gjennomforingId,
             "periode_start" to periode.start,
-            "periode_slutt" to periode.slutt,
+            "periode_slutt" to periode.getLastDate(),
         )
 
         return session.list(queryOf(query, params)) { it.toTilsagnDto() }
@@ -157,7 +157,7 @@ class TilsagnQueries(private val session: Session) {
         val params = mapOf(
             "gjennomforing_id" to gjennomforingId,
             "periode_start" to periode.start,
-            "periode_slutt" to periode.slutt,
+            "periode_slutt" to periode.getLastDate(),
         )
 
         return session.list(queryOf(query, params)) { it.toArrangorflateTilsagn() }
