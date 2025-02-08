@@ -448,7 +448,7 @@ class UtbetalingServiceTest : FunSpec({
             val exception = assertThrows<IllegalArgumentException> {
                 service.behandleUtbetaling(behandleUtbetaling, domain.ansatte[0].navIdent)
             }
-            exception.message shouldBe "Utbetalingsperiode og tilsagnsperiode overlapper ikke"
+            exception.message shouldBe "Utbetalingsperiode og tilsagnsperiode må overlappe"
         }
 
         test("løpenummer, fakturanummer og periode blir utledet fra tilsagnet og utbetalingen") {

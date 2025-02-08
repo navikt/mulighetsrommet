@@ -111,10 +111,9 @@ class UtbetalingService(
             val tilsagn = queries.tilsagn.get(it.tilsagnId)
                 ?: throw IllegalArgumentException("Tilsagn med id=${it.tilsagnId} finnes ikke")
 
-            val periode = Periode.intersect(
-                utbetaling.periode,
-                Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt),
-            ) ?: throw IllegalArgumentException("Utbetalingsperiode og tilsagnsperiode overlapper ikke")
+            val periode = Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt)
+                .intersect(utbetaling.periode)
+                ?: throw IllegalArgumentException("Utbetalingsperiode og tilsagnsperiode må overlappe")
 
             val lopenummer = queries.delutbetaling.getNextLopenummerByTilsagn(it.tilsagnId)
 
