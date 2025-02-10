@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.ktor.plugins
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -11,11 +12,21 @@ import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.exception.toProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
-import org.slf4j.LoggerFactory
+import no.nav.mulighetsrommet.securelog.SecureLog
 import org.slf4j.MDC
 
 fun Application.configureStatusPages() {
-    val logger = LoggerFactory.getLogger(javaClass)
+
+    fun logException(statusCode: HttpStatusCode, cause: Throwable, call: ApplicationCall) {
+        val message = "${statusCode.description} (${statusCode.value}) on method: ${call.request.httpMethod.value} ${call.request.path()}: ${cause.message}"
+        SecureLog.logger.error(message, cause)
+        when {
+            statusCode.value >= 500 -> log.error(message)
+            statusCode.value >= 400 -> log.warn(message)
+            else -> log.info(message)
+        }
+    }
+
     install(StatusPages) {
         exception<IllegalArgumentException> { call, cause ->
             val requestId = MDC.get("correlationId")
@@ -23,11 +34,13 @@ fun Application.configureStatusPages() {
                 detail = cause.message ?: "IllegalArgumentException",
                 extensions = mapOf("requestId" to requestId),
             )
+            logException(HttpStatusCode.BadRequest, cause, call)
             call.respondWithProblemDetail(problemDetail)
         }
 
         exception<StatusException> { call, cause ->
             val requestId = MDC.get("correlationId")
+            logException(cause.status, cause, call)
             call.respondWithProblemDetail(cause.toProblemDetail(requestId))
         }
 
@@ -37,7 +50,8 @@ fun Application.configureStatusPages() {
                 detail = "Internal Server Error",
                 extensions = mapOf("requestId" to requestId),
             )
-            logger.error("Internal Server Error - Cause: $cause")
+
+            logException(HttpStatusCode.InternalServerError, cause, call)
             call.respondWithProblemDetail(problemDetail)
         }
     }
