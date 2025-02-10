@@ -21,7 +21,7 @@ class UtbetalingValidatorTest : FunSpec({
             beskrivelse = "Bla bla bla beskrivelse",
             kontonummer = Kontonummer(value = "12345678910"),
             kidNummer = null,
-            belop = 150
+            belop = 150,
         )
 
         val result = UtbetalingValidator.validateManuellUtbetalingskrav(request)
@@ -38,7 +38,7 @@ class UtbetalingValidatorTest : FunSpec({
             beskrivelse = "Bla bla bla beskrivelse",
             kontonummer = Kontonummer(value = "12345678910"),
             kidNummer = null,
-            belop = 150
+            belop = 150,
         )
 
         val result = UtbetalingValidator.validateManuellUtbetalingskrav(request)
@@ -46,9 +46,9 @@ class UtbetalingValidatorTest : FunSpec({
             listOf(
                 FieldError(
                     "/arrangorinfo/periode/slutt",
-                    "Periodeslutt må være etter periodestart"
-                )
-            )
+                    "Periodeslutt må være etter periodestart",
+                ),
+            ),
         )
     }
 
@@ -62,7 +62,7 @@ class UtbetalingValidatorTest : FunSpec({
             beskrivelse = "Bla bla bla beskrivelse",
             kontonummer = Kontonummer(value = "12345678910"),
             kidNummer = null,
-            belop = 0
+            belop = 0,
         )
 
         val result = UtbetalingValidator.validateManuellUtbetalingskrav(request)
@@ -70,9 +70,9 @@ class UtbetalingValidatorTest : FunSpec({
             listOf(
                 FieldError(
                     "/arrangorinfo/belop",
-                    "Beløp må være positivt"
-                )
-            )
+                    "Beløp må være positivt",
+                ),
+            ),
         )
     }
 
@@ -86,7 +86,7 @@ class UtbetalingValidatorTest : FunSpec({
             beskrivelse = "Bla",
             kontonummer = Kontonummer(value = "12345678910"),
             kidNummer = null,
-            belop = 150
+            belop = 150,
         )
 
         val result = UtbetalingValidator.validateManuellUtbetalingskrav(request)
@@ -94,9 +94,9 @@ class UtbetalingValidatorTest : FunSpec({
             listOf(
                 FieldError(
                     "/arrangorinfo/beskrivelse",
-                    "Du må beskrive utbetalingen"
-                )
-            )
+                    "Du må beskrive utbetalingen",
+                ),
+            ),
         )
     }
 })

@@ -66,7 +66,7 @@ class UtbetalingRoutesTest : FunSpec({
                     "groups" to listOf(
                         avtaleSkrivRolle.adGruppeId,
                         generellRolle.adGruppeId,
-                        gjennomforingerSkrivRolle.adGruppeId
+                        gjennomforingerSkrivRolle.adGruppeId,
                     ),
                 )
                 bearerAuth(
@@ -83,8 +83,8 @@ class UtbetalingRoutesTest : FunSpec({
                         beskrivelse = "Bla bla bla bla bla",
                         kontonummer = Kontonummer(value = "12345678910"),
                         kidNummer = null,
-                        belop = 150
-                    )
+                        belop = 150,
+                    ),
                 )
             }
             response.status shouldBe HttpStatusCode.OK
@@ -106,7 +106,7 @@ class UtbetalingRoutesTest : FunSpec({
                     "groups" to listOf(
                         avtaleSkrivRolle.adGruppeId,
                         generellRolle.adGruppeId,
-                        gjennomforingerSkrivRolle.adGruppeId
+                        gjennomforingerSkrivRolle.adGruppeId,
                     ),
                 )
                 bearerAuth(
@@ -123,8 +123,8 @@ class UtbetalingRoutesTest : FunSpec({
                         beskrivelse = "Kort besk..",
                         kontonummer = Kontonummer(value = "12345678910"),
                         kidNummer = null,
-                        belop = 0
-                    )
+                        belop = 0,
+                    ),
                 )
             }
             println(response.bodyAsText())
