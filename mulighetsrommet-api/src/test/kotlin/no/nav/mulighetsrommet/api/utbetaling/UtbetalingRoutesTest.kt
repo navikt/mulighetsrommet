@@ -87,8 +87,48 @@ class UtbetalingRoutesTest : FunSpec({
                     )
                 )
             }
-            println(response.bodyAsText())
             response.status shouldBe HttpStatusCode.OK
+        }
+    }
+
+    test("Skal returnere 400 Bad Request når det er valideringsfeil ved manuell utbetaling (frimodell)") {
+        withTestApplication(appConfig()) {
+            val client = createClient {
+                install(ContentNegotiation) {
+                    json()
+                }
+            }
+
+            val id = UUID.randomUUID()
+            val response = client.post("/api/v1/intern/utbetaling/$id/opprett-utbetaling") {
+                val claims = mapOf(
+                    "NAVident" to "ABC123",
+                    "groups" to listOf(
+                        avtaleSkrivRolle.adGruppeId,
+                        generellRolle.adGruppeId,
+                        gjennomforingerSkrivRolle.adGruppeId
+                    ),
+                )
+                bearerAuth(
+                    oauth.issueToken(claims = claims).serialize(),
+                )
+                contentType(ContentType.Application.Json)
+                setBody(
+                    OpprettManuellUtbetalingRequest(
+                        gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
+                        periode = Periode(
+                            start = LocalDate.now().plusDays(5),
+                            slutt = LocalDate.now().plusDays(1),
+                        ),
+                        beskrivelse = "Kort besk..",
+                        kontonummer = Kontonummer(value = "12345678910"),
+                        kidNummer = null,
+                        belop = 0
+                    )
+                )
+            }
+            println(response.bodyAsText())
+            response.status shouldBe HttpStatusCode.BadRequest
         }
     }
 })
