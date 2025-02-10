@@ -117,7 +117,7 @@ fun createKafkaConfig(): KafkaConfig = KafkaConfig(
             producerTopic = "dvh-gjennomforinger-v1",
         ),
         okonomiBestilling = OkonomiBestillingService.Config(
-            topic = "okonomi-bestilling-v1",
+            topic = "tiltaksokonomi-bestilling-v1",
         ),
     ),
     producers = KafkaProducers(

@@ -29,7 +29,7 @@ val ApplicationConfigDev = AppConfig(
             okonomiBestillingConsumer = KafkaTopicConsumer.Config(
                 id = "bestilling",
                 consumerGroupId = "tiltaksokonomi.bestilling.v1",
-                topic = "team-mulighetsrommet.okonomi-bestilling-v1",
+                topic = "team-mulighetsrommet.tiltaksokonomi-bestilling-v1",
             ),
         ),
     ),

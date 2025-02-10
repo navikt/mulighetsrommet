@@ -64,7 +64,7 @@ val ApplicationConfigLocal = AppConfig(
         clients = KafkaClients(
             okonomiBestillingConsumer = KafkaTopicConsumer.Config(
                 id = "bestilling",
-                topic = "okonomi-bestilling-v1",
+                topic = "tiltaksokonomi-bestilling-v1",
             ),
         ),
     ),

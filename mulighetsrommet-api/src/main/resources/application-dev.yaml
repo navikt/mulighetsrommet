@@ -26,7 +26,7 @@ app:
         consumerTopic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1
         producerTopic: team-mulighetsrommet.datavarehus-tiltak-v1
       okonomiBestilling:
-        topic: team-mulighetsrommet.okonomi-bestilling-v1
+        topic: team-mulighetsrommet.tiltaksokonomi-bestilling-v1
     consumers:
       gjennomforingerV1:
         id: siste-tiltaksgjennomforinger
