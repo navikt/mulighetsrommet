@@ -11,9 +11,11 @@ import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.exception.toProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
+import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 
 fun Application.configureStatusPages() {
+    val logger = LoggerFactory.getLogger(javaClass)
     install(StatusPages) {
         exception<IllegalArgumentException> { call, cause ->
             val requestId = MDC.get("correlationId")
@@ -32,10 +34,10 @@ fun Application.configureStatusPages() {
         exception<Throwable> { call, cause ->
             val requestId = MDC.get("correlationId")
             val problemDetail = InternalServerError(
-                detail = cause.message ?: "Unknown Internal Server Error",
+                detail = "Internal Server Error",
                 extensions = mapOf("requestId" to requestId),
             )
-
+            logger.error("Internal Server Error - Cause: $cause")
             call.respondWithProblemDetail(problemDetail)
         }
     }
