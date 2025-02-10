@@ -11,9 +11,13 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.okonomi.BestillingDto
 import no.nav.mulighetsrommet.api.okonomi.OkonomiClient
-import no.nav.mulighetsrommet.api.responses.*
+import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.ktor.exception.BadRequest
+import no.nav.mulighetsrommet.ktor.exception.Forbidden
+import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDateTime
@@ -22,9 +26,9 @@ import java.util.*
 class TilsagnService(
     private val db: ApiDatabase,
 ) {
-    fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<ValidationError>, TilsagnDto> = db.transaction {
+    fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<FieldError>, TilsagnDto> = db.transaction {
         val gjennomforing = queries.gjennomforing.get(request.gjennomforingId)
-            ?: return ValidationError
+            ?: return FieldError
                 .of(TilsagnRequest::gjennomforingId, "Tiltaksgjennomforingen finnes ikke")
                 .nel()
                 .left()
@@ -36,12 +40,16 @@ class TilsagnService(
         validateGjennomforingBeregningInput(gjennomforing, beregningInput)
             .flatMap { beregnTilsagn(beregningInput) }
             .map { beregning ->
+                val lopenummer = previous?.lopenummer
+                    ?: queries.tilsagn.getNextLopenummeByGjennomforing(gjennomforing.id)
+
                 TilsagnDbo(
                     id = request.id,
                     gjennomforingId = request.gjennomforingId,
                     type = request.type,
-                    periodeStart = request.periodeStart,
-                    periodeSlutt = request.periodeSlutt,
+                    periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt),
+                    lopenummer = lopenummer,
+                    bestillingsnummer = previous?.bestillingsnummer ?: "${gjennomforing.lopenummer}/$lopenummer",
                     kostnadssted = request.kostnadssted,
                     beregning = beregning,
                     endretAv = navIdent,
@@ -63,7 +71,7 @@ class TilsagnService(
             }
     }
 
-    fun beregnTilsagn(input: TilsagnBeregningInput): Either<List<ValidationError>, TilsagnBeregning> {
+    fun beregnTilsagn(input: TilsagnBeregningInput): Either<List<FieldError>, TilsagnBeregning> {
         return TilsagnValidator.validateBeregningInput(input)
             .map {
                 when (input) {
@@ -121,7 +129,7 @@ class TilsagnService(
         if (navIdent == tilsagn.status.endretAv) {
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         } else if (besluttelse.aarsaker.isEmpty()) {
-            return BadRequest(message = "Årsaker er påkrevd").left()
+            return BadRequest(detail = "Årsaker er påkrevd").left()
         }
 
         queries.tilsagn.returner(
@@ -203,18 +211,11 @@ class TilsagnService(
         queries.tilsagn.getAll()
     }
 
-    fun getTilsagnTilRefusjon(
-        gjennomforingId: UUID,
-        periode: Periode,
-    ): List<TilsagnDto> = db.session {
-        return queries.tilsagn.getTilsagnTilRefusjon(gjennomforingId, periode)
-    }
-
-    fun getArrangorflateTilsagnTilRefusjon(
+    fun getArrangorflateTilsagnTilUtbetaling(
         gjennomforingId: UUID,
         periode: Periode,
     ): List<ArrangorflateTilsagn> = db.session {
-        return queries.tilsagn.getArrangorflateTilsagnTilRefusjon(gjennomforingId, periode)
+        return queries.tilsagn.getArrangorflateTilsagnTilUtbetaling(gjennomforingId, periode)
     }
 
     private fun lagOkonomiId(tilsagn: TilsagnDto): String {
@@ -245,7 +246,7 @@ class TilsagnService(
     private fun validateGjennomforingBeregningInput(
         gjennomforing: GjennomforingDto,
         input: TilsagnBeregningInput,
-    ): Either<List<ValidationError>, TilsagnBeregningInput> {
+    ): Either<List<FieldError>, TilsagnBeregningInput> {
         return when (input) {
             is TilsagnBeregningForhandsgodkjent.Input -> TilsagnValidator.validateForhandsgodkjentSats(
                 gjennomforing.tiltakstype.tiltakskode,

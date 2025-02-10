@@ -1,16 +1,19 @@
-import { useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
-import { Select } from "@navikt/ds-react";
-import { useLoaderData } from "react-router";
-import { OppgaverFilter } from "../../../components/filter/OppgaverFilter";
 import { oppgaverFilterAtom } from "@/api/atoms";
-import { oppgaverLoader } from "@/pages/arbeidsbenk/oppgaver/oppgaverLoader";
-import { Oppgave } from "@/components/oppgaver/Oppgave";
-import { useState } from "react";
-import { GetOppgaverResponse } from "@mr/api-client-v2";
-import { useAtom } from "jotai/index";
 import { useOppgaver } from "@/api/oppgaver/useOppgaver";
 import { EmptyState } from "@/components/notifikasjoner/EmptyState";
+import { Oppgave } from "@/components/oppgaver/Oppgave";
+import { oppgaverLoader } from "@/pages/arbeidsbenk/oppgaver/oppgaverLoader";
+import { GetOppgaverResponse } from "@mr/api-client-v2";
+import { useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
+import { Select } from "@navikt/ds-react";
+import { useAtom } from "jotai/index";
+import { useState } from "react";
+import { useLoaderData } from "react-router";
+import { OppgaverFilter } from "../../../components/filter/OppgaverFilter";
+import { OppgaveFilterTags } from "../../../components/filter/OppgaverFilterTags";
+import { NullstillKnappForOppgaver } from "./NullstillKnappForOppgaver";
+import { ContentBox } from "../../../layouts/ContentBox";
 
 type OppgaverSorting = "korteste-frist" | "nyeste" | "eldste";
 
@@ -45,58 +48,70 @@ function sort(oppgaver: GetOppgaverResponse, sorting: OppgaverSorting) {
 
 export function OppgaverPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setTagsHeight] = useState(0);
   const [sorting, setSorting] = useState<OppgaverSorting>("korteste-frist");
   useTitle("Oppgaver");
   const [filter] = useAtom(oppgaverFilterAtom);
-  const { tiltakstyper } = useLoaderData<typeof oppgaverLoader>();
+  const { tiltakstyper, regioner } = useLoaderData<typeof oppgaverLoader>();
   const oppgaver = useOppgaver(filter);
   const sortedOppgaver = sort(oppgaver.data || [], sorting);
 
   return (
-    <main className="flex gap-4 self-start">
+    <ContentBox>
       <FilterAndTableLayout
-        filter={<OppgaverFilter filterAtom={oppgaverFilterAtom} tiltakstyper={tiltakstyper} />}
-        tags={null}
+        filter={
+          <OppgaverFilter
+            filterAtom={oppgaverFilterAtom}
+            tiltakstyper={tiltakstyper}
+            regioner={regioner}
+          />
+        }
+        tags={
+          <OppgaveFilterTags
+            filterAtom={oppgaverFilterAtom}
+            filterOpen={filterOpen}
+            setTagsHeight={setTagsHeight}
+          />
+        }
         buttons={null}
-        table={null}
+        table={
+          <div className="flex flex-col">
+            <div className="flex justify-end">
+              <div>
+                <Select
+                  label={"Sortering"}
+                  onChange={(e) => {
+                    setSorting(e.target.value as OppgaverSorting);
+                  }}
+                >
+                  <option value="korteste-frist">Korteste frist</option>
+                  <option value="nyeste">Nyeste</option>
+                  <option value="eldste">Eldste</option>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-2 mt-4">
+              {sortedOppgaver.map((o) => {
+                // @TODO: Should maybe have something like tiltakstypeName come from the backend instead of doing manual mapping
+                return (
+                  <Oppgave
+                    key={o.createdAt}
+                    tiltakstype={tiltakstyper.find((t) => t.tiltakskode === o.tiltakstype)!}
+                    oppgave={o}
+                  />
+                );
+              })}
+              {sortedOppgaver.length === 0 && (
+                <EmptyState tittel={"Du har ingen nye oppgaver"} beskrivelse={""} />
+              )}
+            </div>
+          </div>
+        }
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
-        nullstillFilterButton={null}
+        nullstillFilterButton={<NullstillKnappForOppgaver filterAtom={oppgaverFilterAtom} />}
       />
-      <div className="flex-1">
-        <div className="flex justify-end">
-          <div className="flex items-center gap-4">
-            Sortering
-            <Select
-              label={"Sortering"}
-              hideLabel
-              onChange={(e) => {
-                setSorting(e.target.value as OppgaverSorting);
-              }}
-            >
-              <option value="korteste-frist">Korteste frist</option>
-              <option value="nyeste">Nyeste</option>
-              <option value="eldste">Eldste</option>
-            </Select>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 gap-2 mt-4">
-          {sortedOppgaver.map((o) => {
-            // @TODO: Should maybe have something like tiltakstypeName come from the backend instead of doing manual mapping
-            return (
-              <Oppgave
-                key={o.createdAt}
-                tiltakstype={tiltakstyper.find((t) => t.tiltakskode === o.tiltakstype)!}
-                oppgave={o}
-              />
-            );
-          })}
-          {sortedOppgaver.length === 0 && (
-            <EmptyState tittel={"Du har ingen nye oppgaver"} beskrivelse={""} />
-          )}
-        </div>
-      </div>
-    </main>
+    </ContentBox>
   );
 }

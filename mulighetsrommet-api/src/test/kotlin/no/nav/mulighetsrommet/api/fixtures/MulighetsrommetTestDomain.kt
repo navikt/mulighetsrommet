@@ -9,9 +9,10 @@ import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
-import no.nav.mulighetsrommet.api.refusjon.db.DeltakerDbo
-import no.nav.mulighetsrommet.api.refusjon.db.RefusjonskravDbo
+import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeDbo
+import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
+import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 
 data class MulighetsrommetTestDomain(
     val enheter: List<NavEnhetDbo> = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
@@ -42,7 +43,8 @@ data class MulighetsrommetTestDomain(
     ),
     val gjennomforinger: List<GjennomforingDbo> = listOf(),
     val deltakere: List<DeltakerDbo> = listOf(),
-    val refusjonskrav: List<RefusjonskravDbo> = listOf(),
+    val tilsagn: List<TilsagnDbo> = listOf(),
+    val utbetalinger: List<UtbetalingDbo> = listOf(),
     val additionalSetup: (QueryContext.() -> Unit)? = null,
 ) {
     fun initialize(database: ApiDatabase): MulighetsrommetTestDomain = database.transaction {
@@ -54,7 +56,8 @@ data class MulighetsrommetTestDomain(
         avtaler.forEach { queries.avtale.upsert(it) }
         gjennomforinger.forEach { queries.gjennomforing.upsert(it) }
         deltakere.forEach { queries.deltaker.upsert(it) }
-        refusjonskrav.forEach { queries.refusjonskrav.upsert(it) }
+        tilsagn.forEach { queries.tilsagn.upsert(it) }
+        utbetalinger.forEach { queries.utbetaling.upsert(it) }
 
         additionalSetup?.invoke(this)
 
@@ -73,7 +76,8 @@ data class MulighetsrommetTestDomain(
             avtaler.forEach { queries.avtale.upsert(it) }
             gjennomforinger.forEach { queries.gjennomforing.upsert(it) }
             deltakere.forEach { queries.deltaker.upsert(it) }
-            refusjonskrav.forEach { queries.refusjonskrav.upsert(it) }
+            tilsagn.forEach { queries.tilsagn.upsert(it) }
+            utbetalinger.forEach { queries.utbetaling.upsert(it) }
         }
 
         additionalSetup?.invoke(context)

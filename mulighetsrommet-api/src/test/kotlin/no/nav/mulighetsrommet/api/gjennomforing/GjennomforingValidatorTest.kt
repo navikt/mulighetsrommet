@@ -15,7 +15,7 @@ import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
-import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AvbruttAarsak
@@ -124,7 +124,7 @@ class GjennomforingValidatorTest : FunSpec({
         val dbo = gjennomforing.copy(avtaleId = unknownAvtaleId)
 
         createValidator().validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            ValidationError("avtaleId", "Avtalen finnes ikke"),
+            FieldError("/avtaleId", "Avtalen finnes ikke"),
         )
     }
 
@@ -134,7 +134,7 @@ class GjennomforingValidatorTest : FunSpec({
         }
 
         createValidator().validate(gjennomforing, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            ValidationError("tiltakstypeId", "Tiltakstypen må være den samme som for avtalen"),
+            FieldError("/tiltakstypeId", "Tiltakstypen må være den samme som for avtalen"),
         )
     }
 
@@ -142,7 +142,7 @@ class GjennomforingValidatorTest : FunSpec({
 
         createValidator().validate(gjennomforing.copy(oppstart = GjennomforingOppstartstype.FELLES), null)
             .shouldBeLeft()
-            .shouldContainExactlyInAnyOrder(ValidationError("oppstart", "Tiltaket må ha løpende oppstartstype"))
+            .shouldContainExactlyInAnyOrder(FieldError("/oppstart", "Tiltaket må ha løpende oppstartstype"))
     }
 
     test("kan ikke opprette på ikke Aktiv avtale") {
@@ -155,7 +155,7 @@ class GjennomforingValidatorTest : FunSpec({
         val dbo = gjennomforing.copy(avtaleId = id)
 
         createValidator().validate(dbo, null).shouldBeLeft(
-            listOf(ValidationError("avtaleId", "Avtalen må være aktiv for å kunne opprette tiltak")),
+            listOf(FieldError("/avtaleId", "Avtalen må være aktiv for å kunne opprette tiltak")),
         )
 
         val id2 = UUID.randomUUID()
@@ -166,7 +166,7 @@ class GjennomforingValidatorTest : FunSpec({
         val dbo2 = gjennomforing.copy(avtaleId = id2)
 
         createValidator().validate(dbo2, null).shouldBeLeft(
-            listOf(ValidationError("avtaleId", "Avtalen må være aktiv for å kunne opprette tiltak")),
+            listOf(FieldError("/avtaleId", "Avtalen må være aktiv for å kunne opprette tiltak")),
         )
     }
 
@@ -176,7 +176,7 @@ class GjennomforingValidatorTest : FunSpec({
         )
 
         createValidator().validate(dbo, null).shouldBeLeft(
-            listOf(ValidationError("startDato", "Du må legge inn en startdato som er etter avtalens startdato")),
+            listOf(FieldError("/startDato", "Du må legge inn en startdato som er etter avtalens startdato")),
         )
     }
 
@@ -218,13 +218,13 @@ class GjennomforingValidatorTest : FunSpec({
 
         createValidator().validate(forhaandsgodkjent, null).shouldBeRight()
         createValidator().validate(rammeAvtale, null).shouldBeLeft(
-            listOf(ValidationError("sluttDato", "Du må legge inn sluttdato for gjennomføringen")),
+            listOf(FieldError("/sluttDato", "Du må legge inn sluttdato for gjennomføringen")),
         )
         createValidator().validate(vanligAvtale, null).shouldBeLeft(
-            listOf(ValidationError("sluttDato", "Du må legge inn sluttdato for gjennomføringen")),
+            listOf(FieldError("/sluttDato", "Du må legge inn sluttdato for gjennomføringen")),
         )
         createValidator().validate(offentligOffentlig, null).shouldBeLeft(
-            listOf(ValidationError("sluttDato", "Du må legge inn sluttdato for gjennomføringen")),
+            listOf(FieldError("/sluttDato", "Du må legge inn sluttdato for gjennomføringen")),
         )
     }
 
@@ -242,8 +242,8 @@ class GjennomforingValidatorTest : FunSpec({
 
         createValidator().validate(gruppeAmo, null).shouldBeLeft(
             listOf(
-                ValidationError("avtale.amoKategorisering", "Du må velge en kurstype for avtalen"),
-                ValidationError("amoKategorisering", "Du må velge et kurselement for gjennomføringen"),
+                FieldError("/avtale.amoKategorisering", "Du må velge en kurstype for avtalen"),
+                FieldError("/amoKategorisering", "Du må velge et kurselement for gjennomføringen"),
             ),
         )
     }
@@ -262,7 +262,7 @@ class GjennomforingValidatorTest : FunSpec({
 
         createValidator().validate(gruppeAmo, null).shouldBeLeft(
             listOf(
-                ValidationError("amoKategorisering", "Du må velge et kurselement for gjennomføringen"),
+                FieldError("/amoKategorisering", "Du må velge et kurselement for gjennomføringen"),
             ),
         )
     }
@@ -271,7 +271,7 @@ class GjennomforingValidatorTest : FunSpec({
         val gruppeFagYrke = GjennomforingFixtures.GruppeFagYrke1.copy(utdanningslop = null)
 
         createValidator().validate(gruppeFagYrke, null).shouldBeLeft(
-            listOf(ValidationError("utdanningslop", "Du må velge utdanningsprogram og lærefag på avtalen")),
+            listOf(FieldError("/utdanningslop", "Du må velge utdanningsprogram og lærefag på avtalen")),
         )
     }
 
@@ -293,8 +293,8 @@ class GjennomforingValidatorTest : FunSpec({
         }
 
         createValidator().validate(gjennomforing, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            ValidationError(
-                "arrangorId",
+            FieldError(
+                "/arrangorId",
                 "Arrangøren Underenhet 1 AS er slettet i Brønnøysundregistrene. Gjennomføringer kan ikke opprettes for slettede bedrifter.",
             ),
         )
@@ -308,8 +308,8 @@ class GjennomforingValidatorTest : FunSpec({
                     sluttDato = avtaleStartDato,
                 ),
                 listOf(
-                    ValidationError(
-                        "startDato",
+                    FieldError(
+                        "/startDato",
                         "Du må legge inn en startdato som er etter avtalens startdato",
                     ),
                 ),
@@ -319,19 +319,19 @@ class GjennomforingValidatorTest : FunSpec({
                     startDato = avtaleSluttDato,
                     sluttDato = avtaleStartDato,
                 ),
-                listOf(ValidationError("startDato", "Startdato må være før sluttdato")),
+                listOf(FieldError("/startDato", "Startdato må være før sluttdato")),
             ),
             row(
                 gjennomforing.copy(antallPlasser = 0),
-                listOf(ValidationError("antallPlasser", "Du må legge inn antall plasser større enn 0")),
+                listOf(FieldError("/antallPlasser", "Du må legge inn antall plasser større enn 0")),
             ),
             row(
                 gjennomforing.copy(navEnheter = listOf("0401")),
-                listOf(ValidationError("navEnheter", "Nav-enhet 0401 mangler i avtalen")),
+                listOf(FieldError("/navEnheter", "Nav-enhet 0401 mangler i avtalen")),
             ),
             row(
                 gjennomforing.copy(arrangorId = ArrangorFixtures.underenhet2.id),
-                listOf(ValidationError("arrangorId", "Du må velge en arrangør for avtalen")),
+                listOf(FieldError("/arrangorId", "Du må velge en arrangør for avtalen")),
             ),
         ) { input, error ->
             createValidator().validate(input, null).shouldBeLeft(error)
@@ -363,7 +363,7 @@ class GjennomforingValidatorTest : FunSpec({
             validator.validate(gjennomforing.copy(startDato = avtaleStartDato.minusDays(1)), previous)
                 .shouldBeLeft(
                     listOf(
-                        ValidationError("startDato", "Du må legge inn en startdato som er etter avtalens startdato"),
+                        FieldError("/startDato", "Du må legge inn en startdato som er etter avtalens startdato"),
                     ),
                 )
         }
@@ -385,8 +385,8 @@ class GjennomforingValidatorTest : FunSpec({
                 previous,
             ).shouldBeLeft(
                 listOf(
-                    ValidationError(
-                        "sluttDato",
+                    FieldError(
+                        "/sluttDato",
                         "Du kan ikke sette en sluttdato bakover i tid når gjennomføringen er aktiv",
                     ),
                 ),
@@ -413,7 +413,7 @@ class GjennomforingValidatorTest : FunSpec({
             }
 
             validator.validate(gjennomforing, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                ValidationError("navn", "Du kan ikke gjøre endringer på en gjennomføring som er avbrutt"),
+                FieldError("/navn", "Du kan ikke gjøre endringer på en gjennomføring som er avbrutt"),
             )
         }
 
@@ -425,7 +425,7 @@ class GjennomforingValidatorTest : FunSpec({
             }
 
             validator.validate(gjennomforing, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                ValidationError("navn", "Du kan ikke gjøre endringer på en gjennomføring som er avsluttet"),
+                FieldError("/navn", "Du kan ikke gjøre endringer på en gjennomføring som er avsluttet"),
             )
         }
     }
@@ -443,8 +443,8 @@ class GjennomforingValidatorTest : FunSpec({
             val dbo = gjennomforing.copy(oppstart = GjennomforingOppstartstype.LOPENDE)
 
             validator.validate(dbo, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                ValidationError(
-                    "oppstart",
+                FieldError(
+                    "/oppstart",
                     "Oppstartstype kan ikke endres fordi det er deltakere koblet til gjennomføringen",
                 ),
             )
@@ -470,7 +470,7 @@ class GjennomforingValidatorTest : FunSpec({
             )
 
             validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                ValidationError("kontaktpersoner", "Kontaktpersonene med Nav ident DD2 er slettet og må fjernes"),
+                FieldError("/kontaktpersoner", "Kontaktpersonene med Nav ident DD2 er slettet og må fjernes"),
             )
         }
 
@@ -482,7 +482,7 @@ class GjennomforingValidatorTest : FunSpec({
             val dbo = gjennomforing.copy(administratorer = listOf(NavAnsattFixture.ansatt1.navIdent))
 
             validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                ValidationError("administratorer", "Administratorene med Nav ident DD1 er slettet og må fjernes"),
+                FieldError("/administratorer", "Administratorene med Nav ident DD1 er slettet og må fjernes"),
             )
         }
     }

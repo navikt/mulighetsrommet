@@ -1,10 +1,10 @@
 export const internalNavigation = (orgnr: string) => {
   return {
     root: `/`,
-    refusjonskravliste: `/${orgnr}/refusjonskrav`,
-    beregning: (id: string) => `/${orgnr}/refusjonskrav/${id}/beregning`,
-    bekreft: (id: string) => `/${orgnr}/refusjonskrav/${id}/bekreft`,
-    kvittering: (id: string) => `/${orgnr}/refusjonskrav/${id}/kvittering`,
+    utbetalinger: `/${orgnr}/utbetaling`,
+    beregning: (id: string) => `/${orgnr}/utbetaling/${id}/beregning`,
+    bekreft: (id: string) => `/${orgnr}/utbetaling/${id}/bekreft`,
+    kvittering: (id: string) => `/${orgnr}/utbetaling/${id}/kvittering`,
     tilsagn: (id: string) => `/${orgnr}/tilsagn/${id}`,
   };
 };

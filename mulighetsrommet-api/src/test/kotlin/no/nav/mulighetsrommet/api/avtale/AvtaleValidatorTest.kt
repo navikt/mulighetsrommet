@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
-import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -107,9 +107,9 @@ class AvtaleValidatorTest : FunSpec({
 
         validator.validate(dbo, null).shouldBeLeft().shouldContainAll(
             listOf(
-                ValidationError("startDato", "Startdato må være før sluttdato"),
-                ValidationError("navEnheter", "Du må velge minst én Nav-region"),
-                ValidationError("/arrangor/underenheter", "Du må velge minst én underenhet for tiltaksarrangør"),
+                FieldError("startDato", "Startdato må være før sluttdato"),
+                FieldError("navEnheter", "Du må velge minst én Nav-region"),
+                FieldError("/arrangor/underenheter", "Du må velge minst én underenhet for tiltaksarrangør"),
             ),
         )
     }
@@ -121,7 +121,7 @@ class AvtaleValidatorTest : FunSpec({
 
         validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             listOf(
-                ValidationError("navn", "Avtalenavn må være minst 5 tegn langt"),
+                FieldError("/navn", "Avtalenavn må være minst 5 tegn langt"),
             ),
         )
     }
@@ -137,7 +137,7 @@ class AvtaleValidatorTest : FunSpec({
         val dbo2 = avtaleDbo.copy(startDato = dagensDato.plusDays(5), sluttDato = dagensDato)
 
         validator.validate(dbo2, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            listOf(ValidationError("startDato", "Startdato må være før sluttdato")),
+            listOf(FieldError("/startDato", "Startdato må være før sluttdato")),
         )
     }
 
@@ -148,7 +148,7 @@ class AvtaleValidatorTest : FunSpec({
         val dbo = avtaleDbo.copy(startDato = dagensDato, sluttDato = dagensDato.minusDays(5))
 
         validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            listOf(ValidationError("startDato", "Startdato må være før sluttdato")),
+            listOf(FieldError("/startDato", "Startdato må være før sluttdato")),
         )
 
         val dbo2 = avtaleDbo.copy(startDato = dagensDato, sluttDato = dagensDato)
@@ -164,7 +164,7 @@ class AvtaleValidatorTest : FunSpec({
 
         validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             listOf(
-                ValidationError("navEnheter", "Nav-enheten 0502 passer ikke i avtalens kontorstruktur"),
+                FieldError("/navEnheter", "Nav-enheten 0502 passer ikke i avtalens kontorstruktur"),
             ),
         )
     }
@@ -182,13 +182,13 @@ class AvtaleValidatorTest : FunSpec({
 
         validator.validate(forhaandsgodkjent, null).shouldBeRight()
         validator.validate(rammeAvtale, null).shouldBeLeft(
-            listOf(ValidationError("sluttDato", "Du må legge inn sluttdato for avtalen")),
+            listOf(FieldError("/sluttDato", "Du må legge inn sluttdato for avtalen")),
         )
         validator.validate(avtale, null).shouldBeLeft(
-            listOf(ValidationError("sluttDato", "Du må legge inn sluttdato for avtalen")),
+            listOf(FieldError("/sluttDato", "Du må legge inn sluttdato for avtalen")),
         )
         validator.validate(offentligOffentlig, null).shouldBeLeft(
-            listOf(ValidationError("sluttDato", "Du må legge inn sluttdato for avtalen")),
+            listOf(FieldError("/sluttDato", "Du må legge inn sluttdato for avtalen")),
         )
     }
 
@@ -196,7 +196,7 @@ class AvtaleValidatorTest : FunSpec({
         val validator = createValidator()
         val gruppeAmo = AvtaleFixtures.gruppeAmo.copy(amoKategorisering = null)
         validator.validate(gruppeAmo, null).shouldBeLeft(
-            listOf(ValidationError("amoKategorisering.kurstype", "Du må velge en kurstype")),
+            listOf(FieldError("/amoKategorisering.kurstype", "Du må velge en kurstype")),
         )
     }
 
@@ -215,20 +215,20 @@ class AvtaleValidatorTest : FunSpec({
         validator.validate(forhaandsgodkjent, null).shouldBeRight()
         validator.validate(rammeAvtale, null).shouldBeLeft(
             listOf(
-                ValidationError("opsjonMaksVarighet", "Du må legge inn maks varighet for opsjonen"),
-                ValidationError("opsjonsmodell", "Du må velge en opsjonsmodell"),
+                FieldError("/opsjonMaksVarighet", "Du må legge inn maks varighet for opsjonen"),
+                FieldError("/opsjonsmodell", "Du må velge en opsjonsmodell"),
             ),
         )
         validator.validate(avtale, null).shouldBeLeft(
             listOf(
-                ValidationError("opsjonMaksVarighet", "Du må legge inn maks varighet for opsjonen"),
-                ValidationError("opsjonsmodell", "Du må velge en opsjonsmodell"),
+                FieldError("/opsjonMaksVarighet", "Du må legge inn maks varighet for opsjonen"),
+                FieldError("/opsjonsmodell", "Du må velge en opsjonsmodell"),
             ),
         )
         validator.validate(offentligOffentlig, null).shouldBeLeft(
             listOf(
-                ValidationError("opsjonMaksVarighet", "Du må legge inn maks varighet for opsjonen"),
-                ValidationError("opsjonsmodell", "Du må velge en opsjonsmodell"),
+                FieldError("/opsjonMaksVarighet", "Du må legge inn maks varighet for opsjonen"),
+                FieldError("/opsjonsmodell", "Du må velge en opsjonsmodell"),
             ),
         )
     }
@@ -243,7 +243,7 @@ class AvtaleValidatorTest : FunSpec({
 
         validator.validate(rammeAvtale, null).shouldBeLeft(
             listOf(
-                ValidationError("customOpsjonsmodellNavn", "Du må beskrive opsjonsmodellen"),
+                FieldError("/customOpsjonsmodellNavn", "Du må beskrive opsjonsmodellen"),
             ),
         )
     }
@@ -269,25 +269,25 @@ class AvtaleValidatorTest : FunSpec({
 
         validator.validate(aft, null).shouldBeLeft(
             listOf(
-                ValidationError(
-                    "avtaletype",
+                FieldError(
+                    "/avtaletype",
                     "Rammeavtale er ikke tillatt for tiltakstype Arbeidsforberedende trening (AFT)",
                 ),
             ),
         )
         validator.validate(vta, null).shouldBeLeft(
             listOf(
-                ValidationError(
-                    "avtaletype",
+                FieldError(
+                    "/avtaletype",
                     "Avtale er ikke tillatt for tiltakstype Varig tilrettelagt arbeid i skjermet virksomhet",
                 ),
             ),
         )
         validator.validate(oppfolging, null).shouldBeLeft(
-            listOf(ValidationError("avtaletype", "OffentligOffentlig er ikke tillatt for tiltakstype Oppfølging")),
+            listOf(FieldError("/avtaletype", "OffentligOffentlig er ikke tillatt for tiltakstype Oppfølging")),
         )
         validator.validate(gruppeAmo, null).shouldBeLeft(
-            listOf(ValidationError("avtaletype", "Forhaandsgodkjent er ikke tillatt for tiltakstype Gruppe amo")),
+            listOf(FieldError("/avtaletype", "Forhaandsgodkjent er ikke tillatt for tiltakstype Gruppe amo")),
         )
 
         val aftForhaands = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.Forhaandsgodkjent)
@@ -308,12 +308,12 @@ class AvtaleValidatorTest : FunSpec({
 
         val rammeavtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Rammeavtale, websaknummer = null)
         validator.validate(rammeavtale, null).shouldBeLeft(
-            listOf(ValidationError("websaknummer", "Du må skrive inn Websaknummer til avtalesaken")),
+            listOf(FieldError("/websaknummer", "Du må skrive inn Websaknummer til avtalesaken")),
         )
 
         val avtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Avtale, websaknummer = null)
         validator.validate(avtale, null).shouldBeLeft(
-            listOf(ValidationError("websaknummer", "Du må skrive inn Websaknummer til avtalesaken")),
+            listOf(FieldError("/websaknummer", "Du må skrive inn Websaknummer til avtalesaken")),
         )
 
         val offentligOffentligSamarbeid = AvtaleFixtures.gruppeAmo.copy(
@@ -335,7 +335,7 @@ class AvtaleValidatorTest : FunSpec({
         )
 
         validator.validate(avtale1, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            ValidationError(
+            FieldError(
                 "/arrangor/underenheter",
                 "Arrangøren Underenhet 1 AS er ikke en gyldig underenhet til hovedenheten FRETEX AS.",
             ),
@@ -364,11 +364,11 @@ class AvtaleValidatorTest : FunSpec({
         )
 
         createValidator().validate(avtale1, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            ValidationError(
+            FieldError(
                 "/arrangor/hovedenhet",
                 "Arrangøren FRETEX AS er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
             ),
-            ValidationError(
+            FieldError(
                 "/arrangor/underenheter",
                 "Arrangøren FRETEX AS AVD OSLO er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
             ),
@@ -384,7 +384,7 @@ class AvtaleValidatorTest : FunSpec({
         val validator = createValidator()
 
         validator.validate(avtaleMedEndringer, null) shouldBeLeft listOf(
-            ValidationError("utdanningslop", "Du må velge et utdanningsprogram og minst ett lærefag"),
+            FieldError("/utdanningslop", "Du må velge et utdanningsprogram og minst ett lærefag"),
         )
     }
 
@@ -401,7 +401,7 @@ class AvtaleValidatorTest : FunSpec({
 
         validator.validate(avtaleMedEndringer, null).shouldBeLeft(
             listOf(
-                ValidationError("utdanningslop", "Du må velge minst ett lærefag"),
+                FieldError("/utdanningslop", "Du må velge minst ett lærefag"),
             ),
         )
     }
@@ -418,7 +418,7 @@ class AvtaleValidatorTest : FunSpec({
             val dbo = avtaleDbo.copy(prismodell = Prismodell.FORHANDSGODKJENT)
 
             validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                ValidationError("prismodell", "Prismodell kan foreløpig ikke velges for tiltakstypen OPPFOLGING"),
+                FieldError("/prismodell", "Prismodell kan foreløpig ikke velges for tiltakstypen OPPFOLGING"),
             )
         }
 
@@ -432,7 +432,7 @@ class AvtaleValidatorTest : FunSpec({
 
             val dbo = avtaleDbo.copy(prismodell = null)
             validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                ValidationError("prismodell", "Du må velge en prismodell"),
+                FieldError("/prismodell", "Du må velge en prismodell"),
             )
         }
 
@@ -446,7 +446,7 @@ class AvtaleValidatorTest : FunSpec({
 
             val forhandsgodkjent = avtaleDbo.copy(prismodell = Prismodell.FORHANDSGODKJENT)
             validator.validate(forhandsgodkjent, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                ValidationError("prismodell", "Prismodellen kan ikke være forhåndsgodkjent"),
+                FieldError("/prismodell", "Prismodellen kan ikke være forhåndsgodkjent"),
             )
 
             val fri = avtaleDbo.copy(prismodell = Prismodell.FRI)
@@ -487,8 +487,8 @@ class AvtaleValidatorTest : FunSpec({
             )
 
             createValidator().validate(avtale, previous) shouldBeLeft listOf(
-                ValidationError("avtaletype", "Du kan ikke endre avtaletype når opsjoner er registrert"),
-                ValidationError("opsjonsmodell", "Du kan ikke endre opsjonsmodell når opsjoner er registrert"),
+                FieldError("/avtaletype", "Du kan ikke endre avtaletype når opsjoner er registrert"),
+                FieldError("/opsjonsmodell", "Du kan ikke endre opsjonsmodell når opsjoner er registrert"),
             )
         }
 
@@ -518,16 +518,16 @@ class AvtaleValidatorTest : FunSpec({
                 val formatertDato = startDatoForGjennomforing.formaterDatoTilEuropeiskDatoformat()
 
                 createValidator().validate(dbo, previous).shouldBeLeft() shouldContainExactlyInAnyOrder listOf(
-                    ValidationError(
-                        "tiltakstypeId",
+                    FieldError(
+                        "/tiltakstypeId",
                         "Tiltakstype kan ikke endres fordi det finnes gjennomføringer for avtalen",
                     ),
-                    ValidationError(
+                    FieldError(
                         "/arrangor/underenheter",
                         "Arrangøren Underenhet 2 AS er i bruk på en av avtalens gjennomføringer, men mangler blant tiltaksarrangørens underenheter",
                     ),
-                    ValidationError(
-                        "startDato",
+                    FieldError(
+                        "/startDato",
                         "Startdato kan ikke være etter startdatoen til gjennomføringer koblet til avtalen. Minst en gjennomføring har startdato: $formatertDato",
                     ),
                 )
@@ -562,7 +562,7 @@ class AvtaleValidatorTest : FunSpec({
         )
 
         createValidator().validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            ValidationError("administratorer", "Administratorene med Nav ident DD1 er slettet og må fjernes"),
+            FieldError("/administratorer", "Administratorene med Nav ident DD1 er slettet og må fjernes"),
         )
     }
 })

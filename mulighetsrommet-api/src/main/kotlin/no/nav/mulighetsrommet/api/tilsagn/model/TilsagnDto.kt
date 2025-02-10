@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -24,6 +25,7 @@ data class TilsagnDto(
     val kostnadssted: NavEnhetDbo,
     val beregning: TilsagnBeregning,
     val lopenummer: Int,
+    val bestillingsnummer: String,
     val arrangor: Arrangor,
     val gjennomforing: Gjennomforing,
     val status: TilsagnStatus,
@@ -41,6 +43,7 @@ data class TilsagnDto(
     data class Gjennomforing(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
+        val tiltakskode: Tiltakskode,
     )
 
     @Serializable

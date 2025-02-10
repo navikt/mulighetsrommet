@@ -14,18 +14,18 @@
     "sanity"
   ],
   "dependencies": {
-    "@navikt/aksel-icons": "7.10.0",
-    "@portabletext/react": "3.2.0",
-    "@sanity/client": "6.27.1",
-    "@sanity/ui": "2.11.4",
-    "@sanity/util": "3.71.2",
-    "@sanity/vision": "3.71.2",
+    "@navikt/aksel-icons": "7.12.2",
+    "@portabletext/react": "3.2.1",
+    "@sanity/client": "6.27.2",
+    "@sanity/ui": "2.12.2",
+    "@sanity/util": "3.74.1",
+    "@sanity/vision": "3.74.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-icons": "5.4.0",
     "react-switch": "7.1.0",
-    "sanity": "3.71.2",
-    "styled-components": "6.1.14"
+    "sanity": "3.74.1",
+    "styled-components": "6.1.15"
   },
   "devDependencies": {
     "@types/react": "18.3.12",

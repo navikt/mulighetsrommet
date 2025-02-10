@@ -1,14 +1,13 @@
-import { GjennomforingDto, SetStengtHosArrangorRequest } from "@mr/api-client-v2";
+import { GjennomforingDto, ProblemDetail, SetStengtHosArrangorRequest } from "@mr/api-client-v2";
 import { Alert, Button, HGrid, TextField, VStack } from "@navikt/ds-react";
 import { FormProvider, useForm } from "react-hook-form";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { addYear } from "@/utils/Utils";
 import { useSetStengtHosArrangor } from "@/api/gjennomforing/useSetStengtHosArrangor";
-import { isValidationError } from "@mr/frontend-common/utils/utils";
+import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { useRevalidator } from "react-router";
 import { FloppydiskIcon } from "@navikt/aksel-icons";
 import { FormGroup } from "@/components/skjema/FormGroup";
-import { ApiError } from "@mr/frontend-common/components/error-handling/errors";
 
 interface RegistrerStengtHosArrangorFormProps {
   gjennomforing: GjennomforingDto;
@@ -36,11 +35,13 @@ export function RegistrerStengtHosArrangorForm({
           form.reset();
           await revalidator.revalidate();
         },
-        onError: (error: ApiError) => {
-          if (isValidationError(error.body)) {
-            error.body.errors.forEach((error) => {
-              const name = error.name as keyof SetStengtHosArrangorRequest;
-              setError(name, { type: "custom", message: error.message });
+        onError: (error: ProblemDetail) => {
+          if (isValidationError(error)) {
+            error.errors.forEach((error) => {
+              const name = jsonPointerToFieldPath(
+                error.pointer,
+              ) as keyof SetStengtHosArrangorRequest;
+              setError(name, { type: "custom", message: error.detail });
             });
           }
         },

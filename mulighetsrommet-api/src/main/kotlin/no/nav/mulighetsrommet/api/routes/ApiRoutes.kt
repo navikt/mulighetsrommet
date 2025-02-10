@@ -12,13 +12,13 @@ import no.nav.mulighetsrommet.api.navansatt.navAnsattRoutes
 import no.nav.mulighetsrommet.api.navenhet.navEnhetRoutes
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
-import no.nav.mulighetsrommet.api.refusjon.refusjonRoutes
 import no.nav.mulighetsrommet.api.routes.featuretoggles.featureTogglesRoute
 import no.nav.mulighetsrommet.api.routes.internal.maamRoutes
 import no.nav.mulighetsrommet.api.routes.v1.externalRoutes
 import no.nav.mulighetsrommet.api.routes.v1.janzzRoutes
 import no.nav.mulighetsrommet.api.tilsagn.tilsagnRoutes
 import no.nav.mulighetsrommet.api.tiltakstype.tiltakstypeRoutes
+import no.nav.mulighetsrommet.api.utbetaling.utbetalingRoutes
 import no.nav.mulighetsrommet.api.veilederflate.routes.arbeidsmarkedstiltakRoutes
 import no.nav.mulighetsrommet.api.veilederflate.routes.brukerRoutes
 import no.nav.mulighetsrommet.api.veilederflate.routes.delMedBrukerRoutes
@@ -70,7 +70,7 @@ fun Route.adminflateRoutes() {
     tilsagnRoutes()
     utdanningRoutes()
     oppgaverRoutes()
-    refusjonRoutes()
+    utbetalingRoutes()
 }
 
 fun Route.veilederflateRoutes() {

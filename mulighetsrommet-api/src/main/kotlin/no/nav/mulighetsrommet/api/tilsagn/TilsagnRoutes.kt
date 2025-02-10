@@ -15,9 +15,10 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.responses.BadRequest
+import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.model.Prismodell
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -62,32 +63,23 @@ fun Route.tilsagnRoutes() {
             }
         }
 
-        get("/defaults") {
-            val gjennomforingId: UUID by call.queryParameters
-            val type: TilsagnType by call.queryParameters
+        post("/defaults") {
+            val request = call.receive<TilsagnDefaultsRequest>()
+            val gjennomforing = gjennomforinger.get(request.gjennomforingId) ?: return@post call.respond(HttpStatusCode.NotFound)
 
-            val gjennomforing = gjennomforinger.get(gjennomforingId) ?: return@get call.respond(HttpStatusCode.NotFound)
-
-            val defaults = when (type) {
+            val defaults = when (request.type) {
                 TilsagnType.TILSAGN -> {
                     val sisteTilsagn = db.session {
                         queries.tilsagn
-                            .getAll(type = TilsagnType.TILSAGN, gjennomforingId = gjennomforingId)
+                            .getAll(type = TilsagnType.TILSAGN, gjennomforingId = request.gjennomforingId)
                             .firstOrNull()
                     }
 
                     resolveTilsagnDefaults(gjennomforing, sisteTilsagn)
                 }
 
-                TilsagnType.EKSTRATILSAGN -> TilsagnDefaults(
-                    id = null,
-                    gjennomforingId = gjennomforing.id,
-                    type = TilsagnType.EKSTRATILSAGN,
-                    periodeStart = null,
-                    periodeSlutt = null,
-                    kostnadssted = null,
-                    beregning = null,
-                )
+                TilsagnType.EKSTRATILSAGN ->
+                    resolveEkstraTilsagnDefaults(gjennomforing, request)
 
                 TilsagnType.INVESTERING -> TilsagnDefaults(
                     id = null,
@@ -108,7 +100,7 @@ fun Route.tilsagnRoutes() {
 
             val result = service.beregnTilsagn(request)
                 .map { it.output }
-                .mapLeft { BadRequest(errors = it) }
+                .mapLeft { ValidationError(errors = it) }
 
             call.respondWithStatusResponse(result)
         }
@@ -119,7 +111,7 @@ fun Route.tilsagnRoutes() {
                 val navIdent = getNavIdent()
 
                 val result = service.upsert(request, navIdent)
-                    .mapLeft { BadRequest(errors = it) }
+                    .mapLeft { ValidationError(errors = it) }
 
                 call.respondWithStatusResponse(result)
             }
@@ -169,6 +161,20 @@ fun Route.tilsagnRoutes() {
         call.respond(satser)
     }
 }
+
+@Serializable
+data class TilsagnDefaultsRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val gjennomforingId: UUID,
+    val type: TilsagnType,
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeStart: LocalDate?,
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeSlutt: LocalDate?,
+    val kostnadssted: String?,
+    val belop: Int?,
+    val prismodell: Prismodell?,
+)
 
 @Serializable
 data class TilsagnDefaults(
@@ -296,6 +302,33 @@ private fun resolveTilsagnDefaults(
             periodeStart = periodeStart,
             periodeSlutt = periodeSlutt,
             kostnadssted = null,
+            beregning = null,
+        )
+    }
+}
+
+private fun resolveEkstraTilsagnDefaults(
+    gjennomforing: GjennomforingDto,
+    request: TilsagnDefaultsRequest,
+): TilsagnDefaults {
+    return if (request.prismodell == Prismodell.FRI && request.belop != null) {
+        TilsagnDefaults(
+            id = null,
+            gjennomforingId = gjennomforing.id,
+            type = TilsagnType.EKSTRATILSAGN,
+            periodeStart = request.periodeStart,
+            periodeSlutt = request.periodeSlutt,
+            kostnadssted = request.kostnadssted,
+            beregning = TilsagnBeregningFri.Input(belop = request.belop),
+        )
+    } else {
+        TilsagnDefaults(
+            id = null,
+            gjennomforingId = gjennomforing.id,
+            type = TilsagnType.EKSTRATILSAGN,
+            periodeStart = request.periodeStart,
+            periodeSlutt = request.periodeSlutt,
+            kostnadssted = request.kostnadssted,
             beregning = null,
         )
     }

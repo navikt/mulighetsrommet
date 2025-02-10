@@ -13,7 +13,7 @@ export function Header({ arrangorer }: Props) {
       <div className={css.side + " h-full mt-0 flex flex-row content-center items-center"}>
         <div className="flex flex-row items-center justify-between w-full ">
           <Link className="text-gray-900 font-bold text-4xl no-underline" to="/">
-            Refusjonskrav
+            Utbetaling
           </Link>
           <Arrangorvelger arrangorer={arrangorer} />
         </div>

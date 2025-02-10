@@ -1,5 +1,6 @@
 import { useGetGjennomforingIdFromUrl } from "@/hooks/useGetGjennomforingIdFromUrl";
 import { MicroFrontend } from "@/micro-frontend/MicroFrontend";
+import { Environment, environment } from "@/environment";
 
 export function DeltakerlisteContainer() {
   const gjennomforingId = useGetGjennomforingIdFromUrl();
@@ -9,6 +10,9 @@ export function DeltakerlisteContainer() {
   }
 
   const deltakerlisteUrl = resolveDeltakerlisteCdnUrl();
+  if (deltakerlisteUrl === null) {
+    return null;
+  }
 
   return (
     <MicroFrontend
@@ -19,6 +23,11 @@ export function DeltakerlisteContainer() {
   );
 }
 
-function resolveDeltakerlisteCdnUrl(): string {
-  return "https://cdn.nav.no/amt/amt-tiltakskoordinator-flate-dev/build";
+function resolveDeltakerlisteCdnUrl(): string | null {
+  switch (environment) {
+    case Environment.PROD:
+      return "https://cdn.nav.no/amt/amt-tiltakskoordinator-flate-prod/build";
+    default:
+      return "https://cdn.nav.no/amt/amt-tiltakskoordinator-flate-dev/build";
+  }
 }

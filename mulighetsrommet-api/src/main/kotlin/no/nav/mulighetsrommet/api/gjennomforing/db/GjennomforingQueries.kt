@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.gjennomforing.db
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
@@ -14,7 +13,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
-import no.nav.mulighetsrommet.api.withTransaction
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.createUuidArray
@@ -22,10 +20,8 @@ import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
+import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
@@ -368,7 +364,7 @@ class GjennomforingQueries(private val session: Session) {
             .runWithSession(this)
     }
 
-    fun getGjennomforesInPeriodeUtenRefusjonskrav(periode: Periode): List<GjennomforingDto> = with(session) {
+    fun getGjennomforesInPeriodeUtenUtbetaling(periode: Periode): List<GjennomforingDto> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select * from gjennomforing_admin_dto_view
@@ -378,10 +374,10 @@ class GjennomforingQueries(private val session: Session) {
                 (avsluttet_tidspunkt > :periode_start or avsluttet_tidspunkt is null) and
                 not exists (
                     select 1
-                    from refusjonskrav
-                        join refusjonskrav_beregning_aft ON refusjonskrav.id = refusjonskrav_beregning_aft.refusjonskrav_id
-                    where refusjonskrav.gjennomforing_id = gjennomforing_admin_dto_view.id
-                    and refusjonskrav_beregning_aft.periode && daterange(:periode_start, :periode_slutt)
+                    from utbetaling
+                        join utbetaling_beregning_aft ON utbetaling.id = utbetaling_beregning_aft.utbetaling_id
+                    where utbetaling.gjennomforing_id = gjennomforing_admin_dto_view.id
+                    and utbetaling_beregning_aft.periode && daterange(:periode_start, :periode_slutt)
                 );
         """.trimIndent()
 
@@ -577,7 +573,7 @@ class GjennomforingQueries(private val session: Session) {
             id = uuid("id"),
             navn = string("navn"),
             tiltaksnummer = stringOrNull("tiltaksnummer"),
-            lopenummer = stringOrNull("lopenummer"),
+            lopenummer = string("lopenummer"),
             startDato = startDato,
             sluttDato = sluttDato,
             status = GjennomforingStatusDto(status, avbrutt),

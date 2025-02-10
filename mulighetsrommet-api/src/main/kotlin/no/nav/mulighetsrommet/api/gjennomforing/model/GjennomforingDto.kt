@@ -9,8 +9,6 @@ import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -25,7 +23,7 @@ data class GjennomforingDto(
     val tiltakstype: Tiltakstype,
     val navn: String,
     val tiltaksnummer: String?,
-    val lopenummer: String?,
+    val lopenummer: String,
     val arrangor: ArrangorUnderenhet,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,

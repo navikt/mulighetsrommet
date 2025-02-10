@@ -5,7 +5,7 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { DupliserGjennomforing } from "@/components/gjennomforing/DupliserGjennomforing";
 import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "@/constants";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
-import { Toggles } from "@mr/api-client-v2";
+import { GjennomforingOppstartstype, Toggles } from "@mr/api-client-v2";
 import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
@@ -18,7 +18,7 @@ import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import React from "react";
 import { Laster } from "@/components/laster/Laster";
 
-type GjennomforingTab = "tilsagn" | "deltakerliste" | "refusjonskrav" | "gjennomforing";
+type GjennomforingTab = "tilsagn" | "deltakerliste" | "utbetalinger" | "gjennomforing";
 
 export function GjennomforingPage() {
   const { pathname } = useLocation();
@@ -39,8 +39,8 @@ export function GjennomforingPage() {
       return "tilsagn";
     } else if (pathname.includes("deltakerliste")) {
       return "deltakerliste";
-    } else if (pathname.includes("refusjonskrav")) {
-      return "refusjonskrav";
+    } else if (pathname.includes("utbetalinger")) {
+      return "utbetalinger";
     } else {
       return "gjennomforing";
     }
@@ -57,7 +57,7 @@ export function GjennomforingPage() {
       lenke: currentTab === "gjennomforing" ? undefined : `/gjennomforinger/${gjennomforing.id}`,
     },
     currentTab === "tilsagn" ? { tittel: "Tilsagnoversikt" } : undefined,
-    currentTab === "refusjonskrav" ? { tittel: "Refusjonskravoversikt" } : undefined,
+    currentTab === "utbetalinger" ? { tittel: "Utbetalinger" } : undefined,
     currentTab === "deltakerliste" ? { tittel: "Deltakerliste" } : undefined,
   ];
 
@@ -111,16 +111,16 @@ export function GjennomforingPage() {
                 aria-controls="panel"
               />
               <Tabs.Tab
-                value="refusjonskrav"
-                label="Refusjonskrav"
+                value="utbetalinger"
+                label="Utbetalinger"
                 onClick={() =>
-                  navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/refusjonskrav`)
+                  navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/utbetalinger`)
                 }
                 aria-controls="panel"
               />
             </>
           ) : null}
-          {enableDeltakerliste && (
+          {enableDeltakerliste && gjennomforing.oppstart === GjennomforingOppstartstype.FELLES && (
             <Tabs.Tab
               value="deltakerliste"
               label="Deltakerliste"

@@ -1,11 +1,11 @@
 import {
   Arrangor,
   ArrangorflateTilsagn,
-  RefusjonKravAft,
-  RefusjonskravStatus,
+  ArrFlateUtbetaling,
   RelevanteForslag,
   TilsagnStatus,
   TilsagnType,
+  UtbetalingStatus,
 } from "@mr/api-client-v2";
 import { http, HttpResponse, PathParams } from "msw";
 import { v4 as uuid } from "uuid";
@@ -50,11 +50,11 @@ const mockDeltakelser = [
   },
 ];
 
-const mockKrav: RefusjonKravAft[] = [
+const mockKrav: ArrFlateUtbetaling[] = [
   {
     type: "AFT",
     id: uuid(),
-    status: RefusjonskravStatus.KLAR_FOR_GODKJENNING,
+    status: UtbetalingStatus.KLAR_FOR_GODKJENNING,
     fristForGodkjenning: "2024-08-01T00:00:00",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
@@ -73,19 +73,20 @@ const mockKrav: RefusjonKravAft[] = [
       navn: "Fretex",
       slettet: false,
     },
-    deltakelser: mockDeltakelser,
+    periodeStart: "2024-06-01",
+    periodeSlutt: "2024-06-30",
     beregning: {
-      periodeStart: "2024-06-01",
-      periodeSlutt: "2024-06-30",
       antallManedsverk: 17.5,
       belop: 308530,
       digest: "ac6b2cdcbfc885e64121cf4e0ebee5dd",
+      deltakelser: mockDeltakelser,
+      type: "FORHANDSGODKJENT",
     },
   },
   {
     type: "AFT",
     id: uuid(),
-    status: RefusjonskravStatus.KLAR_FOR_GODKJENNING,
+    status: UtbetalingStatus.KLAR_FOR_GODKJENNING,
     fristForGodkjenning: "2024-08-01T00:00:00",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
@@ -104,19 +105,20 @@ const mockKrav: RefusjonKravAft[] = [
       navn: "Fretex",
       slettet: false,
     },
-    deltakelser: mockDeltakelser,
+    periodeStart: "2024-06-01",
+    periodeSlutt: "2024-06-30",
     beregning: {
-      periodeStart: "2024-06-01",
-      periodeSlutt: "2024-06-30",
       antallManedsverk: 4,
       belop: 85000,
       digest: "5c25b2ae0d9b5f2c76e4a6065125cbdb",
+      deltakelser: mockDeltakelser,
+      type: "FORHANDSGODKJENT",
     },
   },
   {
     type: "AFT",
     id: uuid(),
-    status: RefusjonskravStatus.GODKJENT_AV_ARRANGOR,
+    status: UtbetalingStatus.GODKJENT_AV_ARRANGOR,
     fristForGodkjenning: "2024-08-01T00:00:00",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
@@ -135,38 +137,39 @@ const mockKrav: RefusjonKravAft[] = [
       navn: "Fretex",
       slettet: false,
     },
-    deltakelser: [
-      {
-        id: uuid(),
-        person: {
-          navn: "Per Petterson",
-          fodselsdato: "1980-01-01",
-          fodselsaar: 1980,
-        },
-        startDato: "2024-06-01",
-        forstePeriodeStartDato: "2024-06-01",
-        sistePeriodeSluttDato: "2024-06-30",
-        sistePeriodeDeltakelsesprosent: 30,
-        manedsverk: 0.3,
-      },
-      {
-        id: uuid(),
-        person: {
-          navn: "Stian Bjærvik",
-        },
-        startDato: "2024-06-01",
-        forstePeriodeStartDato: "2024-06-01",
-        sistePeriodeSluttDato: "2024-06-30",
-        sistePeriodeDeltakelsesprosent: 100,
-        manedsverk: 1,
-      },
-    ],
+    periodeStart: "2024-06-01",
+    periodeSlutt: "2024-06-30",
     beregning: {
-      periodeStart: "2024-06-01",
-      periodeSlutt: "2024-06-30",
+      deltakelser: [
+        {
+          id: uuid(),
+          person: {
+            navn: "Per Petterson",
+            fodselsdato: "1980-01-01",
+            fodselsaar: 1980,
+          },
+          startDato: "2024-06-01",
+          forstePeriodeStartDato: "2024-06-01",
+          sistePeriodeSluttDato: "2024-06-30",
+          sistePeriodeDeltakelsesprosent: 30,
+          manedsverk: 0.3,
+        },
+        {
+          id: uuid(),
+          person: {
+            navn: "Stian Bjærvik",
+          },
+          startDato: "2024-06-01",
+          forstePeriodeStartDato: "2024-06-01",
+          sistePeriodeSluttDato: "2024-06-30",
+          sistePeriodeDeltakelsesprosent: 100,
+          manedsverk: 1,
+        },
+      ],
       antallManedsverk: 4,
       belop: 85000,
       digest: "5c25b2ae0d9b5f2c76e4a6065125cbdb",
+      type: "FORHANDSGODKJENT",
     },
   },
 ];
@@ -292,38 +295,38 @@ const mockRelevanteForslag: RelevanteForslag[] = [
 ];
 
 export const arrangorflateHandlers = [
-  http.get<PathParams, RefusjonKravAft[]>(
-    "*/api/v1/intern/arrangorflate/arrangor/:orgnr/refusjonskrav",
+  http.get<PathParams, ArrFlateUtbetaling[]>(
+    "*/api/v1/intern/arrangorflate/arrangor/:orgnr/utbetaling",
     () => HttpResponse.json(mockKrav),
   ),
-  http.get<PathParams, RefusjonKravAft[]>(
-    "*/api/v1/intern/arrangorflate/refusjonskrav/:id",
+  http.get<PathParams, ArrFlateUtbetaling[]>(
+    "*/api/v1/intern/arrangorflate/utbetaling/:id",
     ({ params }) => {
       const { id } = params;
       return HttpResponse.json(mockKrav.find((k) => k.id === id));
     },
   ),
-  http.post<PathParams, RefusjonKravAft[]>(
-    "*/api/v1/intern/arrangorflate/refusjonskrav/:id/godkjenn-refusjon",
+  http.post<PathParams, ArrFlateUtbetaling[]>(
+    "*/api/v1/intern/arrangorflate/utbetaling/:id/godkjenn-utbetaling",
     () => HttpResponse.json({}),
   ),
-  http.get<PathParams, RefusjonKravAft[]>(
-    "*/api/v1/intern/arrangorflate/:orgnr/refusjonskrav/:id/kvittering",
+  http.get<PathParams, ArrFlateUtbetaling[]>(
+    "*/api/v1/intern/arrangorflate/:orgnr/utbetaling/:id/kvittering",
     () => HttpResponse.json(undefined, { status: 501 }),
   ),
-  http.get<PathParams, RefusjonKravAft[]>(
-    "*/api/v1/intern/arrangorflate/refusjonskrav/:id/tilsagn",
+  http.get<PathParams, ArrFlateUtbetaling[]>(
+    "*/api/v1/intern/arrangorflate/utbetaling/:id/tilsagn",
     () => HttpResponse.json(mockTilsagn),
   ),
-  http.get<PathParams, RefusjonKravAft[]>(
-    "*/api/v1/intern/arrangorflate/refusjonskrav/:id/relevante-forslag",
+  http.get<PathParams, ArrFlateUtbetaling[]>(
+    "*/api/v1/intern/arrangorflate/utbetaling/:id/relevante-forslag",
     () => HttpResponse.json(mockRelevanteForslag),
   ),
-  http.get<PathParams, RefusjonKravAft[]>(
+  http.get<PathParams, ArrFlateUtbetaling[]>(
     "*/api/v1/intern/arrangorflate/arrangor/:orgnr/tilsagn",
     () => HttpResponse.json(mockTilsagn),
   ),
-  http.get<PathParams, RefusjonKravAft[]>(
+  http.get<PathParams, ArrFlateUtbetaling[]>(
     "*/api/v1/intern/arrangorflate/:orgnr/tilsagn/:id",
     ({ params }) => {
       const { id } = params;

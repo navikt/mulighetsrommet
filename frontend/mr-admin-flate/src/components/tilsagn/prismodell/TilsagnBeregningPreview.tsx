@@ -1,5 +1,9 @@
-import { TilsagnBeregningInput, TilsagnBeregningOutput } from "@mr/api-client-v2";
-import { formaterNOK, isValidationError } from "@mr/frontend-common/utils/utils";
+import { ProblemDetail, TilsagnBeregningInput, TilsagnBeregningOutput } from "@mr/api-client-v2";
+import {
+  formaterNOK,
+  isValidationError,
+  jsonPointerToFieldPath,
+} from "@mr/frontend-common/utils/utils";
 import { Heading, Label } from "@navikt/ds-react";
 import { useBeregnTilsagn } from "@/api/tilsagn/useBeregnTilsagn";
 import { useEffect, useState } from "react";
@@ -24,11 +28,11 @@ export function TilsagnBeregningPreview(props: Props) {
     onTilsagnBeregnet?.(beregning.data);
   }
 
-  function setValidationErrors(error: any) {
-    if (isValidationError(error.body)) {
-      error.body.errors.forEach((error: { name: string; message: string }) => {
-        const name = error.name as keyof InferredTilsagn;
-        setError(name, { type: "custom", message: error.message });
+  function setValidationErrors(error: ProblemDetail) {
+    if (isValidationError(error)) {
+      error.errors.forEach((error: { pointer: string; detail: string }) => {
+        const name = jsonPointerToFieldPath(error.pointer) as keyof InferredTilsagn;
+        setError(name, { type: "custom", message: error.detail });
       });
     }
   }

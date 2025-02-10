@@ -5,7 +5,7 @@ import arrow.core.left
 import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.right
-import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -14,18 +14,18 @@ object TilsagnValidator {
     fun validate(
         next: TilsagnDbo,
         previous: TilsagnDto?,
-    ): Either<List<ValidationError>, TilsagnDbo> = either {
+    ): Either<List<FieldError>, TilsagnDbo> = either {
         if (previous != null && previous.status !is TilsagnDto.TilsagnStatus.Returnert) {
-            return ValidationError
+            return FieldError
                 .of(TilsagnDto::id, "Tilsagnet kan ikke endres.")
                 .nel()
                 .left()
         }
 
         val errors = buildList {
-            if (next.periodeStart.year != next.periodeSlutt.year) {
+            if (next.periode.start.year != next.periode.getLastDate().year) {
                 add(
-                    ValidationError.of(
+                    FieldError.of(
                         TilsagnRequest::periodeSlutt,
                         "Tilsagnsperioden kan ikke vare utover årsskiftet",
                     ),
@@ -39,48 +39,48 @@ object TilsagnValidator {
     fun validateForhandsgodkjentSats(
         tiltakskode: Tiltakskode,
         input: TilsagnBeregningForhandsgodkjent.Input,
-    ): Either<List<ValidationError>, TilsagnBeregningForhandsgodkjent.Input> = either {
+    ): Either<List<FieldError>, TilsagnBeregningForhandsgodkjent.Input> = either {
         val errors = buildList {
             val satsPeriodeStart = ForhandsgodkjenteSatser.findSats(tiltakskode, input.periodeStart)
             if (satsPeriodeStart == null) {
-                add(ValidationError.ofCustomLocation("periodeStart", "Sats mangler for valgt periode"))
+                add(FieldError.ofPointer("/periodeStart", "Sats mangler for valgt periode"))
             }
 
             val satsPeriodeSlutt = ForhandsgodkjenteSatser.findSats(tiltakskode, input.periodeSlutt)
             if (satsPeriodeSlutt == null) {
-                add(ValidationError.ofCustomLocation("periodeSlutt", "Sats mangler for valgt periode"))
+                add(FieldError.ofPointer("/periodeSlutt", "Sats mangler for valgt periode"))
             }
 
             if (satsPeriodeStart != satsPeriodeSlutt) {
-                add(ValidationError.ofCustomLocation("periodeSlutt", "Periode går over flere satser"))
+                add(FieldError.ofPointer("/periodeSlutt", "Periode går over flere satser"))
             }
         }
 
         return errors.takeIf { it.isNotEmpty() }?.left() ?: input.right()
     }
 
-    fun validateBeregningInput(input: TilsagnBeregningInput): Either<List<ValidationError>, TilsagnBeregningInput> = either {
+    fun validateBeregningInput(input: TilsagnBeregningInput): Either<List<FieldError>, TilsagnBeregningInput> = either {
         return when (input) {
             is TilsagnBeregningForhandsgodkjent.Input -> validateAFTTilsagnBeregningInput(input)
             is TilsagnBeregningFri.Input -> input.right()
         }
     }
 
-    private fun validateAFTTilsagnBeregningInput(input: TilsagnBeregningForhandsgodkjent.Input): Either<List<ValidationError>, TilsagnBeregningInput> = either {
+    private fun validateAFTTilsagnBeregningInput(input: TilsagnBeregningForhandsgodkjent.Input): Either<List<FieldError>, TilsagnBeregningInput> = either {
         val errors = buildList {
             if (input.periodeStart.year != input.periodeSlutt.year) {
                 add(
-                    ValidationError.ofCustomLocation(
-                        "periodeSlutt",
+                    FieldError.ofPointer(
+                        "/periodeSlutt",
                         "Tilsagnsperioden kan ikke vare utover årsskiftet",
                     ),
                 )
             }
             if (input.periodeStart.isAfter(input.periodeSlutt)) {
-                add(ValidationError.ofCustomLocation("periodeSlutt", "Slutt kan ikke være før start"))
+                add(FieldError.ofPointer("/periodeSlutt", "Slutt kan ikke være før start"))
             }
             if (input.antallPlasser <= 0) {
-                add(ValidationError.ofCustomLocation("beregning.antallPlasser", "Antall plasser kan ikke være 0"))
+                add(FieldError.ofPointer("/beregning.antallPlasser", "Antall plasser kan ikke være 0"))
             }
         }
 

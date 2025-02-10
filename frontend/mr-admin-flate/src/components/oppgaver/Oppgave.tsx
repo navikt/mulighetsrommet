@@ -8,7 +8,7 @@ interface OppgaveProps {
 }
 
 export function Oppgave({ oppgave, tiltakstype }: OppgaveProps) {
-  const { title, description, link, deadline } = oppgave;
+  const { title, description, link, deadline, createdAt } = oppgave;
   const deadlineDate = new Date(deadline);
 
   return (
@@ -16,7 +16,7 @@ export function Oppgave({ oppgave, tiltakstype }: OppgaveProps) {
       <div className="bg-white p-4" data-testid="oppgaver">
         <div className="flex justify-between items-center">
           <span>{tiltakstype.navn}</span>
-          <span>{formaterDato(deadlineDate)}</span>
+          <span>Frist: {formaterDato(deadlineDate)}</span>
         </div>
         <div>
           <div className="flex justify-between mt-4">
@@ -28,19 +28,26 @@ export function Oppgave({ oppgave, tiltakstype }: OppgaveProps) {
             {link.linkText}
           </Link>
         </div>
+        <div className="flex justify-end text-small">
+          <span>Opprettet {formaterDato(createdAt)}</span>
+        </div>
       </div>
     </>
   );
 }
 
-const labels: Record<string, { label: string; color: string }> = {
-  TILSAGN_TIL_BESLUTNING: {
-    label: "Tilsagn til annullering",
+const labels: Record<OppgaveType, { label: string; color: string }> = {
+  TILSAGN_TIL_GODKJENNING: {
+    label: "Tilsagn til godkjenning",
     color: "#FFD799",
   },
   TILSAGN_TIL_ANNULLERING: {
-    label: "Tilsagn til beslutning",
+    label: "Tilsagn til annullering",
     color: "#CCE2F0",
+  },
+  TILSAGN_RETURNERT_AV_BESLUTTER: {
+    label: "Tilsagn returnert",
+    color: "#FF9100",
   },
 };
 

@@ -2,7 +2,7 @@ import {
   GjennomforingStatus,
   Tiltakskode,
   TiltakskodeArena,
-  ValidationErrorResponse,
+  ValidationError,
 } from "@mr/api-client-v2";
 import { shallowEquals } from "./shallow-equals";
 
@@ -54,10 +54,21 @@ export function formaterKontoNummer(kontoNummer?: string): string {
     : `${kontoNummer.substring(0, 4)} ${kontoNummer.substring(4, 6)} ${kontoNummer.substring(6, 11)}`;
 }
 
-export function isValidationError(body: unknown): body is ValidationErrorResponse {
+export function isValidationError(error: unknown): error is ValidationError {
   return (
-    body !== null &&
-    typeof body === "object" &&
-    Object.prototype.hasOwnProperty.call(body, "errors")
+    typeof error === "object" &&
+      error !== null &&
+    "errors" in error
   );
+}
+
+export function jsonPointerToFieldPath(pointer: string): string {
+  return pointer
+    .replace(/^\//, "") // Remove leading slash
+    .replace(/\/$/, "") // Remove trailing slash
+    .split("/")          // Split by slash
+    .filter(Boolean)     // Remove empty parts (handles double slashes)
+    .join(".")           // Join with dots
+    .replace(/~1/g, "/") // Decode escaped '/'
+    .replace(/~0/g, "~"); // Decode escaped '~'
 }

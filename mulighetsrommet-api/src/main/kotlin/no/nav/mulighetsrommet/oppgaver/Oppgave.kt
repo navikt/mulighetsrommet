@@ -6,8 +6,9 @@ import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
 enum class OppgaveType {
-    TILSAGN_TIL_BESLUTNING,
+    TILSAGN_TIL_GODKJENNING,
     TILSAGN_TIL_ANNULLERING,
+    TILSAGN_RETURNERT_AV_BESLUTTER,
 }
 
 @Serializable
@@ -16,7 +17,7 @@ data class Oppgave(
     val title: String,
     val description: String? = null,
     val tiltakstype: Tiltakskode,
-    val link: OppgaveLink? = null,
+    val link: OppgaveLink,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)

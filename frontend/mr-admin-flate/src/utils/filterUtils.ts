@@ -6,6 +6,7 @@ import {
   NavEnhetType,
   GjennomforingStatus,
   TiltakstypeDto,
+  OppgaveType,
 } from "@mr/api-client-v2";
 import { avtaletypeTilTekst } from "./Utils";
 
@@ -62,6 +63,21 @@ export const AVTALE_TYPE_OPTIONS: { label: string; value: Avtaletype }[] = [
   {
     label: avtaletypeTilTekst(Avtaletype.RAMMEAVTALE),
     value: Avtaletype.RAMMEAVTALE,
+  },
+];
+
+export const OPPGAVER_TYPE_STATUS: { label: string; value: OppgaveType }[] = [
+  {
+    label: "Tilsagn til godkjenning",
+    value: OppgaveType.TILSAGN_TIL_GODKJENNING,
+  },
+  {
+    label: "Tilsagn til annullering",
+    value: OppgaveType.TILSAGN_TIL_ANNULLERING,
+  },
+  {
+    label: "Tilsagn returnert av beslutter",
+    value: OppgaveType.TILSAGN_RETURNERT_AV_BESLUTTER,
   },
 ];
 

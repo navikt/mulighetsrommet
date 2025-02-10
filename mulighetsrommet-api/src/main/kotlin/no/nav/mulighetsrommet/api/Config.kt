@@ -13,10 +13,10 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
-import no.nav.mulighetsrommet.api.refusjon.task.GenerateRefusjonskrav
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
 import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
+import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -49,7 +49,6 @@ data class AppConfig(
     val norg2: HttpClientConfig,
     val tasks: TaskConfig,
     val slack: SlackConfig,
-    val brreg: HttpClientConfig,
     val pamOntologi: AuthenticatedHttpClientConfig,
     val unleash: UnleashService.Config,
     val axsys: AuthenticatedHttpClientConfig,
@@ -123,7 +122,7 @@ data class TaskConfig(
     val notifyFailedKafkaEvents: NotifyFailedKafkaEvents.Config,
     val generateValidationReport: GenerateValidationReport.Config = GenerateValidationReport.Config(),
     val updateApentForPamelding: UpdateApentForPamelding.Config = UpdateApentForPamelding.Config(),
-    val generateRefusjonskrav: GenerateRefusjonskrav.Config,
+    val generateUtbetaling: GenerateUtbetaling.Config,
 )
 
 data class SlackConfig(

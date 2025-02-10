@@ -5,10 +5,15 @@ export default function IngenTilgang() {
   return (
     <>
       <PageHeader title="Mangler tilgang" />
-      <VStack align="center" gap="4">
+      <VStack align="start" gap="4">
         <Alert variant="warning">
-          Du mangler tilganger til refusjonsløsningen. Tilganger delegeres i Altinn av din
-          arbeidsgiver. Kom tilbake når du har ordnet tilganger.
+          Du mangler tilgang til utbetalingsløsningen. Tilgang delegeres i Altinn som en
+          enkeltrettighet av din arbeidsgiver.
+          <br />
+          Det er enkeltrettigheten <b>Be om utbetaling - Nav Arbeidsmarkedstiltak</b> du må få via
+          Altinn.
+          <br />
+          Når enkeltrettigheten er delegert i Altinn kan du laste siden på nytt og få tilgang.
         </Alert>
       </VStack>
     </>

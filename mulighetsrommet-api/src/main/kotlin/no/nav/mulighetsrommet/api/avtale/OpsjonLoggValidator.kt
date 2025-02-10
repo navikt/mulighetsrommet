@@ -7,13 +7,13 @@ import arrow.core.raise.either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
-import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.responses.FieldError
 
 object OpsjonLoggValidator {
-    fun validate(entry: OpsjonLoggEntry, avtale: AvtaleDto): Either<List<ValidationError>, OpsjonLoggEntry> = either {
+    fun validate(entry: OpsjonLoggEntry, avtale: AvtaleDto): Either<List<FieldError>, OpsjonLoggEntry> = either {
         val opsjonsmodellData = avtale.opsjonsmodellData
             ?: raise(
-                ValidationError.of(
+                FieldError.of(
                     OpsjonsmodellData::opsjonsmodell,
                     "Kan ikke registrer opsjon uten en opsjonsmodell",
                 ).nel(),
@@ -25,7 +25,7 @@ object OpsjonLoggValidator {
                     avtale.opsjonerRegistrert?.any { it.status === OpsjonLoggRequest.OpsjonsLoggStatus.SKAL_IKKE_UTLØSE_OPSJON }
                 if (skalIkkeUtloseOpsjonerForAvtale == true) {
                     add(
-                        ValidationError.of(
+                        FieldError.of(
                             OpsjonLoggEntry::status,
                             "Kan ikke utløse opsjon for avtale som har en opsjon som ikke skal utløses",
                         ),
@@ -36,7 +36,7 @@ object OpsjonLoggValidator {
                 val maksVarighet = opsjonsmodellData.opsjonMaksVarighet
                 if (entry.sluttdato != null && entry.sluttdato.isAfter(maksVarighet)) {
                     add(
-                        ValidationError.of(
+                        FieldError.of(
                             OpsjonLoggEntry::sluttdato,
                             "Ny sluttdato er forbi maks varighet av avtalen",
                         ),
@@ -44,7 +44,7 @@ object OpsjonLoggValidator {
                 }
 
                 if (entry.forrigeSluttdato == null) {
-                    add(ValidationError.of(OpsjonLoggEntry::forrigeSluttdato, "Forrige sluttdato må være satt"))
+                    add(FieldError.of(OpsjonLoggEntry::forrigeSluttdato, "Forrige sluttdato må være satt"))
                 }
             }
         }

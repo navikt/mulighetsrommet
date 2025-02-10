@@ -1,6 +1,12 @@
 import { TilsagnFormForhandsgodkjent } from "@/components/tilsagn/prismodell/TilsagnFormForhandsgodkjent";
 import { TilsagnFormFri } from "@/components/tilsagn/prismodell/TilsagnFormFri";
-import { AvtaleDto, Avtaletype, TilsagnType, GjennomforingDto } from "@mr/api-client-v2";
+import {
+  AvtaleDto,
+  Avtaletype,
+  TilsagnType,
+  GjennomforingDto,
+  Prismodell,
+} from "@mr/api-client-v2";
 import { useNavigate } from "react-router";
 import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
 import { DeepPartial } from "react-hook-form";
@@ -27,8 +33,17 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
     onAvbryt: navigerTilTilsagn,
   };
 
-  switch (avtale.avtaletype) {
-    case Avtaletype.FORHAANDSGODKJENT:
+  function prismodell(avtaleType: Avtaletype, defaultPrismodell?: Prismodell): Prismodell {
+    if (defaultPrismodell) {
+      return defaultPrismodell;
+    }
+    return avtaleType === Avtaletype.FORHAANDSGODKJENT
+      ? Prismodell.FORHANDSGODKJENT
+      : Prismodell.FRI;
+  }
+
+  switch (prismodell(avtale.avtaletype, defaults.beregning?.type as Prismodell)) {
+    case Prismodell.FORHANDSGODKJENT:
       return (
         <TilsagnFormForhandsgodkjent
           defaultValues={{
@@ -38,7 +53,6 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
           {...props}
         />
       );
-
     default:
       return (
         <TilsagnFormFri

@@ -4,6 +4,7 @@ import {
   TilsagnStatus,
   TilsagnType,
   GjennomforingerService,
+  Prismodell,
 } from "@mr/api-client-v2";
 import { LoaderFunctionArgs } from "react-router";
 
@@ -16,11 +17,28 @@ export async function opprettTilsagnLoader({ params, request }: LoaderFunctionAr
 
   const url = new URL(request.url);
   const type = (url.searchParams.get("type") as TilsagnType) ?? TilsagnType.TILSAGN;
+  const periodeStart = url.searchParams.get("periodeStart");
+  const periodeSlutt = url.searchParams.get("periodeSlutt");
+  const belop = url.searchParams.get("belop");
+  const prismodell = url.searchParams.get("prismodell")
+    ? (url.searchParams.get("prismodell") as Prismodell)
+    : null;
+  const kostnadssted = url.searchParams.get("kostnadssted");
 
   const [{ data: gjennomforing }, { data: defaults }, { data: godkjenteTilsagn }] =
     await Promise.all([
       GjennomforingerService.getGjennomforing({ path: { id: gjennomforingId } }),
-      TilsagnService.getTilsagnDefaults({ query: { gjennomforingId, type } }),
+      TilsagnService.getTilsagnDefaults({
+        body: {
+          gjennomforingId,
+          type,
+          prismodell,
+          periodeStart,
+          periodeSlutt,
+          belop: belop ? Number(belop) : null,
+          kostnadssted,
+        },
+      }),
       TilsagnService.getAll({
         query: {
           gjennomforingId,

@@ -71,7 +71,7 @@ fun Route.delMedBrukerRoutes() {
                         VeilarbdialogError.OppfyllerIkkeKravForDigitalKommunikasjon -> {
                             call.respond(
                                 status = HttpStatusCode.Conflict,
-                                message = "Kan ikke dele tiltak med bruker, krav for digital kommunikasjon ikke oppfylt.",
+                                message = "Kan ikke dele tiltak med bruker, utbetaling for digital kommunikasjon ikke oppfylt.",
                             )
                         }
                     }

@@ -15,11 +15,15 @@ data class Periode(
     val start: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val slutt: LocalDate,
-) {
+) : Comparable<Periode> {
     init {
         require(start < slutt) {
             "start ($start) må være mindre enn slutt ($slutt)"
         }
+    }
+
+    override fun compareTo(other: Periode): Int {
+        return compareValuesBy(this, other, Periode::start, Periode::slutt)
     }
 
     companion object {
@@ -33,6 +37,10 @@ data class Periode(
         }
     }
 
+    operator fun contains(date: LocalDate): Boolean {
+        return date == start || date.isAfter(start) && date.isBefore(slutt)
+    }
+
     fun getDurationInDays(): Long {
         return ChronoUnit.DAYS.between(start, slutt)
     }
@@ -41,7 +49,27 @@ data class Periode(
         return slutt.minusDays(1)
     }
 
-    operator fun contains(date: LocalDate): Boolean {
-        return date == start || date.isAfter(start) && date.isBefore(slutt)
+    fun intersect(periode: Periode): Periode? {
+        val start = maxOf(start, periode.start)
+        val slutt = minOf(slutt, periode.slutt)
+        return if (start < slutt) {
+            Periode(start, slutt)
+        } else {
+            null
+        }
+    }
+
+    fun splitByMonth(): List<Periode> {
+        val perioder = mutableListOf<Periode>()
+        var currentDate = start
+
+        while (currentDate < slutt) {
+            val endOfMonth = currentDate.with(TemporalAdjusters.lastDayOfMonth()).plusDays(1)
+            val monthEnd = minOf(endOfMonth, slutt)
+            perioder.add(Periode(currentDate, monthEnd))
+            currentDate = monthEnd
+        }
+
+        return perioder
     }
 }

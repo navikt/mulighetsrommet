@@ -13,7 +13,7 @@ class AltinnRettigheterService(
     private val db: ApiDatabase,
     private val altinnClient: AltinnClient,
 ) {
-    private val rolleExpiryDuration = Duration.ofDays(1)
+    private val rolleExpiryDuration = Duration.ofHours(1)
 
     suspend fun getRettigheter(norskIdent: NorskIdent): List<BedriftRettigheter> = db.session {
         val bedriftRettigheter = queries.altinnRettigheter.getRettigheter(norskIdent)

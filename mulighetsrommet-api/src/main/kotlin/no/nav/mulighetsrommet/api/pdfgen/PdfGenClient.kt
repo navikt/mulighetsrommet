@@ -9,7 +9,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateRefusjonKravAft
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateUtbetaling
 import no.nav.mulighetsrommet.api.tilsagn.model.ArrangorflateTilsagn
 
 class PdfGenClient(
@@ -22,31 +22,31 @@ class PdfGenClient(
         }
     }
 
-    suspend fun getRefusjonKvittering(refusjon: ArrFlateRefusjonKravAft, tilsagn: List<ArrangorflateTilsagn>): ByteArray {
+    suspend fun getUtbetalingKvittering(utbetaling: ArrFlateUtbetaling, tilsagn: List<ArrangorflateTilsagn>): ByteArray {
         @Serializable
         data class PdfData(
-            val refusjon: ArrFlateRefusjonKravAft,
+            val utbetaling: ArrFlateUtbetaling,
             val tilsagn: List<ArrangorflateTilsagn>,
         )
 
         return downloadPdf(
-            app = "refusjon",
+            app = "utbetaling",
             template = "kvittering",
-            body = PdfData(refusjon, tilsagn),
+            body = PdfData(utbetaling, tilsagn),
         )
     }
 
-    suspend fun refusjonJournalpost(refusjon: ArrFlateRefusjonKravAft, tilsagn: List<ArrangorflateTilsagn>): ByteArray {
+    suspend fun utbetalingJournalpost(utbetaling: ArrFlateUtbetaling, tilsagn: List<ArrangorflateTilsagn>): ByteArray {
         @Serializable
         data class PdfData(
-            val refusjon: ArrFlateRefusjonKravAft,
+            val utbetaling: ArrFlateUtbetaling,
             val tilsagn: List<ArrangorflateTilsagn>,
         )
 
         return downloadPdf(
-            app = "refusjon",
+            app = "utbetaling",
             template = "journalpost",
-            body = PdfData(refusjon, tilsagn),
+            body = PdfData(utbetaling, tilsagn),
         )
     }
 

@@ -9,8 +9,6 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.serializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
-import no.nav.mulighetsrommet.utils.toUUID
-import java.util.*
 
 /**
  * Utility to decode the body of [HttpRequestData] to the type [T].
@@ -54,35 +52,88 @@ inline fun <reified T : Any> MockRequestHandleScope.respondJson(
 }
 
 /**
- * Utility to create a [MockEngine] based on the provided [requestHandlers].
+ * Utility to create a [MockEngine] based on the provided [MockEngineBuilder].
  *
  * The created [MockEngine] needs an explicit handler for each possible HTTP request it receives and throws an
  * [IllegalStateException] if it receives an HTTP request without a corresponding handler.
  */
-fun createMockEngine(
-    vararg requestHandlers: Pair<String, suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData>,
-) = MockEngine { request ->
-    for ((uri, handler) in requestHandlers) {
-        val mockUrl = Url(uri)
+fun createMockEngine(builder: MockEngineBuilder.() -> Unit = {}): MockEngine {
+    val engineBuilder = MockEngineBuilder().apply(builder)
+    return MockEngine { request ->
+        for ((method, uriPattern, handler) in engineBuilder.requestHandlers) {
+            val isMatch = method == request.method &&
+                when (uriPattern) {
+                    is Regex -> urlMatchesRegex(uriPattern, request.url)
+                    is String -> urlMatchesPath(Url(uriPattern), request.url)
+                    else -> throw IllegalArgumentException("URI pattern must be either a String or Regex")
+                }
 
-        if (urlMatches(expectedUrl = mockUrl, actualUrl = request.url)) {
-            return@MockEngine handler(request)
+            if (isMatch) {
+                return@MockEngine handler(request)
+            }
         }
-    }
 
-    throw IllegalStateException("Mock-response is missing for request method=${request.method.value} url=${request.url}")
+        throw IllegalStateException("Mock-response is missing for request method=${request.method.value} url=${request.url}")
+    }
 }
 
-private fun urlMatches(expectedUrl: Url, actualUrl: Url): Boolean {
-    if (actualUrl.encodedPath != expectedUrl.encodedPath) {
-        return false
+typealias MockRequestHandler = suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData
+
+@DslMarker
+annotation class MockEngineDsl
+
+@MockEngineDsl
+class MockEngineBuilder {
+    internal val requestHandlers = mutableListOf<Triple<HttpMethod, Any, MockRequestHandler>>()
+
+    @MockEngineDsl
+    fun get(uri: String, handler: MockRequestHandler) {
+        requestHandlers.add(Triple(HttpMethod.Get, uri, handler))
     }
 
-    if (!parametersMatches(expectedUrl.parameters, actualUrl.parameters)) {
-        return false
+    @MockEngineDsl
+    fun post(uri: String, handler: MockRequestHandler) {
+        requestHandlers.add(Triple(HttpMethod.Post, uri, handler))
     }
 
-    return true
+    @MockEngineDsl
+    fun put(uri: String, handler: MockRequestHandler) {
+        requestHandlers.add(Triple(HttpMethod.Put, uri, handler))
+    }
+
+    @MockEngineDsl
+    fun delete(uri: String, handler: MockRequestHandler) {
+        requestHandlers.add(Triple(HttpMethod.Delete, uri, handler))
+    }
+
+    @MockEngineDsl
+    fun get(uri: Regex, handler: MockRequestHandler) {
+        requestHandlers.add(Triple(HttpMethod.Get, uri, handler))
+    }
+
+    @MockEngineDsl
+    fun post(uri: Regex, handler: MockRequestHandler) {
+        requestHandlers.add(Triple(HttpMethod.Post, uri, handler))
+    }
+
+    @MockEngineDsl
+    fun put(uri: Regex, handler: MockRequestHandler) {
+        requestHandlers.add(Triple(HttpMethod.Put, uri, handler))
+    }
+
+    @MockEngineDsl
+    fun delete(uri: Regex, handler: MockRequestHandler) {
+        requestHandlers.add(Triple(HttpMethod.Delete, uri, handler))
+    }
+}
+
+private fun urlMatchesRegex(expectedRegex: Regex, actualUrl: Url): Boolean {
+    return expectedRegex.matches(actualUrl.toString())
+}
+
+private fun urlMatchesPath(expectedUrl: Url, actualUrl: Url): Boolean {
+    return expectedUrl.encodedPath == actualUrl.encodedPath &&
+        parametersMatches(expectedUrl.parameters, actualUrl.parameters)
 }
 
 private fun parametersMatches(expectedParameters: Parameters, actualParameters: Parameters): Boolean {
@@ -90,14 +141,9 @@ private fun parametersMatches(expectedParameters: Parameters, actualParameters: 
         return true
     }
 
-    return expectedParameters.entries()
-        .all { (key, expectedValue) ->
-            val actualValue = actualParameters.getAll(key)
-                ?: throw IllegalStateException("Expected to find '$key' in request parameters, but it was missing")
-            return actualValue == expectedValue
-        }
-}
-
-fun Url.getLastPathParameterAsUUID(): UUID {
-    return encodedPath.split("/").last().toUUID()
+    return expectedParameters.entries().all { (key, expectedValue) ->
+        val actualValue = actualParameters.getAll(key)
+            ?: throw IllegalStateException("Expected to find '$key' in request parameters, but it was missing")
+        return actualValue == expectedValue
+    }
 }

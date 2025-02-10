@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.tilsagn.db
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
@@ -10,9 +9,11 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.database.createEnumArray
+import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*
@@ -25,8 +26,9 @@ class TilsagnQueries(private val session: Session) {
             insert into tilsagn (
                 id,
                 gjennomforing_id,
-                periode_start,
-                periode_slutt,
+                periode,
+                lopenummer,
+                bestillingsnummer,
                 kostnadssted,
                 arrangor_id,
                 beregning,
@@ -37,8 +39,9 @@ class TilsagnQueries(private val session: Session) {
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
-                :periode_start,
-                :periode_slutt,
+                daterange(:periode_start, :periode_slutt),
+                :lopenummer,
+                :bestillingsnummer,
                 :kostnadssted,
                 :arrangor_id::uuid,
                 :beregning::jsonb,
@@ -48,9 +51,10 @@ class TilsagnQueries(private val session: Session) {
                 :type::tilsagn_type
             )
             on conflict (id) do update set
-                gjennomforing_id = excluded.gjennomforing_id,
-                periode_start           = excluded.periode_start,
-                periode_slutt           = excluded.periode_slutt,
+                gjennomforing_id        = excluded.gjennomforing_id,
+                periode                 = excluded.periode,
+                lopenummer              = excluded.lopenummer,
+                bestillingsnummer       = excluded.bestillingsnummer,
                 kostnadssted            = excluded.kostnadssted,
                 arrangor_id             = excluded.arrangor_id,
                 beregning               = excluded.beregning,
@@ -63,8 +67,10 @@ class TilsagnQueries(private val session: Session) {
         val params = mapOf(
             "id" to dbo.id,
             "gjennomforing_id" to dbo.gjennomforingId,
-            "periode_start" to dbo.periodeStart,
-            "periode_slutt" to dbo.periodeSlutt,
+            "periode_start" to dbo.periode.start,
+            "periode_slutt" to dbo.periode.slutt,
+            "lopenummer" to dbo.lopenummer,
+            "bestillingsnummer" to dbo.bestillingsnummer,
             "kostnadssted" to dbo.kostnadssted,
             "arrangor_id" to dbo.arrangorId,
             "beregning" to Json.encodeToString<TilsagnBeregning>(dbo.beregning),
@@ -74,6 +80,17 @@ class TilsagnQueries(private val session: Session) {
         )
 
         session.execute(queryOf(query, params))
+    }
+
+    fun getNextLopenummeByGjennomforing(gjennomforingId: UUID): Int {
+        @Language("PostgreSQL")
+        val query = """
+            select coalesce(max(lopenummer), 0) + 1 as lopenummer
+            from tilsagn
+            where gjennomforing_id = ?
+        """.trimIndent()
+
+        return session.requireSingle(queryOf(query, gjennomforingId)) { it.int("lopenummer") }
     }
 
     fun get(id: UUID): TilsagnDto? {
@@ -120,7 +137,7 @@ class TilsagnQueries(private val session: Session) {
         return session.list(queryOf(query, organisasjonsnummer.value)) { it.toArrangorflateTilsagn() }
     }
 
-    fun getTilsagnTilRefusjon(
+    fun getTilsagnForGjennomforing(
         gjennomforingId: UUID,
         periode: Periode,
     ): List<TilsagnDto> {
@@ -130,18 +147,19 @@ class TilsagnQueries(private val session: Session) {
             where gjennomforing_id = :gjennomforing_id::uuid
               and (periode_start <= :periode_slutt::date)
               and (periode_slutt >= :periode_start::date)
+              and status in ('RETURNERT', 'TIL_GODKJENNING', 'GODKJENT')
         """.trimIndent()
 
         val params = mapOf(
             "gjennomforing_id" to gjennomforingId,
             "periode_start" to periode.start,
-            "periode_slutt" to periode.slutt,
+            "periode_slutt" to periode.getLastDate(),
         )
 
         return session.list(queryOf(query, params)) { it.toTilsagnDto() }
     }
 
-    fun getArrangorflateTilsagnTilRefusjon(
+    fun getArrangorflateTilsagnTilUtbetaling(
         gjennomforingId: UUID,
         periode: Periode,
     ): List<ArrangorflateTilsagn> {
@@ -156,7 +174,7 @@ class TilsagnQueries(private val session: Session) {
         val params = mapOf(
             "gjennomforing_id" to gjennomforingId,
             "periode_start" to periode.start,
-            "periode_slutt" to periode.slutt,
+            "periode_slutt" to periode.getLastDate(),
         )
 
         return session.list(queryOf(query, params)) { it.toArrangorflateTilsagn() }
@@ -328,12 +346,15 @@ class TilsagnQueries(private val session: Session) {
 
         return TilsagnDto(
             id = uuid("id"),
+            type = TilsagnType.valueOf(string("type")),
             gjennomforing = TilsagnDto.Gjennomforing(
                 id = uuid("gjennomforing_id"),
+                tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
             ),
             periodeSlutt = localDate("periode_slutt"),
             periodeStart = localDate("periode_start"),
             lopenummer = int("lopenummer"),
+            bestillingsnummer = string("bestillingsnummer"),
             kostnadssted = NavEnhetDbo(
                 enhetsnummer = string("kostnadssted"),
                 navn = string("kostnadssted_navn"),
@@ -349,7 +370,6 @@ class TilsagnQueries(private val session: Session) {
             ),
             beregning = Json.decodeFromString<TilsagnBeregning>(string("beregning")),
             status = status,
-            type = TilsagnType.valueOf(string("type")),
         )
     }
 
@@ -382,7 +402,7 @@ class TilsagnQueries(private val session: Session) {
     }
 }
 
-fun toTilsagnStatus(
+private fun toTilsagnStatus(
     status: TilsagnStatus,
     endretAv: NavIdent,
     endretAvNavn: String,

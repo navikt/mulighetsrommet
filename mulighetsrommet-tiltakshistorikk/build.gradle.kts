@@ -6,7 +6,7 @@ plugins {
 }
 
 application {
-    mainClass.set("no.nav.mulighetsrommet.tiltakshistorikk.ApplicationKt")
+    mainClass.set("no.nav.tiltak.historikk.ApplicationKt")
 }
 
 tasks.shadowJar {

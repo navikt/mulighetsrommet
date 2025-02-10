@@ -10,8 +10,8 @@ import no.nav.mulighetsrommet.tokenprovider.AccessType
 
 class PdlClientTest : FunSpec({
     test("Missing errors is parsed ok") {
-        val clientEngine = createMockEngine(
-            "/graphql" to {
+        val clientEngine = createMockEngine {
+            post("/graphql") {
                 respondJson(
                     """
                          {
@@ -19,8 +19,8 @@ class PdlClientTest : FunSpec({
                          }
                     """.trimIndent(),
                 )
-            },
-        )
+            }
+        }
         val pdlClient = mockPdlClient(clientEngine)
 
         val request = GraphqlRequest.HentHistoriskeIdenter(ident = PdlIdent("12345678910"), grupper = listOf())
@@ -29,8 +29,8 @@ class PdlClientTest : FunSpec({
     }
 
     test("not_found gives NotFound") {
-        val clientEngine = createMockEngine(
-            "/graphql" to {
+        val clientEngine = createMockEngine {
+            post("/graphql") {
                 respondJson(
                     """
                         {
@@ -42,8 +42,8 @@ class PdlClientTest : FunSpec({
                         }
                     """.trimIndent(),
                 )
-            },
-        )
+            }
+        }
         val pdlClient = mockPdlClient(clientEngine)
 
         val request = GraphqlRequest.HentHistoriskeIdenter(ident = PdlIdent("12345678910"), grupper = listOf())
@@ -52,8 +52,8 @@ class PdlClientTest : FunSpec({
     }
 
     test("håndterer errors og manglende data") {
-        val clientEngine = createMockEngine(
-            "/graphql" to {
+        val clientEngine = createMockEngine {
+            post("/graphql") {
                 respondJson(
                     """
                         {
@@ -64,8 +64,8 @@ class PdlClientTest : FunSpec({
                         }
                     """.trimIndent(),
                 )
-            },
-        )
+            }
+        }
         val pdlClient = mockPdlClient(clientEngine)
 
         val request = GraphqlRequest.HentHistoriskeIdenter(ident = PdlIdent("12345678910"), grupper = listOf())
@@ -74,8 +74,8 @@ class PdlClientTest : FunSpec({
     }
 
     test("happy case hentIdenter") {
-        val clientEngine = createMockEngine(
-            "/graphql" to {
+        val clientEngine = createMockEngine {
+            post("/graphql") {
                 respondJson(
                     """
                         {
@@ -104,8 +104,8 @@ class PdlClientTest : FunSpec({
                         }
                     """.trimIndent(),
                 )
-            },
-        )
+            }
+        }
         val pdlClient = mockPdlClient(clientEngine)
 
         val request = GraphqlRequest.HentHistoriskeIdenter(
@@ -133,8 +133,8 @@ class PdlClientTest : FunSpec({
     }
 
     test("happy case hentPerson") {
-        val clientEngine = createMockEngine(
-            "/graphql" to {
+        val clientEngine = createMockEngine {
+            post("/graphql") {
                 respondJson(
                     """
                         {
@@ -152,8 +152,8 @@ class PdlClientTest : FunSpec({
                         }
                     """.trimIndent(),
                 )
-            },
-        )
+            }
+        }
         val pdlClient = mockPdlClient(clientEngine)
 
         pdlClient
@@ -162,8 +162,8 @@ class PdlClientTest : FunSpec({
     }
 
     test("happy case hentGeografiskTilknytning") {
-        val clientEngine = createMockEngine(
-            "/graphql" to {
+        val clientEngine = createMockEngine {
+            post("/graphql") {
                 respondJson(
                     """
                         {
@@ -178,8 +178,8 @@ class PdlClientTest : FunSpec({
                         }
                     """.trimIndent(),
                 )
-            },
-        )
+            }
+        }
         val pdlClient = mockPdlClient(clientEngine)
 
         pdlClient

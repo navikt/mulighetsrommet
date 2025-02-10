@@ -23,11 +23,11 @@ class SanityClientTest : FunSpec({
     )
 
     test("should query url generated from the Config with default sanity perspective") {
-        val engine = createMockEngine(
-            "/v2024-01-01/data/query/test?query=*[_type == 'foo']&perspective=published" to {
+        val engine = createMockEngine {
+            get("/v2024-01-01/data/query/test?query=*[_type == 'foo']&perspective=published") {
                 respondJson(mockResponse)
-            },
-        )
+            }
+        }
         val client = SanityClient(engine, testConfig)
 
         val result = client.query("*[_type == 'foo']")
@@ -37,12 +37,12 @@ class SanityClientTest : FunSpec({
         }
     }
 
-    test("should add additional parameters as query parameters prefixed with $") {
-        val engine = createMockEngine(
-            "/v2024-01-01/data/query/test?query=*[]&\$id=\"b97b6d59-09af-44e3-bbd5-09c7030f4be2\"&\$string=\"foo\"&\$boolean=true&\$number=1.2&\$array=[\"bar\"]" to {
+    test("should add additional parameters as query parameters prefixed with \$") {
+        val engine = createMockEngine {
+            get("/v2024-01-01/data/query/test?query=*[]&\$id=\"b97b6d59-09af-44e3-bbd5-09c7030f4be2\"&\$string=\"foo\"&\$boolean=true&\$number=1.2&\$array=[\"bar\"]") {
                 respondJson(mockResponse)
-            },
-        )
+            }
+        }
         val client = SanityClient(engine, testConfig)
 
         val result = client.query(
@@ -74,11 +74,11 @@ class SanityClientTest : FunSpec({
             """.trimIndent(),
         )
 
-        val engine = createMockEngine(
-            "/v2024-01-01/data/query/test?query=*[_type == \$type]" to {
+        val engine = createMockEngine {
+            get("/v2024-01-01/data/query/test?query=*[_type == \$type]") {
                 respondJson(error, status = HttpStatusCode.BadRequest)
-            },
-        )
+            }
+        }
         val client = SanityClient(engine, testConfig)
 
         val result = client.query("*[_type == \$type]")

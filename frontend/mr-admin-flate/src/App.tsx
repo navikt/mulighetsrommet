@@ -1,5 +1,12 @@
+import { ArbeidsbenkPage } from "@/pages/arbeidsbenk/ArbeidsbenkPage";
+import { arbeidsbenkLoader } from "@/pages/arbeidsbenk/arbeidsbenkLoader";
+import { OppgaverPage } from "@/pages/arbeidsbenk/oppgaver/OppgaverPage";
+import { oppgaverLoader } from "@/pages/arbeidsbenk/oppgaver/oppgaverLoader";
+import { DeltakerlisteContainer } from "@/pages/gjennomforing/deltakerliste/DeltakerlisteContainer";
+import { TilsagnForGjennomforingContainer } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnForGjennomforingContainer";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import { AnsattService, NavAnsatt, NavAnsattRolle } from "@mr/api-client-v2";
+import { Page } from "@navikt/ds-react";
 import { createBrowserRouter, Outlet, RouterProvider, useLoaderData } from "react-router";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
@@ -8,23 +15,15 @@ import { AdministratorHeader } from "./components/administrator/AdministratorHea
 import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
 import { initializeAmplitude } from "./logging/amplitude";
 import { ErrorPage } from "./pages/ErrorPage";
+import { NotifikasjonerPage } from "./pages/arbeidsbenk/notifikasjoner/NotifikasjonerPage";
+import { notifikasjonLoader } from "./pages/arbeidsbenk/notifikasjoner/notifikasjonerLoader";
+import { ArrangorPage } from "./pages/arrangor/ArrangorPage";
 import { ArrangorerPage } from "./pages/arrangor/ArrangorerPage";
+import { AvtaleFormPage } from "./pages/avtaler/AvtaleFormPage";
 import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
 import { AvtalePage } from "./pages/avtaler/AvtalePage";
-import { AvtaleFormPage } from "./pages/avtaler/AvtaleFormPage";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
-import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
-import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
-import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
-import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
-import { tiltakstypeLoader, tiltakstyperLoaders } from "./pages/tiltakstyper/tiltakstyperLoaders";
-import { ArbeidsbenkPage } from "@/pages/arbeidsbenk/ArbeidsbenkPage";
-import { OppgaverPage } from "@/pages/arbeidsbenk/oppgaver/OppgaverPage";
-import { arbeidsbenkLoader } from "@/pages/arbeidsbenk/arbeidsbenkLoader";
 import { avtaleLoader, avtaleSkjemaLoader } from "./pages/avtaler/avtaleLoader";
-import { oppgaverLoader } from "@/pages/arbeidsbenk/oppgaver/oppgaverLoader";
-import { Page } from "@navikt/ds-react";
-import { ArrangorPage } from "./pages/arrangor/ArrangorPage";
 import { GjennomforingFormPage } from "./pages/gjennomforing/GjennomforingFormPage";
 import { GjennomforingInfo } from "./pages/gjennomforing/GjennomforingInfo";
 import { GjennomforingPage } from "./pages/gjennomforing/GjennomforingPage";
@@ -34,21 +33,25 @@ import {
   gjennomforingFormLoader,
   gjennomforingLoader,
 } from "./pages/gjennomforing/gjennomforingLoaders";
-import { RefusjonskravForGjennomforingContainer } from "./pages/gjennomforing/refusjonskrav/RefusjonskravForGjennomforingContainer";
-import { RefusjonskravDetaljer } from "./pages/gjennomforing/refusjonskrav/detaljer/RefusjonskravDetaljer";
-import { refusjonskravDetaljerLoader } from "./pages/gjennomforing/refusjonskrav/detaljer/refusjonskravDetaljerLoader";
-import { refusjonskravForGjennomforingLoader } from "./pages/gjennomforing/refusjonskrav/refusjonskravForGjennomforingLoader";
+import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljer";
 import { tilsagnDetaljerLoader } from "./pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
+import { OpprettTilsagnFormPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnFormPage";
 import { opprettTilsagnLoader } from "./pages/gjennomforing/tilsagn/opprett/opprettTilsagnLoader";
 import { RedigerTilsagnFormPage } from "./pages/gjennomforing/tilsagn/rediger/RedigerTilsagnFormPage";
 import { redigerTilsagnLoader } from "./pages/gjennomforing/tilsagn/rediger/redigerTilsagnLoader";
 import { tilsagnForGjennomforingLoader } from "./pages/gjennomforing/tilsagn/tabell/tilsagnForGjennomforingLoader";
-import { OpprettTilsagnFormPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnFormPage";
-import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljer";
-import { NotifikasjonerPage } from "./pages/arbeidsbenk/notifikasjoner/NotifikasjonerPage";
-import { notifikasjonLoader } from "./pages/arbeidsbenk/notifikasjoner/notifikasjonerLoader";
-import { TilsagnForGjennomforingContainer } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnForGjennomforingContainer";
-import { DeltakerlisteContainer } from "@/pages/gjennomforing/deltakerliste/DeltakerlisteContainer";
+import { BehandleUtbetalingFormPage } from "./pages/gjennomforing/utbetaling/BehandleUtbetalingFormPage";
+import { UtbetalingDetaljerPage } from "./pages/gjennomforing/utbetaling/UtbetalingDetaljerPage";
+import { OpprettUtbetalingPage } from "./pages/gjennomforing/utbetaling/OpprettUtbetalingPage";
+import { UtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/UtbetalingerForGjennomforingContainer";
+import { behandleUtbetalingFormPageLoader } from "./pages/gjennomforing/utbetaling/behandleUtbetalingFormPageLoader";
+import { utbetalingDetaljerPageLoader } from "./pages/gjennomforing/utbetaling/utbetalingDetaljerPageLoader";
+import { utbetalingerForGjennomforingLoader } from "./pages/gjennomforing/utbetaling/utbetalingerForGjennomforingLoader";
+import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
+import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
+import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
+import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
+import { tiltakstypeLoader, tiltakstyperLoaders } from "./pages/tiltakstyper/tiltakstyperLoaders";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -219,16 +222,30 @@ const router = () =>
             ],
           },
           {
-            path: "gjennomforinger/:gjennomforingId/refusjonskrav",
+            path: "gjennomforinger/:gjennomforingId/utbetalinger",
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
             loader: gjennomforingLoader,
             children: [
               {
                 index: true,
-                element: <RefusjonskravForGjennomforingContainer />,
+                element: <UtbetalingerForGjennomforingContainer />,
                 errorElement: <ErrorPage />,
-                loader: refusjonskravForGjennomforingLoader,
+                loader: utbetalingerForGjennomforingLoader,
+              },
+            ],
+          },
+          {
+            path: "gjennomforinger/:gjennomforingId/utbetalinger/skjema",
+            element: <GjennomforingPage />,
+            errorElement: <ErrorPage />,
+            loader: gjennomforingLoader,
+            children: [
+              {
+                index: true,
+                element: <OpprettUtbetalingPage />,
+                errorElement: <ErrorPage />,
+                loader: utbetalingerForGjennomforingLoader,
               },
             ],
           },
@@ -270,10 +287,16 @@ const router = () =>
             loader: redigerTilsagnLoader,
           },
           {
-            path: "gjennomforinger/:gjennomforingId/refusjonskrav/:refusjonskravId",
-            element: <RefusjonskravDetaljer />,
+            path: "gjennomforinger/:gjennomforingId/utbetalinger/:utbetalingId",
+            element: <UtbetalingDetaljerPage />,
             errorElement: <ErrorPage />,
-            loader: refusjonskravDetaljerLoader,
+            loader: utbetalingDetaljerPageLoader,
+          },
+          {
+            path: "gjennomforinger/:gjennomforingId/utbetalinger/:utbetalingId/skjema",
+            element: <BehandleUtbetalingFormPage />,
+            errorElement: <ErrorPage />,
+            loader: behandleUtbetalingFormPageLoader,
           },
           {
             path: "arrangorer",

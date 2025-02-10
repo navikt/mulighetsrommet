@@ -293,15 +293,23 @@ export const arrangorerFilterAtom = atomWithHashAndStorage<ArrangorerFilter>(
 );
 
 const oppgaverFilterSchema = z.object({
-  type: z.enum([OppgaveType.TILSAGN_TIL_BESLUTNING, OppgaveType.TILSAGN_TIL_ANNULLERING]).array(),
+  type: z
+    .enum([
+      OppgaveType.TILSAGN_TIL_GODKJENNING,
+      OppgaveType.TILSAGN_TIL_ANNULLERING,
+      OppgaveType.TILSAGN_RETURNERT_AV_BESLUTTER,
+    ])
+    .array(),
   tiltakstyper: z.array(z.string()),
+  regioner: z.array(z.string()),
 });
 
 export type OppgaverFilter = z.infer<typeof oppgaverFilterSchema>;
 
-const defaultOppgaverFilter: OppgaverFilter = {
+export const defaultOppgaverFilter: OppgaverFilter = {
   type: [],
   tiltakstyper: [],
+  regioner: [],
 };
 
 export const oppgaverFilterAtom = atomWithHashAndStorage<OppgaverFilter>(
@@ -334,4 +342,4 @@ export const avtaleDetaljerTabAtom = atom<
 
 export const gjennomforingFilterAccordionAtom = atom<string[]>(["navEnhet"]);
 export const avtaleFilterAccordionAtom = atom<string[]>(["region"]);
-export const oppgaverFilterAccordionAtom = atom<string[]>(["type"]);
+export const oppgaverFilterAccordionAtom = atom<string[]>(["type", "regioner"]);

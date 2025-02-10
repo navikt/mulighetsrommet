@@ -18,7 +18,7 @@ export function ArbeidsbenkPage() {
       <HeaderBanner
         heading="Arbeidsbenk"
         harUndermeny
-        ikon={<BellDotFillIcon title="Arbeidsbenk" />}
+        ikon={<BellDotFillIcon title="Arbeidsbenk" fontSize={32} />}
       />
       <Tabs
         value={pathname.includes("notifikasjoner") ? "notifikasjoner" : "oppgaver"}

@@ -6,7 +6,7 @@ plugins {
 }
 
 application {
-    mainClass.set("no.nav.mulighetsrommet.tiltak.okonomi.ApplicationKt")
+    mainClass.set("no.nav.tiltak.okonomi.ApplicationKt")
 }
 
 tasks.shadowJar {
@@ -17,6 +17,7 @@ tasks.shadowJar {
 dependencies {
     implementation(projects.common.nais)
     implementation(projects.common.domain)
+    implementation(projects.common.brreg)
     implementation(projects.common.database)
     implementation(projects.common.slack)
     implementation(projects.common.kafka)

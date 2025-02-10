@@ -8,6 +8,5 @@ export function useNotificationSummary() {
     queryFn: () => NotificationsService.getNotificationSummary(),
     refetchOnWindowFocus: true,
     refetchOnMount: true,
-    throwOnError: false,
   });
 }
