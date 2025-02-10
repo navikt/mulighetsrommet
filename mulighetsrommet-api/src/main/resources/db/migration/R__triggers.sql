@@ -86,23 +86,3 @@ create trigger set_timestamp
     on lagret_filter
     for each row
 execute procedure trigger_set_timestamp();
-
-CREATE OR REPLACE FUNCTION next_tilsagn_lopenummer() RETURNS TRIGGER AS $$
-DECLARE
-    next_lopenummer INT;
-BEGIN
-    SELECT COALESCE(MAX(lopenummer), 0) + 1 INTO next_lopenummer
-    FROM tilsagn
-    WHERE gjennomforing_id = NEW.gjennomforing_id;
-
-    NEW.lopenummer = next_lopenummer;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-drop trigger  if exists set_tilsagn_lopenummer on tilsagn;
-
-CREATE TRIGGER set_tilsagn_lopenummer
-BEFORE INSERT ON tilsagn
-FOR EACH ROW
-EXECUTE FUNCTION next_tilsagn_lopenummer();

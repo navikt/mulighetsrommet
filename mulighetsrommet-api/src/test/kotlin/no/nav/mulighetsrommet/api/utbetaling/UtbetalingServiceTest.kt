@@ -7,20 +7,15 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
+import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseManedsverk
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePerioder
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAft
+import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
+import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -388,6 +383,136 @@ class UtbetalingServiceTest : FunSpec({
                             manedsverk = 1.0,
                         ),
                     )
+                }
+            }
+        }
+    }
+
+    context("når utbetaling blir behandlet") {
+        test("skal ikke kunne behandle utbetaling hvis den allerede er behandlet") {
+            val tilsagn = TilsagnFixtures.Tilsagn1.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                bestillingsnummer = "2024/1",
+            )
+
+            val utbetaling = UtbetalingFixtures.utbetaling1.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+            )
+
+            val domain = MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.ansatt1),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(tilsagn),
+                utbetalinger = listOf(utbetaling),
+            ).initialize(database.db)
+
+            val service = UtbetalingService(db = database.db)
+
+            val behandleUtbetaling = BehandleUtbetaling(
+                utbetaling.id,
+                listOf(BehandleUtbetaling.Kostnad(tilsagnId = tilsagn.id, belop = 100)),
+            )
+            service.behandleUtbetaling(behandleUtbetaling, domain.ansatte[0].navIdent)
+
+            val exception = assertThrows<IllegalArgumentException> {
+                service.behandleUtbetaling(behandleUtbetaling, domain.ansatte[0].navIdent)
+            }
+            exception.message shouldBe "Utbetaling er allerede bekreftet"
+        }
+
+        test("skal ikke kunne behandle utbetaling hvis utbetalingsperiode og tilsagnsperiode ikke overlapper") {
+            val tilsagn = TilsagnFixtures.Tilsagn1.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+            )
+
+            val utbetaling = UtbetalingFixtures.utbetaling1.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2024, 2, 1)),
+            )
+
+            val domain = MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.ansatt1),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(tilsagn),
+                utbetalinger = listOf(utbetaling),
+            ).initialize(database.db)
+
+            val service = UtbetalingService(db = database.db)
+
+            val behandleUtbetaling = BehandleUtbetaling(
+                utbetaling.id,
+                listOf(BehandleUtbetaling.Kostnad(tilsagnId = tilsagn.id, belop = 100)),
+            )
+
+            val exception = assertThrows<IllegalArgumentException> {
+                service.behandleUtbetaling(behandleUtbetaling, domain.ansatte[0].navIdent)
+            }
+            exception.message shouldBe "Utbetalingsperiode og tilsagnsperiode må overlappe"
+        }
+
+        test("løpenummer, fakturanummer og periode blir utledet fra tilsagnet og utbetalingen") {
+            val tilsagn1 = TilsagnFixtures.Tilsagn2.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                bestillingsnummer = "2024/1",
+            )
+
+            val tilsagn2 = TilsagnFixtures.Tilsagn1.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                bestillingsnummer = "2024/2",
+            )
+
+            val utbetaling1 = UtbetalingFixtures.utbetaling1.copy(
+                periode = Periode(LocalDate.of(2023, 12, 15), LocalDate.of(2024, 1, 15)),
+            )
+
+            val utbetaling2 = UtbetalingFixtures.utbetaling2.copy(
+                periode = Periode(LocalDate.of(2024, 1, 15), LocalDate.of(2024, 2, 15)),
+            )
+
+            val domain = MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.ansatt1),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(tilsagn1, tilsagn2),
+                utbetalinger = listOf(utbetaling1, utbetaling2),
+            ).initialize(database.db)
+
+            val service = UtbetalingService(db = database.db)
+
+            val behandleUtbetaling1 = BehandleUtbetaling(
+                utbetaling1.id,
+                listOf(
+                    BehandleUtbetaling.Kostnad(tilsagnId = tilsagn1.id, belop = 50),
+                    BehandleUtbetaling.Kostnad(tilsagnId = tilsagn2.id, belop = 50),
+                ),
+            )
+            service.behandleUtbetaling(behandleUtbetaling1, domain.ansatte[0].navIdent)
+
+            val behandleUtbetaling2 = BehandleUtbetaling(
+                utbetaling2.id,
+                listOf(BehandleUtbetaling.Kostnad(tilsagnId = tilsagn1.id, belop = 100)),
+            )
+            service.behandleUtbetaling(behandleUtbetaling2, domain.ansatte[0].navIdent)
+
+            database.run {
+                queries.delutbetaling.getByUtbetalingId(utbetaling1.id).should { (first, second) ->
+                    first.belop shouldBe 50
+                    first.periode shouldBe Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 15))
+                    first.lopenummer shouldBe 1
+                    first.fakturanummer shouldBe "2024/1/1"
+
+                    second.belop shouldBe 50
+                    second.periode shouldBe Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 15))
+                    second.lopenummer shouldBe 1
+                    second.fakturanummer shouldBe "2024/2/1"
+                }
+
+                queries.delutbetaling.getByUtbetalingId(utbetaling2.id).should { (first) ->
+                    first.belop shouldBe 100
+                    first.periode shouldBe Periode(LocalDate.of(2024, 1, 15), LocalDate.of(2024, 2, 1))
+                    first.lopenummer shouldBe 2
+                    first.fakturanummer shouldBe "2024/1/2"
                 }
             }
         }

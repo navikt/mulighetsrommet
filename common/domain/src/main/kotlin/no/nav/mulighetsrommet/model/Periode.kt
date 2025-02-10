@@ -37,6 +37,10 @@ data class Periode(
         }
     }
 
+    operator fun contains(date: LocalDate): Boolean {
+        return date == start || date.isAfter(start) && date.isBefore(slutt)
+    }
+
     fun getDurationInDays(): Long {
         return ChronoUnit.DAYS.between(start, slutt)
     }
@@ -45,8 +49,14 @@ data class Periode(
         return slutt.minusDays(1)
     }
 
-    operator fun contains(date: LocalDate): Boolean {
-        return date == start || date.isAfter(start) && date.isBefore(slutt)
+    fun intersect(periode: Periode): Periode? {
+        val start = maxOf(start, periode.start)
+        val slutt = minOf(slutt, periode.slutt)
+        return if (start < slutt) {
+            Periode(start, slutt)
+        } else {
+            null
+        }
     }
 
     fun splitByMonth(): List<Periode> {

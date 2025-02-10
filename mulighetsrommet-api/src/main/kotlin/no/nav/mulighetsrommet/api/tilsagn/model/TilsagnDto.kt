@@ -25,6 +25,7 @@ data class TilsagnDto(
     val kostnadssted: NavEnhetDbo,
     val beregning: TilsagnBeregning,
     val lopenummer: Int,
+    val bestillingsnummer: String,
     val arrangor: Arrangor,
     val gjennomforing: Gjennomforing,
     val status: TilsagnStatus,

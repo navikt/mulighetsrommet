@@ -11,7 +11,8 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.okonomi.BestillingDto
 import no.nav.mulighetsrommet.api.okonomi.OkonomiClient
-import no.nav.mulighetsrommet.api.responses.*
+import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
@@ -39,12 +40,16 @@ class TilsagnService(
         validateGjennomforingBeregningInput(gjennomforing, beregningInput)
             .flatMap { beregnTilsagn(beregningInput) }
             .map { beregning ->
+                val lopenummer = previous?.lopenummer
+                    ?: queries.tilsagn.getNextLopenummeByGjennomforing(gjennomforing.id)
+
                 TilsagnDbo(
                     id = request.id,
                     gjennomforingId = request.gjennomforingId,
                     type = request.type,
-                    periodeStart = request.periodeStart,
-                    periodeSlutt = request.periodeSlutt,
+                    periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt),
+                    lopenummer = lopenummer,
+                    bestillingsnummer = previous?.bestillingsnummer ?: "${gjennomforing.lopenummer}/$lopenummer",
                     kostnadssted = request.kostnadssted,
                     beregning = beregning,
                     endretAv = navIdent,

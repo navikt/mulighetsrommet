@@ -2,9 +2,11 @@ package no.nav.mulighetsrommet.api.utbetaling
 
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
+import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
@@ -47,6 +49,7 @@ class UtbetalingService(
                         gjennomforingId = gjeldendeKrav.gjennomforing.id,
                         periode = gjeldendeKrav.beregning.input.periode,
                     )
+
                     is UtbetalingBeregningFri -> null
                 }
 
@@ -91,6 +94,41 @@ class UtbetalingService(
             kid = forrigeKrav?.betalingsinformasjon?.kid,
             periode = periode,
         )
+    }
+
+    // TODO: ValidationError i stedet for IllegalArgumentException?
+    fun behandleUtbetaling(bekreft: BehandleUtbetaling, opprettetAv: NavIdent): Unit = db.transaction {
+        val (utbetalingId, kostnadsfordeling) = bekreft
+
+        if (queries.delutbetaling.getByUtbetalingId(utbetalingId).isNotEmpty()) {
+            throw IllegalArgumentException("Utbetaling er allerede bekreftet")
+        }
+
+        val utbetaling = queries.utbetaling.get(utbetalingId)
+            ?: throw IllegalArgumentException("Utbetaling med id=$utbetalingId finnes ikke")
+
+        val delutbetalinger = kostnadsfordeling.map {
+            val tilsagn = queries.tilsagn.get(it.tilsagnId)
+                ?: throw IllegalArgumentException("Tilsagn med id=${it.tilsagnId} finnes ikke")
+
+            val periode = Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt)
+                .intersect(utbetaling.periode)
+                ?: throw IllegalArgumentException("Utbetalingsperiode og tilsagnsperiode må overlappe")
+
+            val lopenummer = queries.delutbetaling.getNextLopenummerByTilsagn(it.tilsagnId)
+
+            DelutbetalingDbo(
+                utbetalingId = utbetalingId,
+                tilsagnId = it.tilsagnId,
+                periode = periode,
+                belop = it.belop,
+                lopenummer = lopenummer,
+                fakturanummer = "${tilsagn.bestillingsnummer}/$lopenummer",
+                opprettetAv = opprettetAv,
+            )
+        }
+
+        queries.delutbetaling.opprettDelutbetalinger(delutbetalinger)
     }
 
     private fun getDeltakelser(
