@@ -247,6 +247,7 @@ class AvtaleValidator(
 
             gjennomforinger.forEach { gjennomforing ->
                 val arrangorId = gjennomforing.arrangor.id
+
                 if (avtale.arrangor?.underenheter?.contains(arrangorId) != true) {
                     val arrangor = queries.arrangor.getById(arrangorId)
                     add(

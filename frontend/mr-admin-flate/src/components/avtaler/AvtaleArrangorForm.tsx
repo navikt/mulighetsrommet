@@ -31,7 +31,7 @@ export function AvtaleArrangorForm({ readOnly }: Props) {
   const { data: brregVirksomheter = [] } = useSokBrregVirksomheter(sokArrangor);
 
   const { register, watch, setValue } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
-  const watchedArrangor = watch("arrangorOrganisasjonsnummer") ?? "";
+  const watchedArrangor = watch("arrangor.hovedenhet") ?? "";
 
   const { data: arrangor } = useSyncArrangorFromBrreg(watchedArrangor);
   const { data: underenheter } = useBrregVirksomhetUnderenheter(watchedArrangor);
@@ -51,18 +51,18 @@ export function AvtaleArrangorForm({ readOnly }: Props) {
           readOnly={readOnly}
           placeholder="Navn eller organisasjonsnummer for tiltaksarrangør"
           label={avtaletekster.tiltaksarrangorHovedenhetLabel}
-          {...register("arrangorOrganisasjonsnummer")}
+          {...register("arrangor.hovedenhet")}
           onInputChange={(value) => {
             setSokArrangor(value);
           }}
           onChange={(e) => {
             if (e.target.value !== watchedArrangor) {
-              setValue("arrangorUnderenheter", []);
+              setValue("arrangor.underenheter", []);
             }
           }}
           onClearValue={() => {
-            setValue("arrangorOrganisasjonsnummer", "");
-            setValue("arrangorUnderenheter", []);
+            setValue("arrangor.hovedenhet", "");
+            setValue("arrangor.underenheter", []);
           }}
           options={arrangorHovedenhetOptions}
         />
@@ -78,7 +78,7 @@ export function AvtaleArrangorForm({ readOnly }: Props) {
           label={avtaletekster.tiltaksarrangorUnderenheterLabel}
           helpText="Bestemmer hvilke arrangører som kan velges i gjennomføringene til avtalen."
           readOnly={underenheterIsEmpty}
-          {...register("arrangorUnderenheter")}
+          {...register("arrangor.underenheter")}
           velgAlle
           options={arrangorUnderenhetOptions}
         />
@@ -90,7 +90,7 @@ export function AvtaleArrangorForm({ readOnly }: Props) {
             placeholder="Velg kontaktpersoner"
             label={avtaletekster.kontaktpersonerHosTiltaksarrangorLabel}
             readOnly={!arrangor}
-            {...register("arrangorKontaktpersoner")}
+            {...register("arrangor.kontaktpersoner")}
             options={arrangorKontaktpersonOptions}
             noOptionsMessage={
               <Button
@@ -118,8 +118,8 @@ export function AvtaleArrangorForm({ readOnly }: Props) {
               return;
             }
 
-            const kontaktpersoner = watch("arrangorKontaktpersoner") ?? [];
-            setValue("arrangorKontaktpersoner", [
+            const kontaktpersoner = watch("arrangor.kontaktpersoner") ?? [];
+            setValue("arrangor.kontaktpersoner", [
               ...kontaktpersoner.filter((k) => k !== kontaktperson.id),
               kontaktperson.id,
             ]);

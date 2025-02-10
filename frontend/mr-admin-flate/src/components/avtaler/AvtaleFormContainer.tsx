@@ -80,17 +80,7 @@ export function AvtaleFormContainer({
       navEnheter: data.navEnheter.concat(data.navRegioner),
       avtalenummer: avtale?.avtalenummer || null,
       websaknummer: data.websaknummer || null,
-      // @todo: Make these fields optional
-      arrangor:
-        data.arrangorOrganisasjonsnummer &&
-        data.arrangorUnderenheter &&
-        data.arrangorKontaktpersoner
-          ? {
-              hovedenhet: data.arrangorOrganisasjonsnummer,
-              underenheter: data.arrangorUnderenheter,
-              kontaktpersoner: data.arrangorKontaktpersoner,
-            }
-          : null,
+      arrangor: data.arrangor,
       navn: data.navn,
       sluttDato: data.startOgSluttDato.sluttDato || null,
       startDato: data.startOgSluttDato.startDato,
