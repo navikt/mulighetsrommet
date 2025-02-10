@@ -12,22 +12,18 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
-import no.nav.mulighetsrommet.api.tilsagn.kafka.OkonomiBestillingProducer
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.NotFound
-import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.tiltak.okonomi.OkonomiPart
-import no.nav.tiltak.okonomi.OpprettBestilling
 import java.time.LocalDateTime
 import java.util.*
 
 class TilsagnService(
     private val db: ApiDatabase,
-    private val okonomi: OkonomiBestillingProducer,
+    private val okonomi: OkonomiBestillingService,
 ) {
     fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<FieldError>, TilsagnDto> = db.transaction {
         val gjennomforing = queries.gjennomforing.get(request.gjennomforingId)
@@ -107,18 +103,20 @@ class TilsagnService(
         }
     }
 
-    private fun godkjennTilsagn(tilsagn: TilsagnDto, navIdent: NavIdent): StatusResponse<TilsagnDto> = db.transaction {
+    private fun godkjennTilsagn(tilsagn: TilsagnDto, godkjentAv: NavIdent): StatusResponse<TilsagnDto> = db.transaction {
         require(tilsagn.status is TilsagnDto.TilsagnStatus.TilGodkjenning)
 
-        if (navIdent == tilsagn.status.endretAv) {
+        if (godkjentAv == tilsagn.status.endretAv) {
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
-        queries.tilsagn.besluttGodkjennelse(tilsagn.id, navIdent, LocalDateTime.now())
-        opprettBestilling(tilsagn)
+        val godkjentTidspunkt = LocalDateTime.now()
+        queries.tilsagn.besluttGodkjennelse(tilsagn.id, godkjentAv, godkjentTidspunkt)
+
+        okonomi.scheduleBehandleGodkjentTilsagn(tilsagn.id, session)
 
         val dto = getOrError(tilsagn.id)
-        logEndring("Tilsagn godkjent", dto, EndretAv.NavAnsatt(navIdent))
+        logEndring("Tilsagn godkjent", dto, EndretAv.NavAnsatt(godkjentAv))
         dto.right()
     }
 
@@ -157,6 +155,8 @@ class TilsagnService(
 
         queries.tilsagn.besluttAnnullering(tilsagn.id, navIdent, LocalDateTime.now())
 
+        okonomi.scheduleBehandleAnnullertTilsagn(tilsagn.id, session)
+
         val dto = getOrError(tilsagn.id)
         logEndring("Tilsagn annullert", dto, EndretAv.NavAnsatt(navIdent))
         dto.right()
@@ -179,7 +179,7 @@ class TilsagnService(
     fun tilAnnullering(
         id: UUID,
         navIdent: NavIdent,
-        request: TilAnnulleringRequest,
+        annullering: TilAnnulleringRequest,
     ): StatusResponse<TilsagnDto> = db.transaction {
         val tilsagn = queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
 
@@ -191,8 +191,8 @@ class TilsagnService(
             id,
             navIdent,
             LocalDateTime.now(),
-            request.aarsaker,
-            request.forklaring,
+            annullering.aarsaker,
+            annullering.forklaring,
         )
 
         val dto = getOrError(tilsagn.id)
@@ -219,37 +219,6 @@ class TilsagnService(
         periode: Periode,
     ): List<ArrangorflateTilsagn> = db.session {
         return queries.tilsagn.getArrangorflateTilsagnTilUtbetaling(gjennomforingId, periode)
-    }
-
-    private fun QueryContext.opprettBestilling(tilsagn: TilsagnDto) {
-        val gjennomforing = requireNotNull(queries.gjennomforing.get(tilsagn.gjennomforing.id)) {
-            "Fant ikke gjennomforing til tilsagn"
-        }
-
-        val avtale = requireNotNull(gjennomforing.avtaleId?.let { queries.avtale.get(it) }) {
-            "Gjennomføring ${gjennomforing.id} mangler avtale"
-        }
-
-        val bestilling = OpprettBestilling(
-            tiltakskode = gjennomforing.tiltakstype.tiltakskode,
-            arrangor = OpprettBestilling.Arrangor(
-                hovedenhet = avtale.arrangor.organisasjonsnummer,
-                underenhet = gjennomforing.arrangor.organisasjonsnummer,
-            ),
-            kostnadssted = NavEnhetNummer(tilsagn.kostnadssted.enhetsnummer),
-            bestillingsnummer = tilsagn.bestillingsnummer,
-            // TODO: hvilket avtalenummer?
-            avtalenummer = avtale.avtalenummer,
-            belop = tilsagn.beregning.output.belop,
-            periode = Periode(tilsagn.periodeStart, tilsagn.periodeSlutt),
-            // TODO: hvem har opprettet/besluttet?
-            opprettetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
-            opprettetTidspunkt = LocalDateTime.now(),
-            besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
-            besluttetTidspunkt = LocalDateTime.now(),
-        )
-
-        okonomi.publishBestilling(bestilling)
     }
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {

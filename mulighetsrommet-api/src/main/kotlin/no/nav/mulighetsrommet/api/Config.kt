@@ -15,7 +15,7 @@ import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
-import no.nav.mulighetsrommet.api.tilsagn.kafka.OkonomiBestillingProducer
+import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
@@ -83,7 +83,7 @@ data class KafkaConfig(
 
 data class KafkaClients(
     val dvhGjennomforing: DatavarehusTiltakV1KafkaProducer.Config,
-    val okonomiBestilling: OkonomiBestillingProducer.Config,
+    val okonomiBestilling: OkonomiBestillingService.Config,
 )
 
 data class KafkaProducers(

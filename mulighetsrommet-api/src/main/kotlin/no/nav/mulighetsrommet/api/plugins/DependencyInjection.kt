@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import kotlinx.coroutines.runBlocking
 import no.nav.common.client.axsys.AxsysClient
 import no.nav.common.client.axsys.AxsysV2ClientImpl
+import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesPreset
@@ -56,8 +57,8 @@ import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tasks.NotifyFailedKafkaEvents
+import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.kafka.OkonomiBestillingProducer
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.kafka.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
@@ -141,20 +142,21 @@ private fun kafka(appConfig: AppConfig) = module {
         else -> KafkaPropertiesPreset.aivenDefaultProducerProperties(config.producerId)
     }
 
-    val producerClient = KafkaProducerClientBuilder.builder<String, String?>()
-        .withProperties(producerProperties)
-        .withMetrics(Metrikker.appMicrometerRegistry)
-        .build()
+    single<KafkaProducerClient<String, String?>> {
+        KafkaProducerClientBuilder.builder<String, String?>()
+            .withProperties(producerProperties)
+            .withMetrics(Metrikker.appMicrometerRegistry)
+            .build()
+    }
 
     single {
         ArenaMigreringTiltaksgjennomforingerV1KafkaProducer(
-            producerClient,
+            get(),
             config.producers.arenaMigreringTiltaksgjennomforinger,
         )
     }
-    single { SisteTiltaksgjennomforingerV1KafkaProducer(producerClient, config.producers.gjennomforinger) }
-    single { SisteTiltakstyperV2KafkaProducer(producerClient, config.producers.tiltakstyper) }
-    single { OkonomiBestillingProducer(producerClient, config.clients.okonomiBestilling) }
+    single { SisteTiltaksgjennomforingerV1KafkaProducer(get(), config.producers.gjennomforinger) }
+    single { SisteTiltakstyperV2KafkaProducer(get(), config.producers.tiltakstyper) }
 
     val consumerPreset = when (NaisEnv.current()) {
         NaisEnv.Local -> KafkaPropertiesBuilder.consumerBuilder()
@@ -171,7 +173,7 @@ private fun kafka(appConfig: AppConfig) = module {
         val consumers = listOf(
             DatavarehusTiltakV1KafkaProducer(
                 config = config.clients.dvhGjennomforing,
-                kafkaProducerClient = producerClient,
+                kafkaProducerClient = get(),
                 db = get(),
             ),
             SisteTiltaksgjennomforingerV1KafkaConsumer(
@@ -367,7 +369,7 @@ private fun services(appConfig: AppConfig) = module {
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
     single { ArrangorService(get(), get()) }
-    single { UtbetalingService(get()) }
+    single { UtbetalingService(get(), get()) }
     single { UnleashService(appConfig.unleash, get()) }
     single<AxsysClient> {
         AxsysV2ClientImpl(
@@ -381,6 +383,7 @@ private fun services(appConfig: AppConfig) = module {
     single { TilsagnService(get(), get()) }
     single { AltinnRettigheterService(get(), get()) }
     single { OppgaverService(get()) }
+    single { OkonomiBestillingService(appConfig.kafka.clients.okonomiBestilling, get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
@@ -415,6 +418,7 @@ private fun tasks(config: TaskConfig) = module {
         )
         val updateApentForPamelding = UpdateApentForPamelding(config.updateApentForPamelding, get(), get())
         val notificationTask: NotificationTask by inject()
+        val okonomi: OkonomiBestillingService by inject()
         val generateValidationReport: GenerateValidationReport by inject()
         val initialLoadGjennomforinger: InitialLoadGjennomforinger by inject()
         val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
@@ -429,6 +433,7 @@ private fun tasks(config: TaskConfig) = module {
             .create(
                 db.getDatasource(),
                 notificationTask.task,
+                okonomi.task,
                 generateValidationReport.task,
                 initialLoadGjennomforinger.task,
                 initialLoadTiltakstyper.task,

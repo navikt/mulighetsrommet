@@ -8,6 +8,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -19,16 +20,13 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tilsagn.kafka.OkonomiBestillingProducer
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
-import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 import java.util.*
 
@@ -50,10 +48,10 @@ class TilsagnServiceTest : FunSpec({
     }
 
     fun createTilsagnService(
-        okonomiBestillingProducer: OkonomiBestillingProducer = mockk(relaxed = true),
+        okonomi: OkonomiBestillingService = mockk(relaxed = true),
     ) = TilsagnService(
         db = database.db,
-        okonomi = okonomiBestillingProducer,
+        okonomi = okonomi,
     )
 
     context("opprett tilsagn") {
@@ -168,7 +166,7 @@ class TilsagnServiceTest : FunSpec({
         }
     }
 
-    context("beslutt") {
+    context("beslutt tilsagn") {
         val tilsagn = TilsagnRequest(
             id = UUID.randomUUID(),
             gjennomforingId = AFT1.id,
@@ -209,12 +207,52 @@ class TilsagnServiceTest : FunSpec({
             ) shouldBe BadRequest("Tilsagnet kan ikke besluttes fordi det har status Godkjent").left()
         }
 
-        test("publiserer tilsagn som bestilling til økonomi-tjenesten") {
-            val producer = mockk<OkonomiBestillingProducer>()
-            every { producer.publishBestilling(any()) } returns Unit
+        test("godkjent tilsagn trigger melding til økonomi") {
+            val okonomi = mockk<OkonomiBestillingService>()
+            every { okonomi.scheduleBehandleGodkjentTilsagn(any(), any()) } returns Unit
 
-            val service = createTilsagnService(producer)
-            val opprettetTilsagn = service.upsert(tilsagn, NavAnsattFixture.ansatt1.navIdent).shouldBeRight()
+            val service = createTilsagnService(okonomi)
+
+            service.upsert(tilsagn, NavAnsattFixture.ansatt1.navIdent).shouldBeRight()
+
+            service.beslutt(
+                id = tilsagn.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
+            ).shouldBeRight().status.shouldBeTypeOf<TilsagnStatus.Godkjent>()
+
+            verify(exactly = 1) {
+                okonomi.scheduleBehandleGodkjentTilsagn(tilsagn.id, any())
+            }
+        }
+    }
+
+    context("annuller tilsagn") {
+        val tilsagn = TilsagnRequest(
+            id = UUID.randomUUID(),
+            gjennomforingId = AFT1.id,
+            type = TilsagnType.TILSAGN,
+            periodeStart = LocalDate.of(2023, 1, 1),
+            periodeSlutt = LocalDate.of(2023, 2, 1),
+            kostnadssted = Gjovik.enhetsnummer,
+            beregning = TilsagnBeregningFri.Input(belop = 1),
+        )
+
+        test("tilsagn må være godkjent for å kunne settes til annullering") {
+            val service = createTilsagnService()
+
+            service.upsert(tilsagn, NavAnsattFixture.ansatt1.navIdent).shouldBeRight()
+
+            val annullering = TilAnnulleringRequest(
+                aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                forklaring = "Velg et annet beløp",
+            )
+
+            service.tilAnnullering(
+                id = tilsagn.id,
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
+                annullering = annullering,
+            ) shouldBeLeft BadRequest("Kan bare annullere godkjente tilsagn")
 
             service.beslutt(
                 id = tilsagn.id,
@@ -222,18 +260,58 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = NavAnsattFixture.ansatt2.navIdent,
             ).shouldBeRight()
 
-            verify {
-                producer.publishBestilling(
-                    match {
-                        it.belop == 1 &&
-                            it.tiltakskode == Tiltakskode.ARBEIDSFORBEREDENDE_TRENING &&
-                            it.bestillingsnummer == opprettetTilsagn.bestillingsnummer &&
-                            it.periode == Periode.forMonthOf(LocalDate.of(2023, 1, 1)) &&
-                            it.arrangor.hovedenhet == ArrangorFixtures.hovedenhet.organisasjonsnummer &&
-                            it.arrangor.underenhet == ArrangorFixtures.underenhet1.organisasjonsnummer &&
-                            it.kostnadssted == NavEnhetNummer(Gjovik.enhetsnummer)
-                    },
-                )
+            service.tilAnnullering(
+                id = tilsagn.id,
+                navIdent = NavAnsattFixture.ansatt1.navIdent,
+                annullering = annullering,
+            ).shouldBeRight().status.shouldBeTypeOf<TilsagnStatus.TilAnnullering> {
+                it.endretAv shouldBe NavAnsattFixture.ansatt1.navIdent
+                it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP)
+                it.forklaring shouldBe "Velg et annet beløp"
+            }
+        }
+
+        test("annullering av tilsagn trigger melding til økonomi") {
+            val okonomi = mockk<OkonomiBestillingService>()
+            every { okonomi.scheduleBehandleGodkjentTilsagn(any(), any()) } returns Unit
+            every { okonomi.scheduleBehandleAnnullertTilsagn(any(), any()) } returns Unit
+
+            val service = createTilsagnService(okonomi)
+
+            service.upsert(tilsagn, NavAnsattFixture.ansatt1.navIdent).shouldBeRight()
+
+            service.beslutt(
+                id = tilsagn.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
+            ).shouldBeRight()
+
+            verify(exactly = 1) {
+                okonomi.scheduleBehandleGodkjentTilsagn(tilsagn.id, any())
+            }
+
+            service.tilAnnullering(
+                id = tilsagn.id,
+                navIdent = NavAnsattFixture.ansatt1.navIdent,
+                annullering = TilAnnulleringRequest(
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_PERIODE),
+                    forklaring = "Velg en annen periode",
+                ),
+            ).shouldBeRight()
+
+            service.beslutt(
+                id = tilsagn.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
+            ).shouldBeRight().status.shouldBeTypeOf<TilsagnStatus.Annullert> {
+                it.endretAv shouldBe NavAnsattFixture.ansatt1.navIdent
+                it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_PERIODE)
+                it.forklaring shouldBe "Velg en annen periode"
+                it.godkjentAv shouldBe NavAnsattFixture.ansatt2.navIdent
+            }
+
+            verify(exactly = 1) {
+                okonomi.scheduleBehandleAnnullertTilsagn(tilsagn.id, any())
             }
         }
     }

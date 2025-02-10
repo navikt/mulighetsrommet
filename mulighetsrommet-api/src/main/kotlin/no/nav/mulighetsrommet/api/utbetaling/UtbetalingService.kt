@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
@@ -14,6 +15,7 @@ import java.util.*
 
 class UtbetalingService(
     private val db: ApiDatabase,
+    private val okonomi: OkonomiBestillingService,
 ) {
     fun genererUtbetalingForMonth(date: LocalDate): List<UtbetalingDto> = db.transaction {
         val periode = Periode.forMonthOf(date)
@@ -129,6 +131,16 @@ class UtbetalingService(
         }
 
         queries.delutbetaling.opprettDelutbetalinger(delutbetalinger)
+    }
+
+    fun besluttUtbetaling(utbetalingId: UUID, besluttetAv: NavIdent): Unit = db.transaction {
+        val utbetaling = queries.utbetaling.get(utbetalingId)
+            ?: throw IllegalArgumentException("Utbetaling med id=$utbetalingId finnes ikke")
+
+        // TODO: lagre beslutning på delutbetalinger
+        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+
+        okonomi.scheduleBehandleGodkjentUtbetaling(utbetaling.id, session)
     }
 
     private fun getDeltakelser(
