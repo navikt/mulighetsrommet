@@ -1,12 +1,11 @@
 package no.nav.tiltak.okonomi
 
-import io.ktor.client.engine.cio.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 
 val ApplicationConfigDev = AppConfig(
-    httpClientEngine = CIO.create(),
+    httpClientEngine = mockClientEngine,
     database = DatabaseConfig(
         jdbcUrl = System.getenv("DB_JDBC_URL"),
         maximumPoolSize = 10,
