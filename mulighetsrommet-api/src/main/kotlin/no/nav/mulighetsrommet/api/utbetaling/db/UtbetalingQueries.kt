@@ -329,6 +329,7 @@ class UtbetalingQueries(private val session: Session) {
                 start = localDate("periode_start"),
                 slutt = localDate("periode_slutt"),
             ),
+            godkjentAvArrangorTidspunkt = localDateTimeOrNull("godkjent_av_arrangor_tidspunkt"),
         )
     }
 }

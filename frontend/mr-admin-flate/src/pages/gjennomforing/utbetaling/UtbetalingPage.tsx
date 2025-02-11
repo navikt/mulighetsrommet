@@ -4,17 +4,28 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { TilsagnDto, TilsagnDefaultsRequest, TilsagnType, Prismodell } from "@mr/api-client-v2";
-import { Alert, BodyShort, Heading, HStack, Table, VStack } from "@navikt/ds-react";
+import { Alert, Box, Heading, HStack, Table, VStack } from "@navikt/ds-react";
 import { useLoaderData } from "react-router";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { formaterDato } from "@/utils/Utils";
-import { OpprettTilsagnLink } from "@/components/tilsagn/OpprettTilsagnLink";
 import { DelutbetalingRow } from "@/components/utbetaling/DelutbetalingRow";
 import { utbetalingPageLoader } from "./utbetalingPageLoader";
+import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
+import { Metadata, Separator } from "@/components/detaljside/Metadata";
+import { OpprettTilsagnButton } from "@/components/tilsagn/OpprettTilsagnButton";
+import { useState } from "react";
 
 export function UtbetalingPage() {
   const { gjennomforing, utbetaling, tilsagn, ansatt } =
     useLoaderData<typeof utbetalingPageLoader>();
+  const [belopPerTilsagn, setBelopPerTilsagn] = useState<Map<string, number>>(
+    new Map(
+      tilsagn.map((tilsagn) => [
+        tilsagn.id,
+        utbetaling.delutbetalinger.find((d) => d.tilsagnId === tilsagn.id)?.belop ?? 0,
+      ]),
+    ),
+  );
 
   const brodsmuler: Brodsmule[] = [
     { tittel: "Gjennomføringer", lenke: `/gjennomforinger` },
@@ -30,8 +41,7 @@ export function UtbetalingPage() {
   ];
 
   function utbetalesTotal(): number {
-    // TODO:
-    return 0;
+    return [...belopPerTilsagn.values()].reduce((acc, val) => acc + val, 0);
   }
 
   function ekstraTilsagnDefaults(): TilsagnDefaultsRequest {
@@ -63,61 +73,99 @@ export function UtbetalingPage() {
       <ContentBox>
         <WhitePaddedBox>
           <VStack gap="4">
-            <VStack gap="4" id="kostnadsfordeling">
-              <VStack gap="2">
-                <HStack gap="4" align="center">
-                  <Heading size="small">Periode:</Heading>
-                  <BodyShort>
-                    {formaterDato(utbetaling.beregning.periodeStart)} -{" "}
-                    {formaterDato(utbetaling.beregning.periodeSlutt)}
-                  </BodyShort>
+            <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
+            <Box borderColor="border-subtle" padding="4" borderWidth="1" borderRadius="large">
+              <VStack gap="4" id="kostnadsfordeling">
+                <Heading size="medium">Til utbetaling</Heading>
+                <VStack gap="2">
+                  <Metadata
+                    horizontal
+                    header="Utbetalingsperiode"
+                    verdi={`${formaterDato(utbetaling.beregning.periodeStart)} - ${formaterDato(utbetaling.beregning.periodeSlutt)}`}
+                  />
+                  <Metadata
+                    horizontal
+                    header="Innsent"
+                    verdi={utbetaling.godkjentAvArrangorTidspunkt ?? "N/A"}
+                  />
+                  <Metadata
+                    horizontal
+                    header="Beløp til utbetaling"
+                    verdi={formaterNOK(utbetaling.beregning.belop)}
+                  />
+                </VStack>
+                <Separator />
+                <HStack justify="space-between">
+                  <Heading size="medium">Tilsagn og kostnadsfordeling</Heading>
+                  <OpprettTilsagnButton defaults={ekstraTilsagnDefaults()} />
                 </HStack>
-                <OpprettTilsagnLink defaults={ekstraTilsagnDefaults()} />
+                {tilsagn.length === 0 && <Alert variant="info">Tilsagn mangler</Alert>}
+                {tilsagn.length > 0 && (
+                  <Table>
+                    <Table.Header>
+                      <Table.Row>
+                        <Table.HeaderCell></Table.HeaderCell>
+                        <Table.HeaderCell>Status</Table.HeaderCell>
+                        <Table.HeaderCell>Periodestart</Table.HeaderCell>
+                        <Table.HeaderCell>Periodeslutt</Table.HeaderCell>
+                        <Table.HeaderCell>Kostnadssted</Table.HeaderCell>
+                        <Table.HeaderCell>Gjenstående beløp</Table.HeaderCell>
+                        <Table.HeaderCell>Utbetales</Table.HeaderCell>
+                        <Table.HeaderCell></Table.HeaderCell>
+                      </Table.Row>
+                    </Table.Header>
+                    <Table.Body>
+                      {tilsagn.map((t: TilsagnDto) => {
+                        return (
+                          <DelutbetalingRow
+                            key={t.id}
+                            utbetaling={utbetaling}
+                            tilsagn={t}
+                            delutbetaling={utbetaling.delutbetalinger.find(
+                              (d) => d.tilsagnId === t.id,
+                            )}
+                            ansatt={ansatt}
+                            onBelopChange={(belop) =>
+                              setBelopPerTilsagn((prevMap) => {
+                                const newMap = new Map(prevMap);
+                                newMap.set(t.id, belop);
+                                return newMap;
+                              })
+                            }
+                          />
+                        );
+                      })}
+                      <Table.Row>
+                        <Table.DataCell className="font-bold">{`Opprinnelig krav ${formaterNOK(utbetaling.beregning.belop)}`}</Table.DataCell>
+                        <Table.DataCell>-</Table.DataCell>
+                        <Table.DataCell>-</Table.DataCell>
+                        <Table.DataCell>-</Table.DataCell>
+                        <Table.DataCell>-</Table.DataCell>
+                        <Table.DataCell>-</Table.DataCell>
+                        <Table.DataCell className="font-bold">
+                          {formaterNOK(utbetalesTotal())}
+                        </Table.DataCell>
+                        <Table.DataCell></Table.DataCell>
+                      </Table.Row>
+                    </Table.Body>
+                  </Table>
+                )}
+                <Separator />
+                <Heading size="medium">Betalingsinformasjon</Heading>
+                <VStack gap="2">
+                  <Metadata
+                    horizontal
+                    header="Kontonummer"
+                    verdi={utbetaling.betalingsinformasjon?.kontonummer}
+                  />
+                  <Metadata
+                    horizontal
+                    header="KID"
+                    verdi={utbetaling.betalingsinformasjon?.kid ?? "N/A"}
+                  />
+                </VStack>
               </VStack>
-              {tilsagn.length === 0 && <Alert variant="info">Tilsagn mangler</Alert>}
-              {tilsagn.length > 0 && (
-                <Table>
-                  <Table.Header>
-                    <Table.Row>
-                      <Table.HeaderCell></Table.HeaderCell>
-                      <Table.HeaderCell>Status</Table.HeaderCell>
-                      <Table.HeaderCell>Periodestart</Table.HeaderCell>
-                      <Table.HeaderCell>Periodeslutt</Table.HeaderCell>
-                      <Table.HeaderCell>Kostnadssted</Table.HeaderCell>
-                      <Table.HeaderCell>Gjenstående beløp</Table.HeaderCell>
-                      <Table.HeaderCell>Utbetales</Table.HeaderCell>
-                      <Table.HeaderCell></Table.HeaderCell>
-                    </Table.Row>
-                  </Table.Header>
-                  <Table.Body>
-                    {tilsagn.map((t: TilsagnDto) => {
-                      return (
-                        <DelutbetalingRow
-                          key={t.id}
-                          utbetaling={utbetaling}
-                          tilsagn={t}
-                          delutbetaling={utbetaling.delutbetalinger.find(
-                            (d) => d.tilsagnId === t.id,
-                          )}
-                          ansatt={ansatt}
-                        />
-                      );
-                    })}
-                    <Table.Row>
-                      <Table.DataCell className="font-bold">{`Opprinnelig krav ${formaterNOK(utbetaling.beregning.belop)}`}</Table.DataCell>
-                      <Table.DataCell>-</Table.DataCell>
-                      <Table.DataCell>-</Table.DataCell>
-                      <Table.DataCell>-</Table.DataCell>
-                      <Table.DataCell>-</Table.DataCell>
-                      <Table.DataCell className="font-bold">
-                        {formaterNOK(utbetalesTotal())}
-                      </Table.DataCell>
-                      <Table.DataCell></Table.DataCell>
-                    </Table.Row>
-                  </Table.Body>
-                </Table>
-              )}
-            </VStack>
+            </Box>
           </VStack>
         </WhitePaddedBox>
       </ContentBox>

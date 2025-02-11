@@ -23,9 +23,11 @@ import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 fun Route.utbetalingRoutes() {
@@ -196,6 +198,9 @@ data class UtbetalingKompakt(
     val status: UtbetalingStatus,
     val beregning: Beregning,
     val delutbetalinger: List<DelutbetalingDto>,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val godkjentAvArrangorTidspunkt: LocalDateTime?,
+    val betalingsinformasjon: UtbetalingDto.Betalingsinformasjon,
 ) {
     @Serializable
     data class Beregning(
@@ -215,7 +220,9 @@ data class UtbetalingKompakt(
                 periodeSlutt = utbetaling.periode.getLastDate(),
                 belop = utbetaling.beregning.output.belop,
             ),
+            godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
             delutbetalinger = delutbetalinger,
+            betalingsinformasjon = utbetaling.betalingsinformasjon,
         )
     }
 }

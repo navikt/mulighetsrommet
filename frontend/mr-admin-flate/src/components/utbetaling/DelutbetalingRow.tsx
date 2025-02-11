@@ -28,9 +28,16 @@ interface Props {
   tilsagn: TilsagnDto;
   delutbetaling?: DelutbetalingDto;
   ansatt: NavAnsatt;
+  onBelopChange: (b: number) => void;
 }
 
-export function DelutbetalingRow({ utbetaling, tilsagn, delutbetaling, ansatt }: Props) {
+export function DelutbetalingRow({
+  utbetaling,
+  tilsagn,
+  delutbetaling,
+  ansatt,
+  onBelopChange,
+}: Props) {
   if (tilsagn.status.type !== "GODKJENT") {
     return <TilsagnIkkeGodkjentRow tilsagn={tilsagn} />;
   }
@@ -48,13 +55,14 @@ export function DelutbetalingRow({ utbetaling, tilsagn, delutbetaling, ansatt }:
         />
       );
     case "DELUTBETALING_AVVIST":
-    default: // Hvis delutbetalingen ikke finnes
+    default: // Eller hvis delutbetalingen ikke er opprettet ennå
       return (
         <EditableRow
           tilsagn={tilsagn}
           delutbetaling={delutbetaling}
           utbetaling={utbetaling}
           ansatt={ansatt}
+          onBelopChange={onBelopChange}
         />
       );
   }
@@ -64,11 +72,13 @@ function EditableRow({
   utbetaling,
   tilsagn,
   delutbetaling,
+  onBelopChange,
 }: {
   ansatt: NavAnsatt;
   utbetaling: UtbetalingKompakt;
   tilsagn: TilsagnDto;
   delutbetaling?: DelutbetalingAvvist;
+  onBelopChange: (b: number) => void;
 }) {
   const [belop, setBelop] = useState<number>(delutbetaling?.belop ?? 0);
   const [error, setError] = useState<string | undefined>(undefined);
@@ -103,6 +113,9 @@ function EditableRow({
       className={delutbetaling ? "bg-surface-warning-subtle" : ""}
       content={<DropdownContent delutbetaling={delutbetaling} />}
     >
+      <Table.DataCell>
+        {delutbetaling && <DelutbetalingTag delutbetaling={delutbetaling} />}
+      </Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeStart)}</Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeSlutt)}</Table.DataCell>
       <Table.DataCell>{tilsagn.kostnadssted.navn}</Table.DataCell>
@@ -114,7 +127,11 @@ function EditableRow({
           error={error}
           type="number"
           hideLabel
-          onChange={(e) => setBelop(Number(e.target.value))}
+          onChange={(e) => {
+            setError(undefined);
+            setBelop(Number(e.target.value));
+            onBelopChange(Number(e.target.value));
+          }}
           value={belop}
         />
       </Table.DataCell>

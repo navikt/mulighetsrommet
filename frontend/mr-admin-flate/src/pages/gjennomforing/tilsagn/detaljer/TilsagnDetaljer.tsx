@@ -6,7 +6,6 @@ import { EndringshistorikkPopover } from "@/components/endringshistorikk/Endring
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { TiltakDetaljerForTilsagn } from "@/components/tilsagn/TiltakDetaljerForTilsagn";
 import { ContentBox } from "@/layouts/ContentBox";
 import { TilsagnDetaljerFri } from "@/pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljerFri";
 import {
@@ -31,6 +30,7 @@ import { TilsagnTag } from "../TilsagnTag";
 import { TilsagnDetaljerForhandsgodkjent } from "./TilsagnDetaljerForhandsgodkjent";
 import { tilsagnDetaljerLoader } from "./tilsagnDetaljerLoader";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
+import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 
 export function TilsagnDetaljer() {
   const { gjennomforing, tilsagn, ansatt, historikk } =
@@ -165,7 +165,7 @@ export function TilsagnDetaljer() {
               </ActionMenu>
             ) : null}
           </HStack>
-          <TiltakDetaljerForTilsagn gjennomforing={gjennomforing} />
+          <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
           {tilsagn.status.type === "RETURNERT" && (
             <AvvistAlert
               header="Tilsagnet ble returnert"

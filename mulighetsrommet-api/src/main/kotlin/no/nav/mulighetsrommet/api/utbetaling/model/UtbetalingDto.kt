@@ -29,6 +29,8 @@ data class UtbetalingDto(
     val betalingsinformasjon: Betalingsinformasjon,
     val journalpostId: String?,
     val periode: Periode,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val godkjentAvArrangorTidspunkt: LocalDateTime?,
 ) {
     @Serializable
     data class Gjennomforing(
