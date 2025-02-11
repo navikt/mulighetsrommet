@@ -116,13 +116,19 @@ class UtbetalingService(
         val tilsagn = db.session { queries.tilsagn.get(request.tilsagnId) }
             ?: return listOf(FieldError.root("Tilsagn med id=${request.tilsagnId} finnes ikke")).left()
 
-        // TODO: Bytt ut med status sjekk på utbetalingen?
         val previous = db.session { queries.delutbetaling.get(utbetalingId, request.tilsagnId) }
-        if (previous is DelutbetalingDto.DelutbetalingGodkjent) {
-            return listOf(FieldError.root("Utbetaling allerede behandlet")).left()
+        when (previous) {
+            is DelutbetalingDto.DelutbetalingGodkjent, is DelutbetalingDto.DelutbetalingTilGodkjenning ->
+                return listOf(FieldError.root("Utbetaling kan ikke endres")).left()
+            is DelutbetalingDto.DelutbetalingAvvist, null -> {}
         }
 
-        UtbetalingValidator.validate(request.belop, tilsagn).bind()
+        val maxBelop = utbetaling.beregning.output.belop -
+            db.session { queries.delutbetaling.getByUtbetalingId(utbetalingId) }
+                .filter { it.tilsagnId != tilsagn.id }
+                .sumOf { it.belop }
+
+        UtbetalingValidator.validate(belop = request.belop, tilsagn = tilsagn, maxBelop = maxBelop).bind()
 
         val periode = utbetaling.periode.intersect(Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt))
             ?: return listOf(FieldError.root("Utbetalingsperiode og tilsagnsperiode overlapper ikke")).left()

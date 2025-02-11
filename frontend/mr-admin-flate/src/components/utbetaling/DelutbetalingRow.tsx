@@ -87,6 +87,7 @@ function EditableRow({
   const opprettMutation = useOpprettDelutbetaling(utbetaling.id);
 
   function sendTilGodkjenning() {
+    if (error) return;
     const body: DelutbetalingRequest = {
       belop,
       tilsagnId: tilsagn.id,
@@ -129,8 +130,15 @@ function EditableRow({
           hideLabel
           onChange={(e) => {
             setError(undefined);
-            setBelop(Number(e.target.value));
-            onBelopChange(Number(e.target.value));
+            const num = Number(e.target.value);
+            if (isNaN(num)) {
+              setError("Må være et tall");
+            }
+            if (num > 2_147_483_647) {
+              setError("Beløp er for høyt");
+            }
+            setBelop(num);
+            onBelopChange(num);
           }}
           value={belop}
         />

@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
 
 object UtbetalingValidator {
-    fun validate(belop: Int, tilsagn: TilsagnDto): Either<List<FieldError>, Unit> = either {
+    fun validate(belop: Int, tilsagn: TilsagnDto, maxBelop: Int): Either<List<FieldError>, Unit> = either {
         val errors = buildList {
             if (belop <= 0) {
                 add(
@@ -24,6 +24,14 @@ object UtbetalingValidator {
                     FieldError.of(
                         DelutbetalingRequest::belop,
                         "Beløp er større enn gjenstående på tilsagnet",
+                    ),
+                )
+            }
+            if (belop > maxBelop) {
+                add(
+                    FieldError.of(
+                        DelutbetalingRequest::belop,
+                        "Kan ikke betale ut mer enn det er krav på",
                     ),
                 )
             }

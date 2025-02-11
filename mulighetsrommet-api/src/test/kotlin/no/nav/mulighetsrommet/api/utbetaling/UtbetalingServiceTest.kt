@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import io.kotest.assertions.arrow.core.shouldBeLeft
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
@@ -439,11 +440,11 @@ class UtbetalingServiceTest : FunSpec({
                 request = opprettRequest,
                 opprettetAv = domain.ansatte[0].navIdent,
             ).shouldBeLeft().shouldContainExactly(
-                listOf(FieldError("/", "Utbetaling allerede behandlet")),
+                listOf(FieldError("/", "Utbetaling kan ikke endres")),
             )
         }
 
-        test("skal ikke kunne behandle utbetaling hvis utbetalingsperiode og tilsagnsperiode ikke overlapper") {
+        test("skal ikke kunne opprette delutbetaling hvis utbetalingsperiode og tilsagnsperiode ikke overlapper") {
             val tilsagn = TilsagnFixtures.Tilsagn1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
             )
@@ -466,6 +467,55 @@ class UtbetalingServiceTest : FunSpec({
 
             service.upsertDelutbetaling(utbetaling.id, request, domain.ansatte[0].navIdent).shouldBeLeft().shouldContainExactly(
                 listOf(FieldError("/", "Utbetalingsperiode og tilsagnsperiode overlapper ikke")),
+            )
+        }
+
+        test("skal ikke kunne opprette delutbetaling hvis belop er for stort") {
+            val tilsagn1 = TilsagnFixtures.Tilsagn1.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+            )
+            val tilsagn2 = TilsagnFixtures.Tilsagn2.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+            )
+
+            val utbetaling = UtbetalingFixtures.utbetaling1.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                beregning = UtbetalingBeregningFri(
+                    input = UtbetalingBeregningFri.Input(10),
+                    output = UtbetalingBeregningFri.Output(10),
+                ),
+            )
+
+            val domain = MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.ansatt1),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(tilsagn1, tilsagn2),
+                utbetalinger = listOf(utbetaling),
+            ).initialize(database.db)
+            val service = createUtbetalingService()
+
+            service.upsertDelutbetaling(
+                utbetaling.id,
+                DelutbetalingRequest(tilsagnId = tilsagn1.id, belop = 100),
+                domain.ansatte[0].navIdent,
+            ).shouldBeLeft().shouldContainExactly(
+                listOf(FieldError("/belop", "Kan ikke betale ut mer enn det er krav på")),
+            )
+
+            service.upsertDelutbetaling(
+                utbetaling.id,
+                DelutbetalingRequest(tilsagnId = tilsagn1.id, belop = 7),
+                domain.ansatte[0].navIdent,
+            ).shouldBeRight()
+
+            // Siden 7 allerede er utbetalt nå
+            service.upsertDelutbetaling(
+                utbetaling.id,
+                DelutbetalingRequest(tilsagnId = tilsagn2.id, belop = 5),
+                domain.ansatte[0].navIdent,
+            ).shouldBeLeft().shouldContainExactly(
+                listOf(FieldError("/belop", "Kan ikke betale ut mer enn det er krav på")),
             )
         }
 

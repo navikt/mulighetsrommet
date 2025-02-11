@@ -121,6 +121,7 @@ class UtbetalingQueriesTest : FunSpec({
                     ),
                     journalpostId = null,
                     periode = beregning.input.periode,
+                    godkjentAvArrangorTidspunkt = null,
                 )
             }
         }
