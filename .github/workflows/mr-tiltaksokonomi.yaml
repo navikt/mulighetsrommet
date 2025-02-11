@@ -52,9 +52,9 @@ jobs:
           team: team-mulighetsrommet
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
-          dockerfile: ./mulighetsrommet-tiltakshistorikk/Dockerfile
-          docker_context: mulighetsrommet-tiltakshistorikk
-          image_suffix: mulighetsrommet-tiltakshistorikk
+          dockerfile: ./mulighetsrommet-tiltaksokonomi/Dockerfile
+          docker_context: mulighetsrommet-tiltaksokonomi
+          image_suffix: mulighetsrommet-tiltaksokonomi
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
 
@@ -72,7 +72,7 @@ jobs:
         uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-gcp
-          RESOURCE: mulighetsrommet-tiltakshistorikk/.nais/nais-dev.yaml
+          RESOURCE: mulighetsrommet-tiltaksokonomi/.nais/nais-dev.yaml
           VAR: image=${{ needs.ci.outputs.image }}
 #
 #  deploy-prod:
@@ -89,5 +89,5 @@ jobs:
 #        uses: nais/deploy/actions/deploy@v2
 #        env:
 #          CLUSTER: prod-gcp
-#          RESOURCE: mulighetsrommet-tiltakshistorikk/.nais/nais-prod.yaml
+#          RESOURCE: mulighetsrommet-tiltaksokonomi/.nais/nais-prod.yaml
 #          VAR: image=${{ needs.ci.outputs.image }}
