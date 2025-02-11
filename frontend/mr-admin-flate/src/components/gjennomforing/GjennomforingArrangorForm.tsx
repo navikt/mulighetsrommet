@@ -1,6 +1,10 @@
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
 import { Button, Textarea, TextField, VStack } from "@navikt/ds-react";
-import { ArrangorKontaktperson, ArrangorKontaktpersonAnsvar, AvtaleDto } from "@mr/api-client-v2";
+import {
+  ArrangorHovedenhet,
+  ArrangorKontaktperson,
+  ArrangorKontaktpersonAnsvar,
+} from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useRef } from "react";
 import { useFormContext } from "react-hook-form";
@@ -12,11 +16,11 @@ import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "@/constants";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 
 interface Props {
-  avtale: AvtaleDto;
+  arrangor: ArrangorHovedenhet;
   readOnly: boolean;
 }
 
-export function GjennomforingArrangorForm({ readOnly, avtale }: Props) {
+export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
   const arrangorKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
 
   const {
@@ -26,9 +30,9 @@ export function GjennomforingArrangorForm({ readOnly, avtale }: Props) {
     setValue,
   } = useFormContext<InferredGjennomforingSchema>();
 
-  const { data: arrangorKontaktpersoner } = useArrangorKontaktpersoner(avtale.arrangor?.id);
+  const { data: arrangorKontaktpersoner } = useArrangorKontaktpersoner(arrangor.id);
 
-  const arrangorOptions = getArrangorOptions(avtale);
+  const arrangorOptions = getArrangorOptions(arrangor);
   const kontaktpersonOptions = getKontaktpersonOptions(arrangorKontaktpersoner ?? []);
   return (
     <>
@@ -37,7 +41,7 @@ export function GjennomforingArrangorForm({ readOnly, avtale }: Props) {
           size="small"
           label={gjennomforingTekster.tiltaksarrangorHovedenhetLabel}
           placeholder=""
-          defaultValue={`${avtale.arrangor?.navn} - ${avtale.arrangor?.organisasjonsnummer}`}
+          defaultValue={`${arrangor.navn} - ${arrangor.organisasjonsnummer}`}
           readOnly
         />
         <ControlledSokeSelect
@@ -87,38 +91,35 @@ export function GjennomforingArrangorForm({ readOnly, avtale }: Props) {
           }
         />
       </VStack>
-      {avtale.arrangor && (
-        <ArrangorKontaktpersonerModal
-          arrangorId={avtale.arrangor.id}
-          modalRef={arrangorKontaktpersonerModalRef}
-          onOpprettSuccess={(kontaktperson) => {
-            if (!kontaktperson.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.GJENNOMFORING)) {
-              return;
-            }
 
-            const kontaktpersoner = watch("arrangorKontaktpersoner") ?? [];
-            setValue("arrangorKontaktpersoner", [
-              ...kontaktpersoner.filter((k) => k !== kontaktperson.id),
-              kontaktperson.id,
-            ]);
-          }}
-        />
-      )}
+      <ArrangorKontaktpersonerModal
+        arrangorId={arrangor.id}
+        modalRef={arrangorKontaktpersonerModalRef}
+        onOpprettSuccess={(kontaktperson) => {
+          if (!kontaktperson.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.GJENNOMFORING)) {
+            return;
+          }
+
+          const kontaktpersoner = watch("arrangorKontaktpersoner") ?? [];
+          setValue("arrangorKontaktpersoner", [
+            ...kontaktpersoner.filter((k) => k !== kontaktperson.id),
+            kontaktperson.id,
+          ]);
+        }}
+      />
     </>
   );
 }
 
-function getArrangorOptions(avtale: AvtaleDto) {
-  return avtale.arrangor
-    ? avtale.arrangor.underenheter
-        .sort((a, b) => a.navn.localeCompare(b.navn))
-        .map((arrangor) => {
-          return {
-            label: `${arrangor.navn} - ${arrangor.organisasjonsnummer}`,
-            value: arrangor.id,
-          };
-        })
-    : [];
+function getArrangorOptions(arrangor: ArrangorHovedenhet) {
+  return arrangor.underenheter
+    .sort((a, b) => a.navn.localeCompare(b.navn))
+    .map((arrangor) => {
+      return {
+        label: `${arrangor.navn} - ${arrangor.organisasjonsnummer}`,
+        value: arrangor.id,
+      };
+    });
 }
 
 function getKontaktpersonOptions(kontaktpersoner: ArrangorKontaktperson[]) {

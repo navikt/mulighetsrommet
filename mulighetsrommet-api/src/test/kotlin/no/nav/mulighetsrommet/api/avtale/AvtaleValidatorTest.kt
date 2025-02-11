@@ -107,8 +107,8 @@ class AvtaleValidatorTest : FunSpec({
 
         validator.validate(dbo, null).shouldBeLeft().shouldContainAll(
             listOf(
-                FieldError("startDato", "Startdato må være før sluttdato"),
-                FieldError("navEnheter", "Du må velge minst én Nav-region"),
+                FieldError("/startDato", "Startdato må være før sluttdato"),
+                FieldError("/navEnheter", "Du må velge minst én Nav-region"),
                 FieldError("/arrangor/underenheter", "Du må velge minst én underenhet for tiltaksarrangør"),
             ),
         )
