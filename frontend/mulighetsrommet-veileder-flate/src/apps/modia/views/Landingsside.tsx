@@ -273,9 +273,6 @@ function DeltakelserHistoriske() {
         eldreEnn5aar.map((deltakelse) => {
           return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} aktiv={false} />;
         })}
-      {data.meldinger.includes(DeltakelserMelding.HENTER_IKKE_DELTAKELSER_FRA_TEAM_TILTAK) && (
-        <HenterIkkeDeltakelserFraTeamTiltakMeling />
-      )}
     </Container>
   );
 }
@@ -325,15 +322,6 @@ function ManglerDeltakelserFraTeamTiltakMelding() {
           </ul>
         </HelpText>
       </HStack>
-    </Alert>
-  );
-}
-
-function HenterIkkeDeltakelserFraTeamTiltakMeling() {
-  return (
-    <Alert variant="info">
-      For oversikt over tiltakstypene “Sommerjobb”, “Midlertidig lønnstilskudd”, og “Varig
-      lønnstilskudd” se <TeamTiltakTiltaksgjennomforingAvtalerLink />
     </Alert>
   );
 }
