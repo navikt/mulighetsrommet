@@ -6,9 +6,11 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import io.mockk.mockk
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatus
@@ -27,8 +29,15 @@ class UtbetalingServiceTest : FunSpec({
         database.truncateAll()
     }
 
+    fun createUtbetalingService(
+        okonomi: OkonomiBestillingService = mockk(relaxed = true),
+    ) = UtbetalingService(
+        db = database.db,
+        okonomi = okonomi,
+    )
+
     context("generering av utbetaling for AFT") {
-        val service = UtbetalingService(db = database.db)
+        val service = createUtbetalingService()
 
         val organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer
 
@@ -289,7 +298,7 @@ class UtbetalingServiceTest : FunSpec({
     }
 
     context("rekalkulering av utbetaling for AFT") {
-        val service = UtbetalingService(db = database.db)
+        val service = createUtbetalingService()
 
         test("oppdaterer beregnet utbetaling når deltakelser endres") {
             val domain = MulighetsrommetTestDomain(
@@ -407,7 +416,7 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling),
             ).initialize(database.db)
 
-            val service = UtbetalingService(db = database.db)
+            val service = createUtbetalingService()
 
             val behandleUtbetaling = BehandleUtbetaling(
                 utbetaling.id,
@@ -438,7 +447,7 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling),
             ).initialize(database.db)
 
-            val service = UtbetalingService(db = database.db)
+            val service = createUtbetalingService()
 
             val behandleUtbetaling = BehandleUtbetaling(
                 utbetaling.id,
@@ -478,7 +487,7 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1, utbetaling2),
             ).initialize(database.db)
 
-            val service = UtbetalingService(db = database.db)
+            val service = createUtbetalingService()
 
             val behandleUtbetaling1 = BehandleUtbetaling(
                 utbetaling1.id,

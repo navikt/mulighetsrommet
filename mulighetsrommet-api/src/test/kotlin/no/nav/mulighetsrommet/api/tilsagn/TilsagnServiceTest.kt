@@ -8,7 +8,12 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -16,6 +21,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -28,6 +34,7 @@ class TilsagnServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
+        arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
         avtaler = listOf(AvtaleFixtures.AFT),
         gjennomforinger = listOf(AFT1),
     )
@@ -40,8 +47,11 @@ class TilsagnServiceTest : FunSpec({
         database.truncateAll()
     }
 
-    fun createTilsagnService() = TilsagnService(
+    fun createTilsagnService(
+        okonomi: OkonomiBestillingService = mockk(relaxed = true),
+    ) = TilsagnService(
         db = database.db,
+        okonomi = okonomi,
     )
 
     context("opprett tilsagn") {
@@ -156,9 +166,7 @@ class TilsagnServiceTest : FunSpec({
         }
     }
 
-    context("beslutt") {
-        val service = createTilsagnService()
-
+    context("beslutt tilsagn") {
         val tilsagn = TilsagnRequest(
             id = UUID.randomUUID(),
             gjennomforingId = AFT1.id,
@@ -166,10 +174,12 @@ class TilsagnServiceTest : FunSpec({
             periodeStart = LocalDate.of(2023, 1, 1),
             periodeSlutt = LocalDate.of(2023, 2, 1),
             kostnadssted = Gjovik.enhetsnummer,
-            beregning = TilsagnBeregningFri.Input(belop = 0),
+            beregning = TilsagnBeregningFri.Input(belop = 1),
         )
 
         test("kan ikke beslutte egne") {
+            val service = createTilsagnService()
+
             service.upsert(tilsagn, NavAnsattFixture.ansatt1.navIdent).shouldBeRight()
 
             service.beslutt(
@@ -180,6 +190,8 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("kan ikke beslutte to ganger") {
+            val service = createTilsagnService()
+
             service.upsert(tilsagn, NavAnsattFixture.ansatt1.navIdent).shouldBeRight()
 
             service.beslutt(
@@ -194,6 +206,114 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = NavAnsattFixture.ansatt2.navIdent,
             ) shouldBe BadRequest("Tilsagnet kan ikke besluttes fordi det har status Godkjent").left()
         }
+
+        test("godkjent tilsagn trigger melding til økonomi") {
+            val okonomi = mockk<OkonomiBestillingService>()
+            every { okonomi.scheduleBehandleGodkjentTilsagn(any(), any()) } returns Unit
+
+            val service = createTilsagnService(okonomi)
+
+            service.upsert(tilsagn, NavAnsattFixture.ansatt1.navIdent).shouldBeRight()
+
+            service.beslutt(
+                id = tilsagn.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
+            ).shouldBeRight().status.shouldBeTypeOf<TilsagnStatus.Godkjent>()
+
+            verify(exactly = 1) {
+                okonomi.scheduleBehandleGodkjentTilsagn(tilsagn.id, any())
+            }
+        }
+    }
+
+    context("annuller tilsagn") {
+        val tilsagn = TilsagnRequest(
+            id = UUID.randomUUID(),
+            gjennomforingId = AFT1.id,
+            type = TilsagnType.TILSAGN,
+            periodeStart = LocalDate.of(2023, 1, 1),
+            periodeSlutt = LocalDate.of(2023, 2, 1),
+            kostnadssted = Gjovik.enhetsnummer,
+            beregning = TilsagnBeregningFri.Input(belop = 1),
+        )
+
+        test("tilsagn må være godkjent for å kunne settes til annullering") {
+            val service = createTilsagnService()
+
+            service.upsert(tilsagn, NavAnsattFixture.ansatt1.navIdent).shouldBeRight()
+
+            val annullering = TilAnnulleringRequest(
+                aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                forklaring = "Velg et annet beløp",
+            )
+
+            service.tilAnnullering(
+                id = tilsagn.id,
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
+                annullering = annullering,
+            ) shouldBeLeft BadRequest("Kan bare annullere godkjente tilsagn")
+
+            service.beslutt(
+                id = tilsagn.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
+            ).shouldBeRight()
+
+            service.tilAnnullering(
+                id = tilsagn.id,
+                navIdent = NavAnsattFixture.ansatt1.navIdent,
+                annullering = annullering,
+            ).shouldBeRight().status.shouldBeTypeOf<TilsagnStatus.TilAnnullering> {
+                it.endretAv shouldBe NavAnsattFixture.ansatt1.navIdent
+                it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP)
+                it.forklaring shouldBe "Velg et annet beløp"
+            }
+        }
+
+        test("annullering av tilsagn trigger melding til økonomi") {
+            val okonomi = mockk<OkonomiBestillingService>()
+            every { okonomi.scheduleBehandleGodkjentTilsagn(any(), any()) } returns Unit
+            every { okonomi.scheduleBehandleAnnullertTilsagn(any(), any()) } returns Unit
+
+            val service = createTilsagnService(okonomi)
+
+            service.upsert(tilsagn, NavAnsattFixture.ansatt1.navIdent).shouldBeRight()
+
+            service.beslutt(
+                id = tilsagn.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
+            ).shouldBeRight()
+
+            verify(exactly = 1) {
+                okonomi.scheduleBehandleGodkjentTilsagn(tilsagn.id, any())
+            }
+
+            service.tilAnnullering(
+                id = tilsagn.id,
+                navIdent = NavAnsattFixture.ansatt1.navIdent,
+                annullering = TilAnnulleringRequest(
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_PERIODE),
+                    forklaring = "Velg en annen periode",
+                ),
+            ).shouldBeRight()
+
+            service.beslutt(
+                id = tilsagn.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
+            ).shouldBeRight().status.shouldBeTypeOf<TilsagnStatus.Annullert> {
+                it.endretAv shouldBe NavAnsattFixture.ansatt1.navIdent
+                it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_PERIODE)
+                it.forklaring shouldBe "Velg en annen periode"
+                it.godkjentAv shouldBe NavAnsattFixture.ansatt2.navIdent
+            }
+
+            verify(exactly = 1) {
+                okonomi.scheduleBehandleAnnullertTilsagn(tilsagn.id, any())
+            }
+        }
     }
 
     context("slett tilsagn") {
@@ -206,7 +326,7 @@ class TilsagnServiceTest : FunSpec({
             periodeStart = LocalDate.of(2023, 1, 1),
             periodeSlutt = LocalDate.of(2023, 2, 1),
             kostnadssted = Gjovik.enhetsnummer,
-            beregning = TilsagnBeregningFri.Input(belop = 0),
+            beregning = TilsagnBeregningFri.Input(belop = 1),
         )
 
         test("kan slette tilsagn når det er avvist") {

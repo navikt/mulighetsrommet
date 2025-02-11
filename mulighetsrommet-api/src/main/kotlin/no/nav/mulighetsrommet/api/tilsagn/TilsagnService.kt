@@ -9,8 +9,6 @@ import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
-import no.nav.mulighetsrommet.api.okonomi.BestillingDto
-import no.nav.mulighetsrommet.api.okonomi.OkonomiClient
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
@@ -25,6 +23,7 @@ import java.util.*
 
 class TilsagnService(
     private val db: ApiDatabase,
+    private val okonomi: OkonomiBestillingService,
 ) {
     fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<FieldError>, TilsagnDto> = db.transaction {
         val gjennomforing = queries.gjennomforing.get(request.gjennomforingId)
@@ -81,7 +80,7 @@ class TilsagnService(
             }
     }
 
-    suspend fun beslutt(id: UUID, besluttelse: BesluttTilsagnRequest, navIdent: NavIdent): StatusResponse<TilsagnDto> = db.session {
+    fun beslutt(id: UUID, besluttelse: BesluttTilsagnRequest, navIdent: NavIdent): StatusResponse<TilsagnDto> = db.session {
         val tilsagn = queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
 
         return when (tilsagn.status) {
@@ -104,18 +103,20 @@ class TilsagnService(
         }
     }
 
-    private suspend fun godkjennTilsagn(tilsagn: TilsagnDto, navIdent: NavIdent): StatusResponse<TilsagnDto> = db.transaction {
+    private fun godkjennTilsagn(tilsagn: TilsagnDto, godkjentAv: NavIdent): StatusResponse<TilsagnDto> = db.transaction {
         require(tilsagn.status is TilsagnDto.TilsagnStatus.TilGodkjenning)
 
-        if (navIdent == tilsagn.status.endretAv) {
+        if (godkjentAv == tilsagn.status.endretAv) {
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
-        queries.tilsagn.besluttGodkjennelse(tilsagn.id, navIdent, LocalDateTime.now())
-        lagOgSendBestilling(tilsagn)
+        val godkjentTidspunkt = LocalDateTime.now()
+        queries.tilsagn.besluttGodkjennelse(tilsagn.id, godkjentAv, godkjentTidspunkt)
+
+        okonomi.scheduleBehandleGodkjentTilsagn(tilsagn.id, session)
 
         val dto = getOrError(tilsagn.id)
-        logEndring("Tilsagn godkjent", dto, EndretAv.NavAnsatt(navIdent))
+        logEndring("Tilsagn godkjent", dto, EndretAv.NavAnsatt(godkjentAv))
         dto.right()
     }
 
@@ -154,6 +155,8 @@ class TilsagnService(
 
         queries.tilsagn.besluttAnnullering(tilsagn.id, navIdent, LocalDateTime.now())
 
+        okonomi.scheduleBehandleAnnullertTilsagn(tilsagn.id, session)
+
         val dto = getOrError(tilsagn.id)
         logEndring("Tilsagn annullert", dto, EndretAv.NavAnsatt(navIdent))
         dto.right()
@@ -176,7 +179,7 @@ class TilsagnService(
     fun tilAnnullering(
         id: UUID,
         navIdent: NavIdent,
-        request: TilAnnulleringRequest,
+        annullering: TilAnnulleringRequest,
     ): StatusResponse<TilsagnDto> = db.transaction {
         val tilsagn = queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
 
@@ -188,8 +191,8 @@ class TilsagnService(
             id,
             navIdent,
             LocalDateTime.now(),
-            request.aarsaker,
-            request.forklaring,
+            annullering.aarsaker,
+            annullering.forklaring,
         )
 
         val dto = getOrError(tilsagn.id)
@@ -216,27 +219,6 @@ class TilsagnService(
         periode: Periode,
     ): List<ArrangorflateTilsagn> = db.session {
         return queries.tilsagn.getArrangorflateTilsagnTilUtbetaling(gjennomforingId, periode)
-    }
-
-    private fun lagOkonomiId(tilsagn: TilsagnDto): String {
-        return "T-${tilsagn.id}"
-    }
-
-    private suspend fun QueryContext.lagOgSendBestilling(tilsagn: TilsagnDto) {
-        val gjennomforing = requireNotNull(queries.gjennomforing.get(tilsagn.gjennomforing.id)) {
-            "Fant ikke gjennomforing til tilsagn"
-        }
-
-        OkonomiClient.sendBestilling(
-            BestillingDto(
-                okonomiId = lagOkonomiId(tilsagn),
-                periodeStart = tilsagn.periodeStart,
-                periodeSlutt = tilsagn.periodeSlutt,
-                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
-                kostnadSted = tilsagn.kostnadssted,
-                belop = tilsagn.beregning.output.belop,
-            ),
-        )
     }
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
