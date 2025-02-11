@@ -8,7 +8,6 @@
 .idea
 
 .kotlin
-
 # Backend specific mumbojumbo
 *.iml
 *.log
@@ -18,11 +17,10 @@ build
 **/.DS_Store
 **/bin
 
-# Ignore Gradle GUI config
-gradle-app.setting
-
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+# Gradle
 !gradle-wrapper.jar
+.gradletasknamecache
+gradle-app.setting
 
 # npm
 node_modules
@@ -31,11 +29,12 @@ npm-debug.log*
 # Logs and task output from turborepo
 .turbo
 
-# Cache of project
-.gradletasknamecache
-docker-compose.override.yml
-
 # Vite
 # https://github.com/vitejs/vite/issues/13267
 vite.config.*.timestamp-*
 
+# If you need to override docker locally 
+docker-compose.override.yml
+
+# For å unngå genererte test-pdf'er
+*.pdf
