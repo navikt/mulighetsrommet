@@ -4,7 +4,6 @@ enum class Avslutningsstatus {
     AVLYST,
     AVBRUTT,
     AVSLUTTET,
-    UTKAST,
     IKKE_AVSLUTTET,
     ;
 
@@ -14,7 +13,6 @@ enum class Avslutningsstatus {
                 "AVLYST" -> AVLYST
                 "AVBRUTT" -> AVBRUTT
                 "AVSLUTT" -> AVSLUTTET
-                "PLANLAGT" -> UTKAST
                 else -> IKKE_AVSLUTTET
             }
         }

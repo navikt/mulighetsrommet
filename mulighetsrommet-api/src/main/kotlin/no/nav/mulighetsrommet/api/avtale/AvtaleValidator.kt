@@ -247,7 +247,15 @@ class AvtaleValidator(
             gjennomforinger.forEach { gjennomforing ->
                 val arrangorId = gjennomforing.arrangor.id
 
-                if (avtale.arrangor?.underenheter?.contains(arrangorId) != true) {
+                if (avtale.arrangor == null) {
+                    add(
+                        FieldError.of(
+                            "Arrangør kan ikke fjernes fordi en gjennomføring er koblet til avtalen",
+                            AvtaleDbo::arrangor,
+                            AvtaleDbo.Arrangor::hovedenhet,
+                        ),
+                    )
+                } else if (arrangorId !in avtale.arrangor.underenheter) {
                     val arrangor = queries.arrangor.getById(arrangorId)
                     add(
                         FieldError.of(
