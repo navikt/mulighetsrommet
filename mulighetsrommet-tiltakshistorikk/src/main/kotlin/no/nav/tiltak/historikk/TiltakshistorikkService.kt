@@ -3,7 +3,6 @@ package no.nav.tiltak.historikk
 import arrow.core.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.tiltak.historikk.clients.Avtale
@@ -51,9 +50,6 @@ class TiltakshistorikkService(
         identer: List<NorskIdent>,
         maxAgeYears: Int?,
     ): Either<NonEmptySet<TiltakshistorikkMelding>, List<Tiltakshistorikk.ArbeidsgiverAvtale>> {
-        if (NaisEnv.current().isProdGCP()) {
-            return nonEmptySetOf(TiltakshistorikkMelding.HENTER_IKKE_HISTORIKK_FRA_TEAM_TILTAK).left()
-        }
 
         val minAvtaleDato = maxAgeYears?.let { LocalDate.now().minusYears(it.toLong()) } ?: LocalDate.MIN
         return identer
