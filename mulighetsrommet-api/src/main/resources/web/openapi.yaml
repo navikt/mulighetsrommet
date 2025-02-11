@@ -1979,7 +1979,7 @@ paths:
     put:
       tags:
         - Utbetaling
-      operationId: opprettDelutbetaling
+      operationId: upsertDelutbetaling
       requestBody:
         content:
           application/json:

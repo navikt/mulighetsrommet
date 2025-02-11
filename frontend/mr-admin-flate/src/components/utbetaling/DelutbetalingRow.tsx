@@ -15,13 +15,13 @@ import {
 } from "@mr/api-client-v2";
 import { BodyShort, Button, HStack, Table, TextField } from "@navikt/ds-react";
 import { formaterNOK, isValidationError } from "@mr/frontend-common/utils/utils";
-import { useOpprettDelutbetaling } from "@/api/utbetaling/useOpprettDelutbetaling";
 import { useRevalidator } from "react-router";
 import { useState } from "react";
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
 import { AvvistAlert } from "@/pages/gjennomforing/tilsagn/AarsakerAlert";
 import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { DelutbetalingTag } from "./DelutbetalingTag";
+import { useUpsertDelutbetaling } from "@/api/utbetaling/useUpsertDelutbetaling";
 
 interface Props {
   utbetaling: UtbetalingKompakt;
@@ -84,7 +84,7 @@ function EditableRow({
   const [error, setError] = useState<string | undefined>(undefined);
 
   const revalidate = useRevalidator();
-  const opprettMutation = useOpprettDelutbetaling(utbetaling.id);
+  const opprettMutation = useUpsertDelutbetaling(utbetaling.id);
 
   function sendTilGodkjenning() {
     if (error) return;
