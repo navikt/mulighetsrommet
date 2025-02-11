@@ -109,7 +109,7 @@ spec:
               "valueDeserializerType": "STRING"
             },
             {
-              "name": "amt.deltaker-v1",
+              "name": "team-mulighetsrommet.tiltaksokonomi-bestilling-v1",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
               "valueDeserializerType": "STRING"
