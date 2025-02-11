@@ -18,6 +18,7 @@ import {
   Besluttelse,
   TilsagnTilAnnulleringRequest,
   TilsagnAvvisningAarsak,
+  TilsagnTilAnnulleringAarsak,
 } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { EraserIcon, PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
@@ -25,12 +26,12 @@ import { ActionMenu, Alert, BodyShort, Box, Button, Heading, HStack } from "@nav
 import { useRef, useState } from "react";
 import { Link, useLoaderData, useNavigate } from "react-router";
 import { AvvistAlert, TilAnnulleringAlert } from "../AarsakerAlert";
-import { TilAnnulleringModal } from "../TilAnnulleringModal";
 import { TilsagnTag } from "../TilsagnTag";
 import { TilsagnDetaljerForhandsgodkjent } from "./TilsagnDetaljerForhandsgodkjent";
 import { tilsagnDetaljerLoader } from "./tilsagnDetaljerLoader";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
+import { tilsagnAarsakTilTekst } from "@/utils/Utils";
 
 export function TilsagnDetaljer() {
   const { gjennomforing, tilsagn, ansatt, historikk } =
@@ -170,7 +171,7 @@ export function TilsagnDetaljer() {
             <AvvistAlert
               header="Tilsagnet ble returnert"
               tidspunkt={tilsagn.status.endretTidspunkt}
-              aarsaker={tilsagn.status.aarsaker}
+              aarsaker={tilsagn.status.aarsaker.map((aarsak) => tilsagnAarsakTilTekst(aarsak))}
               forklaring={tilsagn.status.forklaring}
               navIdent={tilsagn.status.returnertAv}
               navn={tilsagn.status.returnertAvNavn}
@@ -243,10 +244,23 @@ export function TilsagnDetaljer() {
                   </HStack>
                 )}
               </HStack>
-              <TilAnnulleringModal
+              <AarsakerOgForklaringModal<TilsagnTilAnnulleringAarsak>
+                aarsaker={[
+                  {
+                    value: TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
+                    label: "Feilregistrering",
+                  },
+                  {
+                    value: TilsagnTilAnnulleringAarsak.GJENNOMFORING_AVBRYTES,
+                    label: "Gjennomføring skal avbrytes",
+                  },
+                  { value: TilsagnTilAnnulleringAarsak.FEIL_ANNET, label: "Annet" },
+                ]}
+                header="Annuller tilsagn med forklaring"
+                buttonLabel="Send til godkjenning"
                 open={tilAnnulleringModalOpen}
                 onClose={() => setTilAnnulleringModalOpen(false)}
-                onConfirm={(validatedData) => tilAnnullering(validatedData)}
+                onConfirm={({ aarsaker, forklaring }) => tilAnnullering({ aarsaker, forklaring })}
               />
               <AarsakerOgForklaringModal<TilsagnAvvisningAarsak>
                 aarsaker={[
@@ -257,7 +271,7 @@ export function TilsagnDetaljer() {
                   { value: TilsagnAvvisningAarsak.FEIL_KOSTNADSSTED, label: "Feil kostnadssted" },
                   { value: TilsagnAvvisningAarsak.FEIL_PERIODE, label: "Feil periode" },
                   { value: TilsagnAvvisningAarsak.FEIL_BELOP, label: "Feil beløp" },
-                  { value: TilsagnAvvisningAarsak.FEIL_ANNET, label: "FEIL_ANNET" },
+                  { value: TilsagnAvvisningAarsak.FEIL_ANNET, label: "Annet" },
                 ]}
                 header="Send i retur med forklaring"
                 buttonLabel="Send i retur"
