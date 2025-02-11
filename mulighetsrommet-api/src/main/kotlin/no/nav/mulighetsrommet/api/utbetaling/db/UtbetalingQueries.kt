@@ -9,10 +9,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAft
 import no.nav.mulighetsrommet.database.createEnumArray
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.withTransaction
-import no.nav.mulighetsrommet.model.Kid
-import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*
@@ -332,6 +329,7 @@ class UtbetalingQueries(private val session: Session) {
                 start = localDate("periode_start"),
                 slutt = localDate("periode_slutt"),
             ),
+            godkjentAvArrangorTidspunkt = localDateTimeOrNull("godkjent_av_arrangor_tidspunkt"),
         )
     }
 }

@@ -67,7 +67,7 @@ data class MulighetsrommetTestDomain(
             deltakere.forEach { queries.deltaker.upsert(it) }
             tilsagn.forEach { queries.tilsagn.upsert(it) }
             utbetalinger.forEach { queries.utbetaling.upsert(it) }
-            queries.delutbetaling.opprettDelutbetalinger(delutbetalinger)
+            delutbetalinger.forEach { queries.delutbetaling.upsert(it) }
         }
 
         additionalSetup?.invoke(context)

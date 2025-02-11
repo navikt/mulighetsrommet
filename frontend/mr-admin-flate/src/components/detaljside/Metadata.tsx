@@ -4,11 +4,12 @@ import classNames from "classnames";
 export interface MetadataProps {
   header: string | ReactNode;
   verdi: string | number | undefined | null | ReactNode;
+  horizontal?: boolean;
 }
 
-export function Metadata({ header, verdi }: MetadataProps) {
+export function Metadata({ header, verdi, horizontal = false }: MetadataProps) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className={`flex ${horizontal ? "flex-row" : "flex-col"} gap-2`}>
       <dt className="font-bold">{header}</dt>
       <dd className="mr-6 whitespace-pre-line">{verdi ?? "-"}</dd>
     </div>

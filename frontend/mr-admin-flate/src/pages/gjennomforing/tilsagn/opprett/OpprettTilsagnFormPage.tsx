@@ -5,10 +5,10 @@ import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
-import { TiltakDetaljerForTilsagn } from "@/components/tilsagn/TiltakDetaljerForTilsagn";
 import { opprettTilsagnLoader } from "@/pages/gjennomforing/tilsagn/opprett/opprettTilsagnLoader";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
+import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 
 export function OpprettTilsagnFormPage() {
   const { avtale, gjennomforing, defaults, godkjenteTilsagn } =
@@ -40,7 +40,7 @@ export function OpprettTilsagnFormPage() {
       <ContentBox>
         <VStack gap={"8"}>
           <WhitePaddedBox>
-            <TiltakDetaljerForTilsagn gjennomforing={gjennomforing} />
+            <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
             <TilsagnFormContainer
               avtale={avtale}
               gjennomforing={gjennomforing}

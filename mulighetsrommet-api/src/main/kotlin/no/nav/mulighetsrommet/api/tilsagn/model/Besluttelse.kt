@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class TilsagnBesluttelseStatus {
+enum class Besluttelse {
     GODKJENT,
     AVVIST,
 }
