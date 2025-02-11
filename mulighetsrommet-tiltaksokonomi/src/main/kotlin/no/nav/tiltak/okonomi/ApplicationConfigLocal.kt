@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import org.intellij.lang.annotations.Language
 
-private val clientEngine = createMockEngine {
+val mockClientEngine = createMockEngine {
     get("https://data.brreg.no/enhetsregisteret/api/enheter/\\d+".toRegex()) {
         @Language("json")
         val brregResponse = """
@@ -41,7 +41,7 @@ private val clientEngine = createMockEngine {
 
 val ApplicationConfigLocal = AppConfig(
     server = ServerConfig(port = 8074),
-    httpClientEngine = clientEngine,
+    httpClientEngine = mockClientEngine,
     database = DatabaseConfig(
         jdbcUrl = "jdbc:postgresql://localhost:5442/mr-tiltaksokonomi?user=valp&password=valp",
         maximumPoolSize = 10,
