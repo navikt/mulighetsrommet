@@ -24,9 +24,10 @@ dependencies {
     implementation(projects.common.tokenProvider)
     testImplementation(testFixtures(projects.common.database))
     implementation(projects.common.ktor)
-    testImplementation(testFixtures(projects.common.ktor))
+    implementation(testFixtures(projects.common.ktor))
     implementation(projects.common.ktorClients)
     implementation(projects.common.metrics)
+    implementation(projects.common.tiltaksokonomiClient)
 
     // Cache
     implementation(libs.caffeine)
@@ -41,7 +42,7 @@ dependencies {
     implementation(libs.bundles.logging)
 
     // Ktor
-    testImplementation(libs.ktor.client.mock)
+    implementation(libs.ktor.client.mock)
     testImplementation(libs.ktor.client.contentNegotiation)
     implementation(libs.ktor.client.resources)
     implementation(libs.ktor.serialization.json)

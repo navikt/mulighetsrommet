@@ -1,21 +1,25 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
+import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import io.mockk.mockk
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
-import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -27,8 +31,15 @@ class UtbetalingServiceTest : FunSpec({
         database.truncateAll()
     }
 
+    fun createUtbetalingService(
+        okonomi: OkonomiBestillingService = mockk(relaxed = true),
+    ) = UtbetalingService(
+        db = database.db,
+        okonomi = okonomi,
+    )
+
     context("generering av utbetaling for AFT") {
-        val service = UtbetalingService(db = database.db)
+        val service = createUtbetalingService()
 
         val organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer
 
@@ -289,7 +300,7 @@ class UtbetalingServiceTest : FunSpec({
     }
 
     context("rekalkulering av utbetaling for AFT") {
-        val service = UtbetalingService(db = database.db)
+        val service = createUtbetalingService()
 
         test("oppdaterer beregnet utbetaling når deltakelser endres") {
             val domain = MulighetsrommetTestDomain(
@@ -389,7 +400,50 @@ class UtbetalingServiceTest : FunSpec({
     }
 
     context("når utbetaling blir behandlet") {
-        test("skal ikke kunne opprette delutbetaling hvis utbetalingsperiode og tilsagnsperiode ikke overlapper") {
+        test("skal ikke kunne opprette del utbetaling hvis den er godkjent") {
+            val tilsagn = TilsagnFixtures.Tilsagn1.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                bestillingsnummer = "2024/1",
+            )
+
+            val utbetaling = UtbetalingFixtures.utbetaling1.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+            )
+
+            val domain = MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(tilsagn),
+                utbetalinger = listOf(utbetaling),
+            ).initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            val opprettRequest = DelutbetalingRequest(tilsagnId = tilsagn.id, belop = 100)
+            service.upsertDelutbetaling(
+                utbetalingId = utbetaling.id,
+                request = opprettRequest,
+                opprettetAv = domain.ansatte[0].navIdent,
+            )
+            service.besluttDelutbetaling(
+                utbetalingId = utbetaling.id,
+                request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(
+                    tilsagnId = tilsagn.id,
+                ),
+                navIdent = domain.ansatte[1].navIdent,
+            )
+
+            service.upsertDelutbetaling(
+                utbetalingId = utbetaling.id,
+                request = opprettRequest,
+                opprettetAv = domain.ansatte[0].navIdent,
+            ).shouldBeLeft().shouldContainExactly(
+                listOf(FieldError("/", "Utbetaling allerede behandlet")),
+            )
+        }
+
+        test("skal ikke kunne behandle utbetaling hvis utbetalingsperiode og tilsagnsperiode ikke overlapper") {
             val tilsagn = TilsagnFixtures.Tilsagn1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
             )
@@ -406,14 +460,13 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling),
             ).initialize(database.db)
 
-            val service = UtbetalingService(db = database.db)
+            val service = createUtbetalingService()
 
             val request = DelutbetalingRequest(tilsagnId = tilsagn.id, belop = 100)
 
-            val exception = assertThrows<IllegalArgumentException> {
-                service.upsertDelutbetaling(utbetaling.id, request, domain.ansatte[0].navIdent)
-            }
-            exception.message shouldBe "Utbetalingsperiode og tilsagnsperiode må overlappe"
+            service.upsertDelutbetaling(utbetaling.id, request, domain.ansatte[0].navIdent).shouldBeLeft().shouldContainExactly(
+                listOf(FieldError("/", "Utbetalingsperiode og tilsagnsperiode overlapper ikke")),
+            )
         }
 
         test("løpenummer, fakturanummer og periode blir utledet fra tilsagnet og utbetalingen") {
@@ -443,7 +496,7 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1, utbetaling2),
             ).initialize(database.db)
 
-            val service = UtbetalingService(db = database.db)
+            val service = createUtbetalingService()
 
             service.upsertDelutbetaling(
                 utbetaling1.id,
@@ -467,19 +520,19 @@ class UtbetalingServiceTest : FunSpec({
                     first.belop shouldBe 50
                     first.periode shouldBe Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 15))
                     first.lopenummer shouldBe 1
-                    first.fakturanummer shouldBe "2024/1/1"
+                    first.fakturanummer shouldBe "2024/2/1"
 
                     second.belop shouldBe 50
                     second.periode shouldBe Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 15))
                     second.lopenummer shouldBe 1
-                    second.fakturanummer shouldBe "2024/2/1"
+                    second.fakturanummer shouldBe "2024/1/1"
                 }
 
                 queries.delutbetaling.getByUtbetalingId(utbetaling2.id).should { (first) ->
                     first.belop shouldBe 100
-                    first.periode shouldBe Periode(LocalDate.of(2024, 1, 15), LocalDate.of(2024, 2, 1))
                     first.lopenummer shouldBe 2
                     first.fakturanummer shouldBe "2024/1/2"
+                    first.periode shouldBe Periode(LocalDate.of(2024, 1, 15), LocalDate.of(2024, 2, 1))
                 }
             }
         }

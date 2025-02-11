@@ -5,14 +5,16 @@
         </encoder>
     </appender>
 
-    <root level="DEBUG">
-         <appender-ref ref="STDOUT"/>
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
     </root>
 
     <logger name="secureLogger" level="INFO" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
-    <logger name="org.apache.kafka" level="INFO"/>
-    <logger name="io.netty" level="INFO"/>
+    <logger name="io.netty" level="WARN"/>
+    <logger name="org.apache.kafka" level="WARN"/>
+    <logger name="com.github.kagkarlsson.scheduler" level="WARN"/>
+    <logger name="no.nav.common.kafka" level="WARN"/>
     <logger name="no.nav.mulighetsrommet" level="DEBUG"/>
 </included>

@@ -90,6 +90,7 @@ class DelutbetalingQueries(private val session: Session) {
                 forklaring
             from delutbetaling
             where utbetaling_id = ?
+            order by created_at desc
         """.trimIndent()
 
         return list(queryOf(query, id)) { it.toDelutbetalingDto() }

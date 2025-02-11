@@ -7,6 +7,7 @@ import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
+import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
@@ -22,6 +23,7 @@ import java.util.*
 
 class UtbetalingService(
     private val db: ApiDatabase,
+    private val okonomi: OkonomiBestillingService,
 ) {
     fun genererUtbetalingForMonth(date: LocalDate): List<UtbetalingDto> = db.transaction {
         val periode = Periode.forMonthOf(date)
@@ -122,7 +124,7 @@ class UtbetalingService(
 
         UtbetalingValidator.validate(request.belop, tilsagn).bind()
 
-        val periode = utbetaling.periode.intersect(Periode(tilsagn.periodeStart, tilsagn.periodeSlutt))
+        val periode = utbetaling.periode.intersect(Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt))
             ?: return listOf(FieldError.root("Utbetalingsperiode og tilsagnsperiode overlapper ikke")).left()
 
         val lopenummer = db.session { queries.delutbetaling.getNextLopenummerByTilsagn(tilsagn.id) }
@@ -170,7 +172,8 @@ class UtbetalingService(
                         navIdent = navIdent,
                     )
                 }
-                // TODO: Send til økonomi
+                // TODO: Gjør per del og ikke hele utbetalingen
+                // okonomi.scheduleBehandleGodkjentUtbetaling(utbetalingId, session)
             }
         }
 

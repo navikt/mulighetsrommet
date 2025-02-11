@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.datavarehus.kafka
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
