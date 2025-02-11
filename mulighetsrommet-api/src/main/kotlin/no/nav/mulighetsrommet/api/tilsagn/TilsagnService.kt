@@ -97,8 +97,8 @@ class TilsagnService(
 
             is TilsagnDto.TilsagnStatus.TilAnnullering -> {
                 when (besluttelse.besluttelse) {
-                    TilsagnBesluttelseStatus.GODKJENT -> annullerTilsagn(tilsagn, navIdent)
-                    TilsagnBesluttelseStatus.AVVIST -> avvisAnnullering(tilsagn, navIdent)
+                    Besluttelse.GODKJENT -> annullerTilsagn(tilsagn, navIdent)
+                    Besluttelse.AVVIST -> avvisAnnullering(tilsagn, navIdent)
                 }
             }
         }

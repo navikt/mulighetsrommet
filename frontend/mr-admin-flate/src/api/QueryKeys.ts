@@ -46,6 +46,7 @@ export const QueryKeys = {
   getTilsagnForGjennomforing: (gjennomforingId: string) => ["tilsagn", gjennomforingId],
   getTilsagn: (id?: string) => ["tilsagn", id],
   besluttTilsagn: () => ["beslutt-tilsagn"],
+  besluttTilsagnUtbetaling: () => ["beslutt-tilsagn-utbetaling"],
   annullerTilsagn: () => ["annuller-tilsagn"],
   slettTilsagn: () => ["slett-tilsagn"],
   avtalteSatser: (avtaleId: string) => ["satser", avtaleId],

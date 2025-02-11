@@ -16,8 +16,9 @@ import {
 import {
   BesluttTilsagnRequest,
   NavAnsattRolle,
-  TilsagnStatusBesluttelse,
+  Besluttelse,
   TilsagnTilAnnulleringRequest,
+  TilsagnAvvisningAarsak,
 } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { EraserIcon, PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
@@ -25,11 +26,11 @@ import { ActionMenu, Alert, BodyShort, Box, Button, Heading, HStack } from "@nav
 import { useRef, useState } from "react";
 import { Link, useLoaderData, useNavigate } from "react-router";
 import { AvvistAlert, TilAnnulleringAlert } from "../AarsakerAlert";
-import { AvvisTilsagnModal } from "../AvvisTilsagnModal";
 import { TilAnnulleringModal } from "../TilAnnulleringModal";
 import { TilsagnTag } from "../TilsagnTag";
 import { TilsagnDetaljerForhandsgodkjent } from "./TilsagnDetaljerForhandsgodkjent";
 import { tilsagnDetaljerLoader } from "./tilsagnDetaljerLoader";
+import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 
 export function TilsagnDetaljer() {
   const { gjennomforing, tilsagn, ansatt, historikk } =
@@ -165,7 +166,16 @@ export function TilsagnDetaljer() {
             ) : null}
           </HStack>
           <TiltakDetaljerForTilsagn gjennomforing={gjennomforing} />
-          {tilsagn.status.type === "RETURNERT" && <AvvistAlert status={tilsagn.status} />}
+          {tilsagn.status.type === "RETURNERT" && (
+            <AvvistAlert
+              header="Tilsagnet ble returnert"
+              tidspunkt={tilsagn.status.endretTidspunkt}
+              aarsaker={tilsagn.status.aarsaker}
+              forklaring={tilsagn.status.forklaring}
+              navIdent={tilsagn.status.returnertAv}
+              navn={tilsagn.status.returnertAvNavn}
+            />
+          )}
           {tilsagn.status.type === "TIL_ANNULLERING" && (
             <TilAnnulleringAlert status={tilsagn.status} />
           )}
@@ -200,9 +210,7 @@ export function TilsagnDetaljer() {
                     <Button
                       size="small"
                       type="button"
-                      onClick={() =>
-                        besluttTilsagn({ besluttelse: TilsagnStatusBesluttelse.GODKJENT })
-                      }
+                      onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
                     >
                       Godkjenn tilsagn
                     </Button>
@@ -216,7 +224,7 @@ export function TilsagnDetaljer() {
                       type="button"
                       onClick={() =>
                         besluttTilsagn({
-                          besluttelse: TilsagnStatusBesluttelse.AVVIST,
+                          besluttelse: Besluttelse.AVVIST,
                           aarsaker: [],
                           forklaring: null,
                         })
@@ -228,9 +236,7 @@ export function TilsagnDetaljer() {
                       size="small"
                       variant="danger"
                       type="button"
-                      onClick={() =>
-                        besluttTilsagn({ besluttelse: TilsagnStatusBesluttelse.GODKJENT })
-                      }
+                      onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
                     >
                       Bekreft annullering
                     </Button>
@@ -242,10 +248,28 @@ export function TilsagnDetaljer() {
                 onClose={() => setTilAnnulleringModalOpen(false)}
                 onConfirm={(validatedData) => tilAnnullering(validatedData)}
               />
-              <AvvisTilsagnModal
+              <AarsakerOgForklaringModal<TilsagnAvvisningAarsak>
+                aarsaker={[
+                  {
+                    value: TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER,
+                    label: "Feil i antall plasser",
+                  },
+                  { value: TilsagnAvvisningAarsak.FEIL_KOSTNADSSTED, label: "Feil kostnadssted" },
+                  { value: TilsagnAvvisningAarsak.FEIL_PERIODE, label: "Feil periode" },
+                  { value: TilsagnAvvisningAarsak.FEIL_BELOP, label: "Feil beløp" },
+                  { value: TilsagnAvvisningAarsak.FEIL_ANNET, label: "FEIL_ANNET" },
+                ]}
+                header="Send i retur med forklaring"
+                buttonLabel="Send i retur"
                 open={avvisModalOpen}
                 onClose={() => setAvvisModalOpen(false)}
-                onConfirm={(validatedData) => besluttTilsagn(validatedData)}
+                onConfirm={({ aarsaker, forklaring }) =>
+                  besluttTilsagn({
+                    besluttelse: Besluttelse.AVVIST,
+                    aarsaker,
+                    forklaring,
+                  })
+                }
               />
               <VarselModal
                 headingIconType="warning"

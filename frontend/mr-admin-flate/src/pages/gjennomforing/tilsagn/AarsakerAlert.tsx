@@ -1,31 +1,6 @@
-import { TilsagnStatusReturnert, TilsagnStatusTilAnnullering } from "@mr/api-client-v2";
+import { TilsagnStatusTilAnnullering } from "@mr/api-client-v2";
 import { Alert, Heading } from "@navikt/ds-react";
 import { formaterDato, tilsagnAarsakTilTekst } from "../../../utils/Utils";
-
-export function AvvistAlert({ status }: { status: TilsagnStatusReturnert }) {
-  const aarsaker = status?.aarsaker?.map((aarsak) => tilsagnAarsakTilTekst(aarsak)) || [];
-
-  return (
-    <Alert variant="warning" size="small" style={{ marginTop: "1rem" }}>
-      <Heading size="xsmall" level="3">
-        Tilsagnet ble returnert
-      </Heading>
-      <p>
-        {status.returnertAvNavn} {status.returnertAv} returnerte tilsagnet den{" "}
-        {formaterDato(status.endretTidspunkt)} med følgende{" "}
-        {aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
-        <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker))}</b>
-        {status?.forklaring ? (
-          <>
-            {" "}
-            med forklaringen: <b>"{status?.forklaring}"</b>
-          </>
-        ) : null}
-        .
-      </p>
-    </Alert>
-  );
-}
 
 export function TilAnnulleringAlert({ status }: { status: TilsagnStatusTilAnnullering }) {
   const aarsaker = status?.aarsaker?.map((aarsak) => tilsagnAarsakTilTekst(aarsak)) || [];
@@ -44,6 +19,37 @@ export function TilAnnulleringAlert({ status }: { status: TilsagnStatusTilAnnull
           <>
             {" "}
             med forklaringen: <b>"{status?.forklaring}"</b>
+          </>
+        ) : null}
+        .
+      </p>
+    </Alert>
+  );
+}
+
+interface Props {
+  header: string;
+  aarsaker: string[];
+  tidspunkt: string;
+  forklaring?: string;
+  navIdent: string;
+  navn: string;
+}
+
+export function AvvistAlert({ aarsaker, forklaring, navn, navIdent, tidspunkt, header }: Props) {
+  return (
+    <Alert variant="warning" size="small" style={{ marginTop: "1rem" }}>
+      <Heading size="xsmall" level="3">
+        {header}
+      </Heading>
+      <p>
+        {navn} {navIdent} avviste den {formaterDato(tidspunkt)} med følgende{" "}
+        {aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
+        <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker))}</b>
+        {forklaring ? (
+          <>
+            {" "}
+            med forklaringen: <b>"{forklaring}"</b>
           </>
         ) : null}
         .

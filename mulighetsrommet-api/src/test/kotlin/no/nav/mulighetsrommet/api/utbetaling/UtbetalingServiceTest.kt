@@ -389,39 +389,7 @@ class UtbetalingServiceTest : FunSpec({
     }
 
     context("når utbetaling blir behandlet") {
-        test("skal ikke kunne behandle utbetaling hvis den allerede er behandlet") {
-            val tilsagn = TilsagnFixtures.Tilsagn1.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
-                bestillingsnummer = "2024/1",
-            )
-
-            val utbetaling = UtbetalingFixtures.utbetaling1.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
-            )
-
-            val domain = MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.ansatt1),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(tilsagn),
-                utbetalinger = listOf(utbetaling),
-            ).initialize(database.db)
-
-            val service = UtbetalingService(db = database.db)
-
-            val behandleUtbetaling = BehandleUtbetaling(
-                utbetaling.id,
-                listOf(BehandleUtbetaling.Kostnad(tilsagnId = tilsagn.id, belop = 100)),
-            )
-            service.behandleUtbetaling(behandleUtbetaling, domain.ansatte[0].navIdent)
-
-            val exception = assertThrows<IllegalArgumentException> {
-                service.behandleUtbetaling(behandleUtbetaling, domain.ansatte[0].navIdent)
-            }
-            exception.message shouldBe "Utbetaling er allerede bekreftet"
-        }
-
-        test("skal ikke kunne behandle utbetaling hvis utbetalingsperiode og tilsagnsperiode ikke overlapper") {
+        test("skal ikke kunne opprette delutbetaling hvis utbetalingsperiode og tilsagnsperiode ikke overlapper") {
             val tilsagn = TilsagnFixtures.Tilsagn1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
             )
@@ -440,13 +408,10 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = UtbetalingService(db = database.db)
 
-            val behandleUtbetaling = BehandleUtbetaling(
-                utbetaling.id,
-                listOf(BehandleUtbetaling.Kostnad(tilsagnId = tilsagn.id, belop = 100)),
-            )
+            val request = DelutbetalingRequest(tilsagnId = tilsagn.id, belop = 100)
 
             val exception = assertThrows<IllegalArgumentException> {
-                service.behandleUtbetaling(behandleUtbetaling, domain.ansatte[0].navIdent)
+                service.upsertDelutbetaling(utbetaling.id, request, domain.ansatte[0].navIdent)
             }
             exception.message shouldBe "Utbetalingsperiode og tilsagnsperiode må overlappe"
         }
@@ -480,20 +445,22 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = UtbetalingService(db = database.db)
 
-            val behandleUtbetaling1 = BehandleUtbetaling(
+            service.upsertDelutbetaling(
                 utbetaling1.id,
-                listOf(
-                    BehandleUtbetaling.Kostnad(tilsagnId = tilsagn1.id, belop = 50),
-                    BehandleUtbetaling.Kostnad(tilsagnId = tilsagn2.id, belop = 50),
-                ),
+                DelutbetalingRequest(tilsagnId = tilsagn1.id, belop = 50),
+                domain.ansatte[0].navIdent,
             )
-            service.behandleUtbetaling(behandleUtbetaling1, domain.ansatte[0].navIdent)
+            service.upsertDelutbetaling(
+                utbetaling1.id,
+                DelutbetalingRequest(tilsagnId = tilsagn2.id, belop = 50),
+                domain.ansatte[0].navIdent,
+            )
 
-            val behandleUtbetaling2 = BehandleUtbetaling(
+            service.upsertDelutbetaling(
                 utbetaling2.id,
-                listOf(BehandleUtbetaling.Kostnad(tilsagnId = tilsagn1.id, belop = 100)),
+                DelutbetalingRequest(tilsagnId = tilsagn1.id, belop = 100),
+                domain.ansatte[0].navIdent,
             )
-            service.behandleUtbetaling(behandleUtbetaling2, domain.ansatte[0].navIdent)
 
             database.run {
                 queries.delutbetaling.getByUtbetalingId(utbetaling1.id).should { (first, second) ->
