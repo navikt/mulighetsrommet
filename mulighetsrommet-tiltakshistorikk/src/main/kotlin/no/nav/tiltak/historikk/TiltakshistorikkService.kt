@@ -50,7 +50,6 @@ class TiltakshistorikkService(
         identer: List<NorskIdent>,
         maxAgeYears: Int?,
     ): Either<NonEmptySet<TiltakshistorikkMelding>, List<Tiltakshistorikk.ArbeidsgiverAvtale>> {
-
         val minAvtaleDato = maxAgeYears?.let { LocalDate.now().minusYears(it.toLong()) } ?: LocalDate.MIN
         return identer
             .mapOrAccumulate {
