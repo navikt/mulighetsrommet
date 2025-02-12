@@ -323,6 +323,55 @@ class AvtaleQueriesTest : FunSpec({
             }
         }
 
+        test("Underenheter and kontaktpersoner are deleted when arrangor is removed from avtale") {
+            database.runAndRollback { session ->
+                // Set up initial state
+                val p1 = ArrangorKontaktperson(
+                    id = UUID.randomUUID(),
+                    arrangorId = ArrangorFixtures.hovedenhet.id,
+                    navn = "Navn Navnesen",
+                    telefon = "22232322",
+                    epost = "navn@gmail.com",
+                    beskrivelse = "beskrivelse",
+                )
+                val p2 = p1.copy(
+                    id = UUID.randomUUID(),
+                    navn = "Fredrik Navnesen",
+                    telefon = "32322",
+                )
+                val underenhet1 = ArrangorFixtures.underenhet1
+                val underenhet2 = ArrangorFixtures.underenhet2
+
+                val avtale = AvtaleFixtures.oppfolging.copy(
+                    arrangor = AvtaleDbo.Arrangor(
+                        hovedenhet = ArrangorFixtures.hovedenhet.id,
+                        underenheter = listOf(underenhet1.id, underenhet2.id),
+                        kontaktpersoner = listOf(p1.id, p2.id),
+                    ),
+                )
+
+                MulighetsrommetTestDomain(
+                    arrangorKontaktpersoner = listOf(p1, p2),
+                    avtaler = listOf(avtale),
+                ).setup(session)
+
+                val queries = AvtaleQueries(session)
+
+                queries.get(avtale.id).shouldNotBeNull().should {
+                    it.arrangor?.underenheter.shouldNotBeNull()
+                    it.arrangor?.kontaktpersoner.shouldNotBeNull()
+                }
+                // Remove arrangor from avtale
+                queries.upsert(avtale.copy(arrangor = null))
+
+                // Verify that underenheter and kontaktpersoner are deleted
+                queries.get(avtale.id).shouldNotBeNull().should {
+                    it.arrangor?.underenheter.shouldBeNull()
+                    it.arrangor?.kontaktpersoner.shouldBeNull()
+                }
+            }
+        }
+
         test("gruppe amo kategorier") {
             database.runAndRollback { session ->
                 domain.setup(session)

@@ -460,7 +460,6 @@ class AvtaleQueries(private val session: Session) {
             Avslutningsstatus.AVLYST -> startDato.atStartOfDay().minusDays(1)
             Avslutningsstatus.AVBRUTT -> startDato.atStartOfDay()
             // @todo: What should utkast be?
-            Avslutningsstatus.UTKAST -> startDato.atStartOfDay().minusDays(1)
             Avslutningsstatus.AVSLUTTET -> null
             Avslutningsstatus.IKKE_AVSLUTTET -> null
         }
