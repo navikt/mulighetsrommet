@@ -28,3 +28,8 @@ app:
     tiltakDatadeling:
       url: http://tiltak-datadeling.team-tiltak
       scope: api://dev-gcp.team-tiltak.tiltak-datadeling/.default
+
+  arbeidsgiverTiltakCutOffDatoMapping:
+    MIDLERTIDIG_LONNSTILSKUDD: 2023-2-1
+    VARIG_LONNSTILSKUDD: 2023-2-1
+    ARBEIDSTRENING: 2025-1-24

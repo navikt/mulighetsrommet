@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.securelog.SecureLog
 import org.slf4j.MDC
 
 fun Application.configureStatusPages() {
-
     fun logException(statusCode: HttpStatusCode, cause: Throwable, call: ApplicationCall) {
         val message = "${statusCode.description} (${statusCode.value}) on method: ${call.request.httpMethod.value} ${call.request.path()}: ${cause.message}"
         SecureLog.logger.error(message, cause)

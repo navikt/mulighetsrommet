@@ -6,6 +6,8 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
+import no.nav.tiltak.historikk.clients.Avtale
+import java.time.LocalDate
 
 data class Config(
     val server: ServerConfig,
@@ -19,6 +21,7 @@ data class AppConfig(
     val auth: AuthConfig,
     val kafka: KafkaConfig,
     val clients: ClientConfig,
+    val arbeidsgiverTiltakCutOffDatoMapping: Map<Avtale.Tiltakstype, LocalDate> = emptyMap(),
 )
 
 data class ClientConfig(
