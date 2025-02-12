@@ -3,10 +3,7 @@ package no.nav.mulighetsrommet.api.avtale.db
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
-import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.*
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.nulls.shouldBeNull
@@ -358,8 +355,8 @@ class AvtaleQueriesTest : FunSpec({
                 val queries = AvtaleQueries(session)
 
                 queries.get(avtale.id).shouldNotBeNull().should {
-                    it.arrangor?.underenheter.shouldNotBeNull()
-                    it.arrangor?.kontaktpersoner.shouldNotBeNull()
+                    it.arrangor?.underenheter.shouldNotBeEmpty()
+                    it.arrangor?.kontaktpersoner.shouldNotBeEmpty()
                 }
                 // Remove arrangor from avtale
                 queries.upsert(avtale.copy(arrangor = null))
