@@ -5684,7 +5684,6 @@ components:
     UtbetalingStatus:
       type: string
       enum:
-        - NARMER_SEG_FRIST
         - KLAR_FOR_GODKJENNING
         - GODKJENT_AV_ARRANGOR
 
@@ -5705,9 +5704,12 @@ components:
         godkjentAvArrangorTidspunkt:
           type: string
           format: date-time
+        createdAt:
+          type: string
+          format: date-time
         betalingsinformasjon:
           $ref: "#/components/schemas/Betalingsinformasjon"
-      required: [id, status, beregning, delutbetalinger]
+      required: [id, status, beregning, delutbetalinger, createdAt]
 
     ArrFlateUtbetalingKompakt:
       type: object

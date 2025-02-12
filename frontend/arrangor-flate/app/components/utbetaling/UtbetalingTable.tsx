@@ -51,7 +51,7 @@ export function UtbetalingTable({ utbetalinger }: Props) {
           }) => {
             return (
               <React.Fragment key={id}>
-                <Table.Row className={getRowStyle(status)}>
+                <Table.Row>
                   <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
                   <Table.DataCell>{gjennomforing.navn}</Table.DataCell>
                   <Table.DataCell colSpan={3} className="w-80">
@@ -82,17 +82,11 @@ export function UtbetalingTable({ utbetalinger }: Props) {
   );
 }
 
-function getRowStyle(status: UtbetalingStatus) {
-  return status === UtbetalingStatus.NARMER_SEG_FRIST ? "bg-surface-warning-moderate" : "";
-}
-
 function statusTilTag(status: UtbetalingStatus): ReactNode {
   switch (status) {
     case UtbetalingStatus.GODKJENT_AV_ARRANGOR:
       return <Tag variant="neutral">Godkjent</Tag>;
     case UtbetalingStatus.KLAR_FOR_GODKJENNING:
       return <Tag variant="alt1">Klar for innsending</Tag>;
-    case UtbetalingStatus.NARMER_SEG_FRIST:
-      return <Tag variant="warning">Nærmer seg frist</Tag>;
   }
 }

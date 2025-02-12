@@ -31,6 +31,8 @@ data class UtbetalingDto(
     val periode: Periode,
     @Serializable(with = LocalDateTimeSerializer::class)
     val godkjentAvArrangorTidspunkt: LocalDateTime?,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val createdAt: LocalDateTime,
 ) {
     @Serializable
     data class Gjennomforing(

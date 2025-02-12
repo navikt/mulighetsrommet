@@ -200,6 +200,8 @@ data class UtbetalingKompakt(
     val delutbetalinger: List<DelutbetalingDto>,
     @Serializable(with = LocalDateTimeSerializer::class)
     val godkjentAvArrangorTidspunkt: LocalDateTime?,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val createdAt: LocalDateTime,
     val betalingsinformasjon: UtbetalingDto.Betalingsinformasjon,
 ) {
     @Serializable
@@ -223,6 +225,7 @@ data class UtbetalingKompakt(
             godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
             delutbetalinger = delutbetalinger,
             betalingsinformasjon = utbetaling.betalingsinformasjon,
+            createdAt = utbetaling.createdAt,
         )
     }
 }

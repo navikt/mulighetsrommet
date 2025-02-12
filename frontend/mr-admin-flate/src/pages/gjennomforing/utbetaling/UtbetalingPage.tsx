@@ -4,7 +4,7 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { TilsagnDto, TilsagnDefaultsRequest, TilsagnType, Prismodell } from "@mr/api-client-v2";
-import { Alert, Box, Heading, HStack, Table, VStack } from "@navikt/ds-react";
+import { Alert, Box, CopyButton, Heading, HStack, Table, VStack } from "@navikt/ds-react";
 import { useLoaderData } from "react-router";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { formaterDato } from "@/utils/Utils";
@@ -44,15 +44,23 @@ export function UtbetalingPage() {
     return [...belopPerTilsagn.values()].reduce((acc, val) => acc + val, 0);
   }
 
+  function differanse(): number {
+    return utbetaling.beregning.belop - utbetalesTotal();
+  }
+
   function ekstraTilsagnDefaults(): TilsagnDefaultsRequest {
     const defaultTilsagn = tilsagn.length === 1 ? tilsagn[0] : undefined;
+    const defaultBelop =
+      tilsagn.length === 0
+        ? utbetaling.beregning.belop
+        : defaultTilsagn
+          ? utbetaling.beregning.belop - (belopPerTilsagn.get(defaultTilsagn.id) ?? 0)
+          : 0;
     return {
       gjennomforingId: gjennomforing.id,
       type: TilsagnType.EKSTRATILSAGN,
       prismodell: Prismodell.FRI,
-      belop: defaultTilsagn
-        ? utbetaling.beregning.belop - defaultTilsagn.beregning.output.belop
-        : null,
+      belop: defaultBelop,
       periodeStart: utbetaling.beregning.periodeStart,
       periodeSlutt: utbetaling.beregning.periodeSlutt,
       kostnadssted: defaultTilsagn?.kostnadssted.enhetsnummer,
@@ -86,7 +94,9 @@ export function UtbetalingPage() {
                   <Metadata
                     horizontal
                     header="Innsent"
-                    verdi={utbetaling.godkjentAvArrangorTidspunkt ?? "N/A"}
+                    verdi={formaterDato(
+                      utbetaling.godkjentAvArrangorTidspunkt ?? utbetaling.createdAt,
+                    )}
                   />
                   <Metadata
                     horizontal
@@ -96,7 +106,7 @@ export function UtbetalingPage() {
                 </VStack>
                 <Separator />
                 <HStack justify="space-between">
-                  <Heading size="medium">Tilsagn og kostnadsfordeling</Heading>
+                  <Heading size="medium">Tilsagn</Heading>
                   <OpprettTilsagnButton defaults={ekstraTilsagnDefaults()} />
                 </HStack>
                 {tilsagn.length === 0 && <Alert variant="info">Tilsagn mangler</Alert>}
@@ -136,8 +146,10 @@ export function UtbetalingPage() {
                         );
                       })}
                       <Table.Row>
-                        <Table.DataCell className="font-bold">{`Opprinnelig krav ${formaterNOK(utbetaling.beregning.belop)}`}</Table.DataCell>
-                        <Table.DataCell>-</Table.DataCell>
+                        <Table.DataCell
+                          colSpan={2}
+                          className="font-bold"
+                        >{`Beløp til utbetaling ${formaterNOK(utbetaling.beregning.belop)}`}</Table.DataCell>
                         <Table.DataCell>-</Table.DataCell>
                         <Table.DataCell>-</Table.DataCell>
                         <Table.DataCell>-</Table.DataCell>
@@ -145,7 +157,13 @@ export function UtbetalingPage() {
                         <Table.DataCell className="font-bold">
                           {formaterNOK(utbetalesTotal())}
                         </Table.DataCell>
-                        <Table.DataCell></Table.DataCell>
+                        <Table.DataCell>
+                          <CopyButton
+                            copyText={String(differanse())}
+                            text={`Manglende beløp ${formaterNOK(differanse())}`}
+                            activeText={`Manglende beløp ${formaterNOK(differanse())}`}
+                          />
+                        </Table.DataCell>
                       </Table.Row>
                     </Table.Body>
                   </Table>

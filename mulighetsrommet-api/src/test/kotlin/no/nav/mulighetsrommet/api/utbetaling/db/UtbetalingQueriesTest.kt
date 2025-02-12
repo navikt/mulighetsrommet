@@ -97,32 +97,32 @@ class UtbetalingQueriesTest : FunSpec({
 
                 queries.upsert(utbetaling)
 
-                queries.get(utbetaling.id) shouldBe UtbetalingDto(
-                    id = utbetaling.id,
-                    status = UtbetalingStatus.KLAR_FOR_GODKJENNING,
-                    fristForGodkjenning = frist,
-                    tiltakstype = UtbetalingDto.Tiltakstype(
+                queries.get(utbetaling.id)!! should {
+                    it.id shouldBe utbetaling.id
+                    it.status shouldBe UtbetalingStatus.KLAR_FOR_GODKJENNING
+                    it.fristForGodkjenning shouldBe frist
+                    it.tiltakstype shouldBe UtbetalingDto.Tiltakstype(
                         navn = TiltakstypeFixtures.AFT.navn,
-                    ),
-                    gjennomforing = UtbetalingDto.Gjennomforing(
+                    )
+                    it.gjennomforing shouldBe UtbetalingDto.Gjennomforing(
                         id = AFT1.id,
                         navn = AFT1.navn,
-                    ),
-                    arrangor = UtbetalingDto.Arrangor(
+                    )
+                    it.arrangor shouldBe UtbetalingDto.Arrangor(
                         navn = ArrangorFixtures.underenhet1.navn,
                         id = ArrangorFixtures.underenhet1.id,
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                         slettet = ArrangorFixtures.underenhet1.slettetDato != null,
-                    ),
-                    beregning = beregning,
-                    betalingsinformasjon = UtbetalingDto.Betalingsinformasjon(
+                    )
+                    it.beregning shouldBe beregning
+                    it.betalingsinformasjon shouldBe UtbetalingDto.Betalingsinformasjon(
                         kontonummer = Kontonummer("11111111111"),
                         kid = Kid("12345"),
-                    ),
-                    journalpostId = null,
-                    periode = beregning.input.periode,
-                    godkjentAvArrangorTidspunkt = null,
-                )
+                    )
+                    it.journalpostId shouldBe null
+                    it.periode shouldBe beregning.input.periode
+                    it.godkjentAvArrangorTidspunkt shouldBe null
+                }
             }
         }
 
