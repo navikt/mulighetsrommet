@@ -64,14 +64,18 @@ class GjennomforingRoutesTest : FunSpec({
                         NavEnhetFixtures.Sagene.enhetsnummer,
                         NavEnhetFixtures.Oslo.enhetsnummer,
                     ),
-                    arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
+                    arrangor = AvtaleFixtures.oppfolging.arrangor?.copy(
+                        underenheter = listOf(ArrangorFixtures.underenhet1.id),
+                    ),
                 ),
                 AvtaleFixtures.VTA.copy(
                     navEnheter = listOf(
                         NavEnhetFixtures.Sagene.enhetsnummer,
                         NavEnhetFixtures.Oslo.enhetsnummer,
                     ),
-                    arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
+                    arrangor = AvtaleFixtures.VTA.arrangor?.copy(
+                        underenheter = listOf(ArrangorFixtures.underenhet1.id),
+                    ),
                 ),
             ),
         )

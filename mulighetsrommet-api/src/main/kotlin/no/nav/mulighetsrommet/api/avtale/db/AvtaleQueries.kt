@@ -187,14 +187,22 @@ class AvtaleQueries(private val session: Session) {
         batchPreparedStatement(upsertEnhet, avtale.navEnheter.map { listOf(avtale.id, it) })
         execute(queryOf(deleteEnheter, avtale.id, createTextArray(avtale.navEnheter)))
 
-        batchPreparedStatement(setArrangorUnderenhet, avtale.arrangorUnderenheter.map { listOf(avtale.id, it) })
-        execute(queryOf(deleteUnderenheter, avtale.id, createUuidArray(avtale.arrangorUnderenheter)))
+        avtale.arrangor?.underenheter?.let { batchPreparedStatement(setArrangorUnderenhet, it.map { listOf(avtale.id, it) }) }
+        execute(queryOf(deleteUnderenheter, avtale.id, avtale.arrangor?.underenheter?.let { createUuidArray(it) }))
 
-        batchPreparedStatement(
-            upsertArrangorKontaktperson,
-            avtale.arrangorKontaktpersoner.map { listOf(avtale.id, it) },
+        avtale.arrangor?.kontaktpersoner?.let {
+            batchPreparedStatement(
+                upsertArrangorKontaktperson,
+                it.map { listOf(avtale.id, it) },
+            )
+        }
+        execute(
+            queryOf(
+                deleteArrangorKontaktpersoner,
+                avtale.id,
+                avtale.arrangor?.kontaktpersoner?.let { createUuidArray(it) },
+            ),
         )
-        execute(queryOf(deleteArrangorKontaktpersoner, avtale.id, createUuidArray(avtale.arrangorKontaktpersoner)))
 
         batchPreparedStatement(
             upsertPersonopplysninger,
@@ -432,7 +440,7 @@ class AvtaleQueries(private val session: Session) {
         "tiltakstype_id" to tiltakstypeId,
         "avtalenummer" to avtalenummer,
         "websaknummer" to websaknummer?.value,
-        "arrangor_hovedenhet_id" to arrangorId,
+        "arrangor_hovedenhet_id" to arrangor?.hovedenhet,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
         "opsjonMaksVarighet" to opsjonMaksVarighet,
@@ -451,6 +459,7 @@ class AvtaleQueries(private val session: Session) {
         val avbruttTidspunkt = when (avslutningsstatus) {
             Avslutningsstatus.AVLYST -> startDato.atStartOfDay().minusDays(1)
             Avslutningsstatus.AVBRUTT -> startDato.atStartOfDay()
+            // @todo: What should utkast be?
             Avslutningsstatus.AVSLUTTET -> null
             Avslutningsstatus.IKKE_AVSLUTTET -> null
         }
@@ -516,6 +525,17 @@ class AvtaleQueries(private val session: Session) {
         val utdanningslop = stringOrNull("utdanningslop_json")
             ?.let { Json.decodeFromString<UtdanningslopDto>(it) }
 
+        val arrangor = uuidOrNull("arrangor_hovedenhet_id")?.let {
+            AvtaleDto.ArrangorHovedenhet(
+                id = it,
+                organisasjonsnummer = Organisasjonsnummer(string("arrangor_hovedenhet_organisasjonsnummer")),
+                navn = string("arrangor_hovedenhet_navn"),
+                slettet = boolean("arrangor_hovedenhet_slettet"),
+                underenheter = underenheter,
+                kontaktpersoner = arrangorKontaktpersoner,
+            )
+        }
+
         return AvtaleDto(
             id = uuid("id"),
             navn = string("navn"),
@@ -532,14 +552,7 @@ class AvtaleQueries(private val session: Session) {
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
             administratorer = administratorer,
             kontorstruktur = kontorstruktur,
-            arrangor = AvtaleDto.ArrangorHovedenhet(
-                id = uuid("arrangor_hovedenhet_id"),
-                organisasjonsnummer = Organisasjonsnummer(string("arrangor_hovedenhet_organisasjonsnummer")),
-                navn = string("arrangor_hovedenhet_navn"),
-                slettet = boolean("arrangor_hovedenhet_slettet"),
-                underenheter = underenheter,
-                kontaktpersoner = arrangorKontaktpersoner,
-            ),
+            arrangor = arrangor,
             arenaAnsvarligEnhet = stringOrNull("arena_nav_enhet_enhetsnummer")?.let {
                 ArenaNavEnhet(
                     navn = stringOrNull("arena_nav_enhet_navn"),

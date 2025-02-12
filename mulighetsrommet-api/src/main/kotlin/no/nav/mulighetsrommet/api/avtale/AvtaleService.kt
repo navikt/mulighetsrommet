@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.toDbo
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
@@ -39,9 +40,19 @@ class AvtaleService(
         request: AvtaleRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, AvtaleDto> = either {
-        val (arrangor, underenheter) = syncArrangorerFromBrreg(request).bind()
+        val arrangor = request.arrangor?.let {
+            val (arrangor, underenheter) = syncArrangorerFromBrreg(
+                it.hovedenhet,
+                it.underenheter,
+            ).bind()
+            AvtaleDbo.Arrangor(
+                hovedenhet = arrangor.id,
+                underenheter = underenheter.map { it.id },
+                kontaktpersoner = it.kontaktpersoner,
+            )
+        }
         val previous = get(request.id)
-        val dbo = validator.validate(toAvtaleDbo(request, arrangor, underenheter), previous).bind()
+        val dbo = validator.validate(toAvtaleDbo(request, arrangor), previous).bind()
 
         if (previous?.toDbo() == dbo) {
             return@either previous
@@ -159,10 +170,11 @@ class AvtaleService(
     }
 
     private suspend fun syncArrangorerFromBrreg(
-        request: AvtaleRequest,
+        orgnr: Organisasjonsnummer,
+        underenheterOrgnummere: List<Organisasjonsnummer>,
     ): Either<List<FieldError>, Pair<ArrangorDto, List<ArrangorDto>>> = either {
-        val arrangor = syncArrangorFromBrreg(request.arrangorOrganisasjonsnummer).bind()
-        val underenheter = request.arrangorUnderenheter.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
+        val arrangor = syncArrangorFromBrreg(orgnr).bind()
+        val underenheter = underenheterOrgnummere.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
             syncArrangorFromBrreg(it).bind()
         }.bind()
         Pair(arrangor, underenheter)
@@ -174,8 +186,9 @@ class AvtaleService(
         .getArrangorOrSyncFromBrreg(orgnr)
         .mapLeft {
             FieldError.of(
-                AvtaleRequest::arrangorOrganisasjonsnummer,
                 "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
+                AvtaleRequest::arrangor,
+                AvtaleRequest.Arrangor::hovedenhet,
             ).nel()
         }
 
@@ -220,8 +233,7 @@ class AvtaleService(
 
 private fun toAvtaleDbo(
     request: AvtaleRequest,
-    arrangor: ArrangorDto,
-    underenheter: List<ArrangorDto>,
+    arrangor: AvtaleDbo.Arrangor?,
 ): AvtaleDbo = request.run {
     AvtaleDbo(
         id = id,
@@ -229,9 +241,7 @@ private fun toAvtaleDbo(
         avtalenummer = avtalenummer,
         websaknummer = websaknummer,
         tiltakstypeId = tiltakstypeId,
-        arrangorId = arrangor.id,
-        arrangorUnderenheter = underenheter.map { it.id },
-        arrangorKontaktpersoner = arrangorKontaktpersoner,
+        arrangor = arrangor,
         startDato = startDato,
         sluttDato = sluttDato,
         opsjonMaksVarighet = opsjonsmodellData?.opsjonMaksVarighet,

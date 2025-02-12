@@ -48,9 +48,11 @@ class AvtaleValidatorTest : FunSpec({
         id = UUID.randomUUID(),
         navn = "Avtale",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-        arrangorId = ArrangorFixtures.hovedenhet.id,
-        arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
-        arrangorKontaktpersoner = emptyList(),
+        arrangor = AvtaleDbo.Arrangor(
+            hovedenhet = ArrangorFixtures.hovedenhet.id,
+            underenheter = listOf(ArrangorFixtures.underenhet1.id),
+            kontaktpersoner = emptyList(),
+        ),
         avtalenummer = "123456",
         websaknummer = Websaknummer("24/1234"),
         startDato = LocalDate.now().minusDays(1),
@@ -96,14 +98,18 @@ class AvtaleValidatorTest : FunSpec({
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2020, 1, 1),
             navEnheter = emptyList(),
-            arrangorUnderenheter = emptyList(),
+            arrangor = AvtaleDbo.Arrangor(
+                hovedenhet = ArrangorFixtures.hovedenhet.id,
+                underenheter = emptyList(),
+                kontaktpersoner = emptyList(),
+            ),
         )
 
         validator.validate(dbo, null).shouldBeLeft().shouldContainAll(
             listOf(
                 FieldError("/startDato", "Startdato må være før sluttdato"),
                 FieldError("/navEnheter", "Du må velge minst én Nav-region"),
-                FieldError("/arrangorUnderenheter", "Du må velge minst én underenhet for tiltaksarrangør"),
+                FieldError("/arrangor/underenheter", "Du må velge minst én underenhet for tiltaksarrangør"),
             ),
         )
     }
@@ -322,20 +328,24 @@ class AvtaleValidatorTest : FunSpec({
         val validator = createValidator()
 
         val avtale1 = AvtaleFixtures.oppfolging.copy(
-            arrangorId = ArrangorFixtures.Fretex.hovedenhet.id,
-            arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
+            arrangor = AvtaleFixtures.oppfolging.arrangor?.copy(
+                hovedenhet = ArrangorFixtures.Fretex.hovedenhet.id,
+                underenheter = listOf(ArrangorFixtures.underenhet1.id),
+            ),
         )
 
         validator.validate(avtale1, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             FieldError(
-                "/arrangorUnderenheter",
+                "/arrangor/underenheter",
                 "Arrangøren Underenhet 1 AS er ikke en gyldig underenhet til hovedenheten FRETEX AS.",
             ),
         )
 
         val avtale2 = AvtaleFixtures.oppfolging.copy(
-            arrangorId = ArrangorFixtures.Fretex.hovedenhet.id,
-            arrangorUnderenheter = listOf(ArrangorFixtures.Fretex.underenhet1.id),
+            arrangor = AvtaleFixtures.oppfolging.arrangor?.copy(
+                hovedenhet = ArrangorFixtures.Fretex.hovedenhet.id,
+                underenheter = listOf(ArrangorFixtures.Fretex.underenhet1.id),
+            ),
         )
         validator.validate(avtale2, null).shouldBeRight()
     }
@@ -347,17 +357,19 @@ class AvtaleValidatorTest : FunSpec({
         }
 
         val avtale1 = AvtaleFixtures.oppfolging.copy(
-            arrangorId = ArrangorFixtures.Fretex.hovedenhet.id,
-            arrangorUnderenheter = listOf(ArrangorFixtures.Fretex.underenhet1.id),
+            arrangor = AvtaleFixtures.oppfolging.arrangor?.copy(
+                hovedenhet = ArrangorFixtures.Fretex.hovedenhet.id,
+                underenheter = listOf(ArrangorFixtures.Fretex.underenhet1.id),
+            ),
         )
 
         createValidator().validate(avtale1, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             FieldError(
-                "/arrangorId",
+                "/arrangor/hovedenhet",
                 "Arrangøren FRETEX AS er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
             ),
             FieldError(
-                "/arrangorUnderenheter",
+                "/arrangor/underenheter",
                 "Arrangøren FRETEX AS AVD OSLO er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
             ),
         )
@@ -511,7 +523,7 @@ class AvtaleValidatorTest : FunSpec({
                         "Tiltakstype kan ikke endres fordi det finnes gjennomføringer for avtalen",
                     ),
                     FieldError(
-                        "/arrangorUnderenheter",
+                        "/arrangor/underenheter",
                         "Arrangøren Underenhet 2 AS er i bruk på en av avtalens gjennomføringer, men mangler blant tiltaksarrangørens underenheter",
                     ),
                     FieldError(
