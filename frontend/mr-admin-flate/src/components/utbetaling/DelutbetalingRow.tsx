@@ -22,6 +22,8 @@ import { AvvistAlert } from "@/pages/gjennomforing/tilsagn/AarsakerAlert";
 import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { DelutbetalingTag } from "./DelutbetalingTag";
 import { useUpsertDelutbetaling } from "@/api/utbetaling/useUpsertDelutbetaling";
+import { Metadata } from "../detaljside/Metadata";
+import { createPortal } from "react-dom";
 
 interface Props {
   utbetaling: UtbetalingKompakt;
@@ -112,7 +114,18 @@ function EditableRow({
       expansionDisabled={!delutbetaling}
       key={tilsagn.id}
       className={delutbetaling ? "bg-surface-warning-subtle" : ""}
-      content={<DropdownContent delutbetaling={delutbetaling} />}
+      content={
+        delutbetaling ? (
+          <AvvistAlert
+            header="Utbetaling returnert"
+            navIdent={delutbetaling.besluttetAv}
+            navn=""
+            aarsaker={delutbetaling.aarsaker}
+            forklaring={delutbetaling.forklaring}
+            tidspunkt={delutbetaling.besluttetTidspunkt}
+          />
+        ) : null
+      }
     >
       <Table.DataCell>
         {delutbetaling && <DelutbetalingTag delutbetaling={delutbetaling} />}
@@ -160,13 +173,22 @@ function GodkjentRow({
   delutbetaling: DelutbetalingGodkjent;
 }) {
   return (
-    <Table.ExpandableRow expansionDisabled key={tilsagn.id} content={null}>
+    <Table.ExpandableRow
+      content={
+        <HStack>
+          <Metadata horizontal header="Opprettet av" verdi={delutbetaling.opprettetAv} />
+          <Metadata horizontal header="Opprettet av" verdi={delutbetaling.opprettetAv} />
+        </HStack>
+      }
+    >
       <Table.DataCell>{<DelutbetalingTag delutbetaling={delutbetaling} />}</Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeStart)}</Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeSlutt)}</Table.DataCell>
       <Table.DataCell>{tilsagn.kostnadssted.navn}</Table.DataCell>
-      <Table.DataCell>{`${formaterNOK(tilsagn.beregning.output.belop)}`}</Table.DataCell>
-      <Table.DataCell>{delutbetaling.belop}</Table.DataCell>
+      <Table.DataCell>{formaterNOK(tilsagn.beregning.output.belop)}</Table.DataCell>
+      <Table.DataCell>
+        <b>{formaterNOK(delutbetaling.belop)}</b>
+      </Table.DataCell>
       <Table.DataCell></Table.DataCell>
     </Table.ExpandableRow>
   );
@@ -208,7 +230,9 @@ function TilGodkjenningRow({
       <Table.DataCell>{formaterDato(tilsagn.periodeSlutt)}</Table.DataCell>
       <Table.DataCell>{tilsagn.kostnadssted.navn}</Table.DataCell>
       <Table.DataCell>{`${formaterNOK(tilsagn.beregning.output.belop)}`}</Table.DataCell>
-      <Table.DataCell>{delutbetaling.belop}</Table.DataCell>
+      <Table.DataCell>
+        <b>{formaterNOK(delutbetaling.belop)}</b>
+      </Table.DataCell>
       <Table.DataCell>
         {kanBeslutte && (
           <HStack gap="4">
@@ -235,27 +259,33 @@ function TilGodkjenningRow({
           </HStack>
         )}
       </Table.DataCell>
-      <AarsakerOgForklaringModal
-        open={avvisModalOpen}
-        header="Send i retur med forklaring"
-        buttonLabel="Send i retur"
-        aarsaker={[
-          { value: "FEIL_BELOP", label: "Feil beløp" },
-          { value: "FEIL_ANNET", label: "Annet" },
-        ]}
-        onClose={() => setAvvisModalOpen(false)}
-        onConfirm={({ aarsaker, forklaring }) => {
-          beslutt({
-            besluttelse: Besluttelse.AVVIST,
-            tilsagnId: tilsagn.id,
-            aarsaker,
-            forklaring: forklaring ?? null,
-          });
-          setAvvisModalOpen(false);
-        }}
-      />
+      <Portal>
+        <AarsakerOgForklaringModal
+          open={avvisModalOpen}
+          header="Send i retur med forklaring"
+          buttonLabel="Send i retur"
+          aarsaker={[
+            { value: "FEIL_BELOP", label: "Feil beløp" },
+            { value: "FEIL_ANNET", label: "Annet" },
+          ]}
+          onClose={() => setAvvisModalOpen(false)}
+          onConfirm={({ aarsaker, forklaring }) => {
+            beslutt({
+              besluttelse: Besluttelse.AVVIST,
+              tilsagnId: tilsagn.id,
+              aarsaker,
+              forklaring: forklaring ?? null,
+            });
+            setAvvisModalOpen(false);
+          }}
+        />
+      </Portal>
     </Table.ExpandableRow>
   );
+}
+
+export function Portal({ children }: { children: React.ReactNode }) {
+  return createPortal(children, document.body);
 }
 
 function TilsagnIkkeGodkjentRow({ tilsagn }: { tilsagn: TilsagnDto }) {
@@ -274,26 +304,5 @@ function TilsagnIkkeGodkjentRow({ tilsagn }: { tilsagn: TilsagnDto }) {
       <Table.DataCell></Table.DataCell>
       <Table.DataCell></Table.DataCell>
     </Table.Row>
-  );
-}
-
-interface DropdownContentProps {
-  delutbetaling?: DelutbetalingDto;
-}
-
-function DropdownContent({ delutbetaling }: DropdownContentProps) {
-  return (
-    <>
-      {delutbetaling?.type === "DELUTBETALING_AVVIST" && (
-        <AvvistAlert
-          header="Utbetaling returnert"
-          navIdent={delutbetaling.besluttetAv}
-          navn=""
-          aarsaker={delutbetaling.aarsaker}
-          forklaring={delutbetaling.forklaring}
-          tidspunkt={delutbetaling.besluttetTidspunkt}
-        />
-      )}
-    </>
   );
 }

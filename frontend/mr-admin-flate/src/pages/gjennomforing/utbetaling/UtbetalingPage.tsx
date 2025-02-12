@@ -106,7 +106,7 @@ export function UtbetalingPage() {
                 </VStack>
                 <Separator />
                 <HStack justify="space-between">
-                  <Heading size="medium">Tilsagn og kostnadsfordeling</Heading>
+                  <Heading size="medium">Tilsagn</Heading>
                   <OpprettTilsagnButton defaults={ekstraTilsagnDefaults()} />
                 </HStack>
                 {tilsagn.length === 0 && <Alert variant="info">Tilsagn mangler</Alert>}
@@ -146,8 +146,10 @@ export function UtbetalingPage() {
                         );
                       })}
                       <Table.Row>
-                        <Table.DataCell className="font-bold">{`Opprinnelig krav ${formaterNOK(utbetaling.beregning.belop)}`}</Table.DataCell>
-                        <Table.DataCell>-</Table.DataCell>
+                        <Table.DataCell
+                          colSpan={2}
+                          className="font-bold"
+                        >{`Beløp til utbetaling ${formaterNOK(utbetaling.beregning.belop)}`}</Table.DataCell>
                         <Table.DataCell>-</Table.DataCell>
                         <Table.DataCell>-</Table.DataCell>
                         <Table.DataCell>-</Table.DataCell>
