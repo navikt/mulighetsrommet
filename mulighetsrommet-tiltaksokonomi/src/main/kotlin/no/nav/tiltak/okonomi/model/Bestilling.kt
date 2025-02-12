@@ -1,4 +1,4 @@
-package no.nav.tiltak.okonomi.db
+package no.nav.tiltak.okonomi.model
 
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.OkonomiPart
@@ -18,36 +18,17 @@ data class Bestilling(
     val opprettetTidspunkt: LocalDateTime,
     val besluttetAv: OkonomiPart,
     val besluttetTidspunkt: LocalDateTime,
-    val linjer: List<LinjeDbo>,
-)
+    val linjer: List<Linje>,
+) {
+    data class Linje(
+        val linjenummer: Int,
+        val periode: Periode,
+        val belop: Int,
+    )
+}
 
 enum class BestillingStatusType {
     AKTIV,
     ANNULLERT,
     OPPGJORT,
 }
-
-data class Faktura(
-    val bestillingsnummer: String,
-    val fakturanummer: String,
-    val kontonummer: Kontonummer,
-    val kid: Kid?,
-    val belop: Int,
-    val periode: Periode,
-    val status: FakturaStatusType,
-    val opprettetAv: OkonomiPart,
-    val opprettetTidspunkt: LocalDateTime,
-    val besluttetAv: OkonomiPart,
-    val besluttetTidspunkt: LocalDateTime,
-    val linjer: List<LinjeDbo>,
-)
-
-enum class FakturaStatusType {
-    UTBETALT,
-}
-
-data class LinjeDbo(
-    val linjenummer: Int,
-    val periode: Periode,
-    val belop: Int,
-)

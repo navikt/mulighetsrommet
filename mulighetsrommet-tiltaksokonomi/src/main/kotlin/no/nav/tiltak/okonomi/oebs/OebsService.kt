@@ -11,7 +11,11 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.OpprettFaktura
-import no.nav.tiltak.okonomi.db.*
+import no.nav.tiltak.okonomi.db.OkonomiDatabase
+import no.nav.tiltak.okonomi.model.Bestilling
+import no.nav.tiltak.okonomi.model.BestillingStatusType
+import no.nav.tiltak.okonomi.model.Faktura
+import no.nav.tiltak.okonomi.model.FakturaStatusType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.collections.set
@@ -54,7 +58,7 @@ class OebsService(
             besluttetAv = bestilling.besluttetAv,
             besluttetTidspunkt = bestilling.besluttetTidspunkt,
             linjer = perioder.mapIndexed { index, (periode, belop) ->
-                LinjeDbo(
+                Bestilling.Linje(
                     linjenummer = (index + 1),
                     periode = periode,
                     belop = belop,
@@ -158,7 +162,7 @@ class OebsService(
             linjer = perioder.map { (periode, belop) ->
                 val bestillingLinje = bestillingLinjerByMonth[periode.start.month]
                     ?: return OpprettFakturaError("Bestillingslinje mangler for måned ${periode.start.month}").left()
-                LinjeDbo(
+                Faktura.Linje(
                     linjenummer = bestillingLinje.linjenummer,
                     periode = periode,
                     belop = belop,

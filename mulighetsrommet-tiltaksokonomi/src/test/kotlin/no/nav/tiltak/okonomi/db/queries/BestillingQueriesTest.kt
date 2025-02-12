@@ -7,12 +7,11 @@ import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.databaseConfig
-import no.nav.tiltak.okonomi.db.Bestilling
-import no.nav.tiltak.okonomi.db.BestillingStatusType
-import no.nav.tiltak.okonomi.db.LinjeDbo
+import no.nav.tiltak.okonomi.model.Bestilling
+import no.nav.tiltak.okonomi.model.BestillingStatusType
 import java.time.LocalDate
 
-class OebsBestillingQueriesTest : FunSpec({
+class BestillingQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val dbo = Bestilling(
@@ -33,7 +32,7 @@ class OebsBestillingQueriesTest : FunSpec({
         besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
         besluttetTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
         linjer = listOf(
-            LinjeDbo(
+            Bestilling.Linje(
                 linjenummer = 1,
                 periode = Periode(
                     LocalDate.of(2025, 1, 1),
@@ -41,7 +40,7 @@ class OebsBestillingQueriesTest : FunSpec({
                 ),
                 belop = 500,
             ),
-            LinjeDbo(
+            Bestilling.Linje(
                 linjenummer = 2,
                 periode = Periode(
                     LocalDate.of(2025, 2, 1),

@@ -10,9 +10,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.OpprettFaktura
-import no.nav.tiltak.okonomi.db.BestillingStatusType
-import no.nav.tiltak.okonomi.db.FakturaStatusType
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
+import no.nav.tiltak.okonomi.model.BestillingStatusType
+import no.nav.tiltak.okonomi.model.FakturaStatusType
 import no.nav.tiltak.okonomi.oebs.OebsService
 
 fun Application.okonomiRoutes(

@@ -7,10 +7,9 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.okonomi.OkonomiPart
-import no.nav.tiltak.okonomi.db.Bestilling
-import no.nav.tiltak.okonomi.db.BestillingStatusType
-import no.nav.tiltak.okonomi.db.LinjeDbo
 import no.nav.tiltak.okonomi.db.periode
+import no.nav.tiltak.okonomi.model.Bestilling
+import no.nav.tiltak.okonomi.model.BestillingStatusType
 import org.intellij.lang.annotations.Language
 
 class BestillingQueries(private val session: Session) {
@@ -115,7 +114,7 @@ class BestillingQueries(private val session: Session) {
         """.trimIndent()
         return session.single(queryOf(selectBestilling, bestillingsnummer)) { bestilling ->
             val linjer = session.list(queryOf(selectLinje, bestilling.int("id"))) { linje ->
-                LinjeDbo(
+                Bestilling.Linje(
                     linjenummer = linje.int("linjenummer"),
                     periode = linje.periode("periode"),
                     belop = linje.int("belop"),
