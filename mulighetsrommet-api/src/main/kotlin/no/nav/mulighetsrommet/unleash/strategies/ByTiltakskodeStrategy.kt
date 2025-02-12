@@ -13,10 +13,6 @@ class ByTiltakskodeStrategy : Strategy {
         return "by-tiltakskode"
     }
 
-    override fun isEnabled(parameters: MutableMap<String, String>): Boolean {
-        return false
-    }
-
     override fun isEnabled(parameters: MutableMap<String, String>, context: UnleashContext): Boolean {
         val enabledTiltakskoder = parameters[TILTAKSKODER_PARAM]
             .takeIf { !it.isNullOrBlank() }

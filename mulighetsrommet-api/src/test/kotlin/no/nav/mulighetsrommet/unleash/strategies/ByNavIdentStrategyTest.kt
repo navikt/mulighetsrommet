@@ -9,7 +9,7 @@ class ByNavIdentStrategyTest : FunSpec({
         val byNavidentStrategy = ByNavIdentStrategy()
 
         test("Skal returnere false når ingen UnleashContext er sendt inn") {
-            byNavidentStrategy.isEnabled(mutableMapOf()) shouldBe false
+            byNavidentStrategy.isEnabled(mutableMapOf(), UnleashContext("", "", "", emptyMap())) shouldBe false
         }
 
         test("Skal returnere false når brukers enhet ikke finnes i liste over valgte navIdenter") {

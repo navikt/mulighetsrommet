@@ -8,7 +8,7 @@ class ByTiltakskodeStrategyTest : FunSpec({
     val strategy = ByTiltakskodeStrategy()
 
     test("Skal returnere false når ingen UnleashContext er sendt inn") {
-        strategy.isEnabled(mutableMapOf()) shouldBe false
+        strategy.isEnabled(mutableMapOf(), UnleashContext("", "", "", emptyMap())) shouldBe false
     }
 
     test("Skal returnere false når ingen tiltakskoder er konfigurert") {
