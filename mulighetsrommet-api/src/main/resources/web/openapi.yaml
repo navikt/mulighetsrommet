@@ -5681,11 +5681,21 @@ components:
         - pris
         - valuta
 
+    ArrFlateUtbetalingStatus:
+      type: string
+      enum:
+        - KLAR_FOR_GODKJENNING
+        - BEHANDLES_AV_NAV
+        - UTBETALT
+
     UtbetalingStatus:
       type: string
       enum:
         - KLAR_FOR_GODKJENNING
-        - GODKJENT_AV_ARRANGOR
+        - INNSENDT_AV_ARRANGOR
+        - INNSENDT_AV_NAV
+        - OVERFORT_TIL_UTBETALING
+        - UTBETALT
 
     UtbetalingKompakt:
       type: object
@@ -5718,7 +5728,7 @@ components:
           type: string
           format: uuid
         status:
-          $ref: "#/components/schemas/UtbetalingStatus"
+          $ref: "#/components/schemas/ArrFlateUtbetalingStatus"
         fristForGodkjenning:
           type: string
           format: date-time
@@ -5772,7 +5782,7 @@ components:
           type: string
           format: uuid
         status:
-          $ref: "#/components/schemas/UtbetalingStatus"
+          $ref: "#/components/schemas/ArrFlateUtbetalingStatus"
         fristForGodkjenning:
           type: string
           format: date-time
@@ -6114,15 +6124,35 @@ components:
 
     DelutbetalingDto:
       oneOf:
-        - $ref: "#/components/schemas/DelutbetalingGodkjent"
+        - $ref: "#/components/schemas/DelutbetalingOverfortTilUtbetaling"
+        - $ref: "#/components/schemas/DelutbetalingUtbetalt"
         - $ref: "#/components/schemas/DelutbetalingTilGodkjenning"
         - $ref: "#/components/schemas/DelutbetalingAvvist"
 
-    DelutbetalingGodkjent:
+    DelutbetalingOverfortTilUtbetaling:
       type: object
       properties:
         type:
-          const: DELUTBETALING_GODKJENT
+          const: DELUTBETALING_OVERFORT_TIL_UTBETALING
+        tilsagnId:
+          type: string
+          format: uuid
+        utbetalingId:
+          type: string
+          format: uuid
+        belop:
+          type: number
+        opprettetAv:
+          type: string
+        besluttetAv:
+          type: string
+      required: [type, tilsagnId, utbetalingId, belop, opprettetAv, besluttetAv]
+
+    DelutbetalingUtbetalt:
+      type: object
+      properties:
+        type:
+          const: DELUTBETALING_UTBETALT
         tilsagnId:
           type: string
           format: uuid

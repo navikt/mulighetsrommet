@@ -364,7 +364,7 @@ suspend fun toArrFlateUtbetaling(
 
         ArrFlateUtbetaling(
             id = utbetaling.id,
-            status = utbetaling.status,
+            status = ArrFlateUtbetaling.Status.fromUtbetalingStatus(utbetaling.status),
             fristForGodkjenning = utbetaling.fristForGodkjenning,
             tiltakstype = utbetaling.tiltakstype,
             gjennomforing = utbetaling.gjennomforing,
@@ -383,7 +383,7 @@ suspend fun toArrFlateUtbetaling(
 
     is UtbetalingBeregningFri -> ArrFlateUtbetaling(
         id = utbetaling.id,
-        status = utbetaling.status,
+        status = ArrFlateUtbetaling.Status.fromUtbetalingStatus(utbetaling.status),
         fristForGodkjenning = utbetaling.fristForGodkjenning,
         tiltakstype = utbetaling.tiltakstype,
         gjennomforing = utbetaling.gjennomforing,

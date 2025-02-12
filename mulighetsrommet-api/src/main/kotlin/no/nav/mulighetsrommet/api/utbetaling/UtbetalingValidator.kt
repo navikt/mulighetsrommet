@@ -69,8 +69,3 @@ object UtbetalingValidator {
         return errors.takeIf { it.isNotEmpty() }?.left() ?: request.right()
     }
 }
-
-data class TilsagnOgBelop(
-    val tilsagn: TilsagnDto,
-    val belop: Int,
-)

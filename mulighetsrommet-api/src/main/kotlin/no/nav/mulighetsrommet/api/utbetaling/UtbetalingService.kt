@@ -51,7 +51,8 @@ class UtbetalingService(
 
     fun recalculateUtbetalingForGjennomforing(id: UUID): Unit = db.transaction {
         queries.utbetaling
-            .getByGjennomforing(id, statuser = listOf(UtbetalingStatus.KLAR_FOR_GODKJENNING))
+            .getByGjennomforing(id)
+            .filter { it.status == UtbetalingStatus.KLAR_FOR_GODKJENNING }
             .mapNotNull { gjeldendeKrav ->
                 val nyttKrav = when (gjeldendeKrav.beregning) {
                     is UtbetalingBeregningAft -> createUtbetalingAft(
@@ -103,6 +104,7 @@ class UtbetalingService(
             kontonummer = forrigeKrav?.betalingsinformasjon?.kontonummer,
             kid = forrigeKrav?.betalingsinformasjon?.kid,
             periode = periode,
+            innsender = null,
         )
     }
 
@@ -118,7 +120,10 @@ class UtbetalingService(
 
         val previous = db.session { queries.delutbetaling.get(utbetalingId, request.tilsagnId) }
         when (previous) {
-            is DelutbetalingDto.DelutbetalingGodkjent, is DelutbetalingDto.DelutbetalingTilGodkjenning ->
+            is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling,
+            is DelutbetalingDto.DelutbetalingTilGodkjenning,
+            is DelutbetalingDto.DelutbetalingUtbetalt,
+            ->
                 return listOf(FieldError.root("Utbetaling kan ikke endres")).left()
             is DelutbetalingDto.DelutbetalingAvvist, null -> {}
         }

@@ -201,7 +201,7 @@ private fun Row.toDelutbetalingDto(): DelutbetalingDto {
         Besluttelse.GODKJENT -> {
             requireNotNull(besluttetTidspunkt)
             requireNotNull(besluttetAv)
-            DelutbetalingDto.DelutbetalingGodkjent(
+            DelutbetalingDto.DelutbetalingOverfortTilUtbetaling(
                 tilsagnId = uuid("tilsagn_id"),
                 utbetalingId = uuid("utbetaling_id"),
                 belop = int("belop"),

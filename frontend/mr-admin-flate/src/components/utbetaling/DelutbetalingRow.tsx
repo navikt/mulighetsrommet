@@ -11,7 +11,8 @@ import {
   NavAnsatt,
   DelutbetalingTilGodkjenning,
   DelutbetalingAvvist,
-  DelutbetalingGodkjent,
+  DelutbetalingOverfortTilUtbetaling,
+  DelutbetalingUtbetalt,
 } from "@mr/api-client-v2";
 import { BodyShort, Button, HStack, Table, TextField } from "@navikt/ds-react";
 import { formaterNOK, isValidationError } from "@mr/frontend-common/utils/utils";
@@ -45,7 +46,8 @@ export function DelutbetalingRow({
   }
 
   switch (delutbetaling?.type) {
-    case "DELUTBETALING_GODKJENT":
+    case "DELUTBETALING_OVERFORT_TIL_UTBETALING":
+    case "DELUTBETALING_UTBETALT":
       return <GodkjentRow tilsagn={tilsagn} delutbetaling={delutbetaling} />;
     case "DELUTBETALING_TIL_GODKJENNING":
       return (
@@ -170,7 +172,7 @@ function GodkjentRow({
   delutbetaling,
 }: {
   tilsagn: TilsagnDto;
-  delutbetaling: DelutbetalingGodkjent;
+  delutbetaling: DelutbetalingOverfortTilUtbetaling | DelutbetalingUtbetalt;
 }) {
   return (
     <Table.ExpandableRow

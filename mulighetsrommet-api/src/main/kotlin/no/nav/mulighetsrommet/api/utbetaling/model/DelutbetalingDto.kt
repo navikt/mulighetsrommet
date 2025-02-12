@@ -37,8 +37,27 @@ sealed class DelutbetalingDto {
     ) : DelutbetalingDto()
 
     @Serializable
-    @SerialName("DELUTBETALING_GODKJENT")
-    data class DelutbetalingGodkjent(
+    @SerialName("DELUTBETALING_OVERFORT_TIL_UTBETALING")
+    data class DelutbetalingOverfortTilUtbetaling(
+        @Serializable(with = UUIDSerializer::class)
+        override val tilsagnId: UUID,
+        @Serializable(with = UUIDSerializer::class)
+        override val utbetalingId: UUID,
+        override val belop: Int,
+        override val periode: Periode,
+        override val lopenummer: Int,
+        override val fakturanummer: String,
+        override val opprettetAv: NavIdent,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        override val opprettetTidspunkt: LocalDateTime,
+        val besluttetAv: NavIdent,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val besluttetTidspunkt: LocalDateTime,
+    ) : DelutbetalingDto()
+
+    @Serializable
+    @SerialName("DELUTBETALING_UTBETALT")
+    data class DelutbetalingUtbetalt(
         @Serializable(with = UUIDSerializer::class)
         override val tilsagnId: UUID,
         @Serializable(with = UUIDSerializer::class)

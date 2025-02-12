@@ -4,15 +4,12 @@ drop view if exists utbetaling_dto_view;
 create view utbetaling_dto_view as
 select utbetaling.id,
        utbetaling.beregningsmodell,
-       case
-           when godkjent_av_arrangor_tidspunkt is not null then 'GODKJENT_AV_ARRANGOR'
-           else 'KLAR_FOR_GODKJENNING'
-           end::utbetaling_status     as status,
        utbetaling.frist_for_godkjenning,
        utbetaling.godkjent_av_arrangor_tidspunkt,
        utbetaling.kontonummer,
        utbetaling.kid,
        utbetaling.journalpost_id,
+       utbetaling.innsender,
        utbetaling.created_at,
        lower(periode)                    as periode_start,
        upper(periode)                    as periode_slutt,

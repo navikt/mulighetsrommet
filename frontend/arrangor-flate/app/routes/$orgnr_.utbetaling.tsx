@@ -1,7 +1,7 @@
 import {
   ArrangorflateService,
   ArrFlateUtbetalingKompakt,
-  UtbetalingStatus,
+  ArrFlateUtbetalingStatus,
 } from "@mr/api-client-v2";
 import { Tabs } from "@navikt/ds-react";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
@@ -42,9 +42,9 @@ export default function TilsagnDetaljer() {
   const [currentTab, setTab] = useTabState("forside-tab", "aktive");
   const { utbetalinger, tilsagn } = useLoaderData<typeof loader>();
   const historiske: ArrFlateUtbetalingKompakt[] = utbetalinger.filter(
-    (k) => k.status === UtbetalingStatus.GODKJENT_AV_ARRANGOR,
+    (k) => k.status === ArrFlateUtbetalingStatus.UTBETALT,
   );
-  const aktive = utbetalinger.filter((k) => k.status !== UtbetalingStatus.GODKJENT_AV_ARRANGOR);
+  const aktive = utbetalinger.filter((k) => k.status !== ArrFlateUtbetalingStatus.UTBETALT);
 
   return (
     <>

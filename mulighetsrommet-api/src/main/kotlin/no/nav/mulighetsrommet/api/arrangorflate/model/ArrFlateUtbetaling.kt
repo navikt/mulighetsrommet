@@ -37,7 +37,7 @@ sealed class Beregning {
 data class ArrFlateUtbetaling(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val status: UtbetalingStatus,
+    val status: Status,
     @Serializable(with = LocalDateTimeSerializer::class)
     val fristForGodkjenning: LocalDateTime,
     val tiltakstype: UtbetalingDto.Tiltakstype,
@@ -49,7 +49,27 @@ data class ArrFlateUtbetaling(
     val periodeStart: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val periodeSlutt: LocalDate,
-)
+) {
+    enum class Status {
+        KLAR_FOR_GODKJENNING,
+        BEHANDLES_AV_NAV,
+        UTBETALT,
+        ;
+
+        companion object {
+            fun fromUtbetalingStatus(status: UtbetalingStatus): Status = when (status) {
+                UtbetalingStatus.KLAR_FOR_GODKJENNING -> KLAR_FOR_GODKJENNING
+
+                UtbetalingStatus.INNSENDT_AV_ARRANGOR,
+                UtbetalingStatus.OVERFORT_TIL_UTBETALING,
+                UtbetalingStatus.OPPRETTET_AV_NAV,
+                -> BEHANDLES_AV_NAV
+
+                UtbetalingStatus.UTBETALT -> UTBETALT
+            }
+        }
+    }
+}
 
 @Serializable
 data class UtbetalingDeltakelse(
