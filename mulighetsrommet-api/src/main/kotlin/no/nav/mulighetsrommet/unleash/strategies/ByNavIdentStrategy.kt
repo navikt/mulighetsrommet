@@ -13,10 +13,6 @@ class ByNavIdentStrategy : Strategy {
         return "byNavident"
     }
 
-    override fun isEnabled(parameters: MutableMap<String, String>): Boolean {
-        return false
-    }
-
     override fun isEnabled(parameters: MutableMap<String, String>, context: UnleashContext): Boolean {
         return context.userId
             .flatMap { userId ->

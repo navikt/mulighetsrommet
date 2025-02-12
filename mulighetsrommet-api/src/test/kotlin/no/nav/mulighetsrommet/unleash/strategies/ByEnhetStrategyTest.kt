@@ -18,7 +18,7 @@ class ByEnhetStrategyTest : FunSpec({
         val byEnhetStrategy = ByEnhetStrategy(axsysClient = axsysClient)
 
         test("Skal returnere false når ingen UnleashContext er sendt inn") {
-            byEnhetStrategy.isEnabled(mutableMapOf()) shouldBe false
+            byEnhetStrategy.isEnabled(mutableMapOf(), UnleashContext("", "", "", emptyMap())) shouldBe false
         }
 
         test("Skal returnere false når brukers enhet ikke finnes i liste med påskrudde enheter") {
