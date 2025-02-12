@@ -5684,7 +5684,6 @@ components:
     UtbetalingStatus:
       type: string
       enum:
-        - NARMER_SEG_FRIST
         - KLAR_FOR_GODKJENNING
         - GODKJENT_AV_ARRANGOR
 
