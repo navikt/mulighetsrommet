@@ -153,8 +153,8 @@ class UtbetalingService(
         request: BesluttDelutbetalingRequest,
         utbetalingId: UUID,
         navIdent: NavIdent,
-    ): StatusResponse<Unit> {
-        val delutbetaling = db.session { queries.delutbetaling.get(utbetalingId, request.tilsagnId) }
+    ): StatusResponse<Unit> = db.transaction {
+        val delutbetaling = queries.delutbetaling.get(utbetalingId, request.tilsagnId)
             ?: return NotFound("Delutbetaling finnes ikke").left()
 
         if (delutbetaling.opprettetAv == navIdent) {
@@ -163,23 +163,18 @@ class UtbetalingService(
 
         when (request) {
             is BesluttDelutbetalingRequest.AvvistDelutbetalingRequest ->
-                db.session {
-                    queries.delutbetaling.avvis(
-                        utbetalingId = utbetalingId,
-                        navIdent = navIdent,
-                        request = request,
-                    )
-                }
+                queries.delutbetaling.avvis(
+                    utbetalingId = utbetalingId,
+                    navIdent = navIdent,
+                    request = request,
+                )
             is BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest -> {
-                db.session {
-                    queries.delutbetaling.godkjenn(
-                        utbetalingId = utbetalingId,
-                        tilsagnId = request.tilsagnId,
-                        navIdent = navIdent,
-                    )
-                }
-                // TODO: Gjør per del og ikke hele utbetalingen
-                // okonomi.scheduleBehandleGodkjentUtbetaling(utbetalingId, session)
+                queries.delutbetaling.godkjenn(
+                    utbetalingId = utbetalingId,
+                    tilsagnId = request.tilsagnId,
+                    navIdent = navIdent,
+                )
+                okonomi.scheduleBehandleGodkjentUtbetaling(utbetalingId, request.tilsagnId, session)
             }
         }
 
