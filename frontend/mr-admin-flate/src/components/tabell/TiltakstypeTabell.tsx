@@ -1,18 +1,20 @@
 import { tiltakstypeFilterAtom } from "@/api/atoms";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { formaterDato } from "@/utils/Utils";
-import { PaginertTiltakstype, SorteringTiltakstyper } from "@mr/api-client-v2";
+import { SorteringTiltakstyper } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { Alert, Table } from "@navikt/ds-react";
+import { useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
-import { useLoaderData } from "react-router";
+import { tiltakstyperQuery } from "../../pages/tiltakstyper/tiltakstypeLoaders";
 import { TiltakstypestatusTag } from "../statuselementer/TiltakstypestatusTag";
-
 export function TiltakstypeTabell() {
   const [filter, setFilter] = useAtom(tiltakstypeFilterAtom);
-  const { data } = useLoaderData() as { data: PaginertTiltakstype };
+
+  const { data } = useQuery(tiltakstyperQuery);
+
   const sort = filter.sort?.tableSort;
-  const tiltakstyper = data.data;
+  const tiltakstyper = data?.data;
 
   if (!tiltakstyper || tiltakstyper.length === 0) {
     return <Alert variant="info">Fant ingen tiltakstyper</Alert>;

@@ -5,10 +5,12 @@ import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { formaterDato } from "@/utils/Utils";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { useLoaderData } from "react-router";
-import { tiltakstypeLoader } from "./tiltakstyperLoaders";
+import { LoaderData } from "../../types/loader";
+import { tiltakstypeLoader } from "./tiltakstypeLoaders";
 
 export function TiltakstypeInfo() {
-  const tiltakstype = useLoaderData<typeof tiltakstypeLoader>();
+  const { tiltakstype } = useLoaderData<LoaderData<typeof tiltakstypeLoader>>();
+
   const tiltakstypeSanityUrl = `${SANITY_STUDIO_URL}/structure/tiltakstype;${tiltakstype.sanityId}`;
 
   return (
