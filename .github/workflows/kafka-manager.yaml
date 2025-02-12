@@ -1,10 +1,11 @@
-name: Kafka manager
+name: Deploy Kafka manager
 
 on:
   push:
     paths:
       - .github/workflows/kafka-manager.yaml
       - iac/kafka-manager/**
+  workflow_dispatch:
 
 jobs:
   ci:

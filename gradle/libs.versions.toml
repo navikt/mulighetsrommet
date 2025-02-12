@@ -127,4 +127,4 @@ slf4j = "org.slf4j:slf4j-api:2.0.16"
 apache-poi = "org.apache.poi:poi:5.4.0"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.4.0"
 
-unleash = "io.getunleash:unleash-client-java:9.3.1"
+unleash = "io.getunleash:unleash-client-java:10.0.1"

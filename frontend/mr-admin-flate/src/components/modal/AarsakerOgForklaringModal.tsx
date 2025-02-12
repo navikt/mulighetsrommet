@@ -1,11 +1,13 @@
-import { TilsagnTilAnnulleringAarsak, TilsagnTilAnnulleringRequest } from "@mr/api-client-v2";
 import { Button, Checkbox, CheckboxGroup, Heading, HGrid, Modal, Textarea } from "@navikt/ds-react";
 import { useState } from "react";
 
-interface Props {
+interface Props<T> {
   open: boolean;
+  header: string;
+  buttonLabel: string;
+  aarsaker: { label: string; value: T }[];
   onClose: () => void;
-  onConfirm: (validatedData: TilsagnTilAnnulleringRequest) => void;
+  onConfirm: (data: { aarsaker: T[]; forklaring?: string }) => void;
 }
 
 interface ValidationErrors {
@@ -15,22 +17,23 @@ interface ValidationErrors {
 
 const FORKLARING_MAX_LENGTH = 500;
 
-export function TilAnnulleringModal({ open, onClose, onConfirm }: Props) {
-  const [valgteAarsaker, setValgteAarsaker] = useState<TilsagnTilAnnulleringAarsak[]>([]);
-  const [forklaring, setForklaring] = useState<string>("");
+export function AarsakerOgForklaringModal<T>(props: Props<T>) {
+  const { open, onClose, onConfirm, header, buttonLabel, aarsaker } = props;
+  const [valgteAarsaker, setValgteAarsaker] = useState<T[]>([]);
+  const [forklaring, setForklaring] = useState<string | undefined>(undefined);
   const [errors, setErrors] = useState<ValidationErrors | null>(null);
 
   function validate() {
     const validationErrors: ValidationErrors = {};
     if (valgteAarsaker.length === 0) {
-      validationErrors.aarsak = "Du må velge minst én årsak for annullering av tilsagnet";
+      validationErrors.aarsak = "Du må velge minst én årsak";
     }
 
-    if (valgteAarsaker.includes(TilsagnTilAnnulleringAarsak.FEIL_ANNET) && !forklaring) {
+    if (valgteAarsaker.some((aarsak) => String(aarsak) === "FEIL_ANNET") && !forklaring) {
       validationErrors.forklaring = "Du må skrive en forklaring når du velger 'Annet'";
     }
 
-    if (forklaring.length > FORKLARING_MAX_LENGTH) {
+    if (forklaring && forklaring.length > FORKLARING_MAX_LENGTH) {
       validationErrors.forklaring = `Forklaringen kan ikke være lengre enn ${FORKLARING_MAX_LENGTH} tegn`;
     }
 
@@ -40,21 +43,16 @@ export function TilAnnulleringModal({ open, onClose, onConfirm }: Props) {
     } else {
       onConfirm({
         aarsaker: valgteAarsaker,
-        forklaring,
+        forklaring: forklaring || undefined,
       });
     }
   }
 
   return (
-    <Modal
-      width={"medium"}
-      aria-label="Annuller tilsagn med forklaring"
-      open={open}
-      onClose={onClose}
-    >
+    <Modal width={"medium"} aria-label={header} open={open} onClose={onClose}>
       <form>
         <Modal.Header>
-          <Heading size="medium">Annuller med forklaring</Heading>
+          <Heading size="medium">{header}</Heading>
         </Modal.Header>
         <Modal.Body>
           <div className="bg-surface-hover p-6">
@@ -69,9 +67,11 @@ export function TilAnnulleringModal({ open, onClose, onConfirm }: Props) {
                 legend="Årsak"
                 error={errors?.aarsak}
               >
-                <Checkbox value="FEIL_REGISTRERING">Feilregistrering</Checkbox>
-                <Checkbox value="GJENNOMFORING_AVBRYTES">Gjennomføring skal avbrytes</Checkbox>
-                <Checkbox value="FEIL_ANNET">Annet</Checkbox>
+                {aarsaker.map(({ label, value }) => (
+                  <Checkbox key={String(value)} value={value}>
+                    {label}
+                  </Checkbox>
+                ))}
               </CheckboxGroup>
               <Textarea
                 error={errors?.forklaring}
@@ -95,7 +95,7 @@ export function TilAnnulleringModal({ open, onClose, onConfirm }: Props) {
               validate();
             }}
           >
-            Send til godkjenning
+            {buttonLabel}
           </Button>
         </Modal.Footer>
       </form>

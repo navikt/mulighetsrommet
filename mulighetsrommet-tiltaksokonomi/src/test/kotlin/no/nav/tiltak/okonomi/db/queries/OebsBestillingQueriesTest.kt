@@ -4,8 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
-import no.nav.tiltak.okonomi.api.OkonomiPart
-import no.nav.tiltak.okonomi.api.OkonomiSystem
+import no.nav.tiltak.okonomi.OkonomiPart
+import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.databaseConfig
 import no.nav.tiltak.okonomi.db.Bestilling
 import no.nav.tiltak.okonomi.db.BestillingStatusType

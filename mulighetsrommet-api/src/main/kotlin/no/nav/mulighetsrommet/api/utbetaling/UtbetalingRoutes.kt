@@ -6,22 +6,28 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 fun Route.utbetalingRoutes() {
@@ -89,18 +95,24 @@ fun Route.utbetalingRoutes() {
             call.respond(request)
         }
 
-        put("/behandling") {
-            val utbetalingId = call.parameters.getOrFail<UUID>("id")
-            val request = call.receive<BehandleUtbetalingRequest>()
-            val navIdent = getNavIdent()
+        route("/delutbetaling") {
+            put {
+                val utbetalingId = call.parameters.getOrFail<UUID>("id")
+                val request = call.receive<DelutbetalingRequest>()
+                val navIdent = getNavIdent()
 
-            val behandleUtbetaling = BehandleUtbetaling(
-                utbetalingId,
-                request.kostnadsfordeling.map { BehandleUtbetaling.Kostnad(it.tilsagnId, it.belop) },
-            )
-            service.behandleUtbetaling(behandleUtbetaling, navIdent)
+                val result = service.upsertDelutbetaling(utbetalingId, request, navIdent)
+                    .mapLeft { ValidationError(errors = it) }
+                call.respondWithStatusResponse(result)
+            }
 
-            call.respond(HttpStatusCode.OK)
+            post("/beslutt") {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val request = call.receive<BesluttDelutbetalingRequest>()
+                val navIdent = getNavIdent()
+
+                call.respondWithStatusResponse(service.besluttDelutbetaling(request, id, navIdent))
+            }
         }
     }
 
@@ -124,17 +136,41 @@ fun Route.utbetalingRoutes() {
     }
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class BehandleUtbetalingRequest(
-    val kostnadsfordeling: List<TilsagnOgBelop>,
+@JsonClassDiscriminator("besluttelse")
+sealed class BesluttDelutbetalingRequest(
+    val besluttelse: Besluttelse,
 ) {
+    abstract val tilsagnId: UUID
+
     @Serializable
-    data class TilsagnOgBelop(
+    @SerialName("GODKJENT")
+    data class GodkjentDelutbetalingRequest(
         @Serializable(with = UUIDSerializer::class)
-        val tilsagnId: UUID,
-        val belop: Int,
+        override val tilsagnId: UUID,
+    ) : BesluttDelutbetalingRequest(
+        besluttelse = Besluttelse.GODKJENT,
+    )
+
+    @Serializable
+    @SerialName("AVVIST")
+    data class AvvistDelutbetalingRequest(
+        val aarsaker: List<String>,
+        val forklaring: String?,
+        @Serializable(with = UUIDSerializer::class)
+        override val tilsagnId: UUID,
+    ) : BesluttDelutbetalingRequest(
+        besluttelse = Besluttelse.AVVIST,
     )
 }
+
+@Serializable
+data class DelutbetalingRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val tilsagnId: UUID,
+    val belop: Int,
+)
 
 @Serializable
 data class OpprettManuellUtbetalingRequest(
@@ -162,6 +198,11 @@ data class UtbetalingKompakt(
     val status: UtbetalingStatus,
     val beregning: Beregning,
     val delutbetalinger: List<DelutbetalingDto>,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val godkjentAvArrangorTidspunkt: LocalDateTime?,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val createdAt: LocalDateTime,
+    val betalingsinformasjon: UtbetalingDto.Betalingsinformasjon,
 ) {
     @Serializable
     data class Beregning(
@@ -181,7 +222,10 @@ data class UtbetalingKompakt(
                 periodeSlutt = utbetaling.periode.getLastDate(),
                 belop = utbetaling.beregning.output.belop,
             ),
+            godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
             delutbetalinger = delutbetalinger,
+            betalingsinformasjon = utbetaling.betalingsinformasjon,
+            createdAt = utbetaling.createdAt,
         )
     }
 }

@@ -58,6 +58,7 @@ dependencies {
     implementation(projects.common.metrics)
     implementation(projects.common.slack)
     implementation(projects.common.tasks)
+    implementation(projects.common.tiltaksokonomiClient)
 
     // Kotlin
     implementation(libs.kotlinx.coroutines.core)

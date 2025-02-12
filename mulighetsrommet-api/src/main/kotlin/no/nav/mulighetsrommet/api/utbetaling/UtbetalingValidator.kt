@@ -2,38 +2,42 @@ package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.Either
 import arrow.core.left
-import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
 
 object UtbetalingValidator {
-    fun validate(
-        request: BehandleUtbetalingRequest,
-        utbetalinger: List<DelutbetalingDto>,
-    ): Either<List<FieldError>, BehandleUtbetalingRequest> = either {
-        if (utbetalinger.isNotEmpty()) {
-            return FieldError
-                .of(BehandleUtbetalingRequest::kostnadsfordeling, "Utbetaling allerede opprettet.")
-                .nel()
-                .left()
-        }
-
+    fun validate(belop: Int, tilsagn: TilsagnDto, maxBelop: Int): Either<List<FieldError>, Unit> = either {
         val errors = buildList {
-            request.kostnadsfordeling.forEachIndexed { index, tilsagnOgBelop ->
-                if (tilsagnOgBelop.belop <= 0) {
-                    add(
-                        FieldError.ofPointer(
-                            "/kostnadsfordeling/$index/belop",
-                            "Beløp må være positivt",
-                        ),
-                    )
-                }
+            if (belop <= 0) {
+                add(
+                    FieldError.of(
+                        DelutbetalingRequest::belop,
+                        "Beløp må være positivt",
+                    ),
+                )
+            }
+            // TODO: Bruk gjenstående beløp
+            if (belop > tilsagn.beregning.output.belop) {
+                add(
+                    FieldError.of(
+                        DelutbetalingRequest::belop,
+                        "Beløp er større enn gjenstående på tilsagnet",
+                    ),
+                )
+            }
+            if (belop > maxBelop) {
+                add(
+                    FieldError.of(
+                        DelutbetalingRequest::belop,
+                        "Kan ikke betale ut mer enn det er krav på",
+                    ),
+                )
             }
         }
 
-        return errors.takeIf { it.isNotEmpty() }?.left() ?: request.right()
+        return errors.takeIf { it.isNotEmpty() }?.left() ?: Unit.right()
     }
 
     fun validateManuellUtbetalingskrav(
@@ -65,3 +69,8 @@ object UtbetalingValidator {
         return errors.takeIf { it.isNotEmpty() }?.left() ?: request.right()
     }
 }
+
+data class TilsagnOgBelop(
+    val tilsagn: TilsagnDto,
+    val belop: Int,
+)

@@ -1,10 +1,19 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.raise.either
+import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.responses.StatusResponse
+import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.ktor.exception.Forbidden
+import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -14,6 +23,7 @@ import java.util.*
 
 class UtbetalingService(
     private val db: ApiDatabase,
+    private val okonomi: OkonomiBestillingService,
 ) {
     fun genererUtbetalingForMonth(date: LocalDate): List<UtbetalingDto> = db.transaction {
         val periode = Periode.forMonthOf(date)
@@ -96,39 +106,79 @@ class UtbetalingService(
         )
     }
 
-    // TODO: ValidationError i stedet for IllegalArgumentException?
-    fun behandleUtbetaling(bekreft: BehandleUtbetaling, opprettetAv: NavIdent): Unit = db.transaction {
-        val (utbetalingId, kostnadsfordeling) = bekreft
+    fun upsertDelutbetaling(
+        utbetalingId: UUID,
+        request: DelutbetalingRequest,
+        opprettetAv: NavIdent,
+    ): Either<List<FieldError>, Unit> = either {
+        val utbetaling = db.session { queries.utbetaling.get(utbetalingId) }
+            ?: return listOf(FieldError.root("Utbetaling med id=$utbetalingId finnes ikke")).left()
+        val tilsagn = db.session { queries.tilsagn.get(request.tilsagnId) }
+            ?: return listOf(FieldError.root("Tilsagn med id=${request.tilsagnId} finnes ikke")).left()
 
-        if (queries.delutbetaling.getByUtbetalingId(utbetalingId).isNotEmpty()) {
-            throw IllegalArgumentException("Utbetaling er allerede bekreftet")
+        val previous = db.session { queries.delutbetaling.get(utbetalingId, request.tilsagnId) }
+        when (previous) {
+            is DelutbetalingDto.DelutbetalingGodkjent, is DelutbetalingDto.DelutbetalingTilGodkjenning ->
+                return listOf(FieldError.root("Utbetaling kan ikke endres")).left()
+            is DelutbetalingDto.DelutbetalingAvvist, null -> {}
         }
 
-        val utbetaling = queries.utbetaling.get(utbetalingId)
-            ?: throw IllegalArgumentException("Utbetaling med id=$utbetalingId finnes ikke")
+        val maxBelop = utbetaling.beregning.output.belop -
+            db.session { queries.delutbetaling.getByUtbetalingId(utbetalingId) }
+                .filter { it.tilsagnId != tilsagn.id }
+                .sumOf { it.belop }
 
-        val delutbetalinger = kostnadsfordeling.map {
-            val tilsagn = queries.tilsagn.get(it.tilsagnId)
-                ?: throw IllegalArgumentException("Tilsagn med id=${it.tilsagnId} finnes ikke")
+        UtbetalingValidator.validate(belop = request.belop, tilsagn = tilsagn, maxBelop = maxBelop).bind()
 
-            val periode = Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt)
-                .intersect(utbetaling.periode)
-                ?: throw IllegalArgumentException("Utbetalingsperiode og tilsagnsperiode må overlappe")
+        val periode = utbetaling.periode.intersect(Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt))
+            ?: return listOf(FieldError.root("Utbetalingsperiode og tilsagnsperiode overlapper ikke")).left()
 
-            val lopenummer = queries.delutbetaling.getNextLopenummerByTilsagn(it.tilsagnId)
+        val lopenummer = db.session { queries.delutbetaling.getNextLopenummerByTilsagn(tilsagn.id) }
+        val dbo = DelutbetalingDbo(
+            utbetalingId = utbetaling.id,
+            tilsagnId = tilsagn.id,
+            periode = periode,
+            belop = request.belop,
+            opprettetAv = opprettetAv,
+            lopenummer = lopenummer,
+            fakturanummer = "${tilsagn.bestillingsnummer}/$lopenummer",
+        )
 
-            DelutbetalingDbo(
-                utbetalingId = utbetalingId,
-                tilsagnId = it.tilsagnId,
-                periode = periode,
-                belop = it.belop,
-                lopenummer = lopenummer,
-                fakturanummer = "${tilsagn.bestillingsnummer}/$lopenummer",
-                opprettetAv = opprettetAv,
-            )
+        db.session {
+            queries.delutbetaling.upsert(dbo)
+        }
+    }
+
+    fun besluttDelutbetaling(
+        request: BesluttDelutbetalingRequest,
+        utbetalingId: UUID,
+        navIdent: NavIdent,
+    ): StatusResponse<Unit> = db.transaction {
+        val delutbetaling = queries.delutbetaling.get(utbetalingId, request.tilsagnId)
+            ?: return NotFound("Delutbetaling finnes ikke").left()
+
+        if (delutbetaling.opprettetAv == navIdent) {
+            return Forbidden("Kan ikke beslutte egen utbetaling").left()
         }
 
-        queries.delutbetaling.opprettDelutbetalinger(delutbetalinger)
+        when (request) {
+            is BesluttDelutbetalingRequest.AvvistDelutbetalingRequest ->
+                queries.delutbetaling.avvis(
+                    utbetalingId = utbetalingId,
+                    navIdent = navIdent,
+                    request = request,
+                )
+            is BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest -> {
+                queries.delutbetaling.godkjenn(
+                    utbetalingId = utbetalingId,
+                    tilsagnId = request.tilsagnId,
+                    navIdent = navIdent,
+                )
+                okonomi.scheduleBehandleGodkjentUtbetaling(utbetalingId, request.tilsagnId, session)
+            }
+        }
+
+        return Unit.right()
     }
 
     private fun getDeltakelser(

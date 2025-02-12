@@ -8,7 +8,7 @@ interface Props {
   gjennomforing: GjennomforingDto;
 }
 
-export function TiltakDetaljerForTilsagn({ gjennomforing }: Props) {
+export function GjennomforingDetaljerMini({ gjennomforing }: Props) {
   return (
     <VStack gap="4">
       <Heading size="medium">Gjennomføring</Heading>

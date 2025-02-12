@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import kotliquery.TransactionalSession
+import kotliquery.Session
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
+import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 
 data class MulighetsrommetTestDomain(
@@ -45,26 +46,14 @@ data class MulighetsrommetTestDomain(
     val deltakere: List<DeltakerDbo> = listOf(),
     val tilsagn: List<TilsagnDbo> = listOf(),
     val utbetalinger: List<UtbetalingDbo> = listOf(),
+    val delutbetalinger: List<DelutbetalingDbo> = listOf(),
     val additionalSetup: (QueryContext.() -> Unit)? = null,
 ) {
     fun initialize(database: ApiDatabase): MulighetsrommetTestDomain = database.transaction {
-        enheter.forEach { queries.enhet.upsert(it) }
-        ansatte.forEach { queries.ansatt.upsert(it) }
-        arrangorer.forEach { queries.arrangor.upsert(it) }
-        arrangorKontaktpersoner.forEach { queries.arrangor.upsertKontaktperson(it) }
-        tiltakstyper.forEach { queries.tiltakstype.upsert(it) }
-        avtaler.forEach { queries.avtale.upsert(it) }
-        gjennomforinger.forEach { queries.gjennomforing.upsert(it) }
-        deltakere.forEach { queries.deltaker.upsert(it) }
-        tilsagn.forEach { queries.tilsagn.upsert(it) }
-        utbetalinger.forEach { queries.utbetaling.upsert(it) }
-
-        additionalSetup?.invoke(this)
-
-        this@MulighetsrommetTestDomain
+        setup(session)
     }
 
-    fun setup(session: TransactionalSession): MulighetsrommetTestDomain {
+    fun setup(session: Session): MulighetsrommetTestDomain {
         val context = QueryContext(session)
 
         with(context) {
@@ -78,6 +67,7 @@ data class MulighetsrommetTestDomain(
             deltakere.forEach { queries.deltaker.upsert(it) }
             tilsagn.forEach { queries.tilsagn.upsert(it) }
             utbetalinger.forEach { queries.utbetaling.upsert(it) }
+            delutbetalinger.forEach { queries.delutbetaling.upsert(it) }
         }
 
         additionalSetup?.invoke(context)
