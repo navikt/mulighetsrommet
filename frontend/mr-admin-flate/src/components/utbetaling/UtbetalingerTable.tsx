@@ -3,7 +3,7 @@ import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Table } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
 import { Link, useParams } from "react-router";
-import { UtbetalingKompakt } from "@mr/api-client-v2";
+import { UtbetalingKompakt, UtbetalingStatus } from "@mr/api-client-v2";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 
 interface Props {
@@ -39,7 +39,9 @@ export function UtbetalingerTable({ utbetalinger }: Props) {
                 <UtbetalingStatusTag status={status} />
               </Table.DataCell>
               <Table.DataCell>
-                <Link to={`/gjennomforinger/${gjennomforingId}/utbetalinger/${id}`}>Detaljer</Link>
+                { status !== UtbetalingStatus.KLAR_FOR_GODKJENNING &&
+                  <Link to={`/gjennomforinger/${gjennomforingId}/utbetalinger/${id}`}>Detaljer</Link>
+                }
               </Table.DataCell>
             </Table.Row>
           );
