@@ -24,6 +24,7 @@ module "mr_api_datastream" {
     bigquery_connection_profile_id = module.mr_datastream_vpc.bigquery_connection_profile_id
   }
   big_query_dataset_delete_contents_on_destroy = true
+
   postgresql_include_schemas = [
     {
       schema = "public",
@@ -39,5 +40,48 @@ module "mr_api_datastream" {
         { table = "utdanning" },
       ]
     }
+  ]
+
+  access_roles = [
+    {
+      role          = "OWNER"
+      special_group = "projectOwners"
+    },
+    {
+      role          = "READER"
+      special_group = "projectReaders"
+    },
+    {
+      role          = "WRITER"
+      special_group = "projectWriters"
+    },
+    {
+      role           = "roles/bigquery.metadataViewer"
+      group_by_email = "all-users@nav.no"
+    }
+  ]
+
+  authorized_views = [
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
+        table_id   = "tiltakstype_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
+        table_id   = "avtale_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
+        table_id   = "gjennomforing_view"
+      }
+    },
   ]
 }
