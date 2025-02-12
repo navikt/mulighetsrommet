@@ -1,5 +1,7 @@
 package no.nav.tiltak.okonomi.oebs
 
+import no.nav.mulighetsrommet.model.Tiltakskode
+
 /**
  * Betalinger må være knyttet til en statsregnskapskonto.
  *
@@ -42,4 +44,23 @@ enum class OebsKonteringInfo(val artskonto: String) {
     VARIG_TILRETTELAGT_ARBEID_SKJERMET(
         artskonto = "TODO",
     ),
+    ;
+
+    companion object {
+        fun getArtskonto(tiltakskode: Tiltakskode): String {
+            val kontering = when (tiltakskode) {
+                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING -> ARBEIDSFORBEREDENDE_TRENING
+                Tiltakskode.ARBEIDSRETTET_REHABILITERING -> ARBEIDSRETTET_REHABILITERING
+                Tiltakskode.AVKLARING -> AVKLARING
+                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK -> DIGITALT_OPPFOLGINGSTILTAK
+                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> GRUPPE_ARBEIDSMARKEDSOPPLAERING
+                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING -> GRUPPE_FAG_OG_YRKESOPPLAERING
+                Tiltakskode.JOBBKLUBB -> JOBBKLUBB
+                Tiltakskode.OPPFOLGING -> OPPFOLGING
+                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET -> VARIG_TILRETTELAGT_ARBEID_SKJERMET
+            }
+
+            return kontering.artskonto
+        }
+    }
 }
