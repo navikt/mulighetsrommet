@@ -330,6 +330,7 @@ class UtbetalingQueries(private val session: Session) {
                 slutt = localDate("periode_slutt"),
             ),
             godkjentAvArrangorTidspunkt = localDateTimeOrNull("godkjent_av_arrangor_tidspunkt"),
+            createdAt = localDateTime("created_at"),
         )
     }
 }

@@ -39,9 +39,11 @@ export function UtbetalingerTable({ utbetalinger }: Props) {
                 <UtbetalingStatusTag status={status} />
               </Table.DataCell>
               <Table.DataCell>
-                { status !== UtbetalingStatus.KLAR_FOR_GODKJENNING &&
-                  <Link to={`/gjennomforinger/${gjennomforingId}/utbetalinger/${id}`}>Detaljer</Link>
-                }
+                {status !== UtbetalingStatus.KLAR_FOR_GODKJENNING && (
+                  <Link to={`/gjennomforinger/${gjennomforingId}/utbetalinger/${id}`}>
+                    Detaljer
+                  </Link>
+                )}
               </Table.DataCell>
             </Table.Row>
           );

@@ -10,5 +10,6 @@ export const mockUtbetalinger: UtbetalingKompakt[] = [
     id: "",
     status: UtbetalingStatus.KLAR_FOR_GODKJENNING,
     delutbetalinger: [],
+    createdAt: "2020-01-01",
   },
 ];

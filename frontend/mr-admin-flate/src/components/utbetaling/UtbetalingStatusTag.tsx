@@ -18,11 +18,5 @@ export function UtbetalingStatusTag({ status }: { status: UtbetalingStatus }): R
           Klar for innsending
         </Tag>
       );
-    case UtbetalingStatus.NARMER_SEG_FRIST:
-      return (
-        <Tag size="small" variant="warning" className={baseTagClasses}>
-          Nærmer seg frist
-        </Tag>
-      );
   }
 }

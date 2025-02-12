@@ -94,7 +94,9 @@ export function UtbetalingPage() {
                   <Metadata
                     horizontal
                     header="Innsent"
-                    verdi={utbetaling.godkjentAvArrangorTidspunkt ?? "N/A"}
+                    verdi={formaterDato(
+                      utbetaling.godkjentAvArrangorTidspunkt ?? utbetaling.createdAt,
+                    )}
                   />
                   <Metadata
                     horizontal
