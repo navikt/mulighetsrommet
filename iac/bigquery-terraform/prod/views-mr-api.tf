@@ -148,6 +148,12 @@ module "mr_api_gjennomforing_view" {
       },
       {
         mode        = "NULLABLE"
+        name        = "avtale_id"
+        type        = "STRING"
+        description = "ID til avtalen."
+      },
+      {
+        mode        = "NULLABLE"
         name        = "tiltaksnummer"
         type        = "STRING"
         description = "Tiltaksnummer fra saken i Arena. Format: `<år>#<løpenummer>`."
@@ -188,6 +194,7 @@ module "mr_api_gjennomforing_view" {
 SELECT
   id,
   tiltakstype_id,
+  avtale_id,
   tiltaksnummer,
   start_dato,
   slutt_dato,
