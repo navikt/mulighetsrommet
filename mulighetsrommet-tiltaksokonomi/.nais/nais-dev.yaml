@@ -70,3 +70,5 @@ spec:
         - application: oebs-valp-api-t1
           namespace: team-oebs
           cluster: dev-fss
+      external:
+        - host: data.brreg.no
