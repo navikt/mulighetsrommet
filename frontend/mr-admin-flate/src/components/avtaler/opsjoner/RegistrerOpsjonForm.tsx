@@ -15,7 +15,7 @@ export function RegistrerOpsjonForm({ avtale }: Props) {
   const maksVarighetForOpsjon = avtale?.opsjonsmodellData?.opsjonMaksVarighet;
   const sluttDatoSisteOpsjon = avtale?.opsjonerRegistrert?.at(-1)?.sluttDato;
   const sluttdato = avtale?.sluttDato;
-  const { watch, setValue, register } = useFormContext<InferredRegistrerOpsjonSchema>();
+  const { watch, setValue, register, control } = useFormContext<InferredRegistrerOpsjonSchema>();
 
   const watchedOpsjonsvalg = watch("opsjonsvalg");
 
@@ -58,6 +58,7 @@ export function RegistrerOpsjonForm({ avtale }: Props) {
           toDate={new Date(maksVarighetForOpsjon)}
           {...register("opsjonsdatoValgt")}
           format={"iso-string"}
+          control={control}
         />
       )}
     </div>

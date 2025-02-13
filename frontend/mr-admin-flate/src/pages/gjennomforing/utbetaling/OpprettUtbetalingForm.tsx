@@ -65,7 +65,7 @@ export function OpprettUtbetalingForm({ gjennomforing }: Props) {
     resolver: zodResolver(Schema),
   });
 
-  const { register, formState, handleSubmit, setError } = form;
+  const { register, formState, handleSubmit, setError, control } = form;
 
   const mutation = useManuellUtbetaling(window.crypto.randomUUID());
 
@@ -107,6 +107,7 @@ export function OpprettUtbetalingForm({ gjennomforing }: Props) {
               toDate={addYear(new Date(), 5)}
               format="iso-string"
               {...register("periode.start")}
+              control={control}
             />
             <ControlledDateInput
               size="small"
@@ -115,6 +116,7 @@ export function OpprettUtbetalingForm({ gjennomforing }: Props) {
               toDate={addYear(new Date(), 5)}
               format="iso-string"
               {...register("periode.slutt")}
+              control={control}
             />
           </HStack>
           <TwoColumnGrid>
