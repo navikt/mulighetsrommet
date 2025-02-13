@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
-import no.nav.tiltak.okonomi.api.okonomiRoutes
+import no.nav.tiltak.okonomi.api.configureApi
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.kafka.OkonomiBestillingConsumer
 import no.nav.tiltak.okonomi.oebs.OebsService
@@ -56,14 +56,11 @@ fun Application.configure(config: AppConfig) {
         baseUrl = config.clients.oebsTiltakApi.url,
         tokenProvider = cachedTokenProvider.withScope(config.clients.oebsTiltakApi.scope),
     )
-
     val brreg = BrregClient(config.httpClientEngine)
-
     val oebsService = OebsService(okonomiDb, oebsClient, brreg)
-
-    okonomiRoutes(okonomiDb, oebsService)
-
     val kafka = configureKafka(config.kafka, db, oebsService)
+
+    configureApi(kafka, okonomiDb, oebsService)
 
     monitor.subscribe(ApplicationStarted) {
         kafka.enableFailedRecordProcessor()

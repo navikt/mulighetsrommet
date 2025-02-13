@@ -62,6 +62,9 @@ spec:
   kafka:
     pool: nav-dev
   accessPolicy:
+    inbound:
+      rules:
+        - application: mulighetsrommet-arena-adapter-manager
     outbound:
       rules:
         - application: oebs-valp-api-t1

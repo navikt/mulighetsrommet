@@ -3,6 +3,7 @@ import { Layout } from "./components/Layout";
 import { ArenaAdapter } from "./pages/ArenaAdapter.tsx";
 import { MrApi } from "./pages/MrApi.tsx";
 import { Tiltakshistorikk } from "./pages/Tiltakshistorikk.tsx";
+import { Tiltaksokonomi } from "./pages/Tiltaksokonomi.tsx";
 
 const apps = [
   {
@@ -19,6 +20,11 @@ const apps = [
     name: "tiltakshistorikk",
     path: "/tiltakshistorikk",
     page: <Tiltakshistorikk />,
+  },
+  {
+    name: "tiltaksøkonomi",
+    path: "/tiltaksokonomi",
+    page: <Tiltaksokonomi />,
   },
 ];
 

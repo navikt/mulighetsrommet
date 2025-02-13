@@ -86,6 +86,16 @@ spec:
                 "namespace": "team-mulighetsrommet",
                 "cluster": "dev-gcp"
               }
+            },
+            {
+              "fromPath": "/tiltaksokonomi",
+              "toUrl": "http://tiltaksokonomi",
+              "preserveFromPath": false,
+              "toApp": {
+                "name": "tiltaksokonomi",
+                "namespace": "team-mulighetsrommet",
+                "cluster": "dev-gcp"
+              }
             }
           ]
         }

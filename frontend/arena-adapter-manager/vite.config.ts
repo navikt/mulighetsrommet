@@ -32,6 +32,14 @@ export default defineConfig(({ mode }) => {
             Authorization: `Bearer ${env.VITE_AUTH_TOKEN}`,
           },
         },
+        "^/tiltaksokonomi": {
+          target: "http://0.0.0.0:8074",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/tiltaksokonomi/, ""),
+          headers: {
+            Authorization: `Bearer ${env.VITE_AUTH_TOKEN}`,
+          },
+        },
       },
     },
   };
