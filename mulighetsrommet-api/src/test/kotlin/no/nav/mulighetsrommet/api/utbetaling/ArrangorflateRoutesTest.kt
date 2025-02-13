@@ -295,6 +295,45 @@ class ArrangorflateRoutesTest : FunSpec({
         }
     }
 
+    test("kan ikke godkjenne allerede godkjent") {
+        withTestApplication(appConfig()) {
+            val client = createClient {
+                install(ContentNegotiation) {
+                    json()
+                }
+            }
+            var response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn-utbetaling") {
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
+                contentType(ContentType.Application.Json)
+                setBody(
+                    GodkjennUtbetaling(
+                        digest = utbetaling.beregning.getDigest(),
+                        betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(
+                            kontonummer = Kontonummer("12312312312"),
+                            kid = null,
+                        ),
+                    ),
+                )
+            }
+            response.status shouldBe HttpStatusCode.OK
+
+            response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn-utbetaling") {
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
+                contentType(ContentType.Application.Json)
+                setBody(
+                    GodkjennUtbetaling(
+                        digest = utbetaling.beregning.getDigest(),
+                        betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(
+                            kontonummer = Kontonummer("12312312312"),
+                            kid = null,
+                        ),
+                    ),
+                )
+            }
+            response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
     test("feil mot dokark gir fortsatt 200 på godkjenn siden det skjer i en task") {
         val clientEngine = createMockEngine {
             mockAltinnAuthorizedParties()

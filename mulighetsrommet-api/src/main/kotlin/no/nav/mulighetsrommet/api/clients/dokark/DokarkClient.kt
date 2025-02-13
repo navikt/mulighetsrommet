@@ -10,7 +10,6 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.tokenprovider.AccessType

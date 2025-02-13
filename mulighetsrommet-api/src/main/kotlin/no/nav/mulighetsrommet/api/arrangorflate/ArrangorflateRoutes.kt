@@ -29,10 +29,7 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.utbetaling.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.HentPersonBolkResponse
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerDto
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAft
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
+import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Kid
@@ -297,6 +294,13 @@ fun validerGodkjennUtbetaling(
     utbetaling: UtbetalingDto,
     forslagByDeltakerId: Map<UUID, List<DeltakerForslag>>,
 ): Either<List<FieldError>, GodkjennUtbetaling> {
+    if (utbetaling.status != UtbetalingStatus.KLAR_FOR_GODKJENNING) {
+        return listOf(
+            FieldError.root(
+                "Utbetaling allerede godkjent",
+            ),
+        ).left()
+    }
     val finnesRelevanteForslag = forslagByDeltakerId
         .any { (_, forslag) ->
             forslag.count { it.relevantForDeltakelse(utbetaling) } > 0
