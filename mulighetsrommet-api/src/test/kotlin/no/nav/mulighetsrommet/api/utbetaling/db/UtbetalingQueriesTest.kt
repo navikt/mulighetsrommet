@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import org.junit.jupiter.api.assertThrows
 import java.sql.SQLException
@@ -93,6 +94,7 @@ class UtbetalingQueriesTest : FunSpec({
                     kontonummer = Kontonummer("11111111111"),
                     kid = Kid("12345"),
                     periode = beregning.input.periode,
+                    innsender = null,
                 )
 
                 queries.upsert(utbetaling)
@@ -145,12 +147,14 @@ class UtbetalingQueriesTest : FunSpec({
                     kontonummer = Kontonummer("11111111111"),
                     kid = Kid("12345"),
                     periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 5, 5)),
+                    innsender = UtbetalingDto.Innsender.NavAnsatt(NavIdent("Z123456")),
                 )
 
                 queries.upsert(utbetaling)
                 queries.get(utbetaling.id).shouldNotBeNull() should {
                     it.id shouldBe utbetaling.id
                     it.beregning shouldBe friberegning
+                    it.innsender shouldBe UtbetalingDto.Innsender.NavAnsatt(NavIdent("Z123456"))
                 }
             }
         }
@@ -169,6 +173,7 @@ class UtbetalingQueriesTest : FunSpec({
                     kontonummer = null,
                     kid = null,
                     periode = beregning.input.periode,
+                    innsender = null,
                 )
 
                 queries.upsert(utbetaling)
@@ -179,7 +184,7 @@ class UtbetalingQueriesTest : FunSpec({
                 queries.setGodkjentAvArrangor(utbetaling.id, LocalDateTime.now())
 
                 queries.get(utbetaling.id)
-                    .shouldNotBeNull().status shouldBe UtbetalingStatus.GODKJENT_AV_ARRANGOR
+                    .shouldNotBeNull().status shouldBe UtbetalingStatus.INNSENDT_AV_ARRANGOR
             }
         }
 
@@ -197,6 +202,7 @@ class UtbetalingQueriesTest : FunSpec({
                     kontonummer = null,
                     kid = null,
                     periode = beregning.input.periode,
+                    innsender = null,
                 )
                 queries.upsert(utbetaling)
 
@@ -237,6 +243,7 @@ class UtbetalingQueriesTest : FunSpec({
                     kontonummer = null,
                     kid = null,
                     periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
+                    innsender = null,
                 )
 
                 assertThrows<SQLException> {

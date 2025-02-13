@@ -3,19 +3,32 @@ import { Tag } from "@navikt/ds-react";
 import { ReactNode } from "react";
 
 export function UtbetalingStatusTag({ status }: { status: UtbetalingStatus }): ReactNode {
-  const baseTagClasses = "w-[140px] text-center whitespace-nowrap";
+  const baseTagClasses = "w-[150px] text-center whitespace-nowrap";
 
   switch (status) {
-    case UtbetalingStatus.GODKJENT_AV_ARRANGOR:
+    case UtbetalingStatus.OVERFORT_TIL_UTBETALING:
       return (
-        <Tag size="small" variant="neutral" className={baseTagClasses}>
-          Godkjent
+        <Tag size="small" variant="warning" className={baseTagClasses}>
+          Overført til utbetaling
+        </Tag>
+      );
+    case UtbetalingStatus.UTBETALT:
+      return (
+        <Tag size="small" variant="success" className={baseTagClasses}>
+          Utbetalt
+        </Tag>
+      );
+    case UtbetalingStatus.INNSENDT_AV_NAV:
+    case UtbetalingStatus.INNSENDT_AV_ARRANGOR:
+      return (
+        <Tag size="small" variant="warning" className={baseTagClasses}>
+          Behandles av Nav
         </Tag>
       );
     case UtbetalingStatus.KLAR_FOR_GODKJENNING:
       return (
         <Tag size="small" variant="alt1" className={baseTagClasses}>
-          Klar for innsending
+          Venter på arrangør
         </Tag>
       );
   }

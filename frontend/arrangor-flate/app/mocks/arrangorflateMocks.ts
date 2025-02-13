@@ -5,7 +5,7 @@ import {
   RelevanteForslag,
   TilsagnStatus,
   TilsagnType,
-  UtbetalingStatus,
+  ArrFlateUtbetalingStatus,
 } from "@mr/api-client-v2";
 import { http, HttpResponse, PathParams } from "msw";
 import { v4 as uuid } from "uuid";
@@ -54,7 +54,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
   {
     type: "AFT",
     id: uuid(),
-    status: UtbetalingStatus.KLAR_FOR_GODKJENNING,
+    status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
     fristForGodkjenning: "2024-08-01T00:00:00",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
@@ -86,7 +86,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
   {
     type: "AFT",
     id: uuid(),
-    status: UtbetalingStatus.KLAR_FOR_GODKJENNING,
+    status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
     fristForGodkjenning: "2024-08-01T00:00:00",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
@@ -118,7 +118,39 @@ const mockKrav: ArrFlateUtbetaling[] = [
   {
     type: "AFT",
     id: uuid(),
-    status: UtbetalingStatus.GODKJENT_AV_ARRANGOR,
+    status: ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV,
+    fristForGodkjenning: "2024-08-01T00:00:00",
+    tiltakstype: {
+      navn: "Arbeidsforberedende trening",
+    },
+    gjennomforing: {
+      id: uuid(),
+      navn: "Amo tiltak Halden",
+    },
+    betalingsinformasjon: {
+      kontonummer: "12345678901",
+      kid: "123456789",
+    },
+    arrangor: {
+      id: uuid(),
+      organisasjonsnummer: "123456789",
+      navn: "Fretex",
+      slettet: false,
+    },
+    periodeStart: "2024-06-01",
+    periodeSlutt: "2024-06-30",
+    beregning: {
+      antallManedsverk: 4,
+      belop: 85000,
+      digest: "5c25b2ae0d9b5f2c76e4a6065125cbdb",
+      deltakelser: mockDeltakelser,
+      type: "FORHANDSGODKJENT",
+    },
+  },
+  {
+    type: "AFT",
+    id: uuid(),
+    status: ArrFlateUtbetalingStatus.UTBETALT,
     fristForGodkjenning: "2024-08-01T00:00:00",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",

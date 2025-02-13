@@ -133,7 +133,7 @@ class OkonomiBestillingService(
         val delutbetaling = requireNotNull(queries.delutbetaling.get(utbetalingId, tilsagnId)) {
             "Delutbetaling med utbetalingId=$utbetalingId, tilsagnId=$tilsagnId finnes ikke"
         }
-        require(delutbetaling is DelutbetalingDto.DelutbetalingGodkjent) {
+        require(delutbetaling is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling) {
             "delutbetaling er ikke godkjent"
         }
         val kontonummer = requireNotNull(utbetaling.betalingsinformasjon.kontonummer) {

@@ -40,8 +40,7 @@ fun Route.utbetalingRoutes() {
 
             val utbetaling = db.session {
                 val utbetaling = queries.utbetaling.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
-                val delutbetalinger = queries.delutbetaling.getByUtbetalingId(id)
-                UtbetalingKompakt.fromUtbetalingDto(utbetaling, delutbetalinger)
+                UtbetalingKompakt.fromUtbetalingDto(utbetaling)
             }
 
             call.respond(utbetaling)
@@ -65,6 +64,7 @@ fun Route.utbetalingRoutes() {
         post("/opprett-utbetaling") {
             val utbetalingId = call.parameters.getOrFail<UUID>("id")
             val request = call.receive<OpprettManuellUtbetalingRequest>()
+            val navIdent = getNavIdent()
 
             UtbetalingValidator.validateManuellUtbetalingskrav(request)
                 .onLeft {
@@ -88,6 +88,7 @@ fun Route.utbetalingRoutes() {
                             request.periode.start,
                             request.periode.slutt,
                         ),
+                        innsender = UtbetalingDto.Innsender.NavAnsatt(navIdent),
                     ),
                 )
             }
@@ -124,9 +125,7 @@ fun Route.utbetalingRoutes() {
                 val utbetalinger = db.session {
                     queries.utbetaling.getByGjennomforing(id)
                         .map { utbetaling ->
-                            val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
-
-                            UtbetalingKompakt.fromUtbetalingDto(utbetaling, delutbetalinger)
+                            UtbetalingKompakt.fromUtbetalingDto(utbetaling)
                         }
                 }
 
@@ -214,7 +213,7 @@ data class UtbetalingKompakt(
     )
 
     companion object {
-        fun fromUtbetalingDto(utbetaling: UtbetalingDto, delutbetalinger: List<DelutbetalingDto>) = UtbetalingKompakt(
+        fun fromUtbetalingDto(utbetaling: UtbetalingDto) = UtbetalingKompakt(
             id = utbetaling.id,
             status = utbetaling.status,
             beregning = Beregning(
@@ -223,7 +222,7 @@ data class UtbetalingKompakt(
                 belop = utbetaling.beregning.output.belop,
             ),
             godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
-            delutbetalinger = delutbetalinger,
+            delutbetalinger = utbetaling.delutbetalinger,
             betalingsinformasjon = utbetaling.betalingsinformasjon,
             createdAt = utbetaling.createdAt,
         )
