@@ -58,6 +58,10 @@ module "mr_api_datastream" {
     {
       role           = "roles/bigquery.metadataViewer"
       group_by_email = "all-users@nav.no"
+    },
+    {
+      role          = "roles/bigquery.metadataViewer"
+      user_by_email = "effekt-j6bp@knada-gcp.iam.gserviceaccount.com"
     }
   ]
 
