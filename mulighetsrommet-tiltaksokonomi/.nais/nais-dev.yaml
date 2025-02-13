@@ -62,6 +62,8 @@ spec:
   kafka:
     pool: nav-dev
   accessPolicy:
-    inbound:
+    outbound:
       rules:
-        - application: mulighetsrommet-api
+        - application: oebs-valp-api-t1
+          namespace: team-oebs
+          cluster: dev-fss
