@@ -3,7 +3,6 @@ package no.nav.tiltak.historikk
 import arrow.core.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.tiltak.historikk.clients.Avtale
@@ -16,19 +15,21 @@ import java.time.LocalDate
 class TiltakshistorikkService(
     private val deltakerRepository: DeltakerRepository,
     private val tiltakDatadelingClient: TiltakDatadelingClient,
+    private val cutOffDatoMapping: Map<Avtale.Tiltakstype, LocalDate>,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
     suspend fun getTiltakshistorikk(request: TiltakshistorikkRequest): TiltakshistorikkResponse = coroutineScope {
         val (identer, maxAgeYears) = request
+
         val arenaDeltakelser = async {
-            deltakerRepository.getArenaHistorikk(identer, maxAgeYears)
+            getArenaDeltakelser(identer, maxAgeYears, cutOffDatoMapping)
         }
         val gruppetiltakDeltakelser = async {
             deltakerRepository.getKometHistorikk(identer, maxAgeYears)
         }
         val arbeidsgiverAvtaler = async {
-            getArbeidsgiverAvtaler(identer, maxAgeYears)
+            getArbeidsgiverAvtaler(identer, maxAgeYears, cutOffDatoMapping)
         }
 
         val deltakelser = arenaDeltakelser.await() + gruppetiltakDeltakelser.await()
@@ -47,14 +48,36 @@ class TiltakshistorikkService(
             )
     }
 
-    private suspend fun getArbeidsgiverAvtaler(
+    fun getArenaDeltakelser(
         identer: List<NorskIdent>,
         maxAgeYears: Int?,
-    ): Either<NonEmptySet<TiltakshistorikkMelding>, List<Tiltakshistorikk.ArbeidsgiverAvtale>> {
-        if (NaisEnv.current().isProdGCP()) {
-            return nonEmptySetOf(TiltakshistorikkMelding.HENTER_IKKE_HISTORIKK_FRA_TEAM_TILTAK).left()
-        }
+        tiltakskodeDatoMapping: Map<Avtale.Tiltakstype, LocalDate>,
+    ): List<Tiltakshistorikk.ArenaDeltakelse> {
+        val deltakelser = deltakerRepository.getArenaHistorikk(identer, maxAgeYears)
 
+        return deltakelser.filter {
+            val tiltakskode = arenaKodeToTeamTiltakKode(it.arenaTiltakskode)
+            !belongsToTeamTiltak(tiltakskode, tiltakskodeDatoMapping, it.sluttDato)
+        }
+    }
+
+    fun arenaKodeToTeamTiltakKode(arenaKode: String): Avtale.Tiltakstype {
+        return when (arenaKode) {
+            "ARBTREN" -> Avtale.Tiltakstype.ARBEIDSTRENING
+            "MIDLONTIL" -> Avtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD
+            "VARLONTIL" -> Avtale.Tiltakstype.VARIG_LONNSTILSKUDD
+            "MENTOR" -> Avtale.Tiltakstype.MENTOR
+            "INKLUTILS" -> Avtale.Tiltakstype.INKLUDERINGSTILSKUDD
+            "VATIAROR" -> Avtale.Tiltakstype.VTAO
+            else -> throw IllegalArgumentException("Ukjent tiltakskode: $arenaKode")
+        }
+    }
+
+    suspend fun getArbeidsgiverAvtaler(
+        identer: List<NorskIdent>,
+        maxAgeYears: Int?,
+        cutOffDateMap: Map<Avtale.Tiltakstype, LocalDate>,
+    ): Either<NonEmptySet<TiltakshistorikkMelding>, List<Tiltakshistorikk.ArbeidsgiverAvtale>> {
         val minAvtaleDato = maxAgeYears?.let { LocalDate.now().minusYears(it.toLong()) } ?: LocalDate.MIN
         return identer
             .mapOrAccumulate {
@@ -65,6 +88,9 @@ class TiltakshistorikkService(
             }
             .map {
                 it.flatten()
+                    .filter {
+                        belongsToTeamTiltak(it.tiltakstype, cutOffDateMap, it.sluttDato)
+                    }
                     .filter { avtale ->
                         val avtaleDato = avtale.sluttDato
                             ?: avtale.startDato
@@ -80,6 +106,18 @@ class TiltakshistorikkService(
                 nonEmptySetOf(TiltakshistorikkMelding.MANGLER_HISTORIKK_FRA_TEAM_TILTAK)
             }
     }
+
+    fun belongsToTeamTiltak(
+        tiltakstype: Avtale.Tiltakstype,
+        cutOffDateMap: Map<Avtale.Tiltakstype, LocalDate>,
+        sluttDato: LocalDate?,
+    ): Boolean {
+        val cutOffDate = cutOffDateMap[tiltakstype]
+        if (cutOffDate == null) {
+            return true
+        }
+        return sluttDato == null || sluttDato.isAfter(cutOffDate) || sluttDato == cutOffDate
+    }
 }
 
 private fun toTiltakshistorikk(avtale: Avtale) = Tiltakshistorikk.ArbeidsgiverAvtale(
@@ -94,6 +132,7 @@ private fun toTiltakshistorikk(avtale: Avtale) = Tiltakshistorikk.ArbeidsgiverAv
         Avtale.Tiltakstype.MENTOR -> Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.MENTOR
         Avtale.Tiltakstype.INKLUDERINGSTILSKUDD -> Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.INKLUDERINGSTILSKUDD
         Avtale.Tiltakstype.SOMMERJOBB -> Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.SOMMERJOBB
+        Avtale.Tiltakstype.VTAO -> Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.VARIG_TILRETTELAGT_ARBEID_ORDINAR
     },
     status = when (avtale.avtaleStatus) {
         Avtale.Status.ANNULLERT -> ArbeidsgiverAvtaleStatus.ANNULLERT

@@ -55,7 +55,7 @@ fun Application.configure(config: AppConfig) {
         tokenProvider = cachedTokenProvider.withScope(config.clients.tiltakDatadeling.scope),
     )
 
-    val tiltakshistorikkService = TiltakshistorikkService(deltakerRepository, tiltakDatadelingClient)
+    val tiltakshistorikkService = TiltakshistorikkService(deltakerRepository, tiltakDatadelingClient, config.arbeidsgiverTiltakCutOffDatoMapping)
 
     val kafka = configureKafka(config.kafka, db, deltakerRepository, gruppetiltakRepository)
 
