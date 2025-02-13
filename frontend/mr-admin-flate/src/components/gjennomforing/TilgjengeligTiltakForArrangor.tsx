@@ -116,6 +116,7 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
                   format="iso-string"
                   invalidDatoEtterPeriode="Du må velge en dato som er før oppstartsdato"
                   {...form.register("tilgjengeligForArrangorFraOgMedDato")}
+                  control={form.control}
                 />
               </HStack>
             </form>

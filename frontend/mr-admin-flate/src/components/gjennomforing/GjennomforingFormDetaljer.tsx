@@ -208,6 +208,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
                   onChange: visAdvarselForStartDato,
                 })}
                 format={"iso-string"}
+                control={control}
               />
               <ControlledDateInput
                 size="small"
@@ -218,6 +219,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
                   onChange: visAdvarselForSluttDato,
                 })}
                 format={"iso-string"}
+                control={control}
               />
             </HGrid>
             <HGrid align="start" columns={2}>

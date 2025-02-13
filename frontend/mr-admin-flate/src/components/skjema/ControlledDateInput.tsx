@@ -1,8 +1,10 @@
 import { DateInput } from "@/components/skjema/DateInput";
 import { forwardRef } from "react";
-import { Controller } from "react-hook-form";
+import { Controller, Control, FieldValues, Path } from "react-hook-form";
 
-export interface Props {
+export interface ControlledDateInputProps<T extends FieldValues> {
+  name: Path<T>; // Type-safe field name
+  control: Control<T>; // Required react-hook-form control
   label: string;
   hideLabel?: boolean;
   readOnly?: boolean;
@@ -15,12 +17,12 @@ export interface Props {
   invalidDatoForTidlig?: string;
 }
 
-export const ControlledDateInput = forwardRef(function ControlledDateInput(
-  props: Props,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _,
+export const ControlledDateInput = forwardRef(function ControlledDateInput<T extends FieldValues>(
+  props: ControlledDateInputProps<T>,
 ) {
   const {
+    name,
+    control,
     label,
     hideLabel = false,
     size,
@@ -31,14 +33,13 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
     placeholder,
     invalidDatoEtterPeriode,
     invalidDatoForTidlig,
-    ...rest
   } = props;
 
   return (
     <div>
       <Controller
-        name={label}
-        {...rest}
+        name={name}
+        control={control}
         render={({ field: { onChange, value }, fieldState: { error } }) => {
           return (
             <DateInput
