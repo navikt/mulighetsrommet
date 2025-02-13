@@ -10,13 +10,14 @@ export function Lenkeliste({ lenker }: Props) {
   return (
     <List as="ul">
       {lenker.map((lenke, index) => (
-        <List.Item key={index}>
-          <VStack>
+        <List.Item key={index} className="break-words">
+          <VStack className="max-w-full overflow-hidden">
             <LenkeComponent
               to={lenke.lenke}
               target={lenke.apneINyFane ? "_blank" : "_self"}
               rel={lenke.apneINyFane ? "noopener noreferrer" : undefined}
               isExternal={lenke.apneINyFane}
+              className="break-all"
             >
               {lenke.lenkenavn} ({lenke.lenke})
             </LenkeComponent>

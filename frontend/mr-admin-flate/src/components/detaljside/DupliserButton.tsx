@@ -8,7 +8,12 @@ interface Props {
 
 export function DupliserButton({ onClick, title }: Props) {
   return (
-    <Button title={title} className="bg-[var(--a-surface-action)] max-h-8" onClick={onClick}>
+    <Button
+      title={title}
+      className="bg-[var(--a-surface-action)] max-h-8"
+      onClick={onClick}
+      size="small"
+    >
       <div className="flex items-start justify-between text-base gap-2">
         <LayersPlusIcon
           color="white"
