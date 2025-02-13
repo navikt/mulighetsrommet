@@ -2,10 +2,12 @@ package no.nav.tiltak.historikk
 
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.tiltak.historikk.clients.Avtale
 import java.time.LocalDate
 
@@ -21,7 +23,11 @@ data class AppConfig(
     val auth: AuthConfig,
     val kafka: KafkaConfig,
     val clients: ClientConfig,
-    val arbeidsgiverTiltakCutOffDatoMapping: Map<Avtale.Tiltakstype, LocalDate> = emptyMap(),
+    val arbeidsgiverTiltakCutOffDatoMapping: Map<
+        Avtale.Tiltakstype,
+        @Serializable(with = LocalDateSerializer::class)
+        LocalDate,
+        > = emptyMap(),
 )
 
 data class ClientConfig(

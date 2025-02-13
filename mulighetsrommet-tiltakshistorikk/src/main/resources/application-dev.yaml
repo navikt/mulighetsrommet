@@ -30,6 +30,6 @@ app:
       scope: api://dev-gcp.team-tiltak.tiltak-datadeling/.default
 
   arbeidsgiverTiltakCutOffDatoMapping:
-    MIDLERTIDIG_LONNSTILSKUDD: 2023-2-1
-    VARIG_LONNSTILSKUDD: 2023-2-1
-    ARBEIDSTRENING: 2025-1-24
+    MIDLERTIDIG_LONNSTILSKUDD: 2023-02-01
+    VARIG_LONNSTILSKUDD: 2023-02-01
+    ARBEIDSTRENING: 2025-01-24
