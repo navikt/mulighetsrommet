@@ -15,8 +15,8 @@ import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.*
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.api.*
-import no.nav.tiltak.okonomi.db.BestillingStatusType
-import no.nav.tiltak.okonomi.db.FakturaStatusType
+import no.nav.tiltak.okonomi.model.BestillingStatusType
+import no.nav.tiltak.okonomi.model.FakturaStatusType
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 

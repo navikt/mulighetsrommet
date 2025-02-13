@@ -7,10 +7,13 @@ import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.databaseConfig
-import no.nav.tiltak.okonomi.db.*
+import no.nav.tiltak.okonomi.model.Bestilling
+import no.nav.tiltak.okonomi.model.BestillingStatusType
+import no.nav.tiltak.okonomi.model.Faktura
+import no.nav.tiltak.okonomi.model.FakturaStatusType
 import java.time.LocalDate
 
-class OebsFakturaQueriesTest : FunSpec({
+class FakturaQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val bestilling = Bestilling(
@@ -31,7 +34,7 @@ class OebsFakturaQueriesTest : FunSpec({
         besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
         besluttetTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
         linjer = listOf(
-            LinjeDbo(
+            Bestilling.Linje(
                 linjenummer = 1,
                 periode = Periode(
                     LocalDate.of(2025, 1, 1),
@@ -39,7 +42,7 @@ class OebsFakturaQueriesTest : FunSpec({
                 ),
                 belop = 500,
             ),
-            LinjeDbo(
+            Bestilling.Linje(
                 linjenummer = 2,
                 periode = Periode(
                     LocalDate.of(2025, 2, 1),
@@ -64,7 +67,7 @@ class OebsFakturaQueriesTest : FunSpec({
             besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
             besluttetTidspunkt = LocalDate.of(2025, 2, 2).atStartOfDay(),
             linjer = listOf(
-                LinjeDbo(
+                Faktura.Linje(
                     linjenummer = 1,
                     periode = Periode(
                         LocalDate.of(2025, 1, 1),
@@ -72,7 +75,7 @@ class OebsFakturaQueriesTest : FunSpec({
                     ),
                     belop = 500,
                 ),
-                LinjeDbo(
+                Faktura.Linje(
                     linjenummer = 2,
                     periode = Periode(
                         LocalDate.of(2025, 2, 1),
