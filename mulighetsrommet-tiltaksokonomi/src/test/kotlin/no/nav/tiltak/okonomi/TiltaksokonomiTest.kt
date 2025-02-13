@@ -72,7 +72,7 @@ class TiltaksokonomiTest : FunSpec({
             val mockEngine = createMockEngine {
                 mockBrregHovedenhet()
 
-                post("http://oebs-tiltak-api/api/v1/oebs/bestilling") { respondOk() }
+                post("/api/v1/tilsagn") { respondOk() }
             }
 
             withTestApplication(oauth, mockEngine) {
@@ -162,9 +162,9 @@ class TiltaksokonomiTest : FunSpec({
             val mockEngine = createMockEngine {
                 mockBrregHovedenhet()
 
-                post("http://oebs-tiltak-api/api/v1/oebs/bestilling") { respondOk() }
+                post("/api/v1/tilsagn") { respondOk() }
 
-                post("http://oebs-tiltak-api/api/v1/oebs/faktura") { respondOk() }
+                post("/api/v1/refusjonskrav") { respondOk() }
             }
 
             withTestApplication(oauth, mockEngine) {

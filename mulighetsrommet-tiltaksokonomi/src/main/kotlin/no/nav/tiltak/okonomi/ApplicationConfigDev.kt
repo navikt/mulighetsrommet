@@ -1,11 +1,12 @@
 package no.nav.tiltak.okonomi
 
+import io.ktor.client.engine.cio.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 
 val ApplicationConfigDev = AppConfig(
-    httpClientEngine = mockClientEngine,
+    httpClientEngine = CIO.create(),
     database = DatabaseConfig(
         jdbcUrl = System.getenv("DB_JDBC_URL"),
         maximumPoolSize = 10,
@@ -20,7 +21,10 @@ val ApplicationConfigDev = AppConfig(
         ),
     ),
     clients = ClientConfig(
-        oebsTiltakApi = AuthenticatedHttpClientConfig(url = "http://oebs-tiltak-api", scope = "default"),
+        oebsTiltakApi = AuthenticatedHttpClientConfig(
+            url = "http://oebs-valp-api-t1.dev-fss-pub.nais.io",
+            scope = "api://dev-fss.team-oebs.oebs-valp-api-t1/.default",
+        ),
     ),
     kafka = KafkaConfig(
         defaultConsumerGroupId = "team-mulighetsrommet.tiltaksokonomi.v1",
