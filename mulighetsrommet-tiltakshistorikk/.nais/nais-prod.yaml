@@ -70,6 +70,7 @@ spec:
       rules:
         - application: mulighetsrommet-api
         - application: mulighetsrommet-arena-adapter
+        - application: mulighetsrommet-arena-adapter-manager
     outbound:
       rules:
         - application: tiltak-datadeling

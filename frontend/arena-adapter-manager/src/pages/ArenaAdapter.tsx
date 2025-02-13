@@ -5,10 +5,10 @@ import ReplayEvent from "../sections/ReplayEvent";
 import DeleteEvents from "../sections/DeleteEvents";
 import { ApiBase } from "../core/api.tsx";
 
-export function MrArenaAdapterManagement() {
+export function ArenaAdapter() {
   return (
     <Box>
-      <Heading mb="10">mr-arena-adapter</Heading>
+      <Heading mb="10">arena-adapter</Heading>
       <VStack spacing={8}>
         <TopicOverview base={ApiBase.ARENA_ADAPTER} />
         <ReplayEvents />

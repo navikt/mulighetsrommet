@@ -7,11 +7,14 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
+import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
+import no.nav.mulighetsrommet.kafka.Topic
 import no.nav.mulighetsrommet.model.TiltakshistorikkRequest
 import no.nav.tiltak.historikk.repositories.DeltakerRepository
 import java.util.*
 
 fun Route.tiltakshistorikkRoutes(
+    kafka: KafkaConsumerOrchestrator,
     deltakerRepository: DeltakerRepository,
     service: TiltakshistorikkService,
 ) {
@@ -41,6 +44,23 @@ fun Route.tiltakshistorikkRoutes(
                 deltakerRepository.deleteArenaDeltaker(id)
 
                 call.respond(HttpStatusCode.OK)
+            }
+        }
+    }
+
+    authenticate {
+        route("/maam") {
+            route("/topics") {
+                get {
+                    val topics = kafka.getTopics()
+                    call.respond(topics)
+                }
+
+                put {
+                    val topics = call.receive<List<Topic>>()
+                    kafka.updateRunningTopics(topics)
+                    call.respond(HttpStatusCode.OK)
+                }
             }
         }
     }

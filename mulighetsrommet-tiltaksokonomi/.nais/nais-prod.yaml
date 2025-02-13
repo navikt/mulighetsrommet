@@ -65,4 +65,4 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: mulighetsrommet-api
+        - application: mulighetsrommet-arena-adapter-manager
