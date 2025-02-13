@@ -161,6 +161,16 @@ class TiltakshistorikkTest : FunSpec({
                         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
                         arbeidsgiver = Tiltakshistorikk.Arbeidsgiver(Organisasjonsnummer("123456789")),
                     ),
+                    Tiltakshistorikk.ArenaDeltakelse(
+                        norskIdent = NorskIdent("12345678910"),
+                        id = UUID.fromString("ddb13a2b-cd65-432d-965c-9167938a26a4"),
+                        arenaTiltakskode = "AMO",
+                        status = ArenaDeltakerStatus.GJENNOMFORES,
+                        startDato = LocalDate.of(2024, 2, 1),
+                        sluttDato = LocalDate.of(2024, 2, 29),
+                        beskrivelse = "Enkelt-AMO hos Joblearn",
+                        arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                    ),
                     Tiltakshistorikk.GruppetiltakDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
                         id = UUID.fromString("6d54228f-534f-4b4b-9160-65eae26a3b06"),
@@ -256,6 +266,16 @@ class TiltakshistorikkTest : FunSpec({
                         beskrivelse = "Mentortiltak hos Joblearn",
                         arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
                     ),
+                    Tiltakshistorikk.ArenaDeltakelse(
+                        norskIdent = NorskIdent("12345678910"),
+                        id = UUID.fromString("ddb13a2b-cd65-432d-965c-9167938a26a4"),
+                        arenaTiltakskode = "AMO",
+                        status = ArenaDeltakerStatus.GJENNOMFORES,
+                        startDato = LocalDate.of(2024, 2, 1),
+                        sluttDato = LocalDate.of(2024, 2, 29),
+                        beskrivelse = "Enkelt-AMO hos Joblearn",
+                        arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                    ),
                     Tiltakshistorikk.GruppetiltakDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
                         id = UUID.fromString("6d54228f-534f-4b4b-9160-65eae26a3b06"),
@@ -329,6 +349,7 @@ class TiltakshistorikkTest : FunSpec({
 
                 historikk.map { it.opphav } shouldContainExactly listOf(
                     Tiltakshistorikk.Opphav.ARENA,
+                    Tiltakshistorikk.Opphav.ARENA,
                 )
             }
         }
@@ -397,6 +418,19 @@ private fun inititalizeData(database: FlywayDatabaseTestListener) {
         registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
     )
     deltakere.upsertArenaDeltaker(mentor)
+
+    val enkeltAMO = ArenaDeltakerDbo(
+        id = UUID.fromString("ddb13a2b-cd65-432d-965c-9167938a26a4"),
+        norskIdent = NorskIdent("12345678910"),
+        arenaTiltakskode = "AMO",
+        status = ArenaDeltakerStatus.GJENNOMFORES,
+        startDato = LocalDateTime.of(2024, 2, 1, 0, 0, 0),
+        sluttDato = LocalDateTime.of(2024, 2, 29, 0, 0, 0),
+        beskrivelse = "Enkelt-AMO hos Joblearn",
+        arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
+        registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+    )
+    deltakere.upsertArenaDeltaker(enkeltAMO)
 
     val deltakelsesdato = LocalDateTime.of(2002, 3, 1, 0, 0, 0)
     val amtDeltaker = AmtDeltakerV1Dto(
