@@ -56,7 +56,7 @@ class TiltakshistorikkService(
         val deltakelser = deltakerRepository.getArenaHistorikk(identer, maxAgeYears)
 
         return deltakelser.filter {
-            val tiltakskode = arenaKodeToTeamTiltakKode(it.arenaTiltakskode) ?: return@filter false
+            val tiltakskode = arenaKodeToTeamTiltakKode(it.arenaTiltakskode) ?: return@filter true
             !belongsToTeamTiltak(tiltakskode, tiltakskodeDatoMapping, it.sluttDato)
         }
     }
