@@ -46,6 +46,9 @@ spec:
       rules:
         - application: mulighetsrommet-arena-adapter
         - application: mulighetsrommet-api
+        - application: tiltakshistorikk
+        # TODO
+        # - application: tiltaksokonomi
   env:
     - name: JSON_CONFIG
       value: >
