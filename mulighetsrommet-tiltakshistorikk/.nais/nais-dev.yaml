@@ -59,7 +59,7 @@ spec:
       allowAllUsers: false
       claims:
         groups:
-          - id: debefa6e-1865-446d-b22b-9579fc735de3 # team-mulighetsrommet
+          - id: 639e2806-4cc2-484c-a72a-51b4308c52a1 # team-mulighetsrommet
         extra:
           - azp_name
   kafka:
