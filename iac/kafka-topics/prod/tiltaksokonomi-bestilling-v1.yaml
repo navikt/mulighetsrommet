@@ -21,3 +21,6 @@ spec:
     - team: team-mulighetsrommet
       application: tiltaksokonomi
       access: read
+    - team: team-mulighetsrommet
+      application: mulighetsrommet-kafka-manager
+      access: read
