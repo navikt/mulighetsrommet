@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
+import no.nav.mulighetsrommet.brreg.BrregAdresse
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
@@ -22,12 +23,13 @@ class AnnullerBestillingError(message: String, cause: Throwable? = null) : Excep
 
 class OpprettFakturaError(message: String, cause: Throwable? = null) : Exception(message, cause)
 
+private val log: Logger = LoggerFactory.getLogger(OebsService::class.java)
+
 class OebsService(
     private val db: OkonomiDatabase,
     private val oebs: OebsTiltakApiClient,
     private val brreg: BrregClient,
 ) {
-    private val log: Logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun opprettBestilling(
         opprettBestilling: OpprettBestilling,
@@ -135,23 +137,13 @@ class OebsService(
 
 private fun toOebsBestillingMelding(
     bestilling: Bestilling,
-    arrangorHovedenhet: BrregHovedenhetDto,
+    leverandor: BrregHovedenhetDto,
     linjer: List<OebsBestillingMelding.Linje>,
 ): OebsBestillingMelding {
     val selger = OebsBestillingMelding.Selger(
-        organisasjonsNummer = arrangorHovedenhet.organisasjonsnummer.value,
-        organisasjonsNavn = arrangorHovedenhet.navn,
-        postAdresse = listOfNotNull(
-            arrangorHovedenhet.postadresse?.let { adresse ->
-                // TODO: hvordan håndtere manglende adresse? Feile, sette empty strings, eller sende null?
-                OebsBestillingMelding.Selger.PostAdresse(
-                    gateNavn = adresse.adresse?.joinToString(separator = ", ") ?: "",
-                    by = adresse.poststed ?: "",
-                    postNummer = adresse.postnummer ?: "",
-                    landsKode = adresse.landkode ?: "",
-                )
-            },
-        ),
+        organisasjonsNummer = leverandor.organisasjonsnummer.value,
+        organisasjonsNavn = leverandor.navn,
+        postAdresse = getLeverandorPostadresse(leverandor),
         bedriftsNummer = bestilling.arrangorUnderenhet.value,
     )
 
@@ -173,6 +165,29 @@ private fun toOebsBestillingMelding(
         artsKonto = OebsKonteringInfo.getArtskonto(bestilling.tiltakskode),
         kontor = bestilling.kostnadssted.value,
         tilsagnsAar = bestilling.periode.start.year,
+    )
+}
+
+private fun getLeverandorPostadresse(leverandor: BrregHovedenhetDto): List<OebsBestillingMelding.Selger.PostAdresse> {
+    val postadresse = leverandor.postadresse?.let { toOebsAdresse(it) }.let { listOfNotNull(it) }
+
+    if (postadresse.isEmpty()) {
+        log.warn("Klarte ikke utlede adresse for leverandør $leverandor")
+    }
+
+    return postadresse
+}
+
+private fun toOebsAdresse(it: BrregAdresse): OebsBestillingMelding.Selger.PostAdresse? {
+    val adresse = it.adresse?.joinToString(separator = ", ") ?: return null
+    val poststed = it.poststed ?: return null
+    val postnummer = it.postnummer ?: return null
+    val landkode = it.landkode ?: return null
+    return OebsBestillingMelding.Selger.PostAdresse(
+        gateNavn = adresse,
+        by = poststed,
+        postNummer = postnummer,
+        landsKode = landkode,
     )
 }
 
