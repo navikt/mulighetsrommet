@@ -6,10 +6,9 @@ import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.tiltak.okonomi.OkonomiPart
-import no.nav.tiltak.okonomi.db.Faktura
-import no.nav.tiltak.okonomi.db.FakturaStatusType
-import no.nav.tiltak.okonomi.db.LinjeDbo
 import no.nav.tiltak.okonomi.db.periode
+import no.nav.tiltak.okonomi.model.Faktura
+import no.nav.tiltak.okonomi.model.FakturaStatusType
 import org.intellij.lang.annotations.Language
 
 class FakturaQueries(private val session: Session) {
@@ -107,7 +106,7 @@ class FakturaQueries(private val session: Session) {
 
         return session.single(queryOf(selectFaktura, fakturanummer)) { faktura ->
             val linjer = session.list(queryOf(selectLinje, faktura.int("id"))) { linje ->
-                LinjeDbo(
+                Faktura.Linje(
                     linjenummer = linje.int("linjenummer"),
                     periode = linje.periode("periode"),
                     belop = linje.int("belop"),

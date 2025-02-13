@@ -1973,18 +1973,18 @@ paths:
                 items:
                   $ref: "#/components/schemas/TilsagnDto"
 
-  /api/v1/intern/utbetaling/{id}/behandling:
+  /api/v1/intern/utbetaling/{id}/delutbetaling:
     parameters:
       - $ref: "#/components/parameters/ID"
     put:
       tags:
         - Utbetaling
-      operationId: opprettUtbetaling
+      operationId: upsertDelutbetaling
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UtbetalingRequest"
+              $ref: "#/components/schemas/DelutbetalingRequest"
       responses:
         200:
           description: OK
@@ -1994,12 +1994,28 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationError"
-        500:
-          description: "Kunne ikke opprette utbetaling"
+
+  /api/v1/intern/utbetaling/{id}/delutbetaling/beslutt:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    post:
+      tags:
+        - Utbetaling
+      operationId: besluttDeltbetaling
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BesluttDelutbetalingRequest"
+      responses:
+        200:
+          description: OK
+        400:
+          description: Respons med valideringsfeil
           content:
             application/json:
               schema:
-                type: string
+                $ref: "#/components/schemas/ValidationError"
 
   /api/v1/intern/utbetaling/{id}/opprett-utbetaling:
     parameters:
@@ -5482,7 +5498,7 @@ components:
         - aarsaker
         - forklaring
 
-    TilsagnStatusBesluttelse:
+    Besluttelse:
       type: string
       enum:
         - GODKJENT
@@ -5497,7 +5513,7 @@ components:
       type: object
       properties:
         besluttelse:
-          $ref: "#/components/schemas/TilsagnStatusBesluttelse"
+          $ref: "#/components/schemas/Besluttelse"
       required:
         - besluttelse
 
@@ -5505,7 +5521,7 @@ components:
       type: object
       properties:
         besluttelse:
-          $ref: "#/components/schemas/TilsagnStatusBesluttelse"
+          $ref: "#/components/schemas/Besluttelse"
         aarsaker:
           type: array
           items:
@@ -5664,12 +5680,21 @@ components:
         - pris
         - valuta
 
+    ArrFlateUtbetalingStatus:
+      type: string
+      enum:
+        - KLAR_FOR_GODKJENNING
+        - BEHANDLES_AV_NAV
+        - UTBETALT
+
     UtbetalingStatus:
       type: string
       enum:
-        - NARMER_SEG_FRIST
         - KLAR_FOR_GODKJENNING
-        - GODKJENT_AV_ARRANGOR
+        - INNSENDT_AV_ARRANGOR
+        - INNSENDT_AV_NAV
+        - OVERFORT_TIL_UTBETALING
+        - UTBETALT
 
     UtbetalingKompakt:
       type: object
@@ -5685,7 +5710,15 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DelutbetalingDto"
-      required: [id, status, beregning, delutbetalinger]
+        godkjentAvArrangorTidspunkt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        betalingsinformasjon:
+          $ref: "#/components/schemas/Betalingsinformasjon"
+      required: [id, status, beregning, delutbetalinger, createdAt]
 
     ArrFlateUtbetalingKompakt:
       type: object
@@ -5694,7 +5727,7 @@ components:
           type: string
           format: uuid
         status:
-          $ref: "#/components/schemas/UtbetalingStatus"
+          $ref: "#/components/schemas/ArrFlateUtbetalingStatus"
         fristForGodkjenning:
           type: string
           format: date-time
@@ -5748,7 +5781,7 @@ components:
           type: string
           format: uuid
         status:
-          $ref: "#/components/schemas/UtbetalingStatus"
+          $ref: "#/components/schemas/ArrFlateUtbetalingStatus"
         fristForGodkjenning:
           type: string
           format: date-time
@@ -6090,14 +6123,16 @@ components:
 
     DelutbetalingDto:
       oneOf:
-        - $ref: "#/components/schemas/DelutbetalingGodkjent"
+        - $ref: "#/components/schemas/DelutbetalingOverfortTilUtbetaling"
+        - $ref: "#/components/schemas/DelutbetalingUtbetalt"
         - $ref: "#/components/schemas/DelutbetalingTilGodkjenning"
+        - $ref: "#/components/schemas/DelutbetalingAvvist"
 
-    DelutbetalingGodkjent:
+    DelutbetalingOverfortTilUtbetaling:
       type: object
       properties:
         type:
-          const: DELUTBETALING_GODKJENT
+          const: DELUTBETALING_OVERFORT_TIL_UTBETALING
         tilsagnId:
           type: string
           format: uuid
@@ -6110,13 +6145,26 @@ components:
           type: string
         besluttetAv:
           type: string
-      required:
-        - type
-        - tilsagnId
-        - utbetalingId
-        - belop
-        - opprettetAv
-        - besluttetAv
+      required: [type, tilsagnId, utbetalingId, belop, opprettetAv, besluttetAv]
+
+    DelutbetalingUtbetalt:
+      type: object
+      properties:
+        type:
+          const: DELUTBETALING_UTBETALT
+        tilsagnId:
+          type: string
+          format: uuid
+        utbetalingId:
+          type: string
+          format: uuid
+        belop:
+          type: number
+        opprettetAv:
+          type: string
+        besluttetAv:
+          type: string
+      required: [type, tilsagnId, utbetalingId, belop, opprettetAv, besluttetAv]
 
     DelutbetalingTilGodkjenning:
       type: object
@@ -6133,31 +6181,45 @@ components:
           type: number
         opprettetAv:
           type: string
-      required:
-        - type
-        - tilsagnId
-        - utbetalingId
-        - belop
-        - opprettetAv
+      required: [type, tilsagnId, utbetalingId, belop, opprettetAv]
 
-    UtbetalingRequest:
+    DelutbetalingAvvist:
       type: object
       properties:
-        kostnadsfordeling:
+        type:
+          const: DELUTBETALING_AVVIST
+        tilsagnId:
+          type: string
+          format: uuid
+        utbetalingId:
+          type: string
+          format: uuid
+        belop:
+          type: number
+        opprettetAv:
+          type: string
+        besluttetAv:
+          type: string
+        besluttetTidspunkt:
+          type: string
+          format: date-time
+        aarsaker:
           type: array
           items:
-            type: object
-            properties:
-              tilsagnId:
-                type: string
-                format: uuid
-              belop:
-                type: number
-            required:
-              - tilsagnId
-              - belop
-      required:
-        - kostnadsfordeling
+            type: string
+        forklaring:
+          type: string
+      required: [type, tilsagnId, utbetalingId, belop, opprettetAv, besluttetAv, aarsaker, forklaring, besluttetTidspunkt]
+
+    DelutbetalingRequest:
+      type: object
+      properties:
+        tilsagnId:
+          type: string
+          format: uuid
+        belop:
+          type: number
+      required: [tilsagnId, belop]
 
     OpprettManuellUtbetalingRequest:
       type: object
@@ -6192,3 +6254,35 @@ components:
         slutt:
           type: string
           format: date
+
+    BesluttDelutbetalingRequest:
+      oneOf:
+        - $ref: "#/components/schemas/GodkjentDelutbetalingRequest"
+        - $ref: "#/components/schemas/AvvistDelutbetalingRequest"
+
+    GodkjentDelutbetalingRequest:
+      type: object
+      properties:
+        besluttelse:
+          $ref: "#/components/schemas/Besluttelse"
+        tilsagnId:
+          type: string
+          format: uuid
+      required: [besluttelse, tilsagnId]
+
+    AvvistDelutbetalingRequest:
+      type: object
+      properties:
+        besluttelse:
+          $ref: "#/components/schemas/Besluttelse"
+        aarsaker:
+          type: array
+          items:
+            type: string
+        forklaring:
+          type: string
+          nullable: true
+        tilsagnId:
+          type: string
+          format: uuid
+      required: [besluttelse, aarsaker, forklaring, tilsagnId]

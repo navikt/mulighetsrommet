@@ -8,7 +8,7 @@ interface Props {
 }
 
 export function VelgPeriode(props: Props) {
-  const { register } = useFormContext<{ periodeStart: string; periodeSlutt: string }>();
+  const { register, control } = useFormContext<{ periodeStart: string; periodeSlutt: string }>();
 
   return (
     <HGrid columns={2}>
@@ -19,6 +19,7 @@ export function VelgPeriode(props: Props) {
         format="iso-string"
         {...register("periodeStart")}
         size="small"
+        control={control}
       />
       <ControlledDateInput
         label="Dato til"
@@ -27,6 +28,7 @@ export function VelgPeriode(props: Props) {
         format="iso-string"
         {...register("periodeSlutt")}
         size="small"
+        control={control}
       />
     </HGrid>
   );

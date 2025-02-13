@@ -15,8 +15,8 @@ import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.*
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.api.*
-import no.nav.tiltak.okonomi.db.BestillingStatusType
-import no.nav.tiltak.okonomi.db.FakturaStatusType
+import no.nav.tiltak.okonomi.model.BestillingStatusType
+import no.nav.tiltak.okonomi.model.FakturaStatusType
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 
@@ -72,7 +72,7 @@ class TiltaksokonomiTest : FunSpec({
             val mockEngine = createMockEngine {
                 mockBrregHovedenhet()
 
-                post("http://oebs-tiltak-api/api/v1/oebs/bestilling") { respondOk() }
+                post("/api/v1/tilsagn") { respondOk() }
             }
 
             withTestApplication(oauth, mockEngine) {
@@ -162,9 +162,9 @@ class TiltaksokonomiTest : FunSpec({
             val mockEngine = createMockEngine {
                 mockBrregHovedenhet()
 
-                post("http://oebs-tiltak-api/api/v1/oebs/bestilling") { respondOk() }
+                post("/api/v1/tilsagn") { respondOk() }
 
-                post("http://oebs-tiltak-api/api/v1/oebs/faktura") { respondOk() }
+                post("/api/v1/refusjonskrav") { respondOk() }
             }
 
             withTestApplication(oauth, mockEngine) {

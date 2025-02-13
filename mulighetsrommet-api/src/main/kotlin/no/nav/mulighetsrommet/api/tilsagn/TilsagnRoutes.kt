@@ -211,12 +211,12 @@ data class TilsagnRequest(
 @Serializable
 @JsonClassDiscriminator("besluttelse")
 sealed class BesluttTilsagnRequest(
-    val besluttelse: TilsagnBesluttelseStatus,
+    val besluttelse: Besluttelse,
 ) {
     @Serializable
     @SerialName("GODKJENT")
     data object GodkjentTilsagnRequest : BesluttTilsagnRequest(
-        besluttelse = TilsagnBesluttelseStatus.GODKJENT,
+        besluttelse = Besluttelse.GODKJENT,
     )
 
     @Serializable
@@ -225,7 +225,7 @@ sealed class BesluttTilsagnRequest(
         val aarsaker: List<TilsagnStatusAarsak>,
         val forklaring: String?,
     ) : BesluttTilsagnRequest(
-        besluttelse = TilsagnBesluttelseStatus.AVVIST,
+        besluttelse = Besluttelse.AVVIST,
     )
 }
 

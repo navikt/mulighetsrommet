@@ -34,9 +34,9 @@ val mockClientEngine = createMockEngine {
         respondJson(brregResponse)
     }
 
-    post("http://oebs-tiltak-api/api/v1/oebs/bestilling") { respondOk() }
+    post("http://oebs-tiltak-api/api/v1/tilsagn") { respondOk() }
 
-    post("http://oebs-tiltak-api/api/v1/oebs/faktura") { respondOk() }
+    post("http://oebs-tiltak-api/api/v1/refusjonskrav") { respondOk() }
 }
 
 val ApplicationConfigLocal = AppConfig(

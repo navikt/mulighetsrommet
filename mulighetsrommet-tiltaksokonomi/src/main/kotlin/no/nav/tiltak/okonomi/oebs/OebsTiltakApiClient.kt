@@ -28,15 +28,15 @@ class OebsTiltakApiClient(
     }
 
     suspend fun sendBestilling(bestilling: OebsBestillingMelding): Either<ResponseException, HttpResponse> {
-        return request(HttpMethod.Post, "/api/v1/oebs/bestilling", bestilling)
+        return request(HttpMethod.Post, "/api/v1/tilsagn", bestilling)
     }
 
     suspend fun sendAnnullering(annullering: OebsAnnulleringMelding): Either<ResponseException, HttpResponse> {
-        return request(HttpMethod.Post, "/api/v1/oebs/bestilling", annullering)
+        return request(HttpMethod.Post, "/api/v1/tilsagn", annullering)
     }
 
     suspend fun sendFaktura(faktura: OebsFakturaMelding): Either<ResponseException, HttpResponse> {
-        return request(HttpMethod.Post, "/api/v1/oebs/faktura", faktura)
+        return request(HttpMethod.Post, "/api/v1/refusjonskrav", faktura)
     }
 
     private suspend inline fun <reified T> request(

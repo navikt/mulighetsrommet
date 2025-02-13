@@ -4,18 +4,18 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
+import no.nav.mulighetsrommet.brreg.BrregAdresse
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.OpprettFaktura
-import no.nav.tiltak.okonomi.db.*
+import no.nav.tiltak.okonomi.db.OkonomiDatabase
+import no.nav.tiltak.okonomi.model.Bestilling
+import no.nav.tiltak.okonomi.model.BestillingStatusType
+import no.nav.tiltak.okonomi.model.Faktura
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import kotlin.collections.set
-import kotlin.math.floor
 
 class OpprettBestillingError(message: String, cause: Throwable? = null) : Exception(message, cause)
 
@@ -23,58 +23,37 @@ class AnnullerBestillingError(message: String, cause: Throwable? = null) : Excep
 
 class OpprettFakturaError(message: String, cause: Throwable? = null) : Exception(message, cause)
 
+private val log: Logger = LoggerFactory.getLogger(OebsService::class.java)
+
 class OebsService(
     private val db: OkonomiDatabase,
     private val oebs: OebsTiltakApiClient,
     private val brreg: BrregClient,
 ) {
-    private val log: Logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun opprettBestilling(
-        bestilling: OpprettBestilling,
+        opprettBestilling: OpprettBestilling,
     ): Either<OpprettBestillingError, Bestilling> = db.session {
-        queries.bestilling.getBestilling(bestilling.bestillingsnummer)?.let {
-            log.info("Bestilling ${bestilling.bestillingsnummer} er allerede opprettet")
+        queries.bestilling.getBestilling(opprettBestilling.bestillingsnummer)?.let {
+            log.info("Bestilling ${opprettBestilling.bestillingsnummer} er allerede opprettet")
             return it.right()
         }
 
-        val perioder = divideBelopByMonthsInPeriode(bestilling.periode, bestilling.belop)
-        val dbo = Bestilling(
-            tiltakskode = bestilling.tiltakskode,
-            arrangorHovedenhet = bestilling.arrangor.hovedenhet,
-            arrangorUnderenhet = bestilling.arrangor.hovedenhet,
-            kostnadssted = bestilling.kostnadssted,
-            bestillingsnummer = bestilling.bestillingsnummer,
-            avtalenummer = bestilling.avtalenummer,
-            belop = bestilling.belop,
-            periode = bestilling.periode,
-            status = BestillingStatusType.AKTIV,
-            opprettetAv = bestilling.opprettetAv,
-            opprettetTidspunkt = bestilling.opprettetTidspunkt,
-            besluttetAv = bestilling.besluttetAv,
-            besluttetTidspunkt = bestilling.besluttetTidspunkt,
-            linjer = perioder.mapIndexed { index, (periode, belop) ->
-                LinjeDbo(
-                    linjenummer = (index + 1),
-                    periode = periode,
-                    belop = belop,
-                )
-            },
-        )
+        val bestilling = Bestilling.fromOpprettBestilling(opprettBestilling, BestillingStatusType.AKTIV)
 
-        return brreg.getHovedenhet(bestilling.arrangor.hovedenhet)
-            .mapLeft { OpprettBestillingError("Klarte ikke hente hovedenhet ${bestilling.arrangor.hovedenhet} fra Brreg: $it") }
+        return brreg.getHovedenhet(bestilling.arrangorHovedenhet)
+            .mapLeft { OpprettBestillingError("Klarte ikke hente hovedenhet ${bestilling.arrangorHovedenhet} fra Brreg: $it") }
             .flatMap {
                 when (it) {
                     is BrregHovedenhetDto -> it.right()
 
                     is SlettetBrregHovedenhetDto -> {
-                        OpprettBestillingError("Hovedenhet med orgnr ${bestilling.arrangor.hovedenhet} er slettet").left()
+                        OpprettBestillingError("Hovedenhet med orgnr ${bestilling.arrangorHovedenhet} er slettet").left()
                     }
                 }
             }
             .map { hovedenhet ->
-                val linjer = dbo.linjer.map { linje ->
+                val linjer = bestilling.linjer.map { linje ->
                     OebsBestillingMelding.Linje(
                         linjeNummer = linje.linjenummer,
                         antall = linje.belop,
@@ -83,7 +62,7 @@ class OebsService(
                         sluttDato = linje.periode.getLastDate(),
                     )
                 }
-                toOebsBestillingMelding(dbo, hovedenhet, linjer)
+                toOebsBestillingMelding(bestilling, hovedenhet, linjer)
             }
             .flatMap { melding ->
                 log.info("Sender bestilling ${bestilling.bestillingsnummer} til oebs")
@@ -96,8 +75,8 @@ class OebsService(
             }
             .map {
                 log.info("Lagrer bestilling ${bestilling.bestillingsnummer}")
-                queries.bestilling.createBestilling(dbo)
-                dbo
+                queries.bestilling.createBestilling(bestilling)
+                bestilling
             }
             .onLeft {
                 log.warn("Klarte ikke sende bestilling ${bestilling.bestillingsnummer} til oebs", it)
@@ -136,68 +115,35 @@ class OebsService(
     }
 
     suspend fun opprettFaktura(
-        faktura: OpprettFaktura,
+        opprettFaktura: OpprettFaktura,
     ): Either<OpprettFakturaError, Faktura> = db.session {
-        val bestilling = queries.bestilling.getBestilling(faktura.bestillingsnummer)
-            ?: return OpprettFakturaError("Bestilling ${faktura.bestillingsnummer} mangler for faktura ${faktura.fakturanummer}").left()
+        val bestilling = queries.bestilling.getBestilling(opprettFaktura.bestillingsnummer)
+            ?: return OpprettFakturaError("Bestilling ${opprettFaktura.bestillingsnummer} mangler for faktura ${opprettFaktura.fakturanummer}").left()
 
-        val bestillingLinjerByMonth = bestilling.linjer.associateBy { it.periode.start.month }
-        val perioder = divideBelopByMonthsInPeriode(faktura.periode, faktura.belop)
-        val dbo = Faktura(
-            bestillingsnummer = faktura.bestillingsnummer,
-            fakturanummer = faktura.fakturanummer,
-            kontonummer = faktura.betalingsinformasjon.kontonummer,
-            kid = faktura.betalingsinformasjon.kid,
-            belop = faktura.belop,
-            periode = faktura.periode,
-            status = FakturaStatusType.UTBETALT,
-            opprettetAv = faktura.opprettetAv,
-            opprettetTidspunkt = faktura.opprettetTidspunkt,
-            besluttetAv = faktura.opprettetAv,
-            besluttetTidspunkt = faktura.opprettetTidspunkt,
-            linjer = perioder.map { (periode, belop) ->
-                val bestillingLinje = bestillingLinjerByMonth[periode.start.month]
-                    ?: return OpprettFakturaError("Bestillingslinje mangler for måned ${periode.start.month}").left()
-                LinjeDbo(
-                    linjenummer = bestillingLinje.linjenummer,
-                    periode = periode,
-                    belop = belop,
-                )
-            },
-        )
+        val faktura = Faktura.fromOpprettFaktura(opprettFaktura, bestilling.linjer)
 
-        val melding = toOebsFakturaMelding(bestilling, dbo)
+        val melding = toOebsFakturaMelding(bestilling, faktura)
 
         return oebs.sendFaktura(melding)
             .mapLeft {
                 OpprettFakturaError("Klarte ikke sende faktura ${faktura.fakturanummer} til oebs", it)
             }
             .map {
-                queries.faktura.opprettFaktura(dbo)
-                dbo
+                queries.faktura.opprettFaktura(faktura)
+                faktura
             }
     }
 }
 
 private fun toOebsBestillingMelding(
     bestilling: Bestilling,
-    arrangorHovedenhet: BrregHovedenhetDto,
+    leverandor: BrregHovedenhetDto,
     linjer: List<OebsBestillingMelding.Linje>,
 ): OebsBestillingMelding {
     val selger = OebsBestillingMelding.Selger(
-        organisasjonsNummer = arrangorHovedenhet.organisasjonsnummer.value,
-        organisasjonsNavn = arrangorHovedenhet.navn,
-        postAdresse = listOfNotNull(
-            arrangorHovedenhet.postadresse?.let { adresse ->
-                // TODO: hvordan håndtere manglende adresse? Feile, sette empty strings, eller sende null?
-                OebsBestillingMelding.Selger.PostAdresse(
-                    gateNavn = adresse.adresse?.joinToString(separator = ", ") ?: "",
-                    by = adresse.poststed ?: "",
-                    postNummer = adresse.postnummer ?: "",
-                    landsKode = adresse.landkode ?: "",
-                )
-            },
-        ),
+        organisasjonsNummer = leverandor.organisasjonsnummer.value,
+        organisasjonsNavn = leverandor.navn,
+        postAdresse = getLeverandorPostadresse(leverandor),
         bedriftsNummer = bestilling.arrangorUnderenhet.value,
     )
 
@@ -216,9 +162,32 @@ private fun toOebsBestillingMelding(
         sluttDato = bestilling.periode.getLastDate(),
         bestillingsLinjer = linjer,
         statsregnskapsKonto = OebsKontering.TILTAK.statsregnskapskonto,
-        artsKonto = getOebsArtskonto(bestilling.tiltakskode),
+        artsKonto = OebsKonteringInfo.getArtskonto(bestilling.tiltakskode),
         kontor = bestilling.kostnadssted.value,
         tilsagnsAar = bestilling.periode.start.year,
+    )
+}
+
+private fun getLeverandorPostadresse(leverandor: BrregHovedenhetDto): List<OebsBestillingMelding.Selger.PostAdresse> {
+    val postadresse = leverandor.postadresse?.let { toOebsAdresse(it) }.let { listOfNotNull(it) }
+
+    if (postadresse.isEmpty()) {
+        log.warn("Klarte ikke utlede adresse for leverandør $leverandor")
+    }
+
+    return postadresse
+}
+
+private fun toOebsAdresse(it: BrregAdresse): OebsBestillingMelding.Selger.PostAdresse? {
+    val adresse = it.adresse?.joinToString(separator = ", ") ?: return null
+    val poststed = it.poststed ?: return null
+    val postnummer = it.postnummer ?: return null
+    val landkode = it.landkode ?: return null
+    return OebsBestillingMelding.Selger.PostAdresse(
+        gateNavn = adresse,
+        by = poststed,
+        postNummer = postnummer,
+        landsKode = landkode,
     )
 }
 
@@ -256,38 +225,4 @@ private fun toOebsFakturaMelding(
             )
         },
     )
-}
-
-fun divideBelopByMonthsInPeriode(bestillingsperiode: Periode, belop: Int): List<Pair<Periode, Int>> {
-    val monthlyPeriods = bestillingsperiode.splitByMonth()
-
-    val belopPerDay = belop.toDouble() / bestillingsperiode.getDurationInDays()
-
-    val belopByMonth = monthlyPeriods
-        .associateWith { floor(belopPerDay * it.getDurationInDays()).toInt() }
-        .toSortedMap()
-
-    val remainder = belop - belopByMonth.values.sum()
-    if (remainder > 0) {
-        val firstPeriod = monthlyPeriods.first()
-        belopByMonth[firstPeriod] = belopByMonth.getValue(firstPeriod) + remainder
-    }
-
-    return belopByMonth.toList()
-}
-
-private fun getOebsArtskonto(tiltakskode: Tiltakskode): String {
-    val kontering = when (tiltakskode) {
-        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING -> OebsKonteringInfo.ARBEIDSFORBEREDENDE_TRENING
-        Tiltakskode.ARBEIDSRETTET_REHABILITERING -> OebsKonteringInfo.ARBEIDSRETTET_REHABILITERING
-        Tiltakskode.AVKLARING -> OebsKonteringInfo.AVKLARING
-        Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK -> OebsKonteringInfo.DIGITALT_OPPFOLGINGSTILTAK
-        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> OebsKonteringInfo.GRUPPE_ARBEIDSMARKEDSOPPLAERING
-        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING -> OebsKonteringInfo.GRUPPE_FAG_OG_YRKESOPPLAERING
-        Tiltakskode.JOBBKLUBB -> OebsKonteringInfo.JOBBKLUBB
-        Tiltakskode.OPPFOLGING -> OebsKonteringInfo.OPPFOLGING
-        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET -> OebsKonteringInfo.VARIG_TILRETTELAGT_ARBEID_SKJERMET
-    }
-
-    return kontering.artskonto
 }

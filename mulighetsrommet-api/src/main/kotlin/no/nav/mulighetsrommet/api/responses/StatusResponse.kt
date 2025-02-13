@@ -41,6 +41,10 @@ data class FieldError(
         fun ofPointer(pointer: String, detail: String): FieldError {
             return FieldError(pointer = pointer, detail = detail)
         }
+
+        fun root(detail: String): FieldError {
+            return FieldError(pointer = "/", detail = detail)
+        }
     }
 }
 

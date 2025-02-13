@@ -1,8 +1,8 @@
 package no.nav.tiltak.okonomi.api
 
 import kotlinx.serialization.Serializable
-import no.nav.tiltak.okonomi.db.BestillingStatusType
-import no.nav.tiltak.okonomi.db.FakturaStatusType
+import no.nav.tiltak.okonomi.model.BestillingStatusType
+import no.nav.tiltak.okonomi.model.FakturaStatusType
 
 @Serializable
 data class BestillingStatus(
