@@ -20,6 +20,7 @@ object UtbetalingFixtures {
         ),
         kontonummer = Kontonummer("11111111111"),
         kid = null,
+        innsender = null,
     )
 
     val utbetaling2 = UtbetalingDbo(
@@ -33,5 +34,6 @@ object UtbetalingFixtures {
         ),
         kontonummer = Kontonummer("11111111111"),
         kid = null,
+        innsender = null,
     )
 }

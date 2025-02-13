@@ -24,7 +24,7 @@ export function UtbetalingerForGjennomforingContainer() {
         <UtbetalingerTable utbetalinger={utbetalinger} />
       ) : (
         <Alert style={{ marginTop: "1rem" }} variant="info">
-          Det er ikke opprettet noen utbetalinger til godkjenning av arrangør for dette tiltaket
+          Det finnes ingen utbetalinger for dette tiltaket
         </Alert>
       )}
     </>

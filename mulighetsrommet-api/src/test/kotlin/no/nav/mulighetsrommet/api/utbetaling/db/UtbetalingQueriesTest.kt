@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import org.junit.jupiter.api.assertThrows
 import java.sql.SQLException
@@ -93,35 +94,37 @@ class UtbetalingQueriesTest : FunSpec({
                     kontonummer = Kontonummer("11111111111"),
                     kid = Kid("12345"),
                     periode = beregning.input.periode,
+                    innsender = null,
                 )
 
                 queries.upsert(utbetaling)
 
-                queries.get(utbetaling.id) shouldBe UtbetalingDto(
-                    id = utbetaling.id,
-                    status = UtbetalingStatus.KLAR_FOR_GODKJENNING,
-                    fristForGodkjenning = frist,
-                    tiltakstype = UtbetalingDto.Tiltakstype(
+                queries.get(utbetaling.id)!! should {
+                    it.id shouldBe utbetaling.id
+                    it.status shouldBe UtbetalingStatus.KLAR_FOR_GODKJENNING
+                    it.fristForGodkjenning shouldBe frist
+                    it.tiltakstype shouldBe UtbetalingDto.Tiltakstype(
                         navn = TiltakstypeFixtures.AFT.navn,
-                    ),
-                    gjennomforing = UtbetalingDto.Gjennomforing(
+                    )
+                    it.gjennomforing shouldBe UtbetalingDto.Gjennomforing(
                         id = AFT1.id,
                         navn = AFT1.navn,
-                    ),
-                    arrangor = UtbetalingDto.Arrangor(
+                    )
+                    it.arrangor shouldBe UtbetalingDto.Arrangor(
                         navn = ArrangorFixtures.underenhet1.navn,
                         id = ArrangorFixtures.underenhet1.id,
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                         slettet = ArrangorFixtures.underenhet1.slettetDato != null,
-                    ),
-                    beregning = beregning,
-                    betalingsinformasjon = UtbetalingDto.Betalingsinformasjon(
+                    )
+                    it.beregning shouldBe beregning
+                    it.betalingsinformasjon shouldBe UtbetalingDto.Betalingsinformasjon(
                         kontonummer = Kontonummer("11111111111"),
                         kid = Kid("12345"),
-                    ),
-                    journalpostId = null,
-                    periode = beregning.input.periode,
-                )
+                    )
+                    it.journalpostId shouldBe null
+                    it.periode shouldBe beregning.input.periode
+                    it.godkjentAvArrangorTidspunkt shouldBe null
+                }
             }
         }
 
@@ -144,12 +147,14 @@ class UtbetalingQueriesTest : FunSpec({
                     kontonummer = Kontonummer("11111111111"),
                     kid = Kid("12345"),
                     periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 5, 5)),
+                    innsender = UtbetalingDto.Innsender.NavAnsatt(NavIdent("Z123456")),
                 )
 
                 queries.upsert(utbetaling)
                 queries.get(utbetaling.id).shouldNotBeNull() should {
                     it.id shouldBe utbetaling.id
                     it.beregning shouldBe friberegning
+                    it.innsender shouldBe UtbetalingDto.Innsender.NavAnsatt(NavIdent("Z123456"))
                 }
             }
         }
@@ -168,6 +173,7 @@ class UtbetalingQueriesTest : FunSpec({
                     kontonummer = null,
                     kid = null,
                     periode = beregning.input.periode,
+                    innsender = null,
                 )
 
                 queries.upsert(utbetaling)
@@ -178,7 +184,7 @@ class UtbetalingQueriesTest : FunSpec({
                 queries.setGodkjentAvArrangor(utbetaling.id, LocalDateTime.now())
 
                 queries.get(utbetaling.id)
-                    .shouldNotBeNull().status shouldBe UtbetalingStatus.GODKJENT_AV_ARRANGOR
+                    .shouldNotBeNull().status shouldBe UtbetalingStatus.INNSENDT_AV_ARRANGOR
             }
         }
 
@@ -196,6 +202,7 @@ class UtbetalingQueriesTest : FunSpec({
                     kontonummer = null,
                     kid = null,
                     periode = beregning.input.periode,
+                    innsender = null,
                 )
                 queries.upsert(utbetaling)
 
@@ -236,6 +243,7 @@ class UtbetalingQueriesTest : FunSpec({
                     kontonummer = null,
                     kid = null,
                     periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
+                    innsender = null,
                 )
 
                 assertThrows<SQLException> {

@@ -19,10 +19,6 @@ class ByEnhetStrategy(private val axsysClient: AxsysClient) : Strategy {
         return "byEnhet"
     }
 
-    override fun isEnabled(parameters: MutableMap<String, String>): Boolean {
-        return false
-    }
-
     override fun isEnabled(parameters: MutableMap<String, String>, context: UnleashContext): Boolean {
         return context.userId
             .flatMap { userId ->

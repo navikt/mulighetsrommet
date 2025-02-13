@@ -40,18 +40,16 @@ import { opprettTilsagnLoader } from "./pages/gjennomforing/tilsagn/opprett/oppr
 import { RedigerTilsagnFormPage } from "./pages/gjennomforing/tilsagn/rediger/RedigerTilsagnFormPage";
 import { redigerTilsagnLoader } from "./pages/gjennomforing/tilsagn/rediger/redigerTilsagnLoader";
 import { tilsagnForGjennomforingLoader } from "./pages/gjennomforing/tilsagn/tabell/tilsagnForGjennomforingLoader";
-import { BehandleUtbetalingFormPage } from "./pages/gjennomforing/utbetaling/BehandleUtbetalingFormPage";
-import { UtbetalingDetaljerPage } from "./pages/gjennomforing/utbetaling/UtbetalingDetaljerPage";
 import { OpprettUtbetalingPage } from "./pages/gjennomforing/utbetaling/OpprettUtbetalingPage";
 import { UtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/UtbetalingerForGjennomforingContainer";
-import { behandleUtbetalingFormPageLoader } from "./pages/gjennomforing/utbetaling/behandleUtbetalingFormPageLoader";
-import { utbetalingDetaljerPageLoader } from "./pages/gjennomforing/utbetaling/utbetalingDetaljerPageLoader";
 import { utbetalingerForGjennomforingLoader } from "./pages/gjennomforing/utbetaling/utbetalingerForGjennomforingLoader";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
 import { tiltakstypeLoader, tiltakstyperLoaders } from "./pages/tiltakstyper/tiltakstyperLoaders";
+import { UtbetalingPage } from "./pages/gjennomforing/utbetaling/UtbetalingPage";
+import { utbetalingPageLoader } from "./pages/gjennomforing/utbetaling/utbetalingPageLoader";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -288,15 +286,9 @@ const router = () =>
           },
           {
             path: "gjennomforinger/:gjennomforingId/utbetalinger/:utbetalingId",
-            element: <UtbetalingDetaljerPage />,
+            element: <UtbetalingPage />,
             errorElement: <ErrorPage />,
-            loader: utbetalingDetaljerPageLoader,
-          },
-          {
-            path: "gjennomforinger/:gjennomforingId/utbetalinger/:utbetalingId/skjema",
-            element: <BehandleUtbetalingFormPage />,
-            errorElement: <ErrorPage />,
-            loader: behandleUtbetalingFormPageLoader,
+            loader: utbetalingPageLoader,
           },
           {
             path: "arrangorer",

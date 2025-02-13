@@ -17,11 +17,11 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
+import no.nav.tiltak.okonomi.OkonomiPart
 import java.time.LocalDate
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -81,7 +81,7 @@ class OkonomiBestillingServiceTest : FunSpec({
             periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
             lopenummer = 1,
             fakturanummer = "2025/1",
-            opprettetAv = NavIdent("Z123456"),
+            opprettetAv = NavAnsattFixture.ansatt1.navIdent,
         )
 
         MulighetsrommetTestDomain(
@@ -154,7 +154,8 @@ class OkonomiBestillingServiceTest : FunSpec({
 
         test("godkjent utbetaling blir omsider sendt som faktura på kafka") {
             database.run {
-                service.scheduleBehandleGodkjentUtbetaling(utbetaling.id, session)
+                queries.delutbetaling.godkjenn(utbetaling.id, tilsagn.id, NavAnsattFixture.ansatt2.navIdent)
+                service.scheduleBehandleGodkjentUtbetaling(utbetaling.id, tilsagn.id, session)
             }
 
             eventually(10.seconds) {
@@ -173,10 +174,8 @@ class OkonomiBestillingServiceTest : FunSpec({
                             faktura.fakturanummer shouldBe delutbetaling.fakturanummer
                             faktura.periode shouldBe delutbetaling.periode
                             faktura.belop shouldBe delutbetaling.belop
-
-                            // TODO: verifiser part
-                            // faktura.opprettetAv shouldBe OkonomiPart.NavAnsatt(NavAnsattFixture.ansatt1.navIdent)
-                            // faktura.besluttetAv shouldBe OkonomiPart.NavAnsatt(NavAnsattFixture.ansatt2.navIdent)
+                            faktura.opprettetAv shouldBe OkonomiPart.NavAnsatt(NavAnsattFixture.ansatt1.navIdent)
+                            faktura.besluttetAv shouldBe OkonomiPart.NavAnsatt(NavAnsattFixture.ansatt2.navIdent)
 
                             true
                         },

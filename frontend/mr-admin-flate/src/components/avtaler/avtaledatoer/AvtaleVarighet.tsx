@@ -33,6 +33,7 @@ export function AvtaleVarighet({
     setValue,
     watch,
     formState: { errors },
+    control,
   } = useFormContext<InferredAvtaleSchema>();
 
   const antallOpsjonerUtlost = (
@@ -120,6 +121,7 @@ export function AvtaleVarighet({
             toDate={sluttDatoTilDato}
             {...register("startOgSluttDato.startDato")}
             format={"iso-string"}
+            control={control}
           />
           <ControlledDateInput
             size="small"
@@ -130,6 +132,7 @@ export function AvtaleVarighet({
             {...register("startOgSluttDato.sluttDato")}
             format={"iso-string"}
             invalidDatoEtterPeriode={`Avtaleperioden kan ikke vare lenger enn ${maksAar} år`}
+            control={control}
           />
           <ControlledDateInput
             size="small"
@@ -139,6 +142,7 @@ export function AvtaleVarighet({
             toDate={sluttDatoTilDato}
             {...register("opsjonsmodellData.opsjonMaksVarighet")}
             format={"iso-string"}
+            control={control}
           />
         </HGrid>
       ) : (
@@ -150,6 +154,7 @@ export function AvtaleVarighet({
             toDate={sluttDatoTilDato}
             {...register("startOgSluttDato.startDato")}
             format={"iso-string"}
+            control={control}
           />
           <ControlledDateInput
             size="small"
@@ -162,6 +167,7 @@ export function AvtaleVarighet({
             toDate={sluttDatoTilDato}
             {...register("startOgSluttDato.sluttDato")}
             format={"iso-string"}
+            control={control}
           />
         </HGrid>
       )}

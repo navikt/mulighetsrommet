@@ -6,13 +6,9 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAft
-import no.nav.mulighetsrommet.database.createEnumArray
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.withTransaction
-import no.nav.mulighetsrommet.model.Kid
-import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*
@@ -21,15 +17,32 @@ class UtbetalingQueries(private val session: Session) {
     fun upsert(dbo: UtbetalingDbo) = withTransaction(session) {
         @Language("PostgreSQL")
         val utbetalingQuery = """
-            insert into utbetaling (id, gjennomforing_id, frist_for_godkjenning, kontonummer, kid, periode, beregningsmodell)
-            values (:id::uuid, :gjennomforing_id::uuid, :frist_for_godkjenning, :kontonummer, :kid, daterange(:periode_start, :periode_slutt), :beregningsmodell::beregningsmodell)
-            on conflict (id) do update set
+            insert into utbetaling (
+                id,
+                gjennomforing_id,
+                frist_for_godkjenning,
+                kontonummer,
+                kid,
+                periode,
+                beregningsmodell,
+                innsender
+            ) values (
+                :id::uuid,
+                :gjennomforing_id::uuid,
+                :frist_for_godkjenning,
+                :kontonummer,
+                :kid,
+                daterange(:periode_start, :periode_slutt),
+                :beregningsmodell::beregningsmodell,
+                :innsender
+            ) on conflict (id) do update set
                 gjennomforing_id = excluded.gjennomforing_id,
                 frist_for_godkjenning = excluded.frist_for_godkjenning,
                 kontonummer = excluded.kontonummer,
                 kid = excluded.kid,
                 periode = excluded.periode,
-                beregningsmodell = excluded.beregningsmodell
+                beregningsmodell = excluded.beregningsmodell,
+                innsender = excluded.innsender
         """.trimIndent()
 
         val params = mapOf(
@@ -44,6 +57,7 @@ class UtbetalingQueries(private val session: Session) {
                 is UtbetalingBeregningAft -> Beregningsmodell.FORHANDSGODKJENT.name
                 is UtbetalingBeregningFri -> Beregningsmodell.FRI.name
             },
+            "innsender" to dbo.innsender?.value,
         )
 
         execute(queryOf(utbetalingQuery, params))
@@ -153,8 +167,9 @@ class UtbetalingQueries(private val session: Session) {
     fun setGodkjentAvArrangor(id: UUID, tidspunkt: LocalDateTime) = with(session) {
         @Language("PostgreSQL")
         val query = """
-            update utbetaling
-            set godkjent_av_arrangor_tidspunkt = :tidspunkt
+            update utbetaling set
+                godkjent_av_arrangor_tidspunkt = :tidspunkt,
+                innsender = 'ARRANGOR_ANSATT'
             where id = :id::uuid
         """.trimIndent()
 
@@ -216,20 +231,15 @@ class UtbetalingQueries(private val session: Session) {
         return list(queryOf(query, organisasjonsnummer.value)) { it.toUtbetalingDto() }
     }
 
-    fun getByGjennomforing(gjennomforingId: UUID, statuser: List<UtbetalingStatus>? = null): List<UtbetalingDto> = with(session) {
+    fun getByGjennomforing(gjennomforingId: UUID): List<UtbetalingDto> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
             from utbetaling_dto_view
-            where
-                gjennomforing_id = :id::uuid
-                and (:statuser::utbetaling_status[] is null or status = any(:statuser))
+            where gjennomforing_id = :id::uuid
         """.trimIndent()
 
-        val params = mapOf(
-            "id" to gjennomforingId,
-            "statuser" to statuser?.ifEmpty { null }?.let { createEnumArray("utbetaling_status", it) },
-        )
+        val params = mapOf("id" to gjennomforingId)
 
         return list(queryOf(query, params)) { it.toUtbetalingDto() }
     }
@@ -305,10 +315,15 @@ class UtbetalingQueries(private val session: Session) {
         val beregningsmodell = Beregningsmodell.valueOf(string("beregningsmodell"))
         val beregning = getBeregning(uuid("id"), beregningsmodell)
 
+        val id = uuid("id")
+        val delutbetalinger = DelutbetalingQueries(session).getByUtbetalingId(id)
+        val innsender = stringOrNull("innsender")?.let { UtbetalingDto.Innsender.fromString(it) }
+        val status = utbetalingStatus(delutbetalinger, innsender)
+
         return UtbetalingDto(
-            id = uuid("id"),
-            status = UtbetalingStatus.valueOf(string("status")),
+            id = id,
             fristForGodkjenning = localDateTime("frist_for_godkjenning"),
+            godkjentAvArrangorTidspunkt = localDateTimeOrNull("godkjent_av_arrangor_tidspunkt"),
             gjennomforing = UtbetalingDto.Gjennomforing(
                 id = uuid("gjennomforing_id"),
                 navn = string("gjennomforing_navn"),
@@ -332,6 +347,27 @@ class UtbetalingQueries(private val session: Session) {
                 start = localDate("periode_start"),
                 slutt = localDate("periode_slutt"),
             ),
+            innsender = innsender,
+            createdAt = localDateTime("created_at"),
+            delutbetalinger = delutbetalinger,
+            status = status,
         )
+    }
+}
+
+fun utbetalingStatus(
+    delutbetaling: List<DelutbetalingDto>,
+    innsender: UtbetalingDto.Innsender?,
+): UtbetalingStatus {
+    if (delutbetaling.any { it is DelutbetalingDto.DelutbetalingUtbetalt }) {
+        return UtbetalingStatus.UTBETALT
+    }
+    if (delutbetaling.any { it is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling }) {
+        return UtbetalingStatus.OVERFORT_TIL_UTBETALING
+    }
+    return when (innsender) {
+        is UtbetalingDto.Innsender.ArrangorAnsatt -> UtbetalingStatus.INNSENDT_AV_ARRANGOR
+        is UtbetalingDto.Innsender.NavAnsatt -> UtbetalingStatus.OPPRETTET_AV_NAV
+        null -> UtbetalingStatus.KLAR_FOR_GODKJENNING
     }
 }

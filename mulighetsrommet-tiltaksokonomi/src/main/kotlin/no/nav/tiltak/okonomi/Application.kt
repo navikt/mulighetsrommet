@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
+import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
 import no.nav.tiltak.okonomi.api.okonomiRoutes
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.kafka.OkonomiBestillingConsumer
@@ -48,12 +49,12 @@ fun Application.configure(config: AppConfig) {
 
     val okonomiDb = OkonomiDatabase(db)
 
-//    val cachedTokenProvider = CachedTokenProvider.init(config.auth.azure.audience, config.auth.azure.tokenEndpointUrl)
+    val cachedTokenProvider = CachedTokenProvider.init(config.auth.azure.audience, config.auth.azure.tokenEndpointUrl)
 
     val oebsClient = OebsTiltakApiClient(
         engine = config.httpClientEngine,
         baseUrl = config.clients.oebsTiltakApi.url,
-        tokenProvider = { "token" }, // cachedTokenProvider.withScope(config.clients.oebsTiltakApi.scope),
+        tokenProvider = cachedTokenProvider.withScope(config.clients.oebsTiltakApi.scope),
     )
 
     val brreg = BrregClient(config.httpClientEngine)

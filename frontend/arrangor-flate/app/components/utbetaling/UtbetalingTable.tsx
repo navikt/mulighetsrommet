@@ -4,7 +4,7 @@ import React, { ReactNode } from "react";
 import { formaterDato, useOrgnrFromUrl } from "~/utils";
 import { internalNavigation } from "~/internal-navigation";
 import { LinkWithTabState } from "../LinkWithTabState";
-import { ArrFlateUtbetalingKompakt, UtbetalingStatus } from "@mr/api-client-v2";
+import { ArrFlateUtbetalingKompakt, ArrFlateUtbetalingStatus } from "@mr/api-client-v2";
 
 interface Props {
   utbetalinger: ArrFlateUtbetalingKompakt[];
@@ -51,7 +51,7 @@ export function UtbetalingTable({ utbetalinger }: Props) {
           }) => {
             return (
               <React.Fragment key={id}>
-                <Table.Row className={getRowStyle(status)}>
+                <Table.Row>
                   <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
                   <Table.DataCell>{gjennomforing.navn}</Table.DataCell>
                   <Table.DataCell colSpan={3} className="w-80">
@@ -64,9 +64,9 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                     <LinkWithTabState
                       className="hover:underline font-bold no-underline"
                       to={
-                        status === UtbetalingStatus.GODKJENT_AV_ARRANGOR
-                          ? internalNavigation(orgnr).kvittering(id)
-                          : internalNavigation(orgnr).beregning(id)
+                        status === ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
+                          ? internalNavigation(orgnr).beregning(id)
+                          : internalNavigation(orgnr).kvittering(id)
                       }
                     >
                       Detaljer
@@ -82,17 +82,13 @@ export function UtbetalingTable({ utbetalinger }: Props) {
   );
 }
 
-function getRowStyle(status: UtbetalingStatus) {
-  return status === UtbetalingStatus.NARMER_SEG_FRIST ? "bg-surface-warning-moderate" : "";
-}
-
-function statusTilTag(status: UtbetalingStatus): ReactNode {
+function statusTilTag(status: ArrFlateUtbetalingStatus): ReactNode {
   switch (status) {
-    case UtbetalingStatus.GODKJENT_AV_ARRANGOR:
-      return <Tag variant="neutral">Godkjent</Tag>;
-    case UtbetalingStatus.KLAR_FOR_GODKJENNING:
+    case ArrFlateUtbetalingStatus.UTBETALT:
+      return <Tag variant="success">Utbetalt</Tag>;
+    case ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV:
+      return <Tag variant="neutral">Behandles av Nav</Tag>;
+    case ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING:
       return <Tag variant="alt1">Klar for innsending</Tag>;
-    case UtbetalingStatus.NARMER_SEG_FRIST:
-      return <Tag variant="warning">Nærmer seg frist</Tag>;
   }
 }

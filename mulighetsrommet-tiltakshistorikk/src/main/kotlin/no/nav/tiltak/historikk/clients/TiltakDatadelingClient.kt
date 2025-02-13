@@ -195,6 +195,7 @@ data class Avtale(
         MENTOR,
         INKLUDERINGSTILSKUDD,
         SOMMERJOBB,
+        VTAO,
     }
 
     enum class Status {

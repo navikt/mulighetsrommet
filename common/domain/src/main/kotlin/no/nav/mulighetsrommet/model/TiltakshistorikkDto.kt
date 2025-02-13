@@ -96,6 +96,7 @@ sealed class Tiltakshistorikk {
             MENTOR,
             INKLUDERINGSTILSKUDD,
             SOMMERJOBB,
+            VARIG_TILRETTELAGT_ARBEID_ORDINAR,
         }
     }
 }

@@ -87,17 +87,6 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
   const antallDeltakere = deltakerSummary?.antallDeltakere;
 
   useEffect(() => {
-    if (
-      gjennomforing &&
-      antallDeltakere &&
-      antallDeltakere > 0 &&
-      gjennomforing.startDato !== watchStartDato
-    ) {
-      endreStartDatoModalRef.current?.showModal();
-    }
-  }, [watchStartDato, antallDeltakere, gjennomforing]);
-
-  useEffect(() => {
     if (watchStartDato && new Date(watchStartDato) < new Date()) {
       setValue("tilgjengeligForArrangorFraOgMedDato", null);
     }
@@ -105,16 +94,29 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
 
   const watchSluttDato = watch("startOgSluttDato.sluttDato");
 
-  useEffect(() => {
+  function visAdvarselForStartDato() {
     if (
       gjennomforing &&
       antallDeltakere &&
       antallDeltakere > 0 &&
+      watchStartDato &&
+      gjennomforing.startDato !== watchStartDato
+    ) {
+      endreStartDatoModalRef.current?.showModal();
+    }
+  }
+
+  function visAdvarselForSluttDato() {
+    if (
+      gjennomforing &&
+      antallDeltakere &&
+      antallDeltakere > 0 &&
+      watchSluttDato &&
       gjennomforing.sluttDato !== watchSluttDato
     ) {
       endreSluttDatoModalRef.current?.showModal();
     }
-  }, [watchSluttDato, antallDeltakere, gjennomforing]);
+  }
 
   const regionerOptions = avtale.kontorstruktur
     .map((struk) => struk.region)
@@ -202,16 +204,22 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
                 label={gjennomforingTekster.startdatoLabel}
                 fromDate={minStartdato}
                 toDate={maxSluttdato}
-                {...register("startOgSluttDato.startDato")}
+                {...register("startOgSluttDato.startDato", {
+                  onChange: visAdvarselForStartDato,
+                })}
                 format={"iso-string"}
+                control={control}
               />
               <ControlledDateInput
                 size="small"
                 label={gjennomforingTekster.sluttdatoLabel}
                 fromDate={minStartdato}
                 toDate={maxSluttdato}
-                {...register("startOgSluttDato.sluttDato")}
+                {...register("startOgSluttDato.sluttDato", {
+                  onChange: visAdvarselForSluttDato,
+                })}
                 format={"iso-string"}
+                control={control}
               />
             </HGrid>
             <HGrid align="start" columns={2}>

@@ -29,3 +29,8 @@ app:
     tiltakDatadeling:
       url: http://localhost:8090/tiltak-datadeling
       scope: default
+
+  arbeidsgiverTiltakCutOffDatoMapping:
+    MIDLERTIDIG_LONNSTILSKUDD: 2023-2-1
+    VARIG_LONNSTILSKUDD: 2023-2-1
+    ARBEIDSTRENING: 2025-1-24
