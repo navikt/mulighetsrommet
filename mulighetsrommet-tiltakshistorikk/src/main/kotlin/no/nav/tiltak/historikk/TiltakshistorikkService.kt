@@ -56,12 +56,12 @@ class TiltakshistorikkService(
         val deltakelser = deltakerRepository.getArenaHistorikk(identer, maxAgeYears)
 
         return deltakelser.filter {
-            val tiltakskode = arenaKodeToTeamTiltakKode(it.arenaTiltakskode)
+            val tiltakskode = arenaKodeToTeamTiltakKode(it.arenaTiltakskode) ?: return@filter false
             !belongsToTeamTiltak(tiltakskode, tiltakskodeDatoMapping, it.sluttDato)
         }
     }
 
-    fun arenaKodeToTeamTiltakKode(arenaKode: String): Avtale.Tiltakstype {
+    fun arenaKodeToTeamTiltakKode(arenaKode: String): Avtale.Tiltakstype? {
         return when (arenaKode) {
             "ARBTREN" -> Avtale.Tiltakstype.ARBEIDSTRENING
             "MIDLONTIL" -> Avtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD
@@ -69,7 +69,7 @@ class TiltakshistorikkService(
             "MENTOR" -> Avtale.Tiltakstype.MENTOR
             "INKLUTILS" -> Avtale.Tiltakstype.INKLUDERINGSTILSKUDD
             "VATIAROR" -> Avtale.Tiltakstype.VTAO
-            else -> throw IllegalArgumentException("Ukjent tiltakskode: $arenaKode")
+            else -> null
         }
     }
 
