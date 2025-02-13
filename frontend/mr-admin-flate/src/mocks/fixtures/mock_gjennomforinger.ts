@@ -87,6 +87,15 @@ export const mockGjennomforinger: GjennomforingDto[] = [
         "Phasellus a urna eget augue pharetra posuere. Aenean malesuada tortor eros, ut ullamcorper nisi facilisis eget. ",
       pameldingOgVarighetInfoboks:
         "Nullam lobortis massa nibh, luctus molestie lacus venenatis sed.",
+      lenker: [
+        {
+          lenke:
+            "https://www.google.comgesgsegrdgrdiogjrdiughrduihgrdhgiurdhgudirhgidruhgudirhgurdhguirdhgiurdhugdhrguirdhuuhuiehfuirdhgiurdhghrduighdriughrduighrdiughdruighduir",
+          lenkenavn: "Google.com",
+          apneINyFane: false,
+          visKunForVeileder: false,
+        },
+      ],
     },
     tilgjengeligForArrangorFraOgMedDato: null,
     amoKategorisering: null,

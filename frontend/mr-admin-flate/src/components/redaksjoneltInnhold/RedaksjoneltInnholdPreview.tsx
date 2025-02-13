@@ -105,16 +105,16 @@ function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
         ) : null}
 
         {someValuesExists([faneinnhold?.lenker]) ? (
-          <>
+          <div className="prose">
             <Heading size="medium">Lenker</Heading>
             <Lenkeliste lenker={faneinnhold?.lenker || []} />
-          </>
+          </div>
         ) : null}
 
         {someValuesExists([faneinnhold?.delMedBruker, tiltakstypeSanityData.delingMedBruker]) ? (
           <>
             <Heading size="medium">Del med bruker</Heading>
-            <BodyLong as="div" size="small">
+            <BodyLong as="div" size="small" className="prose">
               {faneinnhold?.delMedBruker ?? tiltakstypeSanityData.delingMedBruker}
             </BodyLong>
           </>
