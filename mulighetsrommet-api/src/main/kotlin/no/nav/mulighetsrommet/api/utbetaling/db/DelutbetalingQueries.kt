@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.periode
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Tiltakskode
 import org.intellij.lang.annotations.Language
 import java.util.*
 
@@ -177,6 +178,58 @@ class DelutbetalingQueries(private val session: Session) {
         )
 
         session.execute(queryOf(query, params))
+    }
+
+    data class DelutbetalingOppgaveData(
+        val delutbetaling: DelutbetalingDto,
+        val gjennomforingId: UUID,
+        val tiltakskode: Tiltakskode,
+    )
+
+    fun getOppgaveData(
+        kostnadssteder: List<String>?,
+        tiltakskoder: List<Tiltakskode>?,
+    ): List<DelutbetalingOppgaveData> {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                delutbetaling.tilsagn_id,
+                delutbetaling.utbetaling_id,
+                delutbetaling.belop,
+                delutbetaling.periode,
+                delutbetaling.lopenummer,
+                delutbetaling.fakturanummer,
+                delutbetaling.opprettet_av,
+                delutbetaling.created_at,
+                delutbetaling.besluttet_av,
+                delutbetaling.besluttet_tidspunkt,
+                delutbetaling.besluttelse,
+                delutbetaling.aarsaker,
+                delutbetaling.forklaring,
+                tilsagn.gjennomforing_id,
+                tiltakstype.tiltakskode
+            from delutbetaling
+                inner join tilsagn on tilsagn.id = delutbetaling.tilsagn_id
+                inner join gjennomforing on gjennomforing.id = tilsagn.gjennomforing_id
+                inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
+            where
+                (besluttelse is null or besluttelse = 'AVVIST') and
+                (:tiltakskoder::tiltakskode[] is null or tiltakstype.tiltakskode = any(:tiltakskoder::tiltakskode[])) and
+                (:kostnadssteder::text[] is null or tilsagn.kostnadssted = any(:kostnadssteder))
+        """.trimIndent()
+
+        val params = mapOf(
+            "tiltakskoder" to tiltakskoder?.let { session.createArrayOf("tiltakskode", it) },
+            "kostnadssteder" to kostnadssteder?.let { session.createTextArray(it) },
+        )
+
+        return session.list(queryOf(query, params)) {
+            DelutbetalingOppgaveData(
+                delutbetaling = it.toDelutbetalingDto(),
+                gjennomforingId = it.uuid("gjennomforing_id"),
+                tiltakskode = Tiltakskode.valueOf(it.string("tiltakskode")),
+            )
+        }
     }
 }
 

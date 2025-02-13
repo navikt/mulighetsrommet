@@ -53,6 +53,7 @@ data class UtbetalingDto(
     @Serializable
     data class Tiltakstype(
         val navn: String,
+        val tiltakskode: Tiltakskode,
     )
 
     @Serializable

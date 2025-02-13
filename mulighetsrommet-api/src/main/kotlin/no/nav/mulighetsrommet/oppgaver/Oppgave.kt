@@ -1,14 +1,34 @@
 package no.nav.mulighetsrommet.oppgaver
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
-enum class OppgaveType {
-    TILSAGN_TIL_GODKJENNING,
-    TILSAGN_TIL_ANNULLERING,
-    TILSAGN_RETURNERT_AV_BESLUTTER,
+enum class OppgaveType(val rolle: NavAnsattRolle) {
+    TILSAGN_TIL_GODKJENNING(NavAnsattRolle.OKONOMI_BESLUTTER),
+    TILSAGN_TIL_ANNULLERING(NavAnsattRolle.OKONOMI_BESLUTTER),
+    TILSAGN_RETURNERT(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV),
+    UTBETALING_TIL_GODKJENNING(NavAnsattRolle.OKONOMI_BESLUTTER),
+    UTBETALING_RETURNERT(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV),
+    UTBETALING_TIL_BEHANDLING(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV),
+    ;
+
+    companion object {
+        val TilsagnOppgaver = listOf(
+            TILSAGN_TIL_GODKJENNING,
+            TILSAGN_TIL_ANNULLERING,
+            TILSAGN_RETURNERT,
+        )
+        val DelutbetalingOppgaver = listOf(
+            UTBETALING_RETURNERT,
+            UTBETALING_TIL_GODKJENNING,
+        )
+        val UtbetalingOppgaver = listOf(
+            UTBETALING_TIL_BEHANDLING,
+        )
+    }
 }
 
 @Serializable

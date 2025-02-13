@@ -171,7 +171,7 @@ class AvtaleQueriesTest : FunSpec({
 
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
-                    enheter = listOf(Innlandet, Gjovik, Sel),
+                    navEnheter = listOf(Innlandet, Gjovik, Sel),
                     tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                     avtaler = listOf(avtale),
                 ).setup(session)
@@ -487,7 +487,7 @@ class AvtaleQueriesTest : FunSpec({
 
         test("filtrering på ansvarlig enhet i Arena") {
             val domain = MulighetsrommetTestDomain(
-                enheter = listOf(Oslo, Innlandet, Gjovik),
+                navEnheter = listOf(Oslo, Innlandet, Gjovik),
                 tiltakstyper = listOf(
                     TiltakstypeFixtures.Oppfolging,
                     TiltakstypeFixtures.AFT,
@@ -523,7 +523,7 @@ class AvtaleQueriesTest : FunSpec({
 
         test("filtrering på Nav-enheter") {
             val domain = MulighetsrommetTestDomain(
-                enheter = listOf(Innlandet, Gjovik, Sel),
+                navEnheter = listOf(Innlandet, Gjovik, Sel),
                 tiltakstyper = listOf(
                     TiltakstypeFixtures.Oppfolging,
                     TiltakstypeFixtures.AFT,

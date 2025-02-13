@@ -2965,7 +2965,10 @@ components:
       enum:
         - TILSAGN_TIL_GODKJENNING
         - TILSAGN_TIL_ANNULLERING
-        - TILSAGN_RETURNERT_AV_BESLUTTER
+        - TILSAGN_RETURNERT
+        - UTBETALING_TIL_BEHANDLING
+        - UTBETALING_TIL_GODKJENNING
+        - UTBETALING_RETURNERT
 
     SorteringAvtaler:
       type: string
@@ -6112,15 +6115,16 @@ components:
         oppgavetyper:
           type: array
           items:
-              $ref: "#/components/schemas/OppgaveType"
-        tiltakstyper:
+            $ref: "#/components/schemas/OppgaveType"
+        tiltakskoder:
           type: array
           items:
-              $ref: "#/components/schemas/Tiltakskode"
+            $ref: "#/components/schemas/Tiltakskode"
         regioner:
           type: array
           items:
             type: string
+      required: [oppgavetyper, tiltakskoder, regioner]
 
     DelutbetalingDto:
       oneOf:

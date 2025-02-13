@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 
 data class MulighetsrommetTestDomain(
-    val enheter: List<NavEnhetDbo> = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+    val navEnheter: List<NavEnhetDbo> = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
     val ansatte: List<NavAnsattDbo> = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
     val arrangorer: List<ArrangorDto> = listOf(
         ArrangorFixtures.hovedenhet,
@@ -57,7 +57,7 @@ data class MulighetsrommetTestDomain(
         val context = QueryContext(session)
 
         with(context) {
-            enheter.forEach { queries.enhet.upsert(it) }
+            navEnheter.forEach { queries.enhet.upsert(it) }
             ansatte.forEach { queries.ansatt.upsert(it) }
             arrangorer.forEach { queries.arrangor.upsert(it) }
             arrangorKontaktpersoner.forEach { queries.arrangor.upsertKontaktperson(it) }

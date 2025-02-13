@@ -2,129 +2,219 @@ package no.nav.mulighetsrommet.oppgaver
 
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatus.Returnert
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatus.TilAnnullering
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatus.TilGodkjenning
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import java.time.LocalDateTime
-import kotlin.collections.component1
-import kotlin.collections.component2
+import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatus
+import no.nav.mulighetsrommet.model.Tiltakskode
+import java.util.*
 
 class OppgaverService(val db: ApiDatabase) {
+    fun oppgaver(filter: OppgaverFilter, roller: Set<NavAnsattRolle>): List<Oppgave> {
+        val navEnheter = navEnheter(filter.regioner)
 
-    fun getOppgaverForTilsagn(filter: OppgaverFilter, ansattRoller: Set<NavAnsattRolle>): List<Oppgave> {
-        val oppgaver = buildList<Oppgave> {
-            val oppgavetyper = if (filter.oppgavetyper.isEmpty()) {
-                OppgaveType.entries
-            } else {
-                filter.oppgavetyper
+        return buildList {
+            if (filter.oppgavetyper.isEmpty() || filter.oppgavetyper.any { OppgaveType.TilsagnOppgaver.contains(it) }) {
+                addAll(
+                    tilsagnOppgaver(
+                        tiltakskoder = filter.tiltakskoder,
+                        oppgavetyper = filter.oppgavetyper,
+                        kostnadssteder = navEnheter,
+                        roller = roller,
+                    ),
+                )
             }
-
-            val tiltakskoder = if (filter.tiltakstyper.isEmpty()) {
-                db.session { queries.tiltakstype.getAll().map { it.tiltakskode } }
-            } else {
-                filter.tiltakstyper
+            if (filter.oppgavetyper.isEmpty() || filter.oppgavetyper.any { OppgaveType.DelutbetalingOppgaver.contains(it) }) {
+                addAll(
+                    delutbetalingOppgaver(
+                        tiltakskoder = filter.tiltakskoder,
+                        oppgavetyper = filter.oppgavetyper,
+                        kostnadssteder = navEnheter,
+                        roller = roller,
+                    ),
+                )
             }
+            if (filter.oppgavetyper.isEmpty() || filter.oppgavetyper.any { OppgaveType.UtbetalingOppgaver.contains(it) }) {
+                addAll(
+                    utbetalingOppgaver(
+                        tiltakskoder = filter.tiltakskoder,
+                        oppgavetyper = filter.oppgavetyper,
+                        kostnadssteder = navEnheter,
+                        roller = roller,
+                    ),
+                )
+            }
+        }
+    }
 
-            val tilsagnStatuser = oppgavetyper.mapNotNull { oppgavetype ->
-                when {
-                    oppgavetype == OppgaveType.TILSAGN_TIL_GODKJENNING && ansattRoller.contains(NavAnsattRolle.OKONOMI_BESLUTTER) -> listOf(
-                        TilsagnStatus.TIL_GODKJENNING,
-                    )
-
-                    oppgavetype == OppgaveType.TILSAGN_TIL_ANNULLERING && ansattRoller.contains(NavAnsattRolle.OKONOMI_BESLUTTER) -> listOf(
-                        TilsagnStatus.TIL_ANNULLERING,
-                    )
-
-                    oppgavetype == OppgaveType.TILSAGN_RETURNERT_AV_BESLUTTER && ansattRoller.contains(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV) -> listOf(
-                        TilsagnStatus.RETURNERT,
-                    )
-
-                    else -> null
+    fun tilsagnOppgaver(
+        oppgavetyper: List<OppgaveType>,
+        tiltakskoder: List<Tiltakskode>,
+        kostnadssteder: List<String>,
+        roller: Set<NavAnsattRolle>,
+    ): List<Oppgave> {
+        return db.session {
+            queries.tilsagn
+                .getAll(statuser = listOf(TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.TIL_ANNULLERING, TilsagnStatus.RETURNERT))
+                .asSequence()
+                .filter { oppgave ->
+                    kostnadssteder.isEmpty() || oppgave.kostnadssted.enhetsnummer in kostnadssteder
                 }
-            }.flatten()
+                .filter { tiltakskoder.isEmpty() || it.gjennomforing.tiltakskode in tiltakskoder }
+                .mapNotNull { it.toOppgave() }
+                .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
+                .filter { it.type.rolle in roller }
+                .toList()
+        }
+    }
 
-            val enheter = db.session { queries.enhet.getAll(statuser = listOf(NavEnhetStatus.AKTIV, NavEnhetStatus.UNDER_ETABLERING)) }
-            val enheterToLokalkontor = enheter
-                .groupBy { it.overordnetEnhet }
-                .mapValues { it.value.map { enhet -> enhet.enhetsnummer } }
-                .filterKeys { key -> filter.regioner.isEmpty() || filter.regioner.contains(key) }
+    fun delutbetalingOppgaver(
+        oppgavetyper: List<OppgaveType>,
+        tiltakskoder: List<Tiltakskode>,
+        kostnadssteder: List<String>,
+        roller: Set<NavAnsattRolle>,
+    ): List<Oppgave> {
+        return db.session {
+            queries.delutbetaling
+                .getOppgaveData(
+                    kostnadssteder = kostnadssteder.ifEmpty { null },
+                    tiltakskoder = tiltakskoder.ifEmpty { null },
+                )
+                .mapNotNull { data ->
+                    data.delutbetaling.toOppgave(data.tiltakskode, data.gjennomforingId)
+                }
+                .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
+                .filter { it.type.rolle in roller }
+        }
+    }
 
-            db.session {
-                val oppgaver = queries.tilsagn
-                    .getAll(
-                        statuser = tilsagnStatuser,
-                    )
-                    .filter { oppgave ->
-                        if (filter.regioner.isEmpty()) {
-                            return@filter true
-                        }
-                        enheterToLokalkontor.any { (_, underenheter) ->
-                            underenheter.contains(oppgave.kostnadssted.enhetsnummer)
-                        }
+    fun utbetalingOppgaver(
+        oppgavetyper: List<OppgaveType>,
+        tiltakskoder: List<Tiltakskode>,
+        kostnadssteder: List<String>,
+        roller: Set<NavAnsattRolle>,
+    ): List<Oppgave> {
+        return db.session {
+            queries.utbetaling
+                .getOppgaveData(
+                    tiltakskoder = tiltakskoder.ifEmpty { null },
+                )
+                .filter {
+                    if (kostnadssteder.isEmpty()) {
+                        true
+                    } else {
+                        val tilsagn = db.session { queries.tilsagn.getTilsagnForGjennomforing(it.gjennomforing.id, it.periode) }
+                        tilsagn.isEmpty() || tilsagn.any { it.kostnadssted.enhetsnummer in kostnadssteder }
                     }
-                    .filter { tiltakskoder.contains(it.gjennomforing.tiltakskode) }
-                    .map {
-                        Oppgave(
-                            type = it.status.toType(),
-                            title = it.status.toTitle(),
-                            description = it.status.toDescription(),
-                            tiltakstype = it.gjennomforing.tiltakskode,
-                            link = OppgaveLink(
-                                linkText = "Se tilsagn",
-                                link = "/gjennomforinger/${it.gjennomforing.id}/tilsagn/${it.id}",
-                            ),
-                            createdAt = it.status.createdAt(),
-                            deadline = it.periodeStart.atStartOfDay(),
-                        )
-                    }
+                }
+                .mapNotNull { it.toOppgave() }
+                .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
+                .filter { it.type.rolle in roller }
+        }
+    }
 
-                addAll(oppgaver)
+    private fun navEnheter(regioner: List<String>): List<String> {
+        return regioner
+            .flatMap { region ->
+                db.session { queries.enhet.getAll(overordnetEnhet = region) }
             }
-        }
-
-        return oppgaver
+            .map { it.enhetsnummer }
     }
 
-    private fun TilsagnDto.TilsagnStatus.toTitle(): String {
-        return when (this) {
-            is TilGodkjenning -> "Tilsagn til godkjenning"
-            is Returnert -> "Tilsagn returnert"
-            is TilAnnullering -> "Tilsagn til annullering"
-            else -> {
-                throw IllegalStateException("Ukjent tilsagnstatus")
-            }
-        }
+    private fun TilsagnDto.toOppgave(): Oppgave? = when (status) {
+        is TilGodkjenning -> Oppgave(
+            type = OppgaveType.TILSAGN_TIL_GODKJENNING,
+            title = "Tilsagn til godkjenning",
+            description = "Tilsagnet er til godkjenning og må behandles",
+            tiltakstype = gjennomforing.tiltakskode,
+            link = OppgaveLink(
+                linkText = "Se tilsagn",
+                link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
+            ),
+            createdAt = status.endretTidspunkt,
+            deadline = periodeStart.atStartOfDay(),
+        )
+        is Returnert -> Oppgave(
+            type = OppgaveType.TILSAGN_RETURNERT,
+            title = "Tilsagn returnert",
+            description = "Tilsagnet ble returnert av beslutter",
+            tiltakstype = gjennomforing.tiltakskode,
+            link = OppgaveLink(
+                linkText = "Se tilsagn",
+                link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
+            ),
+            createdAt = status.endretTidspunkt,
+            deadline = periodeStart.atStartOfDay(),
+        )
+        is TilAnnullering -> Oppgave(
+            type = OppgaveType.TILSAGN_TIL_ANNULLERING,
+            title = "Tilsagn til annullering",
+            description = "Tilsagnet er til annullering og må behandles",
+            tiltakstype = gjennomforing.tiltakskode,
+            link = OppgaveLink(
+                linkText = "Se tilsagn",
+                link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
+            ),
+            createdAt = status.endretTidspunkt,
+            deadline = periodeStart.atStartOfDay(),
+        )
+        is TilsagnDto.TilsagnStatus.Annullert, TilsagnDto.TilsagnStatus.Godkjent -> null
     }
 
-    private fun TilsagnDto.TilsagnStatus.toDescription(): String {
-        return when (this) {
-            is TilGodkjenning -> "Tilsagnet er til godkjenning og må behandles"
-            is Returnert -> "Tilsagnet ble returnert av beslutter"
-            is TilAnnullering -> "Tilsagnet er til annullering og må behandles"
-            else -> {
-                throw IllegalStateException("Ukjent tilsagnstatus")
-            }
-        }
+    private fun DelutbetalingDto.toOppgave(
+        tiltakskode: Tiltakskode,
+        gjennomforingId: UUID,
+    ): Oppgave? = when (this) {
+        is DelutbetalingDto.DelutbetalingTilGodkjenning -> Oppgave(
+            type = OppgaveType.UTBETALING_TIL_GODKJENNING,
+            title = "Utbetaling til godkjenning",
+            description = "Utbetalingen er til godkjenning og må behandles",
+            tiltakstype = tiltakskode,
+            link = OppgaveLink(
+                linkText = "Se utbetaling",
+                link = "/gjennomforinger/$gjennomforingId/utbetalinger/$utbetalingId",
+            ),
+            createdAt = opprettetTidspunkt,
+            deadline = opprettetTidspunkt.plusDays(7),
+        )
+        is DelutbetalingDto.DelutbetalingAvvist -> Oppgave(
+            type = OppgaveType.UTBETALING_RETURNERT,
+            title = "Utbetaling returnert",
+            description = "Utbetaling ble returnert av beslutter",
+            tiltakstype = tiltakskode,
+            link = OppgaveLink(
+                linkText = "Se utbetaling",
+                link = "/gjennomforinger/$gjennomforingId/utbetalinger/$utbetalingId",
+            ),
+            createdAt = besluttetTidspunkt,
+            deadline = besluttetTidspunkt.plusDays(2),
+        )
+        is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling,
+        is DelutbetalingDto.DelutbetalingUtbetalt,
+        -> null
     }
 
-    private fun TilsagnDto.TilsagnStatus.toType(): OppgaveType {
-        return when (this) {
-            is TilGodkjenning -> OppgaveType.TILSAGN_TIL_GODKJENNING
-            is Returnert -> OppgaveType.TILSAGN_RETURNERT_AV_BESLUTTER
-            is TilAnnullering -> OppgaveType.TILSAGN_TIL_ANNULLERING
-            else -> throw IllegalStateException("Ukjent tilsagnstatus")
-        }
-    }
-
-    private fun TilsagnDto.TilsagnStatus.createdAt(): LocalDateTime {
-        return when (this) {
-            is TilGodkjenning -> this.endretTidspunkt
-            is Returnert -> this.endretTidspunkt
-            is TilAnnullering -> this.endretTidspunkt
-            else -> throw IllegalStateException("Ukjent tilsagnstatus")
-        }
+    private fun UtbetalingDto.toOppgave(): Oppgave? = when (status) {
+        UtbetalingStatus.INNSENDT_AV_ARRANGOR -> Oppgave(
+            type = OppgaveType.UTBETALING_TIL_BEHANDLING,
+            title = "Utbetaling klar til behandling",
+            description = "Innsendt utbetaling er klar til behandling",
+            tiltakstype = tiltakstype.tiltakskode,
+            link = OppgaveLink(
+                linkText = "Se utbetaling",
+                link = "/gjennomforinger/${gjennomforing.id}/utbetalinger/$id",
+            ),
+            createdAt = createdAt,
+            deadline = createdAt.plusDays(7),
+        )
+        UtbetalingStatus.OPPRETTET_AV_NAV,
+        UtbetalingStatus.KLAR_FOR_GODKJENNING,
+        UtbetalingStatus.OVERFORT_TIL_UTBETALING,
+        UtbetalingStatus.UTBETALT,
+        -> null
     }
 }

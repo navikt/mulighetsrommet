@@ -34,7 +34,7 @@ class NavAnsattQueriesTest : FunSpec({
         )
 
         MulighetsrommetTestDomain(
-            enheter = listOf(enhet1, enhet2),
+            navEnheter = listOf(enhet1, enhet2),
             ansatte = listOf(),
             arrangorer = listOf(),
             avtaler = listOf(),

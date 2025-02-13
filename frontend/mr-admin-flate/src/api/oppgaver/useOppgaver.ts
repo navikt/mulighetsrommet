@@ -9,7 +9,7 @@ export function useOppgaver(filter: OppgaverFilter) {
     queryFn: () =>
       OppgaverService.getOppgaver({
         body: {
-          tiltakstyper: filter.tiltakstyper as Tiltakskode[],
+          tiltakskoder: filter.tiltakstyper as Tiltakskode[],
           oppgavetyper: filter.type,
           regioner: filter.regioner,
         },

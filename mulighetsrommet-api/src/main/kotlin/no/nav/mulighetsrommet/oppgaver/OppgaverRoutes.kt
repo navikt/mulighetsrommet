@@ -11,7 +11,8 @@ import org.koin.ktor.ext.inject
 
 fun Route.oppgaverRoutes() {
     val db: ApiDatabase by inject()
-    val oppgaverService: OppgaverService by inject()
+    val service: OppgaverService by inject()
+
     route("oppgaver") {
         post {
             val userId = getNavIdent()
@@ -19,9 +20,8 @@ fun Route.oppgaverRoutes() {
                 ?: throw IllegalStateException("Fant ikke ansatt med navIdent $userId")
 
             val filter = call.receive<OppgaverFilter>()
-            val tilsagnsOppgaver = oppgaverService.getOppgaverForTilsagn(filter, ansatt.roller)
 
-            call.respond(tilsagnsOppgaver)
+            call.respond(service.oppgaver(filter, ansatt.roller))
         }
     }
 }
@@ -29,6 +29,6 @@ fun Route.oppgaverRoutes() {
 @Serializable
 data class OppgaverFilter(
     val oppgavetyper: List<OppgaveType>,
-    val tiltakstyper: List<Tiltakskode>,
+    val tiltakskoder: List<Tiltakskode>,
     val regioner: List<String>,
 )
