@@ -62,6 +62,7 @@ export function VarselModal({
       <Modal.Footer className={footerClassName ? footerClassName : styles.footer}>
         {secondaryButton && (
           <Button
+            type="button"
             variant="secondary"
             onClick={() => {
               handleClose();
