@@ -123,7 +123,6 @@ export function TilsagnTabell({ tilsagn }: Props) {
               <Table.DataCell align="right">
                 <TilsagnTag status={tilsagn.status} />
               </Table.DataCell>
-
               <Table.DataCell>
                 <Link to={`/gjennomforinger/${gjennomforingId}/tilsagn/${id}`}>Detaljer</Link>
               </Table.DataCell>

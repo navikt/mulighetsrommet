@@ -1,4 +1,4 @@
-import { formaterDato } from "@/utils/Utils";
+import { formaterDato, tilsagnTypeToString } from "@/utils/Utils";
 import {
   UtbetalingKompakt,
   TilsagnDto,
@@ -13,6 +13,7 @@ import {
   DelutbetalingAvvist,
   DelutbetalingOverfortTilUtbetaling,
   DelutbetalingUtbetalt,
+  NavAnsattRolle,
 } from "@mr/api-client-v2";
 import { BodyShort, Button, HStack, Table, TextField } from "@navikt/ds-react";
 import { formaterNOK, isValidationError } from "@mr/frontend-common/utils/utils";
@@ -73,6 +74,7 @@ export function DelutbetalingRow({
 }
 
 function EditableRow({
+  ansatt,
   utbetaling,
   tilsagn,
   delutbetaling,
@@ -110,9 +112,11 @@ function EditableRow({
       },
     });
   }
+  const skriveTilgang = ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV);
 
   return (
     <Table.ExpandableRow
+      defaultOpen={Boolean(delutbetaling)}
       expansionDisabled={!delutbetaling}
       key={tilsagn.id}
       className={delutbetaling ? "bg-surface-warning-subtle" : ""}
@@ -129,39 +133,43 @@ function EditableRow({
         ) : null
       }
     >
-      <Table.DataCell>
-        {delutbetaling && <DelutbetalingTag delutbetaling={delutbetaling} />}
-      </Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeStart)}</Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeSlutt)}</Table.DataCell>
+      <Table.DataCell>{tilsagnTypeToString(tilsagn.type)}</Table.DataCell>
       <Table.DataCell>{tilsagn.kostnadssted.navn}</Table.DataCell>
       <Table.DataCell>{`${formaterNOK(tilsagn.beregning.output.belop)}`}</Table.DataCell>
       <Table.DataCell>
         <TextField
+          readOnly={!skriveTilgang}
           size="small"
           label=""
           error={error}
-          type="number"
           hideLabel
+          inputMode="numeric"
           onChange={(e) => {
             setError(undefined);
             const num = Number(e.target.value);
             if (isNaN(num)) {
               setError("Må være et tall");
-            }
-            if (num > 2_147_483_647) {
+            } else if (num > 2_147_483_647) {
               setError("Beløp er for høyt");
+            } else {
+              setBelop(num);
+              onBelopChange(num);
             }
-            setBelop(num);
-            onBelopChange(num);
           }}
           value={belop}
         />
       </Table.DataCell>
       <Table.DataCell>
-        <Button size="small" type="button" onClick={sendTilGodkjenning}>
-          Send til godkjenning
-        </Button>
+        {delutbetaling && <DelutbetalingTag delutbetaling={delutbetaling} />}{" "}
+      </Table.DataCell>
+      <Table.DataCell>
+        {skriveTilgang && (
+          <Button size="small" type="button" onClick={sendTilGodkjenning}>
+            Send beløp til godkjenning
+          </Button>
+        )}
       </Table.DataCell>
     </Table.ExpandableRow>
   );
@@ -183,14 +191,15 @@ function GodkjentRow({
         </HStack>
       }
     >
-      <Table.DataCell>{<DelutbetalingTag delutbetaling={delutbetaling} />}</Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeStart)}</Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeSlutt)}</Table.DataCell>
+      <Table.DataCell>{tilsagnTypeToString(tilsagn.type)}</Table.DataCell>
       <Table.DataCell>{tilsagn.kostnadssted.navn}</Table.DataCell>
       <Table.DataCell>{formaterNOK(tilsagn.beregning.output.belop)}</Table.DataCell>
       <Table.DataCell>
         <b>{formaterNOK(delutbetaling.belop)}</b>
       </Table.DataCell>
+      <Table.DataCell>{<DelutbetalingTag delutbetaling={delutbetaling} />}</Table.DataCell>
       <Table.DataCell></Table.DataCell>
     </Table.ExpandableRow>
   );
@@ -223,18 +232,22 @@ function TilGodkjenningRow({
     });
   }
 
-  const kanBeslutte = delutbetaling && delutbetaling.opprettetAv !== ansatt.navIdent;
+  const kanBeslutte =
+    delutbetaling &&
+    delutbetaling.opprettetAv !== ansatt.navIdent &&
+    ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER);
 
   return (
     <Table.ExpandableRow expansionDisabled content={null}>
-      <Table.DataCell>{<DelutbetalingTag delutbetaling={delutbetaling} />}</Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeStart)}</Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeSlutt)}</Table.DataCell>
+      <Table.DataCell>{tilsagnTypeToString(tilsagn.type)}</Table.DataCell>
       <Table.DataCell>{tilsagn.kostnadssted.navn}</Table.DataCell>
       <Table.DataCell>{`${formaterNOK(tilsagn.beregning.output.belop)}`}</Table.DataCell>
       <Table.DataCell>
         <b>{formaterNOK(delutbetaling.belop)}</b>
       </Table.DataCell>
+      <Table.DataCell>{<DelutbetalingTag delutbetaling={delutbetaling} />}</Table.DataCell>
       <Table.DataCell>
         {kanBeslutte && (
           <HStack gap="4">
@@ -294,16 +307,17 @@ function TilsagnIkkeGodkjentRow({ tilsagn }: { tilsagn: TilsagnDto }) {
   return (
     <Table.Row key={tilsagn.id} className="bg-surface-warning-subtle">
       <Table.DataCell></Table.DataCell>
+      <Table.DataCell>{formaterDato(tilsagn.periodeStart)}</Table.DataCell>
+      <Table.DataCell>{formaterDato(tilsagn.periodeSlutt)}</Table.DataCell>
+      <Table.DataCell>{tilsagnTypeToString(tilsagn.type)}</Table.DataCell>
+      <Table.DataCell>{tilsagn.kostnadssted.navn}</Table.DataCell>
+      <Table.DataCell></Table.DataCell>
+      <Table.DataCell></Table.DataCell>
       <Table.DataCell>
         <BodyShort size="small">
           <b>Tilsagn ikke godkjent</b>
         </BodyShort>
       </Table.DataCell>
-      <Table.DataCell>{formaterDato(tilsagn.periodeStart)}</Table.DataCell>
-      <Table.DataCell>{formaterDato(tilsagn.periodeSlutt)}</Table.DataCell>
-      <Table.DataCell>{tilsagn.kostnadssted.navn}</Table.DataCell>
-      <Table.DataCell></Table.DataCell>
-      <Table.DataCell></Table.DataCell>
       <Table.DataCell></Table.DataCell>
     </Table.Row>
   );

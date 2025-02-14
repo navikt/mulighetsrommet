@@ -3,7 +3,13 @@ import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { TilsagnDto, TilsagnDefaultsRequest, TilsagnType, Prismodell } from "@mr/api-client-v2";
+import {
+  TilsagnDto,
+  TilsagnDefaultsRequest,
+  TilsagnType,
+  Prismodell,
+  NavAnsattRolle,
+} from "@mr/api-client-v2";
 import { Alert, Box, CopyButton, Heading, HStack, Table, VStack } from "@navikt/ds-react";
 import { useLoaderData } from "react-router";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
@@ -67,6 +73,8 @@ export function UtbetalingPage() {
     };
   }
 
+  const skriveTilgang = ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV);
+
   return (
     <>
       <Brodsmuler brodsmuler={brodsmuler} />
@@ -93,7 +101,7 @@ export function UtbetalingPage() {
                   />
                   <Metadata
                     horizontal
-                    header="Innsent"
+                    header="Innsendt"
                     verdi={formaterDato(
                       utbetaling.godkjentAvArrangorTidspunkt ?? utbetaling.createdAt,
                     )}
@@ -107,7 +115,7 @@ export function UtbetalingPage() {
                 <Separator />
                 <HStack justify="space-between">
                   <Heading size="medium">Tilsagn</Heading>
-                  <OpprettTilsagnButton defaults={ekstraTilsagnDefaults()} />
+                  {skriveTilgang && <OpprettTilsagnButton defaults={ekstraTilsagnDefaults()} />}
                 </HStack>
                 {tilsagn.length === 0 && <Alert variant="info">Tilsagn mangler</Alert>}
                 {tilsagn.length > 0 && (
@@ -115,12 +123,13 @@ export function UtbetalingPage() {
                     <Table.Header>
                       <Table.Row>
                         <Table.HeaderCell></Table.HeaderCell>
-                        <Table.HeaderCell>Status</Table.HeaderCell>
                         <Table.HeaderCell>Periodestart</Table.HeaderCell>
                         <Table.HeaderCell>Periodeslutt</Table.HeaderCell>
+                        <Table.HeaderCell>Type</Table.HeaderCell>
                         <Table.HeaderCell>Kostnadssted</Table.HeaderCell>
                         <Table.HeaderCell>Gjenstående beløp</Table.HeaderCell>
                         <Table.HeaderCell>Utbetales</Table.HeaderCell>
+                        <Table.HeaderCell>Status</Table.HeaderCell>
                         <Table.HeaderCell></Table.HeaderCell>
                       </Table.Row>
                     </Table.Header>
@@ -160,8 +169,8 @@ export function UtbetalingPage() {
                         <Table.DataCell>
                           <CopyButton
                             copyText={String(differanse())}
-                            text={`Manglende beløp ${formaterNOK(differanse())}`}
-                            activeText={`Manglende beløp ${formaterNOK(differanse())}`}
+                            text={`Differanse ${formaterNOK(differanse())}`}
+                            activeText={`Differanse ${formaterNOK(differanse())}`}
                           />
                         </Table.DataCell>
                       </Table.Row>
