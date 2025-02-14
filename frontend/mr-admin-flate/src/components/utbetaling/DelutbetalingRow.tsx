@@ -113,6 +113,7 @@ function EditableRow({
 
   return (
     <Table.ExpandableRow
+      defaultOpen={Boolean(delutbetaling)}
       expansionDisabled={!delutbetaling}
       key={tilsagn.id}
       className={delutbetaling ? "bg-surface-warning-subtle" : ""}
