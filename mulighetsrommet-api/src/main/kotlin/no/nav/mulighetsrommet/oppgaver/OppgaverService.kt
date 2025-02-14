@@ -211,9 +211,8 @@ class OppgaverService(val db: ApiDatabase) {
             createdAt = createdAt,
             deadline = createdAt.plusDays(7),
         )
-        UtbetalingStatus.OPPRETTET_AV_NAV,
+        UtbetalingStatus.INNSENDT_AV_NAV,
         UtbetalingStatus.KLAR_FOR_GODKJENNING,
-        UtbetalingStatus.OVERFORT_TIL_UTBETALING,
         UtbetalingStatus.UTBETALT,
         -> null
     }

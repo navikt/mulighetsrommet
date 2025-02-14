@@ -187,7 +187,7 @@ function GodkjentRow({
       content={
         <HStack>
           <Metadata horizontal header="Opprettet av" verdi={delutbetaling.opprettetAv} />
-          <Metadata horizontal header="Opprettet av" verdi={delutbetaling.opprettetAv} />
+          <Metadata horizontal header="Besluttet av" verdi={delutbetaling.besluttetAv} />
         </HStack>
       }
     >
