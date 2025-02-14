@@ -3,7 +3,13 @@ import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { TilsagnDto, TilsagnDefaultsRequest, TilsagnType, Prismodell } from "@mr/api-client-v2";
+import {
+  TilsagnDto,
+  TilsagnDefaultsRequest,
+  TilsagnType,
+  Prismodell,
+  NavAnsattRolle,
+} from "@mr/api-client-v2";
 import { Alert, Box, CopyButton, Heading, HStack, Table, VStack } from "@navikt/ds-react";
 import { useLoaderData } from "react-router";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
@@ -67,6 +73,8 @@ export function UtbetalingPage() {
     };
   }
 
+  const skriveTilgang = ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV);
+
   return (
     <>
       <Brodsmuler brodsmuler={brodsmuler} />
@@ -107,7 +115,7 @@ export function UtbetalingPage() {
                 <Separator />
                 <HStack justify="space-between">
                   <Heading size="medium">Tilsagn</Heading>
-                  <OpprettTilsagnButton defaults={ekstraTilsagnDefaults()} />
+                  {skriveTilgang && <OpprettTilsagnButton defaults={ekstraTilsagnDefaults()} />}
                 </HStack>
                 {tilsagn.length === 0 && <Alert variant="info">Tilsagn mangler</Alert>}
                 {tilsagn.length > 0 && (

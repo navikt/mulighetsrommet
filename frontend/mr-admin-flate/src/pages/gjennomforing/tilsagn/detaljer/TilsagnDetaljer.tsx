@@ -108,7 +108,9 @@ export function TilsagnDetaljer() {
     ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER);
 
   const visHandlingerMeny =
-    tilsagn.status.type === "RETURNERT" || tilsagn.status.type === "GODKJENT";
+    tilsagn.status.type === "RETURNERT" ||
+    (tilsagn.status.type === "GODKJENT" &&
+      ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV));
 
   return (
     <main>

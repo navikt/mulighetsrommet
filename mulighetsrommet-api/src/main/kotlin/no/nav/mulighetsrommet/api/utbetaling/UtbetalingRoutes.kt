@@ -61,76 +61,80 @@ fun Route.utbetalingRoutes() {
             call.respond(tilsagn)
         }
 
-        post("/opprett-utbetaling") {
-            val utbetalingId = call.parameters.getOrFail<UUID>("id")
-            val request = call.receive<OpprettManuellUtbetalingRequest>()
-            val navIdent = getNavIdent()
+        authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
+            post("/opprett-utbetaling") {
+                val utbetalingId = call.parameters.getOrFail<UUID>("id")
+                val request = call.receive<OpprettManuellUtbetalingRequest>()
+                val navIdent = getNavIdent()
 
-            UtbetalingValidator.validateManuellUtbetalingskrav(request)
-                .onLeft {
-                    return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
+                UtbetalingValidator.validateManuellUtbetalingskrav(request)
+                    .onLeft {
+                        return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
+                    }
+
+                db.session {
+                    queries.utbetaling.upsert(
+                        UtbetalingDbo(
+                            id = utbetalingId,
+                            gjennomforingId = request.gjennomforingId,
+                            fristForGodkjenning = request.periode.slutt.plusMonths(2).atStartOfDay(),
+                            kontonummer = request.kontonummer,
+                            kid = request.kidNummer,
+                            beregning = UtbetalingBeregningFri.beregn(
+                                input = UtbetalingBeregningFri.Input(
+                                    belop = request.belop,
+                                ),
+                            ),
+                            periode = Periode.fromInclusiveDates(
+                                request.periode.start,
+                                request.periode.slutt,
+                            ),
+                            innsender = UtbetalingDto.Innsender.NavAnsatt(navIdent),
+                        ),
+                    )
                 }
 
-            db.session {
-                queries.utbetaling.upsert(
-                    UtbetalingDbo(
-                        id = utbetalingId,
-                        gjennomforingId = request.gjennomforingId,
-                        fristForGodkjenning = request.periode.slutt.plusMonths(2).atStartOfDay(),
-                        kontonummer = request.kontonummer,
-                        kid = request.kidNummer,
-                        beregning = UtbetalingBeregningFri.beregn(
-                            input = UtbetalingBeregningFri.Input(
-                                belop = request.belop,
-                            ),
-                        ),
-                        periode = Periode.fromInclusiveDates(
-                            request.periode.start,
-                            request.periode.slutt,
-                        ),
-                        innsender = UtbetalingDto.Innsender.NavAnsatt(navIdent),
-                    ),
-                )
+                call.respond(request)
             }
-
-            call.respond(request)
         }
 
         route("/delutbetaling") {
-            put {
-                val utbetalingId = call.parameters.getOrFail<UUID>("id")
-                val request = call.receive<DelutbetalingRequest>()
-                val navIdent = getNavIdent()
+            authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
+                put {
+                    val utbetalingId = call.parameters.getOrFail<UUID>("id")
+                    val request = call.receive<DelutbetalingRequest>()
+                    val navIdent = getNavIdent()
 
-                val result = service.upsertDelutbetaling(utbetalingId, request, navIdent)
-                    .mapLeft { ValidationError(errors = it) }
-                call.respondWithStatusResponse(result)
+                    val result = service.upsertDelutbetaling(utbetalingId, request, navIdent)
+                        .mapLeft { ValidationError(errors = it) }
+                    call.respondWithStatusResponse(result)
+                }
             }
 
-            post("/beslutt") {
-                val id = call.parameters.getOrFail<UUID>("id")
-                val request = call.receive<BesluttDelutbetalingRequest>()
-                val navIdent = getNavIdent()
+            authenticate(AuthProvider.AZURE_AD_OKONOMI_BESLUTTER) {
+                post("/beslutt") {
+                    val id = call.parameters.getOrFail<UUID>("id")
+                    val request = call.receive<BesluttDelutbetalingRequest>()
+                    val navIdent = getNavIdent()
 
-                call.respondWithStatusResponse(service.besluttDelutbetaling(request, id, navIdent))
+                    call.respondWithStatusResponse(service.besluttDelutbetaling(request, id, navIdent))
+                }
             }
         }
     }
 
     route("/gjennomforinger/{id}/utbetalinger") {
-        authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
-            get {
-                val id = call.parameters.getOrFail<UUID>("id")
+        get {
+            val id = call.parameters.getOrFail<UUID>("id")
 
-                val utbetalinger = db.session {
-                    queries.utbetaling.getByGjennomforing(id)
-                        .map { utbetaling ->
-                            UtbetalingKompakt.fromUtbetalingDto(utbetaling)
-                        }
-                }
-
-                call.respond(utbetalinger)
+            val utbetalinger = db.session {
+                queries.utbetaling.getByGjennomforing(id)
+                    .map { utbetaling ->
+                        UtbetalingKompakt.fromUtbetalingDto(utbetaling)
+                    }
             }
+
+            call.respond(utbetalinger)
         }
     }
 }

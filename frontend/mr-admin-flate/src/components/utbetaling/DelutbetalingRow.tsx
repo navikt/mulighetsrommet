@@ -13,6 +13,7 @@ import {
   DelutbetalingAvvist,
   DelutbetalingOverfortTilUtbetaling,
   DelutbetalingUtbetalt,
+  NavAnsattRolle,
 } from "@mr/api-client-v2";
 import { BodyShort, Button, HStack, Table, TextField } from "@navikt/ds-react";
 import { formaterNOK, isValidationError } from "@mr/frontend-common/utils/utils";
@@ -73,6 +74,7 @@ export function DelutbetalingRow({
 }
 
 function EditableRow({
+  ansatt,
   utbetaling,
   tilsagn,
   delutbetaling,
@@ -110,6 +112,7 @@ function EditableRow({
       },
     });
   }
+  const skriveTilgang = ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV);
 
   return (
     <Table.ExpandableRow
@@ -137,6 +140,7 @@ function EditableRow({
       <Table.DataCell>{`${formaterNOK(tilsagn.beregning.output.belop)}`}</Table.DataCell>
       <Table.DataCell>
         <TextField
+          readOnly={!skriveTilgang}
           size="small"
           label=""
           error={error}
@@ -161,9 +165,11 @@ function EditableRow({
         {delutbetaling && <DelutbetalingTag delutbetaling={delutbetaling} />}{" "}
       </Table.DataCell>
       <Table.DataCell>
-        <Button size="small" type="button" onClick={sendTilGodkjenning}>
-          Send beløp til godkjenning
-        </Button>
+        {skriveTilgang && (
+          <Button size="small" type="button" onClick={sendTilGodkjenning}>
+            Send beløp til godkjenning
+          </Button>
+        )}
       </Table.DataCell>
     </Table.ExpandableRow>
   );
@@ -226,7 +232,10 @@ function TilGodkjenningRow({
     });
   }
 
-  const kanBeslutte = delutbetaling && delutbetaling.opprettetAv !== ansatt.navIdent;
+  const kanBeslutte =
+    delutbetaling &&
+    delutbetaling.opprettetAv !== ansatt.navIdent &&
+    ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER);
 
   return (
     <Table.ExpandableRow expansionDisabled content={null}>
