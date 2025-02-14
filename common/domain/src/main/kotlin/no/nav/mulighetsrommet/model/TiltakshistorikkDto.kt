@@ -82,7 +82,7 @@ sealed class Tiltakshistorikk {
         @Serializable(with = LocalDateSerializer::class)
         override val sluttDato: LocalDate?,
         @Serializable(with = UUIDSerializer::class)
-        val avtaleId: UUID,
+        val id: UUID,
         val tiltakstype: Tiltakstype,
         val status: ArbeidsgiverAvtaleStatus,
         val arbeidsgiver: Arbeidsgiver,
