@@ -8,6 +8,7 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
@@ -55,13 +56,14 @@ class OebsTiltakApiClient(
                 payload?.let { setBody(it) }
             }
         } catch (e: Exception) {
-            log.error("Requst $method $requestUri failed. request body=$payload", e)
+            log.error("Requst $method $requestUri failed. request body=${Json.encodeToString(payload)}", e)
             return Either.Left(e)
         }
 
         if (!isValidResponse(response)) {
+            val requestBody = Json.encodeToString(payload)
             val responseBody = response.bodyAsText()
-            log.warn("Request $method $requestUri failed. status=${response.status}, request body=$payload, response body=$responseBody")
+            log.warn("Request $method $requestUri failed. status=${response.status}, request body=$requestBody, response body=$responseBody")
             return Either.Left(ResponseException(response, responseBody))
         }
 
