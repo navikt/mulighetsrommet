@@ -3,9 +3,7 @@ package no.nav.tiltak.historikk
 import io.ktor.client.engine.*
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
-import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.database.kotest.extensions.createRandomDatabaseConfig
-import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
@@ -26,25 +24,10 @@ fun <R> withTestApplication(
     }
 }
 
-fun createTestApplicationConfig(oauth: MockOAuth2Server, engine: HttpClientEngine) = AppConfig(
+fun createTestApplicationConfig(oauth: MockOAuth2Server, engine: HttpClientEngine) = ApplicationConfigLocal.copy(
     httpClientEngine = engine,
     database = databaseConfig,
-    flyway = FlywayMigrationManager.MigrationConfig(),
     auth = createAuthConfig(oauth),
-    kafka = KafkaConfig(
-        brokerUrl = "1",
-        consumerGroupId = "1",
-        consumers = KafkaConsumers(
-            amtDeltakerV1 = KafkaTopicConsumer.Config(id = "amt-deltaker", topic = "amt-deltaker"),
-            sisteTiltaksgjennomforingerV1 = KafkaTopicConsumer.Config(
-                id = "siste-tiltaksgjennomforinger",
-                topic = "siste-tiltaksgjennomforinger",
-            ),
-        ),
-    ),
-    clients = ClientConfig(
-        tiltakDatadeling = ServiceClientConfig(url = "http://tiltak-datadeling", scope = "tiltak-datadeling"),
-    ),
 )
 
 // Default values for 'iss' og 'aud' in tokens issued by mock-oauth2-server is 'default'.

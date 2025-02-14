@@ -362,7 +362,7 @@ private fun mockTiltakDatadeling(
     ),
 ): MockEngine {
     return createMockEngine {
-        post("http://tiltak-datadeling/graphql") {
+        post("/tiltak-datadeling/graphql") {
             val serializer = GraphqlResponse.serializer(GetAvtalerForPersonResponse.serializer())
             respondJson(response, serializer)
         }
