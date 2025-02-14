@@ -7,6 +7,7 @@ import { TilsagnForGjennomforingContainer } from "@/pages/gjennomforing/tilsagn/
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import { AnsattService, NavAnsatt, NavAnsattRolle } from "@mr/api-client-v2";
 import { Page } from "@navikt/ds-react";
+import { QueryClient } from "@tanstack/react-query";
 import { createBrowserRouter, Outlet, RouterProvider, useLoaderData } from "react-router";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
@@ -41,15 +42,15 @@ import { RedigerTilsagnFormPage } from "./pages/gjennomforing/tilsagn/rediger/Re
 import { redigerTilsagnLoader } from "./pages/gjennomforing/tilsagn/rediger/redigerTilsagnLoader";
 import { tilsagnForGjennomforingLoader } from "./pages/gjennomforing/tilsagn/tabell/tilsagnForGjennomforingLoader";
 import { OpprettUtbetalingPage } from "./pages/gjennomforing/utbetaling/OpprettUtbetalingPage";
+import { UtbetalingPage } from "./pages/gjennomforing/utbetaling/UtbetalingPage";
 import { UtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/UtbetalingerForGjennomforingContainer";
+import { utbetalingPageLoader } from "./pages/gjennomforing/utbetaling/utbetalingPageLoader";
 import { utbetalingerForGjennomforingLoader } from "./pages/gjennomforing/utbetaling/utbetalingerForGjennomforingLoader";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
-import { tiltakstypeLoader, tiltakstyperLoaders } from "./pages/tiltakstyper/tiltakstyperLoaders";
-import { UtbetalingPage } from "./pages/gjennomforing/utbetaling/UtbetalingPage";
-import { utbetalingPageLoader } from "./pages/gjennomforing/utbetaling/utbetalingPageLoader";
+import { tiltakstypeLoader, tiltakstyperLoader } from "./pages/tiltakstyper/tiltakstypeLoaders";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -99,37 +100,46 @@ export function App() {
   );
 }
 
-async function ansattLoader() {
-  const { data } = await AnsattService.hentInfoOmAnsatt();
-  return data;
-}
+const ansattQuery = {
+  queryKey: ["ansatt", "info"],
+  queryFn: async () => {
+    const { data } = await AnsattService.hentInfoOmAnsatt();
+    return data;
+  },
+};
 
-const router = () =>
-  createBrowserRouter(
+const ansattLoader = (queryClient: QueryClient) => async () => {
+  return queryClient.ensureQueryData(ansattQuery);
+};
+
+const router = () => {
+  const queryClient = new QueryClient();
+
+  return createBrowserRouter(
     [
       {
         path: "/",
         element: <App />,
         errorElement: <ErrorPage />,
-        loader: ansattLoader,
+        loader: ansattLoader(queryClient),
         children: [
           {
             path: "tiltakstyper",
             element: <TiltakstyperPage />,
             errorElement: <ErrorPage />,
-            loader: tiltakstyperLoaders,
+            loader: tiltakstyperLoader(queryClient),
           },
           {
             path: "tiltakstyper/:tiltakstypeId",
             element: <DetaljerTiltakstypePage />,
             errorElement: <ErrorPage />,
-            loader: tiltakstypeLoader,
+            loader: tiltakstypeLoader(queryClient),
             children: [
               {
                 index: true,
                 element: <TiltakstypeInfo />,
                 errorElement: <ErrorPage />,
-                loader: tiltakstypeLoader,
+                loader: tiltakstypeLoader(queryClient),
               },
               {
                 path: "avtaler",
@@ -356,6 +366,7 @@ const router = () =>
       basename,
     },
   );
+};
 
 export function AppWithRouter() {
   return <RouterProvider router={router()} />;
