@@ -30,15 +30,15 @@ class OebsTiltakApiClient(
         }
     }
 
-    suspend fun sendBestilling(bestilling: OebsBestillingMelding): Either<ResponseException, HttpResponse> {
+    suspend fun sendBestilling(bestilling: OebsBestillingMelding): Either<Throwable, HttpResponse> {
         return request(HttpMethod.Post, "/api/v1/tilsagn", bestilling)
     }
 
-    suspend fun sendAnnullering(annullering: OebsAnnulleringMelding): Either<ResponseException, HttpResponse> {
+    suspend fun sendAnnullering(annullering: OebsAnnulleringMelding): Either<Throwable, HttpResponse> {
         return request(HttpMethod.Post, "/api/v1/tilsagn", annullering)
     }
 
-    suspend fun sendFaktura(faktura: OebsFakturaMelding): Either<ResponseException, HttpResponse> {
+    suspend fun sendFaktura(faktura: OebsFakturaMelding): Either<Throwable, HttpResponse> {
         return request(HttpMethod.Post, "/api/v1/refusjonskrav", faktura)
     }
 
@@ -47,18 +47,21 @@ class OebsTiltakApiClient(
         requestUri: String,
         payload: T? = null,
         isValidResponse: HttpResponse.() -> Boolean = { status.isSuccess() },
-    ): Either<ResponseException, HttpResponse> {
-        val response = client.request(requestUri) {
-            bearerAuth(tokenProvider.exchange(AccessType.M2M))
-            this.method = method
-            payload?.let { setBody(it) }
+    ): Either<Throwable, HttpResponse> {
+        val response = try {
+            client.request(requestUri) {
+                bearerAuth(tokenProvider.exchange(AccessType.M2M))
+                this.method = method
+                payload?.let { setBody(it) }
+            }
+        } catch (e: Exception) {
+            log.warn("Requst $method $requestUri failed. request body=$payload", e)
+            return Either.Left(e)
         }
 
         if (!isValidResponse(response)) {
             val responseBody = response.bodyAsText()
-
-            log.warn("$method $requestUri failed with status=${response.status}, request body=$payload, response body=$responseBody")
-
+            log.warn("Request $method $requestUri failed. status=${response.status}, request body=$payload, response body=$responseBody")
             return Either.Left(ResponseException(response, responseBody))
         }
 
