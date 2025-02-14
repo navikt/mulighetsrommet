@@ -9,8 +9,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.historikk.databaseConfig
-import no.nav.tiltak.historikk.repositories.DeltakerRepository
-import no.nav.tiltak.historikk.repositories.GruppetiltakRepository
+import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -19,11 +18,11 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     context("consume deltakere") {
-        val gruppetiltak = GruppetiltakRepository(database.db)
-        val deltakere = DeltakerRepository(database.db)
+        val db = TiltakshistorikkDatabase(database.db)
+
         val deltakerConsumer = AmtDeltakerV1KafkaConsumer(
             config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
-            deltakere,
+            db,
         )
 
         val tiltak = TiltaksgjennomforingEksternV1Dto(
@@ -65,7 +64,9 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         )
 
         beforeEach {
-            gruppetiltak.upsert(tiltak)
+            db.session {
+                queries.gruppetiltak.upsert(tiltak)
+            }
         }
 
         afterEach {
@@ -81,7 +82,9 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         }
 
         test("delete deltakere for tombstone messages") {
-            deltakere.upsertKometDeltaker(amtDeltaker1)
+            db.session {
+                queries.deltaker.upsertKometDeltaker(amtDeltaker1)
+            }
 
             deltakerConsumer.consume(amtDeltaker1.id, JsonNull)
 
@@ -89,7 +92,9 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         }
 
         test("delete deltakere that have status FEILREGISTRERT") {
-            deltakere.upsertKometDeltaker(amtDeltaker1)
+            db.session {
+                queries.deltaker.upsertKometDeltaker(amtDeltaker1)
+            }
 
             val feilregistrertDeltaker1 = amtDeltaker1.copy(
                 status = DeltakerStatus(

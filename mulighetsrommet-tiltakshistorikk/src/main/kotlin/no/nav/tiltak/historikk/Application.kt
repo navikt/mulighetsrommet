@@ -13,13 +13,12 @@ import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
 import no.nav.tiltak.historikk.clients.TiltakDatadelingClient
+import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.kafka.consumers.AmtDeltakerV1KafkaConsumer
 import no.nav.tiltak.historikk.kafka.consumers.SisteTiltaksgjennomforingerV1KafkaConsumer
 import no.nav.tiltak.historikk.plugins.configureAuthentication
 import no.nav.tiltak.historikk.plugins.configureHTTP
 import no.nav.tiltak.historikk.plugins.configureSerialization
-import no.nav.tiltak.historikk.repositories.DeltakerRepository
-import no.nav.tiltak.historikk.repositories.GruppetiltakRepository
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 
 fun main() {
@@ -43,8 +42,7 @@ fun Application.configure(config: AppConfig) {
     configureMonitoring({ db.isHealthy() })
     configureHTTP()
 
-    val gruppetiltakRepository = GruppetiltakRepository(db)
-    val deltakerRepository = DeltakerRepository(db)
+    val tiltakshistorikkDb = TiltakshistorikkDatabase(db)
 
     val cachedTokenProvider = CachedTokenProvider.init(config.auth.azure.audience, config.auth.azure.tokenEndpointUrl)
 
@@ -55,15 +53,15 @@ fun Application.configure(config: AppConfig) {
     )
 
     val tiltakshistorikkService = TiltakshistorikkService(
-        deltakerRepository,
+        tiltakshistorikkDb,
         tiltakDatadelingClient,
         config.arbeidsgiverTiltakCutOffDatoMapping,
     )
 
-    val kafka = configureKafka(config.kafka, db, deltakerRepository, gruppetiltakRepository)
+    val kafka = configureKafka(config.kafka, tiltakshistorikkDb)
 
     routing {
-        tiltakshistorikkRoutes(kafka, deltakerRepository, tiltakshistorikkService)
+        tiltakshistorikkRoutes(kafka, tiltakshistorikkDb, tiltakshistorikkService)
     }
 
     monitor.subscribe(ApplicationStarted) {
@@ -80,9 +78,7 @@ fun Application.configure(config: AppConfig) {
 
 fun configureKafka(
     config: KafkaConfig,
-    db: Database,
-    deltakerRepository: DeltakerRepository,
-    gruppetiltakRepository: GruppetiltakRepository,
+    db: TiltakshistorikkDatabase,
 ): KafkaConsumerOrchestrator {
     val properties = when (NaisEnv.current()) {
         NaisEnv.Local -> KafkaPropertiesBuilder.consumerBuilder()
@@ -98,17 +94,17 @@ fun configureKafka(
     val consumers = listOf(
         AmtDeltakerV1KafkaConsumer(
             config = config.consumers.amtDeltakerV1,
-            deltakerRepository = deltakerRepository,
+            db = db,
         ),
         SisteTiltaksgjennomforingerV1KafkaConsumer(
             config = config.consumers.sisteTiltaksgjennomforingerV1,
-            gruppetiltakRepository = gruppetiltakRepository,
+            db = db,
         ),
     )
 
     return KafkaConsumerOrchestrator(
         consumerPreset = properties,
-        db = db,
+        db = db.db,
         consumers = consumers,
     )
 }

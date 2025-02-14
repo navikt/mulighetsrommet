@@ -9,13 +9,13 @@ import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
-import no.nav.tiltak.historikk.repositories.DeltakerRepository
+import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import org.slf4j.LoggerFactory
 import java.util.*
 
 class AmtDeltakerV1KafkaConsumer(
     config: Config,
-    private val deltakerRepository: DeltakerRepository,
+    private val db: TiltakshistorikkDatabase,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     config,
     uuidDeserializer(),
@@ -23,7 +23,7 @@ class AmtDeltakerV1KafkaConsumer(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    override suspend fun consume(key: UUID, message: JsonElement) {
+    override suspend fun consume(key: UUID, message: JsonElement): Unit = db.session {
         logger.info("Konsumerer deltaker med id=$key")
 
         val amtDeltaker = JsonIgnoreUnknownKeys.decodeFromJsonElement<AmtDeltakerV1Dto?>(message)
@@ -31,21 +31,20 @@ class AmtDeltakerV1KafkaConsumer(
         when {
             amtDeltaker == null -> {
                 logger.info("Mottok tombstone for deltaker med id=$key, sletter deltakeren")
-                deltakerRepository.deleteKometDeltaker(key)
+                queries.deltaker.deleteKometDeltaker(key)
             }
 
             amtDeltaker.status.type == DeltakerStatus.Type.FEILREGISTRERT -> {
                 logger.info("Sletter deltaker med id=$key fordi den var feilregistrert")
-                deltakerRepository.deleteKometDeltaker(key)
+                queries.deltaker.deleteKometDeltaker(key)
             }
 
             else -> {
                 logger.info("Forsøker å lagre deltaker med id=$key")
-                query { deltakerRepository.upsertKometDeltaker(amtDeltaker) }
-                    .onLeft {
-                        logger.warn("Feil under konsumering av deltaker med id=$key", it.error)
-                        throw it.error
-                    }
+                query { queries.deltaker.upsertKometDeltaker(amtDeltaker) }.onLeft {
+                    logger.warn("Feil under konsumering av deltaker med id=$key", it.error)
+                    throw it.error
+                }
             }
         }
     }

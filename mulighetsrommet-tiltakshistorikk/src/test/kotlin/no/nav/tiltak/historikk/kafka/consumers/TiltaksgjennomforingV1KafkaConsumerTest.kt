@@ -11,22 +11,23 @@ import no.nav.mulighetsrommet.model.GjennomforingStatus
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.historikk.databaseConfig
-import no.nav.tiltak.historikk.repositories.GruppetiltakRepository
+import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import java.time.LocalDate
 import java.util.*
 
 class TiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
-    context("konsumer gjennomføringer") {
-        afterEach {
-            database.truncateAll()
-        }
+    afterEach {
+        database.truncateAll()
+    }
 
-        val gruppetiltak = GruppetiltakRepository(database.db)
+    context("konsumer gjennomføringer") {
+        val db = TiltakshistorikkDatabase(database.db)
+
         val consumer = SisteTiltaksgjennomforingerV1KafkaConsumer(
             config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
-            gruppetiltak,
+            db,
         )
 
         val tiltak = TiltaksgjennomforingEksternV1Dto(
@@ -57,7 +58,7 @@ class TiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
         }
 
         test("delete gruppetiltak for tombstone messages") {
-            gruppetiltak.upsert(tiltak)
+            db.session { queries.gruppetiltak.upsert(tiltak) }
 
             consumer.consume(tiltak.id, JsonNull)
 

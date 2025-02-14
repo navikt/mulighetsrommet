@@ -1,20 +1,20 @@
-package no.nav.tiltak.historikk.repositories
+package no.nav.tiltak.historikk.db
 
 import kotliquery.Row
+import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class DeltakerRepository(private val db: Database) {
+class DeltakerQueries(private val session: Session) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsertArenaDeltaker(deltaker: ArenaDeltakerDbo) = db.session { session ->
+    fun upsertArenaDeltaker(deltaker: ArenaDeltakerDbo) {
         logger.info("Lagrer arena_deltaker id=${deltaker.id}")
 
         @Language("PostgreSQL")
@@ -54,7 +54,7 @@ class DeltakerRepository(private val db: Database) {
     fun getArenaHistorikk(
         identer: List<NorskIdent>,
         maxAgeYears: Int?,
-    ) = db.session { session ->
+    ): List<Tiltakshistorikk.ArenaDeltakelse> {
         @Language("PostgreSQL")
         val query = """
                 select
@@ -77,10 +77,10 @@ class DeltakerRepository(private val db: Database) {
             "max_age_years" to maxAgeYears,
         )
 
-        queryOf(query, params).map { it.toArenaDeltakelse() }.asList.runWithSession(session)
+        return queryOf(query, params).map { it.toArenaDeltakelse() }.asList.runWithSession(session)
     }
 
-    fun deleteArenaDeltaker(id: UUID) = db.session { session ->
+    fun deleteArenaDeltaker(id: UUID) {
         logger.info("Sletter arena_deltaker id=$id")
 
         @Language("PostgreSQL")
@@ -92,7 +92,7 @@ class DeltakerRepository(private val db: Database) {
         queryOf(query, id).asExecute.runWithSession(session)
     }
 
-    fun upsertKometDeltaker(deltaker: AmtDeltakerV1Dto) = db.session { session ->
+    fun upsertKometDeltaker(deltaker: AmtDeltakerV1Dto) {
         logger.info("Lagrer komet_deltaker id=${deltaker.id}")
 
         @Language("PostgreSQL")
@@ -141,7 +141,7 @@ class DeltakerRepository(private val db: Database) {
         queryOf(query, deltaker.toSqlParameters()).asExecute.runWithSession(session)
     }
 
-    fun getKometHistorikk(identer: List<NorskIdent>, maxAgeYears: Int?) = db.session { session ->
+    fun getKometHistorikk(identer: List<NorskIdent>, maxAgeYears: Int?): List<Tiltakshistorikk.GruppetiltakDeltakelse> {
         @Language("PostgreSQL")
         val query = """
                 select
@@ -167,13 +167,13 @@ class DeltakerRepository(private val db: Database) {
             "max_age_years" to maxAgeYears,
         )
 
-        queryOf(query, params)
+        return queryOf(query, params)
             .map { it.toGruppetiltakDeltakelse() }
             .asList
             .runWithSession(session)
     }
 
-    fun deleteKometDeltaker(id: UUID) = db.session { session ->
+    fun deleteKometDeltaker(id: UUID) {
         logger.info("Sletter komet_deltaker id=$id")
 
         @Language("PostgreSQL")

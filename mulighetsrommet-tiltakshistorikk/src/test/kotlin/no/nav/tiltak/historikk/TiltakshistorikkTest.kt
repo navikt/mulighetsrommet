@@ -20,8 +20,7 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.historikk.clients.Avtale
 import no.nav.tiltak.historikk.clients.GetAvtalerForPersonResponse
 import no.nav.tiltak.historikk.clients.GraphqlResponse
-import no.nav.tiltak.historikk.repositories.DeltakerRepository
-import no.nav.tiltak.historikk.repositories.GruppetiltakRepository
+import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -48,8 +47,10 @@ class TiltakshistorikkTest : FunSpec({
     }
 
     context("tiltakshistorikk for bruker") {
+        val db = TiltakshistorikkDatabase(database.db)
+
         beforeAny {
-            inititalizeData(database)
+            inititalizeData(db)
         }
 
         test("unauthorized når token mangler") {
@@ -310,10 +311,7 @@ private fun mockTiltakDatadeling(
     }
 }
 
-private fun inititalizeData(database: FlywayDatabaseTestListener) {
-    val gruppetiltak = GruppetiltakRepository(database.db)
-    val deltakere = DeltakerRepository(database.db)
-
+private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
     val tiltak = TiltaksgjennomforingEksternV1Dto(
         id = UUID.fromString("566b89b0-4ed0-43cf-84a8-39085428f7e6"),
         tiltakstype = TiltaksgjennomforingEksternV1Dto.Tiltakstype(
@@ -332,7 +330,7 @@ private fun inititalizeData(database: FlywayDatabaseTestListener) {
         apentForPamelding = true,
         antallPlasser = 10,
     )
-    gruppetiltak.upsert(tiltak)
+    queries.gruppetiltak.upsert(tiltak)
 
     val arbeidstrening = ArenaDeltakerDbo(
         id = ARENA_ARBEIDSTRENING_ID,
@@ -345,7 +343,7 @@ private fun inititalizeData(database: FlywayDatabaseTestListener) {
         arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
         registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
     )
-    deltakere.upsertArenaDeltaker(arbeidstrening)
+    queries.deltaker.upsertArenaDeltaker(arbeidstrening)
 
     val mentor = ArenaDeltakerDbo(
         id = ARENA_MENTOR_ID,
@@ -358,7 +356,7 @@ private fun inititalizeData(database: FlywayDatabaseTestListener) {
         arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
         registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
     )
-    deltakere.upsertArenaDeltaker(mentor)
+    queries.deltaker.upsertArenaDeltaker(mentor)
 
     val enkeltAMO = ArenaDeltakerDbo(
         id = ARENA_ENKEL_AMO_ID,
@@ -371,7 +369,7 @@ private fun inititalizeData(database: FlywayDatabaseTestListener) {
         arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
         registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
     )
-    deltakere.upsertArenaDeltaker(enkeltAMO)
+    queries.deltaker.upsertArenaDeltaker(enkeltAMO)
 
     val deltakelsesdato = LocalDateTime.of(2002, 3, 1, 0, 0, 0)
     val amtDeltaker = AmtDeltakerV1Dto(
@@ -390,5 +388,5 @@ private fun inititalizeData(database: FlywayDatabaseTestListener) {
         dagerPerUke = 2.5f,
         prosentStilling = null,
     )
-    deltakere.upsertKometDeltaker(amtDeltaker)
+    queries.deltaker.upsertKometDeltaker(amtDeltaker)
 }
