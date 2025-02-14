@@ -152,14 +152,15 @@ class TiltakshistorikkTest : FunSpec({
                         beskrivelse = "Arbeidstrening hos Fretex",
                         arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
                     ),
-                    Tiltakshistorikk.ArbeidsgiverAvtale(
+                    Tiltakshistorikk.ArenaDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
-                        startDato = LocalDate.of(2024, 1, 1),
-                        sluttDato = LocalDate.of(2024, 12, 31),
-                        id = TEAM_TILTAK_ARBEIDSTRENING_ID,
-                        tiltakstype = Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING,
-                        status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
-                        arbeidsgiver = Tiltakshistorikk.Arbeidsgiver(Organisasjonsnummer("123456789")),
+                        id = UUID.fromString("4bf76cc3-ade9-45ef-b22b-5c4d3ceee185"),
+                        arenaTiltakskode = "MENTOR",
+                        status = ArenaDeltakerStatus.GJENNOMFORES,
+                        startDato = LocalDate.of(2024, 2, 1),
+                        sluttDato = LocalDate.of(2024, 2, 29),
+                        beskrivelse = "Mentortiltak hos Joblearn",
+                        arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
                     ),
                     Tiltakshistorikk.ArenaDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
@@ -170,6 +171,15 @@ class TiltakshistorikkTest : FunSpec({
                         sluttDato = LocalDate.of(2024, 2, 29),
                         beskrivelse = "Enkelt-AMO hos Joblearn",
                         arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                    ),
+                    Tiltakshistorikk.ArbeidsgiverAvtale(
+                        norskIdent = NorskIdent("12345678910"),
+                        startDato = LocalDate.of(2024, 1, 1),
+                        sluttDato = LocalDate.of(2024, 12, 31),
+                        id = TEAM_TILTAK_ARBEIDSTRENING_ID,
+                        tiltakstype = Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING,
+                        status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
+                        arbeidsgiver = Tiltakshistorikk.Arbeidsgiver(Organisasjonsnummer("123456789")),
                     ),
                     Tiltakshistorikk.GruppetiltakDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
@@ -223,7 +233,7 @@ class TiltakshistorikkTest : FunSpec({
             val config = createTestApplicationConfig(oauth, mockEngine).copy(
                 arbeidsgiverTiltakCutOffDatoMapping = mapOf(
                     Avtale.Tiltakstype.ARBEIDSTRENING to LocalDate.of(2023, 1, 31),
-                    Avtale.Tiltakstype.MENTOR to LocalDate.of(2025, 1, 31),
+                    Avtale.Tiltakstype.MENTOR to LocalDate.of(2024, 1, 31),
                 ),
             )
             withTestApplication(oauth, mockEngine, config) {
@@ -245,7 +255,6 @@ class TiltakshistorikkTest : FunSpec({
 
                 historikk shouldContainExactlyInAnyOrder listOf(
                     TEAM_TILTAK_ARBEIDSTRENING_ID,
-                    ARENA_MENTOR_ID,
                     ARENA_ENKEL_AMO_ID,
                     TEAM_KOMET_GRUPPE_AMO_ID,
                 )
@@ -256,36 +265,12 @@ class TiltakshistorikkTest : FunSpec({
             val mockEngine = mockTiltakDatadeling(
                 response = GraphqlResponse(
                     data = GetAvtalerForPersonResponse(
-                        avtalerForPerson = listOf(
-                            Avtale(
-                                avtaleId = UUID.randomUUID(),
-                                avtaleNr = 1,
-                                deltakerFnr = NorskIdent("12345678910"),
-                                bedriftNr = Organisasjonsnummer("123456789"),
-                                tiltakstype = Avtale.Tiltakstype.ARBEIDSTRENING,
-                                startDato = LocalDate.of(2000, 1, 1),
-                                sluttDato = LocalDate.of(2000, 12, 31),
-                                avtaleStatus = Avtale.Status.GJENNOMFORES,
-                                opprettetTidspunkt = ZonedDateTime.of(
-                                    LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-                                    ZoneId.of("Europe/Oslo"),
-                                ),
-                                endretTidspunkt = ZonedDateTime.of(
-                                    LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-                                    ZoneId.of("Europe/Oslo"),
-                                ),
-                            ),
-                        ),
+                        avtalerForPerson = listOf(),
                     ),
                 ),
             )
 
-            val config = createTestApplicationConfig(oauth, mockEngine).copy(
-                arbeidsgiverTiltakCutOffDatoMapping = mapOf(
-                    Avtale.Tiltakstype.ARBEIDSTRENING to LocalDate.of(2025, 2, 1),
-                ),
-            )
-            withTestApplication(oauth, mockEngine, config) {
+            withTestApplication(oauth, mockEngine) {
                 val client = createClient {
                     install(ContentNegotiation) {
                         json()
@@ -304,6 +289,7 @@ class TiltakshistorikkTest : FunSpec({
 
                 historikk shouldContainExactlyInAnyOrder listOf(
                     ARENA_ENKEL_AMO_ID,
+                    ARENA_MENTOR_ID,
                     ARENA_ARBEIDSTRENING_ID,
                 )
             }

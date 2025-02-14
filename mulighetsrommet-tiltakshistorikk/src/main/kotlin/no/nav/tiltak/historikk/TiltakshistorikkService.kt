@@ -112,10 +112,7 @@ class TiltakshistorikkService(
         cutOffDateMap: Map<Avtale.Tiltakstype, LocalDate>,
         sluttDato: LocalDate?,
     ): Boolean {
-        val cutOffDate = cutOffDateMap[tiltakstype]
-        if (cutOffDate == null) {
-            return true
-        }
+        val cutOffDate = cutOffDateMap[tiltakstype] ?: return false
         return sluttDato == null || sluttDato.isAfter(cutOffDate) || sluttDato == cutOffDate
     }
 }
