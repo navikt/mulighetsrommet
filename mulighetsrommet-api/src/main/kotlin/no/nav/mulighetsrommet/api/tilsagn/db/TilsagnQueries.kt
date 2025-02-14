@@ -19,7 +19,6 @@ import java.time.LocalDateTime
 import java.util.*
 
 class TilsagnQueries(private val session: Session) {
-
     fun upsert(dbo: TilsagnDbo) {
         @Language("PostgreSQL")
         val query = """

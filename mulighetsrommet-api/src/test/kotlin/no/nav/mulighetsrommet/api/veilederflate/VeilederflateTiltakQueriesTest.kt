@@ -27,7 +27,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         val arbeidstreningSanityId = UUID.randomUUID()
 
         val domain = MulighetsrommetTestDomain(
-            enheter = listOf(Innlandet, Gjovik, Oslo),
+            navEnheter = listOf(Innlandet, Gjovik, Oslo),
             tiltakstyper = listOf(TiltakstypeFixtures.AFT, TiltakstypeFixtures.Oppfolging),
             avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.AFT),
             gjennomforinger = listOf(Oppfolging1, AFT1),
@@ -230,7 +230,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
 
     context("sykemeldt med arbeidsgiver") {
         val domain = MulighetsrommetTestDomain(
-            enheter = listOf(Innlandet, Gjovik),
+            navEnheter = listOf(Innlandet, Gjovik),
             tiltakstyper = listOf(TiltakstypeFixtures.ArbeidsrettetRehabilitering),
             avtaler = listOf(AvtaleFixtures.ArbeidsrettetRehabilitering),
             gjennomforinger = listOf(ArbeidsrettetRehabilitering),

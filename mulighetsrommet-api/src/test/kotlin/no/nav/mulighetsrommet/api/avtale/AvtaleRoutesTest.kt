@@ -25,7 +25,7 @@ class AvtaleRoutesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
-        enheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Oslo),
+        navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Oslo),
         avtaler = emptyList(),
     )
 

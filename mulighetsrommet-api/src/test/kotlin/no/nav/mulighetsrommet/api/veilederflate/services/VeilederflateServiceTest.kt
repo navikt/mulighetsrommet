@@ -37,7 +37,7 @@ class VeilederflateServiceTest : FunSpec({
     val arbeidsrettetRehabiliteringSanityId = UUID.randomUUID()
 
     val domain = MulighetsrommetTestDomain(
-        enheter = listOf(
+        navEnheter = listOf(
             NavEnhetFixtures.Innlandet,
             NavEnhetFixtures.Lillehammer,
             NavEnhetFixtures.Oslo,

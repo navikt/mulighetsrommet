@@ -127,7 +127,7 @@ class GjennomforingQueriesTest : FunSpec({
         test("navEnheter crud") {
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
-                    enheter = listOf(Innlandet, Gjovik, Lillehammer, Sel),
+                    navEnheter = listOf(Innlandet, Gjovik, Lillehammer, Sel),
                     arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                     avtaler = listOf(AvtaleFixtures.oppfolging),
                 ).setup(session)
@@ -624,7 +624,7 @@ class GjennomforingQueriesTest : FunSpec({
         test("filtrer på nav_enhet") {
             database.runAndRollback { session ->
                 val domain = MulighetsrommetTestDomain(
-                    enheter = listOf(Innlandet, Lillehammer, Gjovik),
+                    navEnheter = listOf(Innlandet, Lillehammer, Gjovik),
                     avtaler = listOf(AvtaleFixtures.oppfolging),
                     gjennomforinger = listOf(
                         Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf(Lillehammer.enhetsnummer)),
@@ -707,7 +707,7 @@ class GjennomforingQueriesTest : FunSpec({
         test("filtrering på Nav-enhet") {
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
-                    enheter = listOf(Innlandet, Gjovik, Lillehammer, Sel),
+                    navEnheter = listOf(Innlandet, Gjovik, Lillehammer, Sel),
                     avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.VTA, AvtaleFixtures.AFT),
                     gjennomforinger = listOf(
                         Oppfolging1.copy(navEnheter = listOf(Gjovik.enhetsnummer)),

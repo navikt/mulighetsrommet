@@ -105,6 +105,7 @@ class UtbetalingQueriesTest : FunSpec({
                     it.fristForGodkjenning shouldBe frist
                     it.tiltakstype shouldBe UtbetalingDto.Tiltakstype(
                         navn = TiltakstypeFixtures.AFT.navn,
+                        tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
                     )
                     it.gjennomforing shouldBe UtbetalingDto.Gjennomforing(
                         id = AFT1.id,

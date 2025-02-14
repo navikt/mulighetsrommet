@@ -45,9 +45,21 @@ const labels: Record<OppgaveType, { label: string; color: string }> = {
     label: "Tilsagn til annullering",
     color: "#CCE2F0",
   },
-  TILSAGN_RETURNERT_AV_BESLUTTER: {
+  TILSAGN_RETURNERT: {
     label: "Tilsagn returnert",
     color: "#FF9100",
+  },
+  UTBETALING_TIL_GODKJENNING: {
+    label: "Utbetaling til godkjenning",
+    color: "#FFD799",
+  },
+  UTBETALING_RETURNERT: {
+    label: "Utbetaling returnert",
+    color: "#FF9100",
+  },
+  UTBETALING_TIL_BEHANDLING: {
+    label: "Utbetaling til behandling",
+    color: "#FFD799",
   },
 };
 

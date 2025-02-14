@@ -1,6 +1,7 @@
 import { oppgaverFilterAccordionAtom, OppgaverFilter as OppgaverFilterProps } from "@/api/atoms";
+import { OPPGAVER_TYPE_STATUS } from "@/utils/filterUtils";
 import { addOrRemove } from "@/utils/Utils";
-import { NavRegion, OppgaveType, TiltakstypeDto } from "@mr/api-client-v2";
+import { NavRegion, TiltakstypeDto } from "@mr/api-client-v2";
 import { FilterAccordionHeader } from "@mr/frontend-common";
 import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai/index";
@@ -39,15 +40,11 @@ export function OppgaverFilter({ filterAtom, tiltakstyper, regioner }: Props) {
                 }}
                 hideLegend
               >
-                <Checkbox size="small" value={OppgaveType.TILSAGN_TIL_ANNULLERING}>
-                  Tilsagn til annullering
-                </Checkbox>
-                <Checkbox size="small" value={OppgaveType.TILSAGN_TIL_GODKJENNING}>
-                  Tilsagn til godkjenning
-                </Checkbox>
-                <Checkbox size="small" value={OppgaveType.TILSAGN_RETURNERT_AV_BESLUTTER}>
-                  Tilsagn returnert fra beslutter
-                </Checkbox>
+                {OPPGAVER_TYPE_STATUS.map(({ label, value }) => (
+                  <Checkbox size="small" value={value}>
+                    {label}
+                  </Checkbox>
+                ))}
               </CheckboxGroup>
             </div>
           </Accordion.Content>

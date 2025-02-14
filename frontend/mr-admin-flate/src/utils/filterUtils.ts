@@ -77,7 +77,19 @@ export const OPPGAVER_TYPE_STATUS: { label: string; value: OppgaveType }[] = [
   },
   {
     label: "Tilsagn returnert av beslutter",
-    value: OppgaveType.TILSAGN_RETURNERT_AV_BESLUTTER,
+    value: OppgaveType.TILSAGN_RETURNERT,
+  },
+  {
+    label: "Utbetaling returnert av beslutter",
+    value: OppgaveType.UTBETALING_RETURNERT,
+  },
+  {
+    label: "Utbetaling til godkjenning",
+    value: OppgaveType.UTBETALING_TIL_GODKJENNING,
+  },
+  {
+    label: "Utbetaling til behandling",
+    value: OppgaveType.UTBETALING_TIL_BEHANDLING,
   },
 ];
 

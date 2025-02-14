@@ -50,7 +50,7 @@ class GjennomforingValidatorTest : FunSpec({
     )
 
     val domain = MulighetsrommetTestDomain(
-        enheter = listOf(
+        navEnheter = listOf(
             NavEnhetDbo(
                 navn = "Nav Oslo",
                 enhetsnummer = "0300",

@@ -27,7 +27,7 @@ class AvtaleValidatorTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
-        enheter = listOf(
+        navEnheter = listOf(
             NavEnhetFixtures.IT,
             NavEnhetFixtures.Oslo,
             NavEnhetFixtures.Innlandet,

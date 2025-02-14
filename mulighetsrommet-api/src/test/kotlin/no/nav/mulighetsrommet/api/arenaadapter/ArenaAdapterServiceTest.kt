@@ -106,7 +106,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
         beforeEach {
             MulighetsrommetTestDomain(
-                enheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+                navEnheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
                 tiltakstyper = listOf(TiltakstypeFixtures.IPS),
                 avtaler = listOf(),
             ).initialize(database.db)
@@ -173,7 +173,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
         beforeEach {
             MulighetsrommetTestDomain(
-                enheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+                navEnheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
             ).initialize(database.db)
@@ -218,7 +218,7 @@ class ArenaAdapterServiceTest : FunSpec({
             )
 
             MulighetsrommetTestDomain(
-                enheter = listOf(
+                navEnheter = listOf(
                     NavEnhetFixtures.IT,
                     NavEnhetFixtures.Innlandet,
                     NavEnhetFixtures.Gjovik,
@@ -277,7 +277,7 @@ class ArenaAdapterServiceTest : FunSpec({
             )
 
             MulighetsrommetTestDomain(
-                enheter = listOf(
+                navEnheter = listOf(
                     NavEnhetFixtures.IT,
                     NavEnhetFixtures.Innlandet,
                     NavEnhetFixtures.Gjovik,
@@ -334,7 +334,7 @@ class ArenaAdapterServiceTest : FunSpec({
             val gjennomforing1 = GjennomforingFixtures.Oppfolging1
 
             MulighetsrommetTestDomain(
-                enheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+                navEnheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(AvtaleFixtures.oppfolging),

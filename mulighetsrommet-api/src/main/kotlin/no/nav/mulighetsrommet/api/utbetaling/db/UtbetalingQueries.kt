@@ -217,6 +217,24 @@ class UtbetalingQueries(private val session: Session) {
         return single(queryOf(utbetalingQuery, id)) { it.toUtbetalingDto() }
     }
 
+    fun getOppgaveData(tiltakskoder: List<Tiltakskode>?): List<UtbetalingDto> = with(session) {
+        @Language("PostgreSQL")
+        val utbetalingQuery = """
+            select *
+            from utbetaling_dto_view
+                left join delutbetaling on delutbetaling.utbetaling_id = utbetaling_dto_view.id
+            where
+                delutbetaling.tilsagn_id is null and
+                (:tiltakskoder::tiltakskode[] is null or tiltakskode = any(:tiltakskoder::tiltakskode[]))
+        """.trimIndent()
+
+        val params = mapOf(
+            "tiltakskoder" to tiltakskoder?.let { session.createArrayOf("tiltakskode", it) },
+        )
+
+        return list(queryOf(utbetalingQuery, params)) { it.toUtbetalingDto() }
+    }
+
     fun getByArrangorIds(
         organisasjonsnummer: Organisasjonsnummer,
     ): List<UtbetalingDto> = with(session) {
@@ -336,6 +354,7 @@ class UtbetalingQueries(private val session: Session) {
             ),
             tiltakstype = UtbetalingDto.Tiltakstype(
                 navn = string("tiltakstype_navn"),
+                tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
             ),
             beregning = beregning,
             betalingsinformasjon = UtbetalingDto.Betalingsinformasjon(

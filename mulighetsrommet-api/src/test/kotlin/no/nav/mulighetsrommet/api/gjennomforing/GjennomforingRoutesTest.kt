@@ -56,7 +56,7 @@ class GjennomforingRoutesTest : FunSpec({
 
     context("opprett og les gjennomføring") {
         val domain = MulighetsrommetTestDomain(
-            enheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Oslo, NavEnhetFixtures.Sagene),
+            navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Oslo, NavEnhetFixtures.Sagene),
             arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
             avtaler = listOf(
                 AvtaleFixtures.oppfolging.copy(

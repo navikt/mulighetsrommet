@@ -108,7 +108,7 @@ class ArrangorflateRoutesTest : FunSpec({
     )
 
     val domain = MulighetsrommetTestDomain(
-        enheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+        navEnheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
         ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
         tiltakstyper = listOf(TiltakstypeFixtures.AFT),
         avtaler = listOf(

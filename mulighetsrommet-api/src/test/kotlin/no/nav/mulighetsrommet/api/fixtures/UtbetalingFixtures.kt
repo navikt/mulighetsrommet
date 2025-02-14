@@ -36,4 +36,18 @@ object UtbetalingFixtures {
         kid = null,
         innsender = null,
     )
+
+    val utbetaling3 = UtbetalingDbo(
+        id = UUID.randomUUID(),
+        gjennomforingId = GjennomforingFixtures.VTA1.id,
+        fristForGodkjenning = LocalDate.of(2024, 10, 1).atStartOfDay(),
+        periode = Periode.forMonthOf(LocalDate.of(2024, 2, 1)),
+        beregning = UtbetalingBeregningFri(
+            input = UtbetalingBeregningFri.Input(500),
+            output = UtbetalingBeregningFri.Output(500),
+        ),
+        kontonummer = Kontonummer("11111111111"),
+        kid = null,
+        innsender = null,
+    )
 }
