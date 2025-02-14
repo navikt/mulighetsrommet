@@ -56,14 +56,14 @@ class OebsTiltakApiClient(
                 payload?.let { setBody(it) }
             }
         } catch (e: Exception) {
-            log.error("Requst $method $requestUri failed. request body=${Json.encodeToString(payload)}", e)
+            log.error("Request \"${method.value} $requestUri\" failed. request body=${Json.encodeToString(payload)}", e)
             return Either.Left(e)
         }
 
         if (!isValidResponse(response)) {
             val requestBody = Json.encodeToString(payload)
             val responseBody = response.bodyAsText()
-            log.warn("Request $method $requestUri failed. status=${response.status}, request body=$requestBody, response body=$responseBody")
+            log.warn("Request \"${method.value} $requestUri\" failed. status=${response.status}, request body=$requestBody, response body=$responseBody")
             return Either.Left(ResponseException(response, responseBody))
         }
 
