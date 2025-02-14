@@ -11,6 +11,7 @@ import {
   LastNedGjennomforingerSomExcelData,
   TilsagnAvvisningAarsak,
   TilsagnTilAnnulleringAarsak,
+  TilsagnType,
 } from "@mr/api-client-v2";
 import { AvtaleFilter, GjennomforingFilter } from "@/api/atoms";
 
@@ -378,5 +379,16 @@ export function tilsagnAarsakTilTekst(
       return "Gjennomføring skal avbrytes";
     case TilsagnTilAnnulleringAarsak.FEIL_ANNET:
       return "Annet";
+  }
+}
+
+export function tilsagnTypeToString(type: TilsagnType): string {
+  switch (type) {
+    case TilsagnType.TILSAGN:
+      return "Tilsagn";
+    case TilsagnType.EKSTRATILSAGN:
+      return "Ekstratilsagn";
+    case TilsagnType.INVESTERING:
+      return "Investering";
   }
 }

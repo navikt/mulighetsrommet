@@ -1,4 +1,4 @@
-import { formaterDato } from "@/utils/Utils";
+import { formaterDato, tilsagnTypeToString } from "@/utils/Utils";
 import {
   UtbetalingKompakt,
   TilsagnDto,
@@ -130,11 +130,9 @@ function EditableRow({
         ) : null
       }
     >
-      <Table.DataCell>
-        {delutbetaling && <DelutbetalingTag delutbetaling={delutbetaling} />}
-      </Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeStart)}</Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeSlutt)}</Table.DataCell>
+      <Table.DataCell>{tilsagnTypeToString(tilsagn.type)}</Table.DataCell>
       <Table.DataCell>{tilsagn.kostnadssted.navn}</Table.DataCell>
       <Table.DataCell>{`${formaterNOK(tilsagn.beregning.output.belop)}`}</Table.DataCell>
       <Table.DataCell>
@@ -158,6 +156,9 @@ function EditableRow({
           }}
           value={belop}
         />
+      </Table.DataCell>
+      <Table.DataCell>
+        {delutbetaling && <DelutbetalingTag delutbetaling={delutbetaling} />}{" "}
       </Table.DataCell>
       <Table.DataCell>
         <Button size="small" type="button" onClick={sendTilGodkjenning}>
@@ -186,6 +187,7 @@ function GodkjentRow({
     >
       <Table.DataCell>{formaterDato(tilsagn.periodeStart)}</Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeSlutt)}</Table.DataCell>
+      <Table.DataCell>{tilsagnTypeToString(tilsagn.type)}</Table.DataCell>
       <Table.DataCell>{tilsagn.kostnadssted.navn}</Table.DataCell>
       <Table.DataCell>{formaterNOK(tilsagn.beregning.output.belop)}</Table.DataCell>
       <Table.DataCell>
@@ -230,6 +232,7 @@ function TilGodkjenningRow({
     <Table.ExpandableRow expansionDisabled content={null}>
       <Table.DataCell>{formaterDato(tilsagn.periodeStart)}</Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeSlutt)}</Table.DataCell>
+      <Table.DataCell>{tilsagnTypeToString(tilsagn.type)}</Table.DataCell>
       <Table.DataCell>{tilsagn.kostnadssted.navn}</Table.DataCell>
       <Table.DataCell>{`${formaterNOK(tilsagn.beregning.output.belop)}`}</Table.DataCell>
       <Table.DataCell>
@@ -297,6 +300,7 @@ function TilsagnIkkeGodkjentRow({ tilsagn }: { tilsagn: TilsagnDto }) {
       <Table.DataCell></Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeStart)}</Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeSlutt)}</Table.DataCell>
+      <Table.DataCell>{tilsagnTypeToString(tilsagn.type)}</Table.DataCell>
       <Table.DataCell>{tilsagn.kostnadssted.navn}</Table.DataCell>
       <Table.DataCell></Table.DataCell>
       <Table.DataCell></Table.DataCell>

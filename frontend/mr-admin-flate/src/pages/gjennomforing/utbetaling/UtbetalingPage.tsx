@@ -117,6 +117,7 @@ export function UtbetalingPage() {
                         <Table.HeaderCell></Table.HeaderCell>
                         <Table.HeaderCell>Periodestart</Table.HeaderCell>
                         <Table.HeaderCell>Periodeslutt</Table.HeaderCell>
+                        <Table.HeaderCell>Type</Table.HeaderCell>
                         <Table.HeaderCell>Kostnadssted</Table.HeaderCell>
                         <Table.HeaderCell>Gjenstående beløp</Table.HeaderCell>
                         <Table.HeaderCell>Utbetales</Table.HeaderCell>
