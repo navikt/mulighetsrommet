@@ -58,7 +58,7 @@ class JournalforUtbetaling(
         logger.info("Journalfører utbetaling med id: $id")
 
         val utbetaling = requireNotNull(queries.utbetaling.get(id)) { "Fant ikke utbetaling med id=$id" }
-            .also { require(it.status == UtbetalingStatus.INNSENDT_AV_ARRANGOR) { "utbetaling må være godkjent" } }
+        require(utbetaling.status == UtbetalingStatus.INNSENDT_AV_ARRANGOR) { "utbetaling må være godkjent" }
 
         val gjennomforing = queries.gjennomforing.get(utbetaling.gjennomforing.id)
         requireNotNull(gjennomforing) { "Fant ikke gjennomforing til utbetaling med id=$id" }

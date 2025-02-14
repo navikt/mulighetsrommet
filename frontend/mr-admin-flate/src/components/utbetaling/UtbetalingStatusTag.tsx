@@ -6,12 +6,6 @@ export function UtbetalingStatusTag({ status }: { status: UtbetalingStatus }): R
   const baseTagClasses = "w-[150px] text-center whitespace-nowrap";
 
   switch (status) {
-    case UtbetalingStatus.OVERFORT_TIL_UTBETALING:
-      return (
-        <Tag size="small" variant="warning" className={baseTagClasses}>
-          Overført til utbetaling
-        </Tag>
-      );
     case UtbetalingStatus.UTBETALT:
       return (
         <Tag size="small" variant="success" className={baseTagClasses}>

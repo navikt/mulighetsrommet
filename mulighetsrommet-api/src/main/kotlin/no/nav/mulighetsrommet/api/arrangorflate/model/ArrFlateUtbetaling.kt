@@ -61,8 +61,7 @@ data class ArrFlateUtbetaling(
                 UtbetalingStatus.KLAR_FOR_GODKJENNING -> KLAR_FOR_GODKJENNING
 
                 UtbetalingStatus.INNSENDT_AV_ARRANGOR,
-                UtbetalingStatus.OVERFORT_TIL_UTBETALING,
-                UtbetalingStatus.OPPRETTET_AV_NAV,
+                UtbetalingStatus.INNSENDT_AV_NAV,
                 -> BEHANDLES_AV_NAV
 
                 UtbetalingStatus.UTBETALT -> UTBETALT

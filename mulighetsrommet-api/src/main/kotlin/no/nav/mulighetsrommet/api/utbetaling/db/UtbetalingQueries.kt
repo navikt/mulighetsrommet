@@ -378,15 +378,12 @@ fun utbetalingStatus(
     delutbetaling: List<DelutbetalingDto>,
     innsender: UtbetalingDto.Innsender?,
 ): UtbetalingStatus {
-    if (delutbetaling.any { it is DelutbetalingDto.DelutbetalingUtbetalt }) {
+    if (delutbetaling.isNotEmpty() && delutbetaling.all { it is DelutbetalingDto.DelutbetalingUtbetalt }) {
         return UtbetalingStatus.UTBETALT
-    }
-    if (delutbetaling.any { it is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling }) {
-        return UtbetalingStatus.OVERFORT_TIL_UTBETALING
     }
     return when (innsender) {
         is UtbetalingDto.Innsender.ArrangorAnsatt -> UtbetalingStatus.INNSENDT_AV_ARRANGOR
-        is UtbetalingDto.Innsender.NavAnsatt -> UtbetalingStatus.OPPRETTET_AV_NAV
+        is UtbetalingDto.Innsender.NavAnsatt -> UtbetalingStatus.INNSENDT_AV_NAV
         null -> UtbetalingStatus.KLAR_FOR_GODKJENNING
     }
 }
