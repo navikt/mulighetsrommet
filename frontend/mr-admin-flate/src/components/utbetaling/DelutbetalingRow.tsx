@@ -142,19 +142,19 @@ function EditableRow({
           size="small"
           label=""
           error={error}
-          type="number"
           hideLabel
+          inputMode="numeric"
           onChange={(e) => {
             setError(undefined);
             const num = Number(e.target.value);
             if (isNaN(num)) {
               setError("Må være et tall");
-            }
-            if (num > 2_147_483_647) {
+            } else if (num > 2_147_483_647) {
               setError("Beløp er for høyt");
+            } else {
+              setBelop(num);
+              onBelopChange(num);
             }
-            setBelop(num);
-            onBelopChange(num);
           }}
           value={belop}
         />
