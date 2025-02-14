@@ -93,7 +93,7 @@ export function UtbetalingPage() {
                   />
                   <Metadata
                     horizontal
-                    header="Innsent"
+                    header="Innsendt"
                     verdi={formaterDato(
                       utbetaling.godkjentAvArrangorTidspunkt ?? utbetaling.createdAt,
                     )}
@@ -115,12 +115,12 @@ export function UtbetalingPage() {
                     <Table.Header>
                       <Table.Row>
                         <Table.HeaderCell></Table.HeaderCell>
-                        <Table.HeaderCell>Status</Table.HeaderCell>
                         <Table.HeaderCell>Periodestart</Table.HeaderCell>
                         <Table.HeaderCell>Periodeslutt</Table.HeaderCell>
                         <Table.HeaderCell>Kostnadssted</Table.HeaderCell>
                         <Table.HeaderCell>Gjenstående beløp</Table.HeaderCell>
                         <Table.HeaderCell>Utbetales</Table.HeaderCell>
+                        <Table.HeaderCell>Status</Table.HeaderCell>
                         <Table.HeaderCell></Table.HeaderCell>
                       </Table.Row>
                     </Table.Header>
@@ -160,8 +160,8 @@ export function UtbetalingPage() {
                         <Table.DataCell>
                           <CopyButton
                             copyText={String(differanse())}
-                            text={`Manglende beløp ${formaterNOK(differanse())}`}
-                            activeText={`Manglende beløp ${formaterNOK(differanse())}`}
+                            text={`Differanse ${formaterNOK(differanse())}`}
+                            activeText={`Differanse ${formaterNOK(differanse())}`}
                           />
                         </Table.DataCell>
                       </Table.Row>

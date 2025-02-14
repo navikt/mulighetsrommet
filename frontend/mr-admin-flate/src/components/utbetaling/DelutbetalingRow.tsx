@@ -160,7 +160,7 @@ function EditableRow({
       </Table.DataCell>
       <Table.DataCell>
         <Button size="small" type="button" onClick={sendTilGodkjenning}>
-          Send til godkjenning
+          Send beløp til godkjenning
         </Button>
       </Table.DataCell>
     </Table.ExpandableRow>
@@ -183,7 +183,6 @@ function GodkjentRow({
         </HStack>
       }
     >
-      <Table.DataCell>{<DelutbetalingTag delutbetaling={delutbetaling} />}</Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeStart)}</Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeSlutt)}</Table.DataCell>
       <Table.DataCell>{tilsagn.kostnadssted.navn}</Table.DataCell>
@@ -191,6 +190,7 @@ function GodkjentRow({
       <Table.DataCell>
         <b>{formaterNOK(delutbetaling.belop)}</b>
       </Table.DataCell>
+      <Table.DataCell>{<DelutbetalingTag delutbetaling={delutbetaling} />}</Table.DataCell>
       <Table.DataCell></Table.DataCell>
     </Table.ExpandableRow>
   );
@@ -227,7 +227,6 @@ function TilGodkjenningRow({
 
   return (
     <Table.ExpandableRow expansionDisabled content={null}>
-      <Table.DataCell>{<DelutbetalingTag delutbetaling={delutbetaling} />}</Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeStart)}</Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeSlutt)}</Table.DataCell>
       <Table.DataCell>{tilsagn.kostnadssted.navn}</Table.DataCell>
@@ -235,6 +234,7 @@ function TilGodkjenningRow({
       <Table.DataCell>
         <b>{formaterNOK(delutbetaling.belop)}</b>
       </Table.DataCell>
+      <Table.DataCell>{<DelutbetalingTag delutbetaling={delutbetaling} />}</Table.DataCell>
       <Table.DataCell>
         {kanBeslutte && (
           <HStack gap="4">
@@ -294,16 +294,16 @@ function TilsagnIkkeGodkjentRow({ tilsagn }: { tilsagn: TilsagnDto }) {
   return (
     <Table.Row key={tilsagn.id} className="bg-surface-warning-subtle">
       <Table.DataCell></Table.DataCell>
-      <Table.DataCell>
-        <BodyShort size="small">
-          <b>Tilsagn ikke godkjent</b>
-        </BodyShort>
-      </Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeStart)}</Table.DataCell>
       <Table.DataCell>{formaterDato(tilsagn.periodeSlutt)}</Table.DataCell>
       <Table.DataCell>{tilsagn.kostnadssted.navn}</Table.DataCell>
       <Table.DataCell></Table.DataCell>
       <Table.DataCell></Table.DataCell>
+      <Table.DataCell>
+        <BodyShort size="small">
+          <b>Tilsagn ikke godkjent</b>
+        </BodyShort>
+      </Table.DataCell>
       <Table.DataCell></Table.DataCell>
     </Table.Row>
   );
