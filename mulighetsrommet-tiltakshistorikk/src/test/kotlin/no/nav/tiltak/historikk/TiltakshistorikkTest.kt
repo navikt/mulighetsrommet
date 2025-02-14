@@ -157,7 +157,6 @@ class TiltakshistorikkTest : FunSpec({
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 12, 31),
                         id = TEAM_TILTAK_ARBEIDSTRENING_ID,
-                        avtaleId = TEAM_TILTAK_ARBEIDSTRENING_ID,
                         tiltakstype = Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING,
                         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
                         arbeidsgiver = Tiltakshistorikk.Arbeidsgiver(Organisasjonsnummer("123456789")),
