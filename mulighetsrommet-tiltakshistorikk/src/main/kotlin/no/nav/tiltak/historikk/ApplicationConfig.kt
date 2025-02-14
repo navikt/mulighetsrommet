@@ -27,6 +27,7 @@ data class AppConfig(
     val kafka: KafkaConfig,
     val clients: ClientConfig,
     val arbeidsgiverTiltakCutOffDatoMapping: Map<Avtale.Tiltakstype, LocalDate> = mapOf(
+        Avtale.Tiltakstype.SOMMERJOBB to LocalDate.of(2021, 1, 1),
         Avtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD to LocalDate.of(2023, 2, 1),
         Avtale.Tiltakstype.VARIG_LONNSTILSKUDD to LocalDate.of(2023, 2, 1),
         Avtale.Tiltakstype.ARBEIDSTRENING to LocalDate.of(2025, 1, 24),
