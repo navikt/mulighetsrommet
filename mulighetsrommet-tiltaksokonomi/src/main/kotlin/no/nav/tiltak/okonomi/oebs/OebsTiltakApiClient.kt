@@ -11,12 +11,15 @@ import io.ktor.http.*
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
+import org.slf4j.LoggerFactory
 
 class OebsTiltakApiClient(
     engine: HttpClientEngine = CIO.create(),
     private val baseUrl: String,
     private val tokenProvider: TokenProvider,
 ) {
+    private val log = LoggerFactory.getLogger(javaClass)
+
     private val client = httpJsonClient(engine).config {
         install(HttpCache)
         install(HttpTimeout) {
@@ -52,7 +55,11 @@ class OebsTiltakApiClient(
         }
 
         if (!isValidResponse(response)) {
-            return Either.Left(ResponseException(response, response.bodyAsText()))
+            val responseBody = response.bodyAsText()
+
+            log.warn("$method $requestUri failed with status=${response.status}, request body=$payload, response body=$responseBody")
+
+            return Either.Left(ResponseException(response, responseBody))
         }
 
         return Either.Right(response)
