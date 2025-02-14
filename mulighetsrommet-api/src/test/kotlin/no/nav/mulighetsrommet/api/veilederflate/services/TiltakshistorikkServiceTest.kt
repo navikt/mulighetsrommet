@@ -60,13 +60,11 @@ class TiltakshistorikkServiceTest : FunSpec({
         arrangor = Arrangor(Organisasjonsnummer("123456789")),
     )
 
-    val arbeidstreningId = UUID.randomUUID()
     val tiltakshistorikkArbeidstrening = Tiltakshistorikk.ArbeidsgiverAvtale(
         norskIdent = NorskIdent("12345678910"),
         startDato = LocalDate.of(2020, 1, 1),
         sluttDato = LocalDate.of(2021, 12, 31),
-        id = arbeidstreningId,
-        avtaleId = arbeidstreningId,
+        id = UUID.randomUUID(),
         tiltakstype = Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING,
         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
         arbeidsgiver = Tiltakshistorikk.Arbeidsgiver(ArrangorFixtures.underenhet2.organisasjonsnummer),
@@ -128,7 +126,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         innsoktDato = null,
     )
     val deltakelseArbeidstrening = Deltakelse.DeltakelseArbeidsgiverAvtale(
-        id = tiltakshistorikkArbeidstrening.avtaleId,
+        id = tiltakshistorikkArbeidstrening.id,
         eierskap = Deltakelse.Eierskap.TEAM_TILTAK,
         tittel = "Arbeidstrening hos Underenhet 2 AS",
         tiltakstypeNavn = "Arbeidstrening",

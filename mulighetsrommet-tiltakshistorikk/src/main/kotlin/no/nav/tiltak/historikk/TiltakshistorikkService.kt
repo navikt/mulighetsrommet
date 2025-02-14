@@ -125,7 +125,6 @@ private fun toTiltakshistorikk(avtale: Avtale) = Tiltakshistorikk.ArbeidsgiverAv
     startDato = avtale.startDato,
     sluttDato = avtale.sluttDato,
     id = avtale.avtaleId,
-    avtaleId = avtale.avtaleId,
     tiltakstype = when (avtale.tiltakstype) {
         Avtale.Tiltakstype.ARBEIDSTRENING -> Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING
         Avtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD
