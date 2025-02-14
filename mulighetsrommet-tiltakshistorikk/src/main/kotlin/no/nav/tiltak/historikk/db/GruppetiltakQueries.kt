@@ -1,17 +1,17 @@
-package no.nav.tiltak.historikk.repositories
+package no.nav.tiltak.historikk.db
 
+import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class GruppetiltakRepository(private val db: Database) {
+class GruppetiltakQueries(private val session: Session) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(tiltak: TiltaksgjennomforingEksternV1Dto) = db.session { session ->
+    fun upsert(tiltak: TiltaksgjennomforingEksternV1Dto) {
         logger.info("Lagrer tiltak id=${tiltak.id}")
 
         @Language("PostgreSQL")
@@ -61,7 +61,7 @@ class GruppetiltakRepository(private val db: Database) {
         queryOf(query, params).asExecute.runWithSession(session)
     }
 
-    fun delete(id: UUID) = db.session { session ->
+    fun delete(id: UUID) {
         logger.info("Sletter tiltak id=$id")
 
         @Language("PostgreSQL")

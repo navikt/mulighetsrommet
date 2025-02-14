@@ -7,24 +7,24 @@ import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
 import no.nav.mulighetsrommet.serialization.json.JsonRelaxExplicitNulls
-import no.nav.tiltak.historikk.repositories.GruppetiltakRepository
+import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import java.util.*
 
 class SisteTiltaksgjennomforingerV1KafkaConsumer(
     config: Config,
-    private val gruppetiltakRepository: GruppetiltakRepository,
+    private val db: TiltakshistorikkDatabase,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     config,
     uuidDeserializer(),
     JsonElementDeserializer(),
 ) {
-    override suspend fun consume(key: UUID, message: JsonElement) {
+    override suspend fun consume(key: UUID, message: JsonElement): Unit = db.session {
         val gjennomforing = JsonRelaxExplicitNulls.decodeFromJsonElement<TiltaksgjennomforingEksternV1Dto?>(message)
 
         if (gjennomforing == null) {
-            gruppetiltakRepository.delete(key)
+            queries.gruppetiltak.delete(key)
         } else {
-            gruppetiltakRepository.upsert(gjennomforing)
+            queries.gruppetiltak.upsert(gjennomforing)
         }
     }
 }

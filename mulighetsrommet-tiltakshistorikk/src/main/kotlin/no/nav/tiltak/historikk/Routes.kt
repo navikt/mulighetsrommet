@@ -10,12 +10,12 @@ import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
 import no.nav.mulighetsrommet.model.TiltakshistorikkRequest
-import no.nav.tiltak.historikk.repositories.DeltakerRepository
+import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import java.util.*
 
 fun Route.tiltakshistorikkRoutes(
     kafka: KafkaConsumerOrchestrator,
-    deltakerRepository: DeltakerRepository,
+    db: TiltakshistorikkDatabase,
     service: TiltakshistorikkService,
 ) {
     authenticate {
@@ -33,7 +33,7 @@ fun Route.tiltakshistorikkRoutes(
             put("/deltaker") {
                 val dbo = call.receive<ArenaDeltakerDbo>()
 
-                deltakerRepository.upsertArenaDeltaker(dbo)
+                db.session { queries.deltaker.upsertArenaDeltaker(dbo) }
 
                 call.respond(HttpStatusCode.OK)
             }
@@ -41,7 +41,7 @@ fun Route.tiltakshistorikkRoutes(
             delete("/deltaker/{id}") {
                 val id: UUID by call.parameters
 
-                deltakerRepository.deleteArenaDeltaker(id)
+                db.session { queries.deltaker.deleteArenaDeltaker(id) }
 
                 call.respond(HttpStatusCode.OK)
             }
