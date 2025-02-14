@@ -2,32 +2,35 @@ package no.nav.tiltak.historikk
 
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
-import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
+import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
-import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.tiltak.historikk.clients.Avtale
 import java.time.LocalDate
 
-data class Config(
-    val server: ServerConfig,
-    val app: AppConfig,
-)
+fun getApplicationConfig(): AppConfig {
+    return when (NaisEnv.current()) {
+        NaisEnv.ProdGCP -> ApplicationConfigProd
+        NaisEnv.DevGCP -> ApplicationConfigDev
+        NaisEnv.Local -> ApplicationConfigLocal
+    }
+}
 
 data class AppConfig(
+    val server: ServerConfig = ServerConfig(),
     val httpClientEngine: HttpClientEngine = CIO.create(),
     val database: DatabaseConfig,
     val flyway: FlywayMigrationManager.MigrationConfig = FlywayMigrationManager.MigrationConfig(),
     val auth: AuthConfig,
     val kafka: KafkaConfig,
     val clients: ClientConfig,
-    val arbeidsgiverTiltakCutOffDatoMapping: Map<
-        Avtale.Tiltakstype,
-        @Serializable(with = LocalDateSerializer::class)
-        LocalDate,
-        > = emptyMap(),
+    val arbeidsgiverTiltakCutOffDatoMapping: Map<Avtale.Tiltakstype, LocalDate> = mapOf(
+        Avtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD to LocalDate.of(2023, 2, 1),
+        Avtale.Tiltakstype.VARIG_LONNSTILSKUDD to LocalDate.of(2023, 2, 1),
+        Avtale.Tiltakstype.ARBEIDSTRENING to LocalDate.of(2025, 1, 24),
+    ),
 )
 
 data class ClientConfig(
@@ -52,7 +55,7 @@ data class ServiceClientConfig(
 
 data class KafkaConfig(
     val brokerUrl: String? = null,
-    val consumerGroupId: String,
+    val defaultConsumerGroupId: String,
     val consumers: KafkaConsumers,
 )
 

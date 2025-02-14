@@ -9,7 +9,6 @@ import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.env.NaisEnv
-import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
@@ -24,13 +23,13 @@ import no.nav.tiltak.historikk.repositories.GruppetiltakRepository
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 
 fun main() {
-    val (server, app) = loadConfiguration<Config>()
+    val config = getApplicationConfig()
 
     embeddedServer(
         Netty,
-        port = server.port,
-        host = server.host,
-        module = { configure(app) },
+        port = config.server.port,
+        host = config.server.host,
+        module = { configure(config) },
     ).start(wait = true)
 }
 
@@ -55,7 +54,11 @@ fun Application.configure(config: AppConfig) {
         tokenProvider = cachedTokenProvider.withScope(config.clients.tiltakDatadeling.scope),
     )
 
-    val tiltakshistorikkService = TiltakshistorikkService(deltakerRepository, tiltakDatadelingClient, config.arbeidsgiverTiltakCutOffDatoMapping)
+    val tiltakshistorikkService = TiltakshistorikkService(
+        deltakerRepository,
+        tiltakDatadelingClient,
+        config.arbeidsgiverTiltakCutOffDatoMapping,
+    )
 
     val kafka = configureKafka(config.kafka, db, deltakerRepository, gruppetiltakRepository)
 
@@ -84,12 +87,12 @@ fun configureKafka(
     val properties = when (NaisEnv.current()) {
         NaisEnv.Local -> KafkaPropertiesBuilder.consumerBuilder()
             .withBaseProperties()
-            .withConsumerGroupId(config.consumerGroupId)
+            .withConsumerGroupId(config.defaultConsumerGroupId)
             .withBrokerUrl(config.brokerUrl)
             .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
             .build()
 
-        else -> KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.consumerGroupId)
+        else -> KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.defaultConsumerGroupId)
     }
 
     val consumers = listOf(
