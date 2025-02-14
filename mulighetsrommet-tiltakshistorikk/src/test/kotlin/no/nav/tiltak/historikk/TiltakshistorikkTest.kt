@@ -28,6 +28,12 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.*
 
+private val TEAM_TILTAK_ARBEIDSTRENING_ID: UUID = UUID.fromString("9dea48c1-d494-4664-9427-bdb20a6f265f")
+private val ARENA_ARBEIDSTRENING_ID: UUID = UUID.fromString("05fae1e4-4dcb-4b29-a8e6-7f6b6b52d617")
+private val ARENA_ENKEL_AMO_ID: UUID = UUID.fromString("ddb13a2b-cd65-432d-965c-9167938a26a4")
+private val ARENA_MENTOR_ID: UUID = UUID.fromString("4bf76cc3-ade9-45ef-b22b-5c4d3ceee185")
+private val TEAM_KOMET_GRUPPE_AMO_ID: UUID = UUID.fromString("6d54228f-534f-4b4b-9160-65eae26a3b06")
+
 class TiltakshistorikkTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
@@ -88,13 +94,12 @@ class TiltakshistorikkTest : FunSpec({
         }
 
         test("Henter enkeltplassdeltakelser fra Arena når de er avsluttet før cutoff-dato") {
-            val avtaleId = UUID.fromString("9dea48c1-d494-4664-9427-bdb20a6f265f")
             val mockEngine = mockTiltakDatadeling(
                 response = GraphqlResponse(
                     data = GetAvtalerForPersonResponse(
                         avtalerForPerson = listOf(
                             Avtale(
-                                avtaleId = avtaleId,
+                                avtaleId = TEAM_TILTAK_ARBEIDSTRENING_ID,
                                 avtaleNr = 1,
                                 deltakerFnr = NorskIdent("12345678910"),
                                 bedriftNr = Organisasjonsnummer("123456789"),
@@ -139,7 +144,7 @@ class TiltakshistorikkTest : FunSpec({
                 response.body<TiltakshistorikkResponse>().historikk shouldContainExactlyInAnyOrder listOf(
                     Tiltakshistorikk.ArenaDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
-                        id = UUID.fromString("05fae1e4-4dcb-4b29-a8e6-7f6b6b52d617"),
+                        id = ARENA_ARBEIDSTRENING_ID,
                         arenaTiltakskode = "ARBTREN",
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2023, 1, 1),
@@ -151,15 +156,15 @@ class TiltakshistorikkTest : FunSpec({
                         norskIdent = NorskIdent("12345678910"),
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 12, 31),
-                        id = avtaleId,
-                        avtaleId = avtaleId,
+                        id = TEAM_TILTAK_ARBEIDSTRENING_ID,
+                        avtaleId = TEAM_TILTAK_ARBEIDSTRENING_ID,
                         tiltakstype = Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING,
                         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
                         arbeidsgiver = Tiltakshistorikk.Arbeidsgiver(Organisasjonsnummer("123456789")),
                     ),
                     Tiltakshistorikk.ArenaDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
-                        id = UUID.fromString("ddb13a2b-cd65-432d-965c-9167938a26a4"),
+                        id = ARENA_ENKEL_AMO_ID,
                         arenaTiltakskode = "AMO",
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2024, 2, 1),
@@ -169,7 +174,7 @@ class TiltakshistorikkTest : FunSpec({
                     ),
                     Tiltakshistorikk.GruppetiltakDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
-                        id = UUID.fromString("6d54228f-534f-4b4b-9160-65eae26a3b06"),
+                        id = TEAM_KOMET_GRUPPE_AMO_ID,
                         startDato = null,
                         sluttDato = null,
                         status = DeltakerStatus(
@@ -180,7 +185,7 @@ class TiltakshistorikkTest : FunSpec({
                         gjennomforing = Tiltakshistorikk.Gjennomforing(
                             id = UUID.fromString("566b89b0-4ed0-43cf-84a8-39085428f7e6"),
                             navn = "Gruppe AMO",
-                            tiltakskode = Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+                            tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
                         ),
                         arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
                     ),
@@ -189,13 +194,12 @@ class TiltakshistorikkTest : FunSpec({
         }
 
         test("Filtrerer vekk enkeltplassdeltakelser fra Arena når deltakelsene har sluttdato etter cutoff-dato") {
-            val avtaleId = UUID.fromString("9dea48c1-d494-4664-9427-bdb20a6f265f")
             val mockEngine = mockTiltakDatadeling(
                 response = GraphqlResponse(
                     data = GetAvtalerForPersonResponse(
                         avtalerForPerson = listOf(
                             Avtale(
-                                avtaleId = avtaleId,
+                                avtaleId = TEAM_TILTAK_ARBEIDSTRENING_ID,
                                 avtaleNr = 1,
                                 deltakerFnr = NorskIdent("12345678910"),
                                 bedriftNr = Organisasjonsnummer("123456789"),
@@ -241,10 +245,10 @@ class TiltakshistorikkTest : FunSpec({
                 val historikk = response.body<TiltakshistorikkResponse>().historikk.map { it.id }
 
                 historikk shouldContainExactlyInAnyOrder listOf(
-                    avtaleId,
-                    UUID.fromString("4bf76cc3-ade9-45ef-b22b-5c4d3ceee185"),
-                    UUID.fromString("ddb13a2b-cd65-432d-965c-9167938a26a4"),
-                    UUID.fromString("6d54228f-534f-4b4b-9160-65eae26a3b06"),
+                    TEAM_TILTAK_ARBEIDSTRENING_ID,
+                    ARENA_MENTOR_ID,
+                    ARENA_ENKEL_AMO_ID,
+                    TEAM_KOMET_GRUPPE_AMO_ID,
                 )
             }
         }
@@ -300,8 +304,8 @@ class TiltakshistorikkTest : FunSpec({
                 val historikk = response.body<TiltakshistorikkResponse>().historikk.map { it.id }
 
                 historikk shouldContainExactlyInAnyOrder listOf(
-                    UUID.fromString("ddb13a2b-cd65-432d-965c-9167938a26a4"),
-                    UUID.fromString("05fae1e4-4dcb-4b29-a8e6-7f6b6b52d617"),
+                    ARENA_ENKEL_AMO_ID,
+                    ARENA_ARBEIDSTRENING_ID,
                 )
             }
         }
@@ -331,7 +335,7 @@ private fun inititalizeData(database: FlywayDatabaseTestListener) {
             id = UUID.fromString("af6f4034-08da-4bd4-8735-ffd883e8aab7"),
             navn = "Gruppe AMO",
             arenaKode = "GRUPPEAMO",
-            tiltakskode = Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+            tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
         ),
         navn = "Gruppe AMO",
         virksomhetsnummer = "123123123",
@@ -346,7 +350,7 @@ private fun inititalizeData(database: FlywayDatabaseTestListener) {
     gruppetiltak.upsert(tiltak)
 
     val arbeidstrening = ArenaDeltakerDbo(
-        id = UUID.fromString("05fae1e4-4dcb-4b29-a8e6-7f6b6b52d617"),
+        id = ARENA_ARBEIDSTRENING_ID,
         norskIdent = NorskIdent("12345678910"),
         arenaTiltakskode = "ARBTREN",
         status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -359,7 +363,7 @@ private fun inititalizeData(database: FlywayDatabaseTestListener) {
     deltakere.upsertArenaDeltaker(arbeidstrening)
 
     val mentor = ArenaDeltakerDbo(
-        id = UUID.fromString("4bf76cc3-ade9-45ef-b22b-5c4d3ceee185"),
+        id = ARENA_MENTOR_ID,
         norskIdent = NorskIdent("12345678910"),
         arenaTiltakskode = "MENTOR",
         status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -372,7 +376,7 @@ private fun inititalizeData(database: FlywayDatabaseTestListener) {
     deltakere.upsertArenaDeltaker(mentor)
 
     val enkeltAMO = ArenaDeltakerDbo(
-        id = UUID.fromString("ddb13a2b-cd65-432d-965c-9167938a26a4"),
+        id = ARENA_ENKEL_AMO_ID,
         norskIdent = NorskIdent("12345678910"),
         arenaTiltakskode = "AMO",
         status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -386,7 +390,7 @@ private fun inititalizeData(database: FlywayDatabaseTestListener) {
 
     val deltakelsesdato = LocalDateTime.of(2002, 3, 1, 0, 0, 0)
     val amtDeltaker = AmtDeltakerV1Dto(
-        id = UUID.fromString("6d54228f-534f-4b4b-9160-65eae26a3b06"),
+        id = TEAM_KOMET_GRUPPE_AMO_ID,
         gjennomforingId = tiltak.id,
         personIdent = "12345678910",
         startDato = null,
