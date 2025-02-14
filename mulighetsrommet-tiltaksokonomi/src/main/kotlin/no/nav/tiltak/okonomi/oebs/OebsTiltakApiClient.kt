@@ -55,7 +55,7 @@ class OebsTiltakApiClient(
                 payload?.let { setBody(it) }
             }
         } catch (e: Exception) {
-            log.warn("Requst $method $requestUri failed. request body=$payload", e)
+            log.error("Requst $method $requestUri failed. request body=$payload", e)
             return Either.Left(e)
         }
 
