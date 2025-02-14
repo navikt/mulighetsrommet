@@ -9,6 +9,7 @@ import java.util.*
 
 @Serializable
 sealed class Tiltakshistorikk {
+    abstract val id: UUID
     abstract val norskIdent: NorskIdent
     abstract val opphav: Opphav
     abstract val startDato: LocalDate?
@@ -47,7 +48,7 @@ sealed class Tiltakshistorikk {
         @Serializable(with = LocalDateSerializer::class)
         override val sluttDato: LocalDate?,
         @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
+        override val id: UUID,
         val arenaTiltakskode: String,
         val status: ArenaDeltakerStatus,
         val beskrivelse: String,
@@ -65,7 +66,7 @@ sealed class Tiltakshistorikk {
         @Serializable(with = LocalDateSerializer::class)
         override val sluttDato: LocalDate?,
         @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
+        override val id: UUID,
         val status: DeltakerStatus,
         val gjennomforing: Gjennomforing,
         val arrangor: Arrangor,
@@ -81,6 +82,8 @@ sealed class Tiltakshistorikk {
         override val startDato: LocalDate?,
         @Serializable(with = LocalDateSerializer::class)
         override val sluttDato: LocalDate?,
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
         @Serializable(with = UUIDSerializer::class)
         val avtaleId: UUID,
         val tiltakstype: Tiltakstype,

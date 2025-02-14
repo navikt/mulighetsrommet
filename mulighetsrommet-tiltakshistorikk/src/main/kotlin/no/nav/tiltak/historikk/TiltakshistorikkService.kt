@@ -88,8 +88,8 @@ class TiltakshistorikkService(
             }
             .map {
                 it.flatten()
-                    .filter {
-                        belongsToTeamTiltak(it.tiltakstype, cutOffDateMap, it.sluttDato)
+                    .filter { avtale ->
+                        belongsToTeamTiltak(avtale.tiltakstype, cutOffDateMap, avtale.sluttDato)
                     }
                     .filter { avtale ->
                         val avtaleDato = avtale.sluttDato
@@ -124,6 +124,7 @@ private fun toTiltakshistorikk(avtale: Avtale) = Tiltakshistorikk.ArbeidsgiverAv
     norskIdent = avtale.deltakerFnr,
     startDato = avtale.startDato,
     sluttDato = avtale.sluttDato,
+    id = avtale.avtaleId,
     avtaleId = avtale.avtaleId,
     tiltakstype = when (avtale.tiltakstype) {
         Avtale.Tiltakstype.ARBEIDSTRENING -> Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING
