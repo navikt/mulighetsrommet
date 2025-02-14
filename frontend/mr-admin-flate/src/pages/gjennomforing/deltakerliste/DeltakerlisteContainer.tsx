@@ -10,10 +10,6 @@ export function DeltakerlisteContainer() {
   }
 
   const deltakerlisteUrl = resolveDeltakerlisteCdnUrl();
-  if (deltakerlisteUrl === null) {
-    return null;
-  }
-
   return (
     <MicroFrontend
       baseUrl={deltakerlisteUrl}
@@ -23,7 +19,7 @@ export function DeltakerlisteContainer() {
   );
 }
 
-function resolveDeltakerlisteCdnUrl(): string | null {
+function resolveDeltakerlisteCdnUrl(): string {
   switch (environment) {
     case Environment.PROD:
       return "https://cdn.nav.no/amt/amt-tiltakskoordinator-flate-prod/build";
