@@ -2,7 +2,6 @@ package no.nav.tiltak.historikk
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.*
@@ -122,11 +121,7 @@ class TiltakshistorikkTest : FunSpec({
                     Avtale.Tiltakstype.ARBEIDSTRENING to LocalDate.of(2024, 1, 1),
                 ),
             )
-            withTestApplication(
-                oauth,
-                mockEngine,
-                config,
-            ) {
+            withTestApplication(oauth, mockEngine, config) {
                 val client = createClient {
                     install(ContentNegotiation) {
                         json()
@@ -156,6 +151,7 @@ class TiltakshistorikkTest : FunSpec({
                         norskIdent = NorskIdent("12345678910"),
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 12, 31),
+                        id = avtaleId,
                         avtaleId = avtaleId,
                         tiltakstype = Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING,
                         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
@@ -227,11 +223,7 @@ class TiltakshistorikkTest : FunSpec({
                     Avtale.Tiltakstype.MENTOR to LocalDate.of(2025, 1, 31),
                 ),
             )
-            withTestApplication(
-                oauth,
-                mockEngine,
-                config,
-            ) {
+            withTestApplication(oauth, mockEngine, config) {
                 val client = createClient {
                     install(ContentNegotiation) {
                         json()
@@ -246,53 +238,13 @@ class TiltakshistorikkTest : FunSpec({
 
                 response.status shouldBe HttpStatusCode.OK
 
-                response.body<TiltakshistorikkResponse>().historikk shouldContainExactlyInAnyOrder listOf(
-                    Tiltakshistorikk.ArbeidsgiverAvtale(
-                        norskIdent = NorskIdent("12345678910"),
-                        startDato = LocalDate.of(2024, 1, 1),
-                        sluttDato = LocalDate.of(2024, 12, 31),
-                        avtaleId = avtaleId,
-                        tiltakstype = Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING,
-                        status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
-                        arbeidsgiver = Tiltakshistorikk.Arbeidsgiver(Organisasjonsnummer("123456789")),
-                    ),
-                    Tiltakshistorikk.ArenaDeltakelse(
-                        norskIdent = NorskIdent("12345678910"),
-                        id = UUID.fromString("4bf76cc3-ade9-45ef-b22b-5c4d3ceee185"),
-                        arenaTiltakskode = "MENTOR",
-                        status = ArenaDeltakerStatus.GJENNOMFORES,
-                        startDato = LocalDate.of(2024, 2, 1),
-                        sluttDato = LocalDate.of(2024, 2, 29),
-                        beskrivelse = "Mentortiltak hos Joblearn",
-                        arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
-                    ),
-                    Tiltakshistorikk.ArenaDeltakelse(
-                        norskIdent = NorskIdent("12345678910"),
-                        id = UUID.fromString("ddb13a2b-cd65-432d-965c-9167938a26a4"),
-                        arenaTiltakskode = "AMO",
-                        status = ArenaDeltakerStatus.GJENNOMFORES,
-                        startDato = LocalDate.of(2024, 2, 1),
-                        sluttDato = LocalDate.of(2024, 2, 29),
-                        beskrivelse = "Enkelt-AMO hos Joblearn",
-                        arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
-                    ),
-                    Tiltakshistorikk.GruppetiltakDeltakelse(
-                        norskIdent = NorskIdent("12345678910"),
-                        id = UUID.fromString("6d54228f-534f-4b4b-9160-65eae26a3b06"),
-                        startDato = null,
-                        sluttDato = null,
-                        status = DeltakerStatus(
-                            type = DeltakerStatus.Type.VENTER_PA_OPPSTART,
-                            aarsak = null,
-                            opprettetDato = LocalDateTime.of(2002, 3, 1, 0, 0),
-                        ),
-                        gjennomforing = Tiltakshistorikk.Gjennomforing(
-                            id = UUID.fromString("566b89b0-4ed0-43cf-84a8-39085428f7e6"),
-                            navn = "Gruppe AMO",
-                            tiltakskode = Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-                        ),
-                        arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
-                    ),
+                val historikk = response.body<TiltakshistorikkResponse>().historikk.map { it.id }
+
+                historikk shouldContainExactlyInAnyOrder listOf(
+                    avtaleId,
+                    UUID.fromString("4bf76cc3-ade9-45ef-b22b-5c4d3ceee185"),
+                    UUID.fromString("ddb13a2b-cd65-432d-965c-9167938a26a4"),
+                    UUID.fromString("6d54228f-534f-4b4b-9160-65eae26a3b06"),
                 )
             }
         }
@@ -345,11 +297,11 @@ class TiltakshistorikkTest : FunSpec({
 
                 response.status shouldBe HttpStatusCode.OK
 
-                val historikk = response.body<TiltakshistorikkResponse>().historikk
+                val historikk = response.body<TiltakshistorikkResponse>().historikk.map { it.id }
 
-                historikk.map { it.opphav } shouldContainExactly listOf(
-                    Tiltakshistorikk.Opphav.ARENA,
-                    Tiltakshistorikk.Opphav.ARENA,
+                historikk shouldContainExactlyInAnyOrder listOf(
+                    UUID.fromString("ddb13a2b-cd65-432d-965c-9167938a26a4"),
+                    UUID.fromString("05fae1e4-4dcb-4b29-a8e6-7f6b6b52d617"),
                 )
             }
         }

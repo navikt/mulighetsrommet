@@ -150,7 +150,7 @@ class TiltakshistorikkService(
         val tiltakstype = tiltakstypeService.getByArenaTiltakskode(arenaKode)
         val arrangorNavn = getArrangorNavn(deltakelse.arbeidsgiver.organisasjonsnummer)
         return Deltakelse.DeltakelseArbeidsgiverAvtale(
-            id = deltakelse.avtaleId,
+            id = deltakelse.id,
             periode = Deltakelse.Periode(
                 startDato = deltakelse.startDato,
                 sluttDato = deltakelse.sluttDato,
