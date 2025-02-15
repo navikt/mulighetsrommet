@@ -15,7 +15,7 @@ class BrregClientTest : FunSpec({
         organisasjonsnummer = Organisasjonsnummer("123456789"),
         organisasjonsform = Organisasjonsform(kode = "AS", beskrivelse = "Aksjeselskap"),
         navn = "Nav Hovedenhet",
-        postAdresse = Adresse(landkode = "NO", poststed = "Oslo", postnummer = "1234", adresse = listOf("Gateveien 1")),
+        postadresse = Adresse(landkode = "NO", poststed = "Oslo", postnummer = "1234", adresse = listOf("Gateveien 1")),
     )
     val underenhet = Underenhet(
         organisasjonsnummer = Organisasjonsnummer("123456780"),

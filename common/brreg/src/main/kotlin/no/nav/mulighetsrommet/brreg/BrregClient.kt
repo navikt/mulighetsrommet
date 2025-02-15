@@ -72,7 +72,7 @@ class BrregClient(
                         organisasjonsnummer = it.organisasjonsnummer,
                         organisasjonsform = it.organisasjonsform.kode,
                         navn = it.navn,
-                        postadresse = it.postAdresse?.toBrregPostAdresse(),
+                        postadresse = it.postadresse?.toBrregPostAdresse(),
                     )
                 } ?: emptyList()
             }
@@ -113,7 +113,7 @@ class BrregClient(
                 organisasjonsnummer = enhet.organisasjonsnummer,
                 organisasjonsform = enhet.organisasjonsform.kode,
                 navn = enhet.navn,
-                postadresse = enhet.postAdresse?.toBrregPostAdresse(),
+                postadresse = enhet.postadresse?.toBrregPostAdresse(),
             )
         }
     }

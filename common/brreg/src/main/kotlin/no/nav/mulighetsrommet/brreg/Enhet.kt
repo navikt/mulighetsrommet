@@ -11,7 +11,7 @@ internal data class OverordnetEnhet(
     val navn: String,
     val organisasjonsform: Organisasjonsform,
     val overordnetEnhet: Organisasjonsnummer? = null,
-    val postAdresse: Adresse? = null,
+    val postadresse: Adresse? = null,
     @Serializable(with = LocalDateSerializer::class)
     val slettedato: LocalDate? = null,
 )
