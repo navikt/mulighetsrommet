@@ -3,22 +3,24 @@ import { TiltakstypeIkon } from "@/components/ikoner/TiltakstypeIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TiltakstypestatusTag } from "@/components/statuselementer/TiltakstypestatusTag";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
+import { ContentBox } from "@/layouts/ContentBox";
 import { useTitle } from "@mr/frontend-common";
 import { Alert, Heading, Tabs } from "@navikt/ds-react";
 import { Link, Outlet, useLoaderData, useLocation, useMatch } from "react-router";
-import { tiltakstypeLoader } from "./tiltakstyperLoaders";
-import { ContentBox } from "@/layouts/ContentBox";
+import { tiltakstypeLoader } from "./tiltakstypeLoaders";
+import { LoaderData } from "../../types/loader";
 
 export function DetaljerTiltakstypePage() {
   const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
-  const tiltakstype = useLoaderData<typeof tiltakstypeLoader>();
+  const { tiltakstypeId, tiltakstype } = useLoaderData<LoaderData<typeof tiltakstypeLoader>>();
+
   useTitle(`Tiltakstyper ${tiltakstype?.navn ? `- ${tiltakstype.navn}` : ""}`);
 
   const match = useMatch("/tiltakstyper/:tiltakstypeId/avtaler");
   const brodsmuler: (Brodsmule | undefined)[] = [
     { tittel: "Tiltakstyper", lenke: "/tiltakstyper" },
-    { tittel: "Tiltakstype", lenke: match ? undefined : `/tiltakstyper/${tiltakstype.id}` },
+    { tittel: "Tiltakstype", lenke: match ? undefined : `/tiltakstyper/${tiltakstypeId}` },
     match ? { tittel: "Avtaler" } : undefined,
   ];
 
