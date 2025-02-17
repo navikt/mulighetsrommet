@@ -12,7 +12,7 @@
     "@navikt/aksel-icons": "7.13.0",
     "@navikt/ds-css": "7.13.0",
     "@navikt/ds-react": "7.13.0",
-    "@tanstack/react-query": "5.66.0",
+    "@tanstack/react-query": "5.66.3",
     "classnames": "2.5.1",
     "debounce": "2.2.0",
     "react": "18.3.1",
@@ -22,7 +22,7 @@
     "react-select": "5.10.0",
     "react-router": "7.1.5",
     "use-resize-observer": "9.1.0",
-    "zod": "3.24.1"
+    "zod": "3.24.2"
   },
   "devDependencies": {
     "@types/react": "18.3.13",
