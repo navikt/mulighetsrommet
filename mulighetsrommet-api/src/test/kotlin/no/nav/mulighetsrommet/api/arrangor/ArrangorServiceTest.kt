@@ -12,11 +12,14 @@ import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotliquery.Query
+import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.brreg.*
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.time.LocalDate
+import java.util.*
 
 class ArrangorServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -109,6 +112,54 @@ class ArrangorServiceTest : FunSpec({
 
             database.run {
                 queries.arrangor.get(orgnr) shouldBe null
+            }
+        }
+    }
+
+    context("brreg sok med utenlandske bedrifter") {
+        val brregClient: BrregClient = mockk()
+        val arrangorService = ArrangorService(database.db, brregClient)
+        val utenlandskArrangor = ArrangorDto(
+            id = UUID.randomUUID(),
+            organisasjonsnummer = Organisasjonsnummer("100000056"),
+            organisasjonsform = null,
+            navn = "X - Utbildning Nord",
+            overordnetEnhet = null,
+            underenheter = emptyList(),
+            slettetDato = null,
+        )
+
+        beforeEach {
+            database.run {
+                queries.arrangor.upsert(utenlandskArrangor)
+                it.execute(
+                    Query(
+                        "update arrangor set er_utenlandsk_virksomhet = true where id = '${utenlandskArrangor.id}'",
+                    ),
+                )
+            }
+        }
+
+        afterEach {
+            clearAllMocks()
+            database.truncateAll()
+        }
+
+        test("sok gir med utenlandske arrangører") {
+            coEvery { brregClient.sokHovedenhet(any()) } returns emptyList<BrregHovedenhetDto>().right()
+
+            arrangorService.brregSok("Nord").shouldBeRight()[0] should {
+                it.navn shouldBe utenlandskArrangor.navn
+                it.organisasjonsnummer shouldBe utenlandskArrangor.organisasjonsnummer
+            }
+        }
+
+        test("hent underenheter for utenlandsk arrangør gir liste med hovedenheten") {
+            coEvery { brregClient.getUnderenheterForHovedenhet(utenlandskArrangor.organisasjonsnummer) } returns emptyList<BrregUnderenhetDto>().right()
+
+            arrangorService.brregUnderenheter(utenlandskArrangor.organisasjonsnummer).shouldBeRight()[0] should {
+                it.navn shouldBe utenlandskArrangor.navn
+                it.organisasjonsnummer shouldBe utenlandskArrangor.organisasjonsnummer
             }
         }
     }

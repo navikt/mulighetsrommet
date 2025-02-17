@@ -1,7 +1,5 @@
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
 import { useSyncArrangorFromBrreg } from "@/api/arrangor/useSyncArrangorFromBrreg";
-import { useBrregVirksomhetUnderenheter } from "@/api/virksomhet/useBrregVirksomhetUnderenheter";
-import { useSokBrregVirksomheter } from "@/api/virksomhet/useSokBrregVirksomheter";
 import { Alert, Button, VStack } from "@navikt/ds-react";
 import {
   Arrangor,
@@ -19,6 +17,8 @@ import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSch
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
+import { useSokBrregHovedenhet } from "@/api/virksomhet/useSokBrregHovedenhet";
+import { useBrregUnderenheter } from "@/api/virksomhet/useBrregUnderenheter";
 
 interface Props {
   readOnly: boolean;
@@ -28,13 +28,13 @@ export function AvtaleArrangorForm({ readOnly }: Props) {
   const arrangorKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
 
   const [sokArrangor, setSokArrangor] = useState("");
-  const { data: brregVirksomheter = [] } = useSokBrregVirksomheter(sokArrangor);
+  const { data: brregVirksomheter = [] } = useSokBrregHovedenhet(sokArrangor);
 
   const { register, watch, setValue } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
   const watchedArrangor = watch("arrangorOrganisasjonsnummer") ?? "";
 
   const { data: arrangor } = useSyncArrangorFromBrreg(watchedArrangor);
-  const { data: underenheter } = useBrregVirksomhetUnderenheter(watchedArrangor);
+  const { data: underenheter } = useBrregUnderenheter(watchedArrangor);
   const { data: kontaktpersoner } = useArrangorKontaktpersoner(arrangor?.id);
 
   const arrangorHovedenhetOptions = getArrangorHovedenhetOptions(brregVirksomheter, arrangor);
