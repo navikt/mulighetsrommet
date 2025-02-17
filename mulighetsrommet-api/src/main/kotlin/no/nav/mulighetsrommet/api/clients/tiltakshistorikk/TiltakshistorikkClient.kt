@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.clients.tiltakshistorikk
 
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
