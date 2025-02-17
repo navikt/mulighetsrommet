@@ -1,7 +1,5 @@
-@import "tailwindcss/base";
-@import "@navikt/ds-css";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
+@import "tailwindcss";
+@import "@navikt/ds-css" layer(components);
 
 a {
   text-decoration: underline;
