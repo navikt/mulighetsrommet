@@ -23,7 +23,7 @@ export function AdministratorHeader() {
   const notifikasjonerLinkRef = useRef<HTMLAnchorElement>(null);
   const endringsmeldingerLinkRef = useRef<HTMLAnchorElement>(null);
   const logoutLinkRef = useRef<HTMLAnchorElement>(null);
-  const menylenke = "text-blue-600";
+  const menylenke = "text-blue-800";
 
   return (
     <InternalHeader>

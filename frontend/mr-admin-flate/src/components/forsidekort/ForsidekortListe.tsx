@@ -52,7 +52,7 @@ const forsidekortData: ForsideKortProps[] = [
 
 export function ForsidekortListe() {
   return (
-    <div className="flex justify-around  flex-wrap gap-8">
+    <div className="flex flex-wrap gap-8">
       {forsidekortData.map((kort) => (
         <Forsidekort key={kort.navn} {...kort} />
       ))}
