@@ -1,7 +1,5 @@
-@import "tailwindcss/base";
-@import "@navikt/ds-css";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
+@import "tailwindcss";
+@import "@navikt/ds-css" layer(components);
 
 /* Modia appen bruker shadow dom da funker ikke :root så
  * vi dupliserer variablene her og legger de rett på div'en
