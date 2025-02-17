@@ -1,12 +1,12 @@
 [versions]
 common-java-modules = "3.2025.01.14_14.19-79b3041cae56"
-flyway = "11.3.1"
+flyway = "11.3.2"
 hoplite = "2.9.0"
 koin = "4.1.0-Beta5"
 kotest = "5.9.1"
 kotest-testcontainers = "2.0.2"
 kotlin = "2.1.10"
-ktor = "3.0.3"
+ktor = "3.1.0"
 logback = "1.5.16"
 metrics = "4.2.30"
 arrow = "2.0.1"
@@ -41,8 +41,8 @@ dbScheduler = "com.github.kagkarlsson:db-scheduler:15.2.0"
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
-google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.23.0"
-google-cloud-storage = "com.google.cloud:google-cloud-storage:2.48.1"
+google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.23.1"
+google-cloud-storage = "com.google.cloud:google-cloud-storage:2.48.2"
 
 hikaricp = "com.zaxxer:HikariCP:6.2.1"
 
@@ -100,7 +100,7 @@ logback-logstashLogbackEncoder = "net.logstash.logback:logstash-logback-encoder:
 metrics-core = { module = "io.dropwizard.metrics:metrics-core", version.ref = "metrics" }
 metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", version.ref = "metrics" }
 
-micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.14.3"
+micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.14.4"
 
 mockk = "io.mockk:mockk:1.13.16"
 
@@ -118,7 +118,7 @@ postgresql = "org.postgresql:postgresql:42.7.5"
 
 prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
-shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:6.2.0"
+shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:6.3.0"
 
 slack-client = "com.slack.api:slack-api-client:1.45.2"
 
