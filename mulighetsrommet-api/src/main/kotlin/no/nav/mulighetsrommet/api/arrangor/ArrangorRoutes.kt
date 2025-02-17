@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.arrangor
 import arrow.core.Either
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -14,6 +15,10 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorTil
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.responses.*
+import no.nav.mulighetsrommet.brreg.BrregError
+import no.nav.mulighetsrommet.ktor.exception.BadRequest
+import no.nav.mulighetsrommet.ktor.exception.InternalServerError
+import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -119,6 +124,18 @@ fun Route.arrangorRoutes() {
             call.respond(HttpStatusCode.OK)
         }
     }
+
+    route("brreg") {
+        get("sok") {
+            val sok: String by call.request.queryParameters
+            call.respondWithStatusResponse(arrangorService.brregSok(sok))
+        }
+
+        get("{orgnr}/underenheter") {
+            val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+            call.respondWithStatusResponse(arrangorService.brregUnderenheter(orgnr))
+        }
+    }
 }
 
 data class ArrangorFilter(
@@ -180,4 +197,10 @@ data class ArrangorKontaktpersonRequest(
             ),
         )
     }
+}
+
+fun toStatusResponseError(it: BrregError) = when (it) {
+    BrregError.NotFound -> NotFound("not found fra brreg")
+    BrregError.BadRequest -> BadRequest("bad request mot brreg")
+    BrregError.Error -> InternalServerError("brreg internal server error")
 }

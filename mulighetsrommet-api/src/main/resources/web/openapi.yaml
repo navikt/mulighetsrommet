@@ -1575,21 +1575,21 @@ paths:
         500:
           description: Hvis noe gikk galt ved sletting av kontaktperson
 
-  /api/v1/intern/virksomhet/sok:
+  /api/v1/intern/brreg/sok:
     get:
       tags:
-        - Virksomhet
-      operationId: sokBrregVirksomheter
+        - Brreg
+      operationId: sokBrregHovedenhet
       parameters:
         - in: query
           name: sok
           required: true
           schema:
             type: string
-          description: Søkestreng for navn på virksomheter
+          description: Søkestreng for navn på hovedenheter fra brreg
       responses:
         200:
-          description: Liste med virksomheter
+          description: Liste med hovedenheter
           content:
             application/json:
               schema:
@@ -1597,11 +1597,11 @@ paths:
                 items:
                   $ref: "#/components/schemas/BrregVirksomhet"
 
-  /api/v1/intern/virksomhet/{orgnr}/underenheter:
+  /api/v1/intern/brreg/{orgnr}/underenheter:
     get:
       tags:
-        - Virksomhet
-      operationId: getBrregVirksomhetUnderenheter
+        - Brreg
+      operationId: getBrregUnderenheter
       parameters:
         - in: path
           name: orgnr

@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.routes
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.arenaadapter.arenaAdapterRoutes
 import no.nav.mulighetsrommet.api.arrangor.arrangorRoutes
-import no.nav.mulighetsrommet.api.arrangor.brregVirksomhetRoutes
 import no.nav.mulighetsrommet.api.arrangorflate.arrangorflateRoutes
 import no.nav.mulighetsrommet.api.avtale.avtaleRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.gjennomforingRoutes
@@ -64,7 +63,6 @@ fun Route.adminflateRoutes() {
     avtaleRoutes()
     navAnsattRoutes()
     arrangorRoutes()
-    brregVirksomhetRoutes()
     notificationRoutes()
     janzzRoutes()
     tilsagnRoutes()
