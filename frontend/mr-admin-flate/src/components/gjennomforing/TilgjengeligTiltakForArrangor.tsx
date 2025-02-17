@@ -25,7 +25,7 @@ export type InferredEditTilgjengeligForArrangorSchema = z.infer<
 export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
   const modalRef = useRef<HTMLDialogElement>(null);
 
-  const form = useForm<Partial<InferredEditTilgjengeligForArrangorSchema>>({
+  const form = useForm<InferredEditTilgjengeligForArrangorSchema>({
     resolver: zodResolver(EditTilgjengeligForArrangorSchema),
     defaultValues: {
       tilgjengeligForArrangorFraOgMedDato:
