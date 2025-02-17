@@ -6,5 +6,4 @@ export default {
     extend: {},
   },
   plugins: [require("@tailwindcss/typography")],
-  presets: [require("@navikt/ds-tailwind")],
 } satisfies Config;

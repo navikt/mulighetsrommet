@@ -2,6 +2,7 @@ import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import terser from "@rollup/plugin-terser";
 import tsconfigPaths from "vite-tsconfig-paths";
+import tailwindcss from "@tailwindcss/vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -10,7 +11,7 @@ export default defineConfig({
     host: "127.0.0.1",
     open: true,
   },
-  plugins: [tsconfigPaths(), react(), terser()],
+  plugins: [tsconfigPaths(), react(), terser(), tailwindcss()],
   base: process.env.VITE_BASE || "/",
   resolve: {
     dedupe: await dedupeDependencies("@mr/frontend-common"),

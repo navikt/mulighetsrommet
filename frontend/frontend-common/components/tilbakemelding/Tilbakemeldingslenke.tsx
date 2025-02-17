@@ -1,4 +1,3 @@
-import "@navikt/ds-css";
 import { BodyShort, GuidePanel, Heading } from "@navikt/ds-react";
 import { Lenke } from "../lenke/Lenke";
 
