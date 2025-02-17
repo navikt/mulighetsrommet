@@ -298,8 +298,8 @@ importers:
   frontend/frontend-common:
     dependencies:
       '@hookform/resolvers':
-        specifier: 3.10.0
-        version: 3.10.0(react-hook-form@7.54.2(react@18.3.1))
+        specifier: 4.1.0
+        version: 4.1.0(react-hook-form@7.54.2(react@18.3.1))
       '@mr/api-client-v2':
         specifier: workspace:*
         version: link:../api-client-v2
@@ -362,8 +362,8 @@ importers:
         specifier: 1.13.3
         version: 1.13.3
       '@hookform/resolvers':
-        specifier: 3.10.0
-        version: 3.10.0(react-hook-form@7.54.2(react@18.3.1))
+        specifier: 4.1.0
+        version: 4.1.0(react-hook-form@7.54.2(react@18.3.1))
       '@mr/api-client-v2':
         specifier: workspace:*
         version: link:../api-client-v2
@@ -2288,8 +2288,8 @@ packages:
     peerDependencies:
       typescript: ^5.x
 
-  '@hookform/resolvers@3.10.0':
-    resolution: {integrity: sha512-79Dv+3mDF7i+2ajj7SkypSKHhl1cbln1OGavqrsF7p6mbUv11xpqpacPsGDCTRvCSjEEIez2ef1NveSVL3b0Ag==}
+  '@hookform/resolvers@4.1.0':
+    resolution: {integrity: sha512-fX/uHKb+OOCpACLc6enuTQsf0ZpRrKbeBBPETg5PCPLCIYV6osP2Bw6ezuclM61lH+wBF9eXcuC0+BFh9XOEnQ==}
     peerDependencies:
       react-hook-form: ^7.0.0
 
@@ -2436,9 +2436,6 @@ packages:
     peerDependencies:
       '@types/react': '>=17.0.30'
       react: '>=17.0.0 || >19.0.0-rc'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
 
   '@navikt/ds-tailwind@7.13.0':
     resolution: {integrity: sha512-5tT5FCkzotwZkmMbisL0qCjYGUy3Vz0Tw1fkxYPj42xxgT1K0gINPUfK3j5YrMX+tN7bzjQN9b8ywLh0VZ1yxg==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.13.0/bcaed338844416c299db88e9971e5a827aa44867}
@@ -2454,9 +2451,6 @@ packages:
       html-react-parser: '>=5.x'
       jsdom: '>=16.x'
       react: '>=17.x'
-    peerDependenciesMeta:
-      react:
-        optional: true
 
   '@navikt/oasis@3.7.0':
     resolution: {integrity: sha512-Arf3/k0ZDUsmT7gKOkVvEDYyAegFUznc0TQ1OlzV0O6wJ2qbmSnBHe6lea0J5zxRud+OZ6rgYj0ujsGrIiPPBQ==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/3.7.0/751fcd04f8bd873590fc8ad516f906012caaf9ef}
@@ -4436,8 +4430,8 @@ packages:
   caniuse-lite@1.0.30001690:
     resolution: {integrity: sha512-5ExiE3qQN6oF8Clf8ifIDcMRCRE/dMGcETG/XGMD8/XiXm6HXQgQTh1yZYLXXpSOsEUlJm1Xr7kGULZTuGtP/w==}
 
-  caniuse-lite@1.0.30001696:
-    resolution: {integrity: sha512-pDCPkvzfa39ehJtJ+OwGT/2yvT2SbjfHhiIW2LWOAcMQ7BzwxT/XuyUp4OTOd0XFWA6BKw0JalnBHgSi5DGJBQ==}
+  caniuse-lite@1.0.30001700:
+    resolution: {integrity: sha512-2S6XIXwaE7K7erT8dY+kLQcpa5ms63XlRkMkReXjle+kf6c5g38vyMl+Z5y8dSxOFDhcFe+nxnn261PLxBSQsQ==}
 
   ccount@2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
@@ -11178,8 +11172,9 @@ snapshots:
     transitivePeerDependencies:
       - magicast
 
-  '@hookform/resolvers@3.10.0(react-hook-form@7.54.2(react@18.3.1))':
+  '@hookform/resolvers@4.1.0(react-hook-form@7.54.2(react@18.3.1))':
     dependencies:
+      caniuse-lite: 1.0.30001700
       react-hook-form: 7.54.2(react@18.3.1)
 
   '@humanfs/core@0.19.1': {}
@@ -11361,12 +11356,11 @@ snapshots:
       '@floating-ui/react-dom': 2.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@navikt/aksel-icons': 7.13.0
       '@navikt/ds-tokens': 7.13.0
+      '@types/react': 18.3.12
       clsx: 2.1.1
       date-fns: 3.6.0
       react: 18.3.1
       react-day-picker: 8.10.1(date-fns@3.6.0)(react@18.3.1)
-    optionalDependencies:
-      '@types/react': 18.3.12
     transitivePeerDependencies:
       - react-dom
 
@@ -11376,12 +11370,11 @@ snapshots:
       '@floating-ui/react-dom': 2.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@navikt/aksel-icons': 7.13.0
       '@navikt/ds-tokens': 7.13.0
+      '@types/react': 18.3.13
       clsx: 2.1.1
       date-fns: 3.6.0
       react: 18.3.1
       react-day-picker: 8.10.1(date-fns@3.6.0)(react@18.3.1)
-    optionalDependencies:
-      '@types/react': 18.3.13
     transitivePeerDependencies:
       - react-dom
 
@@ -11395,7 +11388,6 @@ snapshots:
       html-react-parser: 5.2.2(@types/react@18.3.12)(react@18.3.1)
       js-cookie: 3.0.5
       jsdom: 26.0.0
-    optionalDependencies:
       react: 18.3.1
 
   '@navikt/oasis@3.7.0':
@@ -11596,16 +11588,16 @@ snapshots:
 
   '@popperjs/core@2.11.8': {}
 
-  '@portabletext/block-tools@1.1.7(@sanity/types@3.75.1(@types/react@18.3.12)(debug@4.4.0))(@types/react@18.3.12)':
+  '@portabletext/block-tools@1.1.7(@sanity/types@3.75.1(@types/react@18.3.12))(@types/react@18.3.12)':
     dependencies:
       '@sanity/types': 3.75.1(@types/react@18.3.12)(debug@4.4.0)
       '@types/react': 18.3.12
       get-random-values-esm: 1.0.2
       lodash: 4.17.21
 
-  '@portabletext/editor@1.33.4(@sanity/schema@3.75.1(@types/react@18.3.12)(debug@4.4.0))(@sanity/types@3.75.1(@types/react@18.3.12)(debug@4.4.0))(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.1)':
+  '@portabletext/editor@1.33.4(@sanity/schema@3.75.1(@types/react@18.3.12))(@sanity/types@3.75.1(@types/react@18.3.12))(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.1)':
     dependencies:
-      '@portabletext/block-tools': 1.1.7(@sanity/types@3.75.1(@types/react@18.3.12)(debug@4.4.0))(@types/react@18.3.12)
+      '@portabletext/block-tools': 1.1.7(@sanity/types@3.75.1(@types/react@18.3.12))(@types/react@18.3.12)
       '@portabletext/patches': 1.1.3
       '@portabletext/to-html': 2.0.14
       '@sanity/schema': 3.75.1(@types/react@18.3.12)(debug@4.4.0)
@@ -12176,7 +12168,7 @@ snapshots:
       - '@types/react'
       - supports-color
 
-  '@sanity/insert-menu@1.1.1(@emotion/is-prop-valid@1.3.0)(@sanity/types@3.75.1(@types/react@18.3.12)(debug@4.4.0))(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
+  '@sanity/insert-menu@1.1.1(@emotion/is-prop-valid@1.3.0)(@sanity/types@3.75.1(@types/react@18.3.12))(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
     dependencies:
       '@sanity/icons': 3.6.0(react@18.3.1)
       '@sanity/types': 3.75.1(@types/react@18.3.12)(debug@4.4.0)
@@ -12284,11 +12276,11 @@ snapshots:
       - debug
       - supports-color
 
-  '@sanity/presentation-comlink@1.0.6(@sanity/client@6.28.0)(@sanity/types@3.75.1(@types/react@18.3.12)(debug@4.4.0))':
+  '@sanity/presentation-comlink@1.0.6(@sanity/client@6.28.0)(@sanity/types@3.75.1(@types/react@18.3.12))':
     dependencies:
       '@sanity/client': 6.28.0(debug@4.4.0)
       '@sanity/comlink': 3.0.1
-      '@sanity/visual-editing-types': 1.0.6(@sanity/client@6.28.0)(@sanity/types@3.75.1(@types/react@18.3.12)(debug@4.4.0))
+      '@sanity/visual-editing-types': 1.0.6(@sanity/client@6.28.0)(@sanity/types@3.75.1(@types/react@18.3.12))
     transitivePeerDependencies:
       - '@sanity/types'
 
@@ -12427,7 +12419,7 @@ snapshots:
       - react-dom
       - react-is
 
-  '@sanity/visual-editing-types@1.0.6(@sanity/client@6.28.0)(@sanity/types@3.75.1(@types/react@18.3.12)(debug@4.4.0))':
+  '@sanity/visual-editing-types@1.0.6(@sanity/client@6.28.0)(@sanity/types@3.75.1(@types/react@18.3.12))':
     dependencies:
       '@sanity/client': 6.28.0(debug@4.4.0)
     optionalDependencies:
@@ -13690,7 +13682,7 @@ snapshots:
 
   browserslist@4.24.4:
     dependencies:
-      caniuse-lite: 1.0.30001696
+      caniuse-lite: 1.0.30001700
       electron-to-chromium: 1.5.90
       node-releases: 2.0.19
       update-browserslist-db: 1.1.2(browserslist@4.24.4)
@@ -13781,7 +13773,7 @@ snapshots:
 
   caniuse-lite@1.0.30001690: {}
 
-  caniuse-lite@1.0.30001696: {}
+  caniuse-lite@1.0.30001700: {}
 
   ccount@2.0.1: {}
 
@@ -17672,8 +17664,8 @@ snapshots:
       '@dnd-kit/sortable': 7.0.2(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       '@dnd-kit/utilities': 3.2.2(react@18.3.1)
       '@juggle/resize-observer': 3.4.0
-      '@portabletext/block-tools': 1.1.7(@sanity/types@3.75.1(@types/react@18.3.12)(debug@4.4.0))(@types/react@18.3.12)
-      '@portabletext/editor': 1.33.4(@sanity/schema@3.75.1(@types/react@18.3.12)(debug@4.4.0))(@sanity/types@3.75.1(@types/react@18.3.12)(debug@4.4.0))(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.1)
+      '@portabletext/block-tools': 1.1.7(@sanity/types@3.75.1(@types/react@18.3.12))(@types/react@18.3.12)
+      '@portabletext/editor': 1.33.4(@sanity/schema@3.75.1(@types/react@18.3.12))(@sanity/types@3.75.1(@types/react@18.3.12))(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rxjs@7.8.1)
       '@portabletext/react': 3.2.1(react@18.3.1)
       '@portabletext/toolkit': 2.0.17
       '@rexxars/react-json-inspector': 9.0.1(react@18.3.1)
@@ -17691,11 +17683,11 @@ snapshots:
       '@sanity/icons': 3.6.0(react@18.3.1)
       '@sanity/image-url': 1.1.0
       '@sanity/import': 3.37.9(@types/react@18.3.12)
-      '@sanity/insert-menu': 1.1.1(@emotion/is-prop-valid@1.3.0)(@sanity/types@3.75.1(@types/react@18.3.12)(debug@4.4.0))(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+      '@sanity/insert-menu': 1.1.1(@emotion/is-prop-valid@1.3.0)(@sanity/types@3.75.1(@types/react@18.3.12))(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@sanity/logos': 2.1.13(@sanity/color@3.0.6)(react@18.3.1)
       '@sanity/migrate': 3.75.1(@types/react@18.3.12)
       '@sanity/mutator': 3.75.1(@types/react@18.3.12)
-      '@sanity/presentation-comlink': 1.0.6(@sanity/client@6.28.0)(@sanity/types@3.75.1(@types/react@18.3.12)(debug@4.4.0))
+      '@sanity/presentation-comlink': 1.0.6(@sanity/client@6.28.0)(@sanity/types@3.75.1(@types/react@18.3.12))
       '@sanity/preview-url-secret': 2.1.4(@sanity/client@6.28.0)
       '@sanity/schema': 3.75.1(@types/react@18.3.12)(debug@4.4.0)
       '@sanity/telemetry': 0.7.9(react@18.3.1)
