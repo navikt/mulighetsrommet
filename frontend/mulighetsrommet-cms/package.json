@@ -16,19 +16,19 @@
   "dependencies": {
     "@navikt/aksel-icons": "7.13.0",
     "@portabletext/react": "3.2.1",
-    "@sanity/client": "6.27.2",
-    "@sanity/ui": "2.12.2",
-    "@sanity/util": "3.74.1",
-    "@sanity/vision": "3.74.1",
+    "@sanity/client": "6.28.0",
+    "@sanity/ui": "2.13.1",
+    "@sanity/util": "3.75.1",
+    "@sanity/vision": "3.75.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-icons": "5.4.0",
     "react-switch": "7.1.0",
-    "sanity": "3.74.1",
+    "sanity": "3.75.1",
     "styled-components": "6.1.15"
   },
   "devDependencies": {
     "@types/react": "18.3.12",
-    "sass-embedded": "1.83.4"
+    "sass-embedded": "1.85.0"
   }
 }
