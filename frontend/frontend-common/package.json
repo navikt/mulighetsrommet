@@ -7,7 +7,7 @@
   "types": "index.tsx",
   "homepage": "https://github.com/navikt/mulighetsrommet#readme",
   "dependencies": {
-    "@hookform/resolvers": "3.10.0",
+    "@hookform/resolvers": "4.1.0",
     "@mr/api-client-v2": "workspace:*",
     "@navikt/aksel-icons": "7.13.0",
     "@navikt/ds-css": "7.13.0",
