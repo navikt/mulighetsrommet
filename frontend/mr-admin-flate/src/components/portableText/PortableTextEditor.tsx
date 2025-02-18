@@ -136,7 +136,7 @@ function PortableTextEditor(props: PortableTextEditorProps, _: ForwardedRef<HTML
                     <LinkButton />
                   </ToolbarComponent>
                   <Editable
-                    className="outline-none min-h-[200px] p-2"
+                    className="outline-none min-h-[200px] p-2 prose"
                     renderElement={renderElement}
                     renderLeaf={renderLeaf}
                     placeholder={placeholder}

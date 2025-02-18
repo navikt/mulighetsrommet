@@ -53,5 +53,9 @@ interface RedaksjoneltinnholdProps {
 }
 
 export function RedaksjoneltInnhold({ value }: RedaksjoneltinnholdProps) {
-  return <PortableText value={value} components={portableTextComponent} />;
+  return (
+    <div className="prose">
+      <PortableText value={value} components={portableTextComponent} />
+    </div>
+  );
 }
