@@ -5,11 +5,12 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
+import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.medStatus
+import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.medStatus
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
-import no.nav.mulighetsrommet.api.utbetaling.BesluttDelutbetalingRequest
-import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.oppgaver.OppgaveType
@@ -53,32 +54,16 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("Skal bare returnere oppgaver for tilsagn til godkjenning og annullering når ansatt har korrekt rolle") {
-            val domain = MulighetsrommetTestDomain(
+            MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(
                     TilsagnFixtures.Tilsagn1,
-                    TilsagnFixtures.Tilsagn2,
-                    TilsagnFixtures.Tilsagn3,
+                    TilsagnFixtures.Tilsagn2.medStatus(TilsagnStatus.TIL_ANNULLERING),
+                    TilsagnFixtures.Tilsagn3.medStatus(TilsagnStatus.ANNULLERT),
                 ),
-            ) {
-                queries.tilsagn.tilAnnullering(
-                    id = TilsagnFixtures.Tilsagn2.id,
-                    navIdent = NavIdent("Z123456"),
-                    tidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0),
-                    aarsaker = emptyList(),
-                    forklaring = null,
-                )
-
-                queries.tilsagn.besluttAnnullering(
-                    id = TilsagnFixtures.Tilsagn2.id,
-                    navIdent = NavIdent("Z123456"),
-                    tidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0),
-                )
-            }
-
-            domain.initialize(database.db)
+            ).initialize(database.db)
 
             val service = OppgaverService(database.db)
             service.tilsagnOppgaver(
@@ -90,29 +75,18 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("Skal bare returnere oppgaver som er returnert til ansatte uten beslutterrolle") {
-            val domain = MulighetsrommetTestDomain(
+            MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(
                     TilsagnFixtures.Tilsagn1,
                     TilsagnFixtures.Tilsagn2,
-                    TilsagnFixtures.Tilsagn3,
+                    TilsagnFixtures.Tilsagn3.medStatus(TilsagnStatus.RETURNERT),
                 ),
-            ) {
-                queries.tilsagn.returner(
-                    id = TilsagnFixtures.Tilsagn3.id,
-                    navIdent = NavIdent("Z123456"),
-                    tidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0),
-                    aarsaker = emptyList(),
-                    forklaring = null,
-                )
-            }
-
-            domain.initialize(database.db)
+            ).initialize(database.db)
 
             val service = OppgaverService(database.db)
-
             service.tilsagnOppgaver(
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
@@ -129,8 +103,8 @@ class OppgaverServiceTest : FunSpec({
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.Oslo),
                 tilsagn = listOf(
                     TilsagnFixtures.Tilsagn1,
-                    TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.Gjovik.enhetsnummer),
-                    TilsagnFixtures.Tilsagn3.copy(kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer),
+                    TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.Gjovik),
+                    TilsagnFixtures.Tilsagn3.copy(kostnadssted = NavEnhetFixtures.Oslo),
                 ),
             ).initialize(database.db)
 
@@ -152,8 +126,8 @@ class OppgaverServiceTest : FunSpec({
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.Oslo),
                 tilsagn = listOf(
                     TilsagnFixtures.Tilsagn1,
-                    TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.Gjovik.enhetsnummer),
-                    TilsagnFixtures.Tilsagn3.copy(kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer),
+                    TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.Gjovik),
+                    TilsagnFixtures.Tilsagn3.copy(kostnadssted = NavEnhetFixtures.Oslo),
                 ),
             ).initialize(database.db)
 
@@ -186,42 +160,14 @@ class OppgaverServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(
                     TilsagnFixtures.Tilsagn1,
-                    TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.TiltakOslo.enhetsnummer),
+                    TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.TiltakOslo),
                 ),
                 utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
                 delutbetalinger = listOf(
-                    DelutbetalingDbo(
-                        tilsagnId = TilsagnFixtures.Tilsagn1.id,
-                        utbetalingId = UtbetalingFixtures.utbetaling1.id,
-                        belop = 100,
-                        periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
-                        lopenummer = 1,
-                        fakturanummer = "2025/1",
-                        opprettetAv = NavAnsattFixture.ansatt1.navIdent,
-                    ),
-                    DelutbetalingDbo(
-                        tilsagnId = TilsagnFixtures.Tilsagn2.id,
-                        utbetalingId = UtbetalingFixtures.utbetaling1.id,
-                        belop = 100,
-                        periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
-                        lopenummer = 1,
-                        fakturanummer = "2025/2",
-                        opprettetAv = NavAnsattFixture.ansatt1.navIdent,
-                    ),
+                    UtbetalingFixtures.delutbetaling1,
+                    UtbetalingFixtures.delutbetaling2.medStatus(UtbetalingFixtures.DelutbetalingStatus.DELUTBETALING_AVVIST),
                 ),
             ).initialize(database.db)
-            database.db.session {
-                queries.delutbetaling.avvis(
-                    UtbetalingFixtures.utbetaling1.id,
-                    navIdent = NavIdent("Z123456"),
-                    request = BesluttDelutbetalingRequest.AvvistDelutbetalingRequest(
-                        tilsagnId = TilsagnFixtures.Tilsagn2.id,
-                        aarsaker = listOf("FEIL_BELOP"),
-                        forklaring = null,
-                    ),
-                )
-            }
-
             var oppgaver = service.delutbetalingOppgaver(
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
@@ -267,8 +213,11 @@ class OppgaverServiceTest : FunSpec({
                     TilsagnFixtures.Tilsagn1,
                     TilsagnFixtures.Tilsagn1.copy(
                         id = UUID.randomUUID(),
-                        gjennomforingId = UtbetalingFixtures.utbetaling3.gjennomforingId,
-                        kostnadssted = NavEnhetFixtures.TiltakOslo.enhetsnummer,
+                        gjennomforing = TilsagnDto.Gjennomforing(
+                            id = UtbetalingFixtures.utbetaling3.gjennomforingId,
+                            tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+                        ),
+                        kostnadssted = NavEnhetFixtures.TiltakOslo,
                         bestillingsnummer = "2025/4",
                     ),
                 ),
@@ -278,15 +227,7 @@ class OppgaverServiceTest : FunSpec({
                     UtbetalingFixtures.utbetaling3,
                 ),
                 delutbetalinger = listOf(
-                    DelutbetalingDbo(
-                        tilsagnId = TilsagnFixtures.Tilsagn1.id,
-                        utbetalingId = UtbetalingFixtures.utbetaling2.id,
-                        belop = 100,
-                        periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
-                        lopenummer = 1,
-                        fakturanummer = "2025/1",
-                        opprettetAv = NavAnsattFixture.ansatt1.navIdent,
-                    ),
+                    UtbetalingFixtures.delutbetaling1.copy(utbetalingId = UtbetalingFixtures.utbetaling2.id),
                 ),
             ).initialize(database.db)
             database.run { queries.utbetaling.setGodkjentAvArrangor(UtbetalingFixtures.utbetaling1.id, LocalDateTime.now()) }

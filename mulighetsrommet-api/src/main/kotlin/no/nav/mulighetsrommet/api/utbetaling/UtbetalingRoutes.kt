@@ -171,6 +171,8 @@ sealed class BesluttDelutbetalingRequest(
 @Serializable
 data class DelutbetalingRequest(
     @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    @Serializable(with = UUIDSerializer::class)
     val tilsagnId: UUID,
     val belop: Int,
 )

@@ -11,6 +11,7 @@ import java.util.*
 
 @Serializable
 sealed class DelutbetalingDto {
+    abstract val id: UUID
     abstract val tilsagnId: UUID
     abstract val utbetalingId: UUID
     abstract val belop: Int
@@ -23,6 +24,8 @@ sealed class DelutbetalingDto {
     @Serializable
     @SerialName("DELUTBETALING_TIL_GODKJENNING")
     data class DelutbetalingTilGodkjenning(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
         @Serializable(with = UUIDSerializer::class)
         override val tilsagnId: UUID,
         @Serializable(with = UUIDSerializer::class)
@@ -39,6 +42,8 @@ sealed class DelutbetalingDto {
     @Serializable
     @SerialName("DELUTBETALING_OVERFORT_TIL_UTBETALING")
     data class DelutbetalingOverfortTilUtbetaling(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
         @Serializable(with = UUIDSerializer::class)
         override val tilsagnId: UUID,
         @Serializable(with = UUIDSerializer::class)
@@ -59,6 +64,8 @@ sealed class DelutbetalingDto {
     @SerialName("DELUTBETALING_UTBETALT")
     data class DelutbetalingUtbetalt(
         @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
+        @Serializable(with = UUIDSerializer::class)
         override val tilsagnId: UUID,
         @Serializable(with = UUIDSerializer::class)
         override val utbetalingId: UUID,
@@ -77,6 +84,8 @@ sealed class DelutbetalingDto {
     @Serializable
     @SerialName("DELUTBETALING_AVVIST")
     data class DelutbetalingAvvist(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
         @Serializable(with = UUIDSerializer::class)
         override val tilsagnId: UUID,
         @Serializable(with = UUIDSerializer::class)

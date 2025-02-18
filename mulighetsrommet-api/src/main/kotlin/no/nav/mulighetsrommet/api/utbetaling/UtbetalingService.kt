@@ -8,7 +8,9 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
+import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
 import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
+import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
@@ -19,6 +21,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class UtbetalingService(
@@ -140,6 +143,7 @@ class UtbetalingService(
 
         val lopenummer = db.session { queries.delutbetaling.getNextLopenummerByTilsagn(tilsagn.id) }
         val dbo = DelutbetalingDbo(
+            id = request.id,
             utbetalingId = utbetaling.id,
             tilsagnId = tilsagn.id,
             periode = periode,
@@ -168,16 +172,24 @@ class UtbetalingService(
 
         when (request) {
             is BesluttDelutbetalingRequest.AvvistDelutbetalingRequest ->
-                queries.delutbetaling.avvis(
-                    utbetalingId = utbetalingId,
+                queries.totrinnskontroll.beslutter(
+                    entityId = delutbetaling.id,
                     navIdent = navIdent,
-                    request = request,
+                    besluttelse = Besluttelse.AVVIST,
+                    type = TotrinnskontrollType.OPPRETT,
+                    aarsaker = request.aarsaker,
+                    forklaring = request.forklaring,
+                    tidspunkt = LocalDateTime.now(),
                 )
             is BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest -> {
-                queries.delutbetaling.godkjenn(
-                    utbetalingId = utbetalingId,
-                    tilsagnId = request.tilsagnId,
+                queries.totrinnskontroll.beslutter(
+                    entityId = delutbetaling.id,
                     navIdent = navIdent,
+                    besluttelse = Besluttelse.GODKJENT,
+                    type = TotrinnskontrollType.OPPRETT,
+                    aarsaker = null,
+                    forklaring = null,
+                    tidspunkt = LocalDateTime.now(),
                 )
                 okonomi.scheduleBehandleGodkjentUtbetaling(utbetalingId, request.tilsagnId, session)
             }

@@ -2,10 +2,12 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
+import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 object UtbetalingFixtures {
@@ -50,4 +52,92 @@ object UtbetalingFixtures {
         kid = null,
         innsender = null,
     )
+
+    val delutbetaling1 = DelutbetalingDto.DelutbetalingTilGodkjenning(
+        id = UUID.randomUUID(),
+        tilsagnId = TilsagnFixtures.Tilsagn1.id,
+        utbetalingId = utbetaling1.id,
+        belop = 200,
+        periode = utbetaling1.periode,
+        lopenummer = 1,
+        fakturanummer = "${TilsagnFixtures.Tilsagn1.bestillingsnummer}/1",
+        opprettetAv = NavAnsattFixture.ansatt1.navIdent,
+        opprettetTidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0, 0),
+    )
+
+    val delutbetaling2 = DelutbetalingDto.DelutbetalingTilGodkjenning(
+        id = UUID.randomUUID(),
+        tilsagnId = TilsagnFixtures.Tilsagn2.id,
+        utbetalingId = utbetaling1.id,
+        belop = 150,
+        periode = utbetaling1.periode,
+        lopenummer = 1,
+        fakturanummer = "${TilsagnFixtures.Tilsagn2.bestillingsnummer}/1",
+        opprettetAv = NavAnsattFixture.ansatt1.navIdent,
+        opprettetTidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0, 0),
+    )
+
+    enum class DelutbetalingStatus {
+        DELUTBETALING_TIL_GODKJENNING,
+        DELUTBETALING_OVERFORT_TIL_UTBETALING,
+        DELUTBETALING_UTBETALT,
+        DELUTBETALING_AVVIST,
+    }
+
+    fun DelutbetalingDto.medStatus(status: DelutbetalingStatus): DelutbetalingDto {
+        return when (status) {
+            DelutbetalingStatus.DELUTBETALING_TIL_GODKJENNING -> DelutbetalingDto.DelutbetalingTilGodkjenning(
+                id,
+                tilsagnId,
+                utbetalingId,
+                belop,
+                periode,
+                lopenummer,
+                fakturanummer,
+                opprettetAv,
+                opprettetTidspunkt,
+            )
+            DelutbetalingStatus.DELUTBETALING_OVERFORT_TIL_UTBETALING -> DelutbetalingDto.DelutbetalingOverfortTilUtbetaling(
+                id,
+                tilsagnId,
+                utbetalingId,
+                belop,
+                periode,
+                lopenummer,
+                fakturanummer,
+                opprettetAv,
+                opprettetTidspunkt,
+                NavAnsattFixture.ansatt2.navIdent,
+                LocalDateTime.now(),
+            )
+            DelutbetalingStatus.DELUTBETALING_UTBETALT -> DelutbetalingDto.DelutbetalingUtbetalt(
+                id,
+                tilsagnId,
+                utbetalingId,
+                belop,
+                periode,
+                lopenummer,
+                fakturanummer,
+                opprettetAv,
+                opprettetTidspunkt,
+                NavAnsattFixture.ansatt2.navIdent,
+                LocalDateTime.now(),
+            )
+            DelutbetalingStatus.DELUTBETALING_AVVIST -> DelutbetalingDto.DelutbetalingAvvist(
+                id,
+                tilsagnId,
+                utbetalingId,
+                belop,
+                periode,
+                lopenummer,
+                fakturanummer,
+                opprettetAv,
+                opprettetTidspunkt,
+                NavAnsattFixture.ansatt2.navIdent,
+                LocalDateTime.now(),
+                aarsaker = listOf("FEIL_BELOP"),
+                forklaring = null,
+            )
+        }
+    }
 }

@@ -403,7 +403,8 @@ class UtbetalingServiceTest : FunSpec({
     context("når utbetaling blir behandlet") {
         test("skal ikke kunne opprette del utbetaling hvis den er godkjent") {
             val tilsagn = TilsagnFixtures.Tilsagn1.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                periodeStart = LocalDate.of(2024, 1, 1),
+                periodeSlutt = LocalDate.of(2024, 1, 31),
                 bestillingsnummer = "2024/1",
             )
 
@@ -421,7 +422,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            val opprettRequest = DelutbetalingRequest(tilsagnId = tilsagn.id, belop = 100)
+            val opprettRequest = DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = tilsagn.id, belop = 100)
             service.upsertDelutbetaling(
                 utbetalingId = utbetaling.id,
                 request = opprettRequest,
@@ -446,7 +447,8 @@ class UtbetalingServiceTest : FunSpec({
 
         test("skal ikke kunne opprette delutbetaling hvis utbetalingsperiode og tilsagnsperiode ikke overlapper") {
             val tilsagn = TilsagnFixtures.Tilsagn1.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                periodeStart = LocalDate.of(2024, 1, 1),
+                periodeSlutt = LocalDate.of(2024, 1, 31),
             )
 
             val utbetaling = UtbetalingFixtures.utbetaling1.copy(
@@ -463,7 +465,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            val request = DelutbetalingRequest(tilsagnId = tilsagn.id, belop = 100)
+            val request = DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = tilsagn.id, belop = 100)
 
             service.upsertDelutbetaling(utbetaling.id, request, domain.ansatte[0].navIdent).shouldBeLeft().shouldContainExactly(
                 listOf(FieldError("/", "Utbetalingsperiode og tilsagnsperiode overlapper ikke")),
@@ -472,10 +474,12 @@ class UtbetalingServiceTest : FunSpec({
 
         test("skal ikke kunne opprette delutbetaling hvis belop er for stort") {
             val tilsagn1 = TilsagnFixtures.Tilsagn1.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                periodeStart = LocalDate.of(2024, 1, 1),
+                periodeSlutt = LocalDate.of(2024, 1, 31),
             )
             val tilsagn2 = TilsagnFixtures.Tilsagn2.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                periodeStart = LocalDate.of(2024, 1, 1),
+                periodeSlutt = LocalDate.of(2024, 1, 31),
             )
 
             val utbetaling = UtbetalingFixtures.utbetaling1.copy(
@@ -497,7 +501,7 @@ class UtbetalingServiceTest : FunSpec({
 
             service.upsertDelutbetaling(
                 utbetaling.id,
-                DelutbetalingRequest(tilsagnId = tilsagn1.id, belop = 100),
+                DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, belop = 100),
                 domain.ansatte[0].navIdent,
             ).shouldBeLeft().shouldContainExactly(
                 listOf(FieldError("/belop", "Kan ikke betale ut mer enn det er krav på")),
@@ -505,14 +509,14 @@ class UtbetalingServiceTest : FunSpec({
 
             service.upsertDelutbetaling(
                 utbetaling.id,
-                DelutbetalingRequest(tilsagnId = tilsagn1.id, belop = 7),
+                DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, belop = 7),
                 domain.ansatte[0].navIdent,
             ).shouldBeRight()
 
             // Siden 7 allerede er utbetalt nå
             service.upsertDelutbetaling(
                 utbetaling.id,
-                DelutbetalingRequest(tilsagnId = tilsagn2.id, belop = 5),
+                DelutbetalingRequest(UUID.randomUUID(), tilsagn2.id, belop = 5),
                 domain.ansatte[0].navIdent,
             ).shouldBeLeft().shouldContainExactly(
                 listOf(FieldError("/belop", "Kan ikke betale ut mer enn det er krav på")),
@@ -521,12 +525,14 @@ class UtbetalingServiceTest : FunSpec({
 
         test("løpenummer, fakturanummer og periode blir utledet fra tilsagnet og utbetalingen") {
             val tilsagn1 = TilsagnFixtures.Tilsagn2.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                periodeStart = LocalDate.of(2024, 1, 1),
+                periodeSlutt = LocalDate.of(2024, 1, 31),
                 bestillingsnummer = "2024/1",
             )
 
             val tilsagn2 = TilsagnFixtures.Tilsagn1.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                periodeStart = LocalDate.of(2024, 1, 1),
+                periodeSlutt = LocalDate.of(2024, 1, 31),
                 bestillingsnummer = "2024/2",
             )
 
@@ -550,18 +556,18 @@ class UtbetalingServiceTest : FunSpec({
 
             service.upsertDelutbetaling(
                 utbetaling1.id,
-                DelutbetalingRequest(tilsagnId = tilsagn1.id, belop = 50),
+                DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = tilsagn1.id, belop = 50),
                 domain.ansatte[0].navIdent,
             )
             service.upsertDelutbetaling(
                 utbetaling1.id,
-                DelutbetalingRequest(tilsagnId = tilsagn2.id, belop = 50),
+                DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = tilsagn2.id, belop = 50),
                 domain.ansatte[0].navIdent,
             )
 
             service.upsertDelutbetaling(
                 utbetaling2.id,
-                DelutbetalingRequest(tilsagnId = tilsagn1.id, belop = 100),
+                DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = tilsagn1.id, belop = 100),
                 domain.ansatte[0].navIdent,
             )
 

@@ -15,7 +15,7 @@ object TilsagnValidator {
         next: TilsagnDbo,
         previous: TilsagnDto?,
     ): Either<List<FieldError>, TilsagnDbo> = either {
-        if (previous != null && previous.status !is TilsagnDto.TilsagnStatus.Returnert) {
+        if (previous != null && previous.status !is TilsagnDto.TilsagnStatusDto.Returnert) {
             return FieldError
                 .of(TilsagnDto::id, "Tilsagnet kan ikke endres.")
                 .nel()

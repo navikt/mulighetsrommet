@@ -3,9 +3,9 @@ package no.nav.mulighetsrommet.oppgaver
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatus.Returnert
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatus.TilAnnullering
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatus.TilGodkjenning
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatusDto.Returnert
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatusDto.TilAnnullering
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatusDto.TilGodkjenning
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
@@ -79,16 +79,19 @@ class OppgaverService(val db: ApiDatabase) {
         roller: Set<NavAnsattRolle>,
     ): List<Oppgave> {
         return db.session {
-            queries.delutbetaling
+            val g = queries.delutbetaling
                 .getOppgaveData(
                     kostnadssteder = kostnadssteder.ifEmpty { null },
                     tiltakskoder = tiltakskoder.ifEmpty { null },
                 )
+            val h = g
                 .mapNotNull { data ->
                     data.delutbetaling.toOppgave(data.tiltakskode, data.gjennomforingId)
                 }
+            val y = h
                 .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
                 .filter { it.type.rolle in roller }
+            y
         }
     }
 
@@ -135,7 +138,7 @@ class OppgaverService(val db: ApiDatabase) {
                 linkText = "Se tilsagn",
                 link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
             ),
-            createdAt = status.endretTidspunkt,
+            createdAt = status.opprettelse.behandletTidspunkt,
             deadline = periodeStart.atStartOfDay(),
         )
         is Returnert -> Oppgave(
@@ -147,7 +150,7 @@ class OppgaverService(val db: ApiDatabase) {
                 linkText = "Se tilsagn",
                 link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
             ),
-            createdAt = status.endretTidspunkt,
+            createdAt = status.opprettelse.besluttetTidspunkt,
             deadline = periodeStart.atStartOfDay(),
         )
         is TilAnnullering -> Oppgave(
@@ -159,10 +162,10 @@ class OppgaverService(val db: ApiDatabase) {
                 linkText = "Se tilsagn",
                 link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
             ),
-            createdAt = status.endretTidspunkt,
+            createdAt = status.annullering.behandletTidspunkt,
             deadline = periodeStart.atStartOfDay(),
         )
-        is TilsagnDto.TilsagnStatus.Annullert, TilsagnDto.TilsagnStatus.Godkjent -> null
+        is TilsagnDto.TilsagnStatusDto.Annullert, is TilsagnDto.TilsagnStatusDto.Godkjent -> null
     }
 
     private fun DelutbetalingDto.toOppgave(

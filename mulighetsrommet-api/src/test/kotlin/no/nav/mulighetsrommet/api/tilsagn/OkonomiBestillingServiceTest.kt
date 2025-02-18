@@ -13,7 +13,8 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
-import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
+import no.nav.mulighetsrommet.api.utbetaling.BesluttDelutbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -59,7 +60,8 @@ class OkonomiBestillingServiceTest : FunSpec({
     context("skedulering av oppgaver for økonomi") {
         val tilsagn = TilsagnFixtures.Tilsagn1.copy(
             bestillingsnummer = "2025",
-            periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 7, 1)),
+            periodeStart = LocalDate.of(2025, 1, 1),
+            periodeSlutt = LocalDate.of(2025, 6, 30),
             beregning = TilsagnBeregningFri(
                 input = TilsagnBeregningFri.Input(1000),
                 output = TilsagnBeregningFri.Output(1000),
@@ -74,16 +76,6 @@ class OkonomiBestillingServiceTest : FunSpec({
             ),
         )
 
-        val delutbetaling = DelutbetalingDbo(
-            tilsagnId = tilsagn.id,
-            utbetalingId = utbetaling.id,
-            belop = 100,
-            periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
-            lopenummer = 1,
-            fakturanummer = "2025/1",
-            opprettetAv = NavAnsattFixture.ansatt1.navIdent,
-        )
-
         MulighetsrommetTestDomain(
             ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
             arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
@@ -91,7 +83,7 @@ class OkonomiBestillingServiceTest : FunSpec({
             gjennomforinger = listOf(AFT1),
             tilsagn = listOf(tilsagn),
             utbetalinger = listOf(utbetaling),
-            delutbetalinger = listOf(delutbetaling),
+            delutbetalinger = listOf(UtbetalingFixtures.delutbetaling1),
         ).initialize(database.db)
 
         test("godkjent tilsagn blir omsider sendt som bestilling på kafka") {
@@ -154,7 +146,12 @@ class OkonomiBestillingServiceTest : FunSpec({
 
         test("godkjent utbetaling blir omsider sendt som faktura på kafka") {
             database.run {
-                queries.delutbetaling.godkjenn(utbetaling.id, tilsagn.id, NavAnsattFixture.ansatt2.navIdent)
+                val utbetalingService = UtbetalingService(database.db, mockk(relaxed = true))
+                utbetalingService.besluttDelutbetaling(
+                    request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(tilsagnId = tilsagn.id),
+                    utbetalingId = utbetaling.id,
+                    navIdent = NavAnsattFixture.ansatt2.navIdent,
+                )
                 service.scheduleBehandleGodkjentUtbetaling(utbetaling.id, tilsagn.id, session)
             }
 
@@ -171,9 +168,9 @@ class OkonomiBestillingServiceTest : FunSpec({
                                 .payload
 
                             faktura.bestillingsnummer shouldBe tilsagn.bestillingsnummer
-                            faktura.fakturanummer shouldBe delutbetaling.fakturanummer
-                            faktura.periode shouldBe delutbetaling.periode
-                            faktura.belop shouldBe delutbetaling.belop
+                            faktura.fakturanummer shouldBe UtbetalingFixtures.delutbetaling1.fakturanummer
+                            faktura.periode shouldBe UtbetalingFixtures.delutbetaling1.periode
+                            faktura.belop shouldBe UtbetalingFixtures.delutbetaling1.belop
                             faktura.opprettetAv shouldBe OkonomiPart.NavAnsatt(NavAnsattFixture.ansatt1.navIdent)
                             faktura.besluttetAv shouldBe OkonomiPart.NavAnsatt(NavAnsattFixture.ansatt2.navIdent)
 

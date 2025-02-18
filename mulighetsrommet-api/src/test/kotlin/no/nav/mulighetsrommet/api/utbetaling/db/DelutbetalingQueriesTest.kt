@@ -33,6 +33,7 @@ class DelutbetalingQueriesTest : FunSpec({
             val queries = DelutbetalingQueries(session)
 
             val delutbetaling = DelutbetalingDbo(
+                id = UUID.randomUUID(),
                 tilsagnId = tilsagn.id,
                 utbetalingId = utbetaling.id,
                 belop = 100,
