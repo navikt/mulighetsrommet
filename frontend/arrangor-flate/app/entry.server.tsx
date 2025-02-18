@@ -15,7 +15,7 @@ import { createReadableStreamFromReadable } from "@react-router/node";
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import { initializeMockServer } from "./mocks/node";
-import { client } from "@mr/api-client-v2/client";
+import { client } from "@mr/api-client-v2";
 import logger from "../server/logger.js";
 
 export const streamTimeout = 5000;

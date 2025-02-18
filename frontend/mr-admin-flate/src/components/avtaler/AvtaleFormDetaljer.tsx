@@ -42,7 +42,6 @@ interface Props {
 
 export function AvtaleFormDetaljer({ tiltakstyper, ansatt, enheter, avtale }: Props) {
   const { data: administratorer } = useAvtaleAdministratorer();
-  console.log(tiltakstyper);
 
   const {
     register,

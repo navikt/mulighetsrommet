@@ -10,11 +10,12 @@ import { Alert, Box, Heading } from "@navikt/ds-react";
 import { useLoaderData, useLocation, useNavigate } from "react-router";
 import { gjennomforingFormLoader } from "./gjennomforingLoaders";
 import { ContentBox } from "@/layouts/ContentBox";
-
+import { LoaderData } from "../../types/loader";
 export function GjennomforingFormPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { gjennomforing, avtale, ansatt } = useLoaderData<typeof gjennomforingFormLoader>();
+  const { gjennomforing, avtale, ansatt } =
+    useLoaderData<LoaderData<typeof gjennomforingFormLoader>>();
 
   const redigeringsModus = gjennomforing && inneholderUrl(gjennomforing?.id);
 

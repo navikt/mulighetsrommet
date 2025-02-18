@@ -5,7 +5,7 @@ export default defineConfig({
   output: "./build",
   plugins: [
     "@hey-api/schemas",
-    "@hey-api/client-fetch",
+    { name: "@hey-api/client-fetch", exportFromIndex: true, throwOnError: true },
     {
       name: "@hey-api/sdk",
       asClass: true,

@@ -25,7 +25,6 @@
     "baseUrl": ".",
     "paths": {
       "~/*": ["./app/*"],
-      "@mr/api-client-v2/client": ["../api-client-v2/build/client.gen"],
     },
 
     // Vite takes care of building everything, not tsc.
