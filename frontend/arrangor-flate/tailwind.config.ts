@@ -5,6 +5,6 @@ export default {
   theme: {
     extend: {},
   },
-  plugins: [require("@tailwindcss/typography")],
-  presets: [require("@navikt/ds-tailwind")],
+  plugins: [],
+  presets: [],
 } satisfies Config;
