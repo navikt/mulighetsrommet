@@ -90,7 +90,7 @@ export function AvtaleDetaljer() {
         </Heading>
 
         {avtale?.opsjonsmodellData?.opsjonsmodell &&
-          avtale.avtaletype !== Avtaletype.FORHAANDSGODKJENT ? (
+        avtale.avtaletype !== Avtaletype.FORHAANDSGODKJENT ? (
           <>
             <Bolk aria-label="Opsjonsmodell">
               <Metadata
