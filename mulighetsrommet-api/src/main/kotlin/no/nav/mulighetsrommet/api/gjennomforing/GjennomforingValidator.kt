@@ -112,9 +112,10 @@ class GjennomforingValidator(
                 }
             }
 
-            val avtaleHasArrangor = avtale.arrangor.underenheter.any {
+            val avtaleHasArrangor = avtale.arrangor?.underenheter?.any {
                 it.id == next.arrangorId
-            }
+            } ?: false
+
             if (!avtaleHasArrangor) {
                 add(FieldError.of(GjennomforingDbo::arrangorId, "Du må velge en arrangør for avtalen"))
             }
@@ -163,7 +164,8 @@ class GjennomforingValidator(
                         ),
                     )
                 } else {
-                    val avtalensUtdanninger = avtale.utdanningslop.utdanninger.map { it.id }
+                    val avtalensUtdanninger = avtale.utdanningslop?.utdanninger?.map { it.id } ?: emptyList()
+
                     if (!avtalensUtdanninger.containsAll(utdanningslop.utdanninger)) {
                         add(
                             FieldError.of(

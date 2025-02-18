@@ -44,7 +44,7 @@ export function defaultAvtaleData(
     administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
     navn: avtale?.navn ?? "",
     avtaletype: avtale?.avtaletype,
-    arrangorOrganisasjonsnummer: avtale?.arrangor?.organisasjonsnummer ?? "",
+    arrangorHovedenhet: avtale?.arrangor?.organisasjonsnummer ?? "",
     arrangorUnderenheter: !avtale?.arrangor?.underenheter
       ? []
       : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
