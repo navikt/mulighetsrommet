@@ -8,8 +8,11 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.*
-import no.nav.mulighetsrommet.database.createEnumArray
+import no.nav.mulighetsrommet.api.totrinnskontroll.db.ToTrinnskontrollQueries
+import no.nav.mulighetsrommet.api.totrinnskontroll.db.ToTrinnskontrollType
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.ToTrinnskontroll
 import no.nav.mulighetsrommet.database.requireSingle
+import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
@@ -19,7 +22,15 @@ import java.time.LocalDateTime
 import java.util.*
 
 class TilsagnQueries(private val session: Session) {
-    fun upsert(dbo: TilsagnDbo) {
+    fun upsert(dbo: TilsagnDbo) = withTransaction(session) {
+        ToTrinnskontrollQueries(this).opprett(
+            entityId = dbo.id,
+            opprettetAv = dbo.endretAv,
+            aarsaker = emptyList(),
+            forklaring = null,
+            type = ToTrinnskontrollType.OPPRETT,
+        )
+
         @Language("PostgreSQL")
         val query = """
             insert into tilsagn (
@@ -31,8 +42,6 @@ class TilsagnQueries(private val session: Session) {
                 kostnadssted,
                 arrangor_id,
                 beregning,
-                status_endret_av,
-                status_endret_tidspunkt,
                 status,
                 type
             ) values (
@@ -44,8 +53,6 @@ class TilsagnQueries(private val session: Session) {
                 :kostnadssted,
                 :arrangor_id::uuid,
                 :beregning::jsonb,
-                :status_endret_av,
-                :status_endret_tidspunkt,
                 'TIL_GODKJENNING'::tilsagn_status,
                 :type::tilsagn_type
             )
@@ -57,8 +64,6 @@ class TilsagnQueries(private val session: Session) {
                 kostnadssted            = excluded.kostnadssted,
                 arrangor_id             = excluded.arrangor_id,
                 beregning               = excluded.beregning,
-                status_endret_av        = excluded.status_endret_av,
-                status_endret_tidspunkt = excluded.status_endret_tidspunkt,
                 status                  = excluded.status,
                 type                    = excluded.type
         """.trimIndent()
@@ -73,12 +78,10 @@ class TilsagnQueries(private val session: Session) {
             "kostnadssted" to dbo.kostnadssted,
             "arrangor_id" to dbo.arrangorId,
             "beregning" to Json.encodeToString<TilsagnBeregning>(dbo.beregning),
-            "status_endret_av" to dbo.endretAv.value,
-            "status_endret_tidspunkt" to dbo.endretTidspunkt,
             "type" to dbo.type.name,
         )
 
-        session.execute(queryOf(query, params))
+        execute(queryOf(query, params))
     }
 
     fun getNextLopenummeByGjennomforing(gjennomforingId: UUID): Int {
@@ -198,27 +201,25 @@ class TilsagnQueries(private val session: Session) {
         session.execute(queryOf(query, id))
     }
 
-    fun besluttGodkjennelse(
+    fun godkjenn(
         id: UUID,
         navIdent: NavIdent,
-        tidspunkt: LocalDateTime,
-    ) {
-        @Language("PostgreSQL")
-        val query = """
-            update tilsagn set
-                status_besluttet_av = :nav_ident,
-                status_endret_tidspunkt = :tidspunkt,
-                status = 'GODKJENT'::tilsagn_status
-            where id = :id::uuid
-        """.trimIndent()
-
-        val params = mapOf(
-            "id" to id,
-            "nav_ident" to navIdent.value,
-            "tidspunkt" to tidspunkt,
+    ) = withTransaction(session) {
+        ToTrinnskontrollQueries(this).beslutt(
+            entityId = id,
+            besluttetAv = navIdent,
+            besluttelse = Besluttelse.GODKJENT,
+            aarsaker = null,
+            forklaring = null,
+            type = ToTrinnskontrollType.OPPRETT,
         )
 
-        session.execute(queryOf(query, params))
+        @Language("PostgreSQL")
+        val query = """
+            update tilsagn set status = 'GODKJENT'::tilsagn_status where id = :id::uuid
+        """.trimIndent()
+
+        execute(queryOf(query, mapOf("id" to id)))
     }
 
     fun returner(
@@ -227,120 +228,102 @@ class TilsagnQueries(private val session: Session) {
         tidspunkt: LocalDateTime,
         aarsaker: List<TilsagnStatusAarsak>,
         forklaring: String?,
-    ) {
+    ) = withTransaction(session) {
+        ToTrinnskontrollQueries(this).beslutt(
+            entityId = id,
+            besluttetAv = navIdent,
+            besluttelse = Besluttelse.AVVIST,
+            aarsaker = aarsaker.map { it.name },
+            forklaring = forklaring,
+            type = ToTrinnskontrollType.OPPRETT,
+        )
+
         @Language("PostgreSQL")
         val query = """
             update tilsagn set
-                status_besluttet_av = :nav_ident,
-                status_endret_tidspunkt = :tidspunkt,
-                status_aarsaker = :status_aarsaker,
-                status_forklaring = :status_forklaring,
                 status = 'RETURNERT'::tilsagn_status
             where id = :id::uuid
         """.trimIndent()
 
-        val params = mapOf(
-            "id" to id,
-            "nav_ident" to navIdent.value,
-            "tidspunkt" to tidspunkt,
-            "status_aarsaker" to session.createEnumArray("tilsagn_status_aarsak", aarsaker),
-            "status_forklaring" to forklaring,
-        )
-
-        session.execute(queryOf(query, params))
+        execute(queryOf(query, mapOf("id" to id)))
     }
 
     fun tilAnnullering(
         id: UUID,
         navIdent: NavIdent,
-        tidspunkt: LocalDateTime,
         aarsaker: List<TilsagnStatusAarsak>,
         forklaring: String?,
-    ) {
+    ) = withTransaction(session) {
+        ToTrinnskontrollQueries(this).opprett(
+            entityId = id,
+            opprettetAv = navIdent,
+            aarsaker = aarsaker.map { it.name },
+            forklaring = forklaring,
+            type = ToTrinnskontrollType.ANNULLER,
+        )
+
         @Language("PostgreSQL")
         val query = """
             update tilsagn set
-                status_endret_av = :nav_ident,
-                status_besluttet_av = null,
-                status_endret_tidspunkt = :tidspunkt,
-                status_aarsaker = :status_aarsaker::tilsagn_status_aarsak[],
-                status_forklaring = :status_forklaring,
                 status = 'TIL_ANNULLERING'::tilsagn_status
             where id = :id::uuid
         """.trimIndent()
 
-        val params = mapOf(
-            "id" to id,
-            "nav_ident" to navIdent.value,
-            "tidspunkt" to tidspunkt,
-            "status_aarsaker" to session.createEnumArray("tilsagn_status_aarsak", aarsaker),
-            "status_forklaring" to forklaring,
-        )
-
-        session.execute(queryOf(query, params))
+        execute(queryOf(query, mapOf("id" to id)))
     }
 
-    fun besluttAnnullering(
-        id: UUID,
-        navIdent: NavIdent,
-        tidspunkt: LocalDateTime,
-    ) {
+    fun godkjennAnnullering(id: UUID, navIdent: NavIdent) = withTransaction(session) {
+        ToTrinnskontrollQueries(this).beslutt(
+            entityId = id,
+            besluttetAv = navIdent,
+            besluttelse = Besluttelse.GODKJENT,
+            aarsaker = null,
+            forklaring = null,
+            type = ToTrinnskontrollType.ANNULLER,
+        )
+
         @Language("PostgreSQL")
         val query = """
             update tilsagn set
-                status_besluttet_av = :nav_ident,
-                status_endret_tidspunkt = :tidspunkt,
                 status = 'ANNULLERT'::tilsagn_status
             where id = :id::uuid
         """.trimIndent()
 
-        val params = mapOf(
-            "id" to id,
-            "nav_ident" to navIdent.value,
-            "tidspunkt" to tidspunkt,
-        )
-
-        session.execute(queryOf(query, params))
+        session.execute(queryOf(query, mapOf("id" to id)))
     }
 
     fun avbrytAnnullering(
         id: UUID,
         navIdent: NavIdent,
-        tidspunkt: LocalDateTime,
-    ) {
+    ) = withTransaction(session) {
+        ToTrinnskontrollQueries(this).beslutt(
+            entityId = id,
+            besluttetAv = navIdent,
+            besluttelse = Besluttelse.AVVIST,
+            aarsaker = null,
+            forklaring = null,
+            type = ToTrinnskontrollType.ANNULLER,
+        )
+
         @Language("PostgreSQL")
         val query = """
             update tilsagn set
-                status_endret_av = :nav_ident,
-                status_endret_tidspunkt = :tidspunkt,
                 status = 'GODKJENT'::tilsagn_status
             where id = :id::uuid
         """.trimIndent()
 
-        val params = mapOf(
-            "id" to id,
-            "nav_ident" to navIdent.value,
-            "tidspunkt" to tidspunkt,
-        )
-
-        session.execute(queryOf(query, params))
+        session.execute(queryOf(query, mapOf("id" to id)))
     }
 
     private fun Row.toTilsagnDto(): TilsagnDto {
-        val aarsaker = arrayOrNull<String>("status_aarsaker")
-            ?.toList()
-            ?.map { TilsagnStatusAarsak.valueOf(it) } ?: emptyList()
-        val forklaring = stringOrNull("status_forklaring")
+        val id = uuid("id")
+        val opprettelse = ToTrinnskontrollQueries(session).get(id, ToTrinnskontrollType.OPPRETT)
+        val annullering = ToTrinnskontrollQueries(session).get(id, ToTrinnskontrollType.ANNULLER)
+        requireNotNull(opprettelse)
 
         val status = toTilsagnStatus(
-            status = TilsagnStatus.valueOf(string("status")),
-            endretAv = NavIdent(string("status_endret_av")),
-            endretTidspunkt = localDateTime("status_endret_tidspunkt"),
-            besluttetAv = stringOrNull("status_besluttet_av")?.let { NavIdent(it) },
-            aarsaker = aarsaker,
-            forklaring = forklaring,
-            besluttetAvNavn = stringOrNull("beslutter_navn"),
-            endretAvNavn = string("endret_av_navn"),
+            opprettelse = opprettelse,
+            annullering = annullering,
         )
 
         return TilsagnDto(
@@ -373,9 +356,11 @@ class TilsagnQueries(private val session: Session) {
     }
 
     private fun Row.toArrangorflateTilsagn(): ArrangorflateTilsagn {
-        val aarsaker = arrayOrNull<String>("status_aarsaker")
-            ?.toList()
+        val id = uuid("id")
+        val aarsaker = ToTrinnskontrollQueries(session).get(id, ToTrinnskontrollType.ANNULLER)
+            ?.aarsaker
             ?.map { TilsagnStatusAarsak.valueOf(it) } ?: emptyList()
+
         return ArrangorflateTilsagn(
             id = uuid("id"),
             gjennomforing = ArrangorflateTilsagn.Gjennomforing(
@@ -402,51 +387,41 @@ class TilsagnQueries(private val session: Session) {
 }
 
 private fun toTilsagnStatus(
-    status: TilsagnStatus,
-    endretAv: NavIdent,
-    endretAvNavn: String,
-    besluttetAv: NavIdent?,
-    besluttetAvNavn: String?,
-    endretTidspunkt: LocalDateTime,
-    aarsaker: List<TilsagnStatusAarsak>,
-    forklaring: String?,
-): TilsagnDto.TilsagnStatus = when (status) {
-    TilsagnStatus.TIL_GODKJENNING -> TilsagnDto.TilsagnStatus.TilGodkjenning(
-        endretAv = endretAv,
-        endretTidspunkt = endretTidspunkt,
-    )
+    opprettelse: ToTrinnskontroll,
+    annullering: ToTrinnskontroll?,
+): TilsagnDto.TilsagnStatus {
+    if (annullering != null) {
+        require(opprettelse is ToTrinnskontroll.Besluttet)
+        return when (annullering) {
+            is ToTrinnskontroll.Ubesluttet -> TilsagnDto.TilsagnStatus.TilAnnullering(
+                opprettelse = opprettelse,
+                annullering = annullering,
+            )
 
-    TilsagnStatus.GODKJENT -> TilsagnDto.TilsagnStatus.Godkjent
+            is ToTrinnskontroll.Besluttet -> when (annullering.besluttelse) {
+                Besluttelse.GODKJENT -> TilsagnDto.TilsagnStatus.Annullert(
+                    opprettelse = opprettelse,
+                    annullering = annullering,
+                )
 
-    TilsagnStatus.RETURNERT -> {
-        requireNotNull(besluttetAv)
-        requireNotNull(besluttetAvNavn)
-        TilsagnDto.TilsagnStatus.Returnert(
-            endretAv = endretAv,
-            endretTidspunkt = endretTidspunkt,
-            returnertAv = besluttetAv,
-            returnertAvNavn = besluttetAvNavn,
-            aarsaker = aarsaker,
-            forklaring = forklaring,
-        )
+                Besluttelse.AVVIST -> TilsagnDto.TilsagnStatus.Godkjent(
+                    opprettelse = opprettelse,
+                )
+            }
+        }
     }
 
-    TilsagnStatus.TIL_ANNULLERING -> TilsagnDto.TilsagnStatus.TilAnnullering(
-        endretAv = endretAv,
-        endretAvNavn = endretAvNavn,
-        endretTidspunkt = endretTidspunkt,
-        aarsaker = aarsaker,
-        forklaring = forklaring,
-    )
-
-    TilsagnStatus.ANNULLERT -> {
-        requireNotNull(besluttetAv)
-        TilsagnDto.TilsagnStatus.Annullert(
-            endretAv = endretAv,
-            endretTidspunkt = endretTidspunkt,
-            godkjentAv = besluttetAv,
-            aarsaker = aarsaker,
-            forklaring = forklaring,
+    return when (opprettelse) {
+        is ToTrinnskontroll.Ubesluttet -> TilsagnDto.TilsagnStatus.TilGodkjenning(
+            opprettelse = opprettelse,
         )
+        is ToTrinnskontroll.Besluttet -> when (opprettelse.besluttelse) {
+            Besluttelse.GODKJENT -> TilsagnDto.TilsagnStatus.Godkjent(
+                opprettelse = opprettelse,
+            )
+            Besluttelse.AVVIST -> TilsagnDto.TilsagnStatus.Returnert(
+                opprettelse = opprettelse,
+            )
+        }
     }
 }

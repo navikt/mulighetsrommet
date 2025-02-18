@@ -29,9 +29,11 @@ export const mockTilsagn: TilsagnDto[] = [
     periodeStart: "2024-01-05",
     periodeSlutt: "2024-01-06",
     status: {
-      endretAv: "B123456",
+      opprettelse: {
+        opprettetAv: "B123456",
+        opprettetTidspunkt: "2024-01-01T22:00:00",
+      },
       type: "TIL_GODKJENNING",
-      endretTidspunkt: "2024-01-01T22:00:00",
     },
   },
   {
@@ -54,15 +56,22 @@ export const mockTilsagn: TilsagnDto[] = [
     periodeStart: "2024-01-03",
     periodeSlutt: "2024-01-04",
     status: {
-      endretAv: "F123456",
-      endretAvNavn: "Donald Duck",
+      opprettelse: {
+        opprettetAv: "B123456",
+        opprettetTidspunkt: "2024-01-01T22:00:00",
+        besluttetAv: "F123456",
+        besluttetTidspunkt: "2024-01-01T22:00:00",
+      },
+      annullering: {
+        opprettetAv: "B123456",
+        opprettetTidspunkt: "2024-01-01T22:00:00",
+        aarsaker: [
+          TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
+          TilsagnTilAnnulleringAarsak.FEIL_ANNET,
+        ],
+        forklaring: "Du må fikse det",
+      },
       type: "TIL_ANNULLERING",
-      endretTidspunkt: "2024-01-01T22:00:00",
-      aarsaker: [
-        TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
-        TilsagnTilAnnulleringAarsak.FEIL_ANNET,
-      ],
-      forklaring: "Du må fikse det",
     },
   },
   {
@@ -108,15 +117,24 @@ export const mockTilsagn: TilsagnDto[] = [
     periodeStart: "2024-01-01",
     periodeSlutt: "2024-01-02",
     status: {
-      endretAv: "F123456",
-      godkjentAv: "N12345",
+      opprettelse: {
+        opprettetAv: "B123456",
+        opprettetTidspunkt: "2024-01-01T22:00:00",
+        besluttetAv: "F123456",
+        besluttetTidspunkt: "2024-01-01T22:00:00",
+      },
+      annullering: {
+        opprettetAv: "B123456",
+        opprettetTidspunkt: "2024-01-01T22:00:00",
+        aarsaker: [
+          TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
+          TilsagnTilAnnulleringAarsak.FEIL_ANNET,
+        ],
+        forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
+        besluttetAv: "F123456",
+        besluttetTidspunkt: "2024-01-01T22:00:00",
+      },
       type: "ANNULLERT",
-      endretTidspunkt: "2024-01-01T22:00:00",
-      aarsaker: [
-        TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
-        TilsagnTilAnnulleringAarsak.FEIL_ANNET,
-      ],
-      forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
     },
   },
   {
@@ -139,13 +157,15 @@ export const mockTilsagn: TilsagnDto[] = [
     periodeStart: "2024-01-01",
     periodeSlutt: "2024-01-02",
     status: {
-      endretAv: "B123456",
-      returnertAv: "N12345",
-      returnertAvNavn: "Nils Fjordstrand",
+      opprettelse: {
+        opprettetAv: "B123456",
+        opprettetTidspunkt: "2024-01-09",
+        besluttetAv: "N12345",
+        besluttetTidspunkt: "2024-01-10",
+        aarsaker: [TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER, TilsagnAvvisningAarsak.FEIL_ANNET],
+        forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
+      },
       type: "RETURNERT",
-      endretTidspunkt: "2024-01-10",
-      aarsaker: [TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER, TilsagnAvvisningAarsak.FEIL_ANNET],
-      forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
     },
   },
 ];

@@ -106,12 +106,11 @@ class TilsagnService(
     private fun godkjennTilsagn(tilsagn: TilsagnDto, godkjentAv: NavIdent): StatusResponse<TilsagnDto> = db.transaction {
         require(tilsagn.status is TilsagnDto.TilsagnStatus.TilGodkjenning)
 
-        if (godkjentAv == tilsagn.status.endretAv) {
+        if (godkjentAv == tilsagn.status.opprettelse.opprettetAv) {
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
-        val godkjentTidspunkt = LocalDateTime.now()
-        queries.tilsagn.besluttGodkjennelse(tilsagn.id, godkjentAv, godkjentTidspunkt)
+        queries.tilsagn.godkjenn(tilsagn.id, godkjentAv)
 
         okonomi.scheduleBehandleGodkjentTilsagn(tilsagn.id, session)
 
@@ -127,7 +126,7 @@ class TilsagnService(
     ): StatusResponse<TilsagnDto> = db.transaction {
         require(tilsagn.status is TilsagnDto.TilsagnStatus.TilGodkjenning)
 
-        if (navIdent == tilsagn.status.endretAv) {
+        if (navIdent == tilsagn.status.opprettelse.opprettetAv) {
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         } else if (besluttelse.aarsaker.isEmpty()) {
             return BadRequest(detail = "Årsaker er påkrevd").left()
@@ -149,11 +148,11 @@ class TilsagnService(
     private fun annullerTilsagn(tilsagn: TilsagnDto, navIdent: NavIdent): StatusResponse<TilsagnDto> = db.transaction {
         require(tilsagn.status is TilsagnDto.TilsagnStatus.TilAnnullering)
 
-        if (navIdent == tilsagn.status.endretAv) {
+        if (navIdent == tilsagn.status.annullering.opprettetAv) {
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
-        queries.tilsagn.besluttAnnullering(tilsagn.id, navIdent, LocalDateTime.now())
+        queries.tilsagn.godkjennAnnullering(tilsagn.id, navIdent)
 
         okonomi.scheduleBehandleAnnullertTilsagn(tilsagn.id, session)
 
@@ -165,11 +164,11 @@ class TilsagnService(
     private fun avvisAnnullering(tilsagn: TilsagnDto, navIdent: NavIdent): StatusResponse<TilsagnDto> = db.transaction {
         require(tilsagn.status is TilsagnDto.TilsagnStatus.TilAnnullering)
 
-        if (navIdent == tilsagn.status.endretAv) {
+        if (navIdent == tilsagn.status.annullering.opprettetAv) {
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
-        queries.tilsagn.avbrytAnnullering(tilsagn.id, navIdent, LocalDateTime.now())
+        queries.tilsagn.avbrytAnnullering(tilsagn.id, navIdent)
 
         val dto = getOrError(tilsagn.id)
         logEndring("Annullering avvist", dto, EndretAv.NavAnsatt(navIdent))
@@ -190,7 +189,6 @@ class TilsagnService(
         queries.tilsagn.tilAnnullering(
             id,
             navIdent,
-            LocalDateTime.now(),
             annullering.aarsaker,
             annullering.forklaring,
         )

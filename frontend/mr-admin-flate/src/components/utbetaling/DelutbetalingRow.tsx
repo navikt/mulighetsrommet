@@ -125,7 +125,6 @@ function EditableRow({
           <AvvistAlert
             header="Utbetaling returnert"
             navIdent={delutbetaling.besluttetAv}
-            navn=""
             aarsaker={delutbetaling.aarsaker}
             forklaring={delutbetaling.forklaring}
             tidspunkt={delutbetaling.besluttetTidspunkt}
