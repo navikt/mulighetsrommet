@@ -24,13 +24,9 @@ export const AvtaleSchema = z
     avtaletype: z.nativeEnum(Avtaletype, {
       required_error: "Du må velge en avtaletype",
     }),
-    arrangor: z
-      .object({
-        hovedenhet: z.string().nonempty("Du må velge en tiltaksarrangør"),
-        underenheter: z.string().array().nonempty("Du må velge minst en underenhet"),
-        kontaktpersoner: z.string().uuid().array(),
-      })
-      .optional(),
+    arrangorHovedenhet: z.string().optional(),
+    arrangorUnderenheter: z.array(z.string()).optional(),
+    arrangorKontaktpersoner: z.string().uuid().array().optional(),
     navRegioner: z.string().array().nonempty({ message: "Du må velge minst én region" }),
     navEnheter: z.string().array().nonempty({ message: "Du må velge minst én enhet" }),
     startOgSluttDato: z
@@ -126,6 +122,14 @@ export const AvtaleSchema = z
         code: z.ZodIssueCode.custom,
         message: "Du må velge en kurstype",
         path: ["amoKategorisering.kurstype"],
+      });
+    }
+
+    if (!data.arrangorHovedenhet && data.arrangorUnderenheter?.length) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Underenheter can only be empty if hovedenhet is also empty",
+        path: ["arrangorUnderenheter"],
       });
     }
   });
