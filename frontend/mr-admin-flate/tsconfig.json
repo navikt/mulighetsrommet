@@ -27,6 +27,7 @@
       "@mr/api-client": ["../api-client"],
       // Fordi bl.a. sanity drar med seg vite@v4
       "vite": ["node_modules/vite"],
+      "@mr/api-client-v2/client": ["../api-client-v2/build/client.gen"],
       "@/*": ["./src/*"]
     }
   },

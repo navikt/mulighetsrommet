@@ -1,9 +1,9 @@
-import { useApiQuery } from "@mr/frontend-common";
-import { AnsattService, NavAnsatt } from "@mr/api-client-v2";
 import { QueryKeys } from "@/api/QueryKeys";
+import { AnsattService } from "@mr/api-client-v2";
+import { useApiQuery } from "@mr/frontend-common";
 
 export function useHentAnsatt() {
-  return useApiQuery<NavAnsatt, Error>({
+  return useApiQuery({
     queryKey: QueryKeys.ansatt(),
     queryFn: () => AnsattService.hentInfoOmAnsatt(),
   });
