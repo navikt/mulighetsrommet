@@ -41,9 +41,7 @@ export function TiltakDetaljerFane({
               {gjennomforingAlert}
             </Alert>
           )}
-          <BodyLong as="div" size="large" className="prose">
-            <RedaksjoneltInnhold value={gjennomforing} />
-          </BodyLong>
+          <RedaksjoneltInnhold value={gjennomforing} />
         </LokalInformasjonContainer>
       )}
     </TiltakDetaljerFaneContainer>

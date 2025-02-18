@@ -27,6 +27,7 @@ export function RedaksjoneltInnholdPreview(props: RedaksjoneltInnholdPreviewProp
 
 function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
   const { tiltakstype, beskrivelse, faneinnhold } = props;
+
   const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakstype.id);
   return (
     <div className="prose prose-headings:mb-0 min-w-1/2">
