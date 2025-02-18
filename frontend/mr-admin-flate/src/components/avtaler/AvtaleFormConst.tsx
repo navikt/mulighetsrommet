@@ -44,14 +44,12 @@ export function defaultAvtaleData(
     administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
     navn: avtale?.navn ?? "",
     avtaletype: avtale?.avtaletype,
-    arrangor: {
-      hovedenhet: avtale?.arrangor?.organisasjonsnummer ?? "",
-      underenheter: !avtale?.arrangor?.underenheter
-        ? []
-        : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
-      kontaktpersoner:
-        avtale?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
-    },
+    arrangorHovedenhet: avtale?.arrangor?.organisasjonsnummer ?? "",
+    arrangorUnderenheter: !avtale?.arrangor?.underenheter
+      ? []
+      : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
+    arrangorKontaktpersoner:
+      avtale?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
     startOgSluttDato: {
       startDato: avtale?.startDato ? avtale.startDato : undefined,
       sluttDato: avtale?.sluttDato ? avtale.sluttDato : undefined,
