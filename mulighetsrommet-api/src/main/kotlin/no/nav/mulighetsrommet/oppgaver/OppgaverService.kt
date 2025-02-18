@@ -135,7 +135,7 @@ class OppgaverService(val db: ApiDatabase) {
                 linkText = "Se tilsagn",
                 link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
             ),
-            createdAt = status.endretTidspunkt,
+            createdAt = status.opprettelse.opprettetTidspunkt,
             deadline = periodeStart.atStartOfDay(),
         )
         is Returnert -> Oppgave(
@@ -147,7 +147,7 @@ class OppgaverService(val db: ApiDatabase) {
                 linkText = "Se tilsagn",
                 link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
             ),
-            createdAt = status.endretTidspunkt,
+            createdAt = status.opprettelse.besluttetTidspunkt,
             deadline = periodeStart.atStartOfDay(),
         )
         is TilAnnullering -> Oppgave(
@@ -159,10 +159,10 @@ class OppgaverService(val db: ApiDatabase) {
                 linkText = "Se tilsagn",
                 link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
             ),
-            createdAt = status.endretTidspunkt,
+            createdAt = status.annullering.opprettetTidspunkt,
             deadline = periodeStart.atStartOfDay(),
         )
-        is TilsagnDto.TilsagnStatus.Annullert, TilsagnDto.TilsagnStatus.Godkjent -> null
+        is TilsagnDto.TilsagnStatus.Annullert, is TilsagnDto.TilsagnStatus.Godkjent -> null
     }
 
     private fun DelutbetalingDto.toOppgave(

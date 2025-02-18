@@ -265,9 +265,9 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = NavAnsattFixture.ansatt1.navIdent,
                 annullering = annullering,
             ).shouldBeRight().status.shouldBeTypeOf<TilsagnStatus.TilAnnullering> {
-                it.endretAv shouldBe NavAnsattFixture.ansatt1.navIdent
-                it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP)
-                it.forklaring shouldBe "Velg et annet beløp"
+                it.annullering.opprettetAv shouldBe NavAnsattFixture.ansatt1.navIdent
+                it.annullering.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
+                it.annullering.forklaring shouldBe "Velg et annet beløp"
             }
         }
 
@@ -304,10 +304,10 @@ class TilsagnServiceTest : FunSpec({
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
                 navIdent = NavAnsattFixture.ansatt2.navIdent,
             ).shouldBeRight().status.shouldBeTypeOf<TilsagnStatus.Annullert> {
-                it.endretAv shouldBe NavAnsattFixture.ansatt1.navIdent
-                it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_PERIODE)
-                it.forklaring shouldBe "Velg en annen periode"
-                it.godkjentAv shouldBe NavAnsattFixture.ansatt2.navIdent
+                it.annullering.opprettetAv shouldBe NavAnsattFixture.ansatt1.navIdent
+                it.annullering.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_PERIODE.name)
+                it.annullering.forklaring shouldBe "Velg en annen periode"
+                it.annullering.besluttetAv shouldBe NavAnsattFixture.ansatt2.navIdent
             }
 
             verify(exactly = 1) {

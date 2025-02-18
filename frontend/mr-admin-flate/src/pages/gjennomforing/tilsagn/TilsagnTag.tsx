@@ -1,4 +1,9 @@
-import { TilsagnStatus, TilsagnStatusAnnullert, TilsagnStatusDto } from "@mr/api-client-v2";
+import {
+  TilsagnStatus,
+  TilsagnStatusAnnullert,
+  TilsagnStatusDto,
+  TilsagnTilAnnulleringAarsak,
+} from "@mr/api-client-v2";
 import { BodyLong, List, Tag, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
@@ -73,11 +78,11 @@ function ExpandedAnnullert({ status }: { status: TilsagnStatusAnnullert }) {
         title="Årsaker"
         className="[&>li]:pl-2 [&>li]:ml-2 [&>li]:marker:content-['\2022'] [&>li]:marker:text-[color:var(--a-text-danger)] [&>li]:marker:text-lg"
       >
-        {status.aarsaker.map((aarsak) => (
-          <li>{tilsagnAarsakTilTekst(aarsak)}</li>
+        {status.annullering.aarsaker?.map((aarsak) => (
+          <li>{tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak)}</li>
         ))}
       </List>
-      {status.forklaring && <BodyLong>{status.forklaring}</BodyLong>}
+      {status.annullering.forklaring && <BodyLong>{status.annullering.forklaring}</BodyLong>}
     </VStack>
   );
 }

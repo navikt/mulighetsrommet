@@ -66,15 +66,13 @@ class OppgaverServiceTest : FunSpec({
                 queries.tilsagn.tilAnnullering(
                     id = TilsagnFixtures.Tilsagn2.id,
                     navIdent = NavIdent("Z123456"),
-                    tidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0),
                     aarsaker = emptyList(),
                     forklaring = null,
                 )
 
-                queries.tilsagn.besluttAnnullering(
+                queries.tilsagn.godkjennAnnullering(
                     id = TilsagnFixtures.Tilsagn2.id,
                     navIdent = NavIdent("Z123456"),
-                    tidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0),
                 )
             }
 
