@@ -11,13 +11,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
-import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -46,6 +46,14 @@ fun Route.utbetalingRoutes() {
             call.respond(utbetaling)
         }
 
+        get("/historikk") {
+            val id = call.parameters.getOrFail<UUID>("id")
+            val historikk = db.session {
+                queries.endringshistorikk.getEndringshistorikk(DocumentClass.UTBETALING, id)
+            }
+            call.respond(historikk)
+        }
+
         get("/tilsagn") {
             val id = call.parameters.getOrFail<UUID>("id")
             val utbetaling = db.session {
@@ -72,27 +80,7 @@ fun Route.utbetalingRoutes() {
                         return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
                     }
 
-                db.session {
-                    queries.utbetaling.upsert(
-                        UtbetalingDbo(
-                            id = utbetalingId,
-                            gjennomforingId = request.gjennomforingId,
-                            fristForGodkjenning = request.periode.slutt.plusMonths(2).atStartOfDay(),
-                            kontonummer = request.kontonummer,
-                            kid = request.kidNummer,
-                            beregning = UtbetalingBeregningFri.beregn(
-                                input = UtbetalingBeregningFri.Input(
-                                    belop = request.belop,
-                                ),
-                            ),
-                            periode = Periode.fromInclusiveDates(
-                                request.periode.start,
-                                request.periode.slutt,
-                            ),
-                            innsender = UtbetalingDto.Innsender.NavAnsatt(navIdent),
-                        ),
-                    )
-                }
+                service.opprettManuellUtbetaling(utbetalingId, request, navIdent)
 
                 call.respond(request)
             }

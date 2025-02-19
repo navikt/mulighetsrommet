@@ -146,7 +146,7 @@ class ArenaAdapterService(
 
     private fun QueryContext.logUpdateGjennomforing(dto: GjennomforingDto) {
         queries.endringshistorikk.logEndring(
-            DocumentClass.TILTAKSGJENNOMFORING,
+            DocumentClass.GJENNOMFORING,
             "Endret i Arena",
             EndretAv.Arena,
             dto.id,
@@ -155,7 +155,7 @@ class ArenaAdapterService(
 
     private fun QueryContext.logTiltaksnummerHentetFraArena(dto: GjennomforingDto) {
         queries.endringshistorikk.logEndring(
-            DocumentClass.TILTAKSGJENNOMFORING,
+            DocumentClass.GJENNOMFORING,
             "Oppdatert med tiltaksnummer fra Arena",
             EndretAv.System,
             dto.id,
