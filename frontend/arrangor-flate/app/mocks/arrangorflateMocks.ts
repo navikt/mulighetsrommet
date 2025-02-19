@@ -311,7 +311,7 @@ const arrangorer: Arrangor[] = [
     organisasjonsnummer: "123456789",
     organisasjonsform: "AS",
     navn: "Fretex",
-    overordnetEnhet: "",
+    overordnetEnhet: null,
   },
 ];
 

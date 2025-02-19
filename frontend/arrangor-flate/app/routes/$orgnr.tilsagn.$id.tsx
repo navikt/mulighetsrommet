@@ -23,8 +23,6 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     headers: await apiHeaders(request),
   });
 
-  if (!tilsagn) throw Error("Tilsagn ikke funnet");
-
   return { tilsagn };
 };
 

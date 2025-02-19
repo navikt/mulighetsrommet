@@ -5,8 +5,7 @@
   "module": "./build/index.ts",
   "types": "./build/index.ts",
   "exports": {
-    ".": "./build/index.ts",
-    "./client": "./build/client.gen"
+    ".": "./build/index.ts"
   },
   "scripts": {
     "build": "openapi-ts --useOptions --input ../../mulighetsrommet-api/src/main/resources/web/openapi.yaml --output ./build"

@@ -51,9 +51,6 @@ export const loader: LoaderFunction = async ({
     }),
   ]);
 
-  if (!utbetaling) throw Error("Utbetaling ikke funnet");
-  if (!tilsagn) throw Error("Tilsagn ikke funnet");
-
   return { utbetaling, tilsagn };
 };
 
