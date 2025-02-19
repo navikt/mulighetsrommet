@@ -377,9 +377,11 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
               </div>
             </FormGroup>
           </div>
-          <FormGroup>
-            <GjennomforingArrangorForm readOnly={false} avtale={avtale} />
-          </FormGroup>
+          {avtale.arrangor && (
+            <FormGroup>
+              <GjennomforingArrangorForm readOnly={false} arrangor={avtale.arrangor} />
+            </FormGroup>
+          )}
         </SkjemaKolonne>
       </TwoColumnGrid>
       <EndreDatoAdvarselModal

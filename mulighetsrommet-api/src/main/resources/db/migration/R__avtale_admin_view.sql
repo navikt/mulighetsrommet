@@ -46,7 +46,7 @@ select avtale.id,
        utdanningslop_json
 from avtale
          join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
-         join arrangor on arrangor.id = avtale.arrangor_hovedenhet_id
+         left join arrangor on arrangor.id = avtale.arrangor_hovedenhet_id
          left join nav_enhet arena_nav_enhet on avtale.arena_ansvarlig_enhet = arena_nav_enhet.enhetsnummer
          left join lateral (select jsonb_agg(personopplysning) as personopplysninger_json
                             from avtale_personopplysning

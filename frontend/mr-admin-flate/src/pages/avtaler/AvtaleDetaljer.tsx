@@ -215,32 +215,36 @@ export function AvtaleDetaljer() {
         ) : null}
 
         <Separator />
-        <VStack gap="5">
-          <Metadata
-            header={avtaletekster.tiltaksarrangorHovedenhetLabel}
-            verdi={
-              <Link to={`/arrangorer/${arrangor.id}`}>
-                {arrangor.navn} - {arrangor.organisasjonsnummer}
-              </Link>
-            }
-          />
+        {arrangor ? (
+          <VStack gap="5">
+            <Metadata
+              header={avtaletekster.tiltaksarrangorHovedenhetLabel}
+              verdi={
+                <Link to={`/arrangorer/${arrangor.id}`}>
+                  {arrangor.navn} - {arrangor.organisasjonsnummer}
+                </Link>
+              }
+            />
 
-          <Metadata
-            header={avtaletekster.tiltaksarrangorUnderenheterLabel}
-            verdi={
-              <ul>
-                {arrangor.underenheter.map((enhet) => (
-                  <li key={enhet.organisasjonsnummer}>
-                    {`${enhet.navn} - ${enhet.organisasjonsnummer}`}
-                  </li>
-                ))}
-              </ul>
-            }
-          />
-        </VStack>
+            <Metadata
+              header={avtaletekster.tiltaksarrangorUnderenheterLabel}
+              verdi={
+                <ul>
+                  {arrangor.underenheter.map((enhet) => (
+                    <li key={enhet.organisasjonsnummer}>
+                      {`${enhet.navn} - ${enhet.organisasjonsnummer}`}
+                    </li>
+                  ))}
+                </ul>
+              }
+            />
+          </VStack>
+        ) : (
+          <AvtaleErKladdOgArrangørManglerMelding />
+        )}
 
         <Separator />
-        {arrangor.kontaktpersoner.length > 0 && (
+        {arrangor && arrangor.kontaktpersoner.length > 0 && (
           <Metadata
             header={avtaletekster.kontaktpersonerHosTiltaksarrangorLabel}
             verdi={
@@ -259,3 +263,7 @@ export function AvtaleDetaljer() {
     </TwoColumnGrid>
   );
 }
+
+const AvtaleErKladdOgArrangørManglerMelding = () => {
+  return <Alert variant="warning">Arrangør mangler</Alert>;
+};

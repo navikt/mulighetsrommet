@@ -2775,7 +2775,6 @@ components:
         - tiltakstype
         - navn
         - avtalenummer
-        - arrangor
         - startDato
         - avtaletype
         - status
@@ -2805,17 +2804,26 @@ components:
           type: [string, "null"]
         websaknummer:
           type: [string, "null"]
-        arrangorOrganisasjonsnummer:
-          type: string
-        arrangorUnderenheter:
-          type: array
-          items:
-            type: string
-        arrangorKontaktpersoner:
-          type: array
-          items:
-            type: string
-            format: UUID
+        arrangor:
+            anyOf:
+              - type: "null"
+              - type: object
+                properties:
+                  hovedenhet:
+                    type: string
+                  underenheter:
+                    type: array
+                    items:
+                      type: string
+                  kontaktpersoner:
+                    type: array
+                    items:
+                      type: string
+                      format: UUID
+                required:
+                  - hovedenhet
+                  - underenheter
+                  - kontaktpersoner
         startDato:
           type: string
           format: date

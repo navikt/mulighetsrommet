@@ -47,7 +47,7 @@ function defaultArrangor(avtale: AvtaleDto, gjennomforing?: GjennomforingDto): s
     return gjennomforing.arrangor.id;
   }
 
-  if (avtale.arrangor.underenheter.length === 1) {
+  if (avtale.arrangor?.underenheter.length === 1) {
     return avtale.arrangor.underenheter[0].id;
   }
 
