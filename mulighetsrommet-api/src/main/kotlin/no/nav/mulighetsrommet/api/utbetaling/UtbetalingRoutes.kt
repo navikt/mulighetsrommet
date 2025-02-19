@@ -11,6 +11,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -43,6 +44,14 @@ fun Route.utbetalingRoutes() {
             }
 
             call.respond(utbetaling)
+        }
+
+        get("/historikk") {
+            val id = call.parameters.getOrFail<UUID>("id")
+            val historikk = db.session {
+                queries.endringshistorikk.getEndringshistorikk(DocumentClass.UTBETALING, id)
+            }
+            call.respond(historikk)
         }
 
         get("/tilsagn") {

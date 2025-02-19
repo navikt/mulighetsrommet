@@ -20,9 +20,11 @@ import { GjennomforingDetaljerMini } from "@/components/gjennomforing/Gjennomfor
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
 import { OpprettTilsagnButton } from "@/components/tilsagn/OpprettTilsagnButton";
 import { useState } from "react";
+import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
+import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 
 export function UtbetalingPage() {
-  const { gjennomforing, utbetaling, tilsagn, ansatt } =
+  const { gjennomforing, historikk, utbetaling, tilsagn, ansatt } =
     useLoaderData<typeof utbetalingPageLoader>();
   const [belopPerTilsagn, setBelopPerTilsagn] = useState<Map<string, number>>(
     new Map(
@@ -88,6 +90,11 @@ export function UtbetalingPage() {
       </Header>
       <ContentBox>
         <WhitePaddedBox>
+          <HStack gap="2" justify={"end"}>
+            <EndringshistorikkPopover>
+              <ViewEndringshistorikk historikk={historikk} />
+            </EndringshistorikkPopover>
+          </HStack>
           <VStack gap="4">
             <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
             <Box borderColor="border-subtle" padding="4" borderWidth="1" borderRadius="large">

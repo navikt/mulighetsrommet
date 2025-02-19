@@ -1956,6 +1956,27 @@ paths:
               schema:
                 $ref: "#/components/schemas/UtbetalingKompakt"
 
+  /api/v1/intern/utbetaling/{id}/historikk:
+    get:
+      tags:
+        - Utbetaling
+      operationId: getUtbetalingEndringshistorikk
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID for utbetaling
+      responses:
+        200:
+          description: Endringshistorikken for utbetaling
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Endringshistorikk"
+
   /api/v1/intern/utbetaling/{id}/tilsagn:
     parameters:
       - $ref: "#/components/parameters/ID"
