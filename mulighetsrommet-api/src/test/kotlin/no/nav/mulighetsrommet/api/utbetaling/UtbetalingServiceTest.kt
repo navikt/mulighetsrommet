@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.Kid
@@ -34,9 +35,11 @@ class UtbetalingServiceTest : FunSpec({
 
     fun createUtbetalingService(
         okonomi: OkonomiBestillingService = mockk(relaxed = true),
+        journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true),
     ) = UtbetalingService(
         db = database.db,
         okonomi = okonomi,
+        journalforUtbetaling = journalforUtbetaling,
     )
 
     context("generering av utbetaling for AFT") {

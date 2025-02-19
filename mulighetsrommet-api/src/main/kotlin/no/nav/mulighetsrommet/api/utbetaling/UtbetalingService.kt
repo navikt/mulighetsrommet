@@ -4,7 +4,14 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.right
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
+import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.arrangorflate.GodkjennUtbetaling
+import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
@@ -12,18 +19,22 @@ import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class UtbetalingService(
     private val db: ApiDatabase,
     private val okonomi: OkonomiBestillingService,
+    private val journalforUtbetaling: JournalforUtbetaling,
 ) {
     fun genererUtbetalingForMonth(date: LocalDate): List<UtbetalingDto> = db.transaction {
         val periode = Periode.forMonthOf(date)
@@ -45,7 +56,9 @@ class UtbetalingService(
             }
             .map { utbetaling ->
                 queries.utbetaling.upsert(utbetaling)
-                requireNotNull(queries.utbetaling.get(utbetaling.id)) { "Utbetaling forventet siden det nettopp ble opprettet" }
+                val dto = getOrError(utbetaling.id)
+                logEndring("Utbetaling opprettet", dto, EndretAv.System)
+                dto
             }
     }
 
@@ -68,6 +81,8 @@ class UtbetalingService(
             }
             .forEach { utbetaling ->
                 queries.utbetaling.upsert(utbetaling)
+                val dto = getOrError(utbetaling.id)
+                logEndring("Utbetaling beregning oppdatert", dto, EndretAv.System)
             }
     }
 
@@ -106,6 +121,51 @@ class UtbetalingService(
             periode = periode,
             innsender = null,
         )
+    }
+
+    fun godkjentAvArrangor(
+        utbetalingId: UUID,
+        request: GodkjennUtbetaling,
+    ) = db.transaction {
+        queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
+        queries.utbetaling.setBetalingsInformasjon(
+            utbetalingId,
+            request.betalingsinformasjon.kontonummer,
+            request.betalingsinformasjon.kid,
+        )
+        val dto = getOrError(utbetalingId)
+        logEndring("Utbetaling sendt inn", dto, EndretAv.Arrangor)
+        journalforUtbetaling.schedule(utbetalingId, Instant.now(), session as TransactionalSession)
+    }
+
+    fun opprettManuellUtbetaling(
+        utbetalingId: UUID,
+        request: OpprettManuellUtbetalingRequest,
+        navIdent: NavIdent,
+    ) {
+        db.transaction {
+            queries.utbetaling.upsert(
+                UtbetalingDbo(
+                    id = utbetalingId,
+                    gjennomforingId = request.gjennomforingId,
+                    fristForGodkjenning = request.periode.slutt.plusMonths(2).atStartOfDay(),
+                    kontonummer = request.kontonummer,
+                    kid = request.kidNummer,
+                    beregning = UtbetalingBeregningFri.beregn(
+                        input = UtbetalingBeregningFri.Input(
+                            belop = request.belop,
+                        ),
+                    ),
+                    periode = Periode.fromInclusiveDates(
+                        request.periode.start,
+                        request.periode.slutt,
+                    ),
+                    innsender = UtbetalingDto.Innsender.NavAnsatt(navIdent),
+                ),
+            )
+            val dto = getOrError(utbetalingId)
+            logEndring("Utbetaling sendt inn", dto, EndretAv.NavAnsatt(navIdent))
+        }
     }
 
     fun upsertDelutbetaling(
@@ -151,6 +211,8 @@ class UtbetalingService(
 
         db.session {
             queries.delutbetaling.upsert(dbo)
+            val dto = getOrError(utbetalingId)
+            logEndring("Delutbetaling sendt til godkjenning", dto, EndretAv.NavAnsatt(opprettetAv))
         }
     }
 
@@ -182,6 +244,8 @@ class UtbetalingService(
                 okonomi.scheduleBehandleGodkjentUtbetaling(utbetalingId, request.tilsagnId, session)
             }
         }
+        val dto = getOrError(utbetalingId)
+        logEndring("Delutbetaling ${request.besluttelse}", dto, EndretAv.NavAnsatt(navIdent))
 
         return Unit.right()
     }
@@ -227,5 +291,24 @@ class UtbetalingService(
                 )
             }
             .toSet()
+    }
+
+    private fun QueryContext.logEndring(
+        operation: String,
+        dto: UtbetalingDto,
+        endretAv: EndretAv,
+    ) {
+        queries.endringshistorikk.logEndring(
+            DocumentClass.UTBETALING,
+            operation,
+            endretAv,
+            dto.id,
+        ) {
+            Json.encodeToJsonElement(dto)
+        }
+    }
+
+    private fun QueryContext.getOrError(id: UUID): UtbetalingDto {
+        return requireNotNull(queries.utbetaling.get(id)) { "Utbetaling med id=$id finnes ikke" }
     }
 }
