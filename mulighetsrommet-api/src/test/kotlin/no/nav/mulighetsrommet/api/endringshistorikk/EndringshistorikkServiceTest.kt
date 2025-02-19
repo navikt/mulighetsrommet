@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.endringshistorikk
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull

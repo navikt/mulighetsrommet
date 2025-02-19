@@ -10,7 +10,6 @@ import java.util.*
 data class EndringshistorikkDto(
     val entries: List<Entry>,
 ) {
-
     @Serializable
     data class Entry(
         @Serializable(with = UUIDSerializer::class)
