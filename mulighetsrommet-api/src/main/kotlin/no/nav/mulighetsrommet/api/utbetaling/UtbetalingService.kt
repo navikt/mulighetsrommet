@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class UtbetalingService(
@@ -178,8 +179,9 @@ class UtbetalingService(
                     utbetalingId = utbetalingId,
                     tilsagnId = request.tilsagnId,
                     navIdent = navIdent,
+                    LocalDateTime.now(),
                 )
-                okonomi.scheduleBehandleGodkjentUtbetaling(utbetalingId, request.tilsagnId, session)
+                okonomi.scheduleBehandleGodkjenteUtbetalinger(request.tilsagnId, session)
             }
         }
 
