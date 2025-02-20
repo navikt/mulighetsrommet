@@ -22,10 +22,11 @@ import { OpprettTilsagnButton } from "@/components/tilsagn/OpprettTilsagnButton"
 import { useState } from "react";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
+import { LoaderData } from "@/types/loader";
 
 export function UtbetalingPage() {
   const { gjennomforing, historikk, utbetaling, tilsagn, ansatt } =
-    useLoaderData<typeof utbetalingPageLoader>();
+    useLoaderData<LoaderData<typeof utbetalingPageLoader>>();
   const [belopPerTilsagn, setBelopPerTilsagn] = useState<Map<string, number>>(
     new Map(
       tilsagn.map((tilsagn) => [

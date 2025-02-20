@@ -14,7 +14,7 @@ import { OppgaverFilter } from "../../../components/filter/OppgaverFilter";
 import { OppgaveFilterTags } from "../../../components/filter/OppgaverFilterTags";
 import { NullstillKnappForOppgaver } from "./NullstillKnappForOppgaver";
 import { ContentBox } from "../../../layouts/ContentBox";
-
+import { LoaderData } from "@/types/loader";
 type OppgaverSorting = "korteste-frist" | "nyeste" | "eldste";
 
 function sort(oppgaver: GetOppgaverResponse, sorting: OppgaverSorting) {
@@ -53,7 +53,7 @@ export function OppgaverPage() {
   const [sorting, setSorting] = useState<OppgaverSorting>("korteste-frist");
   useTitle("Oppgaver");
   const [filter] = useAtom(oppgaverFilterAtom);
-  const { tiltakstyper, regioner } = useLoaderData<typeof oppgaverLoader>();
+  const { tiltakstyper, regioner } = useLoaderData<LoaderData<typeof oppgaverLoader>>();
   const oppgaver = useOppgaver(filter);
   const sortedOppgaver = sort(oppgaver.data || [], sorting);
 

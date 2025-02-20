@@ -31,7 +31,7 @@ export const gjennomforingLoader =
     return { gjennomforing, avtale, ansatt };
   };
 
-const gjennomforingQuery = (id: string) =>
+export const gjennomforingQuery = (id: string) =>
   queryOptions({
     queryKey: [QueryKeys.gjennomforing(id)],
     queryFn: () => GjennomforingerService.getGjennomforing({ path: { id } }),

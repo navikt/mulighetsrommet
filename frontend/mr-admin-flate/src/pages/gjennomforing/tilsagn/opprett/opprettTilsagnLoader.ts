@@ -1,44 +1,32 @@
-import {
-  AvtalerService,
-  TilsagnService,
-  TilsagnStatus,
-  TilsagnType,
-  GjennomforingerService,
-  Prismodell,
-} from "@mr/api-client-v2";
+import { Prismodell, TilsagnService, TilsagnStatus, TilsagnType } from "@mr/api-client-v2";
 import { LoaderFunctionArgs } from "react-router";
 
-export async function opprettTilsagnLoader({ params, request }: LoaderFunctionArgs) {
-  const { gjennomforingId: gjennomforingId } = params;
+import { QueryClient, queryOptions } from "@tanstack/react-query";
+import { QueryKeys } from "../../../../api/QueryKeys";
+import { avtaleQuery } from "../../../avtaler/avtaleLoader";
+import { gjennomforingQuery } from "../../gjennomforingLoaders";
 
-  if (!gjennomforingId) {
-    throw new Error("gjennomforingId is missing");
-  }
-
-  const url = new URL(request.url);
-  const type = (url.searchParams.get("type") as TilsagnType) ?? TilsagnType.TILSAGN;
-  const periodeStart = url.searchParams.get("periodeStart");
-  const periodeSlutt = url.searchParams.get("periodeSlutt");
-  const belop = url.searchParams.get("belop");
-  const prismodell = url.searchParams.get("prismodell")
-    ? (url.searchParams.get("prismodell") as Prismodell)
-    : null;
-  const kostnadssted = url.searchParams.get("kostnadssted");
-
-  const [{ data: gjennomforing }, { data: defaults }, { data: godkjenteTilsagn }] =
-    await Promise.all([
-      GjennomforingerService.getGjennomforing({ path: { id: gjennomforingId } }),
+const tilsagnDefaultsQuery = (params: {
+  gjennomforingId: string;
+  type: TilsagnType;
+  prismodell: Prismodell | null;
+  periodeStart: string | null;
+  periodeSlutt: string | null;
+  belop: number | null;
+  kostnadssted: string | null;
+}) =>
+  queryOptions({
+    queryKey: [QueryKeys.opprettTilsagn(), params],
+    queryFn: () =>
       TilsagnService.getTilsagnDefaults({
-        body: {
-          gjennomforingId,
-          type,
-          prismodell,
-          periodeStart,
-          periodeSlutt,
-          belop: belop ? Number(belop) : null,
-          kostnadssted,
-        },
+        body: params,
       }),
+  });
+
+const godkjenteTilsagnQuery = (gjennomforingId: string) =>
+  queryOptions({
+    queryKey: [QueryKeys.getTilsagnForGjennomforing(gjennomforingId)],
+    queryFn: () =>
       TilsagnService.getAll({
         query: {
           gjennomforingId,
@@ -49,12 +37,47 @@ export async function opprettTilsagnLoader({ params, request }: LoaderFunctionAr
           ],
         },
       }),
-    ]);
-
-  // TODO: utled fra url, eller embed prismodell direkte i gjennomføring? Da slipper vi fossefall-requester
-  const { data: avtale } = await AvtalerService.getAvtale({
-    path: { id: gjennomforing.avtaleId! },
   });
 
-  return { avtale, gjennomforing, defaults, godkjenteTilsagn };
-}
+export const opprettTilsagnLoader =
+  (queryClient: QueryClient) =>
+  async ({ params, request }: LoaderFunctionArgs) => {
+    const { gjennomforingId } = params;
+
+    if (!gjennomforingId) {
+      throw new Error("gjennomforingId is missing");
+    }
+
+    const url = new URL(request.url);
+    const type = (url.searchParams.get("type") as TilsagnType) ?? TilsagnType.TILSAGN;
+    const periodeStart = url.searchParams.get("periodeStart");
+    const periodeSlutt = url.searchParams.get("periodeSlutt");
+    const belop = url.searchParams.get("belop");
+    const prismodell = url.searchParams.get("prismodell")
+      ? (url.searchParams.get("prismodell") as Prismodell)
+      : null;
+    const kostnadssted = url.searchParams.get("kostnadssted");
+
+    const [{ data: gjennomforing }, { data: defaults }, { data: godkjenteTilsagn }] =
+      await Promise.all([
+        queryClient.ensureQueryData(gjennomforingQuery(gjennomforingId)),
+        queryClient.ensureQueryData(
+          tilsagnDefaultsQuery({
+            gjennomforingId,
+            type,
+            prismodell,
+            periodeStart,
+            periodeSlutt,
+            belop: belop ? Number(belop) : null,
+            kostnadssted,
+          }),
+        ),
+        queryClient.ensureQueryData(godkjenteTilsagnQuery(gjennomforingId)),
+      ]);
+
+    const { data: avtale } = await queryClient.ensureQueryData(
+      avtaleQuery(gjennomforing.avtaleId!),
+    );
+
+    return { avtale, gjennomforing, defaults, godkjenteTilsagn };
+  };

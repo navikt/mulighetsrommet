@@ -224,7 +224,7 @@ const router = () => {
               {
                 index: true,
                 element: <TilsagnForGjennomforingContainer />,
-                loader: tilsagnForGjennomforingLoader,
+                loader: tilsagnForGjennomforingLoader(queryClient),
                 errorElement: <ErrorPage />,
               },
             ],
@@ -239,7 +239,7 @@ const router = () => {
                 index: true,
                 element: <UtbetalingerForGjennomforingContainer />,
                 errorElement: <ErrorPage />,
-                loader: utbetalingerForGjennomforingLoader,
+                loader: utbetalingerForGjennomforingLoader(queryClient),
               },
             ],
           },
@@ -253,7 +253,7 @@ const router = () => {
                 index: true,
                 element: <OpprettUtbetalingPage />,
                 errorElement: <ErrorPage />,
-                loader: utbetalingerForGjennomforingLoader,
+                loader: utbetalingerForGjennomforingLoader(queryClient),
               },
             ],
           },
@@ -280,25 +280,25 @@ const router = () => {
             path: "gjennomforinger/:gjennomforingId/tilsagn/opprett-tilsagn",
             element: <OpprettTilsagnFormPage />,
             errorElement: <ErrorPage />,
-            loader: opprettTilsagnLoader,
+            loader: opprettTilsagnLoader(queryClient),
           },
           {
             path: "gjennomforinger/:gjennomforingId/tilsagn/:tilsagnId",
             element: <TilsagnDetaljer />,
             errorElement: <ErrorPage />,
-            loader: tilsagnDetaljerLoader,
+            loader: tilsagnDetaljerLoader(queryClient),
           },
           {
             path: "gjennomforinger/:gjennomforingId/tilsagn/:tilsagnId/rediger-tilsagn",
             element: <RedigerTilsagnFormPage />,
             errorElement: <ErrorPage />,
-            loader: redigerTilsagnLoader,
+            loader: redigerTilsagnLoader(queryClient),
           },
           {
             path: "gjennomforinger/:gjennomforingId/utbetalinger/:utbetalingId",
             element: <UtbetalingPage />,
             errorElement: <ErrorPage />,
-            loader: utbetalingPageLoader,
+            loader: utbetalingPageLoader(queryClient),
           },
           {
             path: "arrangorer",
@@ -314,12 +314,12 @@ const router = () => {
             path: "arbeidsbenk",
             element: <ArbeidsbenkPage />,
             errorElement: <ErrorPage />,
-            loader: arbeidsbenkLoader,
+            loader: arbeidsbenkLoader(queryClient),
             children: [
               {
                 path: "notifikasjoner",
                 element: <NotifikasjonerPage />,
-                loader: notifikasjonLoader,
+                loader: notifikasjonLoader(queryClient),
                 errorElement: <ErrorPage />,
                 children: [
                   {
@@ -337,7 +337,7 @@ const router = () => {
               {
                 path: "oppgaver",
                 element: <OppgaverPage />,
-                loader: oppgaverLoader,
+                loader: oppgaverLoader(queryClient),
                 errorElement: <ErrorPage />,
                 children: [
                   {
