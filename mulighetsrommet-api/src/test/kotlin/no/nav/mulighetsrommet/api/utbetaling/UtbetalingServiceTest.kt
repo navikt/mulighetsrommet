@@ -14,10 +14,13 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.ktor.exception.BadRequest
+import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -442,9 +445,49 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalingId = utbetaling.id,
                 request = opprettRequest,
                 opprettetAv = domain.ansatte[0].navIdent,
-            ).shouldBeLeft().shouldContainExactly(
-                listOf(FieldError("/", "Utbetaling kan ikke endres")),
+            ).shouldBeLeft() shouldBe BadRequest("Utbetaling kan ikke endres")
+        }
+
+        test("skal ikke kunne godkjenne delutbetaling hvis den er godkjent") {
+            val tilsagn = TilsagnFixtures.Tilsagn1.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+                bestillingsnummer = "2024/1",
             )
+
+            val utbetaling = UtbetalingFixtures.utbetaling1.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+            )
+
+            val domain = MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(tilsagn),
+                utbetalinger = listOf(utbetaling),
+            ).initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            val opprettRequest = DelutbetalingRequest(tilsagnId = tilsagn.id, belop = 100)
+            service.upsertDelutbetaling(
+                utbetalingId = utbetaling.id,
+                request = opprettRequest,
+                opprettetAv = domain.ansatte[0].navIdent,
+            )
+            service.besluttDelutbetaling(
+                utbetalingId = utbetaling.id,
+                request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(
+                    tilsagnId = tilsagn.id,
+                ),
+                navIdent = domain.ansatte[1].navIdent,
+            )
+            service.besluttDelutbetaling(
+                utbetalingId = utbetaling.id,
+                request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(
+                    tilsagnId = tilsagn.id,
+                ),
+                navIdent = domain.ansatte[1].navIdent,
+            ).shouldBeLeft() shouldBe BadRequest("Utbetaling allerede besluttes")
         }
 
         test("skal ikke kunne opprette delutbetaling hvis utbetalingsperiode og tilsagnsperiode ikke overlapper") {
@@ -468,8 +511,8 @@ class UtbetalingServiceTest : FunSpec({
 
             val request = DelutbetalingRequest(tilsagnId = tilsagn.id, belop = 100)
 
-            service.upsertDelutbetaling(utbetaling.id, request, domain.ansatte[0].navIdent).shouldBeLeft().shouldContainExactly(
-                listOf(FieldError("/", "Utbetalingsperiode og tilsagnsperiode overlapper ikke")),
+            service.upsertDelutbetaling(utbetaling.id, request, domain.ansatte[0].navIdent).shouldBeLeft() shouldBe InternalServerError(
+                "Utbetalingsperiode og tilsagnsperiode overlapper ikke",
             )
         }
 
@@ -502,9 +545,9 @@ class UtbetalingServiceTest : FunSpec({
                 utbetaling.id,
                 DelutbetalingRequest(tilsagnId = tilsagn1.id, belop = 100),
                 domain.ansatte[0].navIdent,
-            ).shouldBeLeft().shouldContainExactly(
-                listOf(FieldError("/belop", "Kan ikke betale ut mer enn det er krav på")),
-            )
+            ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
+                it.errors shouldContainExactly listOf(FieldError("/belop", "Kan ikke betale ut mer enn det er krav på"))
+            }
 
             service.upsertDelutbetaling(
                 utbetaling.id,
@@ -517,9 +560,9 @@ class UtbetalingServiceTest : FunSpec({
                 utbetaling.id,
                 DelutbetalingRequest(tilsagnId = tilsagn2.id, belop = 5),
                 domain.ansatte[0].navIdent,
-            ).shouldBeLeft().shouldContainExactly(
-                listOf(FieldError("/belop", "Kan ikke betale ut mer enn det er krav på")),
-            )
+            ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
+                it.errors shouldContainExactly listOf(FieldError("/belop", "Kan ikke betale ut mer enn det er krav på"))
+            }
         }
 
         test("løpenummer, fakturanummer og periode blir utledet fra tilsagnet og utbetalingen") {

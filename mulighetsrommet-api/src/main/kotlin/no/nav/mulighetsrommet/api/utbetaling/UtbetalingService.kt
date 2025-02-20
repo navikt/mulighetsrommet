@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
-import arrow.core.Either
 import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.right
@@ -12,15 +11,18 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
-import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
+import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
+import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
 import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
+import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
+import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.NavIdent
@@ -172,11 +174,11 @@ class UtbetalingService(
         utbetalingId: UUID,
         request: DelutbetalingRequest,
         opprettetAv: NavIdent,
-    ): Either<List<FieldError>, Unit> = either {
+    ): StatusResponse<Unit> = either {
         val utbetaling = db.session { queries.utbetaling.get(utbetalingId) }
-            ?: return listOf(FieldError.root("Utbetaling med id=$utbetalingId finnes ikke")).left()
+            ?: return NotFound("Utbetaling med id=$utbetalingId finnes ikke").left()
         val tilsagn = db.session { queries.tilsagn.get(request.tilsagnId) }
-            ?: return listOf(FieldError.root("Tilsagn med id=${request.tilsagnId} finnes ikke")).left()
+            ?: return NotFound("Tilsagn med id=${request.tilsagnId} finnes ikke").left()
 
         val previous = db.session { queries.delutbetaling.get(utbetalingId, request.tilsagnId) }
         when (previous) {
@@ -184,7 +186,7 @@ class UtbetalingService(
             is DelutbetalingDto.DelutbetalingTilGodkjenning,
             is DelutbetalingDto.DelutbetalingUtbetalt,
             ->
-                return listOf(FieldError.root("Utbetaling kan ikke endres")).left()
+                return BadRequest("Utbetaling kan ikke endres").left()
             is DelutbetalingDto.DelutbetalingAvvist, null -> {}
         }
 
@@ -193,10 +195,11 @@ class UtbetalingService(
                 .filter { it.tilsagnId != tilsagn.id }
                 .sumOf { it.belop }
 
-        UtbetalingValidator.validate(belop = request.belop, tilsagn = tilsagn, maxBelop = maxBelop).bind()
+        UtbetalingValidator.validate(belop = request.belop, tilsagn = tilsagn, maxBelop = maxBelop)
+            .onLeft { return ValidationError(errors = it).left() }
 
         val periode = utbetaling.periode.intersect(Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt))
-            ?: return listOf(FieldError.root("Utbetalingsperiode og tilsagnsperiode overlapper ikke")).left()
+            ?: return InternalServerError("Utbetalingsperiode og tilsagnsperiode overlapper ikke").left()
 
         val lopenummer = db.session { queries.delutbetaling.getNextLopenummerByTilsagn(tilsagn.id) }
         val dbo = DelutbetalingDbo(
@@ -226,6 +229,14 @@ class UtbetalingService(
 
         if (delutbetaling.opprettetAv == navIdent) {
             return Forbidden("Kan ikke beslutte egen utbetaling").left()
+        }
+        when (delutbetaling) {
+            is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling ->
+                return BadRequest("Utbetaling allerede besluttes").left()
+            is DelutbetalingDto.DelutbetalingTilGodkjenning,
+            is DelutbetalingDto.DelutbetalingUtbetalt,
+            is DelutbetalingDto.DelutbetalingAvvist,
+            -> {}
         }
 
         when (request) {

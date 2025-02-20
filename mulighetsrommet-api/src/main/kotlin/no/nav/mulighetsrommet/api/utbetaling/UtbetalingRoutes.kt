@@ -93,9 +93,7 @@ fun Route.utbetalingRoutes() {
                     val request = call.receive<DelutbetalingRequest>()
                     val navIdent = getNavIdent()
 
-                    val result = service.upsertDelutbetaling(utbetalingId, request, navIdent)
-                        .mapLeft { ValidationError(errors = it) }
-                    call.respondWithStatusResponse(result)
+                    call.respondWithStatusResponse(service.upsertDelutbetaling(utbetalingId, request, navIdent))
                 }
             }
 
