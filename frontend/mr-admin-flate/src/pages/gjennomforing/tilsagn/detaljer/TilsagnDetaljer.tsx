@@ -32,10 +32,11 @@ import { tilsagnDetaljerLoader } from "./tilsagnDetaljerLoader";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
+import { LoaderData } from "@/types/loader";
 
 export function TilsagnDetaljer() {
   const { gjennomforing, tilsagn, ansatt, historikk } =
-    useLoaderData<typeof tilsagnDetaljerLoader>();
+    useLoaderData<LoaderData<typeof tilsagnDetaljerLoader>>();
 
   const besluttMutation = useBesluttTilsagn();
   const tilAnnulleringMutation = useTilsagnTilAnnullering();

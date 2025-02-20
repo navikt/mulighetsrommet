@@ -5,10 +5,11 @@ import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { TilsagnTabell } from "./TilsagnTabell";
 import { tilsagnForGjennomforingLoader } from "@/pages/gjennomforing/tilsagn/tabell/tilsagnForGjennomforingLoader";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
+import { LoaderData } from "@/types/loader";
 
 export function TilsagnForGjennomforingContainer() {
   const { tilsagnstyper, tilsagnForGjennomforing } =
-    useLoaderData<typeof tilsagnForGjennomforingLoader>();
+    useLoaderData<LoaderData<typeof tilsagnForGjennomforingLoader>>();
 
   const navigate = useNavigate();
 

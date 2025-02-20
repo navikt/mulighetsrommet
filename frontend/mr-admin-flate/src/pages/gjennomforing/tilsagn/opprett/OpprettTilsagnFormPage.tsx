@@ -9,10 +9,11 @@ import { opprettTilsagnLoader } from "@/pages/gjennomforing/tilsagn/opprett/oppr
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
+import { LoaderData } from "@/types/loader";
 
 export function OpprettTilsagnFormPage() {
   const { avtale, gjennomforing, defaults, godkjenteTilsagn } =
-    useLoaderData<typeof opprettTilsagnLoader>();
+    useLoaderData<LoaderData<typeof opprettTilsagnLoader>>();
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     {

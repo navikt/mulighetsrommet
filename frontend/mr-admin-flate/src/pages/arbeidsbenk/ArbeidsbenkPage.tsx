@@ -5,11 +5,12 @@ import { Tabs } from "@navikt/ds-react";
 import { Outlet, useLoaderData, useLocation, useNavigate } from "react-router";
 import { arbeidsbenkLoader } from "@/pages/arbeidsbenk/arbeidsbenkLoader";
 import { ContentBox } from "@/layouts/ContentBox";
-
+import { LoaderData } from "@/types/loader";
 export function ArbeidsbenkPage() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { antallNotifikasjoner, enableArbeidsbenk } = useLoaderData<typeof arbeidsbenkLoader>();
+  const { antallNotifikasjoner, enableArbeidsbenk } =
+    useLoaderData<LoaderData<typeof arbeidsbenkLoader>>();
 
   useTitle("Arbeidsbenk");
 
