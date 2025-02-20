@@ -51,7 +51,6 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
 
   const { data: deltakerSummary } = useGjennomforingDeltakerSummary(gjennomforing?.id);
 
-  const endreStartDatoModalRef = useRef<HTMLDialogElement>(null);
   const endreSluttDatoModalRef = useRef<HTMLDialogElement>(null);
 
   const {
@@ -93,18 +92,6 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
   }, [setValue, watchStartDato]);
 
   const watchSluttDato = watch("startOgSluttDato.sluttDato");
-
-  function visAdvarselForStartDato() {
-    if (
-      gjennomforing &&
-      antallDeltakere &&
-      antallDeltakere > 0 &&
-      watchStartDato &&
-      gjennomforing.startDato !== watchStartDato
-    ) {
-      endreStartDatoModalRef.current?.showModal();
-    }
-  }
 
   function visAdvarselForSluttDato() {
     if (
@@ -204,9 +191,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
                 label={gjennomforingTekster.startdatoLabel}
                 fromDate={minStartdato}
                 toDate={maxSluttdato}
-                {...register("startOgSluttDato.startDato", {
-                  onChange: visAdvarselForStartDato,
-                })}
+                {...register("startOgSluttDato.startDato")}
                 format={"iso-string"}
                 control={control}
               />
@@ -384,11 +369,6 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
           )}
         </SkjemaKolonne>
       </TwoColumnGrid>
-      <EndreDatoAdvarselModal
-        modalRef={endreStartDatoModalRef}
-        onCancel={() => setValue("startOgSluttDato.startDato", gjennomforing!.startDato)}
-        antallDeltakere={deltakerSummary?.antallDeltakere ?? 0}
-      />
       <EndreDatoAdvarselModal
         modalRef={endreSluttDatoModalRef}
         onCancel={() => setValue("startOgSluttDato.sluttDato", gjennomforing!.sluttDato)}
