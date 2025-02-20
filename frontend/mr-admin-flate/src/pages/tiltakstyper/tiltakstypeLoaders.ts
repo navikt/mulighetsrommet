@@ -1,14 +1,14 @@
 import { PaginertTiltakstype, TiltakstyperService } from "@mr/api-client-v2";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, queryOptions } from "@tanstack/react-query";
 import { LoaderFunction, LoaderFunctionArgs } from "react-router";
 
-export const tiltakstyperQuery = {
+export const tiltakstyperQuery = queryOptions({
   queryKey: ["tiltakstyper"],
   queryFn: async () => {
     const { data } = await TiltakstyperService.getTiltakstyper();
     return data;
   },
-};
+});
 
 export const tiltakstyperLoader =
   (queryClient: QueryClient): LoaderFunction<Promise<PaginertTiltakstype>> =>
@@ -16,15 +16,14 @@ export const tiltakstyperLoader =
     await queryClient.ensureQueryData(tiltakstyperQuery);
   };
 
-export const tiltakstypeQuery = (id: string) => {
-  return {
+export const tiltakstypeQuery = (id: string) =>
+  queryOptions({
     queryKey: ["tiltakstype", id],
     queryFn: async () => {
       const { data } = await TiltakstyperService.getTiltakstypeById({ path: { id } });
       return data;
     },
-  };
-};
+  });
 
 export const tiltakstypeLoader =
   (queryClient: QueryClient) =>

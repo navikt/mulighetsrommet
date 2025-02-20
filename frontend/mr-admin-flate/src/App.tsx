@@ -157,13 +157,13 @@ const router = () => {
             path: "avtaler/:avtaleId",
             element: <AvtalePage />,
             errorElement: <ErrorPage />,
-            loader: avtaleLoader,
+            loader: avtaleLoader(queryClient),
             children: [
               {
                 index: true,
                 element: <AvtaleInfo />,
                 errorElement: <ErrorPage />,
-                loader: avtaleLoader,
+                loader: avtaleLoader(queryClient),
               },
               {
                 path: "gjennomforinger",
@@ -176,25 +176,25 @@ const router = () => {
             path: "avtaler/:avtaleId/skjema",
             element: <AvtaleFormPage />,
             errorElement: <ErrorPage />,
-            loader: avtaleSkjemaLoader,
+            loader: avtaleSkjemaLoader(queryClient),
           },
           {
             path: "avtaler/skjema",
             element: <AvtaleFormPage />,
             errorElement: <ErrorPage />,
-            loader: avtaleSkjemaLoader,
+            loader: avtaleSkjemaLoader(queryClient),
           },
           {
             path: "avtaler/:avtaleId/gjennomforinger/skjema",
             element: <GjennomforingFormPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingFormLoader,
+            loader: gjennomforingFormLoader(queryClient),
           },
           {
             path: "gjennomforinger/skjema",
             element: <GjennomforingFormPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingFormLoader,
+            loader: gjennomforingFormLoader(queryClient),
           },
           {
             path: "gjennomforinger/",
@@ -205,13 +205,13 @@ const router = () => {
             path: "gjennomforinger/:gjennomforingId",
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingLoader,
+            loader: gjennomforingLoader(queryClient),
             children: [
               {
                 index: true,
                 element: <GjennomforingInfo />,
                 errorElement: <ErrorPage />,
-                loader: gjennomforingLoader,
+                loader: gjennomforingLoader(queryClient),
               },
             ],
           },
@@ -219,7 +219,7 @@ const router = () => {
             path: "gjennomforinger/:gjennomforingId/tilsagn",
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingLoader,
+            loader: gjennomforingLoader(queryClient),
             children: [
               {
                 index: true,
@@ -233,7 +233,7 @@ const router = () => {
             path: "gjennomforinger/:gjennomforingId/utbetalinger",
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingLoader,
+            loader: gjennomforingLoader(queryClient),
             children: [
               {
                 index: true,
@@ -247,7 +247,7 @@ const router = () => {
             path: "gjennomforinger/:gjennomforingId/utbetalinger/skjema",
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingLoader,
+            loader: gjennomforingLoader(queryClient),
             children: [
               {
                 index: true,
@@ -261,7 +261,7 @@ const router = () => {
             path: "gjennomforinger/:gjennomforingId/deltakerliste",
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingLoader,
+            loader: gjennomforingLoader(queryClient),
             children: [
               {
                 index: true,
@@ -274,7 +274,7 @@ const router = () => {
             path: "gjennomforinger/:gjennomforingId/skjema",
             element: <GjennomforingFormPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingFormLoader,
+            loader: gjennomforingFormLoader(queryClient),
           },
           {
             path: "gjennomforinger/:gjennomforingId/tilsagn/opprett-tilsagn",
@@ -315,7 +315,6 @@ const router = () => {
             element: <ArbeidsbenkPage />,
             errorElement: <ErrorPage />,
             loader: arbeidsbenkLoader,
-            //element: <Notifikasjonsliste lest={false} />,
             children: [
               {
                 path: "notifikasjoner",

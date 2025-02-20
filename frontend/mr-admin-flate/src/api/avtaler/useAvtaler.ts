@@ -7,7 +7,7 @@ import { AvtalerService, type GetAvtalerData } from "@mr/api-client-v2";
 export function useAvtaler(filter: Partial<AvtaleFilter>) {
   const debouncedSok = useDebounce(filter.sok?.trim(), 300);
 
-  const queryFilter: GetAvtalerData = {
+  const queryFilter: Pick<GetAvtalerData, "query"> = {
     query: {
       tiltakstyper: filter.tiltakstyper,
       search: debouncedSok || undefined,

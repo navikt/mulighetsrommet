@@ -480,8 +480,7 @@ paths:
         - in: query
           name: publisert
           schema:
-            type: boolean
-            nullable: true
+            type: [boolean, "null"]
         - in: query
           name: size
           schema:
@@ -657,8 +656,7 @@ paths:
         - in: query
           name: publisert
           schema:
-            type: boolean
-            nullable: true
+            type: [boolean, "null"]
         - in: query
           name: size
           schema:
@@ -2704,7 +2702,6 @@ components:
             $ref: "#/components/schemas/Innsatsgruppe"
         tiltakskode:
           $ref: "#/components/schemas/Tiltakskode"
-          nullable: true
         arenaKode:
           $ref: "#/components/schemas/TiltakskodeArena"
         startDato:
@@ -2737,14 +2734,14 @@ components:
         avtalenummer:
           type: string
         websaknummer:
-          type: string
+          type: [string, "null"]
         arrangor:
           $ref: "#/components/schemas/ArrangorHovedenhet"
         startDato:
           type: string
           format: date
         sluttDato:
-          type: string
+          type: [string, "null"]
           format: date
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
@@ -2753,15 +2750,13 @@ components:
         arenaAnsvarligEnhet:
           $ref: "#/components/schemas/ArenaNavEnhet"
         prisbetingelser:
-          type: string
-          nullable: true
+          type: [string, "null"]
         administratorer:
           type: array
           items:
             $ref: "#/components/schemas/AvtaleAdministrator"
         antallPlasser:
-          type: number
-          nullable: true
+          type: [number, "null"]
         kontorstruktur:
           $ref: "#/components/schemas/NavKontorStruktur"
         opphav:
@@ -2777,19 +2772,25 @@ components:
         personvernBekreftet:
           type: boolean
         amoKategorisering:
-          $ref: "#/components/schemas/AmoKategorisering"
-          nullable: true
+          anyOf:
+            - type: ["null"]
+            - $ref: "#/components/schemas/AmoKategorisering"
         opsjonsmodellData:
-          $ref: "#/components/schemas/OpsjonsmodellData"
-          nullable: true
+          anyOf:
+            - type: ["null"]
+            - $ref: "#/components/schemas/OpsjonsmodellData"
         opsjonerRegistrert:
           type: array
           items:
             $ref: "#/components/schemas/OpsjonLoggRegistrert"
         utdanningslop:
-          $ref: "#/components/schemas/Utdanningslop"
+          anyOf:
+            - type: ["null"]
+            - $ref: "#/components/schemas/Utdanningslop"
         prismodell:
-          $ref: "#/components/schemas/Prismodell"
+          anyOf:
+            - type: ["null"]
+            - $ref: "#/components/schemas/Prismodell"
       required:
         - id
         - tiltakstype
@@ -2806,6 +2807,8 @@ components:
         - amoKategorisering
         - opsjonsmodellData
         - opsjonerRegistrert
+        - utdanningslop
+        - prismodell
 
     AvtaleRequest:
       type: object
@@ -2819,37 +2822,35 @@ components:
           type: string
           format: UUID
         avtalenummer:
-          type: string
-          nullable: true
+          type: [string, "null"]
         websaknummer:
-          type: string
-          nullable: true
+          type: [string, "null"]
         arrangor:
-            type: object
-            nullable: true
-            properties:
-              hovedenhet:
-                type: string
-              underenheter:
-                type: array
-                items:
-                  type: string
-              kontaktpersoner:
-                type: array
-                items:
-                  type: string
-                  format: UUID
-            required:
-              - hovedenhet
-              - underenheter
-              - kontaktpersoner
+            anyOf:
+              - type: "null"
+              - type: object
+                properties:
+                  hovedenhet:
+                    type: string
+                  underenheter:
+                    type: array
+                    items:
+                      type: string
+                  kontaktpersoner:
+                    type: array
+                    items:
+                      type: string
+                      format: UUID
+                required:
+                  - hovedenhet
+                  - underenheter
+                  - kontaktpersoner
         startDato:
           type: string
           format: date
         sluttDato:
-          type: string
+          type: [string, "null"]
           format: date
-          nullable: true
         administratorer:
           type: array
           items:
@@ -2857,18 +2858,17 @@ components:
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         prisbetingelser:
-          type: string
-          nullable: true
+          type: [string, "null"]
         navEnheter:
           type: array
           items:
             type: string
         beskrivelse:
-          type: string
-          nullable: true
+          type: [string, "null"]
         faneinnhold:
-          $ref: "#/components/schemas/FaneinnholdRequest"
-          nullable: true
+           anyOf:
+            - type: "null"
+            - $ref: "#/components/schemas/FaneinnholdRequest"
         personopplysninger:
           type: array
           items:
@@ -2876,17 +2876,21 @@ components:
         personvernBekreftet:
           type: boolean
         amoKategorisering:
-          $ref: "#/components/schemas/AmoKategorisering"
-          nullable: true
+          anyOf:
+            - type: "null"
+            - $ref: "#/components/schemas/AmoKategorisering"
         opsjonsmodellData:
-          $ref: "#/components/schemas/OpsjonsmodellData"
-          nullable: true
+           anyOf:
+            - type: "null"
+            - $ref: "#/components/schemas/OpsjonsmodellData"
         utdanningslop:
-          $ref: "#/components/schemas/UtdanningslopDbo"
-          nullable: true
+           anyOf:
+            - type: "null"
+            - $ref: "#/components/schemas/UtdanningslopDbo"
         prismodell:
-          $ref: "#/components/schemas/Prismodell"
-          nullable: true
+          anyOf:
+            - type: "null"
+            - $ref: "#/components/schemas/Prismodell"
       required:
         - id
         - navn
@@ -3055,8 +3059,7 @@ components:
         navn:
           type: string
         tiltaksnummer:
-          type: string
-          nullable: true
+          type: [string, "null"]
         arrangor:
           $ref: "#/components/schemas/ArrangorUnderenhet"
         startDato:
@@ -3108,17 +3111,20 @@ components:
         deltidsprosent:
           type: number
         estimertVentetid:
-          $ref: "#/components/schemas/EstimertVentetid"
-          nullable: true
+           anyOf:
+            - type: ["null"]
+            - $ref: "#/components/schemas/EstimertVentetid"
         tilgjengeligForArrangorFraOgMedDato:
-          type: string
+          type: [string, "null"]
           format: date
-          nullable: true
         amoKategorisering:
-          $ref: "#/components/schemas/AmoKategorisering"
-          nullable: true
+          anyOf:
+            - type: ["null"]
+            - $ref: "#/components/schemas/AmoKategorisering"
         utdanningslop:
-          $ref: "#/components/schemas/Utdanningslop"
+          anyOf:
+            - type: ["null"]
+            - $ref: "#/components/schemas/Utdanningslop"
         stengt:
           type: array
           items:
@@ -3170,9 +3176,8 @@ components:
           type: string
           format: date
         sluttDato:
-          type: string
+          type: [string, "null"]
           format: date
-          nullable: true
         antallPlasser:
           type: number
         arrangorId:
@@ -3200,34 +3205,35 @@ components:
           items:
             $ref: "#/components/schemas/GjennomforingKontaktpersonRequest"
         stedForGjennomforing:
-          type: string
-          nullable: true
+          type: [string, "null"]
         faneinnhold:
-          $ref: "#/components/schemas/FaneinnholdRequest"
-          nullable: true
+          anyOf:
+            - type: ["null"]
+            - $ref: "#/components/schemas/FaneinnholdRequest"
         beskrivelse:
-          type: string
-          nullable: true
+          type: [string, "null"]
         deltidsprosent:
           type: number
         estimertVentetid:
-          type: object
-          properties:
-            verdi:
-              type: number
-            enhet:
-              type: string
-          nullable: true
+          anyOf:
+            - type: "null"
+            - type: object
+              properties:
+                verdi:
+                  type: number
+                enhet:
+                  type: string
         tilgjengeligForArrangorFraOgMedDato:
-          type: string
+          type: [string, "null"]
           format: date
-          nullable: true
         amoKategorisering:
-          $ref: "#/components/schemas/AmoKategorisering"
-          nullable: true
+          anyOf:
+            - type: ["null"]
+            - $ref: "#/components/schemas/AmoKategorisering"
         utdanningslop:
-          $ref: "#/components/schemas/UtdanningslopDbo"
-          nullable: true
+          anyOf:
+            - type: ["null"]
+            - $ref: "#/components/schemas/UtdanningslopDbo"
       required:
         - id
         - tiltakstypeId
@@ -3383,8 +3389,7 @@ components:
         hovedenhet:
           $ref: "#/components/schemas/NavAnsattHovedenhet"
         mobilnummer:
-          type: string
-          nullable: true
+          type: [string, "null"]
         epost:
           type: string
         roller:
@@ -3392,9 +3397,8 @@ components:
           items:
             $ref: "#/components/schemas/NavAnsattRolle"
         skalSlettesDato:
-          type: string
+          type: [string, "null"]
           format: date
-          nullable: true
       required:
         - azureId
         - navIdent
@@ -3454,13 +3458,11 @@ components:
         venterPaaSvarFraBruker:
           type: boolean
         gjennomforingId:
-          type: string
+          type: [string, "null"]
           format: uuid
-          nullable: true
         sanityId:
-          type: string
+          type: [string, "null"]
           format: uuid
-          nullable: true
       required:
         - fnr
         - overskrift
@@ -3508,13 +3510,11 @@ components:
       type: object
       properties:
         startDato:
-          type: string
+          type: [string, "null"]
           format: date
-          nullable: true
         sluttDato:
-          type: string
+          type: [string, "null"]
           format: date
-          nullable: true
 
     DeltakelseEierskap:
       type: string
@@ -3734,8 +3734,7 @@ components:
         enhetsnummer:
           type: string
         overordnetEnhet:
-          nullable: true
-          type: string
+          type: [string, "null"]
         navn:
           type: string
         status:
@@ -3831,11 +3830,9 @@ components:
         navn:
           type: string
         telefon:
-          type: string
-          nullable: true
+          type: [string, "null"]
         beskrivelse:
-          type: string
-          nullable: true
+          type: [string, "null"]
         epost:
           type: string
         ansvarligFor:
@@ -3862,11 +3859,9 @@ components:
         navn:
           type: string
         beskrivelse:
-          type: string
-          nullable: true
+          type: [string, "null"]
         telefon:
-          type: string
-          nullable: true
+          type: [string, "null"]
         epost:
           type: string
         ansvarligFor:
@@ -4005,7 +4000,6 @@ components:
           type: string
         estimertVentetid:
           $ref: "#/components/schemas/EstimertVentetid"
-          nullable: true
         personvernBekreftet:
           type: boolean
         personopplysningerSomKanBehandles:
@@ -4198,28 +4192,23 @@ components:
       type: object
       properties:
         forHvemInfoboks:
-          type: string
-          nullable: true
+          type: [string, "null"]
         forHvem:
           type: object
         detaljerOgInnholdInfoboks:
-          type: string
-          nullable: true
+          type: [string, "null"]
         detaljerOgInnhold:
           type: object
         pameldingOgVarighetInfoboks:
-          type: string
-          nullable: true
+          type: [string, "null"]
         pameldingOgVarighet:
           type: object
         kontaktinfo:
           type: object
         kontaktinfoInfoboks:
-          type: string
-          nullable: true
+          type: [string, "null"]
         delMedBruker:
-          type: string
-          nullable: true
+          type: [string, "null"]
 
     VeilederflateKontaktInfo:
       type: object
@@ -4257,11 +4246,9 @@ components:
         epost:
           type: string
         telefon:
-          type: string
-          nullable: true
+          type: [string, "null"]
         beskrivelse:
-          type: string
-          nullable: true
+          type: [string, "null"]
       required:
         - id
         - navn
@@ -4333,17 +4320,14 @@ components:
         navn:
           type: string
         overordnetEnhet:
-          type: string
-          nullable: true
+          type: [string, "null"]
         underenheter:
           type: array
           items:
             $ref: "#/components/schemas/Arrangor"
-          nullable: true
         slettetDato:
           type: string
           format: date
-          nullable: true
       required:
         - id
         - organisasjonsnummer
@@ -4375,8 +4359,7 @@ components:
         title:
           type: string
         description:
-          type: string
-          nullable: true
+          type: [string, "null"]
         user:
           type: string
         createdAt:
@@ -4386,13 +4369,14 @@ components:
           type: string
           format: date-time
         metadata:
-          type: object
-          properties:
-            link:
-              type: string
-            linkText:
-              type: string
-          nullable: true
+          anyOf:
+            - type: ["null"]
+            - type: object
+              properties:
+                link:
+                  type: string
+                linkText:
+                  type: string
       required:
         - id
         - type
@@ -4505,7 +4489,6 @@ components:
         avtaleId:
           type: string
           format: UUID
-          nullable: true
 
     GjennomforingDeltakerSummary:
       type: object
@@ -4538,15 +4521,13 @@ components:
         epost:
           type: string
         mobilnummer:
-          type: string
-          nullable: true
+          type: [string, "null"]
         navEnheter:
           type: array
           items:
             type: string
         beskrivelse:
-          type: string
-          nullable: true
+          type: [string, "null"]
       required:
         - navn
         - navIdent
@@ -4565,8 +4546,7 @@ components:
           items:
             type: string
         beskrivelse:
-          type: string
-          nullable: true
+          type: [string, "null"]
       required:
         - navIdent
         - navEnheter
@@ -5043,8 +5023,7 @@ components:
         tittel:
           type: string
         hjelpetekst:
-          type: string
-          nullable: true
+          type: [string, "null"]
       required:
         - personopplysning
         - tittel
@@ -5087,15 +5066,14 @@ components:
       type: object
       properties:
         opsjonMaksVarighet:
-          type: string
+          type: [string, "null"]
           format: date
-          nullable: true
         opsjonsmodell:
-          $ref: "#/components/schemas/OpsjonsmodellKey"
-          nullable: true
+          anyOf:
+            - type: "null"
+            - $ref: "#/components/schemas/OpsjonsmodellKey"
         customOpsjonsmodellNavn:
-          type: string
-          nullable: true
+          type: [string, "null"]
       required:
         - opsjonMaksVarighet
         - opsjonsmodell
@@ -5118,13 +5096,11 @@ components:
           type: string
           format: uuid
         nySluttdato:
-          type: string
+          type: [string, "null"]
           format: date
-          nullable: true
         forrigeSluttdato:
-          type: string
+          type: [string, "null"]
           format: date
-          nullable: true
         status:
           $ref: "#/components/schemas/OpsjonStatus"
       required:
@@ -5150,13 +5126,11 @@ components:
           type: string
           format: date
         sluttDato:
-          type: string
+          type: [string, "null"]
           format: date
-          nullable: true
         forrigeSluttdato:
-          type: string
+          type: [string, "null"]
           format: date
-          nullable: true
         status:
           $ref: "#/components/schemas/OpsjonStatus"
       required:
@@ -5183,9 +5157,8 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: [string, "null"]
           format: uuid
-          nullable: true
         navn:
           type: string
         "type":
@@ -5375,8 +5348,7 @@ components:
             navn:
               type: string
             overordnetEnhet:
-              type: string
-              nullable: true
+              type: [string, "null"]
           required:
             - id
             - organisasjonsnummer
@@ -5558,8 +5530,7 @@ components:
           items:
             $ref: "#/components/schemas/TilsagnAvvisningAarsak"
         forklaring:
-          type: string
-          nullable: true
+          type: [string, "null"]
       required:
         - besluttelse
         - aarsaker
@@ -6311,8 +6282,7 @@ components:
           items:
             type: string
         forklaring:
-          type: string
-          nullable: true
+          type: [string, "null"]
         tilsagnId:
           type: string
           format: uuid
