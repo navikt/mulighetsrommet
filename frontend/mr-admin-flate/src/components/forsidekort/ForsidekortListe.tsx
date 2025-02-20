@@ -19,7 +19,7 @@ const forsidekortData: ForsideKortProps[] = [
       </div>
     ),
     url: "arbeidsbenk/oppgaver",
-    tekst: "Her finner du en oversikt over dine oppgaver",
+    tekst: "Her finner du en oversikt over enhetens oppgaver",
   },
   {
     navn: "Avtaler",
