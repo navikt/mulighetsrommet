@@ -212,7 +212,7 @@ class UtbetalingService(
         db.session {
             queries.delutbetaling.upsert(dbo)
             val dto = getOrError(utbetalingId)
-            logEndring("Delutbetaling sendt til godkjenning", dto, EndretAv.NavAnsatt(opprettetAv))
+            logEndring("Utbetaling sendt til godkjenning", dto, EndretAv.NavAnsatt(opprettetAv))
         }
     }
 
@@ -245,7 +245,7 @@ class UtbetalingService(
             }
         }
         val dto = getOrError(utbetalingId)
-        logEndring("Delutbetaling ${request.besluttelse}", dto, EndretAv.NavAnsatt(navIdent))
+        logEndring("Utbetaling ${if (request.besluttelse == Besluttelse.GODKJENT) "godkjent" else "returnert"}", dto, EndretAv.NavAnsatt(navIdent))
 
         return Unit.right()
     }

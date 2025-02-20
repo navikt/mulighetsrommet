@@ -6,7 +6,7 @@ const val ENDRINGSHISTORIKK_TILTAKSADMINISTRASJON_SYSTEM_BRUKER = "System"
 
 const val ENDRINGSHISTORIKK_ARENA_SYSTEM_BRUKER = "Arena"
 
-const val ENDRINGSHISTORIKK_ARRANGOR = "Arrangor"
+const val ENDRINGSHISTORIKK_ARRANGOR = "Arrangør"
 
 sealed class EndretAv(val id: String) {
     class NavAnsatt(navIdent: NavIdent) : EndretAv(navIdent.value)
