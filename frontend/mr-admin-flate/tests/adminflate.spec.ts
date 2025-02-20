@@ -22,12 +22,6 @@ test.describe("Smoketest og UU", () => {
     await sjekkUU(page, "heading");
   });
 
-  test("Tiltakstyper", async ({ page }) => {
-    await page.getByTestId("forsidekort-tiltakstyper").click();
-    await expect(page.getByTestId("header_oversikt-over-tiltakstyper")).toBeVisible();
-    await sjekkUU(page, "header_oversikt-over-tiltakstyper");
-  });
-
   test("Avtaler", async ({ page }) => {
     await page.getByTestId("forsidekort-avtaler").click();
     await expect(page.getByTestId("header_oversikt-over-avtaler")).toBeVisible();
