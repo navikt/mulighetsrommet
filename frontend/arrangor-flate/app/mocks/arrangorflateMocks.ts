@@ -6,6 +6,7 @@ import {
   TilsagnStatus,
   TilsagnType,
   ArrFlateUtbetalingStatus,
+  ArrFlateUtbetalingKompakt,
 } from "@mr/api-client-v2";
 import { http, HttpResponse, PathParams } from "msw";
 import { v4 as uuid } from "uuid";
@@ -50,10 +51,101 @@ const mockDeltakelser = [
   },
 ];
 
+const mockUtbetalinger: ArrFlateUtbetalingKompakt[] = [
+  {
+    id: "da28997b-c2ba-4f5c-b733-94eb57e57d19",
+    status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+    fristForGodkjenning: "2024-08-01T00:00:00",
+    tiltakstype: {
+      navn: "Arbeidsforberedende trening",
+    },
+
+    gjennomforing: {
+      id: uuid(),
+      navn: "AFT tiltak Moss",
+    },
+    arrangor: {
+      id: uuid(),
+      organisasjonsnummer: "123456789",
+      navn: "Fretex",
+      slettet: false,
+    },
+    periodeStart: "2024-06-01",
+    periodeSlutt: "2024-06-30",
+    belop: 308530,
+  },
+  {
+    id: "80a49868-0d06-4243-bc39-7ac33fbada88",
+    status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+    fristForGodkjenning: "2024-08-01T00:00:00",
+    tiltakstype: {
+      navn: "Arbeidsforberedende trening",
+    },
+    gjennomforing: {
+      id: uuid(),
+      navn: "Amo tiltak Halden",
+    },
+    arrangor: {
+      id: uuid(),
+      organisasjonsnummer: "123456789",
+      navn: "Fretex",
+      slettet: false,
+    },
+    periodeStart: "2024-06-01",
+    periodeSlutt: "2024-06-30",
+    belop: 85000,
+  },
+  {
+    id: "91591ca9-ac32-484e-b95a-1a1258c5c32a",
+    status: ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV,
+    fristForGodkjenning: "2024-08-01T00:00:00",
+    tiltakstype: {
+      navn: "Arbeidsforberedende trening",
+    },
+    gjennomforing: {
+      id: uuid(),
+      navn: "Amo tiltak Halden",
+    },
+
+    arrangor: {
+      id: uuid(),
+      organisasjonsnummer: "123456789",
+      navn: "Fretex",
+      slettet: false,
+    },
+    periodeStart: "2024-06-01",
+    periodeSlutt: "2024-06-30",
+    belop: 85000,
+  },
+  {
+    id: "87b4425b-8be0-4938-94bc-2ba1ae7beb0e",
+    status: ArrFlateUtbetalingStatus.UTBETALT,
+    fristForGodkjenning: "2024-08-01T00:00:00",
+    tiltakstype: {
+      navn: "Arbeidsforberedende trening",
+    },
+    gjennomforing: {
+      id: uuid(),
+      navn: "Amo tiltak Halden",
+    },
+
+    arrangor: {
+      id: uuid(),
+      organisasjonsnummer: "123456789",
+      navn: "Fretex",
+      slettet: false,
+    },
+    periodeStart: "2024-06-01",
+    periodeSlutt: "2024-06-30",
+
+    belop: 85000,
+  },
+];
+
 const mockKrav: ArrFlateUtbetaling[] = [
   {
     type: "AFT",
-    id: uuid(),
+    id: "da28997b-c2ba-4f5c-b733-94eb57e57d19",
     status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
     fristForGodkjenning: "2024-08-01T00:00:00",
     tiltakstype: {
@@ -85,7 +177,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
   },
   {
     type: "AFT",
-    id: uuid(),
+    id: "80a49868-0d06-4243-bc39-7ac33fbada88",
     status: ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
     fristForGodkjenning: "2024-08-01T00:00:00",
     tiltakstype: {
@@ -117,7 +209,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
   },
   {
     type: "AFT",
-    id: uuid(),
+    id: "91591ca9-ac32-484e-b95a-1a1258c5c32a",
     status: ArrFlateUtbetalingStatus.BEHANDLES_AV_NAV,
     fristForGodkjenning: "2024-08-01T00:00:00",
     tiltakstype: {
@@ -149,7 +241,7 @@ const mockKrav: ArrFlateUtbetaling[] = [
   },
   {
     type: "AFT",
-    id: uuid(),
+    id: "87b4425b-8be0-4938-94bc-2ba1ae7beb0e",
     status: ArrFlateUtbetalingStatus.UTBETALT,
     fristForGodkjenning: "2024-08-01T00:00:00",
     tiltakstype: {
@@ -240,7 +332,7 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
     type: TilsagnType.TILSAGN,
   },
   {
-    id: uuid(),
+    id: "80a49868-0d06-4243-bc39-7ac33fbada88",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
@@ -329,7 +421,7 @@ const mockRelevanteForslag: RelevanteForslag[] = [
 export const arrangorflateHandlers = [
   http.get<PathParams, ArrFlateUtbetaling[]>(
     "*/api/v1/intern/arrangorflate/arrangor/:orgnr/utbetaling",
-    () => HttpResponse.json(mockKrav),
+    () => HttpResponse.json(mockUtbetalinger),
   ),
   http.get<PathParams, ArrFlateUtbetaling[]>(
     "*/api/v1/intern/arrangorflate/utbetaling/:id",

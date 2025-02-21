@@ -20,7 +20,6 @@ export function UtbetalingTable({ utbetalinger }: Props) {
       </Alert>
     );
   }
-
   return (
     <Table aria-label="Utbetalinger">
       <Table.Header>
