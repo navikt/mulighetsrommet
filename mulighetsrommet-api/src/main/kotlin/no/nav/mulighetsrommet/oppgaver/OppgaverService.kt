@@ -57,7 +57,13 @@ class OppgaverService(val db: ApiDatabase) {
     ): List<Oppgave> {
         return db.session {
             queries.tilsagn
-                .getAll(statuser = listOf(TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.TIL_ANNULLERING, TilsagnStatus.RETURNERT))
+                .getAll(
+                    statuser = listOf(
+                        TilsagnStatus.TIL_GODKJENNING,
+                        TilsagnStatus.TIL_ANNULLERING,
+                        TilsagnStatus.RETURNERT
+                    )
+                )
                 .asSequence()
                 .filter { oppgave ->
                     kostnadssteder.isEmpty() || oppgave.kostnadssted.enhetsnummer in kostnadssteder
@@ -105,7 +111,8 @@ class OppgaverService(val db: ApiDatabase) {
                     if (kostnadssteder.isEmpty()) {
                         true
                     } else {
-                        val tilsagn = db.session { queries.tilsagn.getTilsagnForGjennomforing(it.gjennomforing.id, it.periode) }
+                        val tilsagn =
+                            db.session { queries.tilsagn.getTilsagnForGjennomforing(it.gjennomforing.id, it.periode) }
                         tilsagn.isEmpty() || tilsagn.any { it.kostnadssted.enhetsnummer in kostnadssteder }
                     }
                 }
@@ -135,8 +142,9 @@ class OppgaverService(val db: ApiDatabase) {
                 link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
             ),
             createdAt = status.endretTidspunkt,
-            deadline = periodeStart.atStartOfDay(),
+            oppgaveIcon = OppgaveIcon.TILSAGN,
         )
+
         is Returnert -> Oppgave(
             id = UUID.randomUUID(),
             type = OppgaveType.TILSAGN_RETURNERT,
@@ -148,8 +156,9 @@ class OppgaverService(val db: ApiDatabase) {
                 link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
             ),
             createdAt = status.endretTidspunkt,
-            deadline = periodeStart.atStartOfDay(),
+            oppgaveIcon = OppgaveIcon.TILSAGN,
         )
+
         is TilAnnullering -> Oppgave(
             id = UUID.randomUUID(),
             type = OppgaveType.TILSAGN_TIL_ANNULLERING,
@@ -161,8 +170,9 @@ class OppgaverService(val db: ApiDatabase) {
                 link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
             ),
             createdAt = status.endretTidspunkt,
-            deadline = periodeStart.atStartOfDay(),
+            oppgaveIcon = OppgaveIcon.TILSAGN,
         )
+
         is TilsagnDto.TilsagnStatus.Annullert, TilsagnDto.TilsagnStatus.Godkjent -> null
     }
 
@@ -182,8 +192,9 @@ class OppgaverService(val db: ApiDatabase) {
                 link = "/gjennomforinger/$gjennomforingId/utbetalinger/$utbetalingId",
             ),
             createdAt = opprettetTidspunkt,
-            deadline = opprettetTidspunkt.plusDays(7),
+            oppgaveIcon = OppgaveIcon.UTBETALING,
         )
+
         is DelutbetalingDto.DelutbetalingAvvist -> Oppgave(
             id = UUID.randomUUID(),
             type = OppgaveType.UTBETALING_RETURNERT,
@@ -195,11 +206,12 @@ class OppgaverService(val db: ApiDatabase) {
                 link = "/gjennomforinger/$gjennomforingId/utbetalinger/$utbetalingId",
             ),
             createdAt = besluttetTidspunkt,
-            deadline = besluttetTidspunkt.plusDays(2),
+            oppgaveIcon = OppgaveIcon.UTBETALING,
         )
+
         is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling,
         is DelutbetalingDto.DelutbetalingUtbetalt,
-        -> null
+            -> null
     }
 
     private fun UtbetalingDto.toOppgave(): Oppgave? = when (status) {
@@ -214,12 +226,13 @@ class OppgaverService(val db: ApiDatabase) {
                 link = "/gjennomforinger/${gjennomforing.id}/utbetalinger/$id",
             ),
             createdAt = createdAt,
-            deadline = createdAt.plusDays(7),
+            oppgaveIcon = OppgaveIcon.UTBETALING,
         )
+
         UtbetalingStatus.INNSENDT_AV_NAV,
         UtbetalingStatus.KLAR_FOR_GODKJENNING,
         UtbetalingStatus.UTBETALT,
         UtbetalingStatus.VENTER_PA_ENDRING,
-        -> null
+            -> null
     }
 }
