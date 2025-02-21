@@ -7,7 +7,7 @@ import { TilsagnForGjennomforingContainer } from "@/pages/gjennomforing/tilsagn/
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import { AnsattService, NavAnsatt, NavAnsattRolle } from "@mr/api-client-v2";
 import { Page } from "@navikt/ds-react";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { createBrowserRouter, Outlet, RouterProvider, useLoaderData } from "react-router";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
@@ -112,9 +112,7 @@ const ansattLoader = (queryClient: QueryClient) => async () => {
   return queryClient.ensureQueryData(ansattQuery);
 };
 
-const router = () => {
-  const queryClient = new QueryClient();
-
+const router = (queryClient: QueryClient) => {
   return createBrowserRouter(
     [
       {
@@ -368,5 +366,6 @@ const router = () => {
 };
 
 export function AppWithRouter() {
-  return <RouterProvider router={router()} />;
+  const queryClient = useQueryClient();
+  return <RouterProvider router={router(queryClient)} />;
 }

@@ -8,6 +8,8 @@ import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/u
 import { useRevalidator } from "react-router";
 import { FloppydiskIcon } from "@navikt/aksel-icons";
 import { FormGroup } from "@/components/skjema/FormGroup";
+import { useQueryClient } from "@tanstack/react-query";
+import { QueryKeys } from "@/api/QueryKeys";
 
 interface RegistrerStengtHosArrangorFormProps {
   gjennomforing: GjennomforingDto;
@@ -18,6 +20,7 @@ export function RegistrerStengtHosArrangorForm({
 }: RegistrerStengtHosArrangorFormProps) {
   const setStengtHosArrangor = useSetStengtHosArrangor(gjennomforing.id);
   const revalidator = useRevalidator();
+  const queryClient = useQueryClient();
 
   const form = useForm<SetStengtHosArrangorRequest>({});
 
@@ -33,7 +36,11 @@ export function RegistrerStengtHosArrangorForm({
       {
         onSuccess: async () => {
           form.reset();
-          await revalidator.revalidate();
+          await queryClient.invalidateQueries({
+            queryKey: [QueryKeys.gjennomforing(gjennomforing.id)],
+            refetchType: "all",
+          });
+          revalidator.revalidate();
         },
         onError: (error: ProblemDetail) => {
           if (isValidationError(error)) {

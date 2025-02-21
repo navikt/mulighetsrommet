@@ -1,6 +1,8 @@
 import { useSetApentForPamelding } from "@/api/gjennomforing/useSetApentForPamelding";
+import { QueryKeys } from "@/api/QueryKeys";
 import { GjennomforingDto } from "@mr/api-client-v2";
 import { Alert, Button, Modal, Switch } from "@navikt/ds-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { RefObject } from "react";
 import { useRevalidator } from "react-router";
 
@@ -12,6 +14,7 @@ interface Props {
 export function SetApentForPameldingModal({ modalRef, gjennomforing }: Props) {
   const { mutate } = useSetApentForPamelding(gjennomforing.id);
   const revalidator = useRevalidator();
+  const queryClient = useQueryClient();
 
   return (
     <Modal ref={modalRef} header={{ heading: "Åpent for påmelding" }}>
@@ -34,7 +37,17 @@ export function SetApentForPameldingModal({ modalRef, gjennomforing }: Props) {
 
           <Switch
             checked={gjennomforing.apentForPamelding}
-            onChange={(e) => mutate(e.target.checked, { onSuccess: revalidator.revalidate })}
+            onChange={(e) =>
+              mutate(e.target.checked, {
+                onSuccess: async () => {
+                  await queryClient.invalidateQueries({
+                    queryKey: [QueryKeys.gjennomforing(gjennomforing.id)],
+                    refetchType: "all",
+                  });
+                  revalidator.revalidate();
+                },
+              })
+            }
           >
             Åpent for påmelding
           </Switch>

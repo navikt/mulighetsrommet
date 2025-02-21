@@ -14,6 +14,8 @@ import React, { useRef } from "react";
 import { useNavigate, useRevalidator } from "react-router";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
+import { useQueryClient } from "@tanstack/react-query";
+import { QueryKeys } from "@/api/QueryKeys";
 
 interface Props {
   ansatt: NavAnsatt;
@@ -24,6 +26,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
   const navigate = useNavigate();
   const { mutate } = useMutatePublisert();
   const revalidate = useRevalidator();
+  const queryClient = useQueryClient();
   const advarselModal = useRef<HTMLDialogElement>(null);
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const registrerStengtModalRef = useRef<HTMLDialogElement>(null);
@@ -38,7 +41,13 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
     mutate(
       { id: gjennomforing.id, publisert: e.currentTarget.checked },
       {
-        onSuccess: revalidate.revalidate,
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
+            queryKey: [QueryKeys.gjennomforing(gjennomforing.id)],
+            refetchType: "all",
+          });
+          revalidate.revalidate();
+        },
       },
     );
   }
