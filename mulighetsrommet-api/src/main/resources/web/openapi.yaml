@@ -5690,6 +5690,7 @@ components:
         - KLAR_FOR_GODKJENNING
         - BEHANDLES_AV_NAV
         - UTBETALT
+        - VENTER_PA_ENDRING
 
     UtbetalingStatus:
       type: string

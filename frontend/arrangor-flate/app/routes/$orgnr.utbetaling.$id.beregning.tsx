@@ -159,7 +159,11 @@ function ForhandsgodkjentBeregning({
       <HGrid gap="5" columns={1}>
         <GuidePanel>
           Hvis noen av opplysningene om deltakerne ikke stemmer, må det sendes forslag til Nav om
-          endring via <Link to={deltakerlisteUrl}>Deltakeroversikten</Link>.
+          endring via{" "}
+          <Link className="underline" to={deltakerlisteUrl}>
+            Deltakeroversikten
+          </Link>
+          .
         </GuidePanel>
         {deltakereMedRelevanteForslag.length > 0 && (
           <Alert variant="warning">

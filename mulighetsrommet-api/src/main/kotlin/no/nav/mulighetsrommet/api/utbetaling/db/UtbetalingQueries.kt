@@ -5,7 +5,6 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utbetaling.model.*
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAft
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.*
@@ -332,7 +331,6 @@ class UtbetalingQueries(private val session: Session) {
     fun Row.toUtbetalingDto(): UtbetalingDto {
         val beregningsmodell = Beregningsmodell.valueOf(string("beregningsmodell"))
         val beregning = getBeregning(uuid("id"), beregningsmodell)
-
         val id = uuid("id")
         val delutbetalinger = DelutbetalingQueries(session).getByUtbetalingId(id)
         val innsender = stringOrNull("innsender")?.let { UtbetalingDto.Innsender.fromString(it) }
@@ -381,6 +379,7 @@ fun utbetalingStatus(
     if (delutbetaling.isNotEmpty() && delutbetaling.all { it is DelutbetalingDto.DelutbetalingUtbetalt }) {
         return UtbetalingStatus.UTBETALT
     }
+
     return when (innsender) {
         is UtbetalingDto.Innsender.ArrangorAnsatt -> UtbetalingStatus.INNSENDT_AV_ARRANGOR
         is UtbetalingDto.Innsender.NavAnsatt -> UtbetalingStatus.INNSENDT_AV_NAV

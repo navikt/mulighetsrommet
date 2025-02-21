@@ -219,6 +219,7 @@ class OppgaverService(val db: ApiDatabase) {
         UtbetalingStatus.INNSENDT_AV_NAV,
         UtbetalingStatus.KLAR_FOR_GODKJENNING,
         UtbetalingStatus.UTBETALT,
+        UtbetalingStatus.VENTER_PA_ENDRING,
         -> null
     }
 }
