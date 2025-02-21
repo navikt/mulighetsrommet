@@ -4403,6 +4403,9 @@ components:
     Oppgave:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
         type:
           $ref: "#/components/schemas/OppgaveType"
         title:

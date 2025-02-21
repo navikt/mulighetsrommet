@@ -8,13 +8,14 @@ import { useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { Select } from "@navikt/ds-react";
 import { useAtom } from "jotai/index";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useLoaderData } from "react-router";
 import { OppgaverFilter } from "../../../components/filter/OppgaverFilter";
 import { OppgaveFilterTags } from "../../../components/filter/OppgaverFilterTags";
 import { NullstillKnappForOppgaver } from "./NullstillKnappForOppgaver";
 import { ContentBox } from "../../../layouts/ContentBox";
 import { LoaderData } from "@/types/loader";
+import { Laster } from "../../../components/laster/Laster";
 type OppgaverSorting = "korteste-frist" | "nyeste" | "eldste";
 
 function sort(oppgaver: GetOppgaverResponse, sorting: OppgaverSorting) {
@@ -92,19 +93,21 @@ export function OppgaverPage() {
               </div>
             </div>
             <div className="grid grid-cols-1 gap-2 mt-4">
-              {sortedOppgaver.map((o) => {
-                // @TODO: Should maybe have something like tiltakstypeName come from the backend instead of doing manual mapping
-                return (
-                  <Oppgave
-                    key={o.createdAt}
-                    tiltakstype={tiltakstyper.find((t) => t.tiltakskode === o.tiltakstype)!}
-                    oppgave={o}
-                  />
-                );
-              })}
-              {sortedOppgaver.length === 0 && (
-                <EmptyState tittel={"Du har ingen nye oppgaver"} beskrivelse={""} />
-              )}
+              <Suspense fallback={<Laster tekst={"Laster oppgaver"} />}>
+                {sortedOppgaver.map((o) => {
+                  // @TODO: Should maybe have something like tiltakstypeName come from the backend instead of doing manual mapping
+                  return (
+                    <Oppgave
+                      key={o.id}
+                      tiltakstype={tiltakstyper.find((t) => t.tiltakskode === o.tiltakstype)!}
+                      oppgave={o}
+                    />
+                  );
+                })}
+                {sortedOppgaver.length === 0 && (
+                  <EmptyState tittel={"Du har ingen nye oppgaver"} beskrivelse={""} />
+                )}
+              </Suspense>
             </div>
           </div>
         }

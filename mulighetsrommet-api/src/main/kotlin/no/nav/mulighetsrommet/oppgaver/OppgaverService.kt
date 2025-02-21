@@ -3,9 +3,7 @@ package no.nav.mulighetsrommet.oppgaver
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatus.Returnert
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatus.TilAnnullering
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatus.TilGodkjenning
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatus.*
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
@@ -127,6 +125,7 @@ class OppgaverService(val db: ApiDatabase) {
 
     private fun TilsagnDto.toOppgave(): Oppgave? = when (status) {
         is TilGodkjenning -> Oppgave(
+            id = UUID.randomUUID(),
             type = OppgaveType.TILSAGN_TIL_GODKJENNING,
             title = "Tilsagn til godkjenning",
             description = "Tilsagnet er til godkjenning og må behandles",
@@ -139,6 +138,7 @@ class OppgaverService(val db: ApiDatabase) {
             deadline = periodeStart.atStartOfDay(),
         )
         is Returnert -> Oppgave(
+            id = UUID.randomUUID(),
             type = OppgaveType.TILSAGN_RETURNERT,
             title = "Tilsagn returnert",
             description = "Tilsagnet ble returnert av beslutter",
@@ -151,6 +151,7 @@ class OppgaverService(val db: ApiDatabase) {
             deadline = periodeStart.atStartOfDay(),
         )
         is TilAnnullering -> Oppgave(
+            id = UUID.randomUUID(),
             type = OppgaveType.TILSAGN_TIL_ANNULLERING,
             title = "Tilsagn til annullering",
             description = "Tilsagnet er til annullering og må behandles",
@@ -170,6 +171,7 @@ class OppgaverService(val db: ApiDatabase) {
         gjennomforingId: UUID,
     ): Oppgave? = when (this) {
         is DelutbetalingDto.DelutbetalingTilGodkjenning -> Oppgave(
+            id = UUID.randomUUID(),
             type = OppgaveType.UTBETALING_TIL_GODKJENNING,
             title = "Utbetaling til godkjenning",
             description = "Utbetalingen er til godkjenning og må behandles",
@@ -182,6 +184,7 @@ class OppgaverService(val db: ApiDatabase) {
             deadline = opprettetTidspunkt.plusDays(7),
         )
         is DelutbetalingDto.DelutbetalingAvvist -> Oppgave(
+            id = UUID.randomUUID(),
             type = OppgaveType.UTBETALING_RETURNERT,
             title = "Utbetaling returnert",
             description = "Utbetaling ble returnert av beslutter",
@@ -200,6 +203,7 @@ class OppgaverService(val db: ApiDatabase) {
 
     private fun UtbetalingDto.toOppgave(): Oppgave? = when (status) {
         UtbetalingStatus.INNSENDT_AV_ARRANGOR -> Oppgave(
+            id = UUID.randomUUID(),
             type = OppgaveType.UTBETALING_TIL_BEHANDLING,
             title = "Utbetaling klar til behandling",
             description = "Innsendt utbetaling er klar til behandling",
