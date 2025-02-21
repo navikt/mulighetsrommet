@@ -33,7 +33,6 @@ export function AdministratorHeader() {
     [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING],
   );
 
-
   return (
     <InternalHeader>
       <InternalHeader.Title as="h1">
@@ -85,16 +84,12 @@ export function AdministratorHeader() {
               </Link>
             </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.Divider />
-            { enableOkonomi && (
+            {enableOkonomi && (
               <Dropdown.Menu.GroupedList.Item
                 onClick={() => oppgaverLinkRef.current?.click()}
                 as="span"
               >
-                <Link
-                  ref={oppgaverLinkRef}
-                  to="/arbeidsbenk/oppgaver"
-                  className={menylenke}
-                >
+                <Link ref={oppgaverLinkRef} to="/arbeidsbenk/oppgaver" className={menylenke}>
                   Oppgaver
                 </Link>
               </Dropdown.Menu.GroupedList.Item>

@@ -6,6 +6,7 @@ import { Outlet, useLoaderData, useLocation, useNavigate } from "react-router";
 import { arbeidsbenkLoader } from "@/pages/arbeidsbenk/arbeidsbenkLoader";
 import { ContentBox } from "@/layouts/ContentBox";
 import { LoaderData } from "@/types/loader";
+
 export function ArbeidsbenkPage() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
