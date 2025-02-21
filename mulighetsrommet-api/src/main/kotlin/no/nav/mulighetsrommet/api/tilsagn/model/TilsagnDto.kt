@@ -44,7 +44,7 @@ data class TilsagnDto(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val tiltakskode: Tiltakskode,
-        val navn: String
+        val navn: String,
     )
 
     @Serializable

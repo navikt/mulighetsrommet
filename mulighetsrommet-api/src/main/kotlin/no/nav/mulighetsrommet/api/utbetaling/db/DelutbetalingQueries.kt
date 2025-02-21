@@ -184,7 +184,7 @@ class DelutbetalingQueries(private val session: Session) {
         val delutbetaling: DelutbetalingDto,
         val gjennomforingId: UUID,
         val tiltakskode: Tiltakskode,
-        val gjennomforingsnavn: String
+        val gjennomforingsnavn: String,
     )
 
     fun getOppgaveData(

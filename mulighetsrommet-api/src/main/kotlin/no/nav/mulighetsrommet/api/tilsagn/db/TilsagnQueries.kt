@@ -349,7 +349,7 @@ class TilsagnQueries(private val session: Session) {
             gjennomforing = TilsagnDto.Gjennomforing(
                 id = uuid("gjennomforing_id"),
                 tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
-                navn = string("gjennomforing_navn")
+                navn = string("gjennomforing_navn"),
             ),
             periodeSlutt = localDate("periode_slutt"),
             periodeStart = localDate("periode_start"),
