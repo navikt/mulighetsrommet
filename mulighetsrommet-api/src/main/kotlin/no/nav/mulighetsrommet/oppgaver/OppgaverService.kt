@@ -61,8 +61,8 @@ class OppgaverService(val db: ApiDatabase) {
                     statuser = listOf(
                         TilsagnStatus.TIL_GODKJENNING,
                         TilsagnStatus.TIL_ANNULLERING,
-                        TilsagnStatus.RETURNERT
-                    )
+                        TilsagnStatus.RETURNERT,
+                    ),
                 )
                 .asSequence()
                 .filter { oppgave ->
@@ -211,7 +211,7 @@ class OppgaverService(val db: ApiDatabase) {
 
         is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling,
         is DelutbetalingDto.DelutbetalingUtbetalt,
-            -> null
+        -> null
     }
 
     private fun UtbetalingDto.toOppgave(): Oppgave? = when (status) {
@@ -233,6 +233,6 @@ class OppgaverService(val db: ApiDatabase) {
         UtbetalingStatus.KLAR_FOR_GODKJENNING,
         UtbetalingStatus.UTBETALT,
         UtbetalingStatus.VENTER_PA_ENDRING,
-            -> null
+        -> null
     }
 }

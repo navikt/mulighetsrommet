@@ -44,9 +44,8 @@ data class Oppgave(
     val link: OppgaveLink,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
-    val oppgaveIcon: OppgaveIcon
+    val oppgaveIcon: OppgaveIcon,
 )
-
 
 enum class OppgaveIcon {
     TILSAGN,
