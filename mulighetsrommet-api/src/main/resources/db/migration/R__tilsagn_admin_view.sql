@@ -27,6 +27,7 @@ select tilsagn.id,
        arrangor.navn                                                             as arrangor_navn,
        arrangor.slettet_dato is not null                                         as arrangor_slettet,
        gjennomforing.tiltaksnummer                                               as tiltaksnummer,
+       gjennomforing.navn                                                        as gjennomforing_navn,
        tiltakstype.tiltakskode                                                   as tiltakskode
 from tilsagn
          inner join nav_enhet on nav_enhet.enhetsnummer = tilsagn.kostnadssted

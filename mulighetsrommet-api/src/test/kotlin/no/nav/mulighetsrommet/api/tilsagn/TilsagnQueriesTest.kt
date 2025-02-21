@@ -61,6 +61,7 @@ class TilsagnQueriesTest : FunSpec({
                     gjennomforing = TilsagnDto.Gjennomforing(
                         id = AFT1.id,
                         tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
+                        navn = AFT1.navn,
                     ),
                     periodeStart = LocalDate.of(2023, 1, 1),
                     periodeSlutt = LocalDate.of(2023, 1, 31),
