@@ -4424,22 +4424,25 @@ components:
           required:
             - linkText
             - link
-
         createdAt:
           type: string
           format: date-time
-
-        deadline:
-          type: string
-          format: date-time
-
+        oppgaveIcon:
+           $ref: "#/components/schemas/OppgaveIcon"
       required:
         - type
         - title
         - tiltakstype
         - link
-        - deadline
         - createdAt
+        - oppgaveIcon
+
+    OppgaveIcon:
+      type: string
+      enum:
+        - TILSAGN
+        - UTBETALING
+
 
     AvbrytGjennomforingAarsak:
       type: string

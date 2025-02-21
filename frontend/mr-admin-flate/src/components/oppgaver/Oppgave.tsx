@@ -1,6 +1,7 @@
 import { Heading, Link } from "@navikt/ds-react";
-import { type Oppgave, OppgaveType, TiltakstypeDto } from "@mr/api-client-v2";
+import { type Oppgave, OppgaveIcon, OppgaveType, TiltakstypeDto } from "@mr/api-client-v2";
 import { formaterDato } from "@/utils/Utils";
+import { PiggybankIcon, BankNoteIcon } from "@navikt/aksel-icons";
 
 interface OppgaveProps {
   oppgave: Oppgave;
@@ -8,20 +9,20 @@ interface OppgaveProps {
 }
 
 export function Oppgave({ oppgave, tiltakstype }: OppgaveProps) {
-  const { title, description, link, deadline, createdAt } = oppgave;
-  const deadlineDate = new Date(deadline);
+  const { title, description, link, createdAt, oppgaveIcon } = oppgave;
 
   return (
     <>
       <div className="bg-white p-4" data-testid="oppgaver">
         <div className="flex justify-between items-center">
           <span>{tiltakstype.navn}</span>
-          <span>Frist: {formaterDato(deadlineDate)}</span>
+          <OppgaveStatus status={oppgave.type} />
         </div>
         <div>
           <div className="flex justify-between mt-4">
-            <Heading size="medium">{title}</Heading>
-            <OppgaveStatus status={oppgave.type} />
+            <Heading size="medium" className="flex items-center gap-2">
+              {icon(oppgaveIcon)} {title}
+            </Heading>
           </div>
           <div>{description}</div>
           <Link className="mt-3" href={link.link}>
@@ -34,6 +35,15 @@ export function Oppgave({ oppgave, tiltakstype }: OppgaveProps) {
       </div>
     </>
   );
+}
+
+function icon(icon: OppgaveIcon) {
+  switch (icon) {
+    case OppgaveIcon.TILSAGN:
+      return <PiggybankIcon />;
+    case OppgaveIcon.UTBETALING:
+      return <BankNoteIcon />;
+  }
 }
 
 const labels: Record<OppgaveType, { label: string; color: string }> = {

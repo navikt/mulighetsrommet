@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 enum class OppgaveType(val rolle: NavAnsattRolle) {
     TILSAGN_TIL_GODKJENNING(NavAnsattRolle.OKONOMI_BESLUTTER),
@@ -44,9 +44,14 @@ data class Oppgave(
     val link: OppgaveLink,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val deadline: LocalDateTime,
+    val oppgaveIcon: OppgaveIcon
 )
+
+
+enum class OppgaveIcon {
+    TILSAGN,
+    UTBETALING,
+}
 
 @Serializable
 data class OppgaveLink(
