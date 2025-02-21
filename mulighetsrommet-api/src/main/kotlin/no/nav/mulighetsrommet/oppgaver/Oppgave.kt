@@ -4,7 +4,9 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDateTime
+import java.util.UUID
 
 enum class OppgaveType(val rolle: NavAnsattRolle) {
     TILSAGN_TIL_GODKJENNING(NavAnsattRolle.OKONOMI_BESLUTTER),
@@ -33,6 +35,8 @@ enum class OppgaveType(val rolle: NavAnsattRolle) {
 
 @Serializable
 data class Oppgave(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
     val type: OppgaveType,
     val title: String,
     val description: String? = null,
