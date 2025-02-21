@@ -85,7 +85,7 @@ class OppgaverService(val db: ApiDatabase) {
                     tiltakskoder = tiltakskoder.ifEmpty { null },
                 )
                 .mapNotNull { data ->
-                    data.delutbetaling.toOppgave(data.tiltakskode, data.gjennomforingId)
+                    data.delutbetaling.toOppgave(data.tiltakskode, data.gjennomforingId, data.gjennomforingsnavn)
                 }
                 .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
                 .filter { it.type.rolle in roller }
@@ -129,7 +129,7 @@ class OppgaverService(val db: ApiDatabase) {
         is TilGodkjenning -> Oppgave(
             type = OppgaveType.TILSAGN_TIL_GODKJENNING,
             title = "Tilsagn til godkjenning",
-            description = "Tilsagnet er til godkjenning og må behandles",
+            description = "Tilsagnet for ${gjennomforing.navn} er sendt til godkjenning",
             tiltakstype = gjennomforing.tiltakskode,
             link = OppgaveLink(
                 linkText = "Se tilsagn",
@@ -141,7 +141,7 @@ class OppgaverService(val db: ApiDatabase) {
         is Returnert -> Oppgave(
             type = OppgaveType.TILSAGN_RETURNERT,
             title = "Tilsagn returnert",
-            description = "Tilsagnet ble returnert av beslutter",
+            description = "Tilsagnet for ${gjennomforing.navn} ble returnert av beslutter",
             tiltakstype = gjennomforing.tiltakskode,
             link = OppgaveLink(
                 linkText = "Se tilsagn",
@@ -153,7 +153,7 @@ class OppgaverService(val db: ApiDatabase) {
         is TilAnnullering -> Oppgave(
             type = OppgaveType.TILSAGN_TIL_ANNULLERING,
             title = "Tilsagn til annullering",
-            description = "Tilsagnet er til annullering og må behandles",
+            description = "Tilsagnet for ${gjennomforing.navn} er sendt til annullering",
             tiltakstype = gjennomforing.tiltakskode,
             link = OppgaveLink(
                 linkText = "Se tilsagn",
@@ -168,11 +168,12 @@ class OppgaverService(val db: ApiDatabase) {
     private fun DelutbetalingDto.toOppgave(
         tiltakskode: Tiltakskode,
         gjennomforingId: UUID,
+        gjennomforingsnavn: String,
     ): Oppgave? = when (this) {
         is DelutbetalingDto.DelutbetalingTilGodkjenning -> Oppgave(
             type = OppgaveType.UTBETALING_TIL_GODKJENNING,
             title = "Utbetaling til godkjenning",
-            description = "Utbetalingen er til godkjenning og må behandles",
+            description = "Utbetalingen for $gjennomforingsnavn er sendt til godkjenning",
             tiltakstype = tiltakskode,
             link = OppgaveLink(
                 linkText = "Se utbetaling",
@@ -184,7 +185,7 @@ class OppgaverService(val db: ApiDatabase) {
         is DelutbetalingDto.DelutbetalingAvvist -> Oppgave(
             type = OppgaveType.UTBETALING_RETURNERT,
             title = "Utbetaling returnert",
-            description = "Utbetaling ble returnert av beslutter",
+            description = "Utbetaling for $gjennomforingsnavn ble returnert av beslutter",
             tiltakstype = tiltakskode,
             link = OppgaveLink(
                 linkText = "Se utbetaling",
@@ -202,7 +203,7 @@ class OppgaverService(val db: ApiDatabase) {
         UtbetalingStatus.INNSENDT_AV_ARRANGOR -> Oppgave(
             type = OppgaveType.UTBETALING_TIL_BEHANDLING,
             title = "Utbetaling klar til behandling",
-            description = "Innsendt utbetaling er klar til behandling",
+            description = "Innsendt utbetaling for ${gjennomforing.navn} er klar til behandling",
             tiltakstype = tiltakstype.tiltakskode,
             link = OppgaveLink(
                 linkText = "Se utbetaling",
