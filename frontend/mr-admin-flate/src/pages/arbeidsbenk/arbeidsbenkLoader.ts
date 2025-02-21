@@ -2,6 +2,7 @@ import {
   FeatureToggleService,
   NotificationsService,
   NotificationStatus,
+  Tiltakskode,
   Toggles,
 } from "@mr/api-client-v2";
 import { QueryClient } from "@tanstack/react-query";
@@ -25,7 +26,10 @@ const arbeidsbenkFeatureToggleQuery = queryOptions({
   queryKey: ["featureToggle", "arbeidsbenk"],
   queryFn: () =>
     FeatureToggleService.getFeatureToggle({
-      query: { feature: Toggles.MULIGHETSROMMET_ADMIN_FLATE_ARBEIDSBENK },
+      query: {
+        feature: Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
+        tiltakskoder: [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING],
+      },
     }),
 });
 

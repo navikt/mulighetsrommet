@@ -12,6 +12,8 @@ import { Dropdown, InternalHeader, Spacer } from "@navikt/ds-react";
 import { useRef } from "react";
 import { Link } from "react-router";
 import { Notifikasjonsbjelle } from "../notifikasjoner/Notifikasjonsbjelle";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { Tiltakskode, Toggles } from "@mr/api-client-v2";
 
 export function AdministratorHeader() {
   const tiltakstyperLinkRef = useRef<HTMLAnchorElement>(null);
@@ -20,10 +22,16 @@ export function AdministratorHeader() {
   const arrangorerLinkRef = useRef<HTMLAnchorElement>(null);
   const individuelleGjennomforingerLinkRef = useRef<HTMLAnchorElement>(null);
   const veilederflateLinkRef = useRef<HTMLAnchorElement>(null);
+  const oppgaverLinkRef = useRef<HTMLAnchorElement>(null);
   const notifikasjonerLinkRef = useRef<HTMLAnchorElement>(null);
   const endringsmeldingerLinkRef = useRef<HTMLAnchorElement>(null);
   const logoutLinkRef = useRef<HTMLAnchorElement>(null);
   const menylenke = "text-blue-800";
+
+  const { data: enableOkonomi } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
+    [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING],
+  );
 
   return (
     <InternalHeader>
@@ -76,6 +84,16 @@ export function AdministratorHeader() {
               </Link>
             </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.Divider />
+            {enableOkonomi && (
+              <Dropdown.Menu.GroupedList.Item
+                onClick={() => oppgaverLinkRef.current?.click()}
+                as="span"
+              >
+                <Link ref={oppgaverLinkRef} to="/arbeidsbenk/oppgaver" className={menylenke}>
+                  Oppgaver
+                </Link>
+              </Dropdown.Menu.GroupedList.Item>
+            )}
             <Dropdown.Menu.GroupedList.Item
               onClick={() => notifikasjonerLinkRef.current?.click()}
               as="span"
