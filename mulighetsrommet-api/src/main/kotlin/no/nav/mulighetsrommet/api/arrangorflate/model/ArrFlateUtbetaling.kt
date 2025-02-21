@@ -54,6 +54,7 @@ data class ArrFlateUtbetaling(
         KLAR_FOR_GODKJENNING,
         BEHANDLES_AV_NAV,
         UTBETALT,
+        VENTER_PA_ENDRING,
         ;
 
         companion object {
@@ -65,6 +66,7 @@ data class ArrFlateUtbetaling(
                 -> BEHANDLES_AV_NAV
 
                 UtbetalingStatus.UTBETALT -> UTBETALT
+                UtbetalingStatus.VENTER_PA_ENDRING -> VENTER_PA_ENDRING
             }
         }
     }
