@@ -7,10 +7,9 @@ import { useDebounce } from "@mr/frontend-common";
 export function useArrangorer(til?: ArrangorTil, filter?: Partial<ArrangorerFilter>) {
   const debouncedSok = useDebounce(filter?.sok?.trim(), 300);
 
-  const arrangorFilter: GetArrangorerData = {
+  const arrangorFilter: Pick<GetArrangorerData, "query"> = {
     query: {
       til,
-
       sok: debouncedSok || undefined,
       page: filter?.page,
       size: filter?.pageSize,

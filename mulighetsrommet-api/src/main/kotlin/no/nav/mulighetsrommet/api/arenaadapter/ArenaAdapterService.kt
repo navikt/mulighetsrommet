@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.toArenaAvtaleDbo
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
@@ -145,7 +146,7 @@ class ArenaAdapterService(
 
     private fun QueryContext.logUpdateGjennomforing(dto: GjennomforingDto) {
         queries.endringshistorikk.logEndring(
-            DocumentClass.TILTAKSGJENNOMFORING,
+            DocumentClass.GJENNOMFORING,
             "Endret i Arena",
             EndretAv.Arena,
             dto.id,
@@ -154,7 +155,7 @@ class ArenaAdapterService(
 
     private fun QueryContext.logTiltaksnummerHentetFraArena(dto: GjennomforingDto) {
         queries.endringshistorikk.logEndring(
-            DocumentClass.TILTAKSGJENNOMFORING,
+            DocumentClass.GJENNOMFORING,
             "Oppdatert med tiltaksnummer fra Arena",
             EndretAv.System,
             dto.id,

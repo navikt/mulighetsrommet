@@ -15,12 +15,11 @@ export function UtbetalingTable({ utbetalinger }: Props) {
 
   if (utbetalinger.length === 0) {
     return (
-      <Alert className="my-10" variant="info">
+      <Alert className="my-10 mt-10" variant="info">
         Det finnes ingen utbetalinger her
       </Alert>
     );
   }
-
   return (
     <Table aria-label="Utbetalinger">
       <Table.Header>
@@ -64,7 +63,10 @@ export function UtbetalingTable({ utbetalinger }: Props) {
                     <LinkWithTabState
                       className="hover:underline font-bold no-underline"
                       to={
-                        status === ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
+                        [
+                          ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+                          ArrFlateUtbetalingStatus.VENTER_PA_ENDRING,
+                        ].includes(status)
                           ? internalNavigation(orgnr).beregning(id)
                           : internalNavigation(orgnr).kvittering(id)
                       }
@@ -90,5 +92,7 @@ function statusTilTag(status: ArrFlateUtbetalingStatus): ReactNode {
       return <Tag variant="neutral">Behandles av Nav</Tag>;
     case ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING:
       return <Tag variant="alt1">Klar for innsending</Tag>;
+    case ArrFlateUtbetalingStatus.VENTER_PA_ENDRING:
+      return <Tag variant="warning">Venter på endring</Tag>;
   }
 }

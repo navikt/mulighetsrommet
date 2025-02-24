@@ -1,22 +1,28 @@
-import { GjennomforingerService, UtbetalingService } from "@mr/api-client-v2";
+import { UtbetalingService } from "@mr/api-client-v2";
+import { QueryClient, queryOptions } from "@tanstack/react-query";
 import { LoaderFunctionArgs } from "react-router";
+import { QueryKeys } from "../../../api/QueryKeys";
+import { gjennomforingQuery } from "../gjennomforingLoaders";
 
-export async function utbetalingerForGjennomforingLoader({ params }: LoaderFunctionArgs) {
-  const { gjennomforingId } = params;
+const utbetalingerByGjennomforingQuery = (gjennomforingId: string) =>
+  queryOptions({
+    queryKey: [QueryKeys.utbetalingerByGjennomforing(gjennomforingId)],
+    queryFn: () => UtbetalingService.utbetalingerByGjennomforing({ path: { gjennomforingId } }),
+  });
 
-  if (!gjennomforingId) {
-    throw Error("Fant ikke gjennomforingId i route");
-  }
+export const utbetalingerForGjennomforingLoader =
+  (queryClient: QueryClient) =>
+  async ({ params }: LoaderFunctionArgs) => {
+    const { gjennomforingId } = params;
 
-  const [{ data: gjennomforing }, { data: utbetalinger }] = await Promise.all([
-    GjennomforingerService.getGjennomforing({
-      path: { id: gjennomforingId },
-    }),
+    if (!gjennomforingId) {
+      throw Error("Fant ikke gjennomforingId i route");
+    }
 
-    UtbetalingService.utbetalingerByGjennomforing({
-      path: { gjennomforingId },
-    }),
-  ]);
+    const [{ data: gjennomforing }, { data: utbetalinger }] = await Promise.all([
+      queryClient.ensureQueryData(gjennomforingQuery(gjennomforingId)),
+      queryClient.ensureQueryData(utbetalingerByGjennomforingQuery(gjennomforingId)),
+    ]);
 
-  return { utbetalinger, gjennomforing };
-}
+    return { utbetalinger, gjennomforing };
+  };

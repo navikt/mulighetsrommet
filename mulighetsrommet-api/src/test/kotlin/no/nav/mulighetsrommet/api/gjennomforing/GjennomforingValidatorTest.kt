@@ -34,8 +34,10 @@ class GjennomforingValidatorTest : FunSpec({
         id = UUID.randomUUID(),
         startDato = avtaleStartDato,
         sluttDato = avtaleSluttDato,
-        arrangorId = ArrangorFixtures.hovedenhet.id,
-        arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
+        arrangor = AvtaleFixtures.oppfolging.arrangor?.copy(
+            hovedenhet = ArrangorFixtures.hovedenhet.id,
+            underenheter = listOf(ArrangorFixtures.underenhet1.id),
+        ),
         navEnheter = listOf("0400", "0502"),
     )
 

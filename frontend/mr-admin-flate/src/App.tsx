@@ -7,7 +7,7 @@ import { TilsagnForGjennomforingContainer } from "@/pages/gjennomforing/tilsagn/
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import { AnsattService, NavAnsatt, NavAnsattRolle } from "@mr/api-client-v2";
 import { Page } from "@navikt/ds-react";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { createBrowserRouter, Outlet, RouterProvider, useLoaderData } from "react-router";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
@@ -112,9 +112,7 @@ const ansattLoader = (queryClient: QueryClient) => async () => {
   return queryClient.ensureQueryData(ansattQuery);
 };
 
-const router = () => {
-  const queryClient = new QueryClient();
-
+const router = (queryClient: QueryClient) => {
   return createBrowserRouter(
     [
       {
@@ -157,13 +155,13 @@ const router = () => {
             path: "avtaler/:avtaleId",
             element: <AvtalePage />,
             errorElement: <ErrorPage />,
-            loader: avtaleLoader,
+            loader: avtaleLoader(queryClient),
             children: [
               {
                 index: true,
                 element: <AvtaleInfo />,
                 errorElement: <ErrorPage />,
-                loader: avtaleLoader,
+                loader: avtaleLoader(queryClient),
               },
               {
                 path: "gjennomforinger",
@@ -176,25 +174,25 @@ const router = () => {
             path: "avtaler/:avtaleId/skjema",
             element: <AvtaleFormPage />,
             errorElement: <ErrorPage />,
-            loader: avtaleSkjemaLoader,
+            loader: avtaleSkjemaLoader(queryClient),
           },
           {
             path: "avtaler/skjema",
             element: <AvtaleFormPage />,
             errorElement: <ErrorPage />,
-            loader: avtaleSkjemaLoader,
+            loader: avtaleSkjemaLoader(queryClient),
           },
           {
             path: "avtaler/:avtaleId/gjennomforinger/skjema",
             element: <GjennomforingFormPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingFormLoader,
+            loader: gjennomforingFormLoader(queryClient),
           },
           {
             path: "gjennomforinger/skjema",
             element: <GjennomforingFormPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingFormLoader,
+            loader: gjennomforingFormLoader(queryClient),
           },
           {
             path: "gjennomforinger/",
@@ -205,13 +203,13 @@ const router = () => {
             path: "gjennomforinger/:gjennomforingId",
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingLoader,
+            loader: gjennomforingLoader(queryClient),
             children: [
               {
                 index: true,
                 element: <GjennomforingInfo />,
                 errorElement: <ErrorPage />,
-                loader: gjennomforingLoader,
+                loader: gjennomforingLoader(queryClient),
               },
             ],
           },
@@ -219,12 +217,12 @@ const router = () => {
             path: "gjennomforinger/:gjennomforingId/tilsagn",
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingLoader,
+            loader: gjennomforingLoader(queryClient),
             children: [
               {
                 index: true,
                 element: <TilsagnForGjennomforingContainer />,
-                loader: tilsagnForGjennomforingLoader,
+                loader: tilsagnForGjennomforingLoader(queryClient),
                 errorElement: <ErrorPage />,
               },
             ],
@@ -233,13 +231,13 @@ const router = () => {
             path: "gjennomforinger/:gjennomforingId/utbetalinger",
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingLoader,
+            loader: gjennomforingLoader(queryClient),
             children: [
               {
                 index: true,
                 element: <UtbetalingerForGjennomforingContainer />,
                 errorElement: <ErrorPage />,
-                loader: utbetalingerForGjennomforingLoader,
+                loader: utbetalingerForGjennomforingLoader(queryClient),
               },
             ],
           },
@@ -247,13 +245,13 @@ const router = () => {
             path: "gjennomforinger/:gjennomforingId/utbetalinger/skjema",
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingLoader,
+            loader: gjennomforingLoader(queryClient),
             children: [
               {
                 index: true,
                 element: <OpprettUtbetalingPage />,
                 errorElement: <ErrorPage />,
-                loader: utbetalingerForGjennomforingLoader,
+                loader: utbetalingerForGjennomforingLoader(queryClient),
               },
             ],
           },
@@ -261,7 +259,7 @@ const router = () => {
             path: "gjennomforinger/:gjennomforingId/deltakerliste",
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingLoader,
+            loader: gjennomforingLoader(queryClient),
             children: [
               {
                 index: true,
@@ -274,31 +272,31 @@ const router = () => {
             path: "gjennomforinger/:gjennomforingId/skjema",
             element: <GjennomforingFormPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingFormLoader,
+            loader: gjennomforingFormLoader(queryClient),
           },
           {
             path: "gjennomforinger/:gjennomforingId/tilsagn/opprett-tilsagn",
             element: <OpprettTilsagnFormPage />,
             errorElement: <ErrorPage />,
-            loader: opprettTilsagnLoader,
+            loader: opprettTilsagnLoader(queryClient),
           },
           {
             path: "gjennomforinger/:gjennomforingId/tilsagn/:tilsagnId",
             element: <TilsagnDetaljer />,
             errorElement: <ErrorPage />,
-            loader: tilsagnDetaljerLoader,
+            loader: tilsagnDetaljerLoader(queryClient),
           },
           {
             path: "gjennomforinger/:gjennomforingId/tilsagn/:tilsagnId/rediger-tilsagn",
             element: <RedigerTilsagnFormPage />,
             errorElement: <ErrorPage />,
-            loader: redigerTilsagnLoader,
+            loader: redigerTilsagnLoader(queryClient),
           },
           {
             path: "gjennomforinger/:gjennomforingId/utbetalinger/:utbetalingId",
             element: <UtbetalingPage />,
             errorElement: <ErrorPage />,
-            loader: utbetalingPageLoader,
+            loader: utbetalingPageLoader(queryClient),
           },
           {
             path: "arrangorer",
@@ -314,13 +312,12 @@ const router = () => {
             path: "arbeidsbenk",
             element: <ArbeidsbenkPage />,
             errorElement: <ErrorPage />,
-            loader: arbeidsbenkLoader,
-            //element: <Notifikasjonsliste lest={false} />,
+            loader: arbeidsbenkLoader(queryClient),
             children: [
               {
                 path: "notifikasjoner",
                 element: <NotifikasjonerPage />,
-                loader: notifikasjonLoader,
+                loader: notifikasjonLoader(queryClient),
                 errorElement: <ErrorPage />,
                 children: [
                   {
@@ -338,7 +335,7 @@ const router = () => {
               {
                 path: "oppgaver",
                 element: <OppgaverPage />,
-                loader: oppgaverLoader,
+                loader: oppgaverLoader(queryClient),
                 errorElement: <ErrorPage />,
                 children: [
                   {
@@ -369,5 +366,6 @@ const router = () => {
 };
 
 export function AppWithRouter() {
-  return <RouterProvider router={router()} />;
+  const queryClient = useQueryClient();
+  return <RouterProvider router={router(queryClient)} />;
 }

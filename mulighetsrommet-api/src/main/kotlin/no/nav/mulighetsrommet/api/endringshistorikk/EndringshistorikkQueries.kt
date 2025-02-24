@@ -19,9 +19,11 @@ class EndringshistorikkQueries(private val session: Session) {
                        when na.nav_ident is not null then concat(na.fornavn, ' ', na.etternavn)
                        else null
                        end           as user_name
-            from ${documentClass.table}
+            from endringshistorikk
                 left join nav_ansatt na on user_id = na.nav_ident
-            where document_id = :document_id
+            where
+                document_id = :document_id
+                and document_class = '$documentClass'::document_class
             order by sys_period desc;
         """.trimIndent()
 
@@ -57,18 +59,18 @@ class EndringshistorikkQueries(private val session: Session) {
     ) {
         val statement = if (timestamp == null) {
             """
-                select version_history(:table, :operation, :document_id::uuid, :value::jsonb, :user_id)
+                select version_history(:operation, :document_id::uuid, :document_class::document_class, :value::jsonb, :user_id)
             """.trimIndent()
         } else {
             """
-                select version_history(:table, :operation, :document_id::uuid, :value::jsonb, :user_id, :timestamp)
+                select version_history(:operation, :document_id::uuid, :document_class::document_class, :value::jsonb, :user_id, :timestamp)
             """.trimIndent()
         }
 
         val params = mapOf(
             "operation" to operation,
-            "table" to documentClass.table,
             "document_id" to documentId,
+            "document_class" to documentClass.name,
             "value" to valueProvider.invoke().toString(),
             "user_id" to user.id,
             "timestamp" to timestamp,

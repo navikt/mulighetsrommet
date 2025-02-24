@@ -18,12 +18,12 @@ export function EndreDatoAdvarselModal({ modalRef, onCancel, antallDeltakere }: 
       modalRef={modalRef}
       handleClose={onClose}
       headingIconType="info"
-      headingText="Det finnes brukere påmeldt denne gjennomføringen"
+      headingText="Det finnes deltakere påmeldt denne gjennomføringen"
       body={
         <BodyShort>
           {`Det finnes ${antallDeltakere} deltaker${antallDeltakere > 1 ? "e" : ""}
-            på gjennomføringen. Ved å endre dato for gjennomføringen kan det medføre
-            at datoer for deltakerne også oppdateres automatisk.  Ønsker du å endre dato?`}
+           på gjennomføringen. Dersom det er deltakere med en sluttdato etter ny sluttdato
+            på gjennomføringen, så vil deltakerne få sluttdato lik gjennomføringen sin sluttdato.`}
         </BodyShort>
       }
       secondaryButton

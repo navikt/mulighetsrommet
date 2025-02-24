@@ -4,10 +4,10 @@ import { Alert } from "@navikt/ds-react";
 import { useLoaderData } from "react-router";
 import { UtbetalingerTable } from "../../../components/utbetaling/UtbetalingerTable";
 import { utbetalingerForGjennomforingLoader } from "./utbetalingerForGjennomforingLoader";
-
+import { LoaderData } from "@/types/loader";
 export function UtbetalingerForGjennomforingContainer() {
   const { gjennomforing, utbetalinger } =
-    useLoaderData<typeof utbetalingerForGjennomforingLoader>();
+    useLoaderData<LoaderData<typeof utbetalingerForGjennomforingLoader>>();
 
   const { data: enableOkonomi } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,

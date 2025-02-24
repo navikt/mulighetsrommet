@@ -1,36 +1,38 @@
 package no.nav.mulighetsrommet.api.arrangorflate
 
-import arrow.core.*
+import arrow.core.getOrElse
+import arrow.core.left
+import arrow.core.toNonEmptySetOrNull
 import io.ktor.http.*
 import io.ktor.server.auth.*
-import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
-import kotliquery.TransactionalSession
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateUtbetaling
-import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateUtbetalingKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.model.Beregning
 import no.nav.mulighetsrommet.api.arrangorflate.model.UtbetalingDeltakelse
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
-import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.utbetaling.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.HentPersonBolkResponse
+import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
+import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
-import no.nav.mulighetsrommet.api.utbetaling.model.*
-import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerDto
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAft
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -40,17 +42,16 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.time.Instant
-import java.time.LocalDateTime
 import java.util.*
 
 fun Route.arrangorflateRoutes() {
     val tilsagnService: TilsagnService by inject()
     val arrangorService: ArrangorService by inject()
+    val utbetalingService: UtbetalingService by inject()
     val pdl: HentAdressebeskyttetPersonBolkPdlQuery by inject()
-    val journalforUtbetaling: JournalforUtbetaling by inject()
     val db: ApiDatabase by inject()
     val pdfClient: PdfGenClient by inject()
+    val arrangorFlateService: ArrangorFlateService by inject()
 
     suspend fun RoutingContext.arrangorerMedTilgang(): List<ArrangorDto> = db.session {
         call.principal<ArrangorflatePrincipal>()
@@ -81,13 +82,9 @@ fun Route.arrangorflateRoutes() {
 
                 requireTilgangHosArrangor(orgnr)
 
-                val utbetaling = db.session {
-                    queries.utbetaling.getByArrangorIds(orgnr).map {
-                        ArrFlateUtbetalingKompakt.fromUtbetalingDto(it)
-                    }
-                }
+                val utbetalinger = arrangorFlateService.getUtbetalinger(orgnr)
 
-                call.respond(utbetaling)
+                call.respond(utbetalinger)
             }
 
             get("/tilsagn") {
@@ -95,9 +92,7 @@ fun Route.arrangorflateRoutes() {
 
                 requireTilgangHosArrangor(orgnr)
 
-                val tilsagn = db.session {
-                    queries.tilsagn.getAllArrangorflateTilsagn(orgnr)
-                }
+                val tilsagn = arrangorFlateService.getAlleTilsagnForOrganisasjon(orgnr)
 
                 call.respond(tilsagn)
             }
@@ -107,9 +102,7 @@ fun Route.arrangorflateRoutes() {
             get {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val utbetaling = db.session {
-                    queries.utbetaling.get(id) ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
-                }
+                val utbetaling = arrangorFlateService.getUtbetaling(id)
 
                 requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
@@ -121,43 +114,27 @@ fun Route.arrangorflateRoutes() {
             get("/relevante-forslag") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val utbetaling = db.session {
-                    queries.utbetaling.get(id) ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
-                }
+                val utbetaling = arrangorFlateService.getUtbetaling(id)
 
                 requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
-                val forslagByDeltakerId = db.session {
-                    queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
-                }
+                val forslagByDeltakerId = arrangorFlateService.getDeltakerforslagByGjennomforing(utbetaling.gjennomforing.id)
 
-                val relevanteForslag = forslagByDeltakerId
-                    .map { (deltakerId, forslag) ->
-                        RelevanteForslag(
-                            deltakerId = deltakerId,
-                            antallRelevanteForslag = forslag.count { it.relevantForDeltakelse(utbetaling) },
-                        )
-                    }
+                val relevanteForslag = arrangorFlateService.getRelevanteForslag(forslagByDeltakerId, utbetaling)
 
                 call.respond(relevanteForslag)
             }
 
             post("/godkjenn-utbetaling") {
                 val id = call.parameters.getOrFail<UUID>("id")
-
-                val utbetaling = db.session {
-                    queries.utbetaling.get(id) ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
-                }
-
-                requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
-
                 val request = call.receive<GodkjennUtbetaling>()
 
-                val forslagByDeltakerId = db.session {
-                    queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
-                }
+                val utbetaling = arrangorFlateService.getUtbetaling(id)
 
-                validerGodkjennUtbetaling(
+                requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
+                val forslagByDeltakerId = arrangorFlateService.getDeltakerforslagByGjennomforing(utbetaling.gjennomforing.id)
+
+                UtbetalingValidator.validerGodkjennUtbetaling(
                     request,
                     utbetaling,
                     forslagByDeltakerId,
@@ -165,25 +142,14 @@ fun Route.arrangorflateRoutes() {
                     return@post call.respondWithStatusResponse(ValidationError(errors = it).left())
                 }
 
-                db.transaction {
-                    queries.utbetaling.setGodkjentAvArrangor(id, LocalDateTime.now())
-                    queries.utbetaling.setBetalingsInformasjon(
-                        id,
-                        request.betalingsinformasjon.kontonummer,
-                        request.betalingsinformasjon.kid,
-                    )
-                    journalforUtbetaling.schedule(utbetaling.id, Instant.now(), session as TransactionalSession)
-                }
-
+                utbetalingService.godkjentAvArrangor(utbetaling.id, request)
                 call.respond(HttpStatusCode.OK)
             }
 
             get("/kvittering") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val utbetaling = db.session {
-                    queries.utbetaling.get(id) ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
-                }
+                val utbetaling = arrangorFlateService.getUtbetaling(id)
 
                 requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
@@ -205,9 +171,7 @@ fun Route.arrangorflateRoutes() {
             get("/tilsagn") {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val utbetaling = db.session {
-                    queries.utbetaling.get(id) ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
-                }
+                val utbetaling = arrangorFlateService.getUtbetaling(id)
 
                 requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
@@ -224,9 +188,7 @@ fun Route.arrangorflateRoutes() {
             get {
                 val id = call.parameters.getOrFail<UUID>("id")
 
-                val tilsagn = db.session {
-                    queries.tilsagn.getArrangorflateTilsagn(id) ?: throw NotFoundException("Fant ikke tilsagn")
-                }
+                val tilsagn = arrangorFlateService.getTilsagn(id)
 
                 requireTilgangHosArrangor(tilsagn.arrangor.organisasjonsnummer)
 
@@ -286,42 +248,6 @@ fun DeltakerForslag.relevantForDeltakelse(
         }
 
         Melding.Forslag.Endring.FjernOppstartsdato -> true
-    }
-}
-
-fun validerGodkjennUtbetaling(
-    request: GodkjennUtbetaling,
-    utbetaling: UtbetalingDto,
-    forslagByDeltakerId: Map<UUID, List<DeltakerForslag>>,
-): Either<List<FieldError>, GodkjennUtbetaling> {
-    if (utbetaling.status != UtbetalingStatus.KLAR_FOR_GODKJENNING) {
-        return listOf(
-            FieldError.root(
-                "Utbetaling allerede godkjent",
-            ),
-        ).left()
-    }
-    val finnesRelevanteForslag = forslagByDeltakerId
-        .any { (_, forslag) ->
-            forslag.count { it.relevantForDeltakelse(utbetaling) } > 0
-        }
-
-    return if (finnesRelevanteForslag) {
-        listOf(
-            FieldError.ofPointer(
-                "/info",
-                "Det finnes forslag på deltakere som påvirker utbetalingen. Disse må behandles av Nav før utbetalingen kan sendes inn.",
-            ),
-        ).left()
-    } else if (request.digest != utbetaling.beregning.getDigest()) {
-        listOf(
-            FieldError.ofPointer(
-                "/info",
-                "Informasjonen i kravet har endret seg. Vennligst se over på nytt.",
-            ),
-        ).left()
-    } else {
-        request.right()
     }
 }
 

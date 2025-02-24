@@ -73,6 +73,8 @@ export const mockAvtaler: AvtaleDto[] = [
       customOpsjonsmodellNavn: null,
     },
     opsjonerRegistrert: [],
+    utdanningslop: null,
+    prismodell: null,
   },
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
@@ -125,6 +127,8 @@ export const mockAvtaler: AvtaleDto[] = [
       customOpsjonsmodellNavn: null,
     },
     opsjonerRegistrert: [],
+    utdanningslop: null,
+    prismodell: null,
   },
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba92",
@@ -173,6 +177,8 @@ export const mockAvtaler: AvtaleDto[] = [
       customOpsjonsmodellNavn: null,
     },
     opsjonerRegistrert: [],
+    utdanningslop: null,
+    prismodell: null,
   },
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba93",
@@ -222,6 +228,8 @@ export const mockAvtaler: AvtaleDto[] = [
       customOpsjonsmodellNavn: "1 år + 6 mnd",
     },
     opsjonerRegistrert: [],
+    utdanningslop: null,
+    prismodell: null,
   },
 ];
 
@@ -276,5 +284,7 @@ for (let i = 0; i < x; i++) {
       customOpsjonsmodellNavn: null,
     },
     opsjonerRegistrert: [],
+    utdanningslop: null,
+    prismodell: null,
   });
 }

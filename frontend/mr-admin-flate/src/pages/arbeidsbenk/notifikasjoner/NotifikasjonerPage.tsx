@@ -2,10 +2,10 @@ import { useTitle } from "@mr/frontend-common";
 import { Tabs } from "@navikt/ds-react";
 import { Outlet, useLoaderData, useLocation, useNavigate } from "react-router";
 import { notifikasjonLoader } from "./notifikasjonerLoader";
-
+import { LoaderData } from "@/types/loader";
 export function NotifikasjonerPage() {
   const { pathname } = useLocation();
-  const { leste, uleste } = useLoaderData<typeof notifikasjonLoader>();
+  const { leste, uleste } = useLoaderData<LoaderData<typeof notifikasjonLoader>>();
   const navigate = useNavigate();
   useTitle("Notifikasjoner");
 

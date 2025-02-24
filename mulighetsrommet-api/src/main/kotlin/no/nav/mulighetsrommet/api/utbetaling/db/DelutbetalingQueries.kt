@@ -233,6 +233,7 @@ class DelutbetalingQueries(private val session: Session) {
         val delutbetaling: DelutbetalingDto,
         val gjennomforingId: UUID,
         val tiltakskode: Tiltakskode,
+        val gjennomforingsnavn: String,
     )
 
     fun getOppgaveData(
@@ -256,6 +257,7 @@ class DelutbetalingQueries(private val session: Session) {
                 delutbetaling.aarsaker,
                 delutbetaling.forklaring,
                 tilsagn.gjennomforing_id,
+                gjennomforing.navn,
                 tiltakstype.tiltakskode
             from delutbetaling
                 inner join tilsagn on tilsagn.id = delutbetaling.tilsagn_id
@@ -276,6 +278,7 @@ class DelutbetalingQueries(private val session: Session) {
             DelutbetalingOppgaveData(
                 delutbetaling = it.toDelutbetalingDto(),
                 gjennomforingId = it.uuid("gjennomforing_id"),
+                gjennomforingsnavn = it.string("navn"),
                 tiltakskode = Tiltakskode.valueOf(it.string("tiltakskode")),
             )
         }

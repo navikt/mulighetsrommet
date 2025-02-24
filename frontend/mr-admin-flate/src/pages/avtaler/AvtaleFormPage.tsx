@@ -10,10 +10,13 @@ import { useLoaderData, useLocation, useNavigate } from "react-router";
 import { avtaleSkjemaLoader } from "./avtaleLoader";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
+import { LoaderData } from "../../types/loader";
 
 export function AvtaleFormPage() {
   const navigate = useNavigate();
-  const { avtale, ansatt, enheter, tiltakstyper } = useLoaderData<typeof avtaleSkjemaLoader>();
+  const { avtale, ansatt, enheter, tiltakstyper } =
+    useLoaderData<LoaderData<typeof avtaleSkjemaLoader>>();
+
   const location = useLocation();
 
   const navigerTilbake = () => {

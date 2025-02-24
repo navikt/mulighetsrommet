@@ -167,7 +167,7 @@ class GjennomforingServiceTest : FunSpec({
             }
 
             database.run {
-                queries.endringshistorikk.getEndringshistorikk(DocumentClass.TILTAKSGJENNOMFORING, gjennomforing.id)
+                queries.endringshistorikk.getEndringshistorikk(DocumentClass.GJENNOMFORING, gjennomforing.id)
                     .shouldNotBeNull().entries.shouldHaveSize(1).first().should {
                         it.operation shouldBe "Gjennomføringen ble avbrutt"
                     }

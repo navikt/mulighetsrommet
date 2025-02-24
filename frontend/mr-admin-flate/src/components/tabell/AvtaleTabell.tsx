@@ -156,8 +156,8 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
                     <Table.DataCell aria-label={`Avtalenummer: ${avtale?.avtalenummer ?? "N/A"}`}>
                       {avtale?.avtalenummer}
                     </Table.DataCell>
-                    <Table.DataCell aria-label={`Tiltaksarrangør: ${avtale.arrangor.navn}`}>
-                      {capitalizeEveryWord(avtale.arrangor.navn, ["og", "i"]) || ""}
+                    <Table.DataCell aria-label={`Tiltaksarrangør: ${avtale.arrangor?.navn}`}>
+                      {capitalizeEveryWord(avtale.arrangor?.navn, ["og", "i"]) || ""}
                     </Table.DataCell>
                     <Table.DataCell
                       aria-label={`Regioner: ${avtale?.kontorstruktur

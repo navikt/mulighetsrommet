@@ -10,6 +10,8 @@ export function useOppskrifter(tiltakstypeId?: string) {
       OppskrifterService.getOppskrifter({
         path: {
           tiltakstypeId: tiltakstypeId!,
+        },
+        query: {
           perspective: erPreview() ? "previewDrafts" : "published",
         },
       }),

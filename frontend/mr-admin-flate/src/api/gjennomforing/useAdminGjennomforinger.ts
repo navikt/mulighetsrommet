@@ -8,7 +8,7 @@ import { getPublisertStatus } from "../../utils/Utils";
 export function useAdminGjennomforinger(filter: Partial<GjennomforingFilter>) {
   const debouncedSok = useDebounce(filter.search?.trim(), 300);
 
-  const queryFilter: GetGjennomforingerData = {
+  const queryFilter: Pick<GetGjennomforingerData, "query"> = {
     query: {
       search: debouncedSok || undefined,
       navEnheter: filter.navEnheter?.map((e) => e.enhetsnummer) ?? [],

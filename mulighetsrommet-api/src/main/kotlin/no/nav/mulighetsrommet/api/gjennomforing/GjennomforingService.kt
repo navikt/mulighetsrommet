@@ -240,7 +240,7 @@ class GjennomforingService(
     }
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
-        return queries.endringshistorikk.getEndringshistorikk(DocumentClass.TILTAKSGJENNOMFORING, id)
+        return queries.endringshistorikk.getEndringshistorikk(DocumentClass.GJENNOMFORING, id)
     }
 
     fun frikobleKontaktpersonFraGjennomforing(
@@ -291,7 +291,7 @@ class GjennomforingService(
         endretAv: EndretAv,
     ) {
         queries.endringshistorikk.logEndring(
-            DocumentClass.TILTAKSGJENNOMFORING,
+            DocumentClass.GJENNOMFORING,
             operation,
             endretAv,
             dto.id,

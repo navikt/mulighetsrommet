@@ -9,9 +9,9 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { formaterDato } from "@/utils/Utils";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-
+import { LoaderData } from "../../types/loader";
 export function AvtalePrisOgFaktureringDetaljer() {
-  const { avtale } = useLoaderData<typeof avtaleLoader>();
+  const { avtale } = useLoaderData<LoaderData<typeof avtaleLoader>>();
 
   const prismodell = avtale.prismodell;
 

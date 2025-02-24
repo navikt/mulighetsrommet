@@ -9,7 +9,7 @@ export function useNavEnheter(
     NavEnhetStatus.UNDER_ETABLERING,
   ],
 ) {
-  const filter: GetEnheterData = {
+  const filter: Pick<GetEnheterData, "query"> = {
     query: { statuser },
   };
 

@@ -7,15 +7,21 @@ import { AvtaleIkon } from "../ikoner/AvtaleIkon";
 import { EndringsmeldingerIkon } from "../ikoner/EndringsmeldingerIkon";
 import { ForhandsvisningIkon } from "../ikoner/ForhandsvisningIkon";
 import { GjennomforingIkon } from "../ikoner/GjennomforingIkon";
-import { TiltakstypeIkon } from "../ikoner/TiltakstypeIkon";
 import { Forsidekort, ForsideKortProps } from "./Forsidekort";
+import { BellDotFillIcon } from "@navikt/aksel-icons";
+import { Tiltakskode, Toggles } from "@mr/api-client-v2";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
 const forsidekortData: ForsideKortProps[] = [
   {
-    navn: "Tiltakstyper",
-    ikon: <TiltakstypeIkon inkluderBakgrunn aria-label="Tiltakstyper" />,
-    url: "tiltakstyper",
-    tekst: "Her finner du informasjon om tiltakstyper for gruppetiltak",
+    navn: "Oppgaver",
+    ikon: (
+      <div className="w-16 h-16 flex items-center justify-center bg-orange-300 rounded-full">
+        <BellDotFillIcon title="Arbeidsbenk" className="text-white w-12 h-12" />
+      </div>
+    ),
+    url: "arbeidsbenk/oppgaver",
+    tekst: "Her finner du en oversikt over enhetens oppgaver",
   },
   {
     navn: "Avtaler",
@@ -51,11 +57,18 @@ const forsidekortData: ForsideKortProps[] = [
 ];
 
 export function ForsidekortListe() {
+  const { data: enableOkonomi } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
+    [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING],
+  );
+
   return (
     <div className="flex flex-wrap gap-8">
-      {forsidekortData.map((kort) => (
-        <Forsidekort key={kort.navn} {...kort} />
-      ))}
+      {forsidekortData.map((kort) => {
+        if (kort.navn !== "Oppgaver" || enableOkonomi) {
+          return <Forsidekort key={kort.navn} {...kort} />;
+        }
+      })}
     </div>
   );
 }

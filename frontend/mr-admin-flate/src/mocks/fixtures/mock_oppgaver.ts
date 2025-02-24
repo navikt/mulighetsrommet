@@ -1,4 +1,4 @@
-import { Oppgave, OppgaveType, Tiltakskode } from "@mr/api-client-v2";
+import { Oppgave, OppgaveIcon, OppgaveType, Tiltakskode } from "@mr/api-client-v2";
 
 export const mockOppgaver: Oppgave[] = [
   {
@@ -11,7 +11,7 @@ export const mockOppgaver: Oppgave[] = [
       link: "https://nav.no/",
     },
     createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toString(),
-    deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toString(),
+    oppgaveIcon: OppgaveIcon.TILSAGN,
   },
   {
     type: OppgaveType.TILSAGN_TIL_GODKJENNING,
@@ -23,7 +23,7 @@ export const mockOppgaver: Oppgave[] = [
       link: "https://nav.no/",
     },
     createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toString(),
-    deadline: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toString(),
+    oppgaveIcon: OppgaveIcon.TILSAGN,
   },
   {
     type: OppgaveType.TILSAGN_TIL_GODKJENNING,
@@ -35,6 +35,6 @@ export const mockOppgaver: Oppgave[] = [
       link: "https://nav.no/",
     },
     createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toString(),
-    deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toString(), // 5 days from now
+    oppgaveIcon: OppgaveIcon.TILSAGN,
   },
 ];

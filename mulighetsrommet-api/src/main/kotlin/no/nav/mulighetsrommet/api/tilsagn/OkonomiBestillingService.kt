@@ -93,12 +93,20 @@ class OkonomiBestillingService(
             "Gjennomføring ${gjennomforing.id} mangler avtale"
         }
 
+        val arrangor = requireNotNull(
+            avtale.arrangor?.let {
+                OpprettBestilling.Arrangor(
+                    hovedenhet = avtale.arrangor.organisasjonsnummer,
+                    underenhet = gjennomforing.arrangor.organisasjonsnummer,
+                )
+            },
+        ) {
+            "Avtale ${avtale.id} mangler arrangør"
+        }
+
         val bestilling = OpprettBestilling(
             tiltakskode = gjennomforing.tiltakstype.tiltakskode,
-            arrangor = OpprettBestilling.Arrangor(
-                hovedenhet = avtale.arrangor.organisasjonsnummer,
-                underenhet = gjennomforing.arrangor.organisasjonsnummer,
-            ),
+            arrangor = arrangor,
             kostnadssted = NavEnhetNummer(tilsagn.kostnadssted.enhetsnummer),
             bestillingsnummer = tilsagn.bestillingsnummer,
             // TODO: hvilket avtalenummer?

@@ -31,7 +31,7 @@ export function AvtaleArrangorForm({ readOnly }: Props) {
   const { data: brregVirksomheter = [] } = useSokBrregHovedenhet(sokArrangor);
 
   const { register, watch, setValue } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
-  const watchedArrangor = watch("arrangorOrganisasjonsnummer") ?? "";
+  const watchedArrangor = watch("arrangorHovedenhet") ?? "";
 
   const { data: arrangor } = useSyncArrangorFromBrreg(watchedArrangor);
   const { data: underenheter } = useBrregUnderenheter(watchedArrangor);
@@ -51,7 +51,7 @@ export function AvtaleArrangorForm({ readOnly }: Props) {
           readOnly={readOnly}
           placeholder="Navn eller organisasjonsnummer for tiltaksarrangør"
           label={avtaletekster.tiltaksarrangorHovedenhetLabel}
-          {...register("arrangorOrganisasjonsnummer")}
+          {...register("arrangorHovedenhet")}
           onInputChange={(value) => {
             setSokArrangor(value);
           }}
@@ -61,7 +61,7 @@ export function AvtaleArrangorForm({ readOnly }: Props) {
             }
           }}
           onClearValue={() => {
-            setValue("arrangorOrganisasjonsnummer", "");
+            setValue("arrangorHovedenhet", "");
             setValue("arrangorUnderenheter", []);
           }}
           options={arrangorHovedenhetOptions}

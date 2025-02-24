@@ -3,9 +3,7 @@ package no.nav.mulighetsrommet.oppgaver
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatus.Returnert
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatus.TilAnnullering
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatus.TilGodkjenning
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatus.*
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
@@ -59,7 +57,13 @@ class OppgaverService(val db: ApiDatabase) {
     ): List<Oppgave> {
         return db.session {
             queries.tilsagn
-                .getAll(statuser = listOf(TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.TIL_ANNULLERING, TilsagnStatus.RETURNERT))
+                .getAll(
+                    statuser = listOf(
+                        TilsagnStatus.TIL_GODKJENNING,
+                        TilsagnStatus.TIL_ANNULLERING,
+                        TilsagnStatus.RETURNERT,
+                    ),
+                )
                 .asSequence()
                 .filter { oppgave ->
                     kostnadssteder.isEmpty() || oppgave.kostnadssted.enhetsnummer in kostnadssteder
@@ -85,7 +89,7 @@ class OppgaverService(val db: ApiDatabase) {
                     tiltakskoder = tiltakskoder.ifEmpty { null },
                 )
                 .mapNotNull { data ->
-                    data.delutbetaling.toOppgave(data.tiltakskode, data.gjennomforingId)
+                    data.delutbetaling.toOppgave(data.tiltakskode, data.gjennomforingId, data.gjennomforingsnavn)
                 }
                 .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
                 .filter { it.type.rolle in roller }
@@ -107,7 +111,8 @@ class OppgaverService(val db: ApiDatabase) {
                     if (kostnadssteder.isEmpty()) {
                         true
                     } else {
-                        val tilsagn = db.session { queries.tilsagn.getTilsagnForGjennomforing(it.gjennomforing.id, it.periode) }
+                        val tilsagn =
+                            db.session { queries.tilsagn.getTilsagnForGjennomforing(it.gjennomforing.id, it.periode) }
                         tilsagn.isEmpty() || tilsagn.any { it.kostnadssted.enhetsnummer in kostnadssteder }
                     }
                 }
@@ -127,72 +132,83 @@ class OppgaverService(val db: ApiDatabase) {
 
     private fun TilsagnDto.toOppgave(): Oppgave? = when (status) {
         is TilGodkjenning -> Oppgave(
+            id = UUID.randomUUID(),
             type = OppgaveType.TILSAGN_TIL_GODKJENNING,
             title = "Tilsagn til godkjenning",
-            description = "Tilsagnet er til godkjenning og må behandles",
+            description = "Tilsagnet for ${gjennomforing.navn} er sendt til godkjenning",
             tiltakstype = gjennomforing.tiltakskode,
             link = OppgaveLink(
                 linkText = "Se tilsagn",
                 link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
             ),
             createdAt = status.endretTidspunkt,
-            deadline = periodeStart.atStartOfDay(),
+            oppgaveIcon = OppgaveIcon.TILSAGN,
         )
+
         is Returnert -> Oppgave(
+            id = UUID.randomUUID(),
             type = OppgaveType.TILSAGN_RETURNERT,
             title = "Tilsagn returnert",
-            description = "Tilsagnet ble returnert av beslutter",
+            description = "Tilsagnet for ${gjennomforing.navn} ble returnert av beslutter",
             tiltakstype = gjennomforing.tiltakskode,
             link = OppgaveLink(
                 linkText = "Se tilsagn",
                 link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
             ),
             createdAt = status.endretTidspunkt,
-            deadline = periodeStart.atStartOfDay(),
+            oppgaveIcon = OppgaveIcon.TILSAGN,
         )
+
         is TilAnnullering -> Oppgave(
+            id = UUID.randomUUID(),
             type = OppgaveType.TILSAGN_TIL_ANNULLERING,
             title = "Tilsagn til annullering",
-            description = "Tilsagnet er til annullering og må behandles",
+            description = "Tilsagnet for ${gjennomforing.navn} er sendt til annullering",
             tiltakstype = gjennomforing.tiltakskode,
             link = OppgaveLink(
                 linkText = "Se tilsagn",
                 link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
             ),
             createdAt = status.endretTidspunkt,
-            deadline = periodeStart.atStartOfDay(),
+            oppgaveIcon = OppgaveIcon.TILSAGN,
         )
+
         is TilsagnDto.TilsagnStatus.Annullert, TilsagnDto.TilsagnStatus.Godkjent -> null
     }
 
     private fun DelutbetalingDto.toOppgave(
         tiltakskode: Tiltakskode,
         gjennomforingId: UUID,
+        gjennomforingsnavn: String,
     ): Oppgave? = when (this) {
         is DelutbetalingDto.DelutbetalingTilGodkjenning -> Oppgave(
+            id = UUID.randomUUID(),
             type = OppgaveType.UTBETALING_TIL_GODKJENNING,
             title = "Utbetaling til godkjenning",
-            description = "Utbetalingen er til godkjenning og må behandles",
+            description = "Utbetalingen for $gjennomforingsnavn er sendt til godkjenning",
             tiltakstype = tiltakskode,
             link = OppgaveLink(
                 linkText = "Se utbetaling",
                 link = "/gjennomforinger/$gjennomforingId/utbetalinger/$utbetalingId",
             ),
             createdAt = opprettetTidspunkt,
-            deadline = opprettetTidspunkt.plusDays(7),
+            oppgaveIcon = OppgaveIcon.UTBETALING,
         )
+
         is DelutbetalingDto.DelutbetalingAvvist -> Oppgave(
+            id = UUID.randomUUID(),
             type = OppgaveType.UTBETALING_RETURNERT,
             title = "Utbetaling returnert",
-            description = "Utbetaling ble returnert av beslutter",
+            description = "Utbetaling for $gjennomforingsnavn ble returnert av beslutter",
             tiltakstype = tiltakskode,
             link = OppgaveLink(
                 linkText = "Se utbetaling",
                 link = "/gjennomforinger/$gjennomforingId/utbetalinger/$utbetalingId",
             ),
             createdAt = besluttetTidspunkt,
-            deadline = besluttetTidspunkt.plusDays(2),
+            oppgaveIcon = OppgaveIcon.UTBETALING,
         )
+
         is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling,
         is DelutbetalingDto.DelutbetalingUtbetalt,
         -> null
@@ -200,20 +216,23 @@ class OppgaverService(val db: ApiDatabase) {
 
     private fun UtbetalingDto.toOppgave(): Oppgave? = when (status) {
         UtbetalingStatus.INNSENDT_AV_ARRANGOR -> Oppgave(
+            id = UUID.randomUUID(),
             type = OppgaveType.UTBETALING_TIL_BEHANDLING,
             title = "Utbetaling klar til behandling",
-            description = "Innsendt utbetaling er klar til behandling",
+            description = "Innsendt utbetaling for ${gjennomforing.navn} er klar til behandling",
             tiltakstype = tiltakstype.tiltakskode,
             link = OppgaveLink(
                 linkText = "Se utbetaling",
                 link = "/gjennomforinger/${gjennomforing.id}/utbetalinger/$id",
             ),
             createdAt = createdAt,
-            deadline = createdAt.plusDays(7),
+            oppgaveIcon = OppgaveIcon.UTBETALING,
         )
+
         UtbetalingStatus.INNSENDT_AV_NAV,
         UtbetalingStatus.KLAR_FOR_GODKJENNING,
         UtbetalingStatus.UTBETALT,
+        UtbetalingStatus.VENTER_PA_ENDRING,
         -> null
     }
 }

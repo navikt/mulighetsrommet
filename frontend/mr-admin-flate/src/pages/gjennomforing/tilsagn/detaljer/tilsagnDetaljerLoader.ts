@@ -1,26 +1,48 @@
-import { AnsattService, TilsagnService, GjennomforingerService } from "@mr/api-client-v2";
+import { AnsattService, TilsagnService } from "@mr/api-client-v2";
 import { LoaderFunctionArgs } from "react-router";
 
-export async function tilsagnDetaljerLoader({ params }: LoaderFunctionArgs) {
-  const { gjennomforingId, tilsagnId } = params;
+import { QueryClient, queryOptions } from "@tanstack/react-query";
+import { QueryKeys } from "../../../../api/QueryKeys";
+import { gjennomforingQuery } from "../../gjennomforingLoaders";
 
-  if (!gjennomforingId) {
-    throw new Error("gjennomforingId is missing");
-  }
+const ansattQuery = () =>
+  queryOptions({
+    queryKey: [QueryKeys.ansatt()],
+    queryFn: () => AnsattService.hentInfoOmAnsatt(),
+  });
 
-  if (!tilsagnId) {
-    throw new Error("tilsagnId is missing");
-  }
+const tilsagnQuery = (tilsagnId: string) =>
+  queryOptions({
+    queryKey: [QueryKeys.getTilsagn(tilsagnId)],
+    queryFn: () => TilsagnService.getTilsagn({ path: { id: tilsagnId } }),
+  });
 
-  const [{ data: ansatt }, { data: gjennomforing }, { data: tilsagn }, { data: historikk }] =
-    await Promise.all([
-      AnsattService.hentInfoOmAnsatt(),
-      GjennomforingerService.getGjennomforing({
-        path: { id: gjennomforingId },
-      }),
-      TilsagnService.getTilsagn({ path: { id: tilsagnId } }),
-      TilsagnService.getTilsagnEndringshistorikk({ path: { id: tilsagnId } }),
-    ]);
+const tilsagnHistorikkQuery = (tilsagnId: string) =>
+  queryOptions({
+    queryKey: ["tilsagn", tilsagnId, "historikk"],
+    queryFn: () => TilsagnService.getTilsagnEndringshistorikk({ path: { id: tilsagnId } }),
+  });
 
-  return { ansatt, gjennomforing, tilsagn, historikk };
-}
+export const tilsagnDetaljerLoader =
+  (queryClient: QueryClient) =>
+  async ({ params }: LoaderFunctionArgs) => {
+    const { gjennomforingId, tilsagnId } = params;
+
+    if (!gjennomforingId) {
+      throw new Error("gjennomforingId is missing");
+    }
+
+    if (!tilsagnId) {
+      throw new Error("tilsagnId is missing");
+    }
+
+    const [{ data: ansatt }, { data: gjennomforing }, { data: tilsagn }, { data: historikk }] =
+      await Promise.all([
+        queryClient.ensureQueryData(ansattQuery()),
+        queryClient.ensureQueryData(gjennomforingQuery(gjennomforingId)),
+        queryClient.ensureQueryData(tilsagnQuery(tilsagnId)),
+        queryClient.ensureQueryData(tilsagnHistorikkQuery(tilsagnId)),
+      ]);
+
+    return { ansatt, gjennomforing, tilsagn, historikk };
+  };
