@@ -7,12 +7,12 @@
   "types": "index.tsx",
   "homepage": "https://github.com/navikt/mulighetsrommet#readme",
   "dependencies": {
-    "@hookform/resolvers": "4.1.0",
+    "@hookform/resolvers": "4.1.1",
     "@mr/api-client-v2": "workspace:*",
     "@navikt/aksel-icons": "7.13.0",
     "@navikt/ds-css": "7.13.0",
     "@navikt/ds-react": "7.13.0",
-    "@tanstack/react-query": "5.66.3",
+    "@tanstack/react-query": "5.66.9",
     "classnames": "2.5.1",
     "debounce": "2.2.0",
     "react": "18.3.1",
@@ -20,7 +20,7 @@
     "react-error-boundary": "5.0.0",
     "react-hook-form": "7.54.2",
     "react-select": "5.10.0",
-    "react-router": "7.1.5",
+    "react-router": "7.2.0",
     "use-resize-observer": "9.1.0",
     "zod": "3.24.2"
   },
