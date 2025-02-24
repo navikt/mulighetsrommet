@@ -60,8 +60,10 @@ class OkonomiBestillingServiceTest : FunSpec({
     }
 
     context("skedulering av oppgaver for økonomi") {
+        val bestillingsnummer = "A-2025/1-1"
+
         val tilsagn = TilsagnFixtures.Tilsagn1.copy(
-            bestillingsnummer = "2025",
+            bestillingsnummer = bestillingsnummer,
             periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 7, 1)),
             beregning = TilsagnBeregningFri(
                 input = TilsagnBeregningFri.Input(1000),
@@ -90,7 +92,7 @@ class OkonomiBestillingServiceTest : FunSpec({
             belop = 100,
             periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
             lopenummer = 1,
-            fakturanummer = "2025/1",
+            fakturanummer = "$bestillingsnummer-1",
             opprettetAv = NavAnsattFixture.ansatt1.navIdent,
         )
         val delutbetaling2 = DelutbetalingDbo(
@@ -99,7 +101,7 @@ class OkonomiBestillingServiceTest : FunSpec({
             belop = 100,
             periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
             lopenummer = 2,
-            fakturanummer = "2025/2",
+            fakturanummer = "$bestillingsnummer-2",
             opprettetAv = NavAnsattFixture.ansatt1.navIdent,
         )
 
@@ -167,7 +169,7 @@ class OkonomiBestillingServiceTest : FunSpec({
                         match {
                             it.topic() shouldBe "okonomi.bestilling.v1"
 
-                            it.key() shouldBe tilsagn.bestillingsnummer
+                            it.key() shouldBe bestillingsnummer
 
                             Json.decodeFromString<OkonomiBestillingMelding>(it.value()!!)
                                 .shouldBeTypeOf<OkonomiBestillingMelding.Annullering>()
@@ -199,7 +201,7 @@ class OkonomiBestillingServiceTest : FunSpec({
                         match {
                             it.topic() shouldBe "okonomi.bestilling.v1"
 
-                            it.key() shouldBe tilsagn.bestillingsnummer
+                            it.key() shouldBe bestillingsnummer
 
                             val faktura = Json.decodeFromString<OkonomiBestillingMelding>(it.value()!!)
                                 .shouldBeTypeOf<OkonomiBestillingMelding.Faktura>()
@@ -255,7 +257,7 @@ class OkonomiBestillingServiceTest : FunSpec({
                 kafkaProducerClient.sendSync(
                     match {
                         it.topic() shouldBe "okonomi.bestilling.v1"
-                        it.key() shouldBe tilsagn.bestillingsnummer
+                        it.key() shouldBe bestillingsnummer
 
                         val faktura = Json.decodeFromString<OkonomiBestillingMelding>(it.value()!!)
                             .shouldBeTypeOf<OkonomiBestillingMelding.Faktura>()
@@ -267,7 +269,7 @@ class OkonomiBestillingServiceTest : FunSpec({
                 kafkaProducerClient.sendSync(
                     match {
                         it.topic() shouldBe "okonomi.bestilling.v1"
-                        it.key() shouldBe tilsagn.bestillingsnummer
+                        it.key() shouldBe bestillingsnummer
 
                         val faktura = Json.decodeFromString<OkonomiBestillingMelding>(it.value()!!)
                             .shouldBeTypeOf<OkonomiBestillingMelding.Faktura>()
