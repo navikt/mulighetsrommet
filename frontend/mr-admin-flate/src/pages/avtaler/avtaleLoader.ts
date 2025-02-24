@@ -27,7 +27,7 @@ export const avtaleLoader =
     }
 
     const [{ data: avtale }, { data: ansatt }] = await Promise.all([
-      queryClient.ensureQueryData(avtaleQuery(params.avtaleId)),
+      AvtalerService.getAvtale({ path: { id: params.avtaleId } }),
       queryClient.ensureQueryData(ansattQuery),
     ]);
     return { avtale, ansatt };
@@ -53,7 +53,7 @@ export const avtaleSkjemaLoader =
     const [{ data: avtale }, tiltakstyper, { data: ansatt }, { data: enheter }] = await Promise.all(
       [
         params.avtaleId
-          ? await queryClient.ensureQueryData(avtaleQuery(params.avtaleId))
+          ? await AvtalerService.getAvtale({ path: { id: params.avtaleId } })
           : { data: undefined },
         await queryClient.ensureQueryData(tiltakstyperQuery),
         await queryClient.ensureQueryData(ansattQuery),

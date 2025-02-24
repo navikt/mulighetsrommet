@@ -39,6 +39,7 @@ import { GjennomforingUtdanningslopForm } from "../utdanning/GjennomforingUtdann
 import { SelectOppstartstype } from "./SelectOppstartstype";
 import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
+import { AvtaleErKladdOgArrangørManglerMelding } from "@/pages/avtaler/AvtaleDetaljer";
 
 interface Props {
   gjennomforing?: GjennomforingDto;
@@ -362,10 +363,12 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
               </div>
             </FormGroup>
           </div>
-          {avtale.arrangor && (
+          {avtale.arrangor ? (
             <FormGroup>
               <GjennomforingArrangorForm readOnly={false} arrangor={avtale.arrangor} />
             </FormGroup>
+          ) : (
+            <AvtaleErKladdOgArrangørManglerMelding />
           )}
         </SkjemaKolonne>
       </TwoColumnGrid>

@@ -264,6 +264,6 @@ export function AvtaleDetaljer() {
   );
 }
 
-const AvtaleErKladdOgArrangørManglerMelding = () => {
+export const AvtaleErKladdOgArrangørManglerMelding = () => {
   return <Alert variant="warning">Arrangør mangler</Alert>;
 };

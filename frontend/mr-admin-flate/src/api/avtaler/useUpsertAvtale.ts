@@ -11,7 +11,7 @@ export function useUpsertAvtale() {
     onSuccess(_, request) {
       return Promise.all([
         queryClient.invalidateQueries({
-          queryKey: QueryKeys.avtale(request.id),
+          queryKey: [QueryKeys.avtale(request.id)],
         }),
 
         queryClient.invalidateQueries({
