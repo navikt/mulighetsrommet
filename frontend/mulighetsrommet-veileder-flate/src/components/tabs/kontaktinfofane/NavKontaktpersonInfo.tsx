@@ -19,18 +19,22 @@ const NavKontaktpersonInfo = ({ kontaktinfo }: NavKontaktpersonInfoProps) => {
   const { tiltaksansvarlige } = kontaktinfo;
 
   return (
-    <div>
+    <div className="prose">
       {tiltaksansvarlige.length === 0 ? (
         <Alert variant="info">Kontaktinfo til tiltaksansvarlig er ikke lagt inn</Alert>
       ) : (
         <>
-          <Heading size="small">Tiltaksansvarlig</Heading>
+          <Heading size="small" className="pb-5">
+            {tiltaksansvarlige.length > 1 ? "Tiltaksansvarlige" : "Tiltaksansvarlig"}
+          </Heading>
 
           {tiltaksansvarlige.map((tiltaksansvarlig: VeilederflateKontaktinfoTiltaksansvarlig) => {
             const { navn, epost, telefon, enhet, beskrivelse } = tiltaksansvarlig;
             return (
-              <div key={epost} className="prose bg-bg-subtle p-2 my-2 rounded-md">
-                <BodyShort className="font-bold mt-5">{navn}</BodyShort>
+              <div key={epost} className="prose bg-bg-subtle p-2 mt-2 rounded-md">
+                <Heading level="4" size="xsmall">
+                  {navn}
+                </Heading>
                 {beskrivelse && (
                   <BodyShort textColor="subtle" size="small">
                     {beskrivelse}
