@@ -485,7 +485,7 @@ class UtbetalingServiceTest : FunSpec({
                     tilsagnId = tilsagn.id,
                 ),
                 navIdent = domain.ansatte[1].navIdent,
-            ).shouldBeLeft() shouldBe BadRequest("Utbetaling allerede besluttes")
+            ).shouldBeLeft() shouldBe BadRequest("Utbetaling er allerede besluttet")
         }
 
         test("skal ikke kunne opprette delutbetaling hvis utbetalingsperiode og tilsagnsperiode ikke overlapper") {
