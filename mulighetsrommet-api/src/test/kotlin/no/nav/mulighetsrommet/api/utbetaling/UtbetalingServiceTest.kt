@@ -105,7 +105,7 @@ class UtbetalingServiceTest : FunSpec({
         }
 
         test("genererer et utbetaling med kontonummer og kid-nummer fra forrige godkjente utbetaling fra arrangør") {
-            val domain = MulighetsrommetTestDomain(
+            MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltaker(
