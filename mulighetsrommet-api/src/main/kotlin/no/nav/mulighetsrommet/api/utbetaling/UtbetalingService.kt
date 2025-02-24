@@ -209,7 +209,7 @@ class UtbetalingService(
             belop = request.belop,
             opprettetAv = opprettetAv,
             lopenummer = lopenummer,
-            fakturanummer = "${tilsagn.bestillingsnummer}/$lopenummer",
+            fakturanummer = "${tilsagn.bestillingsnummer}-$lopenummer",
         )
 
         db.session {

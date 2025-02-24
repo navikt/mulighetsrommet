@@ -116,18 +116,18 @@ class TilsagnServiceTest : FunSpec({
                 val aft1 = queries.gjennomforing.get(domain2.gjennomforinger[0].id).shouldNotBeNull()
                 queries.tilsagn.get(tilsagn.id).shouldNotBeNull().should {
                     it.lopenummer shouldBe 1
-                    it.bestillingsnummer shouldBe "${aft1.lopenummer}/1"
+                    it.bestillingsnummer shouldBe "A-${aft1.lopenummer}-1"
                 }
 
                 queries.tilsagn.get(tilsagn2).shouldNotBeNull().should {
                     it.lopenummer shouldBe 2
-                    it.bestillingsnummer shouldBe "${aft1.lopenummer}/2"
+                    it.bestillingsnummer shouldBe "A-${aft1.lopenummer}-2"
                 }
 
                 val aft2 = queries.gjennomforing.get(domain2.gjennomforinger[1].id).shouldNotBeNull()
                 queries.tilsagn.get(tilsagn3).shouldNotBeNull().should {
                     it.lopenummer shouldBe 1
-                    it.bestillingsnummer shouldBe "${aft2.lopenummer}/1"
+                    it.bestillingsnummer shouldBe "A-${aft2.lopenummer}-1"
                 }
             }
         }
@@ -160,7 +160,7 @@ class TilsagnServiceTest : FunSpec({
                 val aft1 = queries.gjennomforing.get(domain.gjennomforinger[0].id).shouldNotBeNull()
                 queries.tilsagn.get(tilsagn.id).shouldNotBeNull().should {
                     it.lopenummer shouldBe 1
-                    it.bestillingsnummer shouldBe "${aft1.lopenummer}/1"
+                    it.bestillingsnummer shouldBe "A-${aft1.lopenummer}-1"
                 }
             }
         }

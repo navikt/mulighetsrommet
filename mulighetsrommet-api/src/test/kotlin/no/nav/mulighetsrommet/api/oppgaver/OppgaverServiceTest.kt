@@ -269,7 +269,7 @@ class OppgaverServiceTest : FunSpec({
                         id = UUID.randomUUID(),
                         gjennomforingId = UtbetalingFixtures.utbetaling3.gjennomforingId,
                         kostnadssted = NavEnhetFixtures.TiltakOslo.enhetsnummer,
-                        bestillingsnummer = "2025/4",
+                        bestillingsnummer = "A-2025/1-4",
                     ),
                 ),
                 utbetalinger = listOf(
@@ -284,7 +284,7 @@ class OppgaverServiceTest : FunSpec({
                         belop = 100,
                         periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
                         lopenummer = 1,
-                        fakturanummer = "2025/1",
+                        fakturanummer = "A-2025/1-1-1",
                         opprettetAv = NavAnsattFixture.ansatt1.navIdent,
                     ),
                 ),
