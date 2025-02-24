@@ -4,6 +4,7 @@ import { Alert } from "@navikt/ds-react";
 import { useLoaderData } from "react-router";
 import { UtbetalingerTable } from "../../../components/utbetaling/UtbetalingerTable";
 import { utbetalingerForGjennomforingLoader } from "./utbetalingerForGjennomforingLoader";
+import { UtbetalingerChart } from "./UtbetalingerChart";
 
 export function UtbetalingerForGjennomforingContainer() {
   const { gjennomforing, utbetalinger } =
@@ -13,6 +14,7 @@ export function UtbetalingerForGjennomforingContainer() {
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
     [gjennomforing.tiltakstype.tiltakskode],
   );
+  console.log(utbetalinger);
 
   if (!enableOkonomi) {
     return null;
@@ -21,7 +23,12 @@ export function UtbetalingerForGjennomforingContainer() {
   return (
     <>
       {utbetalinger.length > 0 ? (
-        <UtbetalingerTable utbetalinger={utbetalinger} />
+        <>
+          <UtbetalingerTable utbetalinger={utbetalinger} />
+          <div className="mt-8">
+            <UtbetalingerChart utbetalinger={utbetalinger} />
+          </div>
+        </>
       ) : (
         <Alert style={{ marginTop: "1rem" }} variant="info">
           Det finnes ingen utbetalinger for dette tiltaket
