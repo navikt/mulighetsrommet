@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 @import "@navikt/ds-css" layer(components);
+@config "../tailwind.config.ts";
 
 /* Modia appen bruker shadow dom da funker ikke :root så
  * vi dupliserer variablene her og legger de rett på div'en
