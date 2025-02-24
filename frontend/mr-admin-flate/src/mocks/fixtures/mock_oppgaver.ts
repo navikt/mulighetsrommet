@@ -37,4 +37,16 @@ export const mockOppgaver: Oppgave[] = [
     createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toString(),
     oppgaveIcon: OppgaveIcon.TILSAGN,
   },
+  {
+    type: OppgaveType.UTBETALING_TIL_GODKJENNING,
+    title: "Utbetaling til godkjenning",
+    description: `Utbetaling for <gjennomføringsnavn> er sendt til godkjenning`,
+    tiltakstype: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+    link: {
+      linkText: "Se utbetaling",
+      link: "https://nav.no/",
+    },
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toString(),
+    oppgaveIcon: OppgaveIcon.UTBETALING,
+  },
 ];
