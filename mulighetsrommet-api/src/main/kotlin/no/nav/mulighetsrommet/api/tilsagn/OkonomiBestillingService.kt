@@ -167,7 +167,11 @@ class OkonomiBestillingService(
 
             val message = OkonomiBestillingMelding.Faktura(faktura)
             db.transaction {
-                queries.delutbetaling.setSendtTilOkonomi(delutbetaling.utbetalingId, delutbetaling.tilsagnId)
+                queries.delutbetaling.setSendtTilOkonomi(
+                    delutbetaling.utbetalingId,
+                    delutbetaling.tilsagnId,
+                    LocalDateTime.now(),
+                )
                 publish(faktura.bestillingsnummer, message)
             }
         }

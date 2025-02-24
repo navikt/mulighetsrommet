@@ -146,7 +146,7 @@ class UtbetalingQueries(private val session: Session) {
         batchPreparedNamedStatement(insertManedsverkQuery, manedsverk)
     }
 
-    fun upsertUtbetalingBeregningFri(id: UUID, beregning: UtbetalingBeregningFri) {
+    private fun upsertUtbetalingBeregningFri(id: UUID, beregning: UtbetalingBeregningFri) {
         @Language("PostgreSQL")
         val query = """
             insert into utbetaling_beregning_fri (utbetaling_id, belop)
@@ -261,7 +261,7 @@ class UtbetalingQueries(private val session: Session) {
         return list(queryOf(query, params)) { it.toUtbetalingDto() }
     }
 
-    fun getBeregning(id: UUID, beregningsmodell: Beregningsmodell): UtbetalingBeregning {
+    private fun getBeregning(id: UUID, beregningsmodell: Beregningsmodell): UtbetalingBeregning {
         return when (beregningsmodell) {
             Beregningsmodell.FORHANDSGODKJENT -> getBeregningAft(id)
             Beregningsmodell.FRI -> getBeregningFri(id)
@@ -328,7 +328,7 @@ class UtbetalingQueries(private val session: Session) {
         }
     }
 
-    fun Row.toUtbetalingDto(): UtbetalingDto {
+    private fun Row.toUtbetalingDto(): UtbetalingDto {
         val beregningsmodell = Beregningsmodell.valueOf(string("beregningsmodell"))
         val beregning = getBeregning(uuid("id"), beregningsmodell)
         val id = uuid("id")

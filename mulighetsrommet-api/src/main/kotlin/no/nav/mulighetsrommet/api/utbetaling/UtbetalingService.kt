@@ -241,17 +241,24 @@ class UtbetalingService(
 
         when (request) {
             is BesluttDelutbetalingRequest.AvvistDelutbetalingRequest ->
-                queries.delutbetaling.avvis(
-                    utbetalingId = utbetalingId,
-                    navIdent = navIdent,
-                    request = request,
-                )
-            is BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest -> {
-                queries.delutbetaling.godkjenn(
+                queries.delutbetaling.beslutt(
                     utbetalingId = utbetalingId,
                     tilsagnId = request.tilsagnId,
+                    besluttelse = Besluttelse.AVVIST,
                     navIdent = navIdent,
-                    LocalDateTime.now(),
+                    tidspunkt = LocalDateTime.now(),
+                    aarsaker = request.aarsaker,
+                    forklaring = request.forklaring,
+                )
+            is BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest -> {
+                queries.delutbetaling.beslutt(
+                    utbetalingId = utbetalingId,
+                    tilsagnId = request.tilsagnId,
+                    besluttelse = Besluttelse.GODKJENT,
+                    navIdent = navIdent,
+                    tidspunkt = LocalDateTime.now(),
+                    aarsaker = null,
+                    forklaring = null,
                 )
                 okonomi.scheduleBehandleGodkjenteUtbetalinger(request.tilsagnId, session)
             }

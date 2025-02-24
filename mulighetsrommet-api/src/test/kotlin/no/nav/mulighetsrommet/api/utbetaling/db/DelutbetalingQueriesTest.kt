@@ -8,6 +8,7 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavIdent
@@ -71,10 +72,18 @@ class DelutbetalingQueriesTest : FunSpec({
                 opprettetAv = NavAnsattFixture.ansatt1.navIdent,
             )
             queries.upsert(delutbetaling)
-            queries.godkjenn(UtbetalingFixtures.utbetaling1.id, TilsagnFixtures.Tilsagn1.id, NavIdent("Z123456"), LocalDateTime.now())
+            queries.beslutt(
+                utbetalingId = UtbetalingFixtures.utbetaling1.id,
+                tilsagnId = TilsagnFixtures.Tilsagn1.id,
+                navIdent = NavIdent("Z123456"),
+                tidspunkt = LocalDateTime.now(),
+                besluttelse = Besluttelse.GODKJENT,
+                aarsaker = null,
+                forklaring = null,
+            )
 
             queries.getSkalSendesTilOkonomi(TilsagnFixtures.Tilsagn1.id) shouldHaveSize 1
-            queries.setSendtTilOkonomi(UtbetalingFixtures.utbetaling1.id, TilsagnFixtures.Tilsagn1.id)
+            queries.setSendtTilOkonomi(UtbetalingFixtures.utbetaling1.id, TilsagnFixtures.Tilsagn1.id, LocalDateTime.now())
             queries.getSkalSendesTilOkonomi(TilsagnFixtures.Tilsagn1.id) shouldHaveSize 0
         }
     }
@@ -106,17 +115,23 @@ class DelutbetalingQueriesTest : FunSpec({
             // Oppretter 1 først, men godkjenner 2 først
             queries.upsert(delutbetaling1)
             queries.upsert(delutbetaling2)
-            queries.godkjenn(
+            queries.beslutt(
                 UtbetalingFixtures.utbetaling2.id,
                 TilsagnFixtures.Tilsagn1.id,
                 NavIdent("Z123456"),
-                LocalDateTime.of(2025, 1, 1, 10, 0, 0),
+                tidspunkt = LocalDateTime.of(2025, 1, 1, 10, 0, 0),
+                besluttelse = Besluttelse.GODKJENT,
+                aarsaker = null,
+                forklaring = null,
             )
-            queries.godkjenn(
+            queries.beslutt(
                 UtbetalingFixtures.utbetaling1.id,
                 TilsagnFixtures.Tilsagn1.id,
                 NavIdent("Z123456"),
-                LocalDateTime.of(2025, 1, 1, 11, 0, 0),
+                tidspunkt = LocalDateTime.of(2025, 1, 1, 11, 0, 0),
+                besluttelse = Besluttelse.GODKJENT,
+                aarsaker = null,
+                forklaring = null,
             )
 
             val skalSendes = queries.getSkalSendesTilOkonomi(TilsagnFixtures.Tilsagn1.id)

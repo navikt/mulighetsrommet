@@ -13,6 +13,7 @@ import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -180,7 +181,15 @@ class OkonomiBestillingServiceTest : FunSpec({
 
         test("godkjent utbetaling blir omsider sendt som faktura på kafka") {
             database.run {
-                queries.delutbetaling.godkjenn(utbetaling1.id, tilsagn.id, NavAnsattFixture.ansatt2.navIdent, LocalDateTime.now())
+                queries.delutbetaling.beslutt(
+                    utbetaling1.id,
+                    tilsagn.id,
+                    NavAnsattFixture.ansatt2.navIdent,
+                    Besluttelse.GODKJENT,
+                    aarsaker = null,
+                    forklaring = null,
+                    LocalDateTime.now(),
+                )
                 service.scheduleBehandleGodkjenteUtbetalinger(tilsagn.id, session)
             }
 
@@ -212,16 +221,22 @@ class OkonomiBestillingServiceTest : FunSpec({
 
         test("første godkjente delutbetaling blir sendt først selv om jobb krasjer første gang") {
             database.run {
-                queries.delutbetaling.godkjenn(
+                queries.delutbetaling.beslutt(
                     utbetaling1.id,
                     tilsagn.id,
                     NavAnsattFixture.ansatt2.navIdent,
+                    Besluttelse.GODKJENT,
+                    aarsaker = null,
+                    forklaring = null,
                     LocalDateTime.of(2025, 1, 1, 10, 0, 0),
                 )
-                queries.delutbetaling.godkjenn(
+                queries.delutbetaling.beslutt(
                     utbetaling2.id,
                     tilsagn.id,
                     NavAnsattFixture.ansatt2.navIdent,
+                    Besluttelse.GODKJENT,
+                    aarsaker = null,
+                    forklaring = null,
                     LocalDateTime.of(2025, 1, 1, 11, 0, 0),
                 )
             }
