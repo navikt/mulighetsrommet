@@ -240,7 +240,7 @@ export function AvtaleDetaljer() {
             />
           </VStack>
         ) : (
-          <AvtaleErKladdOgArrangørManglerMelding />
+          <AvtaleErKladdOgArrangorManglerMelding />
         )}
 
         <Separator />
@@ -264,6 +264,6 @@ export function AvtaleDetaljer() {
   );
 }
 
-export const AvtaleErKladdOgArrangørManglerMelding = () => {
+export const AvtaleErKladdOgArrangorManglerMelding = () => {
   return <Alert variant="warning">Arrangør mangler</Alert>;
 };
