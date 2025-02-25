@@ -63,7 +63,7 @@ fun Application.configure(config: AppConfig) {
     configureApi(kafka, okonomiDb, oebsService)
 
     monitor.subscribe(ApplicationStarted) {
-        kafka.enableFailedRecordProcessor()
+//        kafka.enableFailedRecordProcessor()
     }
 
     monitor.subscribe(ApplicationStopPreparing) {
