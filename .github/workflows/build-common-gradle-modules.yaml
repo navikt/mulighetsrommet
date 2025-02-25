@@ -1,9 +1,9 @@
-name: Build common modules
+name: Build common gradle modules
 
 on:
   push:
     paths:
-      - .github/workflows/build-common.yaml
+      - .github/workflows/build-common-gradle-modules.yaml
       - build.gradle.kts
       - settings.gradle.kts
       - gradle.properties
