@@ -47,9 +47,7 @@ export const redigerTilsagnLoader =
         queryClient.ensureQueryData(godkjenteTilsagnQuery(gjennomforingId)),
       ]);
 
-    const { data: avtale } = await queryClient.ensureQueryData(
-      avtaleQuery(gjennomforing.avtaleId!),
-    );
+    const avtale = await queryClient.ensureQueryData(avtaleQuery(gjennomforing.avtaleId!));
 
     return { avtale, gjennomforing, tilsagn, godkjenteTilsagn };
   };

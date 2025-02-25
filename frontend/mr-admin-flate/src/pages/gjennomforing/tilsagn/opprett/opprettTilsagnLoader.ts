@@ -75,9 +75,7 @@ export const opprettTilsagnLoader =
         queryClient.ensureQueryData(godkjenteTilsagnQuery(gjennomforingId)),
       ]);
 
-    const { data: avtale } = await queryClient.ensureQueryData(
-      avtaleQuery(gjennomforing.avtaleId!),
-    );
+    const avtale = await queryClient.ensureQueryData(avtaleQuery(gjennomforing.avtaleId!));
 
     return { avtale, gjennomforing, defaults, godkjenteTilsagn };
   };

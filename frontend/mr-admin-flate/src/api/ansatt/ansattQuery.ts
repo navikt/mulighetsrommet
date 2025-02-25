@@ -4,5 +4,5 @@ import { QueryKeys } from "../QueryKeys";
 
 export const ansattQuery = queryOptions({
   queryKey: QueryKeys.ansatt(),
-  queryFn: async () => await AnsattService.hentInfoOmAnsatt(),
+  queryFn: async () => (await AnsattService.hentInfoOmAnsatt()).data,
 });

@@ -169,6 +169,7 @@ const router = (queryClient: QueryClient) => {
                 path: "gjennomforinger",
                 element: <GjennomforingerForAvtalePage />,
                 errorElement: <ErrorPage />,
+                loader: avtaleLoader(queryClient),
               },
             ],
           },
