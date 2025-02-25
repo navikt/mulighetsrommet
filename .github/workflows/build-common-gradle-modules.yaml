@@ -1,0 +1,36 @@
+name: Build common gradle modules
+
+on:
+  push:
+    paths:
+      - .github/workflows/build-common-gradle-modules.yaml
+      - build.gradle.kts
+      - settings.gradle.kts
+      - gradle.properties
+      - gradle/libs.versions.toml
+      - common/**
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: true
+  TZ: Europe/Amsterdam
+
+jobs:
+  ci:
+    name: CI
+    runs-on:
+      labels: ubuntu-latest-8-cores
+    defaults:
+      run:
+        working-directory: common
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup backend
+        uses: ./.github/actions/setup-backend
+      - name: Build common modules
+        run: gradle build

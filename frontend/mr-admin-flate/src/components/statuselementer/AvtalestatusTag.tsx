@@ -20,6 +20,8 @@ export function AvtalestatusTag({ avtale, showAvbruttAarsak = false }: Props) {
         return { variant: "neutral", name: "Avsluttet" };
       case "AVBRUTT":
         return { variant: "error", name: "Avbrutt" };
+      case "UTKAST":
+        return { variant: "neutral", name: "Utkast" };
     }
   }
   const { variant, name } = variantAndName();

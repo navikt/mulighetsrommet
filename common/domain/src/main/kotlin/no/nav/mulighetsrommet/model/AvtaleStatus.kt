@@ -11,6 +11,9 @@ sealed class AvtaleStatus {
     data object AVSLUTTET : AvtaleStatus() {
         override val enum = Enum.AVSLUTTET
     }
+    data object UTKAST : AvtaleStatus() {
+        override val enum = Enum.UTKAST
+    }
     data class AVBRUTT(val tidspunkt: LocalDateTime, val aarsak: AvbruttAarsak) : AvtaleStatus() {
         override val enum = Enum.AVBRUTT
     }
@@ -19,6 +22,7 @@ sealed class AvtaleStatus {
         fun fromString(name: String, tidspunkt: LocalDateTime?, aarsak: AvbruttAarsak?): AvtaleStatus = when (Enum.valueOf(name)) {
             Enum.AKTIV -> AKTIV
             Enum.AVSLUTTET -> AVSLUTTET
+            Enum.UTKAST -> UTKAST
             Enum.AVBRUTT -> {
                 requireNotNull(tidspunkt)
                 requireNotNull(aarsak)
@@ -31,5 +35,6 @@ sealed class AvtaleStatus {
         AKTIV,
         AVSLUTTET,
         AVBRUTT,
+        UTKAST,
     }
 }

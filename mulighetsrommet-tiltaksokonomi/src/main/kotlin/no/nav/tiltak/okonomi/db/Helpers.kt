@@ -9,3 +9,7 @@ fun Row.periode(property: String): Periode {
     val (start, end) = periode.removeSurrounding("[", ")").split(",")
     return Periode(LocalDate.parse(start.trim()), LocalDate.parse(end.trim()))
 }
+
+fun Periode.toDaterange(): String {
+    return "[$start,$slutt)"
+}

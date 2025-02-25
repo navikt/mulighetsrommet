@@ -37,6 +37,15 @@ class PeriodeTest : FunSpec({
         (LocalDate.of(2021, 1, 31) in period) shouldBe false
     }
 
+    test("should check if period is in period") {
+        val period = Periode(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 31))
+
+        (Periode(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 31)) in period) shouldBe true
+        (Periode(LocalDate.of(2021, 1, 15), LocalDate.of(2021, 1, 16)) in period) shouldBe true
+        (Periode(LocalDate.of(2021, 1, 31), LocalDate.of(2021, 2, 1)) in period) shouldBe false
+        (Periode(LocalDate.of(2020, 12, 31), LocalDate.of(2021, 1, 1)) in period) shouldBe false
+    }
+
     test("should split by month") {
         val period = Periode(LocalDate.of(2021, 1, 15), LocalDate.of(2021, 3, 15))
 
@@ -69,9 +78,5 @@ class PeriodeTest : FunSpec({
 
         val period3 = Periode(LocalDate.of(2021, 2, 1), LocalDate.of(2021, 2, 15))
         period1.intersect(period3) shouldBe null
-
-        val g = Periode(LocalDate.of(2024, 1, 15), LocalDate.of(2024, 2, 15))
-        val ggg = g.intersect(Periode.forMonthOf(LocalDate.of(2024, 1, 1)))
-        ggg shouldBe null
     }
 })

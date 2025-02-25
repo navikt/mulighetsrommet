@@ -2957,6 +2957,7 @@ components:
           enum:
             - AKTIV
             - AVSLUTTET
+            - UTKAST
       required:
         - name
 
