@@ -9,22 +9,30 @@ import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.MockEngineBuilder
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.*
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.api.*
+import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.model.BestillingStatusType
 import no.nav.tiltak.okonomi.model.FakturaStatusType
+import no.nav.tiltak.okonomi.model.OebsKontering
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 
 class TiltaksokonomiTest : FunSpec({
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+
     val oauth = MockOAuth2Server()
 
     beforeSpec {
         oauth.start()
+
+        val db = OkonomiDatabase(database.db)
+        initializeData(db)
     }
 
     afterSpec {
@@ -240,6 +248,17 @@ class TiltaksokonomiTest : FunSpec({
         }
     }
 })
+
+private fun initializeData(db: OkonomiDatabase) = db.session {
+    queries.kontering.insertKontering(
+        OebsKontering(
+            tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+            periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2099, 1, 1)),
+            statligRegnskapskonto = "12345678901",
+            statligArtskonto = "23456789012",
+        ),
+    )
+}
 
 private fun MockEngineBuilder.mockBrregHovedenhet() {
     get("https://data.brreg.no/enhetsregisteret/api/enheter/123456789") {

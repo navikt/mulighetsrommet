@@ -41,6 +41,10 @@ data class Periode(
         return date == start || date.isAfter(start) && date.isBefore(slutt)
     }
 
+    operator fun contains(periode: Periode): Boolean {
+        return periode.start in this && periode.getLastDate() in this
+    }
+
     fun getDurationInDays(): Long {
         return ChronoUnit.DAYS.between(start, slutt)
     }
