@@ -105,7 +105,7 @@ class UtbetalingServiceTest : FunSpec({
         }
 
         test("genererer et utbetaling med kontonummer og kid-nummer fra forrige godkjente utbetaling fra arrangør") {
-            val domain = MulighetsrommetTestDomain(
+            MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltaker(
@@ -410,7 +410,6 @@ class UtbetalingServiceTest : FunSpec({
         test("skal ikke kunne opprette del utbetaling hvis den er godkjent") {
             val tilsagn = TilsagnFixtures.Tilsagn1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
-                bestillingsnummer = "2024/1",
             )
 
             val utbetaling = UtbetalingFixtures.utbetaling1.copy(
@@ -451,7 +450,6 @@ class UtbetalingServiceTest : FunSpec({
         test("skal ikke kunne godkjenne delutbetaling hvis den er godkjent") {
             val tilsagn = TilsagnFixtures.Tilsagn1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
-                bestillingsnummer = "2024/1",
             )
 
             val utbetaling = UtbetalingFixtures.utbetaling1.copy(
@@ -487,7 +485,7 @@ class UtbetalingServiceTest : FunSpec({
                     tilsagnId = tilsagn.id,
                 ),
                 navIdent = domain.ansatte[1].navIdent,
-            ).shouldBeLeft() shouldBe BadRequest("Utbetaling allerede besluttes")
+            ).shouldBeLeft() shouldBe BadRequest("Utbetaling er allerede besluttet")
         }
 
         test("skal ikke kunne opprette delutbetaling hvis utbetalingsperiode og tilsagnsperiode ikke overlapper") {
@@ -568,12 +566,12 @@ class UtbetalingServiceTest : FunSpec({
         test("løpenummer, fakturanummer og periode blir utledet fra tilsagnet og utbetalingen") {
             val tilsagn1 = TilsagnFixtures.Tilsagn2.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
-                bestillingsnummer = "2024/1",
+                bestillingsnummer = "A-2024/1-1",
             )
 
             val tilsagn2 = TilsagnFixtures.Tilsagn1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
-                bestillingsnummer = "2024/2",
+                bestillingsnummer = "A-2024/1-2",
             )
 
             val utbetaling1 = UtbetalingFixtures.utbetaling1.copy(
@@ -616,18 +614,18 @@ class UtbetalingServiceTest : FunSpec({
                     first.belop shouldBe 50
                     first.periode shouldBe Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 15))
                     first.lopenummer shouldBe 1
-                    first.fakturanummer shouldBe "2024/2/1"
+                    first.fakturanummer shouldBe "A-2024/1-2-1"
 
                     second.belop shouldBe 50
                     second.periode shouldBe Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 15))
                     second.lopenummer shouldBe 1
-                    second.fakturanummer shouldBe "2024/1/1"
+                    second.fakturanummer shouldBe "A-2024/1-1-1"
                 }
 
                 queries.delutbetaling.getByUtbetalingId(utbetaling2.id).should { (first) ->
                     first.belop shouldBe 100
                     first.lopenummer shouldBe 2
-                    first.fakturanummer shouldBe "2024/1/2"
+                    first.fakturanummer shouldBe "A-2024/1-1-2"
                     first.periode shouldBe Periode(LocalDate.of(2024, 1, 15), LocalDate.of(2024, 2, 1))
                 }
             }

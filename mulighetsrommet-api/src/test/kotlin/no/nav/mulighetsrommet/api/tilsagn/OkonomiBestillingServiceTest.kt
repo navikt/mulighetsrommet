@@ -2,16 +2,18 @@ package no.nav.mulighetsrommet.api.tilsagn
 
 import com.github.kagkarlsson.scheduler.Scheduler
 import io.kotest.assertions.nondeterministic.eventually
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
-import io.mockk.mockk
-import io.mockk.verify
+import io.mockk.*
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -23,6 +25,7 @@ import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OkonomiPart
 import java.time.LocalDate
+import java.time.LocalDateTime
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
@@ -57,8 +60,10 @@ class OkonomiBestillingServiceTest : FunSpec({
     }
 
     context("skedulering av oppgaver for økonomi") {
+        val bestillingsnummer = "A-2025/1-1"
+
         val tilsagn = TilsagnFixtures.Tilsagn1.copy(
-            bestillingsnummer = "2025",
+            bestillingsnummer = bestillingsnummer,
             periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 7, 1)),
             beregning = TilsagnBeregningFri(
                 input = TilsagnBeregningFri.Input(1000),
@@ -66,7 +71,14 @@ class OkonomiBestillingServiceTest : FunSpec({
             ),
         )
 
-        val utbetaling = UtbetalingFixtures.utbetaling1.copy(
+        val utbetaling1 = UtbetalingFixtures.utbetaling1.copy(
+            periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 4, 1)),
+            beregning = UtbetalingBeregningFri(
+                input = UtbetalingBeregningFri.Input(500),
+                output = UtbetalingBeregningFri.Output(500),
+            ),
+        )
+        val utbetaling2 = UtbetalingFixtures.utbetaling2.copy(
             periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 4, 1)),
             beregning = UtbetalingBeregningFri(
                 input = UtbetalingBeregningFri.Input(500),
@@ -74,25 +86,42 @@ class OkonomiBestillingServiceTest : FunSpec({
             ),
         )
 
-        val delutbetaling = DelutbetalingDbo(
+        val delutbetaling1 = DelutbetalingDbo(
             tilsagnId = tilsagn.id,
-            utbetalingId = utbetaling.id,
+            utbetalingId = utbetaling1.id,
             belop = 100,
             periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
             lopenummer = 1,
-            fakturanummer = "2025/1",
+            fakturanummer = "$bestillingsnummer-1",
+            opprettetAv = NavAnsattFixture.ansatt1.navIdent,
+        )
+        val delutbetaling2 = DelutbetalingDbo(
+            tilsagnId = tilsagn.id,
+            utbetalingId = utbetaling2.id,
+            belop = 100,
+            periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
+            lopenummer = 2,
+            fakturanummer = "$bestillingsnummer-2",
             opprettetAv = NavAnsattFixture.ansatt1.navIdent,
         )
 
-        MulighetsrommetTestDomain(
+        val domain = MulighetsrommetTestDomain(
             ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
             arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
             avtaler = listOf(AvtaleFixtures.AFT),
             gjennomforinger = listOf(AFT1),
             tilsagn = listOf(tilsagn),
-            utbetalinger = listOf(utbetaling),
-            delutbetalinger = listOf(delutbetaling),
-        ).initialize(database.db)
+            utbetalinger = listOf(utbetaling1, utbetaling2),
+            delutbetalinger = listOf(delutbetaling1, delutbetaling2),
+        )
+
+        beforeEach {
+            domain.initialize(database.db)
+        }
+
+        afterEach {
+            database.truncateAll()
+        }
 
         test("godkjent tilsagn blir omsider sendt som bestilling på kafka") {
             database.run {
@@ -140,7 +169,7 @@ class OkonomiBestillingServiceTest : FunSpec({
                         match {
                             it.topic() shouldBe "okonomi.bestilling.v1"
 
-                            it.key() shouldBe tilsagn.bestillingsnummer
+                            it.key() shouldBe bestillingsnummer
 
                             Json.decodeFromString<OkonomiBestillingMelding>(it.value()!!)
                                 .shouldBeTypeOf<OkonomiBestillingMelding.Annullering>()
@@ -154,8 +183,16 @@ class OkonomiBestillingServiceTest : FunSpec({
 
         test("godkjent utbetaling blir omsider sendt som faktura på kafka") {
             database.run {
-                queries.delutbetaling.godkjenn(utbetaling.id, tilsagn.id, NavAnsattFixture.ansatt2.navIdent)
-                service.scheduleBehandleGodkjentUtbetaling(utbetaling.id, tilsagn.id, session)
+                queries.delutbetaling.beslutt(
+                    utbetaling1.id,
+                    tilsagn.id,
+                    NavAnsattFixture.ansatt2.navIdent,
+                    Besluttelse.GODKJENT,
+                    aarsaker = null,
+                    forklaring = null,
+                    LocalDateTime.now(),
+                )
+                service.scheduleBehandleGodkjenteUtbetalinger(tilsagn.id, session)
             }
 
             eventually(10.seconds) {
@@ -164,16 +201,16 @@ class OkonomiBestillingServiceTest : FunSpec({
                         match {
                             it.topic() shouldBe "okonomi.bestilling.v1"
 
-                            it.key() shouldBe tilsagn.bestillingsnummer
+                            it.key() shouldBe bestillingsnummer
 
                             val faktura = Json.decodeFromString<OkonomiBestillingMelding>(it.value()!!)
                                 .shouldBeTypeOf<OkonomiBestillingMelding.Faktura>()
                                 .payload
 
                             faktura.bestillingsnummer shouldBe tilsagn.bestillingsnummer
-                            faktura.fakturanummer shouldBe delutbetaling.fakturanummer
-                            faktura.periode shouldBe delutbetaling.periode
-                            faktura.belop shouldBe delutbetaling.belop
+                            faktura.fakturanummer shouldBe delutbetaling1.fakturanummer
+                            faktura.periode shouldBe delutbetaling1.periode
+                            faktura.belop shouldBe delutbetaling1.belop
                             faktura.opprettetAv shouldBe OkonomiPart.NavAnsatt(NavAnsattFixture.ansatt1.navIdent)
                             faktura.besluttetAv shouldBe OkonomiPart.NavAnsatt(NavAnsattFixture.ansatt2.navIdent)
 
@@ -181,6 +218,66 @@ class OkonomiBestillingServiceTest : FunSpec({
                         },
                     )
                 }
+            }
+        }
+
+        test("første godkjente delutbetaling blir sendt først selv om jobb krasjer første gang") {
+            database.run {
+                queries.delutbetaling.beslutt(
+                    utbetaling1.id,
+                    tilsagn.id,
+                    NavAnsattFixture.ansatt2.navIdent,
+                    Besluttelse.GODKJENT,
+                    aarsaker = null,
+                    forklaring = null,
+                    LocalDateTime.of(2025, 1, 1, 10, 0, 0),
+                )
+                queries.delutbetaling.beslutt(
+                    utbetaling2.id,
+                    tilsagn.id,
+                    NavAnsattFixture.ansatt2.navIdent,
+                    Besluttelse.GODKJENT,
+                    aarsaker = null,
+                    forklaring = null,
+                    LocalDateTime.of(2025, 1, 1, 11, 0, 0),
+                )
+            }
+
+            every { kafkaProducerClient.sendSync(any()) } throws Exception()
+            shouldThrow<Exception> {
+                service.behandleGodkjentUtbetalinger(tilsagn.id)
+            }
+            database.run {
+                queries.delutbetaling.getSkalSendesTilOkonomi(tilsagn.id) shouldHaveSize 2
+            }
+            clearAllMocks()
+            service.behandleGodkjentUtbetalinger(tilsagn.id)
+
+            verifySequence {
+                kafkaProducerClient.sendSync(
+                    match {
+                        it.topic() shouldBe "okonomi.bestilling.v1"
+                        it.key() shouldBe bestillingsnummer
+
+                        val faktura = Json.decodeFromString<OkonomiBestillingMelding>(it.value()!!)
+                            .shouldBeTypeOf<OkonomiBestillingMelding.Faktura>()
+                            .payload
+                        faktura.fakturanummer shouldBe delutbetaling1.fakturanummer
+                        true
+                    },
+                )
+                kafkaProducerClient.sendSync(
+                    match {
+                        it.topic() shouldBe "okonomi.bestilling.v1"
+                        it.key() shouldBe bestillingsnummer
+
+                        val faktura = Json.decodeFromString<OkonomiBestillingMelding>(it.value()!!)
+                            .shouldBeTypeOf<OkonomiBestillingMelding.Faktura>()
+                            .payload
+                        faktura.fakturanummer shouldBe delutbetaling2.fakturanummer
+                        true
+                    },
+                )
             }
         }
     }

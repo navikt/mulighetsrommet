@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.left
-import arrow.core.raise.either
 import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
@@ -174,34 +173,35 @@ class UtbetalingService(
         utbetalingId: UUID,
         request: DelutbetalingRequest,
         opprettetAv: NavIdent,
-    ): StatusResponse<Unit> = either {
-        val utbetaling = db.session { queries.utbetaling.get(utbetalingId) }
+    ): StatusResponse<Unit> = db.transaction {
+        val utbetaling = queries.utbetaling.get(utbetalingId)
             ?: return NotFound("Utbetaling med id=$utbetalingId finnes ikke").left()
-        val tilsagn = db.session { queries.tilsagn.get(request.tilsagnId) }
+        val tilsagn = queries.tilsagn.get(request.tilsagnId)
             ?: return NotFound("Tilsagn med id=${request.tilsagnId} finnes ikke").left()
 
-        val previous = db.session { queries.delutbetaling.get(utbetalingId, request.tilsagnId) }
+        val previous = queries.delutbetaling.get(utbetalingId, request.tilsagnId)
         when (previous) {
             is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling,
             is DelutbetalingDto.DelutbetalingTilGodkjenning,
             is DelutbetalingDto.DelutbetalingUtbetalt,
-            ->
-                return BadRequest("Utbetaling kan ikke endres").left()
+            -> return BadRequest("Utbetaling kan ikke endres").left()
+
             is DelutbetalingDto.DelutbetalingAvvist, null -> {}
         }
 
-        val maxBelop = utbetaling.beregning.output.belop -
-            db.session { queries.delutbetaling.getByUtbetalingId(utbetalingId) }
-                .filter { it.tilsagnId != tilsagn.id }
-                .sumOf { it.belop }
+        val utbetaltBelop = queries.delutbetaling.getByUtbetalingId(utbetalingId)
+            .filter { it.tilsagnId != tilsagn.id }
+            .sumOf { it.belop }
+        val gjenstaendeBelop = utbetaling.beregning.output.belop - utbetaltBelop
 
-        UtbetalingValidator.validate(belop = request.belop, tilsagn = tilsagn, maxBelop = maxBelop)
+        UtbetalingValidator.validate(belop = request.belop, tilsagn = tilsagn, maxBelop = gjenstaendeBelop)
             .onLeft { return ValidationError(errors = it).left() }
 
-        val periode = utbetaling.periode.intersect(Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt))
+        val tilsagnPeriode = Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt)
+        val periode = utbetaling.periode.intersect(tilsagnPeriode)
             ?: return InternalServerError("Utbetalingsperiode og tilsagnsperiode overlapper ikke").left()
 
-        val lopenummer = db.session { queries.delutbetaling.getNextLopenummerByTilsagn(tilsagn.id) }
+        val lopenummer = queries.delutbetaling.getNextLopenummerByTilsagn(tilsagn.id)
         val dbo = DelutbetalingDbo(
             utbetalingId = utbetaling.id,
             tilsagnId = tilsagn.id,
@@ -209,14 +209,14 @@ class UtbetalingService(
             belop = request.belop,
             opprettetAv = opprettetAv,
             lopenummer = lopenummer,
-            fakturanummer = "${tilsagn.bestillingsnummer}/$lopenummer",
+            fakturanummer = "${tilsagn.bestillingsnummer}-$lopenummer",
         )
 
-        db.session {
-            queries.delutbetaling.upsert(dbo)
-            val dto = getOrError(utbetalingId)
-            logEndring("Utbetaling sendt til godkjenning", dto, EndretAv.NavAnsatt(opprettetAv))
-        }
+        queries.delutbetaling.upsert(dbo)
+        val dto = getOrError(utbetalingId)
+        logEndring("Utbetaling sendt til godkjenning", dto, EndretAv.NavAnsatt(opprettetAv))
+
+        return Unit.right()
     }
 
     fun besluttDelutbetaling(
@@ -230,33 +230,42 @@ class UtbetalingService(
         if (delutbetaling.opprettetAv == navIdent) {
             return Forbidden("Kan ikke beslutte egen utbetaling").left()
         }
-        when (delutbetaling) {
-            is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling ->
-                return BadRequest("Utbetaling allerede besluttes").left()
-            is DelutbetalingDto.DelutbetalingTilGodkjenning,
-            is DelutbetalingDto.DelutbetalingUtbetalt,
-            is DelutbetalingDto.DelutbetalingAvvist,
-            -> {}
+
+        if (delutbetaling is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling) {
+            return BadRequest("Utbetaling er allerede besluttet").left()
         }
 
         when (request) {
             is BesluttDelutbetalingRequest.AvvistDelutbetalingRequest ->
-                queries.delutbetaling.avvis(
-                    utbetalingId = utbetalingId,
-                    navIdent = navIdent,
-                    request = request,
-                )
-            is BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest -> {
-                queries.delutbetaling.godkjenn(
+                queries.delutbetaling.beslutt(
                     utbetalingId = utbetalingId,
                     tilsagnId = request.tilsagnId,
+                    besluttelse = Besluttelse.AVVIST,
                     navIdent = navIdent,
+                    tidspunkt = LocalDateTime.now(),
+                    aarsaker = request.aarsaker,
+                    forklaring = request.forklaring,
                 )
-                okonomi.scheduleBehandleGodkjentUtbetaling(utbetalingId, request.tilsagnId, session)
+
+            is BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest -> {
+                queries.delutbetaling.beslutt(
+                    utbetalingId = utbetalingId,
+                    tilsagnId = request.tilsagnId,
+                    besluttelse = Besluttelse.GODKJENT,
+                    navIdent = navIdent,
+                    tidspunkt = LocalDateTime.now(),
+                    aarsaker = null,
+                    forklaring = null,
+                )
+                okonomi.scheduleBehandleGodkjenteUtbetalinger(request.tilsagnId, session)
             }
         }
         val dto = getOrError(utbetalingId)
-        logEndring("Utbetaling ${if (request.besluttelse == Besluttelse.GODKJENT) "godkjent" else "returnert"}", dto, EndretAv.NavAnsatt(navIdent))
+        logEndring(
+            "Utbetaling ${if (request.besluttelse == Besluttelse.GODKJENT) "godkjent" else "returnert"}",
+            dto,
+            EndretAv.NavAnsatt(navIdent),
+        )
 
         return Unit.right()
     }

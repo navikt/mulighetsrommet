@@ -16,17 +16,9 @@ import { NullstillKnappForOppgaver } from "./NullstillKnappForOppgaver";
 import { ContentBox } from "../../../layouts/ContentBox";
 import { LoaderData } from "@/types/loader";
 import { Laster } from "../../../components/laster/Laster";
-type OppgaverSorting = "korteste-frist" | "nyeste" | "eldste";
+type OppgaverSorting = "nyeste" | "eldste";
 
 function sort(oppgaver: GetOppgaverResponse, sorting: OppgaverSorting) {
-  if (sorting === "korteste-frist") {
-    return oppgaver.sort((a, b) => {
-      const aDate = new Date(a.deadline);
-      const bDate = new Date(b.deadline);
-
-      return aDate.getTime() - bDate.getTime();
-    });
-  }
   if (sorting === "nyeste") {
     return oppgaver.sort((a, b) => {
       const aDate = new Date(a.createdAt);
@@ -51,7 +43,7 @@ export function OppgaverPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setTagsHeight] = useState(0);
-  const [sorting, setSorting] = useState<OppgaverSorting>("korteste-frist");
+  const [sorting, setSorting] = useState<OppgaverSorting>("nyeste");
   useTitle("Oppgaver");
   const [filter] = useAtom(oppgaverFilterAtom);
   const { tiltakstyper, regioner } = useLoaderData<LoaderData<typeof oppgaverLoader>>();
@@ -86,7 +78,6 @@ export function OppgaverPage() {
                     setSorting(e.target.value as OppgaverSorting);
                   }}
                 >
-                  <option value="korteste-frist">Korteste frist</option>
                   <option value="nyeste">Nyeste</option>
                   <option value="eldste">Eldste</option>
                 </Select>

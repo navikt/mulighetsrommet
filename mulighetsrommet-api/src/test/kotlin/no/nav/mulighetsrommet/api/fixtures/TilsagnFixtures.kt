@@ -15,7 +15,7 @@ object TilsagnFixtures {
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         lopenummer = 1,
-        bestillingsnummer = "2025/1",
+        bestillingsnummer = "A-2025/1-1",
         kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(1000),
@@ -32,7 +32,7 @@ object TilsagnFixtures {
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
         lopenummer = 2,
-        bestillingsnummer = "2025/2",
+        bestillingsnummer = "A-2025/1-2",
         kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(1500),
@@ -49,7 +49,7 @@ object TilsagnFixtures {
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         periode = Periode.forMonthOf(LocalDate.of(2025, 3, 1)),
         lopenummer = 3,
-        bestillingsnummer = "2025/3",
+        bestillingsnummer = "A-2025/1-3",
         kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(2500),

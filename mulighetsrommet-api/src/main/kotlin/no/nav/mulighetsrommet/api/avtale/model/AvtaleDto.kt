@@ -154,6 +154,7 @@ fun AvtaleDto.toArenaAvtaleDbo(): ArenaAvtaleDbo? {
                 is AvtaleStatus.AKTIV -> Avslutningsstatus.IKKE_AVSLUTTET
                 is AvtaleStatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
                 is AvtaleStatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
+                is AvtaleStatus.UTKAST -> Avslutningsstatus.IKKE_AVSLUTTET
             },
             prisbetingelser = prisbetingelser,
         )

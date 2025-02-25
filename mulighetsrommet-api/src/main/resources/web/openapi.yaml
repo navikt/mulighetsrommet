@@ -2957,6 +2957,7 @@ components:
           enum:
             - AKTIV
             - AVSLUTTET
+            - UTKAST
       required:
         - name
 
@@ -4424,22 +4425,25 @@ components:
           required:
             - linkText
             - link
-
         createdAt:
           type: string
           format: date-time
-
-        deadline:
-          type: string
-          format: date-time
-
+        oppgaveIcon:
+           $ref: "#/components/schemas/OppgaveIcon"
       required:
         - type
         - title
         - tiltakstype
         - link
-        - deadline
         - createdAt
+        - oppgaveIcon
+
+    OppgaveIcon:
+      type: string
+      enum:
+        - TILSAGN
+        - UTBETALING
+
 
     AvbrytGjennomforingAarsak:
       type: string
@@ -5690,6 +5694,7 @@ components:
         - KLAR_FOR_GODKJENNING
         - BEHANDLES_AV_NAV
         - UTBETALT
+        - VENTER_PA_ENDRING
 
     UtbetalingStatus:
       type: string

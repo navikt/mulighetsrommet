@@ -1,31 +1,29 @@
 import { Header } from "@/components/detaljside/Header";
-import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
-import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { ContentBox } from "@/layouts/ContentBox";
-import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import {
-  TilsagnDto,
-  TilsagnDefaultsRequest,
-  TilsagnType,
-  Prismodell,
-  NavAnsattRolle,
-  TilsagnStatus,
-} from "@mr/api-client-v2";
-import { ActionMenu, Alert, Box, Button, Heading, HStack, Table, VStack } from "@navikt/ds-react";
-import { useLoaderData, useNavigate } from "react-router";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { formaterDato } from "@/utils/Utils";
-import { DelutbetalingRow } from "@/components/utbetaling/DelutbetalingRow";
-import { utbetalingPageLoader } from "./utbetalingPageLoader";
-import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 import { Metadata, MetadataHorisontal, Separator } from "@/components/detaljside/Metadata";
-import { OpprettTilsagnButton } from "@/components/tilsagn/OpprettTilsagnButton";
-import { useState } from "react";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
+import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
+import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
+import { OpprettTilsagnButton } from "@/components/tilsagn/OpprettTilsagnButton";
+import { DelutbetalingRow } from "@/components/utbetaling/DelutbetalingRow";
+import { ContentBox } from "@/layouts/ContentBox";
+import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { LoaderData } from "@/types/loader";
-import { PencilFillIcon, PiggybankIcon } from "@navikt/aksel-icons";
-
+import { formaterDato } from "@/utils/Utils";
+import {
+  NavAnsattRolle,
+  Prismodell,
+  TilsagnDefaultsRequest,
+  TilsagnDto,
+  TilsagnStatus,
+  TilsagnType,
+} from "@mr/api-client-v2";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { BankNoteIcon, PencilFillIcon, PiggybankIcon } from "@navikt/aksel-icons";
+import { ActionMenu, Alert, Box, Button, Heading, HStack, Table, VStack } from "@navikt/ds-react";
+import { useState } from "react";
+import { useLoaderData, useNavigate } from "react-router";
+import { utbetalingPageLoader } from "./utbetalingPageLoader";
 export function UtbetalingPage() {
   const { gjennomforing, historikk, utbetaling, tilsagn, ansatt } =
     useLoaderData<LoaderData<typeof utbetalingPageLoader>>();
@@ -109,7 +107,7 @@ export function UtbetalingPage() {
     <>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
-        <GjennomforingIkon />
+        <BankNoteIcon className="w-10 h-10" />
         <Heading size="large" level="2">
           <HStack gap="2" align={"center"}>
             Utbetaling for {gjennomforing.navn}

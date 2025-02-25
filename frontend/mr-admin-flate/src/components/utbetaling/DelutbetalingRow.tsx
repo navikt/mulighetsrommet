@@ -13,7 +13,6 @@ import {
 } from "@mr/api-client-v2";
 import { BodyShort, Button, HStack, Table, TextField } from "@navikt/ds-react";
 import { formaterNOK, isValidationError } from "@mr/frontend-common/utils/utils";
-import { useRevalidator } from "react-router";
 import { useState } from "react";
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
 import { AvvistAlert } from "@/pages/gjennomforing/tilsagn/AarsakerAlert";
@@ -21,6 +20,8 @@ import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { DelutbetalingTag } from "./DelutbetalingTag";
 import { useUpsertDelutbetaling } from "@/api/utbetaling/useUpsertDelutbetaling";
 import { Metadata } from "../detaljside/Metadata";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRevalidator } from "react-router";
 
 interface Props {
   utbetaling: UtbetalingKompakt;
@@ -43,7 +44,8 @@ export function DelutbetalingRow({
   const [error, setError] = useState<string | undefined>(undefined);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
 
-  const revalidate = useRevalidator();
+  const revalidator = useRevalidator();
+  const queryClient = useQueryClient();
   const opprettMutation = useUpsertDelutbetaling(utbetaling.id);
   const besluttMutation = useBesluttDelutbetaling(utbetaling.id);
 
@@ -68,8 +70,12 @@ export function DelutbetalingRow({
     };
 
     opprettMutation.mutate(body, {
-      onSuccess: () => {
-        revalidate.revalidate();
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: ["utbetaling", utbetaling.id],
+          refetchType: "all",
+        });
+        revalidator.revalidate();
       },
       onError: (error: ProblemDetail) => {
         if (isValidationError(error)) {
@@ -84,7 +90,7 @@ export function DelutbetalingRow({
   function beslutt(body: BesluttDelutbetalingRequest) {
     besluttMutation.mutate(body, {
       onSuccess: () => {
-        revalidate.revalidate();
+        revalidator.revalidate();
       },
       onError: (error: ProblemDetail) => {
         throw error;

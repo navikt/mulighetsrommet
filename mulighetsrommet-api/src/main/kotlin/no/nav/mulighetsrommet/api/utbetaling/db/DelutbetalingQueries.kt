@@ -4,7 +4,6 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
-import no.nav.mulighetsrommet.api.utbetaling.BesluttDelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.requireSingle
@@ -12,6 +11,7 @@ import no.nav.mulighetsrommet.database.utils.periode
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 import org.intellij.lang.annotations.Language
+import java.time.LocalDateTime
 import java.util.*
 
 class DelutbetalingQueries(private val session: Session) {
@@ -72,6 +72,53 @@ class DelutbetalingQueries(private val session: Session) {
         return session.requireSingle(queryOf(query, tilsagnId)) { it.int("lopenummer") }
     }
 
+    fun getSkalSendesTilOkonomi(tilsagnId: UUID): List<DelutbetalingDto> {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                tilsagn_id,
+                utbetaling_id,
+                belop,
+                periode,
+                lopenummer,
+                fakturanummer,
+                opprettet_av,
+                created_at,
+                besluttet_av,
+                besluttet_tidspunkt,
+                besluttelse,
+                aarsaker,
+                forklaring
+            from delutbetaling
+            where
+                tilsagn_id = :tilsagn_id
+                and sendt_til_okonomi_tidspunkt is null
+                and besluttelse = 'GODKJENT'
+            order by besluttet_tidspunkt asc
+        """.trimIndent()
+
+        return session.list(queryOf(query, mapOf("tilsagn_id" to tilsagnId))) { it.toDelutbetalingDto() }
+    }
+
+    fun setSendtTilOkonomi(utbetalingId: UUID, tilsagnId: UUID, tidspunkt: LocalDateTime) {
+        @Language("PostgreSQL")
+        val query = """
+            update delutbetaling set
+                sendt_til_okonomi_tidspunkt = :tidspunkt
+            where
+                utbetaling_id = :utbetaling_id::uuid
+                and tilsagn_id = :tilsagn_id::uuid
+        """.trimIndent()
+
+        val params = mapOf(
+            "utbetaling_id" to utbetalingId,
+            "tilsagn_id" to tilsagnId,
+            "tidspunkt" to tidspunkt,
+        )
+
+        session.execute(queryOf(query, params))
+    }
+
     fun getByUtbetalingId(id: UUID): List<DelutbetalingDto> = with(session) {
         @Language("PostgreSQL")
         val query = """
@@ -127,17 +174,23 @@ class DelutbetalingQueries(private val session: Session) {
         return single(queryOf(query, params)) { it.toDelutbetalingDto() }
     }
 
-    fun godkjenn(
+    fun beslutt(
         utbetalingId: UUID,
         tilsagnId: UUID,
         navIdent: NavIdent,
+        besluttelse: Besluttelse,
+        aarsaker: List<String>?,
+        forklaring: String?,
+        tidspunkt: LocalDateTime,
     ) {
         @Language("PostgreSQL")
         val query = """
             update delutbetaling set
                 besluttet_av = :nav_ident,
-                besluttet_tidspunkt = now(),
-                besluttelse = 'GODKJENT'
+                besluttet_tidspunkt = :tidspunkt,
+                besluttelse = :besluttelse::besluttelse,
+                aarsaker = coalesce(:aarsaker, delutbetaling.aarsaker),
+                forklaring = coalesce(:forklaring, delutbetaling.forklaring)
             where utbetaling_id = :utbetaling_id::uuid
             and tilsagn_id = :tilsagn_id::uuid
         """.trimIndent()
@@ -146,35 +199,10 @@ class DelutbetalingQueries(private val session: Session) {
             "utbetaling_id" to utbetalingId,
             "tilsagn_id" to tilsagnId,
             "nav_ident" to navIdent.value,
-        )
-
-        session.execute(queryOf(query, params))
-    }
-
-    fun avvis(
-        utbetalingId: UUID,
-        navIdent: NavIdent,
-        request: BesluttDelutbetalingRequest.AvvistDelutbetalingRequest,
-    ) {
-        @Language("PostgreSQL")
-        val query = """
-            update delutbetaling set
-                besluttet_av = :nav_ident,
-                besluttet_tidspunkt = now(),
-                besluttelse = :besluttelse::besluttelse,
-                aarsaker = :aarsaker,
-                forklaring = :forklaring
-            where utbetaling_id = :utbetaling_id::uuid
-            and tilsagn_id = :tilsagn_id::uuid
-        """.trimIndent()
-
-        val params = mapOf(
-            "utbetaling_id" to utbetalingId,
-            "tilsagn_id" to request.tilsagnId,
-            "nav_ident" to navIdent.value,
-            "besluttelse" to Besluttelse.AVVIST.name,
-            "aarsaker" to session.createTextArray(request.aarsaker),
-            "forklaring" to request.forklaring,
+            "besluttelse" to besluttelse.name,
+            "aarsaker" to aarsaker?.let { session.createTextArray(it) },
+            "forklaring" to forklaring,
+            "tidspunkt" to tidspunkt,
         )
 
         session.execute(queryOf(query, params))
