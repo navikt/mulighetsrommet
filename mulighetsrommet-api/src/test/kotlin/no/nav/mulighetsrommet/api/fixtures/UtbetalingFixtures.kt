@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -61,8 +63,12 @@ object UtbetalingFixtures {
         periode = utbetaling1.periode,
         lopenummer = 1,
         fakturanummer = "${TilsagnFixtures.Tilsagn1.bestillingsnummer}/1",
-        behandletAv = NavAnsattFixture.ansatt1.navIdent,
-        behandletTidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0, 0),
+        opprettelse = Totrinnskontroll.Ubesluttet(
+            behandletAv = NavAnsattFixture.ansatt1.navIdent,
+            behandletTidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0, 0),
+            aarsaker = emptyList(),
+            forklaring = null,
+        ),
     )
 
     val delutbetaling2 = DelutbetalingDto.DelutbetalingTilGodkjenning(
@@ -73,8 +79,12 @@ object UtbetalingFixtures {
         periode = utbetaling1.periode,
         lopenummer = 1,
         fakturanummer = "${TilsagnFixtures.Tilsagn2.bestillingsnummer}/1",
-        behandletAv = NavAnsattFixture.ansatt1.navIdent,
-        behandletTidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0, 0),
+        opprettelse = Totrinnskontroll.Ubesluttet(
+            behandletAv = NavAnsattFixture.ansatt1.navIdent,
+            behandletTidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0, 0),
+            aarsaker = emptyList(),
+            forklaring = null,
+        ),
     )
 
     enum class DelutbetalingStatus {
@@ -97,8 +107,12 @@ object UtbetalingFixtures {
                 periode,
                 lopenummer,
                 fakturanummer,
-                behandletAv,
-                behandletTidspunkt,
+                Totrinnskontroll.Ubesluttet(
+                    behandletAv = opprettelse.behandletAv,
+                    behandletTidspunkt = opprettelse.behandletTidspunkt,
+                    aarsaker = emptyList(),
+                    forklaring = null,
+                ),
             )
             DelutbetalingStatus.DELUTBETALING_OVERFORT_TIL_UTBETALING -> DelutbetalingDto.DelutbetalingOverfortTilUtbetaling(
                 id,
@@ -108,10 +122,15 @@ object UtbetalingFixtures {
                 periode,
                 lopenummer,
                 fakturanummer,
-                behandletAv,
-                behandletTidspunkt,
-                NavAnsattFixture.ansatt2.navIdent,
-                besluttetTidspunkt,
+                Totrinnskontroll.Besluttet(
+                    behandletAv = opprettelse.behandletAv,
+                    behandletTidspunkt = opprettelse.behandletTidspunkt,
+                    aarsaker = emptyList(),
+                    forklaring = null,
+                    besluttetAv = NavAnsattFixture.ansatt2.navIdent,
+                    besluttetTidspunkt = besluttetTidspunkt,
+                    besluttelse = Besluttelse.GODKJENT,
+                ),
             )
             DelutbetalingStatus.DELUTBETALING_UTBETALT -> DelutbetalingDto.DelutbetalingUtbetalt(
                 id,
@@ -121,10 +140,15 @@ object UtbetalingFixtures {
                 periode,
                 lopenummer,
                 fakturanummer,
-                behandletAv,
-                behandletTidspunkt,
-                NavAnsattFixture.ansatt2.navIdent,
-                besluttetTidspunkt,
+                Totrinnskontroll.Besluttet(
+                    behandletAv = opprettelse.behandletAv,
+                    behandletTidspunkt = opprettelse.behandletTidspunkt,
+                    aarsaker = emptyList(),
+                    forklaring = null,
+                    besluttetAv = NavAnsattFixture.ansatt2.navIdent,
+                    besluttetTidspunkt = besluttetTidspunkt,
+                    besluttelse = Besluttelse.GODKJENT,
+                ),
             )
             DelutbetalingStatus.DELUTBETALING_AVVIST -> DelutbetalingDto.DelutbetalingAvvist(
                 id,
@@ -134,12 +158,15 @@ object UtbetalingFixtures {
                 periode,
                 lopenummer,
                 fakturanummer,
-                behandletAv,
-                behandletTidspunkt,
-                NavAnsattFixture.ansatt2.navIdent,
-                besluttetTidspunkt,
-                aarsaker = listOf("FEIL_BELOP"),
-                forklaring = null,
+                Totrinnskontroll.Besluttet(
+                    behandletAv = opprettelse.behandletAv,
+                    behandletTidspunkt = opprettelse.behandletTidspunkt,
+                    aarsaker = listOf("FEIL_BELOP"),
+                    forklaring = null,
+                    besluttetAv = NavAnsattFixture.ansatt2.navIdent,
+                    besluttetTidspunkt = besluttetTidspunkt,
+                    besluttelse = Besluttelse.GODKJENT,
+                ),
             )
         }
     }

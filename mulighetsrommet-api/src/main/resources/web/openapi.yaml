@@ -6100,11 +6100,9 @@ components:
           format: uuid
         belop:
           type: number
-        behandletAv:
-          type: string
-        besluttetAv:
-          type: string
-      required: [id, type, tilsagnId, utbetalingId, belop, behandletAv, besluttetAv]
+        opprettelse:
+          $ref: "#/components/schemas/Besluttet"
+      required: [id, type, tilsagnId, utbetalingId, belop, opprettelse]
 
     DelutbetalingUtbetalt:
       type: object
@@ -6122,11 +6120,9 @@ components:
           format: uuid
         belop:
           type: number
-        behandletAv:
-          type: string
-        besluttetAv:
-          type: string
-      required: [id, type, tilsagnId, utbetalingId, belop, behandletAv, besluttetAv]
+        opprettelse:
+          $ref: "#/components/schemas/Besluttet"
+      required: [id, type, tilsagnId, utbetalingId, belop, opprettelse]
 
     DelutbetalingTilGodkjenning:
       type: object
@@ -6144,9 +6140,9 @@ components:
           format: uuid
         belop:
           type: number
-        behandletAv:
-          type: string
-      required: [id, type, tilsagnId, utbetalingId, belop, behandletAv]
+        opprettelse:
+          $ref: "#/components/schemas/Ubesluttet"
+      required: [id, type, tilsagnId, utbetalingId, belop, opprettelse]
 
     DelutbetalingAvvist:
       type: object
@@ -6164,20 +6160,9 @@ components:
           format: uuid
         belop:
           type: number
-        behandletAv:
-          type: string
-        besluttetAv:
-          type: string
-        besluttetTidspunkt:
-          type: string
-          format: date-time
-        aarsaker:
-          type: array
-          items:
-            type: string
-        forklaring:
-          type: string
-      required: [id, type, tilsagnId, utbetalingId, belop, behandletAv, besluttetAv, aarsaker, forklaring, besluttetTidspunkt]
+        opprettelse:
+          $ref: "#/components/schemas/Besluttet"
+      required: [id, type, tilsagnId, utbetalingId, belop, opprettelse]
 
     DelutbetalingRequest:
       type: object

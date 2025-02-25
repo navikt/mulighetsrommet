@@ -235,8 +235,7 @@ class DelutbetalingQueries(private val session: Session) {
                 id = uuid("id"),
                 tilsagnId = uuid("tilsagn_id"),
                 utbetalingId = uuid("utbetaling_id"),
-                behandletAv = opprettelse.behandletAv,
-                behandletTidspunkt = opprettelse.behandletTidspunkt,
+                opprettelse = opprettelse,
                 belop = int("belop"),
                 periode = periode("periode"),
                 lopenummer = int("lopenummer"),
@@ -250,10 +249,7 @@ class DelutbetalingQueries(private val session: Session) {
                         utbetalingId = uuid("utbetaling_id"),
                         belop = int("belop"),
                         periode = periode("periode"),
-                        behandletAv = opprettelse.behandletAv,
-                        behandletTidspunkt = opprettelse.behandletTidspunkt,
-                        besluttetAv = opprettelse.besluttetAv,
-                        besluttetTidspunkt = opprettelse.besluttetTidspunkt,
+                        opprettelse = opprettelse,
                         lopenummer = int("lopenummer"),
                         fakturanummer = string("fakturanummer"),
                     )
@@ -265,14 +261,9 @@ class DelutbetalingQueries(private val session: Session) {
                         utbetalingId = uuid("utbetaling_id"),
                         belop = int("belop"),
                         periode = periode("periode"),
-                        behandletAv = opprettelse.behandletAv,
-                        behandletTidspunkt = opprettelse.behandletTidspunkt,
-                        besluttetAv = opprettelse.besluttetAv,
-                        besluttetTidspunkt = opprettelse.besluttetTidspunkt,
+                        opprettelse = opprettelse,
                         lopenummer = int("lopenummer"),
                         fakturanummer = string("fakturanummer"),
-                        aarsaker = opprettelse.aarsaker,
-                        forklaring = opprettelse.forklaring,
                     )
                 }
             }

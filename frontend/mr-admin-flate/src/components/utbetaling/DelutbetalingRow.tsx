@@ -132,10 +132,10 @@ function EditableRow({
         delutbetaling ? (
           <AvvistAlert
             header="Utbetaling returnert"
-            navIdent={delutbetaling.besluttetAv}
-            aarsaker={delutbetaling.aarsaker}
-            forklaring={delutbetaling.forklaring}
-            tidspunkt={delutbetaling.besluttetTidspunkt}
+            navIdent={delutbetaling.opprettelse.besluttetAv}
+            aarsaker={delutbetaling.opprettelse.aarsaker || []}
+            forklaring={delutbetaling.opprettelse.forklaring}
+            tidspunkt={delutbetaling.opprettelse.besluttetTidspunkt}
           />
         ) : null
       }
@@ -193,8 +193,8 @@ function GodkjentRow({
     <Table.ExpandableRow
       content={
         <HStack>
-          <Metadata horizontal header="Behandlet av" verdi={delutbetaling.behandletAv} />
-          <Metadata horizontal header="Besluttet av" verdi={delutbetaling.besluttetAv} />
+          <Metadata horizontal header="Behandlet av" verdi={delutbetaling.opprettelse.behandletAv} />
+          <Metadata horizontal header="Besluttet av" verdi={delutbetaling.opprettelse.besluttetAv} />
         </HStack>
       }
     >
@@ -246,7 +246,7 @@ function TilGodkjenningRow({
 
   const kanBeslutte =
     delutbetaling &&
-    delutbetaling.behandletAv !== ansatt.navIdent &&
+    delutbetaling.opprettelse.behandletAv !== ansatt.navIdent &&
     ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER);
 
   return (

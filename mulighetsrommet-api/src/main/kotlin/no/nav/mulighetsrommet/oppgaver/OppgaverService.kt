@@ -85,19 +85,16 @@ class OppgaverService(val db: ApiDatabase) {
         roller: Set<NavAnsattRolle>,
     ): List<Oppgave> {
         return db.session {
-            val g = queries.delutbetaling
+            queries.delutbetaling
                 .getOppgaveData(
                     kostnadssteder = kostnadssteder.ifEmpty { null },
                     tiltakskoder = tiltakskoder.ifEmpty { null },
                 )
-            val h = g
                 .mapNotNull { data ->
                     data.delutbetaling.toOppgave(data.tiltakskode, data.gjennomforingId, data.gjennomforingsnavn)
                 }
-            val y = h
                 .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
                 .filter { it.type.rolle in roller }
-            y
         }
     }
 
@@ -196,7 +193,7 @@ class OppgaverService(val db: ApiDatabase) {
                 linkText = "Se utbetaling",
                 link = "/gjennomforinger/$gjennomforingId/utbetalinger/$utbetalingId",
             ),
-            createdAt = behandletTidspunkt,
+            createdAt = opprettelse.behandletTidspunkt,
             oppgaveIcon = OppgaveIcon.UTBETALING,
         )
 
@@ -210,7 +207,7 @@ class OppgaverService(val db: ApiDatabase) {
                 linkText = "Se utbetaling",
                 link = "/gjennomforinger/$gjennomforingId/utbetalinger/$utbetalingId",
             ),
-            createdAt = besluttetTidspunkt,
+            createdAt = opprettelse.besluttetTidspunkt,
             oppgaveIcon = OppgaveIcon.UTBETALING,
         )
 

@@ -161,10 +161,10 @@ class OkonomiBestillingService(
                     ),
                     belop = delutbetaling.belop,
                     periode = delutbetaling.periode,
-                    opprettetAv = OkonomiPart.NavAnsatt(delutbetaling.behandletAv),
-                    opprettetTidspunkt = delutbetaling.behandletTidspunkt,
-                    besluttetAv = OkonomiPart.NavAnsatt(delutbetaling.besluttetAv),
-                    besluttetTidspunkt = delutbetaling.besluttetTidspunkt,
+                    opprettetAv = OkonomiPart.NavAnsatt(delutbetaling.opprettelse.behandletAv),
+                    opprettetTidspunkt = delutbetaling.opprettelse.behandletTidspunkt,
+                    besluttetAv = OkonomiPart.NavAnsatt(delutbetaling.opprettelse.besluttetAv),
+                    besluttetTidspunkt = delutbetaling.opprettelse.besluttetTidspunkt,
                 )
 
                 val message = OkonomiBestillingMelding.Faktura(faktura)

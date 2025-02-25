@@ -85,43 +85,43 @@ fun QueryContext.insertDelutbetalingDto(dto: DelutbetalingDto) {
     queries.delutbetaling.upsert(dto.toDbo())
     queries.totrinnskontroll.behandler(
         entityId = dto.id,
-        navIdent = dto.behandletAv,
+        navIdent = dto.opprettelse.behandletAv,
         aarsaker = null,
         forklaring = null,
         type = TotrinnskontrollType.OPPRETT,
-        tidspunkt = dto.behandletTidspunkt,
+        tidspunkt = dto.opprettelse.behandletTidspunkt,
     )
 
     when (dto) {
         is DelutbetalingDto.DelutbetalingAvvist ->
             queries.totrinnskontroll.beslutter(
                 entityId = dto.id,
-                navIdent = dto.besluttetAv,
+                navIdent = dto.opprettelse.besluttetAv,
                 besluttelse = Besluttelse.AVVIST,
-                aarsaker = dto.aarsaker,
-                forklaring = dto.forklaring,
+                aarsaker = dto.opprettelse.aarsaker,
+                forklaring = dto.opprettelse.forklaring,
                 type = TotrinnskontrollType.OPPRETT,
-                tidspunkt = dto.besluttetTidspunkt,
+                tidspunkt = dto.opprettelse.besluttetTidspunkt,
             )
         is DelutbetalingDto.DelutbetalingUtbetalt ->
             queries.totrinnskontroll.beslutter(
                 entityId = dto.id,
-                navIdent = dto.besluttetAv,
+                navIdent = dto.opprettelse.besluttetAv,
                 besluttelse = Besluttelse.GODKJENT,
                 aarsaker = null,
                 forklaring = null,
                 type = TotrinnskontrollType.OPPRETT,
-                tidspunkt = dto.besluttetTidspunkt,
+                tidspunkt = dto.opprettelse.besluttetTidspunkt,
             )
         is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling ->
             queries.totrinnskontroll.beslutter(
                 entityId = dto.id,
-                navIdent = dto.besluttetAv,
+                navIdent = dto.opprettelse.besluttetAv,
                 besluttelse = Besluttelse.GODKJENT,
                 aarsaker = null,
                 forklaring = null,
                 type = TotrinnskontrollType.OPPRETT,
-                tidspunkt = dto.besluttetTidspunkt,
+                tidspunkt = dto.opprettelse.besluttetTidspunkt,
             )
         is DelutbetalingDto.DelutbetalingTilGodkjenning -> {}
     }
@@ -235,6 +235,6 @@ fun DelutbetalingDto.toDbo(): DelutbetalingDbo {
         periode = periode,
         lopenummer = lopenummer,
         fakturanummer = fakturanummer,
-        opprettetAv = behandletAv,
+        opprettetAv = opprettelse.behandletAv,
     )
 }
