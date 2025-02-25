@@ -9,20 +9,22 @@ import {
   TilsagnType,
   Prismodell,
   NavAnsattRolle,
+  TilsagnStatus,
 } from "@mr/api-client-v2";
-import { Alert, Box, CopyButton, Heading, HStack, Table, VStack } from "@navikt/ds-react";
-import { useLoaderData } from "react-router";
+import { ActionMenu, Alert, Box, Button, Heading, HStack, Table, VStack } from "@navikt/ds-react";
+import { useLoaderData, useNavigate } from "react-router";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { formaterDato } from "@/utils/Utils";
 import { DelutbetalingRow } from "@/components/utbetaling/DelutbetalingRow";
 import { utbetalingPageLoader } from "./utbetalingPageLoader";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
-import { Metadata, Separator } from "@/components/detaljside/Metadata";
+import { Metadata, MetadataHorisontal, Separator } from "@/components/detaljside/Metadata";
 import { OpprettTilsagnButton } from "@/components/tilsagn/OpprettTilsagnButton";
 import { useState } from "react";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { LoaderData } from "@/types/loader";
+import { PencilFillIcon, PiggybankIcon } from "@navikt/aksel-icons";
 
 export function UtbetalingPage() {
   const { gjennomforing, historikk, utbetaling, tilsagn, ansatt } =
@@ -35,6 +37,11 @@ export function UtbetalingPage() {
       ]),
     ),
   );
+  const avvistUtbetaling = utbetaling.delutbetalinger.find(
+    (d) => d.type === "DELUTBETALING_AVVIST",
+  );
+  const navigate = useNavigate();
+  const [endreUtbetaling, setEndreUtbetaling] = useState<boolean>(!avvistUtbetaling);
 
   const brodsmuler: Brodsmule[] = [
     { tittel: "Gjennomføringer", lenke: `/gjennomforinger` },
@@ -53,8 +60,16 @@ export function UtbetalingPage() {
     return [...belopPerTilsagn.values()].reduce((acc, val) => acc + val, 0);
   }
 
+  function totalGjenståendeBeløp(): number {
+    return tilsagn
+      .map((tilsagn) =>
+        tilsagn.status.type === TilsagnStatus.GODKJENT ? tilsagn.beregning.output.belop : 0,
+      )
+      .reduce((acc, val) => acc + val, 0);
+  }
+
   function differanse(): number {
-    return utbetaling.beregning.belop - utbetalesTotal();
+    return totalGjenståendeBeløp() - utbetalesTotal();
   }
 
   function ekstraTilsagnDefaults(): TilsagnDefaultsRequest {
@@ -74,6 +89,18 @@ export function UtbetalingPage() {
       periodeSlutt: utbetaling.beregning.periodeSlutt,
       kostnadssted: defaultTilsagn?.kostnadssted.enhetsnummer,
     };
+  }
+
+  function opprettTilsagn() {
+    navigate(
+      `/gjennomforinger/${ekstraTilsagnDefaults().gjennomforingId}/tilsagn/opprett-tilsagn` +
+        `?type=${ekstraTilsagnDefaults().type}` +
+        `&prismodell=${ekstraTilsagnDefaults().prismodell}` +
+        `&belop=${ekstraTilsagnDefaults().belop}` +
+        `&periodeStart=${ekstraTilsagnDefaults().periodeStart}` +
+        `&periodeSlutt=${ekstraTilsagnDefaults().periodeSlutt}` +
+        `&kostnadssted=${ekstraTilsagnDefaults().kostnadssted}`,
+    );
   }
 
   const skriveTilgang = ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV);
@@ -102,43 +129,65 @@ export function UtbetalingPage() {
               <VStack gap="4" id="kostnadsfordeling">
                 <Heading size="medium">Til utbetaling</Heading>
                 <VStack gap="2">
-                  <Metadata
-                    horizontal
+                  <MetadataHorisontal
                     header="Utbetalingsperiode"
                     verdi={`${formaterDato(utbetaling.beregning.periodeStart)} - ${formaterDato(utbetaling.beregning.periodeSlutt)}`}
                   />
-                  <Metadata
-                    horizontal
+                  <MetadataHorisontal
                     header="Innsendt"
                     verdi={formaterDato(
                       utbetaling.godkjentAvArrangorTidspunkt ?? utbetaling.createdAt,
                     )}
                   />
-                  <Metadata
-                    horizontal
-                    header="Beløp til utbetaling"
+                  <MetadataHorisontal
+                    header="Beløp arrangør har sendt inn"
                     verdi={formaterNOK(utbetaling.beregning.belop)}
                   />
                 </VStack>
                 <Separator />
                 <HStack justify="space-between">
                   <Heading size="medium">Tilsagn</Heading>
-                  {skriveTilgang && <OpprettTilsagnButton defaults={ekstraTilsagnDefaults()} />}
+                  {skriveTilgang &&
+                    (avvistUtbetaling ? (
+                      <ActionMenu>
+                        <ActionMenu.Trigger>
+                          <Button variant="primary" size="small">
+                            Handlinger
+                          </Button>
+                        </ActionMenu.Trigger>
+                        <ActionMenu.Content>
+                          <ActionMenu.Item
+                            icon={<PiggybankIcon />}
+                            onSelect={() => opprettTilsagn()}
+                          >
+                            Opprett tilsagn
+                          </ActionMenu.Item>
+                          <ActionMenu.Item
+                            icon={<PencilFillIcon />}
+                            onSelect={() => setEndreUtbetaling(true)}
+                          >
+                            Endre utbetaling
+                          </ActionMenu.Item>
+                        </ActionMenu.Content>
+                      </ActionMenu>
+                    ) : (
+                      <OpprettTilsagnButton defaults={ekstraTilsagnDefaults()} />
+                    ))}
                 </HStack>
                 {tilsagn.length === 0 && <Alert variant="info">Tilsagn mangler</Alert>}
                 {tilsagn.length > 0 && (
                   <Table>
                     <Table.Header>
                       <Table.Row>
-                        <Table.HeaderCell></Table.HeaderCell>
-                        <Table.HeaderCell>Periodestart</Table.HeaderCell>
-                        <Table.HeaderCell>Periodeslutt</Table.HeaderCell>
-                        <Table.HeaderCell>Type</Table.HeaderCell>
-                        <Table.HeaderCell>Kostnadssted</Table.HeaderCell>
-                        <Table.HeaderCell>Gjenstående beløp</Table.HeaderCell>
-                        <Table.HeaderCell>Utbetales</Table.HeaderCell>
-                        <Table.HeaderCell>Status</Table.HeaderCell>
-                        <Table.HeaderCell></Table.HeaderCell>
+                        <Table.HeaderCell />
+                        <Table.HeaderCell scope="col">Periodestart</Table.HeaderCell>
+                        <Table.HeaderCell scope="col">Periodeslutt</Table.HeaderCell>
+                        <Table.HeaderCell scope="col">Type</Table.HeaderCell>
+                        <Table.HeaderCell scope="col">Kostnadssted</Table.HeaderCell>
+                        <Table.HeaderCell scope="col">Tilgjengelig på tilsagn</Table.HeaderCell>
+                        <Table.HeaderCell scope="col">Utbetales</Table.HeaderCell>
+                        <Table.HeaderCell scope="col">Status</Table.HeaderCell>
+                        <Table.HeaderCell />
                       </Table.Row>
                     </Table.Header>
                     <Table.Body>
@@ -152,6 +201,7 @@ export function UtbetalingPage() {
                               (d) => d.tilsagnId === t.id,
                             )}
                             ansatt={ansatt}
+                            endreUtbetaling={endreUtbetaling}
                             onBelopChange={(belop) =>
                               setBelopPerTilsagn((prevMap) => {
                                 const newMap = new Map(prevMap);
@@ -164,22 +214,17 @@ export function UtbetalingPage() {
                       })}
                       <Table.Row>
                         <Table.DataCell
-                          colSpan={2}
+                          colSpan={5}
                           className="font-bold"
-                        >{`Beløp til utbetaling ${formaterNOK(utbetaling.beregning.belop)}`}</Table.DataCell>
-                        <Table.DataCell>-</Table.DataCell>
-                        <Table.DataCell>-</Table.DataCell>
-                        <Table.DataCell>-</Table.DataCell>
-                        <Table.DataCell>-</Table.DataCell>
+                        >{`Beløp arrangør har sendt inn ${formaterNOK(utbetaling.beregning.belop)}`}</Table.DataCell>
+                        <Table.DataCell className="font-bold">
+                          {formaterNOK(totalGjenståendeBeløp())}
+                        </Table.DataCell>
                         <Table.DataCell className="font-bold">
                           {formaterNOK(utbetalesTotal())}
                         </Table.DataCell>
-                        <Table.DataCell>
-                          <CopyButton
-                            copyText={String(differanse())}
-                            text={`Differanse ${formaterNOK(differanse())}`}
-                            activeText={`Differanse ${formaterNOK(differanse())}`}
-                          />
+                        <Table.DataCell colSpan={2} className="font-bold">
+                          {`Differanse ${formaterNOK(differanse())}`}
                         </Table.DataCell>
                       </Table.Row>
                     </Table.Body>
