@@ -10,10 +10,9 @@ import { KnapperadContainer } from "@/pages/KnapperadContainer";
 import { GjennomforingDto, NavAnsatt, Toggles } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
-import { BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
 import React, { useRef } from "react";
 import { useFetcher, useNavigate } from "react-router";
-
 interface Props {
   ansatt: NavAnsatt;
   gjennomforing: GjennomforingDto;
@@ -32,7 +31,10 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
     [gjennomforing.tiltakstype.tiltakskode],
   );
 
-  function handleClick(e: React.MouseEvent<HTMLInputElement>) {
+  // Add error state handling
+  const publiseringErrored = fetcher.data?.error;
+
+  async function handleClick(e: React.MouseEvent<HTMLInputElement>) {
     fetcher.submit(
       { id: gjennomforing.id, publisert: e.currentTarget.checked },
       {
@@ -42,9 +44,8 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
     );
   }
 
-  // Optimistisk oppdatering av publisert status
   let gjennomforingPublisert = gjennomforing.publisert;
-  if (fetcher.formData) {
+  if (!publiseringErrored && fetcher.formData) {
     gjennomforingPublisert = fetcher.formData.get("publisert") === "true" ? true : false;
   }
 
@@ -54,9 +55,16 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
         ressurs="Gjennomføring"
         condition={gjennomforingIsAktiv(gjennomforing.status.status)}
       >
-        <Switch name="publiser" defaultChecked={gjennomforingPublisert} onClick={handleClick}>
-          Publiser
-        </Switch>
+        <div>
+          <Switch name="publiser" checked={gjennomforingPublisert} onClick={handleClick}>
+            Publiser
+          </Switch>
+          {publiseringErrored && (
+            <Alert variant="warning" inline>
+              Det oppstod en feil ved publisering. Prøv igjen senere.
+            </Alert>
+          )}
+        </div>
       </HarSkrivetilgang>
 
       <EndringshistorikkPopover>

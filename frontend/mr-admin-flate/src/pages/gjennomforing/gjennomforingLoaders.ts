@@ -33,7 +33,7 @@ export const gjennomforingLoader =
 
 export const gjennomforingQuery = (id: string) =>
   queryOptions({
-    queryKey: [QueryKeys.gjennomforing(id)],
+    queryKey: QueryKeys.gjennomforing(id),
     queryFn: () => GjennomforingerService.getGjennomforing({ path: { id } }),
   });
 

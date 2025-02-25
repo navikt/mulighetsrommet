@@ -52,6 +52,7 @@ import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
 import { tiltakstypeLoader, tiltakstyperLoader } from "./pages/tiltakstyper/tiltakstypeLoaders";
 import { publiserAction } from "./pages/gjennomforing/gjennomforingActions";
+import { QueryKeys } from "./api/QueryKeys";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -102,7 +103,7 @@ export function App() {
 }
 
 const ansattQuery = {
-  queryKey: ["ansatt", "info"],
+  queryKey: QueryKeys.ansatt(),
   queryFn: async () => {
     const { data } = await AnsattService.hentInfoOmAnsatt();
     return data;
@@ -205,7 +206,7 @@ const router = (queryClient: QueryClient) => {
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
             loader: gjennomforingLoader(queryClient),
-            action: publiserAction,
+            action: publiserAction(queryClient),
             children: [
               {
                 index: true,
