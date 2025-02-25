@@ -33,19 +33,28 @@ class TotrinnskontrollQueries(private val session: Session) {
                 behandlet_tidspunkt,
                 aarsaker,
                 forklaring,
-                type
+                type,
+                besluttet_av,
+                besluttet_tidspunkt,
+                besluttelse
             ) values (
                 :entity_id::uuid,
                 :behandlet_av,
                 :behandlet_tidspunkt,
                 coalesce(:aarsaker, array[]::text[]),
                 :forklaring,
-                :type::totrinnskontroll_type
+                :type::totrinnskontroll_type,
+                null,
+                null,
+                null
             ) on conflict (entity_id, type) do update set
                 behandlet_av        = excluded.behandlet_av,
                 behandlet_tidspunkt = excluded.behandlet_tidspunkt,
                 aarsaker            = coalesce(excluded.aarsaker, totrinnskontroll.aarsaker, array[]::text[]),
-                forklaring          = coalesce(excluded.forklaring, totrinnskontroll.forklaring)
+                forklaring          = coalesce(excluded.forklaring, totrinnskontroll.forklaring),
+                besluttet_av        = null,
+                besluttet_tidspunkt = null,
+                besluttelse         = null
         """.trimIndent()
 
         val params = mapOf(

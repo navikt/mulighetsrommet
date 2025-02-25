@@ -15,7 +15,7 @@ object UtbetalingFixtures {
         id = UUID.randomUUID(),
         gjennomforingId = AFT1.id,
         fristForGodkjenning = LocalDate.of(2024, 10, 1).atStartOfDay(),
-        periode = Periode.forMonthOf(LocalDate.of(2024, 2, 1)),
+        periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         beregning = UtbetalingBeregningFri(
             input = UtbetalingBeregningFri.Input(1000),
             output = UtbetalingBeregningFri.Output(1000),
