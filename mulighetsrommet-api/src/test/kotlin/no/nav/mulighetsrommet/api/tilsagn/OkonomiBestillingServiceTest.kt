@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.medStatus
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.medStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -135,9 +136,10 @@ class OkonomiBestillingServiceTest : FunSpec({
                             bestilling.bestillingsnummer shouldBe tilsagn.bestillingsnummer
                             bestilling.belop shouldBe tilsagn.beregning.output.belop
 
-                            // TODO: verifiser part
-                            // bestilling.opprettetAv shouldBe OkonomiPart.NavAnsatt(NavAnsattFixture.ansatt1.navIdent)
-                            // bestilling.besluttetAv shouldBe OkonomiPart.NavAnsatt(NavAnsattFixture.ansatt2.navIdent)
+                            val status = tilsagn.status
+                            require(status is TilsagnDto.TilsagnStatusDto.Godkjent)
+                            bestilling.opprettetAv shouldBe OkonomiPart.NavAnsatt(status.opprettelse.behandletAv)
+                            bestilling.besluttetAv shouldBe OkonomiPart.NavAnsatt(status.opprettelse.besluttetAv)
 
                             true
                         },

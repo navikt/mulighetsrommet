@@ -464,24 +464,19 @@ class UtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(tilsagn),
                 utbetalinger = listOf(utbetaling),
+                delutbetalinger = listOf(UtbetalingFixtures.delutbetaling1),
             ).initialize(database.db)
 
             val service = createUtbetalingService()
 
-            val opprettRequest = DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = tilsagn.id, belop = 100)
-            service.upsertDelutbetaling(
-                utbetalingId = utbetaling.id,
-                request = opprettRequest,
-                opprettetAv = domain.ansatte[0].navIdent,
-            )
             service.besluttDelutbetaling(
                 utbetalingId = utbetaling.id,
-                request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(opprettRequest.id),
+                request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(UtbetalingFixtures.delutbetaling1.id),
                 navIdent = domain.ansatte[1].navIdent,
             )
             service.besluttDelutbetaling(
                 utbetalingId = utbetaling.id,
-                request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(opprettRequest.id),
+                request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(UtbetalingFixtures.delutbetaling1.id),
                 navIdent = domain.ansatte[1].navIdent,
             ).shouldBeLeft() shouldBe BadRequest("Utbetaling er allerede besluttet")
         }

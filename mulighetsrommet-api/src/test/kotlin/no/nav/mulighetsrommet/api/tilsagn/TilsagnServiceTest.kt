@@ -18,14 +18,12 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.medStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatusDto
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
+import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDate
 import java.util.*
 
@@ -313,118 +311,40 @@ class TilsagnServiceTest : FunSpec({
         }
     }
 
-    /*
     context("endre status på tilsagn") {
-        test("annuller") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+        test("send til godkjenning på nytt etter returnert kan endre hvem som har behandlet") {
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+            ).initialize(database.db)
 
-                val queries = TilsagnQueries(session)
-                queries.upsert(tilsagn)
-                queries.godkjenn(tilsagn.id, NavAnsattFixture.ansatt1.navIdent)
+            val service = createTilsagnService()
 
-                // Send til annullering
-                queries.tilAnnullering(
-                    tilsagn.id,
-                    tilsagn.endretAv,
-                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_ANNET),
-                    forklaring = "Min forklaring",
-                )
+            service.beslutt(
+                id = TilsagnFixtures.Tilsagn1.id,
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
+                besluttelse = BesluttTilsagnRequest.AvvistTilsagnRequest(
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
+            ).shouldBeRight()
 
-                queries.get(tilsagn.id).shouldNotBeNull()
-                    .status.shouldBeTypeOf<TilsagnDto.TilsagnStatus.TilAnnullering>().should { status ->
-                        status.annullering.opprettetAv shouldBe tilsagn.endretAv
-                        status.annullering.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_ANNET.name)
-                        status.annullering.forklaring shouldBe "Min forklaring"
-                    }
+            service.upsert(
+                TilsagnRequest(
+                    id = TilsagnFixtures.Tilsagn1.id,
+                    gjennomforingId = TilsagnFixtures.Tilsagn1.gjennomforing.id,
+                    type = TilsagnFixtures.Tilsagn1.type,
+                    periodeStart = TilsagnFixtures.Tilsagn1.periodeStart,
+                    periodeSlutt = TilsagnFixtures.Tilsagn1.periodeSlutt,
+                    kostnadssted = TilsagnFixtures.Tilsagn1.kostnadssted.enhetsnummer,
+                    beregning = TilsagnFixtures.Tilsagn1.beregning.input,
+                ),
+                navIdent = NavIdent("T888888"),
+            ).shouldBeRight()
 
-                // Beslutt annullering
-                queries.godkjennAnnullering(tilsagn.id, NavIdent("B123456"))
-
-                queries.get(tilsagn.id).shouldNotBeNull()
-                    .status.shouldBeTypeOf<TilsagnDto.TilsagnStatus.Annullert>().should { status ->
-                        status.annullering.opprettetAv shouldBe tilsagn.endretAv
-                        status.annullering.besluttetAv shouldBe NavIdent("B123456")
-                        status.annullering.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_ANNET.name)
-                        status.annullering.forklaring shouldBe "Min forklaring"
-                    }
-            }
-        }
-
-        test("avbryt annullering") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
-                val queries = TilsagnQueries(session)
-                queries.upsert(tilsagn)
-                queries.godkjenn(tilsagn.id, NavAnsattFixture.ansatt2.navIdent)
-
-                // Send til annullering
-                queries.tilAnnullering(
-                    tilsagn.id,
-                    tilsagn.endretAv,
-                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_ANNET),
-                    forklaring = "Min forklaring",
-                )
-
-                // Avbryt annullering
-                queries.avbrytAnnullering(tilsagn.id, NavIdent("B123456"))
-
-                queries.get(tilsagn.id).shouldNotBeNull().status.shouldBeTypeOf<TilsagnDto.TilsagnStatus.Godkjent>()
-            }
-        }
-
-        test("godkjenn") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
-                val queries = TilsagnQueries(session)
-                queries.upsert(tilsagn)
-
-                queries.godkjenn(tilsagn.id, NavIdent("B123456"))
-
-                queries.get(tilsagn.id).shouldNotBeNull().status.shouldBeTypeOf<TilsagnDto.TilsagnStatus.Godkjent>()
-            }
-        }
-
-        test("returner") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
-                val queries = TilsagnQueries(session)
-                queries.upsert(tilsagn)
-
-                val returnertTidspunkt = LocalDateTime.of(2024, 12, 12, 0, 0)
-
-                queries.returner(
-                    tilsagn.id,
-                    NavAnsattFixture.ansatt2.navIdent,
-                    returnertTidspunkt,
-                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_ANNET),
-                    forklaring = "Min forklaring",
-                )
-                queries.get(tilsagn.id).shouldNotBeNull()
-                    .status.shouldBeTypeOf<TilsagnDto.TilsagnStatus.Returnert>().should { status ->
-                        status.opprettelse.opprettetAv shouldBe tilsagn.endretAv
-                        status.opprettelse.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_ANNET.name)
-                        status.opprettelse.forklaring shouldBe "Min forklaring"
-                    }
-            }
-        }
-
-        test("Skal få status TIL_GODKJENNING etter upsert") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
-                val queries = TilsagnQueries(session)
-                queries.upsert(tilsagn)
-
-                queries.get(tilsagn.id).shouldNotBeNull()
-                    .status.shouldBeTypeOf<TilsagnDto.TilsagnStatus.TilGodkjenning>().should { status ->
-                        status.opprettelse.opprettetAv shouldBe tilsagn.endretAv
-                    }
-            }
+            service.getAll()[0].status.opprettelse.behandletAv shouldBe NavIdent("T888888")
         }
     }
-     */
 })

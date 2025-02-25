@@ -117,11 +117,10 @@ class OkonomiBestillingService(
             avtalenummer = avtale.avtalenummer,
             belop = tilsagn.beregning.output.belop,
             periode = Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt),
-            // TODO: send riktig part og tidspunkt
-            opprettetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-            opprettetTidspunkt = LocalDateTime.now(),
-            besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-            besluttetTidspunkt = LocalDateTime.now(),
+            opprettetAv = OkonomiPart.NavAnsatt(tilsagn.status.opprettelse.behandletAv),
+            opprettetTidspunkt = tilsagn.status.opprettelse.behandletTidspunkt,
+            besluttetAv = OkonomiPart.NavAnsatt(tilsagn.status.opprettelse.besluttetAv),
+            besluttetTidspunkt = tilsagn.status.opprettelse.besluttetTidspunkt,
         )
 
         val message = OkonomiBestillingMelding.Bestilling(bestilling)
