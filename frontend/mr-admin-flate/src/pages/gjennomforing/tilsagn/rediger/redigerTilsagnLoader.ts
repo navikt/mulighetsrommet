@@ -7,13 +7,13 @@ import { gjennomforingQuery } from "../../gjennomforingLoaders";
 
 const tilsagnQuery = (tilsagnId: string) =>
   queryOptions({
-    queryKey: [QueryKeys.getTilsagn(tilsagnId)],
+    queryKey: QueryKeys.getTilsagn(tilsagnId),
     queryFn: () => TilsagnService.getTilsagn({ path: { id: tilsagnId } }),
   });
 
 const godkjenteTilsagnQuery = (gjennomforingId: string) =>
   queryOptions({
-    queryKey: [QueryKeys.getTilsagnForGjennomforing(gjennomforingId)],
+    queryKey: QueryKeys.getTilsagnForGjennomforing(gjennomforingId),
     queryFn: () =>
       TilsagnService.getAll({
         query: {

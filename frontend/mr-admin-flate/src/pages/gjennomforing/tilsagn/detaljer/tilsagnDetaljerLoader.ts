@@ -7,13 +7,13 @@ import { gjennomforingQuery } from "../../gjennomforingLoaders";
 
 const ansattQuery = () =>
   queryOptions({
-    queryKey: [QueryKeys.ansatt()],
+    queryKey: QueryKeys.ansatt(),
     queryFn: () => AnsattService.hentInfoOmAnsatt(),
   });
 
 const tilsagnQuery = (tilsagnId: string) =>
   queryOptions({
-    queryKey: [QueryKeys.getTilsagn(tilsagnId)],
+    queryKey: QueryKeys.getTilsagn(tilsagnId),
     queryFn: () => TilsagnService.getTilsagn({ path: { id: tilsagnId } }),
   });
 

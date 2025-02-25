@@ -52,7 +52,7 @@ export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArr
                         deleteStengtHosArrangor.mutate(periode.id, {
                           onSuccess: async () => {
                             await queryClient.invalidateQueries({
-                              queryKey: [QueryKeys.gjennomforing(gjennomforing.id)],
+                              queryKey: QueryKeys.gjennomforing(gjennomforing.id),
                               refetchType: "all",
                             });
                             revalidator.revalidate();

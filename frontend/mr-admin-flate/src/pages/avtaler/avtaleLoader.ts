@@ -30,7 +30,7 @@ export const avtaleLoader =
   };
 
 const navEnheterQuery = queryOptions({
-  queryKey: [QueryKeys.navRegioner()],
+  queryKey: QueryKeys.navRegioner(),
   queryFn: () =>
     NavEnheterService.getEnheter({
       query: {

@@ -25,7 +25,7 @@ const tilsagnDefaultsQuery = (params: {
 
 const godkjenteTilsagnQuery = (gjennomforingId: string) =>
   queryOptions({
-    queryKey: [QueryKeys.getTilsagnForGjennomforing(gjennomforingId)],
+    queryKey: QueryKeys.getTilsagnForGjennomforing(gjennomforingId),
     queryFn: () =>
       TilsagnService.getAll({
         query: {
