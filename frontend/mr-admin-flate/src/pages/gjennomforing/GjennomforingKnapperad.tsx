@@ -1,21 +1,18 @@
-import { useMutatePublisert } from "@/api/gjennomforing/useMutatePublisert";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { useGjennomforingEndringshistorikk } from "@/api/gjennomforing/useGjennomforingEndringshistorikk";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
-import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
 import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentForPameldingModal";
+import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
+import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
 import { KnapperadContainer } from "@/pages/KnapperadContainer";
 import { GjennomforingDto, NavAnsatt, Toggles } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
 import React, { useRef } from "react";
-import { useNavigate, useRevalidator } from "react-router";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
-import { useQueryClient } from "@tanstack/react-query";
-import { QueryKeys } from "@/api/QueryKeys";
+import { useFetcher, useNavigate } from "react-router";
 
 interface Props {
   ansatt: NavAnsatt;
@@ -24,9 +21,7 @@ interface Props {
 
 export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
   const navigate = useNavigate();
-  const { mutate } = useMutatePublisert();
-  const revalidate = useRevalidator();
-  const queryClient = useQueryClient();
+  const fetcher = useFetcher();
   const advarselModal = useRef<HTMLDialogElement>(null);
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const registrerStengtModalRef = useRef<HTMLDialogElement>(null);
@@ -38,18 +33,19 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
   );
 
   function handleClick(e: React.MouseEvent<HTMLInputElement>) {
-    mutate(
+    fetcher.submit(
       { id: gjennomforing.id, publisert: e.currentTarget.checked },
       {
-        onSuccess: async () => {
-          await queryClient.invalidateQueries({
-            queryKey: [QueryKeys.gjennomforing(gjennomforing.id)],
-            refetchType: "all",
-          });
-          revalidate.revalidate();
-        },
+        action: `/gjennomforinger/${gjennomforing.id}`,
+        method: "post",
       },
     );
+  }
+
+  // Optimistisk oppdatering av publisert status
+  let gjennomforingPublisert = gjennomforing.publisert;
+  if (fetcher.formData) {
+    gjennomforingPublisert = fetcher.formData.get("publisert") === "true" ? true : false;
   }
 
   return (
@@ -58,7 +54,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
         ressurs="Gjennomføring"
         condition={gjennomforingIsAktiv(gjennomforing.status.status)}
       >
-        <Switch checked={gjennomforing.publisert} onClick={handleClick}>
+        <Switch name="publiser" defaultChecked={gjennomforingPublisert} onClick={handleClick}>
           Publiser
         </Switch>
       </HarSkrivetilgang>

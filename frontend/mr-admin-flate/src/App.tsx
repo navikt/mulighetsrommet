@@ -51,6 +51,7 @@ import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
 import { tiltakstypeLoader, tiltakstyperLoader } from "./pages/tiltakstyper/tiltakstypeLoaders";
+import { publiserAction } from "./pages/gjennomforing/gjennomforingActions";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -204,6 +205,7 @@ const router = (queryClient: QueryClient) => {
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
             loader: gjennomforingLoader(queryClient),
+            action: publiserAction,
             children: [
               {
                 index: true,
