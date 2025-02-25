@@ -1,29 +1,31 @@
 import { Header } from "@/components/detaljside/Header";
-import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
+import { Metadata, Separator } from "@/components/detaljside/Metadata";
+import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
+import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
+import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
+import { OpprettTilsagnButton } from "@/components/tilsagn/OpprettTilsagnButton";
+import { DelutbetalingRow } from "@/components/utbetaling/DelutbetalingRow";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import {
-  TilsagnDto,
-  TilsagnDefaultsRequest,
-  TilsagnType,
-  Prismodell,
-  NavAnsattRolle,
-} from "@mr/api-client-v2";
-import { Alert, Box, CopyButton, Heading, HStack, Table, VStack } from "@navikt/ds-react";
-import { useLoaderData } from "react-router";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { LoaderData } from "@/types/loader";
 import { formaterDato } from "@/utils/Utils";
-import { DelutbetalingRow } from "@/components/utbetaling/DelutbetalingRow";
-import { utbetalingPageLoader } from "./utbetalingPageLoader";
-import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
-import { Metadata, Separator } from "@/components/detaljside/Metadata";
-import { OpprettTilsagnButton } from "@/components/tilsagn/OpprettTilsagnButton";
+import {
+  NavAnsattRolle,
+  Prismodell,
+  TilsagnDefaultsRequest,
+  TilsagnDto,
+  TilsagnType,
+} from "@mr/api-client-v2";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { BankNoteIcon } from "@navikt/aksel-icons";
+import { Alert, Box, CopyButton, Heading, HStack, Table, VStack } from "@navikt/ds-react";
 import { useState } from "react";
-
+import { useLoaderData } from "react-router";
+import { utbetalingPageLoader } from "./utbetalingPageLoader";
 export function UtbetalingPage() {
-  const { gjennomforing, utbetaling, tilsagn, ansatt } =
-    useLoaderData<typeof utbetalingPageLoader>();
+  const { gjennomforing, historikk, utbetaling, tilsagn, ansatt } =
+    useLoaderData<LoaderData<typeof utbetalingPageLoader>>();
   const [belopPerTilsagn, setBelopPerTilsagn] = useState<Map<string, number>>(
     new Map(
       tilsagn.map((tilsagn) => [
@@ -79,7 +81,7 @@ export function UtbetalingPage() {
     <>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
-        <GjennomforingIkon />
+        <BankNoteIcon className="w-10 h-10" />
         <Heading size="large" level="2">
           <HStack gap="2" align={"center"}>
             Utbetaling for {gjennomforing.navn}
@@ -88,6 +90,11 @@ export function UtbetalingPage() {
       </Header>
       <ContentBox>
         <WhitePaddedBox>
+          <HStack gap="2" justify={"end"}>
+            <EndringshistorikkPopover>
+              <ViewEndringshistorikk historikk={historikk} />
+            </EndringshistorikkPopover>
+          </HStack>
           <VStack gap="4">
             <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
             <Box borderColor="border-subtle" padding="4" borderWidth="1" borderRadius="large">

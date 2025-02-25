@@ -49,7 +49,7 @@ class TilsagnService(
                     type = request.type,
                     periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt),
                     lopenummer = lopenummer,
-                    bestillingsnummer = previous?.bestillingsnummer ?: "${gjennomforing.lopenummer}/$lopenummer",
+                    bestillingsnummer = previous?.bestillingsnummer ?: "A-${gjennomforing.lopenummer}-$lopenummer",
                     kostnadssted = request.kostnadssted,
                     beregning = beregning,
                     endretAv = navIdent,

@@ -8,24 +8,17 @@ import { useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { Select } from "@navikt/ds-react";
 import { useAtom } from "jotai/index";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useLoaderData } from "react-router";
 import { OppgaverFilter } from "../../../components/filter/OppgaverFilter";
 import { OppgaveFilterTags } from "../../../components/filter/OppgaverFilterTags";
 import { NullstillKnappForOppgaver } from "./NullstillKnappForOppgaver";
 import { ContentBox } from "../../../layouts/ContentBox";
-
-type OppgaverSorting = "korteste-frist" | "nyeste" | "eldste";
+import { LoaderData } from "@/types/loader";
+import { Laster } from "../../../components/laster/Laster";
+type OppgaverSorting = "nyeste" | "eldste";
 
 function sort(oppgaver: GetOppgaverResponse, sorting: OppgaverSorting) {
-  if (sorting === "korteste-frist") {
-    return oppgaver.sort((a, b) => {
-      const aDate = new Date(a.deadline);
-      const bDate = new Date(b.deadline);
-
-      return aDate.getTime() - bDate.getTime();
-    });
-  }
   if (sorting === "nyeste") {
     return oppgaver.sort((a, b) => {
       const aDate = new Date(a.createdAt);
@@ -50,10 +43,10 @@ export function OppgaverPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setTagsHeight] = useState(0);
-  const [sorting, setSorting] = useState<OppgaverSorting>("korteste-frist");
+  const [sorting, setSorting] = useState<OppgaverSorting>("nyeste");
   useTitle("Oppgaver");
   const [filter] = useAtom(oppgaverFilterAtom);
-  const { tiltakstyper, regioner } = useLoaderData<typeof oppgaverLoader>();
+  const { tiltakstyper, regioner } = useLoaderData<LoaderData<typeof oppgaverLoader>>();
   const oppgaver = useOppgaver(filter);
   const sortedOppgaver = sort(oppgaver.data || [], sorting);
 
@@ -85,26 +78,27 @@ export function OppgaverPage() {
                     setSorting(e.target.value as OppgaverSorting);
                   }}
                 >
-                  <option value="korteste-frist">Korteste frist</option>
                   <option value="nyeste">Nyeste</option>
                   <option value="eldste">Eldste</option>
                 </Select>
               </div>
             </div>
             <div className="grid grid-cols-1 gap-2 mt-4">
-              {sortedOppgaver.map((o) => {
-                // @TODO: Should maybe have something like tiltakstypeName come from the backend instead of doing manual mapping
-                return (
-                  <Oppgave
-                    key={o.createdAt}
-                    tiltakstype={tiltakstyper.find((t) => t.tiltakskode === o.tiltakstype)!}
-                    oppgave={o}
-                  />
-                );
-              })}
-              {sortedOppgaver.length === 0 && (
-                <EmptyState tittel={"Du har ingen nye oppgaver"} beskrivelse={""} />
-              )}
+              <Suspense fallback={<Laster tekst={"Laster oppgaver"} />}>
+                {sortedOppgaver.map((o) => {
+                  // @TODO: Should maybe have something like tiltakstypeName come from the backend instead of doing manual mapping
+                  return (
+                    <Oppgave
+                      key={o.id}
+                      tiltakstype={tiltakstyper.find((t) => t.tiltakskode === o.tiltakstype)!}
+                      oppgave={o}
+                    />
+                  );
+                })}
+                {sortedOppgaver.length === 0 && (
+                  <EmptyState tittel={"Du har ingen nye oppgaver"} beskrivelse={""} />
+                )}
+              </Suspense>
             </div>
           </div>
         }

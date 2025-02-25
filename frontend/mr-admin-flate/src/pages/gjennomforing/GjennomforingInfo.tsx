@@ -7,9 +7,9 @@ import { useLoaderData } from "react-router";
 import { GjennomforingDetaljer } from "./GjennomforingDetaljer";
 import { GjennomforingKnapperad } from "./GjennomforingKnapperad";
 import { gjennomforingLoader } from "./gjennomforingLoaders";
-
+import { LoaderData } from "../../types/loader";
 export function GjennomforingInfo() {
-  const { gjennomforing, ansatt, avtale } = useLoaderData<typeof gjennomforingLoader>();
+  const { gjennomforing, ansatt, avtale } = useLoaderData<LoaderData<typeof gjennomforingLoader>>();
 
   const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
 

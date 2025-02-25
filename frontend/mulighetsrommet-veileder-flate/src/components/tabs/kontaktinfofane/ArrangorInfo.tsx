@@ -11,24 +11,25 @@ const ArrangorInfo = ({ arrangor, faneinnhold }: ArrangorInfoProps) => {
   const { kontaktpersoner } = arrangor;
 
   return (
-    <div>
+    <div className="prose">
       <Heading size="small" spacing={false}>
         Arrangør
       </Heading>
 
-      <BodyShort spacing size="small">
+      <BodyShort spacing={false} size="small">
         {arrangor.selskapsnavn}
       </BodyShort>
 
       {kontaktpersoner.map((person) => (
-        <div key={person.id} className="prose bg-bg-subtle p-2 my-2 rounded-md">
-          <BodyShort className="font-bold">{person.navn}</BodyShort>
+        <div key={person.id} className="prose bg-bg-subtle p-2 mt-2 rounded-md">
+          <Heading level="4" size="xsmall" className="font-bold mt-5">
+            {person.navn}
+          </Heading>
           {person.beskrivelse && (
             <BodyShort textColor="subtle" size="small">
               {person.beskrivelse}
             </BodyShort>
           )}
-
           <BodyShort as="div" size="small">
             <dl>
               <dt>Epost:</dt>

@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.endringshistorikk
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
@@ -113,6 +114,54 @@ class EndringshistorikkServiceTest : FunSpec({
                     ),
                 ),
             )
+        }
+    }
+
+    test("opprett alle dokument klasser") {
+        database.runAndRollback {
+            val avtaleId = UUID.randomUUID()
+            val tilsagnId = UUID.randomUUID()
+            val gjennomforingId = UUID.randomUUID()
+            val utbetalingId = UUID.randomUUID()
+
+            val queries = EndringshistorikkQueries(it)
+
+            queries.logEndring(
+                DocumentClass.AVTALE,
+                operation = "OPPRETTET",
+                user = EndretAv.Arena,
+                documentId = avtaleId,
+                timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
+            ) { Json.parseToJsonElement("""{ "navn": "Ny avtale" }""") }
+
+            queries.logEndring(
+                DocumentClass.TILSAGN,
+                operation = "OPPRETTET",
+                user = EndretAv.Arena,
+                documentId = tilsagnId,
+                timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
+            ) { Json.parseToJsonElement("""{ "navn": "Nytt tilsagn" }""") }
+
+            queries.logEndring(
+                DocumentClass.GJENNOMFORING,
+                operation = "OPPRETTET",
+                user = EndretAv.Arena,
+                documentId = gjennomforingId,
+                timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
+            ) { Json.parseToJsonElement("""{ "navn": "Ny gjennomforing" }""") }
+
+            queries.logEndring(
+                DocumentClass.UTBETALING,
+                operation = "OPPRETTET",
+                user = EndretAv.Arena,
+                documentId = utbetalingId,
+                timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
+            ) { Json.parseToJsonElement("""{ "navn": "Ny utbetaling" }""") }
+
+            queries.getEndringshistorikk(DocumentClass.AVTALE, avtaleId).entries shouldHaveSize 1
+            queries.getEndringshistorikk(DocumentClass.TILSAGN, tilsagnId).entries shouldHaveSize 1
+            queries.getEndringshistorikk(DocumentClass.GJENNOMFORING, gjennomforingId).entries shouldHaveSize 1
+            queries.getEndringshistorikk(DocumentClass.UTBETALING, utbetalingId).entries shouldHaveSize 1
         }
     }
 })

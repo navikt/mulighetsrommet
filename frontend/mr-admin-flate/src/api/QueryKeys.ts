@@ -13,7 +13,7 @@ export const QueryKeys = {
   tiltakstyper: (filter?: object) => ["tiltakstyper", { ...filter }] as const,
   oppgaver: (filter?: object) => ["oppgaver", { ...filter }] as const,
   tiltakstypeFaneinnhold: (id: string) => ["tiltakstype", id, "faneinnhold"] as const,
-  gjennomforinger: (mine?: boolean, filter?: GetGjennomforingerData) =>
+  gjennomforinger: (mine?: boolean, filter?: Pick<GetGjennomforingerData, "query">) =>
     ["gjennomforinger", mine, filter].filter((entry) => entry !== undefined),
   gjennomforing: (id?: string) => ["gjennomforing", id] as const,
   gjennomforingHistorikk: (id?: string) => ["gjennomforing", id, "historikk"] as const,
@@ -21,13 +21,13 @@ export const QueryKeys = {
     return ["gjennomforing", id, "deltaker-summary"] as const;
   },
   ansatt: () => ["ansatt"] as const,
-  avtaler: (mine?: boolean, avtaleFilter?: GetAvtalerData) =>
+  avtaler: (mine?: boolean, avtaleFilter?: Pick<GetAvtalerData, "query">) =>
     ["avtaler", mine, avtaleFilter] as const,
   avtale: (id: string) => ["avtale", id],
   avtaleHistorikk: (id?: string) => ["avtale", id, "historikk"] as const,
-  enheter: (filter?: GetEnheterData) => ["enheter", filter],
+  enheter: (filter?: Pick<GetEnheterData, "query">) => ["enheter", filter],
   kostnadssted: (regioner?: string[]) => ["kostnadssted", regioner],
-  arrangorer: (filter?: GetArrangorerData) => ["arrangorer", filter] as const,
+  arrangorer: (filter?: Pick<GetArrangorerData, "query">) => ["arrangorer", filter] as const,
   arrangorById: (id: string) => ["arrangor", id],
   arrangorHovedenhetById: (id: string) => ["arrangorHovedenhet", id],
   arrangorByOrgnr: (orgnr: string) => ["arrangor", { orgnr }],
@@ -52,4 +52,8 @@ export const QueryKeys = {
   avtalteSatser: (avtaleId: string) => ["satser", avtaleId],
   utdanninger: () => ["utdanninger"],
   lagredeFilter: (dokumenttype: LagretDokumenttype) => ["lagredeFilter", dokumenttype],
+  utbetalingerByGjennomforing: (gjennomforingId: string) => [
+    "utbetaling-for-gjennomforing",
+    gjennomforingId,
+  ],
 };

@@ -4,15 +4,17 @@
   "version": "0.1.0",
   "module": "./build/index.ts",
   "types": "./build/index.ts",
-  "exports": "./build/index.ts",
+  "exports": {
+    ".": "./build/index.ts"
+  },
   "scripts": {
     "build": "openapi-ts --useOptions --input ../../mulighetsrommet-api/src/main/resources/web/openapi.yaml --output ./build"
   },
   "devDependencies": {
-    "@hey-api/openapi-ts": "0.61.2",
+    "@hey-api/openapi-ts": "0.64.5",
     "typescript": "5.7.3"
   },
   "dependencies": {
-    "@hey-api/client-fetch": "^0.6.0"
+    "@hey-api/client-fetch": "^0.8.1"
   }
 }

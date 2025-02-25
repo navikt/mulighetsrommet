@@ -41,7 +41,7 @@ export function OppgaverFilter({ filterAtom, tiltakstyper, regioner }: Props) {
                 hideLegend
               >
                 {OPPGAVER_TYPE_STATUS.map(({ label, value }) => (
-                  <Checkbox size="small" value={value}>
+                  <Checkbox size="small" key={value} value={value}>
                     {label}
                   </Checkbox>
                 ))}

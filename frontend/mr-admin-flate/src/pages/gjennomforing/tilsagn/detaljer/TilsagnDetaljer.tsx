@@ -4,7 +4,8 @@ import { useTilsagnTilAnnullering } from "@/api/tilsagn/useTilsagnTilAnnullering
 import { Header } from "@/components/detaljside/Header";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
-import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
+import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
+import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { TilsagnDetaljerFri } from "@/pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljerFri";
@@ -12,16 +13,24 @@ import {
   isTilsagnForhandsgodkjent,
   isTilsagnFri,
 } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
+import { LoaderData } from "@/types/loader";
+import { tilsagnAarsakTilTekst } from "@/utils/Utils";
 import {
+  Besluttelse,
   BesluttTilsagnRequest,
   NavAnsattRolle,
-  Besluttelse,
-  TilsagnTilAnnulleringRequest,
   TilsagnAvvisningAarsak,
   TilsagnTilAnnulleringAarsak,
+  TilsagnTilAnnulleringRequest,
 } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
-import { EraserIcon, PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
+import {
+  EraserIcon,
+  PencilFillIcon,
+  PiggybankIcon,
+  TrashFillIcon,
+  TrashIcon,
+} from "@navikt/aksel-icons";
 import { ActionMenu, Alert, BodyShort, Box, Button, Heading, HStack } from "@navikt/ds-react";
 import { useRef, useState } from "react";
 import { Link, useLoaderData, useNavigate } from "react-router";
@@ -29,13 +38,10 @@ import { AvvistAlert, TilAnnulleringAlert } from "../AarsakerAlert";
 import { TilsagnTag } from "../TilsagnTag";
 import { TilsagnDetaljerForhandsgodkjent } from "./TilsagnDetaljerForhandsgodkjent";
 import { tilsagnDetaljerLoader } from "./tilsagnDetaljerLoader";
-import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
-import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
-import { tilsagnAarsakTilTekst } from "@/utils/Utils";
 
 export function TilsagnDetaljer() {
   const { gjennomforing, tilsagn, ansatt, historikk } =
-    useLoaderData<typeof tilsagnDetaljerLoader>();
+    useLoaderData<LoaderData<typeof tilsagnDetaljerLoader>>();
 
   const besluttMutation = useBesluttTilsagn();
   const tilAnnulleringMutation = useTilsagnTilAnnullering();
@@ -119,7 +125,7 @@ export function TilsagnDetaljer() {
     <main>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
-        <GjennomforingIkon />
+        <PiggybankIcon className="w-10 h-10" />
         <Heading size="large" level="2">
           <HStack gap="2" align={"center"}>
             Tilsagn for {gjennomforing.navn} <TilsagnTag status={tilsagn.status} />

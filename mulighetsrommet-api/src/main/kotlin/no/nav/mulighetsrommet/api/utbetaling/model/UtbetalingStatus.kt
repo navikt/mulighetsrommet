@@ -5,4 +5,5 @@ enum class UtbetalingStatus {
     INNSENDT_AV_ARRANGOR,
     INNSENDT_AV_NAV,
     UTBETALT,
+    VENTER_PA_ENDRING,
 }

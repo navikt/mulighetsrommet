@@ -77,6 +77,47 @@ class DelutbetalingQueries(private val session: Session) {
         return session.requireSingle(queryOf(query, tilsagnId)) { it.int("lopenummer") }
     }
 
+    fun getSkalSendesTilOkonomi(tilsagnId: UUID): List<DelutbetalingDto> {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                delutbetaling.id,
+                tilsagn_id,
+                utbetaling_id,
+                belop,
+                periode,
+                lopenummer,
+                fakturanummer
+            from delutbetaling
+                inner join totrinnskontroll on totrinnskontroll.entity_id = delutbetaling.id
+            where
+                tilsagn_id = :tilsagn_id
+                and sendt_til_okonomi_tidspunkt is null
+            order by totrinnskontroll.besluttet_tidspunkt asc
+        """.trimIndent()
+
+        return session.list(queryOf(query, mapOf("tilsagn_id" to tilsagnId))) { it.toDelutbetalingDto() }
+    }
+
+    fun setSendtTilOkonomi(utbetalingId: UUID, tilsagnId: UUID, tidspunkt: LocalDateTime) {
+        @Language("PostgreSQL")
+        val query = """
+            update delutbetaling set
+                sendt_til_okonomi_tidspunkt = :tidspunkt
+            where
+                utbetaling_id = :utbetaling_id::uuid
+                and tilsagn_id = :tilsagn_id::uuid
+        """.trimIndent()
+
+        val params = mapOf(
+            "utbetaling_id" to utbetalingId,
+            "tilsagn_id" to tilsagnId,
+            "tidspunkt" to tidspunkt,
+        )
+
+        session.execute(queryOf(query, params))
+    }
+
     fun getByUtbetalingId(id: UUID): List<DelutbetalingDto> = with(session) {
         @Language("PostgreSQL")
         val query = """
@@ -144,6 +185,7 @@ class DelutbetalingQueries(private val session: Session) {
         val delutbetaling: DelutbetalingDto,
         val gjennomforingId: UUID,
         val tiltakskode: Tiltakskode,
+        val gjennomforingsnavn: String,
     )
 
     fun getOppgaveData(
@@ -161,6 +203,7 @@ class DelutbetalingQueries(private val session: Session) {
                 delutbetaling.lopenummer,
                 delutbetaling.fakturanummer,
                 tilsagn.gjennomforing_id,
+                gjennomforing.navn,
                 tiltakstype.tiltakskode
             from delutbetaling
                 inner join tilsagn on tilsagn.id = delutbetaling.tilsagn_id
@@ -180,6 +223,7 @@ class DelutbetalingQueries(private val session: Session) {
             DelutbetalingOppgaveData(
                 delutbetaling = it.toDelutbetalingDto(),
                 gjennomforingId = it.uuid("gjennomforing_id"),
+                gjennomforingsnavn = it.string("navn"),
                 tiltakskode = Tiltakskode.valueOf(it.string("tiltakskode")),
             )
         }

@@ -84,7 +84,10 @@ object UtbetalingFixtures {
         DELUTBETALING_AVVIST,
     }
 
-    fun DelutbetalingDto.medStatus(status: DelutbetalingStatus): DelutbetalingDto {
+    fun DelutbetalingDto.medStatus(
+        status: DelutbetalingStatus,
+        besluttetTidspunkt: LocalDateTime = LocalDateTime.now(),
+    ): DelutbetalingDto {
         return when (status) {
             DelutbetalingStatus.DELUTBETALING_TIL_GODKJENNING -> DelutbetalingDto.DelutbetalingTilGodkjenning(
                 id,
@@ -108,7 +111,7 @@ object UtbetalingFixtures {
                 opprettetAv,
                 opprettetTidspunkt,
                 NavAnsattFixture.ansatt2.navIdent,
-                LocalDateTime.now(),
+                besluttetTidspunkt,
             )
             DelutbetalingStatus.DELUTBETALING_UTBETALT -> DelutbetalingDto.DelutbetalingUtbetalt(
                 id,
@@ -121,7 +124,7 @@ object UtbetalingFixtures {
                 opprettetAv,
                 opprettetTidspunkt,
                 NavAnsattFixture.ansatt2.navIdent,
-                LocalDateTime.now(),
+                besluttetTidspunkt,
             )
             DelutbetalingStatus.DELUTBETALING_AVVIST -> DelutbetalingDto.DelutbetalingAvvist(
                 id,
@@ -134,7 +137,7 @@ object UtbetalingFixtures {
                 opprettetAv,
                 opprettetTidspunkt,
                 NavAnsattFixture.ansatt2.navIdent,
-                LocalDateTime.now(),
+                besluttetTidspunkt,
                 aarsaker = listOf("FEIL_BELOP"),
                 forklaring = null,
             )

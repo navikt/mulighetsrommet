@@ -17,7 +17,6 @@ import {
 } from "@mr/api-client-v2";
 import { BodyShort, Button, HStack, Table, TextField } from "@navikt/ds-react";
 import { formaterNOK, isValidationError } from "@mr/frontend-common/utils/utils";
-import { useRevalidator } from "react-router";
 import { useState } from "react";
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
 import { AvvistAlert } from "@/pages/gjennomforing/tilsagn/AarsakerAlert";
@@ -26,6 +25,8 @@ import { DelutbetalingTag } from "./DelutbetalingTag";
 import { useUpsertDelutbetaling } from "@/api/utbetaling/useUpsertDelutbetaling";
 import { Metadata } from "../detaljside/Metadata";
 import { createPortal } from "react-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRevalidator } from "react-router";
 
 interface Props {
   utbetaling: UtbetalingKompakt;
@@ -89,7 +90,8 @@ function EditableRow({
   const [belop, setBelop] = useState<number>(delutbetaling?.belop ?? 0);
   const [error, setError] = useState<string | undefined>(undefined);
 
-  const revalidate = useRevalidator();
+  const revalidator = useRevalidator();
+  const queryClient = useQueryClient();
   const opprettMutation = useUpsertDelutbetaling(utbetaling.id);
 
   function sendTilGodkjenning() {
@@ -100,8 +102,12 @@ function EditableRow({
     };
 
     opprettMutation.mutate(body, {
-      onSuccess: () => {
-        revalidate.revalidate();
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: ["utbetaling", utbetaling.id],
+          refetchType: "all",
+        });
+        revalidator.revalidate();
       },
       onError: (error: ProblemDetail) => {
         if (isValidationError(error)) {
@@ -185,7 +191,7 @@ function GodkjentRow({
     <Table.ExpandableRow
       content={
         <HStack>
-          <Metadata horizontal header="Opprettet av" verdi={delutbetaling.opprettetAv} />
+          <Metadata horizontal header="Behandlet av" verdi={delutbetaling.opprettetAv} />
           <Metadata horizontal header="Besluttet av" verdi={delutbetaling.besluttetAv} />
         </HStack>
       }
@@ -217,13 +223,18 @@ function TilGodkjenningRow({
 }) {
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
 
-  const revalidate = useRevalidator();
+  const revalidator = useRevalidator();
+  const queryClient = useQueryClient();
   const besluttMutation = useBesluttDelutbetaling(utbetaling.id);
 
   function beslutt(body: BesluttDelutbetalingRequest) {
     besluttMutation.mutate(body, {
-      onSuccess: () => {
-        revalidate.revalidate();
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: ["utbetaling", utbetaling.id],
+          refetchType: "all",
+        });
+        revalidator.revalidate();
       },
       onError: (error: ProblemDetail) => {
         throw error;

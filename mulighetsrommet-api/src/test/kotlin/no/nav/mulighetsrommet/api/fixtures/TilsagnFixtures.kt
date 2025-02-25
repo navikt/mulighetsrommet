@@ -11,12 +11,13 @@ object TilsagnFixtures {
         id = UUID.randomUUID(),
         gjennomforing = TilsagnDto.Gjennomforing(
             id = GjennomforingFixtures.AFT1.id,
+            navn = GjennomforingFixtures.AFT1.navn,
             tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
         ),
         periodeStart = LocalDate.of(2025, 1, 1),
         periodeSlutt = LocalDate.of(2025, 1, 31),
         lopenummer = 1,
-        bestillingsnummer = "2025/1",
+        bestillingsnummer = "A-2025/1-1",
         kostnadssted = NavEnhetFixtures.Innlandet,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(1000),
@@ -43,12 +44,13 @@ object TilsagnFixtures {
         id = UUID.randomUUID(),
         gjennomforing = TilsagnDto.Gjennomforing(
             id = GjennomforingFixtures.AFT1.id,
+            navn = GjennomforingFixtures.AFT1.navn,
             tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
         ),
         periodeStart = LocalDate.of(2025, 2, 1),
         periodeSlutt = LocalDate.of(2025, 2, 28),
         lopenummer = 2,
-        bestillingsnummer = "2025/2",
+        bestillingsnummer = "A-2025/1-2",
         kostnadssted = NavEnhetFixtures.Innlandet,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(1500),
@@ -75,12 +77,13 @@ object TilsagnFixtures {
         id = UUID.randomUUID(),
         gjennomforing = TilsagnDto.Gjennomforing(
             id = GjennomforingFixtures.AFT1.id,
+            navn = GjennomforingFixtures.AFT1.navn,
             tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
         ),
         periodeStart = LocalDate.of(2025, 3, 1),
         periodeSlutt = LocalDate.of(2025, 3, 31),
         lopenummer = 3,
-        bestillingsnummer = "2025/3",
+        bestillingsnummer = "A-2025/1-3",
         kostnadssted = NavEnhetFixtures.Innlandet,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(2500),

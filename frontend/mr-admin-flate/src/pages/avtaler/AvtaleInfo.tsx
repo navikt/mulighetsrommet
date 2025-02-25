@@ -12,9 +12,10 @@ import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
 import { avtaleLoader } from "./avtaleLoader";
 import { AvtalePersonvern } from "./AvtalePersonvern";
+import { LoaderData } from "../../types/loader";
 
 export function AvtaleInfo() {
-  const { avtale, ansatt } = useLoaderData<typeof avtaleLoader>();
+  const { avtale, ansatt } = useLoaderData<LoaderData<typeof avtaleLoader>>();
 
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 

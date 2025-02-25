@@ -190,7 +190,7 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
 
 export function createQueryParamsForExcelDownloadForAvtale(
   filter: AvtaleFilter,
-): LastNedAvtalerSomExcelData {
+): Pick<LastNedAvtalerSomExcelData, "query"> {
   return {
     query: {
       search: filter.sok,
@@ -208,7 +208,7 @@ export function createQueryParamsForExcelDownloadForAvtale(
 
 export function createQueryParamsForExcelDownloadForGjennomforing(
   filter: GjennomforingFilter,
-): LastNedGjennomforingerSomExcelData {
+): Pick<LastNedGjennomforingerSomExcelData, "query"> {
   return {
     query: {
       search: filter.search,

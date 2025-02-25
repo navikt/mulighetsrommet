@@ -17,13 +17,13 @@ import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import React from "react";
 import { Laster } from "@/components/laster/Laster";
-
+import { LoaderData } from "../../types/loader";
 type GjennomforingTab = "tilsagn" | "deltakerliste" | "utbetalinger" | "gjennomforing";
 
 export function GjennomforingPage() {
   const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
-  const { gjennomforing } = useLoaderData<typeof gjennomforingLoader>();
+  const { gjennomforing } = useLoaderData<LoaderData<typeof gjennomforingLoader>>();
 
   const { data: enableOkonomi } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,

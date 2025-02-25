@@ -81,9 +81,14 @@ export function AvtaleFormContainer({
       navEnheter: data.navEnheter.concat(data.navRegioner),
       avtalenummer: avtale?.avtalenummer || null,
       websaknummer: data.websaknummer || null,
-      arrangorOrganisasjonsnummer: data.arrangorOrganisasjonsnummer,
-      arrangorUnderenheter: data.arrangorUnderenheter,
-      arrangorKontaktpersoner: data.arrangorKontaktpersoner,
+      arrangor:
+        data.arrangorHovedenhet && data.arrangorUnderenheter
+          ? {
+              hovedenhet: data.arrangorHovedenhet,
+              underenheter: data.arrangorUnderenheter,
+              kontaktpersoner: data.arrangorKontaktpersoner || [],
+            }
+          : null,
       navn: data.navn,
       sluttDato: data.startOgSluttDato.sluttDato || null,
       startDato: data.startOgSluttDato.startDato,

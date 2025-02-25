@@ -6,5 +6,5 @@ export default {
     extend: {},
   },
   plugins: [],
-  presets: [],
+  presets: [require("@navikt/ds-tailwind")],
 } satisfies Config;

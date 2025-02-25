@@ -9,17 +9,20 @@ import java.math.RoundingMode
 import java.time.LocalDate
 import java.util.*
 
+@Serializable
 data class UtbetalingBeregningAft(
     override val input: Input,
     override val output: Output,
 ) : UtbetalingBeregning() {
 
+    @Serializable
     data class Input(
         val periode: Periode,
         val sats: Int,
         val deltakelser: Set<DeltakelsePerioder>,
     ) : UtbetalingBeregningInput()
 
+    @Serializable
     data class Output(
         override val belop: Int,
         val deltakelser: Set<DeltakelseManedsverk>,

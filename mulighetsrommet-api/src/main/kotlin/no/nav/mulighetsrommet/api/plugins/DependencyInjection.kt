@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterService
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.kafka.AmtVirksomheterV1KafkaConsumer
+import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtale.OpsjonLoggService
@@ -369,7 +370,7 @@ private fun services(appConfig: AppConfig) = module {
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
     single { ArrangorService(get(), get()) }
-    single { UtbetalingService(get(), get()) }
+    single { UtbetalingService(get(), get(), get()) }
     single { UnleashService(appConfig.unleash, get()) }
     single<AxsysClient> {
         AxsysV2ClientImpl(
@@ -384,6 +385,7 @@ private fun services(appConfig: AppConfig) = module {
     single { AltinnRettigheterService(get(), get()) }
     single { OppgaverService(get()) }
     single { OkonomiBestillingService(appConfig.kafka.clients.okonomiBestilling, get(), get()) }
+    single { ArrangorFlateService(get(), get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {

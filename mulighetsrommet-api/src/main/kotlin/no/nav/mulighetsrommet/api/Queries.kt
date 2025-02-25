@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.utdanning.db.UtdanningQueries
 import javax.sql.DataSource
 
 class QueryContext(val session: Session) {
+
     val queries by lazy { Queries() }
 
     inner class Queries {

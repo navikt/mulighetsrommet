@@ -19,6 +19,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
+// @Todo: Look into sealed classes
 @Serializable
 data class AvtaleDto(
     @Serializable(with = UUIDSerializer::class)
@@ -27,7 +28,7 @@ data class AvtaleDto(
     val navn: String,
     val avtalenummer: String?,
     val websaknummer: Websaknummer?,
-    val arrangor: ArrangorHovedenhet,
+    val arrangor: ArrangorHovedenhet?,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
@@ -51,6 +52,7 @@ data class AvtaleDto(
     val utdanningslop: UtdanningslopDto?,
     val prismodell: Prismodell?,
 ) {
+
     @Serializable
     data class Tiltakstype(
         @Serializable(with = UUIDSerializer::class)
@@ -100,19 +102,25 @@ data class AvtaleDto(
         val forrigeSluttdato: LocalDateTime?,
         val status: OpsjonLoggRequest.OpsjonsLoggStatus,
     )
+}
 
-    fun toDbo() = AvtaleDbo(
+fun AvtaleDto.toDbo(): AvtaleDbo {
+    return AvtaleDbo(
         id = id,
         navn = navn,
         tiltakstypeId = tiltakstype.id,
         avtalenummer = avtalenummer,
         websaknummer = websaknummer,
-        arrangorId = arrangor.id,
-        arrangorUnderenheter = arrangor.underenheter.map { it.id },
-        arrangorKontaktpersoner = arrangor.kontaktpersoner.map { it.id },
+        arrangor = arrangor?.id?.let {
+            AvtaleDbo.Arrangor(
+                hovedenhet = it,
+                underenheter = arrangor.underenheter.map { it.id },
+                kontaktpersoner = arrangor.kontaktpersoner.map { it.id },
+            )
+        },
         startDato = startDato,
         sluttDato = sluttDato,
-        navEnheter = this.kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer },
+        navEnheter = kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer },
         avtaletype = avtaletype,
         prisbetingelser = prisbetingelser,
         antallPlasser = antallPlasser,
@@ -128,22 +136,26 @@ data class AvtaleDto(
         utdanningslop = utdanningslop?.toDbo(),
         prismodell = prismodell,
     )
+}
 
-    fun toArenaAvtaleDbo() = ArenaAvtaleDbo(
-        id = id,
-        navn = navn,
-        tiltakstypeId = tiltakstype.id,
-        avtalenummer = avtalenummer,
-        arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer.value,
-        startDato = startDato,
-        sluttDato = sluttDato,
-        arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,
-        avtaletype = avtaletype,
-        avslutningsstatus = when (status) {
-            is AvtaleStatus.AKTIV -> Avslutningsstatus.IKKE_AVSLUTTET
-            is AvtaleStatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
-            is AvtaleStatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
-        },
-        prisbetingelser = prisbetingelser,
-    )
+fun AvtaleDto.toArenaAvtaleDbo(): ArenaAvtaleDbo? {
+    return arrangor?.organisasjonsnummer?.value?.let {
+        ArenaAvtaleDbo(
+            id = id,
+            navn = navn,
+            tiltakstypeId = tiltakstype.id,
+            avtalenummer = avtalenummer,
+            arrangorOrganisasjonsnummer = it,
+            startDato = startDato,
+            sluttDato = sluttDato,
+            arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,
+            avtaletype = avtaletype,
+            avslutningsstatus = when (status) {
+                is AvtaleStatus.AKTIV -> Avslutningsstatus.IKKE_AVSLUTTET
+                is AvtaleStatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
+                is AvtaleStatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
+            },
+            prisbetingelser = prisbetingelser,
+        )
+    }
 }

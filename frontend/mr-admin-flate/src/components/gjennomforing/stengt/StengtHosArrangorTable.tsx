@@ -4,6 +4,8 @@ import { formaterDato } from "@/utils/Utils";
 import { useRevalidator } from "react-router";
 import { useDeleteStengtHosArrangor } from "@/api/gjennomforing/useDeleteStengtHosArrangor";
 import { TrashIcon } from "@navikt/aksel-icons";
+import { useQueryClient } from "@tanstack/react-query";
+import { QueryKeys } from "@/api/QueryKeys";
 
 interface StengtHosArrangorTableProps {
   gjennomforing: GjennomforingDto;
@@ -13,6 +15,7 @@ interface StengtHosArrangorTableProps {
 export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArrangorTableProps) {
   const deleteStengtHosArrangor = useDeleteStengtHosArrangor(gjennomforing.id);
   const revalidator = useRevalidator();
+  const queryClient = useQueryClient();
 
   if (gjennomforing.stengt.length === 0) return null;
 
@@ -45,10 +48,14 @@ export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArr
                       size="small"
                       variant="secondary-neutral"
                       icon={<TrashIcon aria-hidden />}
-                      onClick={() => {
+                      onClick={async () => {
                         deleteStengtHosArrangor.mutate(periode.id, {
                           onSuccess: async () => {
-                            await revalidator.revalidate();
+                            await queryClient.invalidateQueries({
+                              queryKey: [QueryKeys.gjennomforing(gjennomforing.id)],
+                              refetchType: "all",
+                            });
+                            revalidator.revalidate();
                           },
                         });
                       }}
@@ -62,7 +69,6 @@ export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArr
           })}
         </Table.Body>
       </Table>
-
       {deleteStengtHosArrangor.error && (
         <VStack>
           <Alert inline variant="error">

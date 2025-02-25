@@ -269,6 +269,16 @@ toppmenyen) og så kjøre task'en `sync-navansatte`. Da skal kontaktpersoner bli
 MERK: Hvis du mangler tilgang til AD så kan du selv be om tilgang ved å følge beskrivelse
 her: https://github.com/navikt/azure-ad-self-service/blob/main/DirectoryRead/README.md
 
+### Gi tilgang til NAV Tiltaksadministrasjon for utvikler i teamet
+For å legge til en utvikler og gi riktige tilganger til dev-miljø så må utvikleren legges til en rekke AD-grupper. Se lenker under og hvordan man synkroniserer brukeren.
+
+1. Gå til [Team Mulighetsrommet](https://portal.azure.com/#view/Microsoft_AAD_IAM/GroupDetailsMenuBlade/~/Members/groupId/639e2806-4cc2-484c-a72a-51b4308c52a1) og legg til utvikleren
+2. Gå til [Tiltak avtaler skriv](https://portal.azure.com/#view/Microsoft_AAD_IAM/GroupDetailsMenuBlade/~/Overview/groupId/48026f54-6259-4c35-a148-bc4257bcaf03) og legg til utvikleren
+3. Gå til [Tiltak gjennomføringer skriv](https://portal.azure.com/#view/Microsoft_AAD_IAM/GroupDetailsMenuBlade/~/Overview/groupId/279039a0-39fd-4860-afdd-a1a2ccaa6323) og legg til utvikleren
+4. Gå til [Tiltak økonomi beslutter](https://portal.azure.com/#view/Microsoft_AAD_IAM/GroupDetailsMenuBlade/~/Overview/groupId/b00ba197-c90a-4ff9-966e-6c9cf1c882bf) og legg til utvikleren
+5. Gå til https://mulighetsrommet-arena-adapter-manager.intern.dev.nav.no/mr-api (logg inn med trygdeetaten-bruker) og trykk på Sync navansatte. Vent noen minutter og så bør utvikleren ha tilgang
+
+
 # Datadeling på Datamarkedsplassen
 
 Vi har to datasett tilgjengelig på datamarkedsplassen. Det er data om tiltakstypene vi skal migrere og data om

@@ -168,6 +168,7 @@ class OppgaverServiceTest : FunSpec({
                     UtbetalingFixtures.delutbetaling2.medStatus(UtbetalingFixtures.DelutbetalingStatus.DELUTBETALING_AVVIST),
                 ),
             ).initialize(database.db)
+
             var oppgaver = service.delutbetalingOppgaver(
                 oppgavetyper = emptyList(),
                 tiltakskoder = emptyList(),
@@ -215,10 +216,11 @@ class OppgaverServiceTest : FunSpec({
                         id = UUID.randomUUID(),
                         gjennomforing = TilsagnDto.Gjennomforing(
                             id = UtbetalingFixtures.utbetaling3.gjennomforingId,
+                            navn = "Navn",
                             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
                         ),
                         kostnadssted = NavEnhetFixtures.TiltakOslo,
-                        bestillingsnummer = "2025/4",
+                        bestillingsnummer = "A-2025/1-4",
                     ),
                 ),
                 utbetalinger = listOf(

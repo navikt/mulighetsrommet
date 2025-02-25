@@ -10,10 +10,10 @@ import { TilsagnRequest } from "@mr/api-client-v2";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
-
+import { LoaderData } from "@/types/loader";
 export function RedigerTilsagnFormPage() {
   const { avtale, gjennomforing, tilsagn, godkjenteTilsagn } =
-    useLoaderData<typeof redigerTilsagnLoader>();
+    useLoaderData<LoaderData<typeof redigerTilsagnLoader>>();
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     {

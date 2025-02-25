@@ -63,6 +63,7 @@ class TilsagnQueriesTest : FunSpec({
                     it.id shouldBe tilsagn.id
                     it.gjennomforing shouldBe TilsagnDto.Gjennomforing(
                         id = AFT1.id,
+                        navn = AFT1.navn,
                         tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
                     )
                     it.periodeStart shouldBe LocalDate.of(2023, 1, 1)
