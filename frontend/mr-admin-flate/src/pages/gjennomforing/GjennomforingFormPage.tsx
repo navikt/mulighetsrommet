@@ -1,21 +1,24 @@
 import { Header } from "@/components/detaljside/Header";
-import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
-import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { defaultGjennomforingData } from "@/components/gjennomforing/GjennomforingFormConst";
 import { GjennomforingFormContainer } from "@/components/gjennomforing/GjennomforingFormContainer";
 import { ErrorMeldinger } from "@/components/gjennomforing/GjennomforingFormErrors";
+import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
+import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
+import { ContentBox } from "@/layouts/ContentBox";
 import { avtaleHarRegioner, inneholderUrl } from "@/utils/Utils";
 import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 import { Alert, Box, Heading } from "@navikt/ds-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useLoaderData, useLocation, useNavigate } from "react-router";
-import { gjennomforingFormLoader } from "./gjennomforingLoaders";
-import { ContentBox } from "@/layouts/ContentBox";
 import { LoaderData } from "../../types/loader";
+import { gjennomforingFormLoader } from "./gjennomforingLoaders";
+import { QueryKeys } from "../../api/QueryKeys";
 export function GjennomforingFormPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { gjennomforing, avtale, ansatt } =
     useLoaderData<LoaderData<typeof gjennomforingFormLoader>>();
+  const queryClient = useQueryClient();
 
   const redigeringsModus = gjennomforing && inneholderUrl(gjennomforing?.id);
 
@@ -59,7 +62,13 @@ export function GjennomforingFormPage() {
               onClose={() => {
                 navigerTilbake();
               }}
-              onSuccess={(id) => navigate(`/gjennomforinger/${id}`)}
+              onSuccess={async (id) => {
+                await queryClient.invalidateQueries({
+                  queryKey: QueryKeys.gjennomforing(id),
+                  type: "all",
+                });
+                navigate(`/gjennomforinger/${id}`);
+              }}
               avtale={avtale}
               gjennomforing={gjennomforing}
               defaultValues={defaultGjennomforingData(

@@ -1,24 +1,13 @@
-import { useAvtale } from "@/api/avtaler/useAvtale";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
-import { Laster } from "@/components/laster/Laster";
 import { PersonopplysningData } from "@mr/api-client-v2";
 import { Alert, HelpText, HStack, List, VStack } from "@navikt/ds-react";
+import { useLoaderData } from "react-router";
+import { LoaderData } from "../../types/loader";
+import { avtaleLoader } from "./avtaleLoader";
 
 export function AvtalePersonvern() {
-  const { data: avtale, isPending, error } = useAvtale();
+  const { avtale } = useLoaderData<LoaderData<typeof avtaleLoader>>();
   const { data: personopplysninger } = usePersonopplysninger();
-
-  if (isPending || !avtale) {
-    return <Laster tekst="Laster avtale..." />;
-  }
-
-  if (error) {
-    return (
-      <Alert style={{ margin: "1rem" }} variant="error">
-        Klarte ikke hente avtaleinformasjon
-      </Alert>
-    );
-  }
 
   if (!avtale.personvernBekreftet) {
     return (

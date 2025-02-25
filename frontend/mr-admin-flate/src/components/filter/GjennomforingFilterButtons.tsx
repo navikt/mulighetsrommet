@@ -1,10 +1,10 @@
-import { Button } from "@navikt/ds-react";
-import { useSetAtom } from "jotai";
+import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { Tiltakskode } from "@mr/api-client-v2";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
+import { Button } from "@navikt/ds-react";
+import { useSetAtom } from "jotai";
 import { useState } from "react";
-import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
-import { useAvtale } from "@/api/avtaler/useAvtale";
+import { useAvtale } from "../../api/avtaler/useAvtale";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 

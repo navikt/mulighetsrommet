@@ -7,11 +7,9 @@ export function useAvtale(overstyrAvtaleId?: string) {
   const avtaleIdFromUrl = useGetAvtaleIdFromUrl();
   const avtaleId = overstyrAvtaleId ?? avtaleIdFromUrl;
 
-  const query = useApiQuery({
-    queryKey: QueryKeys.avtale(avtaleId!),
+  return useApiQuery({
+    queryKey: QueryKeys.avtale(avtaleId),
     queryFn: () => AvtalerService.getAvtale({ path: { id: avtaleId! } }),
     enabled: !!avtaleId,
   });
-
-  return { ...query, isLoading: !!avtaleId && query.isLoading };
 }

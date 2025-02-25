@@ -6,7 +6,7 @@ import { gjennomforingQuery } from "../gjennomforingLoaders";
 
 const utbetalingerByGjennomforingQuery = (gjennomforingId: string) =>
   queryOptions({
-    queryKey: [QueryKeys.utbetalingerByGjennomforing(gjennomforingId)],
+    queryKey: QueryKeys.utbetalingerByGjennomforing(gjennomforingId),
     queryFn: () => UtbetalingService.utbetalingerByGjennomforing({ path: { gjennomforingId } }),
   });
 

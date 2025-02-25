@@ -1,25 +1,25 @@
-import { Accordion, Search, Switch } from "@navikt/ds-react";
-import { useAtom, WritableAtom } from "jotai";
-import { ArrangorTil, NavEnhet } from "@mr/api-client-v2";
-import { useEffect } from "react";
+import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import {
   gjennomforingFilterAccordionAtom,
   GjennomforingFilter as GjennomforingFilterProps,
 } from "@/api/atoms";
-import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
+import { useRegioner } from "@/api/enhet/useRegioner";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
-import { useArrangorer } from "@/api/arrangor/useArrangorer";
+import { logEvent } from "@/logging/amplitude";
 import { addOrRemove } from "@/utils/Utils";
 import {
   arrangorOptions,
   TILTAKSGJENNOMFORING_STATUS_OPTIONS,
   tiltakstypeOptions,
 } from "@/utils/filterUtils";
+import { ArrangorTil, NavEnhet } from "@mr/api-client-v2";
 import { FilterAccordionHeader, FilterSkeleton, NavEnhetFilter } from "@mr/frontend-common";
-import { useRegioner } from "@/api/enhet/useRegioner";
+import { Accordion, Search, Switch } from "@navikt/ds-react";
+import { useAtom, WritableAtom } from "jotai";
+import { useEffect } from "react";
 import { CheckboxList } from "./CheckboxList";
-import { logEvent } from "@/logging/amplitude";
+import { useAvtale } from "../../api/avtaler/useAvtale";
 
 type Filters = "tiltakstype";
 
