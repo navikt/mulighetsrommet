@@ -14,6 +14,7 @@ import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.BestillingStatusType
 import no.nav.tiltak.okonomi.model.Faktura
+import no.nav.tiltak.okonomi.model.OebsKontering
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -39,6 +40,9 @@ class OebsService(
             return it.right()
         }
 
+        val kontering = queries.kontering.getOebsKontering(opprettBestilling.tiltakskode, opprettBestilling.periode)
+            ?: return OpprettBestillingError("Kontering for tiltakskode ${opprettBestilling.tiltakskode} og periode ${opprettBestilling.periode} mangler").left()
+
         val bestilling = Bestilling.fromOpprettBestilling(opprettBestilling, BestillingStatusType.AKTIV)
 
         return brreg.getHovedenhet(bestilling.arrangorHovedenhet)
@@ -53,16 +57,7 @@ class OebsService(
                 }
             }
             .map { hovedenhet ->
-                val linjer = bestilling.linjer.map { linje ->
-                    OebsBestillingMelding.Linje(
-                        linjeNummer = linje.linjenummer,
-                        antall = linje.belop,
-                        periode = linje.periode.start.monthValue,
-                        startDato = linje.periode.start,
-                        sluttDato = linje.periode.getLastDate(),
-                    )
-                }
-                toOebsBestillingMelding(bestilling, hovedenhet, linjer)
+                toOebsBestillingMelding(bestilling, kontering, hovedenhet)
             }
             .flatMap { melding ->
                 log.info("Sender bestilling ${bestilling.bestillingsnummer} til oebs")
@@ -137,8 +132,8 @@ class OebsService(
 
 private fun toOebsBestillingMelding(
     bestilling: Bestilling,
+    kontering: OebsKontering,
     leverandor: BrregHovedenhetDto,
-    linjer: List<OebsBestillingMelding.Linje>,
 ): OebsBestillingMelding {
     val selger = OebsBestillingMelding.Selger(
         organisasjonsNummer = leverandor.organisasjonsnummer.value,
@@ -146,6 +141,16 @@ private fun toOebsBestillingMelding(
         postAdresse = getLeverandorPostadresse(leverandor),
         bedriftsNummer = bestilling.arrangorUnderenhet.value,
     )
+
+    val linjer = bestilling.linjer.map { linje ->
+        OebsBestillingMelding.Linje(
+            linjeNummer = linje.linjenummer,
+            antall = linje.belop,
+            periode = linje.periode.start.monthValue,
+            startDato = linje.periode.start,
+            sluttDato = linje.periode.getLastDate(),
+        )
+    }
 
     return OebsBestillingMelding(
         kilde = OebsKilde.TILTADM,
@@ -161,8 +166,8 @@ private fun toOebsBestillingMelding(
         startDato = bestilling.periode.start,
         sluttDato = bestilling.periode.getLastDate(),
         bestillingsLinjer = linjer,
-        statsregnskapsKonto = OebsKontering.TILTAK.statsregnskapskonto,
-        artsKonto = OebsKonteringInfo.getArtskonto(bestilling.tiltakskode),
+        statsregnskapsKonto = kontering.statligRegnskapskonto,
+        artsKonto = kontering.statligArtskonto,
         kontor = bestilling.kostnadssted.value,
         tilsagnsAar = bestilling.periode.start.year,
     )
