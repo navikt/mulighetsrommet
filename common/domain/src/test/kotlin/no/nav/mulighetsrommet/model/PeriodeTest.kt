@@ -69,9 +69,5 @@ class PeriodeTest : FunSpec({
 
         val period3 = Periode(LocalDate.of(2021, 2, 1), LocalDate.of(2021, 2, 15))
         period1.intersect(period3) shouldBe null
-
-        val g = Periode(LocalDate.of(2024, 1, 15), LocalDate.of(2024, 2, 15))
-        val ggg = g.intersect(Periode.forMonthOf(LocalDate.of(2024, 1, 1)))
-        ggg shouldBe null
     }
 })
