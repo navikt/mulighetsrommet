@@ -221,10 +221,12 @@ export function AvtaleFormDetaljer({ tiltakstyper, ansatt, enheter, avtale }: Pr
         <div>
           <FormGroup>
             <ControlledMultiSelect
+              inputId={"navRegioner"}
               size="small"
               placeholder="Velg en"
               label={avtaletekster.navRegionerLabel}
               {...register("navRegioner")}
+              name={"navRegioner"}
               additionalOnChange={(selectedOptions) => {
                 if ((watch("navRegioner")?.length ?? 0) > 1) {
                   const alleLokaleUnderenheter = velgAlleLokaleUnderenheter(
@@ -246,6 +248,7 @@ export function AvtaleFormDetaljer({ tiltakstyper, ansatt, enheter, avtale }: Pr
               options={navRegionerOptions}
             />
             <ControlledMultiSelect
+              inputId={"navEnheter"}
               size="small"
               velgAlle
               placeholder="Velg en"
