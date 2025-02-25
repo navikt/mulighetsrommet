@@ -299,6 +299,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
           <div>
             <FormGroup>
               <ControlledSokeSelect
+                id={"navRegion"}
                 size="small"
                 label={gjennomforingTekster.navRegionLabel}
                 placeholder="Velg en"
@@ -309,6 +310,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
                 options={regionerOptions}
               />
               <ControlledMultiSelect
+                inputId={"navEnheter"}
                 size="small"
                 velgAlle
                 placeholder={"Velg en"}

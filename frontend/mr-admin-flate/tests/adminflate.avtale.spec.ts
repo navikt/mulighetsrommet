@@ -1,4 +1,5 @@
 import test, { expect, Page } from "@playwright/test";
+import { locateAndFillComboboxFirst, locateAndFillInput } from "./utils";
 
 test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1920 });
@@ -40,17 +41,6 @@ test("Opprett ny avtale AFT", async ({ page }) => {
     (response) => response.url().includes("/intern/avtaler") && response.status() === 200,
   );
 
-  const { id } = await response.json(); // Parse JSON response
+  const { id } = await response.json();
   await page.goto(`/avtaler/${id}`);
 });
-
-async function locateAndFillInput(page: Page, inputName: string, fill: string) {
-  const input = page.locator(`input[name=${inputName}]`);
-  await input.fill(fill);
-}
-
-async function locateAndFillComboboxFirst(page: Page, inputName: string, value: string) {
-  await page.click(inputName);
-  await page.fill(inputName, value);
-  await page.keyboard.press("Enter");
-}

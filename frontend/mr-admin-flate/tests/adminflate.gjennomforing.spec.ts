@@ -1,0 +1,38 @@
+import test, { expect, Page } from "@playwright/test";
+import { locateAndFillInput } from "./utils";
+
+const mockAvtaleId = "d1f163b7-1a41-4547-af16-03fd4492b7ba";
+
+test.beforeEach(async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1920 });
+  await page.goto(`/avtaler/${mockAvtaleId}/gjennomforinger`);
+});
+
+const fyllInnGjennomforing = async (page: Page) => {
+  await page.locator("text=Opprett ny tiltaksgjennomføring").click();
+  await locateAndFillInput(page, "antallPlasser", "20");
+
+  await page.click("input#navRegion");
+  await page.keyboard.press("Enter");
+
+  await page.click("input#navEnheter");
+  await page.keyboard.press("Enter");
+
+  await page.click("input#arrangorId");
+  await page.keyboard.press("Enter");
+
+  await page.locator('button:has-text("Redaksjonelt innhold")').click();
+
+  await page.fill('textarea[name="beskrivelse"]', "Dette er en test");
+  await page.fill('textarea[name="faneinnhold.forHvemInfoboks"]', "Dette er en test");
+
+  await page.click('div[role="textbox"]');
+  await page.keyboard.insertText("dette er en test");
+  //await page.fill('input[name="faneinnhold.forHvem"]', "Dette er en test");
+
+  await page.waitForTimeout(5000);
+};
+
+test("Opprett ny gjennomforing", async ({ page }) => {
+  await fyllInnGjennomforing(page);
+});
