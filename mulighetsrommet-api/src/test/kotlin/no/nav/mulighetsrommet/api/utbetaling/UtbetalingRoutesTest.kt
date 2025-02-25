@@ -188,9 +188,7 @@ class UtbetalingRoutesTest : FunSpec({
                 bearerAuth(oauth.issueToken(claims = claims).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(
-                    BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(
-                        tilsagnId = TilsagnFixtures.Tilsagn1.id,
-                    ),
+                    BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(id = UUID.randomUUID()),
                 )
             }
             response.status shouldBe HttpStatusCode.Unauthorized
@@ -214,9 +212,7 @@ class UtbetalingRoutesTest : FunSpec({
                 bearerAuth(oauth.issueToken(claims = claims).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(
-                    BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(
-                        tilsagnId = TilsagnFixtures.Tilsagn1.id,
-                    ),
+                    BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(id = UUID.randomUUID()),
                 )
             }
             response.status shouldBe HttpStatusCode.Unauthorized

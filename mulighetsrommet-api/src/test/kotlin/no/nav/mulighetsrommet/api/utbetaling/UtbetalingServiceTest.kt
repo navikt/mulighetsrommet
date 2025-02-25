@@ -436,7 +436,7 @@ class UtbetalingServiceTest : FunSpec({
             service.besluttDelutbetaling(
                 utbetalingId = utbetaling.id,
                 request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(
-                    tilsagnId = tilsagn.id,
+                    id = opprettRequest.id,
                 ),
                 navIdent = domain.ansatte[1].navIdent,
             )
@@ -476,16 +476,12 @@ class UtbetalingServiceTest : FunSpec({
             )
             service.besluttDelutbetaling(
                 utbetalingId = utbetaling.id,
-                request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(
-                    tilsagnId = tilsagn.id,
-                ),
+                request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(opprettRequest.id),
                 navIdent = domain.ansatte[1].navIdent,
             )
             service.besluttDelutbetaling(
                 utbetalingId = utbetaling.id,
-                request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(
-                    tilsagnId = tilsagn.id,
-                ),
+                request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(opprettRequest.id),
                 navIdent = domain.ansatte[1].navIdent,
             ).shouldBeLeft() shouldBe BadRequest("Utbetaling er allerede besluttet")
         }

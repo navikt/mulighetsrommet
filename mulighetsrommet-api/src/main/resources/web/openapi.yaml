@@ -6089,6 +6089,9 @@ components:
       properties:
         type:
           const: DELUTBETALING_OVERFORT_TIL_UTBETALING
+        id:
+          type: string
+          format: uuid
         tilsagnId:
           type: string
           format: uuid
@@ -6101,13 +6104,16 @@ components:
           type: string
         besluttetAv:
           type: string
-      required: [type, tilsagnId, utbetalingId, belop, behandletAv, besluttetAv]
+      required: [id, type, tilsagnId, utbetalingId, belop, behandletAv, besluttetAv]
 
     DelutbetalingUtbetalt:
       type: object
       properties:
         type:
           const: DELUTBETALING_UTBETALT
+        id:
+          type: string
+          format: uuid
         tilsagnId:
           type: string
           format: uuid
@@ -6120,13 +6126,16 @@ components:
           type: string
         besluttetAv:
           type: string
-      required: [type, tilsagnId, utbetalingId, belop, behandletAv, besluttetAv]
+      required: [id, type, tilsagnId, utbetalingId, belop, behandletAv, besluttetAv]
 
     DelutbetalingTilGodkjenning:
       type: object
       properties:
         type:
           const: DELUTBETALING_TIL_GODKJENNING
+        id:
+          type: string
+          format: uuid
         tilsagnId:
           type: string
           format: uuid
@@ -6137,13 +6146,16 @@ components:
           type: number
         behandletAv:
           type: string
-      required: [type, tilsagnId, utbetalingId, belop, behandletAv]
+      required: [id, type, tilsagnId, utbetalingId, belop, behandletAv]
 
     DelutbetalingAvvist:
       type: object
       properties:
         type:
           const: DELUTBETALING_AVVIST
+        id:
+          type: string
+          format: uuid
         tilsagnId:
           type: string
           format: uuid
@@ -6165,17 +6177,20 @@ components:
             type: string
         forklaring:
           type: string
-      required: [type, tilsagnId, utbetalingId, belop, behandletAv, besluttetAv, aarsaker, forklaring, besluttetTidspunkt]
+      required: [id, type, tilsagnId, utbetalingId, belop, behandletAv, besluttetAv, aarsaker, forklaring, besluttetTidspunkt]
 
     DelutbetalingRequest:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
         tilsagnId:
           type: string
           format: uuid
         belop:
           type: number
-      required: [tilsagnId, belop]
+      required: [id, tilsagnId, belop]
 
     OpprettManuellUtbetalingRequest:
       type: object
@@ -6221,10 +6236,10 @@ components:
       properties:
         besluttelse:
           $ref: "#/components/schemas/Besluttelse"
-        tilsagnId:
+        id:
           type: string
           format: uuid
-      required: [besluttelse, tilsagnId]
+      required: [besluttelse, id]
 
     AvvistDelutbetalingRequest:
       type: object
@@ -6237,10 +6252,10 @@ components:
             type: string
         forklaring:
           type: [string, "null"]
-        tilsagnId:
+        id:
           type: string
           format: uuid
-      required: [besluttelse, aarsaker, forklaring, tilsagnId]
+      required: [besluttelse, aarsaker, forklaring, id]
 
     ToTrinnskontroll:
       oneOf:

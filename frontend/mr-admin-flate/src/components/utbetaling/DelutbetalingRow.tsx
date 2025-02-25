@@ -27,6 +27,7 @@ import { Metadata } from "../detaljside/Metadata";
 import { createPortal } from "react-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRevalidator } from "react-router";
+import { v4 as uuidv4 } from "uuid";
 
 interface Props {
   utbetaling: UtbetalingKompakt;
@@ -97,6 +98,7 @@ function EditableRow({
   function sendTilGodkjenning() {
     if (error) return;
     const body: DelutbetalingRequest = {
+      id: delutbetaling?.id ?? uuidv4(),
       belop,
       tilsagnId: tilsagn.id,
     };
@@ -267,7 +269,7 @@ function TilGodkjenningRow({
               onClick={() =>
                 beslutt({
                   besluttelse: Besluttelse.GODKJENT,
-                  tilsagnId: tilsagn.id,
+                  id: delutbetaling.id,
                 })
               }
             >
@@ -297,7 +299,7 @@ function TilGodkjenningRow({
           onConfirm={({ aarsaker, forklaring }) => {
             beslutt({
               besluttelse: Besluttelse.AVVIST,
-              tilsagnId: tilsagn.id,
+              id: delutbetaling.id,
               aarsaker,
               forklaring: forklaring ?? null,
             });

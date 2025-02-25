@@ -137,7 +137,7 @@ class DelutbetalingQueries(private val session: Session) {
         return list(queryOf(query, id)) { it.toDelutbetalingDto() }
     }
 
-    fun get(utbetalingId: UUID, tilsagnId: UUID): DelutbetalingDto? = with(session) {
+    fun get(id: UUID): DelutbetalingDto? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select
@@ -149,14 +149,10 @@ class DelutbetalingQueries(private val session: Session) {
                 lopenummer,
                 fakturanummer
             from delutbetaling
-            where utbetaling_id = :utbetaling_id
-            and tilsagn_id = :tilsagn_id
+            where id = :id::uuid
         """.trimIndent()
 
-        val params = mapOf(
-            "utbetaling_id" to utbetalingId,
-            "tilsagn_id" to tilsagnId,
-        )
+        val params = mapOf("id" to id)
 
         return single(queryOf(query, params)) { it.toDelutbetalingDto() }
     }

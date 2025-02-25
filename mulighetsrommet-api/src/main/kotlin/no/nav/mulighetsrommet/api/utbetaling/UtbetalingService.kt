@@ -180,7 +180,7 @@ class UtbetalingService(
         val tilsagn = queries.tilsagn.get(request.tilsagnId)
             ?: return NotFound("Tilsagn med id=${request.tilsagnId} finnes ikke").left()
 
-        val previous = queries.delutbetaling.get(utbetalingId, request.tilsagnId)
+        val previous = queries.delutbetaling.get(request.id)
         when (previous) {
             is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling,
             is DelutbetalingDto.DelutbetalingTilGodkjenning,
@@ -226,7 +226,7 @@ class UtbetalingService(
         utbetalingId: UUID,
         navIdent: NavIdent,
     ): StatusResponse<Unit> = db.transaction {
-        val delutbetaling = queries.delutbetaling.get(utbetalingId, request.tilsagnId)
+        val delutbetaling = queries.delutbetaling.get(request.id)
             ?: return NotFound("Delutbetaling finnes ikke").left()
 
         if (delutbetaling.behandletAv == navIdent) {
@@ -258,7 +258,7 @@ class UtbetalingService(
                     forklaring = null,
                     tidspunkt = LocalDateTime.now(),
                 )
-                okonomi.scheduleBehandleGodkjenteUtbetalinger(request.tilsagnId, session)
+                okonomi.scheduleBehandleGodkjenteUtbetalinger(delutbetaling.tilsagnId, session)
             }
         }
         val dto = getOrError(utbetalingId)
