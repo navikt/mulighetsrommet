@@ -196,7 +196,7 @@ class OppgaverService(val db: ApiDatabase) {
                 linkText = "Se utbetaling",
                 link = "/gjennomforinger/$gjennomforingId/utbetalinger/$utbetalingId",
             ),
-            createdAt = opprettetTidspunkt,
+            createdAt = behandletTidspunkt,
             oppgaveIcon = OppgaveIcon.UTBETALING,
         )
 

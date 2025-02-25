@@ -61,8 +61,8 @@ object UtbetalingFixtures {
         periode = utbetaling1.periode,
         lopenummer = 1,
         fakturanummer = "${TilsagnFixtures.Tilsagn1.bestillingsnummer}/1",
-        opprettetAv = NavAnsattFixture.ansatt1.navIdent,
-        opprettetTidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0, 0),
+        behandletAv = NavAnsattFixture.ansatt1.navIdent,
+        behandletTidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0, 0),
     )
 
     val delutbetaling2 = DelutbetalingDto.DelutbetalingTilGodkjenning(
@@ -73,8 +73,8 @@ object UtbetalingFixtures {
         periode = utbetaling1.periode,
         lopenummer = 1,
         fakturanummer = "${TilsagnFixtures.Tilsagn2.bestillingsnummer}/1",
-        opprettetAv = NavAnsattFixture.ansatt1.navIdent,
-        opprettetTidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0, 0),
+        behandletAv = NavAnsattFixture.ansatt1.navIdent,
+        behandletTidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0, 0),
     )
 
     enum class DelutbetalingStatus {
@@ -97,8 +97,8 @@ object UtbetalingFixtures {
                 periode,
                 lopenummer,
                 fakturanummer,
-                opprettetAv,
-                opprettetTidspunkt,
+                behandletAv,
+                behandletTidspunkt,
             )
             DelutbetalingStatus.DELUTBETALING_OVERFORT_TIL_UTBETALING -> DelutbetalingDto.DelutbetalingOverfortTilUtbetaling(
                 id,
@@ -108,8 +108,8 @@ object UtbetalingFixtures {
                 periode,
                 lopenummer,
                 fakturanummer,
-                opprettetAv,
-                opprettetTidspunkt,
+                behandletAv,
+                behandletTidspunkt,
                 NavAnsattFixture.ansatt2.navIdent,
                 besluttetTidspunkt,
             )
@@ -121,8 +121,8 @@ object UtbetalingFixtures {
                 periode,
                 lopenummer,
                 fakturanummer,
-                opprettetAv,
-                opprettetTidspunkt,
+                behandletAv,
+                behandletTidspunkt,
                 NavAnsattFixture.ansatt2.navIdent,
                 besluttetTidspunkt,
             )
@@ -134,8 +134,8 @@ object UtbetalingFixtures {
                 periode,
                 lopenummer,
                 fakturanummer,
-                opprettetAv,
-                opprettetTidspunkt,
+                behandletAv,
+                behandletTidspunkt,
                 NavAnsattFixture.ansatt2.navIdent,
                 besluttetTidspunkt,
                 aarsaker = listOf("FEIL_BELOP"),

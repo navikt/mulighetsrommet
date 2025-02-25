@@ -85,11 +85,11 @@ fun QueryContext.insertDelutbetalingDto(dto: DelutbetalingDto) {
     queries.delutbetaling.upsert(dto.toDbo())
     queries.totrinnskontroll.behandler(
         entityId = dto.id,
-        navIdent = dto.opprettetAv,
+        navIdent = dto.behandletAv,
         aarsaker = null,
         forklaring = null,
         type = TotrinnskontrollType.OPPRETT,
-        tidspunkt = dto.opprettetTidspunkt,
+        tidspunkt = dto.behandletTidspunkt,
     )
 
     when (dto) {
@@ -235,6 +235,6 @@ fun DelutbetalingDto.toDbo(): DelutbetalingDbo {
         periode = periode,
         lopenummer = lopenummer,
         fakturanummer = fakturanummer,
-        opprettetAv = opprettetAv,
+        opprettetAv = behandletAv,
     )
 }

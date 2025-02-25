@@ -229,7 +229,7 @@ class UtbetalingService(
         val delutbetaling = queries.delutbetaling.get(utbetalingId, request.tilsagnId)
             ?: return NotFound("Delutbetaling finnes ikke").left()
 
-        if (delutbetaling.opprettetAv == navIdent) {
+        if (delutbetaling.behandletAv == navIdent) {
             return Forbidden("Kan ikke beslutte egen utbetaling").left()
         }
 

@@ -30,8 +30,8 @@ export const mockTilsagn: TilsagnDto[] = [
     periodeSlutt: "2024-01-06",
     status: {
       opprettelse: {
-        opprettetAv: "B123456",
-        opprettetTidspunkt: "2024-01-01T22:00:00",
+        behandletAv: "B123456",
+        behandletTidspunkt: "2024-01-01T22:00:00",
       },
       type: "TIL_GODKJENNING",
     },
@@ -57,14 +57,14 @@ export const mockTilsagn: TilsagnDto[] = [
     periodeSlutt: "2024-01-04",
     status: {
       opprettelse: {
-        opprettetAv: "B123456",
-        opprettetTidspunkt: "2024-01-01T22:00:00",
+        behandletAv: "B123456",
+        behandletTidspunkt: "2024-01-01T22:00:00",
         besluttetAv: "F123456",
         besluttetTidspunkt: "2024-01-01T22:00:00",
       },
       annullering: {
-        opprettetAv: "B123456",
-        opprettetTidspunkt: "2024-01-01T22:00:00",
+        behandletAv: "B123456",
+        behandletTidspunkt: "2024-01-01T22:00:00",
         aarsaker: [
           TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
           TilsagnTilAnnulleringAarsak.FEIL_ANNET,
@@ -118,14 +118,14 @@ export const mockTilsagn: TilsagnDto[] = [
     periodeSlutt: "2024-01-02",
     status: {
       opprettelse: {
-        opprettetAv: "B123456",
-        opprettetTidspunkt: "2024-01-01T22:00:00",
+        behandletAv: "B123456",
+        behandletTidspunkt: "2024-01-01T22:00:00",
         besluttetAv: "F123456",
         besluttetTidspunkt: "2024-01-01T22:00:00",
       },
       annullering: {
-        opprettetAv: "B123456",
-        opprettetTidspunkt: "2024-01-01T22:00:00",
+        behandletAv: "B123456",
+        behandletTidspunkt: "2024-01-01T22:00:00",
         aarsaker: [
           TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
           TilsagnTilAnnulleringAarsak.FEIL_ANNET,
@@ -158,8 +158,8 @@ export const mockTilsagn: TilsagnDto[] = [
     periodeSlutt: "2024-01-02",
     status: {
       opprettelse: {
-        opprettetAv: "B123456",
-        opprettetTidspunkt: "2024-01-09",
+        behandletAv: "B123456",
+        behandletTidspunkt: "2024-01-09",
         besluttetAv: "N12345",
         besluttetTidspunkt: "2024-01-10",
         aarsaker: [TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER, TilsagnAvvisningAarsak.FEIL_ANNET],

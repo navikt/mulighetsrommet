@@ -162,8 +162,8 @@ class OkonomiBestillingService(
                     ),
                     belop = delutbetaling.belop,
                     periode = delutbetaling.periode,
-                    opprettetAv = OkonomiPart.NavAnsatt(delutbetaling.opprettetAv),
-                    opprettetTidspunkt = delutbetaling.opprettetTidspunkt,
+                    opprettetAv = OkonomiPart.NavAnsatt(delutbetaling.behandletAv),
+                    opprettetTidspunkt = delutbetaling.behandletTidspunkt,
                     besluttetAv = OkonomiPart.NavAnsatt(delutbetaling.besluttetAv),
                     besluttetTidspunkt = delutbetaling.besluttetTidspunkt,
                 )

@@ -52,7 +52,7 @@ class DelutbetalingQueriesTest : FunSpec({
                 it.utbetalingId shouldBe UtbetalingFixtures.utbetaling1.id
                 it.belop shouldBe 100
                 it.periode shouldBe UtbetalingFixtures.utbetaling1.periode
-                it.opprettetAv shouldBe NavAnsattFixture.ansatt1.navIdent
+                it.behandletAv shouldBe NavAnsattFixture.ansatt1.navIdent
                 it.lopenummer shouldBe 1
                 it.fakturanummer shouldBe "1"
             }

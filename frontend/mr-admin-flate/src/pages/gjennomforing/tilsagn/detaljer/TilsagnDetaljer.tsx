@@ -213,7 +213,7 @@ export function TilsagnDetaljer() {
               ) : null}
               <HStack gap="2" justify={"end"}>
                 {tilsagn.status.type === "TIL_GODKJENNING" &&
-                  visBesluttKnapp(tilsagn.status.opprettelse.opprettetAv) && (
+                  visBesluttKnapp(tilsagn.status.opprettelse.behandletAv) && (
                     <HStack gap="2">
                       <Button
                         variant="secondary"
@@ -233,7 +233,7 @@ export function TilsagnDetaljer() {
                     </HStack>
                   )}
                 {tilsagn.status.type === "TIL_ANNULLERING" &&
-                  visBesluttKnapp(tilsagn.status.annullering.opprettetAv) && (
+                  visBesluttKnapp(tilsagn.status.annullering.behandletAv) && (
                     <HStack gap="2">
                       <Button
                         variant="secondary"

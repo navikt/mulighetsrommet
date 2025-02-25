@@ -6097,11 +6097,11 @@ components:
           format: uuid
         belop:
           type: number
-        opprettetAv:
+        behandletAv:
           type: string
         besluttetAv:
           type: string
-      required: [type, tilsagnId, utbetalingId, belop, opprettetAv, besluttetAv]
+      required: [type, tilsagnId, utbetalingId, belop, behandletAv, besluttetAv]
 
     DelutbetalingUtbetalt:
       type: object
@@ -6116,11 +6116,11 @@ components:
           format: uuid
         belop:
           type: number
-        opprettetAv:
+        behandletAv:
           type: string
         besluttetAv:
           type: string
-      required: [type, tilsagnId, utbetalingId, belop, opprettetAv, besluttetAv]
+      required: [type, tilsagnId, utbetalingId, belop, behandletAv, besluttetAv]
 
     DelutbetalingTilGodkjenning:
       type: object
@@ -6135,9 +6135,9 @@ components:
           format: uuid
         belop:
           type: number
-        opprettetAv:
+        behandletAv:
           type: string
-      required: [type, tilsagnId, utbetalingId, belop, opprettetAv]
+      required: [type, tilsagnId, utbetalingId, belop, behandletAv]
 
     DelutbetalingAvvist:
       type: object
@@ -6152,7 +6152,7 @@ components:
           format: uuid
         belop:
           type: number
-        opprettetAv:
+        behandletAv:
           type: string
         besluttetAv:
           type: string
@@ -6165,7 +6165,7 @@ components:
             type: string
         forklaring:
           type: string
-      required: [type, tilsagnId, utbetalingId, belop, opprettetAv, besluttetAv, aarsaker, forklaring, besluttetTidspunkt]
+      required: [type, tilsagnId, utbetalingId, belop, behandletAv, besluttetAv, aarsaker, forklaring, besluttetTidspunkt]
 
     DelutbetalingRequest:
       type: object
@@ -6250,9 +6250,9 @@ components:
     Ubesluttet:
       type: object
       properties:
-        opprettetAv:
+        behandletAv:
           type: string
-        opprettetTidspunkt:
+        behandletTidspunkt:
           type: string
           format: date-time
         aarsaker:
@@ -6261,7 +6261,7 @@ components:
             type: string
         forklaring:
           type: string
-      required: [opprettetAv, opprettetTidspunkt]
+      required: [behandletAv, behandletTidspunkt]
 
     Besluttet:
       allOf:

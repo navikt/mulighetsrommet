@@ -18,8 +18,8 @@ sealed class DelutbetalingDto {
     abstract val periode: Periode
     abstract val lopenummer: Int
     abstract val fakturanummer: String
-    abstract val opprettetAv: NavIdent
-    abstract val opprettetTidspunkt: LocalDateTime
+    abstract val behandletAv: NavIdent
+    abstract val behandletTidspunkt: LocalDateTime
 
     @Serializable
     @SerialName("DELUTBETALING_TIL_GODKJENNING")
@@ -34,9 +34,9 @@ sealed class DelutbetalingDto {
         override val periode: Periode,
         override val lopenummer: Int,
         override val fakturanummer: String,
-        override val opprettetAv: NavIdent,
+        override val behandletAv: NavIdent,
         @Serializable(with = LocalDateTimeSerializer::class)
-        override val opprettetTidspunkt: LocalDateTime,
+        override val behandletTidspunkt: LocalDateTime,
     ) : DelutbetalingDto()
 
     @Serializable
@@ -52,9 +52,9 @@ sealed class DelutbetalingDto {
         override val periode: Periode,
         override val lopenummer: Int,
         override val fakturanummer: String,
-        override val opprettetAv: NavIdent,
+        override val behandletAv: NavIdent,
         @Serializable(with = LocalDateTimeSerializer::class)
-        override val opprettetTidspunkt: LocalDateTime,
+        override val behandletTidspunkt: LocalDateTime,
         val besluttetAv: NavIdent,
         @Serializable(with = LocalDateTimeSerializer::class)
         val besluttetTidspunkt: LocalDateTime,
@@ -73,9 +73,9 @@ sealed class DelutbetalingDto {
         override val periode: Periode,
         override val lopenummer: Int,
         override val fakturanummer: String,
-        override val opprettetAv: NavIdent,
+        override val behandletAv: NavIdent,
         @Serializable(with = LocalDateTimeSerializer::class)
-        override val opprettetTidspunkt: LocalDateTime,
+        override val behandletTidspunkt: LocalDateTime,
         val besluttetAv: NavIdent,
         @Serializable(with = LocalDateTimeSerializer::class)
         val besluttetTidspunkt: LocalDateTime,
@@ -94,9 +94,9 @@ sealed class DelutbetalingDto {
         override val periode: Periode,
         override val lopenummer: Int,
         override val fakturanummer: String,
-        override val opprettetAv: NavIdent,
+        override val behandletAv: NavIdent,
         @Serializable(with = LocalDateTimeSerializer::class)
-        override val opprettetTidspunkt: LocalDateTime,
+        override val behandletTidspunkt: LocalDateTime,
         val besluttetAv: NavIdent,
         @Serializable(with = LocalDateTimeSerializer::class)
         val besluttetTidspunkt: LocalDateTime,

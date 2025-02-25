@@ -191,7 +191,7 @@ function GodkjentRow({
     <Table.ExpandableRow
       content={
         <HStack>
-          <Metadata horizontal header="Behandlet av" verdi={delutbetaling.opprettetAv} />
+          <Metadata horizontal header="Behandlet av" verdi={delutbetaling.behandletAv} />
           <Metadata horizontal header="Besluttet av" verdi={delutbetaling.besluttetAv} />
         </HStack>
       }
@@ -244,7 +244,7 @@ function TilGodkjenningRow({
 
   const kanBeslutte =
     delutbetaling &&
-    delutbetaling.opprettetAv !== ansatt.navIdent &&
+    delutbetaling.behandletAv !== ansatt.navIdent &&
     ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER);
 
   return (

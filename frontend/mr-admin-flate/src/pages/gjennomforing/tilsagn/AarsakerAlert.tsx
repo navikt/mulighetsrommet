@@ -14,8 +14,8 @@ export function TilAnnulleringAlert({ status }: { status: TilsagnStatusTilAnnull
         Tilsagnet annulleres
       </Heading>
       <p>
-        {status.annullering.opprettetAv} sendte tilsagnet til annullering den{" "}
-        {formaterDato(status.annullering.opprettetTidspunkt)} med følgende{" "}
+        {status.annullering.behandletAv} sendte tilsagnet til annullering den{" "}
+        {formaterDato(status.annullering.behandletTidspunkt)} med følgende{" "}
         {aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
         <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker))}</b>
         {status?.annullering.forklaring ? (
