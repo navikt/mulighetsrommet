@@ -26,6 +26,7 @@ select avtale.id,
        case
            when avtale.avbrutt_tidspunkt is not null then 'AVBRUTT'
            when avtale.slutt_dato is not null and date(now()) > avtale.slutt_dato then 'AVSLUTTET'
+           when arrangor is null then 'UTKAST'
            else 'AKTIV'
            end                                          as status,
        tiltakstype.id                                   as tiltakstype_id,
