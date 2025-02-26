@@ -13,7 +13,7 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.medStatus
+import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.setDelutbetalingStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
@@ -471,8 +471,10 @@ class UtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(TilsagnFixtures.Tilsagn1),
                 utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
-                delutbetalinger = listOf(UtbetalingFixtures.delutbetaling1.medStatus(UtbetalingFixtures.DelutbetalingStatus.DELUTBETALING_AVVIST)),
-            ).initialize(database.db)
+                delutbetalinger = listOf(UtbetalingFixtures.delutbetaling1),
+            ) {
+                setDelutbetalingStatus(UtbetalingFixtures.delutbetaling1, UtbetalingFixtures.DelutbetalingStatus.RETURNERT)
+            }.initialize(database.db)
 
             val service = createUtbetalingService()
             service.upsertDelutbetaling(
@@ -504,12 +506,10 @@ class UtbetalingServiceTest : FunSpec({
 
         test("skal ikke kunne opprette delutbetaling hvis belop er for stort") {
             val tilsagn1 = TilsagnFixtures.Tilsagn1.copy(
-                periodeStart = LocalDate.of(2024, 1, 1),
-                periodeSlutt = LocalDate.of(2024, 1, 31),
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
             )
             val tilsagn2 = TilsagnFixtures.Tilsagn2.copy(
-                periodeStart = LocalDate.of(2024, 1, 1),
-                periodeSlutt = LocalDate.of(2024, 1, 31),
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
             )
 
             val utbetaling = UtbetalingFixtures.utbetaling1.copy(
@@ -555,14 +555,12 @@ class UtbetalingServiceTest : FunSpec({
 
         test("løpenummer, fakturanummer og periode blir utledet fra tilsagnet og utbetalingen") {
             val tilsagn1 = TilsagnFixtures.Tilsagn2.copy(
-                periodeStart = LocalDate.of(2024, 1, 1),
-                periodeSlutt = LocalDate.of(2024, 1, 31),
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
                 bestillingsnummer = "A-2024/1-1",
             )
 
             val tilsagn2 = TilsagnFixtures.Tilsagn1.copy(
-                periodeStart = LocalDate.of(2024, 1, 1),
-                periodeSlutt = LocalDate.of(2024, 1, 31),
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
                 bestillingsnummer = "A-2024/1-2",
             )
 

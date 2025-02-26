@@ -4,7 +4,6 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatus
@@ -146,7 +145,7 @@ class OppgaverService(val db: ApiDatabase) {
         )
 
         TilsagnStatus.RETURNERT -> {
-            require(opprettelse is Totrinnskontroll.Besluttet)
+            requireNotNull(opprettelse.besluttetTidspunkt)
             Oppgave(
                 id = UUID.randomUUID(),
                 type = OppgaveType.TILSAGN_RETURNERT,
@@ -201,19 +200,22 @@ class OppgaverService(val db: ApiDatabase) {
             oppgaveIcon = OppgaveIcon.UTBETALING,
         )
 
-        is DelutbetalingDto.DelutbetalingAvvist -> Oppgave(
-            id = UUID.randomUUID(),
-            type = OppgaveType.UTBETALING_RETURNERT,
-            title = "Utbetaling returnert",
-            description = "Utbetaling for $gjennomforingsnavn ble returnert av beslutter",
-            tiltakstype = tiltakskode,
-            link = OppgaveLink(
-                linkText = "Se utbetaling",
-                link = "/gjennomforinger/$gjennomforingId/utbetalinger/$utbetalingId",
-            ),
-            createdAt = opprettelse.besluttetTidspunkt,
-            oppgaveIcon = OppgaveIcon.UTBETALING,
-        )
+        is DelutbetalingDto.DelutbetalingAvvist -> {
+            requireNotNull(opprettelse.besluttetTidspunkt)
+            Oppgave(
+                id = UUID.randomUUID(),
+                type = OppgaveType.UTBETALING_RETURNERT,
+                title = "Utbetaling returnert",
+                description = "Utbetaling for $gjennomforingsnavn ble returnert av beslutter",
+                tiltakstype = tiltakskode,
+                link = OppgaveLink(
+                    linkText = "Se utbetaling",
+                    link = "/gjennomforinger/$gjennomforingId/utbetalinger/$utbetalingId",
+                ),
+                createdAt = opprettelse.besluttetTidspunkt,
+                oppgaveIcon = OppgaveIcon.UTBETALING,
+            )
+        }
 
         is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling,
         is DelutbetalingDto.DelutbetalingUtbetalt,

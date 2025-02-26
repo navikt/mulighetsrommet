@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
 import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
@@ -239,24 +238,24 @@ class UtbetalingService(
 
         when (request) {
             is BesluttDelutbetalingRequest.AvvistDelutbetalingRequest ->
-                queries.totrinnskontroll.beslutter(
-                    entityId = delutbetaling.id,
-                    navIdent = navIdent,
-                    besluttelse = Besluttelse.AVVIST,
-                    type = TotrinnskontrollType.OPPRETT,
-                    aarsaker = request.aarsaker,
-                    forklaring = request.forklaring,
-                    tidspunkt = LocalDateTime.now(),
+                queries.totrinnskontroll.upsert(
+                    delutbetaling.opprettelse.copy(
+                        besluttetAv = navIdent,
+                        besluttelse = Besluttelse.AVVIST,
+                        aarsaker = request.aarsaker,
+                        forklaring = request.forklaring,
+                        besluttetTidspunkt = LocalDateTime.now(),
+                    ),
                 )
             is BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest -> {
-                queries.totrinnskontroll.beslutter(
-                    entityId = delutbetaling.id,
-                    navIdent = navIdent,
-                    besluttelse = Besluttelse.GODKJENT,
-                    type = TotrinnskontrollType.OPPRETT,
-                    aarsaker = null,
-                    forklaring = null,
-                    tidspunkt = LocalDateTime.now(),
+                queries.totrinnskontroll.upsert(
+                    delutbetaling.opprettelse.copy(
+                        besluttetAv = navIdent,
+                        besluttelse = Besluttelse.GODKJENT,
+                        besluttetTidspunkt = LocalDateTime.now(),
+                        aarsaker = emptyList(),
+                        forklaring = null,
+                    ),
                 )
                 okonomi.scheduleBehandleGodkjenteUtbetalinger(delutbetaling.tilsagnId, session)
             }

@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -69,13 +70,19 @@ class TilsagnQueries(private val session: Session) {
 
         execute(queryOf(query, params))
 
-        TotrinnskontrollQueries(this).behandler(
-            entityId = dbo.id,
-            navIdent = dbo.endretAv,
-            aarsaker = null,
-            forklaring = null,
-            type = TotrinnskontrollType.OPPRETT,
-            tidspunkt = dbo.endretTidspunkt,
+        TotrinnskontrollQueries(this).upsert(
+            Totrinnskontroll(
+                id = UUID.randomUUID(),
+                entityId = dbo.id,
+                behandletAv = dbo.endretAv,
+                aarsaker = emptyList(),
+                forklaring = null,
+                type = TotrinnskontrollType.OPPRETT,
+                behandletTidspunkt = dbo.endretTidspunkt,
+                besluttelse = null,
+                besluttetAv = null,
+                besluttetTidspunkt = null,
+            ),
         )
     }
 

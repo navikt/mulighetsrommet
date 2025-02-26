@@ -13,11 +13,10 @@ import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.medStatus
-import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.medStatus
+import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.setTilsagnStatus
+import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.setDelutbetalingStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -67,13 +66,12 @@ class OkonomiBestillingServiceTest : FunSpec({
 
         val tilsagn = TilsagnFixtures.Tilsagn1.copy(
             bestillingsnummer = bestillingsnummer,
-            periodeStart = LocalDate.of(2025, 1, 1),
-            periodeSlutt = LocalDate.of(2025, 6, 30),
+            periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 7, 1)),
             beregning = TilsagnBeregningFri(
                 input = TilsagnBeregningFri.Input(1000),
                 output = TilsagnBeregningFri.Output(1000),
             ),
-        ).medStatus(TilsagnStatus.GODKJENT)
+        )
 
         val utbetaling1 = UtbetalingFixtures.utbetaling1.copy(
             periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 4, 1)),
@@ -111,7 +109,9 @@ class OkonomiBestillingServiceTest : FunSpec({
                 tilsagn = listOf(tilsagn),
                 utbetalinger = listOf(utbetaling1, utbetaling2),
                 delutbetalinger = listOf(delutbetaling1, delutbetaling2),
-            ).initialize(database.db)
+            ) {
+                setTilsagnStatus(tilsagn, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
 
             database.run {
                 service.scheduleBehandleGodkjentTilsagn(tilsagn.id, session)
@@ -136,10 +136,8 @@ class OkonomiBestillingServiceTest : FunSpec({
                             bestilling.bestillingsnummer shouldBe tilsagn.bestillingsnummer
                             bestilling.belop shouldBe tilsagn.beregning.output.belop
 
-                            val opprettelse = tilsagn.opprettelse
-                            require(opprettelse is Totrinnskontroll.Besluttet)
-                            bestilling.opprettetAv shouldBe OkonomiPart.NavAnsatt(opprettelse.behandletAv)
-                            bestilling.besluttetAv shouldBe OkonomiPart.NavAnsatt(opprettelse.besluttetAv)
+                            bestilling.opprettetAv shouldBe OkonomiPart.NavAnsatt(NavAnsattFixture.ansatt1.navIdent)
+                            bestilling.besluttetAv shouldBe OkonomiPart.NavAnsatt(NavAnsattFixture.ansatt2.navIdent)
 
                             true
                         },
@@ -154,10 +152,13 @@ class OkonomiBestillingServiceTest : FunSpec({
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(tilsagn.medStatus(TilsagnStatus.ANNULLERT)),
+                tilsagn = listOf(tilsagn),
                 utbetalinger = listOf(utbetaling1, utbetaling2),
                 delutbetalinger = listOf(delutbetaling1, delutbetaling2),
-            ).initialize(database.db)
+            ) {
+                setTilsagnStatus(tilsagn, TilsagnStatus.ANNULLERT)
+            }
+                .initialize(database.db)
             database.run {
                 service.scheduleBehandleAnnullertTilsagn(tilsagn.id, session)
             }
@@ -188,11 +189,11 @@ class OkonomiBestillingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(tilsagn),
                 utbetalinger = listOf(utbetaling1, utbetaling2),
-                delutbetalinger = listOf(
-                    delutbetaling1.medStatus(UtbetalingFixtures.DelutbetalingStatus.DELUTBETALING_OVERFORT_TIL_UTBETALING),
-                    delutbetaling2,
-                ),
-            ).initialize(database.db)
+                delutbetalinger = listOf(delutbetaling1, delutbetaling2),
+            ) {
+                setDelutbetalingStatus(delutbetaling1, UtbetalingFixtures.DelutbetalingStatus.GODKJENT)
+            }
+                .initialize(database.db)
             database.run {
                 service.scheduleBehandleGodkjenteUtbetalinger(tilsagn.id, session)
             }
@@ -231,17 +232,19 @@ class OkonomiBestillingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(tilsagn),
                 utbetalinger = listOf(utbetaling1, utbetaling2),
-                delutbetalinger = listOf(
-                    delutbetaling1.medStatus(
-                        UtbetalingFixtures.DelutbetalingStatus.DELUTBETALING_OVERFORT_TIL_UTBETALING,
-                        besluttetTidspunkt = LocalDateTime.of(2025, 1, 1, 10, 0, 0),
-                    ),
-                    delutbetaling2.medStatus(
-                        UtbetalingFixtures.DelutbetalingStatus.DELUTBETALING_OVERFORT_TIL_UTBETALING,
-                        besluttetTidspunkt = LocalDateTime.of(2025, 1, 1, 20, 0, 0),
-                    ),
-                ),
-            ).initialize(database.db)
+                delutbetalinger = listOf(delutbetaling1, delutbetaling2),
+            ) {
+                setDelutbetalingStatus(
+                    delutbetaling1,
+                    UtbetalingFixtures.DelutbetalingStatus.GODKJENT,
+                    besluttetTidspunkt = LocalDateTime.of(2025, 1, 1, 10, 0, 0),
+                )
+                setDelutbetalingStatus(
+                    delutbetaling2,
+                    UtbetalingFixtures.DelutbetalingStatus.GODKJENT,
+                    besluttetTidspunkt = LocalDateTime.of(2025, 1, 1, 20, 0, 0),
+                )
+            }.initialize(database.db)
             every { kafkaProducerClient.sendSync(any()) } throws Exception()
             shouldThrow<Exception> {
                 service.behandleGodkjentUtbetalinger(tilsagn.id)

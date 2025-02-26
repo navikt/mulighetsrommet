@@ -10,17 +10,11 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
-import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeDbo
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
-import no.nav.mulighetsrommet.model.Periode
+import java.util.*
 
 data class MulighetsrommetTestDomain(
     val navEnheter: List<NavEnhetDbo> = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
@@ -51,9 +45,9 @@ data class MulighetsrommetTestDomain(
     ),
     val gjennomforinger: List<GjennomforingDbo> = listOf(),
     val deltakere: List<DeltakerDbo> = listOf(),
-    val tilsagn: List<TilsagnDto> = listOf(),
+    val tilsagn: List<TilsagnDbo> = listOf(),
     val utbetalinger: List<UtbetalingDbo> = listOf(),
-    val delutbetalinger: List<DelutbetalingDto> = listOf(),
+    val delutbetalinger: List<DelutbetalingDbo> = listOf(),
     val additionalSetup: (QueryContext.() -> Unit)? = null,
 ) {
     fun initialize(database: ApiDatabase): MulighetsrommetTestDomain = database.transaction {
@@ -72,173 +66,13 @@ data class MulighetsrommetTestDomain(
             avtaler.forEach { queries.avtale.upsert(it) }
             gjennomforinger.forEach { queries.gjennomforing.upsert(it) }
             deltakere.forEach { queries.deltaker.upsert(it) }
-            tilsagn.forEach { insertTilsagnDto(it) }
+            tilsagn.forEach { queries.tilsagn.upsert(it) }
             utbetalinger.forEach { queries.utbetaling.upsert(it) }
-            delutbetalinger.forEach { insertDelutbetalingDto(it) }
+            delutbetalinger.forEach { queries.delutbetaling.upsert(it) }
         }
 
         additionalSetup?.invoke(context)
 
         return this
     }
-}
-
-fun QueryContext.insertDelutbetalingDto(dto: DelutbetalingDto) {
-    queries.delutbetaling.upsert(dto.toDbo())
-    queries.totrinnskontroll.behandler(
-        entityId = dto.id,
-        navIdent = dto.opprettelse.behandletAv,
-        aarsaker = null,
-        forklaring = null,
-        type = TotrinnskontrollType.OPPRETT,
-        tidspunkt = dto.opprettelse.behandletTidspunkt,
-    )
-
-    when (dto) {
-        is DelutbetalingDto.DelutbetalingAvvist ->
-            queries.totrinnskontroll.beslutter(
-                entityId = dto.id,
-                navIdent = dto.opprettelse.besluttetAv,
-                besluttelse = Besluttelse.AVVIST,
-                aarsaker = dto.opprettelse.aarsaker,
-                forklaring = dto.opprettelse.forklaring,
-                type = TotrinnskontrollType.OPPRETT,
-                tidspunkt = dto.opprettelse.besluttetTidspunkt,
-            )
-        is DelutbetalingDto.DelutbetalingUtbetalt ->
-            queries.totrinnskontroll.beslutter(
-                entityId = dto.id,
-                navIdent = dto.opprettelse.besluttetAv,
-                besluttelse = Besluttelse.GODKJENT,
-                aarsaker = null,
-                forklaring = null,
-                type = TotrinnskontrollType.OPPRETT,
-                tidspunkt = dto.opprettelse.besluttetTidspunkt,
-            )
-        is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling ->
-            queries.totrinnskontroll.beslutter(
-                entityId = dto.id,
-                navIdent = dto.opprettelse.besluttetAv,
-                besluttelse = Besluttelse.GODKJENT,
-                aarsaker = null,
-                forklaring = null,
-                type = TotrinnskontrollType.OPPRETT,
-                tidspunkt = dto.opprettelse.besluttetTidspunkt,
-            )
-        is DelutbetalingDto.DelutbetalingTilGodkjenning -> {}
-    }
-}
-
-fun QueryContext.insertTilsagnDto(tilsagnDto: TilsagnDto) {
-    queries.tilsagn.upsert(tilsagnDto.toDbo())
-
-    val opprettelse = tilsagnDto.opprettelse
-    val annullering = tilsagnDto.annullering
-    when (tilsagnDto.status) {
-        TilsagnStatus.ANNULLERT -> {
-            require(opprettelse is Totrinnskontroll.Besluttet)
-            require(annullering is Totrinnskontroll.Besluttet)
-            queries.totrinnskontroll.beslutter(
-                entityId = tilsagnDto.id,
-                navIdent = opprettelse.besluttetAv,
-                besluttelse = Besluttelse.GODKJENT,
-                aarsaker = null,
-                forklaring = null,
-                type = TotrinnskontrollType.OPPRETT,
-                tidspunkt = opprettelse.besluttetTidspunkt,
-            )
-            queries.totrinnskontroll.behandler(
-                entityId = tilsagnDto.id,
-                navIdent = annullering.behandletAv,
-                aarsaker = annullering.aarsaker,
-                forklaring = annullering.forklaring,
-                type = TotrinnskontrollType.ANNULLER,
-                tidspunkt = annullering.behandletTidspunkt,
-            )
-            queries.totrinnskontroll.beslutter(
-                entityId = tilsagnDto.id,
-                navIdent = annullering.besluttetAv,
-                besluttelse = Besluttelse.GODKJENT,
-                aarsaker = null,
-                forklaring = null,
-                type = TotrinnskontrollType.ANNULLER,
-                tidspunkt = annullering.besluttetTidspunkt,
-            )
-        }
-        TilsagnStatus.GODKJENT -> {
-            require(opprettelse is Totrinnskontroll.Besluttet)
-            queries.totrinnskontroll.beslutter(
-                entityId = tilsagnDto.id,
-                navIdent = opprettelse.besluttetAv,
-                besluttelse = Besluttelse.GODKJENT,
-                aarsaker = null,
-                forklaring = null,
-                type = TotrinnskontrollType.OPPRETT,
-                tidspunkt = opprettelse.besluttetTidspunkt,
-            )
-        }
-        TilsagnStatus.RETURNERT -> {
-            require(opprettelse is Totrinnskontroll.Besluttet)
-            queries.totrinnskontroll.beslutter(
-                entityId = tilsagnDto.id,
-                navIdent = opprettelse.besluttetAv,
-                besluttelse = Besluttelse.AVVIST,
-                aarsaker = opprettelse.aarsaker,
-                forklaring = opprettelse.forklaring,
-                type = TotrinnskontrollType.OPPRETT,
-                tidspunkt = opprettelse.besluttetTidspunkt,
-            )
-        }
-        TilsagnStatus.TIL_ANNULLERING -> {
-            requireNotNull(annullering)
-            require(opprettelse is Totrinnskontroll.Besluttet)
-            queries.totrinnskontroll.beslutter(
-                entityId = tilsagnDto.id,
-                navIdent = opprettelse.besluttetAv,
-                besluttelse = Besluttelse.GODKJENT,
-                aarsaker = null,
-                forklaring = null,
-                type = TotrinnskontrollType.OPPRETT,
-                tidspunkt = opprettelse.besluttetTidspunkt,
-            )
-            queries.totrinnskontroll.behandler(
-                entityId = tilsagnDto.id,
-                navIdent = annullering.behandletAv,
-                aarsaker = annullering.aarsaker,
-                forklaring = annullering.forklaring,
-                type = TotrinnskontrollType.ANNULLER,
-                tidspunkt = annullering.behandletTidspunkt,
-            )
-        }
-        TilsagnStatus.TIL_GODKJENNING -> {}
-    }
-}
-
-fun TilsagnDto.toDbo(): TilsagnDbo {
-    return TilsagnDbo(
-        id = id,
-        gjennomforingId = gjennomforing.id,
-        type = type,
-        periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt),
-        lopenummer = lopenummer,
-        bestillingsnummer = bestillingsnummer,
-        kostnadssted = kostnadssted.enhetsnummer,
-        beregning = beregning,
-        arrangorId = arrangor.id,
-        endretAv = opprettelse.behandletAv,
-        endretTidspunkt = opprettelse.behandletTidspunkt,
-    )
-}
-
-fun DelutbetalingDto.toDbo(): DelutbetalingDbo {
-    return DelutbetalingDbo(
-        id = id,
-        tilsagnId = tilsagnId,
-        utbetalingId = utbetalingId,
-        belop = belop,
-        periode = periode,
-        lopenummer = lopenummer,
-        fakturanummer = fakturanummer,
-        opprettetAv = opprettelse.behandletAv,
-    )
 }

@@ -9,20 +9,18 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
+import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
 import no.nav.mulighetsrommet.api.tilsagn.model.*
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.query
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -83,11 +81,9 @@ class TilsagnQueriesTest : FunSpec({
                     )
                     it.type shouldBe TilsagnType.TILSAGN
                     it.status shouldBe TilsagnStatus.TIL_GODKJENNING
-                    it.opprettelse.shouldBeTypeOf<Totrinnskontroll.Ubesluttet>() should { tt ->
-                        tt.behandletAv shouldBe NavAnsattFixture.ansatt1.navIdent
-                        tt.aarsaker shouldBe emptyList()
-                        tt.forklaring shouldBe null
-                    }
+                    it.opprettelse.behandletAv shouldBe NavAnsattFixture.ansatt1.navIdent
+                    it.opprettelse.aarsaker shouldBe emptyList()
+                    it.opprettelse.forklaring shouldBe null
                 }
 
                 queries.delete(tilsagn.id)
@@ -191,6 +187,7 @@ class TilsagnQueriesTest : FunSpec({
         val periodeUtenTilsagn = Periode.forMonthOf(LocalDate.of(2023, 2, 1))
 
         test("blir tilgjengelig for arrangør når tilsagnet er godkjent") {
+
             database.runAndRollback { session ->
                 domain.setup(session)
 
@@ -200,15 +197,7 @@ class TilsagnQueriesTest : FunSpec({
                 queries.getArrangorflateTilsagn(tilsagn.id).shouldBeNull()
                 queries.getAllArrangorflateTilsagn(ArrangorFixtures.underenhet1.organisasjonsnummer).shouldBeEmpty()
 
-                TotrinnskontrollQueries(session).beslutter(
-                    entityId = tilsagn.id,
-                    navIdent = NavIdent("B123456"),
-                    besluttelse = Besluttelse.GODKJENT,
-                    aarsaker = null,
-                    forklaring = null,
-                    type = TotrinnskontrollType.OPPRETT,
-                    tidspunkt = LocalDateTime.now(),
-                )
+                QueryContext(session).setTilsagnStatus(tilsagn, TilsagnStatus.GODKJENT)
 
                 queries.getArrangorflateTilsagn(tilsagn.id) shouldBe ArrangorflateTilsagn(
                     id = tilsagn.id,
@@ -252,15 +241,7 @@ class TilsagnQueriesTest : FunSpec({
                 queries.getArrangorflateTilsagnTilUtbetaling(tilsagn.gjennomforingId, periodeUtenTilsagn)
                     .shouldBeEmpty()
 
-                TotrinnskontrollQueries(session).beslutter(
-                    entityId = tilsagn.id,
-                    navIdent = NavIdent("B123456"),
-                    besluttelse = Besluttelse.GODKJENT,
-                    aarsaker = null,
-                    forklaring = null,
-                    type = TotrinnskontrollType.OPPRETT,
-                    tidspunkt = LocalDateTime.now(),
-                )
+                QueryContext(session).setTilsagnStatus(tilsagn, TilsagnStatus.GODKJENT)
 
                 queries.getArrangorflateTilsagnTilUtbetaling(tilsagn.gjennomforingId, periodeMedTilsagn)
                     .shouldHaveSize(1)

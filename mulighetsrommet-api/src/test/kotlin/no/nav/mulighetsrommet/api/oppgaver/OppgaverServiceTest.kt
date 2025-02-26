@@ -5,10 +5,9 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
-import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.medStatus
-import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.medStatus
+import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.setTilsagnStatus
+import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.setDelutbetalingStatus
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Periode
@@ -60,10 +59,13 @@ class OppgaverServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(
                     TilsagnFixtures.Tilsagn1,
-                    TilsagnFixtures.Tilsagn2.medStatus(TilsagnStatus.TIL_ANNULLERING),
-                    TilsagnFixtures.Tilsagn3.medStatus(TilsagnStatus.ANNULLERT),
+                    TilsagnFixtures.Tilsagn2,
+                    TilsagnFixtures.Tilsagn3,
                 ),
-            ).initialize(database.db)
+            ) {
+                setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.TIL_ANNULLERING)
+                setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.ANNULLERT)
+            }.initialize(database.db)
 
             val service = OppgaverService(database.db)
             service.tilsagnOppgaver(
@@ -82,9 +84,11 @@ class OppgaverServiceTest : FunSpec({
                 tilsagn = listOf(
                     TilsagnFixtures.Tilsagn1,
                     TilsagnFixtures.Tilsagn2,
-                    TilsagnFixtures.Tilsagn3.medStatus(TilsagnStatus.RETURNERT),
+                    TilsagnFixtures.Tilsagn3,
                 ),
-            ).initialize(database.db)
+            ) {
+                setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.RETURNERT)
+            }.initialize(database.db)
 
             val service = OppgaverService(database.db)
             service.tilsagnOppgaver(
@@ -103,8 +107,8 @@ class OppgaverServiceTest : FunSpec({
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.Oslo),
                 tilsagn = listOf(
                     TilsagnFixtures.Tilsagn1,
-                    TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.Gjovik),
-                    TilsagnFixtures.Tilsagn3.copy(kostnadssted = NavEnhetFixtures.Oslo),
+                    TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.Gjovik.enhetsnummer),
+                    TilsagnFixtures.Tilsagn3.copy(kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer),
                 ),
             ).initialize(database.db)
 
@@ -126,8 +130,8 @@ class OppgaverServiceTest : FunSpec({
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.Oslo),
                 tilsagn = listOf(
                     TilsagnFixtures.Tilsagn1,
-                    TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.Gjovik),
-                    TilsagnFixtures.Tilsagn3.copy(kostnadssted = NavEnhetFixtures.Oslo),
+                    TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.Gjovik.enhetsnummer),
+                    TilsagnFixtures.Tilsagn3.copy(kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer),
                 ),
             ).initialize(database.db)
 
@@ -160,14 +164,16 @@ class OppgaverServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(
                     TilsagnFixtures.Tilsagn1,
-                    TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.TiltakOslo),
+                    TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.TiltakOslo.enhetsnummer),
                 ),
                 utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
                 delutbetalinger = listOf(
                     UtbetalingFixtures.delutbetaling1,
-                    UtbetalingFixtures.delutbetaling2.medStatus(UtbetalingFixtures.DelutbetalingStatus.DELUTBETALING_AVVIST),
+                    UtbetalingFixtures.delutbetaling2,
                 ),
-            ).initialize(database.db)
+            ) {
+                setDelutbetalingStatus(UtbetalingFixtures.delutbetaling2, UtbetalingFixtures.DelutbetalingStatus.RETURNERT)
+            }.initialize(database.db)
 
             var oppgaver = service.delutbetalingOppgaver(
                 oppgavetyper = emptyList(),
@@ -214,12 +220,8 @@ class OppgaverServiceTest : FunSpec({
                     TilsagnFixtures.Tilsagn1,
                     TilsagnFixtures.Tilsagn1.copy(
                         id = UUID.randomUUID(),
-                        gjennomforing = TilsagnDto.Gjennomforing(
-                            id = UtbetalingFixtures.utbetaling3.gjennomforingId,
-                            navn = "Navn",
-                            tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-                        ),
-                        kostnadssted = NavEnhetFixtures.TiltakOslo,
+                        gjennomforingId = UtbetalingFixtures.utbetaling3.gjennomforingId,
+                        kostnadssted = NavEnhetFixtures.TiltakOslo.enhetsnummer,
                         bestillingsnummer = "A-2025/1-4",
                     ),
                 ),

@@ -56,13 +56,19 @@ class DelutbetalingQueries(private val session: Session) {
         )
 
         execute(queryOf(query, params))
-        TotrinnskontrollQueries(this).behandler(
-            entityId = delutbetaling.id,
-            navIdent = delutbetaling.opprettetAv,
-            type = TotrinnskontrollType.OPPRETT,
-            aarsaker = null,
-            forklaring = null,
-            tidspunkt = LocalDateTime.now(),
+        TotrinnskontrollQueries(this).upsert(
+            Totrinnskontroll(
+                id = UUID.randomUUID(),
+                entityId = delutbetaling.id,
+                behandletAv = delutbetaling.opprettetAv,
+                aarsaker = emptyList(),
+                forklaring = null,
+                type = TotrinnskontrollType.OPPRETT,
+                behandletTidspunkt = LocalDateTime.now(),
+                besluttelse = null,
+                besluttetAv = null,
+                besluttetTidspunkt = null,
+            ),
         )
     }
 
@@ -228,8 +234,8 @@ class DelutbetalingQueries(private val session: Session) {
         val opprettelse = TotrinnskontrollQueries(session).get(entityId = id, type = TotrinnskontrollType.OPPRETT)
         requireNotNull(opprettelse)
 
-        return when (opprettelse) {
-            is Totrinnskontroll.Ubesluttet -> DelutbetalingDto.DelutbetalingTilGodkjenning(
+        return when (opprettelse.besluttetAv) {
+            null -> DelutbetalingDto.DelutbetalingTilGodkjenning(
                 id = uuid("id"),
                 tilsagnId = uuid("tilsagn_id"),
                 utbetalingId = uuid("utbetaling_id"),
@@ -239,30 +245,33 @@ class DelutbetalingQueries(private val session: Session) {
                 lopenummer = int("lopenummer"),
                 fakturanummer = string("fakturanummer"),
             )
-            is Totrinnskontroll.Besluttet -> when (opprettelse.besluttelse) {
-                Besluttelse.GODKJENT -> {
-                    DelutbetalingDto.DelutbetalingOverfortTilUtbetaling(
-                        id = uuid("id"),
-                        tilsagnId = uuid("tilsagn_id"),
-                        utbetalingId = uuid("utbetaling_id"),
-                        belop = int("belop"),
-                        periode = periode("periode"),
-                        opprettelse = opprettelse,
-                        lopenummer = int("lopenummer"),
-                        fakturanummer = string("fakturanummer"),
-                    )
-                }
-                Besluttelse.AVVIST -> {
-                    DelutbetalingDto.DelutbetalingAvvist(
-                        id = uuid("id"),
-                        tilsagnId = uuid("tilsagn_id"),
-                        utbetalingId = uuid("utbetaling_id"),
-                        belop = int("belop"),
-                        periode = periode("periode"),
-                        opprettelse = opprettelse,
-                        lopenummer = int("lopenummer"),
-                        fakturanummer = string("fakturanummer"),
-                    )
+            else -> {
+                requireNotNull(opprettelse.besluttelse)
+                when (opprettelse.besluttelse) {
+                    Besluttelse.GODKJENT -> {
+                        DelutbetalingDto.DelutbetalingOverfortTilUtbetaling(
+                            id = uuid("id"),
+                            tilsagnId = uuid("tilsagn_id"),
+                            utbetalingId = uuid("utbetaling_id"),
+                            belop = int("belop"),
+                            periode = periode("periode"),
+                            opprettelse = opprettelse,
+                            lopenummer = int("lopenummer"),
+                            fakturanummer = string("fakturanummer"),
+                        )
+                    }
+                    Besluttelse.AVVIST -> {
+                        DelutbetalingDto.DelutbetalingAvvist(
+                            id = uuid("id"),
+                            tilsagnId = uuid("tilsagn_id"),
+                            utbetalingId = uuid("utbetaling_id"),
+                            belop = int("belop"),
+                            periode = periode("periode"),
+                            opprettelse = opprettelse,
+                            lopenummer = int("lopenummer"),
+                            fakturanummer = string("fakturanummer"),
+                        )
+                    }
                 }
             }
         }

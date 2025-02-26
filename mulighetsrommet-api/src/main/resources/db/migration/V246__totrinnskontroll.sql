@@ -16,7 +16,7 @@ create type totrinnskontroll_type as enum (
 
 create table totrinnskontroll
 (
-    id                  int generated always as identity,
+    id                  uuid primary key,
     entity_id           uuid not null,
     type                totrinnskontroll_type,
     behandlet_tidspunkt timestamp not null default now(),

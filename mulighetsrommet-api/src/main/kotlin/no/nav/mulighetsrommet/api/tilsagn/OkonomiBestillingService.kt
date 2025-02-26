@@ -8,7 +8,6 @@ import kotliquery.Session
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
@@ -89,7 +88,8 @@ class OkonomiBestillingService(
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
             "Tilsagn er ikke godkjent id=$tilsagnId status=${tilsagn.status}"
         }
-        require(tilsagn.opprettelse is Totrinnskontroll.Besluttet)
+        requireNotNull(tilsagn.opprettelse.besluttetAv)
+        requireNotNull(tilsagn.opprettelse.besluttetTidspunkt)
 
         val gjennomforing = requireNotNull(queries.gjennomforing.get(tilsagn.gjennomforing.id)) {
             "Fant ikke gjennomforing for tilsagn"
@@ -154,6 +154,8 @@ class OkonomiBestillingService(
                 val tilsagn = requireNotNull(db.session { queries.tilsagn.get(delutbetaling.tilsagnId) }) {
                     "Tilsagn med id=${delutbetaling.tilsagnId} finnes ikke"
                 }
+                requireNotNull(delutbetaling.opprettelse.besluttetTidspunkt)
+                requireNotNull(delutbetaling.opprettelse.besluttetAv)
 
                 val faktura = OpprettFaktura(
                     fakturanummer = delutbetaling.fakturanummer,

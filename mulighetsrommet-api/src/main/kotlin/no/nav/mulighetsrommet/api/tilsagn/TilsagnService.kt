@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.NotFound
@@ -111,14 +112,12 @@ class TilsagnService(
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
-        queries.totrinnskontroll.beslutter(
-            entityId = tilsagn.id,
-            navIdent = godkjentAv,
-            besluttelse = Besluttelse.GODKJENT,
-            aarsaker = null,
-            forklaring = null,
-            type = TotrinnskontrollType.OPPRETT,
-            tidspunkt = LocalDateTime.now(),
+        queries.totrinnskontroll.upsert(
+            tilsagn.opprettelse.copy(
+                besluttetAv = godkjentAv,
+                besluttetTidspunkt = LocalDateTime.now(),
+                besluttelse = Besluttelse.GODKJENT,
+            ),
         )
 
         okonomi.scheduleBehandleGodkjentTilsagn(tilsagn.id, session)
@@ -141,14 +140,14 @@ class TilsagnService(
             return BadRequest(detail = "Årsaker er påkrevd").left()
         }
 
-        queries.totrinnskontroll.beslutter(
-            entityId = tilsagn.id,
-            navIdent = navIdent,
-            besluttelse = Besluttelse.AVVIST,
-            aarsaker = besluttelse.aarsaker.map { it.name },
-            forklaring = besluttelse.forklaring,
-            type = TotrinnskontrollType.OPPRETT,
-            tidspunkt = LocalDateTime.now(),
+        queries.totrinnskontroll.upsert(
+            tilsagn.opprettelse.copy(
+                besluttetAv = navIdent,
+                besluttetTidspunkt = LocalDateTime.now(),
+                besluttelse = Besluttelse.AVVIST,
+                aarsaker = besluttelse.aarsaker.map { it.name },
+                forklaring = besluttelse.forklaring,
+            ),
         )
 
         val dto = getOrError(tilsagn.id)
@@ -164,14 +163,12 @@ class TilsagnService(
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
-        queries.totrinnskontroll.beslutter(
-            entityId = tilsagn.id,
-            navIdent = navIdent,
-            besluttelse = Besluttelse.GODKJENT,
-            aarsaker = null,
-            forklaring = null,
-            type = TotrinnskontrollType.ANNULLER,
-            tidspunkt = LocalDateTime.now(),
+        queries.totrinnskontroll.upsert(
+            tilsagn.opprettelse.copy(
+                besluttetAv = navIdent,
+                besluttetTidspunkt = LocalDateTime.now(),
+                besluttelse = Besluttelse.GODKJENT,
+            ),
         )
 
         okonomi.scheduleBehandleAnnullertTilsagn(tilsagn.id, session)
@@ -189,14 +186,12 @@ class TilsagnService(
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
-        queries.totrinnskontroll.beslutter(
-            entityId = tilsagn.id,
-            navIdent = navIdent,
-            besluttelse = Besluttelse.AVVIST,
-            aarsaker = null,
-            forklaring = null,
-            type = TotrinnskontrollType.ANNULLER,
-            tidspunkt = LocalDateTime.now(),
+        queries.totrinnskontroll.upsert(
+            tilsagn.opprettelse.copy(
+                besluttetAv = navIdent,
+                besluttetTidspunkt = LocalDateTime.now(),
+                besluttelse = Besluttelse.AVVIST,
+            ),
         )
 
         val dto = getOrError(tilsagn.id)
@@ -215,13 +210,19 @@ class TilsagnService(
             return BadRequest("Kan bare annullere godkjente tilsagn").left()
         }
 
-        queries.totrinnskontroll.behandler(
-            entityId = tilsagn.id,
-            navIdent = navIdent,
-            aarsaker = annullering.aarsaker.map { it.name },
-            forklaring = annullering.forklaring,
-            type = TotrinnskontrollType.ANNULLER,
-            tidspunkt = LocalDateTime.now(),
+        queries.totrinnskontroll.upsert(
+            Totrinnskontroll(
+                id = UUID.randomUUID(),
+                entityId = tilsagn.id,
+                behandletAv = navIdent,
+                aarsaker = annullering.aarsaker.map { it.name },
+                forklaring = annullering.forklaring,
+                type = TotrinnskontrollType.ANNULLER,
+                behandletTidspunkt = LocalDateTime.now(),
+                besluttelse = null,
+                besluttetAv = null,
+                besluttetTidspunkt = null,
+            ),
         )
 
         val dto = getOrError(tilsagn.id)

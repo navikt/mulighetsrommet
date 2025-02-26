@@ -17,17 +17,11 @@ enum class TotrinnskontrollType {
 }
 
 class TotrinnskontrollQueries(private val session: Session) {
-    fun behandler(
-        entityId: UUID,
-        navIdent: NavIdent,
-        aarsaker: List<String>?,
-        forklaring: String?,
-        type: TotrinnskontrollType,
-        tidspunkt: LocalDateTime,
-    ) {
+    fun upsert(totrinnskontroll: Totrinnskontroll) {
         @Language("PostgreSQL")
         val query = """
             insert into totrinnskontroll (
+                id,
                 entity_id,
                 behandlet_av,
                 behandlet_tidspunkt,
@@ -38,37 +32,49 @@ class TotrinnskontrollQueries(private val session: Session) {
                 besluttet_tidspunkt,
                 besluttelse
             ) values (
+                :id::uuid,
                 :entity_id::uuid,
                 :behandlet_av,
                 :behandlet_tidspunkt,
-                coalesce(:aarsaker, array[]::text[]),
+                :aarsaker,
                 :forklaring,
                 :type::totrinnskontroll_type,
-                null,
-                null,
-                null
-            );
+                :besluttet_av,
+                :besluttet_tidspunkt,
+                :besluttelse::besluttelse
+            ) on conflict (id) do update set
+                behandlet_av = excluded.behandlet_av,
+                behandlet_tidspunkt = excluded.behandlet_tidspunkt,
+                aarsaker = excluded.aarsaker,
+                forklaring = excluded.forklaring,
+                type = excluded.type,
+                besluttet_av = excluded.besluttet_av,
+                besluttet_tidspunkt = excluded.besluttet_tidspunkt,
+                besluttelse = excluded.besluttelse
         """.trimIndent()
 
         val params = mapOf(
-            "entity_id" to entityId,
-            "behandlet_av" to navIdent.value,
-            "behandlet_tidspunkt" to tidspunkt,
-            "aarsaker" to aarsaker?.let { session.createTextArray(it) },
-            "forklaring" to forklaring,
-            "type" to type.name,
+            "id" to totrinnskontroll.id,
+            "entity_id" to totrinnskontroll.entityId,
+            "type" to totrinnskontroll.type.name,
+            "behandlet_av" to totrinnskontroll.behandletAv.value,
+            "behandlet_tidspunkt" to totrinnskontroll.behandletTidspunkt,
+            "besluttet_av" to totrinnskontroll.besluttetAv?.value,
+            "besluttet_tidspunkt" to totrinnskontroll.besluttetTidspunkt,
+            "besluttelse" to totrinnskontroll.besluttelse?.name,
+            "aarsaker" to totrinnskontroll.aarsaker.let { session.createTextArray(it) },
+            "forklaring" to totrinnskontroll.forklaring,
         )
 
         session.execute(queryOf(query, params))
     }
 
     fun beslutter(
-        entityId: UUID,
+        id: Int,
         navIdent: NavIdent,
         aarsaker: List<String>?,
         forklaring: String?,
         besluttelse: Besluttelse,
-        type: TotrinnskontrollType,
         tidspunkt: LocalDateTime,
     ) {
         @Language("PostgreSQL")
@@ -79,18 +85,15 @@ class TotrinnskontrollQueries(private val session: Session) {
             besluttet_tidspunkt = :tidspunkt,
             aarsaker = coalesce(:aarsaker, aarsaker),
             forklaring = coalesce(:forklaring, forklaring)
-        where
-            entity_id = :entity_id::uuid
-            and type = :type::totrinnskontroll_type
+        where id = :id
         """.trimIndent()
 
         val params = mapOf(
-            "entity_id" to entityId,
+            "id" to id,
             "besluttet_av" to navIdent.value,
             "aarsaker" to aarsaker?.let { session.createTextArray(it) }, // Keeps it nullable
             "forklaring" to forklaring,
             "besluttelse" to besluttelse.name,
-            "type" to type.name,
             "tidspunkt" to tidspunkt,
         )
 
@@ -114,22 +117,17 @@ class TotrinnskontrollQueries(private val session: Session) {
     }
 
     private fun Row.toToTrinnskontroll(): Totrinnskontroll {
-        return when (val besluttetAv = stringOrNull("besluttet_av")) {
-            null -> Totrinnskontroll.Ubesluttet(
-                behandletAv = NavIdent(string("behandlet_av")),
-                behandletTidspunkt = localDateTime("behandlet_tidspunkt"),
-                aarsaker = array<String>("aarsaker").toList(),
-                forklaring = stringOrNull("forklaring"),
-            )
-            else -> Totrinnskontroll.Besluttet(
-                behandletAv = NavIdent(string("behandlet_av")),
-                behandletTidspunkt = localDateTime("behandlet_tidspunkt"),
-                besluttetAv = NavIdent(besluttetAv),
-                besluttetTidspunkt = localDateTime("behandlet_tidspunkt"),
-                besluttelse = Besluttelse.valueOf(string("besluttelse")),
-                aarsaker = array<String>("aarsaker").toList(),
-                forklaring = stringOrNull("forklaring"),
-            )
-        }
+        return Totrinnskontroll(
+            id = uuid("id"),
+            entityId = uuid("entity_id"),
+            type = TotrinnskontrollType.valueOf(string("type")),
+            behandletAv = NavIdent(string("behandlet_av")),
+            behandletTidspunkt = localDateTime("behandlet_tidspunkt"),
+            aarsaker = array<String>("aarsaker").toList(),
+            forklaring = stringOrNull("forklaring"),
+            besluttetAv = stringOrNull("besluttet_av")?.let { NavIdent(it) },
+            besluttetTidspunkt = localDateTimeOrNull("besluttet_tidspunkt"),
+            besluttelse = stringOrNull("besluttelse")?.let { Besluttelse.valueOf(it) },
+        )
     }
 }

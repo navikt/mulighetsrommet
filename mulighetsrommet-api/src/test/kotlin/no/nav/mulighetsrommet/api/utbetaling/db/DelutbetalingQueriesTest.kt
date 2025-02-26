@@ -5,15 +5,13 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.setDelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDateTime
 import java.util.*
 
@@ -76,15 +74,7 @@ class DelutbetalingQueriesTest : FunSpec({
                 opprettetAv = NavAnsattFixture.ansatt1.navIdent,
             )
             queries.upsert(delutbetaling)
-            TotrinnskontrollQueries(session).beslutter(
-                entityId = delutbetaling.id,
-                navIdent = NavIdent("Z123456"),
-                besluttelse = Besluttelse.GODKJENT,
-                type = TotrinnskontrollType.OPPRETT,
-                aarsaker = null,
-                forklaring = null,
-                tidspunkt = LocalDateTime.now(),
-            )
+            QueryContext(session).setDelutbetalingStatus(delutbetaling, UtbetalingFixtures.DelutbetalingStatus.GODKJENT)
 
             queries.getSkalSendesTilOkonomi(TilsagnFixtures.Tilsagn1.id) shouldHaveSize 1
             queries.setSendtTilOkonomi(UtbetalingFixtures.utbetaling1.id, TilsagnFixtures.Tilsagn1.id, LocalDateTime.now())

@@ -31,7 +31,7 @@ sealed class DelutbetalingDto {
         override val periode: Periode,
         override val lopenummer: Int,
         override val fakturanummer: String,
-        override val opprettelse: Totrinnskontroll.Ubesluttet,
+        override val opprettelse: Totrinnskontroll,
     ) : DelutbetalingDto()
 
     @Serializable
@@ -47,7 +47,7 @@ sealed class DelutbetalingDto {
         override val periode: Periode,
         override val lopenummer: Int,
         override val fakturanummer: String,
-        override val opprettelse: Totrinnskontroll.Besluttet,
+        override val opprettelse: Totrinnskontroll,
     ) : DelutbetalingDto()
 
     @Serializable
@@ -63,7 +63,7 @@ sealed class DelutbetalingDto {
         override val periode: Periode,
         override val lopenummer: Int,
         override val fakturanummer: String,
-        override val opprettelse: Totrinnskontroll.Besluttet,
+        override val opprettelse: Totrinnskontroll,
     ) : DelutbetalingDto()
 
     @Serializable
@@ -79,6 +79,6 @@ sealed class DelutbetalingDto {
         override val periode: Periode,
         override val lopenummer: Int,
         override val fakturanummer: String,
-        override val opprettelse: Totrinnskontroll.Besluttet,
+        override val opprettelse: Totrinnskontroll,
     ) : DelutbetalingDto()
 }

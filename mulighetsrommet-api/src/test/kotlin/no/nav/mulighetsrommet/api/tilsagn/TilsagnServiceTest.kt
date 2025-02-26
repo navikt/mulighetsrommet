@@ -17,7 +17,8 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
-import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.medStatus
+import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn1
+import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -46,7 +47,7 @@ class TilsagnServiceTest : FunSpec({
         val service = createTilsagnService()
 
         val tilsagn = TilsagnRequest(
-            id = TilsagnFixtures.Tilsagn1.id,
+            id = Tilsagn1.id,
             gjennomforingId = AFT1.id,
             type = TilsagnType.TILSAGN,
             periodeStart = LocalDate.of(2023, 1, 1),
@@ -165,9 +166,9 @@ class TilsagnServiceTest : FunSpec({
             val service = createTilsagnService()
 
             service.beslutt(
-                id = TilsagnFixtures.Tilsagn1.id,
+                id = Tilsagn1.id,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
-                navIdent = TilsagnFixtures.Tilsagn1.opprettelse.behandletAv,
+                navIdent = TilsagnFixtures.Tilsagn1.endretAv,
             ) shouldBe Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
@@ -182,13 +183,13 @@ class TilsagnServiceTest : FunSpec({
             val service = createTilsagnService()
 
             service.beslutt(
-                id = TilsagnFixtures.Tilsagn1.id,
+                id = Tilsagn1.id,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
                 navIdent = NavAnsattFixture.ansatt2.navIdent,
             ).shouldBeRight()
 
             service.beslutt(
-                id = TilsagnFixtures.Tilsagn1.id,
+                id = Tilsagn1.id,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
                 navIdent = NavAnsattFixture.ansatt2.navIdent,
             ) shouldBe BadRequest("Tilsagnet kan ikke besluttes fordi det har status GODKJENT").left()
@@ -207,13 +208,13 @@ class TilsagnServiceTest : FunSpec({
 
             val service = createTilsagnService(okonomi)
             service.beslutt(
-                id = TilsagnFixtures.Tilsagn1.id,
+                id = Tilsagn1.id,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
                 navIdent = NavAnsattFixture.ansatt2.navIdent,
             ).shouldBeRight()
 
             verify(exactly = 1) {
-                okonomi.scheduleBehandleGodkjentTilsagn(TilsagnFixtures.Tilsagn1.id, any())
+                okonomi.scheduleBehandleGodkjentTilsagn(Tilsagn1.id, any())
             }
         }
     }
@@ -230,7 +231,7 @@ class TilsagnServiceTest : FunSpec({
             val service = createTilsagnService()
 
             service.tilAnnullering(
-                id = TilsagnFixtures.Tilsagn1.id,
+                id = Tilsagn1.id,
                 navIdent = NavAnsattFixture.ansatt2.navIdent,
                 annullering = TilAnnulleringRequest(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
@@ -239,13 +240,13 @@ class TilsagnServiceTest : FunSpec({
             ) shouldBeLeft BadRequest("Kan bare annullere godkjente tilsagn")
 
             service.beslutt(
-                id = TilsagnFixtures.Tilsagn1.id,
+                id = Tilsagn1.id,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
                 navIdent = NavAnsattFixture.ansatt2.navIdent,
             ).shouldBeRight()
 
             val dto = service.tilAnnullering(
-                id = TilsagnFixtures.Tilsagn1.id,
+                id = Tilsagn1.id,
                 navIdent = NavAnsattFixture.ansatt1.navIdent,
                 annullering = TilAnnulleringRequest(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
@@ -268,18 +269,20 @@ class TilsagnServiceTest : FunSpec({
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(TilsagnFixtures.Tilsagn1.medStatus(TilsagnStatus.TIL_ANNULLERING)),
-            ).initialize(database.db)
+                tilsagn = listOf(Tilsagn1),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.TIL_ANNULLERING)
+            }.initialize(database.db)
 
             val service = createTilsagnService(okonomi)
             service.beslutt(
-                id = TilsagnFixtures.Tilsagn1.id,
+                id = Tilsagn1.id,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
                 navIdent = NavAnsattFixture.ansatt2.navIdent,
             ).shouldBeRight()
 
             verify(exactly = 1) {
-                okonomi.scheduleBehandleAnnullertTilsagn(TilsagnFixtures.Tilsagn1.id, any())
+                okonomi.scheduleBehandleAnnullertTilsagn(Tilsagn1.id, any())
             }
         }
     }
@@ -290,12 +293,14 @@ class TilsagnServiceTest : FunSpec({
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(TilsagnFixtures.Tilsagn1.medStatus(TilsagnStatus.RETURNERT)),
-            ).initialize(database.db)
+                tilsagn = listOf(Tilsagn1),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.RETURNERT)
+            }.initialize(database.db)
 
             val service = createTilsagnService()
 
-            service.slettTilsagn(TilsagnFixtures.Tilsagn1.id).shouldBeRight()
+            service.slettTilsagn(Tilsagn1.id).shouldBeRight()
 
             service.getAll() shouldHaveSize 0
         }
@@ -305,11 +310,13 @@ class TilsagnServiceTest : FunSpec({
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(TilsagnFixtures.Tilsagn1.medStatus(TilsagnStatus.GODKJENT)),
-            ).initialize(database.db)
+                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
 
             val service = createTilsagnService()
-            service.slettTilsagn(TilsagnFixtures.Tilsagn1.id) shouldBeLeft BadRequest("Kan ikke slette tilsagn som er godkjent")
+            service.slettTilsagn(Tilsagn1.id) shouldBeLeft BadRequest("Kan ikke slette tilsagn som er godkjent")
         }
     }
 
@@ -319,14 +326,14 @@ class TilsagnServiceTest : FunSpec({
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                tilsagn = listOf(Tilsagn1),
             ).initialize(database.db)
 
             val service = createTilsagnService()
             service.getAll()[0].status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.beslutt(
-                id = TilsagnFixtures.Tilsagn1.id,
+                id = Tilsagn1.id,
                 navIdent = NavAnsattFixture.ansatt2.navIdent,
                 besluttelse = BesluttTilsagnRequest.AvvistTilsagnRequest(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
@@ -337,13 +344,13 @@ class TilsagnServiceTest : FunSpec({
 
             service.upsert(
                 TilsagnRequest(
-                    id = TilsagnFixtures.Tilsagn1.id,
-                    gjennomforingId = TilsagnFixtures.Tilsagn1.gjennomforing.id,
-                    type = TilsagnFixtures.Tilsagn1.type,
-                    periodeStart = TilsagnFixtures.Tilsagn1.periodeStart,
-                    periodeSlutt = TilsagnFixtures.Tilsagn1.periodeSlutt,
-                    kostnadssted = TilsagnFixtures.Tilsagn1.kostnadssted.enhetsnummer,
-                    beregning = TilsagnFixtures.Tilsagn1.beregning.input,
+                    id = Tilsagn1.id,
+                    gjennomforingId = Tilsagn1.gjennomforingId,
+                    type = Tilsagn1.type,
+                    periodeStart = Tilsagn1.periode.start,
+                    periodeSlutt = Tilsagn1.periode.getLastDate(),
+                    kostnadssted = Tilsagn1.kostnadssted,
+                    beregning = Tilsagn1.beregning.input,
                 ),
                 navIdent = NavIdent("T888888"),
             ).shouldBeRight()
@@ -357,13 +364,13 @@ class TilsagnServiceTest : FunSpec({
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                tilsagn = listOf(Tilsagn1),
             ).initialize(database.db)
 
             val service = createTilsagnService()
 
             service.beslutt(
-                id = TilsagnFixtures.Tilsagn1.id,
+                id = Tilsagn1.id,
                 navIdent = NavAnsattFixture.ansatt2.navIdent,
                 besluttelse = BesluttTilsagnRequest.AvvistTilsagnRequest(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
@@ -373,19 +380,19 @@ class TilsagnServiceTest : FunSpec({
 
             service.upsert(
                 TilsagnRequest(
-                    id = TilsagnFixtures.Tilsagn1.id,
-                    gjennomforingId = TilsagnFixtures.Tilsagn1.gjennomforing.id,
-                    type = TilsagnFixtures.Tilsagn1.type,
-                    periodeStart = TilsagnFixtures.Tilsagn1.periodeStart,
-                    periodeSlutt = TilsagnFixtures.Tilsagn1.periodeSlutt,
-                    kostnadssted = TilsagnFixtures.Tilsagn1.kostnadssted.enhetsnummer,
-                    beregning = TilsagnFixtures.Tilsagn1.beregning.input,
+                    id = Tilsagn1.id,
+                    gjennomforingId = Tilsagn1.gjennomforingId,
+                    type = Tilsagn1.type,
+                    periodeStart = Tilsagn1.periode.start,
+                    periodeSlutt = Tilsagn1.periode.getLastDate(),
+                    kostnadssted = Tilsagn1.kostnadssted,
+                    beregning = Tilsagn1.beregning.input,
                 ),
                 navIdent = NavIdent("T888888"),
             ).shouldBeRight()
 
             service.beslutt(
-                id = TilsagnFixtures.Tilsagn1.id,
+                id = Tilsagn1.id,
                 navIdent = NavAnsattFixture.ansatt2.navIdent,
                 besluttelse = BesluttTilsagnRequest.AvvistTilsagnRequest(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
@@ -396,12 +403,12 @@ class TilsagnServiceTest : FunSpec({
 
             service.upsert(
                 TilsagnRequest(
-                    id = TilsagnFixtures.Tilsagn1.id,
-                    gjennomforingId = TilsagnFixtures.Tilsagn1.gjennomforing.id,
-                    type = TilsagnFixtures.Tilsagn1.type,
-                    periodeStart = TilsagnFixtures.Tilsagn1.periodeStart,
-                    periodeSlutt = TilsagnFixtures.Tilsagn1.periodeSlutt,
-                    kostnadssted = TilsagnFixtures.Tilsagn1.kostnadssted.enhetsnummer,
+                    id = Tilsagn1.id,
+                    gjennomforingId = Tilsagn1.gjennomforingId,
+                    type = Tilsagn1.type,
+                    periodeStart = Tilsagn1.periode.start,
+                    periodeSlutt = Tilsagn1.periode.getLastDate(),
+                    kostnadssted = Tilsagn1.kostnadssted,
                     beregning = TilsagnBeregningFri.Input(belop = 7),
                 ),
                 navIdent = NavIdent("Z777777"),
@@ -410,7 +417,7 @@ class TilsagnServiceTest : FunSpec({
 
             @Language("PostgreSQL")
             val query = """
-                select * from totrinnskontroll where entity_id = '${TilsagnFixtures.Tilsagn1.id}' and type = 'OPPRETT'
+                select * from totrinnskontroll where entity_id = '${Tilsagn1.id}' and type = 'OPPRETT'
             """.trimIndent()
             database.run {
                 session.list(queryOf(query)) { it.localDateTime("behandlet_tidspunkt") to it.string("behandlet_av") }
