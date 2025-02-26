@@ -43,7 +43,7 @@ export function NullstillKnappForGjennomforinger({ filterAtom, avtale }: Props) 
           formData.append("navn", r.navn);
           fetcher.submit(formData, {
             method: "POST",
-            action: "/avtaler",
+            action: "/gjennomforinger",
           });
         }}
       />
