@@ -6,6 +6,7 @@ import { HStack } from "@navikt/ds-react";
 import { WritableAtom } from "jotai";
 import { useAtom } from "jotai/index";
 import { useFetcher } from "react-router";
+import { filterToActionRequest } from "../../api/lagret-filter/lagretFilterAction";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
@@ -37,14 +38,7 @@ export function NullstillKnappForAvtaler({ filterAtom, tiltakstypeId }: Props) {
           />
           <LagreFilterButton
             onLagre={(r) => {
-              const formData = new FormData();
-              if (r.id) {
-                formData.append("id", r.id);
-              }
-              formData.append("type", r.type);
-              formData.append("filter", JSON.stringify(r.filter));
-              formData.append("sortOrder", r.sortOrder.toString());
-              formData.append("navn", r.navn);
+              const formData = filterToActionRequest(r);
               fetcher.submit(formData, {
                 method: "POST",
                 action: "/avtaler",

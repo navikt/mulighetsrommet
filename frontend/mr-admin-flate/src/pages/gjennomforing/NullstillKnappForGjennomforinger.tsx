@@ -5,6 +5,7 @@ import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFi
 import { WritableAtom } from "jotai";
 import { useAtom } from "jotai/index";
 import { useFetcher } from "react-router";
+import { filterToActionRequest } from "../../api/lagret-filter/lagretFilterAction";
 
 interface Props {
   filterAtom: WritableAtom<GjennomforingFilter, [newValue: GjennomforingFilter], void>;
@@ -33,14 +34,7 @@ export function NullstillKnappForGjennomforinger({ filterAtom, avtale }: Props) 
         dokumenttype={LagretDokumenttype.GJENNOMFORING}
         filter={filter}
         onLagre={(r) => {
-          const formData = new FormData();
-          if (r.id) {
-            formData.append("id", r.id);
-          }
-          formData.append("type", r.type);
-          formData.append("filter", JSON.stringify(r.filter));
-          formData.append("sortOrder", r.sortOrder.toString());
-          formData.append("navn", r.navn);
+          const formData = filterToActionRequest(r);
           fetcher.submit(formData, {
             method: "POST",
             action: "/gjennomforinger",
