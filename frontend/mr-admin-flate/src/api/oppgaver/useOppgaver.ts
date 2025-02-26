@@ -1,10 +1,10 @@
 import { QueryKeys } from "@/api/QueryKeys";
 import { OppgaverService, Tiltakskode } from "@mr/api-client-v2";
-import { useApiSuspenseQuery } from "@mr/frontend-common";
+import { useApiQuery } from "@mr/frontend-common";
 import { OppgaverFilter } from "../atoms";
 
 export function useOppgaver(filter: OppgaverFilter) {
-  return useApiSuspenseQuery({
+  return useApiQuery({
     queryKey: QueryKeys.oppgaver({ ...filter }),
     queryFn: () =>
       OppgaverService.getOppgaver({
