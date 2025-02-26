@@ -1,41 +1,25 @@
-import { Dispatch, SetStateAction } from "react";
-import { CheckmarkCircleFillIcon, CheckmarkCircleIcon } from "@navikt/aksel-icons";
 import { NotificationStatus } from "@mr/api-client-v2";
-import { useSetNotificationStatus } from "@/api/notifikasjoner/useSetNotificationStatus";
+import { CheckmarkCircleFillIcon, CheckmarkCircleIcon } from "@navikt/aksel-icons";
 import { Button } from "@navikt/ds-react";
-import { QueryKeys } from "../../api/QueryKeys";
-import { useQueryClient } from "@tanstack/react-query";
+import { Dispatch, SetStateAction } from "react";
+import { useFetcher } from "react-router";
 
 interface Props {
   id: string;
   read: boolean;
-  setRead: Dispatch<SetStateAction<boolean>>;
   setError: Dispatch<SetStateAction<string>>;
 }
 
-export function CheckmarkButton({ id, read, setRead, setError }: Props) {
-  const { mutate } = useSetNotificationStatus(id);
-  const queryClient = useQueryClient();
+export function CheckmarkButton({ id, read, setError }: Props) {
+  const fetcher = useFetcher();
 
   const setStatus = async (status: NotificationStatus) => {
-    mutate(
-      { status },
-      {
-        onSuccess: () => {
-          setRead(status === NotificationStatus.DONE);
-          queryClient.invalidateQueries({
-            queryKey: QueryKeys.notifikasjonerForAnsatt(NotificationStatus.NOT_DONE),
-          });
-          queryClient.invalidateQueries({
-            queryKey: QueryKeys.notifikasjonerForAnsatt(NotificationStatus.DONE),
-          });
-        },
-        onError: () => {
-          setError("Klarte ikke lagre endring");
-        },
-      },
-    );
+    fetcher.submit({ id, status }, { method: "POST", action: `/arbeidsbenk/notifikasjoner` });
   };
+
+  if (fetcher.data?.error) {
+    setError(fetcher.data.error);
+  }
 
   return read ? (
     <Button
