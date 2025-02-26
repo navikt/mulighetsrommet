@@ -6,9 +6,10 @@ import { DeltakerlisteContainer } from "@/pages/gjennomforing/deltakerliste/Delt
 import { TilsagnForGjennomforingContainer } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnForGjennomforingContainer";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import { AnsattService, NavAnsattRolle } from "@mr/api-client-v2";
+import { useApiQuery } from "@mr/frontend-common";
 import { Page } from "@navikt/ds-react";
-import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createBrowserRouter, Outlet, RouterProvider, useLoaderData } from "react-router";
+import { QueryClient, useQueryClient } from "@tanstack/react-query";
+import { createBrowserRouter, Outlet, RouterProvider } from "react-router";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
 import { IngenLesetilgang } from "./IngenLesetilgang";
@@ -55,8 +56,6 @@ import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
 import { tiltakstypeLoader, tiltakstyperLoader } from "./pages/tiltakstyper/tiltakstypeLoaders";
-import { LoaderData } from "./types/loader";
-import { useApiQuery } from "@mr/frontend-common";
 
 const basename = import.meta.env.BASE_URL;
 
