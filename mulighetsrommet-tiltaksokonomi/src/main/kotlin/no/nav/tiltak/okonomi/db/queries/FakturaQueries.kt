@@ -24,8 +24,8 @@ class FakturaQueries(private val session: Session) {
                 belop,
                 periode,
                 status,
-                opprettet_av,
-                opprettet_tidspunkt,
+                behandlet_av,
+                behandlet_tidspunkt,
                 besluttet_av,
                 besluttet_tidspunkt
             ) values (
@@ -36,8 +36,8 @@ class FakturaQueries(private val session: Session) {
                 :belop,
                 daterange(:periode_start, :periode_slutt),
                 :status,
-                :opprettet_av,
-                :opprettet_tidspunkt,
+                :behandlet_av,
+                :behandlet_tidspunkt,
                 :besluttet_av,
                 :besluttet_tidspunkt
             )
@@ -52,8 +52,8 @@ class FakturaQueries(private val session: Session) {
             "periode_start" to faktura.periode.start,
             "periode_slutt" to faktura.periode.slutt,
             "status" to faktura.status.name,
-            "opprettet_av" to faktura.opprettetAv.part,
-            "opprettet_tidspunkt" to faktura.opprettetTidspunkt,
+            "behandlet_av" to faktura.behandletAv.part,
+            "behandlet_tidspunkt" to faktura.behandletTidspunkt,
             "besluttet_av" to faktura.besluttetAv.part,
             "besluttet_tidspunkt" to faktura.besluttetTidspunkt,
         )
@@ -96,8 +96,8 @@ class FakturaQueries(private val session: Session) {
                 belop,
                 periode,
                 status,
-                opprettet_av,
-                opprettet_tidspunkt,
+                behandlet_av,
+                behandlet_tidspunkt,
                 besluttet_av,
                 besluttet_tidspunkt
             from faktura
@@ -121,8 +121,8 @@ class FakturaQueries(private val session: Session) {
                 belop = faktura.int("belop"),
                 periode = faktura.periode("periode"),
                 status = FakturaStatusType.valueOf(faktura.string("status")),
-                opprettetAv = OkonomiPart.fromString(faktura.string("opprettet_av")),
-                opprettetTidspunkt = faktura.localDateTime("opprettet_tidspunkt"),
+                behandletAv = OkonomiPart.fromString(faktura.string("behandlet_av")),
+                behandletTidspunkt = faktura.localDateTime("behandlet_tidspunkt"),
                 besluttetAv = OkonomiPart.fromString(faktura.string("besluttet_av")),
                 besluttetTidspunkt = faktura.localDateTime("besluttet_tidspunkt"),
                 linjer = linjer,

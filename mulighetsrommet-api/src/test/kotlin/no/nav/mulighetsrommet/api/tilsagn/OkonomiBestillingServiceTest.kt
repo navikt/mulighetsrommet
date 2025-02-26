@@ -136,7 +136,7 @@ class OkonomiBestillingServiceTest : FunSpec({
                             bestilling.bestillingsnummer shouldBe tilsagn.bestillingsnummer
                             bestilling.belop shouldBe tilsagn.beregning.output.belop
 
-                            bestilling.opprettetAv shouldBe OkonomiPart.NavAnsatt(NavAnsattFixture.ansatt1.navIdent)
+                            bestilling.behandletAv shouldBe OkonomiPart.NavAnsatt(NavAnsattFixture.ansatt1.navIdent)
                             bestilling.besluttetAv shouldBe OkonomiPart.NavAnsatt(NavAnsattFixture.ansatt2.navIdent)
 
                             true
@@ -214,7 +214,7 @@ class OkonomiBestillingServiceTest : FunSpec({
                             faktura.fakturanummer shouldBe delutbetaling1.fakturanummer
                             faktura.periode shouldBe delutbetaling1.periode
                             faktura.belop shouldBe delutbetaling1.belop
-                            faktura.opprettetAv shouldBe OkonomiPart.NavAnsatt(NavAnsattFixture.ansatt1.navIdent)
+                            faktura.behandletAv shouldBe OkonomiPart.NavAnsatt(NavAnsattFixture.ansatt1.navIdent)
                             faktura.besluttetAv shouldBe OkonomiPart.NavAnsatt(NavAnsattFixture.ansatt2.navIdent)
 
                             true

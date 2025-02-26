@@ -16,8 +16,8 @@ data class Faktura(
     val belop: Int,
     val periode: Periode,
     val status: FakturaStatusType,
-    val opprettetAv: OkonomiPart,
-    val opprettetTidspunkt: LocalDateTime,
+    val behandletAv: OkonomiPart,
+    val behandletTidspunkt: LocalDateTime,
     val besluttetAv: OkonomiPart,
     val besluttetTidspunkt: LocalDateTime,
     val linjer: List<Linje>,
@@ -40,10 +40,10 @@ data class Faktura(
                 belop = faktura.belop,
                 periode = faktura.periode,
                 status = FakturaStatusType.UTBETALT,
-                opprettetAv = faktura.opprettetAv,
-                opprettetTidspunkt = faktura.opprettetTidspunkt,
-                besluttetAv = faktura.opprettetAv,
-                besluttetTidspunkt = faktura.opprettetTidspunkt,
+                behandletAv = faktura.behandletAv,
+                behandletTidspunkt = faktura.behandletTidspunkt,
+                besluttetAv = faktura.behandletAv,
+                besluttetTidspunkt = faktura.behandletTidspunkt,
                 linjer = perioder.map { (periode, belop) ->
                     val bestillingLinje = bestillingLinjerByMonth.getValue(periode.start.month)
                     Linje(

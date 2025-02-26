@@ -21,8 +21,8 @@ class FakturaTest : FunSpec({
             ),
             belop = 1000,
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-            opprettetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-            opprettetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+            behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+            behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
             besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
             besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
         )
