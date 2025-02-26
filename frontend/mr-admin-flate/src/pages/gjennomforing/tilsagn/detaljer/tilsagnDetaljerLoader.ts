@@ -5,12 +5,6 @@ import { QueryClient, queryOptions } from "@tanstack/react-query";
 import { QueryKeys } from "../../../../api/QueryKeys";
 import { gjennomforingQuery } from "../../gjennomforingLoaders";
 
-const ansattQuery = () =>
-  queryOptions({
-    queryKey: QueryKeys.ansatt(),
-    queryFn: () => AnsattService.hentInfoOmAnsatt(),
-  });
-
 const tilsagnQuery = (tilsagnId: string) =>
   queryOptions({
     queryKey: QueryKeys.getTilsagn(tilsagnId),
@@ -38,7 +32,7 @@ export const tilsagnDetaljerLoader =
 
     const [{ data: ansatt }, { data: gjennomforing }, { data: tilsagn }, { data: historikk }] =
       await Promise.all([
-        queryClient.ensureQueryData(ansattQuery()),
+        AnsattService.hentInfoOmAnsatt(),
         queryClient.ensureQueryData(gjennomforingQuery(gjennomforingId)),
         queryClient.ensureQueryData(tilsagnQuery(tilsagnId)),
         queryClient.ensureQueryData(tilsagnHistorikkQuery(tilsagnId)),
