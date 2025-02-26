@@ -7,7 +7,7 @@ import { TilsagnForGjennomforingContainer } from "@/pages/gjennomforing/tilsagn/
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import { AnsattService, NavAnsattRolle } from "@mr/api-client-v2";
 import { Page } from "@navikt/ds-react";
-import { QueryClient, useQueryClient } from "@tanstack/react-query";
+import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createBrowserRouter, Outlet, RouterProvider, useLoaderData } from "react-router";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
@@ -56,6 +56,7 @@ import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
 import { tiltakstypeLoader, tiltakstyperLoader } from "./pages/tiltakstyper/tiltakstypeLoaders";
 import { LoaderData } from "./types/loader";
+import { useApiQuery } from "@mr/frontend-common";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -72,7 +73,7 @@ if (import.meta.env.PROD) {
 initializeAmplitude();
 
 export function App() {
-  const ansatt = useLoaderData<LoaderData<typeof ansattLoader>>();
+  const { data: ansatt } = useApiQuery(ansattQuery);
   if (!ansatt) {
     return null;
   }
@@ -112,10 +113,6 @@ const ansattQuery = {
   },
 };
 
-const ansattLoader = (queryClient: QueryClient) => async () => {
-  return (await queryClient.ensureQueryData(ansattQuery)).data;
-};
-
 const router = (queryClient: QueryClient) => {
   return createBrowserRouter(
     [
@@ -123,7 +120,6 @@ const router = (queryClient: QueryClient) => {
         path: "/",
         element: <App />,
         errorElement: <ErrorPage />,
-        loader: ansattLoader(queryClient),
         children: [
           {
             path: "tiltakstyper",
