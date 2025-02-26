@@ -7,7 +7,8 @@ import kotlinx.serialization.json.Json
 import kotliquery.Session
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
@@ -85,9 +86,10 @@ class OkonomiBestillingService(
         val tilsagn = requireNotNull(queries.tilsagn.get(tilsagnId)) {
             "Tilsagn med id=$tilsagnId finnes ikke"
         }
-        require(tilsagn.status is TilsagnDto.TilsagnStatusDto.Godkjent) {
+        require(tilsagn.status == TilsagnStatus.GODKJENT) {
             "Tilsagn er ikke godkjent id=$tilsagnId status=${tilsagn.status}"
         }
+        require(tilsagn.opprettelse is Totrinnskontroll.Besluttet)
 
         val gjennomforing = requireNotNull(queries.gjennomforing.get(tilsagn.gjennomforing.id)) {
             "Fant ikke gjennomforing for tilsagn"
@@ -117,10 +119,10 @@ class OkonomiBestillingService(
             avtalenummer = avtale.avtalenummer,
             belop = tilsagn.beregning.output.belop,
             periode = Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt),
-            opprettetAv = OkonomiPart.NavAnsatt(tilsagn.status.opprettelse.behandletAv),
-            opprettetTidspunkt = tilsagn.status.opprettelse.behandletTidspunkt,
-            besluttetAv = OkonomiPart.NavAnsatt(tilsagn.status.opprettelse.besluttetAv),
-            besluttetTidspunkt = tilsagn.status.opprettelse.besluttetTidspunkt,
+            opprettetAv = OkonomiPart.NavAnsatt(tilsagn.opprettelse.behandletAv),
+            opprettetTidspunkt = tilsagn.opprettelse.behandletTidspunkt,
+            besluttetAv = OkonomiPart.NavAnsatt(tilsagn.opprettelse.besluttetAv),
+            besluttetTidspunkt = tilsagn.opprettelse.besluttetTidspunkt,
         )
 
         val message = OkonomiBestillingMelding.Bestilling(bestilling)
@@ -138,6 +140,7 @@ class OkonomiBestillingService(
     fun behandleGodkjentUtbetalinger(tilsagnId: UUID) {
         val delutbetalinger = db.session { queries.delutbetaling.getSkalSendesTilOkonomi(tilsagnId) }
             .filterIsInstance<DelutbetalingDto.DelutbetalingOverfortTilUtbetaling>()
+            .sortedBy { it.opprettelse.besluttetTidspunkt }
 
         delutbetalinger
             .forEach { delutbetaling ->

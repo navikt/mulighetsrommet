@@ -25,8 +25,7 @@ create table totrinnskontroll
     besluttelse         besluttelse,
     besluttet_tidspunkt timestamp,
     aarsaker            text[] not null,
-    forklaring          text,
-    UNIQUE (entity_id, type)
+    forklaring          text
 );
 create index idx_totrinnskontroll_entity_id on totrinnskontroll(entity_id);
 

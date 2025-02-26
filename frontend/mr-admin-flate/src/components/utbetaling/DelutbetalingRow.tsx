@@ -14,6 +14,7 @@ import {
   DelutbetalingOverfortTilUtbetaling,
   DelutbetalingUtbetalt,
   NavAnsattRolle,
+  TilsagnStatus,
 } from "@mr/api-client-v2";
 import { BodyShort, Button, HStack, Table, TextField } from "@navikt/ds-react";
 import { formaterNOK, isValidationError } from "@mr/frontend-common/utils/utils";
@@ -44,7 +45,7 @@ export function DelutbetalingRow({
   ansatt,
   onBelopChange,
 }: Props) {
-  if (tilsagn.status.type !== "GODKJENT") {
+  if (tilsagn.status !== TilsagnStatus.GODKJENT) {
     return <TilsagnIkkeGodkjentRow tilsagn={tilsagn} />;
   }
 
@@ -193,8 +194,16 @@ function GodkjentRow({
     <Table.ExpandableRow
       content={
         <HStack>
-          <Metadata horizontal header="Behandlet av" verdi={delutbetaling.opprettelse.behandletAv} />
-          <Metadata horizontal header="Besluttet av" verdi={delutbetaling.opprettelse.besluttetAv} />
+          <Metadata
+            horizontal
+            header="Behandlet av"
+            verdi={delutbetaling.opprettelse.behandletAv}
+          />
+          <Metadata
+            horizontal
+            header="Besluttet av"
+            verdi={delutbetaling.opprettelse.besluttetAv}
+          />
         </HStack>
       }
     >

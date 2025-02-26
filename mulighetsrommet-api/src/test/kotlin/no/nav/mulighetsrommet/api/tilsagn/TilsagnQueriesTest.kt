@@ -82,12 +82,11 @@ class TilsagnQueriesTest : FunSpec({
                         TilsagnBeregningFri.Output(123),
                     )
                     it.type shouldBe TilsagnType.TILSAGN
-                    it.status.shouldBeTypeOf<TilsagnDto.TilsagnStatusDto.TilGodkjenning>() should { status ->
-                        status.opprettelse.shouldBeTypeOf<Totrinnskontroll.Ubesluttet>() should { tt ->
-                            tt.behandletAv shouldBe NavAnsattFixture.ansatt1.navIdent
-                            tt.aarsaker shouldBe emptyList()
-                            tt.forklaring shouldBe null
-                        }
+                    it.status shouldBe TilsagnStatus.TIL_GODKJENNING
+                    it.opprettelse.shouldBeTypeOf<Totrinnskontroll.Ubesluttet>() should { tt ->
+                        tt.behandletAv shouldBe NavAnsattFixture.ansatt1.navIdent
+                        tt.aarsaker shouldBe emptyList()
+                        tt.forklaring shouldBe null
                     }
                 }
 

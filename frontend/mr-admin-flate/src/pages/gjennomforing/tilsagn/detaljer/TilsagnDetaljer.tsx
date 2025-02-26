@@ -20,6 +20,7 @@ import {
   BesluttTilsagnRequest,
   NavAnsattRolle,
   TilsagnAvvisningAarsak,
+  TilsagnStatus,
   TilsagnTilAnnulleringAarsak,
   TilsagnTilAnnulleringRequest,
 } from "@mr/api-client-v2";
@@ -108,17 +109,18 @@ export function TilsagnDetaljer() {
     }
   }
 
-  function visBesluttKnapp(endretAv: string): boolean {
+  function visBesluttKnapp(endretAv?: string): boolean {
     return (
-      (tilsagn.status.type === "TIL_GODKJENNING" || tilsagn.status.type === "TIL_ANNULLERING") &&
+      (tilsagn.status === TilsagnStatus.TIL_GODKJENNING ||
+        tilsagn.status === TilsagnStatus.TIL_ANNULLERING) &&
       ansatt?.navIdent !== endretAv &&
       ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER)
     );
   }
 
   const visHandlingerMeny =
-    tilsagn.status.type === "RETURNERT" ||
-    (tilsagn.status.type === "GODKJENT" &&
+    tilsagn.status === TilsagnStatus.RETURNERT ||
+    (tilsagn.status === TilsagnStatus.GODKJENT &&
       ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV));
 
   return (
@@ -146,7 +148,7 @@ export function TilsagnDetaljer() {
                   </Button>
                 </ActionMenu.Trigger>
                 <ActionMenu.Content>
-                  {tilsagn.status.type === "RETURNERT" && (
+                  {tilsagn.status === TilsagnStatus.RETURNERT && (
                     <>
                       <ActionMenu.Item icon={<PencilFillIcon />}>
                         <Link className="no-underline" to="./rediger-tilsagn">
@@ -162,7 +164,7 @@ export function TilsagnDetaljer() {
                       </ActionMenu.Item>
                     </>
                   )}
-                  {tilsagn.status.type === "GODKJENT" && (
+                  {tilsagn.status === TilsagnStatus.GODKJENT && (
                     <>
                       <ActionMenu.Item
                         variant="danger"
@@ -178,21 +180,21 @@ export function TilsagnDetaljer() {
             ) : null}
           </HStack>
           <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-          {tilsagn.status.type === "RETURNERT" && (
+          {tilsagn.status === TilsagnStatus.RETURNERT && (
             <AvvistAlert
               header="Tilsagnet ble returnert"
-              tidspunkt={tilsagn.status.opprettelse.besluttetTidspunkt}
+              tidspunkt={tilsagn.opprettelse.besluttetTidspunkt}
               aarsaker={
-                tilsagn.status.opprettelse.aarsaker?.map((aarsak) =>
+                tilsagn.opprettelse.aarsaker?.map((aarsak) =>
                   tilsagnAarsakTilTekst(aarsak as TilsagnAvvisningAarsak),
                 ) ?? []
               }
-              forklaring={tilsagn.status.opprettelse.forklaring}
-              navIdent={tilsagn.status.opprettelse.besluttetAv}
+              forklaring={tilsagn.opprettelse.forklaring}
+              navIdent={tilsagn.opprettelse.besluttetAv}
             />
           )}
-          {tilsagn.status.type === "TIL_ANNULLERING" && (
-            <TilAnnulleringAlert status={tilsagn.status} />
+          {tilsagn.status === TilsagnStatus.TIL_ANNULLERING && (
+            <TilAnnulleringAlert annullering={tilsagn.annullering!} />
           )}
           <Box
             borderWidth="2"
@@ -212,8 +214,8 @@ export function TilsagnDetaljer() {
                 </BodyShort>
               ) : null}
               <HStack gap="2" justify={"end"}>
-                {tilsagn.status.type === "TIL_GODKJENNING" &&
-                  visBesluttKnapp(tilsagn.status.opprettelse.behandletAv) && (
+                {tilsagn.status === TilsagnStatus.TIL_GODKJENNING &&
+                  visBesluttKnapp(tilsagn.opprettelse.behandletAv) && (
                     <HStack gap="2">
                       <Button
                         variant="secondary"
@@ -232,8 +234,8 @@ export function TilsagnDetaljer() {
                       </Button>
                     </HStack>
                   )}
-                {tilsagn.status.type === "TIL_ANNULLERING" &&
-                  visBesluttKnapp(tilsagn.status.annullering.behandletAv) && (
+                {tilsagn.status === TilsagnStatus.TIL_ANNULLERING &&
+                  visBesluttKnapp(tilsagn.annullering?.behandletAv) && (
                     <HStack gap="2">
                       <Button
                         variant="secondary"

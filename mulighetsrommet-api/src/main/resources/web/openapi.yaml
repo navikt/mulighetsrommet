@@ -5360,11 +5360,16 @@ components:
             - navn
             - overordnetEnhet
         status:
-          $ref: "#/components/schemas/TilsagnStatusDto"
+          $ref: "#/components/schemas/TilsagnStatus"
         type:
           $ref: "#/components/schemas/TilsagnType"
+        opprettelse:
+          $ref: "#/components/schemas/Totrinnskontroll"
+        annullering:
+          $ref: "#/components/schemas/Totrinnskontroll"
       required:
         - id
+        - opprettelse
         - gjennomforingId
         - periodeStart
         - periodeSlutt
@@ -5384,75 +5389,6 @@ components:
         - RETURNERT
         - TIL_ANNULLERING
         - ANNULLERT
-
-    TilsagnStatusDto:
-      oneOf:
-        - $ref: "#/components/schemas/TilsagnStatusTilGodkjenning"
-        - $ref: "#/components/schemas/TilsagnStatusGodkjent"
-        - $ref: "#/components/schemas/TilsagnStatusReturnert"
-        - $ref: "#/components/schemas/TilsagnStatusTilAnnullering"
-        - $ref: "#/components/schemas/TilsagnStatusAnnullert"
-
-    TilsagnStatusTilGodkjenning:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-            - "TIL_GODKJENNING"
-        opprettelse:
-          $ref: "#/components/schemas/Ubesluttet"
-      required:
-        - opprettelse
-        - type
-
-    TilsagnStatusGodkjent:
-      type: object
-      properties:
-        type:
-          opprettelse:
-            $ref: "#/components/schemas/Besluttet"
-          type: string
-          enum:
-            - "GODKJENT"
-      required: [type, opprettelse]
-
-    TilsagnStatusReturnert:
-      type: object
-      properties:
-        opprettelse:
-          $ref: "#/components/schemas/Besluttet"
-        type:
-          type: string
-          enum:
-            - "RETURNERT"
-      required: [type, opprettelse]
-
-    TilsagnStatusTilAnnullering:
-      type: object
-      properties:
-        opprettelse:
-          $ref: "#/components/schemas/Besluttet"
-        annullering:
-          $ref: "#/components/schemas/Ubesluttet"
-        type:
-          type: string
-          enum:
-            - "TIL_ANNULLERING"
-      required: [opprettelse, annullering, type]
-
-    TilsagnStatusAnnullert:
-      type: object
-      properties:
-        opprettelse:
-          $ref: "#/components/schemas/Besluttet"
-        annullering:
-          $ref: "#/components/schemas/Besluttet"
-        type:
-          type: string
-          enum:
-            - "ANNULLERT"
-      required: [type, opprettelse, annullering]
 
     Besluttelse:
       type: string
@@ -6101,7 +6037,7 @@ components:
         belop:
           type: number
         opprettelse:
-          $ref: "#/components/schemas/Besluttet"
+          $ref: "#/components/schemas/Totrinnskontroll"
       required: [id, type, tilsagnId, utbetalingId, belop, opprettelse]
 
     DelutbetalingUtbetalt:
@@ -6121,7 +6057,7 @@ components:
         belop:
           type: number
         opprettelse:
-          $ref: "#/components/schemas/Besluttet"
+          $ref: "#/components/schemas/Totrinnskontroll"
       required: [id, type, tilsagnId, utbetalingId, belop, opprettelse]
 
     DelutbetalingTilGodkjenning:
@@ -6141,7 +6077,7 @@ components:
         belop:
           type: number
         opprettelse:
-          $ref: "#/components/schemas/Ubesluttet"
+          $ref: "#/components/schemas/Totrinnskontroll"
       required: [id, type, tilsagnId, utbetalingId, belop, opprettelse]
 
     DelutbetalingAvvist:
@@ -6161,7 +6097,7 @@ components:
         belop:
           type: number
         opprettelse:
-          $ref: "#/components/schemas/Besluttet"
+          $ref: "#/components/schemas/Totrinnskontroll"
       required: [id, type, tilsagnId, utbetalingId, belop, opprettelse]
 
     DelutbetalingRequest:
@@ -6242,12 +6178,7 @@ components:
           format: uuid
       required: [besluttelse, aarsaker, forklaring, id]
 
-    ToTrinnskontroll:
-      oneOf:
-        - $ref: "#/components/schemas/Ubesluttet"
-        - $ref: "#/components/schemas/Besluttet"
-
-    Ubesluttet:
+    Totrinnskontroll:
       type: object
       properties:
         behandletAv:
@@ -6261,16 +6192,9 @@ components:
             type: string
         forklaring:
           type: string
+        besluttetAv:
+          type: string
+        besluttetTidspunkt:
+          type: string
+          format: date-time
       required: [behandletAv, behandletTidspunkt]
-
-    Besluttet:
-      allOf:
-        - $ref: "#/components/schemas/Ubesluttet"
-        - type: object
-          properties:
-            besluttetAv:
-              type: string
-            besluttetTidspunkt:
-              type: string
-              format: date-time
-          required: [besluttetAv, besluttetTidspunkt]

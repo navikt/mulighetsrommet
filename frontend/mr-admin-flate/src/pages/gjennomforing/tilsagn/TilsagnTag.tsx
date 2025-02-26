@@ -1,25 +1,21 @@
-import {
-  TilsagnStatus,
-  TilsagnStatusAnnullert,
-  TilsagnStatusDto,
-  TilsagnTilAnnulleringAarsak,
-} from "@mr/api-client-v2";
+import { TilsagnStatus, TilsagnTilAnnulleringAarsak, Totrinnskontroll } from "@mr/api-client-v2";
 import { BodyLong, List, Tag, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
 
 interface Props {
-  status: TilsagnStatusDto;
+  status: TilsagnStatus;
   expandable?: boolean;
+  annullering?: Totrinnskontroll;
 }
 
 export function TilsagnTag(props: Props) {
-  const { status, expandable = false } = props;
+  const { status, annullering, expandable = false } = props;
   const [expandLabel, setExpandLabel] = useState<boolean>(false);
 
   const baseTagClasses = "min-w-[140px] text-center whitespace-nowrap";
 
-  switch (status.type) {
+  switch (status) {
     case TilsagnStatus.TIL_GODKJENNING:
       return (
         <Tag size="small" variant="alt1" className={baseTagClasses}>
@@ -59,7 +55,10 @@ export function TilsagnTag(props: Props) {
           variant="neutral"
         >
           {expandable && expandLabel ? (
-            <ExpandedAnnullert status={status} />
+            <ExpandedAnnullert
+              aarsaker={annullering?.aarsaker ?? []}
+              forklaring={annullering?.forklaring}
+            />
           ) : (
             truncate(annullertLabel, 30)
           )}
@@ -69,7 +68,7 @@ export function TilsagnTag(props: Props) {
   }
 }
 
-function ExpandedAnnullert({ status }: { status: TilsagnStatusAnnullert }) {
+function ExpandedAnnullert({ aarsaker, forklaring }: { aarsaker: string[]; forklaring?: string }) {
   return (
     <VStack>
       <List
@@ -78,11 +77,11 @@ function ExpandedAnnullert({ status }: { status: TilsagnStatusAnnullert }) {
         title="Årsaker"
         className="[&>li]:pl-2 [&>li]:ml-2 [&>li]:marker:content-['\2022'] [&>li]:marker:text-[color:var(--a-text-danger)] [&>li]:marker:text-lg"
       >
-        {status.annullering.aarsaker?.map((aarsak) => (
+        {aarsaker.map((aarsak) => (
           <li>{tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak)}</li>
         ))}
       </List>
-      {status.annullering.forklaring && <BodyLong>{status.annullering.forklaring}</BodyLong>}
+      {forklaring && <BodyLong>{forklaring}</BodyLong>}
     </VStack>
   );
 }

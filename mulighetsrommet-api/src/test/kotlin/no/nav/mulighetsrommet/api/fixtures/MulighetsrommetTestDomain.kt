@@ -12,8 +12,10 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeDbo
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
@@ -129,84 +131,86 @@ fun QueryContext.insertDelutbetalingDto(dto: DelutbetalingDto) {
 
 fun QueryContext.insertTilsagnDto(tilsagnDto: TilsagnDto) {
     queries.tilsagn.upsert(tilsagnDto.toDbo())
-    queries.totrinnskontroll.behandler(
-        entityId = tilsagnDto.id,
-        navIdent = tilsagnDto.status.opprettelse.behandletAv,
-        aarsaker = null,
-        forklaring = null,
-        type = TotrinnskontrollType.OPPRETT,
-        tidspunkt = tilsagnDto.status.opprettelse.behandletTidspunkt,
-    )
 
-    when (val status = tilsagnDto.status) {
-        is TilsagnDto.TilsagnStatusDto.Annullert -> {
+    val opprettelse = tilsagnDto.opprettelse
+    val annullering = tilsagnDto.annullering
+    when (tilsagnDto.status) {
+        TilsagnStatus.ANNULLERT -> {
+            require(opprettelse is Totrinnskontroll.Besluttet)
+            require(annullering is Totrinnskontroll.Besluttet)
             queries.totrinnskontroll.beslutter(
                 entityId = tilsagnDto.id,
-                navIdent = status.opprettelse.besluttetAv,
+                navIdent = opprettelse.besluttetAv,
                 besluttelse = Besluttelse.GODKJENT,
                 aarsaker = null,
                 forklaring = null,
                 type = TotrinnskontrollType.OPPRETT,
-                tidspunkt = status.opprettelse.besluttetTidspunkt,
+                tidspunkt = opprettelse.besluttetTidspunkt,
             )
             queries.totrinnskontroll.behandler(
                 entityId = tilsagnDto.id,
-                navIdent = status.annullering.behandletAv,
-                aarsaker = status.annullering.aarsaker,
-                forklaring = status.annullering.forklaring,
+                navIdent = annullering.behandletAv,
+                aarsaker = annullering.aarsaker,
+                forklaring = annullering.forklaring,
                 type = TotrinnskontrollType.ANNULLER,
-                tidspunkt = status.annullering.behandletTidspunkt,
+                tidspunkt = annullering.behandletTidspunkt,
             )
             queries.totrinnskontroll.beslutter(
                 entityId = tilsagnDto.id,
-                navIdent = status.annullering.besluttetAv,
+                navIdent = annullering.besluttetAv,
                 besluttelse = Besluttelse.GODKJENT,
                 aarsaker = null,
                 forklaring = null,
                 type = TotrinnskontrollType.ANNULLER,
-                tidspunkt = status.annullering.besluttetTidspunkt,
+                tidspunkt = annullering.besluttetTidspunkt,
             )
         }
-        is TilsagnDto.TilsagnStatusDto.Godkjent ->
+        TilsagnStatus.GODKJENT -> {
+            require(opprettelse is Totrinnskontroll.Besluttet)
             queries.totrinnskontroll.beslutter(
                 entityId = tilsagnDto.id,
-                navIdent = status.opprettelse.besluttetAv,
+                navIdent = opprettelse.besluttetAv,
                 besluttelse = Besluttelse.GODKJENT,
                 aarsaker = null,
                 forklaring = null,
                 type = TotrinnskontrollType.OPPRETT,
-                tidspunkt = status.opprettelse.besluttetTidspunkt,
+                tidspunkt = opprettelse.besluttetTidspunkt,
             )
-        is TilsagnDto.TilsagnStatusDto.Returnert ->
+        }
+        TilsagnStatus.RETURNERT -> {
+            require(opprettelse is Totrinnskontroll.Besluttet)
             queries.totrinnskontroll.beslutter(
                 entityId = tilsagnDto.id,
-                navIdent = status.opprettelse.besluttetAv,
+                navIdent = opprettelse.besluttetAv,
                 besluttelse = Besluttelse.AVVIST,
-                aarsaker = status.opprettelse.aarsaker,
-                forklaring = status.opprettelse.forklaring,
+                aarsaker = opprettelse.aarsaker,
+                forklaring = opprettelse.forklaring,
                 type = TotrinnskontrollType.OPPRETT,
-                tidspunkt = status.opprettelse.besluttetTidspunkt,
+                tidspunkt = opprettelse.besluttetTidspunkt,
             )
-        is TilsagnDto.TilsagnStatusDto.TilAnnullering -> {
+        }
+        TilsagnStatus.TIL_ANNULLERING -> {
+            requireNotNull(annullering)
+            require(opprettelse is Totrinnskontroll.Besluttet)
             queries.totrinnskontroll.beslutter(
                 entityId = tilsagnDto.id,
-                navIdent = status.opprettelse.besluttetAv,
+                navIdent = opprettelse.besluttetAv,
                 besluttelse = Besluttelse.GODKJENT,
                 aarsaker = null,
                 forklaring = null,
                 type = TotrinnskontrollType.OPPRETT,
-                tidspunkt = status.opprettelse.besluttetTidspunkt,
+                tidspunkt = opprettelse.besluttetTidspunkt,
             )
             queries.totrinnskontroll.behandler(
                 entityId = tilsagnDto.id,
-                navIdent = status.annullering.behandletAv,
-                aarsaker = status.annullering.aarsaker,
-                forklaring = status.annullering.forklaring,
+                navIdent = annullering.behandletAv,
+                aarsaker = annullering.aarsaker,
+                forklaring = annullering.forklaring,
                 type = TotrinnskontrollType.ANNULLER,
-                tidspunkt = status.annullering.behandletTidspunkt,
+                tidspunkt = annullering.behandletTidspunkt,
             )
         }
-        is TilsagnDto.TilsagnStatusDto.TilGodkjenning -> {}
+        TilsagnStatus.TIL_GODKJENNING -> {}
     }
 }
 
@@ -221,8 +225,8 @@ fun TilsagnDto.toDbo(): TilsagnDbo {
         kostnadssted = kostnadssted.enhetsnummer,
         beregning = beregning,
         arrangorId = arrangor.id,
-        endretAv = status.opprettelse.behandletAv,
-        endretTidspunkt = status.opprettelse.behandletTidspunkt,
+        endretAv = opprettelse.behandletAv,
+        endretTidspunkt = opprettelse.behandletTidspunkt,
     )
 }
 

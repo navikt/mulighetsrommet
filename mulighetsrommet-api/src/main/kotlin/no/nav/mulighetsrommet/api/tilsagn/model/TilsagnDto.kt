@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.tilsagn.model
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
@@ -26,7 +25,9 @@ data class TilsagnDto(
     val bestillingsnummer: String,
     val arrangor: Arrangor,
     val gjennomforing: Gjennomforing,
-    val status: TilsagnStatusDto,
+    val status: TilsagnStatus,
+    val opprettelse: Totrinnskontroll,
+    val annullering: Totrinnskontroll?,
 ) {
     @Serializable
     data class Arrangor(
@@ -44,41 +45,4 @@ data class TilsagnDto(
         val tiltakskode: Tiltakskode,
         val navn: String,
     )
-
-    @Serializable
-    sealed class TilsagnStatusDto {
-        abstract val opprettelse: Totrinnskontroll
-
-        @Serializable
-        @SerialName("TIL_GODKJENNING")
-        data class TilGodkjenning(
-            override val opprettelse: Totrinnskontroll.Ubesluttet,
-        ) : TilsagnStatusDto()
-
-        @Serializable
-        @SerialName("GODKJENT")
-        data class Godkjent(
-            override val opprettelse: Totrinnskontroll.Besluttet,
-        ) : TilsagnStatusDto()
-
-        @Serializable
-        @SerialName("RETURNERT")
-        data class Returnert(
-            override val opprettelse: Totrinnskontroll.Besluttet,
-        ) : TilsagnStatusDto()
-
-        @Serializable
-        @SerialName("TIL_ANNULLERING")
-        data class TilAnnullering(
-            override val opprettelse: Totrinnskontroll.Besluttet,
-            val annullering: Totrinnskontroll.Ubesluttet,
-        ) : TilsagnStatusDto()
-
-        @Serializable
-        @SerialName("ANNULLERT")
-        data class Annullert(
-            override val opprettelse: Totrinnskontroll.Besluttet,
-            val annullering: Totrinnskontroll.Besluttet,
-        ) : TilsagnStatusDto()
-    }
 }

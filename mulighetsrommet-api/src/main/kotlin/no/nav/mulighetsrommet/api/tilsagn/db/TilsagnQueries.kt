@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -206,11 +205,6 @@ class TilsagnQueries(private val session: Session) {
         val annullering = TotrinnskontrollQueries(session).get(id, TotrinnskontrollType.ANNULLER)
         requireNotNull(opprettelse)
 
-        val status = toTilsagnStatus(
-            opprettelse = opprettelse,
-            annullering = annullering,
-        )
-
         return TilsagnDto(
             id = uuid("id"),
             type = TilsagnType.valueOf(string("type")),
@@ -237,7 +231,9 @@ class TilsagnQueries(private val session: Session) {
                 slettet = boolean("arrangor_slettet"),
             ),
             beregning = Json.decodeFromString<TilsagnBeregning>(string("beregning")),
-            status = status,
+            status = TilsagnStatus.valueOf(string("status")),
+            opprettelse = opprettelse,
+            annullering = annullering,
         )
     }
 
@@ -269,45 +265,5 @@ class TilsagnQueries(private val session: Session) {
                 aarsaker = aarsaker,
             ),
         )
-    }
-}
-
-private fun toTilsagnStatus(
-    opprettelse: Totrinnskontroll,
-    annullering: Totrinnskontroll?,
-): TilsagnDto.TilsagnStatusDto {
-    if (annullering != null) {
-        require(opprettelse is Totrinnskontroll.Besluttet)
-        return when (annullering) {
-            is Totrinnskontroll.Ubesluttet -> TilsagnDto.TilsagnStatusDto.TilAnnullering(
-                opprettelse = opprettelse,
-                annullering = annullering,
-            )
-
-            is Totrinnskontroll.Besluttet -> when (annullering.besluttelse) {
-                Besluttelse.GODKJENT -> TilsagnDto.TilsagnStatusDto.Annullert(
-                    opprettelse = opprettelse,
-                    annullering = annullering,
-                )
-
-                Besluttelse.AVVIST -> TilsagnDto.TilsagnStatusDto.Godkjent(
-                    opprettelse = opprettelse,
-                )
-            }
-        }
-    }
-
-    return when (opprettelse) {
-        is Totrinnskontroll.Ubesluttet -> TilsagnDto.TilsagnStatusDto.TilGodkjenning(
-            opprettelse = opprettelse,
-        )
-        is Totrinnskontroll.Besluttet -> when (opprettelse.besluttelse) {
-            Besluttelse.GODKJENT -> TilsagnDto.TilsagnStatusDto.Godkjent(
-                opprettelse = opprettelse,
-            )
-            Besluttelse.AVVIST -> TilsagnDto.TilsagnStatusDto.Returnert(
-                opprettelse = opprettelse,
-            )
-        }
     }
 }

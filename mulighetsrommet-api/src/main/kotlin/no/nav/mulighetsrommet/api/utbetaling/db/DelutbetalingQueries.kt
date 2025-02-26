@@ -89,11 +89,9 @@ class DelutbetalingQueries(private val session: Session) {
                 lopenummer,
                 fakturanummer
             from delutbetaling
-                inner join totrinnskontroll on totrinnskontroll.entity_id = delutbetaling.id
             where
                 tilsagn_id = :tilsagn_id
                 and sendt_til_okonomi_tidspunkt is null
-            order by totrinnskontroll.besluttet_tidspunkt asc
         """.trimIndent()
 
         return session.list(queryOf(query, mapOf("tilsagn_id" to tilsagnId))) { it.toDelutbetalingDto() }

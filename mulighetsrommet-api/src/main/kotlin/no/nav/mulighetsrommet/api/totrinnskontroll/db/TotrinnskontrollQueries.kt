@@ -47,14 +47,7 @@ class TotrinnskontrollQueries(private val session: Session) {
                 null,
                 null,
                 null
-            ) on conflict (entity_id, type) do update set
-                behandlet_av        = excluded.behandlet_av,
-                behandlet_tidspunkt = excluded.behandlet_tidspunkt,
-                aarsaker            = coalesce(excluded.aarsaker, totrinnskontroll.aarsaker, array[]::text[]),
-                forklaring          = coalesce(excluded.forklaring, totrinnskontroll.forklaring),
-                besluttet_av        = null,
-                besluttet_tidspunkt = null,
-                besluttelse         = null
+            );
         """.trimIndent()
 
         val params = mapOf(
@@ -109,6 +102,7 @@ class TotrinnskontrollQueries(private val session: Session) {
         val query = """
             select * from totrinnskontroll
             where entity_id = :entity_id::uuid and type = :type::totrinnskontroll_type
+            order by behandlet_tidspunkt desc limit 1
         """.trimIndent()
 
         val params = mapOf(

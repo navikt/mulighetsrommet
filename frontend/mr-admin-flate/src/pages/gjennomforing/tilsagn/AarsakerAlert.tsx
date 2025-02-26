@@ -1,10 +1,10 @@
-import { TilsagnStatusTilAnnullering, TilsagnTilAnnulleringAarsak } from "@mr/api-client-v2";
+import { TilsagnTilAnnulleringAarsak, Totrinnskontroll } from "@mr/api-client-v2";
 import { Alert, Heading } from "@navikt/ds-react";
 import { formaterDato, tilsagnAarsakTilTekst } from "../../../utils/Utils";
 
-export function TilAnnulleringAlert({ status }: { status: TilsagnStatusTilAnnullering }) {
+export function TilAnnulleringAlert({ annullering }: { annullering: Totrinnskontroll }) {
   const aarsaker =
-    status?.annullering.aarsaker?.map((aarsak) =>
+    annullering.aarsaker?.map((aarsak) =>
       tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
     ) || [];
 
@@ -14,14 +14,14 @@ export function TilAnnulleringAlert({ status }: { status: TilsagnStatusTilAnnull
         Tilsagnet annulleres
       </Heading>
       <p>
-        {status.annullering.behandletAv} sendte tilsagnet til annullering den{" "}
-        {formaterDato(status.annullering.behandletTidspunkt)} med følgende{" "}
+        {annullering.behandletAv} sendte tilsagnet til annullering den{" "}
+        {formaterDato(annullering.behandletTidspunkt)} med følgende{" "}
         {aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
         <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker))}</b>
-        {status?.annullering.forklaring ? (
+        {annullering.forklaring ? (
           <>
             {" "}
-            med forklaringen: <b>"{status?.annullering.forklaring}"</b>
+            med forklaringen: <b>"{annullering.forklaring}"</b>
           </>
         ) : null}
         .
@@ -33,9 +33,9 @@ export function TilAnnulleringAlert({ status }: { status: TilsagnStatusTilAnnull
 interface Props {
   header: string;
   aarsaker: string[];
-  tidspunkt: string;
+  tidspunkt?: string;
   forklaring?: string;
-  navIdent: string;
+  navIdent?: string;
 }
 
 export function AvvistAlert({ aarsaker, forklaring, navIdent, tidspunkt, header }: Props) {

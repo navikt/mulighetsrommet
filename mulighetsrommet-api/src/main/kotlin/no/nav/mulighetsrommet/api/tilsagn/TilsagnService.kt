@@ -85,17 +85,17 @@ class TilsagnService(
         val tilsagn = queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
 
         return when (tilsagn.status) {
-            is TilsagnDto.TilsagnStatusDto.Annullert, is TilsagnDto.TilsagnStatusDto.Godkjent, is TilsagnDto.TilsagnStatusDto.Returnert ->
-                BadRequest("Tilsagnet kan ikke besluttes fordi det har status ${tilsagn.status.javaClass.simpleName}").left()
+            TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.RETURNERT ->
+                BadRequest("Tilsagnet kan ikke besluttes fordi det har status ${tilsagn.status}").left()
 
-            is TilsagnDto.TilsagnStatusDto.TilGodkjenning -> {
+            TilsagnStatus.TIL_GODKJENNING -> {
                 when (besluttelse) {
                     BesluttTilsagnRequest.GodkjentTilsagnRequest -> godkjennTilsagn(tilsagn, navIdent)
                     is BesluttTilsagnRequest.AvvistTilsagnRequest -> returnerTilsagn(tilsagn, besluttelse, navIdent)
                 }
             }
 
-            is TilsagnDto.TilsagnStatusDto.TilAnnullering -> {
+            TilsagnStatus.TIL_ANNULLERING -> {
                 when (besluttelse.besluttelse) {
                     Besluttelse.GODKJENT -> annullerTilsagn(tilsagn, navIdent)
                     Besluttelse.AVVIST -> avvisAnnullering(tilsagn, navIdent)
@@ -105,9 +105,9 @@ class TilsagnService(
     }
 
     private fun godkjennTilsagn(tilsagn: TilsagnDto, godkjentAv: NavIdent): StatusResponse<TilsagnDto> = db.transaction {
-        require(tilsagn.status is TilsagnDto.TilsagnStatusDto.TilGodkjenning)
+        require(tilsagn.status == TilsagnStatus.TIL_GODKJENNING)
 
-        if (godkjentAv == tilsagn.status.opprettelse.behandletAv) {
+        if (godkjentAv == tilsagn.opprettelse.behandletAv) {
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
@@ -133,9 +133,9 @@ class TilsagnService(
         besluttelse: BesluttTilsagnRequest.AvvistTilsagnRequest,
         navIdent: NavIdent,
     ): StatusResponse<TilsagnDto> = db.transaction {
-        require(tilsagn.status is TilsagnDto.TilsagnStatusDto.TilGodkjenning)
+        require(tilsagn.status == TilsagnStatus.TIL_GODKJENNING)
 
-        if (navIdent == tilsagn.status.opprettelse.behandletAv) {
+        if (navIdent == tilsagn.opprettelse.behandletAv) {
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         } else if (besluttelse.aarsaker.isEmpty()) {
             return BadRequest(detail = "Årsaker er påkrevd").left()
@@ -157,9 +157,10 @@ class TilsagnService(
     }
 
     private fun annullerTilsagn(tilsagn: TilsagnDto, navIdent: NavIdent): StatusResponse<TilsagnDto> = db.transaction {
-        require(tilsagn.status is TilsagnDto.TilsagnStatusDto.TilAnnullering)
+        require(tilsagn.status == TilsagnStatus.TIL_ANNULLERING)
+        requireNotNull(tilsagn.annullering)
 
-        if (navIdent == tilsagn.status.annullering.behandletAv) {
+        if (navIdent == tilsagn.annullering.behandletAv) {
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
@@ -181,9 +182,10 @@ class TilsagnService(
     }
 
     private fun avvisAnnullering(tilsagn: TilsagnDto, navIdent: NavIdent): StatusResponse<TilsagnDto> = db.transaction {
-        require(tilsagn.status is TilsagnDto.TilsagnStatusDto.TilAnnullering)
+        require(tilsagn.status == TilsagnStatus.TIL_ANNULLERING)
+        requireNotNull(tilsagn.annullering)
 
-        if (navIdent == tilsagn.status.annullering.behandletAv) {
+        if (navIdent == tilsagn.annullering.behandletAv) {
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
@@ -209,7 +211,7 @@ class TilsagnService(
     ): StatusResponse<TilsagnDto> = db.transaction {
         val tilsagn = queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
 
-        if (tilsagn.status !is TilsagnDto.TilsagnStatusDto.Godkjent) {
+        if (tilsagn.status != TilsagnStatus.GODKJENT) {
             return BadRequest("Kan bare annullere godkjente tilsagn").left()
         }
 
@@ -230,7 +232,7 @@ class TilsagnService(
     fun slettTilsagn(id: UUID): StatusResponse<Unit> = db.transaction {
         val tilsagn = queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
 
-        if (tilsagn.status !is TilsagnDto.TilsagnStatusDto.Returnert) {
+        if (tilsagn.status != TilsagnStatus.RETURNERT) {
             return BadRequest("Kan ikke slette tilsagn som er godkjent").left()
         }
 

@@ -29,14 +29,14 @@ object TilsagnFixtures {
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
             slettet = false,
         ),
-        status = TilsagnDto.TilsagnStatusDto.TilGodkjenning(
-            opprettelse = Totrinnskontroll.Ubesluttet(
-                behandletAv = NavAnsattFixture.ansatt1.navIdent,
-                behandletTidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0, 0),
-                aarsaker = emptyList(),
-                forklaring = null,
-            ),
+        status = TilsagnStatus.TIL_GODKJENNING,
+        opprettelse = Totrinnskontroll.Ubesluttet(
+            behandletAv = NavAnsattFixture.ansatt1.navIdent,
+            behandletTidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0, 0),
+            aarsaker = emptyList(),
+            forklaring = null,
         ),
+        annullering = null,
         type = TilsagnType.TILSAGN,
     )
 
@@ -62,14 +62,14 @@ object TilsagnFixtures {
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
             slettet = false,
         ),
-        status = TilsagnDto.TilsagnStatusDto.TilGodkjenning(
-            opprettelse = Totrinnskontroll.Ubesluttet(
-                behandletAv = NavAnsattFixture.ansatt1.navIdent,
-                behandletTidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0, 0),
-                aarsaker = emptyList(),
-                forklaring = null,
-            ),
+        status = TilsagnStatus.TIL_GODKJENNING,
+        opprettelse = Totrinnskontroll.Ubesluttet(
+            behandletAv = NavAnsattFixture.ansatt1.navIdent,
+            behandletTidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0, 0),
+            aarsaker = emptyList(),
+            forklaring = null,
         ),
+        annullering = null,
         type = TilsagnType.TILSAGN,
     )
 
@@ -95,22 +95,23 @@ object TilsagnFixtures {
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
             slettet = false,
         ),
-        status = TilsagnDto.TilsagnStatusDto.TilGodkjenning(
-            opprettelse = Totrinnskontroll.Ubesluttet(
-                behandletAv = NavAnsattFixture.ansatt1.navIdent,
-                behandletTidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0, 0),
-                aarsaker = emptyList(),
-                forklaring = null,
-            ),
+        status = TilsagnStatus.TIL_GODKJENNING,
+        opprettelse = Totrinnskontroll.Ubesluttet(
+            behandletAv = NavAnsattFixture.ansatt1.navIdent,
+            behandletTidspunkt = LocalDateTime.of(2025, 1, 1, 0, 0, 0),
+            aarsaker = emptyList(),
+            forklaring = null,
         ),
+        annullering = null,
         type = TilsagnType.TILSAGN,
     )
 
     fun TilsagnDto.medStatus(
         status: TilsagnStatus,
     ): TilsagnDto {
-        val statusDto = when (status) {
-            TilsagnStatus.TIL_GODKJENNING -> TilsagnDto.TilsagnStatusDto.TilGodkjenning(
+        return when (status) {
+            TilsagnStatus.TIL_GODKJENNING -> this.copy(
+                status = TilsagnStatus.TIL_GODKJENNING,
                 opprettelse = Totrinnskontroll.Ubesluttet(
                     behandletAv = NavAnsattFixture.ansatt1.navIdent,
                     behandletTidspunkt = LocalDateTime.now(),
@@ -118,7 +119,8 @@ object TilsagnFixtures {
                     forklaring = null,
                 ),
             )
-            TilsagnStatus.GODKJENT -> TilsagnDto.TilsagnStatusDto.Godkjent(
+            TilsagnStatus.GODKJENT -> this.copy(
+                status = TilsagnStatus.GODKJENT,
                 opprettelse = Totrinnskontroll.Besluttet(
                     behandletAv = NavAnsattFixture.ansatt1.navIdent,
                     besluttetAv = NavAnsattFixture.ansatt2.navIdent,
@@ -129,7 +131,8 @@ object TilsagnFixtures {
                     forklaring = null,
                 ),
             )
-            TilsagnStatus.RETURNERT -> TilsagnDto.TilsagnStatusDto.Returnert(
+            TilsagnStatus.RETURNERT -> this.copy(
+                status = TilsagnStatus.RETURNERT,
                 opprettelse = Totrinnskontroll.Besluttet(
                     behandletAv = NavAnsattFixture.ansatt1.navIdent,
                     besluttetAv = NavAnsattFixture.ansatt2.navIdent,
@@ -140,7 +143,8 @@ object TilsagnFixtures {
                     forklaring = null,
                 ),
             )
-            TilsagnStatus.TIL_ANNULLERING -> TilsagnDto.TilsagnStatusDto.TilAnnullering(
+            TilsagnStatus.TIL_ANNULLERING -> this.copy(
+                status = TilsagnStatus.TIL_ANNULLERING,
                 opprettelse = Totrinnskontroll.Besluttet(
                     behandletAv = NavAnsattFixture.ansatt1.navIdent,
                     besluttetAv = NavAnsattFixture.ansatt2.navIdent,
@@ -157,7 +161,8 @@ object TilsagnFixtures {
                     forklaring = null,
                 ),
             )
-            TilsagnStatus.ANNULLERT -> TilsagnDto.TilsagnStatusDto.Annullert(
+            TilsagnStatus.ANNULLERT -> this.copy(
+                status = TilsagnStatus.ANNULLERT,
                 opprettelse = Totrinnskontroll.Besluttet(
                     behandletAv = NavAnsattFixture.ansatt1.navIdent,
                     besluttetAv = NavAnsattFixture.ansatt2.navIdent,
@@ -178,6 +183,5 @@ object TilsagnFixtures {
                 ),
             )
         }
-        return this.copy(status = statusDto)
     }
 }

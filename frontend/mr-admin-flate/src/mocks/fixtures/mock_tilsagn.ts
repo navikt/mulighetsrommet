@@ -3,6 +3,7 @@ import {
   NavEnhetType,
   TilsagnAvvisningAarsak,
   TilsagnDto,
+  TilsagnStatus,
   TilsagnTilAnnulleringAarsak,
   TilsagnType,
 } from "@mr/api-client-v2";
@@ -28,12 +29,10 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 1,
     periodeStart: "2024-01-05",
     periodeSlutt: "2024-01-06",
-    status: {
-      opprettelse: {
-        behandletAv: "B123456",
-        behandletTidspunkt: "2024-01-01T22:00:00",
-      },
-      type: "TIL_GODKJENNING",
+    status: TilsagnStatus.TIL_GODKJENNING,
+    opprettelse: {
+      behandletAv: "B123456",
+      behandletTidspunkt: "2024-01-01T22:00:00",
     },
   },
   {
@@ -55,23 +54,21 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 1,
     periodeStart: "2024-01-03",
     periodeSlutt: "2024-01-04",
-    status: {
-      opprettelse: {
-        behandletAv: "B123456",
-        behandletTidspunkt: "2024-01-01T22:00:00",
-        besluttetAv: "F123456",
-        besluttetTidspunkt: "2024-01-01T22:00:00",
-      },
-      annullering: {
-        behandletAv: "B123456",
-        behandletTidspunkt: "2024-01-01T22:00:00",
-        aarsaker: [
-          TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
-          TilsagnTilAnnulleringAarsak.FEIL_ANNET,
-        ],
-        forklaring: "Du må fikse det",
-      },
-      type: "TIL_ANNULLERING",
+    status: TilsagnStatus.TIL_ANNULLERING,
+    opprettelse: {
+      behandletAv: "B123456",
+      behandletTidspunkt: "2024-01-01T22:00:00",
+      besluttetAv: "F123456",
+      besluttetTidspunkt: "2024-01-01T22:00:00",
+    },
+    annullering: {
+      behandletAv: "B123456",
+      behandletTidspunkt: "2024-01-01T22:00:00",
+      aarsaker: [
+        TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
+        TilsagnTilAnnulleringAarsak.FEIL_ANNET,
+      ],
+      forklaring: "Du må fikse det",
     },
   },
   {
@@ -93,8 +90,12 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 4,
     periodeStart: "2024-01-01",
     periodeSlutt: "2024-01-02",
-    status: {
-      type: "GODKJENT",
+    status: TilsagnStatus.GODKJENT,
+    opprettelse: {
+      behandletAv: "B123456",
+      behandletTidspunkt: "2024-01-01T22:00:00",
+      besluttetAv: "F123456",
+      besluttetTidspunkt: "2024-01-01T22:00:00",
     },
   },
   {
@@ -116,25 +117,23 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 4,
     periodeStart: "2024-01-01",
     periodeSlutt: "2024-01-02",
-    status: {
-      opprettelse: {
-        behandletAv: "B123456",
-        behandletTidspunkt: "2024-01-01T22:00:00",
-        besluttetAv: "F123456",
-        besluttetTidspunkt: "2024-01-01T22:00:00",
-      },
-      annullering: {
-        behandletAv: "B123456",
-        behandletTidspunkt: "2024-01-01T22:00:00",
-        aarsaker: [
-          TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
-          TilsagnTilAnnulleringAarsak.FEIL_ANNET,
-        ],
-        forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
-        besluttetAv: "F123456",
-        besluttetTidspunkt: "2024-01-01T22:00:00",
-      },
-      type: "ANNULLERT",
+    status: TilsagnStatus.ANNULLERT,
+    opprettelse: {
+      behandletAv: "B123456",
+      behandletTidspunkt: "2024-01-01T22:00:00",
+      besluttetAv: "F123456",
+      besluttetTidspunkt: "2024-01-01T22:00:00",
+    },
+    annullering: {
+      behandletAv: "B123456",
+      behandletTidspunkt: "2024-01-01T22:00:00",
+      aarsaker: [
+        TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
+        TilsagnTilAnnulleringAarsak.FEIL_ANNET,
+      ],
+      forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
+      besluttetAv: "F123456",
+      besluttetTidspunkt: "2024-01-01T22:00:00",
     },
   },
   {
@@ -156,16 +155,14 @@ export const mockTilsagn: TilsagnDto[] = [
     lopenummer: 4,
     periodeStart: "2024-01-01",
     periodeSlutt: "2024-01-02",
-    status: {
-      opprettelse: {
-        behandletAv: "B123456",
-        behandletTidspunkt: "2024-01-09",
-        besluttetAv: "N12345",
-        besluttetTidspunkt: "2024-01-10",
-        aarsaker: [TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER, TilsagnAvvisningAarsak.FEIL_ANNET],
-        forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
-      },
-      type: "RETURNERT",
+    status: TilsagnStatus.RETURNERT,
+    opprettelse: {
+      behandletAv: "B123456",
+      behandletTidspunkt: "2024-01-09",
+      besluttetAv: "N12345",
+      besluttetTidspunkt: "2024-01-10",
+      aarsaker: [TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER, TilsagnAvvisningAarsak.FEIL_ANNET],
+      forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
     },
   },
 ];

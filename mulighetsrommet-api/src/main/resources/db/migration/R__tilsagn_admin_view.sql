@@ -32,6 +32,20 @@ from tilsagn
     inner join arrangor on arrangor.id = tilsagn.arrangor_id
     inner join gjennomforing on gjennomforing.id = tilsagn.gjennomforing_id
     inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
-    left join totrinnskontroll opprettelse on opprettelse.entity_id = tilsagn.id and opprettelse.type = 'OPPRETT'
-    left join totrinnskontroll annullering on annullering.entity_id = tilsagn.id and annullering.type = 'ANNULLER';
+    left join lateral (
+        select *
+        from totrinnskontroll
+        where totrinnskontroll.entity_id = tilsagn.id
+          and totrinnskontroll.type = 'OPPRETT'
+        order by totrinnskontroll.behandlet_tidspunkt desc
+        limit 1
+    ) as opprettelse on true
+    left join lateral (
+        select *
+        from totrinnskontroll
+        where totrinnskontroll.entity_id = tilsagn.id
+          and totrinnskontroll.type = 'ANNULLER'
+        order by totrinnskontroll.behandlet_tidspunkt desc
+        limit 1
+    ) as annullering on true;
 
