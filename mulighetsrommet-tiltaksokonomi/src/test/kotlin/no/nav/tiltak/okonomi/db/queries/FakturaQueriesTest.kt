@@ -29,8 +29,8 @@ class FakturaQueriesTest : FunSpec({
             LocalDate.of(2025, 3, 1),
         ),
         status = BestillingStatusType.AKTIV,
-        opprettetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-        opprettetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+        behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+        behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
         besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
         besluttetTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
         linjer = listOf(
@@ -62,8 +62,8 @@ class FakturaQueriesTest : FunSpec({
             belop = 500,
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             status = FakturaStatusType.UTBETALT,
-            opprettetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-            opprettetTidspunkt = LocalDate.of(2025, 2, 1).atStartOfDay(),
+            behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+            behandletTidspunkt = LocalDate.of(2025, 2, 1).atStartOfDay(),
             besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
             besluttetTidspunkt = LocalDate.of(2025, 2, 2).atStartOfDay(),
             linjer = listOf(

@@ -34,7 +34,7 @@ data class ArrFlateUtbetalingKompakt(
             gjennomforing = utbetaling.gjennomforing,
             arrangor = utbetaling.arrangor,
             periodeStart = utbetaling.periode.start,
-            periodeSlutt = utbetaling.periode.getLastDate(),
+            periodeSlutt = utbetaling.periode.getLastInclusiveDate(),
             belop = utbetaling.beregning.output.belop,
         )
     }

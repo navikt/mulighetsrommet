@@ -35,9 +35,9 @@ data class OpprettBestilling(
     val avtalenummer: String?,
     val belop: Int,
     val periode: Periode,
-    val opprettetAv: OkonomiPart,
+    val behandletAv: OkonomiPart,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val opprettetTidspunkt: LocalDateTime,
+    val behandletTidspunkt: LocalDateTime,
     val besluttetAv: OkonomiPart,
     @Serializable(with = LocalDateTimeSerializer::class)
     val besluttetTidspunkt: LocalDateTime,
@@ -56,9 +56,9 @@ data class OpprettFaktura(
     val betalingsinformasjon: Betalingsinformasjon,
     val belop: Int,
     val periode: Periode,
-    val opprettetAv: OkonomiPart,
+    val behandletAv: OkonomiPart,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val opprettetTidspunkt: LocalDateTime,
+    val behandletTidspunkt: LocalDateTime,
     val besluttetAv: OkonomiPart,
     @Serializable(with = LocalDateTimeSerializer::class)
     val besluttetTidspunkt: LocalDateTime,

@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -210,7 +209,7 @@ data class UtbetalingKompakt(
             status = utbetaling.status,
             beregning = Beregning(
                 periodeStart = utbetaling.periode.start,
-                periodeSlutt = utbetaling.periode.getLastDate(),
+                periodeSlutt = utbetaling.periode.getLastInclusiveDate(),
                 belop = utbetaling.beregning.output.belop,
             ),
             godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,

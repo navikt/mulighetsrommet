@@ -224,7 +224,7 @@ class GjennomforingService(
                 "Registrerte stengt hos arrangør i perioden",
                 periode.start.formaterDatoTilEuropeiskDatoformat(),
                 "-",
-                periode.getLastDate().formaterDatoTilEuropeiskDatoformat(),
+                periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat(),
             ).joinToString(separator = " ")
             logEndring(operation, dto, bruker)
             dto

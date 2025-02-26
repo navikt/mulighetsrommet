@@ -119,8 +119,8 @@ class OkonomiBestillingService(
             avtalenummer = avtale.avtalenummer,
             belop = tilsagn.beregning.output.belop,
             periode = Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt),
-            opprettetAv = OkonomiPart.NavAnsatt(tilsagn.opprettelse.behandletAv),
-            opprettetTidspunkt = tilsagn.opprettelse.behandletTidspunkt,
+            behandletAv = OkonomiPart.NavAnsatt(tilsagn.opprettelse.behandletAv),
+            behandletTidspunkt = tilsagn.opprettelse.behandletTidspunkt,
             besluttetAv = OkonomiPart.NavAnsatt(tilsagn.opprettelse.besluttetAv),
             besluttetTidspunkt = tilsagn.opprettelse.besluttetTidspunkt,
         )
@@ -166,8 +166,8 @@ class OkonomiBestillingService(
                     ),
                     belop = delutbetaling.belop,
                     periode = delutbetaling.periode,
-                    opprettetAv = OkonomiPart.NavAnsatt(delutbetaling.opprettelse.behandletAv),
-                    opprettetTidspunkt = delutbetaling.opprettelse.behandletTidspunkt,
+                    behandletAv = OkonomiPart.NavAnsatt(delutbetaling.opprettelse.behandletAv),
+                    behandletTidspunkt = delutbetaling.opprettelse.behandletTidspunkt,
                     besluttetAv = OkonomiPart.NavAnsatt(delutbetaling.opprettelse.besluttetAv),
                     besluttetTidspunkt = delutbetaling.opprettelse.besluttetTidspunkt,
                 )

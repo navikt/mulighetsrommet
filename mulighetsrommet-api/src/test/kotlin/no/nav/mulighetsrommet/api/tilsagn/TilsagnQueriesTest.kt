@@ -208,7 +208,7 @@ class TilsagnQueriesTest : FunSpec({
                         navn = TiltakstypeFixtures.AFT.navn,
                     ),
                     periodeStart = periodeMedTilsagn.start,
-                    periodeSlutt = periodeMedTilsagn.getLastDate(),
+                    periodeSlutt = periodeMedTilsagn.getLastInclusiveDate(),
                     arrangor = ArrangorflateTilsagn.Arrangor(
                         navn = ArrangorFixtures.underenhet1.navn,
                         id = ArrangorFixtures.underenhet1.id,
