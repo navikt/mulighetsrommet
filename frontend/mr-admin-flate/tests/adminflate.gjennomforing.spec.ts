@@ -28,9 +28,12 @@ const fyllInnGjennomforing = async (page: Page) => {
 
   await page.click('div[role="textbox"]');
   await page.keyboard.insertText("dette er en test");
-  //await page.fill('input[name="faneinnhold.forHvem"]', "Dette er en test");
 
-  await page.waitForTimeout(5000);
+  await page.click("button[type=submit]");
+
+  await page.waitForResponse(
+    (response) => response.url().includes("/intern/gjennomforinger") && response.status() === 200,
+  );
 };
 
 test("Opprett ny gjennomforing", async ({ page }) => {
