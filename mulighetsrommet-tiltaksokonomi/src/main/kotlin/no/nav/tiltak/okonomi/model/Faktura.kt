@@ -29,7 +29,10 @@ data class Faktura(
     )
 
     companion object {
-        fun fromOpprettFaktura(faktura: OpprettFaktura, bestillingLinjer: List<Bestilling.Linje>): Faktura {
+        fun fromOpprettFaktura(
+            faktura: OpprettFaktura,
+            bestillingLinjer: List<Bestilling.Linje>,
+        ): Faktura {
             val bestillingLinjerByMonth = bestillingLinjer.associateBy { it.periode.start.month }
             val perioder = divideBelopByMonthsInPeriode(faktura.periode, faktura.belop)
             return Faktura(
@@ -42,8 +45,8 @@ data class Faktura(
                 status = FakturaStatusType.UTBETALT,
                 behandletAv = faktura.behandletAv,
                 behandletTidspunkt = faktura.behandletTidspunkt,
-                besluttetAv = faktura.behandletAv,
-                besluttetTidspunkt = faktura.behandletTidspunkt,
+                besluttetAv = faktura.besluttetAv,
+                besluttetTidspunkt = faktura.besluttetTidspunkt,
                 linjer = perioder.map { (periode, belop) ->
                     val bestillingLinje = bestillingLinjerByMonth.getValue(periode.start.month)
                     Linje(
