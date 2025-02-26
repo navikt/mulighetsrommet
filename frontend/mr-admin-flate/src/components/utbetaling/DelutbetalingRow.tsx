@@ -14,6 +14,7 @@ import {
   DelutbetalingOverfortTilUtbetaling,
   DelutbetalingUtbetalt,
   NavAnsattRolle,
+  TilsagnStatus,
 } from "@mr/api-client-v2";
 import { BodyShort, Button, HStack, Table, TextField } from "@navikt/ds-react";
 import { formaterNOK, isValidationError } from "@mr/frontend-common/utils/utils";
@@ -27,6 +28,7 @@ import { Metadata } from "../detaljside/Metadata";
 import { createPortal } from "react-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRevalidator } from "react-router";
+import { v4 as uuidv4 } from "uuid";
 
 interface Props {
   utbetaling: UtbetalingKompakt;
@@ -43,7 +45,7 @@ export function DelutbetalingRow({
   ansatt,
   onBelopChange,
 }: Props) {
-  if (tilsagn.status.type !== "GODKJENT") {
+  if (tilsagn.status !== TilsagnStatus.GODKJENT) {
     return <TilsagnIkkeGodkjentRow tilsagn={tilsagn} />;
   }
 
@@ -97,6 +99,7 @@ function EditableRow({
   function sendTilGodkjenning() {
     if (error) return;
     const body: DelutbetalingRequest = {
+      id: delutbetaling?.id ?? uuidv4(),
       belop,
       tilsagnId: tilsagn.id,
     };
@@ -130,11 +133,10 @@ function EditableRow({
         delutbetaling ? (
           <AvvistAlert
             header="Utbetaling returnert"
-            navIdent={delutbetaling.besluttetAv}
-            navn=""
-            aarsaker={delutbetaling.aarsaker}
-            forklaring={delutbetaling.forklaring}
-            tidspunkt={delutbetaling.besluttetTidspunkt}
+            navIdent={delutbetaling.opprettelse.besluttetAv}
+            aarsaker={delutbetaling.opprettelse.aarsaker || []}
+            forklaring={delutbetaling.opprettelse.forklaring}
+            tidspunkt={delutbetaling.opprettelse.besluttetTidspunkt}
           />
         ) : null
       }
@@ -192,8 +194,16 @@ function GodkjentRow({
     <Table.ExpandableRow
       content={
         <HStack>
-          <Metadata horizontal header="Behandlet av" verdi={delutbetaling.opprettetAv} />
-          <Metadata horizontal header="Besluttet av" verdi={delutbetaling.besluttetAv} />
+          <Metadata
+            horizontal
+            header="Behandlet av"
+            verdi={delutbetaling.opprettelse.behandletAv}
+          />
+          <Metadata
+            horizontal
+            header="Besluttet av"
+            verdi={delutbetaling.opprettelse.besluttetAv}
+          />
         </HStack>
       }
     >
@@ -245,7 +255,7 @@ function TilGodkjenningRow({
 
   const kanBeslutte =
     delutbetaling &&
-    delutbetaling.opprettetAv !== ansatt.navIdent &&
+    delutbetaling.opprettelse.behandletAv !== ansatt.navIdent &&
     ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER);
 
   return (
@@ -268,7 +278,7 @@ function TilGodkjenningRow({
               onClick={() =>
                 beslutt({
                   besluttelse: Besluttelse.GODKJENT,
-                  tilsagnId: tilsagn.id,
+                  id: delutbetaling.id,
                 })
               }
             >
@@ -298,7 +308,7 @@ function TilGodkjenningRow({
           onConfirm={({ aarsaker, forklaring }) => {
             beslutt({
               besluttelse: Besluttelse.AVVIST,
-              tilsagnId: tilsagn.id,
+              id: delutbetaling.id,
               aarsaker,
               forklaring: forklaring ?? null,
             });

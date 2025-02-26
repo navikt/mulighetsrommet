@@ -1,8 +1,12 @@
 package no.nav.mulighetsrommet.api.fixtures
 
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
+import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
@@ -60,4 +64,74 @@ object TilsagnFixtures {
         endretTidspunkt = LocalDateTime.now(),
         type = TilsagnType.TILSAGN,
     )
+
+    fun QueryContext.setTilsagnStatus(tilsagnDbo: TilsagnDbo, status: TilsagnStatus) {
+        val dto = queries.tilsagn.get(tilsagnDbo.id)
+            ?: throw IllegalStateException("Tilsagnet må være gitt til domain først")
+        when (status) {
+            TilsagnStatus.TIL_GODKJENNING -> {}
+            TilsagnStatus.GODKJENT ->
+                queries.totrinnskontroll.upsert(
+                    dto.opprettelse.copy(
+                        besluttetAv = NavAnsattFixture.ansatt2.navIdent,
+                        besluttelse = Besluttelse.GODKJENT,
+                        besluttetTidspunkt = LocalDateTime.now(),
+                    ),
+                )
+            TilsagnStatus.RETURNERT ->
+                queries.totrinnskontroll.upsert(
+                    dto.opprettelse.copy(
+                        besluttetAv = NavAnsattFixture.ansatt2.navIdent,
+                        besluttelse = Besluttelse.AVVIST,
+                        besluttetTidspunkt = LocalDateTime.now(),
+                    ),
+                )
+            TilsagnStatus.TIL_ANNULLERING -> {
+                queries.totrinnskontroll.upsert(
+                    dto.opprettelse.copy(
+                        besluttetAv = NavAnsattFixture.ansatt2.navIdent,
+                        besluttelse = Besluttelse.GODKJENT,
+                        besluttetTidspunkt = LocalDateTime.now(),
+                    ),
+                )
+                queries.totrinnskontroll.upsert(
+                    Totrinnskontroll(
+                        id = UUID.randomUUID(),
+                        entityId = tilsagnDbo.id,
+                        behandletAv = tilsagnDbo.endretAv,
+                        aarsaker = emptyList(),
+                        forklaring = null,
+                        type = Totrinnskontroll.Type.ANNULLER,
+                        behandletTidspunkt = LocalDateTime.now(),
+                        besluttelse = null,
+                        besluttetAv = null,
+                        besluttetTidspunkt = null,
+                    ),
+                )
+            }
+            TilsagnStatus.ANNULLERT -> {
+                queries.totrinnskontroll.upsert(
+                    dto.opprettelse.copy(
+                        besluttetAv = NavAnsattFixture.ansatt1.navIdent,
+                        besluttelse = Besluttelse.GODKJENT,
+                        besluttetTidspunkt = LocalDateTime.now(),
+                    ),
+                )
+                queries.totrinnskontroll.upsert(
+                    Totrinnskontroll(
+                        id = UUID.randomUUID(),
+                        entityId = tilsagnDbo.id,
+                        behandletAv = tilsagnDbo.endretAv,
+                        aarsaker = emptyList(),
+                        forklaring = null,
+                        type = Totrinnskontroll.Type.OPPRETT,
+                        behandletTidspunkt = LocalDateTime.now(),
+                        besluttelse = Besluttelse.GODKJENT,
+                        besluttetAv = NavAnsattFixture.ansatt2.navIdent,
+                        besluttetTidspunkt = LocalDateTime.now(),
+                    ),
+                )
+            }
+        }
+    }
 }

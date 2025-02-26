@@ -13,6 +13,7 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.setDelutbetalingStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
@@ -408,108 +409,97 @@ class UtbetalingServiceTest : FunSpec({
 
     context("når utbetaling blir behandlet") {
         test("skal ikke kunne opprette del utbetaling hvis den er godkjent") {
-            val tilsagn = TilsagnFixtures.Tilsagn1.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
-            )
-
-            val utbetaling = UtbetalingFixtures.utbetaling1.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
-            )
-
             val domain = MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(tilsagn),
-                utbetalinger = listOf(utbetaling),
+                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
             ).initialize(database.db)
 
             val service = createUtbetalingService()
 
-            val opprettRequest = DelutbetalingRequest(tilsagnId = tilsagn.id, belop = 100)
+            val opprettRequest = DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = TilsagnFixtures.Tilsagn1.id, belop = 100)
             service.upsertDelutbetaling(
-                utbetalingId = utbetaling.id,
+                utbetalingId = UtbetalingFixtures.utbetaling1.id,
                 request = opprettRequest,
                 opprettetAv = domain.ansatte[0].navIdent,
             )
             service.besluttDelutbetaling(
-                utbetalingId = utbetaling.id,
+                utbetalingId = UtbetalingFixtures.utbetaling1.id,
                 request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(
-                    tilsagnId = tilsagn.id,
+                    id = opprettRequest.id,
                 ),
                 navIdent = domain.ansatte[1].navIdent,
             )
 
             service.upsertDelutbetaling(
-                utbetalingId = utbetaling.id,
+                utbetalingId = UtbetalingFixtures.utbetaling1.id,
                 request = opprettRequest,
                 opprettetAv = domain.ansatte[0].navIdent,
             ).shouldBeLeft() shouldBe BadRequest("Utbetaling kan ikke endres")
         }
 
         test("skal ikke kunne godkjenne delutbetaling hvis den er godkjent") {
-            val tilsagn = TilsagnFixtures.Tilsagn1.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
-            )
-
-            val utbetaling = UtbetalingFixtures.utbetaling1.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
-            )
-
-            val domain = MulighetsrommetTestDomain(
+            MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(tilsagn),
-                utbetalinger = listOf(utbetaling),
+                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
+                delutbetalinger = listOf(UtbetalingFixtures.delutbetaling1),
             ).initialize(database.db)
 
             val service = createUtbetalingService()
 
-            val opprettRequest = DelutbetalingRequest(tilsagnId = tilsagn.id, belop = 100)
-            service.upsertDelutbetaling(
-                utbetalingId = utbetaling.id,
-                request = opprettRequest,
-                opprettetAv = domain.ansatte[0].navIdent,
-            )
             service.besluttDelutbetaling(
-                utbetalingId = utbetaling.id,
-                request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(
-                    tilsagnId = tilsagn.id,
-                ),
-                navIdent = domain.ansatte[1].navIdent,
-            )
+                utbetalingId = UtbetalingFixtures.utbetaling1.id,
+                request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(UtbetalingFixtures.delutbetaling1.id),
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
+            ).shouldBeRight()
             service.besluttDelutbetaling(
-                utbetalingId = utbetaling.id,
-                request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(
-                    tilsagnId = tilsagn.id,
-                ),
-                navIdent = domain.ansatte[1].navIdent,
+                utbetalingId = UtbetalingFixtures.utbetaling1.id,
+                request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(UtbetalingFixtures.delutbetaling1.id),
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
             ).shouldBeLeft() shouldBe BadRequest("Utbetaling er allerede besluttet")
         }
 
+        test("oppdatering av delutbetaling etter returnert gir TIL_GODKJENNING status") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
+                delutbetalinger = listOf(UtbetalingFixtures.delutbetaling1),
+            ) {
+                setDelutbetalingStatus(UtbetalingFixtures.delutbetaling1, UtbetalingFixtures.DelutbetalingStatus.RETURNERT)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+            service.upsertDelutbetaling(
+                utbetalingId = UtbetalingFixtures.utbetaling1.id,
+                request = DelutbetalingRequest(id = UtbetalingFixtures.delutbetaling1.id, tilsagnId = TilsagnFixtures.Tilsagn1.id, belop = 100),
+                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
+            ).shouldBeRight()
+            database.run { queries.delutbetaling.get(UtbetalingFixtures.delutbetaling1.id) }.shouldNotBeNull().shouldBeTypeOf<DelutbetalingDto.DelutbetalingTilGodkjenning>()
+        }
+
         test("skal ikke kunne opprette delutbetaling hvis utbetalingsperiode og tilsagnsperiode ikke overlapper") {
-            val tilsagn = TilsagnFixtures.Tilsagn1.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
-            )
-
-            val utbetaling = UtbetalingFixtures.utbetaling1.copy(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 2, 1)),
-            )
-
-            val domain = MulighetsrommetTestDomain(
+            MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.ansatt1),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(tilsagn),
-                utbetalinger = listOf(utbetaling),
+                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                utbetalinger = listOf(UtbetalingFixtures.utbetaling1.copy(periode = Periode.forMonthOf(LocalDate.of(2023, 4, 4)))),
             ).initialize(database.db)
 
             val service = createUtbetalingService()
 
-            val request = DelutbetalingRequest(tilsagnId = tilsagn.id, belop = 100)
+            val request = DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = TilsagnFixtures.Tilsagn1.id, belop = 100)
 
-            service.upsertDelutbetaling(utbetaling.id, request, domain.ansatte[0].navIdent).shouldBeLeft() shouldBe InternalServerError(
+            service.upsertDelutbetaling(UtbetalingFixtures.utbetaling1.id, request, NavAnsattFixture.ansatt1.navIdent)
+                .shouldBeLeft() shouldBe InternalServerError(
                 "Utbetalingsperiode og tilsagnsperiode overlapper ikke",
             )
         }
@@ -541,7 +531,7 @@ class UtbetalingServiceTest : FunSpec({
 
             service.upsertDelutbetaling(
                 utbetaling.id,
-                DelutbetalingRequest(tilsagnId = tilsagn1.id, belop = 100),
+                DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, belop = 100),
                 domain.ansatte[0].navIdent,
             ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
                 it.errors shouldContainExactly listOf(FieldError("/belop", "Kan ikke betale ut mer enn det er krav på"))
@@ -549,14 +539,14 @@ class UtbetalingServiceTest : FunSpec({
 
             service.upsertDelutbetaling(
                 utbetaling.id,
-                DelutbetalingRequest(tilsagnId = tilsagn1.id, belop = 7),
+                DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, belop = 7),
                 domain.ansatte[0].navIdent,
             ).shouldBeRight()
 
             // Siden 7 allerede er utbetalt nå
             service.upsertDelutbetaling(
                 utbetaling.id,
-                DelutbetalingRequest(tilsagnId = tilsagn2.id, belop = 5),
+                DelutbetalingRequest(UUID.randomUUID(), tilsagn2.id, belop = 5),
                 domain.ansatte[0].navIdent,
             ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
                 it.errors shouldContainExactly listOf(FieldError("/belop", "Kan ikke betale ut mer enn det er krav på"))
@@ -594,18 +584,18 @@ class UtbetalingServiceTest : FunSpec({
 
             service.upsertDelutbetaling(
                 utbetaling1.id,
-                DelutbetalingRequest(tilsagnId = tilsagn1.id, belop = 50),
+                DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = tilsagn1.id, belop = 50),
                 domain.ansatte[0].navIdent,
             )
             service.upsertDelutbetaling(
                 utbetaling1.id,
-                DelutbetalingRequest(tilsagnId = tilsagn2.id, belop = 50),
+                DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = tilsagn2.id, belop = 50),
                 domain.ansatte[0].navIdent,
             )
 
             service.upsertDelutbetaling(
                 utbetaling2.id,
-                DelutbetalingRequest(tilsagnId = tilsagn1.id, belop = 100),
+                DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = tilsagn1.id, belop = 100),
                 domain.ansatte[0].navIdent,
             )
 

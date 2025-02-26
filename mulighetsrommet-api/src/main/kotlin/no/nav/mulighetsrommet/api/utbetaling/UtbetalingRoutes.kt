@@ -131,13 +131,13 @@ fun Route.utbetalingRoutes() {
 sealed class BesluttDelutbetalingRequest(
     val besluttelse: Besluttelse,
 ) {
-    abstract val tilsagnId: UUID
+    abstract val id: UUID
 
     @Serializable
     @SerialName("GODKJENT")
     data class GodkjentDelutbetalingRequest(
         @Serializable(with = UUIDSerializer::class)
-        override val tilsagnId: UUID,
+        override val id: UUID,
     ) : BesluttDelutbetalingRequest(
         besluttelse = Besluttelse.GODKJENT,
     )
@@ -148,7 +148,7 @@ sealed class BesluttDelutbetalingRequest(
         val aarsaker: List<String>,
         val forklaring: String?,
         @Serializable(with = UUIDSerializer::class)
-        override val tilsagnId: UUID,
+        override val id: UUID,
     ) : BesluttDelutbetalingRequest(
         besluttelse = Besluttelse.AVVIST,
     )
@@ -156,6 +156,8 @@ sealed class BesluttDelutbetalingRequest(
 
 @Serializable
 data class DelutbetalingRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val tilsagnId: UUID,
     val belop: Int,
