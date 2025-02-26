@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.totrinnskontroll.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -15,7 +14,7 @@ data class Totrinnskontroll(
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val entityId: UUID,
-    val type: TotrinnskontrollType,
+    val type: Type,
     val behandletAv: NavIdent,
     @Serializable(with = LocalDateTimeSerializer::class)
     val behandletTidspunkt: LocalDateTime,
@@ -25,4 +24,9 @@ data class Totrinnskontroll(
     @Serializable(with = LocalDateTimeSerializer::class)
     val besluttetTidspunkt: LocalDateTime?,
     val besluttelse: Besluttelse?,
-)
+) {
+    enum class Type {
+        OPPRETT,
+        ANNULLER,
+    }
+}

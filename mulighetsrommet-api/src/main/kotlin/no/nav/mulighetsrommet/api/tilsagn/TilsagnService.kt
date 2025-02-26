@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.*
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
@@ -217,7 +216,7 @@ class TilsagnService(
                 behandletAv = navIdent,
                 aarsaker = annullering.aarsaker.map { it.name },
                 forklaring = annullering.forklaring,
-                type = TotrinnskontrollType.ANNULLER,
+                type = Totrinnskontroll.Type.ANNULLER,
                 behandletTidspunkt = LocalDateTime.now(),
                 besluttelse = null,
                 besluttetAv = null,

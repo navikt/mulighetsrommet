@@ -5,7 +5,6 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.database.createTextArray
@@ -63,7 +62,7 @@ class DelutbetalingQueries(private val session: Session) {
                 behandletAv = delutbetaling.opprettetAv,
                 aarsaker = emptyList(),
                 forklaring = null,
-                type = TotrinnskontrollType.OPPRETT,
+                type = Totrinnskontroll.Type.OPPRETT,
                 behandletTidspunkt = LocalDateTime.now(),
                 besluttelse = null,
                 besluttetAv = null,
@@ -231,7 +230,7 @@ class DelutbetalingQueries(private val session: Session) {
 
     private fun Row.toDelutbetalingDto(): DelutbetalingDto {
         val id = uuid("id")
-        val opprettelse = TotrinnskontrollQueries(session).get(entityId = id, type = TotrinnskontrollType.OPPRETT)
+        val opprettelse = TotrinnskontrollQueries(session).get(entityId = id, type = Totrinnskontroll.Type.OPPRETT)
         requireNotNull(opprettelse)
 
         return when (opprettelse.besluttetAv) {

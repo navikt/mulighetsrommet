@@ -6,7 +6,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -102,7 +101,7 @@ object TilsagnFixtures {
                         behandletAv = tilsagnDbo.endretAv,
                         aarsaker = emptyList(),
                         forklaring = null,
-                        type = TotrinnskontrollType.ANNULLER,
+                        type = Totrinnskontroll.Type.ANNULLER,
                         behandletTidspunkt = LocalDateTime.now(),
                         besluttelse = null,
                         besluttetAv = null,
@@ -125,7 +124,7 @@ object TilsagnFixtures {
                         behandletAv = tilsagnDbo.endretAv,
                         aarsaker = emptyList(),
                         forklaring = null,
-                        type = TotrinnskontrollType.OPPRETT,
+                        type = Totrinnskontroll.Type.OPPRETT,
                         behandletTidspunkt = LocalDateTime.now(),
                         besluttelse = Besluttelse.GODKJENT,
                         besluttetAv = NavAnsattFixture.ansatt2.navIdent,

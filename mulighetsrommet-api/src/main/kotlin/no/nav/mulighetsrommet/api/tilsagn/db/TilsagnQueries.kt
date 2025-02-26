@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.withTransaction
@@ -77,7 +76,7 @@ class TilsagnQueries(private val session: Session) {
                 behandletAv = dbo.endretAv,
                 aarsaker = emptyList(),
                 forklaring = null,
-                type = TotrinnskontrollType.OPPRETT,
+                type = Totrinnskontroll.Type.OPPRETT,
                 behandletTidspunkt = dbo.endretTidspunkt,
                 besluttelse = null,
                 besluttetAv = null,
@@ -208,8 +207,8 @@ class TilsagnQueries(private val session: Session) {
 
     private fun Row.toTilsagnDto(): TilsagnDto {
         val id = uuid("id")
-        val opprettelse = TotrinnskontrollQueries(session).get(id, TotrinnskontrollType.OPPRETT)
-        val annullering = TotrinnskontrollQueries(session).get(id, TotrinnskontrollType.ANNULLER)
+        val opprettelse = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.OPPRETT)
+        val annullering = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.ANNULLER)
         requireNotNull(opprettelse)
 
         return TilsagnDto(
@@ -246,7 +245,7 @@ class TilsagnQueries(private val session: Session) {
 
     private fun Row.toArrangorflateTilsagn(): ArrangorflateTilsagn {
         val id = uuid("id")
-        val aarsaker = TotrinnskontrollQueries(session).get(id, TotrinnskontrollType.ANNULLER)
+        val aarsaker = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.ANNULLER)
             ?.aarsaker
             ?.map { TilsagnStatusAarsak.valueOf(it) } ?: emptyList()
 

@@ -8,13 +8,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.model.NavIdent
 import org.intellij.lang.annotations.Language
-import java.time.LocalDateTime
 import java.util.*
-
-enum class TotrinnskontrollType {
-    OPPRETT,
-    ANNULLER,
-}
 
 class TotrinnskontrollQueries(private val session: Session) {
     fun upsert(totrinnskontroll: Totrinnskontroll) {
@@ -69,38 +63,7 @@ class TotrinnskontrollQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun beslutter(
-        id: Int,
-        navIdent: NavIdent,
-        aarsaker: List<String>?,
-        forklaring: String?,
-        besluttelse: Besluttelse,
-        tidspunkt: LocalDateTime,
-    ) {
-        @Language("PostgreSQL")
-        val query = """
-        update totrinnskontroll set
-            besluttet_av = :besluttet_av,
-            besluttelse = :besluttelse::besluttelse,
-            besluttet_tidspunkt = :tidspunkt,
-            aarsaker = coalesce(:aarsaker, aarsaker),
-            forklaring = coalesce(:forklaring, forklaring)
-        where id = :id
-        """.trimIndent()
-
-        val params = mapOf(
-            "id" to id,
-            "besluttet_av" to navIdent.value,
-            "aarsaker" to aarsaker?.let { session.createTextArray(it) }, // Keeps it nullable
-            "forklaring" to forklaring,
-            "besluttelse" to besluttelse.name,
-            "tidspunkt" to tidspunkt,
-        )
-
-        session.execute(queryOf(query, params))
-    }
-
-    fun get(entityId: UUID, type: TotrinnskontrollType): Totrinnskontroll? {
+    fun get(entityId: UUID, type: Totrinnskontroll.Type): Totrinnskontroll? {
         @Language("PostgreSQL")
         val query = """
             select * from totrinnskontroll
@@ -120,7 +83,7 @@ class TotrinnskontrollQueries(private val session: Session) {
         return Totrinnskontroll(
             id = uuid("id"),
             entityId = uuid("entity_id"),
-            type = TotrinnskontrollType.valueOf(string("type")),
+            type = Totrinnskontroll.Type.valueOf(string("type")),
             behandletAv = NavIdent(string("behandlet_av")),
             behandletTidspunkt = localDateTime("behandlet_tidspunkt"),
             aarsaker = array<String>("aarsaker").toList(),
