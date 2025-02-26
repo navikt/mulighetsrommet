@@ -53,6 +53,7 @@ import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerF
 import { tiltakstypeLoader, tiltakstyperLoader } from "./pages/tiltakstyper/tiltakstypeLoaders";
 import { publiserAction } from "./pages/gjennomforing/gjennomforingActions";
 import { QueryKeys } from "./api/QueryKeys";
+import { setLestStatusForNotifikasjonAction } from "./pages/arbeidsbenk/notifikasjoner/notifikasjonerAction";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -322,16 +323,19 @@ const router = (queryClient: QueryClient) => {
                 path: "notifikasjoner",
                 element: <NotifikasjonerPage />,
                 loader: notifikasjonLoader(queryClient),
+                action: setLestStatusForNotifikasjonAction(queryClient),
                 errorElement: <ErrorPage />,
                 children: [
                   {
                     index: true,
                     element: <Notifikasjonsliste lest={false} />,
+                    loader: notifikasjonLoader(queryClient),
                     errorElement: <ErrorPage />,
                   },
                   {
                     path: "tidligere",
                     element: <Notifikasjonsliste lest={true} />,
+                    loader: notifikasjonLoader(queryClient),
                     errorElement: <ErrorPage />,
                   },
                 ],
