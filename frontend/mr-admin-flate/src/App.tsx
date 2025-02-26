@@ -54,6 +54,7 @@ import { tiltakstypeLoader, tiltakstyperLoader } from "./pages/tiltakstyper/tilt
 import { publiserAction } from "./pages/gjennomforing/gjennomforingActions";
 import { QueryKeys } from "./api/QueryKeys";
 import { setLestStatusForNotifikasjonAction } from "./pages/arbeidsbenk/notifikasjoner/notifikasjonerAction";
+import { lagreFilterAction } from "./api/lagret-filter/lagretFilterAction";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -153,6 +154,7 @@ const router = (queryClient: QueryClient) => {
             path: "avtaler",
             element: <AvtalerPage />,
             errorElement: <ErrorPage />,
+            action: lagreFilterAction(queryClient),
           },
           {
             path: "avtaler/:avtaleId",
@@ -202,6 +204,7 @@ const router = (queryClient: QueryClient) => {
             path: "gjennomforinger/",
             element: <GjennomforingerPage />,
             errorElement: <ErrorPage />,
+            action: lagreFilterAction(queryClient),
           },
           {
             path: "gjennomforinger/:gjennomforingId",

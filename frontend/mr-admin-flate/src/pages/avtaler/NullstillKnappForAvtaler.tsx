@@ -1,11 +1,11 @@
 import { AvtaleFilter, defaultAvtaleFilter } from "@/api/atoms";
-import { useAtom } from "jotai/index";
-import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
-import { WritableAtom } from "jotai";
 import { LagretDokumenttype } from "@mr/api-client-v2";
-import { HStack } from "@navikt/ds-react";
 import { LagreFilterButton } from "@mr/frontend-common/components/lagreFilter/LagreFilterButton";
-import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
+import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import { HStack } from "@navikt/ds-react";
+import { WritableAtom } from "jotai";
+import { useAtom } from "jotai/index";
+import { useFetcher } from "react-router";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
@@ -14,7 +14,7 @@ interface Props {
 
 export function NullstillKnappForAvtaler({ filterAtom, tiltakstypeId }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
-  const lagreFilterMutation = useLagreFilter(LagretDokumenttype.AVTALE);
+  const fetcher = useFetcher();
 
   return (
     <div className="grid grid-cols-[auto auto] h-[100%] items-center">
@@ -37,8 +37,18 @@ export function NullstillKnappForAvtaler({ filterAtom, tiltakstypeId }: Props) {
           />
           <LagreFilterButton
             onLagre={(r) => {
-              lagreFilterMutation.mutate(r);
-              lagreFilterMutation.reset();
+              const formData = new FormData();
+              if (r.id) {
+                formData.append("id", r.id);
+              }
+              formData.append("type", r.type);
+              formData.append("filter", JSON.stringify(r.filter));
+              formData.append("sortOrder", r.sortOrder.toString());
+              formData.append("navn", r.navn);
+              fetcher.submit(formData, {
+                method: "POST",
+                action: "/avtaler",
+              });
             }}
             dokumenttype={LagretDokumenttype.AVTALE}
             filter={filter}
