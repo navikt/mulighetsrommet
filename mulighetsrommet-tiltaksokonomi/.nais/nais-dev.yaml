@@ -50,6 +50,9 @@ spec:
         databases:
           - name: tiltaksokonomi
             envVarPrefix: DB
+        flags:
+          - name: max_connections
+            value: "200"
   azure:
     application:
       enabled: true
