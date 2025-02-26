@@ -355,9 +355,10 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
                     })
                   }
                   knappetekst={
-                    <>
-                      <PlusIcon aria-label="Legg til ny kontaktperson" /> Legg til ny kontaktperson
-                    </>
+                    <div className="flex items-center gap-2">
+                      <PlusIcon aria-label="Legg til ny kontaktperson" />
+                      Legg til ny kontaktperson
+                    </div>
                   }
                 />
               </div>

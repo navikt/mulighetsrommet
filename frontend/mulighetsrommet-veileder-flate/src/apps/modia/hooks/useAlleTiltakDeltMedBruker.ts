@@ -7,7 +7,7 @@ export function useAlleTiltakDeltMedBruker() {
   const { fnr: norskIdent } = useModiaContext();
 
   return useApiQuery({
-    queryKey: [QueryKeys.AlleDeltMedBrukerStatus, norskIdent],
+    queryKey: [...QueryKeys.AlleDeltMedBrukerStatus, norskIdent],
     queryFn: () =>
       DelMedBrukerService.getAlleTiltakDeltMedBruker<false>({
         body: { norskIdent },

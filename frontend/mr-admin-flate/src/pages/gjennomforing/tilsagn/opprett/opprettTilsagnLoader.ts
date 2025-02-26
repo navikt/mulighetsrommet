@@ -25,7 +25,7 @@ const tilsagnDefaultsQuery = (params: {
 
 const godkjenteTilsagnQuery = (gjennomforingId: string) =>
   queryOptions({
-    queryKey: [QueryKeys.getTilsagnForGjennomforing(gjennomforingId)],
+    queryKey: QueryKeys.getTilsagnForGjennomforing(gjennomforingId),
     queryFn: () =>
       TilsagnService.getAll({
         query: {
@@ -75,9 +75,7 @@ export const opprettTilsagnLoader =
         queryClient.ensureQueryData(godkjenteTilsagnQuery(gjennomforingId)),
       ]);
 
-    const { data: avtale } = await queryClient.ensureQueryData(
-      avtaleQuery(gjennomforing.avtaleId!),
-    );
+    const avtale = await queryClient.ensureQueryData(avtaleQuery(gjennomforing.avtaleId!));
 
     return { avtale, gjennomforing, defaults, godkjenteTilsagn };
   };
