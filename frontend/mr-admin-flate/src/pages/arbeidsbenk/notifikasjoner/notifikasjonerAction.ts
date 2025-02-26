@@ -7,19 +7,27 @@ export const setLestStatusForNotifikasjonAction =
   (queryClient: QueryClient) =>
   async ({ request }: ActionFunctionArgs) => {
     const formData = await request.formData();
-    const id = String(formData.get("id"));
-    const status = formData.get("status");
+    const ids = formData.getAll("ids[]");
+    const statuses = formData.getAll("statuses[]");
 
-    if (!id) {
-      throw Error("Id for notifikasjon ekisterer ikke");
+    if (ids.length === 0) {
+      throw Error("Ingen notifikasjoner å oppdatere");
     }
 
-    if (status !== NotificationStatus.DONE && status !== NotificationStatus.NOT_DONE) {
-      throw Error("Ugyldig status for notifikasjon");
+    if (ids.length !== statuses.length) {
+      throw Error("Antall IDer og statuser må være like");
     }
+
+    const notifikasjoner = ids.map((id, index) => {
+      const status = statuses[index];
+      if (status !== NotificationStatus.DONE && status !== NotificationStatus.NOT_DONE) {
+        throw Error("Ugyldig status for notifikasjon");
+      }
+      return { id: String(id), status: status as NotificationStatus };
+    });
 
     await NotificationsService.setNotificationStatus({
-      body: { notifikasjoner: [{ status, id }] },
+      body: { notifikasjoner },
     });
 
     await queryClient.invalidateQueries({

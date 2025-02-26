@@ -1,11 +1,8 @@
-import { useMutateNotifikasjoner } from "@/api/notifikasjoner/useMutateNotifikasjoner";
-import { QueryKeys } from "@/api/QueryKeys";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { NotificationStatus } from "@mr/api-client-v2";
 import { Button, HStack } from "@navikt/ds-react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { useLoaderData, useNavigate, useRevalidator } from "react-router";
+import { useFetcher, useLoaderData } from "react-router";
 import { notifikasjonLoader } from "../../pages/arbeidsbenk/notifikasjoner/notifikasjonerLoader";
 import { LoaderData } from "../../types/loader";
 import { EmptyState } from "./EmptyState";
@@ -17,37 +14,17 @@ interface Props {
 export function Notifikasjonsliste({ lest }: Props) {
   const { leste, uleste } = useLoaderData<LoaderData<typeof notifikasjonLoader>>();
   const notifikasjoner = useMemo(() => (lest ? leste : uleste), [lest, leste, uleste]);
-  const mutation = useMutateNotifikasjoner();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const revalidator = useRevalidator();
+  const fetcher = useFetcher();
 
   function toggleMarkertSomlestUlest() {
     if (notifikasjoner) {
-      const payload = notifikasjoner.data.map(({ id }) => ({
-        id,
-        status: lest ? NotificationStatus.NOT_DONE : NotificationStatus.DONE,
-      }));
-      mutation.mutate(
-        { notifikasjoner: payload },
-        {
-          onSuccess: async () => {
-            await queryClient.invalidateQueries({
-              queryKey: ["notifikasjoner"],
-              type: "all",
-            });
-
-            await queryClient.invalidateQueries({
-              queryKey: QueryKeys.antallUlesteNotifikasjoner(),
-              type: "all",
-            });
-
-            revalidator.revalidate();
-            navigate(`/arbeidsbenk/notifikasjoner${lest ? "" : "/tidligere"}`);
-            return null;
-          },
-        },
-      );
+      const newStatus = lest ? NotificationStatus.NOT_DONE : NotificationStatus.DONE;
+      const formData = new FormData();
+      notifikasjoner.data.forEach(({ id }) => {
+        formData.append("ids[]", id);
+        formData.append("statuses[]", newStatus);
+      });
+      fetcher.submit(formData, { method: "POST", action: `/arbeidsbenk/notifikasjoner` });
     }
   }
 

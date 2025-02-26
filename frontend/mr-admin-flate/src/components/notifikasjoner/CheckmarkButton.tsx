@@ -14,7 +14,10 @@ export function CheckmarkButton({ id, read, setError }: Props) {
   const fetcher = useFetcher();
 
   const setStatus = async (status: NotificationStatus) => {
-    fetcher.submit({ id, status }, { method: "POST", action: `/arbeidsbenk/notifikasjoner` });
+    const formData = new FormData();
+    formData.set("ids[]", id);
+    formData.set("statuses[]", status);
+    fetcher.submit(formData, { method: "POST", action: `/arbeidsbenk/notifikasjoner` });
   };
 
   if (fetcher.data?.error) {
