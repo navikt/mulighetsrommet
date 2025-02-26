@@ -55,6 +55,7 @@ import { publiserAction } from "./pages/gjennomforing/gjennomforingActions";
 import { QueryKeys } from "./api/QueryKeys";
 import { setLestStatusForNotifikasjonAction } from "./pages/arbeidsbenk/notifikasjoner/notifikasjonerAction";
 import { lagreFilterAction } from "./api/lagret-filter/lagretFilterAction";
+import { LoaderData } from "./types/loader";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -71,7 +72,7 @@ if (import.meta.env.PROD) {
 initializeAmplitude();
 
 export function App() {
-  const ansatt = useLoaderData() as NavAnsatt;
+  const ansatt = useLoaderData<LoaderData<typeof ansattLoader>>();
   if (!ansatt) {
     return null;
   }
@@ -107,13 +108,12 @@ export function App() {
 const ansattQuery = {
   queryKey: QueryKeys.ansatt(),
   queryFn: async () => {
-    const { data } = await AnsattService.hentInfoOmAnsatt();
-    return data;
+    return await AnsattService.hentInfoOmAnsatt();
   },
 };
 
 const ansattLoader = (queryClient: QueryClient) => async () => {
-  return queryClient.ensureQueryData(ansattQuery);
+  return (await queryClient.ensureQueryData(ansattQuery)).data;
 };
 
 const router = (queryClient: QueryClient) => {
