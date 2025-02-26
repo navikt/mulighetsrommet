@@ -42,14 +42,14 @@ data class Periode(
     }
 
     operator fun contains(periode: Periode): Boolean {
-        return periode.start in this && periode.getLastDate() in this
+        return periode.start in this && periode.getLastInclusiveDate() in this
     }
 
     fun getDurationInDays(): Long {
         return ChronoUnit.DAYS.between(start, slutt)
     }
 
-    fun getLastDate(): LocalDate {
+    fun getLastInclusiveDate(): LocalDate {
         return slutt.minusDays(1)
     }
 

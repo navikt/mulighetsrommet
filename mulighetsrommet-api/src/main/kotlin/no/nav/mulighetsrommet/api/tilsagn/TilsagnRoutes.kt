@@ -148,7 +148,7 @@ fun Route.tilsagnRoutes() {
         val satser = ForhandsgodkjenteSatser.satser(tiltakstype).map {
             AvtaltSats(
                 periodeStart = it.periode.start,
-                periodeSlutt = it.periode.getLastDate(),
+                periodeSlutt = it.periode.getLastInclusiveDate(),
                 pris = it.belop,
                 valuta = "NOK",
             )

@@ -149,7 +149,7 @@ private fun toOebsBestillingMelding(
             antall = linje.belop,
             periode = linje.periode.start.monthValue.toString().padStart(2, '0'),
             startDato = linje.periode.start,
-            sluttDato = linje.periode.getLastDate(),
+            sluttDato = linje.periode.getLastInclusiveDate(),
         )
     }
 
@@ -165,7 +165,7 @@ private fun toOebsBestillingMelding(
         saksbehandler = bestilling.behandletAv.part,
         bdmGodkjenner = bestilling.behandletAv.part,
         startDato = bestilling.periode.start,
-        sluttDato = bestilling.periode.getLastDate(),
+        sluttDato = bestilling.periode.getLastInclusiveDate(),
         bestillingsLinjer = linjer,
         statsregnskapsKonto = kontering.statligRegnskapskonto,
         artsKonto = kontering.statligArtskonto,
