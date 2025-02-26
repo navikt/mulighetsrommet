@@ -1,4 +1,4 @@
-import test, { expect, Page } from "@playwright/test";
+import test, { Page } from "@playwright/test";
 import { locateAndFillInput } from "./utils";
 
 const mockAvtaleId = "d1f163b7-1a41-4547-af16-03fd4492b7ba";
