@@ -147,7 +147,7 @@ private fun toOebsBestillingMelding(
         OebsBestillingMelding.Linje(
             linjeNummer = linje.linjenummer,
             antall = linje.belop,
-            periode = linje.periode.start.monthValue,
+            periode = linje.periode.start.monthValue.toString().padStart(2, '0'),
             startDato = linje.periode.start,
             sluttDato = linje.periode.getLastDate(),
         )
