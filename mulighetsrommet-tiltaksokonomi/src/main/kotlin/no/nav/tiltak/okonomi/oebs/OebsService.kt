@@ -43,7 +43,7 @@ class OebsService(
         val kontering = queries.kontering.getOebsKontering(opprettBestilling.tiltakskode, opprettBestilling.periode)
             ?: return OpprettBestillingError("Kontering for tiltakskode ${opprettBestilling.tiltakskode} og periode ${opprettBestilling.periode} mangler").left()
 
-        val bestilling = Bestilling.fromOpprettBestilling(opprettBestilling, BestillingStatusType.AKTIV)
+        val bestilling = Bestilling.fromOpprettBestilling(opprettBestilling, BestillingStatusType.BESTILT)
 
         return brreg.getHovedenhet(bestilling.arrangorHovedenhet)
             .mapLeft { OpprettBestillingError("Klarte ikke hente hovedenhet ${bestilling.arrangorHovedenhet} fra Brreg: $it") }
@@ -84,10 +84,11 @@ class OebsService(
         val bestilling = queries.bestilling.getBestilling(bestillingsnummer)
             ?: return AnnullerBestillingError("Bestilling $bestillingsnummer finnes ikke").left()
 
+        // TODO: ikke tillatt annullering når det finnes utbetalinger
         if (bestilling.status == BestillingStatusType.ANNULLERT) {
             return bestilling.right()
-        } else if (bestilling.status != BestillingStatusType.AKTIV) {
-            return AnnullerBestillingError("Kan ikke annullere bestilling $bestillingsnummer med status ${bestilling.status}").left()
+        } else if (bestilling.status == BestillingStatusType.OPPGJORT) {
+            return AnnullerBestillingError("Bestilling $bestillingsnummer er allerede oppgjort").left()
         }
 
         val melding = OebsAnnulleringMelding(
@@ -146,7 +147,7 @@ private fun toOebsBestillingMelding(
         OebsBestillingMelding.Linje(
             linjeNummer = linje.linjenummer,
             antall = linje.belop,
-            periode = linje.periode.start.monthValue,
+            periode = linje.periode.start.monthValue.toString().padStart(2, '0'),
             startDato = linje.periode.start,
             sluttDato = linje.periode.getLastDate(),
         )

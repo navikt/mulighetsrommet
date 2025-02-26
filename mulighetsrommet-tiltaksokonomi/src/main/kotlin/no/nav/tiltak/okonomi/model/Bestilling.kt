@@ -61,6 +61,7 @@ data class Bestilling(
 }
 
 enum class BestillingStatusType {
+    BESTILT,
     AKTIV,
     ANNULLERT,
     OPPGJORT,
