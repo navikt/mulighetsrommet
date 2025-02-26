@@ -32,18 +32,18 @@ data class Bestilling(
     )
 
     companion object {
-        fun fromOpprettBestilling(bestilling: OpprettBestilling, status: BestillingStatusType): Bestilling {
+        fun fromOpprettBestilling(bestilling: OpprettBestilling): Bestilling {
             val perioder = divideBelopByMonthsInPeriode(bestilling.periode, bestilling.belop)
             return Bestilling(
                 tiltakskode = bestilling.tiltakskode,
                 arrangorHovedenhet = bestilling.arrangor.hovedenhet,
-                arrangorUnderenhet = bestilling.arrangor.hovedenhet,
+                arrangorUnderenhet = bestilling.arrangor.underenhet,
                 kostnadssted = bestilling.kostnadssted,
                 bestillingsnummer = bestilling.bestillingsnummer,
                 avtalenummer = bestilling.avtalenummer,
                 belop = bestilling.belop,
                 periode = bestilling.periode,
-                status = status,
+                status = BestillingStatusType.BESTILT,
                 behandletAv = bestilling.behandletAv,
                 behandletTidspunkt = bestilling.behandletTidspunkt,
                 besluttetAv = bestilling.besluttetAv,

@@ -2,10 +2,7 @@ package no.nav.tiltak.okonomi.model
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.OpprettBestilling
@@ -25,16 +22,28 @@ class BestillingTest : FunSpec({
             belop = 1000,
             behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
             behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
-            besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-            besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+            besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
+            besluttetTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             kostnadssted = NavEnhetNummer("0400"),
         )
 
+        test("felter utledes fra OpprettBestilling") {
+            val bestilling = Bestilling.fromOpprettBestilling(opprettBestilling)
+
+            bestilling.status shouldBe BestillingStatusType.BESTILT
+            bestilling.periode shouldBe Periode.forMonthOf(LocalDate.of(2025, 1, 1))
+            bestilling.arrangorHovedenhet shouldBe Organisasjonsnummer("123456789")
+            bestilling.arrangorUnderenhet shouldBe Organisasjonsnummer("234567891")
+            bestilling.behandletAv shouldBe OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON)
+            bestilling.behandletTidspunkt shouldBe LocalDate.of(2025, 1, 1).atStartOfDay()
+            bestilling.besluttetAv shouldBe OkonomiPart.NavAnsatt(NavIdent("Z123456"))
+            bestilling.besluttetTidspunkt shouldBe LocalDate.of(2025, 1, 2).atStartOfDay()
+        }
+
         test("utleder bestillingslinjer for hver måned i bestillingens periode") {
             val bestilling1 = Bestilling.fromOpprettBestilling(
                 opprettBestilling.copy(periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 1))),
-                BestillingStatusType.AKTIV,
             )
             bestilling1.linjer shouldBe listOf(
                 Bestilling.Linje(
@@ -51,7 +60,6 @@ class BestillingTest : FunSpec({
 
             val bestilling2 = Bestilling.fromOpprettBestilling(
                 opprettBestilling.copy(periode = Periode(LocalDate.of(2025, 7, 15), LocalDate.of(2025, 8, 15))),
-                BestillingStatusType.AKTIV,
             )
             bestilling2.linjer shouldBe listOf(
                 Bestilling.Linje(

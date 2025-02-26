@@ -11,10 +11,7 @@ import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
-import no.nav.tiltak.okonomi.model.Bestilling
-import no.nav.tiltak.okonomi.model.BestillingStatusType
-import no.nav.tiltak.okonomi.model.Faktura
-import no.nav.tiltak.okonomi.model.OebsKontering
+import no.nav.tiltak.okonomi.model.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -43,7 +40,7 @@ class OebsService(
         val kontering = queries.kontering.getOebsKontering(opprettBestilling.tiltakskode, opprettBestilling.periode)
             ?: return OpprettBestillingError("Kontering for tiltakskode ${opprettBestilling.tiltakskode} og periode ${opprettBestilling.periode} mangler").left()
 
-        val bestilling = Bestilling.fromOpprettBestilling(opprettBestilling, BestillingStatusType.BESTILT)
+        val bestilling = Bestilling.fromOpprettBestilling(opprettBestilling)
 
         return brreg.getHovedenhet(bestilling.arrangorHovedenhet)
             .mapLeft { OpprettBestillingError("Klarte ikke hente hovedenhet ${bestilling.arrangorHovedenhet} fra Brreg: $it") }
