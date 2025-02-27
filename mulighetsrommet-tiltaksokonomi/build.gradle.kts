@@ -29,6 +29,9 @@ dependencies {
     implementation(projects.common.ktorClients)
     implementation(projects.common.metrics)
     implementation(projects.common.tiltaksokonomiClient)
+    implementation(projects.common.tasks)
+
+    implementation(libs.shedlock.jdbc)
 
     // Cache
     implementation(libs.caffeine)

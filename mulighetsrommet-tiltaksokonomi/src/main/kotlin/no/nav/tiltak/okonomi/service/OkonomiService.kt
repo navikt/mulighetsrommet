@@ -9,7 +9,10 @@ import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.tiltak.okonomi.*
+import no.nav.tiltak.okonomi.api.BestillingStatus
+import no.nav.tiltak.okonomi.api.FakturaStatus
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
+import no.nav.tiltak.okonomi.db.QueryContext
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.BestillingStatusType
 import no.nav.tiltak.okonomi.model.Faktura
@@ -30,12 +33,13 @@ class OkonomiService(
     private val db: OkonomiDatabase,
     private val oebs: OebsPoApClient,
     private val brreg: BrregClient,
+    private val topics: KafkaTopics,
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun opprettBestilling(
         opprettBestilling: OpprettBestilling,
-    ): Either<OpprettBestillingError, Bestilling> = db.session {
+    ): Either<OpprettBestillingError, Bestilling> = db.transaction {
         queries.bestilling.getByBestillingsnummer(opprettBestilling.bestillingsnummer)?.let {
             log.info("Bestilling ${opprettBestilling.bestillingsnummer} er allerede opprettet")
             return it.right()
@@ -85,7 +89,7 @@ class OkonomiService(
             .map {
                 log.info("Lagrer bestilling ${bestilling.bestillingsnummer}")
                 queries.bestilling.insertBestilling(bestilling)
-                bestilling
+                publishBestilling(bestilling.bestillingsnummer)
             }
             .onLeft {
                 log.warn("Opprett bestilling ${bestilling.bestillingsnummer} feilet", it)
@@ -94,7 +98,7 @@ class OkonomiService(
 
     suspend fun annullerBestilling(
         annullerBestilling: AnnullerBestilling,
-    ): Either<AnnullerBestillingError, Bestilling> = db.session {
+    ): Either<AnnullerBestillingError, Bestilling> = db.transaction {
         val bestillingsnummer = annullerBestilling.bestillingsnummer
         val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
             ?: return AnnullerBestillingError("Bestilling $bestillingsnummer finnes ikke").left()
@@ -125,13 +129,13 @@ class OkonomiService(
                         besluttetTidspunkt = annullerBestilling.besluttetTidspunkt,
                     ),
                 )
-                checkNotNull(queries.bestilling.getByBestillingsnummer(bestillingsnummer))
+                publishBestilling(bestillingsnummer)
             }
     }
 
     suspend fun opprettFaktura(
         opprettFaktura: OpprettFaktura,
-    ): Either<OpprettFakturaError, Faktura> = db.session {
+    ): Either<OpprettFakturaError, Faktura> = db.transaction {
         val bestilling = queries.bestilling.getByBestillingsnummer(opprettFaktura.bestillingsnummer)
             ?: return OpprettFakturaError("Bestilling ${opprettFaktura.bestillingsnummer} finnes ikke").left()
 
@@ -151,11 +155,10 @@ class OkonomiService(
                 queries.faktura.insertFaktura(faktura)
 
                 if (opprettFaktura.frigjorBestilling) {
-                    log.info("Setter bestilling ${bestilling.bestillingsnummer} til frigjort")
-                    queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.FRIGJORT)
+                    setBestillingFrigjort(bestilling.bestillingsnummer)
                 }
 
-                faktura
+                publishFaktura(faktura.fakturanummer)
             }
     }
 
@@ -187,11 +190,46 @@ class OkonomiService(
                 log.info("Lagrer frigjøringsfaktura ${faktura.fakturanummer}")
                 queries.faktura.insertFaktura(faktura)
 
-                log.info("Setter bestilling ${bestilling.bestillingsnummer} til frigjort")
-                queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.FRIGJORT)
+                setBestillingFrigjort(bestilling.bestillingsnummer)
 
                 faktura
             }
+    }
+
+    private fun QueryContext.setBestillingFrigjort(bestillingsnummer: String) {
+        log.info("Setter bestilling $bestillingsnummer til frigjort")
+        queries.bestilling.setStatus(bestillingsnummer, BestillingStatusType.FRIGJORT)
+        publishBestilling(bestillingsnummer)
+    }
+
+    private fun QueryContext.publishBestilling(bestillingsnummer: String): Bestilling {
+        val bestilling = checkNotNull(queries.bestilling.getByBestillingsnummer(bestillingsnummer))
+
+        log.info("Lagrer status-melding for bestilling $bestillingsnummer")
+        queries.kafkaProducerRecord.insertBestillingStatus(
+            topics.bestillingStatus,
+            BestillingStatus(
+                bestillingsnummer = bestilling.bestillingsnummer,
+                status = bestilling.status,
+            ),
+        )
+
+        return bestilling
+    }
+
+    private fun QueryContext.publishFaktura(fakturanummer: String): Faktura {
+        val faktura = checkNotNull(queries.faktura.getByFakturanummer(fakturanummer))
+
+        log.info("Lagrer status-melding for faktura $fakturanummer")
+        queries.kafkaProducerRecord.insertFakturaStatus(
+            topics.fakturaStatus,
+            FakturaStatus(
+                fakturanummer = fakturanummer,
+                status = faktura.status,
+            ),
+        )
+
+        return faktura
     }
 }
 

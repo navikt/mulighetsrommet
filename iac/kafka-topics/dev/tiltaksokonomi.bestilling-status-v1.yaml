@@ -1,0 +1,26 @@
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  name: tiltaksokonomi.bestilling-status-v1
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
+spec:
+  pool: nav-dev
+  config:
+    cleanupPolicy: compact
+    minimumInSyncReplicas: 2
+    partitions: 2
+    replication: 3
+    retentionHours: 1
+    segmentHours: 1
+  acl:
+    - team: team-mulighetsrommet
+      application: tiltaksokonomi
+      access: readwrite
+    - team: team-mulighetsrommet
+      application: mulighetsrommet-api
+      access: read
+    - team: team-mulighetsrommet
+      application: mulighetsrommet-kafka-manager
+      access: read
