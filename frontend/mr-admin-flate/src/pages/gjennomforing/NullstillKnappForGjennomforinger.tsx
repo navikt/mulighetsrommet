@@ -1,10 +1,11 @@
 import { defaultGjennomforingfilter, GjennomforingFilter } from "@/api/atoms";
-import { useAtom } from "jotai/index";
-import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { AvtaleDto, LagretDokumenttype } from "@mr/api-client-v2";
-import { WritableAtom } from "jotai";
 import { LagreFilterButton } from "@mr/frontend-common/components/lagreFilter/LagreFilterButton";
-import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
+import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import { WritableAtom } from "jotai";
+import { useAtom } from "jotai/index";
+import { useFetcher } from "react-router";
+import { filterToActionRequest } from "../../api/lagret-filter/lagretFilterAction";
 
 interface Props {
   filterAtom: WritableAtom<GjennomforingFilter, [newValue: GjennomforingFilter], void>;
@@ -12,7 +13,7 @@ interface Props {
 }
 export function NullstillKnappForGjennomforinger({ filterAtom, avtale }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
-  const lagreFilterMutation = useLagreFilter(LagretDokumenttype.GJENNOMFORING);
+  const fetcher = useFetcher();
 
   return filter.visMineGjennomforinger ||
     filter.search.length > 0 ||
@@ -33,8 +34,11 @@ export function NullstillKnappForGjennomforinger({ filterAtom, avtale }: Props) 
         dokumenttype={LagretDokumenttype.GJENNOMFORING}
         filter={filter}
         onLagre={(r) => {
-          lagreFilterMutation.mutate(r);
-          lagreFilterMutation.reset();
+          const formData = filterToActionRequest(r);
+          fetcher.submit(formData, {
+            method: "POST",
+            action: "/gjennomforinger",
+          });
         }}
       />
     </>

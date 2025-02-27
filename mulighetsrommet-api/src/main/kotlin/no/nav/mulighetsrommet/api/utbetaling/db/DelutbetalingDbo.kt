@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.model.Periode
 import java.util.*
 
 data class DelutbetalingDbo(
+    val id: UUID,
     val tilsagnId: UUID,
     val utbetalingId: UUID,
     val belop: Int,

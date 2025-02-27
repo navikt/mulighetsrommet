@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.api.utbetaling.OpprettManuellUtbetalingRequest.Periode
-import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -27,17 +26,7 @@ class UtbetalingRoutesTest : FunSpec({
         gjennomforinger = listOf(AFT1),
         tilsagn = listOf(TilsagnFixtures.Tilsagn1),
         utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
-        delutbetalinger = listOf(
-            DelutbetalingDbo(
-                tilsagnId = TilsagnFixtures.Tilsagn1.id,
-                utbetalingId = UtbetalingFixtures.utbetaling1.id,
-                belop = 100,
-                periode = no.nav.mulighetsrommet.model.Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
-                lopenummer = 1,
-                fakturanummer = "2025/1",
-                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
-            ),
-        ),
+        delutbetalinger = listOf(UtbetalingFixtures.delutbetaling1),
     )
 
     val oauth = MockOAuth2Server()
@@ -199,9 +188,7 @@ class UtbetalingRoutesTest : FunSpec({
                 bearerAuth(oauth.issueToken(claims = claims).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(
-                    BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(
-                        tilsagnId = TilsagnFixtures.Tilsagn1.id,
-                    ),
+                    BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(id = UUID.randomUUID()),
                 )
             }
             response.status shouldBe HttpStatusCode.Unauthorized
@@ -225,9 +212,7 @@ class UtbetalingRoutesTest : FunSpec({
                 bearerAuth(oauth.issueToken(claims = claims).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(
-                    BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(
-                        tilsagnId = TilsagnFixtures.Tilsagn1.id,
-                    ),
+                    BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(id = UUID.randomUUID()),
                 )
             }
             response.status shouldBe HttpStatusCode.Unauthorized

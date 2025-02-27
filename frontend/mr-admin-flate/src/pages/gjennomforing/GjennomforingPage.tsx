@@ -1,23 +1,23 @@
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { Header } from "@/components/detaljside/Header";
-import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
-import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { DupliserGjennomforing } from "@/components/gjennomforing/DupliserGjennomforing";
+import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
+import { Laster } from "@/components/laster/Laster";
+import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "@/constants";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
+import { ContentBox } from "@/layouts/ContentBox";
+import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { GjennomforingOppstartstype, Toggles } from "@mr/api-client-v2";
 import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
-import { Outlet, useLoaderData, useLocation } from "react-router";
-import { gjennomforingLoader } from "./gjennomforingLoaders";
-import { ContentBox } from "@/layouts/ContentBox";
-import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import React from "react";
-import { Laster } from "@/components/laster/Laster";
+import { Outlet, useLoaderData, useLocation } from "react-router";
 import { LoaderData } from "../../types/loader";
+import { gjennomforingLoader } from "./gjennomforingLoaders";
 type GjennomforingTab = "tilsagn" | "deltakerliste" | "utbetalinger" | "gjennomforing";
 
 export function GjennomforingPage() {

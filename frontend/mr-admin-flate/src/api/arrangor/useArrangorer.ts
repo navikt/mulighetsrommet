@@ -10,6 +10,7 @@ export function useArrangorer(til?: ArrangorTil, filter?: Partial<ArrangorerFilt
   const arrangorFilter: Pick<GetArrangorerData, "query"> = {
     query: {
       til,
+
       sok: debouncedSok || undefined,
       page: filter?.page,
       size: filter?.pageSize,

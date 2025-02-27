@@ -106,8 +106,8 @@ class TiltaksokonomiTest : FunSpec({
                             bestillingsnummer = bestillingsnummer,
                             avtalenummer = "2025/1234",
                             belop = 1000,
-                            opprettetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-                            opprettetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+                            behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+                            behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
                             besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
                             besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
                             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
@@ -124,7 +124,7 @@ class TiltaksokonomiTest : FunSpec({
                     it.status shouldBe HttpStatusCode.OK
                     it.body<BestillingStatus>() shouldBe BestillingStatus(
                         bestillingsnummer = bestillingsnummer,
-                        status = BestillingStatusType.AKTIV,
+                        status = BestillingStatusType.BESTILT,
                     )
                 }
 
@@ -198,8 +198,8 @@ class TiltaksokonomiTest : FunSpec({
                             bestillingsnummer = bestillingsnummer,
                             avtalenummer = null,
                             belop = 1000,
-                            opprettetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-                            opprettetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+                            behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+                            behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
                             besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
                             besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
                             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
@@ -225,8 +225,8 @@ class TiltaksokonomiTest : FunSpec({
                             ),
                             belop = 1000,
                             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-                            opprettetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-                            opprettetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+                            behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+                            behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
                             besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
                             besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
                         ),

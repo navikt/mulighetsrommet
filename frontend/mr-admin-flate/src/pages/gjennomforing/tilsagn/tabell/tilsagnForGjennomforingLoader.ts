@@ -17,13 +17,13 @@ export const tilsagnForGjennomforingLoader =
       gjennomforingQuery(gjennomforingId),
     );
 
-    const [{ data: avtale }, { data: tilsagnForGjennomforing }] = await Promise.all([
+    const [avtale, { data: tilsagnForGjennomforing }] = await Promise.all([
       queryClient.ensureQueryData(avtaleQuery(gjennomforing.avtaleId!)),
       TilsagnService.getAll({ query: { gjennomforingId } }),
     ]);
 
     const tilsagnstyper =
-      avtale.avtaletype === Avtaletype.FORHAANDSGODKJENT
+      avtale?.avtaletype === Avtaletype.FORHAANDSGODKJENT
         ? [TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN, TilsagnType.INVESTERING]
         : [TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN];
 

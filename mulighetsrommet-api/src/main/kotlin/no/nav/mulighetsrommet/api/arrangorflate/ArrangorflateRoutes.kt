@@ -300,7 +300,7 @@ suspend fun toArrFlateUtbetaling(
             gjennomforing = utbetaling.gjennomforing,
             arrangor = utbetaling.arrangor,
             periodeStart = utbetaling.periode.start,
-            periodeSlutt = utbetaling.periode.getLastDate(),
+            periodeSlutt = utbetaling.periode.getLastInclusiveDate(),
             beregning = Beregning.Forhandsgodkjent(
                 antallManedsverk = antallManedsverk,
                 belop = beregning.output.belop,
@@ -319,7 +319,7 @@ suspend fun toArrFlateUtbetaling(
         gjennomforing = utbetaling.gjennomforing,
         arrangor = utbetaling.arrangor,
         periodeStart = utbetaling.periode.start,
-        periodeSlutt = utbetaling.periode.getLastDate(),
+        periodeSlutt = utbetaling.periode.getLastInclusiveDate(),
         beregning = Beregning.Fri(
             belop = beregning.output.belop,
             digest = beregning.getDigest(),

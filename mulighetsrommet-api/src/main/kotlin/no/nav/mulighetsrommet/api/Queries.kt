@@ -12,13 +12,16 @@ import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattQueries
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetQueries
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeQueries
-import no.nav.mulighetsrommet.api.utbetaling.db.*
+import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
+import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslagQueries
+import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerQueries
+import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingQueries
+import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingQueries
 import no.nav.mulighetsrommet.api.veilederflate.VeilederJoyrideQueries
 import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakQueries
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.notifications.NotificationQueries
 import no.nav.mulighetsrommet.utdanning.db.UtdanningQueries
-import java.util.*
 import javax.sql.DataSource
 
 class QueryContext(val session: Session) {
@@ -43,6 +46,7 @@ class QueryContext(val session: Session) {
         val notifications = NotificationQueries(session)
         val endringshistorikk = EndringshistorikkQueries(session)
         val delutbetaling = DelutbetalingQueries(session)
+        val totrinnskontroll = TotrinnskontrollQueries(session)
 
         val veilderTiltak = VeilederflateTiltakQueries(session)
         val veilederJoyride = VeilederJoyrideQueries(session)

@@ -42,7 +42,7 @@ class BrregClient(
             { error ->
                 if (error == BrregError.NotFound) {
                     // Ingen treff på hovedenhet, vi sjekker underenheter også
-                    log.debug("Fant ingen treff på orgnr: '$orgnr'. Sjekker underenheter....")
+                    log.debug("Fant ingen treff på orgnr: '${orgnr.value}'. Sjekker underenheter....")
                     getUnderenhet(orgnr)
                 } else {
                     error.left()

@@ -11,12 +11,13 @@ import { avtaleSkjemaLoader } from "./avtaleLoader";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { LoaderData } from "../../types/loader";
-
+import { QueryKeys } from "../../api/QueryKeys";
+import { useQueryClient } from "@tanstack/react-query";
 export function AvtaleFormPage() {
   const navigate = useNavigate();
   const { avtale, ansatt, enheter, tiltakstyper } =
     useLoaderData<LoaderData<typeof avtaleSkjemaLoader>>();
-
+  const queryClient = useQueryClient();
   const location = useLocation();
 
   const navigerTilbake = () => {
@@ -49,7 +50,13 @@ export function AvtaleFormPage() {
             onClose={() => {
               navigerTilbake();
             }}
-            onSuccess={(id) => navigate(`/avtaler/${id}`)}
+            onSuccess={async (id) => {
+              await queryClient.invalidateQueries({
+                queryKey: QueryKeys.avtale(avtale?.id),
+                refetchType: "all",
+              });
+              navigate(`/avtaler/${id}`);
+            }}
             tiltakstyper={tiltakstyper.data}
             ansatt={ansatt}
             enheter={enheter}

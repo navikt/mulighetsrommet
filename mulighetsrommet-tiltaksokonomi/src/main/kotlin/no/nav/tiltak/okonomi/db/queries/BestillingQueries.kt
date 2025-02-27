@@ -27,8 +27,8 @@ class BestillingQueries(private val session: Session) {
                 belop,
                 periode,
                 status,
-                opprettet_av,
-                opprettet_tidspunkt,
+                behandlet_av,
+                behandlet_tidspunkt,
                 besluttet_av,
                 besluttet_tidspunkt
             ) values (
@@ -41,8 +41,8 @@ class BestillingQueries(private val session: Session) {
                 :belop,
                 daterange(:periode_start, :periode_slutt),
                 :status,
-                :opprettet_av,
-                :opprettet_tidspunkt,
+                :behandlet_av,
+                :behandlet_tidspunkt,
                 :besluttet_av,
                 :besluttet_tidspunkt
             )
@@ -59,8 +59,8 @@ class BestillingQueries(private val session: Session) {
             "periode_start" to bestilling.periode.start,
             "periode_slutt" to bestilling.periode.slutt,
             "status" to bestilling.status.name,
-            "opprettet_av" to bestilling.opprettetAv.part,
-            "opprettet_tidspunkt" to bestilling.opprettetTidspunkt,
+            "behandlet_av" to bestilling.behandletAv.part,
+            "behandlet_tidspunkt" to bestilling.behandletTidspunkt,
             "besluttet_av" to bestilling.besluttetAv.part,
             "besluttet_tidspunkt" to bestilling.besluttetTidspunkt,
         )
@@ -105,8 +105,8 @@ class BestillingQueries(private val session: Session) {
                 belop,
                 periode,
                 status,
-                opprettet_av,
-                opprettet_tidspunkt,
+                behandlet_av,
+                behandlet_tidspunkt,
                 besluttet_av,
                 besluttet_tidspunkt
             from bestilling
@@ -131,8 +131,8 @@ class BestillingQueries(private val session: Session) {
                 belop = bestilling.int("belop"),
                 periode = bestilling.periode("periode"),
                 status = BestillingStatusType.valueOf(bestilling.string("status")),
-                opprettetAv = OkonomiPart.fromString(bestilling.string("opprettet_av")),
-                opprettetTidspunkt = bestilling.localDateTime("opprettet_tidspunkt"),
+                behandletAv = OkonomiPart.fromString(bestilling.string("behandlet_av")),
+                behandletTidspunkt = bestilling.localDateTime("behandlet_tidspunkt"),
                 besluttetAv = OkonomiPart.fromString(bestilling.string("besluttet_av")),
                 besluttetTidspunkt = bestilling.localDateTime("besluttet_tidspunkt"),
                 linjer = linjer,

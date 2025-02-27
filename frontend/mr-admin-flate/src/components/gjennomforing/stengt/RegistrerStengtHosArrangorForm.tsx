@@ -37,7 +37,7 @@ export function RegistrerStengtHosArrangorForm({
         onSuccess: async () => {
           form.reset();
           await queryClient.invalidateQueries({
-            queryKey: [QueryKeys.gjennomforing(gjennomforing.id)],
+            queryKey: QueryKeys.gjennomforing(gjennomforing.id),
             refetchType: "all",
           });
           revalidator.revalidate();

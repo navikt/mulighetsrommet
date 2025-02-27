@@ -10,6 +10,7 @@ import {
   BesluttDelutbetalingRequest,
   NavAnsatt,
   NavAnsattRolle,
+  TilsagnStatus,
 } from "@mr/api-client-v2";
 import { BodyShort, Button, HStack, Table, TextField } from "@navikt/ds-react";
 import { formaterNOK, isValidationError } from "@mr/frontend-common/utils/utils";
@@ -22,6 +23,7 @@ import { useUpsertDelutbetaling } from "@/api/utbetaling/useUpsertDelutbetaling"
 import { Metadata } from "../detaljside/Metadata";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRevalidator } from "react-router";
+import { v4 as uuidv4 } from "uuid";
 
 interface Props {
   utbetaling: UtbetalingKompakt;
@@ -55,7 +57,7 @@ export function DelutbetalingRow({
     ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER);
   const skriveTilgang = ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV);
 
-  const godkjentTilsagn = tilsagn.status.type === "GODKJENT";
+  const godkjentTilsagn = tilsagn.status === "GODKJENT";
   const avvist = delutbetaling?.type === "DELUTBETALING_AVVIST";
   const tilGodkjenning = delutbetaling?.type === "DELUTBETALING_TIL_GODKJENNING";
   const godkjentUtbetaling =
@@ -65,6 +67,7 @@ export function DelutbetalingRow({
   function sendTilGodkjenning() {
     if (error) return;
     const body: DelutbetalingRequest = {
+      id: delutbetaling?.id ?? uuidv4(),
       belop,
       tilsagnId: tilsagn.id,
     };
@@ -113,8 +116,8 @@ export function DelutbetalingRow({
     else if (godkjentUtbetaling)
       return (
         <HStack>
-          <Metadata horizontal header="Opprettet av" verdi={delutbetaling.opprettetAv} />
-          <Metadata horizontal header="Besluttet av" verdi={delutbetaling.besluttetAv} />
+          <Metadata horizontal header="Behandlet av" verdi={delutbetaling.opprettelse.behandletAv} />
+          <Metadata horizontal header="Besluttet av" verdi={delutbetaling.opprettelse.besluttetAv} />
         </HStack>
       );
     else return null;
@@ -227,7 +230,7 @@ export function DelutbetalingRow({
         onConfirm={({ aarsaker, forklaring }) => {
           beslutt({
             besluttelse: Besluttelse.AVVIST,
-            tilsagnId: tilsagn.id,
+            id: delutbetaling.id,
             aarsaker,
             forklaring: forklaring ?? null,
           });

@@ -1,12 +1,4 @@
-import {
-  AvtaleDto,
-  AvtalerService,
-  NavAnsatt,
-  NavEnhet,
-  NavEnheterService,
-  NavEnhetStatus,
-  PaginertTiltakstype,
-} from "@mr/api-client-v2";
+import { AvtalerService, NavEnheterService, NavEnhetStatus } from "@mr/api-client-v2";
 import { QueryClient, queryOptions } from "@tanstack/react-query";
 import { LoaderFunctionArgs } from "react-router";
 import { ansattQuery } from "../../api/ansatt/ansattQuery";
@@ -15,8 +7,11 @@ import { tiltakstyperQuery } from "../tiltakstyper/tiltakstypeLoaders";
 
 export const avtaleQuery = (id: string) =>
   queryOptions({
-    queryKey: [QueryKeys.avtale(id)],
-    queryFn: async () => await AvtalerService.getAvtale({ path: { id } }),
+    queryKey: QueryKeys.avtale(id),
+    queryFn: async () => {
+      const avtale = await AvtalerService.getAvtale({ path: { id } });
+      return avtale.data;
+    },
   });
 
 export const avtaleLoader =
@@ -26,15 +21,16 @@ export const avtaleLoader =
       throw Error("Fant ikke avtaleId i route");
     }
 
-    const [{ data: avtale }, { data: ansatt }] = await Promise.all([
-      AvtalerService.getAvtale({ path: { id: params.avtaleId } }),
-      queryClient.ensureQueryData(ansattQuery),
+    const [avtale, ansatt] = await Promise.all([
+      await queryClient.ensureQueryData(avtaleQuery(params.avtaleId)),
+      await queryClient.ensureQueryData(ansattQuery),
     ]);
+
     return { avtale, ansatt };
   };
 
 const navEnheterQuery = queryOptions({
-  queryKey: [QueryKeys.navRegioner()],
+  queryKey: QueryKeys.navRegioner(),
   queryFn: () =>
     NavEnheterService.getEnheter({
       query: {
@@ -47,24 +43,29 @@ const navEnheterQuery = queryOptions({
     }),
 });
 
+export const avtaleSkjemaQuery = (id: string) =>
+  queryOptions({
+    queryKey: QueryKeys.avtale(id),
+    queryFn: async () => {
+      const avtale = await AvtalerService.getAvtale({ path: { id } });
+      if (!avtale.data) {
+        return undefined;
+      }
+      return avtale.data;
+    },
+  });
+
 export const avtaleSkjemaLoader =
   (queryClient: QueryClient) =>
   async ({ params }: LoaderFunctionArgs) => {
-    const [{ data: avtale }, tiltakstyper, { data: ansatt }, { data: enheter }] = await Promise.all(
-      [
-        params.avtaleId
-          ? await AvtalerService.getAvtale({ path: { id: params.avtaleId } })
-          : { data: undefined },
-        await queryClient.ensureQueryData(tiltakstyperQuery),
-        await queryClient.ensureQueryData(ansattQuery),
-        await queryClient.ensureQueryData(navEnheterQuery),
-      ],
-    );
+    const [avtale, tiltakstyper, ansatt, { data: enheter }] = await Promise.all([
+      params.avtaleId
+        ? await queryClient.ensureQueryData(avtaleSkjemaQuery(params.avtaleId))
+        : undefined,
+      await queryClient.ensureQueryData(tiltakstyperQuery),
+      await queryClient.ensureQueryData(ansattQuery),
+      await queryClient.ensureQueryData(navEnheterQuery),
+    ]);
 
-    return { avtale, tiltakstyper, ansatt, enheter } as {
-      avtale: AvtaleDto;
-      tiltakstyper: PaginertTiltakstype;
-      ansatt: NavAnsatt;
-      enheter: NavEnhet[];
-    };
+    return { avtale, tiltakstyper, ansatt, enheter };
   };

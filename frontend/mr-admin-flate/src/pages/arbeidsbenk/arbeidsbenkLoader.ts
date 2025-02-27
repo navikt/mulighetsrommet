@@ -7,15 +7,10 @@ import {
 } from "@mr/api-client-v2";
 import { QueryClient } from "@tanstack/react-query";
 import { queryOptions } from "@tanstack/react-query";
-
-const lesteNotifikasjonerQuery = queryOptions({
-  queryKey: ["notifications", "leste"],
-  queryFn: () =>
-    NotificationsService.getNotifications({ query: { status: NotificationStatus.DONE } }),
-});
+import { QueryKeys } from "../../api/QueryKeys";
 
 const ulesteNotifikasjonerQuery = queryOptions({
-  queryKey: ["notifications", "uleste"],
+  queryKey: QueryKeys.notifikasjonerForAnsatt(NotificationStatus.NOT_DONE),
   queryFn: () =>
     NotificationsService.getNotifications({
       query: { status: NotificationStatus.NOT_DONE },
@@ -34,14 +29,13 @@ const arbeidsbenkFeatureToggleQuery = queryOptions({
 });
 
 export const arbeidsbenkLoader = (queryClient: QueryClient) => async () => {
-  const [{ data: leste }, { data: uleste }, { data: enableArbeidsbenk }] = await Promise.all([
-    queryClient.ensureQueryData(lesteNotifikasjonerQuery),
+  const [{ data: uleste }, { data: enableArbeidsbenk }] = await Promise.all([
     queryClient.ensureQueryData(ulesteNotifikasjonerQuery),
     queryClient.ensureQueryData(arbeidsbenkFeatureToggleQuery),
   ]);
 
   return {
-    antallNotifikasjoner: leste?.pagination.totalCount + uleste?.pagination.totalCount,
+    antallNotifikasjoner: uleste?.pagination.totalCount,
     enableArbeidsbenk: enableArbeidsbenk,
   };
 };

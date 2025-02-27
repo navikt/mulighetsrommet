@@ -190,9 +190,9 @@ data class OebsBestillingMelding(
 
         /**
          * Hvilken måned gjelder dette for?
-         * 1 = januar, 2 = februar, ..., 12 = desember
+         * "01" = januar, "02" = februar, ..., "12" = desember
          */
-        val periode: Int,
+        val periode: String,
 
         /**
          * Alltid i samme måned som periode.

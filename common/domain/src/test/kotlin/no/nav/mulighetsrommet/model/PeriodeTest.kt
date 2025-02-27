@@ -26,7 +26,7 @@ class PeriodeTest : FunSpec({
     test("should get last date") {
         val period = Periode(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 31))
 
-        period.getLastDate() shouldBe LocalDate.of(2021, 1, 30)
+        period.getLastInclusiveDate() shouldBe LocalDate.of(2021, 1, 30)
     }
 
     test("should check if date is in period") {

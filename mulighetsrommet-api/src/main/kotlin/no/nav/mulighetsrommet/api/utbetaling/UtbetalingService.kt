@@ -179,7 +179,7 @@ class UtbetalingService(
         val tilsagn = queries.tilsagn.get(request.tilsagnId)
             ?: return NotFound("Tilsagn med id=${request.tilsagnId} finnes ikke").left()
 
-        val previous = queries.delutbetaling.get(utbetalingId, request.tilsagnId)
+        val previous = queries.delutbetaling.get(request.id)
         when (previous) {
             is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling,
             is DelutbetalingDto.DelutbetalingTilGodkjenning,
@@ -203,6 +203,7 @@ class UtbetalingService(
 
         val lopenummer = queries.delutbetaling.getNextLopenummerByTilsagn(tilsagn.id)
         val dbo = DelutbetalingDbo(
+            id = request.id,
             utbetalingId = utbetaling.id,
             tilsagnId = tilsagn.id,
             periode = periode,
@@ -224,10 +225,10 @@ class UtbetalingService(
         utbetalingId: UUID,
         navIdent: NavIdent,
     ): StatusResponse<Unit> = db.transaction {
-        val delutbetaling = queries.delutbetaling.get(utbetalingId, request.tilsagnId)
+        val delutbetaling = queries.delutbetaling.get(request.id)
             ?: return NotFound("Delutbetaling finnes ikke").left()
 
-        if (delutbetaling.opprettetAv == navIdent) {
+        if (delutbetaling.opprettelse.behandletAv == navIdent) {
             return Forbidden("Kan ikke beslutte egen utbetaling").left()
         }
 
@@ -237,27 +238,26 @@ class UtbetalingService(
 
         when (request) {
             is BesluttDelutbetalingRequest.AvvistDelutbetalingRequest ->
-                queries.delutbetaling.beslutt(
-                    utbetalingId = utbetalingId,
-                    tilsagnId = request.tilsagnId,
-                    besluttelse = Besluttelse.AVVIST,
-                    navIdent = navIdent,
-                    tidspunkt = LocalDateTime.now(),
-                    aarsaker = request.aarsaker,
-                    forklaring = request.forklaring,
+                queries.totrinnskontroll.upsert(
+                    delutbetaling.opprettelse.copy(
+                        besluttetAv = navIdent,
+                        besluttelse = Besluttelse.AVVIST,
+                        aarsaker = request.aarsaker,
+                        forklaring = request.forklaring,
+                        besluttetTidspunkt = LocalDateTime.now(),
+                    ),
                 )
-
             is BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest -> {
-                queries.delutbetaling.beslutt(
-                    utbetalingId = utbetalingId,
-                    tilsagnId = request.tilsagnId,
-                    besluttelse = Besluttelse.GODKJENT,
-                    navIdent = navIdent,
-                    tidspunkt = LocalDateTime.now(),
-                    aarsaker = null,
-                    forklaring = null,
+                queries.totrinnskontroll.upsert(
+                    delutbetaling.opprettelse.copy(
+                        besluttetAv = navIdent,
+                        besluttelse = Besluttelse.GODKJENT,
+                        besluttetTidspunkt = LocalDateTime.now(),
+                        aarsaker = emptyList(),
+                        forklaring = null,
+                    ),
                 )
-                okonomi.scheduleBehandleGodkjenteUtbetalinger(request.tilsagnId, session)
+                okonomi.scheduleBehandleGodkjenteUtbetalinger(delutbetaling.tilsagnId, session)
             }
         }
         val dto = getOrError(utbetalingId)

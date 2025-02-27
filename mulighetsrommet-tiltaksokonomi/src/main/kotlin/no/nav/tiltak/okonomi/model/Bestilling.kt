@@ -19,8 +19,8 @@ data class Bestilling(
     val belop: Int,
     val periode: Periode,
     val status: BestillingStatusType,
-    val opprettetAv: OkonomiPart,
-    val opprettetTidspunkt: LocalDateTime,
+    val behandletAv: OkonomiPart,
+    val behandletTidspunkt: LocalDateTime,
     val besluttetAv: OkonomiPart,
     val besluttetTidspunkt: LocalDateTime,
     val linjer: List<Linje>,
@@ -32,20 +32,20 @@ data class Bestilling(
     )
 
     companion object {
-        fun fromOpprettBestilling(bestilling: OpprettBestilling, status: BestillingStatusType): Bestilling {
+        fun fromOpprettBestilling(bestilling: OpprettBestilling): Bestilling {
             val perioder = divideBelopByMonthsInPeriode(bestilling.periode, bestilling.belop)
             return Bestilling(
                 tiltakskode = bestilling.tiltakskode,
                 arrangorHovedenhet = bestilling.arrangor.hovedenhet,
-                arrangorUnderenhet = bestilling.arrangor.hovedenhet,
+                arrangorUnderenhet = bestilling.arrangor.underenhet,
                 kostnadssted = bestilling.kostnadssted,
                 bestillingsnummer = bestilling.bestillingsnummer,
                 avtalenummer = bestilling.avtalenummer,
                 belop = bestilling.belop,
                 periode = bestilling.periode,
-                status = status,
-                opprettetAv = bestilling.opprettetAv,
-                opprettetTidspunkt = bestilling.opprettetTidspunkt,
+                status = BestillingStatusType.BESTILT,
+                behandletAv = bestilling.behandletAv,
+                behandletTidspunkt = bestilling.behandletTidspunkt,
                 besluttetAv = bestilling.besluttetAv,
                 besluttetTidspunkt = bestilling.besluttetTidspunkt,
                 linjer = perioder.mapIndexed { index, (periode, belop) ->
@@ -61,6 +61,7 @@ data class Bestilling(
 }
 
 enum class BestillingStatusType {
+    BESTILT,
     AKTIV,
     ANNULLERT,
     OPPGJORT,

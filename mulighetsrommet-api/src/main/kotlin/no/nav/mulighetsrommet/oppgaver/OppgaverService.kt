@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.oppgaver
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto.TilsagnStatus.*
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
@@ -131,7 +130,7 @@ class OppgaverService(val db: ApiDatabase) {
     }
 
     private fun TilsagnDto.toOppgave(): Oppgave? = when (status) {
-        is TilGodkjenning -> Oppgave(
+        TilsagnStatus.TIL_GODKJENNING -> Oppgave(
             id = UUID.randomUUID(),
             type = OppgaveType.TILSAGN_TIL_GODKJENNING,
             title = "Tilsagn til godkjenning",
@@ -141,39 +140,45 @@ class OppgaverService(val db: ApiDatabase) {
                 linkText = "Se tilsagn",
                 link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
             ),
-            createdAt = status.endretTidspunkt,
+            createdAt = opprettelse.behandletTidspunkt,
             oppgaveIcon = OppgaveIcon.TILSAGN,
         )
 
-        is Returnert -> Oppgave(
-            id = UUID.randomUUID(),
-            type = OppgaveType.TILSAGN_RETURNERT,
-            title = "Tilsagn returnert",
-            description = "Tilsagnet for ${gjennomforing.navn} ble returnert av beslutter",
-            tiltakstype = gjennomforing.tiltakskode,
-            link = OppgaveLink(
-                linkText = "Se tilsagn",
-                link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
-            ),
-            createdAt = status.endretTidspunkt,
-            oppgaveIcon = OppgaveIcon.TILSAGN,
-        )
+        TilsagnStatus.RETURNERT -> {
+            requireNotNull(opprettelse.besluttetTidspunkt)
+            Oppgave(
+                id = UUID.randomUUID(),
+                type = OppgaveType.TILSAGN_RETURNERT,
+                title = "Tilsagn returnert",
+                description = "Tilsagnet for ${gjennomforing.navn} ble returnert av beslutter",
+                tiltakstype = gjennomforing.tiltakskode,
+                link = OppgaveLink(
+                    linkText = "Se tilsagn",
+                    link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
+                ),
+                createdAt = opprettelse.besluttetTidspunkt,
+                oppgaveIcon = OppgaveIcon.TILSAGN,
+            )
+        }
 
-        is TilAnnullering -> Oppgave(
-            id = UUID.randomUUID(),
-            type = OppgaveType.TILSAGN_TIL_ANNULLERING,
-            title = "Tilsagn til annullering",
-            description = "Tilsagnet for ${gjennomforing.navn} er sendt til annullering",
-            tiltakstype = gjennomforing.tiltakskode,
-            link = OppgaveLink(
-                linkText = "Se tilsagn",
-                link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
-            ),
-            createdAt = status.endretTidspunkt,
-            oppgaveIcon = OppgaveIcon.TILSAGN,
-        )
+        TilsagnStatus.TIL_ANNULLERING -> {
+            requireNotNull(annullering)
+            Oppgave(
+                id = UUID.randomUUID(),
+                type = OppgaveType.TILSAGN_TIL_ANNULLERING,
+                title = "Tilsagn til annullering",
+                description = "Tilsagnet for ${gjennomforing.navn} er sendt til annullering",
+                tiltakstype = gjennomforing.tiltakskode,
+                link = OppgaveLink(
+                    linkText = "Se tilsagn",
+                    link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
+                ),
+                createdAt = annullering.behandletTidspunkt,
+                oppgaveIcon = OppgaveIcon.TILSAGN,
+            )
+        }
 
-        is TilsagnDto.TilsagnStatus.Annullert, TilsagnDto.TilsagnStatus.Godkjent -> null
+        TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT -> null
     }
 
     private fun DelutbetalingDto.toOppgave(
@@ -191,23 +196,26 @@ class OppgaverService(val db: ApiDatabase) {
                 linkText = "Se utbetaling",
                 link = "/gjennomforinger/$gjennomforingId/utbetalinger/$utbetalingId",
             ),
-            createdAt = opprettetTidspunkt,
+            createdAt = opprettelse.behandletTidspunkt,
             oppgaveIcon = OppgaveIcon.UTBETALING,
         )
 
-        is DelutbetalingDto.DelutbetalingAvvist -> Oppgave(
-            id = UUID.randomUUID(),
-            type = OppgaveType.UTBETALING_RETURNERT,
-            title = "Utbetaling returnert",
-            description = "Utbetaling for $gjennomforingsnavn ble returnert av beslutter",
-            tiltakstype = tiltakskode,
-            link = OppgaveLink(
-                linkText = "Se utbetaling",
-                link = "/gjennomforinger/$gjennomforingId/utbetalinger/$utbetalingId",
-            ),
-            createdAt = besluttetTidspunkt,
-            oppgaveIcon = OppgaveIcon.UTBETALING,
-        )
+        is DelutbetalingDto.DelutbetalingAvvist -> {
+            requireNotNull(opprettelse.besluttetTidspunkt)
+            Oppgave(
+                id = UUID.randomUUID(),
+                type = OppgaveType.UTBETALING_RETURNERT,
+                title = "Utbetaling returnert",
+                description = "Utbetaling for $gjennomforingsnavn ble returnert av beslutter",
+                tiltakstype = tiltakskode,
+                link = OppgaveLink(
+                    linkText = "Se utbetaling",
+                    link = "/gjennomforinger/$gjennomforingId/utbetalinger/$utbetalingId",
+                ),
+                createdAt = opprettelse.besluttetTidspunkt,
+                oppgaveIcon = OppgaveIcon.UTBETALING,
+            )
+        }
 
         is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling,
         is DelutbetalingDto.DelutbetalingUtbetalt,

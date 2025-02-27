@@ -11,10 +11,7 @@ import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
-import no.nav.tiltak.okonomi.model.Bestilling
-import no.nav.tiltak.okonomi.model.BestillingStatusType
-import no.nav.tiltak.okonomi.model.Faktura
-import no.nav.tiltak.okonomi.model.OebsKontering
+import no.nav.tiltak.okonomi.model.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -43,7 +40,7 @@ class OebsService(
         val kontering = queries.kontering.getOebsKontering(opprettBestilling.tiltakskode, opprettBestilling.periode)
             ?: return OpprettBestillingError("Kontering for tiltakskode ${opprettBestilling.tiltakskode} og periode ${opprettBestilling.periode} mangler").left()
 
-        val bestilling = Bestilling.fromOpprettBestilling(opprettBestilling, BestillingStatusType.AKTIV)
+        val bestilling = Bestilling.fromOpprettBestilling(opprettBestilling)
 
         return brreg.getHovedenhet(bestilling.arrangorHovedenhet)
             .mapLeft { OpprettBestillingError("Klarte ikke hente hovedenhet ${bestilling.arrangorHovedenhet} fra Brreg: $it") }
@@ -84,10 +81,11 @@ class OebsService(
         val bestilling = queries.bestilling.getBestilling(bestillingsnummer)
             ?: return AnnullerBestillingError("Bestilling $bestillingsnummer finnes ikke").left()
 
+        // TODO: ikke tillatt annullering når det finnes utbetalinger
         if (bestilling.status == BestillingStatusType.ANNULLERT) {
             return bestilling.right()
-        } else if (bestilling.status != BestillingStatusType.AKTIV) {
-            return AnnullerBestillingError("Kan ikke annullere bestilling $bestillingsnummer med status ${bestilling.status}").left()
+        } else if (bestilling.status == BestillingStatusType.OPPGJORT) {
+            return AnnullerBestillingError("Bestilling $bestillingsnummer er allerede oppgjort").left()
         }
 
         val melding = OebsAnnulleringMelding(
@@ -146,25 +144,25 @@ private fun toOebsBestillingMelding(
         OebsBestillingMelding.Linje(
             linjeNummer = linje.linjenummer,
             antall = linje.belop,
-            periode = linje.periode.start.monthValue,
+            periode = linje.periode.start.monthValue.toString().padStart(2, '0'),
             startDato = linje.periode.start,
-            sluttDato = linje.periode.getLastDate(),
+            sluttDato = linje.periode.getLastInclusiveDate(),
         )
     }
 
     return OebsBestillingMelding(
         kilde = OebsKilde.TILTADM,
         bestillingsNummer = bestilling.bestillingsnummer,
-        opprettelsesTidspunkt = bestilling.opprettetTidspunkt,
+        opprettelsesTidspunkt = bestilling.behandletTidspunkt,
         bestillingsType = OebsBestillingType.NY,
         selger = selger,
         rammeavtaleNummer = bestilling.avtalenummer,
         totalSum = bestilling.belop,
         valutaKode = "NOK",
-        saksbehandler = bestilling.opprettetAv.part,
-        bdmGodkjenner = bestilling.opprettetAv.part,
+        saksbehandler = bestilling.behandletAv.part,
+        bdmGodkjenner = bestilling.besluttetAv.part,
         startDato = bestilling.periode.start,
-        sluttDato = bestilling.periode.getLastDate(),
+        sluttDato = bestilling.periode.getLastInclusiveDate(),
         bestillingsLinjer = linjer,
         statsregnskapsKonto = kontering.statligRegnskapskonto,
         artsKonto = kontering.statligArtskonto,
@@ -203,13 +201,13 @@ private fun toOebsFakturaMelding(
     return OebsFakturaMelding(
         kilde = OebsKilde.TILTADM,
         fakturaNummer = faktura.fakturanummer,
-        opprettelsesTidspunkt = faktura.opprettetTidspunkt,
+        opprettelsesTidspunkt = faktura.behandletTidspunkt,
         organisasjonsNummer = bestilling.arrangorHovedenhet.value,
         bedriftsNummer = bestilling.arrangorUnderenhet.value,
         totalSum = faktura.belop,
         valutaKode = "NOK",
-        saksbehandler = faktura.opprettetAv.part,
-        bdmGodkjenner = faktura.opprettetAv.part,
+        saksbehandler = faktura.behandletAv.part,
+        bdmGodkjenner = faktura.besluttetAv.part,
         fakturaDato = faktura.besluttetTidspunkt.toLocalDate(),
         betalingsKanal = OebsBetalingskanal.BBAN,
         bankKontoNummer = faktura.kontonummer.value,

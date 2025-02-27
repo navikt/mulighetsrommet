@@ -5,18 +5,22 @@ import { oppgaverLoader } from "@/pages/arbeidsbenk/oppgaver/oppgaverLoader";
 import { DeltakerlisteContainer } from "@/pages/gjennomforing/deltakerliste/DeltakerlisteContainer";
 import { TilsagnForGjennomforingContainer } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnForGjennomforingContainer";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
-import { AnsattService, NavAnsatt, NavAnsattRolle } from "@mr/api-client-v2";
+import { AnsattService, NavAnsattRolle } from "@mr/api-client-v2";
+import { useApiQuery } from "@mr/frontend-common";
 import { Page } from "@navikt/ds-react";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
-import { createBrowserRouter, Outlet, RouterProvider, useLoaderData } from "react-router";
+import { createBrowserRouter, Outlet, RouterProvider } from "react-router";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
 import { IngenLesetilgang } from "./IngenLesetilgang";
+import { QueryKeys } from "./api/QueryKeys";
+import { lagreFilterAction } from "./api/lagret-filter/lagretFilterAction";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
 import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
 import { initializeAmplitude } from "./logging/amplitude";
 import { ErrorPage } from "./pages/ErrorPage";
 import { NotifikasjonerPage } from "./pages/arbeidsbenk/notifikasjoner/NotifikasjonerPage";
+import { setLestStatusForNotifikasjonAction } from "./pages/arbeidsbenk/notifikasjoner/notifikasjonerAction";
 import { notifikasjonLoader } from "./pages/arbeidsbenk/notifikasjoner/notifikasjonerLoader";
 import { ArrangorPage } from "./pages/arrangor/ArrangorPage";
 import { ArrangorerPage } from "./pages/arrangor/ArrangorerPage";
@@ -30,6 +34,7 @@ import { GjennomforingInfo } from "./pages/gjennomforing/GjennomforingInfo";
 import { GjennomforingPage } from "./pages/gjennomforing/GjennomforingPage";
 import { GjennomforingerForAvtalePage } from "./pages/gjennomforing/GjennomforingerForAvtalePage";
 import { GjennomforingerPage } from "./pages/gjennomforing/GjennomforingerPage";
+import { publiserAction } from "./pages/gjennomforing/gjennomforingActions";
 import {
   gjennomforingFormLoader,
   gjennomforingLoader,
@@ -67,7 +72,7 @@ if (import.meta.env.PROD) {
 initializeAmplitude();
 
 export function App() {
-  const ansatt = useLoaderData() as NavAnsatt;
+  const { data: ansatt } = useApiQuery(ansattQuery);
   if (!ansatt) {
     return null;
   }
@@ -101,15 +106,10 @@ export function App() {
 }
 
 const ansattQuery = {
-  queryKey: ["ansatt", "info"],
+  queryKey: QueryKeys.ansatt(),
   queryFn: async () => {
-    const { data } = await AnsattService.hentInfoOmAnsatt();
-    return data;
+    return await AnsattService.hentInfoOmAnsatt();
   },
-};
-
-const ansattLoader = (queryClient: QueryClient) => async () => {
-  return queryClient.ensureQueryData(ansattQuery);
 };
 
 const router = (queryClient: QueryClient) => {
@@ -119,7 +119,6 @@ const router = (queryClient: QueryClient) => {
         path: "/",
         element: <App />,
         errorElement: <ErrorPage />,
-        loader: ansattLoader(queryClient),
         children: [
           {
             path: "tiltakstyper",
@@ -150,6 +149,7 @@ const router = (queryClient: QueryClient) => {
             path: "avtaler",
             element: <AvtalerPage />,
             errorElement: <ErrorPage />,
+            action: lagreFilterAction(queryClient),
           },
           {
             path: "avtaler/:avtaleId",
@@ -167,6 +167,7 @@ const router = (queryClient: QueryClient) => {
                 path: "gjennomforinger",
                 element: <GjennomforingerForAvtalePage />,
                 errorElement: <ErrorPage />,
+                loader: avtaleLoader(queryClient),
               },
             ],
           },
@@ -198,12 +199,14 @@ const router = (queryClient: QueryClient) => {
             path: "gjennomforinger/",
             element: <GjennomforingerPage />,
             errorElement: <ErrorPage />,
+            action: lagreFilterAction(queryClient),
           },
           {
             path: "gjennomforinger/:gjennomforingId",
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
             loader: gjennomforingLoader(queryClient),
+            action: publiserAction(queryClient),
             children: [
               {
                 index: true,
@@ -318,16 +321,19 @@ const router = (queryClient: QueryClient) => {
                 path: "notifikasjoner",
                 element: <NotifikasjonerPage />,
                 loader: notifikasjonLoader(queryClient),
+                action: setLestStatusForNotifikasjonAction(queryClient),
                 errorElement: <ErrorPage />,
                 children: [
                   {
                     index: true,
                     element: <Notifikasjonsliste lest={false} />,
+                    loader: notifikasjonLoader(queryClient),
                     errorElement: <ErrorPage />,
                   },
                   {
                     path: "tidligere",
                     element: <Notifikasjonsliste lest={true} />,
+                    loader: notifikasjonLoader(queryClient),
                     errorElement: <ErrorPage />,
                   },
                 ],
