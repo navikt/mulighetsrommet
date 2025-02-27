@@ -24,6 +24,16 @@ create table failed_events
     unique (topic, partition, record_offset)
 );
 
+create table kafka_producer_record
+(
+    id           bigint generated always as identity,
+    topic        text                                not null,
+    key          bytea,
+    value        bytea,
+    headers_json text,
+    created_at   timestamp default current_timestamp not null
+);
+
 create type topic_type as enum ('CONSUMER', 'PRODUCER');
 
 create table topics
