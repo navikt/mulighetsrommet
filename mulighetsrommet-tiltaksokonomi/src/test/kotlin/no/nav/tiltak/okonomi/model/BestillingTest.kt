@@ -3,10 +3,10 @@ package no.nav.tiltak.okonomi.model
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.model.*
-import no.nav.tiltak.okonomi.Bestillingstype
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.OpprettBestilling
+import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 
 class BestillingTest : FunSpec({
@@ -14,7 +14,7 @@ class BestillingTest : FunSpec({
     context("fromOpprettBestilling") {
         val opprettBestilling = OpprettBestilling(
             bestillingsnummer = "2025/1",
-            bestillingstype = Bestillingstype.TILTAK,
+            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
             arrangor = OpprettBestilling.Arrangor(
                 hovedenhet = Organisasjonsnummer("123456789"),

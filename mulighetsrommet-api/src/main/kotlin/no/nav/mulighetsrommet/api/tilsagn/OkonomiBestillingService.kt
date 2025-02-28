@@ -113,9 +113,9 @@ class OkonomiBestillingService(
 
         val bestilling = OpprettBestilling(
             bestillingsnummer = tilsagn.bestillingsnummer,
-            bestillingstype = when (tilsagn.type) {
-                TilsagnType.INVESTERING -> Bestillingstype.INVESTERING
-                else -> Bestillingstype.TILTAK
+            tilskuddstype = when (tilsagn.type) {
+                TilsagnType.INVESTERING -> Tilskuddstype.TILTAK_INVESTERINGER
+                else -> Tilskuddstype.TILTAK_DRIFTSTILSKUDD
             },
             tiltakskode = gjennomforing.tiltakstype.tiltakskode,
             arrangor = arrangor,

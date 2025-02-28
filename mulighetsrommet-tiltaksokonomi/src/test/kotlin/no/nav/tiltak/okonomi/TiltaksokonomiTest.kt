@@ -99,7 +99,7 @@ class TiltaksokonomiTest : FunSpec({
                     setBody(
                         OpprettBestilling(
                             bestillingsnummer = bestillingsnummer,
-                            bestillingstype = Bestillingstype.TILTAK,
+                            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
                             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
                             arrangor = OpprettBestilling.Arrangor(
                                 hovedenhet = Organisasjonsnummer("123456789"),
@@ -192,7 +192,7 @@ class TiltaksokonomiTest : FunSpec({
                     setBody(
                         OpprettBestilling(
                             bestillingsnummer = bestillingsnummer,
-                            bestillingstype = Bestillingstype.TILTAK,
+                            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
                             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
                             arrangor = OpprettBestilling.Arrangor(
                                 hovedenhet = Organisasjonsnummer("123456789"),
@@ -254,7 +254,7 @@ class TiltaksokonomiTest : FunSpec({
 private fun initializeData(db: OkonomiDatabase) = db.session {
     queries.kontering.insertKontering(
         OebsKontering(
-            bestillingstype = Bestillingstype.TILTAK,
+            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
             periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2099, 1, 1)),
             statligRegnskapskonto = "12345678901",

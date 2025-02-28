@@ -39,7 +39,7 @@ class OebsService(
 
         val kontering = queries.kontering
             .getOebsKontering(
-                bestillingstype = opprettBestilling.bestillingstype,
+                tilskuddstype = opprettBestilling.tilskuddstype,
                 tiltakskode = opprettBestilling.tiltakskode,
                 periode = opprettBestilling.periode,
             )
