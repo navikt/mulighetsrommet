@@ -43,8 +43,8 @@ class TilsagnQueriesTest : FunSpec({
         kostnadssted = Gjovik.enhetsnummer,
         arrangorId = ArrangorFixtures.underenhet1.id,
         beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
-        endretAv = NavAnsattFixture.ansatt1.navIdent,
-        endretTidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
+        behandletAv = NavAnsattFixture.ansatt1.navIdent,
+        behandletTidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
         type = TilsagnType.TILSAGN,
     )
 
@@ -176,8 +176,8 @@ class TilsagnQueriesTest : FunSpec({
                 queries.getAll(gjennomforingId = AFT1.id).shouldHaveSize(1)
                 queries.getAll(gjennomforingId = UUID.randomUUID()).shouldHaveSize(0)
 
-                queries.getAll(type = TilsagnType.TILSAGN).shouldHaveSize(1)
-                queries.getAll(type = TilsagnType.EKSTRATILSAGN).shouldHaveSize(0)
+                queries.getAll(typer = listOf(TilsagnType.TILSAGN)).shouldHaveSize(1)
+                queries.getAll(typer = listOf(TilsagnType.EKSTRATILSAGN)).shouldHaveSize(0)
             }
         }
     }

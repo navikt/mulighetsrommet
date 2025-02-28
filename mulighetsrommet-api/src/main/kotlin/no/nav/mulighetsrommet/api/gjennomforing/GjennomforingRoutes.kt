@@ -14,7 +14,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.FrikobleKontaktpersonRequest
-import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
@@ -122,7 +121,7 @@ fun Route.gjennomforingRoutes() {
                     )
                 }
 
-                gjennomforinger.setAvsluttet(id, LocalDateTime.now(), aarsak, EndretAv.NavAnsatt(navIdent))
+                gjennomforinger.setAvsluttet(id, LocalDateTime.now(), aarsak, navIdent)
 
                 call.respond(HttpStatusCode.OK)
             }
@@ -139,7 +138,7 @@ fun Route.gjennomforingRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
                 val request = call.receive<SetApentForPameldingRequest>()
-                gjennomforinger.setApentForPamelding(id, request.apentForPamelding, EndretAv.NavAnsatt(navIdent))
+                gjennomforinger.setApentForPamelding(id, request.apentForPamelding, navIdent)
                 call.respond(HttpStatusCode.OK)
             }
 
@@ -166,7 +165,7 @@ fun Route.gjennomforingRoutes() {
 
                 val result = request.validate()
                     .flatMap { (periode, beskrivelse) ->
-                        gjennomforinger.setStengtHosArrangor(id, periode, beskrivelse, EndretAv.NavAnsatt(navIdent))
+                        gjennomforinger.setStengtHosArrangor(id, periode, beskrivelse, navIdent)
                     }
                     .mapLeft { ValidationError(errors = it) }
 
@@ -178,7 +177,7 @@ fun Route.gjennomforingRoutes() {
                 val periodeId: Int by call.pathParameters
                 val navIdent = getNavIdent()
 
-                gjennomforinger.deleteStengtHosArrangor(id, periodeId, EndretAv.NavAnsatt(navIdent))
+                gjennomforinger.deleteStengtHosArrangor(id, periodeId, navIdent)
 
                 call.respond(HttpStatusCode.OK)
             }

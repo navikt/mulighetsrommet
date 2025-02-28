@@ -9,6 +9,8 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.Arena
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import java.time.LocalDateTime
 import java.util.*
 
@@ -24,7 +26,7 @@ class EndringshistorikkServiceTest : FunSpec({
             queries.logEndring(
                 DocumentClass.AVTALE,
                 operation = "OPPRETTET",
-                user = EndretAv.Arena,
+                agent = Arena,
                 documentId = id,
                 timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Ny avtale" }""") }
@@ -32,7 +34,7 @@ class EndringshistorikkServiceTest : FunSpec({
             queries.logEndring(
                 DocumentClass.AVTALE,
                 operation = "ENDRET",
-                user = EndretAv.System,
+                agent = Tiltaksadministrasjon,
                 documentId = id,
                 timestamp = LocalDateTime.of(2023, 1, 2, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Endret avtale" }""") }
@@ -40,7 +42,7 @@ class EndringshistorikkServiceTest : FunSpec({
             queries.logEndring(
                 DocumentClass.AVTALE,
                 operation = "SLETTET",
-                user = EndretAv.System,
+                agent = Tiltaksadministrasjon,
                 documentId = id,
                 timestamp = LocalDateTime.of(2023, 1, 3, 9, 0, 0),
             ) { JsonNull }
@@ -85,7 +87,7 @@ class EndringshistorikkServiceTest : FunSpec({
             queries.logEndring(
                 DocumentClass.AVTALE,
                 operation = "OPPRETTET",
-                user = EndretAv.NavAnsatt(ansatt1.navIdent),
+                agent = ansatt1.navIdent,
                 documentId = id,
                 timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Ny avtale" }""") }
@@ -93,7 +95,7 @@ class EndringshistorikkServiceTest : FunSpec({
             queries.logEndring(
                 DocumentClass.AVTALE,
                 operation = "ENDRET",
-                user = EndretAv.NavAnsatt(ansatt2.navIdent),
+                agent = ansatt2.navIdent,
                 documentId = id,
                 timestamp = LocalDateTime.of(2023, 1, 2, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Endret avtale" }""") }
@@ -129,7 +131,7 @@ class EndringshistorikkServiceTest : FunSpec({
             queries.logEndring(
                 DocumentClass.AVTALE,
                 operation = "OPPRETTET",
-                user = EndretAv.Arena,
+                agent = Arena,
                 documentId = avtaleId,
                 timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Ny avtale" }""") }
@@ -137,7 +139,7 @@ class EndringshistorikkServiceTest : FunSpec({
             queries.logEndring(
                 DocumentClass.TILSAGN,
                 operation = "OPPRETTET",
-                user = EndretAv.Arena,
+                agent = Arena,
                 documentId = tilsagnId,
                 timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Nytt tilsagn" }""") }
@@ -145,7 +147,7 @@ class EndringshistorikkServiceTest : FunSpec({
             queries.logEndring(
                 DocumentClass.GJENNOMFORING,
                 operation = "OPPRETTET",
-                user = EndretAv.Arena,
+                agent = Arena,
                 documentId = gjennomforingId,
                 timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Ny gjennomforing" }""") }
@@ -153,7 +155,7 @@ class EndringshistorikkServiceTest : FunSpec({
             queries.logEndring(
                 DocumentClass.UTBETALING,
                 operation = "OPPRETTET",
-                user = EndretAv.Arena,
+                agent = Arena,
                 documentId = utbetalingId,
                 timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Ny utbetaling" }""") }

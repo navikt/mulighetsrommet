@@ -431,7 +431,7 @@ export const arrangorflateHandlers = [
     },
   ),
   http.post<PathParams, ArrFlateUtbetaling[]>(
-    "*/api/v1/intern/arrangorflate/utbetaling/:id/godkjenn-utbetaling",
+    "*/api/v1/intern/arrangorflate/utbetaling/:id/godkjenn",
     () => HttpResponse.json({}),
   ),
   http.get<PathParams, ArrFlateUtbetaling[]>(

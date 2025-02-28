@@ -71,7 +71,7 @@ fun Route.tilsagnRoutes() {
                 TilsagnType.TILSAGN -> {
                     val sisteTilsagn = db.session {
                         queries.tilsagn
-                            .getAll(type = TilsagnType.TILSAGN, gjennomforingId = request.gjennomforingId)
+                            .getAll(typer = listOf(TilsagnType.TILSAGN), gjennomforingId = request.gjennomforingId)
                             .firstOrNull()
                     }
 

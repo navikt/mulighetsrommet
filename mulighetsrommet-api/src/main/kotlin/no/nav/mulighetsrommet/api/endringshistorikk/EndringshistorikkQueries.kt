@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.endringshistorikk
 import kotlinx.serialization.json.JsonElement
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*
@@ -32,17 +33,14 @@ class EndringshistorikkQueries(private val session: Session) {
         )
 
         val entries = session.list(queryOf(statement, params)) {
-            val userId = it.string("user_id")
-
-            val editedBy = it.stringOrNull("user_name")
-                ?.let { navn -> EndringshistorikkDto.NavAnsatt(userId, navn) }
-                ?: EndringshistorikkDto.Systembruker(userId)
-
             EndringshistorikkDto.Entry(
                 id = it.uuid("document_id"),
                 operation = it.string("operation"),
                 editedAt = it.localDateTime("edited_at"),
-                editedBy = editedBy,
+                editedBy = EndringshistorikkDto.User.fromAgent(
+                    agent = it.string("user_id").toAgent(),
+                    navn = it.stringOrNull("user_name"),
+                ),
             )
         }
 
@@ -52,7 +50,7 @@ class EndringshistorikkQueries(private val session: Session) {
     fun logEndring(
         documentClass: DocumentClass,
         operation: String,
-        user: EndretAv,
+        agent: Agent,
         documentId: UUID,
         timestamp: LocalDateTime? = null,
         valueProvider: () -> JsonElement,
@@ -72,7 +70,7 @@ class EndringshistorikkQueries(private val session: Session) {
             "document_id" to documentId,
             "document_class" to documentClass.name,
             "value" to valueProvider.invoke().toString(),
-            "user_id" to user.id,
+            "user_id" to agent.textRepr(),
             "timestamp" to timestamp,
         )
 

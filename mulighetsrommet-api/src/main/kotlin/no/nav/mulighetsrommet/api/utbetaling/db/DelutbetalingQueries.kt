@@ -59,7 +59,7 @@ class DelutbetalingQueries(private val session: Session) {
             Totrinnskontroll(
                 id = UUID.randomUUID(),
                 entityId = delutbetaling.id,
-                behandletAv = delutbetaling.opprettetAv,
+                behandletAv = delutbetaling.behandletAv,
                 aarsaker = emptyList(),
                 forklaring = null,
                 type = Totrinnskontroll.Type.OPPRETT,

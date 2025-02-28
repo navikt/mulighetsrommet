@@ -111,7 +111,7 @@ class OppgaverService(val db: ApiDatabase) {
                         true
                     } else {
                         val tilsagn =
-                            db.session { queries.tilsagn.getTilsagnForGjennomforing(it.gjennomforing.id, it.periode) }
+                            db.session { queries.tilsagn.getAll(gjennomforingId = it.gjennomforing.id, periode = it.periode) }
                         tilsagn.isEmpty() || tilsagn.any { it.kostnadssted.enhetsnummer in kostnadssteder }
                     }
                 }

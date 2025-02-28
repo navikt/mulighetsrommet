@@ -5,8 +5,8 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.Daily
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -38,7 +38,7 @@ class UpdateGjennomforingStatus(
                 id = id,
                 avsluttetTidspunkt = today.atStartOfDay(),
                 avsluttetAarsak = null,
-                endretAv = EndretAv.System,
+                endretAv = Tiltaksadministrasjon,
             )
         }
 

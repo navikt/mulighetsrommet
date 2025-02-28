@@ -249,7 +249,7 @@ class ArrangorflateRoutesTest : FunSpec({
                     json()
                 }
             }
-            val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn-utbetaling") {
+            val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(
@@ -273,7 +273,7 @@ class ArrangorflateRoutesTest : FunSpec({
                     json()
                 }
             }
-            val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn-utbetaling") {
+            val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(
@@ -304,7 +304,7 @@ class ArrangorflateRoutesTest : FunSpec({
                     json()
                 }
             }
-            var response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn-utbetaling") {
+            var response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(
@@ -319,7 +319,7 @@ class ArrangorflateRoutesTest : FunSpec({
             }
             response.status shouldBe HttpStatusCode.OK
 
-            response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn-utbetaling") {
+            response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(
@@ -351,7 +351,7 @@ class ArrangorflateRoutesTest : FunSpec({
                     json()
                 }
             }
-            val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn-utbetaling") {
+            val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(
@@ -389,7 +389,7 @@ class ArrangorflateRoutesTest : FunSpec({
                     json()
                 }
             }
-            val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn-utbetaling") {
+            val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(

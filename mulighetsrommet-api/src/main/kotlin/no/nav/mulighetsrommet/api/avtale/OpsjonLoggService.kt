@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
-import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.model.NavIdent
 import org.slf4j.LoggerFactory
@@ -28,7 +27,7 @@ class OpsjonLoggService(
             }
             queries.opsjoner.insert(entry)
             loggEndring(
-                EndretAv.NavAnsatt(entry.registrertAv),
+                entry.registrertAv,
                 getEndringsmeldingstekst(entry),
                 entry.avtaleId,
                 entry,
@@ -46,7 +45,7 @@ class OpsjonLoggService(
         }
 
         queries.opsjoner.delete(opsjonLoggEntryId)
-        loggEndring(EndretAv.NavAnsatt(slettesAv), "Opsjon slettet", avtaleId, opsjoner.first())
+        loggEndring(slettesAv, "Opsjon slettet", avtaleId, opsjoner.first())
     }
 
     private fun kalkulerNySluttdato(opsjoner: List<OpsjonLoggEntry>, avtale: AvtaleDto): LocalDate? {
@@ -61,7 +60,7 @@ class OpsjonLoggService(
     }
 
     private fun QueryContext.loggEndring(
-        endretAv: EndretAv.NavAnsatt,
+        endretAv: NavIdent,
         operation: String,
         avtaleId: UUID,
         opsjon: OpsjonLoggEntry,
@@ -69,7 +68,7 @@ class OpsjonLoggService(
         queries.endringshistorikk.logEndring(
             documentClass = DocumentClass.AVTALE,
             operation = operation,
-            user = endretAv,
+            agent = endretAv,
             documentId = avtaleId,
         ) {
             Json.encodeToJsonElement(opsjon)
