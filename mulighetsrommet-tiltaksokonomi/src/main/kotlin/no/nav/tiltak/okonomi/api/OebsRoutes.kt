@@ -73,7 +73,7 @@ fun Routing.bestillingRoutes(
 
     get<Bestilling.Id> { bestilling ->
         val status = db.session {
-            queries.bestilling.getBestilling(bestilling.id)?.let {
+            queries.bestilling.getByBestillingsnummer(bestilling.id)?.let {
                 BestillingStatus(
                     bestillingsnummer = it.bestillingsnummer,
                     status = it.status,

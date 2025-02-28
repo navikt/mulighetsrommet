@@ -88,13 +88,13 @@ class FakturaQueriesTest : FunSpec({
 
         database.runAndRollback {
             val bestillingQueries = BestillingQueries(it)
-            bestillingQueries.createBestilling(bestilling)
+            bestillingQueries.insertBestilling(bestilling)
 
             val fakturaQueries = FakturaQueries(it)
 
-            fakturaQueries.opprettFaktura(faktura)
+            fakturaQueries.insertFaktura(faktura)
 
-            fakturaQueries.getFaktura("4567") shouldBe faktura
+            fakturaQueries.getByFakturanummer("4567") shouldBe faktura
         }
     }
 })

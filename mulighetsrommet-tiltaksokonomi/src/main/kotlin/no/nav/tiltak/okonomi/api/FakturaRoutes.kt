@@ -47,7 +47,7 @@ fun Routing.fakturaRoutes(
 
     get<Faktura.Id> { faktura ->
         val status = db.session {
-            queries.faktura.getFaktura(faktura.id)?.let {
+            queries.faktura.getByFakturanummer(faktura.id)?.let {
                 FakturaStatus(
                     fakturanummer = it.fakturanummer,
                     status = FakturaStatusType.UTBETALT,

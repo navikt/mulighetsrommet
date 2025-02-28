@@ -13,7 +13,7 @@ import org.intellij.lang.annotations.Language
 
 class FakturaQueries(private val session: Session) {
 
-    fun opprettFaktura(faktura: Faktura) = withTransaction(session) {
+    fun insertFaktura(faktura: Faktura) = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
             insert into faktura (
@@ -76,7 +76,7 @@ class FakturaQueries(private val session: Session) {
         batchPreparedNamedStatement(insertLinje, linjer)
     }
 
-    fun getFaktura(fakturanummer: String): Faktura? {
+    fun getByFakturanummer(fakturanummer: String): Faktura? {
         @Language("PostgreSQL")
         val selectLinje = """
             select linjenummer, periode, belop
@@ -128,5 +128,15 @@ class FakturaQueries(private val session: Session) {
                 linjer = linjer,
             )
         }
+    }
+
+    fun getByBestillingsnummer(bestillingsnummer: String): List<Faktura> {
+        @Language("PostgreSQL")
+        val sql = """
+            select fakturanummer from faktura where bestillingsnummer = ?
+        """.trimIndent()
+
+        return session.list(queryOf(sql, bestillingsnummer)) { it.string("fakturanummer") }
+            .mapNotNull { getByFakturanummer(it) }
     }
 }

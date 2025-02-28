@@ -55,9 +55,9 @@ class BestillingQueriesTest : FunSpec({
         database.runAndRollback {
             val queries = BestillingQueries(it)
 
-            queries.createBestilling(dbo)
+            queries.insertBestilling(dbo)
 
-            queries.getBestilling("A-1") shouldBe dbo
+            queries.getByBestillingsnummer("A-1") shouldBe dbo
         }
     }
 
@@ -65,11 +65,11 @@ class BestillingQueriesTest : FunSpec({
         database.runAndRollback {
             val queries = BestillingQueries(it)
 
-            queries.createBestilling(dbo)
+            queries.insertBestilling(dbo)
 
             queries.setStatus("A-1", BestillingStatusType.ANNULLERT)
 
-            queries.getBestilling("A-1") shouldBe dbo.copy(status = BestillingStatusType.ANNULLERT)
+            queries.getByBestillingsnummer("A-1") shouldBe dbo.copy(status = BestillingStatusType.ANNULLERT)
         }
     }
 })
