@@ -2,10 +2,7 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
-import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -99,8 +96,8 @@ object TilsagnFixtures {
                         id = UUID.randomUUID(),
                         entityId = tilsagnDbo.id,
                         behandletAv = tilsagnDbo.behandletAv,
-                        aarsaker = emptyList(),
-                        forklaring = null,
+                        aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP.name),
+                        forklaring = "Velg et annet beløp",
                         type = Totrinnskontroll.Type.ANNULLER,
                         behandletTidspunkt = LocalDateTime.now(),
                         besluttelse = null,

@@ -260,6 +260,33 @@ class TilsagnServiceTest : FunSpec({
             dto.annullering!!.forklaring shouldBe "Velg et annet beløp"
         }
 
+        test("godkjenn annullering av tilsagn") {
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.TIL_ANNULLERING)
+            }.initialize(database.db)
+
+            val service = createTilsagnService()
+            val dto1 = database.run { queries.tilsagn.get(Tilsagn1.id) }
+
+            val dto = service.beslutt(
+                Tilsagn1.id,
+                BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                NavAnsattFixture.ansatt2.navIdent,
+            ).shouldBeRight()
+            dto.status shouldBe TilsagnStatus.ANNULLERT
+            dto.annullering shouldNotBe null
+            dto.annullering!!.behandletAv shouldBe NavAnsattFixture.ansatt1.navIdent
+            dto.annullering!!.besluttetAv shouldBe NavAnsattFixture.ansatt2.navIdent
+            dto.annullering!!.besluttelse shouldBe Besluttelse.GODKJENT
+            dto.annullering!!.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
+            dto.annullering!!.forklaring shouldBe "Velg et annet beløp"
+        }
+
         test("annullering av tilsagn trigger melding til økonomi") {
             val okonomi = mockk<OkonomiBestillingService>()
             every { okonomi.scheduleBehandleGodkjentTilsagn(any(), any()) } returns Unit
