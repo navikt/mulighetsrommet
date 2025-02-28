@@ -274,7 +274,7 @@ private fun MockEngineBuilder.mockBrregHovedenhet() {
                     "kode": "AS",
                     "beskrivelse": "Aksjeselskap"
                 },
-                "postadresse": {
+                "forretningsadresse": {
                     "land": "Norge",
                     "landkode": "NO",
                     "postnummer": "0170",

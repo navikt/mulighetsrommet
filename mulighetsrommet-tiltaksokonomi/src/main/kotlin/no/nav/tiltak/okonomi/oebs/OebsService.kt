@@ -61,10 +61,18 @@ class OebsService(
                     }
                 }
             }
-            .map { hovedenhet ->
-                toOebsBestillingMelding(bestilling, kontering, hovedenhet)
+            .flatMap { hovedenhet ->
+                getLeverandorAdresse(hovedenhet).map { adresse ->
+                    OebsBestillingMelding.Selger(
+                        organisasjonsNummer = hovedenhet.organisasjonsnummer.value,
+                        organisasjonsNavn = hovedenhet.navn,
+                        adresse = adresse,
+                        bedriftsNummer = bestilling.arrangorUnderenhet.value,
+                    )
+                }
             }
-            .flatMap { melding ->
+            .flatMap { selger ->
+                val melding = toOebsBestillingMelding(bestilling, kontering, selger)
                 log.info("Sender bestilling ${bestilling.bestillingsnummer} til oebs")
                 oebs.sendBestilling(melding).mapLeft {
                     OpprettBestillingError(
@@ -79,7 +87,7 @@ class OebsService(
                 bestilling
             }
             .onLeft {
-                log.warn("Klarte ikke sende bestilling ${bestilling.bestillingsnummer} til oebs", it)
+                log.warn("Opprett bestilling ${bestilling.bestillingsnummer} feilet", it)
             }
     }
 
@@ -98,15 +106,7 @@ class OebsService(
             return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi det finnes fakturaer for bestillingen").left()
         }
 
-        val melding = OebsAnnulleringMelding(
-            bestillingsNummer = bestillingsnummer,
-            bestillingsType = OebsBestillingType.ANNULLER,
-            selger = OebsAnnulleringMelding.Selger(
-                organisasjonsNummer = bestilling.arrangorHovedenhet.value,
-                bedriftsNummer = bestilling.arrangorUnderenhet.value,
-            ),
-        )
-
+        val melding = toOebsAnnulleringMelding(bestilling)
         return oebs.sendAnnullering(melding)
             .mapLeft {
                 AnnullerBestillingError("Klarte ikke annullere bestilling $bestillingsnummer hos oebs", it)
@@ -121,12 +121,11 @@ class OebsService(
         opprettFaktura: OpprettFaktura,
     ): Either<OpprettFakturaError, Faktura> = db.session {
         val bestilling = queries.bestilling.getByBestillingsnummer(opprettFaktura.bestillingsnummer)
-            ?: return OpprettFakturaError("Bestilling ${opprettFaktura.bestillingsnummer} mangler for faktura ${opprettFaktura.fakturanummer}").left()
+            ?: return OpprettFakturaError("Bestilling ${opprettFaktura.bestillingsnummer} finnes ikke").left()
 
         val faktura = Faktura.fromOpprettFaktura(opprettFaktura, bestilling.linjer)
 
         val melding = toOebsFakturaMelding(bestilling, faktura)
-
         return oebs.sendFaktura(melding)
             .mapLeft {
                 OpprettFakturaError("Klarte ikke sende faktura ${faktura.fakturanummer} til oebs", it)
@@ -138,18 +137,30 @@ class OebsService(
     }
 }
 
+private fun getLeverandorAdresse(leverandor: BrregHovedenhetDto): Either<OpprettBestillingError, List<OebsBestillingMelding.Selger.Adresse>> {
+    val adresse = leverandor.forretningsadresse?.let { toOebsAdresse(it) }.let { listOfNotNull(it) }
+
+    return if (adresse.isNotEmpty()) {
+        adresse.right()
+    } else {
+        OpprettBestillingError("Klarte ikke utlede adresse for leverandør ${leverandor.organisasjonsnummer.value}").left()
+    }
+}
+
+private fun toOebsAdresse(it: BrregAdresse): OebsBestillingMelding.Selger.Adresse? {
+    return OebsBestillingMelding.Selger.Adresse(
+        gateNavn = it.adresse?.joinToString(separator = ", ") ?: return null,
+        by = it.poststed ?: return null,
+        postNummer = it.postnummer ?: return null,
+        landsKode = it.landkode ?: return null,
+    )
+}
+
 private fun toOebsBestillingMelding(
     bestilling: Bestilling,
     kontering: OebsKontering,
-    leverandor: BrregHovedenhetDto,
+    selger: OebsBestillingMelding.Selger,
 ): OebsBestillingMelding {
-    val selger = OebsBestillingMelding.Selger(
-        organisasjonsNummer = leverandor.organisasjonsnummer.value,
-        organisasjonsNavn = leverandor.navn,
-        adresse = getLeverandorAdresse(leverandor),
-        bedriftsNummer = bestilling.arrangorUnderenhet.value,
-    )
-
     val linjer = bestilling.linjer.map { linje ->
         OebsBestillingMelding.Linje(
             linjeNummer = linje.linjenummer,
@@ -181,26 +192,16 @@ private fun toOebsBestillingMelding(
     )
 }
 
-private fun getLeverandorAdresse(leverandor: BrregHovedenhetDto): List<OebsBestillingMelding.Selger.Adresse> {
-    val adresse = leverandor.forretningsadresse?.let { toOebsAdresse(it) }.let { listOfNotNull(it) }
-
-    if (adresse.isEmpty()) {
-        log.warn("Klarte ikke utlede adresse for leverandør $leverandor")
-    }
-
-    return adresse
-}
-
-private fun toOebsAdresse(it: BrregAdresse): OebsBestillingMelding.Selger.Adresse? {
-    val adresse = it.adresse?.joinToString(separator = ", ") ?: return null
-    val poststed = it.poststed ?: return null
-    val postnummer = it.postnummer ?: return null
-    val landkode = it.landkode ?: return null
-    return OebsBestillingMelding.Selger.Adresse(
-        gateNavn = adresse,
-        by = poststed,
-        postNummer = postnummer,
-        landsKode = landkode,
+private fun toOebsAnnulleringMelding(
+    bestilling: Bestilling,
+): OebsAnnulleringMelding {
+    return OebsAnnulleringMelding(
+        bestillingsNummer = bestilling.bestillingsnummer,
+        bestillingsType = OebsBestillingType.ANNULLER,
+        selger = OebsAnnulleringMelding.Selger(
+            organisasjonsNummer = bestilling.arrangorHovedenhet.value,
+            bedriftsNummer = bestilling.arrangorUnderenhet.value,
+        ),
     )
 }
 
