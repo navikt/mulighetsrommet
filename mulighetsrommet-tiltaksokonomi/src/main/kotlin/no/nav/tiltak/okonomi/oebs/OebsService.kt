@@ -136,7 +136,7 @@ private fun toOebsBestillingMelding(
     val selger = OebsBestillingMelding.Selger(
         organisasjonsNummer = leverandor.organisasjonsnummer.value,
         organisasjonsNavn = leverandor.navn,
-        postAdresse = getLeverandorAdresse(leverandor),
+        adresse = getLeverandorAdresse(leverandor),
         bedriftsNummer = bestilling.arrangorUnderenhet.value,
     )
 
@@ -171,7 +171,7 @@ private fun toOebsBestillingMelding(
     )
 }
 
-private fun getLeverandorAdresse(leverandor: BrregHovedenhetDto): List<OebsBestillingMelding.Selger.PostAdresse> {
+private fun getLeverandorAdresse(leverandor: BrregHovedenhetDto): List<OebsBestillingMelding.Selger.Adresse> {
     val adresse = leverandor.forretningsadresse?.let { toOebsAdresse(it) }.let { listOfNotNull(it) }
 
     if (adresse.isEmpty()) {
@@ -181,12 +181,12 @@ private fun getLeverandorAdresse(leverandor: BrregHovedenhetDto): List<OebsBesti
     return adresse
 }
 
-private fun toOebsAdresse(it: BrregAdresse): OebsBestillingMelding.Selger.PostAdresse? {
+private fun toOebsAdresse(it: BrregAdresse): OebsBestillingMelding.Selger.Adresse? {
     val adresse = it.adresse?.joinToString(separator = ", ") ?: return null
     val poststed = it.poststed ?: return null
     val postnummer = it.postnummer ?: return null
     val landkode = it.landkode ?: return null
-    return OebsBestillingMelding.Selger.PostAdresse(
+    return OebsBestillingMelding.Selger.Adresse(
         gateNavn = adresse,
         by = poststed,
         postNummer = postnummer,
