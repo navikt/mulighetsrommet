@@ -29,7 +29,7 @@ export function Separator({ style, classname }: { style?: any; classname?: strin
 export function MetadataHorisontal({ header, verdi }: MetadataProps) {
   return (
     <HStack gap="12">
-      <Box minWidth="250px">
+      <Box minWidth="220px">
         <dt>{header}:</dt>
       </Box>
       <Box>

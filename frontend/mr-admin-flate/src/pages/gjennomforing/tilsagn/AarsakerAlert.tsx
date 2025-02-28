@@ -32,7 +32,7 @@ export function TilAnnulleringAlert({ annullering }: { annullering: Totrinnskont
 
 interface Props {
   header: string;
-  aarsaker: string[];
+  aarsaker?: string[];
   tidspunkt?: string;
   forklaring?: string;
   navIdent?: string;
@@ -46,8 +46,8 @@ export function AvvistAlert({ aarsaker, forklaring, navIdent, tidspunkt, header 
       </Heading>
       <p>
         {navIdent} avviste den {formaterDato(tidspunkt)} med følgende{" "}
-        {aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
-        <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker))}</b>
+        {aarsaker && aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
+        <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker ?? []))}</b>
         {forklaring ? (
           <>
             {" "}

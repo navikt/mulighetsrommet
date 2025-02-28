@@ -4,26 +4,20 @@ import {
   TilsagnDto,
   DelutbetalingDto,
   ProblemDetail,
-  FieldError,
-  DelutbetalingRequest,
   Besluttelse,
   BesluttDelutbetalingRequest,
   NavAnsatt,
   NavAnsattRolle,
-  TilsagnStatus,
 } from "@mr/api-client-v2";
 import { BodyShort, Button, HStack, Table, TextField } from "@navikt/ds-react";
-import { formaterNOK, isValidationError } from "@mr/frontend-common/utils/utils";
 import { useState } from "react";
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
 import { AvvistAlert } from "@/pages/gjennomforing/tilsagn/AarsakerAlert";
 import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { DelutbetalingTag } from "./DelutbetalingTag";
-import { useUpsertDelutbetaling } from "@/api/utbetaling/useUpsertDelutbetaling";
 import { Metadata } from "../detaljside/Metadata";
-import { useQueryClient } from "@tanstack/react-query";
 import { useRevalidator } from "react-router";
-import { v4 as uuidv4 } from "uuid";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
 
 interface Props {
   utbetaling: UtbetalingKompakt;
@@ -47,13 +41,11 @@ export function DelutbetalingRow({
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
 
   const revalidator = useRevalidator();
-  const queryClient = useQueryClient();
-  const opprettMutation = useUpsertDelutbetaling(utbetaling.id);
   const besluttMutation = useBesluttDelutbetaling(utbetaling.id);
 
   const kanBeslutte =
     delutbetaling &&
-    delutbetaling.opprettetAv !== ansatt.navIdent &&
+    delutbetaling.opprettelse.behandletAv !== ansatt.navIdent &&
     ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER);
   const skriveTilgang = ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV);
 
@@ -63,32 +55,6 @@ export function DelutbetalingRow({
   const godkjentUtbetaling =
     delutbetaling?.type === "DELUTBETALING_OVERFORT_TIL_UTBETALING" ||
     delutbetaling?.type === "DELUTBETALING_UTBETALT";
-
-  function sendTilGodkjenning() {
-    if (error) return;
-    const body: DelutbetalingRequest = {
-      id: delutbetaling?.id ?? uuidv4(),
-      belop,
-      tilsagnId: tilsagn.id,
-    };
-
-    opprettMutation.mutate(body, {
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({
-          queryKey: ["utbetaling", utbetaling.id],
-          refetchType: "all",
-        });
-        revalidator.revalidate();
-      },
-      onError: (error: ProblemDetail) => {
-        if (isValidationError(error)) {
-          error.errors.forEach((fieldError: FieldError) => {
-            setError(fieldError.detail);
-          });
-        }
-      },
-    });
-  }
 
   function beslutt(body: BesluttDelutbetalingRequest) {
     besluttMutation.mutate(body, {
@@ -106,25 +72,33 @@ export function DelutbetalingRow({
       return (
         <AvvistAlert
           header="Utbetaling returnert"
-          navIdent={delutbetaling.besluttetAv}
-          navn=""
-          aarsaker={delutbetaling.aarsaker}
-          forklaring={delutbetaling.forklaring}
-          tidspunkt={delutbetaling.besluttetTidspunkt}
+          navIdent={delutbetaling.opprettelse.besluttetAv}
+          aarsaker={delutbetaling.opprettelse.aarsaker}
+          forklaring={delutbetaling.opprettelse.forklaring}
+          tidspunkt={delutbetaling.opprettelse.besluttetTidspunkt}
         />
       );
     else if (godkjentUtbetaling)
       return (
         <HStack>
-          <Metadata horizontal header="Behandlet av" verdi={delutbetaling.opprettelse.behandletAv} />
-          <Metadata horizontal header="Besluttet av" verdi={delutbetaling.opprettelse.besluttetAv} />
+          <Metadata
+            horizontal
+            header="Behandlet av"
+            verdi={delutbetaling.opprettelse.behandletAv}
+          />
+          <Metadata
+            horizontal
+            header="Besluttet av"
+            verdi={delutbetaling.opprettelse.besluttetAv}
+          />
         </HStack>
       );
     else return null;
   }
 
   function utbetales() {
-    if (!delutbetaling || (avvist && endreUtbetaling))
+    if (!godkjentTilsagn) return "-";
+    else if (!delutbetaling || (avvist && endreUtbetaling))
       return (
         <TextField
           readOnly={!skriveTilgang}
@@ -149,7 +123,6 @@ export function DelutbetalingRow({
           value={belop}
         />
       );
-    else if (!godkjentTilsagn) return null;
     else return formaterNOK(delutbetaling.belop);
   }
 
@@ -165,13 +138,7 @@ export function DelutbetalingRow({
   }
 
   function handlinger() {
-    if (skriveTilgang && godkjentTilsagn && (!delutbetaling || (avvist && endreUtbetaling)))
-      return (
-        <Button size="small" type="button" onClick={() => sendTilGodkjenning()}>
-          Send beløp til godkjenning
-        </Button>
-      );
-    else if (kanBeslutte && tilGodkjenning)
+    if (kanBeslutte && tilGodkjenning)
       return (
         <HStack gap="4">
           <Button
@@ -180,7 +147,7 @@ export function DelutbetalingRow({
             onClick={() =>
               beslutt({
                 besluttelse: Besluttelse.GODKJENT,
-                tilsagnId: tilsagn.id,
+                id: delutbetaling.id,
               })
             }
           >
@@ -218,25 +185,27 @@ export function DelutbetalingRow({
       <Table.DataCell className={cellClass}>{utbetales()}</Table.DataCell>
       <Table.DataCell className={error && "align-top pt-2"}>{tag()}</Table.DataCell>
       <Table.DataCell className={cellClass}>{handlinger()}</Table.DataCell>
-      <AarsakerOgForklaringModal
-        open={avvisModalOpen}
-        header="Send i retur med forklaring"
-        buttonLabel="Send i retur"
-        aarsaker={[
-          { value: "FEIL_BELOP", label: "Feil beløp" },
-          { value: "FEIL_ANNET", label: "Annet" },
-        ]}
-        onClose={() => setAvvisModalOpen(false)}
-        onConfirm={({ aarsaker, forklaring }) => {
-          beslutt({
-            besluttelse: Besluttelse.AVVIST,
-            id: delutbetaling.id,
-            aarsaker,
-            forklaring: forklaring ?? null,
-          });
-          setAvvisModalOpen(false);
-        }}
-      />
+      {delutbetaling && (
+        <AarsakerOgForklaringModal
+          open={avvisModalOpen}
+          header="Send i retur med forklaring"
+          buttonLabel="Send i retur"
+          aarsaker={[
+            { value: "FEIL_BELOP", label: "Feil beløp" },
+            { value: "FEIL_ANNET", label: "Annet" },
+          ]}
+          onClose={() => setAvvisModalOpen(false)}
+          onConfirm={({ aarsaker, forklaring }) => {
+            beslutt({
+              besluttelse: Besluttelse.AVVIST,
+              id: delutbetaling.id,
+              aarsaker,
+              forklaring: forklaring ?? null,
+            });
+            setAvvisModalOpen(false);
+          }}
+        />
+      )}
     </Table.ExpandableRow>
   );
 }

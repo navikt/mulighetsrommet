@@ -94,6 +94,13 @@ fun Route.utbetalingRoutes() {
 
                     call.respondWithStatusResponse(service.upsertDelutbetaling(utbetalingId, request, navIdent))
                 }
+                put("/bulk") {
+                    val utbetalingId = call.parameters.getOrFail<UUID>("id")
+                    val request = call.receive<DelutbetalingBulkRequest>()
+                    val navIdent = getNavIdent()
+
+                    call.respondWithStatusResponse(service.upsertDelutbetalingBulk(utbetalingId, request, navIdent))
+                }
             }
 
             authenticate(AuthProvider.AZURE_AD_OKONOMI_BESLUTTER) {
@@ -160,6 +167,11 @@ data class DelutbetalingRequest(
     @Serializable(with = UUIDSerializer::class)
     val tilsagnId: UUID,
     val belop: Int,
+)
+
+@Serializable
+data class DelutbetalingBulkRequest(
+    val delutbetalinger: List<DelutbetalingRequest>
 )
 
 @Serializable

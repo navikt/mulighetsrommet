@@ -4,42 +4,60 @@ import { EndringshistorikkPopover } from "@/components/endringshistorikk/Endring
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { OpprettTilsagnButton } from "@/components/tilsagn/OpprettTilsagnButton";
 import { DelutbetalingRow } from "@/components/utbetaling/DelutbetalingRow";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { LoaderData } from "@/types/loader";
 import { formaterDato } from "@/utils/Utils";
 import {
+  DelutbetalingBulkRequest,
+  FieldError,
   NavAnsattRolle,
   Prismodell,
   TilsagnDefaultsRequest,
-  TilsagnDto,
   TilsagnStatus,
   TilsagnType,
 } from "@mr/api-client-v2";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { formaterNOK, isValidationError } from "@mr/frontend-common/utils/utils";
 import { BankNoteIcon, PencilFillIcon, PiggybankIcon } from "@navikt/aksel-icons";
 import { ActionMenu, Alert, Box, Button, Heading, HStack, Table, VStack } from "@navikt/ds-react";
 import { useState } from "react";
-import { useLoaderData, useNavigate } from "react-router";
+import { useLoaderData, useNavigate, useRevalidator } from "react-router";
 import { utbetalingPageLoader } from "./utbetalingPageLoader";
+import { useQueryClient } from "@tanstack/react-query";
+import { useUpsertDelutbetalingBulk } from "@/api/utbetaling/useUpsertDelutbetalingBulk";
+import { v4 as uuidv4 } from "uuid";
+
 export function UtbetalingPage() {
   const { gjennomforing, historikk, utbetaling, tilsagn, ansatt } =
     useLoaderData<LoaderData<typeof utbetalingPageLoader>>();
   const [belopPerTilsagn, setBelopPerTilsagn] = useState<Map<string, number>>(
     new Map(
-      tilsagn.map((tilsagn) => [
-        tilsagn.id,
-        utbetaling.delutbetalinger.find((d) => d.tilsagnId === tilsagn.id)?.belop ?? 0,
-      ]),
+      tilsagn
+        .filter((tilsagn) => tilsagn.status === TilsagnStatus.GODKJENT)
+        .map((t) => [
+          t.id,
+          utbetaling.delutbetalinger.find((d) => d.tilsagnId === t.id)?.belop ?? 0,
+        ]),
     ),
   );
+
+  const skriveTilgang = ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV);
   const avvistUtbetaling = utbetaling.delutbetalinger.find(
     (d) => d.type === "DELUTBETALING_AVVIST",
   );
-  const navigate = useNavigate();
   const [endreUtbetaling, setEndreUtbetaling] = useState<boolean>(!avvistUtbetaling);
+  const [error, setError] = useState<string | undefined>(undefined);
+
+  const revalidator = useRevalidator();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const opprettMutation = useUpsertDelutbetalingBulk(utbetaling.id);
+
+  const kanRedigeres =
+    skriveTilgang &&
+    tilsagn.some((t) => t.status === TilsagnStatus.GODKJENT) &&
+    (utbetaling.delutbetalinger.length != tilsagn.length || (endreUtbetaling && avvistUtbetaling));
 
   const brodsmuler: Brodsmule[] = [
     { tittel: "Gjennomføringer", lenke: `/gjennomforinger` },
@@ -61,7 +79,7 @@ export function UtbetalingPage() {
   function totalGjenståendeBeløp(): number {
     return tilsagn
       .map((tilsagn) =>
-        tilsagn.status.type === TilsagnStatus.GODKJENT ? tilsagn.beregning.output.belop : 0,
+        tilsagn.status === TilsagnStatus.GODKJENT ? tilsagn.beregning.output.belop : 0,
       )
       .reduce((acc, val) => acc + val, 0);
   }
@@ -89,19 +107,59 @@ export function UtbetalingPage() {
     };
   }
 
-  function opprettTilsagn() {
+  function opprettTilsagn(defaults: TilsagnDefaultsRequest) {
     navigate(
-      `/gjennomforinger/${ekstraTilsagnDefaults().gjennomforingId}/tilsagn/opprett-tilsagn` +
-        `?type=${ekstraTilsagnDefaults().type}` +
-        `&prismodell=${ekstraTilsagnDefaults().prismodell}` +
-        `&belop=${ekstraTilsagnDefaults().belop}` +
-        `&periodeStart=${ekstraTilsagnDefaults().periodeStart}` +
-        `&periodeSlutt=${ekstraTilsagnDefaults().periodeSlutt}` +
-        `&kostnadssted=${ekstraTilsagnDefaults().kostnadssted}`,
+      `/gjennomforinger/${defaults.gjennomforingId}/tilsagn/opprett-tilsagn` +
+        `?type=${defaults.type}` +
+        `&prismodell=${defaults.prismodell}` +
+        `&belop=${defaults.belop}` +
+        `&periodeStart=${defaults.periodeStart}` +
+        `&periodeSlutt=${defaults.periodeSlutt}` +
+        `&kostnadssted=${defaults.kostnadssted}`,
     );
   }
 
-  const skriveTilgang = ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV);
+  function sendTilGodkjenning() {
+    if (utbetalesTotal() <= 0) setError("Samlet beløp må være positivt");
+    else if (utbetalesTotal() > utbetaling.beregning.belop)
+      setError("Kan ikke betale ut mer enn det er krav på");
+    else {
+      const body: DelutbetalingBulkRequest = {
+        delutbetalinger: [
+          ...tilsagn
+            .filter(
+              (t) =>
+                !utbetaling.delutbetalinger.find(
+                  (d) => d.tilsagnId === t.id && d.type !== "DELUTBETALING_AVVIST",
+                ),
+            )
+            .map((tilsagn) => ({
+              id:
+                utbetaling.delutbetalinger?.find((d) => d.tilsagnId === tilsagn.id)?.id ?? uuidv4(),
+              tilsagnId: tilsagn.id,
+              belop: belopPerTilsagn.get(tilsagn.id) ?? 0,
+            })),
+        ],
+      };
+
+      opprettMutation.mutate(body, {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
+            queryKey: ["utbetaling", utbetaling.id],
+            refetchType: "all",
+          });
+          revalidator.revalidate();
+        },
+        onError: (error) => {
+          if (isValidationError(error)) {
+            error.errors.forEach((fieldError: FieldError) => {
+              setError(fieldError.detail);
+            });
+          }
+        },
+      });
+    }
+  }
 
   return (
     <>
@@ -156,7 +214,7 @@ export function UtbetalingPage() {
                         <ActionMenu.Content>
                           <ActionMenu.Item
                             icon={<PiggybankIcon />}
-                            onSelect={() => opprettTilsagn()}
+                            onSelect={() => opprettTilsagn(ekstraTilsagnDefaults())}
                           >
                             Opprett tilsagn
                           </ActionMenu.Item>
@@ -169,11 +227,18 @@ export function UtbetalingPage() {
                         </ActionMenu.Content>
                       </ActionMenu>
                     ) : (
-                      <OpprettTilsagnButton defaults={ekstraTilsagnDefaults()} />
+                      <Button
+                        size="small"
+                        type="button"
+                        onClick={() => opprettTilsagn(ekstraTilsagnDefaults())}
+                      >
+                        Opprett ekstratilsagn
+                      </Button>
                     ))}
                 </HStack>
-                {tilsagn.length === 0 && <Alert variant="info">Tilsagn mangler</Alert>}
-                {tilsagn.length > 0 && (
+                {tilsagn.length < 1 ? (
+                  <Alert variant="info">Tilsagn mangler</Alert>
+                ) : (
                   <Table>
                     <Table.Header>
                       <Table.Row>
@@ -185,11 +250,11 @@ export function UtbetalingPage() {
                         <Table.HeaderCell scope="col">Tilgjengelig på tilsagn</Table.HeaderCell>
                         <Table.HeaderCell scope="col">Utbetales</Table.HeaderCell>
                         <Table.HeaderCell scope="col">Status</Table.HeaderCell>
-                        <Table.HeaderCell />
+                        <Table.HeaderCell scope="col" />
                       </Table.Row>
                     </Table.Header>
                     <Table.Body>
-                      {tilsagn.map((t: TilsagnDto) => {
+                      {tilsagn.map((t) => {
                         return (
                           <DelutbetalingRow
                             key={t.id}
@@ -243,6 +308,21 @@ export function UtbetalingPage() {
                   />
                 </VStack>
               </VStack>
+              <Separator />
+              {kanRedigeres && (
+                <VStack align="end" gap="4">
+                  <HStack>
+                    <Button size="small" type="button" onClick={() => sendTilGodkjenning()}>
+                      Send til godkjenning
+                    </Button>
+                  </HStack>
+                  {error && (
+                    <Alert variant="error" size="small">
+                      {error}
+                    </Alert>
+                  )}
+                </VStack>
+              )}
             </Box>
           </VStack>
         </WhitePaddedBox>

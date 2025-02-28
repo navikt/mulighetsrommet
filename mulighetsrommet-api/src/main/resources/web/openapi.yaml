@@ -2014,6 +2014,28 @@ paths:
               schema:
                 $ref: "#/components/schemas/ValidationError"
 
+  /api/v1/intern/utbetaling/{id}/delutbetaling/bulk:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    put:
+      tags:
+        - Utbetaling
+      operationId: upsertDelutbetalingBulk
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DelutbetalingBulkRequest"
+      responses:
+        200:
+          description: OK
+        400:
+          description: Respons med valideringsfeil
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+
   /api/v1/intern/utbetaling/{id}/delutbetaling/beslutt:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -2826,25 +2848,25 @@ components:
         websaknummer:
           type: [string, "null"]
         arrangor:
-            anyOf:
-              - type: "null"
-              - type: object
-                properties:
-                  hovedenhet:
+          anyOf:
+            - type: "null"
+            - type: object
+              properties:
+                hovedenhet:
+                  type: string
+                underenheter:
+                  type: array
+                  items:
                     type: string
-                  underenheter:
-                    type: array
-                    items:
-                      type: string
-                  kontaktpersoner:
-                    type: array
-                    items:
-                      type: string
-                      format: UUID
-                required:
-                  - hovedenhet
-                  - underenheter
-                  - kontaktpersoner
+                kontaktpersoner:
+                  type: array
+                  items:
+                    type: string
+                    format: UUID
+              required:
+                - hovedenhet
+                - underenheter
+                - kontaktpersoner
         startDato:
           type: string
           format: date
@@ -2866,7 +2888,7 @@ components:
         beskrivelse:
           type: [string, "null"]
         faneinnhold:
-           anyOf:
+          anyOf:
             - type: "null"
             - $ref: "#/components/schemas/FaneinnholdRequest"
         personopplysninger:
@@ -2880,11 +2902,11 @@ components:
             - type: "null"
             - $ref: "#/components/schemas/AmoKategorisering"
         opsjonsmodellData:
-           anyOf:
+          anyOf:
             - type: "null"
             - $ref: "#/components/schemas/OpsjonsmodellData"
         utdanningslop:
-           anyOf:
+          anyOf:
             - type: "null"
             - $ref: "#/components/schemas/UtdanningslopDbo"
         prismodell:
@@ -3112,7 +3134,7 @@ components:
         deltidsprosent:
           type: number
         estimertVentetid:
-           anyOf:
+          anyOf:
             - type: ["null"]
             - $ref: "#/components/schemas/EstimertVentetid"
         tilgjengeligForArrangorFraOgMedDato:
@@ -4429,7 +4451,7 @@ components:
           type: string
           format: date-time
         oppgaveIcon:
-           $ref: "#/components/schemas/OppgaveIcon"
+          $ref: "#/components/schemas/OppgaveIcon"
       required:
         - type
         - title
@@ -4443,7 +4465,6 @@ components:
       enum:
         - TILSAGN
         - UTBETALING
-
 
     AvbrytGjennomforingAarsak:
       type: string
@@ -6101,6 +6122,32 @@ components:
           $ref: "#/components/schemas/Totrinnskontroll"
       required: [id, type, tilsagnId, utbetalingId, belop, opprettelse]
 
+    opprettetAv:
+        type: string
+        besluttetAv:
+          type: string
+        besluttetTidspunkt:
+          type: string
+          format: date-time
+        aarsaker:
+          type: array
+          items:
+            type: string
+        forklaring:
+          type: string
+        required:
+          [
+            type,
+            tilsagnId,
+            utbetalingId,
+            belop,
+            opprettetAv,
+            besluttetAv,
+            aarsaker,
+            forklaring,
+            besluttetTidspunkt,
+          ]
+
     DelutbetalingRequest:
       type: object
       properties:
@@ -6113,6 +6160,15 @@ components:
         belop:
           type: number
       required: [id, tilsagnId, belop]
+
+    DelutbetalingBulkRequest:
+      type: object
+      properties:
+        delutbetalinger:
+          type: array
+          items:
+            $ref: "#/components/schemas/DelutbetalingRequest"
+      required: [delutbetalinger]
 
     OpprettManuellUtbetalingRequest:
       type: object

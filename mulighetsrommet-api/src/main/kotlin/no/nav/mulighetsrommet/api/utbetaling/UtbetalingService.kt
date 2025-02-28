@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
+
 import arrow.core.left
 import arrow.core.right
 import kotlinx.serialization.json.Json
@@ -167,6 +168,17 @@ class UtbetalingService(
             val dto = getOrError(utbetalingId)
             logEndring("Utbetaling sendt inn", dto, EndretAv.NavAnsatt(navIdent))
         }
+    }
+
+    fun upsertDelutbetalingBulk(
+        utbetalingId: UUID,
+        request: DelutbetalingBulkRequest,
+        opprettetAv: NavIdent,
+    ): StatusResponse<Unit> {
+        request.delutbetalinger.map { req ->
+            upsertDelutbetaling(utbetalingId, req, opprettetAv).onLeft { return it.left() }
+        }
+        return Unit.right()
     }
 
     fun upsertDelutbetaling(
