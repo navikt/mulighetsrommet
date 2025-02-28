@@ -28,10 +28,11 @@ sealed class OkonomiBestillingMelding {
 
 @Serializable
 data class OpprettBestilling(
+    val bestillingsnummer: String,
+    val tilskuddstype: Tilskuddstype,
     val tiltakskode: Tiltakskode,
     val arrangor: Arrangor,
     val kostnadssted: NavEnhetNummer,
-    val bestillingsnummer: String,
     val avtalenummer: String?,
     val belop: Int,
     val periode: Periode,
@@ -47,6 +48,11 @@ data class OpprettBestilling(
         val hovedenhet: Organisasjonsnummer,
         val underenhet: Organisasjonsnummer,
     )
+}
+
+enum class Tilskuddstype {
+    TILTAK_DRIFTSTILSKUDD,
+    TILTAK_INVESTERINGER,
 }
 
 @Serializable

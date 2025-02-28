@@ -8,6 +8,7 @@ import kotliquery.Session
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
@@ -111,10 +112,14 @@ class OkonomiBestillingService(
         }
 
         val bestilling = OpprettBestilling(
+            bestillingsnummer = tilsagn.bestillingsnummer,
+            tilskuddstype = when (tilsagn.type) {
+                TilsagnType.INVESTERING -> Tilskuddstype.TILTAK_INVESTERINGER
+                else -> Tilskuddstype.TILTAK_DRIFTSTILSKUDD
+            },
             tiltakskode = gjennomforing.tiltakstype.tiltakskode,
             arrangor = arrangor,
             kostnadssted = NavEnhetNummer(tilsagn.kostnadssted.enhetsnummer),
-            bestillingsnummer = tilsagn.bestillingsnummer,
             // TODO: hvilket avtalenummer?
             avtalenummer = avtale.avtalenummer,
             belop = tilsagn.beregning.output.belop,
