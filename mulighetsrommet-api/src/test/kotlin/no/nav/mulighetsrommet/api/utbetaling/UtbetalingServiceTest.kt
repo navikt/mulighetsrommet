@@ -448,7 +448,7 @@ class UtbetalingServiceTest : FunSpec({
                 ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                tilsagn = listOf(Tilsagn1),
                 utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
                 delutbetalinger = listOf(UtbetalingFixtures.delutbetaling1),
             ).initialize(database.db)
@@ -464,7 +464,7 @@ class UtbetalingServiceTest : FunSpec({
                     request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(UtbetalingFixtures.delutbetaling1.id),
                     navIdent = NavAnsattFixture.ansatt2.navIdent,
                 )
-            }
+            }.message shouldBe "Utbetaling er allerede besluttet"
         }
 
         test("oppdatering av delutbetaling etter returnert gir TIL_GODKJENNING status") {
@@ -526,7 +526,7 @@ class UtbetalingServiceTest : FunSpec({
                     request,
                     NavAnsattFixture.ansatt1.navIdent,
                 )
-            }
+            }.message shouldBe "Utbetalingsperiode og tilsagnsperiode overlapper ikke"
         }
 
         test("skal ikke kunne opprette delutbetaling hvis belop er for stort") {
