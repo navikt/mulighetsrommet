@@ -136,7 +136,7 @@ private fun toOebsBestillingMelding(
     val selger = OebsBestillingMelding.Selger(
         organisasjonsNummer = leverandor.organisasjonsnummer.value,
         organisasjonsNavn = leverandor.navn,
-        postAdresse = getLeverandorPostadresse(leverandor),
+        postAdresse = getLeverandorAdresse(leverandor),
         bedriftsNummer = bestilling.arrangorUnderenhet.value,
     )
 
@@ -171,14 +171,14 @@ private fun toOebsBestillingMelding(
     )
 }
 
-private fun getLeverandorPostadresse(leverandor: BrregHovedenhetDto): List<OebsBestillingMelding.Selger.PostAdresse> {
-    val postadresse = leverandor.postadresse?.let { toOebsAdresse(it) }.let { listOfNotNull(it) }
+private fun getLeverandorAdresse(leverandor: BrregHovedenhetDto): List<OebsBestillingMelding.Selger.PostAdresse> {
+    val adresse = leverandor.forretningsadresse?.let { toOebsAdresse(it) }.let { listOfNotNull(it) }
 
-    if (postadresse.isEmpty()) {
+    if (adresse.isEmpty()) {
         log.warn("Klarte ikke utlede adresse for leverandør $leverandor")
     }
 
-    return postadresse
+    return adresse
 }
 
 private fun toOebsAdresse(it: BrregAdresse): OebsBestillingMelding.Selger.PostAdresse? {

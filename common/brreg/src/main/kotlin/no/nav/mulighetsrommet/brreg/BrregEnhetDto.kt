@@ -30,6 +30,7 @@ sealed class BrregEnhet {
  */
 sealed class BrregHovedenhet : BrregEnhet() {
     abstract val postadresse: BrregAdresse?
+    abstract val forretningsadresse: BrregAdresse?
 }
 
 /**
@@ -43,6 +44,7 @@ data class BrregHovedenhetDto(
     override val organisasjonsform: String,
     override val navn: String,
     override val postadresse: BrregAdresse?,
+    override val forretningsadresse: BrregAdresse?,
 ) : BrregHovedenhet()
 
 @Serializable
@@ -54,6 +56,7 @@ data class SlettetBrregHovedenhetDto(
     val slettetDato: LocalDate,
 ) : BrregHovedenhet() {
     override val postadresse: BrregAdresse? = null
+    override val forretningsadresse: BrregAdresse? = null
 }
 
 @Serializable
