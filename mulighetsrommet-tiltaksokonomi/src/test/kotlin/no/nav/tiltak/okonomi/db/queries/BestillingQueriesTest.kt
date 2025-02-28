@@ -57,7 +57,7 @@ class BestillingQueriesTest : FunSpec({
 
             queries.createBestilling(dbo)
 
-            queries.getBestilling("A-1") shouldBe dbo
+            queries.getByBestillingsnummer("A-1") shouldBe dbo
         }
     }
 
@@ -69,7 +69,7 @@ class BestillingQueriesTest : FunSpec({
 
             queries.setStatus("A-1", BestillingStatusType.ANNULLERT)
 
-            queries.getBestilling("A-1") shouldBe dbo.copy(status = BestillingStatusType.ANNULLERT)
+            queries.getByBestillingsnummer("A-1") shouldBe dbo.copy(status = BestillingStatusType.ANNULLERT)
         }
     }
 })

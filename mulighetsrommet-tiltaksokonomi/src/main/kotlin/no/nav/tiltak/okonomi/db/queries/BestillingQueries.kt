@@ -83,7 +83,7 @@ class BestillingQueries(private val session: Session) {
         batchPreparedNamedStatement(insertLinje, linjer)
     }
 
-    fun getBestilling(bestillingsnummer: String): Bestilling? {
+    fun getByBestillingsnummer(bestillingsnummer: String): Bestilling? {
         @Language("PostgreSQL")
         val selectLinje = """
             select linjenummer, periode, belop

@@ -11,7 +11,10 @@ import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
-import no.nav.tiltak.okonomi.model.*
+import no.nav.tiltak.okonomi.model.Bestilling
+import no.nav.tiltak.okonomi.model.BestillingStatusType
+import no.nav.tiltak.okonomi.model.Faktura
+import no.nav.tiltak.okonomi.model.OebsKontering
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -32,7 +35,7 @@ class OebsService(
     suspend fun opprettBestilling(
         opprettBestilling: OpprettBestilling,
     ): Either<OpprettBestillingError, Bestilling> = db.session {
-        queries.bestilling.getBestilling(opprettBestilling.bestillingsnummer)?.let {
+        queries.bestilling.getByBestillingsnummer(opprettBestilling.bestillingsnummer)?.let {
             log.info("Bestilling ${opprettBestilling.bestillingsnummer} er allerede opprettet")
             return it.right()
         }
@@ -83,14 +86,16 @@ class OebsService(
     suspend fun annullerBestilling(
         bestillingsnummer: String,
     ): Either<AnnullerBestillingError, Bestilling> = db.session {
-        val bestilling = queries.bestilling.getBestilling(bestillingsnummer)
+        val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
             ?: return AnnullerBestillingError("Bestilling $bestillingsnummer finnes ikke").left()
 
-        // TODO: ikke tillatt annullering når det finnes utbetalinger
         if (bestilling.status == BestillingStatusType.ANNULLERT) {
+            log.info("Bestilling $bestillingsnummer er allerede annullert")
             return bestilling.right()
         } else if (bestilling.status == BestillingStatusType.OPPGJORT) {
-            return AnnullerBestillingError("Bestilling $bestillingsnummer er allerede oppgjort").left()
+            return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi den er oppgjort").left()
+        } else if (queries.faktura.getByBestillingsnummer(bestillingsnummer).isNotEmpty()) {
+            return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi det finnes fakturaer for bestillingen").left()
         }
 
         val melding = OebsAnnulleringMelding(
@@ -108,14 +113,14 @@ class OebsService(
             }
             .map {
                 queries.bestilling.setStatus(bestillingsnummer, BestillingStatusType.ANNULLERT)
-                checkNotNull(queries.bestilling.getBestilling(bestillingsnummer))
+                checkNotNull(queries.bestilling.getByBestillingsnummer(bestillingsnummer))
             }
     }
 
     suspend fun opprettFaktura(
         opprettFaktura: OpprettFaktura,
     ): Either<OpprettFakturaError, Faktura> = db.session {
-        val bestilling = queries.bestilling.getBestilling(opprettFaktura.bestillingsnummer)
+        val bestilling = queries.bestilling.getByBestillingsnummer(opprettFaktura.bestillingsnummer)
             ?: return OpprettFakturaError("Bestilling ${opprettFaktura.bestillingsnummer} mangler for faktura ${opprettFaktura.fakturanummer}").left()
 
         val faktura = Faktura.fromOpprettFaktura(opprettFaktura, bestilling.linjer)

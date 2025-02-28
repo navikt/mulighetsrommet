@@ -94,7 +94,7 @@ class FakturaQueriesTest : FunSpec({
 
             fakturaQueries.opprettFaktura(faktura)
 
-            fakturaQueries.getFaktura("4567") shouldBe faktura
+            fakturaQueries.getByFakturanummer("4567") shouldBe faktura
         }
     }
 })
