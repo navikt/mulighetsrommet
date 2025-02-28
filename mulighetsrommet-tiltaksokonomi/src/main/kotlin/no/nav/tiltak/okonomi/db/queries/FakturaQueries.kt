@@ -13,7 +13,7 @@ import org.intellij.lang.annotations.Language
 
 class FakturaQueries(private val session: Session) {
 
-    fun opprettFaktura(faktura: Faktura) = withTransaction(session) {
+    fun insertFaktura(faktura: Faktura) = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
             insert into faktura (

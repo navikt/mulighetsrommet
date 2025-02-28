@@ -83,7 +83,7 @@ class OebsService(
             }
             .map {
                 log.info("Lagrer bestilling ${bestilling.bestillingsnummer}")
-                queries.bestilling.createBestilling(bestilling)
+                queries.bestilling.insertBestilling(bestilling)
                 bestilling
             }
             .onLeft {
@@ -131,7 +131,7 @@ class OebsService(
                 OpprettFakturaError("Klarte ikke sende faktura ${faktura.fakturanummer} til oebs", it)
             }
             .map {
-                queries.faktura.opprettFaktura(faktura)
+                queries.faktura.insertFaktura(faktura)
                 faktura
             }
     }

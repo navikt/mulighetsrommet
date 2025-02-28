@@ -133,7 +133,7 @@ class OebsServiceTest : FunSpec({
                 val bestilling = Bestilling.fromOpprettBestilling(opprettBestilling).copy(
                     status = BestillingStatusType.OPPGJORT,
                 )
-                queries.bestilling.createBestilling(bestilling)
+                queries.bestilling.insertBestilling(bestilling)
             }
 
             val service = OebsService(db, oebsClient(oebsRespondOk()), brreg)
@@ -161,7 +161,7 @@ class OebsServiceTest : FunSpec({
                 val bestilling = Bestilling.fromOpprettBestilling(createOpprettBestilling(bestillingsnummer)).copy(
                     status = BestillingStatusType.OPPGJORT,
                 )
-                queries.bestilling.createBestilling(bestilling)
+                queries.bestilling.insertBestilling(bestilling)
             }
 
             coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
@@ -177,13 +177,13 @@ class OebsServiceTest : FunSpec({
 
             db.session {
                 val bestilling = Bestilling.fromOpprettBestilling(createOpprettBestilling(bestillingsnummer))
-                queries.bestilling.createBestilling(bestilling)
+                queries.bestilling.insertBestilling(bestilling)
 
                 val faktura = Faktura.fromOpprettFaktura(
                     createOpprettFaktura(bestillingsnummer, "5-1"),
                     bestilling.linjer,
                 )
-                queries.faktura.opprettFaktura(faktura)
+                queries.faktura.insertFaktura(faktura)
             }
 
             coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
@@ -198,7 +198,7 @@ class OebsServiceTest : FunSpec({
 
         db.session {
             val bestilling = Bestilling.fromOpprettBestilling(createOpprettBestilling(bestillingsnummer))
-            queries.bestilling.createBestilling(bestilling)
+            queries.bestilling.insertBestilling(bestilling)
         }
 
         test("annullering feiler når oebs svarer med feilkoder") {
@@ -235,7 +235,7 @@ class OebsServiceTest : FunSpec({
 
         db.session {
             val bestilling = Bestilling.fromOpprettBestilling(createOpprettBestilling(bestillingsnummer))
-            queries.bestilling.createBestilling(bestilling)
+            queries.bestilling.insertBestilling(bestilling)
         }
 
         test("feiler når bestilling ikke finnes") {

@@ -55,7 +55,7 @@ class BestillingQueriesTest : FunSpec({
         database.runAndRollback {
             val queries = BestillingQueries(it)
 
-            queries.createBestilling(dbo)
+            queries.insertBestilling(dbo)
 
             queries.getByBestillingsnummer("A-1") shouldBe dbo
         }
@@ -65,7 +65,7 @@ class BestillingQueriesTest : FunSpec({
         database.runAndRollback {
             val queries = BestillingQueries(it)
 
-            queries.createBestilling(dbo)
+            queries.insertBestilling(dbo)
 
             queries.setStatus("A-1", BestillingStatusType.ANNULLERT)
 

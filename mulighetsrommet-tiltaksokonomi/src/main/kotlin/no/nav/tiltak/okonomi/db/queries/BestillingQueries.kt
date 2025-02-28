@@ -14,7 +14,7 @@ import org.intellij.lang.annotations.Language
 
 class BestillingQueries(private val session: Session) {
 
-    fun createBestilling(bestilling: Bestilling) = withTransaction(session) {
+    fun insertBestilling(bestilling: Bestilling) = withTransaction(session) {
         @Language("PostgreSQL")
         val insertBestilling = """
             insert into bestilling (
