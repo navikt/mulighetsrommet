@@ -176,8 +176,8 @@ class TilsagnQueriesTest : FunSpec({
                 queries.getAll(gjennomforingId = AFT1.id).shouldHaveSize(1)
                 queries.getAll(gjennomforingId = UUID.randomUUID()).shouldHaveSize(0)
 
-                queries.getAll(type = TilsagnType.TILSAGN).shouldHaveSize(1)
-                queries.getAll(type = TilsagnType.EKSTRATILSAGN).shouldHaveSize(0)
+                queries.getAll(typer = listOf(TilsagnType.TILSAGN)).shouldHaveSize(1)
+                queries.getAll(typer = listOf(TilsagnType.EKSTRATILSAGN)).shouldHaveSize(0)
             }
         }
     }

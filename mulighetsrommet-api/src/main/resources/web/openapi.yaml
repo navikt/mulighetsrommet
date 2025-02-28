@@ -2304,7 +2304,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ArrFlateUtbetaling"
 
-  /api/v1/intern/arrangorflate/utbetaling/{id}/godkjenn-utbetaling:
+  /api/v1/intern/arrangorflate/utbetaling/{id}/godkjenn:
     post:
       parameters:
         - $ref: "#/components/parameters/ID"

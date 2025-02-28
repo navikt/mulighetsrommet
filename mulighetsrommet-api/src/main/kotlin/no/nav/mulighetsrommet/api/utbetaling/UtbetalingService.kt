@@ -12,9 +12,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
-import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
-import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
+import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
@@ -22,6 +20,8 @@ import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.*
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -32,6 +32,8 @@ class UtbetalingService(
     private val okonomi: OkonomiBestillingService,
     private val journalforUtbetaling: JournalforUtbetaling,
 ) {
+    private val log: Logger = LoggerFactory.getLogger(javaClass.simpleName)
+
     fun genererUtbetalingForMonth(date: LocalDate): List<UtbetalingDto> = db.transaction {
         val periode = Periode.forMonthOf(date)
 
@@ -132,6 +134,7 @@ class UtbetalingService(
         val dto = getOrError(utbetalingId)
         logEndring("Utbetaling sendt inn", dto, Arrangor)
         journalforUtbetaling.schedule(utbetalingId, Instant.now(), session as TransactionalSession)
+        automatiskUtbetaling(utbetalingId)
     }
 
     fun opprettManuellUtbetaling(
@@ -211,6 +214,51 @@ class UtbetalingService(
         }
     }
 
+    private fun QueryContext.automatiskUtbetaling(utbetalingId: UUID): Boolean {
+        val utbetaling = requireNotNull(queries.utbetaling.get(utbetalingId)) {
+            "Fant ikke utbetaling med id=$utbetalingId"
+        }
+        if (utbetaling.tiltakstype.tiltakskode !in listOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING)) {
+            log.debug("Avbryter automatisk utbetaling. Feil tiltakskode. UtbetalingId: {}", utbetalingId)
+            return false
+        }
+        val relevanteTilsagn = queries.tilsagn.getAll(
+            gjennomforingId = utbetaling.gjennomforing.id,
+            statuser = listOf(TilsagnStatus.GODKJENT),
+            typer = listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN),
+            periode = utbetaling.periode,
+        )
+        if (relevanteTilsagn.size != 1) {
+            log.debug(
+                "Avbryter automatisk utbetaling. Feil antall tilsagn: {}. UtbetalingId: {}",
+                relevanteTilsagn.size,
+                utbetalingId,
+            )
+            return false
+        }
+        val tilsagn = relevanteTilsagn[0]
+        // TODO: Bruk gjenstående beløp
+        if (tilsagn.beregning.output.belop < utbetaling.beregning.output.belop) {
+            log.debug("Avbryter automatisk utbetaling. Ikke nok penger. UtbetalingId: {}", utbetalingId)
+            return false
+        }
+        val delutbetalingId = UUID.randomUUID()
+        upsertDelutbetaling(
+            utbetaling,
+            tilsagn,
+            delutbetalingId,
+            belop = utbetaling.beregning.output.belop,
+            Tiltaksadministrasjon,
+        )
+        val delutbetaling = requireNotNull(queries.delutbetaling.get(delutbetalingId))
+        godkjennDelutbetaling(
+            delutbetaling,
+            Tiltaksadministrasjon,
+        )
+        log.debug("Automatisk behandling av utbetaling gjennomført. DelutbetalingId: {}", delutbetalingId)
+        return true
+    }
+
     private fun QueryContext.upsertDelutbetaling(
         utbetaling: UtbetalingDto,
         tilsagn: TilsagnDto,
@@ -219,8 +267,7 @@ class UtbetalingService(
         behandletAv: Agent,
     ) {
         val tilsagnPeriode = Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt)
-        val periode = utbetaling.periode.intersect(tilsagnPeriode)
-        requireNotNull(periode) {
+        val periode = requireNotNull(utbetaling.periode.intersect(tilsagnPeriode)) {
             "Utbetalingsperiode og tilsagnsperiode overlapper ikke"
         }
 

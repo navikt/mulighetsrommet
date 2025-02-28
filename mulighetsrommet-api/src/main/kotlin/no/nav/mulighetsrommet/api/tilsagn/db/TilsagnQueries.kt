@@ -107,24 +107,30 @@ class TilsagnQueries(private val session: Session) {
     }
 
     fun getAll(
-        type: TilsagnType? = null,
+        typer: List<TilsagnType>? = null,
         gjennomforingId: UUID? = null,
         statuser: List<TilsagnStatus>? = null,
+        periode: Periode? = null,
     ): List<TilsagnDto> {
         @Language("PostgreSQL")
         val query = """
             select *
             from tilsagn_admin_dto_view
-            where (:type::tilsagn_type is null or type = :type::tilsagn_type)
+            where
+              (:typer::tilsagn_type[] is null or type = any(:typer::tilsagn_type[]))
               and (:gjennomforing_id::uuid is null or gjennomforing_id = :gjennomforing_id::uuid)
               and (:statuser::tilsagn_status[] is null or status::tilsagn_status = any(:statuser))
+              and (:periode_slutt::date is null or periode_start <= :periode_slutt::date)
+              and (:periode_start::date is null or periode_slutt >= :periode_start::date)
             order by lopenummer desc
         """.trimIndent()
 
         val params = mapOf(
-            "type" to type?.name,
+            "typer" to typer?.map { it.name }?.let { session.createArrayOf("tilsagn_type", it) },
             "gjennomforing_id" to gjennomforingId,
             "statuser" to statuser?.let { session.createArrayOf("tilsagn_status", statuser) },
+            "periode_start" to periode?.start,
+            "periode_slutt" to periode?.getLastInclusiveDate(),
         )
 
         return session.list(queryOf(query, params)) { it.toTilsagnDto() }
@@ -139,28 +145,6 @@ class TilsagnQueries(private val session: Session) {
         """.trimIndent()
 
         return session.list(queryOf(query, organisasjonsnummer.value)) { it.toArrangorflateTilsagn() }
-    }
-
-    fun getTilsagnForGjennomforing(
-        gjennomforingId: UUID,
-        periode: Periode,
-    ): List<TilsagnDto> {
-        @Language("PostgreSQL")
-        val query = """
-            select * from tilsagn_admin_dto_view
-            where gjennomforing_id = :gjennomforing_id::uuid
-              and (periode_start <= :periode_slutt::date)
-              and (periode_slutt >= :periode_start::date)
-              and status in ('RETURNERT', 'TIL_GODKJENNING', 'GODKJENT')
-        """.trimIndent()
-
-        val params = mapOf(
-            "gjennomforing_id" to gjennomforingId,
-            "periode_start" to periode.start,
-            "periode_slutt" to periode.getLastInclusiveDate(),
-        )
-
-        return session.list(queryOf(query, params)) { it.toTilsagnDto() }
     }
 
     fun getArrangorflateTilsagnTilUtbetaling(

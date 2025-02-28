@@ -60,8 +60,8 @@ fun Route.utbetalingRoutes() {
                 queries.utbetaling.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
             }
             val tilsagn = db.session {
-                queries.tilsagn.getTilsagnForGjennomforing(
-                    utbetaling.gjennomforing.id,
+                queries.tilsagn.getAll(
+                    gjennomforingId = utbetaling.gjennomforing.id,
                     periode = utbetaling.periode,
                 )
             }
@@ -99,7 +99,6 @@ fun Route.utbetalingRoutes() {
 
             authenticate(AuthProvider.AZURE_AD_OKONOMI_BESLUTTER) {
                 post("/beslutt") {
-                    val id = call.parameters.getOrFail<UUID>("id")
                     val request = call.receive<BesluttDelutbetalingRequest>()
                     val navIdent = getNavIdent()
 
