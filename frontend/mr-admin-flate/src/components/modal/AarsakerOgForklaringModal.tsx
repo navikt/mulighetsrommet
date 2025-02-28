@@ -49,7 +49,7 @@ export function AarsakerOgForklaringModal<T>(props: Props<T>) {
   }
 
   return (
-    <Modal width={"medium"} aria-label={header} open={open} onClose={onClose}>
+    <Modal width={"medium"} aria-label={header} open={open} onClose={onClose} portal={true}>
       <form>
         <Modal.Header>
           <Heading size="medium">{header}</Heading>
