@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
-
 import arrow.core.left
 import arrow.core.right
 import kotlinx.serialization.json.Json

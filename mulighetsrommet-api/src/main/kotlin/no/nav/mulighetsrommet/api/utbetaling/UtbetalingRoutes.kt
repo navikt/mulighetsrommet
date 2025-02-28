@@ -171,7 +171,7 @@ data class DelutbetalingRequest(
 
 @Serializable
 data class DelutbetalingBulkRequest(
-    val delutbetalinger: List<DelutbetalingRequest>
+    val delutbetalinger: List<DelutbetalingRequest>,
 )
 
 @Serializable

@@ -20,7 +20,17 @@ import {
 } from "@mr/api-client-v2";
 import { formaterNOK, isValidationError } from "@mr/frontend-common/utils/utils";
 import { BankNoteIcon, PencilFillIcon, PiggybankIcon } from "@navikt/aksel-icons";
-import { ActionMenu, Alert, Box, Button, Heading, HStack, Table, VStack } from "@navikt/ds-react";
+import {
+  ActionMenu,
+  Alert,
+  Box,
+  Button,
+  CopyButton,
+  Heading,
+  HStack,
+  Table,
+  VStack,
+} from "@navikt/ds-react";
 import { useState } from "react";
 import { useLoaderData, useNavigate, useRevalidator } from "react-router";
 import { utbetalingPageLoader } from "./utbetalingPageLoader";
@@ -85,7 +95,7 @@ export function UtbetalingPage() {
   }
 
   function differanse(): number {
-    return totalGjenståendeBeløp() - utbetalesTotal();
+    return utbetaling.beregning.belop - utbetalesTotal();
   }
 
   function ekstraTilsagnDefaults(): TilsagnDefaultsRequest {
@@ -287,7 +297,14 @@ export function UtbetalingPage() {
                           {formaterNOK(utbetalesTotal())}
                         </Table.DataCell>
                         <Table.DataCell colSpan={2} className="font-bold">
-                          {`Differanse ${formaterNOK(differanse())}`}
+                          <HStack align="center">
+                            <CopyButton
+                              variant="action"
+                              copyText={differanse().toString()}
+                              size="small"
+                            />
+                            {`Differanse ${formaterNOK(differanse())}`}
+                          </HStack>
                         </Table.DataCell>
                       </Table.Row>
                     </Table.Body>
