@@ -163,7 +163,7 @@ class TilsagnService(
         }
 
         queries.totrinnskontroll.upsert(
-            tilsagn.opprettelse.copy(
+            tilsagn.annullering.copy(
                 besluttetAv = besluttetAv,
                 besluttetTidspunkt = LocalDateTime.now(),
                 besluttelse = Besluttelse.GODKJENT,
@@ -186,7 +186,7 @@ class TilsagnService(
         }
 
         queries.totrinnskontroll.upsert(
-            tilsagn.opprettelse.copy(
+            tilsagn.annullering.copy(
                 besluttetAv = besluttetAv,
                 besluttetTidspunkt = LocalDateTime.now(),
                 besluttelse = Besluttelse.AVVIST,

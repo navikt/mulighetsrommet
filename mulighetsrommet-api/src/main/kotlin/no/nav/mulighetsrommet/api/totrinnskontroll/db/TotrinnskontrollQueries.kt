@@ -6,6 +6,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.createTextArray
+import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
 import java.util.*
@@ -45,6 +46,8 @@ class TotrinnskontrollQueries(private val session: Session) {
                 besluttet_av = excluded.besluttet_av,
                 besluttet_tidspunkt = excluded.besluttet_tidspunkt,
                 besluttelse = excluded.besluttelse
+            where totrinnskontroll.besluttet_av is null
+            returning id
         """.trimIndent()
 
         val params = mapOf(
@@ -60,7 +63,7 @@ class TotrinnskontrollQueries(private val session: Session) {
             "forklaring" to totrinnskontroll.forklaring,
         )
 
-        session.execute(queryOf(query, params))
+        session.requireSingle(queryOf(query, params)) { it.string("id") }
     }
 
     fun get(entityId: UUID, type: Totrinnskontroll.Type): Totrinnskontroll? {
