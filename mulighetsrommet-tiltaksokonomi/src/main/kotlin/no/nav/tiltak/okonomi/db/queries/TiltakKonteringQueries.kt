@@ -31,8 +31,8 @@ class TiltakKonteringQueries(private val session: Session) {
     }
 
     fun getOebsKontering(
-        tiltakskode: Tiltakskode,
         bestillingstype: Bestillingstype,
+        tiltakskode: Tiltakskode,
         periode: Periode,
     ): OebsKontering? {
         @Language("PostgreSQL")

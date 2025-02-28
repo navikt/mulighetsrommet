@@ -37,12 +37,13 @@ class OebsService(
             return it.right()
         }
 
-        val kontering = queries.kontering.getOebsKontering(
-            opprettBestilling.tiltakskode,
-            opprettBestilling.bestillingstype,
-            opprettBestilling.periode,
-        )
-            ?: return OpprettBestillingError("Kontering for tiltakskode ${opprettBestilling.tiltakskode} og periode ${opprettBestilling.periode} mangler").left()
+        val kontering = queries.kontering
+            .getOebsKontering(
+                bestillingstype = opprettBestilling.bestillingstype,
+                tiltakskode = opprettBestilling.tiltakskode,
+                periode = opprettBestilling.periode,
+            )
+            ?: return OpprettBestillingError("Kontering for bestilling ${opprettBestilling.bestillingsnummer} mangler").left()
 
         val bestilling = Bestilling.fromOpprettBestilling(opprettBestilling)
 

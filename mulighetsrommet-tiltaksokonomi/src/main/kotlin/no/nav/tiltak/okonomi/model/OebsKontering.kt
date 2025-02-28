@@ -6,7 +6,7 @@ import no.nav.tiltak.okonomi.Bestillingstype
 
 /**
  * Informasjon om kontering av tiltak i OeBS.
- * Regnskapskonto og artskonto gjelder per [tiltakskode] for gitt [periode].
+ * Regnskapskonto og artskonto gjelder per [bestillingstype] og [tiltakskode] for en gitt [periode].
  */
 data class OebsKontering(
     val bestillingstype: Bestillingstype,
