@@ -3,6 +3,7 @@ package no.nav.tiltak.okonomi.model
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.model.*
+import no.nav.tiltak.okonomi.Bestillingstype
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.OpprettBestilling
@@ -12,12 +13,13 @@ class BestillingTest : FunSpec({
 
     context("fromOpprettBestilling") {
         val opprettBestilling = OpprettBestilling(
+            bestillingsnummer = "2025/1",
+            bestillingstype = Bestillingstype.TILTAK,
             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
             arrangor = OpprettBestilling.Arrangor(
                 hovedenhet = Organisasjonsnummer("123456789"),
                 underenhet = Organisasjonsnummer("234567891"),
             ),
-            bestillingsnummer = "2025/1",
             avtalenummer = null,
             belop = 1000,
             behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
