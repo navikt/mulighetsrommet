@@ -54,9 +54,9 @@ class TotrinnskontrollQueries(private val session: Session) {
             "id" to totrinnskontroll.id,
             "entity_id" to totrinnskontroll.entityId,
             "type" to totrinnskontroll.type.name,
-            "behandlet_av" to totrinnskontroll.behandletAv.textValue(),
+            "behandlet_av" to totrinnskontroll.behandletAv.textRepr(),
             "behandlet_tidspunkt" to totrinnskontroll.behandletTidspunkt,
-            "besluttet_av" to totrinnskontroll.besluttetAv?.textValue(),
+            "besluttet_av" to totrinnskontroll.besluttetAv?.textRepr(),
             "besluttet_tidspunkt" to totrinnskontroll.besluttetTidspunkt,
             "besluttelse" to totrinnskontroll.besluttelse?.name,
             "aarsaker" to totrinnskontroll.aarsaker.let { session.createTextArray(it) },
@@ -96,20 +96,4 @@ class TotrinnskontrollQueries(private val session: Session) {
             besluttelse = stringOrNull("besluttelse")?.let { Besluttelse.valueOf(it) },
         )
     }
-}
-
-fun Agent.textValue(): String = when (this) {
-    Arena,
-    Arrangor,
-    Tiltaksadministrasjon,
-    ->
-        this.toString()
-    is NavIdent -> this.value
-}
-
-fun String.toAgent(): Agent = when (this) {
-    "Tiltaksadministrasjon" -> Tiltaksadministrasjon
-    "Arena" -> Arena
-    "Arrangor" -> Arrangor
-    else -> NavIdent(this)
 }

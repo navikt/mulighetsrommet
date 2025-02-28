@@ -33,17 +33,14 @@ class EndringshistorikkQueries(private val session: Session) {
         )
 
         val entries = session.list(queryOf(statement, params)) {
-            val userId = it.string("user_id")
-
-            val editedBy = it.stringOrNull("user_name")
-                ?.let { navn -> EndringshistorikkDto.NavAnsatt(userId, navn) }
-                ?: EndringshistorikkDto.Systembruker(userId)
-
             EndringshistorikkDto.Entry(
                 id = it.uuid("document_id"),
                 operation = it.string("operation"),
                 editedAt = it.localDateTime("edited_at"),
-                editedBy = editedBy,
+                editedBy = EndringshistorikkDto.User.fromAgent(
+                    agent = it.string("user_id").toAgent(),
+                    navn = it.stringOrNull("user_name"),
+                ),
             )
         }
 
@@ -73,17 +70,10 @@ class EndringshistorikkQueries(private val session: Session) {
             "document_id" to documentId,
             "document_class" to documentClass.name,
             "value" to valueProvider.invoke().toString(),
-            "user_id" to agent.toUserId(),
+            "user_id" to agent.textRepr(),
             "timestamp" to timestamp,
         )
 
         session.execute(queryOf(statement, params))
     }
-}
-
-fun Agent.toUserId() = when (this) {
-    Arena -> "Arena"
-    Arrangor -> "Arrangør"
-    is NavIdent -> this.value
-    Tiltaksadministrasjon -> "System"
 }
