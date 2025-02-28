@@ -12,6 +12,7 @@ internal data class OverordnetEnhet(
     val organisasjonsform: Organisasjonsform,
     val overordnetEnhet: Organisasjonsnummer? = null,
     val postadresse: Adresse? = null,
+    val forretningsadresse: Adresse? = null,
     @Serializable(with = LocalDateSerializer::class)
     val slettedato: LocalDate? = null,
 )
@@ -45,7 +46,7 @@ internal data class Adresse(
     val kommune: String? = null,
     val kommunenummer: String? = null,
 ) {
-    fun toBrregPostAdresse(): BrregAdresse = BrregAdresse(
+    fun toBrregAdresse(): BrregAdresse = BrregAdresse(
         landkode = landkode,
         postnummer = postnummer,
         poststed = poststed,

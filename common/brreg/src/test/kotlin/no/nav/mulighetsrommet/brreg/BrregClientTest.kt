@@ -32,6 +32,12 @@ class BrregClientTest : FunSpec({
                         poststed = "OSLO",
                         adresse = listOf("Postboks 1382 Vika"),
                     ),
+                    forretningsadresse = BrregAdresse(
+                        landkode = "NO",
+                        postnummer = "0585",
+                        poststed = "OSLO",
+                        adresse = listOf("Lørenfaret 1C"),
+                    ),
                 ),
             )
         }
@@ -101,6 +107,12 @@ class BrregClientTest : FunSpec({
                     postnummer = "0114",
                     poststed = "OSLO",
                     adresse = listOf("Postboks 1382 Vika"),
+                ),
+                forretningsadresse = BrregAdresse(
+                    landkode = "NO",
+                    postnummer = "0585",
+                    poststed = "OSLO",
+                    adresse = listOf("Lørenfaret 1C"),
                 ),
             )
         }
@@ -178,6 +190,12 @@ class BrregClientTest : FunSpec({
                     postnummer = "0114",
                     poststed = "OSLO",
                     adresse = listOf("Postboks 1382 Vika"),
+                ),
+                forretningsadresse = BrregAdresse(
+                    landkode = "NO",
+                    postnummer = "0585",
+                    poststed = "OSLO",
+                    adresse = listOf("Lørenfaret 1C"),
                 ),
             )
         }

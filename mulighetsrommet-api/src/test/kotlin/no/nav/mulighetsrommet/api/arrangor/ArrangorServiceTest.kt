@@ -35,6 +35,7 @@ class ArrangorServiceTest : FunSpec({
         organisasjonsform = "AS",
         navn = "Testbedriften AS",
         postadresse = null,
+        forretningsadresse = null,
     )
 
     context("get or sync arrangør fra brreg") {
