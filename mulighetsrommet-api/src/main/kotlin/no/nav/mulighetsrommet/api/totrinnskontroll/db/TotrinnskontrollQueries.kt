@@ -6,7 +6,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.createTextArray
-import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
 import java.util.*
 
@@ -51,9 +51,9 @@ class TotrinnskontrollQueries(private val session: Session) {
             "id" to totrinnskontroll.id,
             "entity_id" to totrinnskontroll.entityId,
             "type" to totrinnskontroll.type.name,
-            "behandlet_av" to totrinnskontroll.behandletAv.value,
+            "behandlet_av" to totrinnskontroll.behandletAv.textValue(),
             "behandlet_tidspunkt" to totrinnskontroll.behandletTidspunkt,
-            "besluttet_av" to totrinnskontroll.besluttetAv?.value,
+            "besluttet_av" to totrinnskontroll.besluttetAv?.textValue(),
             "besluttet_tidspunkt" to totrinnskontroll.besluttetTidspunkt,
             "besluttelse" to totrinnskontroll.besluttelse?.name,
             "aarsaker" to totrinnskontroll.aarsaker.let { session.createTextArray(it) },
@@ -84,13 +84,29 @@ class TotrinnskontrollQueries(private val session: Session) {
             id = uuid("id"),
             entityId = uuid("entity_id"),
             type = Totrinnskontroll.Type.valueOf(string("type")),
-            behandletAv = NavIdent(string("behandlet_av")),
+            behandletAv = string("behandlet_av").toAgent(),
             behandletTidspunkt = localDateTime("behandlet_tidspunkt"),
             aarsaker = array<String>("aarsaker").toList(),
             forklaring = stringOrNull("forklaring"),
-            besluttetAv = stringOrNull("besluttet_av")?.let { NavIdent(it) },
+            besluttetAv = stringOrNull("besluttet_av")?.toAgent(),
             besluttetTidspunkt = localDateTimeOrNull("besluttet_tidspunkt"),
             besluttelse = stringOrNull("besluttelse")?.let { Besluttelse.valueOf(it) },
         )
     }
+}
+
+fun Agent.textValue(): String = when (this) {
+    Arena,
+    Arrangor,
+    Tiltaksadministrasjon,
+    ->
+        this.toString()
+    is NavIdent -> this.value
+}
+
+fun String.toAgent(): Agent = when (this) {
+    "Tiltaksadministrasjon" -> Tiltaksadministrasjon
+    "Arena" -> Arena
+    "Arrangor" -> Arrangor
+    else -> NavIdent(this)
 }

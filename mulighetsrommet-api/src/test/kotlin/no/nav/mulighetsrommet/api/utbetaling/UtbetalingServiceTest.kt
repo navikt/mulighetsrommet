@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.utbetaling
 
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
@@ -21,7 +22,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
-import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -420,23 +420,22 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             val opprettRequest = DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = TilsagnFixtures.Tilsagn1.id, belop = 100)
-            service.upsertDelutbetaling(
+            service.validateAndUpsertDelutbetaling(
                 utbetalingId = UtbetalingFixtures.utbetaling1.id,
                 request = opprettRequest,
-                opprettetAv = domain.ansatte[0].navIdent,
+                navIdent = domain.ansatte[0].navIdent,
             )
             service.besluttDelutbetaling(
-                utbetalingId = UtbetalingFixtures.utbetaling1.id,
                 request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(
                     id = opprettRequest.id,
                 ),
                 navIdent = domain.ansatte[1].navIdent,
             )
 
-            service.upsertDelutbetaling(
+            service.validateAndUpsertDelutbetaling(
                 utbetalingId = UtbetalingFixtures.utbetaling1.id,
                 request = opprettRequest,
-                opprettetAv = domain.ansatte[0].navIdent,
+                navIdent = domain.ansatte[0].navIdent,
             ).shouldBeLeft() shouldBe BadRequest("Utbetaling kan ikke endres")
         }
 
@@ -453,15 +452,15 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             service.besluttDelutbetaling(
-                utbetalingId = UtbetalingFixtures.utbetaling1.id,
                 request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(UtbetalingFixtures.delutbetaling1.id),
                 navIdent = NavAnsattFixture.ansatt2.navIdent,
-            ).shouldBeRight()
-            service.besluttDelutbetaling(
-                utbetalingId = UtbetalingFixtures.utbetaling1.id,
-                request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(UtbetalingFixtures.delutbetaling1.id),
-                navIdent = NavAnsattFixture.ansatt2.navIdent,
-            ).shouldBeLeft() shouldBe BadRequest("Utbetaling er allerede besluttet")
+            )
+            shouldThrow<IllegalArgumentException> {
+                service.besluttDelutbetaling(
+                    request = BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(UtbetalingFixtures.delutbetaling1.id),
+                    navIdent = NavAnsattFixture.ansatt2.navIdent,
+                )
+            }
         }
 
         test("oppdatering av delutbetaling etter returnert gir TIL_GODKJENNING status") {
@@ -477,10 +476,10 @@ class UtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            service.upsertDelutbetaling(
+            service.validateAndUpsertDelutbetaling(
                 utbetalingId = UtbetalingFixtures.utbetaling1.id,
                 request = DelutbetalingRequest(id = UtbetalingFixtures.delutbetaling1.id, tilsagnId = TilsagnFixtures.Tilsagn1.id, belop = 100),
-                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
+                navIdent = NavAnsattFixture.ansatt1.navIdent,
             ).shouldBeRight()
             database.run { queries.delutbetaling.get(UtbetalingFixtures.delutbetaling1.id) }.shouldNotBeNull().shouldBeTypeOf<DelutbetalingDto.DelutbetalingTilGodkjenning>()
         }
@@ -498,10 +497,13 @@ class UtbetalingServiceTest : FunSpec({
 
             val request = DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = TilsagnFixtures.Tilsagn1.id, belop = 100)
 
-            service.upsertDelutbetaling(UtbetalingFixtures.utbetaling1.id, request, NavAnsattFixture.ansatt1.navIdent)
-                .shouldBeLeft() shouldBe InternalServerError(
-                "Utbetalingsperiode og tilsagnsperiode overlapper ikke",
-            )
+            shouldThrow<IllegalArgumentException> {
+                service.validateAndUpsertDelutbetaling(
+                    UtbetalingFixtures.utbetaling1.id,
+                    request,
+                    NavAnsattFixture.ansatt1.navIdent,
+                )
+            }
         }
 
         test("skal ikke kunne opprette delutbetaling hvis belop er for stort") {
@@ -529,7 +531,7 @@ class UtbetalingServiceTest : FunSpec({
             ).initialize(database.db)
             val service = createUtbetalingService()
 
-            service.upsertDelutbetaling(
+            service.validateAndUpsertDelutbetaling(
                 utbetaling.id,
                 DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, belop = 100),
                 domain.ansatte[0].navIdent,
@@ -537,14 +539,14 @@ class UtbetalingServiceTest : FunSpec({
                 it.errors shouldContainExactly listOf(FieldError("/belop", "Kan ikke betale ut mer enn det er krav på"))
             }
 
-            service.upsertDelutbetaling(
+            service.validateAndUpsertDelutbetaling(
                 utbetaling.id,
                 DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, belop = 7),
                 domain.ansatte[0].navIdent,
             ).shouldBeRight()
 
             // Siden 7 allerede er utbetalt nå
-            service.upsertDelutbetaling(
+            service.validateAndUpsertDelutbetaling(
                 utbetaling.id,
                 DelutbetalingRequest(UUID.randomUUID(), tilsagn2.id, belop = 5),
                 domain.ansatte[0].navIdent,
@@ -582,18 +584,18 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.upsertDelutbetaling(
+            service.validateAndUpsertDelutbetaling(
                 utbetaling1.id,
                 DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = tilsagn1.id, belop = 50),
                 domain.ansatte[0].navIdent,
             )
-            service.upsertDelutbetaling(
+            service.validateAndUpsertDelutbetaling(
                 utbetaling1.id,
                 DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = tilsagn2.id, belop = 50),
                 domain.ansatte[0].navIdent,
             )
 
-            service.upsertDelutbetaling(
+            service.validateAndUpsertDelutbetaling(
                 utbetaling2.id,
                 DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = tilsagn1.id, belop = 100),
                 domain.ansatte[0].navIdent,

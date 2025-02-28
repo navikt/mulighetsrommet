@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.endringshistorikk
 import kotlinx.serialization.json.JsonElement
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*
@@ -52,7 +53,7 @@ class EndringshistorikkQueries(private val session: Session) {
     fun logEndring(
         documentClass: DocumentClass,
         operation: String,
-        user: EndretAv,
+        agent: Agent,
         documentId: UUID,
         timestamp: LocalDateTime? = null,
         valueProvider: () -> JsonElement,
@@ -72,10 +73,17 @@ class EndringshistorikkQueries(private val session: Session) {
             "document_id" to documentId,
             "document_class" to documentClass.name,
             "value" to valueProvider.invoke().toString(),
-            "user_id" to user.id,
+            "user_id" to agent.toUserId(),
             "timestamp" to timestamp,
         )
 
         session.execute(queryOf(statement, params))
     }
+}
+
+fun Agent.toUserId() = when (this) {
+    Arena -> "Arena"
+    Arrangor -> "Arrangør"
+    is NavIdent -> this.value
+    Tiltaksadministrasjon -> "System"
 }

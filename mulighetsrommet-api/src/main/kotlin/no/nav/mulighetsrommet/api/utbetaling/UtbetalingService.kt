@@ -9,24 +9,19 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
-import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
 import no.nav.mulighetsrommet.api.tilsagn.model.ForhandsgodkjenteSatser
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
-import no.nav.mulighetsrommet.ktor.exception.Forbidden
-import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.NotFound
-import no.nav.mulighetsrommet.model.DeltakerStatus
-import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.*
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -58,7 +53,7 @@ class UtbetalingService(
             .map { utbetaling ->
                 queries.utbetaling.upsert(utbetaling)
                 val dto = getOrError(utbetaling.id)
-                logEndring("Utbetaling opprettet", dto, EndretAv.System)
+                logEndring("Utbetaling opprettet", dto, Tiltaksadministrasjon)
                 dto
             }
     }
@@ -83,7 +78,7 @@ class UtbetalingService(
             .forEach { utbetaling ->
                 queries.utbetaling.upsert(utbetaling)
                 val dto = getOrError(utbetaling.id)
-                logEndring("Utbetaling beregning oppdatert", dto, EndretAv.System)
+                logEndring("Utbetaling beregning oppdatert", dto, Tiltaksadministrasjon)
             }
     }
 
@@ -135,7 +130,7 @@ class UtbetalingService(
             request.betalingsinformasjon.kid,
         )
         val dto = getOrError(utbetalingId)
-        logEndring("Utbetaling sendt inn", dto, EndretAv.Arrangor)
+        logEndring("Utbetaling sendt inn", dto, Arrangor)
         journalforUtbetaling.schedule(utbetalingId, Instant.now(), session as TransactionalSession)
     }
 
@@ -165,14 +160,14 @@ class UtbetalingService(
                 ),
             )
             val dto = getOrError(utbetalingId)
-            logEndring("Utbetaling sendt inn", dto, EndretAv.NavAnsatt(navIdent))
+            logEndring("Utbetaling sendt inn", dto, navIdent)
         }
     }
 
-    fun upsertDelutbetaling(
+    fun validateAndUpsertDelutbetaling(
         utbetalingId: UUID,
         request: DelutbetalingRequest,
-        opprettetAv: NavIdent,
+        navIdent: NavIdent,
     ): StatusResponse<Unit> = db.transaction {
         val utbetaling = queries.utbetaling.get(utbetalingId)
             ?: return NotFound("Utbetaling med id=$utbetalingId finnes ikke").left()
@@ -197,77 +192,113 @@ class UtbetalingService(
         UtbetalingValidator.validate(belop = request.belop, tilsagn = tilsagn, maxBelop = gjenstaendeBelop)
             .onLeft { return ValidationError(errors = it).left() }
 
-        val tilsagnPeriode = Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt)
-        val periode = utbetaling.periode.intersect(tilsagnPeriode)
-            ?: return InternalServerError("Utbetalingsperiode og tilsagnsperiode overlapper ikke").left()
-
-        val lopenummer = queries.delutbetaling.getNextLopenummerByTilsagn(tilsagn.id)
-        val dbo = DelutbetalingDbo(
-            id = request.id,
-            utbetalingId = utbetaling.id,
-            tilsagnId = tilsagn.id,
-            periode = periode,
-            belop = request.belop,
-            opprettetAv = opprettetAv,
-            lopenummer = lopenummer,
-            fakturanummer = "${tilsagn.bestillingsnummer}-$lopenummer",
-        )
-
-        queries.delutbetaling.upsert(dbo)
-        val dto = getOrError(utbetalingId)
-        logEndring("Utbetaling sendt til godkjenning", dto, EndretAv.NavAnsatt(opprettetAv))
-
+        upsertDelutbetaling(utbetaling, tilsagn, request.id, request.belop, navIdent)
         return Unit.right()
     }
 
     fun besluttDelutbetaling(
         request: BesluttDelutbetalingRequest,
-        utbetalingId: UUID,
         navIdent: NavIdent,
-    ): StatusResponse<Unit> = db.transaction {
+    ) = db.transaction {
         val delutbetaling = queries.delutbetaling.get(request.id)
-            ?: return NotFound("Delutbetaling finnes ikke").left()
-
-        if (delutbetaling.opprettelse.behandletAv == navIdent) {
-            return Forbidden("Kan ikke beslutte egen utbetaling").left()
-        }
-
-        if (delutbetaling is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling) {
-            return BadRequest("Utbetaling er allerede besluttet").left()
-        }
-
+            ?: throw IllegalArgumentException("Delutbetaling finnes ikke")
         when (request) {
             is BesluttDelutbetalingRequest.AvvistDelutbetalingRequest ->
-                queries.totrinnskontroll.upsert(
-                    delutbetaling.opprettelse.copy(
-                        besluttetAv = navIdent,
-                        besluttelse = Besluttelse.AVVIST,
-                        aarsaker = request.aarsaker,
-                        forklaring = request.forklaring,
-                        besluttetTidspunkt = LocalDateTime.now(),
-                    ),
-                )
+                avvisDelutbetaling(delutbetaling, request.aarsaker, request.forklaring, navIdent)
             is BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest -> {
-                queries.totrinnskontroll.upsert(
-                    delutbetaling.opprettelse.copy(
-                        besluttetAv = navIdent,
-                        besluttelse = Besluttelse.GODKJENT,
-                        besluttetTidspunkt = LocalDateTime.now(),
-                        aarsaker = emptyList(),
-                        forklaring = null,
-                    ),
-                )
-                okonomi.scheduleBehandleGodkjenteUtbetalinger(delutbetaling.tilsagnId, session)
+                godkjennDelutbetaling(delutbetaling, navIdent)
             }
         }
-        val dto = getOrError(utbetalingId)
-        logEndring(
-            "Utbetaling ${if (request.besluttelse == Besluttelse.GODKJENT) "godkjent" else "returnert"}",
-            dto,
-            EndretAv.NavAnsatt(navIdent),
+    }
+
+    private fun QueryContext.upsertDelutbetaling(
+        utbetaling: UtbetalingDto,
+        tilsagn: TilsagnDto,
+        id: UUID,
+        belop: Int,
+        behandletAv: Agent,
+    ) {
+        val tilsagnPeriode = Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt)
+        val periode = utbetaling.periode.intersect(tilsagnPeriode)
+        requireNotNull(periode) {
+            "Utbetalingsperiode og tilsagnsperiode overlapper ikke"
+        }
+
+        val lopenummer = queries.delutbetaling.getNextLopenummerByTilsagn(tilsagn.id)
+        val dbo = DelutbetalingDbo(
+            id = id,
+            utbetalingId = utbetaling.id,
+            tilsagnId = tilsagn.id,
+            periode = periode,
+            belop = belop,
+            behandletAv = behandletAv,
+            lopenummer = lopenummer,
+            fakturanummer = "${tilsagn.bestillingsnummer}-$lopenummer",
         )
 
-        return Unit.right()
+        queries.delutbetaling.upsert(dbo)
+        logEndring(
+            "Utbetaling sendt til godkjenning",
+            getOrError(utbetaling.id),
+            behandletAv,
+        )
+    }
+
+    private fun QueryContext.godkjennDelutbetaling(
+        delutbetaling: DelutbetalingDto,
+        besluttetAv: Agent,
+    ) {
+        require(besluttetAv !is NavIdent || besluttetAv != delutbetaling.opprettelse.behandletAv) {
+            "Kan ikke beslutte egen utbetaling"
+        }
+        require(delutbetaling.opprettelse.besluttetAv == null) {
+            "Utbetaling er allerede besluttet"
+        }
+
+        queries.totrinnskontroll.upsert(
+            delutbetaling.opprettelse.copy(
+                besluttetAv = besluttetAv,
+                besluttelse = Besluttelse.GODKJENT,
+                besluttetTidspunkt = LocalDateTime.now(),
+                aarsaker = emptyList(),
+                forklaring = null,
+            ),
+        )
+        okonomi.scheduleBehandleGodkjenteUtbetalinger(delutbetaling.tilsagnId, session)
+        logEndring(
+            "Utbetaling godkjent returnert",
+            getOrError(delutbetaling.utbetalingId),
+            besluttetAv,
+        )
+    }
+
+    private fun QueryContext.avvisDelutbetaling(
+        delutbetaling: DelutbetalingDto,
+        aarsaker: List<String>,
+        forklaring: String?,
+        besluttetAv: Agent,
+    ) {
+        require(besluttetAv !is NavIdent || besluttetAv != delutbetaling.opprettelse.behandletAv) {
+            "Kan ikke beslutte egen utbetaling"
+        }
+        require(delutbetaling is DelutbetalingDto.DelutbetalingTilGodkjenning) {
+            "Utbetaling er allerede besluttet"
+        }
+
+        queries.totrinnskontroll.upsert(
+            delutbetaling.opprettelse.copy(
+                besluttetAv = besluttetAv,
+                besluttelse = Besluttelse.AVVIST,
+                aarsaker = aarsaker,
+                forklaring = forklaring,
+                besluttetTidspunkt = LocalDateTime.now(),
+            ),
+        )
+        logEndring(
+            "Utbetaling returnert",
+            getOrError(delutbetaling.utbetalingId),
+            besluttetAv,
+        )
     }
 
     private fun getDeltakelser(
@@ -316,7 +347,7 @@ class UtbetalingService(
     private fun QueryContext.logEndring(
         operation: String,
         dto: UtbetalingDto,
-        endretAv: EndretAv,
+        endretAv: Agent,
     ) {
         queries.endringshistorikk.logEndring(
             DocumentClass.UTBETALING,

@@ -26,8 +26,8 @@ object TilsagnFixtures {
             output = TilsagnBeregningFri.Output(1000),
         ),
         arrangorId = ArrangorFixtures.underenhet1.id,
-        endretAv = NavAnsattFixture.ansatt1.navIdent,
-        endretTidspunkt = LocalDateTime.now(),
+        behandletAv = NavAnsattFixture.ansatt1.navIdent,
+        behandletTidspunkt = LocalDateTime.now(),
         type = TilsagnType.TILSAGN,
     )
 
@@ -43,8 +43,8 @@ object TilsagnFixtures {
             output = TilsagnBeregningFri.Output(1500),
         ),
         arrangorId = ArrangorFixtures.underenhet1.id,
-        endretAv = NavIdent("Z123456"),
-        endretTidspunkt = LocalDateTime.now(),
+        behandletAv = NavIdent("Z123456"),
+        behandletTidspunkt = LocalDateTime.now(),
         type = TilsagnType.TILSAGN,
     )
 
@@ -60,8 +60,8 @@ object TilsagnFixtures {
             output = TilsagnBeregningFri.Output(2500),
         ),
         arrangorId = ArrangorFixtures.underenhet1.id,
-        endretAv = NavIdent("Z123456"),
-        endretTidspunkt = LocalDateTime.now(),
+        behandletAv = NavIdent("Z123456"),
+        behandletTidspunkt = LocalDateTime.now(),
         type = TilsagnType.TILSAGN,
     )
 
@@ -98,7 +98,7 @@ object TilsagnFixtures {
                     Totrinnskontroll(
                         id = UUID.randomUUID(),
                         entityId = tilsagnDbo.id,
-                        behandletAv = tilsagnDbo.endretAv,
+                        behandletAv = tilsagnDbo.behandletAv,
                         aarsaker = emptyList(),
                         forklaring = null,
                         type = Totrinnskontroll.Type.ANNULLER,
@@ -121,7 +121,7 @@ object TilsagnFixtures {
                     Totrinnskontroll(
                         id = UUID.randomUUID(),
                         entityId = tilsagnDbo.id,
-                        behandletAv = tilsagnDbo.endretAv,
+                        behandletAv = tilsagnDbo.behandletAv,
                         aarsaker = emptyList(),
                         forklaring = null,
                         type = Totrinnskontroll.Type.OPPRETT,

@@ -168,7 +168,7 @@ class TilsagnServiceTest : FunSpec({
             service.beslutt(
                 id = Tilsagn1.id,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
-                navIdent = TilsagnFixtures.Tilsagn1.endretAv,
+                navIdent = NavAnsattFixture.ansatt1.navIdent,
             ) shouldBe Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 

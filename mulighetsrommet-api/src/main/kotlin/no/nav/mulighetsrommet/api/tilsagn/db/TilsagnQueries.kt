@@ -73,11 +73,11 @@ class TilsagnQueries(private val session: Session) {
             Totrinnskontroll(
                 id = UUID.randomUUID(),
                 entityId = dbo.id,
-                behandletAv = dbo.endretAv,
+                behandletAv = dbo.behandletAv,
                 aarsaker = emptyList(),
                 forklaring = null,
                 type = Totrinnskontroll.Type.OPPRETT,
-                behandletTidspunkt = dbo.endretTidspunkt,
+                behandletTidspunkt = dbo.behandletTidspunkt,
                 besluttelse = null,
                 besluttetAv = null,
                 besluttetTidspunkt = null,

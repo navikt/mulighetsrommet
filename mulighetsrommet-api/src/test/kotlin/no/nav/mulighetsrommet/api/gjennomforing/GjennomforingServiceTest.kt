@@ -14,7 +14,6 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.*
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
-import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -155,7 +154,7 @@ class GjennomforingServiceTest : FunSpec({
                 gjennomforing.id,
                 LocalDateTime.now(),
                 AvbruttAarsak.Feilregistrering,
-                EndretAv.NavAnsatt(bertilNavIdent),
+                bertilNavIdent,
             )
 
             service.get(gjennomforing.id).shouldNotBeNull().should {
@@ -190,7 +189,7 @@ class GjennomforingServiceTest : FunSpec({
                     gjennomforing.id,
                     LocalDateTime.now(),
                     AvbruttAarsak.Feilregistrering,
-                    EndretAv.NavAnsatt(bertilNavIdent),
+                    bertilNavIdent,
                 )
             }
 

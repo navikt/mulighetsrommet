@@ -40,7 +40,7 @@ class DelutbetalingQueriesTest : FunSpec({
                 periode = UtbetalingFixtures.utbetaling1.periode,
                 lopenummer = 1,
                 fakturanummer = "1",
-                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
+                behandletAv = NavAnsattFixture.ansatt1.navIdent,
             )
             queries.upsert(delutbetaling)
 
@@ -71,7 +71,7 @@ class DelutbetalingQueriesTest : FunSpec({
                 periode = UtbetalingFixtures.utbetaling1.periode,
                 lopenummer = 1,
                 fakturanummer = "1",
-                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
+                behandletAv = NavAnsattFixture.ansatt1.navIdent,
             )
             queries.upsert(delutbetaling)
             QueryContext(session).setDelutbetalingStatus(delutbetaling, UtbetalingFixtures.DelutbetalingStatus.GODKJENT)
