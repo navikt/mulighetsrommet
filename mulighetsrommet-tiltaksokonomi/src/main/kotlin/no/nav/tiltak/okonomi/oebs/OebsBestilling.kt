@@ -226,7 +226,7 @@ data class OebsAnnulleringMelding(
     val bestillingsNummer: String,
 
     /**
-     * Alltid [OebsBestillingType.ANNULLER]for annullering av bestillinger (tilsagn).
+     * Alltid [OebsBestillingType.ANNULLER] for annullering av bestillinger (tilsagn).
      */
     val bestillingsType: OebsBestillingType,
 
