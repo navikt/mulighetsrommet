@@ -141,19 +141,20 @@ export function UtbetalingPage() {
               (t) =>
                 !utbetaling.delutbetalinger.find(
                   (d) => d.tilsagnId === t.id && d.type !== "DELUTBETALING_AVVIST",
-                ),
+                ) && belopPerTilsagn.get(t.id),
             )
             .map((tilsagn) => ({
               id:
                 utbetaling.delutbetalinger?.find((d) => d.tilsagnId === tilsagn.id)?.id ?? uuidv4(),
               tilsagnId: tilsagn.id,
-              belop: belopPerTilsagn.get(tilsagn.id) ?? 0,
+              belop: belopPerTilsagn.get(tilsagn.id),
             })),
         ],
       };
 
       opprettMutation.mutate(body, {
         onSuccess: async () => {
+          setError(undefined);
           await queryClient.invalidateQueries({
             queryKey: ["utbetaling", utbetaling.id],
             refetchType: "all",
