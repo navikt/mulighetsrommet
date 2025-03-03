@@ -224,6 +224,7 @@ class AvtaleService(
             operation,
             endretAv,
             dto.id,
+            LocalDateTime.now(),
         ) {
             Json.encodeToJsonElement(dto)
         }

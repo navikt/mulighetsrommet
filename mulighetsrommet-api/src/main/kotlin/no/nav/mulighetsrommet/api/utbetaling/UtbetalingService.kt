@@ -313,7 +313,7 @@ class UtbetalingService(
         )
         okonomi.scheduleBehandleGodkjenteUtbetalinger(delutbetaling.tilsagnId, session)
         logEndring(
-            "Utbetaling godkjent returnert",
+            "Utbetaling godkjent",
             getOrError(delutbetaling.utbetalingId),
             besluttetAv,
         )
@@ -401,6 +401,7 @@ class UtbetalingService(
             operation,
             endretAv,
             dto.id,
+            LocalDateTime.now(),
         ) {
             Json.encodeToJsonElement(dto)
         }
