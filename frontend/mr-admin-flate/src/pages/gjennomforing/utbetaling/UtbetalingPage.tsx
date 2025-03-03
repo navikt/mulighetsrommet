@@ -147,7 +147,7 @@ export function UtbetalingPage() {
               id:
                 utbetaling.delutbetalinger?.find((d) => d.tilsagnId === tilsagn.id)?.id ?? uuidv4(),
               tilsagnId: tilsagn.id,
-              belop: belopPerTilsagn.get(tilsagn.id),
+              belop: belopPerTilsagn.get(tilsagn.id) ?? 0,
             })),
         ],
       };
