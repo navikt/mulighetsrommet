@@ -20,7 +20,7 @@ import { formaterDato } from "@/utils/Utils";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import styles from "./DeltakelseKort.module.scss";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
-import { TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL } from "@/constants";
+import { TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL } from "@/constants";
 import { Link } from "react-router";
 
 interface Props {
@@ -73,7 +73,7 @@ function Knapper({ deltakelse, aktiv }: Props) {
       );
     }
     case "TEAM_TILTAK": {
-      const link = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL}/gjennomforing/avtale/${deltakelse.id}?part=VEILEDER`;
+      const link = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL}/avtale/${deltakelse.id}?part=VEILEDER`;
       return (
         <Lenkeknapp variant="secondary" to={link} size="small">
           Gå til avtale
