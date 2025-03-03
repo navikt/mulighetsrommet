@@ -167,13 +167,13 @@ class UtbetalingService(
         }
     }
 
-    fun upsertDelutbetalingBulk(
+    fun opprettDelutbetalinger(
         utbetalingId: UUID,
         request: DelutbetalingBulkRequest,
-        opprettetAv: NavIdent,
+        navIdent: NavIdent,
     ): StatusResponse<Unit> {
         request.delutbetalinger.map { req ->
-            upsertDelutbetaling(utbetalingId, req, opprettetAv).onLeft { return it.left() }
+            validateAndUpsertDelutbetaling(utbetalingId, req, navIdent).onLeft { return it.left() }
         }
         return Unit.right()
     }

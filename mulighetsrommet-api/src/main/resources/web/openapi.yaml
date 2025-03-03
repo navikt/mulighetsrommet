@@ -2020,12 +2020,12 @@ paths:
     put:
       tags:
         - Utbetaling
-      operationId: upsertDelutbetalingBulk
+      operationId: opprettDelutbetalinger
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/DelutbetalingBulkRequest"
+              $ref: "#/components/schemas/OpprettDelutbetalingerRequest"
       responses:
         200:
           description: OK
@@ -6161,7 +6161,7 @@ components:
           type: number
       required: [id, tilsagnId, belop]
 
-    DelutbetalingBulkRequest:
+    OpprettDelutbetalingerRequest:
       type: object
       properties:
         delutbetalinger:

@@ -10,9 +10,9 @@ import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { LoaderData } from "@/types/loader";
 import { formaterDato } from "@/utils/Utils";
 import {
-  DelutbetalingBulkRequest,
   FieldError,
   NavAnsattRolle,
+  OpprettDelutbetalingerRequest,
   Prismodell,
   TilsagnDefaultsRequest,
   TilsagnStatus,
@@ -35,7 +35,7 @@ import { useState } from "react";
 import { useLoaderData, useNavigate, useRevalidator } from "react-router";
 import { utbetalingPageLoader } from "./utbetalingPageLoader";
 import { useQueryClient } from "@tanstack/react-query";
-import { useUpsertDelutbetalingBulk } from "@/api/utbetaling/useUpsertDelutbetalingBulk";
+import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
 import { v4 as uuidv4 } from "uuid";
 
 export function UtbetalingPage() {
@@ -62,7 +62,7 @@ export function UtbetalingPage() {
   const revalidator = useRevalidator();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const opprettMutation = useUpsertDelutbetalingBulk(utbetaling.id);
+  const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
 
   const kanRedigeres =
     skriveTilgang &&
@@ -134,7 +134,7 @@ export function UtbetalingPage() {
     else if (utbetalesTotal() > utbetaling.beregning.belop)
       setError("Kan ikke betale ut mer enn det er krav på");
     else {
-      const body: DelutbetalingBulkRequest = {
+      const body: OpprettDelutbetalingerRequest = {
         delutbetalinger: [
           ...tilsagn
             .filter(
@@ -310,8 +310,9 @@ export function UtbetalingPage() {
                     </Table.Body>
                   </Table>
                 )}
-                <Separator />
-                <Heading size="medium">Betalingsinformasjon</Heading>
+                <Heading size="medium" className="mt-4">
+                  Betalingsinformasjon
+                </Heading>
                 <VStack gap="2">
                   <Metadata
                     horizontal

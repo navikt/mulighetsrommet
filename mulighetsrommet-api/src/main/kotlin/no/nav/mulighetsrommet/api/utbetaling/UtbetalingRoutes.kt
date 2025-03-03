@@ -100,7 +100,7 @@ fun Route.utbetalingRoutes() {
                     val request = call.receive<DelutbetalingBulkRequest>()
                     val navIdent = getNavIdent()
 
-                    call.respondWithStatusResponse(service.upsertDelutbetalingBulk(utbetalingId, request, navIdent))
+                    call.respondWithStatusResponse(service.opprettDelutbetalinger(utbetalingId, request, navIdent))
                 }
             }
 
