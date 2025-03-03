@@ -52,7 +52,6 @@ class TiltaksokonomiTest : FunSpec({
                 }
 
                 client.post(Bestilling()).status shouldBe HttpStatusCode.Unauthorized
-                client.post(Bestilling.Id.Status(Bestilling.Id(id = "A-1"))).status shouldBe HttpStatusCode.Unauthorized
                 client.get(Bestilling.Id(id = "A-1")).status shouldBe HttpStatusCode.Unauthorized
             }
         }
@@ -76,7 +75,7 @@ class TiltaksokonomiTest : FunSpec({
             }
         }
 
-        test("behandle og annuller bestilling") {
+        test("behandle bestilling") {
             val mockEngine = createMockEngine {
                 mockBrregHovedenhet()
 
@@ -126,24 +125,6 @@ class TiltaksokonomiTest : FunSpec({
                     it.body<BestillingStatus>() shouldBe BestillingStatus(
                         bestillingsnummer = bestillingsnummer,
                         status = BestillingStatusType.BESTILT,
-                    )
-                }
-
-                client.post(Bestilling.Id.Status(Bestilling.Id(id = bestillingsnummer))) {
-                    bearerAuth(oauth.issueToken().serialize())
-                    contentType(ContentType.Application.Json)
-                    setBody(SetBestillingStatus(status = BestillingStatusType.ANNULLERT))
-                }.also {
-                    it.status shouldBe HttpStatusCode.OK
-                }
-
-                client.get(Bestilling.Id(id = bestillingsnummer)) {
-                    bearerAuth(oauth.issueToken().serialize())
-                }.also {
-                    it.status shouldBe HttpStatusCode.OK
-                    it.body<BestillingStatus>() shouldBe BestillingStatus(
-                        bestillingsnummer = bestillingsnummer,
-                        status = BestillingStatusType.ANNULLERT,
                     )
                 }
             }

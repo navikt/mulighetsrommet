@@ -19,11 +19,7 @@ import no.nav.tiltak.okonomi.oebs.OebsService
 class Bestilling {
 
     @Resource("{id}")
-    class Id(val parent: Bestilling = Bestilling(), val id: String) {
-
-        @Resource("status")
-        class Status(val parent: Id)
-    }
+    class Id(val parent: Bestilling = Bestilling(), val id: String)
 }
 
 @Serializable
@@ -52,23 +48,6 @@ fun Routing.bestillingRoutes(
             .onRight {
                 call.respond(HttpStatusCode.Created)
             }
-    }
-
-    post<Bestilling.Id.Status> { bestilling ->
-        val body = call.receive<SetBestillingStatus>()
-
-        when (body.status) {
-            BestillingStatusType.ANNULLERT -> oebs.annullerBestilling(bestilling.parent.id)
-                .onLeft {
-                    application.log.warn("Feil ved annullering", it)
-                    call.respond(HttpStatusCode.InternalServerError)
-                }
-                .onRight {
-                    call.respond(HttpStatusCode.OK)
-                }
-
-            else -> call.respond(HttpStatusCode.NotImplemented)
-        }
     }
 
     get<Bestilling.Id> { bestilling ->

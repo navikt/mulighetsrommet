@@ -88,8 +88,9 @@ class OkonomiBestillingService(
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
             "Tilsagn er ikke godkjent id=$tilsagnId status=${tilsagn.status}"
         }
-        requireNotNull(tilsagn.opprettelse.besluttetAv)
-        requireNotNull(tilsagn.opprettelse.besluttetTidspunkt)
+        require(tilsagn.opprettelse.besluttetAv != null && tilsagn.opprettelse.besluttetTidspunkt != null) {
+            "Tilsagn id=$tilsagnId må være besluttet godkjent for å sendes til økonomi"
+        }
 
         val gjennomforing = requireNotNull(queries.gjennomforing.get(tilsagn.gjennomforing.id)) {
             "Fant ikke gjennomforing for tilsagn"
@@ -129,16 +130,32 @@ class OkonomiBestillingService(
             besluttetTidspunkt = tilsagn.opprettelse.besluttetTidspunkt,
         )
 
-        val message = OkonomiBestillingMelding.Bestilling(bestilling)
-        publish(bestilling.bestillingsnummer, message)
+        publish(bestilling.bestillingsnummer, OkonomiBestillingMelding.Bestilling(bestilling))
     }
 
     private fun behandleAnnullertTilsagn(tilsagnId: UUID): Unit = db.session {
         val tilsagn = requireNotNull(queries.tilsagn.get(tilsagnId)) {
             "Tilsagn med id=$tilsagnId finnes ikke"
         }
+        require(tilsagn.status == TilsagnStatus.ANNULLERT) {
+            "Tilsagn er ikke annullert id=$tilsagnId status=${tilsagn.status}"
+        }
+        requireNotNull(tilsagn.annullering) {
+            "Tilsagn id=$tilsagnId mangler annullering"
+        }
+        require(tilsagn.annullering.besluttetAv != null && tilsagn.annullering.besluttetTidspunkt != null) {
+            "Tilsagn id=$tilsagnId må være besluttet annullert for å sendes som annullert til økonomi"
+        }
 
-        publish(tilsagn.bestillingsnummer, OkonomiBestillingMelding.Annullering)
+        val annullering = AnnullerBestilling(
+            bestillingsnummer = tilsagn.bestillingsnummer,
+            behandletAv = tilsagn.annullering.behandletAv.toOkonomiPart(),
+            behandletTidspunkt = tilsagn.annullering.behandletTidspunkt,
+            besluttetAv = tilsagn.annullering.besluttetAv.toOkonomiPart(),
+            besluttetTidspunkt = tilsagn.annullering.besluttetTidspunkt,
+        )
+
+        publish(tilsagn.bestillingsnummer, OkonomiBestillingMelding.Annullering(annullering))
     }
 
     fun behandleGodkjentUtbetalinger(tilsagnId: UUID) {

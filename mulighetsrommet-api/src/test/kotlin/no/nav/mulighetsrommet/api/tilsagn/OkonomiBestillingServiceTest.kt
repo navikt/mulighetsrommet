@@ -157,8 +157,8 @@ class OkonomiBestillingServiceTest : FunSpec({
                 delutbetalinger = listOf(delutbetaling1, delutbetaling2),
             ) {
                 setTilsagnStatus(tilsagn, TilsagnStatus.ANNULLERT)
-            }
-                .initialize(database.db)
+            }.initialize(database.db)
+
             database.run {
                 service.scheduleBehandleAnnullertTilsagn(tilsagn.id, session)
             }
@@ -171,8 +171,13 @@ class OkonomiBestillingServiceTest : FunSpec({
 
                             it.key() shouldBe bestillingsnummer
 
-                            Json.decodeFromString<OkonomiBestillingMelding>(it.value()!!)
+                            val annullering = Json.decodeFromString<OkonomiBestillingMelding>(it.value()!!)
                                 .shouldBeTypeOf<OkonomiBestillingMelding.Annullering>()
+                                .payload
+
+                            annullering.bestillingsnummer shouldBe bestillingsnummer
+                            annullering.behandletAv shouldBe OkonomiPart.NavAnsatt(NavAnsattFixture.ansatt1.navIdent)
+                            annullering.besluttetAv shouldBe OkonomiPart.NavAnsatt(NavAnsattFixture.ansatt2.navIdent)
 
                             true
                         },
