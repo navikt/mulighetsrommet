@@ -1,6 +1,7 @@
 package no.nav.tiltak.okonomi
 
 import io.ktor.client.engine.cio.*
+import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -27,7 +28,7 @@ val ApplicationConfigDev = AppConfig(
         ),
     ),
     kafka = KafkaConfig(
-        defaultConsumerGroupId = "team-mulighetsrommet.tiltaksokonomi.v1",
+        consumerPropertiesPreset = KafkaPropertiesPreset.aivenDefaultConsumerProperties("team-mulighetsrommet.tiltaksokonomi.v1"),
         clients = KafkaClients(
             okonomiBestillingConsumer = KafkaTopicConsumer.Config(
                 id = "bestilling",

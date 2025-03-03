@@ -3,8 +3,6 @@ package no.nav.tiltak.okonomi
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import no.nav.common.kafka.util.KafkaPropertiesBuilder
-import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
@@ -20,7 +18,6 @@ import no.nav.tiltak.okonomi.oebs.OebsTiltakApiClient
 import no.nav.tiltak.okonomi.plugins.configureAuthentication
 import no.nav.tiltak.okonomi.plugins.configureHTTP
 import no.nav.tiltak.okonomi.plugins.configureSerialization
-import org.apache.kafka.common.serialization.ByteArrayDeserializer
 
 fun main() {
     val config = when (NaisEnv.current()) {
@@ -79,24 +76,13 @@ fun configureKafka(
     db: Database,
     oebsService: OebsService,
 ): KafkaConsumerOrchestrator {
-    val properties = when (NaisEnv.current()) {
-        NaisEnv.Local -> KafkaPropertiesBuilder.consumerBuilder()
-            .withBaseProperties()
-            .withConsumerGroupId(config.defaultConsumerGroupId)
-            .withBrokerUrl(config.brokerUrl)
-            .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
-            .build()
-
-        else -> KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.defaultConsumerGroupId)
-    }
-
     val bestilling = OkonomiBestillingConsumer(
         config = config.clients.okonomiBestillingConsumer,
         oebs = oebsService,
     )
 
     return KafkaConsumerOrchestrator(
-        consumerPreset = properties,
+        consumerPreset = config.consumerPropertiesPreset,
         db = db,
         consumers = listOf(bestilling),
     )
