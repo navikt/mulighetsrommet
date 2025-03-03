@@ -149,7 +149,8 @@ class OebsServiceTest : FunSpec({
         test("annullering feiler når bestilling ikke finnes") {
             val service = OebsService(db, oebsClient(oebsRespondOk()), brreg)
 
-            service.annullerBestilling("4").shouldBeLeft().should {
+            val annullerBestilling = createAnnullerBestilling("4")
+            service.annullerBestilling(annullerBestilling).shouldBeLeft().should {
                 it.message shouldBe "Bestilling 4 finnes ikke"
             }
         }
@@ -167,7 +168,8 @@ class OebsServiceTest : FunSpec({
             coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
             val service = OebsService(db, oebsClient(oebsRespondOk()), brreg)
 
-            service.annullerBestilling(bestillingsnummer).shouldBeLeft().should {
+            val annullerBestilling = createAnnullerBestilling(bestillingsnummer)
+            service.annullerBestilling(annullerBestilling).shouldBeLeft().should {
                 it.message shouldBe "Bestilling 4 kan ikke annulleres fordi den er oppgjort"
             }
         }
@@ -189,7 +191,8 @@ class OebsServiceTest : FunSpec({
             coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
             val service = OebsService(db, oebsClient(oebsRespondOk()), brreg)
 
-            service.annullerBestilling(bestillingsnummer).shouldBeLeft().should {
+            val annullerBestilling = createAnnullerBestilling(bestillingsnummer)
+            service.annullerBestilling(annullerBestilling).shouldBeLeft().should {
                 it.message shouldBe "Bestilling 5 kan ikke annulleres fordi det finnes fakturaer for bestillingen"
             }
         }
@@ -205,7 +208,8 @@ class OebsServiceTest : FunSpec({
             coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
             val service = OebsService(db, oebsClient(oebsRespondError()), brreg)
 
-            service.annullerBestilling(bestillingsnummer).shouldBeLeft().should {
+            val annullerBestilling = createAnnullerBestilling(bestillingsnummer)
+            service.annullerBestilling(annullerBestilling).shouldBeLeft().should {
                 it.message shouldBe "Klarte ikke annullere bestilling 6 hos oebs"
             }
         }
@@ -214,7 +218,8 @@ class OebsServiceTest : FunSpec({
             coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
             val service = OebsService(db, oebsClient(oebsRespondOk()), brreg)
 
-            service.annullerBestilling(bestillingsnummer).shouldBeRight().should {
+            val annullerBestilling = createAnnullerBestilling(bestillingsnummer)
+            service.annullerBestilling(annullerBestilling).shouldBeRight().should {
                 it.bestillingsnummer shouldBe bestillingsnummer
                 it.status shouldBe BestillingStatusType.ANNULLERT
             }
@@ -223,7 +228,8 @@ class OebsServiceTest : FunSpec({
         test("noop når bestilling allerede er annullert") {
             val service = OebsService(db, oebsClient(oebsRespondOk()), brreg)
 
-            service.annullerBestilling(bestillingsnummer).shouldBeRight().should {
+            val annullerBestilling = createAnnullerBestilling(bestillingsnummer)
+            service.annullerBestilling(annullerBestilling).shouldBeRight().should {
                 it.bestillingsnummer shouldBe bestillingsnummer
                 it.status shouldBe BestillingStatusType.ANNULLERT
             }
@@ -312,6 +318,14 @@ private fun createOpprettBestilling(bestillingsnummer: String) = OpprettBestilli
     besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
     periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
     kostnadssted = NavEnhetNummer("0400"),
+)
+
+private fun createAnnullerBestilling(bestillingsnummer: String) = AnnullerBestilling(
+    bestillingsnummer = bestillingsnummer,
+    behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+    behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+    besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+    besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
 )
 
 private fun createOpprettFaktura(bestillingsnummer: String, fakturanummer: String) = OpprettFaktura(

@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.brreg.BrregAdresse
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
+import no.nav.tiltak.okonomi.AnnullerBestilling
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
@@ -92,8 +93,9 @@ class OebsService(
     }
 
     suspend fun annullerBestilling(
-        bestillingsnummer: String,
+        annullerBestilling: AnnullerBestilling,
     ): Either<AnnullerBestillingError, Bestilling> = db.session {
+        val bestillingsnummer = annullerBestilling.bestillingsnummer
         val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
             ?: return AnnullerBestillingError("Bestilling $bestillingsnummer finnes ikke").left()
 
@@ -106,7 +108,7 @@ class OebsService(
             return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi det finnes fakturaer for bestillingen").left()
         }
 
-        val melding = toOebsAnnulleringMelding(bestilling)
+        val melding = toOebsAnnulleringMelding(bestilling, annullerBestilling)
         return oebs.sendAnnullering(melding)
             .mapLeft {
                 AnnullerBestillingError("Klarte ikke annullere bestilling $bestillingsnummer hos oebs", it)
@@ -174,7 +176,7 @@ private fun toOebsBestillingMelding(
     return OebsBestillingMelding(
         kilde = OebsKilde.TILTADM,
         bestillingsNummer = bestilling.bestillingsnummer,
-        opprettelsesTidspunkt = bestilling.behandletTidspunkt,
+        opprettelsesTidspunkt = bestilling.besluttetTidspunkt,
         bestillingsType = OebsBestillingType.NY,
         selger = selger,
         rammeavtaleNummer = bestilling.avtalenummer,
@@ -194,9 +196,12 @@ private fun toOebsBestillingMelding(
 
 private fun toOebsAnnulleringMelding(
     bestilling: Bestilling,
+    annullerBestilling: AnnullerBestilling,
 ): OebsAnnulleringMelding {
     return OebsAnnulleringMelding(
         bestillingsNummer = bestilling.bestillingsnummer,
+        opprettelsesTidspunkt = annullerBestilling.besluttetTidspunkt,
+        kilde = OebsKilde.TILTADM,
         bestillingsType = OebsBestillingType.ANNULLER,
         selger = OebsAnnulleringMelding.Selger(
             organisasjonsNummer = bestilling.arrangorHovedenhet.value,
@@ -212,7 +217,7 @@ private fun toOebsFakturaMelding(
     return OebsFakturaMelding(
         kilde = OebsKilde.TILTADM,
         fakturaNummer = faktura.fakturanummer,
-        opprettelsesTidspunkt = faktura.behandletTidspunkt,
+        opprettelsesTidspunkt = faktura.besluttetTidspunkt,
         organisasjonsNummer = bestilling.arrangorHovedenhet.value,
         bedriftsNummer = bestilling.arrangorUnderenhet.value,
         totalSum = faktura.belop,

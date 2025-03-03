@@ -45,7 +45,7 @@ class OkonomiBestillingConsumer(
 
             is OkonomiBestillingMelding.Annullering -> {
                 logger.info("Annullerer bestilling=$bestillingsnummer")
-                oebs.annullerBestilling(bestillingsnummer)
+                oebs.annullerBestilling(melding.payload)
             }
 
             is OkonomiBestillingMelding.Faktura -> {

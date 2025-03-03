@@ -226,6 +226,17 @@ data class OebsAnnulleringMelding(
     val bestillingsNummer: String,
 
     /**
+     * Tidspunkt da bestillingen (tilsagnet) ble godkjent i en totrinnskontroll.
+     */
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val opprettelsesTidspunkt: LocalDateTime,
+
+    /**
+     * Indikerer hvilket fagsystem som er kilden til bestillingen.
+     */
+    val kilde: OebsKilde,
+
+    /**
      * Alltid [OebsBestillingType.ANNULLER] for annullering av bestillinger (tilsagn).
      */
     val bestillingsType: OebsBestillingType,

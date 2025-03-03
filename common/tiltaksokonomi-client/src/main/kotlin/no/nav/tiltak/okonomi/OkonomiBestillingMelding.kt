@@ -17,7 +17,9 @@ sealed class OkonomiBestillingMelding {
 
     @Serializable
     @SerialName("ANNULLERING")
-    data object Annullering : OkonomiBestillingMelding()
+    data class Annullering(
+        val payload: AnnullerBestilling,
+    ) : OkonomiBestillingMelding()
 
     @Serializable
     @SerialName("FAKTURA")
@@ -54,6 +56,17 @@ enum class Tilskuddstype {
     TILTAK_DRIFTSTILSKUDD,
     TILTAK_INVESTERINGER,
 }
+
+@Serializable
+data class AnnullerBestilling(
+    val bestillingsnummer: String,
+    val behandletAv: OkonomiPart,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val behandletTidspunkt: LocalDateTime,
+    val besluttetAv: OkonomiPart,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val besluttetTidspunkt: LocalDateTime,
+)
 
 @Serializable
 data class OpprettFaktura(

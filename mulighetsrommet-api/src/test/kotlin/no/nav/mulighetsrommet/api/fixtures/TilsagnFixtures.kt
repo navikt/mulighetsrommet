@@ -121,7 +121,7 @@ object TilsagnFixtures {
                         behandletAv = tilsagnDbo.behandletAv,
                         aarsaker = emptyList(),
                         forklaring = null,
-                        type = Totrinnskontroll.Type.OPPRETT,
+                        type = Totrinnskontroll.Type.ANNULLER,
                         behandletTidspunkt = LocalDateTime.now(),
                         besluttelse = Besluttelse.GODKJENT,
                         besluttetAv = NavAnsattFixture.ansatt2.navIdent,
