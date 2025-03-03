@@ -45,6 +45,10 @@ export const AVTALE_STATUS_OPTIONS: { label: string; value: Avtalestatus }[] = [
     label: "Avbrutt",
     value: Avtalestatus.AVBRUTT,
   },
+  {
+    label: "Utkast",
+    value: Avtalestatus.UTKAST,
+  },
 ];
 
 export const AVTALE_TYPE_OPTIONS: { label: string; value: Avtaletype }[] = [

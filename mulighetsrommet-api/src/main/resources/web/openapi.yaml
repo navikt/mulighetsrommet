@@ -3008,6 +3008,7 @@ components:
         - AKTIV
         - AVSLUTTET
         - AVBRUTT
+        - UTKAST
 
     NotificationStatus:
       type: string
