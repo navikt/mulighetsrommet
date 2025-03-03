@@ -28,10 +28,14 @@ class BestillingQueries(private val session: Session) {
                 belop,
                 periode,
                 status,
-                behandlet_av,
-                behandlet_tidspunkt,
-                besluttet_av,
-                besluttet_tidspunkt
+                opprettelse_behandlet_av,
+                opprettelse_behandlet_tidspunkt,
+                opprettelse_besluttet_av,
+                opprettelse_besluttet_tidspunkt,
+                annullering_behandlet_av,
+                annullering_behandlet_tidspunkt,
+                annullering_besluttet_av,
+                annullering_besluttet_tidspunkt
             ) values (
                 :bestillingsnummer,
                 :avtalenummer,
@@ -42,10 +46,14 @@ class BestillingQueries(private val session: Session) {
                 :belop,
                 :periode::daterange,
                 :status,
-                :behandlet_av,
-                :behandlet_tidspunkt,
-                :besluttet_av,
-                :besluttet_tidspunkt
+                :opprettelse_behandlet_av,
+                :opprettelse_behandlet_tidspunkt,
+                :opprettelse_besluttet_av,
+                :opprettelse_besluttet_tidspunkt,
+                :annullering_behandlet_av,
+                :annullering_behandlet_tidspunkt,
+                :annullering_besluttet_av,
+                :annullering_besluttet_tidspunkt
             )
             returning id
         """
@@ -59,10 +67,14 @@ class BestillingQueries(private val session: Session) {
             "belop" to bestilling.belop,
             "periode" to bestilling.periode.toDaterange(),
             "status" to bestilling.status.name,
-            "behandlet_av" to bestilling.behandletAv.part,
-            "behandlet_tidspunkt" to bestilling.behandletTidspunkt,
-            "besluttet_av" to bestilling.besluttetAv.part,
-            "besluttet_tidspunkt" to bestilling.besluttetTidspunkt,
+            "opprettelse_behandlet_av" to bestilling.opprettelse.behandletAv.part,
+            "opprettelse_behandlet_tidspunkt" to bestilling.opprettelse.behandletTidspunkt,
+            "opprettelse_besluttet_av" to bestilling.opprettelse.besluttetAv.part,
+            "opprettelse_besluttet_tidspunkt" to bestilling.opprettelse.besluttetTidspunkt,
+            "annullering_behandlet_av" to bestilling.annullering?.behandletAv?.part,
+            "annullering_behandlet_tidspunkt" to bestilling.annullering?.behandletTidspunkt,
+            "annullering_besluttet_av" to bestilling.annullering?.besluttetAv?.part,
+            "annullering_besluttet_tidspunkt" to bestilling.annullering?.besluttetTidspunkt,
         )
         val bestillingId = single(queryOf(insertBestilling, params)) { it.int("id") }
 
@@ -80,6 +92,28 @@ class BestillingQueries(private val session: Session) {
             )
         }
         batchPreparedNamedStatement(insertLinje, linjer)
+    }
+
+    fun setAnnullert(bestillingsnummer: String, annullering: Bestilling.Totrinnskontroll) {
+        @Language("PostgreSQL")
+        val query = """
+            update bestilling
+            set status = :status,
+                annullering_behandlet_av = :behandlet_av,
+                annullering_behandlet_tidspunkt = :behandlet_tidspunkt,
+                annullering_besluttet_av = :besluttet_av,
+                annullering_besluttet_tidspunkt = :besluttet_tidspunkt
+            where bestillingsnummer = :bestillingsnummer
+        """.trimIndent()
+        val params = mapOf(
+            "bestillingsnummer" to bestillingsnummer,
+            "status" to BestillingStatusType.ANNULLERT.name,
+            "behandlet_av" to annullering.behandletAv.part,
+            "behandlet_tidspunkt" to annullering.behandletTidspunkt,
+            "besluttet_av" to annullering.besluttetAv.part,
+            "besluttet_tidspunkt" to annullering.besluttetTidspunkt,
+        )
+        session.execute(queryOf(query, params))
     }
 
     fun getByBestillingsnummer(bestillingsnummer: String): Bestilling? {
@@ -104,10 +138,14 @@ class BestillingQueries(private val session: Session) {
                 belop,
                 periode,
                 status,
-                behandlet_av,
-                behandlet_tidspunkt,
-                besluttet_av,
-                besluttet_tidspunkt
+                opprettelse_behandlet_av,
+                opprettelse_behandlet_tidspunkt,
+                opprettelse_besluttet_av,
+                opprettelse_besluttet_tidspunkt,
+                annullering_behandlet_av,
+                annullering_behandlet_tidspunkt,
+                annullering_besluttet_av,
+                annullering_besluttet_tidspunkt
             from bestilling
             where bestillingsnummer = ?
         """.trimIndent()
@@ -121,6 +159,7 @@ class BestillingQueries(private val session: Session) {
                 )
             }
 
+            val status = BestillingStatusType.valueOf(bestilling.string("status"))
             Bestilling(
                 tiltakskode = Tiltakskode.valueOf(bestilling.string("tiltakskode")),
                 arrangorHovedenhet = Organisasjonsnummer(bestilling.string("arrangor_hovedenhet")),
@@ -130,23 +169,25 @@ class BestillingQueries(private val session: Session) {
                 avtalenummer = bestilling.stringOrNull("avtalenummer"),
                 belop = bestilling.int("belop"),
                 periode = bestilling.periode("periode"),
-                status = BestillingStatusType.valueOf(bestilling.string("status")),
-                behandletAv = OkonomiPart.fromString(bestilling.string("behandlet_av")),
-                behandletTidspunkt = bestilling.localDateTime("behandlet_tidspunkt"),
-                besluttetAv = OkonomiPart.fromString(bestilling.string("besluttet_av")),
-                besluttetTidspunkt = bestilling.localDateTime("besluttet_tidspunkt"),
+                status = status,
+                opprettelse = Bestilling.Totrinnskontroll(
+                    behandletAv = OkonomiPart.fromString(bestilling.string("opprettelse_behandlet_av")),
+                    behandletTidspunkt = bestilling.localDateTime("opprettelse_behandlet_tidspunkt"),
+                    besluttetAv = OkonomiPart.fromString(bestilling.string("opprettelse_besluttet_av")),
+                    besluttetTidspunkt = bestilling.localDateTime("opprettelse_besluttet_tidspunkt"),
+                ),
+                annullering = if (status == BestillingStatusType.ANNULLERT) {
+                    Bestilling.Totrinnskontroll(
+                        behandletAv = OkonomiPart.fromString(bestilling.string("annullering_behandlet_av")),
+                        behandletTidspunkt = bestilling.localDateTime("annullering_behandlet_tidspunkt"),
+                        besluttetAv = OkonomiPart.fromString(bestilling.string("annullering_besluttet_av")),
+                        besluttetTidspunkt = bestilling.localDateTime("annullering_besluttet_tidspunkt"),
+                    )
+                } else {
+                    null
+                },
                 linjer = linjer,
             )
         }
-    }
-
-    fun setStatus(bestillingsnummer: String, status: BestillingStatusType) {
-        @Language("PostgreSQL")
-        val query = """
-            update bestilling
-            set status = ?
-            where bestillingsnummer = ?
-        """.trimIndent()
-        session.execute(queryOf(query, status.name, bestillingsnummer))
     }
 }

@@ -29,10 +29,13 @@ class FakturaQueriesTest : FunSpec({
             LocalDate.of(2025, 3, 1),
         ),
         status = BestillingStatusType.AKTIV,
-        behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-        behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
-        besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
-        besluttetTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
+        opprettelse = Bestilling.Totrinnskontroll(
+            behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+            behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+            besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
+            besluttetTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
+        ),
+        annullering = null,
         linjer = listOf(
             Bestilling.Linje(
                 linjenummer = 1,
@@ -53,39 +56,39 @@ class FakturaQueriesTest : FunSpec({
         ),
     )
 
-    test("opprett faktura") {
-        val faktura = Faktura(
-            fakturanummer = "4567",
-            bestillingsnummer = "A-1",
-            kontonummer = Kontonummer("12345678901"),
-            kid = Kid("123123123123123"),
-            belop = 500,
-            periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-            status = FakturaStatusType.UTBETALT,
-            behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-            behandletTidspunkt = LocalDate.of(2025, 2, 1).atStartOfDay(),
-            besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
-            besluttetTidspunkt = LocalDate.of(2025, 2, 2).atStartOfDay(),
-            linjer = listOf(
-                Faktura.Linje(
-                    linjenummer = 1,
-                    periode = Periode(
-                        LocalDate.of(2025, 1, 1),
-                        LocalDate.of(2025, 2, 1),
-                    ),
-                    belop = 500,
+    val faktura = Faktura(
+        fakturanummer = "4567",
+        bestillingsnummer = "A-1",
+        kontonummer = Kontonummer("12345678901"),
+        kid = Kid("123123123123123"),
+        belop = 500,
+        periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+        status = FakturaStatusType.UTBETALT,
+        behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+        behandletTidspunkt = LocalDate.of(2025, 2, 1).atStartOfDay(),
+        besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
+        besluttetTidspunkt = LocalDate.of(2025, 2, 2).atStartOfDay(),
+        linjer = listOf(
+            Faktura.Linje(
+                linjenummer = 1,
+                periode = Periode(
+                    LocalDate.of(2025, 1, 1),
+                    LocalDate.of(2025, 2, 1),
                 ),
-                Faktura.Linje(
-                    linjenummer = 2,
-                    periode = Periode(
-                        LocalDate.of(2025, 2, 1),
-                        LocalDate.of(2025, 3, 1),
-                    ),
-                    belop = 500,
-                ),
+                belop = 500,
             ),
-        )
+            Faktura.Linje(
+                linjenummer = 2,
+                periode = Periode(
+                    LocalDate.of(2025, 2, 1),
+                    LocalDate.of(2025, 3, 1),
+                ),
+                belop = 500,
+            ),
+        ),
+    )
 
+    test("opprett faktura") {
         database.runAndRollback {
             val bestillingQueries = BestillingQueries(it)
             bestillingQueries.insertBestilling(bestilling)

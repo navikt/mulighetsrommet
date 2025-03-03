@@ -114,7 +114,15 @@ class OebsService(
                 AnnullerBestillingError("Klarte ikke annullere bestilling $bestillingsnummer hos oebs", it)
             }
             .map {
-                queries.bestilling.setStatus(bestillingsnummer, BestillingStatusType.ANNULLERT)
+                queries.bestilling.setAnnullert(
+                    bestillingsnummer,
+                    Bestilling.Totrinnskontroll(
+                        behandletAv = annullerBestilling.behandletAv,
+                        behandletTidspunkt = annullerBestilling.besluttetTidspunkt,
+                        besluttetAv = annullerBestilling.besluttetAv,
+                        besluttetTidspunkt = annullerBestilling.besluttetTidspunkt,
+                    ),
+                )
                 checkNotNull(queries.bestilling.getByBestillingsnummer(bestillingsnummer))
             }
     }
@@ -176,14 +184,14 @@ private fun toOebsBestillingMelding(
     return OebsBestillingMelding(
         kilde = OebsKilde.TILTADM,
         bestillingsNummer = bestilling.bestillingsnummer,
-        opprettelsesTidspunkt = bestilling.besluttetTidspunkt,
+        opprettelsesTidspunkt = bestilling.opprettelse.besluttetTidspunkt,
         bestillingsType = OebsBestillingType.NY,
         selger = selger,
         rammeavtaleNummer = bestilling.avtalenummer,
         totalSum = bestilling.belop,
         valutaKode = "NOK",
-        saksbehandler = bestilling.behandletAv.part,
-        bdmGodkjenner = bestilling.besluttetAv.part,
+        saksbehandler = bestilling.opprettelse.behandletAv.part,
+        bdmGodkjenner = bestilling.opprettelse.besluttetAv.part,
         startDato = bestilling.periode.start,
         sluttDato = bestilling.periode.getLastInclusiveDate(),
         bestillingsLinjer = linjer,
