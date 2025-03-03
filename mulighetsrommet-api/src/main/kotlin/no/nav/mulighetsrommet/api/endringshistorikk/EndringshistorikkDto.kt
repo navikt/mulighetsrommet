@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.endringshistorikk
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDateTime
@@ -21,7 +22,16 @@ data class EndringshistorikkDto(
     )
 
     @Serializable
-    sealed class User
+    sealed class User {
+        companion object {
+            fun fromAgent(agent: Agent, navn: String?): User = when (agent) {
+                Arena -> Systembruker("Arena")
+                Arrangor -> Systembruker("Arrangør")
+                Tiltaksadministrasjon -> Systembruker("System")
+                is NavIdent -> NavAnsatt(navIdent = agent.value, navn = navn)
+            }
+        }
+    }
 
     @Serializable
     data class Systembruker(

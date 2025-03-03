@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -59,8 +60,8 @@ fun Route.utbetalingRoutes() {
                 queries.utbetaling.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
             }
             val tilsagn = db.session {
-                queries.tilsagn.getTilsagnForGjennomforing(
-                    utbetaling.gjennomforing.id,
+                queries.tilsagn.getAll(
+                    gjennomforingId = utbetaling.gjennomforing.id,
                     periode = utbetaling.periode,
                 )
             }
@@ -92,7 +93,7 @@ fun Route.utbetalingRoutes() {
                     val request = call.receive<DelutbetalingRequest>()
                     val navIdent = getNavIdent()
 
-                    call.respondWithStatusResponse(service.upsertDelutbetaling(utbetalingId, request, navIdent))
+                    call.respondWithStatusResponse(service.validateAndUpsertDelutbetaling(utbetalingId, request, navIdent))
                 }
                 put("/bulk") {
                     val utbetalingId = call.parameters.getOrFail<UUID>("id")
@@ -105,11 +106,11 @@ fun Route.utbetalingRoutes() {
 
             authenticate(AuthProvider.AZURE_AD_OKONOMI_BESLUTTER) {
                 post("/beslutt") {
-                    val id = call.parameters.getOrFail<UUID>("id")
                     val request = call.receive<BesluttDelutbetalingRequest>()
                     val navIdent = getNavIdent()
 
-                    call.respondWithStatusResponse(service.besluttDelutbetaling(request, id, navIdent))
+                    service.besluttDelutbetaling(request, navIdent)
+                    call.respond(HttpStatusCode.OK)
                 }
             }
         }

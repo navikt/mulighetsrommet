@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "@hey-api/openapi-ts": "0.64.5",
-    "typescript": "5.7.3"
+    "typescript": "5.8.2"
   },
   "dependencies": {
     "@hey-api/client-fetch": "^0.8.1"

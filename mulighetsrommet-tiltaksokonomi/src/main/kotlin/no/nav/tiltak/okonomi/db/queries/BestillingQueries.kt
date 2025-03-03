@@ -14,7 +14,7 @@ import org.intellij.lang.annotations.Language
 
 class BestillingQueries(private val session: Session) {
 
-    fun createBestilling(bestilling: Bestilling) = withTransaction(session) {
+    fun insertBestilling(bestilling: Bestilling) = withTransaction(session) {
         @Language("PostgreSQL")
         val insertBestilling = """
             insert into bestilling (
@@ -83,7 +83,7 @@ class BestillingQueries(private val session: Session) {
         batchPreparedNamedStatement(insertLinje, linjer)
     }
 
-    fun getBestilling(bestillingsnummer: String): Bestilling? {
+    fun getByBestillingsnummer(bestillingsnummer: String): Bestilling? {
         @Language("PostgreSQL")
         val selectLinje = """
             select linjenummer, periode, belop

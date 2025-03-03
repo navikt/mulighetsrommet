@@ -6,18 +6,20 @@ import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.OpprettBestilling
+import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 
 class BestillingTest : FunSpec({
 
     context("fromOpprettBestilling") {
         val opprettBestilling = OpprettBestilling(
+            bestillingsnummer = "2025/1",
+            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
             arrangor = OpprettBestilling.Arrangor(
                 hovedenhet = Organisasjonsnummer("123456789"),
                 underenhet = Organisasjonsnummer("234567891"),
             ),
-            bestillingsnummer = "2025/1",
             avtalenummer = null,
             belop = 1000,
             behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),

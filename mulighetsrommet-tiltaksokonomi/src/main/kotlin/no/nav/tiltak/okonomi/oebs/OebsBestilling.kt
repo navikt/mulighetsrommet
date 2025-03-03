@@ -139,14 +139,14 @@ data class OebsBestillingMelding(
         val organisasjonsNavn: String,
 
         /**
-         * Postadresse til hovedenheten til bedriften som det skal utbetales til.
+         * Adresse til hovedenheten til bedriften som det skal utbetales til.
          *
          * OeBS benytter dette til å opprette eller oppdatere bedriften internt.
          * Merk at forskjellige produsenter av bestillinger til OeBS kan overskrive denne informasjonen.
          *
          * TODO: Fjern om OeBS får implementert denne funksjonaliteten selv.
          */
-        val postAdresse: List<PostAdresse>,
+        val adresse: List<Adresse>,
 
         /**
          * Organisasjonsnummer for bedriften som det skal utbetales til.
@@ -155,7 +155,7 @@ data class OebsBestillingMelding(
         val bedriftsNummer: String,
     ) {
         @Serializable
-        data class PostAdresse(
+        data class Adresse(
             val gateNavn: String,
             val by: String,
             val postNummer: String,
@@ -226,7 +226,7 @@ data class OebsAnnulleringMelding(
     val bestillingsNummer: String,
 
     /**
-     * Alltid [OebsBestillingType.ANNULLER]for annullering av bestillinger (tilsagn).
+     * Alltid [OebsBestillingType.ANNULLER] for annullering av bestillinger (tilsagn).
      */
     val bestillingsType: OebsBestillingType,
 

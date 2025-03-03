@@ -22,5 +22,5 @@ const PORTEN_URL_CONFIG = {
 };
 
 export const TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL = isProduction
-  ? "https://gjennomforing.intern.nav.no"
-  : "https://gjennomforing.intern.dev.nav.no";
+  ? "https://tiltaksgjennomforing.intern.nav.no"
+  : "https://tiltaksgjennomforing.intern.dev.nav.no";

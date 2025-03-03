@@ -98,12 +98,13 @@ class TiltaksokonomiTest : FunSpec({
                     contentType(ContentType.Application.Json)
                     setBody(
                         OpprettBestilling(
+                            bestillingsnummer = bestillingsnummer,
+                            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
                             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
                             arrangor = OpprettBestilling.Arrangor(
                                 hovedenhet = Organisasjonsnummer("123456789"),
                                 underenhet = Organisasjonsnummer("234567891"),
                             ),
-                            bestillingsnummer = bestillingsnummer,
                             avtalenummer = "2025/1234",
                             belop = 1000,
                             behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
@@ -190,12 +191,13 @@ class TiltaksokonomiTest : FunSpec({
                     contentType(ContentType.Application.Json)
                     setBody(
                         OpprettBestilling(
+                            bestillingsnummer = bestillingsnummer,
+                            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
                             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
                             arrangor = OpprettBestilling.Arrangor(
                                 hovedenhet = Organisasjonsnummer("123456789"),
                                 underenhet = Organisasjonsnummer("234567891"),
                             ),
-                            bestillingsnummer = bestillingsnummer,
                             avtalenummer = null,
                             belop = 1000,
                             behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
@@ -252,6 +254,7 @@ class TiltaksokonomiTest : FunSpec({
 private fun initializeData(db: OkonomiDatabase) = db.session {
     queries.kontering.insertKontering(
         OebsKontering(
+            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
             periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2099, 1, 1)),
             statligRegnskapskonto = "12345678901",
@@ -271,7 +274,7 @@ private fun MockEngineBuilder.mockBrregHovedenhet() {
                     "kode": "AS",
                     "beskrivelse": "Aksjeselskap"
                 },
-                "postadresse": {
+                "forretningsadresse": {
                     "land": "Norge",
                     "landkode": "NO",
                     "postnummer": "0170",
