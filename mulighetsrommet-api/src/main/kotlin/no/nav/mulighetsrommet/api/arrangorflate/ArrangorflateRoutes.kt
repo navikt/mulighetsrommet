@@ -125,7 +125,7 @@ fun Route.arrangorflateRoutes() {
                 call.respond(relevanteForslag)
             }
 
-            post("/godkjenn-utbetaling") {
+            post("/godkjenn") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val request = call.receive<GodkjennUtbetaling>()
 

@@ -10,8 +10,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
-import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.transactionalSchedulerClient
 import no.nav.tiltak.okonomi.*
@@ -124,9 +123,9 @@ class OkonomiBestillingService(
             avtalenummer = avtale.avtalenummer,
             belop = tilsagn.beregning.output.belop,
             periode = Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt),
-            behandletAv = OkonomiPart.NavAnsatt(tilsagn.opprettelse.behandletAv),
+            behandletAv = tilsagn.opprettelse.behandletAv.toOkonomiPart(),
             behandletTidspunkt = tilsagn.opprettelse.behandletTidspunkt,
-            besluttetAv = OkonomiPart.NavAnsatt(tilsagn.opprettelse.besluttetAv),
+            besluttetAv = tilsagn.opprettelse.besluttetAv.toOkonomiPart(),
             besluttetTidspunkt = tilsagn.opprettelse.besluttetTidspunkt,
         )
 
@@ -171,9 +170,9 @@ class OkonomiBestillingService(
                     ),
                     belop = delutbetaling.belop,
                     periode = delutbetaling.periode,
-                    behandletAv = OkonomiPart.NavAnsatt(delutbetaling.opprettelse.behandletAv),
+                    behandletAv = delutbetaling.opprettelse.behandletAv.toOkonomiPart(),
                     behandletTidspunkt = delutbetaling.opprettelse.behandletTidspunkt,
-                    besluttetAv = OkonomiPart.NavAnsatt(delutbetaling.opprettelse.besluttetAv),
+                    besluttetAv = delutbetaling.opprettelse.besluttetAv.toOkonomiPart(),
                     besluttetTidspunkt = delutbetaling.opprettelse.besluttetTidspunkt,
                 )
 
@@ -197,4 +196,10 @@ class OkonomiBestillingService(
         )
         kafkaProducerClient.sendSync(record)
     }
+}
+
+fun Agent.toOkonomiPart(): OkonomiPart = when (this) {
+    is NavIdent -> OkonomiPart.NavAnsatt(this)
+    is Tiltaksadministrasjon -> OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON)
+    Arrangor, Arena -> throw IllegalStateException("ugyldig agent")
 }

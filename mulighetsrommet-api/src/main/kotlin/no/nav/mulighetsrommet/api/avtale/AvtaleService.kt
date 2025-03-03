@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.toDbo
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
-import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.responses.*
@@ -47,7 +46,7 @@ class AvtaleService(
             ).bind()
             AvtaleDbo.Arrangor(
                 hovedenhet = arrangor.id,
-                underenheter = underenheter.map { it.id },
+                underenheter = underenheter.map { underenhet -> underenhet.id },
                 kontaktpersoner = it.kontaktpersoner,
             )
         }
@@ -69,7 +68,7 @@ class AvtaleService(
             } else {
                 "Redigerte avtale"
             }
-            logEndring(operation, dto, EndretAv.NavAnsatt(navIdent))
+            logEndring(operation, dto, navIdent)
 
             schedulePublishGjennomforingerForAvtale(dto)
 
@@ -137,7 +136,7 @@ class AvtaleService(
 
         queries.avtale.avbryt(id, LocalDateTime.now(), aarsak)
         val dto = getOrError(id)
-        logEndring("Avtale ble avbrutt", dto, EndretAv.NavAnsatt(navIdent))
+        logEndring("Avtale ble avbrutt", dto, navIdent)
 
         Either.Right(Unit)
     }
@@ -153,7 +152,7 @@ class AvtaleService(
         logEndring(
             "Kontaktperson ble fjernet fra avtalen via arrangørsidene",
             avtale,
-            EndretAv.NavAnsatt(navIdent),
+            navIdent,
         )
     }
 
@@ -218,7 +217,7 @@ class AvtaleService(
     private fun QueryContext.logEndring(
         operation: String,
         dto: AvtaleDto,
-        endretAv: EndretAv.NavAnsatt,
+        endretAv: NavIdent,
     ) {
         queries.endringshistorikk.logEndring(
             DocumentClass.AVTALE,

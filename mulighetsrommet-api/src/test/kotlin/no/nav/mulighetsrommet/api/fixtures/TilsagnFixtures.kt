@@ -2,10 +2,7 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
-import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -26,8 +23,8 @@ object TilsagnFixtures {
             output = TilsagnBeregningFri.Output(1000),
         ),
         arrangorId = ArrangorFixtures.underenhet1.id,
-        endretAv = NavAnsattFixture.ansatt1.navIdent,
-        endretTidspunkt = LocalDateTime.now(),
+        behandletAv = NavAnsattFixture.ansatt1.navIdent,
+        behandletTidspunkt = LocalDateTime.now(),
         type = TilsagnType.TILSAGN,
     )
 
@@ -43,8 +40,8 @@ object TilsagnFixtures {
             output = TilsagnBeregningFri.Output(1500),
         ),
         arrangorId = ArrangorFixtures.underenhet1.id,
-        endretAv = NavIdent("Z123456"),
-        endretTidspunkt = LocalDateTime.now(),
+        behandletAv = NavIdent("Z123456"),
+        behandletTidspunkt = LocalDateTime.now(),
         type = TilsagnType.TILSAGN,
     )
 
@@ -60,8 +57,8 @@ object TilsagnFixtures {
             output = TilsagnBeregningFri.Output(2500),
         ),
         arrangorId = ArrangorFixtures.underenhet1.id,
-        endretAv = NavIdent("Z123456"),
-        endretTidspunkt = LocalDateTime.now(),
+        behandletAv = NavIdent("Z123456"),
+        behandletTidspunkt = LocalDateTime.now(),
         type = TilsagnType.TILSAGN,
     )
 
@@ -98,9 +95,9 @@ object TilsagnFixtures {
                     Totrinnskontroll(
                         id = UUID.randomUUID(),
                         entityId = tilsagnDbo.id,
-                        behandletAv = tilsagnDbo.endretAv,
-                        aarsaker = emptyList(),
-                        forklaring = null,
+                        behandletAv = tilsagnDbo.behandletAv,
+                        aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP.name),
+                        forklaring = "Velg et annet beløp",
                         type = Totrinnskontroll.Type.ANNULLER,
                         behandletTidspunkt = LocalDateTime.now(),
                         besluttelse = null,
@@ -121,7 +118,7 @@ object TilsagnFixtures {
                     Totrinnskontroll(
                         id = UUID.randomUUID(),
                         entityId = tilsagnDbo.id,
-                        behandletAv = tilsagnDbo.endretAv,
+                        behandletAv = tilsagnDbo.behandletAv,
                         aarsaker = emptyList(),
                         forklaring = null,
                         type = Totrinnskontroll.Type.OPPRETT,
