@@ -1,5 +1,5 @@
 import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
-import { TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL } from "@/constants";
+import { TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL } from "@/constants";
 import { useLogEvent } from "@/logging/amplitude";
 import { Deltakelse, DeltakelserMelding } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
@@ -331,7 +331,7 @@ function TeamTiltakTiltaksgjennomforingAvtalerLink() {
     <Lenke
       target="_blank"
       rel="noreferrer noopener"
-      to={`${TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL}/gjennomforing?part=VEILEDER`}
+      to={`${TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL}?part=VEILEDER`}
       isExternal
     >
       Tiltaksgjennomføring - avtaler

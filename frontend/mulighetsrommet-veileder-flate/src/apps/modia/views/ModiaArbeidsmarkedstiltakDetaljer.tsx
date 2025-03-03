@@ -12,7 +12,7 @@ import { LenkeListe } from "@/components/sidemeny/Lenker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import {
   PORTEN_URL_FOR_TILBAKEMELDING,
-  TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL,
+  TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL,
 } from "@/constants";
 import { paginationAtom } from "@/core/atoms";
 import { ViewTiltakDetaljer } from "@/layouts/ViewTiltakDetaljer";
@@ -41,7 +41,7 @@ import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import { PameldingKometApnerSnart } from "../pamelding/PameldingKometApnerSnart";
 import { ArbeidsmarkedstiltakErrorBoundary } from "@/ErrorBoundary";
 
-const TEAM_TILTAK_OPPRETT_AVTALE_URL = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL}/tiltaksgjennomforing/opprett-avtale`;
+const TEAM_TILTAK_OPPRETT_AVTALE_URL = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL}/opprett-avtale`;
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
