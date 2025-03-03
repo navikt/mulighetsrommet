@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.db.periode
+import no.nav.tiltak.okonomi.db.toDaterange
 import no.nav.tiltak.okonomi.model.Faktura
 import no.nav.tiltak.okonomi.model.FakturaStatusType
 import org.intellij.lang.annotations.Language
@@ -34,7 +35,7 @@ class FakturaQueries(private val session: Session) {
                 :kontonummer,
                 :kid,
                 :belop,
-                daterange(:periode_start, :periode_slutt),
+                :periode::daterange,
                 :status,
                 :behandlet_av,
                 :behandlet_tidspunkt,
@@ -49,8 +50,7 @@ class FakturaQueries(private val session: Session) {
             "kontonummer" to faktura.kontonummer.value,
             "kid" to faktura.kid?.value,
             "belop" to faktura.belop,
-            "periode_start" to faktura.periode.start,
-            "periode_slutt" to faktura.periode.slutt,
+            "periode" to faktura.periode.toDaterange(),
             "status" to faktura.status.name,
             "behandlet_av" to faktura.behandletAv.part,
             "behandlet_tidspunkt" to faktura.behandletTidspunkt,
@@ -62,14 +62,13 @@ class FakturaQueries(private val session: Session) {
         @Language("PostgreSQL")
         val insertLinje = """
             insert into faktura_linje (faktura_id, linjenummer, periode, belop)
-            values (:faktura_id, :linjenummer, daterange(:periode_start, :periode_slutt), :belop)
+            values (:faktura_id, :linjenummer, :periode::daterange, :belop)
         """.trimIndent()
         val linjer = faktura.linjer.map {
             mapOf(
                 "faktura_id" to fakturaId,
                 "linjenummer" to it.linjenummer,
-                "periode_start" to it.periode.start,
-                "periode_slutt" to it.periode.slutt,
+                "periode" to it.periode.toDaterange(),
                 "belop" to it.belop,
             )
         }

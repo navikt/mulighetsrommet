@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.db.periode
+import no.nav.tiltak.okonomi.db.toDaterange
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.BestillingStatusType
 import org.intellij.lang.annotations.Language
@@ -39,7 +40,7 @@ class BestillingQueries(private val session: Session) {
                 :arrangor_underenhet,
                 :kostnadssted,
                 :belop,
-                daterange(:periode_start, :periode_slutt),
+                :periode::daterange,
                 :status,
                 :behandlet_av,
                 :behandlet_tidspunkt,
@@ -56,8 +57,7 @@ class BestillingQueries(private val session: Session) {
             "arrangor_underenhet" to bestilling.arrangorUnderenhet.value,
             "kostnadssted" to bestilling.kostnadssted.value,
             "belop" to bestilling.belop,
-            "periode_start" to bestilling.periode.start,
-            "periode_slutt" to bestilling.periode.slutt,
+            "periode" to bestilling.periode.toDaterange(),
             "status" to bestilling.status.name,
             "behandlet_av" to bestilling.behandletAv.part,
             "behandlet_tidspunkt" to bestilling.behandletTidspunkt,
@@ -69,14 +69,13 @@ class BestillingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val insertLinje = """
             insert into bestilling_linje (bestilling_id, linjenummer, periode, belop)
-            values (:bestilling_id, :linjenummer, daterange(:periode_start, :periode_slutt), :belop)
+            values (:bestilling_id, :linjenummer, :periode::daterange, :belop)
         """.trimIndent()
         val linjer = bestilling.linjer.map {
             mapOf(
                 "bestilling_id" to bestillingId,
                 "linjenummer" to it.linjenummer,
-                "periode_start" to it.periode.start,
-                "periode_slutt" to it.periode.slutt,
+                "periode" to it.periode.toDaterange(),
                 "belop" to it.belop,
             )
         }
@@ -112,6 +111,7 @@ class BestillingQueries(private val session: Session) {
             from bestilling
             where bestillingsnummer = ?
         """.trimIndent()
+
         return session.single(queryOf(selectBestilling, bestillingsnummer)) { bestilling ->
             val linjer = session.list(queryOf(selectLinje, bestilling.int("id"))) { linje ->
                 Bestilling.Linje(
