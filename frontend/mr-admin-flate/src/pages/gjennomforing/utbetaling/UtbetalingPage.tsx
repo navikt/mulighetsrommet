@@ -1,39 +1,73 @@
 import { Header } from "@/components/detaljside/Header";
-import { Metadata, Separator } from "@/components/detaljside/Metadata";
+import { Metadata, MetadataHorisontal, Separator } from "@/components/detaljside/Metadata";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { OpprettTilsagnButton } from "@/components/tilsagn/OpprettTilsagnButton";
 import { DelutbetalingRow } from "@/components/utbetaling/DelutbetalingRow";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { LoaderData } from "@/types/loader";
 import { formaterDato } from "@/utils/Utils";
 import {
+  FieldError,
   NavAnsattRolle,
+  OpprettDelutbetalingerRequest,
   Prismodell,
   TilsagnDefaultsRequest,
-  TilsagnDto,
+  TilsagnStatus,
   TilsagnType,
 } from "@mr/api-client-v2";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { BankNoteIcon } from "@navikt/aksel-icons";
-import { Alert, Box, CopyButton, Heading, HStack, Table, VStack } from "@navikt/ds-react";
+import { formaterNOK, isValidationError } from "@mr/frontend-common/utils/utils";
+import { BankNoteIcon, PencilFillIcon, PiggybankIcon } from "@navikt/aksel-icons";
+import {
+  ActionMenu,
+  Alert,
+  Box,
+  Button,
+  CopyButton,
+  Heading,
+  HStack,
+  Table,
+  VStack,
+} from "@navikt/ds-react";
 import { useState } from "react";
-import { useLoaderData } from "react-router";
+import { useLoaderData, useNavigate, useRevalidator } from "react-router";
 import { utbetalingPageLoader } from "./utbetalingPageLoader";
+import { useQueryClient } from "@tanstack/react-query";
+import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
+import { v4 as uuidv4 } from "uuid";
+
 export function UtbetalingPage() {
   const { gjennomforing, historikk, utbetaling, tilsagn, ansatt } =
     useLoaderData<LoaderData<typeof utbetalingPageLoader>>();
   const [belopPerTilsagn, setBelopPerTilsagn] = useState<Map<string, number>>(
     new Map(
-      tilsagn.map((tilsagn) => [
-        tilsagn.id,
-        utbetaling.delutbetalinger.find((d) => d.tilsagnId === tilsagn.id)?.belop ?? 0,
-      ]),
+      tilsagn
+        .filter((tilsagn) => tilsagn.status === TilsagnStatus.GODKJENT)
+        .map((t) => [
+          t.id,
+          utbetaling.delutbetalinger.find((d) => d.tilsagnId === t.id)?.belop ?? 0,
+        ]),
     ),
   );
+
+  const skriveTilgang = ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV);
+  const avvistUtbetaling = utbetaling.delutbetalinger.find(
+    (d) => d.type === "DELUTBETALING_AVVIST",
+  );
+  const [endreUtbetaling, setEndreUtbetaling] = useState<boolean>(!avvistUtbetaling);
+  const [error, setError] = useState<string | undefined>(undefined);
+
+  const revalidator = useRevalidator();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
+
+  const kanRedigeres =
+    skriveTilgang &&
+    tilsagn.some((t) => t.status === TilsagnStatus.GODKJENT) &&
+    (utbetaling.delutbetalinger.length != tilsagn.length || (endreUtbetaling && avvistUtbetaling));
 
   const brodsmuler: Brodsmule[] = [
     { tittel: "Gjennomføringer", lenke: `/gjennomforinger` },
@@ -50,6 +84,14 @@ export function UtbetalingPage() {
 
   function utbetalesTotal(): number {
     return [...belopPerTilsagn.values()].reduce((acc, val) => acc + val, 0);
+  }
+
+  function totalGjenståendeBeløp(): number {
+    return tilsagn
+      .map((tilsagn) =>
+        tilsagn.status === TilsagnStatus.GODKJENT ? tilsagn.beregning.output.belop : 0,
+      )
+      .reduce((acc, val) => acc + val, 0);
   }
 
   function differanse(): number {
@@ -75,7 +117,60 @@ export function UtbetalingPage() {
     };
   }
 
-  const skriveTilgang = ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV);
+  function opprettTilsagn(defaults: TilsagnDefaultsRequest) {
+    navigate(
+      `/gjennomforinger/${defaults.gjennomforingId}/tilsagn/opprett-tilsagn` +
+        `?type=${defaults.type}` +
+        `&prismodell=${defaults.prismodell}` +
+        `&belop=${defaults.belop}` +
+        `&periodeStart=${defaults.periodeStart}` +
+        `&periodeSlutt=${defaults.periodeSlutt}` +
+        `&kostnadssted=${defaults.kostnadssted}`,
+    );
+  }
+
+  function sendTilGodkjenning() {
+    if (utbetalesTotal() <= 0) setError("Samlet beløp må være positivt");
+    else if (utbetalesTotal() > utbetaling.beregning.belop)
+      setError("Kan ikke betale ut mer enn det er krav på");
+    else {
+      const body: OpprettDelutbetalingerRequest = {
+        delutbetalinger: [
+          ...tilsagn
+            .filter(
+              (t) =>
+                !utbetaling.delutbetalinger.find(
+                  (d) => d.tilsagnId === t.id && d.type !== "DELUTBETALING_AVVIST",
+                ) && belopPerTilsagn.get(t.id),
+            )
+            .map((tilsagn) => ({
+              id:
+                utbetaling.delutbetalinger?.find((d) => d.tilsagnId === tilsagn.id)?.id ?? uuidv4(),
+              tilsagnId: tilsagn.id,
+              belop: belopPerTilsagn.get(tilsagn.id) ?? 0,
+            })),
+        ],
+      };
+
+      opprettMutation.mutate(body, {
+        onSuccess: async () => {
+          setError(undefined);
+          await queryClient.invalidateQueries({
+            queryKey: ["utbetaling", utbetaling.id],
+            refetchType: "all",
+          });
+          revalidator.revalidate();
+        },
+        onError: (error) => {
+          if (isValidationError(error)) {
+            error.errors.forEach((fieldError: FieldError) => {
+              setError(fieldError.detail);
+            });
+          }
+        },
+      });
+    }
+  }
 
   return (
     <>
@@ -101,47 +196,76 @@ export function UtbetalingPage() {
               <VStack gap="4" id="kostnadsfordeling">
                 <Heading size="medium">Til utbetaling</Heading>
                 <VStack gap="2">
-                  <Metadata
-                    horizontal
+                  <MetadataHorisontal
                     header="Utbetalingsperiode"
                     verdi={`${formaterDato(utbetaling.beregning.periodeStart)} - ${formaterDato(utbetaling.beregning.periodeSlutt)}`}
                   />
-                  <Metadata
-                    horizontal
+                  <MetadataHorisontal
                     header="Innsendt"
                     verdi={formaterDato(
                       utbetaling.godkjentAvArrangorTidspunkt ?? utbetaling.createdAt,
                     )}
                   />
-                  <Metadata
-                    horizontal
-                    header="Beløp til utbetaling"
+                  <MetadataHorisontal
+                    header="Beløp arrangør har sendt inn"
                     verdi={formaterNOK(utbetaling.beregning.belop)}
                   />
                 </VStack>
                 <Separator />
                 <HStack justify="space-between">
                   <Heading size="medium">Tilsagn</Heading>
-                  {skriveTilgang && <OpprettTilsagnButton defaults={ekstraTilsagnDefaults()} />}
+                  {skriveTilgang &&
+                    (avvistUtbetaling ? (
+                      <ActionMenu>
+                        <ActionMenu.Trigger>
+                          <Button variant="primary" size="small">
+                            Handlinger
+                          </Button>
+                        </ActionMenu.Trigger>
+                        <ActionMenu.Content>
+                          <ActionMenu.Item
+                            icon={<PiggybankIcon />}
+                            onSelect={() => opprettTilsagn(ekstraTilsagnDefaults())}
+                          >
+                            Opprett tilsagn
+                          </ActionMenu.Item>
+                          <ActionMenu.Item
+                            icon={<PencilFillIcon />}
+                            onSelect={() => setEndreUtbetaling(true)}
+                          >
+                            Endre utbetaling
+                          </ActionMenu.Item>
+                        </ActionMenu.Content>
+                      </ActionMenu>
+                    ) : (
+                      <Button
+                        size="small"
+                        type="button"
+                        onClick={() => opprettTilsagn(ekstraTilsagnDefaults())}
+                      >
+                        Opprett ekstratilsagn
+                      </Button>
+                    ))}
                 </HStack>
-                {tilsagn.length === 0 && <Alert variant="info">Tilsagn mangler</Alert>}
-                {tilsagn.length > 0 && (
+                {tilsagn.length < 1 ? (
+                  <Alert variant="info">Tilsagn mangler</Alert>
+                ) : (
                   <Table>
                     <Table.Header>
                       <Table.Row>
-                        <Table.HeaderCell></Table.HeaderCell>
-                        <Table.HeaderCell>Periodestart</Table.HeaderCell>
-                        <Table.HeaderCell>Periodeslutt</Table.HeaderCell>
-                        <Table.HeaderCell>Type</Table.HeaderCell>
-                        <Table.HeaderCell>Kostnadssted</Table.HeaderCell>
-                        <Table.HeaderCell>Gjenstående beløp</Table.HeaderCell>
-                        <Table.HeaderCell>Utbetales</Table.HeaderCell>
-                        <Table.HeaderCell>Status</Table.HeaderCell>
-                        <Table.HeaderCell></Table.HeaderCell>
+                        <Table.HeaderCell />
+                        <Table.HeaderCell scope="col">Periodestart</Table.HeaderCell>
+                        <Table.HeaderCell scope="col">Periodeslutt</Table.HeaderCell>
+                        <Table.HeaderCell scope="col">Type</Table.HeaderCell>
+                        <Table.HeaderCell scope="col">Kostnadssted</Table.HeaderCell>
+                        <Table.HeaderCell scope="col">Tilgjengelig på tilsagn</Table.HeaderCell>
+                        <Table.HeaderCell scope="col">Utbetales</Table.HeaderCell>
+                        <Table.HeaderCell scope="col">Status</Table.HeaderCell>
+                        <Table.HeaderCell scope="col" />
                       </Table.Row>
                     </Table.Header>
                     <Table.Body>
-                      {tilsagn.map((t: TilsagnDto) => {
+                      {tilsagn.map((t) => {
                         return (
                           <DelutbetalingRow
                             key={t.id}
@@ -151,6 +275,7 @@ export function UtbetalingPage() {
                               (d) => d.tilsagnId === t.id,
                             )}
                             ansatt={ansatt}
+                            endreUtbetaling={endreUtbetaling}
                             onBelopChange={(belop) =>
                               setBelopPerTilsagn((prevMap) => {
                                 const newMap = new Map(prevMap);
@@ -163,29 +288,32 @@ export function UtbetalingPage() {
                       })}
                       <Table.Row>
                         <Table.DataCell
-                          colSpan={2}
+                          colSpan={5}
                           className="font-bold"
-                        >{`Beløp til utbetaling ${formaterNOK(utbetaling.beregning.belop)}`}</Table.DataCell>
-                        <Table.DataCell>-</Table.DataCell>
-                        <Table.DataCell>-</Table.DataCell>
-                        <Table.DataCell>-</Table.DataCell>
-                        <Table.DataCell>-</Table.DataCell>
+                        >{`Beløp arrangør har sendt inn ${formaterNOK(utbetaling.beregning.belop)}`}</Table.DataCell>
+                        <Table.DataCell className="font-bold">
+                          {formaterNOK(totalGjenståendeBeløp())}
+                        </Table.DataCell>
                         <Table.DataCell className="font-bold">
                           {formaterNOK(utbetalesTotal())}
                         </Table.DataCell>
-                        <Table.DataCell>
-                          <CopyButton
-                            copyText={String(differanse())}
-                            text={`Differanse ${formaterNOK(differanse())}`}
-                            activeText={`Differanse ${formaterNOK(differanse())}`}
-                          />
+                        <Table.DataCell colSpan={2} className="font-bold">
+                          <HStack align="center">
+                            <CopyButton
+                              variant="action"
+                              copyText={differanse().toString()}
+                              size="small"
+                            />
+                            {`Differanse ${formaterNOK(differanse())}`}
+                          </HStack>
                         </Table.DataCell>
                       </Table.Row>
                     </Table.Body>
                   </Table>
                 )}
-                <Separator />
-                <Heading size="medium">Betalingsinformasjon</Heading>
+                <Heading size="medium" className="mt-4">
+                  Betalingsinformasjon
+                </Heading>
                 <VStack gap="2">
                   <Metadata
                     horizontal
@@ -199,6 +327,21 @@ export function UtbetalingPage() {
                   />
                 </VStack>
               </VStack>
+              <Separator />
+              {kanRedigeres && (
+                <VStack align="end" gap="4">
+                  <HStack>
+                    <Button size="small" type="button" onClick={() => sendTilGodkjenning()}>
+                      Send til godkjenning
+                    </Button>
+                  </HStack>
+                  {error && (
+                    <Alert variant="error" size="small">
+                      {error}
+                    </Alert>
+                  )}
+                </VStack>
+              )}
             </Box>
           </VStack>
         </WhitePaddedBox>
