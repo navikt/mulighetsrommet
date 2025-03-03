@@ -1,6 +1,7 @@
 package no.nav.tiltak.okonomi.model
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.OkonomiPart
@@ -37,10 +38,11 @@ class BestillingTest : FunSpec({
             bestilling.periode shouldBe Periode.forMonthOf(LocalDate.of(2025, 1, 1))
             bestilling.arrangorHovedenhet shouldBe Organisasjonsnummer("123456789")
             bestilling.arrangorUnderenhet shouldBe Organisasjonsnummer("234567891")
-            bestilling.behandletAv shouldBe OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON)
-            bestilling.behandletTidspunkt shouldBe LocalDate.of(2025, 1, 1).atStartOfDay()
-            bestilling.besluttetAv shouldBe OkonomiPart.NavAnsatt(NavIdent("Z123456"))
-            bestilling.besluttetTidspunkt shouldBe LocalDate.of(2025, 1, 2).atStartOfDay()
+            bestilling.opprettelse.behandletAv shouldBe OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON)
+            bestilling.opprettelse.behandletTidspunkt shouldBe LocalDate.of(2025, 1, 1).atStartOfDay()
+            bestilling.opprettelse.besluttetAv shouldBe OkonomiPart.NavAnsatt(NavIdent("Z123456"))
+            bestilling.opprettelse.besluttetTidspunkt shouldBe LocalDate.of(2025, 1, 2).atStartOfDay()
+            bestilling.annullering.shouldBeNull()
         }
 
         test("utleder bestillingslinjer for hver måned i bestillingens periode") {

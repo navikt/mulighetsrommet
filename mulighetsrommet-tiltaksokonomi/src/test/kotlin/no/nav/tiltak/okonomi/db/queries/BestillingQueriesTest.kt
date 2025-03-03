@@ -1,6 +1,8 @@
 package no.nav.tiltak.okonomi.db.queries
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
@@ -14,7 +16,7 @@ import java.time.LocalDate
 class BestillingQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
-    val dbo = Bestilling(
+    val bestilling = Bestilling(
         tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         arrangorHovedenhet = Organisasjonsnummer("123456789"),
         arrangorUnderenhet = Organisasjonsnummer("234567890"),
@@ -27,10 +29,13 @@ class BestillingQueriesTest : FunSpec({
             LocalDate.of(2025, 3, 1),
         ),
         status = BestillingStatusType.AKTIV,
-        behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-        behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
-        besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
-        besluttetTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
+        opprettelse = Bestilling.Totrinnskontroll(
+            behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+            behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+            besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
+            besluttetTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
+        ),
+        annullering = null,
         linjer = listOf(
             Bestilling.Linje(
                 linjenummer = 1,
@@ -55,21 +60,30 @@ class BestillingQueriesTest : FunSpec({
         database.runAndRollback {
             val queries = BestillingQueries(it)
 
-            queries.insertBestilling(dbo)
+            queries.insertBestilling(bestilling)
 
-            queries.getByBestillingsnummer("A-1") shouldBe dbo
+            queries.getByBestillingsnummer("A-1") shouldBe bestilling
         }
     }
 
     test("annuller bestilling") {
-        database.runAndRollback {
-            val queries = BestillingQueries(it)
+        database.runAndRollback { session ->
+            val queries = BestillingQueries(session)
 
-            queries.insertBestilling(dbo)
+            queries.insertBestilling(bestilling)
 
-            queries.setStatus("A-1", BestillingStatusType.ANNULLERT)
+            val annullering = Bestilling.Totrinnskontroll(
+                behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+                behandletTidspunkt = LocalDate.of(2025, 1, 3).atStartOfDay(),
+                besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
+                besluttetTidspunkt = LocalDate.of(2025, 1, 4).atStartOfDay(),
+            )
+            queries.setAnnullert("A-1", annullering)
 
-            queries.getByBestillingsnummer("A-1") shouldBe dbo.copy(status = BestillingStatusType.ANNULLERT)
+            queries.getByBestillingsnummer("A-1").shouldNotBeNull().should {
+                it.status shouldBe BestillingStatusType.ANNULLERT
+                it.annullering shouldBe annullering
+            }
         }
     }
 })
