@@ -10,7 +10,7 @@ interface Props {
   filter: any;
   setFilter: (filter: any) => void;
   validateFilterStructure: (filter: any) => boolean;
-  onDelete:(id: string) => void;
+  onDelete: (id: string) => void;
 }
 
 export function LagredeFilterOversikt({
@@ -128,8 +128,7 @@ export function LagredeFilterOversikt({
       {filterHarUgyldigStruktur ? (
         <VarselModal
           open={!!filterHarUgyldigStruktur}
-          headingIconType="warning"
-          headingText="Filteret er ugyldig"
+          headingText="Beklager, filteret fungerte ikke"
           modalRef={filterHarUgyldigStrukturModalRef}
           handleClose={() => {
             setFilterForSletting(undefined);
@@ -138,8 +137,8 @@ export function LagredeFilterOversikt({
           body={
             <>
               <BodyShort>
-                Det lagrede filteret har en ugyldig struktur og kan ikke lastes inn. Du kan slette
-                filteret og lagre et nytt med samme navn.
+                På grunn av nylige endringer kan ikke det lagrede filteret benyttes lenger. Filteret
+                bør derfor slettes og lagres på nytt.
               </BodyShort>
               {sletteBody(filterHarUgyldigStruktur?.navn)}
             </>
