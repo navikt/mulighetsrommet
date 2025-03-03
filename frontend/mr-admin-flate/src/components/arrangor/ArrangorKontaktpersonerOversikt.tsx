@@ -206,7 +206,7 @@ const KontaktpersonSchema = z.object({
   telefon: z.string().optional(),
   beskrivelse: z.string().optional(),
   ansvarligFor: z
-    .array(z.enum(["AVTALE", "TILTAKSGJENNOMFORING", "OKONOMI"]))
+    .array(z.enum(["AVTALE", "GJENNOMFORING", "OKONOMI"]))
     .min(1, "Du må velge minst ett ansvarsområde"),
 });
 
