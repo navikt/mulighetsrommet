@@ -290,6 +290,7 @@ class GjennomforingService(
             operation,
             endretAv,
             dto.id,
+            LocalDateTime.now(),
         ) {
             Json.encodeToJsonElement(dto)
         }

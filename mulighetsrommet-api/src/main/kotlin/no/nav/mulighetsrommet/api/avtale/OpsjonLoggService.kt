@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.model.NavIdent
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class OpsjonLoggService(
@@ -70,6 +71,7 @@ class OpsjonLoggService(
             operation = operation,
             agent = endretAv,
             documentId = avtaleId,
+            LocalDateTime.now(),
         ) {
             Json.encodeToJsonElement(opsjon)
         }

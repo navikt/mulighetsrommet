@@ -166,4 +166,30 @@ class EndringshistorikkServiceTest : FunSpec({
             queries.getEndringshistorikk(DocumentClass.UTBETALING, utbetalingId).entries shouldHaveSize 1
         }
     }
+
+    test("samtidige endringer") {
+        database.runAndRollback {
+            val avtaleId = UUID.randomUUID()
+
+            val queries = EndringshistorikkQueries(it)
+            queries.logEndring(
+                DocumentClass.AVTALE,
+                operation = "OPPRETTET",
+                agent = Arena,
+                documentId = avtaleId,
+                timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
+            ) { Json.parseToJsonElement("""{ "navn": "Ny avtale" }""") }
+
+            queries.logEndring(
+                DocumentClass.AVTALE,
+                operation = "ENDRET",
+                agent = Arena,
+                documentId = avtaleId,
+                timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
+            ) { Json.parseToJsonElement("""{ "navn": "Endret avtale" }""") }
+
+            val entries = queries.getEndringshistorikk(DocumentClass.AVTALE, avtaleId).entries
+            entries shouldHaveSize 2
+        }
+    }
 })

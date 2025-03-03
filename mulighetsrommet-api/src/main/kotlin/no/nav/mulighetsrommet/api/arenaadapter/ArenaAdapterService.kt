@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskoder
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 import java.util.*
 
 class ArenaAdapterService(
@@ -142,6 +143,7 @@ class ArenaAdapterService(
             "Endret i Arena",
             Arena,
             dto.id,
+            LocalDateTime.now(),
         ) { Json.encodeToJsonElement(dto) }
     }
 
@@ -151,6 +153,7 @@ class ArenaAdapterService(
             "Endret i Arena",
             Arena,
             dto.id,
+            LocalDateTime.now(),
         ) { Json.encodeToJsonElement(dto) }
     }
 
@@ -160,6 +163,7 @@ class ArenaAdapterService(
             "Oppdatert med tiltaksnummer fra Arena",
             Tiltaksadministrasjon,
             dto.id,
+            LocalDateTime.now(),
         ) { Json.encodeToJsonElement(dto) }
     }
 }
