@@ -1,4 +1,4 @@
-package no.nav.tiltak.okonomi.oebs
+package no.nav.tiltak.okonomi.service
 
 import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
@@ -20,9 +20,10 @@ import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.*
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.model.*
+import no.nav.tiltak.okonomi.oebs.OebsTiltakApiClient
 import java.time.LocalDate
 
-class OebsServiceTest : FunSpec({
+class OkonomiServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     lateinit var db: OkonomiDatabase
@@ -51,7 +52,7 @@ class OebsServiceTest : FunSpec({
     context("opprett bestilling") {
         test("feiler når oebs svarer med feil") {
             coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
-            val service = OebsService(db, oebsClient(oebsRespondError()), brreg)
+            val service = OkonomiService(db, oebsClient(oebsRespondError()), brreg)
 
             val opprettBestilling = createOpprettBestilling("1")
             service.opprettBestilling(opprettBestilling).shouldBeLeft().should {
@@ -61,7 +62,7 @@ class OebsServiceTest : FunSpec({
 
         test("feiler når kontering mangler for bestilling") {
             coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
-            val service = OebsService(db, oebsClient(oebsRespondOk()), brreg)
+            val service = OkonomiService(db, oebsClient(oebsRespondOk()), brreg)
 
             val opprettBestilling = createOpprettBestilling("2").copy(
                 periode = Periode.forMonthOf(LocalDate.of(1990, 1, 1)),
@@ -78,7 +79,7 @@ class OebsServiceTest : FunSpec({
                 navn = "Tiltaksarrangør AS",
                 slettetDato = LocalDate.of(2025, 1, 1),
             ).right()
-            val service = OebsService(db, oebsClient(oebsRespondOk()), brreg)
+            val service = OkonomiService(db, oebsClient(oebsRespondOk()), brreg)
 
             val opprettBestilling = createOpprettBestilling("3").copy(
                 arrangor = OpprettBestilling.Arrangor(
@@ -99,7 +100,7 @@ class OebsServiceTest : FunSpec({
                 postadresse = null,
                 forretningsadresse = null,
             ).right()
-            val service = OebsService(db, oebsClient(oebsRespondOk()), brreg)
+            val service = OkonomiService(db, oebsClient(oebsRespondOk()), brreg)
 
             val opprettBestilling = createOpprettBestilling("3").copy(
                 arrangor = OpprettBestilling.Arrangor(
@@ -116,7 +117,7 @@ class OebsServiceTest : FunSpec({
             val bestillingsnummer = "1"
 
             coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
-            val service = OebsService(db, oebsClient(oebsRespondOk()), brreg)
+            val service = OkonomiService(db, oebsClient(oebsRespondOk()), brreg)
 
             val opprettBestilling = createOpprettBestilling(bestillingsnummer)
             service.opprettBestilling(opprettBestilling).shouldBeRight().should {
@@ -136,7 +137,7 @@ class OebsServiceTest : FunSpec({
                 queries.bestilling.insertBestilling(bestilling)
             }
 
-            val service = OebsService(db, oebsClient(oebsRespondOk()), brreg)
+            val service = OkonomiService(db, oebsClient(oebsRespondOk()), brreg)
 
             service.opprettBestilling(opprettBestilling).shouldBeRight().should {
                 it.bestillingsnummer shouldBe bestillingsnummer
@@ -147,7 +148,7 @@ class OebsServiceTest : FunSpec({
 
     context("annuller bestilling") {
         test("annullering feiler når bestilling ikke finnes") {
-            val service = OebsService(db, oebsClient(oebsRespondOk()), brreg)
+            val service = OkonomiService(db, oebsClient(oebsRespondOk()), brreg)
 
             val annullerBestilling = createAnnullerBestilling("4")
             service.annullerBestilling(annullerBestilling).shouldBeLeft().should {
@@ -166,7 +167,7 @@ class OebsServiceTest : FunSpec({
             }
 
             coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
-            val service = OebsService(db, oebsClient(oebsRespondOk()), brreg)
+            val service = OkonomiService(db, oebsClient(oebsRespondOk()), brreg)
 
             val annullerBestilling = createAnnullerBestilling(bestillingsnummer)
             service.annullerBestilling(annullerBestilling).shouldBeLeft().should {
@@ -189,7 +190,7 @@ class OebsServiceTest : FunSpec({
             }
 
             coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
-            val service = OebsService(db, oebsClient(oebsRespondOk()), brreg)
+            val service = OkonomiService(db, oebsClient(oebsRespondOk()), brreg)
 
             val annullerBestilling = createAnnullerBestilling(bestillingsnummer)
             service.annullerBestilling(annullerBestilling).shouldBeLeft().should {
@@ -206,7 +207,7 @@ class OebsServiceTest : FunSpec({
 
         test("annullering feiler når oebs svarer med feilkoder") {
             coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
-            val service = OebsService(db, oebsClient(oebsRespondError()), brreg)
+            val service = OkonomiService(db, oebsClient(oebsRespondError()), brreg)
 
             val annullerBestilling = createAnnullerBestilling(bestillingsnummer)
             service.annullerBestilling(annullerBestilling).shouldBeLeft().should {
@@ -216,7 +217,7 @@ class OebsServiceTest : FunSpec({
 
         test("annullering av bestilling") {
             coEvery { brreg.getHovedenhet(Organisasjonsnummer("123456789")) } returns leverandor.right()
-            val service = OebsService(db, oebsClient(oebsRespondOk()), brreg)
+            val service = OkonomiService(db, oebsClient(oebsRespondOk()), brreg)
 
             val annullerBestilling = createAnnullerBestilling(bestillingsnummer)
             service.annullerBestilling(annullerBestilling).shouldBeRight().should {
@@ -226,7 +227,7 @@ class OebsServiceTest : FunSpec({
         }
 
         test("noop når bestilling allerede er annullert") {
-            val service = OebsService(db, oebsClient(oebsRespondOk()), brreg)
+            val service = OkonomiService(db, oebsClient(oebsRespondOk()), brreg)
 
             val annullerBestilling = createAnnullerBestilling(bestillingsnummer)
             service.annullerBestilling(annullerBestilling).shouldBeRight().should {
@@ -245,7 +246,7 @@ class OebsServiceTest : FunSpec({
         }
 
         test("feiler når bestilling ikke finnes") {
-            val service = OebsService(db, oebsClient(oebsRespondOk()), brreg)
+            val service = OkonomiService(db, oebsClient(oebsRespondOk()), brreg)
 
             val opprettFaktura = createOpprettFaktura("B-2", "F-1")
             service.opprettFaktura(opprettFaktura).shouldBeLeft().should {
@@ -254,7 +255,7 @@ class OebsServiceTest : FunSpec({
         }
 
         test("feiler når oebs svarer med feilkoder") {
-            val service = OebsService(db, oebsClient(oebsRespondError()), brreg)
+            val service = OkonomiService(db, oebsClient(oebsRespondError()), brreg)
 
             val opprettFaktura = createOpprettFaktura(bestillingsnummer, "F-1")
             service.opprettFaktura(opprettFaktura).shouldBeLeft().should {
@@ -263,7 +264,7 @@ class OebsServiceTest : FunSpec({
         }
 
         test("skal opprette faktura hos oebs") {
-            val service = OebsService(db, oebsClient(oebsRespondOk()), brreg)
+            val service = OkonomiService(db, oebsClient(oebsRespondOk()), brreg)
 
             val opprettFaktura = createOpprettFaktura(bestillingsnummer, "F-2")
             service.opprettFaktura(opprettFaktura).shouldBeRight().should {
