@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api
 
 import io.ktor.server.application.*
 import io.ktor.server.testing.*
-import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
@@ -57,7 +56,7 @@ fun createTestApplicationConfig() = AppConfig(
     tasks = createTaskConfig(),
     sanity = SanityClient.Config(projectId = "", token = "", dataset = "", apiVersion = ""),
     slack = SlackConfig(token = "", channel = "", enable = false),
-    altinn = AltinnClient.Config(url = "altinn", scope = "default"),
+    altinn = authenticatedHttpClientConfig("altinn"),
     veilarboppfolgingConfig = authenticatedHttpClientConfig("veilarboppfolging"),
     veilarbvedtaksstotteConfig = authenticatedHttpClientConfig("veilarbvedtaksstotte"),
     veilarbdialogConfig = authenticatedHttpClientConfig("veilarbdialog"),
