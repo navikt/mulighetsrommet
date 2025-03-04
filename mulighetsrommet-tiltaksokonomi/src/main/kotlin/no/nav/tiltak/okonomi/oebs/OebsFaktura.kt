@@ -153,10 +153,8 @@ data class OebsFakturaMelding(
 
         /**
          * Pris per enhet. Total pris for en linje er [antall] * [pris].
-         *
-         * Alltid satt til 1 for tiltaksøkonomien.
          */
-        val pris: Int = 1,
+        val pris: Int,
 
         /**
          * Hvis dette flagget settes så blir evt. resterende beløp fra bestillingen frigjort.

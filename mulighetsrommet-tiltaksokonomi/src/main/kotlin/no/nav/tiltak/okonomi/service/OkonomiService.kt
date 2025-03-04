@@ -186,6 +186,7 @@ private fun toOebsBestillingMelding(
         OebsBestillingMelding.Linje(
             linjeNummer = linje.linjenummer,
             antall = linje.belop,
+            pris = 1,
             periode = linje.periode.start.monthValue.toString().padStart(2, '0'),
             startDato = linje.periode.start,
             sluttDato = linje.periode.getLastInclusiveDate(),
@@ -239,6 +240,7 @@ private fun toOebsFakturaMelding(
             bestillingsNummer = bestilling.bestillingsnummer,
             bestillingsLinjeNummer = linje.linjenummer,
             antall = linje.belop,
+            pris = 1,
             erSisteFaktura = erSisteFaktura && index == faktura.linjer.lastIndex,
         )
     }
