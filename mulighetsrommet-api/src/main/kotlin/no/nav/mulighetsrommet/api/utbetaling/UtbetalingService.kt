@@ -254,7 +254,7 @@ class UtbetalingService(
             log.debug("Avbryter automatisk utbetaling. Ikke nok penger. UtbetalingId: {}", utbetalingId)
             return false
         }
-        val frigjorTilsagn = utbetaling.periode.slutt.month == tilsagn.periodeSlutt.month
+        val frigjorTilsagn = tilsagn.periodeSlutt in utbetaling.periode
         val delutbetalingId = UUID.randomUUID()
         upsertDelutbetaling(
             utbetaling,
