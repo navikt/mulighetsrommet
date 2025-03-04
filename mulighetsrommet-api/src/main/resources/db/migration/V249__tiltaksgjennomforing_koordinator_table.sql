@@ -1,9 +1,9 @@
-create table tiltaksgjennomforing_koordinator
+create table gjennomforing_koordinator
 (
     nav_ident               text                    not null,
-    tiltaksgjennomforing_id uuid                    not null
-        constraint fk_tiltaksgjennomforing references tiltaksgjennomforing (id) on delete cascade,
+    gjennomforing_id uuid                    not null
+        constraint fk_gjennomforing references gjennomforing (id) on delete cascade,
     created_at              timestamp default now() not null,
     updated_at              timestamp default now() not null,
-    primary key (tiltaksgjennomforing_id, nav_ident)
+    primary key (gjennomforing_id, nav_ident)
 );
