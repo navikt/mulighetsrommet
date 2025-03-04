@@ -133,15 +133,26 @@ class OkonomiService(
         val bestilling = queries.bestilling.getByBestillingsnummer(opprettFaktura.bestillingsnummer)
             ?: return OpprettFakturaError("Bestilling ${opprettFaktura.bestillingsnummer} finnes ikke").left()
 
+        if (bestilling.status in listOf(BestillingStatusType.ANNULLERT, BestillingStatusType.OPPGJORT)) {
+            return OpprettFakturaError("Faktura ${opprettFaktura.fakturanummer} kan ikke opprettes fordi bestilling ${opprettFaktura.bestillingsnummer} har statux ${bestilling.status}").left()
+        }
+
         val faktura = Faktura.fromOpprettFaktura(opprettFaktura, bestilling.linjer)
 
-        val melding = toOebsFakturaMelding(bestilling, faktura)
+        val melding = toOebsFakturaMelding(bestilling, faktura, opprettFaktura.frigjorBestilling)
         return oebs.sendFaktura(melding)
             .mapLeft {
                 OpprettFakturaError("Klarte ikke sende faktura ${faktura.fakturanummer} til oebs", it)
             }
             .map {
+                log.info("Lagrer faktura ${faktura.fakturanummer}")
                 queries.faktura.insertFaktura(faktura)
+
+                if (opprettFaktura.frigjorBestilling) {
+                    log.info("Setter bestilling ${bestilling.bestillingsnummer} til oppgjort")
+                    queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.OPPGJORT)
+                }
+
                 faktura
             }
     }
@@ -221,7 +232,16 @@ private fun toOebsAnnulleringMelding(
 private fun toOebsFakturaMelding(
     bestilling: Bestilling,
     faktura: Faktura,
+    erSisteFaktura: Boolean,
 ): OebsFakturaMelding {
+    val linjer = faktura.linjer.mapIndexed { index, linje ->
+        OebsFakturaMelding.Linje(
+            bestillingsnummer = bestilling.bestillingsnummer,
+            bestillingsLinjeNummer = linje.linjenummer,
+            antall = linje.belop,
+            erSisteFaktura = erSisteFaktura && index == faktura.linjer.lastIndex,
+        )
+    }
     return OebsFakturaMelding(
         kilde = OebsKilde.TILTADM,
         fakturaNummer = faktura.fakturanummer,
@@ -242,14 +262,6 @@ private fun toOebsFakturaMelding(
         // TODO: generer en beskrivende melding
         meldingTilLeverandor = null,
         beskrivelse = null,
-        fakturaLinjer = faktura.linjer.map {
-            OebsFakturaMelding.Linje(
-                bestillingsnummer = bestilling.bestillingsnummer,
-                bestillingsLinjeNummer = it.linjenummer,
-                antall = it.belop,
-                // TODO: støtte i opprett bestilling, eller i egen handling? Burde nok lagres direkte på faktura.
-                erSisteFaktura = false,
-            )
-        },
+        fakturaLinjer = linjer,
     )
 }

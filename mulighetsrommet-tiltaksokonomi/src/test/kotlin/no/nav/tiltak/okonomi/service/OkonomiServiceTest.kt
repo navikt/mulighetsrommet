@@ -4,6 +4,7 @@ import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.mock.*
@@ -16,10 +17,12 @@ import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
+import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.*
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.model.*
+import no.nav.tiltak.okonomi.oebs.OebsFakturaMelding
 import no.nav.tiltak.okonomi.oebs.OebsTiltakApiClient
 import java.time.LocalDate
 
@@ -272,6 +275,32 @@ class OkonomiServiceTest : FunSpec({
                 it.status shouldBe FakturaStatusType.UTBETALT
             }
         }
+
+        test("frigjør bestilling setter siste fakturalinje i fakturaen til oebs og oppdaterer bestillingstatus") {
+            val mockEngine = createMockEngine {
+                post("/api/v1/refusjonskrav") {
+                    val melding = it.decodeRequestBody<OebsFakturaMelding>()
+
+                    melding.fakturaLinjer.last().erSisteFaktura shouldBe true
+
+                    respondOk()
+                }
+            }
+            val service = OkonomiService(db, oebsClient(mockEngine), brreg)
+
+            val opprettFaktura = createOpprettFaktura(bestillingsnummer, "F-3").copy(
+                frigjorBestilling = true,
+            )
+            service.opprettFaktura(opprettFaktura).shouldBeRight().should {
+                it.fakturanummer shouldBe "F-3"
+                it.status shouldBe FakturaStatusType.UTBETALT
+            }
+
+            db.session {
+                val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
+                bestilling.shouldNotBeNull().status shouldBe BestillingStatusType.OPPGJORT
+            }
+        }
     }
 })
 
@@ -336,6 +365,7 @@ private fun createOpprettFaktura(bestillingsnummer: String, fakturanummer: Strin
         kontonummer = Kontonummer("12345678901"),
         kid = null,
     ),
+    frigjorBestilling = false,
     belop = 1000,
     periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
     behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
