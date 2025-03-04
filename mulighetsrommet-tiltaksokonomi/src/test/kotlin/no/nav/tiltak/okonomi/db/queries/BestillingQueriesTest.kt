@@ -66,6 +66,24 @@ class BestillingQueriesTest : FunSpec({
         }
     }
 
+    test("set status") {
+        database.runAndRollback { session ->
+            val queries = BestillingQueries(session)
+
+            queries.insertBestilling(bestilling)
+
+            queries.getByBestillingsnummer("A-1").shouldNotBeNull().should {
+                it.status shouldBe BestillingStatusType.AKTIV
+            }
+
+            queries.setStatus("A-1", BestillingStatusType.ANNULLERT)
+
+            queries.getByBestillingsnummer("A-1").shouldNotBeNull().should {
+                it.status shouldBe BestillingStatusType.ANNULLERT
+            }
+        }
+    }
+
     test("annuller bestilling") {
         database.runAndRollback { session ->
             val queries = BestillingQueries(session)
@@ -78,10 +96,9 @@ class BestillingQueriesTest : FunSpec({
                 besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
                 besluttetTidspunkt = LocalDate.of(2025, 1, 4).atStartOfDay(),
             )
-            queries.setAnnullert("A-1", annullering)
+            queries.setAnnullering("A-1", annullering)
 
             queries.getByBestillingsnummer("A-1").shouldNotBeNull().should {
-                it.status shouldBe BestillingStatusType.ANNULLERT
                 it.annullering shouldBe annullering
             }
         }
