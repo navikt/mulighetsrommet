@@ -1,4 +1,4 @@
-package no.nav.tiltak.okonomi.oebs
+package no.nav.tiltak.okonomi.service
 
 import arrow.core.Either
 import arrow.core.flatMap
@@ -16,6 +16,7 @@ import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.BestillingStatusType
 import no.nav.tiltak.okonomi.model.Faktura
 import no.nav.tiltak.okonomi.model.OebsKontering
+import no.nav.tiltak.okonomi.oebs.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -25,13 +26,12 @@ class AnnullerBestillingError(message: String, cause: Throwable? = null) : Excep
 
 class OpprettFakturaError(message: String, cause: Throwable? = null) : Exception(message, cause)
 
-private val log: Logger = LoggerFactory.getLogger(OebsService::class.java)
-
-class OebsService(
+class OkonomiService(
     private val db: OkonomiDatabase,
     private val oebs: OebsTiltakApiClient,
     private val brreg: BrregClient,
 ) {
+    private val log: Logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun opprettBestilling(
         opprettBestilling: OpprettBestilling,

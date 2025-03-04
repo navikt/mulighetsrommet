@@ -7,13 +7,13 @@ import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeseri
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
-import no.nav.tiltak.okonomi.oebs.OebsService
+import no.nav.tiltak.okonomi.service.OkonomiService
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 
 class OkonomiBestillingConsumer(
     config: Config,
-    private val oebs: OebsService,
+    private val okonomi: OkonomiService,
 ) : KafkaTopicConsumer<String, JsonElement>(
     config,
     stringDeserializer(),
@@ -40,17 +40,17 @@ class OkonomiBestillingConsumer(
         val result = when (melding) {
             is OkonomiBestillingMelding.Bestilling -> {
                 logger.info("Oppretter bestilling=$bestillingsnummer")
-                oebs.opprettBestilling(melding.payload)
+                okonomi.opprettBestilling(melding.payload)
             }
 
             is OkonomiBestillingMelding.Annullering -> {
                 logger.info("Annullerer bestilling=$bestillingsnummer")
-                oebs.annullerBestilling(melding.payload)
+                okonomi.annullerBestilling(melding.payload)
             }
 
             is OkonomiBestillingMelding.Faktura -> {
                 logger.info("Oppretter faktura for bestilling=$bestillingsnummer")
-                oebs.opprettFaktura(melding.payload)
+                okonomi.opprettFaktura(melding.payload)
             }
         }
 

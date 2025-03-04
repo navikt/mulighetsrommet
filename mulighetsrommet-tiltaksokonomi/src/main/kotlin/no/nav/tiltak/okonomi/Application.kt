@@ -13,11 +13,11 @@ import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
 import no.nav.tiltak.okonomi.api.configureApi
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.kafka.OkonomiBestillingConsumer
-import no.nav.tiltak.okonomi.oebs.OebsService
 import no.nav.tiltak.okonomi.oebs.OebsTiltakApiClient
 import no.nav.tiltak.okonomi.plugins.configureAuthentication
 import no.nav.tiltak.okonomi.plugins.configureHTTP
 import no.nav.tiltak.okonomi.plugins.configureSerialization
+import no.nav.tiltak.okonomi.service.OkonomiService
 
 fun main() {
     val config = when (NaisEnv.current()) {
@@ -54,10 +54,10 @@ fun Application.configure(config: AppConfig) {
         tokenProvider = cachedTokenProvider.withScope(config.clients.oebsTiltakApi.scope),
     )
     val brreg = BrregClient(config.httpClientEngine)
-    val oebsService = OebsService(okonomiDb, oebsClient, brreg)
-    val kafka = configureKafka(config.kafka, db, oebsService)
+    val okonomi = OkonomiService(okonomiDb, oebsClient, brreg)
+    val kafka = configureKafka(config.kafka, db, okonomi)
 
-    configureApi(kafka, okonomiDb, oebsService)
+    configureApi(kafka, okonomiDb, okonomi)
 
     monitor.subscribe(ApplicationStarted) {
         kafka.enableFailedRecordProcessor()
@@ -74,11 +74,11 @@ fun Application.configure(config: AppConfig) {
 fun configureKafka(
     config: KafkaConfig,
     db: Database,
-    oebsService: OebsService,
+    okonomi: OkonomiService,
 ): KafkaConsumerOrchestrator {
     val bestilling = OkonomiBestillingConsumer(
         config = config.clients.okonomiBestillingConsumer,
-        oebs = oebsService,
+        okonomi = okonomi,
     )
 
     return KafkaConsumerOrchestrator(

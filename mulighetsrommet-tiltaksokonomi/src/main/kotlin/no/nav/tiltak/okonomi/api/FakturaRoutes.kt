@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.model.FakturaStatusType
-import no.nav.tiltak.okonomi.oebs.OebsService
+import no.nav.tiltak.okonomi.service.OkonomiService
 
 @Resource("$API_BASE_PATH/faktura")
 class Faktura {
@@ -30,12 +30,12 @@ data class FakturaStatus(
 
 fun Routing.fakturaRoutes(
     db: OkonomiDatabase,
-    oebs: OebsService,
+    okonomi: OkonomiService,
 ) = authenticate {
     post<Faktura> {
         val body = call.receive<OpprettFaktura>()
 
-        oebs.opprettFaktura(body)
+        okonomi.opprettFaktura(body)
             .onLeft {
                 application.log.warn("Feil ved opprettelse av faktura", it)
                 call.respond(HttpStatusCode.InternalServerError)
