@@ -46,7 +46,7 @@ fun Application.configure(config: AppConfig) {
 
     val okonomiDb = OkonomiDatabase(db)
 
-    val cachedTokenProvider = CachedTokenProvider.init(config.auth.azure.audience, config.auth.azure.tokenEndpointUrl)
+    val cachedTokenProvider = CachedTokenProvider.init(config.auth.azure.audience, config.auth.azure.tokenEndpointUrl, config.auth.azure.privateJwk)
 
     val oebsClient = OebsTiltakApiClient(
         engine = config.httpClientEngine,

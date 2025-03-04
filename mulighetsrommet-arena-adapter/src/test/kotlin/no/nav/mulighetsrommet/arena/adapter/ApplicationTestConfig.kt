@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter
 
 import io.ktor.server.testing.*
+import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.arena.adapter.tasks.NotifyFailedEvents
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
@@ -8,7 +9,9 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.database.kotest.extensions.createRandomDatabaseConfig
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
+import no.nav.mulighetsrommet.tokenprovider.createMockRSAKey
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import org.apache.kafka.common.serialization.ByteArrayDeserializer
 
 val databaseConfig: DatabaseConfig = createRandomDatabaseConfig("mr-arena-adapter")
 
@@ -59,18 +62,28 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
 )
 
 fun createKafkaConfig(): KafkaConfig {
-    return KafkaConfig(
-        brokerUrl = "localhost:29092",
-        consumerGroupId = "mulighetsrommet-kafka-consumer.v1",
-        consumers = KafkaConsumers(
-            KafkaTopicConsumer.Config("tiltakendret", "tiltakendret"),
-            KafkaTopicConsumer.Config("tiltakgjennomforingendret", "tiltakgjennomforingendret"),
-            KafkaTopicConsumer.Config("tiltakdeltakerendret", "tiltakdeltakerendret"),
-            KafkaTopicConsumer.Config("hist-tiltakdeltakerendret", "hist-tiltakdeltakerendret"),
-            KafkaTopicConsumer.Config("sakendret", "sakendret"),
-            KafkaTopicConsumer.Config("avtaleinfoendret", "avtaleinfoendret"),
-        ),
-    )
+    return run {
+        val brokerUrl = "localhost:29092"
+        val consumerGroupId = "mulighetsrommet-kafka-consumer.v1"
+        KafkaConfig(
+            brokerUrl = brokerUrl,
+            consumerGroupId = consumerGroupId,
+            consumers = KafkaConsumers(
+                KafkaTopicConsumer.Config("tiltakendret", "tiltakendret"),
+                KafkaTopicConsumer.Config("tiltakgjennomforingendret", "tiltakgjennomforingendret"),
+                KafkaTopicConsumer.Config("tiltakdeltakerendret", "tiltakdeltakerendret"),
+                KafkaTopicConsumer.Config("hist-tiltakdeltakerendret", "hist-tiltakdeltakerendret"),
+                KafkaTopicConsumer.Config("sakendret", "sakendret"),
+                KafkaTopicConsumer.Config("avtaleinfoendret", "avtaleinfoendret"),
+            ),
+            consumerPreset = KafkaPropertiesBuilder.consumerBuilder()
+                .withBaseProperties()
+                .withConsumerGroupId(consumerGroupId)
+                .withBrokerUrl(brokerUrl)
+                .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
+                .build(),
+        )
+    }
 }
 
 // Default values for 'iss' og 'aud' in tokens issued by mock-oauth2-server is 'default'.
@@ -79,6 +92,7 @@ fun createAuthConfig(
     oauth: MockOAuth2Server,
     issuer: String = "default",
     audience: String = "default",
+    privateJwk: String = createMockRSAKey("azure"),
 ): AuthConfig {
     return AuthConfig(
         azure = AuthProvider(
@@ -86,6 +100,7 @@ fun createAuthConfig(
             jwksUri = oauth.jwksUrl(issuer).toUri().toString(),
             audience = audience,
             tokenEndpointUrl = oauth.tokenEndpointUrl(issuer).toString(),
+            privateJwk = privateJwk,
         ),
     )
 }

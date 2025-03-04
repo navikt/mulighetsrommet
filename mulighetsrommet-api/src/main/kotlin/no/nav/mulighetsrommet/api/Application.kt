@@ -10,20 +10,24 @@ import no.nav.mulighetsrommet.api.plugins.*
 import no.nav.mulighetsrommet.api.routes.apiRoutes
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
-import no.nav.mulighetsrommet.hoplite.loadConfiguration
+import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.plugins.configureStatusPages
 import org.koin.ktor.ext.inject
 
 fun main() {
-    val (server, app) = loadConfiguration<Config>()
+    val config = when (NaisEnv.current()) {
+        NaisEnv.ProdGCP -> ApplicationConfigProd
+        NaisEnv.DevGCP -> ApplicationConfigDev
+        NaisEnv.Local -> ApplicationConfigLocal
+    }
 
     embeddedServer(
         Netty,
-        port = server.port,
-        host = server.host,
-        module = { configure(app) },
+        port = config.server.port,
+        host = config.server.host,
+        module = { configure(config) },
     ).start(wait = true)
 }
 
