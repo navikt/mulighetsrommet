@@ -116,6 +116,16 @@ class BestillingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
+    fun setStatus(bestillingsnummer: String, status: BestillingStatusType) {
+        @Language("PostgreSQL")
+        val query = """
+            update bestilling
+            set status = ?
+            where bestillingsnummer = ?
+        """.trimIndent()
+        session.execute(queryOf(query, status.name, bestillingsnummer))
+    }
+
     fun getByBestillingsnummer(bestillingsnummer: String): Bestilling? {
         @Language("PostgreSQL")
         val selectLinje = """

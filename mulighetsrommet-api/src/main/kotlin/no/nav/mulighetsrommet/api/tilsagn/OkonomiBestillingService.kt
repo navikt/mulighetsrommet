@@ -185,6 +185,7 @@ class OkonomiBestillingService(
                         kontonummer = kontonummer,
                         kid = utbetaling.betalingsinformasjon.kid,
                     ),
+                    frigjorBestilling = false,
                     belop = delutbetaling.belop,
                     periode = delutbetaling.periode,
                     behandletAv = delutbetaling.opprettelse.behandletAv.toOkonomiPart(),
