@@ -121,7 +121,7 @@ data class OebsFakturaMelding(
      * En faktura må ha én eller flere linjer.
      *
      * Hver linje refererer til en linje i [OebsBestillingMelding.bestillingsLinjer] via kombinasjonen av
-     * [Linje.bestillingsnummer] og [Linje.bestillingsLinjeNummer].
+     * [Linje.bestillingsNummer] og [Linje.bestillingsLinjeNummer].
      *
      * Det er uklart om samme faktura kan referere til flere forskjellige bestillinger (via flere linjer) selv om
      * modellen tillater det.
@@ -133,7 +133,7 @@ data class OebsFakturaMelding(
         /**
          * Referanse til bestillingen som linjen refererer til.
          */
-        val bestillingsnummer: String,
+        val bestillingsNummer: String,
 
         /**
          * Referanse til linje innad i bestillingen.

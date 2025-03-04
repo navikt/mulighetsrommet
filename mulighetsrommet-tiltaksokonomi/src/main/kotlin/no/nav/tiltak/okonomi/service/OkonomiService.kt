@@ -236,7 +236,7 @@ private fun toOebsFakturaMelding(
 ): OebsFakturaMelding {
     val linjer = faktura.linjer.mapIndexed { index, linje ->
         OebsFakturaMelding.Linje(
-            bestillingsnummer = bestilling.bestillingsnummer,
+            bestillingsNummer = bestilling.bestillingsnummer,
             bestillingsLinjeNummer = linje.linjenummer,
             antall = linje.belop,
             erSisteFaktura = erSisteFaktura && index == faktura.linjer.lastIndex,
