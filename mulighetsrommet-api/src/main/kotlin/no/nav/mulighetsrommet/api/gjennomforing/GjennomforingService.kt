@@ -93,6 +93,7 @@ class GjennomforingService(
             avtaleId = filter.avtaleId,
             arrangorIds = filter.arrangorIds,
             administratorNavIdent = filter.administratorNavIdent,
+            koordinatorNavIdent = filter.koordinatorNavIdent,
             publisert = filter.publisert,
             sluttDatoGreaterThanOrEqualTo = TiltaksgjennomforingSluttDatoCutoffDate,
         ).let { (totalCount, data) ->

@@ -73,6 +73,7 @@ data class OpprettFaktura(
     val fakturanummer: String,
     val bestillingsnummer: String,
     val betalingsinformasjon: Betalingsinformasjon,
+    val frigjorBestilling: Boolean,
     val belop: Int,
     val periode: Periode,
     val behandletAv: OkonomiPart,
