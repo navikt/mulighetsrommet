@@ -101,7 +101,7 @@ class UtbetalingQueriesTest : FunSpec({
 
                 queries.get(utbetaling.id)!! should {
                     it.id shouldBe utbetaling.id
-                    it.status shouldBe UtbetalingStatus.KLAR_FOR_GODKJENNING
+                    it.innsender shouldBe null
                     it.fristForGodkjenning shouldBe frist
                     it.tiltakstype shouldBe UtbetalingDto.Tiltakstype(
                         navn = TiltakstypeFixtures.AFT.navn,
@@ -180,12 +180,12 @@ class UtbetalingQueriesTest : FunSpec({
                 queries.upsert(utbetaling)
 
                 queries.get(utbetaling.id)
-                    .shouldNotBeNull().status shouldBe UtbetalingStatus.KLAR_FOR_GODKJENNING
+                    .shouldNotBeNull().innsender shouldBe null
 
                 queries.setGodkjentAvArrangor(utbetaling.id, LocalDateTime.now())
 
                 queries.get(utbetaling.id)
-                    .shouldNotBeNull().status shouldBe UtbetalingStatus.INNSENDT_AV_ARRANGOR
+                    .shouldNotBeNull().innsender shouldBe UtbetalingDto.Innsender.ArrangorAnsatt
             }
         }
 

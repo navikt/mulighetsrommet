@@ -334,7 +334,6 @@ class UtbetalingQueries(private val session: Session) {
         val id = uuid("id")
         val delutbetalinger = DelutbetalingQueries(session).getByUtbetalingId(id)
         val innsender = stringOrNull("innsender")?.let { UtbetalingDto.Innsender.fromString(it) }
-        val status = utbetalingStatus(delutbetalinger, innsender)
 
         return UtbetalingDto(
             id = id,
@@ -367,22 +366,6 @@ class UtbetalingQueries(private val session: Session) {
             innsender = innsender,
             createdAt = localDateTime("created_at"),
             delutbetalinger = delutbetalinger,
-            status = status,
         )
-    }
-}
-
-fun utbetalingStatus(
-    delutbetaling: List<DelutbetalingDto>,
-    innsender: UtbetalingDto.Innsender?,
-): UtbetalingStatus {
-    if (delutbetaling.isNotEmpty() && delutbetaling.all { it is DelutbetalingDto.DelutbetalingUtbetalt }) {
-        return UtbetalingStatus.UTBETALT
-    }
-
-    return when (innsender) {
-        is UtbetalingDto.Innsender.ArrangorAnsatt -> UtbetalingStatus.INNSENDT_AV_ARRANGOR
-        is UtbetalingDto.Innsender.NavAnsatt -> UtbetalingStatus.INNSENDT_AV_NAV
-        null -> UtbetalingStatus.KLAR_FOR_GODKJENNING
     }
 }

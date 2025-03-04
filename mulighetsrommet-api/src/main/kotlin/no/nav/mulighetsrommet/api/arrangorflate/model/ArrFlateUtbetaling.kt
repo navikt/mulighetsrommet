@@ -2,8 +2,8 @@ package no.nav.mulighetsrommet.api.arrangorflate.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatus
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -58,15 +58,16 @@ data class ArrFlateUtbetaling(
         ;
 
         companion object {
-            fun fromUtbetalingStatus(status: UtbetalingStatus): Status = when (status) {
-                UtbetalingStatus.KLAR_FOR_GODKJENNING -> KLAR_FOR_GODKJENNING
-
-                UtbetalingStatus.INNSENDT_AV_ARRANGOR,
-                UtbetalingStatus.INNSENDT_AV_NAV,
-                -> BEHANDLES_AV_NAV
-
-                UtbetalingStatus.UTBETALT -> UTBETALT
-                UtbetalingStatus.VENTER_PA_ENDRING -> VENTER_PA_ENDRING
+            fun fromUtbetaling(utbetaling: UtbetalingDto, harRelevanteForslag: Boolean): Status {
+                return if (utbetaling.delutbetalinger.isNotEmpty() && utbetaling.delutbetalinger.all { it is DelutbetalingDto.DelutbetalingUtbetalt }) {
+                    UTBETALT
+                } else if (utbetaling.innsender != null) {
+                    BEHANDLES_AV_NAV
+                } else if (harRelevanteForslag) {
+                    VENTER_PA_ENDRING
+                } else {
+                    KLAR_FOR_GODKJENNING
+                }
             }
         }
     }
