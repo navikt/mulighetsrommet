@@ -9,6 +9,7 @@ data class DelutbetalingDbo(
     val tilsagnId: UUID,
     val utbetalingId: UUID,
     val belop: Int,
+    val frigjorTilsagn: Boolean,
     val periode: Periode,
     val lopenummer: Int,
     val fakturanummer: String,

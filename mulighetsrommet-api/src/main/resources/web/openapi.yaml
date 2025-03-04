@@ -6059,9 +6059,11 @@ components:
           format: uuid
         belop:
           type: number
+        frigjorTilsagn:
+          type: boolean
         opprettelse:
           $ref: "#/components/schemas/Totrinnskontroll"
-      required: [id, type, tilsagnId, utbetalingId, belop, opprettelse]
+      required: [id, type, tilsagnId, utbetalingId, belop, frigjorTilsagn, opprettelse]
 
     DelutbetalingUtbetalt:
       type: object
@@ -6079,9 +6081,11 @@ components:
           format: uuid
         belop:
           type: number
+        frigjorTilsagn:
+          type: boolean
         opprettelse:
           $ref: "#/components/schemas/Totrinnskontroll"
-      required: [id, type, tilsagnId, utbetalingId, belop, opprettelse]
+      required: [id, type, tilsagnId, utbetalingId, belop, frigjorTilsagn, opprettelse]
 
     DelutbetalingTilGodkjenning:
       type: object
@@ -6099,9 +6103,11 @@ components:
           format: uuid
         belop:
           type: number
+        frigjorTilsagn:
+          type: boolean
         opprettelse:
           $ref: "#/components/schemas/Totrinnskontroll"
-      required: [id, type, tilsagnId, utbetalingId, belop, opprettelse]
+      required: [id, type, tilsagnId, utbetalingId, belop, frigjorTilsagn, opprettelse]
 
     DelutbetalingAvvist:
       type: object
@@ -6119,35 +6125,11 @@ components:
           format: uuid
         belop:
           type: number
+        frigjorTilsagn:
+          type: boolean
         opprettelse:
           $ref: "#/components/schemas/Totrinnskontroll"
-      required: [id, type, tilsagnId, utbetalingId, belop, opprettelse]
-
-    opprettetAv:
-        type: string
-        besluttetAv:
-          type: string
-        besluttetTidspunkt:
-          type: string
-          format: date-time
-        aarsaker:
-          type: array
-          items:
-            type: string
-        forklaring:
-          type: string
-        required:
-          [
-            type,
-            tilsagnId,
-            utbetalingId,
-            belop,
-            opprettetAv,
-            besluttetAv,
-            aarsaker,
-            forklaring,
-            besluttetTidspunkt,
-          ]
+      required: [id, type, tilsagnId, utbetalingId, belop, frigjorTilsagn, opprettelse]
 
     DelutbetalingRequest:
       type: object
@@ -6160,6 +6142,8 @@ components:
           format: uuid
         belop:
           type: number
+        frigjorTilsagn:
+          type: boolean
       required: [id, tilsagnId, belop]
 
     OpprettDelutbetalingerRequest:

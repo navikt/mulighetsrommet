@@ -52,6 +52,15 @@ export function UtbetalingPage() {
     ),
   );
 
+  const [frigjorTilsagn, setFrigjorTilsagn] = useState<Map<string, boolean>>(
+    new Map(
+      tilsagn.map((t) => [
+        t.id,
+        utbetaling.delutbetalinger.find((d) => d.tilsagnId === t.id)?.frigjorTilsagn ?? false,
+      ]),
+    ),
+  );
+
   const skriveTilgang = ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV);
   const avvistUtbetaling = utbetaling.delutbetalinger.find(
     (d) => d.type === "DELUTBETALING_AVVIST",
@@ -148,6 +157,7 @@ export function UtbetalingPage() {
                 utbetaling.delutbetalinger?.find((d) => d.tilsagnId === tilsagn.id)?.id ?? uuidv4(),
               tilsagnId: tilsagn.id,
               belop: belopPerTilsagn.get(tilsagn.id) ?? 0,
+              frigjorTilsagn: frigjorTilsagn.get(tilsagn.id) ?? false,
             })),
         ],
       };
@@ -259,6 +269,7 @@ export function UtbetalingPage() {
                         <Table.HeaderCell scope="col">Type</Table.HeaderCell>
                         <Table.HeaderCell scope="col">Kostnadssted</Table.HeaderCell>
                         <Table.HeaderCell scope="col">Tilgjengelig på tilsagn</Table.HeaderCell>
+                        <Table.HeaderCell scope="col">Gjør opp tilsagn</Table.HeaderCell>
                         <Table.HeaderCell scope="col">Utbetales</Table.HeaderCell>
                         <Table.HeaderCell scope="col">Status</Table.HeaderCell>
                         <Table.HeaderCell scope="col" />
@@ -283,6 +294,13 @@ export function UtbetalingPage() {
                                 return newMap;
                               })
                             }
+                            onFrigjorTilsagnChange={(frigjorTilsagn) =>
+                              setFrigjorTilsagn((prevMap) => {
+                                const newMap = new Map(prevMap);
+                                newMap.set(t.id, frigjorTilsagn);
+                                return newMap;
+                              })
+                            }
                           />
                         );
                       })}
@@ -291,7 +309,7 @@ export function UtbetalingPage() {
                           colSpan={5}
                           className="font-bold"
                         >{`Beløp arrangør har sendt inn ${formaterNOK(utbetaling.beregning.belop)}`}</Table.DataCell>
-                        <Table.DataCell className="font-bold">
+                        <Table.DataCell className="font-bold" colSpan={2}>
                           {formaterNOK(totalGjenståendeBeløp())}
                         </Table.DataCell>
                         <Table.DataCell className="font-bold">
