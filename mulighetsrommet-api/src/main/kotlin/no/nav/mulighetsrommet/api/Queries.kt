@@ -47,7 +47,6 @@ class QueryContext(val session: Session) {
         val endringshistorikk = EndringshistorikkQueries(session)
         val delutbetaling = DelutbetalingQueries(session)
         val totrinnskontroll = TotrinnskontrollQueries(session)
-
         val veilderTiltak = VeilederflateTiltakQueries(session)
         val veilederJoyride = VeilederJoyrideQueries(session)
     }

@@ -513,6 +513,32 @@ class GjennomforingQueries(private val session: Session) {
         session.execute(queryOf(query, id))
     }
 
+    fun insertKoordinatorTilGjennomforing(
+        navIdent: NavIdent,
+        id: UUID,
+    ) {
+        @Language("PostgreSQL")
+        val query = """
+            insert into gjennomforing_koordinator(nav_ident, gjennomforing_id)
+            values(?, ?::uuid)
+            on conflict (nav_ident, gjennomforing_id) do nothing
+        """.trimIndent()
+
+        session.execute(queryOf(query, navIdent.value, id))
+    }
+
+    fun deleteKoordinatorForGjennomforing(
+        navIdent: NavIdent,
+    ) {
+        @Language("PostgreSQL")
+        val query = """
+            delete from gjennomforing_koordinator
+            where nav_ident = ?
+        """.trimIndent()
+
+        session.execute(queryOf(query, navIdent.value))
+    }
+
     private fun GjennomforingDbo.toSqlParameters() = mapOf(
         "opphav" to ArenaMigrering.Opphav.MR_ADMIN_FLATE.name,
         "id" to id,
