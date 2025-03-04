@@ -299,6 +299,7 @@ class GjennomforingQueries(private val session: Session) {
         administratorNavIdent: NavIdent? = null,
         opphav: ArenaMigrering.Opphav? = null,
         publisert: Boolean? = null,
+        koordinatorNavIdent: NavIdent? = null,
     ): PaginatedResult<GjennomforingDto> = with(session) {
         val parameters = mapOf(
             "search" to search?.toFTSPrefixQuery(),
@@ -311,6 +312,7 @@ class GjennomforingQueries(private val session: Session) {
             "arrangor_orgnrs" to arrangorOrgnr.ifEmpty { null }?.map { it.value }?.let { createTextArray(it) },
             "statuser" to statuser.ifEmpty { null }?.let { createTextArray(statuser) },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
+            "koordinator_nav_ident" to koordinatorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "opphav" to opphav?.name,
             "publisert" to publisert,
         )
@@ -348,7 +350,7 @@ class GjennomforingQueries(private val session: Session) {
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet
                           where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)) or
                    arena_nav_enhet_enhetsnummer = any (:nav_enheter)))
-              and (:administrator_nav_ident::text is null or administratorer_json @> :administrator_nav_ident::jsonb)
+              and (:administrator_nav_ident::text is null or administratorer_json @> :administrator_nav_ident::jsonb or :koordinator_nav_ident::text is null or koordinator_json @> :koordinator_nav_ident::jsonb)
               and (:slutt_dato_cutoff::date is null or slutt_dato >= :slutt_dato_cutoff or slutt_dato is null)
               and (tiltakstype_tiltakskode is not null)
               and (:opphav::opphav is null or opphav = :opphav::opphav)
