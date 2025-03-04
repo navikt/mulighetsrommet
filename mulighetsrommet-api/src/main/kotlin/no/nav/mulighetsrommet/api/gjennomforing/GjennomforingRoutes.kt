@@ -214,7 +214,7 @@ fun Route.gjennomforingRoutes() {
             val pagination = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter().copy(
                 administratorNavIdent = getNavIdent(),
-                koordinatorNavIdent = getNavIdent()
+                koordinatorNavIdent = getNavIdent(),
             )
 
             call.respond(gjennomforinger.getAll(pagination, filter))
