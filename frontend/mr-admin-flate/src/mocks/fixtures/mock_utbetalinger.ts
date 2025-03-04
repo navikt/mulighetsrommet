@@ -1,4 +1,4 @@
-import { UtbetalingKompakt, UtbetalingStatus } from "@mr/api-client-v2";
+import { UtbetalingKompakt, AdminUtbetalingStatus } from "@mr/api-client-v2";
 
 export const mockUtbetalinger: UtbetalingKompakt[] = [
   {
@@ -8,7 +8,7 @@ export const mockUtbetalinger: UtbetalingKompakt[] = [
       periodeSlutt: "2026-6-1",
     },
     id: "",
-    status: UtbetalingStatus.KLAR_FOR_GODKJENNING,
+    status: AdminUtbetalingStatus.VENTER_PA_ARRANGOR,
     delutbetalinger: [],
     createdAt: "2020-01-01",
   },

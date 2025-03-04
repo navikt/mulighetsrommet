@@ -5,12 +5,10 @@ import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.arrangorflate.GodkjennUtbetaling
-import no.nav.mulighetsrommet.api.arrangorflate.relevantForDeltakelse
+import no.nav.mulighetsrommet.api.arrangorflate.RelevanteForslag
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
-import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatus
 import java.util.*
 
 object UtbetalingValidator {
@@ -78,21 +76,16 @@ object UtbetalingValidator {
     fun validerGodkjennUtbetaling(
         request: GodkjennUtbetaling,
         utbetaling: UtbetalingDto,
-        forslagByDeltakerId: Map<UUID, List<DeltakerForslag>>,
+        relevanteForslag: List<RelevanteForslag>,
     ): Either<List<FieldError>, GodkjennUtbetaling> {
-        if (utbetaling.status != UtbetalingStatus.KLAR_FOR_GODKJENNING) {
+        if (utbetaling.innsender != null) {
             return listOf(
                 FieldError.root(
                     "Utbetaling allerede godkjent",
                 ),
             ).left()
         }
-        val finnesRelevanteForslag = forslagByDeltakerId
-            .any { (_, forslag) ->
-                forslag.count { it.relevantForDeltakelse(utbetaling) } > 0
-            }
-
-        return if (finnesRelevanteForslag) {
+        return if (relevanteForslag.any { it.antallRelevanteForslag > 0 }) {
             listOf(
                 FieldError.ofPointer(
                     "/info",
