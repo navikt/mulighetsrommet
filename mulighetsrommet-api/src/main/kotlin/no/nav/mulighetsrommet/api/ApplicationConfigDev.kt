@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api
 
+import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
@@ -30,69 +31,78 @@ val ApplicationConfigDev = AppConfig(
     flyway = FlywayMigrationManager.MigrationConfig(
         strategy = FlywayMigrationManager.InitializationStrategy.Migrate,
     ),
-    kafka = KafkaConfig(
-        producerId = "mulighetsrommet-api-kafka-producer.v1",
-        defaultConsumerGroupId = "mulighetsrommet-api-kafka-consumer.v1",
-        producers = KafkaProducers(
-            gjennomforinger = SisteTiltaksgjennomforingerV1KafkaProducer.Config(
-                topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
+    kafka = run {
+        val producerId = "mulighetsrommet-api-kafka-producer.v1"
+        val defaultConsumerGroupId = "mulighetsrommet-api-kafka-consumer.v1"
+        KafkaConfig(
+            producerId = producerId,
+            defaultConsumerGroupId = defaultConsumerGroupId,
+            consumerPreset = KafkaPropertiesPreset.aivenDefaultConsumerProperties(defaultConsumerGroupId),
+            producers = KafkaProducers(
+                gjennomforinger = SisteTiltaksgjennomforingerV1KafkaProducer.Config(
+                    topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
+                ),
+                arenaMigreringTiltaksgjennomforinger = ArenaMigreringTiltaksgjennomforingerV1KafkaProducer.Config(
+                    topic = "team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1",
+                ),
+                tiltakstyper = SisteTiltakstyperV2KafkaProducer.Config(
+                    topic = "team-mulighetsrommet.siste-tiltakstyper-v2",
+                ),
             ),
-            arenaMigreringTiltaksgjennomforinger = ArenaMigreringTiltaksgjennomforingerV1KafkaProducer.Config(
-                topic = "team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1",
+            producerProperties = KafkaPropertiesPreset.aivenDefaultProducerProperties(producerId),
+            clients = KafkaClients(
+                dvhGjennomforing = DatavarehusTiltakV1KafkaProducer.Config(
+                    consumerId = "dvh-gjennomforing-consumer",
+                    consumerGroupId = "mulighetsrommet-api.datavarehus-gjennomforing.v1",
+                    consumerTopic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
+                    producerTopic = "team-mulighetsrommet.datavarehus-tiltak-v1",
+                ),
+                okonomiBestilling = OkonomiBestillingService.Config(
+                    topic = "team-mulighetsrommet.tiltaksokonomi-bestilling-v1",
+                ),
             ),
-            tiltakstyper = SisteTiltakstyperV2KafkaProducer.Config(
-                topic = "team-mulighetsrommet.siste-tiltakstyper-v2",
+            consumers = KafkaConsumers(
+                gjennomforingerV1 = KafkaTopicConsumer.Config(
+                    id = "siste-tiltaksgjennomforinger",
+                    topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
+                ),
+                amtDeltakerV1 = KafkaTopicConsumer.Config(
+                    id = "amt-deltaker",
+                    topic = "amt.deltaker-v1",
+                    consumerGroupId = "mulighetsrommet-api.deltaker.v1",
+                ),
+                amtVirksomheterV1 = KafkaTopicConsumer.Config(
+                    id = "amt-virksomheter",
+                    topic = "amt.virksomheter-v1",
+                ),
+                amtArrangorMeldingV1 = KafkaTopicConsumer.Config(
+                    id = "amt-arrangor-melding",
+                    topic = "amt.arrangor-melding-v1",
+                ),
             ),
-        ),
-        clients = KafkaClients(
-            dvhGjennomforing = DatavarehusTiltakV1KafkaProducer.Config(
-                consumerId = "dvh-gjennomforing-consumer",
-                consumerGroupId = "mulighetsrommet-api.datavarehus-gjennomforing.v1",
-                consumerTopic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
-                producerTopic = "team-mulighetsrommet.datavarehus-tiltak-v1",
-            ),
-            okonomiBestilling = OkonomiBestillingService.Config(
-                topic = "team-mulighetsrommet.tiltaksokonomi-bestilling-v1",
-            ),
-        ),
-        consumers = KafkaConsumers(
-            gjennomforingerV1 = KafkaTopicConsumer.Config(
-                id = "siste-tiltaksgjennomforinger",
-                topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
-            ),
-            amtDeltakerV1 = KafkaTopicConsumer.Config(
-                id = "amt-deltaker",
-                topic = "amt.deltaker-v1",
-                consumerGroupId = "mulighetsrommet-api.deltaker.v1",
-            ),
-            amtVirksomheterV1 = KafkaTopicConsumer.Config(
-                id = "amt-virksomheter",
-                topic = "amt.virksomheter-v1",
-            ),
-            amtArrangorMeldingV1 = KafkaTopicConsumer.Config(
-                id = "amt-arrangor-melding",
-                topic = "amt.arrangor-melding-v1",
-            ),
-        ),
-    ),
+        )
+    },
     auth = AuthConfig(
         azure = AuthProvider(
             issuer = System.getenv("AZURE_OPENID_CONFIG_ISSUER"),
             jwksUri = System.getenv("AZURE_OPENID_CONFIG_JWKS_URI"),
             audience = System.getenv("AZURE_APP_CLIENT_ID"),
             tokenEndpointUrl = System.getenv("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
+            privateJwk = System.getenv("AZURE_APP_JWK"),
         ),
         tokenx = AuthProvider(
             issuer = System.getenv("TOKEN_X_ISSUER"),
             jwksUri = System.getenv("TOKEN_X_JWKS_URI"),
             audience = System.getenv("TOKEN_X_CLIENT_ID"),
             tokenEndpointUrl = System.getenv("TOKEN_X_WELL_KNOWN_URL"),
+            privateJwk = System.getenv("TOKEN_X_PRIVATE_JWK"),
         ),
         maskinporten = AuthProvider(
             issuer = System.getenv("MASKINPORTEN_ISSUER"),
             jwksUri = System.getenv("MASKINPORTEN_JWKS_URI"),
             audience = System.getenv("MASKINPORTEN_CLIENT_ID"),
             tokenEndpointUrl = System.getenv("MASKINPORTEN_TOKEN_ENDPOINT"),
+            privateJwk = System.getenv("MASKINPORTEN_CLIENT_JWK"),
         ),
         roles = listOf(
             AdGruppeNavAnsattRolleMapping(

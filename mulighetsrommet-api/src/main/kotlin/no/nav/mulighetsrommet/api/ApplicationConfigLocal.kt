@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api
 
+import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
@@ -17,9 +18,12 @@ import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
+import no.nav.mulighetsrommet.tokenprovider.createMockRSAKey
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.mulighetsrommet.utils.toUUID
+import org.apache.kafka.common.serialization.ByteArrayDeserializer
+import org.apache.kafka.common.serialization.StringSerializer
 
 val ApplicationConfigLocal = AppConfig(
     database = DatabaseConfig(
@@ -29,69 +33,89 @@ val ApplicationConfigLocal = AppConfig(
     flyway = FlywayMigrationManager.MigrationConfig(
         strategy = FlywayMigrationManager.InitializationStrategy.RepairAndMigrate,
     ),
-    kafka = KafkaConfig(
-        brokerUrl = "localhost:29092",
-        producerId = "mulighetsrommet-api-kafka-producer.v1",
-        defaultConsumerGroupId = "mulighetsrommet-api-kafka-consumer.v1",
-        producers = KafkaProducers(
-            gjennomforinger = SisteTiltaksgjennomforingerV1KafkaProducer.Config(
-                topic = "siste-tiltaksgjennomforinger-v1",
+    kafka = run {
+        val producerId = "mulighetsrommet-api-kafka-producer.v1"
+        val brokerUrl = "localhost:29092"
+        val defaultConsumerGroupId = "mulighetsrommet-api-kafka-consumer.v1"
+        KafkaConfig(
+            brokerUrl = brokerUrl,
+            producerId = producerId,
+            defaultConsumerGroupId = defaultConsumerGroupId,
+            producers = KafkaProducers(
+                gjennomforinger = SisteTiltaksgjennomforingerV1KafkaProducer.Config(
+                    topic = "siste-tiltaksgjennomforinger-v1",
+                ),
+                arenaMigreringTiltaksgjennomforinger = ArenaMigreringTiltaksgjennomforingerV1KafkaProducer.Config(
+                    topic = "arena-migrering-tiltaksgjennomforinger-v1",
+                ),
+                tiltakstyper = SisteTiltakstyperV2KafkaProducer.Config(
+                    topic = "team-mulighetsrommet.siste-tiltakstyper-v2",
+                ),
             ),
-            arenaMigreringTiltaksgjennomforinger = ArenaMigreringTiltaksgjennomforingerV1KafkaProducer.Config(
-                topic = "arena-migrering-tiltaksgjennomforinger-v1",
+            producerProperties = KafkaPropertiesBuilder.producerBuilder()
+                .withBaseProperties()
+                .withProducerId(producerId)
+                .withBrokerUrl(brokerUrl)
+                .withSerializers(StringSerializer::class.java, StringSerializer::class.java)
+                .build(),
+            consumerPreset = KafkaPropertiesBuilder.consumerBuilder()
+                .withBaseProperties()
+                .withConsumerGroupId(defaultConsumerGroupId)
+                .withBrokerUrl(brokerUrl)
+                .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
+                .build(),
+            clients = KafkaClients(
+                dvhGjennomforing = DatavarehusTiltakV1KafkaProducer.Config(
+                    consumerId = "dvh-gjennomforing-consumer",
+                    consumerGroupId = "mulighetsrommet-api.datavarehus-gjennomforing.v1",
+                    consumerTopic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
+                    producerTopic = "team-mulighetsrommet.datavarehus-tiltak-v1",
+                ),
+                okonomiBestilling = OkonomiBestillingService.Config(
+                    topic = "tiltaksokonomi-bestilling-v1",
+                ),
             ),
-            tiltakstyper = SisteTiltakstyperV2KafkaProducer.Config(
-                topic = "team-mulighetsrommet.siste-tiltakstyper-v2",
+            consumers = KafkaConsumers(
+                gjennomforingerV1 = KafkaTopicConsumer.Config(
+                    id = "siste-tiltaksgjennomforinger",
+                    topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
+                ),
+                amtDeltakerV1 = KafkaTopicConsumer.Config(
+                    id = "amt-deltaker",
+                    topic = "amt-deltaker-v1",
+                ),
+                amtVirksomheterV1 = KafkaTopicConsumer.Config(
+                    id = "amt-virksomheter",
+                    topic = "amt.virksomheter-v1",
+                ),
+                amtArrangorMeldingV1 = KafkaTopicConsumer.Config(
+                    id = "amt-arrangor-melding",
+                    topic = "amt.arrangor-melding-v1",
+                ),
             ),
-        ),
-        clients = KafkaClients(
-            dvhGjennomforing = DatavarehusTiltakV1KafkaProducer.Config(
-                consumerId = "dvh-gjennomforing-consumer",
-                consumerGroupId = "mulighetsrommet-api.datavarehus-gjennomforing.v1",
-                consumerTopic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
-                producerTopic = "team-mulighetsrommet.datavarehus-tiltak-v1",
-            ),
-            okonomiBestilling = OkonomiBestillingService.Config(
-                topic = "tiltaksokonomi-bestilling-v1",
-            ),
-        ),
-        consumers = KafkaConsumers(
-            gjennomforingerV1 = KafkaTopicConsumer.Config(
-                id = "siste-tiltaksgjennomforinger",
-                topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
-            ),
-            amtDeltakerV1 = KafkaTopicConsumer.Config(
-                id = "amt-deltaker",
-                topic = "amt-deltaker-v1",
-            ),
-            amtVirksomheterV1 = KafkaTopicConsumer.Config(
-                id = "amt-virksomheter",
-                topic = "amt.virksomheter-v1",
-            ),
-            amtArrangorMeldingV1 = KafkaTopicConsumer.Config(
-                id = "amt-arrangor-melding",
-                topic = "amt.arrangor-melding-v1",
-            ),
-        ),
-    ),
+        )
+    },
     auth = AuthConfig(
         azure = AuthProvider(
             issuer = "http://localhost:8081/azure",
             jwksUri = "http://localhost:8081/azure/jwks",
             audience = "mulighetsrommet-api",
             tokenEndpointUrl = "http://localhost:8081/azure/token",
+            privateJwk = createMockRSAKey("azure"),
         ),
         tokenx = AuthProvider(
             issuer = "http://localhost:8081/tokenx",
             jwksUri = "http://localhost:8081/tokenx/jwks",
             audience = "mulighetsrommet-api",
             tokenEndpointUrl = "http://localhost:8081/tokenx/token",
+            privateJwk = createMockRSAKey("tokenx"),
         ),
         maskinporten = AuthProvider(
             issuer = "http://localhost:8081/maskinporten",
             jwksUri = "http://localhost:8081/maskinporten/jwks",
             audience = "mulighetsrommet-api",
             tokenEndpointUrl = "http://localhost:8081/maskinporten/token",
+            privateJwk = createMockRSAKey("maskinporten"),
         ),
         roles = listOf(
             AdGruppeNavAnsattRolleMapping(

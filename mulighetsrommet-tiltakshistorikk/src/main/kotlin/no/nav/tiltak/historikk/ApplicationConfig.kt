@@ -4,19 +4,11 @@ import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
-import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.tiltak.historikk.clients.Avtale
 import java.time.LocalDate
-
-fun getApplicationConfig(): AppConfig {
-    return when (NaisEnv.current()) {
-        NaisEnv.ProdGCP -> ApplicationConfigProd
-        NaisEnv.DevGCP -> ApplicationConfigDev
-        NaisEnv.Local -> ApplicationConfigLocal
-    }
-}
+import java.util.Properties
 
 data class AppConfig(
     val server: ServerConfig = ServerConfig(),
@@ -47,6 +39,7 @@ data class AuthProvider(
     val jwksUri: String,
     val audience: String,
     val tokenEndpointUrl: String,
+    val privateJwk: String,
 )
 
 data class ServiceClientConfig(
@@ -57,6 +50,7 @@ data class ServiceClientConfig(
 data class KafkaConfig(
     val brokerUrl: String? = null,
     val defaultConsumerGroupId: String,
+    val consumerPreset: Properties,
     val consumers: KafkaConsumers,
 )
 

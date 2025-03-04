@@ -4,8 +4,6 @@ import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
-import no.nav.common.kafka.util.KafkaPropertiesBuilder
-import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.env.NaisEnv
@@ -19,10 +17,13 @@ import no.nav.tiltak.historikk.kafka.consumers.SisteTiltaksgjennomforingerV1Kafk
 import no.nav.tiltak.historikk.plugins.configureAuthentication
 import no.nav.tiltak.historikk.plugins.configureHTTP
 import no.nav.tiltak.historikk.plugins.configureSerialization
-import org.apache.kafka.common.serialization.ByteArrayDeserializer
 
 fun main() {
-    val config = getApplicationConfig()
+    val config = when (NaisEnv.current()) {
+        NaisEnv.ProdGCP -> ApplicationConfigProd
+        NaisEnv.DevGCP -> ApplicationConfigDev
+        NaisEnv.Local -> ApplicationConfigLocal
+    }
 
     embeddedServer(
         Netty,
@@ -44,7 +45,7 @@ fun Application.configure(config: AppConfig) {
 
     val tiltakshistorikkDb = TiltakshistorikkDatabase(db)
 
-    val cachedTokenProvider = CachedTokenProvider.init(config.auth.azure.audience, config.auth.azure.tokenEndpointUrl)
+    val cachedTokenProvider = CachedTokenProvider.init(config.auth.azure.audience, config.auth.azure.tokenEndpointUrl, config.auth.azure.privateJwk)
 
     val tiltakDatadelingClient = TiltakDatadelingClient(
         engine = config.httpClientEngine,
@@ -80,17 +81,6 @@ fun configureKafka(
     config: KafkaConfig,
     db: TiltakshistorikkDatabase,
 ): KafkaConsumerOrchestrator {
-    val properties = when (NaisEnv.current()) {
-        NaisEnv.Local -> KafkaPropertiesBuilder.consumerBuilder()
-            .withBaseProperties()
-            .withConsumerGroupId(config.defaultConsumerGroupId)
-            .withBrokerUrl(config.brokerUrl)
-            .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
-            .build()
-
-        else -> KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.defaultConsumerGroupId)
-    }
-
     val consumers = listOf(
         AmtDeltakerV1KafkaConsumer(
             config = config.consumers.amtDeltakerV1,
@@ -103,7 +93,7 @@ fun configureKafka(
     )
 
     return KafkaConsumerOrchestrator(
-        consumerPreset = properties,
+        consumerPreset = config.consumerPreset,
         db = db.db,
         consumers = consumers,
     )

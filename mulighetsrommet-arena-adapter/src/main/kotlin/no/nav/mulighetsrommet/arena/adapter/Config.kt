@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
+import java.util.Properties
 
 data class Config(
     val server: ServerConfig,
@@ -45,6 +46,7 @@ data class AuthProvider(
     val jwksUri: String,
     val audience: String,
     val tokenEndpointUrl: String,
+    val privateJwk: String,
 )
 
 data class ServiceClientConfig(
@@ -56,6 +58,7 @@ data class KafkaConfig(
     val brokerUrl: String? = null,
     val consumerGroupId: String,
     val consumers: KafkaConsumers,
+    val consumerPreset: Properties,
 )
 
 data class KafkaConsumers(

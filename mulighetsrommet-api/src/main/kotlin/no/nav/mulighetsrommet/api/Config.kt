@@ -73,6 +73,8 @@ data class AdGruppeNavAnsattRolleMapping(
 )
 
 data class KafkaConfig(
+    val producerProperties: Properties,
+    val consumerPreset: Properties,
     val brokerUrl: String? = null,
     val producerId: String,
     val defaultConsumerGroupId: String,
@@ -104,6 +106,7 @@ data class AuthProvider(
     val jwksUri: String,
     val audience: String,
     val tokenEndpointUrl: String,
+    val privateJwk: String,
 )
 
 data class AuthenticatedHttpClientConfig(

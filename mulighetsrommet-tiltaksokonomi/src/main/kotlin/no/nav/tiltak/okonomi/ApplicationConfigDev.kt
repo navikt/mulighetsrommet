@@ -19,6 +19,7 @@ val ApplicationConfigDev = AppConfig(
             jwksUri = System.getenv("AZURE_OPENID_CONFIG_JWKS_URI"),
             audience = System.getenv("AZURE_APP_CLIENT_ID"),
             tokenEndpointUrl = System.getenv("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
+            privateJwk = System.getenv("AZURE_APP_JWK"),
         ),
     ),
     clients = ClientConfig(

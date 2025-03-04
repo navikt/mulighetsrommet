@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
+import no.nav.mulighetsrommet.tokenprovider.createMockRSAKey
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.intellij.lang.annotations.Language
 
@@ -55,6 +56,7 @@ val ApplicationConfigLocal = AppConfig(
             jwksUri = "http://localhost:8081/azure/jwks",
             audience = "mr-tiltaksokonomi",
             tokenEndpointUrl = "http://localhost:8081/azure/token",
+            privateJwk = createMockRSAKey("azure"),
         ),
     ),
     clients = ClientConfig(
