@@ -36,6 +36,7 @@ select gjennomforing.id,
                                    gjennomforing.avsluttet_tidspunkt) as status,
        nav_kontaktpersoner_json,
        administratorer_json,
+       koordinator_json,
        nav_enheter_json,
        amo_kategorisering_json,
        tiltakstype.id                                                 as tiltakstype_id,
@@ -88,6 +89,15 @@ from gjennomforing
                             from gjennomforing_administrator administrator
                                      natural join nav_ansatt ansatt
                             where administrator.gjennomforing_id = gjennomforing.id) on true
+         left join lateral (select jsonb_agg(
+                                           jsonb_build_object(
+                                                   'navIdent', ansatt.nav_ident,
+                                                   'navn', concat(ansatt.fornavn, ' ', ansatt.etternavn)
+                                           )
+                                   ) as koordinator_json
+                            from gjennomforing_koordinator koordinator
+                                     natural join nav_ansatt ansatt
+                            where koordinator.gjennomforing_id = gjennomforing.id) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'id', id,

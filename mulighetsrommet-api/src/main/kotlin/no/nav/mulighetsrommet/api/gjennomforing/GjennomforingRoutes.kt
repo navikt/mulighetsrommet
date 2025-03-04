@@ -20,12 +20,12 @@ import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.responses.*
+import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskoder.isForhaandsgodkjentTiltak
 import no.nav.mulighetsrommet.serializers.AvbruttAarsakSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -212,7 +212,10 @@ fun Route.gjennomforingRoutes() {
 
         get("mine") {
             val pagination = getPaginationParams()
-            val filter = getAdminTiltaksgjennomforingsFilter().copy(administratorNavIdent = getNavIdent())
+            val filter = getAdminTiltaksgjennomforingsFilter().copy(
+                administratorNavIdent = getNavIdent(),
+                koordinatorNavIdent = getNavIdent(),
+            )
 
             call.respond(gjennomforinger.getAll(pagination, filter))
         }
@@ -306,6 +309,7 @@ data class AdminTiltaksgjennomforingFilter(
     val arrangorIds: List<UUID> = emptyList(),
     val administratorNavIdent: NavIdent? = null,
     val publisert: Boolean? = null,
+    val koordinatorNavIdent: NavIdent? = null,
 )
 
 fun RoutingContext.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomforingFilter {
@@ -328,7 +332,6 @@ fun RoutingContext.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomfor
         sortering = sortering,
         avtaleId = avtaleId,
         arrangorIds = arrangorIds,
-        administratorNavIdent = null,
         publisert = publisert,
     )
 }

@@ -5602,12 +5602,11 @@ components:
         - UTBETALT
         - VENTER_PA_ENDRING
 
-    UtbetalingStatus:
+    AdminUtbetalingStatus:
       type: string
       enum:
-        - KLAR_FOR_GODKJENNING
-        - INNSENDT_AV_ARRANGOR
-        - INNSENDT_AV_NAV
+        - VENTER_PA_ARRANGOR
+        - BEHANDLES_AV_NAV
         - UTBETALT
 
     UtbetalingKompakt:
@@ -5617,7 +5616,7 @@ components:
           type: string
           format: uuid
         status:
-          $ref: "#/components/schemas/UtbetalingStatus"
+          $ref: "#/components/schemas/AdminUtbetalingStatus"
         beregning:
           $ref: "#/components/schemas/UtbetalingKompaktBeregning"
         delutbetalinger:

@@ -199,7 +199,7 @@ data class OpprettManuellUtbetalingRequest(
 data class UtbetalingKompakt(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val status: UtbetalingStatus,
+    val status: AdminUtbetalingStatus,
     val beregning: Beregning,
     val delutbetalinger: List<DelutbetalingDto>,
     @Serializable(with = LocalDateTimeSerializer::class)
@@ -220,7 +220,7 @@ data class UtbetalingKompakt(
     companion object {
         fun fromUtbetalingDto(utbetaling: UtbetalingDto) = UtbetalingKompakt(
             id = utbetaling.id,
-            status = utbetaling.status,
+            status = AdminUtbetalingStatus.fromUtbetaling(utbetaling),
             beregning = Beregning(
                 periodeStart = utbetaling.periode.start,
                 periodeSlutt = utbetaling.periode.getLastInclusiveDate(),
@@ -231,5 +231,24 @@ data class UtbetalingKompakt(
             betalingsinformasjon = utbetaling.betalingsinformasjon,
             createdAt = utbetaling.createdAt,
         )
+    }
+
+    enum class AdminUtbetalingStatus {
+        UTBETALT,
+        VENTER_PA_ARRANGOR,
+        BEHANDLES_AV_NAV,
+        ;
+
+        companion object {
+            fun fromUtbetaling(utbetaling: UtbetalingDto): AdminUtbetalingStatus {
+                return if (utbetaling.delutbetalinger.isNotEmpty() && utbetaling.delutbetalinger.all { it is DelutbetalingDto.DelutbetalingUtbetalt }) {
+                    UTBETALT
+                } else if (utbetaling.innsender != null) {
+                    BEHANDLES_AV_NAV
+                } else {
+                    VENTER_PA_ARRANGOR
+                }
+            }
+        }
     }
 }

@@ -26,9 +26,9 @@ data class ArrFlateUtbetalingKompakt(
     val belop: Int,
 ) {
     companion object {
-        fun fromUtbetalingDto(utbetaling: UtbetalingDto) = ArrFlateUtbetalingKompakt(
+        fun fromUtbetalingDto(utbetaling: UtbetalingDto, harRelevanteForslag: Boolean) = ArrFlateUtbetalingKompakt(
             id = utbetaling.id,
-            status = ArrFlateUtbetaling.Status.fromUtbetalingStatus(utbetaling.status),
+            status = ArrFlateUtbetaling.Status.fromUtbetaling(utbetaling, harRelevanteForslag),
             fristForGodkjenning = utbetaling.fristForGodkjenning,
             tiltakstype = utbetaling.tiltakstype,
             gjennomforing = utbetaling.gjennomforing,

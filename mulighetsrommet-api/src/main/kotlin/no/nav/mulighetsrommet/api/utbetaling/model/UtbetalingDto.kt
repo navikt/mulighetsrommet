@@ -18,7 +18,6 @@ data class UtbetalingDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val innsender: Innsender?,
-    val status: UtbetalingStatus,
     @Serializable(with = LocalDateTimeSerializer::class)
     val fristForGodkjenning: LocalDateTime,
     val tiltakstype: Tiltakstype,

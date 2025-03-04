@@ -94,12 +94,11 @@ class BestillingQueries(private val session: Session) {
         batchPreparedNamedStatement(insertLinje, linjer)
     }
 
-    fun setAnnullert(bestillingsnummer: String, annullering: Bestilling.Totrinnskontroll) {
+    fun setAnnullering(bestillingsnummer: String, annullering: Bestilling.Totrinnskontroll) {
         @Language("PostgreSQL")
         val query = """
             update bestilling
-            set status = :status,
-                annullering_behandlet_av = :behandlet_av,
+            set annullering_behandlet_av = :behandlet_av,
                 annullering_behandlet_tidspunkt = :behandlet_tidspunkt,
                 annullering_besluttet_av = :besluttet_av,
                 annullering_besluttet_tidspunkt = :besluttet_tidspunkt
@@ -107,13 +106,22 @@ class BestillingQueries(private val session: Session) {
         """.trimIndent()
         val params = mapOf(
             "bestillingsnummer" to bestillingsnummer,
-            "status" to BestillingStatusType.ANNULLERT.name,
             "behandlet_av" to annullering.behandletAv.part,
             "behandlet_tidspunkt" to annullering.behandletTidspunkt,
             "besluttet_av" to annullering.besluttetAv.part,
             "besluttet_tidspunkt" to annullering.besluttetTidspunkt,
         )
         session.execute(queryOf(query, params))
+    }
+
+    fun setStatus(bestillingsnummer: String, status: BestillingStatusType) {
+        @Language("PostgreSQL")
+        val query = """
+            update bestilling
+            set status = ?
+            where bestillingsnummer = ?
+        """.trimIndent()
+        session.execute(queryOf(query, status.name, bestillingsnummer))
     }
 
     fun getByBestillingsnummer(bestillingsnummer: String): Bestilling? {
@@ -176,15 +184,13 @@ class BestillingQueries(private val session: Session) {
                     besluttetAv = OkonomiPart.fromString(bestilling.string("opprettelse_besluttet_av")),
                     besluttetTidspunkt = bestilling.localDateTime("opprettelse_besluttet_tidspunkt"),
                 ),
-                annullering = if (status == BestillingStatusType.ANNULLERT) {
+                annullering = bestilling.stringOrNull("annullering_behandlet_av")?.let {
                     Bestilling.Totrinnskontroll(
-                        behandletAv = OkonomiPart.fromString(bestilling.string("annullering_behandlet_av")),
+                        behandletAv = OkonomiPart.fromString(it),
                         behandletTidspunkt = bestilling.localDateTime("annullering_behandlet_tidspunkt"),
                         besluttetAv = OkonomiPart.fromString(bestilling.string("annullering_besluttet_av")),
                         besluttetTidspunkt = bestilling.localDateTime("annullering_besluttet_tidspunkt"),
                     )
-                } else {
-                    null
                 },
                 linjer = linjer,
             )
