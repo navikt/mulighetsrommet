@@ -114,7 +114,9 @@ class OkonomiService(
                 AnnullerBestillingError("Klarte ikke annullere bestilling $bestillingsnummer hos oebs", it)
             }
             .map {
-                queries.bestilling.setAnnullert(
+                log.info("Lagrer bestilling ${bestilling.bestillingsnummer} som annullert")
+                queries.bestilling.setStatus(bestillingsnummer, BestillingStatusType.ANNULLERT)
+                queries.bestilling.setAnnullering(
                     bestillingsnummer,
                     Bestilling.Totrinnskontroll(
                         behandletAv = annullerBestilling.behandletAv,
