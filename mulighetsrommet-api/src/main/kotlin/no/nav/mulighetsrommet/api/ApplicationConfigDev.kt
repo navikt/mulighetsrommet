@@ -101,10 +101,6 @@ val ApplicationConfigDev = AppConfig(
             ),
             AdGruppeNavAnsattRolleMapping(
                 adGruppeId = "639e2806-4cc2-484c-a72a-51b4308c52a1".toUUID(),
-                rolle = NavAnsattRolle.TEAM_MULIGHETSROMMET,
-            ),
-            AdGruppeNavAnsattRolleMapping(
-                adGruppeId = "639e2806-4cc2-484c-a72a-51b4308c52a1".toUUID(),
                 rolle = NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
             ),
             AdGruppeNavAnsattRolleMapping(

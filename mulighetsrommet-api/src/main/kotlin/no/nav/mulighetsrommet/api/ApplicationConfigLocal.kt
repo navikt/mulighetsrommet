@@ -94,13 +94,34 @@ val ApplicationConfigLocal = AppConfig(
             tokenEndpointUrl = "http://localhost:8081/maskinporten/token",
         ),
         roles = listOf(
-            AdGruppeNavAnsattRolleMapping("52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID(), NavAnsattRolle.TEAM_MULIGHETSROMMET),
-            AdGruppeNavAnsattRolleMapping("52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
-            AdGruppeNavAnsattRolleMapping("48026f54-6259-4c35-a148-bc4257bcaf03".toUUID(), NavAnsattRolle.AVTALER_SKRIV),
-            AdGruppeNavAnsattRolleMapping("279039a0-39fd-4860-afdd-a1a2ccaa6323".toUUID(), NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV),
-            AdGruppeNavAnsattRolleMapping("d9f317a1-2444-4fcd-b696-df8dbd6cc942".toUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_ENDRINGSMELDING),
-            AdGruppeNavAnsattRolleMapping("b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(), NavAnsattRolle.OKONOMI_BESLUTTER),
-            AdGruppeNavAnsattRolleMapping("0fdd133a-f47f-4b95-9a5e-f3a5ec87a472".toUUID(), NavAnsattRolle.KONTAKTPERSON),
+            AdGruppeNavAnsattRolleMapping(
+                "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID(),
+                NavAnsattRolle.TEAM_MULIGHETSROMMET,
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID(),
+                NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                "48026f54-6259-4c35-a148-bc4257bcaf03".toUUID(),
+                NavAnsattRolle.AVTALER_SKRIV,
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                "279039a0-39fd-4860-afdd-a1a2ccaa6323".toUUID(),
+                NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                "d9f317a1-2444-4fcd-b696-df8dbd6cc942".toUUID(),
+                NavAnsattRolle.TILTAKADMINISTRASJON_ENDRINGSMELDING,
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                "b00ba197-c90a-4ff9-966e-6c9cf1c882bf".toUUID(),
+                NavAnsattRolle.OKONOMI_BESLUTTER,
+            ),
+            AdGruppeNavAnsattRolleMapping(
+                "0fdd133a-f47f-4b95-9a5e-f3a5ec87a472".toUUID(),
+                NavAnsattRolle.KONTAKTPERSON,
+            ),
         ),
     ),
     sanity = SanityClient.Config(
