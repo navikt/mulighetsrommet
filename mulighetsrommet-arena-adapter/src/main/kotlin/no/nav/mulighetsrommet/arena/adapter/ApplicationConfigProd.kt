@@ -73,7 +73,7 @@ val ApplicationConfigProd = Config(
                     ),
                     arenaSakEndret = KafkaTopicConsumer.Config(
                         id = "arena-sakendret-endret",
-                        topic = "teamarenanais.aapen-arena-sakendret-v1-p",
+                        topic = "teamarenanais.aapen-arena-tiltakssakendret-v1-p",
                     ),
                     arenaAvtaleInfoEndret = KafkaTopicConsumer.Config(
                         id = "arena-avtaleinfo-endret",
