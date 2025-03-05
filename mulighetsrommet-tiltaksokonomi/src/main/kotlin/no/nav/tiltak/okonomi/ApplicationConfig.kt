@@ -40,6 +40,7 @@ data class AuthProvider(
     val jwksUri: String,
     val audience: String,
     val tokenEndpointUrl: String,
+    val privateJwk: String,
 )
 
 data class AuthenticatedHttpClientConfig(

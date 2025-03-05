@@ -114,7 +114,9 @@ class OkonomiService(
                 AnnullerBestillingError("Klarte ikke annullere bestilling $bestillingsnummer hos oebs", it)
             }
             .map {
-                queries.bestilling.setAnnullert(
+                log.info("Lagrer bestilling ${bestilling.bestillingsnummer} som annullert")
+                queries.bestilling.setStatus(bestillingsnummer, BestillingStatusType.ANNULLERT)
+                queries.bestilling.setAnnullering(
                     bestillingsnummer,
                     Bestilling.Totrinnskontroll(
                         behandletAv = annullerBestilling.behandletAv,
@@ -186,6 +188,7 @@ private fun toOebsBestillingMelding(
         OebsBestillingMelding.Linje(
             linjeNummer = linje.linjenummer,
             antall = linje.belop,
+            pris = 1,
             periode = linje.periode.start.monthValue.toString().padStart(2, '0'),
             startDato = linje.periode.start,
             sluttDato = linje.periode.getLastInclusiveDate(),
@@ -236,9 +239,10 @@ private fun toOebsFakturaMelding(
 ): OebsFakturaMelding {
     val linjer = faktura.linjer.mapIndexed { index, linje ->
         OebsFakturaMelding.Linje(
-            bestillingsnummer = bestilling.bestillingsnummer,
+            bestillingsNummer = bestilling.bestillingsnummer,
             bestillingsLinjeNummer = linje.linjenummer,
             antall = linje.belop,
+            pris = 1,
             erSisteFaktura = erSisteFaktura && index == faktura.linjer.lastIndex,
         )
     }

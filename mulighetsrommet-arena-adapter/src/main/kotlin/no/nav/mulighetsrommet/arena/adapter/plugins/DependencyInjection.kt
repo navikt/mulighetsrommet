@@ -2,8 +2,6 @@ package no.nav.mulighetsrommet.arena.adapter.plugins
 
 import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.*
-import no.nav.common.kafka.util.KafkaPropertiesBuilder
-import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.arena.adapter.*
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
@@ -18,14 +16,12 @@ import no.nav.mulighetsrommet.arena.adapter.tasks.ReplayEvents
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
-import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.OpenTelemetrySchedulerListener
 import no.nav.mulighetsrommet.tasks.SlackNotifierSchedulerListener
 import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
-import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.koin.ktor.plugin.KoinIsolated
@@ -34,7 +30,7 @@ import org.koin.logger.SLF4JLogger
 fun Application.configureDependencyInjection(
     appConfig: AppConfig,
 ) {
-    val tokenProvider = CachedTokenProvider.init(appConfig.auth.azure.audience, appConfig.auth.azure.tokenEndpointUrl)
+    val tokenProvider = CachedTokenProvider.init(appConfig.auth.azure.audience, appConfig.auth.azure.tokenEndpointUrl, appConfig.auth.azure.privateJwk)
     install(KoinIsolated) {
         SLF4JLogger()
         modules(
@@ -84,17 +80,6 @@ private fun db(config: DatabaseConfig) = module {
 }
 
 private fun kafka(config: KafkaConfig) = module {
-    val properties = when (NaisEnv.current()) {
-        NaisEnv.Local -> KafkaPropertiesBuilder.consumerBuilder()
-            .withBaseProperties()
-            .withConsumerGroupId(config.consumerGroupId)
-            .withBrokerUrl(config.brokerUrl)
-            .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
-            .build()
-
-        else -> KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.consumerGroupId)
-    }
-
     single {
         val consumers = listOf(
             ArenaEventConsumer(config.consumers.arenaTiltakEndret, get()),
@@ -105,7 +90,7 @@ private fun kafka(config: KafkaConfig) = module {
             ArenaEventConsumer(config.consumers.arenaAvtaleInfoEndret, get()),
         )
         KafkaConsumerOrchestrator(
-            consumerPreset = properties,
+            consumerPreset = config.consumerPreset,
             db = get(),
             consumers = consumers,
         )

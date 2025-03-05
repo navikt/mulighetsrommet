@@ -6,7 +6,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatus
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.*
 
@@ -201,7 +200,6 @@ class OppgaverService(val db: ApiDatabase) {
         )
 
         is DelutbetalingDto.DelutbetalingAvvist -> {
-            requireNotNull(opprettelse.besluttetTidspunkt)
             Oppgave(
                 id = UUID.randomUUID(),
                 type = OppgaveType.UTBETALING_RETURNERT,
@@ -212,7 +210,7 @@ class OppgaverService(val db: ApiDatabase) {
                     linkText = "Se utbetaling",
                     link = "/gjennomforinger/$gjennomforingId/utbetalinger/$utbetalingId",
                 ),
-                createdAt = opprettelse.besluttetTidspunkt,
+                createdAt = requireNotNull(opprettelse.besluttetTidspunkt),
                 oppgaveIcon = OppgaveIcon.UTBETALING,
             )
         }
@@ -222,8 +220,8 @@ class OppgaverService(val db: ApiDatabase) {
         -> null
     }
 
-    private fun UtbetalingDto.toOppgave(): Oppgave? = when (status) {
-        UtbetalingStatus.INNSENDT_AV_ARRANGOR -> Oppgave(
+    private fun UtbetalingDto.toOppgave(): Oppgave? = if (innsender == UtbetalingDto.Innsender.ArrangorAnsatt && delutbetalinger.isEmpty()) {
+        Oppgave(
             id = UUID.randomUUID(),
             type = OppgaveType.UTBETALING_TIL_BEHANDLING,
             title = "Utbetaling klar til behandling",
@@ -236,11 +234,7 @@ class OppgaverService(val db: ApiDatabase) {
             createdAt = createdAt,
             oppgaveIcon = OppgaveIcon.UTBETALING,
         )
-
-        UtbetalingStatus.INNSENDT_AV_NAV,
-        UtbetalingStatus.KLAR_FOR_GODKJENNING,
-        UtbetalingStatus.UTBETALT,
-        UtbetalingStatus.VENTER_PA_ENDRING,
-        -> null
+    } else {
+        null
     }
 }

@@ -63,7 +63,8 @@ class UtbetalingService(
     fun recalculateUtbetalingForGjennomforing(id: UUID): Unit = db.transaction {
         queries.utbetaling
             .getByGjennomforing(id)
-            .filter { it.status == UtbetalingStatus.KLAR_FOR_GODKJENNING }
+            .filter { it.innsender == null }
+            .filter { it.delutbetalinger.isEmpty() }
             .mapNotNull { gjeldendeKrav ->
                 val nyttKrav = when (gjeldendeKrav.beregning) {
                     is UtbetalingBeregningAft -> createUtbetalingAft(
@@ -126,7 +127,7 @@ class UtbetalingService(
         request: GodkjennUtbetaling,
     ) = db.transaction {
         queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
-        queries.utbetaling.setBetalingsInformasjon(
+        queries.utbetaling.setBetalingsinformasjon(
             utbetalingId,
             request.betalingsinformasjon.kontonummer,
             request.betalingsinformasjon.kid,

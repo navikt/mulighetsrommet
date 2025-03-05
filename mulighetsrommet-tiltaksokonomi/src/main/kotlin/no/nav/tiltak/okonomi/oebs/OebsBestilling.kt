@@ -183,10 +183,8 @@ data class OebsBestillingMelding(
 
         /**
          * Pris per enhet. Total pris for en linje er [antall] * [pris].
-         *
-         * Alltid satt til 1 for tiltaksøkonomien.
          */
-        val pris: Int = 1,
+        val pris: Int,
 
         /**
          * Hvilken måned gjelder dette for?

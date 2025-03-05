@@ -128,7 +128,7 @@ class UtbetalingServiceTest : FunSpec({
             utbetaling.betalingsinformasjon.kid shouldBe null
 
             database.run {
-                queries.utbetaling.setBetalingsInformasjon(
+                queries.utbetaling.setBetalingsinformasjon(
                     id = utbetaling.id,
                     kontonummer = Kontonummer("12345678901"),
                     kid = Kid("12345678901"),
@@ -416,14 +416,13 @@ class UtbetalingServiceTest : FunSpec({
                 ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                tilsagn = listOf(Tilsagn1),
                 utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
             ).initialize(database.db)
 
             val service = createUtbetalingService()
 
-            val opprettRequest =
-                DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = TilsagnFixtures.Tilsagn1.id, belop = 100)
+            val opprettRequest = DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = Tilsagn1.id, belop = 100)
             service.validateAndUpsertDelutbetaling(
                 utbetalingId = UtbetalingFixtures.utbetaling1.id,
                 request = opprettRequest,
@@ -472,7 +471,7 @@ class UtbetalingServiceTest : FunSpec({
                 ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                tilsagn = listOf(Tilsagn1),
                 utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
                 delutbetalinger = listOf(UtbetalingFixtures.delutbetaling1),
             ) {
@@ -487,7 +486,7 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalingId = UtbetalingFixtures.utbetaling1.id,
                 request = DelutbetalingRequest(
                     id = UtbetalingFixtures.delutbetaling1.id,
-                    tilsagnId = TilsagnFixtures.Tilsagn1.id,
+                    tilsagnId = Tilsagn1.id,
                     belop = 100,
                 ),
                 navIdent = NavAnsattFixture.ansatt1.navIdent,
@@ -501,7 +500,7 @@ class UtbetalingServiceTest : FunSpec({
                 ansatte = listOf(NavAnsattFixture.ansatt1),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                tilsagn = listOf(Tilsagn1),
                 utbetalinger = listOf(
                     UtbetalingFixtures.utbetaling1.copy(
                         periode = Periode.forMonthOf(
@@ -518,7 +517,7 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             val request =
-                DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = TilsagnFixtures.Tilsagn1.id, belop = 100)
+                DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = Tilsagn1.id, belop = 100)
 
             shouldThrow<IllegalArgumentException> {
                 service.validateAndUpsertDelutbetaling(
@@ -530,10 +529,10 @@ class UtbetalingServiceTest : FunSpec({
         }
 
         test("skal ikke kunne opprette delutbetaling hvis belop er for stort") {
-            val tilsagn1 = TilsagnFixtures.Tilsagn1.copy(
+            val tilsagn1 = Tilsagn1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
             )
-            val tilsagn2 = TilsagnFixtures.Tilsagn2.copy(
+            val tilsagn2 = Tilsagn2.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
             )
 
@@ -579,12 +578,12 @@ class UtbetalingServiceTest : FunSpec({
         }
 
         test("løpenummer, fakturanummer og periode blir utledet fra tilsagnet og utbetalingen") {
-            val tilsagn1 = TilsagnFixtures.Tilsagn2.copy(
+            val tilsagn1 = Tilsagn2.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
                 bestillingsnummer = "A-2024/1-1",
             )
 
-            val tilsagn2 = TilsagnFixtures.Tilsagn1.copy(
+            val tilsagn2 = Tilsagn1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
                 bestillingsnummer = "A-2024/1-2",
             )

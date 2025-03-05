@@ -6,16 +6,14 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.arrangorflate.toArrFlateUtbetaling
+import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkError
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.dokark.Journalpost
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.utbetaling.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatus
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.tasks.transactionalSchedulerClient
@@ -29,7 +27,7 @@ class JournalforUtbetaling(
     private val db: ApiDatabase,
     private val tilsagnService: TilsagnService,
     private val dokarkClient: DokarkClient,
-    private val pdl: HentAdressebeskyttetPersonBolkPdlQuery,
+    private val arrangorFlateService: ArrangorFlateService,
     private val pdf: PdfGenClient,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -58,7 +56,7 @@ class JournalforUtbetaling(
         logger.info("Journalfører utbetaling med id: $id")
 
         val utbetaling = requireNotNull(queries.utbetaling.get(id)) { "Fant ikke utbetaling med id=$id" }
-        require(utbetaling.status == UtbetalingStatus.INNSENDT_AV_ARRANGOR) { "utbetaling må være godkjent" }
+        require(utbetaling.innsender == UtbetalingDto.Innsender.ArrangorAnsatt) { "utbetaling må være godkjent" }
 
         val gjennomforing = queries.gjennomforing.get(utbetaling.gjennomforing.id)
         requireNotNull(gjennomforing) { "Fant ikke gjennomforing til utbetaling med id=$id" }
@@ -70,7 +68,7 @@ class JournalforUtbetaling(
                 gjennomforingId = utbetaling.gjennomforing.id,
                 periode = utbetaling.periode,
             )
-            val utbetalingAft = toArrFlateUtbetaling(db, pdl, utbetaling)
+            val utbetalingAft = arrangorFlateService.toArrFlateUtbetaling(utbetaling)
             pdf.utbetalingJournalpost(utbetalingAft, tilsagn)
         }
 
