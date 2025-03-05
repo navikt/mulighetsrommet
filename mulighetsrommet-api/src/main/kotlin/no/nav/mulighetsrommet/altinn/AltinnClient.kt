@@ -26,11 +26,6 @@ class AltinnClient(
         install(HttpCache)
     }
 
-    data class Config(
-        val url: String,
-        val scope: String,
-    )
-
     suspend fun hentRettigheter(norskIdent: NorskIdent): List<BedriftRettigheter> {
         log.info("Henter organisasjoner fra Altinn")
         // TODO: Fiks paginering

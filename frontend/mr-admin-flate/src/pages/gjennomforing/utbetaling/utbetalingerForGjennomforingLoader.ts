@@ -19,7 +19,7 @@ export const utbetalingerForGjennomforingLoader =
       throw Error("Fant ikke gjennomforingId i route");
     }
 
-    const [{ data: gjennomforing }, { data: utbetalinger }] = await Promise.all([
+    const [gjennomforing, { data: utbetalinger }] = await Promise.all([
       queryClient.ensureQueryData(gjennomforingQuery(gjennomforingId)),
       queryClient.ensureQueryData(utbetalingerByGjennomforingQuery(gjennomforingId)),
     ]);

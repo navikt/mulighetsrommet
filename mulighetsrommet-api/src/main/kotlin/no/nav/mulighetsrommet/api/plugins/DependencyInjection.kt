@@ -7,8 +7,6 @@ import no.nav.common.client.axsys.AxsysClient
 import no.nav.common.client.axsys.AxsysV2ClientImpl
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
-import no.nav.common.kafka.util.KafkaPropertiesBuilder
-import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.ApiDatabase
@@ -39,6 +37,7 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingValidator
+import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
@@ -76,7 +75,6 @@ import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
-import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.notifications.NotificationTask
@@ -95,8 +93,6 @@ import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
-import org.apache.kafka.common.serialization.ByteArrayDeserializer
-import org.apache.kafka.common.serialization.StringSerializer
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.koin.ktor.plugin.KoinIsolated
@@ -132,20 +128,10 @@ private fun db(config: DatabaseConfig) = module {
 
 private fun kafka(appConfig: AppConfig) = module {
     val config = appConfig.kafka
-    val producerProperties = when (NaisEnv.current()) {
-        NaisEnv.Local -> KafkaPropertiesBuilder.producerBuilder()
-            .withBaseProperties()
-            .withProducerId(config.producerId)
-            .withBrokerUrl(config.brokerUrl)
-            .withSerializers(StringSerializer::class.java, StringSerializer::class.java)
-            .build()
-
-        else -> KafkaPropertiesPreset.aivenDefaultProducerProperties(config.producerId)
-    }
 
     single<KafkaProducerClient<String, String?>> {
         KafkaProducerClientBuilder.builder<String, String?>()
-            .withProperties(producerProperties)
+            .withProperties(config.producerProperties)
             .withMetrics(Metrikker.appMicrometerRegistry)
             .build()
     }
@@ -158,17 +144,6 @@ private fun kafka(appConfig: AppConfig) = module {
     }
     single { SisteTiltaksgjennomforingerV1KafkaProducer(get(), config.producers.gjennomforinger) }
     single { SisteTiltakstyperV2KafkaProducer(get(), config.producers.tiltakstyper) }
-
-    val consumerPreset = when (NaisEnv.current()) {
-        NaisEnv.Local -> KafkaPropertiesBuilder.consumerBuilder()
-            .withBaseProperties()
-            .withConsumerGroupId(config.defaultConsumerGroupId)
-            .withBrokerUrl(config.brokerUrl)
-            .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
-            .build()
-
-        else -> KafkaPropertiesPreset.aivenDefaultConsumerProperties(config.defaultConsumerGroupId)
-    }
 
     single {
         val consumers = listOf(
@@ -198,9 +173,13 @@ private fun kafka(appConfig: AppConfig) = module {
                 config = config.consumers.amtArrangorMeldingV1,
                 db = get(),
             ),
+            AmtKoordinatorGjennomforingV1KafkaConsumer(
+                config = config.consumers.amtKoordinatorMeldingV1,
+                db = get(),
+            ),
         )
         KafkaConsumerOrchestrator(
-            consumerPreset = consumerPreset,
+            consumerPreset = config.consumerPreset,
             db = get(),
             consumers = consumers,
         )
@@ -209,11 +188,12 @@ private fun kafka(appConfig: AppConfig) = module {
 
 private fun services(appConfig: AppConfig) = module {
     val azure = appConfig.auth.azure
-    val cachedTokenProvider = CachedTokenProvider.init(azure.audience, azure.tokenEndpointUrl)
+    val cachedTokenProvider = CachedTokenProvider.init(azure.audience, azure.tokenEndpointUrl, azure.privateJwk)
     val maskinportenTokenProvider = createMaskinportenM2mTokenClient(
-        appConfig.auth.maskinporten.audience,
-        appConfig.auth.maskinporten.tokenEndpointUrl,
-        appConfig.auth.maskinporten.issuer,
+        clientId = appConfig.auth.maskinporten.audience,
+        issuer = appConfig.auth.maskinporten.issuer,
+        tokenEndpointUrl = appConfig.auth.maskinporten.tokenEndpointUrl,
+        privateJwk = appConfig.auth.maskinporten.privateJwk,
     )
 
     single {

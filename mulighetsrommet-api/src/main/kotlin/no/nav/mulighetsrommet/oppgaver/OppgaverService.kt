@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.oppgaver
 
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -99,24 +100,28 @@ class OppgaverService(val db: ApiDatabase) {
         tiltakskoder: List<Tiltakskode>,
         kostnadssteder: List<String>,
         roller: Set<NavAnsattRolle>,
-    ): List<Oppgave> {
-        return db.session {
-            queries.utbetaling
-                .getOppgaveData(
-                    tiltakskoder = tiltakskoder.ifEmpty { null },
-                )
-                .filter {
-                    if (kostnadssteder.isEmpty()) {
-                        true
-                    } else {
-                        val tilsagn =
-                            db.session { queries.tilsagn.getAll(gjennomforingId = it.gjennomforing.id, periode = it.periode) }
-                        tilsagn.isEmpty() || tilsagn.any { it.kostnadssted.enhetsnummer in kostnadssteder }
-                    }
-                }
-                .mapNotNull { it.toOppgave() }
-                .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
-                .filter { it.type.rolle in roller }
+    ): List<Oppgave> = db.session {
+        queries.utbetaling
+            .getOppgaveData(tiltakskoder = tiltakskoder.ifEmpty { null })
+            .asSequence()
+            .filter { utbetaling -> utbetaling.innsender == UtbetalingDto.Innsender.ArrangorAnsatt }
+            .filter { utbetaling -> queries.delutbetaling.getByUtbetalingId(utbetaling.id).isEmpty() }
+            .filter { utbetaling -> byKostnadssted(utbetaling, kostnadssteder) }
+            .map { it.toOppgave() }
+            .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
+            .filter { it.type.rolle in roller }
+            .toList()
+    }
+
+    private fun QueryContext.byKostnadssted(
+        utbetaling: UtbetalingDto,
+        kostnadssteder: List<String>,
+    ): Boolean = when {
+        kostnadssteder.isEmpty() -> true
+        else -> {
+            queries.tilsagn
+                .getAll(gjennomforingId = utbetaling.gjennomforing.id, periode = utbetaling.periode)
+                .let { tilsagn -> tilsagn.isEmpty() || tilsagn.any { it.kostnadssted.enhetsnummer in kostnadssteder } }
         }
     }
 
@@ -200,7 +205,6 @@ class OppgaverService(val db: ApiDatabase) {
         )
 
         is DelutbetalingDto.DelutbetalingAvvist -> {
-            requireNotNull(opprettelse.besluttetTidspunkt)
             Oppgave(
                 id = UUID.randomUUID(),
                 type = OppgaveType.UTBETALING_RETURNERT,
@@ -211,7 +215,7 @@ class OppgaverService(val db: ApiDatabase) {
                     linkText = "Se utbetaling",
                     link = "/gjennomforinger/$gjennomforingId/utbetalinger/$utbetalingId",
                 ),
-                createdAt = opprettelse.besluttetTidspunkt,
+                createdAt = requireNotNull(opprettelse.besluttetTidspunkt),
                 oppgaveIcon = OppgaveIcon.UTBETALING,
             )
         }
@@ -221,21 +225,17 @@ class OppgaverService(val db: ApiDatabase) {
         -> null
     }
 
-    private fun UtbetalingDto.toOppgave(): Oppgave? = if (innsender == UtbetalingDto.Innsender.ArrangorAnsatt && delutbetalinger.isEmpty()) {
-        Oppgave(
-            id = UUID.randomUUID(),
-            type = OppgaveType.UTBETALING_TIL_BEHANDLING,
-            title = "Utbetaling klar til behandling",
-            description = "Innsendt utbetaling for ${gjennomforing.navn} er klar til behandling",
-            tiltakstype = tiltakstype.tiltakskode,
-            link = OppgaveLink(
-                linkText = "Se utbetaling",
-                link = "/gjennomforinger/${gjennomforing.id}/utbetalinger/$id",
-            ),
-            createdAt = createdAt,
-            oppgaveIcon = OppgaveIcon.UTBETALING,
-        )
-    } else {
-        null
-    }
+    private fun UtbetalingDto.toOppgave(): Oppgave = Oppgave(
+        id = UUID.randomUUID(),
+        type = OppgaveType.UTBETALING_TIL_BEHANDLING,
+        title = "Utbetaling klar til behandling",
+        description = "Innsendt utbetaling for ${gjennomforing.navn} er klar til behandling",
+        tiltakstype = tiltakstype.tiltakskode,
+        link = OppgaveLink(
+            linkText = "Se utbetaling",
+            link = "/gjennomforinger/${gjennomforing.id}/utbetalinger/$id",
+        ),
+        createdAt = createdAt,
+        oppgaveIcon = OppgaveIcon.UTBETALING,
+    )
 }

@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.arrangorflate.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
@@ -37,7 +36,7 @@ sealed class Beregning {
 data class ArrFlateUtbetaling(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val status: Status,
+    val status: ArrFlateUtbetalingStatus,
     @Serializable(with = LocalDateTimeSerializer::class)
     val fristForGodkjenning: LocalDateTime,
     val tiltakstype: UtbetalingDto.Tiltakstype,
@@ -49,29 +48,7 @@ data class ArrFlateUtbetaling(
     val periodeStart: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val periodeSlutt: LocalDate,
-) {
-    enum class Status {
-        KLAR_FOR_GODKJENNING,
-        BEHANDLES_AV_NAV,
-        UTBETALT,
-        VENTER_PA_ENDRING,
-        ;
-
-        companion object {
-            fun fromUtbetaling(utbetaling: UtbetalingDto, harRelevanteForslag: Boolean): Status {
-                return if (utbetaling.delutbetalinger.isNotEmpty() && utbetaling.delutbetalinger.all { it is DelutbetalingDto.DelutbetalingUtbetalt }) {
-                    UTBETALT
-                } else if (utbetaling.innsender != null) {
-                    BEHANDLES_AV_NAV
-                } else if (harRelevanteForslag) {
-                    VENTER_PA_ENDRING
-                } else {
-                    KLAR_FOR_GODKJENNING
-                }
-            }
-        }
-    }
-}
+)
 
 @Serializable
 data class UtbetalingDeltakelse(

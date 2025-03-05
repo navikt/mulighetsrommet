@@ -19,15 +19,12 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
 import no.nav.mulighetsrommet.api.utbetaling.model.*
-import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 fun Route.utbetalingRoutes() {
@@ -38,12 +35,19 @@ fun Route.utbetalingRoutes() {
         get {
             val id = call.parameters.getOrFail<UUID>("id")
 
-            val utbetaling = db.session {
-                val utbetaling = queries.utbetaling.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
-                UtbetalingKompakt.fromUtbetalingDto(utbetaling)
-            }
+            val utbetaling = service.getUtbetalingKompakt(id)
 
             call.respond(utbetaling)
+        }
+
+        get("/delutbetalinger") {
+            val id = call.parameters.getOrFail<UUID>("id")
+
+            val delutbetalinger = db.session {
+                queries.delutbetaling.getByUtbetalingId(id)
+            }
+
+            call.respond(delutbetalinger)
         }
 
         get("/historikk") {
@@ -93,14 +97,17 @@ fun Route.utbetalingRoutes() {
                     val request = call.receive<DelutbetalingRequest>()
                     val navIdent = getNavIdent()
 
-                    call.respondWithStatusResponse(service.validateAndUpsertDelutbetaling(utbetalingId, request, navIdent))
+                    val result = service.validateAndUpsertDelutbetaling(utbetalingId, request, navIdent)
+                    call.respondWithStatusResponse(result)
                 }
+
                 put("/bulk") {
                     val utbetalingId = call.parameters.getOrFail<UUID>("id")
                     val request = call.receive<DelutbetalingBulkRequest>()
                     val navIdent = getNavIdent()
 
-                    call.respondWithStatusResponse(service.opprettDelutbetalinger(utbetalingId, request, navIdent))
+                    val result = service.opprettDelutbetalinger(utbetalingId, request, navIdent)
+                    call.respondWithStatusResponse(result)
                 }
             }
 
@@ -120,12 +127,7 @@ fun Route.utbetalingRoutes() {
         get {
             val id = call.parameters.getOrFail<UUID>("id")
 
-            val utbetalinger = db.session {
-                queries.utbetaling.getByGjennomforing(id)
-                    .map { utbetaling ->
-                        UtbetalingKompakt.fromUtbetalingDto(utbetaling)
-                    }
-            }
+            val utbetalinger = service.getUtbetalingKompaktByGjennomforing(id)
 
             call.respond(utbetalinger)
         }
@@ -193,62 +195,4 @@ data class OpprettManuellUtbetalingRequest(
         @Serializable(with = LocalDateSerializer::class)
         val slutt: LocalDate,
     )
-}
-
-@Serializable
-data class UtbetalingKompakt(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    val status: AdminUtbetalingStatus,
-    val beregning: Beregning,
-    val delutbetalinger: List<DelutbetalingDto>,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val godkjentAvArrangorTidspunkt: LocalDateTime?,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val createdAt: LocalDateTime,
-    val betalingsinformasjon: UtbetalingDto.Betalingsinformasjon,
-) {
-    @Serializable
-    data class Beregning(
-        @Serializable(with = LocalDateSerializer::class)
-        val periodeStart: LocalDate,
-        @Serializable(with = LocalDateSerializer::class)
-        val periodeSlutt: LocalDate,
-        val belop: Int,
-    )
-
-    companion object {
-        fun fromUtbetalingDto(utbetaling: UtbetalingDto) = UtbetalingKompakt(
-            id = utbetaling.id,
-            status = AdminUtbetalingStatus.fromUtbetaling(utbetaling),
-            beregning = Beregning(
-                periodeStart = utbetaling.periode.start,
-                periodeSlutt = utbetaling.periode.getLastInclusiveDate(),
-                belop = utbetaling.beregning.output.belop,
-            ),
-            godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
-            delutbetalinger = utbetaling.delutbetalinger,
-            betalingsinformasjon = utbetaling.betalingsinformasjon,
-            createdAt = utbetaling.createdAt,
-        )
-    }
-
-    enum class AdminUtbetalingStatus {
-        UTBETALT,
-        VENTER_PA_ARRANGOR,
-        BEHANDLES_AV_NAV,
-        ;
-
-        companion object {
-            fun fromUtbetaling(utbetaling: UtbetalingDto): AdminUtbetalingStatus {
-                return if (utbetaling.delutbetalinger.isNotEmpty() && utbetaling.delutbetalinger.all { it is DelutbetalingDto.DelutbetalingUtbetalt }) {
-                    UTBETALT
-                } else if (utbetaling.innsender != null) {
-                    BEHANDLES_AV_NAV
-                } else {
-                    VENTER_PA_ARRANGOR
-                }
-            }
-        }
-    }
 }

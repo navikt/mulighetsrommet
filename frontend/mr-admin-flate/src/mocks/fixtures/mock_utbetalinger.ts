@@ -9,7 +9,6 @@ export const mockUtbetalinger: UtbetalingKompakt[] = [
     },
     id: "",
     status: AdminUtbetalingStatus.VENTER_PA_ARRANGOR,
-    delutbetalinger: [],
     createdAt: "2020-01-01",
   },
 ];

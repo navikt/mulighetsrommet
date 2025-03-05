@@ -5,7 +5,6 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jwt.JWTParser
-import io.ktor.client.engine.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -13,7 +12,6 @@ import kotlinx.coroutines.async
 import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.common.token_client.client.OnBehalfOfTokenClient
-import no.nav.mulighetsrommet.env.NaisEnv
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
@@ -48,10 +46,10 @@ class CachedTokenProvider(
         .build()
 
     companion object {
-        fun init(clientId: String, tokenEndpointUrl: String): CachedTokenProvider {
+        fun init(clientId: String, tokenEndpointUrl: String, privateJwk: String): CachedTokenProvider {
             return CachedTokenProvider(
-                m2mTokenProvider = createM2mTokenClient(clientId, tokenEndpointUrl),
-                oboTokenProvider = createOboTokenClient(clientId, tokenEndpointUrl),
+                m2mTokenProvider = createM2mTokenClient(clientId = clientId, tokenEndpointUrl = tokenEndpointUrl, privateJwk = privateJwk),
+                oboTokenProvider = createOboTokenClient(clientId = clientId, tokenEndpointUrl = tokenEndpointUrl, privateJwk = privateJwk),
             )
         }
     }
@@ -93,47 +91,46 @@ private fun AccessType.subject(): String = when (this) {
     }
 }
 
-private fun createOboTokenClient(clientId: String, tokenEndpointUrl: String): OnBehalfOfTokenClient = when (NaisEnv.current()) {
-    NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
-        .withClientId(clientId)
-        .withPrivateJwk(createMockRSAKey("azure").toJSONString())
-        .withTokenEndpointUrl(tokenEndpointUrl)
-        .buildOnBehalfOfTokenClient()
+private fun createOboTokenClient(
+    clientId: String,
+    tokenEndpointUrl: String,
+    privateJwk: String,
+): OnBehalfOfTokenClient = AzureAdTokenClientBuilder.builder()
+    .withClientId(clientId)
+    .withPrivateJwk(privateJwk)
+    .withTokenEndpointUrl(tokenEndpointUrl)
+    .buildOnBehalfOfTokenClient()
 
-    else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildOnBehalfOfTokenClient()
-}
+private fun createM2mTokenClient(
+    clientId: String,
+    tokenEndpointUrl: String,
+    privateJwk: String,
+): MachineToMachineTokenClient = AzureAdTokenClientBuilder.builder()
+    .withClientId(clientId)
+    .withPrivateJwk(privateJwk)
+    .withTokenEndpointUrl(tokenEndpointUrl)
+    .buildMachineToMachineTokenClient()
 
-private fun createM2mTokenClient(clientId: String, tokenEndpointUrl: String): MachineToMachineTokenClient = when (NaisEnv.current()) {
-    NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
-        .withClientId(clientId)
-        .withPrivateJwk(createMockRSAKey("azure").toJSONString())
-        .withTokenEndpointUrl(tokenEndpointUrl)
-        .buildMachineToMachineTokenClient()
-
-    else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
+fun foo() {
+    AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
 }
 
 fun createMaskinportenM2mTokenClient(
     clientId: String,
     tokenEndpointUrl: String,
     issuer: String,
-): MaskinPortenTokenProvider? = when (NaisEnv.current()) {
-    NaisEnv.Local -> MaskinPortenTokenProvider(
-        clientId = clientId,
-        tokenEndpointUrl = tokenEndpointUrl,
-        privateJwk = createMockRSAKey("maskinporten").toJSONString(),
-        issuer = issuer,
-    )
-    NaisEnv.ProdGCP -> null // TODO: Remove when prod
+    privateJwk: String?,
+): MaskinPortenTokenProvider? = when (privateJwk) {
+    null -> null
     else -> MaskinPortenTokenProvider(
         clientId = clientId,
         tokenEndpointUrl = tokenEndpointUrl,
-        privateJwk = System.getenv("MASKINPORTEN_CLIENT_JWK"),
+        privateJwk = privateJwk,
         issuer = issuer,
     )
 }
 
-private fun createMockRSAKey(keyID: String): RSAKey = KeyPairGenerator
+fun createMockRSAKey(keyID: String): String = KeyPairGenerator
     .getInstance("RSA").let {
         it.initialize(2048)
         it.generateKeyPair()
@@ -143,4 +140,5 @@ private fun createMockRSAKey(keyID: String): RSAKey = KeyPairGenerator
             .keyUse(KeyUse.SIGNATURE)
             .keyID(keyID)
             .build()
+            .toJSONString()
     }

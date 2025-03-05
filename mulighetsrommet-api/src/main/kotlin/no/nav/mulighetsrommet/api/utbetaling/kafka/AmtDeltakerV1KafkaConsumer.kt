@@ -62,6 +62,7 @@ class AmtDeltakerV1KafkaConsumer(
         }
     }
 
+    // TODO: oppdater logikk ifm. prodsetting av tiltaksøkonomi
     private fun isRelevantForUtbetaling(deltaker: AmtDeltakerV1Dto): Boolean {
         if (NaisEnv.current().isProdGCP()) {
             return false

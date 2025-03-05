@@ -128,7 +128,7 @@ class UtbetalingServiceTest : FunSpec({
             utbetaling.betalingsinformasjon.kid shouldBe null
 
             database.run {
-                queries.utbetaling.setBetalingsInformasjon(
+                queries.utbetaling.setBetalingsinformasjon(
                     id = utbetaling.id,
                     kontonummer = Kontonummer("12345678901"),
                     kid = Kid("12345678901"),
@@ -416,19 +416,18 @@ class UtbetalingServiceTest : FunSpec({
                 ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                tilsagn = listOf(Tilsagn1),
                 utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
             ).initialize(database.db)
 
             val service = createUtbetalingService()
 
-            val opprettRequest =
-                DelutbetalingRequest(
-                    id = UUID.randomUUID(),
-                    tilsagnId = TilsagnFixtures.Tilsagn1.id,
-                    frigjorTilsagn = false,
-                    belop = 100,
-                )
+            val opprettRequest = DelutbetalingRequest(
+                id = UUID.randomUUID(),
+                tilsagnId = Tilsagn1.id,
+                frigjorTilsagn = false,
+                belop = 100,
+            )
             service.validateAndUpsertDelutbetaling(
                 utbetalingId = UtbetalingFixtures.utbetaling1.id,
                 request = opprettRequest,
@@ -477,7 +476,7 @@ class UtbetalingServiceTest : FunSpec({
                 ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                tilsagn = listOf(Tilsagn1),
                 utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
                 delutbetalinger = listOf(UtbetalingFixtures.delutbetaling1),
             ) {
@@ -492,7 +491,7 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalingId = UtbetalingFixtures.utbetaling1.id,
                 request = DelutbetalingRequest(
                     id = UtbetalingFixtures.delutbetaling1.id,
-                    tilsagnId = TilsagnFixtures.Tilsagn1.id,
+                    tilsagnId = Tilsagn1.id,
                     frigjorTilsagn = false,
                     belop = 100,
                 ),
@@ -507,7 +506,7 @@ class UtbetalingServiceTest : FunSpec({
                 ansatte = listOf(NavAnsattFixture.ansatt1),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                tilsagn = listOf(Tilsagn1),
                 utbetalinger = listOf(
                     UtbetalingFixtures.utbetaling1.copy(
                         periode = Periode.forMonthOf(
@@ -526,7 +525,7 @@ class UtbetalingServiceTest : FunSpec({
             val request =
                 DelutbetalingRequest(
                     id = UUID.randomUUID(),
-                    tilsagnId = TilsagnFixtures.Tilsagn1.id,
+                    tilsagnId = Tilsagn1.id,
                     frigjorTilsagn = false,
                     belop = 100,
                 )
@@ -541,10 +540,10 @@ class UtbetalingServiceTest : FunSpec({
         }
 
         test("skal ikke kunne opprette delutbetaling hvis belop er for stort") {
-            val tilsagn1 = TilsagnFixtures.Tilsagn1.copy(
+            val tilsagn1 = Tilsagn1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
             )
-            val tilsagn2 = TilsagnFixtures.Tilsagn2.copy(
+            val tilsagn2 = Tilsagn2.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
             )
 
@@ -590,12 +589,12 @@ class UtbetalingServiceTest : FunSpec({
         }
 
         test("løpenummer, fakturanummer og periode blir utledet fra tilsagnet og utbetalingen") {
-            val tilsagn1 = TilsagnFixtures.Tilsagn2.copy(
+            val tilsagn1 = Tilsagn2.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
                 bestillingsnummer = "A-2024/1-1",
             )
 
-            val tilsagn2 = TilsagnFixtures.Tilsagn1.copy(
+            val tilsagn2 = Tilsagn1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
                 bestillingsnummer = "A-2024/1-2",
             )
@@ -674,6 +673,16 @@ class UtbetalingServiceTest : FunSpec({
     }
 
     context("Automatisk utbetaling") {
+        val godkjennUtbetaling = GodkjennUtbetaling(
+            betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(
+                kontonummer = Kontonummer("12312312312"),
+                kid = null,
+            ),
+            digest = "digest",
+        )
+
+        val utbetalingId = UtbetalingFixtures.utbetaling1.id
+
         test("happy case") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
@@ -686,25 +695,15 @@ class UtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(
-                UtbetalingFixtures.utbetaling1.id,
-                request = GodkjennUtbetaling(
-                    betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(
-                        kontonummer = Kontonummer("12312312312"),
-                        kid = null,
-                    ),
-                    digest = "digest",
-                ),
-            )
+            service.godkjentAvArrangor(utbetalingId, godkjennUtbetaling)
 
-            val dto = requireNotNull(database.run { queries.utbetaling.get(UtbetalingFixtures.utbetaling1.id) })
-            dto.delutbetalinger shouldHaveSize 1
-
-            val delutbetaling = dto.delutbetalinger[0]
-            delutbetaling.shouldBeTypeOf<DelutbetalingDto.DelutbetalingOverfortTilUtbetaling>()
-            delutbetaling.belop shouldBe UtbetalingFixtures.utbetaling1.beregning.output.belop
-            delutbetaling.opprettelse.behandletAv shouldBe Tiltaksadministrasjon
-            delutbetaling.opprettelse.besluttetAv shouldBe Tiltaksadministrasjon
+            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetalingId) }
+            delutbetalinger.shouldHaveSize(1).first().should {
+                it.shouldBeTypeOf<DelutbetalingDto.DelutbetalingOverfortTilUtbetaling>()
+                it.belop shouldBe UtbetalingFixtures.utbetaling1.beregning.output.belop
+                it.opprettelse.behandletAv shouldBe Tiltaksadministrasjon
+                it.opprettelse.besluttetAv shouldBe Tiltaksadministrasjon
+            }
         }
 
         test("ingen automatisk utbetaling hvis tilsagn ikke er godkjent") {
@@ -717,18 +716,10 @@ class UtbetalingServiceTest : FunSpec({
             ).initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(
-                UtbetalingFixtures.utbetaling1.id,
-                request = GodkjennUtbetaling(
-                    betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(
-                        kontonummer = Kontonummer("12312312312"),
-                        kid = null,
-                    ),
-                    digest = "digest",
-                ),
-            )
-            val dto = requireNotNull(database.run { queries.utbetaling.get(UtbetalingFixtures.utbetaling1.id) })
-            dto.delutbetalinger shouldHaveSize 0
+            service.godkjentAvArrangor(utbetalingId, godkjennUtbetaling)
+
+            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetalingId) }
+            delutbetalinger shouldHaveSize 0
         }
 
         test("ingen automatisk utbetaling hvis ingen tilsagn") {
@@ -740,18 +731,10 @@ class UtbetalingServiceTest : FunSpec({
             ).initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(
-                UtbetalingFixtures.utbetaling1.id,
-                request = GodkjennUtbetaling(
-                    betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(
-                        kontonummer = Kontonummer("12312312312"),
-                        kid = null,
-                    ),
-                    digest = "digest",
-                ),
-            )
-            val dto = requireNotNull(database.run { queries.utbetaling.get(UtbetalingFixtures.utbetaling1.id) })
-            dto.delutbetalinger shouldHaveSize 0
+            service.godkjentAvArrangor(utbetalingId, godkjennUtbetaling)
+
+            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetalingId) }
+            delutbetalinger shouldHaveSize 0
         }
 
         test("ingen automatisk utbetaling hvis flere tilsagn") {
@@ -767,18 +750,10 @@ class UtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(
-                UtbetalingFixtures.utbetaling1.id,
-                request = GodkjennUtbetaling(
-                    betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(
-                        kontonummer = Kontonummer("12312312312"),
-                        kid = null,
-                    ),
-                    digest = "digest",
-                ),
-            )
-            val dto = requireNotNull(database.run { queries.utbetaling.get(UtbetalingFixtures.utbetaling1.id) })
-            dto.delutbetalinger shouldHaveSize 0
+            service.godkjentAvArrangor(utbetalingId, godkjennUtbetaling)
+
+            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetalingId) }
+            delutbetalinger shouldHaveSize 0
         }
 
         test("ingen automatisk utbetaling hvis tilsagn ikke har nok penger") {
@@ -800,18 +775,10 @@ class UtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(
-                UtbetalingFixtures.utbetaling1.id,
-                request = GodkjennUtbetaling(
-                    betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(
-                        kontonummer = Kontonummer("12312312312"),
-                        kid = null,
-                    ),
-                    digest = "digest",
-                ),
-            )
-            val dto = requireNotNull(database.run { queries.utbetaling.get(UtbetalingFixtures.utbetaling1.id) })
-            dto.delutbetalinger shouldHaveSize 0
+            service.godkjentAvArrangor(utbetalingId, godkjennUtbetaling)
+
+            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetalingId) }
+            delutbetalinger shouldHaveSize 0
         }
 
         test("ingen automatisk utbetaling hvis feil tiltakskode") {
@@ -826,18 +793,10 @@ class UtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(
-                UtbetalingFixtures.utbetaling1.id,
-                request = GodkjennUtbetaling(
-                    betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(
-                        kontonummer = Kontonummer("12312312312"),
-                        kid = null,
-                    ),
-                    digest = "digest",
-                ),
-            )
-            val dto = requireNotNull(database.run { queries.utbetaling.get(UtbetalingFixtures.utbetaling1.id) })
-            dto.delutbetalinger shouldHaveSize 0
+            service.godkjentAvArrangor(utbetalingId, godkjennUtbetaling)
+
+            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetalingId) }
+            delutbetalinger shouldHaveSize 0
         }
 
         test("Tilsagn skal frigjøres automatisk når siste dato i tilsagnsperioden er inkludert i utbetalingsperioden") {
@@ -852,22 +811,10 @@ class UtbetalingServiceTest : FunSpec({
                 ),
                 utbetalinger = listOf(
                     UtbetalingFixtures.utbetaling1.copy(
-                        periode = Periode.forMonthOf(
-                            LocalDate.of(
-                                2025,
-                                1,
-                                4,
-                            ),
-                        ),
+                        periode = Periode.forMonthOf(LocalDate.of(2025, 1, 4)),
                     ),
                     UtbetalingFixtures.utbetaling2.copy(
-                        periode = Periode.forMonthOf(
-                            LocalDate.of(
-                                2025,
-                                2,
-                                4,
-                            ),
-                        ),
+                        periode = Periode.forMonthOf(LocalDate.of(2025, 2, 4)),
                     ),
                 ),
             ) {
@@ -875,31 +822,16 @@ class UtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(
-                UtbetalingFixtures.utbetaling1.id,
-                request = GodkjennUtbetaling(
-                    betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(
-                        kontonummer = Kontonummer("12312312312"),
-                        kid = null,
-                    ),
-                    digest = "digest",
-                ),
-            )
-            val dto1 = requireNotNull(database.run { queries.utbetaling.get(UtbetalingFixtures.utbetaling1.id) })
-            dto1.delutbetalinger[0].frigjorTilsagn shouldBe false
 
-            service.godkjentAvArrangor(
-                UtbetalingFixtures.utbetaling2.id,
-                request = GodkjennUtbetaling(
-                    betalingsinformasjon = GodkjennUtbetaling.Betalingsinformasjon(
-                        kontonummer = Kontonummer("12312312312"),
-                        kid = null,
-                    ),
-                    digest = "digest",
-                ),
-            )
-            val dto2 = requireNotNull(database.run { queries.utbetaling.get(UtbetalingFixtures.utbetaling2.id) })
-            dto2.delutbetalinger[0].frigjorTilsagn shouldBe true
+            val utbetalingId1 = UtbetalingFixtures.utbetaling1.id
+            service.godkjentAvArrangor(utbetalingId1, godkjennUtbetaling)
+            val delutbetaling1 = database.run { queries.delutbetaling.getByUtbetalingId(utbetalingId1) }
+            delutbetaling1[0].frigjorTilsagn shouldBe false
+
+            val utbetalingId2 = UtbetalingFixtures.utbetaling2.id
+            service.godkjentAvArrangor(utbetalingId2, godkjennUtbetaling)
+            val delutbetaling2 = database.run { queries.delutbetaling.getByUtbetalingId(utbetalingId2) }
+            delutbetaling2[0].frigjorTilsagn shouldBe true
         }
     }
 })

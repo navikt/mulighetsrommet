@@ -170,18 +170,6 @@ fun Route.arrangorflateRoutes() {
                 call.respond(tilsagn)
             }
         }
-
-        /*
-        fun getUtbetaling(id: UUID): UtbetalingDto {
-            return db.session {
-                queries.utbetaling.get(id) ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
-            }
-        }
-            return db.session {
-                queries.tilsagn.getArrangorflateTilsagn(id) ?: throw NotFoundException("Fant ikke tilsagn")
-            }
-
-         */
     }
 }
 

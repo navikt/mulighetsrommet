@@ -167,33 +167,6 @@ class DelutbetalingQueries(private val session: Session) {
         return single(queryOf(query, params)) { it.toDelutbetalingDto() }
     }
 
-    private fun getIdOrThrow(utbetalingId: UUID, tilsagnId: UUID): UUID {
-        // Fetch the primary_id from primary_table using (utbetaling_id, tilsagn_id)
-        @Language("PostgreSQL")
-        val query = """
-            select id from delutbetaling
-            where utbetaling_id = :utbetaling_id and tilsagn_id = :tilsagn_id
-        """.trimIndent()
-
-        val params = mapOf(
-            "utbetaling_id" to utbetalingId,
-            "tilsagn_id" to tilsagnId,
-        )
-
-        val id = session.run(queryOf(query, params).map { it.uuid("id") }.asSingle)
-        requireNotNull(id) {
-            "No matching primary_id found for utbetalingId=$utbetalingId, tilsagnId=$tilsagnId"
-        }
-        return id
-    }
-
-    data class DelutbetalingOppgaveData(
-        val delutbetaling: DelutbetalingDto,
-        val gjennomforingId: UUID,
-        val tiltakskode: Tiltakskode,
-        val gjennomforingsnavn: String,
-    )
-
     fun getOppgaveData(
         kostnadssteder: List<String>?,
         tiltakskoder: List<Tiltakskode>?,

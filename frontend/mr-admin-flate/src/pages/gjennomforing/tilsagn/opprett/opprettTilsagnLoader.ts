@@ -58,22 +58,21 @@ export const opprettTilsagnLoader =
       : null;
     const kostnadssted = url.searchParams.get("kostnadssted");
 
-    const [{ data: gjennomforing }, { data: defaults }, { data: godkjenteTilsagn }] =
-      await Promise.all([
-        queryClient.ensureQueryData(gjennomforingQuery(gjennomforingId)),
-        queryClient.ensureQueryData(
-          tilsagnDefaultsQuery({
-            gjennomforingId,
-            type,
-            prismodell,
-            periodeStart,
-            periodeSlutt,
-            belop: belop ? Number(belop) : null,
-            kostnadssted,
-          }),
-        ),
-        queryClient.ensureQueryData(godkjenteTilsagnQuery(gjennomforingId)),
-      ]);
+    const [gjennomforing, { data: defaults }, { data: godkjenteTilsagn }] = await Promise.all([
+      queryClient.ensureQueryData(gjennomforingQuery(gjennomforingId)),
+      queryClient.ensureQueryData(
+        tilsagnDefaultsQuery({
+          gjennomforingId,
+          type,
+          prismodell,
+          periodeStart,
+          periodeSlutt,
+          belop: belop ? Number(belop) : null,
+          kostnadssted,
+        }),
+      ),
+      queryClient.ensureQueryData(godkjenteTilsagnQuery(gjennomforingId)),
+    ]);
 
     const avtale = await queryClient.ensureQueryData(avtaleQuery(gjennomforing.avtaleId!));
 

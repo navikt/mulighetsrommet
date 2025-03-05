@@ -24,35 +24,6 @@ import no.nav.mulighetsrommet.notifications.NotificationQueries
 import no.nav.mulighetsrommet.utdanning.db.UtdanningQueries
 import javax.sql.DataSource
 
-class QueryContext(val session: Session) {
-
-    val queries by lazy { Queries() }
-
-    inner class Queries {
-        val enhet = NavEnhetQueries(session)
-        val ansatt = NavAnsattQueries(session)
-        val arrangor = ArrangorQueries(session)
-        val tiltakstype = TiltakstypeQueries(session)
-        val avtale = AvtaleQueries(session)
-        val opsjoner = OpsjonLoggQueries(session)
-        val gjennomforing = GjennomforingQueries(session)
-        val deltaker = DeltakerQueries(session)
-        val deltakerForslag = DeltakerForslagQueries(session)
-        val utbetaling = UtbetalingQueries(session)
-        val utdanning = UtdanningQueries(session)
-        val dvh = DatavarehusTiltakQueries(session)
-        val altinnRettigheter = AltinnRettigheterQueries(session)
-        val tilsagn = TilsagnQueries(session)
-        val notifications = NotificationQueries(session)
-        val endringshistorikk = EndringshistorikkQueries(session)
-        val delutbetaling = DelutbetalingQueries(session)
-        val totrinnskontroll = TotrinnskontrollQueries(session)
-
-        val veilderTiltak = VeilederflateTiltakQueries(session)
-        val veilederJoyride = VeilederJoyrideQueries(session)
-    }
-}
-
 class ApiDatabase(
     @PublishedApi
     internal val db: Database,
@@ -74,5 +45,32 @@ class ApiDatabase(
         return db.transaction { session ->
             QueryContext(session).operation()
         }
+    }
+}
+
+class QueryContext(val session: Session) {
+    val queries by lazy { Queries() }
+
+    inner class Queries {
+        val enhet = NavEnhetQueries(session)
+        val ansatt = NavAnsattQueries(session)
+        val arrangor = ArrangorQueries(session)
+        val tiltakstype = TiltakstypeQueries(session)
+        val avtale = AvtaleQueries(session)
+        val opsjoner = OpsjonLoggQueries(session)
+        val gjennomforing = GjennomforingQueries(session)
+        val deltaker = DeltakerQueries(session)
+        val deltakerForslag = DeltakerForslagQueries(session)
+        val utbetaling = UtbetalingQueries(session)
+        val utdanning = UtdanningQueries(session)
+        val dvh = DatavarehusTiltakQueries(session)
+        val altinnRettigheter = AltinnRettigheterQueries(session)
+        val tilsagn = TilsagnQueries(session)
+        val notifications = NotificationQueries(session)
+        val endringshistorikk = EndringshistorikkQueries(session)
+        val delutbetaling = DelutbetalingQueries(session)
+        val totrinnskontroll = TotrinnskontrollQueries(session)
+        val veilderTiltak = VeilederflateTiltakQueries(session)
+        val veilederJoyride = VeilederJoyrideQueries(session)
     }
 }

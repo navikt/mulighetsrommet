@@ -175,7 +175,7 @@ class UtbetalingQueries(private val session: Session) {
         execute(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt)))
     }
 
-    fun setBetalingsInformasjon(id: UUID, kontonummer: Kontonummer, kid: Kid?) = with(session) {
+    fun setBetalingsinformasjon(id: UUID, kontonummer: Kontonummer, kid: Kid?) = with(session) {
         @Language("PostgreSQL")
         val query = """
             update utbetaling
@@ -332,7 +332,6 @@ class UtbetalingQueries(private val session: Session) {
         val beregningsmodell = Beregningsmodell.valueOf(string("beregningsmodell"))
         val beregning = getBeregning(uuid("id"), beregningsmodell)
         val id = uuid("id")
-        val delutbetalinger = DelutbetalingQueries(session).getByUtbetalingId(id)
         val innsender = stringOrNull("innsender")?.let { UtbetalingDto.Innsender.fromString(it) }
 
         return UtbetalingDto(
@@ -365,7 +364,6 @@ class UtbetalingQueries(private val session: Session) {
             ),
             innsender = innsender,
             createdAt = localDateTime("created_at"),
-            delutbetalinger = delutbetalinger,
         )
     }
 }

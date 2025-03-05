@@ -13,9 +13,7 @@ export const tilsagnForGjennomforingLoader =
       throw new Error("gjennomforingId is missing");
     }
 
-    const { data: gjennomforing } = await queryClient.ensureQueryData(
-      gjennomforingQuery(gjennomforingId),
-    );
+    const gjennomforing = await queryClient.ensureQueryData(gjennomforingQuery(gjennomforingId));
 
     const [avtale, { data: tilsagnForGjennomforing }] = await Promise.all([
       queryClient.ensureQueryData(avtaleQuery(gjennomforing.avtaleId!)),
