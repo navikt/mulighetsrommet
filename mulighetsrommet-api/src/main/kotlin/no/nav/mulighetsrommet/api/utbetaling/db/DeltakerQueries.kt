@@ -3,8 +3,10 @@ package no.nav.mulighetsrommet.api.utbetaling.db
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesmengdeDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerDto
 import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.NorskIdent
 import org.intellij.lang.annotations.Language
@@ -12,7 +14,7 @@ import java.util.*
 
 class DeltakerQueries(private val session: Session) {
 
-    fun upsert(deltaker: DeltakerDbo) = with(session) {
+    fun upsert(deltaker: DeltakerDbo) = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
             insert into deltaker (id,
@@ -46,7 +48,6 @@ class DeltakerQueries(private val session: Session) {
                               status_aarsak              = excluded.status_aarsak,
                               status_opprettet_tidspunkt = excluded.status_opprettet_tidspunkt
         """.trimIndent()
-
         val params = mapOf(
             "id" to deltaker.id,
             "gjennomforing_id" to deltaker.gjennomforingId,
@@ -59,11 +60,31 @@ class DeltakerQueries(private val session: Session) {
             "status_aarsak" to deltaker.status.aarsak?.name,
             "status_opprettet_tidspunkt" to deltaker.status.opprettetDato,
         )
-
         execute(queryOf(query, params))
+
+        @Language("PostgreSQL")
+        val deleteDeltakelsesmengderQuery = """
+            delete from deltaker_deltakelsesmengde where deltaker_id = ?::uuid;
+        """.trimIndent()
+        execute(queryOf(deleteDeltakelsesmengderQuery, deltaker.id))
+
+        @Language("PostgreSQL")
+        val insertDeltakelsesmengdeQuery = """
+            insert into deltaker_deltakelsesmengde (deltaker_id, gyldig_fra, opprettet_tidspunkt, deltakelsesprosent)
+            values (:deltaker_id::uuid, :gyldig_fra, :opprettet_tidspunkt, :deltakelsesprosent)
+        """.trimIndent()
+        val deltakelsesmengder = deltaker.deltakelsesmengder.map {
+            mapOf(
+                "deltaker_id" to deltaker.id,
+                "gyldig_fra" to it.gyldigFra,
+                "opprettet_tidspunkt" to it.opprettetTidspunkt,
+                "deltakelsesprosent" to it.deltakelsesprosent,
+            )
+        }
+        batchPreparedNamedStatement(insertDeltakelsesmengdeQuery, deltakelsesmengder)
     }
 
-    fun setNorskIdent(deltakerId: UUID, norskIdent: NorskIdent) = with(session) {
+    fun setNorskIdent(deltakerId: UUID, norskIdent: NorskIdent): Boolean {
         @Language("PostgreSQL")
         val query = """
             update deltaker
@@ -76,10 +97,10 @@ class DeltakerQueries(private val session: Session) {
             "norsk_ident" to norskIdent.value,
         )
 
-        execute(queryOf(query, params))
+        return session.execute(queryOf(query, params))
     }
 
-    fun get(id: UUID): DeltakerDto? = with(session) {
+    fun get(id: UUID): DeltakerDto? {
         @Language("PostgreSQL")
         val query = """
             select id,
@@ -97,13 +118,30 @@ class DeltakerQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        return single(queryOf(query, id)) { it.toDeltakerDto() }
+        return session.single(queryOf(query, id)) { it.toDeltakerDto() }
+    }
+
+    fun getDeltakelsesmengder(id: UUID): List<DeltakelsesmengdeDto> {
+        @Language("PostgreSQL")
+        val query = """
+            select gyldig_fra, deltakelsesprosent
+            from deltaker_deltakelsesmengde
+            where deltaker_id = ?::uuid
+            order by gyldig_fra
+        """.trimIndent()
+
+        return session.list(queryOf(query, id)) {
+            DeltakelsesmengdeDto(
+                gyldigFra = it.localDate("gyldig_fra"),
+                deltakelsesprosent = it.double("deltakelsesprosent"),
+            )
+        }
     }
 
     fun getAll(
         pagination: Pagination = Pagination.all(),
         gjennomforingId: UUID? = null,
-    ): List<DeltakerDto> = with(session) {
+    ): List<DeltakerDto> {
         @Language("PostgreSQL")
         val query = """
             select id,
@@ -125,13 +163,10 @@ class DeltakerQueries(private val session: Session) {
 
         val params = mapOf("gjennomforing_id" to gjennomforingId)
 
-        queryOf(query, params + pagination.parameters)
-            .map { it.toDeltakerDto() }
-            .asList
-            .runWithSession(session)
+        return session.list(queryOf(query, params + pagination.parameters)) { it.toDeltakerDto() }
     }
 
-    fun delete(id: UUID) = with(session) {
+    fun delete(id: UUID) {
         @Language("PostgreSQL")
         val query = """
             delete
@@ -139,7 +174,7 @@ class DeltakerQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        execute(queryOf(query, id))
+        session.execute(queryOf(query, id))
     }
 }
 
