@@ -66,8 +66,6 @@ fun createKafkaConfig(): KafkaConfig {
         val brokerUrl = "localhost:29092"
         val consumerGroupId = "mulighetsrommet-kafka-consumer.v1"
         KafkaConfig(
-            brokerUrl = brokerUrl,
-            consumerGroupId = consumerGroupId,
             consumers = KafkaConsumers(
                 KafkaTopicConsumer.Config("tiltakendret", "tiltakendret"),
                 KafkaTopicConsumer.Config("tiltakgjennomforingendret", "tiltakgjennomforingendret"),

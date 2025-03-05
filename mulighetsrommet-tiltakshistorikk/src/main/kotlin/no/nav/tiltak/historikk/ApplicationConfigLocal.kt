@@ -24,31 +24,24 @@ val ApplicationConfigLocal = AppConfig(
             privateJwk = createMockRSAKey("azure"),
         ),
     ),
-    kafka = run {
-        val brokerUrl = "localhost:29092"
-        val defaultConsumerGroupId = "tiltakshistorikk.v1"
-        KafkaConfig(
-            brokerUrl = brokerUrl,
-            defaultConsumerGroupId = defaultConsumerGroupId,
-            consumers = KafkaConsumers(
-                amtDeltakerV1 = KafkaTopicConsumer.Config(
-                    id = "amt-deltaker",
-                    topic = "amt-deltaker-v1",
-                ),
-                sisteTiltaksgjennomforingerV1 = KafkaTopicConsumer.Config(
-                    id = "siste-tiltaksgjennomforinger",
-                    topic = "siste-tiltaksgjennomforinger-v1",
-                ),
+    kafka = KafkaConfig(
+        consumerPreset = KafkaPropertiesBuilder.consumerBuilder()
+            .withBaseProperties()
+            .withConsumerGroupId("tiltakshistorikk.v1")
+            .withBrokerUrl("localhost:29092")
+            .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
+            .build(),
+        consumers = KafkaConsumers(
+            amtDeltakerV1 = KafkaTopicConsumer.Config(
+                id = "amt-deltaker",
+                topic = "amt-deltaker-v1",
             ),
-            consumerPreset = KafkaPropertiesBuilder.consumerBuilder()
-                .withBaseProperties()
-                .withConsumerGroupId(defaultConsumerGroupId)
-                .withBrokerUrl(brokerUrl)
-                .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
-                .build(),
-
-        )
-    },
+            sisteTiltaksgjennomforingerV1 = KafkaTopicConsumer.Config(
+                id = "siste-tiltaksgjennomforinger",
+                topic = "siste-tiltaksgjennomforinger-v1",
+            ),
+        ),
+    ),
     clients = ClientConfig(
         tiltakDatadeling = ServiceClientConfig(url = "http://localhost:8090/tiltak-datadeling", scope = "default"),
     ),

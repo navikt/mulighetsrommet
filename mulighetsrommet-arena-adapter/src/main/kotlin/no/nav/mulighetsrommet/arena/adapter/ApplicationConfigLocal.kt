@@ -51,46 +51,40 @@ val ApplicationConfigLocal = Config(
             maximumPoolSize = 10,
         ),
         flyway = FlywayMigrationManager.MigrationConfig(),
-        kafka = run {
-            val consumerGroupId = "mulighetsrommet-kafka-consumer.v1"
-            val brokerUrl = "localhost:29092"
-            KafkaConfig(
-                brokerUrl = brokerUrl,
-                consumerGroupId = consumerGroupId,
-                consumerPreset = KafkaPropertiesBuilder.consumerBuilder()
-                    .withBaseProperties()
-                    .withConsumerGroupId(consumerGroupId)
-                    .withBrokerUrl(brokerUrl)
-                    .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
-                    .build(),
-                consumers = KafkaConsumers(
-                    arenaTiltakEndret = KafkaTopicConsumer.Config(
-                        id = "arena-tiltakstype-endret",
-                        topic = "tiltak-endret",
-                    ),
-                    arenaTiltakgjennomforingEndret = KafkaTopicConsumer.Config(
-                        id = "arena-tiltakgjennomforing-endret",
-                        topic = "tiltakgjennomforingendret",
-                    ),
-                    arenaTiltakdeltakerEndret = KafkaTopicConsumer.Config(
-                        id = "arena-tiltakdeltaker-endret",
-                        topic = "tiltakdeltakerendret",
-                    ),
-                    arenaHistTiltakdeltakerEndret = KafkaTopicConsumer.Config(
-                        id = "arena-hist-tiltakdeltaker-endret",
-                        topic = "histtiltakdeltakerendret",
-                    ),
-                    arenaSakEndret = KafkaTopicConsumer.Config(
-                        id = "arena-sakendret-endret",
-                        topic = "sakendret",
-                    ),
-                    arenaAvtaleInfoEndret = KafkaTopicConsumer.Config(
-                        id = "arena-avtaleinfo-endret",
-                        topic = "avtaleinfo-endret",
-                    ),
+        kafka = KafkaConfig(
+            consumerPreset = KafkaPropertiesBuilder.consumerBuilder()
+                .withBaseProperties()
+                .withConsumerGroupId("mulighetsrommet-kafka-consumer.v1")
+                .withBrokerUrl("localhost:29092")
+                .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
+                .build(),
+            consumers = KafkaConsumers(
+                arenaTiltakEndret = KafkaTopicConsumer.Config(
+                    id = "arena-tiltakstype-endret",
+                    topic = "tiltak-endret",
                 ),
-            )
-        },
+                arenaTiltakgjennomforingEndret = KafkaTopicConsumer.Config(
+                    id = "arena-tiltakgjennomforing-endret",
+                    topic = "tiltakgjennomforingendret",
+                ),
+                arenaTiltakdeltakerEndret = KafkaTopicConsumer.Config(
+                    id = "arena-tiltakdeltaker-endret",
+                    topic = "tiltakdeltakerendret",
+                ),
+                arenaHistTiltakdeltakerEndret = KafkaTopicConsumer.Config(
+                    id = "arena-hist-tiltakdeltaker-endret",
+                    topic = "histtiltakdeltakerendret",
+                ),
+                arenaSakEndret = KafkaTopicConsumer.Config(
+                    id = "arena-sakendret-endret",
+                    topic = "sakendret",
+                ),
+                arenaAvtaleInfoEndret = KafkaTopicConsumer.Config(
+                    id = "arena-avtaleinfo-endret",
+                    topic = "avtaleinfo-endret",
+                ),
+            ),
+        ),
         auth = AuthConfig(
             azure = AuthProvider(
                 issuer = "http://localhost:8081/azure",

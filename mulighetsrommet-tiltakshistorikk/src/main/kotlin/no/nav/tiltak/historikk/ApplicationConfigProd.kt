@@ -18,23 +18,19 @@ val ApplicationConfigProd = AppConfig(
             privateJwk = System.getenv("AZURE_APP_JWK"),
         ),
     ),
-    kafka = run {
-        val defaultConsumerGroupId = "tiltakshistorikk-kafka-consumer.v1"
-        KafkaConfig(
-            defaultConsumerGroupId = defaultConsumerGroupId,
-            consumerPreset = KafkaPropertiesPreset.aivenDefaultConsumerProperties(defaultConsumerGroupId),
-            consumers = KafkaConsumers(
-                amtDeltakerV1 = KafkaTopicConsumer.Config(
-                    id = "amt-deltaker",
-                    topic = "amt.deltaker-v1",
-                ),
-                sisteTiltaksgjennomforingerV1 = KafkaTopicConsumer.Config(
-                    id = "siste-tiltaksgjennomforinger",
-                    topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
-                ),
+    kafka = KafkaConfig(
+        consumerPreset = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk-kafka-consumer.v1"),
+        consumers = KafkaConsumers(
+            amtDeltakerV1 = KafkaTopicConsumer.Config(
+                id = "amt-deltaker",
+                topic = "amt.deltaker-v1",
             ),
-        )
-    },
+            sisteTiltaksgjennomforingerV1 = KafkaTopicConsumer.Config(
+                id = "siste-tiltaksgjennomforinger",
+                topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
+            ),
+        ),
+    ),
     clients = ClientConfig(
         tiltakDatadeling = ServiceClientConfig(
             url = "http://tiltak-datadeling.team-tiltak",

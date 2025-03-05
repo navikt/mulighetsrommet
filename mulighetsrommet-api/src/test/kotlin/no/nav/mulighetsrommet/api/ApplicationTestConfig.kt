@@ -113,9 +113,6 @@ fun createKafkaConfig(): KafkaConfig = run {
     val brokerUrl = "localhost:29092"
     val defaultConsumerGroupId = "mulighetsrommet-api-consumer"
     KafkaConfig(
-        brokerUrl = brokerUrl,
-        producerId = producerId,
-        defaultConsumerGroupId = defaultConsumerGroupId,
         consumerPreset = KafkaPropertiesBuilder.consumerBuilder()
             .withBaseProperties()
             .withConsumerGroupId(defaultConsumerGroupId)

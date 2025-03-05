@@ -49,39 +49,35 @@ val ApplicationConfigDev = Config(
             maximumPoolSize = 10,
         ),
         flyway = FlywayMigrationManager.MigrationConfig(),
-        kafka = run {
-            val consumerGroupId = "mulighetsrommet-kafka-consumer.v1"
-            KafkaConfig(
-                consumerGroupId = consumerGroupId,
-                consumerPreset = KafkaPropertiesPreset.aivenDefaultConsumerProperties(consumerGroupId),
-                consumers = KafkaConsumers(
-                    arenaTiltakEndret = KafkaTopicConsumer.Config(
-                        id = "arena-tiltakstype-endret",
-                        topic = "teamarenanais.aapen-arena-tiltakendret-v1-q2",
-                    ),
-                    arenaTiltakgjennomforingEndret = KafkaTopicConsumer.Config(
-                        id = "arena-tiltakgjennomforing-endret",
-                        topic = "teamarenanais.aapen-arena-tiltakgjennomforingendret-v1-q2",
-                    ),
-                    arenaTiltakdeltakerEndret = KafkaTopicConsumer.Config(
-                        id = "arena-tiltakdeltaker-endret",
-                        topic = "teamarenanais.aapen-arena-tiltakdeltakerendret-v1-q2",
-                    ),
-                    arenaHistTiltakdeltakerEndret = KafkaTopicConsumer.Config(
-                        id = "arena-hist-tiltakdeltaker-endret",
-                        topic = "teamarenanais.aapen-arena-histtiltakdeltakerendret-v1-q2",
-                    ),
-                    arenaSakEndret = KafkaTopicConsumer.Config(
-                        id = "arena-sakendret-endret",
-                        topic = "teamarenanais.aapen-arena-sakendret-v1-q2",
-                    ),
-                    arenaAvtaleInfoEndret = KafkaTopicConsumer.Config(
-                        id = "arena-avtaleinfo-endret",
-                        topic = "teamarenanais.aapen-arena-avtaleinfoendret-v1-q2",
-                    ),
+        kafka = KafkaConfig(
+            consumerPreset = KafkaPropertiesPreset.aivenDefaultConsumerProperties("mulighetsrommet-kafka-consumer.v1"),
+            consumers = KafkaConsumers(
+                arenaTiltakEndret = KafkaTopicConsumer.Config(
+                    id = "arena-tiltakstype-endret",
+                    topic = "teamarenanais.aapen-arena-tiltakendret-v1-q2",
                 ),
-            )
-        },
+                arenaTiltakgjennomforingEndret = KafkaTopicConsumer.Config(
+                    id = "arena-tiltakgjennomforing-endret",
+                    topic = "teamarenanais.aapen-arena-tiltakgjennomforingendret-v1-q2",
+                ),
+                arenaTiltakdeltakerEndret = KafkaTopicConsumer.Config(
+                    id = "arena-tiltakdeltaker-endret",
+                    topic = "teamarenanais.aapen-arena-tiltakdeltakerendret-v1-q2",
+                ),
+                arenaHistTiltakdeltakerEndret = KafkaTopicConsumer.Config(
+                    id = "arena-hist-tiltakdeltaker-endret",
+                    topic = "teamarenanais.aapen-arena-histtiltakdeltakerendret-v1-q2",
+                ),
+                arenaSakEndret = KafkaTopicConsumer.Config(
+                    id = "arena-sakendret-endret",
+                    topic = "teamarenanais.aapen-arena-sakendret-v1-q2",
+                ),
+                arenaAvtaleInfoEndret = KafkaTopicConsumer.Config(
+                    id = "arena-avtaleinfo-endret",
+                    topic = "teamarenanais.aapen-arena-avtaleinfoendret-v1-q2",
+                ),
+            ),
+        ),
         auth = AuthConfig(
             azure = AuthProvider(
                 issuer = System.getenv("AZURE_OPENID_CONFIG_ISSUER"),
