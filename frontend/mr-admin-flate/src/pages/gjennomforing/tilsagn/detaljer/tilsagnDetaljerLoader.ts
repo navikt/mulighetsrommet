@@ -30,7 +30,7 @@ export const tilsagnDetaljerLoader =
       throw new Error("tilsagnId is missing");
     }
 
-    const [{ data: ansatt }, { data: gjennomforing }, { data: tilsagn }, { data: historikk }] =
+    const [{ data: ansatt }, gjennomforing, { data: tilsagn }, { data: historikk }] =
       await Promise.all([
         AnsattService.hentInfoOmAnsatt(),
         queryClient.ensureQueryData(gjennomforingQuery(gjennomforingId)),

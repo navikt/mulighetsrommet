@@ -12,7 +12,7 @@ export const gjennomforingLoader =
       throw Error("Fant ikke gjennomforingId i route");
     }
 
-    const [ansatt, { data: gjennomforing }] = await Promise.all([
+    const [ansatt, gjennomforing] = await Promise.all([
       queryClient.ensureQueryData(ansattQuery),
       queryClient.ensureQueryData(gjennomforingQuery(params.gjennomforingId)),
     ]);
@@ -25,20 +25,22 @@ export const gjennomforingLoader =
     return { gjennomforing, avtale, ansatt };
   };
 
-export const gjennomforingQuery = (id: string) =>
+export const gjennomforingQuery = (id?: string) =>
   queryOptions({
     queryKey: QueryKeys.gjennomforing(id),
-    queryFn: () => GjennomforingerService.getGjennomforing({ path: { id } }),
+    queryFn: async () =>
+      (await GjennomforingerService.getGjennomforing({ path: { id: id! } })).data,
+    enabled: !!id,
   });
 
 export const gjennomforingFormLoader =
   (queryClient: QueryClient) =>
   async ({ params }: LoaderFunctionArgs) => {
-    const [ansatt, { data: gjennomforing }] = await Promise.all([
+    const [ansatt, gjennomforing] = await Promise.all([
       await queryClient.ensureQueryData(ansattQuery),
       params.gjennomforingId
         ? await queryClient.ensureQueryData(gjennomforingQuery(params.gjennomforingId))
-        : { data: undefined },
+        : undefined,
     ]);
 
     const avtaleId = params?.avtaleId || gjennomforing?.avtaleId;

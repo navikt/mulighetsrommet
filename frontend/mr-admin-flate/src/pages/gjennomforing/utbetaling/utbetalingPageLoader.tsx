@@ -42,7 +42,7 @@ export const utbetalingPageLoader =
 
     const [
       ansatt,
-      { data: gjennomforing },
+      gjennomforing,
       { data: utbetaling },
       { data: delutbetalinger },
       { data: tilsagn },

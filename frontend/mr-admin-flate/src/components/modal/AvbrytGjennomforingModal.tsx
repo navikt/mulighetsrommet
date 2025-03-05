@@ -4,9 +4,9 @@ import { useSuspenseGjennomforingDeltakerSummary } from "@/api/gjennomforing/use
 import { Laster } from "@/components/laster/Laster";
 import { AvbrytModalAarsaker } from "@/components/modal/AvbrytModalAarsaker";
 import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
+import { AvbrytGjennomforingAarsak, GjennomforingDto } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { Alert, BodyShort, Button, Radio } from "@navikt/ds-react";
-import { AvbrytGjennomforingAarsak, GjennomforingDto } from "@mr/api-client-v2";
 import { RefObject, useState } from "react";
 import { useNavigate } from "react-router";
 import z from "zod";
