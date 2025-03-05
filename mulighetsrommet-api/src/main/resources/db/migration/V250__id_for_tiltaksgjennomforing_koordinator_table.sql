@@ -1,4 +1,4 @@
-drop table gjennomforing_koordinator;
+drop table gjennomforing_koordinator cascade;
 
 create table gjennomforing_koordinator
 (
