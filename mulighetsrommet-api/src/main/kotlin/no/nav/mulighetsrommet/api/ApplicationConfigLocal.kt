@@ -87,7 +87,7 @@ val ApplicationConfigLocal = AppConfig(
             ),
             amtKoordinatorMeldingV1 = KafkaTopicConsumer.Config(
                 id = "amt-tiltakskoordinators-deltakerliste",
-                topic = "tiltakskoordinators-deltakerliste-v1",
+                topic = "amt.tiltakskoordinators-deltakerliste-v1",
             ),
         ),
     ),
