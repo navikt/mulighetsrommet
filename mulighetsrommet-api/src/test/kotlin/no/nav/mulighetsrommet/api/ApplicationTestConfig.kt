@@ -151,6 +151,7 @@ fun createKafkaConfig(): KafkaConfig = run {
             amtDeltakerV1 = KafkaTopicConsumer.Config(id = "amt-deltaker", topic = "amt-deltaker"),
             amtVirksomheterV1 = KafkaTopicConsumer.Config(id = "amt-virksomheter", topic = "amt-virksomheter"),
             amtArrangorMeldingV1 = KafkaTopicConsumer.Config(id = "amt-arrangor-melding", topic = "amt-arrangor-melding"),
+            amtKoordinatorMeldingV1 = KafkaTopicConsumer.Config(id = "amt-koordinator-melding", topic = "amt-koordinator-melding"),
         ),
     )
 }
