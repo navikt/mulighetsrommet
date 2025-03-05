@@ -513,7 +513,7 @@ class GjennomforingQueries(private val session: Session) {
         session.execute(queryOf(query, id))
     }
 
-    fun insertKoordinatorTilGjennomforing(
+    fun insertKoordinatorForGjennomforing(
         id: UUID,
         navIdent: NavIdent,
         gjennomforingId: UUID,

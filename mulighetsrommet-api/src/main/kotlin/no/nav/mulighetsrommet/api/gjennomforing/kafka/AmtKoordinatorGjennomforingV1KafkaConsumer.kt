@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class AmtKoordinatorTiltaksgjennomforingV1KafkaConsumer(
+class AmtKoordinatorGjennomforingV1KafkaConsumer(
     config: Config,
     private val db: ApiDatabase,
 ) : KafkaTopicConsumer<String, JsonElement>(
@@ -36,7 +36,7 @@ class AmtKoordinatorTiltaksgjennomforingV1KafkaConsumer(
 
             else -> {
                 logger.info("Upsert amt-koordinator-deltakerliste-tilgang med id=$key")
-                queries.gjennomforing.insertKoordinatorTilGjennomforing(
+                queries.gjennomforing.insertKoordinatorForGjennomforing(
                     id = melding.id,
                     navIdent = melding.navIdent,
                     gjennomforingId = melding.gjennomforingId,

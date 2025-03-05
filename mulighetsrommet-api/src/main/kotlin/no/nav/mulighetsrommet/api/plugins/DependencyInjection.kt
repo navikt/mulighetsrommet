@@ -37,7 +37,7 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingValidator
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorTiltaksgjennomforingV1KafkaConsumer
+import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
@@ -173,7 +173,7 @@ private fun kafka(appConfig: AppConfig) = module {
                 config = config.consumers.amtArrangorMeldingV1,
                 db = get(),
             ),
-            AmtKoordinatorTiltaksgjennomforingV1KafkaConsumer(
+            AmtKoordinatorGjennomforingV1KafkaConsumer(
                 config = config.consumers.amtKoordinatorMeldingV1,
                 db = get(),
             ),

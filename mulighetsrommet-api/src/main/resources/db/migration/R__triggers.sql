@@ -86,3 +86,9 @@ create trigger set_timestamp
     on lagret_filter
     for each row
 execute procedure trigger_set_timestamp();
+
+create trigger set_timestamp
+    before update
+    on gjennomforing_koordinator
+    for each row
+execute procedure trigger_set_timestamp();

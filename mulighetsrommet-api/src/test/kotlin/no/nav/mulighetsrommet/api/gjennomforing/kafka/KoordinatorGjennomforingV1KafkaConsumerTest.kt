@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import org.intellij.lang.annotations.Language
 import java.util.*
 
-class KoordinatorTiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
+class KoordinatorGjennomforingV1KafkaConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
@@ -31,8 +31,8 @@ class KoordinatorTiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
         database.truncateAll()
     }
 
-    fun createConsumer(): AmtKoordinatorTiltaksgjennomforingV1KafkaConsumer {
-        return AmtKoordinatorTiltaksgjennomforingV1KafkaConsumer(
+    fun createConsumer(): AmtKoordinatorGjennomforingV1KafkaConsumer {
+        return AmtKoordinatorGjennomforingV1KafkaConsumer(
             config = KafkaTopicConsumer.Config(
                 id = "amt-koordinator-deltakerliste-tilgang",
                 topic = "amt.tiltakskoordinator-deltakerliste-tilgang-v1",
@@ -45,8 +45,8 @@ class KoordinatorTiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
         id: UUID,
         ident: NavIdent,
         gjennomforingId: UUID,
-    ): AmtKoordinatorTiltaksgjennomforingV1KafkaConsumer.Melding {
-        return AmtKoordinatorTiltaksgjennomforingV1KafkaConsumer.Melding(
+    ): AmtKoordinatorGjennomforingV1KafkaConsumer.Melding {
+        return AmtKoordinatorGjennomforingV1KafkaConsumer.Melding(
             id = id,
             navIdent = ident,
             gjennomforingId = gjennomforingId,
@@ -121,19 +121,9 @@ class KoordinatorTiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
             val tombstone = null
             consumer.consume(key.toString(), Json.encodeToJsonElement(tombstone))
 
-            @Language("PostgreSQL")
-            val getQuery = """
-                select nav_ident
-                from gjennomforing_koordinator
-                where id = :id::uuid
-            """.trimIndent()
-
-            val getParams = mapOf(
-                "id" to key,
-            )
 
             database.run {
-                session.single(queryOf(getQuery, getParams)) {
+                session.single(queryOf(query, params)) {
                     it.string("nav_ident")
                 } shouldBe null
             }
