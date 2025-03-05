@@ -40,12 +40,11 @@ export const redigerTilsagnLoader =
       throw new Error("tilsagnId is missing");
     }
 
-    const [{ data: gjennomforing }, { data: tilsagn }, { data: godkjenteTilsagn }] =
-      await Promise.all([
-        queryClient.ensureQueryData(gjennomforingQuery(gjennomforingId)),
-        queryClient.ensureQueryData(tilsagnQuery(tilsagnId)),
-        queryClient.ensureQueryData(godkjenteTilsagnQuery(gjennomforingId)),
-      ]);
+    const [gjennomforing, { data: tilsagn }, { data: godkjenteTilsagn }] = await Promise.all([
+      queryClient.ensureQueryData(gjennomforingQuery(gjennomforingId)),
+      queryClient.ensureQueryData(tilsagnQuery(tilsagnId)),
+      queryClient.ensureQueryData(godkjenteTilsagnQuery(gjennomforingId)),
+    ]);
 
     const avtale = await queryClient.ensureQueryData(avtaleQuery(gjennomforing.avtaleId!));
 
