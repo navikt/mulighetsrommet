@@ -180,13 +180,6 @@ class DelutbetalingQueries(private val session: Session) {
         return id
     }
 
-    data class DelutbetalingOppgaveData(
-        val delutbetaling: DelutbetalingDto,
-        val gjennomforingId: UUID,
-        val tiltakskode: Tiltakskode,
-        val gjennomforingsnavn: String,
-    )
-
     fun getOppgaveData(
         kostnadssteder: List<String>?,
         tiltakskoder: List<Tiltakskode>?,
