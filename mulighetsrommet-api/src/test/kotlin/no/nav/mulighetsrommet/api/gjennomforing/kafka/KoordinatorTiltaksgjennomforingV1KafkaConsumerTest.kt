@@ -35,7 +35,7 @@ class KoordinatorTiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
         return AmtKoordinatorTiltaksgjennomforingV1KafkaConsumer(
             config = KafkaTopicConsumer.Config(
                 id = "amt-koordinator-deltakerliste-tilgang",
-                topic = "amt.tiltakskoordinator-deltakerliste-tilgang-v1"
+                topic = "amt.tiltakskoordinator-deltakerliste-tilgang-v1",
             ),
             db = database.db,
         )
@@ -67,7 +67,7 @@ class KoordinatorTiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
                 createMelding(
                     id = UUID.randomUUID(),
                     ident = NavIdent("Z123456"),
-                    gjennomforingId = GjennomforingFixtures.Oppfolging1.id
+                    gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
                 )
 
             consumer.consume(message.gjennomforingId.toString(), Json.encodeToJsonElement(message))
@@ -96,7 +96,7 @@ class KoordinatorTiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
                 createMelding(
                     id = key,
                     ident = NavIdent("Z123456"),
-                    gjennomforingId = GjennomforingFixtures.Oppfolging1.id
+                    gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
                 )
 
             consumer.consume(key.toString(), Json.encodeToJsonElement(message))
@@ -109,7 +109,7 @@ class KoordinatorTiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
             """.trimIndent()
 
             val params = mapOf(
-                "id" to key
+                "id" to key,
             )
 
             database.run {
@@ -120,7 +120,6 @@ class KoordinatorTiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
 
             val tombstone = null
             consumer.consume(key.toString(), Json.encodeToJsonElement(tombstone))
-
 
             @Language("PostgreSQL")
             val getQuery = """

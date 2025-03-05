@@ -74,6 +74,10 @@ val ApplicationConfigDev = AppConfig(
                 id = "amt-arrangor-melding",
                 topic = "amt.arrangor-melding-v1",
             ),
+            amtKoordinatorMeldingV1 = KafkaTopicConsumer.Config(
+                id = "amt-koordinator-deltakerliste-tilgang",
+                topic = "amt.tiltakskoordinator-deltakerliste-tilgang-v1",
+            ),
         ),
     ),
     auth = AuthConfig(

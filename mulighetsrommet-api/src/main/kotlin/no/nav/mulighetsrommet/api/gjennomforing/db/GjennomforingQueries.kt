@@ -528,13 +528,13 @@ class GjennomforingQueries(private val session: Session) {
         val params = mapOf(
             "id" to id,
             "nav_ident" to navIdent.value,
-            "gjennomforing_id" to gjennomforingId
+            "gjennomforing_id" to gjennomforingId,
         )
         session.execute(queryOf(query, params))
     }
 
     fun deleteKoordinatorForGjennomforing(
-        id: UUID
+        id: UUID,
     ) {
         @Language("PostgreSQL")
         val query = """
