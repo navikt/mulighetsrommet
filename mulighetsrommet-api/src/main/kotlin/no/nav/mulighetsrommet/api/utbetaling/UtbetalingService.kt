@@ -127,7 +127,7 @@ class UtbetalingService(
         request: GodkjennUtbetaling,
     ) = db.transaction {
         queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
-        queries.utbetaling.setBetalingsInformasjon(
+        queries.utbetaling.setBetalingsinformasjon(
             utbetalingId,
             request.betalingsinformasjon.kontonummer,
             request.betalingsinformasjon.kid,

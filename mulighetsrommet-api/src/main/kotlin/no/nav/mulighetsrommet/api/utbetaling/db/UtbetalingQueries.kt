@@ -175,7 +175,7 @@ class UtbetalingQueries(private val session: Session) {
         execute(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt)))
     }
 
-    fun setBetalingsInformasjon(id: UUID, kontonummer: Kontonummer, kid: Kid?) = with(session) {
+    fun setBetalingsinformasjon(id: UUID, kontonummer: Kontonummer, kid: Kid?) = with(session) {
         @Language("PostgreSQL")
         val query = """
             update utbetaling

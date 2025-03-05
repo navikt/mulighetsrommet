@@ -24,8 +24,31 @@ import no.nav.mulighetsrommet.notifications.NotificationQueries
 import no.nav.mulighetsrommet.utdanning.db.UtdanningQueries
 import javax.sql.DataSource
 
-class QueryContext(val session: Session) {
+class ApiDatabase(
+    @PublishedApi
+    internal val db: Database,
+) {
 
+    fun getDatasource(): DataSource = db.getDatasource()
+
+    inline fun <T> session(
+        operation: QueryContext.() -> T,
+    ): T {
+        return db.session { session ->
+            QueryContext(session).operation()
+        }
+    }
+
+    inline fun <T> transaction(
+        operation: QueryContext.() -> T,
+    ): T {
+        return db.transaction { session ->
+            QueryContext(session).operation()
+        }
+    }
+}
+
+class QueryContext(val session: Session) {
     val queries by lazy { Queries() }
 
     inner class Queries {
@@ -50,29 +73,5 @@ class QueryContext(val session: Session) {
 
         val veilderTiltak = VeilederflateTiltakQueries(session)
         val veilederJoyride = VeilederJoyrideQueries(session)
-    }
-}
-
-class ApiDatabase(
-    @PublishedApi
-    internal val db: Database,
-) {
-
-    fun getDatasource(): DataSource = db.getDatasource()
-
-    inline fun <T> session(
-        operation: QueryContext.() -> T,
-    ): T {
-        return db.session { session ->
-            QueryContext(session).operation()
-        }
-    }
-
-    inline fun <T> transaction(
-        operation: QueryContext.() -> T,
-    ): T {
-        return db.transaction { session ->
-            QueryContext(session).operation()
-        }
     }
 }
