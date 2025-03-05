@@ -75,9 +75,9 @@ export function DelutbetalingRow({
   }
 
   function onFrigjorCheck(frigjor: boolean) {
-    setOpen(!frigjor);
-    onFrigjorTilsagnChange(!frigjor);
-    setFrigjorTilsagn(!frigjor);
+    setOpen(frigjor);
+    onFrigjorTilsagnChange(frigjor);
+    setFrigjorTilsagn(frigjor);
   }
 
   function content() {
@@ -209,7 +209,7 @@ export function DelutbetalingRow({
           hideLabel
           readOnly={!kanRedigere}
           checked={frigjorTilsagn}
-          onChange={() => onFrigjorCheck(frigjorTilsagn)}
+          onChange={(e) => onFrigjorCheck(e.target.checked)}
         >
           Gjør opp tilsagn
         </Checkbox>

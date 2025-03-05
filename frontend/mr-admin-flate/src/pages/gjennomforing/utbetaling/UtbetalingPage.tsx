@@ -53,7 +53,7 @@ export function UtbetalingPage() {
     new Map(
       tilsagn.map((t) => [
         t.id,
-        utbetaling.delutbetalinger.find((d) => d.tilsagnId === t.id)?.frigjorTilsagn ?? false,
+        delutbetalinger.find((d) => d.tilsagnId === t.id)?.frigjorTilsagn ?? false,
       ]),
     ),
   );
@@ -90,7 +90,7 @@ export function UtbetalingPage() {
     return [...belopPerTilsagn.values()].reduce((acc, val) => acc + val, 0);
   }
 
-  function totalGjenståendeBeløp(): number {
+  function totalGjenstaendeBelop(): number {
     return tilsagn
       .map((tilsagn) =>
         tilsagn.status === TilsagnStatus.GODKJENT ? tilsagn.beregning.output.belop : 0,
@@ -302,7 +302,7 @@ export function UtbetalingPage() {
                           className="font-bold"
                         >{`Beløp arrangør har sendt inn ${formaterNOK(utbetaling.beregning.belop)}`}</Table.DataCell>
                         <Table.DataCell className="font-bold" colSpan={2}>
-                          {formaterNOK(totalGjenståendeBeløp())}
+                          {formaterNOK(totalGjenstaendeBelop())}
                         </Table.DataCell>
                         <Table.DataCell className="font-bold">
                           {formaterNOK(utbetalesTotal())}
