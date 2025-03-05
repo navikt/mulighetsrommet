@@ -55,10 +55,8 @@ data class ServiceClientConfig(
 )
 
 data class KafkaConfig(
-    val brokerUrl: String? = null,
-    val consumerGroupId: String,
-    val consumers: KafkaConsumers,
     val consumerPreset: Properties,
+    val consumers: KafkaConsumers,
 )
 
 data class KafkaConsumers(
