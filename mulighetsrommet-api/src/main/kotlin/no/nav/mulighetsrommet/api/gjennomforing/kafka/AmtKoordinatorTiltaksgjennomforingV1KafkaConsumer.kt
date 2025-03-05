@@ -24,18 +24,18 @@ class AmtKoordinatorTiltaksgjennomforingV1KafkaConsumer(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     override suspend fun consume(key: String, message: JsonElement): Unit = db.session {
-        logger.info("Konsumerer koordinator-tiltaksgjennomforing med id=$key")
+        logger.info("Konsumerer amt-koordinator-deltakerliste-tilgang med id=$key")
 
         val melding = JsonIgnoreUnknownKeys.decodeFromJsonElement<Melding?>(message)
 
         when {
             melding == null -> {
-                logger.info("Mottok tombstone for koordinator-tiltaksgjennomforing med id=$key, sletter koblingen mellom koordinator og gjennomføring")
+                logger.info("Mottok tombstone for amt-koordinator-deltakerliste-tilgang med id=$key, sletter koblingen mellom koordinator og gjennomføring")
                 queries.gjennomforing.deleteKoordinatorForGjennomforing(UUID.fromString(key))
             }
 
             else -> {
-                logger.info("Upsert koordinator-tiltaksgjennomforing med id=$key")
+                logger.info("Upsert amt-koordinator-deltakerliste-tilgang med id=$key")
                 queries.gjennomforing.insertKoordinatorTilGjennomforing(
                     id = melding.id,
                     navIdent = melding.navIdent,
