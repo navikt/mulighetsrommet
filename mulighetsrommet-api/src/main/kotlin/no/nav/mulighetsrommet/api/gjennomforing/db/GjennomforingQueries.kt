@@ -514,29 +514,35 @@ class GjennomforingQueries(private val session: Session) {
     }
 
     fun insertKoordinatorTilGjennomforing(
-        navIdent: NavIdent,
         id: UUID,
+        navIdent: NavIdent,
+        gjennomforingId: UUID,
     ) {
         @Language("PostgreSQL")
         val query = """
-            insert into gjennomforing_koordinator(nav_ident, gjennomforing_id)
-            values(?, ?::uuid)
+            insert into gjennomforing_koordinator(id, nav_ident, gjennomforing_id)
+            values(:id::uuid, :nav_ident, :gjennomforing_id::uuid)
             on conflict (nav_ident, gjennomforing_id) do nothing
         """.trimIndent()
 
-        session.execute(queryOf(query, navIdent.value, id))
+        val params = mapOf(
+            "id" to id,
+            "nav_ident" to navIdent.value,
+            "gjennomforing_id" to gjennomforingId
+        )
+        session.execute(queryOf(query, params))
     }
 
     fun deleteKoordinatorForGjennomforing(
-        navIdent: NavIdent,
+        id: UUID
     ) {
         @Language("PostgreSQL")
         val query = """
             delete from gjennomforing_koordinator
-            where nav_ident = ?
+            where id = ?::uuid
         """.trimIndent()
 
-        session.execute(queryOf(query, navIdent.value))
+        session.execute(queryOf(query, id))
     }
 
     private fun GjennomforingDbo.toSqlParameters() = mapOf(

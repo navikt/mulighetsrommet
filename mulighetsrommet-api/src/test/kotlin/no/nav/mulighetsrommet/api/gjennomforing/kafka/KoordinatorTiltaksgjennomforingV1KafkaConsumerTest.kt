@@ -34,20 +34,22 @@ class KoordinatorTiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
     fun createConsumer(): AmtKoordinatorTiltaksgjennomforingV1KafkaConsumer {
         return AmtKoordinatorTiltaksgjennomforingV1KafkaConsumer(
             config = KafkaTopicConsumer.Config(
-                id = "amt-koordinator-gjennomforing",
-                topic = "amt-koordinator-gjennomforing",
+                id = "amt-koordinator-deltakerliste-tilgang",
+                topic = "amt.tiltakskoordinator-deltakerliste-tilgang-v1"
             ),
             db = database.db,
         )
     }
 
     fun createMelding(
+        id: UUID,
         ident: NavIdent,
         gjennomforingId: UUID,
     ): AmtKoordinatorTiltaksgjennomforingV1KafkaConsumer.Melding {
         return AmtKoordinatorTiltaksgjennomforingV1KafkaConsumer.Melding(
+            id = id,
             navIdent = ident,
-            tiltaksgjennomforingId = gjennomforingId,
+            gjennomforingId = gjennomforingId,
         )
     }
 
@@ -62,9 +64,13 @@ class KoordinatorTiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
 
         test("Should process valid KoordinatorTiltaksgjennomforingV1 message successfully") {
             val message =
-                createMelding(ident = NavIdent("Z123456"), gjennomforingId = GjennomforingFixtures.Oppfolging1.id)
+                createMelding(
+                    id = UUID.randomUUID(),
+                    ident = NavIdent("Z123456"),
+                    gjennomforingId = GjennomforingFixtures.Oppfolging1.id
+                )
 
-            consumer.consume(message.tiltaksgjennomforingId.toString(), Json.encodeToJsonElement(message))
+            consumer.consume(message.gjennomforingId.toString(), Json.encodeToJsonElement(message))
 
             @Language("PostgreSQL")
             val query = """
@@ -74,7 +80,7 @@ class KoordinatorTiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
             """.trimIndent()
 
             val params = mapOf(
-                "gjennomforing_id" to message.tiltaksgjennomforingId,
+                "gjennomforing_id" to message.gjennomforingId,
             )
 
             database.run {
@@ -84,6 +90,54 @@ class KoordinatorTiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
             }
         }
 
-        // TODO Test for tombstone
+        test("Should process tombstone message successfully") {
+            val key = UUID.fromString("5e5de632-c696-4584-a18f-eb9c1a6362ca")
+            val message =
+                createMelding(
+                    id = key,
+                    ident = NavIdent("Z123456"),
+                    gjennomforingId = GjennomforingFixtures.Oppfolging1.id
+                )
+
+            consumer.consume(key.toString(), Json.encodeToJsonElement(message))
+
+            @Language("PostgreSQL")
+            val query = """
+                select nav_ident
+                from gjennomforing_koordinator
+                where id = :id::uuid
+            """.trimIndent()
+
+            val params = mapOf(
+                "id" to key
+            )
+
+            database.run {
+                session.single(queryOf(query, params)) {
+                    it.string("nav_ident")
+                } shouldBe message.navIdent.value
+            }
+
+            val tombstone = null
+            consumer.consume(key.toString(), Json.encodeToJsonElement(tombstone))
+
+
+            @Language("PostgreSQL")
+            val getQuery = """
+                select nav_ident
+                from gjennomforing_koordinator
+                where id = :id::uuid
+            """.trimIndent()
+
+            val getParams = mapOf(
+                "id" to key,
+            )
+
+            database.run {
+                session.single(queryOf(getQuery, getParams)) {
+                    it.string("nav_ident")
+                } shouldBe null
+            }
+        }
     }
 })

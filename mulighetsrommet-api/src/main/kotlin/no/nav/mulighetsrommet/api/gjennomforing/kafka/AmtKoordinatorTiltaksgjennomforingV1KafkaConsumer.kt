@@ -31,14 +31,15 @@ class AmtKoordinatorTiltaksgjennomforingV1KafkaConsumer(
         when {
             melding == null -> {
                 logger.info("Mottok tombstone for koordinator-tiltaksgjennomforing med id=$key, sletter koblingen mellom koordinator og gjennomføring")
-                queries.gjennomforing.deleteKoordinatorForGjennomforing(navIdent = NavIdent(key))
+                queries.gjennomforing.deleteKoordinatorForGjennomforing(UUID.fromString(key))
             }
 
             else -> {
                 logger.info("Upsert koordinator-tiltaksgjennomforing med id=$key")
                 queries.gjennomforing.insertKoordinatorTilGjennomforing(
+                    id = melding.id,
                     navIdent = melding.navIdent,
-                    id = melding.tiltaksgjennomforingId,
+                    gjennomforingId = melding.gjennomforingId,
                 )
             }
         }
@@ -46,8 +47,10 @@ class AmtKoordinatorTiltaksgjennomforingV1KafkaConsumer(
 
     @Serializable
     data class Melding(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
         val navIdent: NavIdent,
         @Serializable(with = UUIDSerializer::class)
-        val tiltaksgjennomforingId: UUID,
+        val gjennomforingId: UUID,
     )
 }
