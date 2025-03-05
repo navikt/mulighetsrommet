@@ -59,7 +59,7 @@ class KoordinatorGjennomforingV1KafkaConsumerTest : FunSpec({
                 select nav_ident
                 from gjennomforing_koordinator
                 where id = :id::uuid
-            """.trimIndent()
+        """.trimIndent()
 
         val params = mapOf(
             "id" to id,
