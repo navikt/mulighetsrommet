@@ -61,12 +61,6 @@ class UtbetalingService(
     }
 
     fun recalculateUtbetalingForGjennomforing(id: UUID): Unit = db.transaction {
-        // TODO: hvorfor ikke beregne når delutbetalinger finnes? Impliserer godkjent utbetaling?
-        if (queries.delutbetaling.getByUtbetalingId(id).isNotEmpty()) {
-            log.info("Utbetaling id=$id skal ikke beregnes fordi delutbetalinger allerede finnes.")
-            return
-        }
-
         queries.utbetaling
             .getByGjennomforing(id)
             .filter { it.innsender == null }
