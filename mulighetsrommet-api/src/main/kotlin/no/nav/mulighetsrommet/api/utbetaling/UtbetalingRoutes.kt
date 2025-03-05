@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
 import no.nav.mulighetsrommet.api.utbetaling.model.*
-import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -44,6 +43,16 @@ fun Route.utbetalingRoutes() {
             }
 
             call.respond(utbetaling)
+        }
+
+        get("/delutbetalinger") {
+            val id = call.parameters.getOrFail<UUID>("id")
+
+            val delutbetalinger = db.session {
+                queries.delutbetaling.getByUtbetalingId(id)
+            }
+
+            call.respond(delutbetalinger)
         }
 
         get("/historikk") {
@@ -93,7 +102,13 @@ fun Route.utbetalingRoutes() {
                     val request = call.receive<DelutbetalingRequest>()
                     val navIdent = getNavIdent()
 
-                    call.respondWithStatusResponse(service.validateAndUpsertDelutbetaling(utbetalingId, request, navIdent))
+                    call.respondWithStatusResponse(
+                        service.validateAndUpsertDelutbetaling(
+                            utbetalingId,
+                            request,
+                            navIdent,
+                        ),
+                    )
                 }
                 put("/bulk") {
                     val utbetalingId = call.parameters.getOrFail<UUID>("id")
@@ -200,7 +215,6 @@ data class UtbetalingKompakt(
     val id: UUID,
     val status: AdminUtbetalingStatus,
     val beregning: Beregning,
-    val delutbetalinger: List<DelutbetalingDto>,
     @Serializable(with = LocalDateTimeSerializer::class)
     val godkjentAvArrangorTidspunkt: LocalDateTime?,
     @Serializable(with = LocalDateTimeSerializer::class)
@@ -226,7 +240,6 @@ data class UtbetalingKompakt(
                 belop = utbetaling.beregning.output.belop,
             ),
             godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
-            delutbetalinger = utbetaling.delutbetalinger,
             betalingsinformasjon = utbetaling.betalingsinformasjon,
             createdAt = utbetaling.createdAt,
         )
