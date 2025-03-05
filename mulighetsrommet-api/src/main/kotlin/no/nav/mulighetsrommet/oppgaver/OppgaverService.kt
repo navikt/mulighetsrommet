@@ -200,7 +200,6 @@ class OppgaverService(val db: ApiDatabase) {
         )
 
         is DelutbetalingDto.DelutbetalingAvvist -> {
-            requireNotNull(opprettelse.besluttetTidspunkt)
             Oppgave(
                 id = UUID.randomUUID(),
                 type = OppgaveType.UTBETALING_RETURNERT,
@@ -211,7 +210,7 @@ class OppgaverService(val db: ApiDatabase) {
                     linkText = "Se utbetaling",
                     link = "/gjennomforinger/$gjennomforingId/utbetalinger/$utbetalingId",
                 ),
-                createdAt = opprettelse.besluttetTidspunkt,
+                createdAt = requireNotNull(opprettelse.besluttetTidspunkt),
                 oppgaveIcon = OppgaveIcon.UTBETALING,
             )
         }
