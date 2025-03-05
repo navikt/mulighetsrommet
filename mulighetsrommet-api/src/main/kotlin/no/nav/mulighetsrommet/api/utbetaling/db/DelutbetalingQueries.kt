@@ -25,6 +25,7 @@ class DelutbetalingQueries(private val session: Session) {
                 tilsagn_id,
                 utbetaling_id,
                 belop,
+                frigjor_tilsagn,
                 periode,
                 lopenummer,
                 fakturanummer
@@ -33,11 +34,13 @@ class DelutbetalingQueries(private val session: Session) {
                 :tilsagn_id::uuid,
                 :utbetaling_id::uuid,
                 :belop,
+                :frigjor_tilsagn::boolean,
                 daterange(:periode_start, :periode_slutt),
                 :lopenummer,
                 :fakturanummer
             ) on conflict (utbetaling_id, tilsagn_id) do update set
                 belop                = excluded.belop,
+                frigjor_tilsagn      = excluded.frigjor_tilsagn,
                 periode              = delutbetaling.periode,
                 lopenummer           = delutbetaling.lopenummer,
                 fakturanummer        = delutbetaling.fakturanummer;
@@ -48,6 +51,7 @@ class DelutbetalingQueries(private val session: Session) {
             "tilsagn_id" to delutbetaling.tilsagnId,
             "utbetaling_id" to delutbetaling.utbetalingId,
             "belop" to delutbetaling.belop,
+            "frigjor_tilsagn" to delutbetaling.frigjorTilsagn,
             "periode_start" to delutbetaling.periode.start,
             "periode_slutt" to delutbetaling.periode.slutt,
             "lopenummer" to delutbetaling.lopenummer,
@@ -90,6 +94,7 @@ class DelutbetalingQueries(private val session: Session) {
                 tilsagn_id,
                 utbetaling_id,
                 belop,
+                frigjor_tilsagn,
                 periode,
                 lopenummer,
                 fakturanummer
@@ -129,6 +134,7 @@ class DelutbetalingQueries(private val session: Session) {
                 tilsagn_id,
                 utbetaling_id,
                 belop,
+                frigjor_tilsagn,
                 periode,
                 lopenummer,
                 fakturanummer
@@ -148,6 +154,7 @@ class DelutbetalingQueries(private val session: Session) {
                 tilsagn_id,
                 utbetaling_id,
                 belop,
+                frigjor_tilsagn,
                 periode,
                 lopenummer,
                 fakturanummer
@@ -171,6 +178,7 @@ class DelutbetalingQueries(private val session: Session) {
                 delutbetaling.tilsagn_id,
                 delutbetaling.utbetaling_id,
                 delutbetaling.belop,
+                delutbetaling.frigjor_tilsagn,
                 delutbetaling.periode,
                 delutbetaling.lopenummer,
                 delutbetaling.fakturanummer,
@@ -213,6 +221,7 @@ class DelutbetalingQueries(private val session: Session) {
                 utbetalingId = uuid("utbetaling_id"),
                 opprettelse = opprettelse,
                 belop = int("belop"),
+                frigjorTilsagn = boolean("frigjor_tilsagn"),
                 periode = periode("periode"),
                 lopenummer = int("lopenummer"),
                 fakturanummer = string("fakturanummer"),
@@ -226,6 +235,7 @@ class DelutbetalingQueries(private val session: Session) {
                             tilsagnId = uuid("tilsagn_id"),
                             utbetalingId = uuid("utbetaling_id"),
                             belop = int("belop"),
+                            frigjorTilsagn = boolean("frigjor_tilsagn"),
                             periode = periode("periode"),
                             opprettelse = opprettelse,
                             lopenummer = int("lopenummer"),
@@ -238,6 +248,7 @@ class DelutbetalingQueries(private val session: Session) {
                             tilsagnId = uuid("tilsagn_id"),
                             utbetalingId = uuid("utbetaling_id"),
                             belop = int("belop"),
+                            frigjorTilsagn = boolean("frigjor_tilsagn"),
                             periode = periode("periode"),
                             opprettelse = opprettelse,
                             lopenummer = int("lopenummer"),

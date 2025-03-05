@@ -13,6 +13,7 @@ sealed class DelutbetalingDto {
     abstract val tilsagnId: UUID
     abstract val utbetalingId: UUID
     abstract val belop: Int
+    abstract val frigjorTilsagn: Boolean
     abstract val periode: Periode
     abstract val lopenummer: Int
     abstract val fakturanummer: String
@@ -28,6 +29,7 @@ sealed class DelutbetalingDto {
         @Serializable(with = UUIDSerializer::class)
         override val utbetalingId: UUID,
         override val belop: Int,
+        override val frigjorTilsagn: Boolean,
         override val periode: Periode,
         override val lopenummer: Int,
         override val fakturanummer: String,
@@ -44,6 +46,7 @@ sealed class DelutbetalingDto {
         @Serializable(with = UUIDSerializer::class)
         override val utbetalingId: UUID,
         override val belop: Int,
+        override val frigjorTilsagn: Boolean,
         override val periode: Periode,
         override val lopenummer: Int,
         override val fakturanummer: String,
@@ -60,6 +63,7 @@ sealed class DelutbetalingDto {
         @Serializable(with = UUIDSerializer::class)
         override val utbetalingId: UUID,
         override val belop: Int,
+        override val frigjorTilsagn: Boolean,
         override val periode: Periode,
         override val lopenummer: Int,
         override val fakturanummer: String,
@@ -76,6 +80,7 @@ sealed class DelutbetalingDto {
         @Serializable(with = UUIDSerializer::class)
         override val utbetalingId: UUID,
         override val belop: Int,
+        override val frigjorTilsagn: Boolean,
         override val periode: Periode,
         override val lopenummer: Int,
         override val fakturanummer: String,

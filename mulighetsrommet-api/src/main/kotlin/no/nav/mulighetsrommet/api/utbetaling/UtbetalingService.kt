@@ -206,7 +206,7 @@ class UtbetalingService(
         UtbetalingValidator.validate(belop = request.belop, tilsagn = tilsagn, maxBelop = gjenstaendeBelop)
             .onLeft { return ValidationError(errors = it).left() }
 
-        upsertDelutbetaling(utbetaling, tilsagn, request.id, request.belop, navIdent)
+        upsertDelutbetaling(utbetaling, tilsagn, request.id, request.belop, request.frigjorTilsagn, navIdent)
         return Unit.right()
     }
 
@@ -271,12 +271,14 @@ class UtbetalingService(
             log.debug("Avbryter automatisk utbetaling. Ikke nok penger. UtbetalingId: {}", utbetalingId)
             return false
         }
+        val frigjorTilsagn = tilsagn.periodeSlutt in utbetaling.periode
         val delutbetalingId = UUID.randomUUID()
         upsertDelutbetaling(
             utbetaling,
             tilsagn,
             delutbetalingId,
             belop = utbetaling.beregning.output.belop,
+            frigjorTilsagn = frigjorTilsagn,
             Tiltaksadministrasjon,
         )
         val delutbetaling = requireNotNull(queries.delutbetaling.get(delutbetalingId))
@@ -293,6 +295,7 @@ class UtbetalingService(
         tilsagn: TilsagnDto,
         id: UUID,
         belop: Int,
+        frigjorTilsagn: Boolean,
         behandletAv: Agent,
     ) {
         val tilsagnPeriode = Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt)
@@ -308,6 +311,7 @@ class UtbetalingService(
             periode = periode,
             belop = belop,
             behandletAv = behandletAv,
+            frigjorTilsagn = frigjorTilsagn,
             lopenummer = lopenummer,
             fakturanummer = "${tilsagn.bestillingsnummer}-$lopenummer",
         )

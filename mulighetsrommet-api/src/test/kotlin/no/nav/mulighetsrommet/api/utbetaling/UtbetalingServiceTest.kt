@@ -422,7 +422,12 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            val opprettRequest = DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = Tilsagn1.id, belop = 100)
+            val opprettRequest = DelutbetalingRequest(
+                id = UUID.randomUUID(),
+                tilsagnId = Tilsagn1.id,
+                frigjorTilsagn = false,
+                belop = 100,
+            )
             service.validateAndUpsertDelutbetaling(
                 utbetalingId = UtbetalingFixtures.utbetaling1.id,
                 request = opprettRequest,
@@ -487,6 +492,7 @@ class UtbetalingServiceTest : FunSpec({
                 request = DelutbetalingRequest(
                     id = UtbetalingFixtures.delutbetaling1.id,
                     tilsagnId = Tilsagn1.id,
+                    frigjorTilsagn = false,
                     belop = 100,
                 ),
                 navIdent = NavAnsattFixture.ansatt1.navIdent,
@@ -517,7 +523,12 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             val request =
-                DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = Tilsagn1.id, belop = 100)
+                DelutbetalingRequest(
+                    id = UUID.randomUUID(),
+                    tilsagnId = Tilsagn1.id,
+                    frigjorTilsagn = false,
+                    belop = 100,
+                )
 
             shouldThrow<IllegalArgumentException> {
                 service.validateAndUpsertDelutbetaling(
@@ -555,7 +566,7 @@ class UtbetalingServiceTest : FunSpec({
 
             service.validateAndUpsertDelutbetaling(
                 utbetaling.id,
-                DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, belop = 100),
+                DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, frigjorTilsagn = false, belop = 100),
                 domain.ansatte[0].navIdent,
             ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
                 it.errors shouldContainExactly listOf(FieldError("/belop", "Kan ikke betale ut mer enn det er krav på"))
@@ -563,14 +574,14 @@ class UtbetalingServiceTest : FunSpec({
 
             service.validateAndUpsertDelutbetaling(
                 utbetaling.id,
-                DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, belop = 7),
+                DelutbetalingRequest(UUID.randomUUID(), tilsagn1.id, frigjorTilsagn = false, belop = 7),
                 domain.ansatte[0].navIdent,
             ).shouldBeRight()
 
             // Siden 7 allerede er utbetalt nå
             service.validateAndUpsertDelutbetaling(
                 utbetaling.id,
-                DelutbetalingRequest(UUID.randomUUID(), tilsagn2.id, belop = 5),
+                DelutbetalingRequest(UUID.randomUUID(), tilsagn2.id, frigjorTilsagn = false, belop = 5),
                 domain.ansatte[0].navIdent,
             ).shouldBeLeft().shouldBeTypeOf<ValidationError>() should {
                 it.errors shouldContainExactly listOf(FieldError("/belop", "Kan ikke betale ut mer enn det er krav på"))
@@ -608,18 +619,33 @@ class UtbetalingServiceTest : FunSpec({
 
             service.validateAndUpsertDelutbetaling(
                 utbetaling1.id,
-                DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = tilsagn1.id, belop = 50),
+                DelutbetalingRequest(
+                    id = UUID.randomUUID(),
+                    tilsagnId = tilsagn1.id,
+                    frigjorTilsagn = false,
+                    belop = 50,
+                ),
                 domain.ansatte[0].navIdent,
             )
             service.validateAndUpsertDelutbetaling(
                 utbetaling1.id,
-                DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = tilsagn2.id, belop = 50),
+                DelutbetalingRequest(
+                    id = UUID.randomUUID(),
+                    tilsagnId = tilsagn2.id,
+                    frigjorTilsagn = false,
+                    belop = 50,
+                ),
                 domain.ansatte[0].navIdent,
             )
 
             service.validateAndUpsertDelutbetaling(
                 utbetaling2.id,
-                DelutbetalingRequest(id = UUID.randomUUID(), tilsagnId = tilsagn1.id, belop = 100),
+                DelutbetalingRequest(
+                    id = UUID.randomUUID(),
+                    tilsagnId = tilsagn1.id,
+                    frigjorTilsagn = false,
+                    belop = 100,
+                ),
                 domain.ansatte[0].navIdent,
             )
 
@@ -771,6 +797,41 @@ class UtbetalingServiceTest : FunSpec({
 
             val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetalingId) }
             delutbetalinger shouldHaveSize 0
+        }
+
+        test("Tilsagn skal frigjøres automatisk når siste dato i tilsagnsperioden er inkludert i utbetalingsperioden") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(
+                    Tilsagn1.copy(
+                        periode = Periode(LocalDate.of(2025, 1, 4), LocalDate.of(2025, 3, 1)),
+                    ),
+                ),
+                utbetalinger = listOf(
+                    UtbetalingFixtures.utbetaling1.copy(
+                        periode = Periode.forMonthOf(LocalDate.of(2025, 1, 4)),
+                    ),
+                    UtbetalingFixtures.utbetaling2.copy(
+                        periode = Periode.forMonthOf(LocalDate.of(2025, 2, 4)),
+                    ),
+                ),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            val utbetalingId1 = UtbetalingFixtures.utbetaling1.id
+            service.godkjentAvArrangor(utbetalingId1, godkjennUtbetaling)
+            val delutbetaling1 = database.run { queries.delutbetaling.getByUtbetalingId(utbetalingId1) }
+            delutbetaling1[0].frigjorTilsagn shouldBe false
+
+            val utbetalingId2 = UtbetalingFixtures.utbetaling2.id
+            service.godkjentAvArrangor(utbetalingId2, godkjennUtbetaling)
+            val delutbetaling2 = database.run { queries.delutbetaling.getByUtbetalingId(utbetalingId2) }
+            delutbetaling2[0].frigjorTilsagn shouldBe true
         }
     }
 })

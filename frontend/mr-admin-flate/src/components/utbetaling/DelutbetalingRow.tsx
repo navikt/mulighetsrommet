@@ -9,7 +9,7 @@ import {
   NavAnsatt,
   NavAnsattRolle,
 } from "@mr/api-client-v2";
-import { BodyShort, Button, HStack, Table, TextField } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, Checkbox, HStack, Table, TextField } from "@navikt/ds-react";
 import { useState } from "react";
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
 import { AvvistAlert } from "@/pages/gjennomforing/tilsagn/AarsakerAlert";
@@ -26,6 +26,7 @@ interface Props {
   ansatt: NavAnsatt;
   endreUtbetaling: boolean;
   onBelopChange: (b: number) => void;
+  onFrigjorTilsagnChange: (f: boolean) => void;
 }
 
 export function DelutbetalingRow({
@@ -35,8 +36,13 @@ export function DelutbetalingRow({
   ansatt,
   endreUtbetaling,
   onBelopChange,
+  onFrigjorTilsagnChange,
 }: Props) {
   const [belop, setBelop] = useState<number>(delutbetaling?.belop ?? 0);
+  const [frigjorTilsagn, setFrigjorTilsagn] = useState<boolean>(
+    delutbetaling?.frigjorTilsagn ?? false,
+  );
+  const [open, setOpen] = useState<boolean>(false);
   const [error, setError] = useState<string | undefined>(undefined);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
 
@@ -50,11 +56,12 @@ export function DelutbetalingRow({
   const skriveTilgang = ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV);
 
   const godkjentTilsagn = tilsagn.status === "GODKJENT";
-  const avvist = delutbetaling?.type === "DELUTBETALING_AVVIST";
-  const tilGodkjenning = delutbetaling?.type === "DELUTBETALING_TIL_GODKJENNING";
   const godkjentUtbetaling =
     delutbetaling?.type === "DELUTBETALING_OVERFORT_TIL_UTBETALING" ||
     delutbetaling?.type === "DELUTBETALING_UTBETALT";
+  const avvist = delutbetaling?.type === "DELUTBETALING_AVVIST";
+  const kanRedigere =
+    skriveTilgang && godkjentTilsagn && (!delutbetaling || (avvist && endreUtbetaling));
 
   function beslutt(body: BesluttDelutbetalingRequest) {
     besluttMutation.mutate(body, {
@@ -67,8 +74,21 @@ export function DelutbetalingRow({
     });
   }
 
+  function onFrigjorCheck(frigjor: boolean) {
+    setOpen(frigjor);
+    onFrigjorTilsagnChange(frigjor);
+    setFrigjorTilsagn(frigjor);
+  }
+
   function content() {
-    if (delutbetaling && avvist)
+    if (frigjorTilsagn && !godkjentUtbetaling)
+      return (
+        <Alert variant="warning">
+          Når denne utbetalingen godkjennes vil det ikke lengre være mulig å sende inn nye
+          utbetalinger fra dette tilsagnet
+        </Alert>
+      );
+    if (avvist)
       return (
         <AvvistAlert
           header="Utbetaling returnert"
@@ -98,7 +118,7 @@ export function DelutbetalingRow({
 
   function utbetales() {
     if (!godkjentTilsagn) return "-";
-    else if (!delutbetaling || (avvist && endreUtbetaling))
+    else if (kanRedigere)
       return (
         <TextField
           readOnly={!skriveTilgang}
@@ -123,7 +143,7 @@ export function DelutbetalingRow({
           value={belop}
         />
       );
-    else return formaterNOK(delutbetaling.belop);
+    else return formaterNOK(delutbetaling?.belop ?? 0);
   }
 
   function tag() {
@@ -138,7 +158,7 @@ export function DelutbetalingRow({
   }
 
   function handlinger() {
-    if (kanBeslutte && tilGodkjenning)
+    if (kanBeslutte && delutbetaling?.type === "DELUTBETALING_TIL_GODKJENNING")
       return (
         <HStack gap="4">
           <Button
@@ -171,7 +191,9 @@ export function DelutbetalingRow({
   return (
     <Table.ExpandableRow
       defaultOpen={avvist}
-      expansionDisabled={!delutbetaling}
+      onOpenChange={() => setOpen(!open)}
+      open={open}
+      expansionDisabled={!frigjorTilsagn}
       key={tilsagn.id}
       content={content()}
     >
@@ -181,6 +203,16 @@ export function DelutbetalingRow({
       <Table.DataCell className={cellClass}>{tilsagn.kostnadssted.navn}</Table.DataCell>
       <Table.DataCell className={cellClass}>
         {formaterNOK(tilsagn.beregning.output.belop)}
+      </Table.DataCell>
+      <Table.DataCell className={cellClass}>
+        <Checkbox
+          hideLabel
+          readOnly={!kanRedigere}
+          checked={frigjorTilsagn}
+          onChange={(e) => onFrigjorCheck(e.target.checked)}
+        >
+          Gjør opp tilsagn
+        </Checkbox>
       </Table.DataCell>
       <Table.DataCell className={cellClass}>{utbetales()}</Table.DataCell>
       <Table.DataCell className={error && "align-top pt-2"}>{tag()}</Table.DataCell>
