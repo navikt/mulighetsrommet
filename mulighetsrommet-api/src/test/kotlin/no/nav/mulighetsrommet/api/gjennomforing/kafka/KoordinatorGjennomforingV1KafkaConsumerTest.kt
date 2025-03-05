@@ -53,6 +53,25 @@ class KoordinatorGjennomforingV1KafkaConsumerTest : FunSpec({
         )
     }
 
+    fun getNavIdentFromRow(id: UUID): String? {
+        @Language("PostgreSQL")
+        val query = """
+                select nav_ident
+                from gjennomforing_koordinator
+                where id = :id::uuid
+            """.trimIndent()
+
+        val params = mapOf(
+            "id" to id,
+        )
+
+        return database.run {
+            session.single(queryOf(query, params)) {
+                it.string("nav_ident")
+            }
+        }
+    }
+
     context("Konsumering av Koordinator-kobling fra Komet") {
         MulighetsrommetTestDomain(
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
@@ -72,22 +91,7 @@ class KoordinatorGjennomforingV1KafkaConsumerTest : FunSpec({
 
             consumer.consume(message.gjennomforingId.toString(), Json.encodeToJsonElement(message))
 
-            @Language("PostgreSQL")
-            val query = """
-                select nav_ident
-                from gjennomforing_koordinator
-                where gjennomforing_id = :gjennomforing_id::uuid
-            """.trimIndent()
-
-            val params = mapOf(
-                "gjennomforing_id" to message.gjennomforingId,
-            )
-
-            database.run {
-                session.single(queryOf(query, params)) {
-                    it.string("nav_ident")
-                } shouldBe message.navIdent.value
-            }
+            getNavIdentFromRow(message.id) shouldBe message.navIdent.value
         }
 
         test("Should process tombstone message successfully") {
@@ -101,32 +105,12 @@ class KoordinatorGjennomforingV1KafkaConsumerTest : FunSpec({
 
             consumer.consume(key.toString(), Json.encodeToJsonElement(message))
 
-            @Language("PostgreSQL")
-            val query = """
-                select nav_ident
-                from gjennomforing_koordinator
-                where id = :id::uuid
-            """.trimIndent()
-
-            val params = mapOf(
-                "id" to key,
-            )
-
-            database.run {
-                session.single(queryOf(query, params)) {
-                    it.string("nav_ident")
-                } shouldBe message.navIdent.value
-            }
+            getNavIdentFromRow(key) shouldBe message.navIdent.value
 
             val tombstone = null
             consumer.consume(key.toString(), Json.encodeToJsonElement(tombstone))
 
-
-            database.run {
-                session.single(queryOf(query, params)) {
-                    it.string("nav_ident")
-                } shouldBe null
-            }
+            getNavIdentFromRow(key) shouldBe null
         }
     }
 })
