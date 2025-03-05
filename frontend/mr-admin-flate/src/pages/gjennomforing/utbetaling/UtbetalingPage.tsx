@@ -39,23 +39,18 @@ import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetal
 import { v4 as uuidv4 } from "uuid";
 
 export function UtbetalingPage() {
-  const { gjennomforing, historikk, utbetaling, tilsagn, ansatt } =
+  const { gjennomforing, historikk, utbetaling, delutbetalinger, tilsagn, ansatt } =
     useLoaderData<LoaderData<typeof utbetalingPageLoader>>();
   const [belopPerTilsagn, setBelopPerTilsagn] = useState<Map<string, number>>(
     new Map(
       tilsagn
         .filter((tilsagn) => tilsagn.status === TilsagnStatus.GODKJENT)
-        .map((t) => [
-          t.id,
-          utbetaling.delutbetalinger.find((d) => d.tilsagnId === t.id)?.belop ?? 0,
-        ]),
+        .map((t) => [t.id, delutbetalinger.find((d) => d.tilsagnId === t.id)?.belop ?? 0]),
     ),
   );
 
   const skriveTilgang = ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV);
-  const avvistUtbetaling = utbetaling.delutbetalinger.find(
-    (d) => d.type === "DELUTBETALING_AVVIST",
-  );
+  const avvistUtbetaling = delutbetalinger.find((d) => d.type === "DELUTBETALING_AVVIST");
   const [endreUtbetaling, setEndreUtbetaling] = useState<boolean>(!avvistUtbetaling);
   const [error, setError] = useState<string | undefined>(undefined);
 
@@ -67,7 +62,7 @@ export function UtbetalingPage() {
   const kanRedigeres =
     skriveTilgang &&
     tilsagn.some((t) => t.status === TilsagnStatus.GODKJENT) &&
-    (utbetaling.delutbetalinger.length != tilsagn.length || (endreUtbetaling && avvistUtbetaling));
+    (delutbetalinger.length != tilsagn.length || (endreUtbetaling && avvistUtbetaling));
 
   const brodsmuler: Brodsmule[] = [
     { tittel: "Gjennomføringer", lenke: `/gjennomforinger` },
@@ -139,13 +134,12 @@ export function UtbetalingPage() {
           ...tilsagn
             .filter(
               (t) =>
-                !utbetaling.delutbetalinger.find(
+                !delutbetalinger.find(
                   (d) => d.tilsagnId === t.id && d.type !== "DELUTBETALING_AVVIST",
                 ) && belopPerTilsagn.get(t.id),
             )
             .map((tilsagn) => ({
-              id:
-                utbetaling.delutbetalinger?.find((d) => d.tilsagnId === tilsagn.id)?.id ?? uuidv4(),
+              id: delutbetalinger?.find((d) => d.tilsagnId === tilsagn.id)?.id ?? uuidv4(),
               tilsagnId: tilsagn.id,
               belop: belopPerTilsagn.get(tilsagn.id) ?? 0,
             })),
@@ -271,9 +265,7 @@ export function UtbetalingPage() {
                             key={t.id}
                             utbetaling={utbetaling}
                             tilsagn={t}
-                            delutbetaling={utbetaling.delutbetalinger.find(
-                              (d) => d.tilsagnId === t.id,
-                            )}
+                            delutbetaling={delutbetalinger.find((d) => d.tilsagnId === t.id)}
                             ansatt={ansatt}
                             endreUtbetaling={endreUtbetaling}
                             onBelopChange={(belop) =>

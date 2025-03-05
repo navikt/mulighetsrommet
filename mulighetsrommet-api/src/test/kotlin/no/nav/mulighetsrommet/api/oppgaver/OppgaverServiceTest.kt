@@ -1,3 +1,4 @@
+package no.nav.mulighetsrommet.api.oppgaver
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -172,7 +173,10 @@ class OppgaverServiceTest : FunSpec({
                     UtbetalingFixtures.delutbetaling2,
                 ),
             ) {
-                setDelutbetalingStatus(UtbetalingFixtures.delutbetaling2, UtbetalingFixtures.DelutbetalingStatus.RETURNERT)
+                setDelutbetalingStatus(
+                    UtbetalingFixtures.delutbetaling2,
+                    UtbetalingFixtures.DelutbetalingStatus.RETURNERT,
+                )
             }.initialize(database.db)
 
             var oppgaver = service.delutbetalingOppgaver(
@@ -234,9 +238,24 @@ class OppgaverServiceTest : FunSpec({
                     UtbetalingFixtures.delutbetaling1.copy(utbetalingId = UtbetalingFixtures.utbetaling2.id),
                 ),
             ).initialize(database.db)
-            database.run { queries.utbetaling.setGodkjentAvArrangor(UtbetalingFixtures.utbetaling1.id, LocalDateTime.now()) }
-            database.run { queries.utbetaling.setGodkjentAvArrangor(UtbetalingFixtures.utbetaling2.id, LocalDateTime.now()) }
-            database.run { queries.utbetaling.setGodkjentAvArrangor(UtbetalingFixtures.utbetaling3.id, LocalDateTime.now()) }
+            database.run {
+                queries.utbetaling.setGodkjentAvArrangor(
+                    UtbetalingFixtures.utbetaling1.id,
+                    LocalDateTime.now(),
+                )
+            }
+            database.run {
+                queries.utbetaling.setGodkjentAvArrangor(
+                    UtbetalingFixtures.utbetaling2.id,
+                    LocalDateTime.now(),
+                )
+            }
+            database.run {
+                queries.utbetaling.setGodkjentAvArrangor(
+                    UtbetalingFixtures.utbetaling3.id,
+                    LocalDateTime.now(),
+                )
+            }
 
             service.utbetalingOppgaver(
                 oppgavetyper = emptyList(),

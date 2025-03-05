@@ -10,6 +10,12 @@ const utbetalingQuery = (utbetalingId: string) =>
     queryFn: () => UtbetalingService.getUtbetaling({ path: { id: utbetalingId } }),
   });
 
+const delutbetalingerQuery = (utbetalingId: string) =>
+  queryOptions({
+    queryKey: ["utbetaling", utbetalingId, "delutbetalinger"],
+    queryFn: () => UtbetalingService.getDelutbetalinger({ path: { id: utbetalingId } }),
+  });
+
 const tilsagnTilUtbetalingQuery = (utbetalingId: string) =>
   queryOptions({
     queryKey: ["utbetaling", utbetalingId, "tilsagn"],
@@ -38,15 +44,17 @@ export const utbetalingPageLoader =
       ansatt,
       { data: gjennomforing },
       { data: utbetaling },
+      { data: delutbetalinger },
       { data: tilsagn },
       { data: historikk },
     ] = await Promise.all([
       queryClient.ensureQueryData(ansattQuery),
       queryClient.ensureQueryData(gjennomforingQuery(gjennomforingId)),
       queryClient.ensureQueryData(utbetalingQuery(utbetalingId)),
+      queryClient.ensureQueryData(delutbetalingerQuery(utbetalingId)),
       queryClient.ensureQueryData(tilsagnTilUtbetalingQuery(utbetalingId)),
       queryClient.ensureQueryData(utbetalingHistorikkQuery(utbetalingId)),
     ]);
 
-    return { ansatt, gjennomforing, utbetaling, tilsagn, historikk };
+    return { ansatt, gjennomforing, utbetaling, delutbetalinger, tilsagn, historikk };
   };

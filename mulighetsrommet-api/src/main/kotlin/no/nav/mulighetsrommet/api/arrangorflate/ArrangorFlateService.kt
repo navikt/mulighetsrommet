@@ -5,17 +5,18 @@ import arrow.core.toNonEmptySetOrNull
 import io.ktor.http.*
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateUtbetaling
-import no.nav.mulighetsrommet.api.arrangorflate.model.ArrFlateUtbetalingKompakt
-import no.nav.mulighetsrommet.api.arrangorflate.model.Beregning
-import no.nav.mulighetsrommet.api.arrangorflate.model.UtbetalingDeltakelse
+import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.arrangorflate.model.*
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.tilsagn.model.ArrangorflateTilsagn
 import no.nav.mulighetsrommet.api.utbetaling.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.HentPersonBolkResponse
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
-import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerDto
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAft
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -27,29 +28,27 @@ class ArrangorFlateService(
     val pdl: HentAdressebeskyttetPersonBolkPdlQuery,
     val db: ApiDatabase,
 ) {
-    fun getUtbetalinger(orgnr: Organisasjonsnummer): List<ArrFlateUtbetalingKompakt> {
-        return db.session {
-            queries.utbetaling.getByArrangorIds(orgnr).map {
-                val harRelevanteForslag = getRelevanteForslag(it).any { forslag -> forslag.antallRelevanteForslag > 0 }
-                ArrFlateUtbetalingKompakt.fromUtbetalingDto(it, harRelevanteForslag)
-            }
+    fun getUtbetalinger(orgnr: Organisasjonsnummer): List<ArrFlateUtbetalingKompakt> = db.session {
+        return queries.utbetaling.getByArrangorIds(orgnr).map { utbetaling ->
+            val status = getArrFlateUtbetalingStatus(utbetaling)
+            ArrFlateUtbetalingKompakt.fromUtbetalingDto(utbetaling, status)
         }
     }
 
-    fun getUtbetaling(id: UUID): UtbetalingDto? {
-        return db.session { queries.utbetaling.get(id) }
+    fun getUtbetaling(id: UUID): UtbetalingDto? = db.session {
+        return queries.utbetaling.get(id)
     }
 
-    fun getTilsagn(id: UUID): ArrangorflateTilsagn? {
-        return db.session { queries.tilsagn.getArrangorflateTilsagn(id) }
+    fun getTilsagn(id: UUID): ArrangorflateTilsagn? = db.session {
+        return queries.tilsagn.getArrangorflateTilsagn(id)
     }
 
-    fun getTilsagnByOrgnr(orgnr: Organisasjonsnummer): List<ArrangorflateTilsagn> {
-        return db.session { queries.tilsagn.getAllArrangorflateTilsagn(orgnr) }
+    fun getTilsagnByOrgnr(orgnr: Organisasjonsnummer): List<ArrangorflateTilsagn> = db.session {
+        return queries.tilsagn.getAllArrangorflateTilsagn(orgnr)
     }
 
-    fun getRelevanteForslag(utbetaling: UtbetalingDto): List<RelevanteForslag> {
-        return db.session { queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id) }
+    fun getRelevanteForslag(utbetaling: UtbetalingDto): List<RelevanteForslag> = db.session {
+        return queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
             .map { (deltakerId, forslag) ->
                 RelevanteForslag(
                     deltakerId = deltakerId,
@@ -58,12 +57,11 @@ class ArrangorFlateService(
             }
     }
 
-    suspend fun toArrFlateUtbetaling(utbetaling: UtbetalingDto): ArrFlateUtbetaling {
-        val harRelevanteForslag = getRelevanteForslag(utbetaling).any { it.antallRelevanteForslag > 0 }
-
+    suspend fun toArrFlateUtbetaling(utbetaling: UtbetalingDto): ArrFlateUtbetaling = db.session {
+        val status = getArrFlateUtbetalingStatus(utbetaling)
         return when (val beregning = utbetaling.beregning) {
             is UtbetalingBeregningAft -> {
-                val deltakere = db.session { queries.deltaker.getAll(gjennomforingId = utbetaling.gjennomforing.id) }
+                val deltakere = queries.deltaker.getAll(gjennomforingId = utbetaling.gjennomforing.id)
 
                 val deltakereById = deltakere.associateBy { it.id }
                 val personerByNorskIdent: Map<NorskIdent, UtbetalingDeltakelse.Person> = getPersoner(deltakere)
@@ -100,7 +98,7 @@ class ArrangorFlateService(
 
                 ArrFlateUtbetaling(
                     id = utbetaling.id,
-                    status = ArrFlateUtbetaling.Status.fromUtbetaling(utbetaling, harRelevanteForslag),
+                    status = status,
                     fristForGodkjenning = utbetaling.fristForGodkjenning,
                     tiltakstype = utbetaling.tiltakstype,
                     gjennomforing = utbetaling.gjennomforing,
@@ -119,7 +117,7 @@ class ArrangorFlateService(
 
             is UtbetalingBeregningFri -> ArrFlateUtbetaling(
                 id = utbetaling.id,
-                status = ArrFlateUtbetaling.Status.fromUtbetaling(utbetaling, harRelevanteForslag),
+                status = status,
                 fristForGodkjenning = utbetaling.fristForGodkjenning,
                 tiltakstype = utbetaling.tiltakstype,
                 gjennomforing = utbetaling.gjennomforing,
@@ -133,6 +131,16 @@ class ArrangorFlateService(
                 betalingsinformasjon = utbetaling.betalingsinformasjon,
             )
         }
+    }
+
+    private fun QueryContext.getArrFlateUtbetalingStatus(utbetaling: UtbetalingDto): ArrFlateUtbetalingStatus {
+        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+        val relevanteForslag = getRelevanteForslag(utbetaling)
+        return ArrFlateUtbetalingStatus.fromUtbetaling(
+            utbetaling,
+            delutbetalinger,
+            relevanteForslag,
+        )
     }
 
     private suspend fun getPersoner(deltakere: List<DeltakerDto>): Map<NorskIdent, UtbetalingDeltakelse.Person> {
