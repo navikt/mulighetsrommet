@@ -40,8 +40,8 @@ class DelutbetalingQueries(private val session: Session) {
                 :fakturanummer
             ) on conflict (utbetaling_id, tilsagn_id) do update set
                 belop                = excluded.belop,
+                frigjor_tilsagn      = excluded.frigjor_tilsagn,
                 periode              = delutbetaling.periode,
-                frigjor_tilsagn      = delutbetaling.frigjor_tilsagn,
                 lopenummer           = delutbetaling.lopenummer,
                 fakturanummer        = delutbetaling.fakturanummer;
         """.trimIndent()

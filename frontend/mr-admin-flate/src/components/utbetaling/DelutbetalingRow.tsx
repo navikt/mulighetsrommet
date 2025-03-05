@@ -74,6 +74,12 @@ export function DelutbetalingRow({
     });
   }
 
+  function onFrigjorCheck(frigjor: boolean) {
+    setOpen(!frigjor);
+    onFrigjorTilsagnChange(!frigjor);
+    setFrigjorTilsagn(!frigjor);
+  }
+
   function content() {
     if (frigjorTilsagn && !godkjentUtbetaling)
       return (
@@ -203,11 +209,7 @@ export function DelutbetalingRow({
           hideLabel
           readOnly={!kanRedigere}
           checked={frigjorTilsagn}
-          onChange={() => {
-            setOpen(!frigjorTilsagn);
-            onFrigjorTilsagnChange(!frigjorTilsagn);
-            setFrigjorTilsagn(!frigjorTilsagn);
-          }}
+          onChange={() => onFrigjorCheck(frigjorTilsagn)}
         >
           Gjør opp tilsagn
         </Checkbox>
