@@ -384,12 +384,8 @@ class UtbetalingService(
     private fun getDeltakelser(
         gjennomforingId: UUID,
         periode: Periode,
-    ): Set<DeltakelsePerioder> {
-        val deltakelser = db.session {
-            queries.deltaker.getAll(gjennomforingId = gjennomforingId)
-        }
-
-        return deltakelser
+    ): Set<DeltakelsePerioder> = db.session {
+        queries.deltaker.getAll(gjennomforingId = gjennomforingId)
             .asSequence()
             .filter {
                 it.status.type in listOf(
@@ -407,19 +403,28 @@ class UtbetalingService(
                 it.sluttDato == null || it.sluttDato.plusDays(1).isAfter(periode.start)
             }
             .map { deltakelse ->
-                val start = maxOf(requireNotNull(deltakelse.startDato), periode.start)
-                val slutt = minOf(deltakelse.sluttDato?.plusDays(1) ?: periode.slutt, periode.slutt)
-                val deltakelsesprosent = requireNotNull(deltakelse.deltakelsesprosent) {
-                    "deltakelsesprosent mangler for deltakelse id=${deltakelse.id}"
+                val deltakelsesmengder = queries.deltaker.getDeltakelsesmengder(deltakelse.id)
+
+                val deltakelseSlutt = deltakelse.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
+
+                val perioder = deltakelsesmengder
+                    .mapIndexedNotNull { index, mengde ->
+                        val gyldigTil = deltakelsesmengder.getOrNull(index + 1)?.gyldigFra ?: deltakelseSlutt
+
+                        Periode.of(mengde.gyldigFra, gyldigTil)?.intersect(periode)?.let { overlappingPeriode ->
+                            DeltakelsePeriode(
+                                start = overlappingPeriode.start,
+                                slutt = overlappingPeriode.slutt,
+                                deltakelsesprosent = mengde.deltakelsesprosent,
+                            )
+                        }
+                    }
+
+                check(perioder.isNotEmpty()) {
+                    "Deltaker id=${deltakelse.id} mangler deltakelsesmengder innenfor periode=$periode"
                 }
 
-                // TODO: periodisering av prosent - fra Komet
-                val perioder = listOf(DeltakelsePeriode(start, slutt, deltakelsesprosent))
-
-                DeltakelsePerioder(
-                    deltakelseId = deltakelse.id,
-                    perioder = perioder,
-                )
+                DeltakelsePerioder(deltakelse.id, perioder)
             }
             .toSet()
     }
