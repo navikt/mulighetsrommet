@@ -128,7 +128,7 @@ class UtbetalingServiceTest : FunSpec({
             utbetaling.betalingsinformasjon.kid shouldBe null
 
             database.run {
-                queries.utbetaling.setBetalingsInformasjon(
+                queries.utbetaling.setBetalingsinformasjon(
                     id = utbetaling.id,
                     kontonummer = Kontonummer("12345678901"),
                     kid = Kid("12345678901"),
