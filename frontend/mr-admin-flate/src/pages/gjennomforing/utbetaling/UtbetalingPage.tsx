@@ -265,9 +265,7 @@ export function UtbetalingPage() {
                             key={t.id}
                             utbetaling={utbetaling}
                             tilsagn={t}
-                            delutbetaling={utbetaling.delutbetalinger.find(
-                              (d) => d.tilsagnId === t.id,
-                            )}
+                            delutbetaling={delutbetalinger.find((d) => d.tilsagnId === t.id)}
                             ansatt={ansatt}
                             endreUtbetaling={endreUtbetaling}
                             onBelopChange={(belop) =>

@@ -61,10 +61,15 @@ class UtbetalingService(
     }
 
     fun recalculateUtbetalingForGjennomforing(id: UUID): Unit = db.transaction {
+        // TODO: hvorfor ble dette lagt til?
+        if (queries.delutbetaling.getByUtbetalingId(id).isNotEmpty()) {
+            log.info("Utbetaling id=$id skal ikke beregnes fordi delutbetalinger allerede finnes.")
+            return
+        }
+
         queries.utbetaling
             .getByGjennomforing(id)
             .filter { it.innsender == null }
-            .filter { it.delutbetalinger.isEmpty() }
             .mapNotNull { gjeldendeKrav ->
                 val nyttKrav = when (gjeldendeKrav.beregning) {
                     is UtbetalingBeregningAft -> createUtbetalingAft(
@@ -218,14 +223,32 @@ class UtbetalingService(
         val delutbetaling = queries.delutbetaling.get(request.id)
             ?: throw IllegalArgumentException("Delutbetaling finnes ikke")
         when (request) {
-            is BesluttDelutbetalingRequest.AvvistDelutbetalingRequest ->
+            is BesluttDelutbetalingRequest.AvvistDelutbetalingRequest -> {
                 avvisDelutbetaling(delutbetaling, request.aarsaker, request.forklaring, navIdent)
+            }
+
             is BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest -> {
                 godkjennDelutbetaling(delutbetaling, navIdent)
             }
         }
     }
 
+    fun getUtbetalingKompakt(id: UUID): AdminUtbetalingKompakt = db.session {
+        val utbetaling = queries.utbetaling.get(id) ?: throw NoSuchElementException("Utbetaling id=$id finnes ikke")
+        toAdminUtbetalingKompakt(utbetaling)
+    }
+
+    fun getUtbetalingKompaktByGjennomforing(id: UUID): List<AdminUtbetalingKompakt> = db.session {
+        queries.utbetaling.getByGjennomforing(id).map { utbetaling -> toAdminUtbetalingKompakt(utbetaling) }
+    }
+
+    private fun QueryContext.toAdminUtbetalingKompakt(utbetaling: UtbetalingDto): AdminUtbetalingKompakt {
+        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+        val status = AdminUtbetalingStatus.fromUtbetaling(utbetaling, delutbetalinger)
+        return AdminUtbetalingKompakt.fromUtbetalingDto(utbetaling, status)
+    }
+
+    // TODO: returner årsak til hvorfor utbetaling ikke ble utført slik at dette kan assertes i tester
     private fun QueryContext.automatiskUtbetaling(utbetalingId: UUID): Boolean {
         val utbetaling = requireNotNull(queries.utbetaling.get(utbetalingId)) {
             "Fant ikke utbetaling med id=$utbetalingId"
