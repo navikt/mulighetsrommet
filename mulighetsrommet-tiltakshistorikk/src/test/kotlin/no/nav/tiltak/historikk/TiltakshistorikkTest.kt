@@ -387,6 +387,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         endretDato = deltakelsesdato,
         dagerPerUke = 2.5f,
         prosentStilling = null,
+        deltakelsesmengder = listOf(),
     )
     queries.deltaker.upsertKometDeltaker(amtDeltaker)
 }

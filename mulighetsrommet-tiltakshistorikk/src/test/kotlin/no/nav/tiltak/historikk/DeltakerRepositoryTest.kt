@@ -50,6 +50,7 @@ class DeltakerRepositoryTest : FunSpec({
         endretDato = LocalDateTime.of(2022, 1, 1, 0, 0),
         dagerPerUke = 2.5f,
         prosentStilling = null,
+        deltakelsesmengder = listOf(),
     )
     val arbeidstreningArenaDeltakelse = ArenaDeltakerDbo(
         id = UUID.randomUUID(),
@@ -181,6 +182,7 @@ class DeltakerRepositoryTest : FunSpec({
                 endretDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
                 dagerPerUke = 2.5f,
                 prosentStilling = null,
+                deltakelsesmengder = listOf(),
             )
             val amtDeltakerReg2005Slutt2024 = AmtDeltakerV1Dto(
                 id = UUID.randomUUID(),
@@ -197,6 +199,7 @@ class DeltakerRepositoryTest : FunSpec({
                 endretDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
                 dagerPerUke = 2.5f,
                 prosentStilling = null,
+                deltakelsesmengder = listOf(),
             )
             deltaker.upsertKometDeltaker(amtDeltaker)
             deltaker.upsertKometDeltaker(amtDeltakerReg2005)

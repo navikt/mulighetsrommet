@@ -61,6 +61,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             endretDato = deltakelsesdato,
             dagerPerUke = 2.5f,
             prosentStilling = null,
+            deltakelsesmengder = listOf(),
         )
 
         beforeEach {
