@@ -133,7 +133,7 @@ class UtbetalingBeregningAftTest : FunSpec({
                 ),
             ) { deltakelser, expectedBeregning ->
                 val periode = Periode(periodeStart, periodeSlutt)
-                val input = UtbetalingBeregningAft.Input(periode, 100, deltakelser)
+                val input = UtbetalingBeregningAft.Input(periode, 100, setOf(), deltakelser)
 
                 val beregning = UtbetalingBeregningAft.beregn(input)
 

@@ -1,4 +1,4 @@
--- Force rerun 
+-- Force rerun
 drop view if exists utbetaling_aft_view;
 drop view if exists utbetaling_dto_view;
 
@@ -37,6 +37,14 @@ with deltakelse_perioder as (select utbetaling_id,
                                               )) as perioder
                              from utbetaling_deltakelse_periode
                              group by utbetaling_id, deltakelse_id),
+     stengt_perioder as (select utbetaling_id,
+                                jsonb_agg(jsonb_build_object(
+                                        'start', lower(periode),
+                                        'slutt', upper(periode),
+                                        'beskrivelse', beskrivelse
+                                          )) as stengt
+                         from utbetaling_stengt_hos_arrangor
+                         group by utbetaling_id),
      krav_perioder as (select utbetaling_id,
                               jsonb_agg(jsonb_build_object(
                                       'deltakelseId', deltakelse_id,
@@ -57,11 +65,14 @@ select utbetaling.*,
        beregning.sats,
        lower(beregning.periode)                           as beregning_periode_start,
        upper(beregning.periode)                           as beregning_periode_slutt,
+       coalesce(stengt_perioder.stengt, '[]'::jsonb)      as stengt_json,
        coalesce(krav_perioder.deltakelser, '[]'::jsonb)   as perioder_json,
        coalesce(krav_manedsverk.deltakelser, '[]'::jsonb) as manedsverk_json
 from utbetaling_dto_view utbetaling
          join
      utbetaling_beregning_aft beregning on utbetaling.id = beregning.utbetaling_id
+         left join
+     stengt_perioder on beregning.utbetaling_id = stengt_perioder.utbetaling_id
          left join
      krav_perioder on beregning.utbetaling_id = krav_perioder.utbetaling_id
          left join

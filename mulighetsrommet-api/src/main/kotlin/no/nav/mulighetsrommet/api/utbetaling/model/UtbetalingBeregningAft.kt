@@ -19,6 +19,7 @@ data class UtbetalingBeregningAft(
     data class Input(
         val periode: Periode,
         val sats: Int,
+        val stengt: Set<StengtPeriode>,
         val deltakelser: Set<DeltakelsePerioder>,
     ) : UtbetalingBeregningInput()
 
@@ -30,7 +31,7 @@ data class UtbetalingBeregningAft(
 
     companion object {
         fun beregn(input: Input): UtbetalingBeregningAft {
-            val (periode, sats, deltakelser) = input
+            val (periode, sats, stengt, deltakelser) = input
             val totalDuration = periode.getDurationInDays().toBigDecimal()
 
             val manedsverk = deltakelser
@@ -78,6 +79,15 @@ data class UtbetalingBeregningAft(
         }
     }
 }
+
+@Serializable
+data class StengtPeriode(
+    @Serializable(with = LocalDateSerializer::class)
+    val start: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val slutt: LocalDate,
+    val beskrivelse: String,
+)
 
 @Serializable
 data class DeltakelsePerioder(
