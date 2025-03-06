@@ -27,7 +27,7 @@ data class AmtDeltakerV1Dto(
     val endretDato: LocalDateTime,
     val dagerPerUke: Float?,
     val prosentStilling: Float?,
-    val deltakelsesmengder: List<DeltakelsesmengdeDto>?,
+    val deltakelsesmengder: List<DeltakelsesmengdeDto>? = null,
 ) {
     @Serializable
     data class DeltakelsesmengdeDto(
