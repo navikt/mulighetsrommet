@@ -90,36 +90,27 @@ fun Route.utbetalingRoutes() {
                 call.respond(request)
             }
         }
+    }
 
-        route("/delutbetaling") {
-            authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
-                put {
-                    val utbetalingId = call.parameters.getOrFail<UUID>("id")
-                    val request = call.receive<DelutbetalingRequest>()
-                    val navIdent = getNavIdent()
+    route("/delutbetalinger") {
+        authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
+            put {
+                val request = call.receive<OpprettDelutbetalingerRequest>()
+                val navIdent = getNavIdent()
 
-                    val result = service.validateAndUpsertDelutbetaling(utbetalingId, request, navIdent)
-                    call.respondWithStatusResponse(result)
-                }
-
-                put("/bulk") {
-                    val utbetalingId = call.parameters.getOrFail<UUID>("id")
-                    val request = call.receive<DelutbetalingBulkRequest>()
-                    val navIdent = getNavIdent()
-
-                    val result = service.opprettDelutbetalinger(utbetalingId, request, navIdent)
-                    call.respondWithStatusResponse(result)
-                }
+                val result = service.opprettDelutbetalinger(request, navIdent)
+                call.respondWithStatusResponse(result)
             }
+        }
 
-            authenticate(AuthProvider.AZURE_AD_OKONOMI_BESLUTTER) {
-                post("/beslutt") {
-                    val request = call.receive<BesluttDelutbetalingRequest>()
-                    val navIdent = getNavIdent()
+        authenticate(AuthProvider.AZURE_AD_OKONOMI_BESLUTTER) {
+            post("/{id}/beslutt") {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val request = call.receive<BesluttDelutbetalingRequest>()
+                val navIdent = getNavIdent()
 
-                    service.besluttDelutbetaling(request, navIdent)
-                    call.respond(HttpStatusCode.OK)
-                }
+                service.besluttDelutbetaling(id, request, navIdent)
+                call.respond(HttpStatusCode.OK)
             }
         }
     }
@@ -141,14 +132,9 @@ fun Route.utbetalingRoutes() {
 sealed class BesluttDelutbetalingRequest(
     val besluttelse: Besluttelse,
 ) {
-    abstract val id: UUID
-
     @Serializable
     @SerialName("GODKJENT")
-    data class GodkjentDelutbetalingRequest(
-        @Serializable(with = UUIDSerializer::class)
-        override val id: UUID,
-    ) : BesluttDelutbetalingRequest(
+    data object GodkjentDelutbetalingRequest : BesluttDelutbetalingRequest(
         besluttelse = Besluttelse.GODKJENT,
     )
 
@@ -157,8 +143,6 @@ sealed class BesluttDelutbetalingRequest(
     data class AvvistDelutbetalingRequest(
         val aarsaker: List<String>,
         val forklaring: String?,
-        @Serializable(with = UUIDSerializer::class)
-        override val id: UUID,
     ) : BesluttDelutbetalingRequest(
         besluttelse = Besluttelse.AVVIST,
     )
@@ -175,7 +159,9 @@ data class DelutbetalingRequest(
 )
 
 @Serializable
-data class DelutbetalingBulkRequest(
+data class OpprettDelutbetalingerRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val utbetalingId: UUID,
     val delutbetalinger: List<DelutbetalingRequest>,
 )
 
