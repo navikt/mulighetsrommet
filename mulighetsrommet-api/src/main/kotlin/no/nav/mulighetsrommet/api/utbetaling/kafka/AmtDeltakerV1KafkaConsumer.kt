@@ -111,13 +111,15 @@ class AmtDeltakerV1KafkaConsumer(
             endretTidspunkt = endretDato,
             deltakelsesprosent = deltakelsesprosent,
             status = status,
-            deltakelsesmengder = deltakelsesmengder.map {
-                DeltakerDbo.Deltakelsesmengde(
-                    gyldigFra = it.gyldigFra,
-                    opprettetTidspunkt = it.opprettet,
-                    deltakelsesprosent = it.deltakelsesprosent.toDouble(),
-                )
-            },
+            deltakelsesmengder = deltakelsesmengder
+                ?.map {
+                    DeltakerDbo.Deltakelsesmengde(
+                        gyldigFra = it.gyldigFra,
+                        opprettetTidspunkt = it.opprettet,
+                        deltakelsesprosent = it.deltakelsesprosent.toDouble(),
+                    )
+                }
+                ?: listOf(),
         )
     }
 }
