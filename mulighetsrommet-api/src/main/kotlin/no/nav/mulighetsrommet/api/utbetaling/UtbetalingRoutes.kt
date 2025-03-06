@@ -18,7 +18,7 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
-import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -67,6 +67,7 @@ fun Route.utbetalingRoutes() {
                 queries.tilsagn.getAll(
                     gjennomforingId = utbetaling.gjennomforing.id,
                     periode = utbetaling.periode,
+                    typer = listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN),
                 )
             }
 
