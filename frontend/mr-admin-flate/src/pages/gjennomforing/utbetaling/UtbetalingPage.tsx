@@ -1,3 +1,4 @@
+import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
 import { Header } from "@/components/detaljside/Header";
 import { Metadata, MetadataHorisontal, Separator } from "@/components/detaljside/Metadata";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
@@ -7,16 +8,21 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { DelutbetalingRow } from "@/components/utbetaling/DelutbetalingRow";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { LoaderData } from "@/types/loader";
 import { formaterDato } from "@/utils/Utils";
 import {
+  DelutbetalingDto,
+  Endringshistorikk,
   FieldError,
+  GjennomforingDto,
+  NavAnsatt,
   NavAnsattRolle,
   OpprettDelutbetalingerRequest,
   Prismodell,
   TilsagnDefaultsRequest,
+  TilsagnDto,
   TilsagnStatus,
   TilsagnType,
+  UtbetalingKompakt,
 } from "@mr/api-client-v2";
 import { formaterNOK, isValidationError } from "@mr/frontend-common/utils/utils";
 import { BankNoteIcon, PencilFillIcon, PiggybankIcon } from "@navikt/aksel-icons";
@@ -31,21 +37,79 @@ import {
   Table,
   VStack,
 } from "@navikt/ds-react";
-import { useState } from "react";
-import { useLoaderData, useNavigate, useRevalidator } from "react-router";
-import { utbetalingPageLoader } from "./utbetalingPageLoader";
 import { useQueryClient } from "@tanstack/react-query";
-import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
+import { useState } from "react";
+import { useNavigate, useParams, useRevalidator } from "react-router";
 import { v4 as uuidv4 } from "uuid";
+import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
+import {
+  delutbetalingerQuery,
+  tilsagnTilUtbetalingQuery,
+  utbetalingHistorikkQuery,
+  utbetalingQuery,
+} from "./utbetalingPageLoader";
 
-export function UtbetalingPage() {
-  const { gjennomforing, historikk, utbetaling, delutbetalinger, tilsagn, ansatt } =
-    useLoaderData<LoaderData<typeof utbetalingPageLoader>>();
+import { Laster } from "@/components/laster/Laster";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Suspense } from "react";
+import { useAdminGjennomforingById } from "../../../api/gjennomforing/useAdminGjennomforingById";
+
+function UtbetalingPageContent() {
+  const { utbetalingId } = useParams();
+
+  const { data: gjennomforing } = useAdminGjennomforingById();
+  const { data: ansatt } = useHentAnsatt();
+  const { data: historikk } = useSuspenseQuery(utbetalingHistorikkQuery(utbetalingId));
+  const { data: utbetaling } = useSuspenseQuery(utbetalingQuery(utbetalingId));
+  const { data: delutbetalinger } = useSuspenseQuery(delutbetalingerQuery(utbetalingId));
+  const { data: tilsagn } = useSuspenseQuery(tilsagnTilUtbetalingQuery(utbetalingId));
+
+  if (!gjennomforing || !ansatt || !historikk || !utbetaling || !delutbetalinger || !tilsagn) {
+    return <Laster />;
+  }
+
+  return (
+    <UtbetalingPage
+      gjennomforing={gjennomforing}
+      ansatt={ansatt}
+      historikk={historikk.data}
+      utbetaling={utbetaling.data}
+      delutbetalinger={delutbetalinger.data}
+      tilsagn={tilsagn.data}
+    />
+  );
+}
+
+export function UtbetalingPageWrapper() {
+  return (
+    <Suspense fallback={<Laster tekst="Laster utbetaling..." />}>
+      <UtbetalingPageContent />
+    </Suspense>
+  );
+}
+
+interface UtbetalingPageProps {
+  gjennomforing: GjennomforingDto;
+  ansatt: NavAnsatt;
+  historikk: Endringshistorikk;
+  utbetaling: UtbetalingKompakt;
+  delutbetalinger: DelutbetalingDto[];
+  tilsagn: TilsagnDto[];
+}
+
+export function UtbetalingPage({
+  gjennomforing,
+  ansatt,
+  historikk,
+  utbetaling,
+  delutbetalinger,
+  tilsagn,
+}: UtbetalingPageProps) {
   const [belopPerTilsagn, setBelopPerTilsagn] = useState<Map<string, number>>(
     new Map(
       tilsagn
         .filter((tilsagn) => tilsagn.status === TilsagnStatus.GODKJENT)
-        .map((t) => [t.id, delutbetalinger.find((d) => d.tilsagnId === t.id)?.belop ?? 0]),
+        .map((t) => [t.id, delutbetalinger?.find((d) => d.tilsagnId === t.id)?.belop ?? 0]),
     ),
   );
 
@@ -53,7 +117,7 @@ export function UtbetalingPage() {
     new Map(
       tilsagn.map((t) => [
         t.id,
-        delutbetalinger.find((d) => d.tilsagnId === t.id)?.frigjorTilsagn ?? false,
+        delutbetalinger?.find((d) => d.tilsagnId === t.id)?.frigjorTilsagn ?? false,
       ]),
     ),
   );

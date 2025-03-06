@@ -1,13 +1,14 @@
-import { GjennomforingDto } from "@mr/api-client-v2";
-import { Link, useLoaderData } from "react-router";
+import { Link } from "react-router";
+import { useAdminGjennomforingById } from "../../../api/gjennomforing/useAdminGjennomforingById";
+import { Laster } from "../../../components/laster/Laster";
 import { OpprettUtbetalingForm } from "./OpprettUtbetalingForm";
 
-interface LoaderData {
-  gjennomforing: GjennomforingDto;
-}
-
 export function OpprettUtbetalingPage() {
-  const { gjennomforing } = useLoaderData<LoaderData>();
+  const { data: gjennomforing } = useAdminGjennomforingById();
+
+  if (!gjennomforing) {
+    return <Laster tekst="Laster gjennomføring..." />;
+  }
 
   return (
     <>

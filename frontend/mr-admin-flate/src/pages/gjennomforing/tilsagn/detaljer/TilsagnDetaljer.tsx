@@ -13,7 +13,6 @@ import {
   isTilsagnForhandsgodkjent,
   isTilsagnFri,
 } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
-import { LoaderData } from "@/types/loader";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
 import {
   Besluttelse,
@@ -33,16 +32,23 @@ import {
   TrashIcon,
 } from "@navikt/aksel-icons";
 import { ActionMenu, Alert, BodyShort, Box, Button, Heading, HStack } from "@navikt/ds-react";
+import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { Link, useLoaderData, useNavigate } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
+import { useHentAnsatt } from "../../../../api/ansatt/useHentAnsatt";
+import { useAdminGjennomforingById } from "../../../../api/gjennomforing/useAdminGjennomforingById";
+import { Laster } from "../../../../components/laster/Laster";
 import { AvvistAlert, TilAnnulleringAlert } from "../AarsakerAlert";
 import { TilsagnTag } from "../TilsagnTag";
 import { TilsagnDetaljerForhandsgodkjent } from "./TilsagnDetaljerForhandsgodkjent";
-import { tilsagnDetaljerLoader } from "./tilsagnDetaljerLoader";
-
+import { tilsagnHistorikkQuery, tilsagnQuery } from "./tilsagnDetaljerLoader";
 export function TilsagnDetaljer() {
-  const { gjennomforing, tilsagn, ansatt, historikk } =
-    useLoaderData<LoaderData<typeof tilsagnDetaljerLoader>>();
+  const { gjennomforingId, tilsagnId } = useParams();
+
+  const { data: gjennomforing } = useAdminGjennomforingById();
+  const { data: tilsagn } = useQuery({ ...tilsagnQuery(tilsagnId) });
+  const { data: ansatt } = useHentAnsatt();
+  const { data: historikk } = useQuery({ ...tilsagnHistorikkQuery(tilsagnId) });
 
   const besluttMutation = useBesluttTilsagn();
   const tilAnnulleringMutation = useTilsagnTilAnnullering();
@@ -59,11 +65,11 @@ export function TilsagnDetaljer() {
     },
     {
       tittel: "Gjennomføring",
-      lenke: `/gjennomforinger/${gjennomforing.id}`,
+      lenke: `/gjennomforinger/${gjennomforingId}`,
     },
     {
       tittel: "Tilsagnsoversikt",
-      lenke: `/gjennomforinger/${gjennomforing.id}/tilsagn`,
+      lenke: `/gjennomforinger/${gjennomforingId}/tilsagn`,
     },
     {
       tittel: "Tilsagn",
@@ -71,14 +77,14 @@ export function TilsagnDetaljer() {
   ];
 
   function navigerTilTilsagnTabell() {
-    navigate(`/gjennomforinger/${gjennomforing.id}/tilsagn`);
+    navigate(`/gjennomforinger/${gjennomforingId}/tilsagn`);
   }
 
   function besluttTilsagn(request: BesluttTilsagnRequest) {
     if (tilsagn) {
       besluttMutation.mutate(
         {
-          id: tilsagn.id,
+          id: tilsagn.data.id,
           body: {
             ...request,
           },
@@ -94,7 +100,7 @@ export function TilsagnDetaljer() {
     if (tilsagn) {
       tilAnnulleringMutation.mutate(
         {
-          id: tilsagn.id,
+          id: tilsagn.data.id,
           aarsaker: request.aarsaker,
           forklaring: request.forklaring,
         },
@@ -105,23 +111,27 @@ export function TilsagnDetaljer() {
 
   function slettTilsagn() {
     if (tilsagn) {
-      slettMutation.mutate({ id: tilsagn.id }, { onSuccess: navigerTilTilsagnTabell });
+      slettMutation.mutate({ id: tilsagn.data.id }, { onSuccess: navigerTilTilsagnTabell });
     }
   }
 
   function visBesluttKnapp(endretAv?: string): boolean {
-    return (
-      (tilsagn.status === TilsagnStatus.TIL_GODKJENNING ||
-        tilsagn.status === TilsagnStatus.TIL_ANNULLERING) &&
-      ansatt?.navIdent !== endretAv &&
-      ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER)
+    return Boolean(
+      (tilsagn?.data.status === TilsagnStatus.TIL_GODKJENNING ||
+        tilsagn?.data.status === TilsagnStatus.TIL_ANNULLERING) &&
+        ansatt?.navIdent !== endretAv &&
+        ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER),
     );
   }
 
   const visHandlingerMeny =
-    tilsagn.status === TilsagnStatus.RETURNERT ||
-    (tilsagn.status === TilsagnStatus.GODKJENT &&
+    tilsagn?.data.status === TilsagnStatus.RETURNERT ||
+    (tilsagn?.data.status === TilsagnStatus.GODKJENT &&
       ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV));
+
+  if (!gjennomforing || !tilsagn || !ansatt || !historikk) {
+    return <Laster tekst="Laster tilsagn..." />;
+  }
 
   return (
     <main>
@@ -130,7 +140,7 @@ export function TilsagnDetaljer() {
         <PiggybankIcon className="w-10 h-10" />
         <Heading size="large" level="2">
           <HStack gap="2" align={"center"}>
-            Tilsagn for {gjennomforing.navn} <TilsagnTag status={tilsagn.status} />
+            Tilsagn for {gjennomforing.navn} <TilsagnTag status={tilsagn.data.status} />
           </HStack>
         </Heading>
       </Header>
@@ -138,7 +148,7 @@ export function TilsagnDetaljer() {
         <Box background="bg-default" padding={"5"}>
           <HStack gap="2" justify={"end"}>
             <EndringshistorikkPopover>
-              <ViewEndringshistorikk historikk={historikk} />
+              <ViewEndringshistorikk historikk={historikk.data} />
             </EndringshistorikkPopover>
             {visHandlingerMeny ? (
               <ActionMenu>
@@ -148,7 +158,7 @@ export function TilsagnDetaljer() {
                   </Button>
                 </ActionMenu.Trigger>
                 <ActionMenu.Content>
-                  {tilsagn.status === TilsagnStatus.RETURNERT && (
+                  {tilsagn.data.status === TilsagnStatus.RETURNERT && (
                     <>
                       <ActionMenu.Item icon={<PencilFillIcon />}>
                         <Link className="no-underline" to="./rediger-tilsagn">
@@ -164,7 +174,7 @@ export function TilsagnDetaljer() {
                       </ActionMenu.Item>
                     </>
                   )}
-                  {tilsagn.status === TilsagnStatus.GODKJENT && (
+                  {tilsagn.data.status === TilsagnStatus.GODKJENT && (
                     <>
                       <ActionMenu.Item
                         variant="danger"
@@ -180,21 +190,21 @@ export function TilsagnDetaljer() {
             ) : null}
           </HStack>
           <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-          {tilsagn.status === TilsagnStatus.RETURNERT && (
+          {tilsagn.data.status === TilsagnStatus.RETURNERT && (
             <AvvistAlert
               header="Tilsagnet ble returnert"
-              tidspunkt={tilsagn.opprettelse.besluttetTidspunkt}
+              tidspunkt={tilsagn.data.opprettelse.besluttetTidspunkt}
               aarsaker={
-                tilsagn.opprettelse.aarsaker?.map((aarsak) =>
+                tilsagn.data.opprettelse.aarsaker?.map((aarsak) =>
                   tilsagnAarsakTilTekst(aarsak as TilsagnAvvisningAarsak),
                 ) ?? []
               }
-              forklaring={tilsagn.opprettelse.forklaring}
-              navIdent={tilsagn.opprettelse.besluttetAv}
+              forklaring={tilsagn.data.opprettelse.forklaring}
+              navIdent={tilsagn.data.opprettelse.besluttetAv}
             />
           )}
-          {tilsagn.status === TilsagnStatus.TIL_ANNULLERING && (
-            <TilAnnulleringAlert annullering={tilsagn.annullering!} />
+          {tilsagn.data.status === TilsagnStatus.TIL_ANNULLERING && (
+            <TilAnnulleringAlert annullering={tilsagn.data.annullering!} />
           )}
           <Box
             borderWidth="2"
@@ -203,10 +213,10 @@ export function TilsagnDetaljer() {
             borderRadius={"medium"}
             padding={"2"}
           >
-            {isTilsagnForhandsgodkjent(tilsagn) && (
-              <TilsagnDetaljerForhandsgodkjent tilsagn={tilsagn} />
+            {isTilsagnForhandsgodkjent(tilsagn.data) && (
+              <TilsagnDetaljerForhandsgodkjent tilsagn={tilsagn.data} />
             )}
-            {isTilsagnFri(tilsagn) && <TilsagnDetaljerFri tilsagn={tilsagn} />}
+            {isTilsagnFri(tilsagn.data) && <TilsagnDetaljerFri tilsagn={tilsagn.data} />}
             <div>
               {besluttMutation.error ? (
                 <BodyShort spacing>
@@ -214,8 +224,8 @@ export function TilsagnDetaljer() {
                 </BodyShort>
               ) : null}
               <HStack gap="2" justify={"end"}>
-                {tilsagn.status === TilsagnStatus.TIL_GODKJENNING &&
-                  visBesluttKnapp(tilsagn.opprettelse.behandletAv) && (
+                {tilsagn.data.status === TilsagnStatus.TIL_GODKJENNING &&
+                  visBesluttKnapp(tilsagn.data.opprettelse.behandletAv) && (
                     <HStack gap="2">
                       <Button
                         variant="secondary"
@@ -234,8 +244,8 @@ export function TilsagnDetaljer() {
                       </Button>
                     </HStack>
                   )}
-                {tilsagn.status === TilsagnStatus.TIL_ANNULLERING &&
-                  visBesluttKnapp(tilsagn.annullering?.behandletAv) && (
+                {tilsagn.data.status === TilsagnStatus.TIL_ANNULLERING &&
+                  visBesluttKnapp(tilsagn.data.annullering?.behandletAv) && (
                     <HStack gap="2">
                       <Button
                         variant="secondary"

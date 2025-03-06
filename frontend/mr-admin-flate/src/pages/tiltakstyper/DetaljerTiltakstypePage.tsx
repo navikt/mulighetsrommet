@@ -6,14 +6,14 @@ import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl
 import { ContentBox } from "@/layouts/ContentBox";
 import { useTitle } from "@mr/frontend-common";
 import { Alert, Heading, Tabs } from "@navikt/ds-react";
-import { Link, Outlet, useLoaderData, useLocation, useMatch } from "react-router";
-import { tiltakstypeLoader } from "./tiltakstypeLoaders";
-import { LoaderData } from "../../types/loader";
+import { Link, Outlet, useLocation, useMatch, useParams } from "react-router";
+import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 
 export function DetaljerTiltakstypePage() {
   const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
-  const { tiltakstypeId, tiltakstype } = useLoaderData<LoaderData<typeof tiltakstypeLoader>>();
+  const { tiltakstypeId } = useParams();
+  const { data: tiltakstype } = useTiltakstypeById();
 
   useTitle(`Tiltakstyper ${tiltakstype?.navn ? `- ${tiltakstype.navn}` : ""}`);
 

@@ -1,19 +1,35 @@
-import { Alert, Heading, VStack } from "@navikt/ds-react";
-import { useLoaderData } from "react-router";
 import { Header } from "@/components/detaljside/Header";
+import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
-import { TilsagnTabell } from "../tabell/TilsagnTabell";
-import { redigerTilsagnLoader } from "@/pages/gjennomforing/tilsagn/rediger/redigerTilsagnLoader";
-import { TilsagnRequest } from "@mr/api-client-v2";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
-import { LoaderData } from "@/types/loader";
+import { TilsagnRequest } from "@mr/api-client-v2";
+import { Alert, Heading, VStack } from "@navikt/ds-react";
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "react-router";
+import { useAvtale } from "../../../../api/avtaler/useAvtale";
+import { useAdminGjennomforingById } from "../../../../api/gjennomforing/useAdminGjennomforingById";
+import { Laster } from "../../../../components/laster/Laster";
+import { tilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
+import { godkjenteTilsagnQuery } from "../opprett/opprettTilsagnLoader";
+import { TilsagnTabell } from "../tabell/TilsagnTabell";
 export function RedigerTilsagnFormPage() {
-  const { avtale, gjennomforing, tilsagn, godkjenteTilsagn } =
-    useLoaderData<LoaderData<typeof redigerTilsagnLoader>>();
+  const { gjennomforingId, tilsagnId } = useParams();
+
+  const { data: avtale } = useAvtale(gjennomforingId);
+  const { data: gjennomforing } = useAdminGjennomforingById();
+  const { data: tilsagnData } = useQuery({ ...tilsagnQuery(tilsagnId) });
+  const { data: godkjenteTilsagn } = useQuery({
+    ...godkjenteTilsagnQuery(gjennomforingId),
+  });
+
+  const tilsagn = tilsagnData?.data;
+
+  if (!gjennomforing || !tilsagn || !godkjenteTilsagn || !avtale) {
+    return <Laster />;
+  }
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     {
@@ -63,8 +79,8 @@ export function RedigerTilsagnFormPage() {
           <WhitePaddedBox>
             <VStack gap="4">
               <Heading size="medium">Aktive tilsagn</Heading>
-              {godkjenteTilsagn.length > 0 ? (
-                <TilsagnTabell tilsagn={godkjenteTilsagn} />
+              {godkjenteTilsagn.data.length > 0 ? (
+                <TilsagnTabell tilsagn={godkjenteTilsagn.data} />
               ) : (
                 <Alert variant="info">Det finnes ingen tilsagn for dette tiltaket</Alert>
               )}

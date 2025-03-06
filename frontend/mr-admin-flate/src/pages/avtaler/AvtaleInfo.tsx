@@ -7,22 +7,26 @@ import { AvtalePrisOgFaktureringDetaljer } from "@/pages/avtaler/AvtalePrisOgFak
 import { Toggles } from "@mr/api-client-v2";
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { useLoaderData } from "react-router";
+import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { useAvtale } from "../../api/avtaler/useAvtale";
+import { Laster } from "../../components/laster/Laster";
 import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
-import { avtaleLoader } from "./avtaleLoader";
 import { AvtalePersonvern } from "./AvtalePersonvern";
-import { LoaderData } from "../../types/loader";
-
 export function AvtaleInfo() {
-  const { avtale, ansatt } = useLoaderData<LoaderData<typeof avtaleLoader>>();
+  const { data: ansatt } = useHentAnsatt();
+  const { data: avtale } = useAvtale();
 
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 
   const { data: enableOkonomi } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
-    [avtale.tiltakstype.tiltakskode],
+    avtale?.tiltakstype.tiltakskode ? [avtale.tiltakstype.tiltakskode] : [],
   );
+
+  if (!avtale || !ansatt) {
+    return <Laster tekst="Laster avtale..." />;
+  }
 
   return (
     <div data-testid="avtale_info-container">

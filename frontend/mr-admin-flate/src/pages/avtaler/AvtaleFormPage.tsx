@@ -4,19 +4,26 @@ import { Header } from "@/components/detaljside/Header";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { AvtalestatusTag } from "@/components/statuselementer/AvtalestatusTag";
-import { inneholderUrl } from "@/utils/Utils";
-import { Heading } from "@navikt/ds-react";
-import { useLoaderData, useLocation, useNavigate } from "react-router";
-import { avtaleSkjemaLoader } from "./avtaleLoader";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { LoaderData } from "../../types/loader";
+import { inneholderUrl } from "@/utils/Utils";
+import { Heading } from "@navikt/ds-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useLocation, useNavigate } from "react-router";
+import { ansattQuery } from "../../api/ansatt/ansattQuery";
+import { useAvtale } from "../../api/avtaler/useAvtale";
+import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { QueryKeys } from "../../api/QueryKeys";
-import { useQueryClient } from "@tanstack/react-query";
+import { Laster } from "../../components/laster/Laster";
+import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
+
 export function AvtaleFormPage() {
   const navigate = useNavigate();
-  const { avtale, ansatt, enheter, tiltakstyper } =
-    useLoaderData<LoaderData<typeof avtaleSkjemaLoader>>();
+  const { data: avtale } = useAvtale();
+  const { data: tiltakstyper } = useTiltakstyper();
+  const { data: ansatt } = useQuery({ ...ansattQuery });
+  const { data: enheter } = useNavEnheter();
+
   const queryClient = useQueryClient();
   const location = useLocation();
 
@@ -33,6 +40,10 @@ export function AvtaleFormPage() {
       tittel: redigeringsModus ? "Rediger avtale" : "Ny avtale",
     },
   ];
+
+  if (!tiltakstyper || !ansatt || !enheter) {
+    return <Laster tekst="Laster data..." />;
+  }
 
   return (
     <main>

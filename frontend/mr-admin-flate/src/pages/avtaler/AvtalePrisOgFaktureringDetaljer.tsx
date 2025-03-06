@@ -1,17 +1,21 @@
 import { useForhandsgodkjenteSatser } from "@/api/tilsagn/useForhandsgodkjenteSatser";
-import { Box, HStack, VStack } from "@navikt/ds-react";
-import { avtaleLoader } from "@/pages/avtaler/avtaleLoader";
-import { useLoaderData } from "react-router";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata } from "@/components/detaljside/Metadata";
-import { AvtaleDto, Prismodell } from "@mr/api-client-v2";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { formaterDato } from "@/utils/Utils";
-import { formaterTall } from "@mr/frontend-common/utils/utils";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { LoaderData } from "../../types/loader";
+import { formaterDato } from "@/utils/Utils";
+import { AvtaleDto, Prismodell } from "@mr/api-client-v2";
+import { formaterTall } from "@mr/frontend-common/utils/utils";
+import { Box, HStack, VStack } from "@navikt/ds-react";
+import { useAvtale } from "../../api/avtaler/useAvtale";
+import { Laster } from "../../components/laster/Laster";
+
 export function AvtalePrisOgFaktureringDetaljer() {
-  const { avtale } = useLoaderData<LoaderData<typeof avtaleLoader>>();
+  const { data: avtale } = useAvtale();
+
+  if (!avtale) {
+    return <Laster tekst="Laster avtale..." />;
+  }
 
   const prismodell = avtale.prismodell;
 

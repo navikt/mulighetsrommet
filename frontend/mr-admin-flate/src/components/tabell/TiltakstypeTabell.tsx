@@ -4,19 +4,18 @@ import { formaterDato } from "@/utils/Utils";
 import { SorteringTiltakstyper } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { Alert, Table } from "@navikt/ds-react";
-import { useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
-import { tiltakstyperQuery } from "../../pages/tiltakstyper/tiltakstypeLoaders";
+import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { TiltakstypestatusTag } from "../statuselementer/TiltakstypestatusTag";
+
 export function TiltakstypeTabell() {
   const [filter, setFilter] = useAtom(tiltakstypeFilterAtom);
 
-  const { data } = useQuery(tiltakstyperQuery);
+  const { data: tiltakstyper } = useTiltakstyper();
 
   const sort = filter.sort?.tableSort;
-  const tiltakstyper = data?.data;
 
-  if (!tiltakstyper || tiltakstyper.length === 0) {
+  if (!tiltakstyper || tiltakstyper.data.length === 0) {
     return <Alert variant="info">Fant ingen tiltakstyper</Alert>;
   }
 
@@ -59,7 +58,7 @@ export function TiltakstypeTabell() {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {tiltakstyper.map((tiltakstype, index) => {
+          {tiltakstyper.data.map((tiltakstype, index) => {
             const startDato = formaterDato(tiltakstype.startDato);
             const sluttDato = tiltakstype.sluttDato ? formaterDato(tiltakstype.sluttDato) : "-";
             return (

@@ -15,15 +15,18 @@ import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
 import { Fragment } from "react";
-import { Link, useLoaderData } from "react-router";
-import { LoaderData } from "../../types/loader";
-import { avtaleLoader } from "./avtaleLoader";
-
+import { Link } from "react-router";
+import { useAvtale } from "../../api/avtaler/useAvtale";
+import { Laster } from "../../components/laster/Laster";
 export function AvtaleDetaljer() {
-  const { avtale } = useLoaderData<LoaderData<typeof avtaleLoader>>();
+  const { data: avtale } = useAvtale();
 
   function sorterPaRegionsnavn(a: { region: NavEnhet }, b: { region: NavEnhet }) {
     return a.region.navn.localeCompare(b.region.navn);
+  }
+
+  if (!avtale) {
+    return <Laster tekst="Laster avtale..." />;
   }
 
   const {

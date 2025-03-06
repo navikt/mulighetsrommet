@@ -1,13 +1,16 @@
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
 import { PersonopplysningData } from "@mr/api-client-v2";
 import { Alert, HelpText, HStack, List, VStack } from "@navikt/ds-react";
-import { useLoaderData } from "react-router";
-import { LoaderData } from "../../types/loader";
-import { avtaleLoader } from "./avtaleLoader";
+import { useAvtale } from "../../api/avtaler/useAvtale";
+import { Laster } from "../../components/laster/Laster";
 
 export function AvtalePersonvern() {
-  const { avtale } = useLoaderData<LoaderData<typeof avtaleLoader>>();
+  const { data: avtale } = useAvtale();
   const { data: personopplysninger } = usePersonopplysninger();
+
+  if (!avtale) {
+    return <Laster tekst="Laster avtale..." />;
+  }
 
   if (!avtale.personvernBekreftet) {
     return (
