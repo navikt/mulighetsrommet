@@ -64,7 +64,7 @@ val ApplicationConfigDev = AppConfig(
             amtDeltakerV1 = KafkaTopicConsumer.Config(
                 id = "amt-deltaker",
                 topic = "amt.deltaker-v1",
-                consumerGroupId = "mulighetsrommet-api.deltaker.v1",
+                consumerGroupId = "mulighetsrommet-api.deltaker.v2",
             ),
             amtVirksomheterV1 = KafkaTopicConsumer.Config(
                 id = "amt-virksomheter",
