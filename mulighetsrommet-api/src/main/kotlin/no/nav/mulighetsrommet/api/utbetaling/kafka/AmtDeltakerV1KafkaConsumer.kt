@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -68,8 +69,9 @@ class AmtDeltakerV1KafkaConsumer(
             return false
         }
 
+        // TODO: sjekk basert på avtalens/gjennomføringens prismodell i stedet for tiltakskode
         val tiltakstype = tiltakstyper.getByGjennomforingId(deltaker.gjennomforingId)
-        if (tiltakstype.tiltakskode !in setOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING)) {
+        if (!Tiltakskoder.isForhaandsgodkjentTiltak(tiltakstype.tiltakskode)) {
             return false
         }
 
@@ -109,6 +111,13 @@ class AmtDeltakerV1KafkaConsumer(
             endretTidspunkt = endretDato,
             deltakelsesprosent = deltakelsesprosent,
             status = status,
+            deltakelsesmengder = deltakelsesmengder.map {
+                DeltakerDbo.Deltakelsesmengde(
+                    gyldigFra = it.gyldigFra,
+                    opprettetTidspunkt = it.opprettet,
+                    deltakelsesprosent = it.deltakelsesprosent.toDouble(),
+                )
+            },
         )
     }
 }
