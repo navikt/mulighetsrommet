@@ -158,6 +158,7 @@ class TilsagnQueries(private val session: Session) {
               and (periode_start <= :periode_slutt::date)
               and (periode_slutt >= :periode_start::date)
               and status in ('GODKJENT', 'TIL_ANNULLERING', 'ANNULLERT')
+              and type in ('EKSTRATILSAGN', 'TILSAGN')
         """.trimIndent()
 
         val params = mapOf(
