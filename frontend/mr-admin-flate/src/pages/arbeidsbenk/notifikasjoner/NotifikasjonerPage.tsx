@@ -1,11 +1,13 @@
 import { useTitle } from "@mr/frontend-common";
 import { Tabs } from "@navikt/ds-react";
-import { Outlet, useLoaderData, useLocation, useNavigate } from "react-router";
-import { notifikasjonLoader } from "./notifikasjonerLoader";
-import { LoaderData } from "@/types/loader";
+import { useQuery } from "@tanstack/react-query";
+import { Outlet, useLocation, useNavigate } from "react-router";
+import { lesteNotifikasjonerQuery, ulesteNotifikasjonerQuery } from "./notifikasjonerQueries";
+
 export function NotifikasjonerPage() {
   const { pathname } = useLocation();
-  const { leste, uleste } = useLoaderData<LoaderData<typeof notifikasjonLoader>>();
+  const { data: leste } = useQuery({ ...lesteNotifikasjonerQuery });
+  const { data: uleste } = useQuery({ ...ulesteNotifikasjonerQuery });
   const navigate = useNavigate();
   useTitle("Notifikasjoner");
 
@@ -16,13 +18,13 @@ export function NotifikasjonerPage() {
           <Tabs.List id="fane_liste" className="flex flex-row justify-between">
             <Tabs.Tab
               value="nye"
-              label={`Nye notifikasjoner ${uleste?.pagination.totalCount ? `(${uleste?.pagination.totalCount})` : ""}`}
+              label={`Nye notifikasjoner ${uleste?.data.pagination.totalCount ? `(${uleste?.data.pagination.totalCount})` : ""}`}
               onClick={() => navigate("/arbeidsbenk/notifikasjoner")}
               aria-controls="panel"
             />
             <Tabs.Tab
               value="tidligere"
-              label={`Tidligere notifikasjoner ${leste?.pagination.totalCount ? `(${leste?.pagination.totalCount})` : ""}`}
+              label={`Tidligere notifikasjoner ${leste?.data.pagination.totalCount ? `(${leste?.data.pagination.totalCount})` : ""}`}
               onClick={() => navigate("/arbeidsbenk/notifikasjoner/tidligere")}
               aria-controls="panel"
             />

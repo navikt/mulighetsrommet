@@ -1,26 +1,35 @@
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { NotificationStatus } from "@mr/api-client-v2";
 import { Button, HStack } from "@navikt/ds-react";
+import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { useFetcher, useLoaderData } from "react-router";
-import { notifikasjonLoader } from "../../pages/arbeidsbenk/notifikasjoner/notifikasjonerLoader";
-import { LoaderData } from "../../types/loader";
+import { useFetcher } from "react-router";
+import {
+  lesteNotifikasjonerQuery,
+  ulesteNotifikasjonerQuery,
+} from "../../pages/arbeidsbenk/notifikasjoner/notifikasjonerQueries";
 import { EmptyState } from "./EmptyState";
 import { Notifikasjonssrad } from "./Notifikasjonsrad";
+
 interface Props {
   lest: boolean;
 }
 
 export function Notifikasjonsliste({ lest }: Props) {
-  const { leste, uleste } = useLoaderData<LoaderData<typeof notifikasjonLoader>>();
-  const notifikasjoner = useMemo(() => (lest ? leste : uleste), [lest, leste, uleste]);
+  const { data: leste } = useQuery(lesteNotifikasjonerQuery);
+  const { data: uleste } = useQuery(ulesteNotifikasjonerQuery);
+
+  const notifikasjoner = useMemo(
+    () => (lest ? leste?.data.data : uleste?.data.data),
+    [lest, leste, uleste],
+  );
   const fetcher = useFetcher();
 
   function toggleMarkertSomlestUlest() {
     if (notifikasjoner) {
       const newStatus = lest ? NotificationStatus.NOT_DONE : NotificationStatus.DONE;
       const formData = new FormData();
-      notifikasjoner.data.forEach(({ id }) => {
+      notifikasjoner.forEach(({ id }) => {
         formData.append("ids[]", id);
         formData.append("statuses[]", newStatus);
       });
@@ -28,7 +37,7 @@ export function Notifikasjonsliste({ lest }: Props) {
     }
   }
 
-  if (notifikasjoner.data.length === 0) {
+  if (notifikasjoner?.length === 0) {
     return (
       <EmptyState
         tittel={lest ? "Du har ingen tidligere notifikasjoner" : "Ingen nye notifikasjoner"}
@@ -50,7 +59,7 @@ export function Notifikasjonsliste({ lest }: Props) {
           </Button>
         </HStack>
         <ul className="m-0 mb-4 pl-0 flex flex-col">
-          {notifikasjoner.data.map((n) => {
+          {notifikasjoner?.map((n) => {
             return <Notifikasjonssrad lest={lest} key={n.id} notifikasjon={n} />;
           })}
         </ul>

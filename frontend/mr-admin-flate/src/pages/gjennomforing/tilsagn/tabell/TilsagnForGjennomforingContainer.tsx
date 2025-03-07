@@ -1,15 +1,34 @@
-import { Alert, Button, Dropdown } from "@navikt/ds-react";
-import { useLoaderData, useNavigate } from "react-router";
-import { KnapperadContainer } from "@/pages/KnapperadContainer";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
-import { TilsagnTabell } from "./TilsagnTabell";
-import { tilsagnForGjennomforingLoader } from "@/pages/gjennomforing/tilsagn/tabell/tilsagnForGjennomforingLoader";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { LoaderData } from "@/types/loader";
+import { KnapperadContainer } from "@/pages/KnapperadContainer";
+import { Avtaletype, TilsagnService, TilsagnType } from "@mr/api-client-v2";
+import { Alert, Button, Dropdown } from "@navikt/ds-react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useNavigate, useParams } from "react-router";
+import { usePotentialAvtale } from "../../../../api/avtaler/useAvtale";
+import { useAdminGjennomforingById } from "../../../../api/gjennomforing/useAdminGjennomforingById";
+import { TilsagnTabell } from "./TilsagnTabell";
+
+function tilsagnForGjennomforingQuery(gjennomforingId?: string) {
+  return {
+    queryKey: ["tilsagnForGjennomforing", gjennomforingId],
+    queryFn: () => TilsagnService.getAll({ query: { gjennomforingId: gjennomforingId! } }),
+    enabled: !!gjennomforingId,
+  };
+}
 
 export function TilsagnForGjennomforingContainer() {
-  const { tilsagnstyper, tilsagnForGjennomforing } =
-    useLoaderData<LoaderData<typeof tilsagnForGjennomforingLoader>>();
+  const { gjennomforingId } = useParams();
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
+  const { data: avtale } = usePotentialAvtale(gjennomforing?.avtaleId);
+  const { data: tilsagnForGjennomforing } = useSuspenseQuery({
+    ...tilsagnForGjennomforingQuery(gjennomforingId),
+  });
+
+  const tilsagnstyper =
+    avtale?.avtaletype === Avtaletype.FORHAANDSGODKJENT
+      ? [TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN, TilsagnType.INVESTERING]
+      : [TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN];
 
   const navigate = useNavigate();
 
@@ -38,8 +57,8 @@ export function TilsagnForGjennomforingContainer() {
           </Dropdown>
         </HarSkrivetilgang>
       </KnapperadContainer>
-      {tilsagnForGjennomforing.length > 0 ? (
-        <TilsagnTabell tilsagn={tilsagnForGjennomforing} />
+      {tilsagnForGjennomforing?.data.length > 0 ? (
+        <TilsagnTabell tilsagn={tilsagnForGjennomforing.data} />
       ) : (
         <Alert style={{ marginTop: "1rem" }} variant="info">
           Det finnes ingen tilsagn for dette tiltaket

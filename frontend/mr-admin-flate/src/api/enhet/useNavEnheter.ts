@@ -1,6 +1,6 @@
-import { useApiQuery } from "@mr/frontend-common";
-import { type GetEnheterData, NavEnheterService, NavEnhetStatus } from "@mr/api-client-v2";
 import { QueryKeys } from "@/api/QueryKeys";
+import { type GetEnheterData, NavEnheterService, NavEnhetStatus } from "@mr/api-client-v2";
+import { useApiSuspenseQuery } from "@mr/frontend-common";
 
 export function useNavEnheter(
   statuser: NavEnhetStatus[] = [
@@ -13,7 +13,7 @@ export function useNavEnheter(
     query: { statuser },
   };
 
-  return useApiQuery({
+  return useApiSuspenseQuery({
     queryKey: QueryKeys.enheter(filter),
 
     queryFn: () => {

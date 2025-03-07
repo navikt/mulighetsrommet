@@ -2,15 +2,14 @@ import { oppgaverFilterAtom } from "@/api/atoms";
 import { useOppgaver } from "@/api/oppgaver/useOppgaver";
 import { EmptyState } from "@/components/notifikasjoner/EmptyState";
 import { Oppgave } from "@/components/oppgaver/Oppgave";
-import { oppgaverLoader } from "@/pages/arbeidsbenk/oppgaver/oppgaverLoader";
-import { LoaderData } from "@/types/loader";
 import { GetOppgaverResponse } from "@mr/api-client-v2";
 import { useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { Select } from "@navikt/ds-react";
 import { useAtom } from "jotai/index";
 import { useState } from "react";
-import { useLoaderData } from "react-router";
+import { useRegioner } from "../../../api/enhet/useRegioner";
+import { useTiltakstyper } from "../../../api/tiltakstyper/useTiltakstyper";
 import { OppgaverFilter } from "../../../components/filter/OppgaverFilter";
 import { OppgaveFilterTags } from "../../../components/filter/OppgaverFilterTags";
 import { ContentBox } from "../../../layouts/ContentBox";
@@ -45,9 +44,14 @@ export function OppgaverPage() {
   const [sorting, setSorting] = useState<OppgaverSorting>("nyeste");
   useTitle("Oppgaver");
   const [filter] = useAtom(oppgaverFilterAtom);
-  const { tiltakstyper, regioner } = useLoaderData<LoaderData<typeof oppgaverLoader>>();
+  const { data: tiltakstyper } = useTiltakstyper();
+  const { data: regioner } = useRegioner();
   const oppgaver = useOppgaver(filter);
   const sortedOppgaver = sort(oppgaver.data || [], sorting);
+
+  if (!tiltakstyper?.data || !regioner) {
+    return <div>Laster...</div>;
+  }
 
   return (
     <ContentBox>
@@ -55,7 +59,7 @@ export function OppgaverPage() {
         filter={
           <OppgaverFilter
             filterAtom={oppgaverFilterAtom}
-            tiltakstyper={tiltakstyper}
+            tiltakstyper={tiltakstyper.data}
             regioner={regioner}
           />
         }
@@ -88,7 +92,7 @@ export function OppgaverPage() {
                 return (
                   <Oppgave
                     key={o.id}
-                    tiltakstype={tiltakstyper.find((t) => t.tiltakskode === o.tiltakstype)!}
+                    tiltakstype={tiltakstyper.data.find((t) => t.tiltakskode === o.tiltakstype)!}
                     oppgave={o}
                   />
                 );

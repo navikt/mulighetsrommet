@@ -3,13 +3,28 @@ import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/Red
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { useLoaderData } from "react-router";
+import { useParams } from "react-router";
+import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { usePotentialAvtale } from "../../api/avtaler/useAvtale";
+import { useAdminGjennomforingById } from "../../api/gjennomforing/useAdminGjennomforingById";
 import { GjennomforingDetaljer } from "./GjennomforingDetaljer";
 import { GjennomforingKnapperad } from "./GjennomforingKnapperad";
-import { gjennomforingLoader } from "./gjennomforingLoaders";
-import { LoaderData } from "../../types/loader";
+
+function useGjennomforingInfoData() {
+  const { gjennomforingId } = useParams();
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
+  const { data: ansatt } = useHentAnsatt();
+  const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
+
+  return {
+    gjennomforing,
+    ansatt,
+    avtale,
+  };
+}
+
 export function GjennomforingInfo() {
-  const { gjennomforing, ansatt, avtale } = useLoaderData<LoaderData<typeof gjennomforingLoader>>();
+  const { gjennomforing, ansatt, avtale } = useGjennomforingInfoData();
 
   const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
 

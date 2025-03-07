@@ -43,7 +43,7 @@ export const QueryKeys = {
   navRegioner: () => ["navRegioner"],
   personopplysninger: () => ["personopplysninger"],
   opprettTilsagn: () => ["opprett-tilsagn"],
-  getTilsagnForGjennomforing: (gjennomforingId: string) => ["tilsagn", gjennomforingId],
+  getTilsagnForGjennomforing: (gjennomforingId?: string) => ["tilsagn", gjennomforingId],
   getTilsagn: (id?: string) => ["tilsagn", id],
   besluttTilsagn: () => ["beslutt-tilsagn"],
   besluttTilsagnUtbetaling: () => ["beslutt-tilsagn-utbetaling"],
@@ -52,7 +52,7 @@ export const QueryKeys = {
   avtalteSatser: (avtaleId: string) => ["satser", avtaleId],
   utdanninger: () => ["utdanninger"],
   lagredeFilter: (dokumenttype: LagretDokumenttype) => ["lagredeFilter", dokumenttype],
-  utbetalingerByGjennomforing: (gjennomforingId: string) => [
+  utbetalingerByGjennomforing: (gjennomforingId?: string) => [
     "utbetaling-for-gjennomforing",
     gjennomforingId,
   ],

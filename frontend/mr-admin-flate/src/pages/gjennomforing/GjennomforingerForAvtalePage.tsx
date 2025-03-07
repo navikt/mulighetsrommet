@@ -20,11 +20,11 @@ import { useState } from "react";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 
 export function GjennomforingerForAvtalePage() {
-  const id = useGetAvtaleIdFromUrlOrThrow();
+  const avtaleId = useGetAvtaleIdFromUrlOrThrow();
+  const { data: avtale } = useAvtale(avtaleId);
 
-  const filterAtomGjennomforinger = gjennomforingerForAvtaleFilterAtomFamily(id);
+  const filterAtomGjennomforinger = gjennomforingerForAvtaleFilterAtomFamily(avtaleId);
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
-  const { data: avtale } = useAvtale();
   const [tagsHeight, setTagsHeight] = useState(0);
   const [filter, setFilter] = useAtom(gjennomforingfilterAtom);
   const { data: lagredeFilter = [] } = useLagredeFilter(LagretDokumenttype.GJENNOMFORING);
@@ -39,6 +39,7 @@ export function GjennomforingerForAvtalePage() {
             skjulFilter={{
               tiltakstype: true,
             }}
+            avtale={avtale}
           />
         }
         lagredeFilter={
@@ -59,7 +60,7 @@ export function GjennomforingerForAvtalePage() {
             setTagsHeight={setTagsHeight}
           />
         }
-        buttons={<GjennomforingFilterButtons />}
+        buttons={<GjennomforingFilterButtons avtale={avtale} />}
         table={
           <GjennomforingTable
             skjulKolonner={{

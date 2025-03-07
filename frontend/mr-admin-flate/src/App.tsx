@@ -1,7 +1,5 @@
 import { ArbeidsbenkPage } from "@/pages/arbeidsbenk/ArbeidsbenkPage";
-import { arbeidsbenkLoader } from "@/pages/arbeidsbenk/arbeidsbenkLoader";
 import { OppgaverPage } from "@/pages/arbeidsbenk/oppgaver/OppgaverPage";
-import { oppgaverLoader } from "@/pages/arbeidsbenk/oppgaver/oppgaverLoader";
 import { DeltakerlisteContainer } from "@/pages/gjennomforing/deltakerliste/DeltakerlisteContainer";
 import { TilsagnForGjennomforingContainer } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnForGjennomforingContainer";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
@@ -21,41 +19,33 @@ import { initializeAmplitude } from "./logging/amplitude";
 import { ErrorPage } from "./pages/ErrorPage";
 import { NotifikasjonerPage } from "./pages/arbeidsbenk/notifikasjoner/NotifikasjonerPage";
 import { setLestStatusForNotifikasjonAction } from "./pages/arbeidsbenk/notifikasjoner/notifikasjonerAction";
-import { notifikasjonLoader } from "./pages/arbeidsbenk/notifikasjoner/notifikasjonerLoader";
 import { ArrangorPage } from "./pages/arrangor/ArrangorPage";
 import { ArrangorerPage } from "./pages/arrangor/ArrangorerPage";
 import { AvtaleFormPage } from "./pages/avtaler/AvtaleFormPage";
 import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
 import { AvtalePage } from "./pages/avtaler/AvtalePage";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
-import { avtaleLoader, avtaleSkjemaLoader } from "./pages/avtaler/avtaleLoader";
 import { GjennomforingFormPage } from "./pages/gjennomforing/GjennomforingFormPage";
 import { GjennomforingInfo } from "./pages/gjennomforing/GjennomforingInfo";
 import { GjennomforingPage } from "./pages/gjennomforing/GjennomforingPage";
 import { GjennomforingerForAvtalePage } from "./pages/gjennomforing/GjennomforingerForAvtalePage";
 import { GjennomforingerPage } from "./pages/gjennomforing/GjennomforingerPage";
 import { publiserAction } from "./pages/gjennomforing/gjennomforingActions";
-import {
-  gjennomforingFormLoader,
-  gjennomforingLoader,
-} from "./pages/gjennomforing/gjennomforingLoaders";
 import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljer";
-import { tilsagnDetaljerLoader } from "./pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
 import { OpprettTilsagnFormPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnFormPage";
-import { opprettTilsagnLoader } from "./pages/gjennomforing/tilsagn/opprett/opprettTilsagnLoader";
 import { RedigerTilsagnFormPage } from "./pages/gjennomforing/tilsagn/rediger/RedigerTilsagnFormPage";
-import { redigerTilsagnLoader } from "./pages/gjennomforing/tilsagn/rediger/redigerTilsagnLoader";
-import { tilsagnForGjennomforingLoader } from "./pages/gjennomforing/tilsagn/tabell/tilsagnForGjennomforingLoader";
 import { OpprettUtbetalingPage } from "./pages/gjennomforing/utbetaling/OpprettUtbetalingPage";
-import { UtbetalingPage } from "./pages/gjennomforing/utbetaling/UtbetalingPage";
 import { UtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/UtbetalingerForGjennomforingContainer";
-import { utbetalingPageLoader } from "./pages/gjennomforing/utbetaling/utbetalingPageLoader";
-import { utbetalingerForGjennomforingLoader } from "./pages/gjennomforing/utbetaling/utbetalingerForGjennomforingLoader";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
-import { tiltakstypeLoader, tiltakstyperLoader } from "./pages/tiltakstyper/tiltakstypeLoaders";
+import { Suspense } from "react";
+import { Laster } from "./components/laster/Laster";
+import { InlineErrorBoundary } from "./ErrorBoundary";
+import { UtbetalingPage } from "./pages/gjennomforing/utbetaling/UtbetalingPage";
+import { NewAvtaleFormPage } from "./pages/avtaler/NewAvtaleFormPage";
+import { NewGjennomforingFormPage } from "./pages/gjennomforing/NewGjennomforingFormPage";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -99,7 +89,11 @@ export function App() {
         <AdministratorHeader />
       </Page.Block>
       <Page.Block as="main" className="max-w-[1920px]">
-        <Outlet />
+        <Suspense fallback={<Laster tekst="Laster..." />}>
+          <InlineErrorBoundary>
+            <Outlet />
+          </InlineErrorBoundary>
+        </Suspense>
       </Page.Block>
     </Page>
   );
@@ -124,19 +118,16 @@ const router = (queryClient: QueryClient) => {
             path: "tiltakstyper",
             element: <TiltakstyperPage />,
             errorElement: <ErrorPage />,
-            loader: tiltakstyperLoader(queryClient),
           },
           {
             path: "tiltakstyper/:tiltakstypeId",
             element: <DetaljerTiltakstypePage />,
             errorElement: <ErrorPage />,
-            loader: tiltakstypeLoader(queryClient),
             children: [
               {
                 index: true,
                 element: <TiltakstypeInfo />,
                 errorElement: <ErrorPage />,
-                loader: tiltakstypeLoader(queryClient),
               },
               {
                 path: "avtaler",
@@ -155,45 +146,33 @@ const router = (queryClient: QueryClient) => {
             path: "avtaler/:avtaleId",
             element: <AvtalePage />,
             errorElement: <ErrorPage />,
-            loader: avtaleLoader(queryClient),
             children: [
               {
                 index: true,
                 element: <AvtaleInfo />,
                 errorElement: <ErrorPage />,
-                loader: avtaleLoader(queryClient),
               },
               {
                 path: "gjennomforinger",
                 element: <GjennomforingerForAvtalePage />,
                 errorElement: <ErrorPage />,
-                loader: avtaleLoader(queryClient),
               },
             ],
+          },
+          {
+            path: "avtaler/skjema",
+            element: <NewAvtaleFormPage />,
+            errorElement: <ErrorPage />,
           },
           {
             path: "avtaler/:avtaleId/skjema",
             element: <AvtaleFormPage />,
             errorElement: <ErrorPage />,
-            loader: avtaleSkjemaLoader(queryClient),
-          },
-          {
-            path: "avtaler/skjema",
-            element: <AvtaleFormPage />,
-            errorElement: <ErrorPage />,
-            loader: avtaleSkjemaLoader(queryClient),
           },
           {
             path: "avtaler/:avtaleId/gjennomforinger/skjema",
-            element: <GjennomforingFormPage />,
+            element: <NewGjennomforingFormPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingFormLoader(queryClient),
-          },
-          {
-            path: "gjennomforinger/skjema",
-            element: <GjennomforingFormPage />,
-            errorElement: <ErrorPage />,
-            loader: gjennomforingFormLoader(queryClient),
           },
           {
             path: "gjennomforinger/",
@@ -205,14 +184,12 @@ const router = (queryClient: QueryClient) => {
             path: "gjennomforinger/:gjennomforingId",
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingLoader(queryClient),
             action: publiserAction(queryClient),
             children: [
               {
                 index: true,
                 element: <GjennomforingInfo />,
                 errorElement: <ErrorPage />,
-                loader: gjennomforingLoader(queryClient),
               },
             ],
           },
@@ -220,12 +197,10 @@ const router = (queryClient: QueryClient) => {
             path: "gjennomforinger/:gjennomforingId/tilsagn",
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingLoader(queryClient),
             children: [
               {
                 index: true,
                 element: <TilsagnForGjennomforingContainer />,
-                loader: tilsagnForGjennomforingLoader(queryClient),
                 errorElement: <ErrorPage />,
               },
             ],
@@ -234,13 +209,11 @@ const router = (queryClient: QueryClient) => {
             path: "gjennomforinger/:gjennomforingId/utbetalinger",
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingLoader(queryClient),
             children: [
               {
                 index: true,
                 element: <UtbetalingerForGjennomforingContainer />,
                 errorElement: <ErrorPage />,
-                loader: utbetalingerForGjennomforingLoader(queryClient),
               },
             ],
           },
@@ -248,13 +221,11 @@ const router = (queryClient: QueryClient) => {
             path: "gjennomforinger/:gjennomforingId/utbetalinger/skjema",
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingLoader(queryClient),
             children: [
               {
                 index: true,
                 element: <OpprettUtbetalingPage />,
                 errorElement: <ErrorPage />,
-                loader: utbetalingerForGjennomforingLoader(queryClient),
               },
             ],
           },
@@ -262,7 +233,6 @@ const router = (queryClient: QueryClient) => {
             path: "gjennomforinger/:gjennomforingId/deltakerliste",
             element: <GjennomforingPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingLoader(queryClient),
             children: [
               {
                 index: true,
@@ -275,31 +245,26 @@ const router = (queryClient: QueryClient) => {
             path: "gjennomforinger/:gjennomforingId/skjema",
             element: <GjennomforingFormPage />,
             errorElement: <ErrorPage />,
-            loader: gjennomforingFormLoader(queryClient),
           },
           {
             path: "gjennomforinger/:gjennomforingId/tilsagn/opprett-tilsagn",
             element: <OpprettTilsagnFormPage />,
             errorElement: <ErrorPage />,
-            loader: opprettTilsagnLoader(queryClient),
           },
           {
             path: "gjennomforinger/:gjennomforingId/tilsagn/:tilsagnId",
             element: <TilsagnDetaljer />,
             errorElement: <ErrorPage />,
-            loader: tilsagnDetaljerLoader(queryClient),
           },
           {
             path: "gjennomforinger/:gjennomforingId/tilsagn/:tilsagnId/rediger-tilsagn",
             element: <RedigerTilsagnFormPage />,
             errorElement: <ErrorPage />,
-            loader: redigerTilsagnLoader(queryClient),
           },
           {
             path: "gjennomforinger/:gjennomforingId/utbetalinger/:utbetalingId",
             element: <UtbetalingPage />,
             errorElement: <ErrorPage />,
-            loader: utbetalingPageLoader(queryClient),
           },
           {
             path: "arrangorer",
@@ -315,25 +280,21 @@ const router = (queryClient: QueryClient) => {
             path: "arbeidsbenk",
             element: <ArbeidsbenkPage />,
             errorElement: <ErrorPage />,
-            loader: arbeidsbenkLoader(queryClient),
             children: [
               {
                 path: "notifikasjoner",
                 element: <NotifikasjonerPage />,
-                loader: notifikasjonLoader(queryClient),
                 action: setLestStatusForNotifikasjonAction(queryClient),
                 errorElement: <ErrorPage />,
                 children: [
                   {
                     index: true,
                     element: <Notifikasjonsliste lest={false} />,
-                    loader: notifikasjonLoader(queryClient),
                     errorElement: <ErrorPage />,
                   },
                   {
                     path: "tidligere",
                     element: <Notifikasjonsliste lest={true} />,
-                    loader: notifikasjonLoader(queryClient),
                     errorElement: <ErrorPage />,
                   },
                 ],
@@ -341,7 +302,6 @@ const router = (queryClient: QueryClient) => {
               {
                 path: "oppgaver",
                 element: <OppgaverPage />,
-                loader: oppgaverLoader(queryClient),
                 errorElement: <ErrorPage />,
                 children: [
                   {
