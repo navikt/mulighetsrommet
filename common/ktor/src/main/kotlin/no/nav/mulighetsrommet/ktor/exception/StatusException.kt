@@ -33,6 +33,15 @@ fun StatusException.toProblemDetail(requestId: String): ProblemDetail {
     }
 }
 
+fun HttpStatusCode.toProblemDetail(type: String, detail: String, extensions: Map<String, Any?>? = null) = object : ProblemDetail() {
+    override val type = type
+    override val title = description
+    override val status = value
+    override val detail = detail
+    override val instance = null
+    override val extensions = extensions
+}
+
 data class InternalServerError(
     override val detail: String,
     override val extensions: Map<String, Any?>? = null,
