@@ -74,6 +74,12 @@ data class Periode(
         return slutt.minusDays(1)
     }
 
+    fun overlaps(periode: Periode): Boolean {
+        val start = maxOf(start, periode.start)
+        val slutt = minOf(slutt, periode.slutt)
+        return start < slutt
+    }
+
     fun intersect(periode: Periode): Periode? {
         val start = maxOf(start, periode.start)
         val slutt = minOf(slutt, periode.slutt)
