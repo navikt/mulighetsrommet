@@ -1,11 +1,3 @@
-.container {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  margin: 0 4rem;
-  max-width: 50rem;
-}
-
 .cta_link {
   background-color: var(--a-surface-action);
   color: white;
@@ -25,29 +17,4 @@
         ),
       var(--a-shadow-focus);
   }
-}
-
-.info {
-  display: flex;
-  justify-content: center;
-  flex-direction: row;
-  gap: 0.5rem;
-}
-
-.tom_eske_img {
-  width: 130px;
-  height: 90px;
-}
-
-.cta_container {
-  margin-top: 0rem;
-  margin-left: 0rem;
-  @media screen and (min-width: 1023px) {
-    margin-top: 4rem;
-    margin-left: 1rem;
-  }
-}
-
-.skeleton {
-  margin-top: 1rem;
 }

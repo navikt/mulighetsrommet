@@ -6,10 +6,10 @@ import { StatusModal } from "@/components/modal/StatusModal";
 import { useLogEvent } from "@/logging/amplitude";
 import { erPreview } from "@/utils/Utils";
 import { Bruker, DelMedBruker, VeilederflateTiltak } from "@mr/api-client-v2";
-import { BodyShort, Button, Checkbox, Heading, HelpText, Modal } from "@navikt/ds-react";
+import { BodyShort, Button, Checkbox, Heading, HelpText, HStack, Modal } from "@navikt/ds-react";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
-import style from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
+import { Separator } from "@/utils/Separator";
 
 interface DelemodalProps {
   veiledernavn?: string;
@@ -99,20 +99,15 @@ export function Delemodal({
 
   return (
     <>
-      <Modal
-        open={state.modalOpen}
-        onClose={lukkModal}
-        className={style.delemodal}
-        aria-label="modal"
-      >
+      <Modal open={state.modalOpen} onClose={lukkModal} aria-label="modal">
         <Modal.Header closeButton>
           <Heading size="xsmall">Del med bruker</Heading>
-          <Heading size="large" level="1" className={style.heading}>
+          <Heading size="large" level="1">
             {overskrift(tiltak)}
           </Heading>
         </Modal.Header>
 
-        <Modal.Body className={style.body}>
+        <Modal.Body className="pb-0">
           <DelMedBrukerContent
             state={state}
             dispatch={dispatch}
@@ -162,8 +157,8 @@ export function Delemodal({
           <BodyShort size="small">
             Kandidatene vil få et varsel fra Nav, og kan logge inn på nav.no for å lese meldingen.
           </BodyShort>
-          <div className={style.hr} />
-          <div className={style.knapperad}>
+          <Separator />
+          <HStack gap="4">
             <Button
               size="small"
               variant="tertiary"
@@ -185,7 +180,7 @@ export function Delemodal({
             >
               {senderTilDialogen ? "Sender..." : "Send via Dialogen"}
             </Button>
-          </div>
+          </HStack>
         </Modal.Footer>
       </Modal>
 

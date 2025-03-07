@@ -2,11 +2,9 @@ import { Alert, ErrorMessage, Textarea } from "@navikt/ds-react";
 import { DelMedBruker, VeilederflateTiltak } from "@mr/api-client-v2";
 import React, { Dispatch, useEffect, useRef } from "react";
 import { erPreview, formaterDato } from "@/utils/Utils";
-import styles from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
 import { getDelMedBrukerTekst } from "@/apps/modia/delMedBruker/helpers";
 import Markdown from "react-markdown";
-import classNames from "classnames";
 
 export const MAKS_ANTALL_TEGN_DEL_MED_BRUKER = 500;
 
@@ -58,13 +56,13 @@ export function DelMedBrukerContent({
       {harDeltMedBruker ? (
         <Alert
           variant="warning"
-          className={styles.top_warning}
+          className="mb-4"
         >{`Dette tiltaket ble delt med bruker ${datoSidenSistDelt}.`}</Alert>
       ) : null}
 
       {!enableRedigerDeletekst ? (
         <div
-          className={classNames("prose min-w-full", styles.markdown)}
+          className="prose min-w-full bg-surface-subtle border border-border-subtle p-2"
           data-testid="textarea_deletekst"
         >
           <Markdown>{state.deletekst}</Markdown>
@@ -73,7 +71,7 @@ export function DelMedBrukerContent({
         <Textarea
           label="Tekst som deles med bruker"
           hideLabel
-          className={classNames(styles.deletekst, "prose min-w-full")}
+          className="whitespace-pre-wrap rounded-lg p-1 prose min-w-full"
           error={handleError()}
           ref={endreDeletekstRef}
           size="medium"
@@ -87,29 +85,21 @@ export function DelMedBrukerContent({
       )}
 
       {!veiledernavn ? (
-        <ErrorMessage className={styles.feilmeldinger}>
-          • Kunne ikke hente veileders navn
-        </ErrorMessage>
+        <ErrorMessage className="mt-2 mb-4">• Kunne ikke hente veileders navn</ErrorMessage>
       ) : null}
 
       {!brukernavn ? (
-        <ErrorMessage className={styles.feilmeldinger}>
-          • Kunne ikke hente brukers navn
-        </ErrorMessage>
+        <ErrorMessage className="mt-2 mb-4">• Kunne ikke hente brukers navn</ErrorMessage>
       ) : null}
 
       {!getDelMedBrukerTekst(tiltak) ? (
-        <ErrorMessage className={styles.feilmeldinger}>
+        <ErrorMessage className="mt-2 mb-4">
           • Mangler ferdigutfylt tekst som kan deles med bruker{" "}
         </ErrorMessage>
       ) : null}
 
       {erPreview() ? (
-        <Alert
-          variant="warning"
-          data-testid="alert-preview-del-med-bruker"
-          className={styles.preview_alert}
-        >
+        <Alert variant="warning" data-testid="alert-preview-del-med-bruker" className="mt-4">
           Det er ikke mulig å dele tiltak med bruker i forhåndsvisning. Brukers navn blir automatisk
           satt utenfor forhåndsvisningsmodus.
         </Alert>
