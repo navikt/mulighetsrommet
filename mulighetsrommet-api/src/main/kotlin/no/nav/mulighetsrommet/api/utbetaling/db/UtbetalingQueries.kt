@@ -286,7 +286,7 @@ class UtbetalingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from utbetaling_aft_view
+            from utbetaling_dto_view
             where gjennomforing_id = ?::uuid
             order by godkjent_av_arrangor_tidspunkt desc
             limit 1

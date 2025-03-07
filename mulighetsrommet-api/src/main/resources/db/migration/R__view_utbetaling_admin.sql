@@ -60,8 +60,7 @@ with deltakelse_perioder as (select utbetaling_id,
                                           )) as deltakelser
                          from utbetaling_deltakelse_manedsverk
                          group by utbetaling_id)
-select utbetaling.*,
-       beregning.utbetaling_id,
+select beregning.utbetaling_id,
        beregning.belop,
        beregning.sats,
        lower(beregning.periode)                           as beregning_periode_start,
