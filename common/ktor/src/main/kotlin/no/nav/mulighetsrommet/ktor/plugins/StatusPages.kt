@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.ktor.plugins
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.plugins.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -31,6 +32,16 @@ fun Application.configureStatusPages() {
             val requestId = MDC.get("correlationId")
             val problemDetail = BadRequest(
                 detail = cause.message ?: "IllegalArgumentException",
+                extensions = mapOf("requestId" to requestId),
+            )
+            logException(HttpStatusCode.BadRequest, cause, call)
+            call.respondWithProblemDetail(problemDetail)
+        }
+
+        exception<CannotTransformContentToTypeException> { call, cause ->
+            val requestId = MDC.get("correlationId")
+            val problemDetail = BadRequest(
+                detail = cause.message ?: "CannotTransformContentToTypeException",
                 extensions = mapOf("requestId" to requestId),
             )
             logException(HttpStatusCode.BadRequest, cause, call)
