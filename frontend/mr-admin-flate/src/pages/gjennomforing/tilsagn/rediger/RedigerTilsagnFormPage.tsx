@@ -9,16 +9,17 @@ import { TilsagnRequest } from "@mr/api-client-v2";
 import { Alert, Heading, VStack } from "@navikt/ds-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
-import { useAvtale } from "../../../../api/avtaler/useAvtale";
+import { usePotentialAvtale } from "../../../../api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "../../../../api/gjennomforing/useAdminGjennomforingById";
-import { tilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
-import { TilsagnTabell } from "../tabell/TilsagnTabell";
-import { godkjenteTilsagnQuery } from "../opprett/opprettTilsagnLoader";
 import { Laster } from "../../../../components/laster/Laster";
+import { tilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
+import { godkjenteTilsagnQuery } from "../opprett/opprettTilsagnLoader";
+import { TilsagnTabell } from "../tabell/TilsagnTabell";
+
 function useRedigerTilsagnFormData() {
   const { gjennomforingId, tilsagnId } = useParams();
-  const { data: avtale } = useAvtale();
-  const { data: gjennomforing } = useAdminGjennomforingById();
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
+  const { data: avtale } = usePotentialAvtale(gjennomforing?.avtaleId);
   const { data: tilsagnData } = useSuspenseQuery({ ...tilsagnQuery(tilsagnId) });
   const { data: godkjenteTilsagn } = useSuspenseQuery({
     ...godkjenteTilsagnQuery(gjennomforingId),

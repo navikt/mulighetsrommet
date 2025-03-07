@@ -9,15 +9,16 @@ import { avtaleHarRegioner, inneholderUrl } from "@/utils/Utils";
 import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 import { Alert, Box, Heading } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useLocation, useNavigate } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { useAvtale } from "../../api/avtaler/useAvtale";
+import { usePotentialAvtale } from "../../api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "../../api/gjennomforing/useAdminGjennomforingById";
 import { QueryKeys } from "../../api/QueryKeys";
 
 function useGjennomforingFormData() {
-  const { data: gjennomforing } = useAdminGjennomforingById();
-  const { data: avtale } = useAvtale(gjennomforing?.avtaleId);
+  const { gjennomforingId } = useParams();
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
+  const { data: avtale } = usePotentialAvtale(gjennomforing?.avtaleId);
   const { data: ansatt } = useHentAnsatt();
 
   return { gjennomforing, avtale, ansatt };

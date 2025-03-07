@@ -11,6 +11,7 @@ import React from "react";
 import { Outlet, useLocation, useMatch } from "react-router";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { Laster } from "../../components/laster/Laster";
+import { useGetAvtaleIdFromUrlOrThrow } from "../../hooks/useGetAvtaleIdFromUrl";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/avtaler/:avtaleId/gjennomforinger");
@@ -24,7 +25,8 @@ function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
 export function AvtalePage() {
   const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
-  const { data: avtale, isLoading } = useAvtale();
+  const avtaleId = useGetAvtaleIdFromUrlOrThrow();
+  const { data: avtale, isLoading } = useAvtale(avtaleId);
 
   const brodsmuler = useAvtaleBrodsmuler(avtale?.id);
   useTitle(`Avtale ${avtale?.navn ? `- ${avtale.navn}` : ""}`);

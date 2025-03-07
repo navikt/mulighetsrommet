@@ -15,15 +15,16 @@ import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import React from "react";
-import { Outlet, useLocation } from "react-router";
+import { Outlet, useLocation, useParams } from "react-router";
 import { useAdminGjennomforingById } from "../../api/gjennomforing/useAdminGjennomforingById";
 type GjennomforingTab = "tilsagn" | "deltakerliste" | "utbetalinger" | "gjennomforing";
 
 export function GjennomforingPage() {
   const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
+  const { gjennomforingId } = useParams();
 
-  const { data: gjennomforing } = useAdminGjennomforingById();
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
 
   const { data: enableOkonomi } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,

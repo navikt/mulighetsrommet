@@ -47,9 +47,9 @@ import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { useAdminGjennomforingById } from "../../../api/gjennomforing/useAdminGjennomforingById";
 import { Laster } from "../../../components/laster/Laster";
 function useUtbetalingPageData() {
-  const { utbetalingId } = useParams();
+  const { gjennomforingId, utbetalingId } = useParams();
 
-  const { data: gjennomforing } = useAdminGjennomforingById();
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
   const { data: ansatt } = useHentAnsatt();
   const { data: historikk } = useApiSuspenseQuery(utbetalingHistorikkQuery(utbetalingId));
   const { data: utbetaling } = useApiSuspenseQuery(utbetalingQuery(utbetalingId));

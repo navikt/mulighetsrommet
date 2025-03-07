@@ -3,17 +3,18 @@ import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/Red
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
+import { useParams } from "react-router";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { useAvtale } from "../../api/avtaler/useAvtale";
+import { usePotentialAvtale } from "../../api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "../../api/gjennomforing/useAdminGjennomforingById";
 import { GjennomforingDetaljer } from "./GjennomforingDetaljer";
 import { GjennomforingKnapperad } from "./GjennomforingKnapperad";
-import { Laster } from "../../components/laster/Laster";
 
 function useGjennomforingInfoData() {
-  const { data: gjennomforing } = useAdminGjennomforingById();
+  const { gjennomforingId } = useParams();
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
   const { data: ansatt } = useHentAnsatt();
-  const { data: avtale } = useAvtale(gjennomforing?.avtaleId);
+  const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
 
   return {
     gjennomforing,
@@ -26,10 +27,6 @@ export function GjennomforingInfo() {
   const { gjennomforing, ansatt, avtale } = useGjennomforingInfoData();
 
   const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
-
-  if (!gjennomforing) {
-    return <Laster tekst="Laster gjennomføring..." />;
-  }
 
   return (
     <div data-testid="gjennomforing_info-container">

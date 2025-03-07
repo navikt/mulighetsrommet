@@ -5,7 +5,7 @@ import { Avtaletype, TilsagnService, TilsagnType } from "@mr/api-client-v2";
 import { Alert, Button, Dropdown } from "@navikt/ds-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
-import { useAvtale } from "../../../../api/avtaler/useAvtale";
+import { usePotentialAvtale } from "../../../../api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "../../../../api/gjennomforing/useAdminGjennomforingById";
 import { TilsagnTabell } from "./TilsagnTabell";
 
@@ -19,8 +19,8 @@ function tilsagnForGjennomforingQuery(gjennomforingId?: string) {
 
 export function TilsagnForGjennomforingContainer() {
   const { gjennomforingId } = useParams();
-  const { data: gjennomforing } = useAdminGjennomforingById();
-  const { data: avtale } = useAvtale(gjennomforing?.avtaleId);
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
+  const { data: avtale } = usePotentialAvtale(gjennomforing?.avtaleId);
   const { data: tilsagnForGjennomforing } = useSuspenseQuery({
     ...tilsagnForGjennomforingQuery(gjennomforingId),
   });

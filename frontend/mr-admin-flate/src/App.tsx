@@ -44,6 +44,8 @@ import { Suspense } from "react";
 import { Laster } from "./components/laster/Laster";
 import { InlineErrorBoundary } from "./ErrorBoundary";
 import { UtbetalingPage } from "./pages/gjennomforing/utbetaling/UtbetalingPage";
+import { NewAvtaleFormPage } from "./pages/avtaler/NewAvtaleFormPage";
+import { NewGjennomforingFormPage } from "./pages/gjennomforing/NewGjennomforingFormPage";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -158,23 +160,18 @@ const router = (queryClient: QueryClient) => {
             ],
           },
           {
+            path: "avtaler/skjema",
+            element: <NewAvtaleFormPage />,
+            errorElement: <ErrorPage />,
+          },
+          {
             path: "avtaler/:avtaleId/skjema",
             element: <AvtaleFormPage />,
             errorElement: <ErrorPage />,
           },
           {
-            path: "avtaler/skjema",
-            element: <AvtaleFormPage />,
-            errorElement: <ErrorPage />,
-          },
-          {
             path: "avtaler/:avtaleId/gjennomforinger/skjema",
-            element: <GjennomforingFormPage />,
-            errorElement: <ErrorPage />,
-          },
-          {
-            path: "gjennomforinger/skjema",
-            element: <GjennomforingFormPage />,
+            element: <NewGjennomforingFormPage />,
             errorElement: <ErrorPage />,
           },
           {

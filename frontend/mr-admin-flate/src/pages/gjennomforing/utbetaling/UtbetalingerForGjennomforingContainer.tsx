@@ -9,7 +9,7 @@ import { utbetalingerByGjennomforingQuery } from "./utbetalingerForGjennomforing
 
 export function UtbetalingerForGjennomforingContainer() {
   const { gjennomforingId } = useParams();
-  const { data: gjennomforing } = useAdminGjennomforingById();
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
 
   const { data: utbetalinger } = useSuspenseQuery({
     ...utbetalingerByGjennomforingQuery(gjennomforingId),

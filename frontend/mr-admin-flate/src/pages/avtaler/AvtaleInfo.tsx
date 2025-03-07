@@ -9,14 +9,16 @@ import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useAvtale } from "../../api/avtaler/useAvtale";
+import { Laster } from "../../components/laster/Laster";
+import { useGetAvtaleIdFromUrlOrThrow } from "../../hooks/useGetAvtaleIdFromUrl";
 import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
 import { AvtalePersonvern } from "./AvtalePersonvern";
-import { Laster } from "../../components/laster/Laster";
 
 export function AvtaleInfo() {
+  const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const { data: ansatt } = useHentAnsatt();
-  const { data: avtale, isLoading } = useAvtale();
+  const { data: avtale, isLoading } = useAvtale(avtaleId);
 
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 

@@ -9,7 +9,7 @@ import { Prismodell, TilsagnType } from "@mr/api-client-v2";
 import { Alert, Heading, VStack } from "@navikt/ds-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams, useSearchParams } from "react-router";
-import { useAvtale } from "../../../../api/avtaler/useAvtale";
+import { usePotentialAvtale } from "../../../../api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "../../../../api/gjennomforing/useAdminGjennomforingById";
 import { Laster } from "../../../../components/laster/Laster";
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
@@ -27,8 +27,8 @@ function useHentData() {
   const kostnadssted = searchParams.get("kostnadssted");
 
   const { gjennomforingId } = useParams();
-  const { data: gjennomforing } = useAdminGjennomforingById();
-  const { data: avtale } = useAvtale(gjennomforing?.avtaleId);
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
+  const { data: avtale } = usePotentialAvtale(gjennomforing?.avtaleId);
   const { data: defaults } = useSuspenseQuery({
     ...tilsagnDefaultsQuery({
       gjennomforingId,
@@ -40,6 +40,7 @@ function useHentData() {
       kostnadssted,
     }),
   });
+
   const { data: godkjenteTilsagn } = useSuspenseQuery({
     ...godkjenteTilsagnQuery(gjennomforingId),
   });

@@ -44,9 +44,9 @@ import { tilsagnHistorikkQuery, tilsagnQuery } from "./tilsagnDetaljerLoader";
 import { Laster } from "../../../../components/laster/Laster";
 
 function useTilsagnDetaljer() {
-  const { tilsagnId } = useParams();
+  const { gjennomforingId, tilsagnId } = useParams();
 
-  const { data: gjennomforing } = useAdminGjennomforingById();
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
   const { data: tilsagn } = useSuspenseQuery({ ...tilsagnQuery(tilsagnId) });
   const { data: ansatt } = useHentAnsatt();
   const { data: historikk } = useSuspenseQuery({ ...tilsagnHistorikkQuery(tilsagnId) });
