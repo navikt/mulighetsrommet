@@ -1,7 +1,5 @@
 import { ReactNode } from "react";
-import styles from "./Feilmelding.module.scss";
 import { Heading } from "@navikt/ds-react";
-import classNames from "classnames";
 import {
   ExclamationmarkTriangleFillIcon,
   InformationSquareFillIcon,
@@ -30,15 +28,11 @@ export function Feilmelding({ header, children, ikonvariant, utenMargin }: Feilm
     }
   };
 
-  const classNamesArray = utenMargin
-    ? [styles.feilmelding_container]
-    : [styles.feilmelding_container, styles.feilmelding_margin];
-
   return (
     <div
       data-testid="feilmelding-container"
       aria-live="assertive"
-      className={classNames(...classNamesArray)}
+      className={`flex flex-col items-center justify-center bg-white w-[40rem] text-center gap-[0.5rem] px-[5rem] ${utenMargin ? "" : "mt-[2rem] mx-auto pt-[2rem] pb-[2rem] px-[5rem] min-h-[180px]"}`}
     >
       {ikon()}
       <Heading level="4" size={"small"}>

@@ -7,7 +7,6 @@ import { ModiaRoute, navigateToModiaApp } from "../ModiaRoute";
 import { useDeltMedBrukerHistorikk } from "../hooks/useDeltMedBrukerHistorikk";
 import { IngenFunnetBox } from "../views/Landingsside";
 import { Link } from "react-router";
-import styles from "./DelMedBrukerHistorikk.module.scss";
 
 function sortOnCreatedAt(a: TiltakDeltMedBruker, b: TiltakDeltMedBruker) {
   return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
@@ -130,7 +129,7 @@ function createCells(antallTiltakDelt: number, tiltak: TiltakDeltMedBruker): Rea
           </Button>
           <Link
             to={`/arbeidsmarkedstiltak/tiltak/${tiltak.tiltakId}`}
-            className={styles.tertiary_link}
+            className="text-center text-base no-underline hover:underline"
           >
             Gå til tiltak
           </Link>
