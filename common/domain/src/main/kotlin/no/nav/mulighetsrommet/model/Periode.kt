@@ -103,4 +103,39 @@ data class Periode(
 
         return perioder
     }
+
+    fun subtractPeriods(exclusions: List<Periode>): List<Periode> {
+        if (exclusions.isEmpty()) {
+            return listOf(this)
+        }
+
+        val sortedExclusions = exclusions.sortedBy { it.start }
+
+        val result = mutableListOf<Periode>()
+        var currentStart = this.start
+        val periodeEnd = this.slutt
+
+        for (exclusion in sortedExclusions) {
+            if (exclusion.slutt <= currentStart) {
+                continue
+            }
+            if (exclusion.start >= periodeEnd) {
+                break
+            }
+            if (exclusion.start > currentStart) {
+                result.add(Periode(currentStart, exclusion.start))
+            }
+
+            currentStart = maxOf(currentStart, exclusion.slutt)
+            if (currentStart >= periodeEnd) {
+                break
+            }
+        }
+
+        if (currentStart < periodeEnd) {
+            result.add(Periode(currentStart, periodeEnd))
+        }
+
+        return result
+    }
 }

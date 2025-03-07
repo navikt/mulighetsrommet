@@ -74,7 +74,9 @@ data class UtbetalingBeregningAft(
         ): DeltakelseManedsverk {
             val manedsverk = deltakelse.perioder
                 .flatMap { deltakelsePeriode ->
-                    overrideWithStengtHosArrangor(deltakelsePeriode, stengtHosArrangor)
+                    Periode(deltakelsePeriode.start, deltakelsePeriode.slutt)
+                        .subtractPeriods(stengtHosArrangor)
+                        .map { DeltakelsePeriode(it.start, it.slutt, deltakelsePeriode.deltakelsesprosent) }
                 }
                 .map { deltakelsePeriode ->
                     calculateManedsverkFraction(deltakelsePeriode, totalDuration)
@@ -84,27 +86,6 @@ data class UtbetalingBeregningAft(
                 .toDouble()
 
             return DeltakelseManedsverk(deltakelse.deltakelseId, manedsverk)
-        }
-
-        private fun overrideWithStengtHosArrangor(
-            deltakelsePeriode: DeltakelsePeriode,
-            stengtHosArrangor: List<Periode>,
-        ): List<DeltakelsePeriode> {
-            val periode = Periode(deltakelsePeriode.start, deltakelsePeriode.slutt)
-
-            val withStengtHosArrangor = stengtHosArrangor.flatMap { stengt ->
-                val stengtPeriode = stengt.intersect(periode) ?: return@flatMap listOf()
-
-                val beforeStengtPeriode = Periode.of(periode.start, stengtPeriode.start)
-                    ?.let { DeltakelsePeriode(it.start, it.slutt, deltakelsePeriode.deltakelsesprosent) }
-
-                val afterStengtPeriode = Periode.of(stengtPeriode.slutt, periode.slutt)
-                    ?.let { DeltakelsePeriode(it.start, it.slutt, deltakelsePeriode.deltakelsesprosent) }
-
-                listOfNotNull(beforeStengtPeriode, afterStengtPeriode)
-            }
-
-            return withStengtHosArrangor.ifEmpty { listOf(deltakelsePeriode) }
         }
 
         private fun calculateManedsverkFraction(
