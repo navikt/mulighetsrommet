@@ -27,11 +27,32 @@ data class Periode(
     }
 
     companion object {
+        /**
+         * Oppretter en [Periode] hvis startdatoen er før sluttdatoen, ellers null.
+         *
+         * @param start Startdatoen for perioden.
+         * @param slutt Sluttdatoen for perioden.
+         */
+        fun of(start: LocalDate, slutt: LocalDate): Periode? {
+            return if (start < slutt) Periode(start, slutt) else null
+        }
+
+        /**
+         * Oppretter en [Periode] for måneden til den gitte datoen.
+         *
+         * @param date Datoen som måneden skal baseres på.
+         */
         fun forMonthOf(date: LocalDate): Periode {
             val periodeStart = date.with(TemporalAdjusters.firstDayOfMonth())
             return Periode(periodeStart, periodeStart.plusMonths(1))
         }
 
+        /**
+         * Oppretter en [Periode] fra og med den gitte startdatoen til og med den gitte sluttdatoen.
+         *
+         * @param inclusiveStart Startdatoen for perioden (inkludert).
+         * @param inclusiveEnd Sluttdatoen for perioden (inkludert).
+         */
         fun fromInclusiveDates(inclusiveStart: LocalDate, inclusiveEnd: LocalDate): Periode {
             return Periode(inclusiveStart, inclusiveEnd.plusDays(1))
         }
@@ -51,6 +72,12 @@ data class Periode(
 
     fun getLastInclusiveDate(): LocalDate {
         return slutt.minusDays(1)
+    }
+
+    fun overlaps(periode: Periode): Boolean {
+        val start = maxOf(start, periode.start)
+        val slutt = minOf(slutt, periode.slutt)
+        return start < slutt
     }
 
     fun intersect(periode: Periode): Periode? {

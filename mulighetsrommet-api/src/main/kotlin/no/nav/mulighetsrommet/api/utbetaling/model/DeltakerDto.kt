@@ -28,3 +28,10 @@ data class DeltakerDto(
     val deltakelsesprosent: Double?,
     val status: DeltakerStatus,
 )
+
+@Serializable
+data class DeltakelsesmengdeDto(
+    @Serializable(with = LocalDateSerializer::class)
+    val gyldigFra: LocalDate,
+    val deltakelsesprosent: Double,
+)

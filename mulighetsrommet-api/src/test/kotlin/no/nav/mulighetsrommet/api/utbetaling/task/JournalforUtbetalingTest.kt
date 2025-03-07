@@ -47,6 +47,7 @@ class JournalforUtbetalingTest : FunSpec({
             input = UtbetalingBeregningAft.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
                 sats = 20205,
+                stengt = setOf(),
                 deltakelser = emptySet(),
             ),
             output = UtbetalingBeregningAft.Output(

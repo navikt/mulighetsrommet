@@ -30,7 +30,6 @@ interface Props {
 }
 
 export function DelutbetalingRow({
-  utbetaling,
   tilsagn,
   delutbetaling,
   ansatt,
@@ -47,7 +46,7 @@ export function DelutbetalingRow({
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
 
   const revalidator = useRevalidator();
-  const besluttMutation = useBesluttDelutbetaling(utbetaling.id);
+  const besluttMutation = useBesluttDelutbetaling(delutbetaling?.id ?? "");
 
   const kanBeslutte =
     delutbetaling &&
@@ -167,7 +166,6 @@ export function DelutbetalingRow({
             onClick={() =>
               beslutt({
                 besluttelse: Besluttelse.GODKJENT,
-                id: delutbetaling.id,
               })
             }
           >
@@ -230,7 +228,6 @@ export function DelutbetalingRow({
           onConfirm={({ aarsaker, forklaring }) => {
             beslutt({
               besluttelse: Besluttelse.AVVIST,
-              id: delutbetaling.id,
               aarsaker,
               forklaring: forklaring ?? null,
             });

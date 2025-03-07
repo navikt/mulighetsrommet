@@ -50,7 +50,7 @@ export function Landingsside() {
         }}
         gap="4"
       >
-        <VStack align={{ xs: "start", lg: "end" }} className={styles.cta_container}>
+        <VStack align={{ xs: "start", lg: "end" }} className="mt-0 ml-0 md:mt-[4rem] md:ml-[1rem]">
           <Link
             data-testid="finn-nytt-arbeidsmarkedstiltak-btn"
             className={styles.cta_link}
@@ -73,7 +73,7 @@ export function Landingsside() {
             }}
             defaultValue={activeTab}
           >
-            <Tabs.List className={styles.tabslist}>
+            <Tabs.List>
               <Tabs.Tab
                 data-testid="aktive-tab"
                 label={
@@ -120,7 +120,7 @@ export function Landingsside() {
                 <Suspense
                   fallback={
                     <Skeleton
-                      className={styles.skeleton}
+                      className="mt-[1rem]"
                       variant="rounded"
                       height="10rem"
                       width="40rem"
@@ -142,7 +142,7 @@ export function Landingsside() {
               >
                 <Suspense
                   fallback={
-                    <VStack gap="5" className={styles.skeleton}>
+                    <VStack gap="5" className="mt-[1rem]">
                       <Skeleton variant="rounded" height="10rem" width="40rem" />
                       <Skeleton variant="rounded" height="10rem" width="40rem" />
                     </VStack>
@@ -346,7 +346,7 @@ export function IngenFunnetBox(props: { title: string }) {
         <img
           src={ingenFunnImg}
           alt="Bilde av forstørrelsesglass som ser på et dokument"
-          className={styles.tom_eske_img}
+          className="w-[130px] h-[90px]"
         />
         <Heading level="2" size="medium">
           {props.title}

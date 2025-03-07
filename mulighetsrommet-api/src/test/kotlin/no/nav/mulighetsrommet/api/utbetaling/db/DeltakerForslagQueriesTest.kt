@@ -5,30 +5,20 @@ import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.maps.shouldNotContainKey
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class DeltakerForslagQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
-    val deltaker = DeltakerDbo(
-        id = UUID.randomUUID(),
-        gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
-        startDato = null,
-        sluttDato = null,
-        registrertTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
-        endretTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
-        deltakelsesprosent = 100.0,
-        status = DeltakerStatus(
-            DeltakerStatus.Type.VENTER_PA_OPPSTART,
-            aarsak = null,
-            opprettetDato = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
-        ),
+    val deltaker = DeltakerFixtures.createDeltaker(
+        GjennomforingFixtures.Oppfolging1.id,
+        statusType = DeltakerStatus.Type.VENTER_PA_OPPSTART,
     )
 
     val domain = MulighetsrommetTestDomain(

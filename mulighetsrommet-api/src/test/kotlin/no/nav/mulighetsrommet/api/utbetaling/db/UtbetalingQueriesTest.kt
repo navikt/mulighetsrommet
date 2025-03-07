@@ -37,6 +37,7 @@ class UtbetalingQueriesTest : FunSpec({
             input = UtbetalingBeregningAft.Input(
                 sats = 20_205,
                 periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
+                stengt = setOf(StengtPeriode(LocalDate.of(2023, 1, 10), LocalDate.of(2023, 1, 20), "Ferie")),
                 deltakelser = setOf(
                     DeltakelsePerioder(
                         deltakelseId = deltakelse1Id,
@@ -79,7 +80,7 @@ class UtbetalingQueriesTest : FunSpec({
             ),
         )
 
-        test("upsert and get") {
+        test("upsert and get aft beregning") {
             database.runAndRollback { session ->
                 domain.setup(session)
 
@@ -129,7 +130,7 @@ class UtbetalingQueriesTest : FunSpec({
             }
         }
 
-        test("upsert fri beregning") {
+        test("upsert and get fri beregning") {
             database.runAndRollback { session ->
                 domain.setup(session)
 
@@ -234,6 +235,7 @@ class UtbetalingQueriesTest : FunSpec({
                         input = UtbetalingBeregningAft.Input(
                             periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
                             sats = 20_205,
+                            stengt = setOf(),
                             deltakelser = setOf(deltakelse),
                         ),
                         output = UtbetalingBeregningAft.Output(

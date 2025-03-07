@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
@@ -88,26 +89,28 @@ class UtbetalingService(
         utbetalingId: UUID,
         gjennomforingId: UUID,
         periode: Periode,
-    ): UtbetalingDbo {
+    ): UtbetalingDbo = db.session {
         val frist = periode.slutt.plusMonths(2)
-
-        val deltakere = getDeltakelser(gjennomforingId, periode)
 
         // TODO: burde også verifisere at start og slutt har samme pris
         val sats = ForhandsgodkjenteSatser.findSats(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, periode.start)
             ?: throw IllegalStateException("Sats mangler for periode $periode")
 
+        val gjennomforing = requireNotNull(queries.gjennomforing.get(gjennomforingId))
+        val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
+
+        val deltakelser = resolveDeltakelser(gjennomforingId, periode)
+
         val input = UtbetalingBeregningAft.Input(
             periode = periode,
             sats = sats,
-            deltakelser = deltakere,
+            stengt = stengtHosArrangor,
+            deltakelser = deltakelser,
         )
 
         val beregning = UtbetalingBeregningAft.beregn(input)
 
-        val forrigeKrav = db.session {
-            queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforingId)
-        }
+        val forrigeKrav = queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforingId)
 
         return UtbetalingDbo(
             id = utbetalingId,
@@ -168,53 +171,24 @@ class UtbetalingService(
     }
 
     fun opprettDelutbetalinger(
-        utbetalingId: UUID,
-        request: DelutbetalingBulkRequest,
-        navIdent: NavIdent,
-    ): StatusResponse<Unit> {
-        request.delutbetalinger.map { req ->
-            validateAndUpsertDelutbetaling(utbetalingId, req, navIdent).onLeft { return it.left() }
-        }
-        return Unit.right()
-    }
-
-    fun validateAndUpsertDelutbetaling(
-        utbetalingId: UUID,
-        request: DelutbetalingRequest,
+        request: OpprettDelutbetalingerRequest,
         navIdent: NavIdent,
     ): StatusResponse<Unit> = db.transaction {
-        val utbetaling = queries.utbetaling.get(utbetalingId)
-            ?: return NotFound("Utbetaling med id=$utbetalingId finnes ikke").left()
-        val tilsagn = queries.tilsagn.get(request.tilsagnId)
-            ?: return NotFound("Tilsagn med id=${request.tilsagnId} finnes ikke").left()
+        val utbetaling = queries.utbetaling.get(request.utbetalingId)
+            ?: return NotFound("Utbetaling med id=$request.utbetalingId finnes ikke").left()
 
-        val previous = queries.delutbetaling.get(request.id)
-        when (previous) {
-            is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling,
-            is DelutbetalingDto.DelutbetalingTilGodkjenning,
-            is DelutbetalingDto.DelutbetalingUtbetalt,
-            -> return BadRequest("Utbetaling kan ikke endres").left()
-
-            is DelutbetalingDto.DelutbetalingAvvist, null -> {}
+        request.delutbetalinger.map { req ->
+            validateAndUpsertDelutbetaling(req, utbetaling, navIdent).onLeft { return it.left() }
         }
-
-        val utbetaltBelop = queries.delutbetaling.getByUtbetalingId(utbetalingId)
-            .filter { it.tilsagnId != tilsagn.id }
-            .sumOf { it.belop }
-        val gjenstaendeBelop = utbetaling.beregning.output.belop - utbetaltBelop
-
-        UtbetalingValidator.validate(belop = request.belop, tilsagn = tilsagn, maxBelop = gjenstaendeBelop)
-            .onLeft { return ValidationError(errors = it).left() }
-
-        upsertDelutbetaling(utbetaling, tilsagn, request.id, request.belop, request.frigjorTilsagn, navIdent)
         return Unit.right()
     }
 
     fun besluttDelutbetaling(
+        id: UUID,
         request: BesluttDelutbetalingRequest,
         navIdent: NavIdent,
     ) = db.transaction {
-        val delutbetaling = queries.delutbetaling.get(request.id)
+        val delutbetaling = queries.delutbetaling.get(id)
             ?: throw IllegalArgumentException("Delutbetaling finnes ikke")
         when (request) {
             is BesluttDelutbetalingRequest.AvvistDelutbetalingRequest -> {
@@ -234,6 +208,36 @@ class UtbetalingService(
 
     fun getUtbetalingKompaktByGjennomforing(id: UUID): List<AdminUtbetalingKompakt> = db.session {
         queries.utbetaling.getByGjennomforing(id).map { utbetaling -> toAdminUtbetalingKompakt(utbetaling) }
+    }
+
+    private fun QueryContext.validateAndUpsertDelutbetaling(
+        request: DelutbetalingRequest,
+        utbetaling: UtbetalingDto,
+        navIdent: NavIdent,
+    ): StatusResponse<Unit> {
+        val tilsagn = queries.tilsagn.get(request.tilsagnId)
+            ?: return NotFound("Tilsagn med id=${request.tilsagnId} finnes ikke").left()
+
+        val previous = queries.delutbetaling.get(request.id)
+        when (previous) {
+            is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling,
+            is DelutbetalingDto.DelutbetalingTilGodkjenning,
+            is DelutbetalingDto.DelutbetalingUtbetalt,
+            -> return BadRequest("Utbetaling kan ikke endres").left()
+
+            is DelutbetalingDto.DelutbetalingAvvist, null -> {}
+        }
+
+        val utbetaltBelop = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+            .filter { it.tilsagnId != tilsagn.id }
+            .sumOf { it.belop }
+        val gjenstaendeBelop = utbetaling.beregning.output.belop - utbetaltBelop
+
+        UtbetalingValidator.validate(belop = request.belop, tilsagn = tilsagn, maxBelop = gjenstaendeBelop)
+            .onLeft { return ValidationError(errors = it).left() }
+
+        upsertDelutbetaling(utbetaling, tilsagn, request.id, request.belop, request.frigjorTilsagn, navIdent)
+        return Unit.right()
     }
 
     private fun QueryContext.toAdminUtbetalingKompakt(utbetaling: UtbetalingDto): AdminUtbetalingKompakt {
@@ -381,45 +385,50 @@ class UtbetalingService(
         )
     }
 
-    private fun getDeltakelser(
+    private fun resolveStengtHosArrangor(
+        periode: Periode,
+        stengt: List<GjennomforingDto.StengtPeriode>,
+    ): Set<StengtPeriode> {
+        return stengt
+            .mapNotNull { stengt ->
+                Periode(stengt.start, stengt.slutt.plusDays(1)).intersect(periode)?.let {
+                    StengtPeriode(it.start, it.slutt, stengt.beskrivelse)
+                }
+            }
+            .toSet()
+    }
+
+    private fun resolveDeltakelser(
         gjennomforingId: UUID,
         periode: Periode,
-    ): Set<DeltakelsePerioder> {
-        val deltakelser = db.session {
-            queries.deltaker.getAll(gjennomforingId = gjennomforingId)
-        }
-
-        return deltakelser
+    ): Set<DeltakelsePerioder> = db.session {
+        queries.deltaker.getAll(gjennomforingId = gjennomforingId)
             .asSequence()
-            .filter {
-                it.status.type in listOf(
-                    DeltakerStatus.Type.AVBRUTT,
-                    DeltakerStatus.Type.DELTAR,
-                    DeltakerStatus.Type.HAR_SLUTTET,
-                    DeltakerStatus.Type.FULLFORT,
-                )
+            .filter { deltaker ->
+                isRelevantForUtbetalingsperide(deltaker, periode)
             }
-            .filter { it.deltakelsesprosent != null }
-            .filter {
-                it.startDato != null && it.startDato.isBefore(periode.slutt)
-            }
-            .filter {
-                it.sluttDato == null || it.sluttDato.plusDays(1).isAfter(periode.start)
-            }
-            .map { deltakelse ->
-                val start = maxOf(requireNotNull(deltakelse.startDato), periode.start)
-                val slutt = minOf(deltakelse.sluttDato?.plusDays(1) ?: periode.slutt, periode.slutt)
-                val deltakelsesprosent = requireNotNull(deltakelse.deltakelsesprosent) {
-                    "deltakelsesprosent mangler for deltakelse id=${deltakelse.id}"
+            .map { deltaker ->
+                val deltakelsesmengder = queries.deltaker.getDeltakelsesmengder(deltaker.id)
+
+                val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode)
+
+                val perioder = deltakelsesmengder.mapIndexedNotNull { index, mengde ->
+                    val gyldigTil = deltakelsesmengder.getOrNull(index + 1)?.gyldigFra ?: sluttDatoInPeriode
+
+                    Periode.of(mengde.gyldigFra, gyldigTil)?.intersect(periode)?.let { overlappingPeriode ->
+                        DeltakelsePeriode(
+                            start = overlappingPeriode.start,
+                            slutt = overlappingPeriode.slutt,
+                            deltakelsesprosent = mengde.deltakelsesprosent,
+                        )
+                    }
                 }
 
-                // TODO: periodisering av prosent - fra Komet
-                val perioder = listOf(DeltakelsePeriode(start, slutt, deltakelsesprosent))
+                check(perioder.isNotEmpty()) {
+                    "Deltaker id=${deltaker.id} er relevant for utbetaling, men mangler deltakelsesmengder innenfor perioden=$periode"
+                }
 
-                DeltakelsePerioder(
-                    deltakelseId = deltakelse.id,
-                    perioder = perioder,
-                )
+                DeltakelsePerioder(deltaker.id, perioder)
             }
             .toSet()
     }
@@ -443,4 +452,29 @@ class UtbetalingService(
     private fun QueryContext.getOrError(id: UUID): UtbetalingDto {
         return requireNotNull(queries.utbetaling.get(id)) { "Utbetaling med id=$id finnes ikke" }
     }
+}
+
+private fun isRelevantForUtbetalingsperide(
+    deltaker: DeltakerDto,
+    periode: Periode,
+): Boolean {
+    val relevantDeltakerStatusForUtbetaling = listOf(
+        DeltakerStatus.Type.AVBRUTT,
+        DeltakerStatus.Type.DELTAR,
+        DeltakerStatus.Type.FULLFORT,
+        DeltakerStatus.Type.HAR_SLUTTET,
+    )
+    if (deltaker.status.type !in relevantDeltakerStatusForUtbetaling) {
+        return false
+    }
+
+    val startDato = requireNotNull(deltaker.startDato) {
+        "Deltaker må ha en startdato når status er ${deltaker.status.type} og den er relevant for utbetaling"
+    }
+    val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode)
+    return Periode.of(startDato, sluttDatoInPeriode)?.overlaps(periode) ?: false
+}
+
+private fun getSluttDatoInPeriode(deltaker: DeltakerDto, periode: Periode): LocalDate {
+    return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
 }

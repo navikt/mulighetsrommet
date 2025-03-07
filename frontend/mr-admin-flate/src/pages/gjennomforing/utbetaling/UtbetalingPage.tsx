@@ -169,6 +169,7 @@ export function UtbetalingPage() {
       setError("Kan ikke betale ut mer enn det er krav på");
     else {
       const body: OpprettDelutbetalingerRequest = {
+        utbetalingId: utbetaling.id,
         delutbetalinger: [
           ...tilsagn
             .filter(

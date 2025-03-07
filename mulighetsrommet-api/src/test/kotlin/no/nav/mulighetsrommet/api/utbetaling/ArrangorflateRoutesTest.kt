@@ -64,12 +64,14 @@ class ArrangorflateRoutesTest : FunSpec({
         registrertTidspunkt = GjennomforingFixtures.AFT1.startDato.atStartOfDay(),
         endretTidspunkt = LocalDateTime.now(),
         deltakelsesprosent = 100.0,
+        deltakelsesmengder = listOf(),
         status = DeltakerStatus(
             type = DeltakerStatus.Type.DELTAR,
             aarsak = null,
             opprettetDato = LocalDateTime.now(),
         ),
     )
+
     val utbetaling = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
@@ -78,6 +80,7 @@ class ArrangorflateRoutesTest : FunSpec({
             input = UtbetalingBeregningAft.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
                 sats = 20205,
+                stengt = setOf(),
                 deltakelser = setOf(
                     DeltakelsePerioder(
                         deltakelseId = deltaker.id,
