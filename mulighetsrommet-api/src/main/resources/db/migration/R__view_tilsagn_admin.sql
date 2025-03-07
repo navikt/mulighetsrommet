@@ -1,3 +1,5 @@
+-- ${flyway:timestamp}
+
 drop view if exists tilsagn_admin_dto_view;
 
 create view tilsagn_admin_dto_view as

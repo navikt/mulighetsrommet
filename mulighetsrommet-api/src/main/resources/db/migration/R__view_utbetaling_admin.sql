@@ -1,4 +1,5 @@
--- bump
+-- ${flyway:timestamp}
+
 drop view if exists utbetaling_aft_view;
 drop view if exists utbetaling_dto_view;
 
