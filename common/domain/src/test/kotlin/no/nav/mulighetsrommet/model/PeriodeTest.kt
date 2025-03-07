@@ -70,10 +70,18 @@ class PeriodeTest : FunSpec({
         period4.compareTo(period1) shouldBe 1
     }
 
+    test("should check if periods overlap") {
+        val period1 = Periode(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 31))
+        val period2 = Periode(LocalDate.of(2021, 1, 15), LocalDate.of(2021, 2, 15))
+        period1.overlaps(period2) shouldBe true
+
+        val period3 = Periode(LocalDate.of(2021, 2, 1), LocalDate.of(2021, 2, 15))
+        period1.overlaps(period3) shouldBe false
+    }
+
     test("should intersect periods") {
         val period1 = Periode(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 31))
         val period2 = Periode(LocalDate.of(2021, 1, 15), LocalDate.of(2021, 2, 15))
-
         period1.intersect(period2) shouldBe Periode(LocalDate.of(2021, 1, 15), LocalDate.of(2021, 1, 31))
 
         val period3 = Periode(LocalDate.of(2021, 2, 1), LocalDate.of(2021, 2, 15))

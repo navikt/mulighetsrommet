@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -68,7 +69,7 @@ class UtbetalingServiceTest : FunSpec({
             }
         }
 
-        test("genererer et utbetaling med riktig periode, frist og sats som input") {
+        test("genererer en utbetaling med riktig periode, frist og sats som input") {
             val domain = MulighetsrommetTestDomain(
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -108,7 +109,7 @@ class UtbetalingServiceTest : FunSpec({
             )
         }
 
-        test("genererer et utbetaling med kontonummer og kid-nummer fra forrige godkjente utbetaling fra arrangør") {
+        test("genererer en utbetaling med kontonummer og kid-nummer fra forrige godkjente utbetaling fra arrangør") {
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
@@ -133,7 +134,6 @@ class UtbetalingServiceTest : FunSpec({
                     kontonummer = Kontonummer("12345678901"),
                     kid = Kid("12345678901"),
                 )
-                queries.utbetaling.setGodkjentAvArrangor(utbetaling.id, LocalDateTime.now())
             }
 
             val sisteKrav = service.genererUtbetalingForMonth(LocalDate.of(2024, 2, 1)).first()
@@ -142,7 +142,7 @@ class UtbetalingServiceTest : FunSpec({
             sisteKrav.betalingsinformasjon.kid shouldBe Kid("12345678901")
         }
 
-        test("genererer et utbetaling med relevante deltakelser som input") {
+        test("genererer en utbetaling med relevante deltakelse-perioder som input") {
             val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
@@ -181,6 +181,35 @@ class UtbetalingServiceTest : FunSpec({
                         statusType = DeltakerStatus.Type.IKKE_AKTUELL,
                         deltakelsesprosent = 100.0,
                     ),
+                    DeltakerFixtures.createDeltaker(
+                        AFT1.id,
+                        startDato = LocalDate.of(2023, 1, 1),
+                        sluttDato = LocalDate.of(2024, 12, 31),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                        deltakelsesprosent = 10.0,
+                        deltakelsesmengder = listOf(
+                            DeltakerDbo.Deltakelsesmengde(
+                                gyldigFra = LocalDate.of(2023, 1, 1),
+                                deltakelsesprosent = 20.0,
+                                opprettetTidspunkt = LocalDateTime.now(),
+                            ),
+                            DeltakerDbo.Deltakelsesmengde(
+                                gyldigFra = LocalDate.of(2024, 1, 10),
+                                deltakelsesprosent = 15.0,
+                                opprettetTidspunkt = LocalDateTime.now(),
+                            ),
+                            DeltakerDbo.Deltakelsesmengde(
+                                gyldigFra = LocalDate.of(2024, 1, 20),
+                                deltakelsesprosent = 10.0,
+                                opprettetTidspunkt = LocalDateTime.now(),
+                            ),
+                            DeltakerDbo.Deltakelsesmengde(
+                                gyldigFra = LocalDate.of(2024, 2, 1),
+                                deltakelsesprosent = 5.0,
+                                opprettetTidspunkt = LocalDateTime.now(),
+                            ),
+                        ),
+                    ),
                 ),
             ).initialize(database.db)
 
@@ -218,11 +247,31 @@ class UtbetalingServiceTest : FunSpec({
                             ),
                         ),
                     ),
+                    DeltakelsePerioder(
+                        deltakelseId = domain.deltakere[5].id,
+                        perioder = listOf(
+                            DeltakelsePeriode(
+                                start = LocalDate.of(2024, 1, 1),
+                                slutt = LocalDate.of(2024, 1, 10),
+                                deltakelsesprosent = 20.0,
+                            ),
+                            DeltakelsePeriode(
+                                start = LocalDate.of(2024, 1, 10),
+                                slutt = LocalDate.of(2024, 1, 20),
+                                deltakelsesprosent = 15.0,
+                            ),
+                            DeltakelsePeriode(
+                                start = LocalDate.of(2024, 1, 20),
+                                slutt = LocalDate.of(2024, 2, 1),
+                                deltakelsesprosent = 10.0,
+                            ),
+                        ),
+                    ),
                 )
             }
         }
 
-        test("genererer et utbetaling med beregnet belop basert på input") {
+        test("genererer en utbetaling med beregnet belop basert på input") {
             val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(

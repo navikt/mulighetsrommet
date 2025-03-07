@@ -384,42 +384,34 @@ class UtbetalingService(
     private fun getDeltakelser(
         gjennomforingId: UUID,
         periode: Periode,
-    ): Set<DeltakelsePerioder> {
-        val deltakelser = db.session {
-            queries.deltaker.getAll(gjennomforingId = gjennomforingId)
-        }
-
-        return deltakelser
+    ): Set<DeltakelsePerioder> = db.session {
+        queries.deltaker.getAll(gjennomforingId = gjennomforingId)
             .asSequence()
-            .filter {
-                it.status.type in listOf(
-                    DeltakerStatus.Type.AVBRUTT,
-                    DeltakerStatus.Type.DELTAR,
-                    DeltakerStatus.Type.HAR_SLUTTET,
-                    DeltakerStatus.Type.FULLFORT,
-                )
+            .filter { deltaker ->
+                isRelevantForUtbetalingsperide(deltaker, periode)
             }
-            .filter { it.deltakelsesprosent != null }
-            .filter {
-                it.startDato != null && it.startDato.isBefore(periode.slutt)
-            }
-            .filter {
-                it.sluttDato == null || it.sluttDato.plusDays(1).isAfter(periode.start)
-            }
-            .map { deltakelse ->
-                val start = maxOf(requireNotNull(deltakelse.startDato), periode.start)
-                val slutt = minOf(deltakelse.sluttDato?.plusDays(1) ?: periode.slutt, periode.slutt)
-                val deltakelsesprosent = requireNotNull(deltakelse.deltakelsesprosent) {
-                    "deltakelsesprosent mangler for deltakelse id=${deltakelse.id}"
+            .map { deltaker ->
+                val deltakelsesmengder = queries.deltaker.getDeltakelsesmengder(deltaker.id)
+
+                val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode)
+
+                val perioder = deltakelsesmengder.mapIndexedNotNull { index, mengde ->
+                    val gyldigTil = deltakelsesmengder.getOrNull(index + 1)?.gyldigFra ?: sluttDatoInPeriode
+
+                    Periode.of(mengde.gyldigFra, gyldigTil)?.intersect(periode)?.let { overlappingPeriode ->
+                        DeltakelsePeriode(
+                            start = overlappingPeriode.start,
+                            slutt = overlappingPeriode.slutt,
+                            deltakelsesprosent = mengde.deltakelsesprosent,
+                        )
+                    }
                 }
 
-                // TODO: periodisering av prosent - fra Komet
-                val perioder = listOf(DeltakelsePeriode(start, slutt, deltakelsesprosent))
+                check(perioder.isNotEmpty()) {
+                    "Deltaker id=${deltaker.id} er relevant for utbetaling, men mangler deltakelsesmengder innenfor perioden=$periode"
+                }
 
-                DeltakelsePerioder(
-                    deltakelseId = deltakelse.id,
-                    perioder = perioder,
-                )
+                DeltakelsePerioder(deltaker.id, perioder)
             }
             .toSet()
     }
@@ -443,4 +435,29 @@ class UtbetalingService(
     private fun QueryContext.getOrError(id: UUID): UtbetalingDto {
         return requireNotNull(queries.utbetaling.get(id)) { "Utbetaling med id=$id finnes ikke" }
     }
+}
+
+private fun isRelevantForUtbetalingsperide(
+    deltaker: DeltakerDto,
+    periode: Periode,
+): Boolean {
+    val relevantDeltakerStatusForUtbetaling = listOf(
+        DeltakerStatus.Type.AVBRUTT,
+        DeltakerStatus.Type.DELTAR,
+        DeltakerStatus.Type.FULLFORT,
+        DeltakerStatus.Type.HAR_SLUTTET,
+    )
+    if (deltaker.status.type !in relevantDeltakerStatusForUtbetaling) {
+        return false
+    }
+
+    val startDato = requireNotNull(deltaker.startDato) {
+        "Deltaker må ha en startdato når status er ${deltaker.status.type} og den er relevant for utbetaling"
+    }
+    val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode)
+    return Periode.of(startDato, sluttDatoInPeriode)?.overlaps(periode) ?: false
+}
+
+private fun getSluttDatoInPeriode(deltaker: DeltakerDto, periode: Periode): LocalDate {
+    return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
 }
