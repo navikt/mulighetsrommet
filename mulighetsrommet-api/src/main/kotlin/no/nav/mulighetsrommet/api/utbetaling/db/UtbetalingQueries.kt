@@ -72,10 +72,10 @@ class UtbetalingQueries(private val session: Session) {
         }
     }
 
-    private fun upsertUtbetalingBeregningAft(
+    private fun Session.upsertUtbetalingBeregningAft(
         id: UUID,
         beregning: UtbetalingBeregningAft,
-    ) = withTransaction(session) {
+    ) {
         @Language("PostgreSQL")
         val query = """
             insert into utbetaling_beregning_aft (utbetaling_id, periode, sats, belop)
@@ -167,7 +167,7 @@ class UtbetalingQueries(private val session: Session) {
         batchPreparedNamedStatement(insertManedsverkQuery, manedsverk)
     }
 
-    private fun upsertUtbetalingBeregningFri(id: UUID, beregning: UtbetalingBeregningFri) {
+    private fun Session.upsertUtbetalingBeregningFri(id: UUID, beregning: UtbetalingBeregningFri) {
         @Language("PostgreSQL")
         val query = """
             insert into utbetaling_beregning_fri (utbetaling_id, belop)
@@ -181,7 +181,7 @@ class UtbetalingQueries(private val session: Session) {
             "belop" to beregning.output.belop,
         )
 
-        session.execute(queryOf(query, params))
+        execute(queryOf(query, params))
     }
 
     fun setGodkjentAvArrangor(id: UUID, tidspunkt: LocalDateTime) = with(session) {
@@ -282,59 +282,6 @@ class UtbetalingQueries(private val session: Session) {
         return list(queryOf(query, params)) { it.toUtbetalingDto() }
     }
 
-    private fun getBeregning(id: UUID, beregningsmodell: Beregningsmodell): UtbetalingBeregning {
-        return when (beregningsmodell) {
-            Beregningsmodell.FORHANDSGODKJENT -> getBeregningAft(id)
-            Beregningsmodell.FRI -> getBeregningFri(id)
-        }
-    }
-
-    private fun getBeregningAft(id: UUID): UtbetalingBeregning {
-        @Language("PostgreSQL")
-        val query = """
-            select *
-            from utbetaling_aft_view
-            where
-                utbetaling_id = :id::uuid
-        """.trimIndent()
-
-        return session.requireSingle(queryOf(query, mapOf("id" to id))) {
-            UtbetalingBeregningAft(
-                input = UtbetalingBeregningAft.Input(
-                    periode = Periode(it.localDate("beregning_periode_start"), it.localDate("beregning_periode_slutt")),
-                    sats = it.int("sats"),
-                    stengt = it.string("stengt_json").let { Json.decodeFromString(it) },
-                    deltakelser = it.stringOrNull("perioder_json")?.let { Json.decodeFromString(it) } ?: setOf(),
-                ),
-                output = UtbetalingBeregningAft.Output(
-                    belop = it.int("belop"),
-                    deltakelser = it.stringOrNull("manedsverk_json")?.let { Json.decodeFromString(it) } ?: setOf(),
-                ),
-            )
-        }
-    }
-
-    private fun getBeregningFri(id: UUID): UtbetalingBeregning {
-        @Language("PostgreSQL")
-        val query = """
-            select *
-            from utbetaling_beregning_fri
-            where
-                utbetaling_id = :id::uuid
-        """.trimIndent()
-
-        return session.requireSingle(queryOf(query, mapOf("id" to id))) {
-            UtbetalingBeregningFri(
-                input = UtbetalingBeregningFri.Input(
-                    belop = it.int("belop"),
-                ),
-                output = UtbetalingBeregningFri.Output(
-                    belop = it.int("belop"),
-                ),
-            )
-        }
-    }
-
     fun getSisteGodkjenteUtbetaling(gjennomforingId: UUID): UtbetalingDto? = with(session) {
         @Language("PostgreSQL")
         val query = """
@@ -387,5 +334,56 @@ class UtbetalingQueries(private val session: Session) {
             innsender = innsender,
             createdAt = localDateTime("created_at"),
         )
+    }
+
+    private fun getBeregning(id: UUID, beregningsmodell: Beregningsmodell): UtbetalingBeregning {
+        return when (beregningsmodell) {
+            Beregningsmodell.FORHANDSGODKJENT -> getBeregningAft(id)
+            Beregningsmodell.FRI -> getBeregningFri(id)
+        }
+    }
+
+    private fun getBeregningAft(id: UUID): UtbetalingBeregning {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from utbetaling_aft_view
+            where utbetaling_id = ?::uuid
+        """.trimIndent()
+
+        return session.requireSingle(queryOf(query, id)) {
+            UtbetalingBeregningAft(
+                input = UtbetalingBeregningAft.Input(
+                    periode = Periode(it.localDate("beregning_periode_start"), it.localDate("beregning_periode_slutt")),
+                    sats = it.int("sats"),
+                    stengt = it.string("stengt_json").let { Json.decodeFromString(it) },
+                    deltakelser = it.stringOrNull("perioder_json")?.let { Json.decodeFromString(it) } ?: setOf(),
+                ),
+                output = UtbetalingBeregningAft.Output(
+                    belop = it.int("belop"),
+                    deltakelser = it.stringOrNull("manedsverk_json")?.let { Json.decodeFromString(it) } ?: setOf(),
+                ),
+            )
+        }
+    }
+
+    private fun getBeregningFri(id: UUID): UtbetalingBeregning {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from utbetaling_beregning_fri
+            where utbetaling_id = ?::uuid
+        """.trimIndent()
+
+        return session.requireSingle(queryOf(query, id)) {
+            UtbetalingBeregningFri(
+                input = UtbetalingBeregningFri.Input(
+                    belop = it.int("belop"),
+                ),
+                output = UtbetalingBeregningFri.Output(
+                    belop = it.int("belop"),
+                ),
+            )
+        }
     }
 }
