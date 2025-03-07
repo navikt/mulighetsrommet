@@ -9,7 +9,6 @@ import java.time.LocalDate
 import java.util.*
 
 class UtbetalingBeregningAftTest : FunSpec({
-
     context("AFT utbetaling beregning") {
         test("beløp beregnes fra månedsverk til deltakere og sats") {
             val periodeStart = LocalDate.of(2023, 6, 1)
@@ -256,6 +255,35 @@ class UtbetalingBeregningAftTest : FunSpec({
                 deltakelser = setOf(
                     DeltakelseManedsverk(deltakerId1, 0.38333),
                     DeltakelseManedsverk(deltakerId2, 0.11667),
+                ),
+            )
+        }
+
+        test("flere stengt hos arrangør perioder i én deltakelses periode") {
+            val deltakerId1 = UUID.randomUUID()
+
+            // 1 pluss 14 = 15 dager stengt = 50 %
+            val stengt = setOf(
+                StengtPeriode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 4, 2), "Stengt"),
+                StengtPeriode(LocalDate.of(2023, 4, 5), LocalDate.of(2023, 4, 19), "Stengt"),
+            )
+            val deltakelser = setOf(
+                DeltakelsePerioder(
+                    deltakelseId = deltakerId1,
+                    perioder = listOf(
+                        DeltakelsePeriode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 5, 1), 100.0),
+                    ),
+                ),
+            )
+            val periode = Periode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 5, 1))
+            val input = UtbetalingBeregningAft.Input(periode, 100, stengt, deltakelser)
+
+            val beregning = UtbetalingBeregningAft.beregn(input)
+
+            beregning.output shouldBe UtbetalingBeregningAft.Output(
+                belop = 50,
+                deltakelser = setOf(
+                    DeltakelseManedsverk(deltakerId1, 0.5),
                 ),
             )
         }
