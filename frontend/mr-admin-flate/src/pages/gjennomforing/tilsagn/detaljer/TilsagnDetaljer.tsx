@@ -41,7 +41,6 @@ import { AvvistAlert, TilAnnulleringAlert } from "../AarsakerAlert";
 import { TilsagnTag } from "../TilsagnTag";
 import { TilsagnDetaljerForhandsgodkjent } from "./TilsagnDetaljerForhandsgodkjent";
 import { tilsagnHistorikkQuery, tilsagnQuery } from "./tilsagnDetaljerLoader";
-import { Laster } from "../../../../components/laster/Laster";
 
 function useTilsagnDetaljer() {
   const { gjennomforingId, tilsagnId } = useParams();
@@ -65,10 +64,6 @@ export function TilsagnDetaljer() {
   const [tilAnnulleringModalOpen, setTilAnnulleringModalOpen] = useState<boolean>(false);
   const slettTilsagnModalRef = useRef<HTMLDialogElement>(null);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
-
-  if (!gjennomforing) {
-    return <Laster tekst="Laster gjennomføring..." />;
-  }
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     {

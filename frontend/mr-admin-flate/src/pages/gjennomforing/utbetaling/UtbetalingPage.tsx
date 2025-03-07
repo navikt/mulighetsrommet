@@ -45,7 +45,6 @@ import {
 
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { useAdminGjennomforingById } from "../../../api/gjennomforing/useAdminGjennomforingById";
-import { Laster } from "../../../components/laster/Laster";
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
 
@@ -205,10 +204,6 @@ export function UtbetalingPage() {
         },
       });
     }
-  }
-
-  if (!gjennomforing) {
-    return <Laster tekst="Laster gjennomføring..." />;
   }
 
   return (

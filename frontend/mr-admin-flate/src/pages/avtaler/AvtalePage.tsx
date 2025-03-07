@@ -26,7 +26,7 @@ export function AvtalePage() {
   const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
-  const { data: avtale, isLoading } = useAvtale(avtaleId);
+  const { data: avtale } = useAvtale(avtaleId);
 
   const brodsmuler = useAvtaleBrodsmuler(avtale?.id);
   useTitle(`Avtale ${avtale?.navn ? `- ${avtale.navn}` : ""}`);
@@ -38,14 +38,6 @@ export function AvtalePage() {
       return "avtale";
     }
   };
-
-  if (isLoading) {
-    return <Laster tekst="Laster avtale..." />;
-  }
-
-  if (!avtale) {
-    return <div>Fant ingen avtale</div>;
-  }
 
   return (
     <>

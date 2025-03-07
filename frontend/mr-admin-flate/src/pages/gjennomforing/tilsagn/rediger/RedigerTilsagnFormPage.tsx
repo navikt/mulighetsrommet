@@ -11,10 +11,10 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import { usePotentialAvtale } from "../../../../api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "../../../../api/gjennomforing/useAdminGjennomforingById";
-import { Laster } from "../../../../components/laster/Laster";
 import { tilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
 import { godkjenteTilsagnQuery } from "../opprett/opprettTilsagnLoader";
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
+import { Laster } from "../../../../components/laster/Laster";
 
 function useRedigerTilsagnFormData() {
   const { gjennomforingId, tilsagnId } = useParams();
@@ -63,7 +63,7 @@ export function RedigerTilsagnFormPage() {
     gjennomforingId: gjennomforingId!,
   };
 
-  if (!avtale || !gjennomforing) {
+  if (!avtale) {
     return <Laster tekst="Laster data..." />;
   }
 

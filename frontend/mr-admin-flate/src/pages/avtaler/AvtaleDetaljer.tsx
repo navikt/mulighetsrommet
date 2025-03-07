@@ -16,7 +16,6 @@ import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
 import { Fragment } from "react";
 import { Link } from "react-router";
-import { Laster } from "../../components/laster/Laster";
 
 interface Props {
   avtale: AvtaleDto;
@@ -25,10 +24,6 @@ interface Props {
 export function AvtaleDetaljer({ avtale }: Props) {
   function sorterPaRegionsnavn(a: { region: NavEnhet }, b: { region: NavEnhet }) {
     return a.region.navn.localeCompare(b.region.navn);
-  }
-
-  if (!avtale) {
-    return <Laster tekst="Laster avtale..." />;
   }
 
   const {

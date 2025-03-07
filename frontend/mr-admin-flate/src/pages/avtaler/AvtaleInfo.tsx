@@ -9,7 +9,6 @@ import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import { Laster } from "../../components/laster/Laster";
 import { useGetAvtaleIdFromUrlOrThrow } from "../../hooks/useGetAvtaleIdFromUrl";
 import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
@@ -18,7 +17,7 @@ import { AvtalePersonvern } from "./AvtalePersonvern";
 export function AvtaleInfo() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const { data: ansatt } = useHentAnsatt();
-  const { data: avtale, isLoading } = useAvtale(avtaleId);
+  const { data: avtale } = useAvtale(avtaleId);
 
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 
@@ -26,14 +25,6 @@ export function AvtaleInfo() {
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
     avtale?.tiltakstype.tiltakskode ? [avtale.tiltakstype.tiltakskode] : [],
   );
-
-  if (isLoading) {
-    return <Laster tekst="Laster avtale..." />;
-  }
-
-  if (!avtale) {
-    return <div>Fant ingen avtale</div>;
-  }
 
   return (
     <div data-testid="avtale_info-container">

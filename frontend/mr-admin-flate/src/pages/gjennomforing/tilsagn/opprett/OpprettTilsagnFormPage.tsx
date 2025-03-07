@@ -11,9 +11,9 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams, useSearchParams } from "react-router";
 import { usePotentialAvtale } from "../../../../api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "../../../../api/gjennomforing/useAdminGjennomforingById";
-import { Laster } from "../../../../components/laster/Laster";
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { godkjenteTilsagnQuery, tilsagnDefaultsQuery } from "./opprettTilsagnLoader";
+import { Laster } from "../../../../components/laster/Laster";
 
 function useHentData() {
   const [searchParams] = useSearchParams();
@@ -66,7 +66,7 @@ export function OpprettTilsagnFormPage() {
     },
   ];
 
-  if (!avtale || !gjennomforing) {
+  if (!avtale) {
     return <Laster tekst="Laster data..." />;
   }
 

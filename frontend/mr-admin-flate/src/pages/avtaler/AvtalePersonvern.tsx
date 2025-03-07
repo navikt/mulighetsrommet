@@ -1,7 +1,6 @@
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
 import { AvtaleDto, PersonopplysningData } from "@mr/api-client-v2";
 import { Alert, HelpText, HStack, List, VStack } from "@navikt/ds-react";
-import { Laster } from "../../components/laster/Laster";
 
 interface Props {
   avtale: AvtaleDto;
@@ -9,10 +8,6 @@ interface Props {
 
 export function AvtalePersonvern({ avtale }: Props) {
   const { data: personopplysninger } = usePersonopplysninger();
-
-  if (!avtale) {
-    return <Laster tekst="Laster avtale..." />;
-  }
 
   if (!avtale.personvernBekreftet) {
     return (
