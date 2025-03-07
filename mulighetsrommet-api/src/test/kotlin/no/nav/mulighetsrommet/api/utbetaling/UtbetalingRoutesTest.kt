@@ -50,7 +50,10 @@ class UtbetalingRoutesTest : FunSpec({
         engine: HttpClientEngine = CIO.create(),
     ) = createTestApplicationConfig().copy(
         database = databaseConfig,
-        auth = createAuthConfig(oauth, roles = listOf(generellRolle, avtaleSkrivRolle, gjennomforingerSkrivRolle, beslutterRolle)),
+        auth = createAuthConfig(
+            oauth,
+            roles = listOf(generellRolle, avtaleSkrivRolle, gjennomforingerSkrivRolle, beslutterRolle),
+        ),
         engine = engine,
     )
 
@@ -180,7 +183,7 @@ class UtbetalingRoutesTest : FunSpec({
             }
 
             val id = UtbetalingFixtures.utbetaling1.id
-            val response = client.post("/api/v1/intern/utbetaling/$id/delutbetaling/beslutt") {
+            val response = client.post("/api/v1/intern/delutbetalinger/$id/beslutt") {
                 val claims = mapOf(
                     "NAVident" to "ABC123",
                     "groups" to listOf(generellRolle.adGruppeId),
@@ -188,7 +191,7 @@ class UtbetalingRoutesTest : FunSpec({
                 bearerAuth(oauth.issueToken(claims = claims).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(
-                    BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(id = UUID.randomUUID()),
+                    BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
                 )
             }
             response.status shouldBe HttpStatusCode.Unauthorized
@@ -204,7 +207,7 @@ class UtbetalingRoutesTest : FunSpec({
             }
 
             val id = UtbetalingFixtures.utbetaling1.id
-            val response = client.post("/api/v1/intern/utbetaling/$id/delutbetaling/beslutt") {
+            val response = client.post("/api/v1/intern/delutbetalinger/$id/beslutt") {
                 val claims = mapOf(
                     "NAVident" to "ABC123",
                     "groups" to listOf(generellRolle.adGruppeId, beslutterRolle),
@@ -212,7 +215,7 @@ class UtbetalingRoutesTest : FunSpec({
                 bearerAuth(oauth.issueToken(claims = claims).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(
-                    BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest(id = UUID.randomUUID()),
+                    BesluttDelutbetalingRequest.GodkjentDelutbetalingRequest,
                 )
             }
             response.status shouldBe HttpStatusCode.Unauthorized

@@ -2009,29 +2009,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/TilsagnDto"
 
-  /api/v1/intern/utbetaling/{id}/delutbetaling:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    put:
-      tags:
-        - Utbetaling
-      operationId: upsertDelutbetaling
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/DelutbetalingRequest"
-      responses:
-        200:
-          description: OK
-        400:
-          description: Respons med valideringsfeil
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationError"
-
-  /api/v1/intern/utbetaling/{id}/delutbetaling/bulk:
+  /api/v1/intern/delutbetalinger:
     parameters:
       - $ref: "#/components/parameters/ID"
     put:
@@ -2053,7 +2031,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ValidationError"
 
-  /api/v1/intern/utbetaling/{id}/delutbetaling/beslutt:
+  /api/v1/intern/delutbetalinger/{id}/beslutt:
     parameters:
       - $ref: "#/components/parameters/ID"
     post:
@@ -6161,11 +6139,14 @@ components:
     OpprettDelutbetalingerRequest:
       type: object
       properties:
+        utbetalingId:
+          type: string
+          format: uuid
         delutbetalinger:
           type: array
           items:
             $ref: "#/components/schemas/DelutbetalingRequest"
-      required: [delutbetalinger]
+      required: [delutbetalinger, utbetalingId]
 
     OpprettManuellUtbetalingRequest:
       type: object
@@ -6211,10 +6192,7 @@ components:
       properties:
         besluttelse:
           $ref: "#/components/schemas/Besluttelse"
-        id:
-          type: string
-          format: uuid
-      required: [besluttelse, id]
+      required: [besluttelse]
 
     AvvistDelutbetalingRequest:
       type: object
@@ -6227,10 +6205,7 @@ components:
             type: string
         forklaring:
           type: [string, "null"]
-        id:
-          type: string
-          format: uuid
-      required: [besluttelse, aarsaker, forklaring, id]
+      required: [besluttelse, aarsaker, forklaring]
 
     Totrinnskontroll:
       type: object

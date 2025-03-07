@@ -168,53 +168,24 @@ class UtbetalingService(
     }
 
     fun opprettDelutbetalinger(
-        utbetalingId: UUID,
-        request: DelutbetalingBulkRequest,
-        navIdent: NavIdent,
-    ): StatusResponse<Unit> {
-        request.delutbetalinger.map { req ->
-            validateAndUpsertDelutbetaling(utbetalingId, req, navIdent).onLeft { return it.left() }
-        }
-        return Unit.right()
-    }
-
-    fun validateAndUpsertDelutbetaling(
-        utbetalingId: UUID,
-        request: DelutbetalingRequest,
+        request: OpprettDelutbetalingerRequest,
         navIdent: NavIdent,
     ): StatusResponse<Unit> = db.transaction {
-        val utbetaling = queries.utbetaling.get(utbetalingId)
-            ?: return NotFound("Utbetaling med id=$utbetalingId finnes ikke").left()
-        val tilsagn = queries.tilsagn.get(request.tilsagnId)
-            ?: return NotFound("Tilsagn med id=${request.tilsagnId} finnes ikke").left()
+        val utbetaling = queries.utbetaling.get(request.utbetalingId)
+            ?: return NotFound("Utbetaling med id=$request.utbetalingId finnes ikke").left()
 
-        val previous = queries.delutbetaling.get(request.id)
-        when (previous) {
-            is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling,
-            is DelutbetalingDto.DelutbetalingTilGodkjenning,
-            is DelutbetalingDto.DelutbetalingUtbetalt,
-            -> return BadRequest("Utbetaling kan ikke endres").left()
-
-            is DelutbetalingDto.DelutbetalingAvvist, null -> {}
+        request.delutbetalinger.map { req ->
+            validateAndUpsertDelutbetaling(req, utbetaling, navIdent).onLeft { return it.left() }
         }
-
-        val utbetaltBelop = queries.delutbetaling.getByUtbetalingId(utbetalingId)
-            .filter { it.tilsagnId != tilsagn.id }
-            .sumOf { it.belop }
-        val gjenstaendeBelop = utbetaling.beregning.output.belop - utbetaltBelop
-
-        UtbetalingValidator.validate(belop = request.belop, tilsagn = tilsagn, maxBelop = gjenstaendeBelop)
-            .onLeft { return ValidationError(errors = it).left() }
-
-        upsertDelutbetaling(utbetaling, tilsagn, request.id, request.belop, request.frigjorTilsagn, navIdent)
         return Unit.right()
     }
 
     fun besluttDelutbetaling(
+        id: UUID,
         request: BesluttDelutbetalingRequest,
         navIdent: NavIdent,
     ) = db.transaction {
-        val delutbetaling = queries.delutbetaling.get(request.id)
+        val delutbetaling = queries.delutbetaling.get(id)
             ?: throw IllegalArgumentException("Delutbetaling finnes ikke")
         when (request) {
             is BesluttDelutbetalingRequest.AvvistDelutbetalingRequest -> {
@@ -234,6 +205,36 @@ class UtbetalingService(
 
     fun getUtbetalingKompaktByGjennomforing(id: UUID): List<AdminUtbetalingKompakt> = db.session {
         queries.utbetaling.getByGjennomforing(id).map { utbetaling -> toAdminUtbetalingKompakt(utbetaling) }
+    }
+
+    private fun QueryContext.validateAndUpsertDelutbetaling(
+        request: DelutbetalingRequest,
+        utbetaling: UtbetalingDto,
+        navIdent: NavIdent,
+    ): StatusResponse<Unit> {
+        val tilsagn = queries.tilsagn.get(request.tilsagnId)
+            ?: return NotFound("Tilsagn med id=${request.tilsagnId} finnes ikke").left()
+
+        val previous = queries.delutbetaling.get(request.id)
+        when (previous) {
+            is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling,
+            is DelutbetalingDto.DelutbetalingTilGodkjenning,
+            is DelutbetalingDto.DelutbetalingUtbetalt,
+            -> return BadRequest("Utbetaling kan ikke endres").left()
+
+            is DelutbetalingDto.DelutbetalingAvvist, null -> {}
+        }
+
+        val utbetaltBelop = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+            .filter { it.tilsagnId != tilsagn.id }
+            .sumOf { it.belop }
+        val gjenstaendeBelop = utbetaling.beregning.output.belop - utbetaltBelop
+
+        UtbetalingValidator.validate(belop = request.belop, tilsagn = tilsagn, maxBelop = gjenstaendeBelop)
+            .onLeft { return ValidationError(errors = it).left() }
+
+        upsertDelutbetaling(utbetaling, tilsagn, request.id, request.belop, request.frigjorTilsagn, navIdent)
+        return Unit.right()
     }
 
     private fun QueryContext.toAdminUtbetalingKompakt(utbetaling: UtbetalingDto): AdminUtbetalingKompakt {
