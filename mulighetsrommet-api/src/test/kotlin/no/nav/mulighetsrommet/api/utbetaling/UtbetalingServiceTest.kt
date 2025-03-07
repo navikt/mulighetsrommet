@@ -97,6 +97,7 @@ class UtbetalingServiceTest : FunSpec({
             utbetaling.beregning.input shouldBe UtbetalingBeregningAft.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
                 sats = 20205,
+                stengt = setOf(),
                 deltakelser = setOf(
                     DeltakelsePerioder(
                         deltakelseId = domain.deltakere[0].id,
@@ -270,6 +271,58 @@ class UtbetalingServiceTest : FunSpec({
                             ),
                         ),
                     ),
+                )
+            }
+        }
+
+        test("overstyrer deltakelse-perioder når det er stengt hos arrangør") {
+            val domain = MulighetsrommetTestDomain(
+                gjennomforinger = listOf(AFT1),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltaker(
+                        AFT1.id,
+                        startDato = LocalDate.of(2024, 1, 1),
+                        sluttDato = LocalDate.of(2024, 2, 1),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                        deltakelsesprosent = 10.0,
+                        deltakelsesmengder = listOf(
+                            DeltakerDbo.Deltakelsesmengde(
+                                gyldigFra = LocalDate.of(2023, 1, 1),
+                                deltakelsesprosent = 20.0,
+                                opprettetTidspunkt = LocalDateTime.now(),
+                            ),
+                            DeltakerDbo.Deltakelsesmengde(
+                                gyldigFra = LocalDate.of(2024, 1, 15),
+                                deltakelsesprosent = 10.0,
+                                opprettetTidspunkt = LocalDateTime.now(),
+                            ),
+                        ),
+                    ),
+                ),
+            ) {
+                queries.gjennomforing.setStengtHosArrangor(
+                    AFT1.id,
+                    Periode(LocalDate.of(2023, 12, 10), LocalDate.of(2024, 1, 10)),
+                    "Ferie 1",
+                )
+                queries.gjennomforing.setStengtHosArrangor(
+                    AFT1.id,
+                    Periode(LocalDate.of(2024, 1, 20), LocalDate.of(2024, 2, 20)),
+                    "Ferie 2",
+                )
+                queries.gjennomforing.setStengtHosArrangor(
+                    AFT1.id,
+                    Periode(LocalDate.of(2024, 2, 20), LocalDate.of(2024, 3, 20)),
+                    "Fremtidig ferie",
+                )
+            }.initialize(database.db)
+
+            val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2024, 1, 1)).first()
+
+            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningAft.Input>().should {
+                it.stengt shouldBe setOf(
+                    StengtPeriode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 10), "Ferie 1"),
+                    StengtPeriode(LocalDate.of(2024, 1, 20), LocalDate.of(2024, 2, 1), "Ferie 2"),
                 )
             }
         }

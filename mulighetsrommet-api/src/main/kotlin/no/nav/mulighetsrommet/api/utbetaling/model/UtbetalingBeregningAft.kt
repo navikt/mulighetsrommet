@@ -9,6 +9,16 @@ import java.math.RoundingMode
 import java.time.LocalDate
 import java.util.*
 
+/**
+ * Presisjon underveis for å oppnå en god beregning av totalbeløpet.
+ */
+private const val CALCULATION_PRECISION = 20
+
+/**
+ * Presisjon for den delen av beregningen som blir med i output og tilgjengelig for innsyn, test, etc.
+ */
+private const val OUTPUT_PRECISION = 5
+
 @Serializable
 data class UtbetalingBeregningAft(
     override val input: Input,
@@ -19,6 +29,7 @@ data class UtbetalingBeregningAft(
     data class Input(
         val periode: Periode,
         val sats: Int,
+        val stengt: Set<StengtPeriode>,
         val deltakelser: Set<DeltakelsePerioder>,
     ) : UtbetalingBeregningInput()
 
@@ -30,43 +41,22 @@ data class UtbetalingBeregningAft(
 
     companion object {
         fun beregn(input: Input): UtbetalingBeregningAft {
-            val (periode, sats, deltakelser) = input
-            val totalDuration = periode.getDurationInDays().toBigDecimal()
+            val totalDuration = input.periode.getDurationInDays().toBigDecimal()
 
-            val manedsverk = deltakelser
+            val stengtHosArrangor = input.stengt.map { Periode(it.start, it.slutt) }
+
+            val manedsverk = input.deltakelser
                 .map { deltakelse ->
-                    val perioder = deltakelse.perioder.map { deltakelsePeriode ->
-                        val start = maxOf(periode.start, deltakelsePeriode.start)
-                        val slutt = minOf(periode.slutt, deltakelsePeriode.slutt)
-                        val overlapDuration = Periode(start, slutt).getDurationInDays().toBigDecimal()
-
-                        val overlapFraction = overlapDuration.divide(totalDuration, 2, RoundingMode.HALF_UP)
-
-                        val deltakelsesprosent = if (deltakelsePeriode.deltakelsesprosent < 50) {
-                            BigDecimal(50)
-                        } else {
-                            BigDecimal(100)
-                        }
-
-                        overlapFraction
-                            .multiply(deltakelsesprosent)
-                            .divide(BigDecimal(100), 2, RoundingMode.HALF_UP)
-                    }
-
-                    DeltakelseManedsverk(
-                        deltakelseId = deltakelse.deltakelseId,
-                        manedsverk = perioder.sumOf { it }.toDouble(),
-                    )
+                    calculateManedsverk(deltakelse, stengtHosArrangor, totalDuration)
                 }
                 .toSet()
 
-            // TODO: hvor nøyaktig skal utregning være?
             val belop = manedsverk
                 .fold(BigDecimal.ZERO) { sum, deltakelse ->
                     sum.add(BigDecimal(deltakelse.manedsverk))
                 }
-                .multiply(BigDecimal(sats))
-                .setScale(2, RoundingMode.HALF_UP)
+                .multiply(BigDecimal(input.sats))
+                .setScale(CALCULATION_PRECISION, RoundingMode.HALF_UP)
                 .toInt()
 
             val output = Output(
@@ -76,8 +66,78 @@ data class UtbetalingBeregningAft(
 
             return UtbetalingBeregningAft(input, output)
         }
+
+        private fun calculateManedsverk(
+            deltakelse: DeltakelsePerioder,
+            stengtHosArrangor: List<Periode>,
+            totalDuration: BigDecimal,
+        ): DeltakelseManedsverk {
+            val manedsverk = deltakelse.perioder
+                .flatMap { deltakelsePeriode ->
+                    overrideWithStengtHosArrangor(deltakelsePeriode, stengtHosArrangor)
+                }
+                .map { deltakelsePeriode ->
+                    calculateManedsverkFraction(deltakelsePeriode, totalDuration)
+                }
+                .sumOf { it }
+                .setScale(OUTPUT_PRECISION, RoundingMode.HALF_UP)
+                .toDouble()
+
+            return DeltakelseManedsverk(deltakelse.deltakelseId, manedsverk)
+        }
+
+        private fun overrideWithStengtHosArrangor(
+            deltakelsePeriode: DeltakelsePeriode,
+            stengtHosArrangor: List<Periode>,
+        ): List<DeltakelsePeriode> {
+            val periode = Periode(deltakelsePeriode.start, deltakelsePeriode.slutt)
+
+            val withStengtHosArrangor = stengtHosArrangor.flatMap { stengt ->
+                val stengtPeriode = stengt.intersect(periode) ?: return@flatMap listOf()
+
+                val beforeStengtPeriode = Periode.of(periode.start, stengtPeriode.start)
+                    ?.let { DeltakelsePeriode(it.start, it.slutt, deltakelsePeriode.deltakelsesprosent) }
+
+                val afterStengtPeriode = Periode.of(stengtPeriode.slutt, periode.slutt)
+                    ?.let { DeltakelsePeriode(it.start, it.slutt, deltakelsePeriode.deltakelsesprosent) }
+
+                listOfNotNull(beforeStengtPeriode, afterStengtPeriode)
+            }
+
+            return withStengtHosArrangor.ifEmpty { listOf(deltakelsePeriode) }
+        }
+
+        private fun calculateManedsverkFraction(
+            deltakelsePeriode: DeltakelsePeriode,
+            totalDuration: BigDecimal,
+        ): BigDecimal {
+            val overlapDuration = Periode(deltakelsePeriode.start, deltakelsePeriode.slutt)
+                .getDurationInDays()
+                .toBigDecimal()
+
+            val overlapFraction = overlapDuration.divide(totalDuration, CALCULATION_PRECISION, RoundingMode.HALF_UP)
+
+            val deltakelsesprosent = if (deltakelsePeriode.deltakelsesprosent < 50) {
+                BigDecimal(50)
+            } else {
+                BigDecimal(100)
+            }
+
+            return overlapFraction
+                .multiply(deltakelsesprosent)
+                .divide(BigDecimal(100), CALCULATION_PRECISION, RoundingMode.HALF_UP)
+        }
     }
 }
+
+@Serializable
+data class StengtPeriode(
+    @Serializable(with = LocalDateSerializer::class)
+    val start: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val slutt: LocalDate,
+    val beskrivelse: String,
+)
 
 @Serializable
 data class DeltakelsePerioder(

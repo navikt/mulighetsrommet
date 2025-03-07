@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
@@ -88,26 +89,28 @@ class UtbetalingService(
         utbetalingId: UUID,
         gjennomforingId: UUID,
         periode: Periode,
-    ): UtbetalingDbo {
+    ): UtbetalingDbo = db.session {
         val frist = periode.slutt.plusMonths(2)
-
-        val deltakere = getDeltakelser(gjennomforingId, periode)
 
         // TODO: burde også verifisere at start og slutt har samme pris
         val sats = ForhandsgodkjenteSatser.findSats(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, periode.start)
             ?: throw IllegalStateException("Sats mangler for periode $periode")
 
+        val gjennomforing = requireNotNull(queries.gjennomforing.get(gjennomforingId))
+        val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
+
+        val deltakelser = resolveDeltakelser(gjennomforingId, periode)
+
         val input = UtbetalingBeregningAft.Input(
             periode = periode,
             sats = sats,
-            deltakelser = deltakere,
+            stengt = stengtHosArrangor,
+            deltakelser = deltakelser,
         )
 
         val beregning = UtbetalingBeregningAft.beregn(input)
 
-        val forrigeKrav = db.session {
-            queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforingId)
-        }
+        val forrigeKrav = queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforingId)
 
         return UtbetalingDbo(
             id = utbetalingId,
@@ -382,7 +385,20 @@ class UtbetalingService(
         )
     }
 
-    private fun getDeltakelser(
+    private fun resolveStengtHosArrangor(
+        periode: Periode,
+        stengt: List<GjennomforingDto.StengtPeriode>,
+    ): Set<StengtPeriode> {
+        return stengt
+            .mapNotNull { stengt ->
+                Periode(stengt.start, stengt.slutt.plusDays(1)).intersect(periode)?.let {
+                    StengtPeriode(it.start, it.slutt, stengt.beskrivelse)
+                }
+            }
+            .toSet()
+    }
+
+    private fun resolveDeltakelser(
         gjennomforingId: UUID,
         periode: Periode,
     ): Set<DeltakelsePerioder> = db.session {
