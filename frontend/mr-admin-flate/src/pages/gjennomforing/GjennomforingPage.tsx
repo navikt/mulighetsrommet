@@ -46,6 +46,10 @@ export function GjennomforingPage() {
     }
   }
 
+  if (!gjennomforing) {
+    return null;
+  }
+
   const currentTab = getCurrentTab();
   const brodsmuler: (Brodsmule | undefined)[] = [
     {

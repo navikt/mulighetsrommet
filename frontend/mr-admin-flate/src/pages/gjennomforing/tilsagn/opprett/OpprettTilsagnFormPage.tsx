@@ -11,6 +11,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams, useSearchParams } from "react-router";
 import { useAvtale } from "../../../../api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "../../../../api/gjennomforing/useAdminGjennomforingById";
+import { Laster } from "../../../../components/laster/Laster";
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { godkjenteTilsagnQuery, tilsagnDefaultsQuery } from "./opprettTilsagnLoader";
 
@@ -47,6 +48,7 @@ function useHentData() {
 }
 
 export function OpprettTilsagnFormPage() {
+  const { gjennomforingId } = useParams();
   const { gjennomforing, avtale, defaults, godkjenteTilsagn } = useHentData();
 
   const brodsmuler: Array<Brodsmule | undefined> = [
@@ -56,15 +58,15 @@ export function OpprettTilsagnFormPage() {
     },
     {
       tittel: "Gjennomføring",
-      lenke: `/gjennomforinger/${gjennomforing.id}`,
+      lenke: `/gjennomforinger/${gjennomforingId}`,
     },
     {
       tittel: "Opprett tilsagn",
     },
   ];
 
-  if (!avtale) {
-    return <div>Fant ingen avtale</div>;
+  if (!avtale || !gjennomforing) {
+    return <Laster tekst="Laster data..." />;
   }
 
   return (

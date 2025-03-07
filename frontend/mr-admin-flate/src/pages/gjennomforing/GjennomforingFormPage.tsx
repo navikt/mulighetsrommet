@@ -15,12 +15,18 @@ import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "../../api/gjennomforing/useAdminGjennomforingById";
 import { QueryKeys } from "../../api/QueryKeys";
 
+function useGjennomforingFormData() {
+  const { data: gjennomforing } = useAdminGjennomforingById();
+  const { data: avtale } = useAvtale(gjennomforing?.avtaleId);
+  const { data: ansatt } = useHentAnsatt();
+
+  return { gjennomforing, avtale, ansatt };
+}
+
 export function GjennomforingFormPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { data: gjennomforing } = useAdminGjennomforingById();
-  const { data: avtale } = useAvtale();
-  const { data: ansatt } = useHentAnsatt();
+  const { gjennomforing, avtale, ansatt } = useGjennomforingFormData();
   const queryClient = useQueryClient();
 
   const redigeringsModus = gjennomforing && inneholderUrl(gjennomforing?.id);
@@ -30,6 +36,10 @@ export function GjennomforingFormPage() {
   };
 
   const isError = !avtale || !avtaleHarRegioner(avtale);
+
+  if (!avtale) {
+    return null;
+  }
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     {

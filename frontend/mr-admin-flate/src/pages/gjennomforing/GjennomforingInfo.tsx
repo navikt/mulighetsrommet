@@ -8,6 +8,7 @@ import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "../../api/gjennomforing/useAdminGjennomforingById";
 import { GjennomforingDetaljer } from "./GjennomforingDetaljer";
 import { GjennomforingKnapperad } from "./GjennomforingKnapperad";
+import { Laster } from "../../components/laster/Laster";
 
 function useGjennomforingInfoData() {
   const { data: gjennomforing } = useAdminGjennomforingById();
@@ -25,6 +26,10 @@ export function GjennomforingInfo() {
   const { gjennomforing, ansatt, avtale } = useGjennomforingInfoData();
 
   const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
+
+  if (!gjennomforing) {
+    return <Laster tekst="Laster gjennomføring..." />;
+  }
 
   return (
     <div data-testid="gjennomforing_info-container">

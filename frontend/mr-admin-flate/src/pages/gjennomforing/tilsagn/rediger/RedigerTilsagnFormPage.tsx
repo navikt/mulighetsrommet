@@ -14,7 +14,7 @@ import { useAdminGjennomforingById } from "../../../../api/gjennomforing/useAdmi
 import { tilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { godkjenteTilsagnQuery } from "../opprett/opprettTilsagnLoader";
-
+import { Laster } from "../../../../components/laster/Laster";
 function useRedigerTilsagnFormData() {
   const { gjennomforingId, tilsagnId } = useParams();
   const { data: avtale } = useAvtale();
@@ -33,6 +33,7 @@ function useRedigerTilsagnFormData() {
 }
 
 export function RedigerTilsagnFormPage() {
+  const { gjennomforingId } = useParams();
   const { avtale, gjennomforing, tilsagnData, godkjenteTilsagn } = useRedigerTilsagnFormData();
 
   const tilsagn = tilsagnData.data;
@@ -44,7 +45,7 @@ export function RedigerTilsagnFormPage() {
     },
     {
       tittel: "Gjennomføring",
-      lenke: `/gjennomforinger/${gjennomforing.id}`,
+      lenke: `/gjennomforinger/${gjennomforingId}`,
     },
     {
       tittel: "Rediger tilsagn",
@@ -58,11 +59,11 @@ export function RedigerTilsagnFormPage() {
     periodeSlutt: tilsagn.periodeSlutt,
     kostnadssted: tilsagn.kostnadssted.enhetsnummer,
     beregning: tilsagn.beregning.input,
-    gjennomforingId: gjennomforing.id,
+    gjennomforingId: gjennomforingId!,
   };
 
-  if (!avtale) {
-    return <div>Fant ingen avtale</div>;
+  if (!avtale || !gjennomforing) {
+    return <Laster tekst="Laster data..." />;
   }
 
   return (

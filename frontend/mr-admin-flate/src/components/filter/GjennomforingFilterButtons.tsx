@@ -51,7 +51,7 @@ export function GjennomforingFilterButtons({ avtale }: Props) {
               dataTestid="opprett-ny-tiltaksgjenomforing_knapp"
               onClick={() => setGjennomforingFane("detaljer")}
             >
-              Opprett ny tiltaksgjennomføring
+              Opprett ny gjennomføring
             </Lenkeknapp>
             {avtaleErAftEllerVta && (
               <>

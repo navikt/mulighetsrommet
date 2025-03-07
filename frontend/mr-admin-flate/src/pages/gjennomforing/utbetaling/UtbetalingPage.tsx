@@ -45,7 +45,7 @@ import {
 
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { useAdminGjennomforingById } from "../../../api/gjennomforing/useAdminGjennomforingById";
-
+import { Laster } from "../../../components/laster/Laster";
 function useUtbetalingPageData() {
   const { utbetalingId } = useParams();
 
@@ -67,6 +67,7 @@ function useUtbetalingPageData() {
 }
 
 export function UtbetalingPage() {
+  const { gjennomforingId } = useParams();
   const { gjennomforing, ansatt, historikk, utbetaling, delutbetalinger, tilsagn } =
     useUtbetalingPageData();
 
@@ -106,11 +107,11 @@ export function UtbetalingPage() {
     { tittel: "Gjennomføringer", lenke: `/gjennomforinger` },
     {
       tittel: "Gjennomføring",
-      lenke: `/gjennomforinger/${gjennomforing.id}`,
+      lenke: `/gjennomforinger/${gjennomforingId}`,
     },
     {
       tittel: "Utbetalinger",
-      lenke: `/gjennomforinger/${gjennomforing.id}/utbetalinger`,
+      lenke: `/gjennomforinger/${gjennomforingId}/utbetalinger`,
     },
     { tittel: "Utbetaling" },
   ];
@@ -140,7 +141,7 @@ export function UtbetalingPage() {
           ? utbetaling.beregning.belop - (belopPerTilsagn.get(defaultTilsagn.id) ?? 0)
           : 0;
     return {
-      gjennomforingId: gjennomforing.id,
+      gjennomforingId: gjennomforingId!,
       type: TilsagnType.EKSTRATILSAGN,
       prismodell: Prismodell.FRI,
       belop: defaultBelop,
@@ -203,6 +204,10 @@ export function UtbetalingPage() {
         },
       });
     }
+  }
+
+  if (!gjennomforing) {
+    return <Laster tekst="Laster gjennomføring..." />;
   }
 
   return (

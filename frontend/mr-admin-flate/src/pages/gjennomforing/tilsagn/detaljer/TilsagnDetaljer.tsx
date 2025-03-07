@@ -41,6 +41,7 @@ import { AvvistAlert, TilAnnulleringAlert } from "../AarsakerAlert";
 import { TilsagnTag } from "../TilsagnTag";
 import { TilsagnDetaljerForhandsgodkjent } from "./TilsagnDetaljerForhandsgodkjent";
 import { tilsagnHistorikkQuery, tilsagnQuery } from "./tilsagnDetaljerLoader";
+import { Laster } from "../../../../components/laster/Laster";
 
 function useTilsagnDetaljer() {
   const { tilsagnId } = useParams();
@@ -54,6 +55,7 @@ function useTilsagnDetaljer() {
 }
 
 export function TilsagnDetaljer() {
+  const { gjennomforingId } = useParams();
   const { gjennomforing, tilsagn, ansatt, historikk } = useTilsagnDetaljer();
 
   const besluttMutation = useBesluttTilsagn();
@@ -63,6 +65,10 @@ export function TilsagnDetaljer() {
   const [tilAnnulleringModalOpen, setTilAnnulleringModalOpen] = useState<boolean>(false);
   const slettTilsagnModalRef = useRef<HTMLDialogElement>(null);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
+
+  if (!gjennomforing) {
+    return <Laster tekst="Laster gjennomføring..." />;
+  }
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     {
@@ -83,7 +89,7 @@ export function TilsagnDetaljer() {
   ];
 
   function navigerTilTilsagnTabell() {
-    navigate(`/gjennomforinger/${gjennomforing.id}/tilsagn`);
+    navigate(`/gjennomforinger/${gjennomforingId}/tilsagn`);
   }
 
   function besluttTilsagn(request: BesluttTilsagnRequest) {
