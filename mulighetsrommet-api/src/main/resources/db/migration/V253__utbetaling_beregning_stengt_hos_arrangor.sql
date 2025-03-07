@@ -1,3 +1,6 @@
+drop view if exists utbetaling_aft_view;
+drop view if exists utbetaling_dto_view;
+
 create table utbetaling_stengt_hos_arrangor
 (
     utbetaling_id uuid      not null references utbetaling (id),
