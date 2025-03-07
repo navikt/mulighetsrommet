@@ -18,7 +18,7 @@ import org.slf4j.MDC
 
 fun Application.configureStatusPages() {
     fun logException(statusCode: HttpStatusCode, cause: Throwable, call: ApplicationCall) {
-        val message = "${statusCode.description} (${statusCode.value}) on method: ${call.request.httpMethod.value} ${call.request.path()}: ${cause.message}"
+        val message = "${statusCode.description} (${statusCode.value}) on method: ${call.request.httpMethod.value} ${call.request.path()}: ${cause.message} (se stacktrace i SecureLogs)"
         SecureLog.logger.error(message, cause)
         when {
             statusCode.value >= 500 -> log.error(message)
