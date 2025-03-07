@@ -1,11 +1,13 @@
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
-import { PersonopplysningData } from "@mr/api-client-v2";
+import { AvtaleDto, PersonopplysningData } from "@mr/api-client-v2";
 import { Alert, HelpText, HStack, List, VStack } from "@navikt/ds-react";
-import { useAvtale } from "../../api/avtaler/useAvtale";
 import { Laster } from "../../components/laster/Laster";
 
-export function AvtalePersonvern() {
-  const { data: avtale } = useAvtale();
+interface Props {
+  avtale: AvtaleDto;
+}
+
+export function AvtalePersonvern({ avtale }: Props) {
   const { data: personopplysninger } = usePersonopplysninger();
 
   if (!avtale) {

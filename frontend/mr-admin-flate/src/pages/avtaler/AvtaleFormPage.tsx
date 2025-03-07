@@ -8,20 +8,19 @@ import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { inneholderUrl } from "@/utils/Utils";
 import { Heading } from "@navikt/ds-react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router";
-import { ansattQuery } from "../../api/ansatt/ansattQuery";
+import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { QueryKeys } from "../../api/QueryKeys";
-import { Laster } from "../../components/laster/Laster";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 
 export function AvtaleFormPage() {
   const navigate = useNavigate();
   const { data: avtale } = useAvtale();
   const { data: tiltakstyper } = useTiltakstyper();
-  const { data: ansatt } = useQuery({ ...ansattQuery });
+  const { data: ansatt } = useHentAnsatt();
   const { data: enheter } = useNavEnheter();
 
   const queryClient = useQueryClient();
@@ -40,10 +39,6 @@ export function AvtaleFormPage() {
       tittel: redigeringsModus ? "Rediger avtale" : "Ny avtale",
     },
   ];
-
-  if (!tiltakstyper || !ansatt || !enheter) {
-    return <Laster tekst="Laster data..." />;
-  }
 
   return (
     <main>

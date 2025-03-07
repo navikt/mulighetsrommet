@@ -1,7 +1,7 @@
-import { useApiQuery } from "@mr/frontend-common";
-import { useGetAvtaleIdFromUrl } from "@/hooks/useGetAvtaleIdFromUrl";
 import { QueryKeys } from "@/api/QueryKeys";
+import { useGetAvtaleIdFromUrl } from "@/hooks/useGetAvtaleIdFromUrl";
 import { AvtalerService } from "@mr/api-client-v2";
+import { useApiQuery } from "@mr/frontend-common";
 
 export function useAvtale(overstyrAvtaleId?: string) {
   const avtaleIdFromUrl = useGetAvtaleIdFromUrl();
@@ -9,7 +9,9 @@ export function useAvtale(overstyrAvtaleId?: string) {
 
   return useApiQuery({
     queryKey: QueryKeys.avtale(avtaleId),
-    queryFn: () => AvtalerService.getAvtale({ path: { id: avtaleId! } }),
+    queryFn: async () => {
+      return AvtalerService.getAvtale({ path: { id: avtaleId! } });
+    },
     enabled: !!avtaleId,
   });
 }

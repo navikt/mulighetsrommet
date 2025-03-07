@@ -7,15 +7,14 @@ import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { Prismodell, TilsagnType } from "@mr/api-client-v2";
 import { Alert, Heading, VStack } from "@navikt/ds-react";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams, useSearchParams } from "react-router";
 import { useAvtale } from "../../../../api/avtaler/useAvtale";
-import { Laster } from "../../../../components/laster/Laster";
+import { useAdminGjennomforingById } from "../../../../api/gjennomforing/useAdminGjennomforingById";
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
 import { godkjenteTilsagnQuery, tilsagnDefaultsQuery } from "./opprettTilsagnLoader";
-import { useAdminGjennomforingById } from "../../../../api/gjennomforing/useAdminGjennomforingById";
 
-export function OpprettTilsagnFormPage() {
+function useHentData() {
   const [searchParams] = useSearchParams();
   const type = (searchParams.get("type") as TilsagnType) ?? TilsagnType.TILSAGN;
   const periodeStart = searchParams.get("periodeStart");
@@ -29,7 +28,7 @@ export function OpprettTilsagnFormPage() {
   const { gjennomforingId } = useParams();
   const { data: gjennomforing } = useAdminGjennomforingById();
   const { data: avtale } = useAvtale(gjennomforing?.avtaleId);
-  const { data: defaults } = useQuery({
+  const { data: defaults } = useSuspenseQuery({
     ...tilsagnDefaultsQuery({
       gjennomforingId,
       type,
@@ -40,13 +39,15 @@ export function OpprettTilsagnFormPage() {
       kostnadssted,
     }),
   });
-  const { data: godkjenteTilsagn } = useQuery({
+  const { data: godkjenteTilsagn } = useSuspenseQuery({
     ...godkjenteTilsagnQuery(gjennomforingId),
   });
 
-  if (!gjennomforing || !avtale || !defaults || !godkjenteTilsagn) {
-    return <Laster tekst="Laster gjennomføring..." />;
-  }
+  return { gjennomforing, avtale, defaults, godkjenteTilsagn };
+}
+
+export function OpprettTilsagnFormPage() {
+  const { gjennomforing, avtale, defaults, godkjenteTilsagn } = useHentData();
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     {
@@ -61,6 +62,10 @@ export function OpprettTilsagnFormPage() {
       tittel: "Opprett tilsagn",
     },
   ];
+
+  if (!avtale) {
+    return <div>Fant ingen avtale</div>;
+  }
 
   return (
     <main>

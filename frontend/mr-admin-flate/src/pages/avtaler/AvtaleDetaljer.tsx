@@ -10,17 +10,19 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { avtaletypeTilTekst, formaterDato } from "@/utils/Utils";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
-import { Avtaletype, NavEnhet } from "@mr/api-client-v2";
+import { AvtaleDto, Avtaletype, NavEnhet } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
 import { Fragment } from "react";
 import { Link } from "react-router";
-import { useAvtale } from "../../api/avtaler/useAvtale";
 import { Laster } from "../../components/laster/Laster";
-export function AvtaleDetaljer() {
-  const { data: avtale } = useAvtale();
 
+interface Props {
+  avtale: AvtaleDto;
+}
+
+export function AvtaleDetaljer({ avtale }: Props) {
   function sorterPaRegionsnavn(a: { region: NavEnhet }, b: { region: NavEnhet }) {
     return a.region.navn.localeCompare(b.region.navn);
   }

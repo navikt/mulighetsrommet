@@ -3,12 +3,11 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { KnapperadContainer } from "@/pages/KnapperadContainer";
 import { Avtaletype, TilsagnService, TilsagnType } from "@mr/api-client-v2";
 import { Alert, Button, Dropdown } from "@navikt/ds-react";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import { useAvtale } from "../../../../api/avtaler/useAvtale";
-import { Laster } from "../../../../components/laster/Laster";
-import { TilsagnTabell } from "./TilsagnTabell";
 import { useAdminGjennomforingById } from "../../../../api/gjennomforing/useAdminGjennomforingById";
+import { TilsagnTabell } from "./TilsagnTabell";
 
 function tilsagnForGjennomforingQuery(gjennomforingId?: string) {
   return {
@@ -22,7 +21,7 @@ export function TilsagnForGjennomforingContainer() {
   const { gjennomforingId } = useParams();
   const { data: gjennomforing } = useAdminGjennomforingById();
   const { data: avtale } = useAvtale(gjennomforing?.avtaleId);
-  const { data: tilsagnForGjennomforing } = useQuery({
+  const { data: tilsagnForGjennomforing } = useSuspenseQuery({
     ...tilsagnForGjennomforingQuery(gjennomforingId),
   });
 
@@ -32,10 +31,6 @@ export function TilsagnForGjennomforingContainer() {
       : [TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN];
 
   const navigate = useNavigate();
-
-  if (!tilsagnForGjennomforing) {
-    return <Laster tekst="Laster tilsagn..." />;
-  }
 
   return (
     <>

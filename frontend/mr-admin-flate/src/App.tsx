@@ -35,12 +35,15 @@ import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnD
 import { OpprettTilsagnFormPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnFormPage";
 import { RedigerTilsagnFormPage } from "./pages/gjennomforing/tilsagn/rediger/RedigerTilsagnFormPage";
 import { OpprettUtbetalingPage } from "./pages/gjennomforing/utbetaling/OpprettUtbetalingPage";
-import { UtbetalingPageWrapper } from "./pages/gjennomforing/utbetaling/UtbetalingPage";
 import { UtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/UtbetalingerForGjennomforingContainer";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
+import { Suspense } from "react";
+import { Laster } from "./components/laster/Laster";
+import { InlineErrorBoundary } from "./ErrorBoundary";
+import { UtbetalingPage } from "./pages/gjennomforing/utbetaling/UtbetalingPage";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -84,7 +87,11 @@ export function App() {
         <AdministratorHeader />
       </Page.Block>
       <Page.Block as="main" className="max-w-[1920px]">
-        <Outlet />
+        <Suspense fallback={<Laster tekst="Laster..." />}>
+          <InlineErrorBoundary>
+            <Outlet />
+          </InlineErrorBoundary>
+        </Suspense>
       </Page.Block>
     </Page>
   );
@@ -259,7 +266,7 @@ const router = (queryClient: QueryClient) => {
           },
           {
             path: "gjennomforinger/:gjennomforingId/utbetalinger/:utbetalingId",
-            element: <UtbetalingPageWrapper />,
+            element: <UtbetalingPage />,
             errorElement: <ErrorPage />,
           },
           {

@@ -24,14 +24,10 @@ function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
 export function AvtalePage() {
   const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
-  const { data: avtale } = useAvtale();
+  const { data: avtale, isLoading } = useAvtale();
 
   const brodsmuler = useAvtaleBrodsmuler(avtale?.id);
   useTitle(`Avtale ${avtale?.navn ? `- ${avtale.navn}` : ""}`);
-
-  if (!avtale) {
-    return <Laster tekst="Laster avtale..." />;
-  }
 
   const currentTab = () => {
     if (pathname.includes("gjennomforinger")) {
@@ -40,6 +36,14 @@ export function AvtalePage() {
       return "avtale";
     }
   };
+
+  if (isLoading) {
+    return <Laster tekst="Laster avtale..." />;
+  }
+
+  if (!avtale) {
+    return <div>Fant ingen avtale</div>;
+  }
 
   return (
     <>

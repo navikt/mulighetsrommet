@@ -39,6 +39,7 @@ export function GjennomforingerForAvtalePage() {
             skjulFilter={{
               tiltakstype: true,
             }}
+            avtale={avtale}
           />
         }
         lagredeFilter={
@@ -59,7 +60,7 @@ export function GjennomforingerForAvtalePage() {
             setTagsHeight={setTagsHeight}
           />
         }
-        buttons={<GjennomforingFilterButtons />}
+        buttons={<GjennomforingFilterButtons avtale={avtale} />}
         table={
           <GjennomforingTable
             skjulKolonner={{

@@ -10,19 +10,13 @@ import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { formaterDato } from "@/utils/Utils";
 import {
-  DelutbetalingDto,
-  Endringshistorikk,
   FieldError,
-  GjennomforingDto,
-  NavAnsatt,
   NavAnsattRolle,
   OpprettDelutbetalingerRequest,
   Prismodell,
   TilsagnDefaultsRequest,
-  TilsagnDto,
   TilsagnStatus,
   TilsagnType,
-  UtbetalingKompakt,
 } from "@mr/api-client-v2";
 import { formaterNOK, isValidationError } from "@mr/frontend-common/utils/utils";
 import { BankNoteIcon, PencilFillIcon, PiggybankIcon } from "@navikt/aksel-icons";
@@ -49,62 +43,33 @@ import {
   utbetalingQuery,
 } from "./utbetalingPageLoader";
 
-import { Laster } from "@/components/laster/Laster";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { Suspense } from "react";
+import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { useAdminGjennomforingById } from "../../../api/gjennomforing/useAdminGjennomforingById";
 
-function UtbetalingPageContent() {
+function useUtbetalingPageData() {
   const { utbetalingId } = useParams();
 
   const { data: gjennomforing } = useAdminGjennomforingById();
   const { data: ansatt } = useHentAnsatt();
-  const { data: historikk } = useSuspenseQuery(utbetalingHistorikkQuery(utbetalingId));
-  const { data: utbetaling } = useSuspenseQuery(utbetalingQuery(utbetalingId));
-  const { data: delutbetalinger } = useSuspenseQuery(delutbetalingerQuery(utbetalingId));
-  const { data: tilsagn } = useSuspenseQuery(tilsagnTilUtbetalingQuery(utbetalingId));
+  const { data: historikk } = useApiSuspenseQuery(utbetalingHistorikkQuery(utbetalingId));
+  const { data: utbetaling } = useApiSuspenseQuery(utbetalingQuery(utbetalingId));
+  const { data: delutbetalinger } = useApiSuspenseQuery(delutbetalingerQuery(utbetalingId));
+  const { data: tilsagn } = useApiSuspenseQuery(tilsagnTilUtbetalingQuery(utbetalingId));
 
-  if (!gjennomforing || !ansatt || !historikk || !utbetaling || !delutbetalinger || !tilsagn) {
-    return <Laster />;
-  }
-
-  return (
-    <UtbetalingPage
-      gjennomforing={gjennomforing}
-      ansatt={ansatt}
-      historikk={historikk.data}
-      utbetaling={utbetaling.data}
-      delutbetalinger={delutbetalinger.data}
-      tilsagn={tilsagn.data}
-    />
-  );
+  return {
+    gjennomforing,
+    ansatt,
+    historikk,
+    utbetaling,
+    delutbetalinger,
+    tilsagn,
+  };
 }
 
-export function UtbetalingPageWrapper() {
-  return (
-    <Suspense fallback={<Laster tekst="Laster utbetaling..." />}>
-      <UtbetalingPageContent />
-    </Suspense>
-  );
-}
+export function UtbetalingPage() {
+  const { gjennomforing, ansatt, historikk, utbetaling, delutbetalinger, tilsagn } =
+    useUtbetalingPageData();
 
-interface UtbetalingPageProps {
-  gjennomforing: GjennomforingDto;
-  ansatt: NavAnsatt;
-  historikk: Endringshistorikk;
-  utbetaling: UtbetalingKompakt;
-  delutbetalinger: DelutbetalingDto[];
-  tilsagn: TilsagnDto[];
-}
-
-export function UtbetalingPage({
-  gjennomforing,
-  ansatt,
-  historikk,
-  utbetaling,
-  delutbetalinger,
-  tilsagn,
-}: UtbetalingPageProps) {
   const [belopPerTilsagn, setBelopPerTilsagn] = useState<Map<string, number>>(
     new Map(
       tilsagn

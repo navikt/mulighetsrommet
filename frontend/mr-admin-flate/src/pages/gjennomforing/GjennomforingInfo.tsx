@@ -6,20 +6,25 @@ import { useAtom } from "jotai";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "../../api/gjennomforing/useAdminGjennomforingById";
-import { Laster } from "../../components/laster/Laster";
 import { GjennomforingDetaljer } from "./GjennomforingDetaljer";
 import { GjennomforingKnapperad } from "./GjennomforingKnapperad";
 
-export function GjennomforingInfo() {
+function useGjennomforingInfoData() {
   const { data: gjennomforing } = useAdminGjennomforingById();
   const { data: ansatt } = useHentAnsatt();
   const { data: avtale } = useAvtale(gjennomforing?.avtaleId);
 
-  const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
+  return {
+    gjennomforing,
+    ansatt,
+    avtale,
+  };
+}
 
-  if (!gjennomforing || !ansatt || !avtale) {
-    return <Laster tekst="Laster gjennomføring..." />;
-  }
+export function GjennomforingInfo() {
+  const { gjennomforing, ansatt, avtale } = useGjennomforingInfoData();
+
+  const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
 
   return (
     <div data-testid="gjennomforing_info-container">

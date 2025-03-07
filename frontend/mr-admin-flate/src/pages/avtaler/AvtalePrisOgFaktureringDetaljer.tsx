@@ -7,16 +7,12 @@ import { formaterDato } from "@/utils/Utils";
 import { AvtaleDto, Prismodell } from "@mr/api-client-v2";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
 import { Box, HStack, VStack } from "@navikt/ds-react";
-import { useAvtale } from "../../api/avtaler/useAvtale";
-import { Laster } from "../../components/laster/Laster";
 
-export function AvtalePrisOgFaktureringDetaljer() {
-  const { data: avtale } = useAvtale();
+interface Props {
+  avtale: AvtaleDto;
+}
 
-  if (!avtale) {
-    return <Laster tekst="Laster avtale..." />;
-  }
-
+export function AvtalePrisOgFaktureringDetaljer({ avtale }: Props) {
   const prismodell = avtale.prismodell;
 
   return (

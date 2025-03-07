@@ -7,29 +7,35 @@ import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { TilsagnRequest } from "@mr/api-client-v2";
 import { Alert, Heading, VStack } from "@navikt/ds-react";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import { useAvtale } from "../../../../api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "../../../../api/gjennomforing/useAdminGjennomforingById";
-import { Laster } from "../../../../components/laster/Laster";
 import { tilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
-import { godkjenteTilsagnQuery } from "../opprett/opprettTilsagnLoader";
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
-export function RedigerTilsagnFormPage() {
-  const { gjennomforingId, tilsagnId } = useParams();
+import { godkjenteTilsagnQuery } from "../opprett/opprettTilsagnLoader";
 
-  const { data: avtale } = useAvtale(gjennomforingId);
+function useRedigerTilsagnFormData() {
+  const { gjennomforingId, tilsagnId } = useParams();
+  const { data: avtale } = useAvtale();
   const { data: gjennomforing } = useAdminGjennomforingById();
-  const { data: tilsagnData } = useQuery({ ...tilsagnQuery(tilsagnId) });
-  const { data: godkjenteTilsagn } = useQuery({
+  const { data: tilsagnData } = useSuspenseQuery({ ...tilsagnQuery(tilsagnId) });
+  const { data: godkjenteTilsagn } = useSuspenseQuery({
     ...godkjenteTilsagnQuery(gjennomforingId),
   });
 
-  const tilsagn = tilsagnData?.data;
+  return {
+    avtale,
+    gjennomforing,
+    tilsagnData,
+    godkjenteTilsagn,
+  };
+}
 
-  if (!gjennomforing || !tilsagn || !godkjenteTilsagn || !avtale) {
-    return <Laster />;
-  }
+export function RedigerTilsagnFormPage() {
+  const { avtale, gjennomforing, tilsagnData, godkjenteTilsagn } = useRedigerTilsagnFormData();
+
+  const tilsagn = tilsagnData.data;
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     {
@@ -54,6 +60,10 @@ export function RedigerTilsagnFormPage() {
     beregning: tilsagn.beregning.input,
     gjennomforingId: gjennomforing.id,
   };
+
+  if (!avtale) {
+    return <div>Fant ingen avtale</div>;
+  }
 
   return (
     <main>

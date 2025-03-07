@@ -13,19 +13,19 @@ import {
   TILTAKSGJENNOMFORING_STATUS_OPTIONS,
   tiltakstypeOptions,
 } from "@/utils/filterUtils";
-import { ArrangorTil, NavEnhet } from "@mr/api-client-v2";
+import { ArrangorTil, AvtaleDto, NavEnhet } from "@mr/api-client-v2";
 import { FilterAccordionHeader, FilterSkeleton, NavEnhetFilter } from "@mr/frontend-common";
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { useEffect } from "react";
 import { CheckboxList } from "./CheckboxList";
-import { useAvtale } from "../../api/avtaler/useAvtale";
 
 type Filters = "tiltakstype";
 
 interface Props {
   filterAtom: WritableAtom<GjennomforingFilterProps, [newValue: GjennomforingFilterProps], void>;
   skjulFilter?: Record<Filters, boolean>;
+  avtale?: AvtaleDto;
 }
 
 function loggBrukAvFilter(filter: string, value: any) {
@@ -38,10 +38,9 @@ function loggBrukAvFilter(filter: string, value: any) {
   });
 }
 
-export function GjennomforingFilter({ filterAtom, skjulFilter }: Props) {
+export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const [accordionsOpen, setAccordionsOpen] = useAtom(gjennomforingFilterAccordionAtom);
-  const { data: avtale } = useAvtale();
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
   const { data: regioner, isLoading: isLoadingRegioner } = useRegioner();
   const { data: arrangorer, isLoading: isLoadingArrangorer } = useArrangorer(

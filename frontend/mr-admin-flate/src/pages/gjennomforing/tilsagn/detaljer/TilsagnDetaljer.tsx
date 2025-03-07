@@ -32,23 +32,29 @@ import {
   TrashIcon,
 } from "@navikt/aksel-icons";
 import { ActionMenu, Alert, BodyShort, Box, Button, Heading, HStack } from "@navikt/ds-react";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { useHentAnsatt } from "../../../../api/ansatt/useHentAnsatt";
 import { useAdminGjennomforingById } from "../../../../api/gjennomforing/useAdminGjennomforingById";
-import { Laster } from "../../../../components/laster/Laster";
 import { AvvistAlert, TilAnnulleringAlert } from "../AarsakerAlert";
 import { TilsagnTag } from "../TilsagnTag";
 import { TilsagnDetaljerForhandsgodkjent } from "./TilsagnDetaljerForhandsgodkjent";
 import { tilsagnHistorikkQuery, tilsagnQuery } from "./tilsagnDetaljerLoader";
-export function TilsagnDetaljer() {
-  const { gjennomforingId, tilsagnId } = useParams();
+
+function useTilsagnDetaljer() {
+  const { tilsagnId } = useParams();
 
   const { data: gjennomforing } = useAdminGjennomforingById();
-  const { data: tilsagn } = useQuery({ ...tilsagnQuery(tilsagnId) });
+  const { data: tilsagn } = useSuspenseQuery({ ...tilsagnQuery(tilsagnId) });
   const { data: ansatt } = useHentAnsatt();
-  const { data: historikk } = useQuery({ ...tilsagnHistorikkQuery(tilsagnId) });
+  const { data: historikk } = useSuspenseQuery({ ...tilsagnHistorikkQuery(tilsagnId) });
+
+  return { gjennomforing, tilsagn, ansatt, historikk };
+}
+
+export function TilsagnDetaljer() {
+  const { gjennomforing, tilsagn, ansatt, historikk } = useTilsagnDetaljer();
 
   const besluttMutation = useBesluttTilsagn();
   const tilAnnulleringMutation = useTilsagnTilAnnullering();
@@ -65,11 +71,11 @@ export function TilsagnDetaljer() {
     },
     {
       tittel: "Gjennomføring",
-      lenke: `/gjennomforinger/${gjennomforingId}`,
+      lenke: `/gjennomforinger/${gjennomforing.id}`,
     },
     {
       tittel: "Tilsagnsoversikt",
-      lenke: `/gjennomforinger/${gjennomforingId}/tilsagn`,
+      lenke: `/gjennomforinger/${gjennomforing.id}/tilsagn`,
     },
     {
       tittel: "Tilsagn",
@@ -77,7 +83,7 @@ export function TilsagnDetaljer() {
   ];
 
   function navigerTilTilsagnTabell() {
-    navigate(`/gjennomforinger/${gjennomforingId}/tilsagn`);
+    navigate(`/gjennomforinger/${gjennomforing.id}/tilsagn`);
   }
 
   function besluttTilsagn(request: BesluttTilsagnRequest) {
@@ -128,10 +134,6 @@ export function TilsagnDetaljer() {
     tilsagn?.data.status === TilsagnStatus.RETURNERT ||
     (tilsagn?.data.status === TilsagnStatus.GODKJENT &&
       ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV));
-
-  if (!gjennomforing || !tilsagn || !ansatt || !historikk) {
-    return <Laster tekst="Laster tilsagn..." />;
-  }
 
   return (
     <main>

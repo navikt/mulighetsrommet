@@ -9,13 +9,14 @@ import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useAvtale } from "../../api/avtaler/useAvtale";
-import { Laster } from "../../components/laster/Laster";
 import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
 import { AvtalePersonvern } from "./AvtalePersonvern";
+import { Laster } from "../../components/laster/Laster";
+
 export function AvtaleInfo() {
   const { data: ansatt } = useHentAnsatt();
-  const { data: avtale } = useAvtale();
+  const { data: avtale, isLoading } = useAvtale();
 
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 
@@ -24,8 +25,12 @@ export function AvtaleInfo() {
     avtale?.tiltakstype.tiltakskode ? [avtale.tiltakstype.tiltakskode] : [],
   );
 
-  if (!avtale || !ansatt) {
+  if (isLoading) {
     return <Laster tekst="Laster avtale..." />;
+  }
+
+  if (!avtale) {
+    return <div>Fant ingen avtale</div>;
   }
 
   return (
@@ -61,19 +66,19 @@ export function AvtaleInfo() {
           </Tabs.List>
           <Tabs.Panel value="detaljer">
             <InlineErrorBoundary>
-              <AvtaleDetaljer />
+              <AvtaleDetaljer avtale={avtale} />
             </InlineErrorBoundary>
           </Tabs.Panel>
           {enableOkonomi && (
             <Tabs.Panel value="pris-og-fakturering">
               <InlineErrorBoundary>
-                <AvtalePrisOgFaktureringDetaljer />
+                <AvtalePrisOgFaktureringDetaljer avtale={avtale} />
               </InlineErrorBoundary>
             </Tabs.Panel>
           )}
           <Tabs.Panel value="personvern">
             <InlineErrorBoundary>
-              <AvtalePersonvern />
+              <AvtalePersonvern avtale={avtale} />
             </InlineErrorBoundary>
           </Tabs.Panel>
           <Tabs.Panel value="redaksjonelt-innhold">

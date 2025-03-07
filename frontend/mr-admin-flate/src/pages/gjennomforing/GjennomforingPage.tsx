@@ -46,10 +46,6 @@ export function GjennomforingPage() {
     }
   }
 
-  if (!gjennomforing) {
-    return <Laster tekst="Laster gjennomføring..." />;
-  }
-
   const currentTab = getCurrentTab();
   const brodsmuler: (Brodsmule | undefined)[] = [
     {
