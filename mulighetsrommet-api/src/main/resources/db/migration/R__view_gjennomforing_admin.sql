@@ -1,4 +1,5 @@
--- Recreate view
+-- ${flyway:timestamp}
+
 drop view if exists gjennomforing_admin_dto_view;
 
 create view gjennomforing_admin_dto_view as

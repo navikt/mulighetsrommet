@@ -1,3 +1,5 @@
+-- ${flyway:timestamp}
+
 drop view if exists tilsagn_arrangorflate_view;
 
 create view tilsagn_arrangorflate_view as
