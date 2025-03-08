@@ -125,6 +125,7 @@ class UtbetalingService(
         )
     }
 
+    // TODO: må verifisere at utbetaling ikke kan godkjennes flere ganger
     fun godkjentAvArrangor(
         utbetalingId: UUID,
         request: GodkjennUtbetaling,
@@ -278,9 +279,17 @@ class UtbetalingService(
         val utbetaling = requireNotNull(queries.utbetaling.get(utbetalingId)) {
             "Fant ikke utbetaling med id=$utbetalingId"
         }
-        if (utbetaling.tiltakstype.tiltakskode !in listOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING)) {
-            log.debug("Avbryter automatisk utbetaling. Feil tiltakskode. UtbetalingId: {}", utbetalingId)
-            return false
+        when (utbetaling.beregning) {
+            is UtbetalingBeregningFri -> {
+                log.debug(
+                    "Avbryter automatisk utbetaling. Prismodell {} er ikke egnet for automatisk utbetaling. UtbetalingId: {}",
+                    utbetaling.beregning.javaClass,
+                    utbetalingId,
+                )
+                return false
+            }
+
+            is UtbetalingBeregningForhandsgodkjent -> {}
         }
         val relevanteTilsagn = queries.tilsagn.getAll(
             gjennomforingId = utbetaling.gjennomforing.id,

@@ -276,7 +276,7 @@ class UtbetalingServiceTest : FunSpec({
         }
 
         test("overstyrer deltakelse-perioder når det er stengt hos arrangør") {
-            val domain = MulighetsrommetTestDomain(
+            MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltaker(
@@ -822,7 +822,15 @@ class UtbetalingServiceTest : FunSpec({
             digest = "digest",
         )
 
-        val utbetalingId = utbetaling1.id
+        val utbetaling1Id = utbetaling1.id
+
+        val utbetaling1Forhandsgodkjent = utbetaling1.copy(
+            periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+            beregning = getForhandsgodkjentBeregning(
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                belop = 1000,
+            ),
+        )
 
         test("happy case") {
             MulighetsrommetTestDomain(
@@ -830,18 +838,18 @@ class UtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(utbetaling1),
+                utbetalinger = listOf(utbetaling1Forhandsgodkjent),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(utbetalingId, godkjennUtbetaling)
+            service.godkjentAvArrangor(utbetaling1Id, godkjennUtbetaling)
 
-            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetalingId) }
+            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling1Id) }
             delutbetalinger.shouldHaveSize(1).first().should {
                 it.shouldBeTypeOf<DelutbetalingDto.DelutbetalingOverfortTilUtbetaling>()
-                it.belop shouldBe utbetaling1.beregning.output.belop
+                it.belop shouldBe 1000
                 it.opprettelse.behandletAv shouldBe Tiltaksadministrasjon
                 it.opprettelse.besluttetAv shouldBe Tiltaksadministrasjon
             }
@@ -853,13 +861,13 @@ class UtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(utbetaling1),
+                utbetalinger = listOf(utbetaling1Forhandsgodkjent),
             ).initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(utbetalingId, godkjennUtbetaling)
+            service.godkjentAvArrangor(utbetaling1Id, godkjennUtbetaling)
 
-            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetalingId) }
+            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling1Id) }
             delutbetalinger shouldHaveSize 0
         }
 
@@ -868,13 +876,13 @@ class UtbetalingServiceTest : FunSpec({
                 ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                utbetalinger = listOf(utbetaling1),
+                utbetalinger = listOf(utbetaling1Forhandsgodkjent),
             ).initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(utbetalingId, godkjennUtbetaling)
+            service.godkjentAvArrangor(utbetaling1Id, godkjennUtbetaling)
 
-            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetalingId) }
+            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling1Id) }
             delutbetalinger shouldHaveSize 0
         }
 
@@ -884,16 +892,16 @@ class UtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1, Tilsagn2.copy(periode = Tilsagn1.periode)),
-                utbetalinger = listOf(utbetaling1),
+                utbetalinger = listOf(utbetaling1Forhandsgodkjent),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
                 setTilsagnStatus(Tilsagn2, TilsagnStatus.GODKJENT)
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(utbetalingId, godkjennUtbetaling)
+            service.godkjentAvArrangor(utbetaling1Id, godkjennUtbetaling)
 
-            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetalingId) }
+            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling1Id) }
             delutbetalinger shouldHaveSize 0
         }
 
@@ -910,33 +918,40 @@ class UtbetalingServiceTest : FunSpec({
                         ),
                     ),
                 ),
-                utbetalinger = listOf(utbetaling1),
+                utbetalinger = listOf(utbetaling1Forhandsgodkjent),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(utbetalingId, godkjennUtbetaling)
+            service.godkjentAvArrangor(utbetaling1Id, godkjennUtbetaling)
 
-            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetalingId) }
+            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling1Id) }
             delutbetalinger shouldHaveSize 0
         }
 
-        test("ingen automatisk utbetaling hvis feil tiltakskode") {
+        test("ingen automatisk utbetaling når beregningsmodell er fri") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
-                avtaler = listOf(AvtaleFixtures.gruppeAmo),
-                gjennomforinger = listOf(GjennomforingFixtures.GruppeAmo1),
-                tilsagn = listOf(Tilsagn1.copy(gjennomforingId = GjennomforingFixtures.GruppeAmo1.id)),
-                utbetalinger = listOf(utbetaling1.copy(gjennomforingId = GjennomforingFixtures.GruppeAmo1.id)),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(
+                    utbetaling1Forhandsgodkjent.copy(
+                        beregning = UtbetalingBeregningFri(
+                            input = UtbetalingBeregningFri.Input(1),
+                            output = UtbetalingBeregningFri.Output(1),
+                        ),
+                    ),
+                ),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(utbetalingId, godkjennUtbetaling)
+            service.godkjentAvArrangor(utbetaling1Id, godkjennUtbetaling)
 
-            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetalingId) }
+            val delutbetalinger = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling1Id) }
             delutbetalinger shouldHaveSize 0
         }
 
@@ -951,11 +966,15 @@ class UtbetalingServiceTest : FunSpec({
                     ),
                 ),
                 utbetalinger = listOf(
-                    utbetaling1.copy(
-                        periode = Periode.forMonthOf(LocalDate.of(2025, 1, 4)),
+                    utbetaling1Forhandsgodkjent.copy(
+                        periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                     ),
                     utbetaling2.copy(
-                        periode = Periode.forMonthOf(LocalDate.of(2025, 2, 4)),
+                        periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
+                        beregning = getForhandsgodkjentBeregning(
+                            periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
+                            belop = 100,
+                        ),
                     ),
                 ),
             ) {
@@ -964,15 +983,26 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            val utbetalingId1 = utbetaling1.id
-            service.godkjentAvArrangor(utbetalingId1, godkjennUtbetaling)
-            val delutbetaling1 = database.run { queries.delutbetaling.getByUtbetalingId(utbetalingId1) }
+            service.godkjentAvArrangor(utbetaling1Id, godkjennUtbetaling)
+            val delutbetaling1 = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling1Id) }
             delutbetaling1[0].frigjorTilsagn shouldBe false
 
-            val utbetalingId2 = utbetaling2.id
-            service.godkjentAvArrangor(utbetalingId2, godkjennUtbetaling)
-            val delutbetaling2 = database.run { queries.delutbetaling.getByUtbetalingId(utbetalingId2) }
+            service.godkjentAvArrangor(utbetaling2.id, godkjennUtbetaling)
+            val delutbetaling2 = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling2.id) }
             delutbetaling2[0].frigjorTilsagn shouldBe true
         }
     }
 })
+
+private fun getForhandsgodkjentBeregning(periode: Periode, belop: Int) = UtbetalingBeregningForhandsgodkjent(
+    input = UtbetalingBeregningForhandsgodkjent.Input(
+        periode = periode,
+        sats = 20205,
+        stengt = setOf(),
+        deltakelser = setOf(),
+    ),
+    output = UtbetalingBeregningForhandsgodkjent.Output(
+        belop = belop,
+        deltakelser = setOf(),
+    ),
+)
