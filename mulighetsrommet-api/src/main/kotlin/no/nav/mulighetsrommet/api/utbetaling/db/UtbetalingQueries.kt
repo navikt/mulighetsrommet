@@ -81,17 +81,14 @@ class UtbetalingQueries(private val session: Session) {
     ) {
         @Language("PostgreSQL")
         val query = """
-            insert into utbetaling_beregning_forhandsgodkjent (utbetaling_id, periode, sats, belop)
-            values (:utbetaling_id::uuid, daterange(:periode_start, :periode_slutt), :sats, :belop)
+            insert into utbetaling_beregning_forhandsgodkjent (utbetaling_id, sats, belop)
+            values (:utbetaling_id::uuid, :sats, :belop)
             on conflict (utbetaling_id) do update set
-                periode = excluded.periode,
                 sats = excluded.sats,
                 belop = excluded.belop
         """.trimIndent()
         val params = mapOf(
             "utbetaling_id" to id,
-            "periode_start" to beregning.input.periode.start,
-            "periode_slutt" to beregning.input.periode.slutt,
             "sats" to beregning.input.sats,
             "belop" to beregning.output.belop,
         )
@@ -357,7 +354,7 @@ class UtbetalingQueries(private val session: Session) {
         return session.requireSingle(queryOf(query, id)) {
             UtbetalingBeregningForhandsgodkjent(
                 input = UtbetalingBeregningForhandsgodkjent.Input(
-                    periode = Periode(it.localDate("beregning_periode_start"), it.localDate("beregning_periode_slutt")),
+                    periode = Periode(it.localDate("periode_start"), it.localDate("periode_slutt")),
                     sats = it.int("sats"),
                     stengt = it.string("stengt_json").let { Json.decodeFromString(it) },
                     deltakelser = it.stringOrNull("perioder_json")?.let { Json.decodeFromString(it) } ?: setOf(),
