@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Prismodell
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -65,7 +66,8 @@ fun Route.tilsagnRoutes() {
 
         post("/defaults") {
             val request = call.receive<TilsagnDefaultsRequest>()
-            val gjennomforing = gjennomforinger.get(request.gjennomforingId) ?: return@post call.respond(HttpStatusCode.NotFound)
+            val gjennomforing = gjennomforinger.get(request.gjennomforingId)
+                ?: return@post call.respond(HttpStatusCode.NotFound)
 
             val defaults = when (request.type) {
                 TilsagnType.TILSAGN -> {
@@ -249,6 +251,7 @@ private fun resolveTilsagnDefaults(
     gjennomforing: GjennomforingDto,
     tilsagn: TilsagnDto?,
 ) = when (gjennomforing.tiltakstype.tiltakskode) {
+    // TODO: utled basert på avtalens prismodell
     Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET -> {
         val periodeStart = listOfNotNull(
             gjennomforing.startDato,
@@ -263,7 +266,8 @@ private fun resolveTilsagnDefaults(
             lastDayOfYear,
         ).min()
 
-        val beregning = ForhandsgodkjenteSatser.findSats(gjennomforing.tiltakstype.tiltakskode, periodeStart)
+        val periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt)
+        val beregning = ForhandsgodkjenteSatser.findSats(gjennomforing.tiltakstype.tiltakskode, periode)
             ?.let { sats ->
                 TilsagnBeregningForhandsgodkjent.Input(
                     periodeStart = periodeStart,
