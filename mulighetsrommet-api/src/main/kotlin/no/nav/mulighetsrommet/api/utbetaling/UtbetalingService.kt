@@ -125,6 +125,8 @@ class UtbetalingService(
         )
     }
 
+    // TODO: må verifisere at utbetaling ikke kan godkjennes flere ganger
+    // TODO: må verifisere at utbetaling er av en type som arrangør kan godkjenne
     fun godkjentAvArrangor(
         utbetalingId: UUID,
         request: GodkjennUtbetaling,
@@ -278,10 +280,7 @@ class UtbetalingService(
         val utbetaling = requireNotNull(queries.utbetaling.get(utbetalingId)) {
             "Fant ikke utbetaling med id=$utbetalingId"
         }
-        if (utbetaling.tiltakstype.tiltakskode !in listOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING)) {
-            log.debug("Avbryter automatisk utbetaling. Feil tiltakskode. UtbetalingId: {}", utbetalingId)
-            return false
-        }
+
         val relevanteTilsagn = queries.tilsagn.getAll(
             gjennomforingId = utbetaling.gjennomforing.id,
             statuser = listOf(TilsagnStatus.GODKJENT),
