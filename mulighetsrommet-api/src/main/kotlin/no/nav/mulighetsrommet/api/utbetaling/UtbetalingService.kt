@@ -43,7 +43,7 @@ class UtbetalingService(
         getGjennomforingerForGenereringAvUtbetalinger(periode)
             .mapNotNull { (gjennomforingId, avtaletype) ->
                 val utbetaling = when (avtaletype) {
-                    Avtaletype.Forhaandsgodkjent -> createUtbetalingAft(
+                    Avtaletype.Forhaandsgodkjent -> createUtbetalingForhandsgodkjent(
                         utbetalingId = UUID.randomUUID(),
                         gjennomforingId = gjennomforingId,
                         periode = periode,
@@ -68,7 +68,7 @@ class UtbetalingService(
             .filter { it.innsender == null }
             .mapNotNull { gjeldendeKrav ->
                 val nyttKrav = when (gjeldendeKrav.beregning) {
-                    is UtbetalingBeregningAft -> createUtbetalingAft(
+                    is UtbetalingBeregningForhandsgodkjent -> createUtbetalingForhandsgodkjent(
                         utbetalingId = gjeldendeKrav.id,
                         gjennomforingId = gjeldendeKrav.gjennomforing.id,
                         periode = gjeldendeKrav.beregning.input.periode,
@@ -86,30 +86,30 @@ class UtbetalingService(
             }
     }
 
-    fun createUtbetalingAft(
+    fun createUtbetalingForhandsgodkjent(
         utbetalingId: UUID,
         gjennomforingId: UUID,
         periode: Periode,
     ): UtbetalingDbo = db.session {
         val frist = periode.slutt.plusMonths(2)
 
-        // TODO: burde også verifisere at start og slutt har samme pris
-        val sats = ForhandsgodkjenteSatser.findSats(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, periode.start)
+        val gjennomforing = requireNotNull(queries.gjennomforing.get(gjennomforingId))
+
+        val sats = ForhandsgodkjenteSatser.findSats(gjennomforing.tiltakstype.tiltakskode, periode.start)
             ?: throw IllegalStateException("Sats mangler for periode $periode")
 
-        val gjennomforing = requireNotNull(queries.gjennomforing.get(gjennomforingId))
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
 
         val deltakelser = resolveDeltakelser(gjennomforingId, periode)
 
-        val input = UtbetalingBeregningAft.Input(
+        val input = UtbetalingBeregningForhandsgodkjent.Input(
             periode = periode,
             sats = sats,
             stengt = stengtHosArrangor,
             deltakelser = deltakelser,
         )
 
-        val beregning = UtbetalingBeregningAft.beregn(input)
+        val beregning = UtbetalingBeregningForhandsgodkjent.beregn(input)
 
         val forrigeKrav = queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforingId)
 

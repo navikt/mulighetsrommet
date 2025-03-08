@@ -7,7 +7,7 @@ import java.time.LocalDate
 
 class TilsagnBeregningForhandsgodkjentTest : FunSpec({
 
-    context("AFT tilsagn beregning") {
+    context("forhåndsgodkjent tilsagn beregning") {
         test("en plass en måned = sats") {
             val input = TilsagnBeregningForhandsgodkjent.Input(
                 sats = 20205,

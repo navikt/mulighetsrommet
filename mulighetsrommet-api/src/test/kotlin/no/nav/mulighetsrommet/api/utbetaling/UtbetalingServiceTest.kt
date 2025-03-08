@@ -94,7 +94,7 @@ class UtbetalingServiceTest : FunSpec({
 
             utbetaling.gjennomforing.id shouldBe AFT1.id
             utbetaling.fristForGodkjenning shouldBe LocalDateTime.of(2024, 4, 1, 0, 0, 0)
-            utbetaling.beregning.input shouldBe UtbetalingBeregningAft.Input(
+            utbetaling.beregning.input shouldBe UtbetalingBeregningForhandsgodkjent.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
                 sats = 20205,
                 stengt = setOf(),
@@ -219,7 +219,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2024, 1, 1)).first()
 
-            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningAft.Input>().should {
+            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Input>().should {
                 it.deltakelser shouldBe setOf(
                     DeltakelsePerioder(
                         deltakelseId = domain.deltakere[0].id,
@@ -319,7 +319,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2024, 1, 1)).first()
 
-            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningAft.Input>().should {
+            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Input>().should {
                 it.stengt shouldBe setOf(
                     StengtPeriode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 10), "Ferie 1"),
                     StengtPeriode(LocalDate.of(2024, 1, 20), LocalDate.of(2024, 2, 1), "Ferie 2"),
@@ -343,7 +343,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2024, 1, 1)).first()
 
-            utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningAft.Output>().should {
+            utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Output>().should {
                 it.belop shouldBe 20205
                 it.deltakelser shouldBe setOf(
                     DeltakelseManedsverk(
@@ -409,7 +409,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.genererUtbetalingForMonth(LocalDate.of(2024, 1, 1)).first()
 
-            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningAft.Input>().should {
+            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Input>().should {
                 it.deltakelser.shouldHaveSize(1).first().deltakelseId.shouldBe(domain.deltakere[1].id)
             }
         }
@@ -435,13 +435,13 @@ class UtbetalingServiceTest : FunSpec({
             val utbetalingId = UUID.randomUUID()
 
             database.run {
-                val utbetaling = service.createUtbetalingAft(
+                val utbetaling = service.createUtbetalingForhandsgodkjent(
                     utbetalingId = utbetalingId,
                     gjennomforingId = AFT1.id,
                     periode = Periode.forMonthOf(LocalDate.of(2024, 6, 1)),
                 )
                 queries.utbetaling.upsert(utbetaling)
-                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningAft.Output>().belop shouldBe 20205
+                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Output>().belop shouldBe 20205
 
                 val updatedDeltaker = domain.deltakere[0].copy(
                     sluttDato = LocalDate.of(2024, 6, 15),
@@ -453,7 +453,7 @@ class UtbetalingServiceTest : FunSpec({
 
             database.run {
                 val utbetaling = queries.utbetaling.get(utbetalingId).shouldNotBeNull()
-                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningAft.Output>().should {
+                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Output>().should {
                     it.belop shouldBe 10102
                     it.deltakelser shouldBe setOf(
                         DeltakelseManedsverk(
@@ -482,13 +482,13 @@ class UtbetalingServiceTest : FunSpec({
             val utbetalingId = UUID.randomUUID()
 
             database.run {
-                val utbetaling = service.createUtbetalingAft(
+                val utbetaling = service.createUtbetalingForhandsgodkjent(
                     utbetalingId = utbetalingId,
                     gjennomforingId = AFT1.id,
                     periode = Periode.forMonthOf(LocalDate.of(2024, 6, 1)),
                 )
                 queries.utbetaling.upsert(utbetaling)
-                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningAft.Output>().belop shouldBe 20205
+                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Output>().belop shouldBe 20205
 
                 val updatedDeltaker = domain.deltakere[0].copy(
                     sluttDato = LocalDate.of(2024, 6, 15),
@@ -502,7 +502,7 @@ class UtbetalingServiceTest : FunSpec({
 
             database.run {
                 val utbetaling = queries.utbetaling.get(utbetalingId).shouldNotBeNull()
-                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningAft.Output>().should {
+                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Output>().should {
                     it.belop shouldBe 20205
                     it.deltakelser shouldBe setOf(
                         DeltakelseManedsverk(
