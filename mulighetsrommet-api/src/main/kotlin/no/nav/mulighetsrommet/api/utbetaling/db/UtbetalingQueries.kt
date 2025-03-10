@@ -23,7 +23,7 @@ class UtbetalingQueries(private val session: Session) {
                 kontonummer,
                 kid,
                 periode,
-                beregningsmodell,
+                prismodell,
                 innsender
             ) values (
                 :id::uuid,
@@ -32,7 +32,7 @@ class UtbetalingQueries(private val session: Session) {
                 :kontonummer,
                 :kid,
                 daterange(:periode_start, :periode_slutt),
-                :beregningsmodell::beregningsmodell,
+                :prismodell::prismodell,
                 :innsender
             ) on conflict (id) do update set
                 gjennomforing_id = excluded.gjennomforing_id,
@@ -40,7 +40,7 @@ class UtbetalingQueries(private val session: Session) {
                 kontonummer = excluded.kontonummer,
                 kid = excluded.kid,
                 periode = excluded.periode,
-                beregningsmodell = excluded.beregningsmodell,
+                prismodell = excluded.prismodell,
                 innsender = excluded.innsender
         """.trimIndent()
 
@@ -52,9 +52,9 @@ class UtbetalingQueries(private val session: Session) {
             "kid" to dbo.kid?.value,
             "periode_start" to dbo.periode.start,
             "periode_slutt" to dbo.periode.slutt,
-            "beregningsmodell" to when (dbo.beregning) {
-                is UtbetalingBeregningForhandsgodkjent -> Beregningsmodell.FORHANDSGODKJENT.name
-                is UtbetalingBeregningFri -> Beregningsmodell.FRI.name
+            "prismodell" to when (dbo.beregning) {
+                is UtbetalingBeregningForhandsgodkjent -> Prismodell.FORHANDSGODKJENT.name
+                is UtbetalingBeregningFri -> Prismodell.FRI.name
             },
             "innsender" to dbo.innsender?.value,
         )
@@ -298,11 +298,9 @@ class UtbetalingQueries(private val session: Session) {
     }
 
     private fun Row.toUtbetalingDto(): UtbetalingDto {
-        val beregningsmodell = Beregningsmodell.valueOf(string("beregningsmodell"))
-        val beregning = getBeregning(uuid("id"), beregningsmodell)
         val id = uuid("id")
+        val beregning = getBeregning(id, Prismodell.valueOf(string("prismodell")))
         val innsender = stringOrNull("innsender")?.let { UtbetalingDto.Innsender.fromString(it) }
-
         return UtbetalingDto(
             id = id,
             fristForGodkjenning = localDateTime("frist_for_godkjenning"),
@@ -336,10 +334,10 @@ class UtbetalingQueries(private val session: Session) {
         )
     }
 
-    private fun getBeregning(id: UUID, beregningsmodell: Beregningsmodell): UtbetalingBeregning {
-        return when (beregningsmodell) {
-            Beregningsmodell.FORHANDSGODKJENT -> getBeregningForhandsgodkjent(id)
-            Beregningsmodell.FRI -> getBeregningFri(id)
+    private fun getBeregning(id: UUID, prismodell: Prismodell): UtbetalingBeregning {
+        return when (prismodell) {
+            Prismodell.FORHANDSGODKJENT -> getBeregningForhandsgodkjent(id)
+            Prismodell.FRI -> getBeregningFri(id)
         }
     }
 

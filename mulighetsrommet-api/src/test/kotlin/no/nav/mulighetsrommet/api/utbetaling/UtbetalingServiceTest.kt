@@ -930,7 +930,7 @@ class UtbetalingServiceTest : FunSpec({
             delutbetalinger shouldHaveSize 0
         }
 
-        test("ingen automatisk utbetaling når beregningsmodell er fri") {
+        test("ingen automatisk utbetaling når prismodell er fri") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
                 avtaler = listOf(AvtaleFixtures.AFT),
