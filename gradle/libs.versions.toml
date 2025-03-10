@@ -1,5 +1,5 @@
 [versions]
-common-java-modules = "3.2025.03.03_16.01-8b9a25e24284"
+common-java-modules = "3.2025.03.07_13.21-bb112c97720d"
 flyway = "11.3.4"
 koin = "4.1.0-Beta5"
 kotest = "5.9.1"
