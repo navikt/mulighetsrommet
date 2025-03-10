@@ -33,8 +33,11 @@ npm-debug.log*
 # https://github.com/vitejs/vite/issues/13267
 vite.config.*.timestamp-*
 
-# If you need to override docker locally 
+# If you need to override docker locally
 docker-compose.override.yml
 
 # For å unngå genererte test-pdf'er
 *.pdf
+
+.cursor
+.cursor/rules
