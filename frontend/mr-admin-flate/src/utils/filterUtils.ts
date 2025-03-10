@@ -80,6 +80,10 @@ export const OPPGAVER_TYPE_STATUS: { label: string; value: OppgaveType }[] = [
     value: OppgaveType.TILSAGN_TIL_ANNULLERING,
   },
   {
+    label: "Tilsagn til frigjøring",
+    value: OppgaveType.TILSAGN_TIL_FRIGJORING,
+  },
+  {
     label: "Tilsagn returnert av beslutter",
     value: OppgaveType.TILSAGN_RETURNERT,
   },

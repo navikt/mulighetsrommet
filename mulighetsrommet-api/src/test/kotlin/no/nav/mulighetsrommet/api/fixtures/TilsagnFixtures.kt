@@ -62,12 +62,30 @@ object TilsagnFixtures {
         type = TilsagnType.TILSAGN,
     )
 
+    val Tilsagn4 = TilsagnDbo(
+        id = UUID.randomUUID(),
+        gjennomforingId = GjennomforingFixtures.AFT1.id,
+        periode = Periode.forMonthOf(LocalDate.of(2025, 3, 1)),
+        lopenummer = 4,
+        bestillingsnummer = "A-2025/1-4",
+        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
+        beregning = TilsagnBeregningFri(
+            input = TilsagnBeregningFri.Input(2500),
+            output = TilsagnBeregningFri.Output(2500),
+        ),
+        arrangorId = ArrangorFixtures.underenhet1.id,
+        behandletAv = NavIdent("Z123456"),
+        behandletTidspunkt = LocalDateTime.now(),
+        type = TilsagnType.TILSAGN,
+    )
+
     fun QueryContext.setTilsagnStatus(tilsagnDbo: TilsagnDbo, status: TilsagnStatus) {
         val dto = queries.tilsagn.get(tilsagnDbo.id)
             ?: throw IllegalStateException("Tilsagnet må være gitt til domain først")
         when (status) {
-            TilsagnStatus.TIL_GODKJENNING -> {}
-            TilsagnStatus.GODKJENT ->
+            TilsagnStatus.TIL_GODKJENNING ->
+                queries.tilsagn.setStatus(dto.id, TilsagnStatus.TIL_GODKJENNING)
+            TilsagnStatus.GODKJENT -> {
                 queries.totrinnskontroll.upsert(
                     dto.opprettelse.copy(
                         besluttetAv = NavAnsattFixture.ansatt2.navIdent,
@@ -75,7 +93,57 @@ object TilsagnFixtures {
                         besluttetTidspunkt = LocalDateTime.now(),
                     ),
                 )
-            TilsagnStatus.RETURNERT ->
+                queries.tilsagn.setStatus(dto.id, TilsagnStatus.GODKJENT)
+            }
+            TilsagnStatus.TIL_FRIGJORING -> {
+                queries.totrinnskontroll.upsert(
+                    dto.opprettelse.copy(
+                        besluttetAv = NavAnsattFixture.ansatt2.navIdent,
+                        besluttelse = Besluttelse.GODKJENT,
+                        besluttetTidspunkt = LocalDateTime.now(),
+                    ),
+                )
+                queries.totrinnskontroll.upsert(
+                    Totrinnskontroll(
+                        id = UUID.randomUUID(),
+                        entityId = tilsagnDbo.id,
+                        behandletAv = tilsagnDbo.behandletAv,
+                        aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP.name),
+                        forklaring = "Velg et annet beløp",
+                        type = Totrinnskontroll.Type.FRIGJOR,
+                        behandletTidspunkt = LocalDateTime.now(),
+                        besluttelse = null,
+                        besluttetAv = null,
+                        besluttetTidspunkt = null,
+                    ),
+                )
+                queries.tilsagn.setStatus(dto.id, TilsagnStatus.TIL_FRIGJORING)
+            }
+            TilsagnStatus.FRIGJORT -> {
+                queries.totrinnskontroll.upsert(
+                    dto.opprettelse.copy(
+                        besluttetAv = NavAnsattFixture.ansatt2.navIdent,
+                        besluttelse = Besluttelse.GODKJENT,
+                        besluttetTidspunkt = LocalDateTime.now(),
+                    ),
+                )
+                queries.totrinnskontroll.upsert(
+                    Totrinnskontroll(
+                        id = UUID.randomUUID(),
+                        entityId = tilsagnDbo.id,
+                        behandletAv = tilsagnDbo.behandletAv,
+                        aarsaker = emptyList(),
+                        forklaring = null,
+                        type = Totrinnskontroll.Type.FRIGJOR,
+                        behandletTidspunkt = LocalDateTime.now(),
+                        besluttelse = Besluttelse.GODKJENT,
+                        besluttetAv = NavAnsattFixture.ansatt2.navIdent,
+                        besluttetTidspunkt = LocalDateTime.now(),
+                    ),
+                )
+                queries.tilsagn.setStatus(dto.id, TilsagnStatus.FRIGJORT)
+            }
+            TilsagnStatus.RETURNERT -> {
                 queries.totrinnskontroll.upsert(
                     dto.opprettelse.copy(
                         besluttetAv = NavAnsattFixture.ansatt2.navIdent,
@@ -83,6 +151,8 @@ object TilsagnFixtures {
                         besluttetTidspunkt = LocalDateTime.now(),
                     ),
                 )
+                queries.tilsagn.setStatus(dto.id, TilsagnStatus.RETURNERT)
+            }
             TilsagnStatus.TIL_ANNULLERING -> {
                 queries.totrinnskontroll.upsert(
                     dto.opprettelse.copy(
@@ -105,6 +175,7 @@ object TilsagnFixtures {
                         besluttetTidspunkt = null,
                     ),
                 )
+                queries.tilsagn.setStatus(dto.id, TilsagnStatus.TIL_ANNULLERING)
             }
             TilsagnStatus.ANNULLERT -> {
                 queries.totrinnskontroll.upsert(
@@ -128,6 +199,7 @@ object TilsagnFixtures {
                         besluttetTidspunkt = LocalDateTime.now(),
                     ),
                 )
+                queries.tilsagn.setStatus(dto.id, TilsagnStatus.ANNULLERT)
             }
         }
     }

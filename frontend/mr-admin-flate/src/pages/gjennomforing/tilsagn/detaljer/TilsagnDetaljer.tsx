@@ -41,6 +41,7 @@ import { AvvistAlert, TilAnnulleringAlert } from "../AarsakerAlert";
 import { TilsagnTag } from "../TilsagnTag";
 import { TilsagnDetaljerForhandsgodkjent } from "./TilsagnDetaljerForhandsgodkjent";
 import { tilsagnHistorikkQuery, tilsagnQuery } from "./tilsagnDetaljerLoader";
+import { useTilsagnTilFrigjoring } from "@/api/tilsagn/useTilsagnTilFrigjoring";
 
 function useTilsagnDetaljer() {
   const { gjennomforingId, tilsagnId } = useParams();
@@ -59,9 +60,11 @@ export function TilsagnDetaljer() {
 
   const besluttMutation = useBesluttTilsagn();
   const tilAnnulleringMutation = useTilsagnTilAnnullering();
+  const tilFrigjoringMutation = useTilsagnTilFrigjoring();
   const slettMutation = useSlettTilsagn();
   const navigate = useNavigate();
   const [tilAnnulleringModalOpen, setTilAnnulleringModalOpen] = useState<boolean>(false);
+  const [tilFrigjoringModalOpen, setTilFrigjoringModalOpen] = useState<boolean>(false);
   const slettTilsagnModalRef = useRef<HTMLDialogElement>(null);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
 
@@ -116,6 +119,19 @@ export function TilsagnDetaljer() {
     }
   }
 
+  function tilFrigjoring(request: TilsagnTilAnnulleringRequest) {
+    if (tilsagn) {
+      tilFrigjoringMutation.mutate(
+        {
+          id: tilsagn.data.id,
+          aarsaker: request.aarsaker,
+          forklaring: request.forklaring,
+        },
+        { onSuccess: navigerTilTilsagnTabell },
+      );
+    }
+  }
+
   function slettTilsagn() {
     if (tilsagn) {
       slettMutation.mutate({ id: tilsagn.data.id }, { onSuccess: navigerTilTilsagnTabell });
@@ -125,7 +141,8 @@ export function TilsagnDetaljer() {
   function visBesluttKnapp(endretAv?: string): boolean {
     return Boolean(
       (tilsagn?.data.status === TilsagnStatus.TIL_GODKJENNING ||
-        tilsagn?.data.status === TilsagnStatus.TIL_ANNULLERING) &&
+        tilsagn?.data.status === TilsagnStatus.TIL_ANNULLERING ||
+        tilsagn?.data.status === TilsagnStatus.TIL_FRIGJORING) &&
         ansatt?.navIdent !== endretAv &&
         ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER),
     );
@@ -185,6 +202,17 @@ export function TilsagnDetaljer() {
                         icon={<EraserIcon />}
                       >
                         Annuller tilsagn
+                      </ActionMenu.Item>
+                    </>
+                  )}
+                  {tilsagn.data.status === TilsagnStatus.GODKJENT && (
+                    <>
+                      <ActionMenu.Item
+                        variant="danger"
+                        onSelect={() => setTilFrigjoringModalOpen(true)}
+                        icon={<EraserIcon />}
+                      >
+                        Frigjør tilsagn
                       </ActionMenu.Item>
                     </>
                   )}
@@ -274,6 +302,33 @@ export function TilsagnDetaljer() {
                       </Button>
                     </HStack>
                   )}
+                {tilsagn.data.status === TilsagnStatus.TIL_FRIGJORING &&
+                  visBesluttKnapp(tilsagn.data.frigjoring?.behandletAv) && (
+                    <HStack gap="2">
+                      <Button
+                        variant="secondary"
+                        size="small"
+                        type="button"
+                        onClick={() =>
+                          besluttTilsagn({
+                            besluttelse: Besluttelse.AVVIST,
+                            aarsaker: [],
+                            forklaring: null,
+                          })
+                        }
+                      >
+                        Avslå frigjøring
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="danger"
+                        type="button"
+                        onClick={() => besluttTilsagn({ besluttelse: Besluttelse.GODKJENT })}
+                      >
+                        Bekreft frigjøring
+                      </Button>
+                    </HStack>
+                  )}
               </HStack>
               <AarsakerOgForklaringModal<TilsagnTilAnnulleringAarsak>
                 aarsaker={[
@@ -292,6 +347,14 @@ export function TilsagnDetaljer() {
                 open={tilAnnulleringModalOpen}
                 onClose={() => setTilAnnulleringModalOpen(false)}
                 onConfirm={({ aarsaker, forklaring }) => tilAnnullering({ aarsaker, forklaring })}
+              />
+              <AarsakerOgForklaringModal<TilsagnTilAnnulleringAarsak>
+                aarsaker={[{ value: TilsagnTilAnnulleringAarsak.FEIL_ANNET, label: "Annet" }]}
+                header="Frigjør tilsagn med forklaring"
+                buttonLabel="Send til godkjenning"
+                open={tilFrigjoringModalOpen}
+                onClose={() => setTilFrigjoringModalOpen(false)}
+                onConfirm={({ aarsaker, forklaring }) => tilFrigjoring({ aarsaker, forklaring })}
               />
               <AarsakerOgForklaringModal<TilsagnAvvisningAarsak>
                 aarsaker={[

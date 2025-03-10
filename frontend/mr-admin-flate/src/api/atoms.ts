@@ -297,6 +297,7 @@ const oppgaverFilterSchema = z.object({
     .enum([
       OppgaveType.TILSAGN_TIL_GODKJENNING,
       OppgaveType.TILSAGN_TIL_ANNULLERING,
+      OppgaveType.TILSAGN_TIL_FRIGJORING,
       OppgaveType.TILSAGN_RETURNERT,
       OppgaveType.UTBETALING_RETURNERT,
       OppgaveType.UTBETALING_TIL_BEHANDLING,

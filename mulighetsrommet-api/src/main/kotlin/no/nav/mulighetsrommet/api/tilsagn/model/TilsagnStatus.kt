@@ -6,4 +6,6 @@ enum class TilsagnStatus {
     RETURNERT,
     TIL_ANNULLERING,
     ANNULLERT,
+    TIL_FRIGJORING,
+    FRIGJORT,
 }

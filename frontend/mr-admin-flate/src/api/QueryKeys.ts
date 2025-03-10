@@ -48,6 +48,7 @@ export const QueryKeys = {
   besluttTilsagn: () => ["beslutt-tilsagn"],
   besluttTilsagnUtbetaling: () => ["beslutt-tilsagn-utbetaling"],
   annullerTilsagn: () => ["annuller-tilsagn"],
+  frigjorTilsagn: () => ["frigjor-tilsagn"],
   slettTilsagn: () => ["slett-tilsagn"],
   avtalteSatser: (avtaleId: string) => ["satser", avtaleId],
   utdanninger: () => ["utdanninger"],
