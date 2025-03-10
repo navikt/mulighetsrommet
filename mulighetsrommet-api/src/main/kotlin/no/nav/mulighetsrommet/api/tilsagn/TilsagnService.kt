@@ -4,6 +4,7 @@ import arrow.core.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
@@ -13,6 +14,7 @@ import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.NotFound
@@ -23,21 +25,41 @@ import java.time.LocalDateTime
 import java.util.*
 
 class TilsagnService(
+    val config: OkonomiConfig,
     private val db: ApiDatabase,
     private val okonomi: OkonomiBestillingService,
 ) {
     fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<FieldError>, TilsagnDto> = db.transaction {
         val gjennomforing = queries.gjennomforing.get(request.gjennomforingId)
             ?: return FieldError
-                .of(TilsagnRequest::gjennomforingId, "Tiltaksgjennomforingen finnes ikke")
+                .of("Tiltaksgjennomforingen finnes ikke", TilsagnRequest::gjennomforingId)
                 .nel()
                 .left()
+
+        val minTilsagnCreationDate = config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode]
+        if (minTilsagnCreationDate == null) {
+            return FieldError
+                .of(
+                    "Tilsagn for tiltakstype ${gjennomforing.tiltakstype.navn} er ikke støttet enda",
+                    TilsagnRequest::periodeStart,
+                )
+                .nel()
+                .left()
+        } else if (request.periodeStart < minTilsagnCreationDate) {
+            return FieldError
+                .of(
+                    "Minimum startdato for tilsagn til ${gjennomforing.tiltakstype.navn} er ${minTilsagnCreationDate.formaterDatoTilEuropeiskDatoformat()}",
+                    TilsagnRequest::periodeStart,
+                )
+                .nel()
+                .left()
+        }
 
         val previous = queries.tilsagn.get(request.id)
 
         val beregningInput = request.beregning
 
-        validateGjennomforingBeregningInput(gjennomforing, beregningInput)
+        validateTilsagnBeregningInput(gjennomforing, beregningInput)
             .flatMap { beregnTilsagn(beregningInput) }
             .map { beregning ->
                 val lopenummer = previous?.lopenummer
@@ -254,7 +276,7 @@ class TilsagnService(
         queries.endringshistorikk.getEndringshistorikk(DocumentClass.TILSAGN, id)
     }
 
-    private fun validateGjennomforingBeregningInput(
+    private fun validateTilsagnBeregningInput(
         gjennomforing: GjennomforingDto,
         input: TilsagnBeregningInput,
     ): Either<List<FieldError>, TilsagnBeregningInput> {

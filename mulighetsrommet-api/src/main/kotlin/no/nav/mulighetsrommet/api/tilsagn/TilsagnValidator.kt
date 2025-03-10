@@ -43,16 +43,31 @@ object TilsagnValidator {
         val errors = buildList {
             val satsPeriodeStart = ForhandsgodkjenteSatser.findSats(tiltakskode, input.periodeStart)
             if (satsPeriodeStart == null) {
-                add(FieldError.ofPointer("/periodeStart", "Sats mangler for valgt periode"))
+                add(
+                    FieldError.of(
+                        "Sats mangler for valgt periode",
+                        TilsagnBeregningForhandsgodkjent.Input::periodeStart,
+                    ),
+                )
             }
 
             val satsPeriodeSlutt = ForhandsgodkjenteSatser.findSats(tiltakskode, input.periodeSlutt)
             if (satsPeriodeSlutt == null) {
-                add(FieldError.ofPointer("/periodeSlutt", "Sats mangler for valgt periode"))
+                add(
+                    FieldError.of(
+                        "Sats mangler for valgt periode",
+                        TilsagnBeregningForhandsgodkjent.Input::periodeSlutt,
+                    ),
+                )
             }
 
             if (satsPeriodeStart != satsPeriodeSlutt) {
-                add(FieldError.ofPointer("/periodeSlutt", "Periode går over flere satser"))
+                add(
+                    FieldError.of(
+                        "Periode går over flere satser",
+                        TilsagnBeregningForhandsgodkjent.Input::periodeSlutt,
+                    ),
+                )
             }
         }
 
@@ -70,17 +85,27 @@ object TilsagnValidator {
         val errors = buildList {
             if (input.periodeStart.year != input.periodeSlutt.year) {
                 add(
-                    FieldError.ofPointer(
-                        "/periodeSlutt",
+                    FieldError.of(
                         "Tilsagnsperioden kan ikke vare utover årsskiftet",
+                        TilsagnBeregningForhandsgodkjent.Input::periodeSlutt,
                     ),
                 )
             }
             if (input.periodeStart.isAfter(input.periodeSlutt)) {
-                add(FieldError.ofPointer("/periodeSlutt", "Slutt kan ikke være før start"))
+                add(
+                    FieldError.of(
+                        "Slutt kan ikke være før start",
+                        TilsagnBeregningForhandsgodkjent.Input::periodeSlutt,
+                    ),
+                )
             }
             if (input.antallPlasser <= 0) {
-                add(FieldError.ofPointer("/beregning.antallPlasser", "Antall plasser kan ikke være 0"))
+                add(
+                    FieldError.of(
+                        "Antall plasser kan ikke være 0",
+                        TilsagnBeregningForhandsgodkjent.Input::antallPlasser,
+                    ),
+                )
             }
         }
 
