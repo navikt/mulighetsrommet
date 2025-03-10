@@ -64,6 +64,7 @@ export function AvtalePersonvernForm({ tiltakstype }: Props) {
           <HStack align="start" gap="1" key={p.personopplysning}>
             <Checkbox
               checked={watchPersonopplysninger.includes(p.personopplysning)}
+              id={p.personopplysning}
               onChange={() =>
                 setValue(
                   "personopplysninger",
@@ -119,7 +120,7 @@ export function AvtalePersonvernForm({ tiltakstype }: Props) {
           <Radio size="small" value={false}>
             Hvilke personopplysninger som kan behandles er uavklart og kan ikke vises til veileder
           </Radio>
-          <Radio size="small" value={true}>
+          <Radio size="small" value={true} id={"bekreft-personopplysninger"}>
             Bekreft og vis hvilke personopplysninger som kan behandles til veileder
           </Radio>
         </VStack>

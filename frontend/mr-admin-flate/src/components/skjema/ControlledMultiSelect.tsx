@@ -18,6 +18,7 @@ export interface MultiSelectProps<T> {
   helpText?: string;
   noOptionsMessage?: ReactNode;
   velgAlle?: boolean;
+  inputId?: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -34,6 +35,7 @@ function ControlledMultiSelect<T>(props: MultiSelectProps<T>, _: ForwardedRef<HT
     additionalOnChange,
     onInputChange,
     velgAlle = false,
+    inputId,
     ...rest
   } = props;
 
@@ -65,6 +67,7 @@ function ControlledMultiSelect<T>(props: MultiSelectProps<T>, _: ForwardedRef<HT
                 {helpText && <HelpText>{helpText}</HelpText>}
               </div>
               <MultiSelect<T>
+                inputId={inputId}
                 size={size}
                 velgAlle={velgAlle}
                 error={Boolean(error)}
