@@ -29,7 +29,7 @@ val ApplicationConfigProd = AppConfig(
         maximumPoolSize = 10,
     ),
     flyway = FlywayMigrationManager.MigrationConfig(
-        strategy = FlywayMigrationManager.InitializationStrategy.Migrate,
+        strategy = FlywayMigrationManager.InitializationStrategy.RepairAndMigrate,
     ),
     kafka = KafkaConfig(
         producerProperties = KafkaPropertiesPreset.aivenDefaultProducerProperties("mulighetsrommet-api-kafka-producer.v1"),
