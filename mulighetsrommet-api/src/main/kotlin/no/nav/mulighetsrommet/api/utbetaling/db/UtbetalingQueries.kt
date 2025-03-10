@@ -351,17 +351,17 @@ class UtbetalingQueries(private val session: Session) {
             where utbetaling_id = ?::uuid
         """.trimIndent()
 
-        return session.requireSingle(queryOf(query, id)) {
+        return session.requireSingle(queryOf(query, id)) { row ->
             UtbetalingBeregningForhandsgodkjent(
                 input = UtbetalingBeregningForhandsgodkjent.Input(
-                    periode = Periode(it.localDate("periode_start"), it.localDate("periode_slutt")),
-                    sats = it.int("sats"),
-                    stengt = it.string("stengt_json").let { Json.decodeFromString(it) },
-                    deltakelser = it.stringOrNull("perioder_json")?.let { Json.decodeFromString(it) } ?: setOf(),
+                    periode = Periode(row.localDate("periode_start"), row.localDate("periode_slutt")),
+                    sats = row.int("sats"),
+                    stengt = Json.decodeFromString(row.string("stengt_json")),
+                    deltakelser = Json.decodeFromString(row.string("perioder_json")),
                 ),
                 output = UtbetalingBeregningForhandsgodkjent.Output(
-                    belop = it.int("belop"),
-                    deltakelser = it.stringOrNull("manedsverk_json")?.let { Json.decodeFromString(it) } ?: setOf(),
+                    belop = row.int("belop"),
+                    deltakelser = Json.decodeFromString(row.string("manedsverk_json")),
                 ),
             )
         }
