@@ -5,7 +5,7 @@ import { VelgPeriode } from "@/components/tilsagn/prismodell/VelgPeriode";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GjennomforingDto, ProblemDetail, TilsagnRequest, TilsagnType } from "@mr/api-client-v2";
 import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { Button, Heading, HStack, TextField } from "@navikt/ds-react";
+import { Alert, Button, Heading, HStack, TextField } from "@navikt/ds-react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
@@ -58,7 +58,7 @@ export function TilsagnForm(props: Props) {
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
         <div className="border border-border-default rounded p-4 mt-8 mb-2">
-          <div className="flex justify-between my-3">
+          <div className="flex justify-between my-3 flex-col gap-5">
             <Heading size="medium" level="3">
               Tilsagn
             </Heading>
@@ -73,6 +73,7 @@ export function TilsagnForm(props: Props) {
                   value={avtaletekster.tilsagn.type(tilsagnstype)}
                 />
               </div>
+              {tilsagnstype === TilsagnType.INVESTERING && <InfomeldingOmInvesteringsTilsagn />}
               <div className="py-3">
                 <VelgPeriode startDato={gjennomforing.startDato} />
               </div>
@@ -96,5 +97,33 @@ export function TilsagnForm(props: Props) {
         </HStack>
       </form>
     </FormProvider>
+  );
+}
+
+function InfomeldingOmInvesteringsTilsagn() {
+  return (
+    <Alert size="small" variant="info" className="my-3">
+      <Heading size="xsmall" spacing>
+        Tilsagn for investeringer
+      </Heading>
+      Tilsagn for investeringer skal brukes ved opprettelse av nye tiltaksplasser, jfr.
+      tiltaksforskriften §§{" "}
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://lovdata.no/forskrift/2015-12-11-1598/§13-8"
+      >
+        13-8
+      </a>{" "}
+      og{" "}
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://lovdata.no/forskrift/2015-12-11-1598/§14-9"
+      >
+        14-9
+      </a>
+      . Det kan ikke brukes til å utbetale ordinære driftsmidler til tiltaksarrangør.
+    </Alert>
   );
 }
