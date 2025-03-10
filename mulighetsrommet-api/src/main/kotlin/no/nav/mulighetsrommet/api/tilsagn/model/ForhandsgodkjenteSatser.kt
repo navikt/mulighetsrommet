@@ -24,6 +24,11 @@ object ForhandsgodkjenteSatser {
         return satser.firstOrNull { periodeStart in it.periode }?.belop
     }
 
+    fun findSats(tiltakskode: Tiltakskode, periode: Periode): Int? {
+        val satser = satser(tiltakskode)
+        return satser.firstOrNull { periode in it.periode }?.belop
+    }
+
     object VTA {
         val satser: List<ForhandsgodkjentSats> = listOf(
             ForhandsgodkjentSats(

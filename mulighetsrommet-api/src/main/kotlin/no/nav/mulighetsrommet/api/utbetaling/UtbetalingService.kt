@@ -5,6 +5,7 @@ import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.GodkjennUtbetaling
@@ -21,6 +22,7 @@ import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.*
+import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Instant
@@ -38,13 +40,12 @@ class UtbetalingService(
     fun genererUtbetalingForMonth(date: LocalDate): List<UtbetalingDto> = db.transaction {
         val periode = Periode.forMonthOf(date)
 
-        queries.gjennomforing
-            .getGjennomforesInPeriodeUtenUtbetaling(periode)
-            .mapNotNull { gjennomforing ->
-                val utbetaling = when (gjennomforing.tiltakstype.tiltakskode) {
-                    Tiltakskode.ARBEIDSFORBEREDENDE_TRENING -> createUtbetalingAft(
+        getGjennomforingerForGenereringAvUtbetalinger(periode)
+            .mapNotNull { (gjennomforingId, avtaletype) ->
+                val utbetaling = when (avtaletype) {
+                    Avtaletype.Forhaandsgodkjent -> createUtbetalingForhandsgodkjent(
                         utbetalingId = UUID.randomUUID(),
-                        gjennomforingId = gjennomforing.id,
+                        gjennomforingId = gjennomforingId,
                         periode = periode,
                     )
 
@@ -67,7 +68,7 @@ class UtbetalingService(
             .filter { it.innsender == null }
             .mapNotNull { gjeldendeKrav ->
                 val nyttKrav = when (gjeldendeKrav.beregning) {
-                    is UtbetalingBeregningAft -> createUtbetalingAft(
+                    is UtbetalingBeregningForhandsgodkjent -> createUtbetalingForhandsgodkjent(
                         utbetalingId = gjeldendeKrav.id,
                         gjennomforingId = gjeldendeKrav.gjennomforing.id,
                         periode = gjeldendeKrav.beregning.input.periode,
@@ -85,30 +86,30 @@ class UtbetalingService(
             }
     }
 
-    fun createUtbetalingAft(
+    fun createUtbetalingForhandsgodkjent(
         utbetalingId: UUID,
         gjennomforingId: UUID,
         periode: Periode,
     ): UtbetalingDbo = db.session {
         val frist = periode.slutt.plusMonths(2)
 
-        // TODO: burde også verifisere at start og slutt har samme pris
-        val sats = ForhandsgodkjenteSatser.findSats(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, periode.start)
+        val gjennomforing = requireNotNull(queries.gjennomforing.get(gjennomforingId))
+
+        val sats = ForhandsgodkjenteSatser.findSats(gjennomforing.tiltakstype.tiltakskode, periode.start)
             ?: throw IllegalStateException("Sats mangler for periode $periode")
 
-        val gjennomforing = requireNotNull(queries.gjennomforing.get(gjennomforingId))
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
 
         val deltakelser = resolveDeltakelser(gjennomforingId, periode)
 
-        val input = UtbetalingBeregningAft.Input(
+        val input = UtbetalingBeregningForhandsgodkjent.Input(
             periode = periode,
             sats = sats,
             stengt = stengtHosArrangor,
             deltakelser = deltakelser,
         )
 
-        val beregning = UtbetalingBeregningAft.beregn(input)
+        val beregning = UtbetalingBeregningForhandsgodkjent.beregn(input)
 
         val forrigeKrav = queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforingId)
 
@@ -124,6 +125,7 @@ class UtbetalingService(
         )
     }
 
+    // TODO: må verifisere at utbetaling ikke kan godkjennes flere ganger
     fun godkjentAvArrangor(
         utbetalingId: UUID,
         request: GodkjennUtbetaling,
@@ -210,6 +212,32 @@ class UtbetalingService(
         queries.utbetaling.getByGjennomforing(id).map { utbetaling -> toAdminUtbetalingKompakt(utbetaling) }
     }
 
+    private fun QueryContext.getGjennomforingerForGenereringAvUtbetalinger(
+        periode: Periode,
+    ): List<Pair<UUID, Avtaletype>> {
+        @Language("PostgreSQL")
+        val query = """
+            select gjennomforing.id, avtale.avtaletype
+            from gjennomforing
+                join avtale on gjennomforing.avtale_id = avtale.id
+            where (gjennomforing.start_dato <= :periode_slutt)
+              and (gjennomforing.slutt_dato >= :periode_start or gjennomforing.slutt_dato is null)
+              and (gjennomforing.avsluttet_tidspunkt > :periode_start or gjennomforing.avsluttet_tidspunkt is null)
+              and not exists (
+                    select 1
+                    from utbetaling
+                    where utbetaling.gjennomforing_id = gjennomforing.id
+                      and utbetaling.periode && daterange(:periode_start, :periode_slutt)
+              )
+        """.trimIndent()
+
+        val params = mapOf("periode_start" to periode.start, "periode_slutt" to periode.slutt)
+
+        return session.list(queryOf(query, params)) {
+            Pair(it.uuid("id"), Avtaletype.valueOf(it.string("avtaletype")))
+        }
+    }
+
     private fun QueryContext.validateAndUpsertDelutbetaling(
         request: DelutbetalingRequest,
         utbetaling: UtbetalingDto,
@@ -251,9 +279,17 @@ class UtbetalingService(
         val utbetaling = requireNotNull(queries.utbetaling.get(utbetalingId)) {
             "Fant ikke utbetaling med id=$utbetalingId"
         }
-        if (utbetaling.tiltakstype.tiltakskode !in listOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING)) {
-            log.debug("Avbryter automatisk utbetaling. Feil tiltakskode. UtbetalingId: {}", utbetalingId)
-            return false
+        when (utbetaling.beregning) {
+            is UtbetalingBeregningFri -> {
+                log.debug(
+                    "Avbryter automatisk utbetaling. Prismodell {} er ikke egnet for automatisk utbetaling. UtbetalingId: {}",
+                    utbetaling.beregning.javaClass,
+                    utbetalingId,
+                )
+                return false
+            }
+
+            is UtbetalingBeregningForhandsgodkjent -> {}
         }
         val relevanteTilsagn = queries.tilsagn.getAll(
             gjennomforingId = utbetaling.gjennomforing.id,

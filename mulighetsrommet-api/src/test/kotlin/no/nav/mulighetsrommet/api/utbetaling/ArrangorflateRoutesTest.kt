@@ -33,7 +33,7 @@ import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePerioder
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAft
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.MockEngineBuilder
@@ -76,8 +76,8 @@ class ArrangorflateRoutesTest : FunSpec({
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         fristForGodkjenning = LocalDateTime.now(),
-        beregning = UtbetalingBeregningAft(
-            input = UtbetalingBeregningAft.Input(
+        beregning = UtbetalingBeregningForhandsgodkjent(
+            input = UtbetalingBeregningForhandsgodkjent.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
                 sats = 20205,
                 stengt = setOf(),
@@ -94,7 +94,7 @@ class ArrangorflateRoutesTest : FunSpec({
                     ),
                 ),
             ),
-            output = UtbetalingBeregningAft.Output(
+            output = UtbetalingBeregningForhandsgodkjent.Output(
                 belop = 0,
                 deltakelser = setOf(
                     DeltakelseManedsverk(

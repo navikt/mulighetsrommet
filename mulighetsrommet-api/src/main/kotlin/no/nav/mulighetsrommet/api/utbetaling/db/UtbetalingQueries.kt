@@ -23,7 +23,7 @@ class UtbetalingQueries(private val session: Session) {
                 kontonummer,
                 kid,
                 periode,
-                beregningsmodell,
+                prismodell,
                 innsender
             ) values (
                 :id::uuid,
@@ -32,7 +32,7 @@ class UtbetalingQueries(private val session: Session) {
                 :kontonummer,
                 :kid,
                 daterange(:periode_start, :periode_slutt),
-                :beregningsmodell::beregningsmodell,
+                :prismodell::prismodell,
                 :innsender
             ) on conflict (id) do update set
                 gjennomforing_id = excluded.gjennomforing_id,
@@ -40,7 +40,7 @@ class UtbetalingQueries(private val session: Session) {
                 kontonummer = excluded.kontonummer,
                 kid = excluded.kid,
                 periode = excluded.periode,
-                beregningsmodell = excluded.beregningsmodell,
+                prismodell = excluded.prismodell,
                 innsender = excluded.innsender
         """.trimIndent()
 
@@ -52,9 +52,9 @@ class UtbetalingQueries(private val session: Session) {
             "kid" to dbo.kid?.value,
             "periode_start" to dbo.periode.start,
             "periode_slutt" to dbo.periode.slutt,
-            "beregningsmodell" to when (dbo.beregning) {
-                is UtbetalingBeregningAft -> Beregningsmodell.FORHANDSGODKJENT.name
-                is UtbetalingBeregningFri -> Beregningsmodell.FRI.name
+            "prismodell" to when (dbo.beregning) {
+                is UtbetalingBeregningForhandsgodkjent -> Prismodell.FORHANDSGODKJENT.name
+                is UtbetalingBeregningFri -> Prismodell.FRI.name
             },
             "innsender" to dbo.innsender?.value,
         )
@@ -62,7 +62,10 @@ class UtbetalingQueries(private val session: Session) {
         execute(queryOf(utbetalingQuery, params))
 
         when (dbo.beregning) {
-            is UtbetalingBeregningAft -> {
+            is UtbetalingBeregningForhandsgodkjent -> {
+                check(dbo.periode == dbo.beregning.input.periode) {
+                    "Utbetalingsperiode og beregningsperiode må være lik"
+                }
                 upsertUtbetalingBeregningAft(dbo.id, dbo.beregning)
             }
 
@@ -72,23 +75,20 @@ class UtbetalingQueries(private val session: Session) {
         }
     }
 
-    private fun upsertUtbetalingBeregningAft(
+    private fun Session.upsertUtbetalingBeregningAft(
         id: UUID,
-        beregning: UtbetalingBeregningAft,
-    ) = withTransaction(session) {
+        beregning: UtbetalingBeregningForhandsgodkjent,
+    ) {
         @Language("PostgreSQL")
         val query = """
-            insert into utbetaling_beregning_aft (utbetaling_id, periode, sats, belop)
-            values (:utbetaling_id::uuid, daterange(:periode_start, :periode_slutt), :sats, :belop)
+            insert into utbetaling_beregning_forhandsgodkjent (utbetaling_id, sats, belop)
+            values (:utbetaling_id::uuid, :sats, :belop)
             on conflict (utbetaling_id) do update set
-                periode = excluded.periode,
                 sats = excluded.sats,
                 belop = excluded.belop
         """.trimIndent()
         val params = mapOf(
             "utbetaling_id" to id,
-            "periode_start" to beregning.input.periode.start,
-            "periode_slutt" to beregning.input.periode.slutt,
             "sats" to beregning.input.sats,
             "belop" to beregning.output.belop,
         )
@@ -167,7 +167,7 @@ class UtbetalingQueries(private val session: Session) {
         batchPreparedNamedStatement(insertManedsverkQuery, manedsverk)
     }
 
-    private fun upsertUtbetalingBeregningFri(id: UUID, beregning: UtbetalingBeregningFri) {
+    private fun Session.upsertUtbetalingBeregningFri(id: UUID, beregning: UtbetalingBeregningFri) {
         @Language("PostgreSQL")
         val query = """
             insert into utbetaling_beregning_fri (utbetaling_id, belop)
@@ -181,7 +181,7 @@ class UtbetalingQueries(private val session: Session) {
             "belop" to beregning.output.belop,
         )
 
-        session.execute(queryOf(query, params))
+        execute(queryOf(query, params))
     }
 
     fun setGodkjentAvArrangor(id: UUID, tidspunkt: LocalDateTime) = with(session) {
@@ -282,64 +282,11 @@ class UtbetalingQueries(private val session: Session) {
         return list(queryOf(query, params)) { it.toUtbetalingDto() }
     }
 
-    private fun getBeregning(id: UUID, beregningsmodell: Beregningsmodell): UtbetalingBeregning {
-        return when (beregningsmodell) {
-            Beregningsmodell.FORHANDSGODKJENT -> getBeregningAft(id)
-            Beregningsmodell.FRI -> getBeregningFri(id)
-        }
-    }
-
-    private fun getBeregningAft(id: UUID): UtbetalingBeregning {
-        @Language("PostgreSQL")
-        val query = """
-            select *
-            from utbetaling_aft_view
-            where
-                utbetaling_id = :id::uuid
-        """.trimIndent()
-
-        return session.requireSingle(queryOf(query, mapOf("id" to id))) {
-            UtbetalingBeregningAft(
-                input = UtbetalingBeregningAft.Input(
-                    periode = Periode(it.localDate("beregning_periode_start"), it.localDate("beregning_periode_slutt")),
-                    sats = it.int("sats"),
-                    stengt = it.string("stengt_json").let { Json.decodeFromString(it) },
-                    deltakelser = it.stringOrNull("perioder_json")?.let { Json.decodeFromString(it) } ?: setOf(),
-                ),
-                output = UtbetalingBeregningAft.Output(
-                    belop = it.int("belop"),
-                    deltakelser = it.stringOrNull("manedsverk_json")?.let { Json.decodeFromString(it) } ?: setOf(),
-                ),
-            )
-        }
-    }
-
-    private fun getBeregningFri(id: UUID): UtbetalingBeregning {
-        @Language("PostgreSQL")
-        val query = """
-            select *
-            from utbetaling_beregning_fri
-            where
-                utbetaling_id = :id::uuid
-        """.trimIndent()
-
-        return session.requireSingle(queryOf(query, mapOf("id" to id))) {
-            UtbetalingBeregningFri(
-                input = UtbetalingBeregningFri.Input(
-                    belop = it.int("belop"),
-                ),
-                output = UtbetalingBeregningFri.Output(
-                    belop = it.int("belop"),
-                ),
-            )
-        }
-    }
-
     fun getSisteGodkjenteUtbetaling(gjennomforingId: UUID): UtbetalingDto? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from utbetaling_aft_view
+            from utbetaling_dto_view
             where gjennomforing_id = ?::uuid
             order by godkjent_av_arrangor_tidspunkt desc
             limit 1
@@ -351,11 +298,9 @@ class UtbetalingQueries(private val session: Session) {
     }
 
     private fun Row.toUtbetalingDto(): UtbetalingDto {
-        val beregningsmodell = Beregningsmodell.valueOf(string("beregningsmodell"))
-        val beregning = getBeregning(uuid("id"), beregningsmodell)
         val id = uuid("id")
+        val beregning = getBeregning(id, Prismodell.valueOf(string("prismodell")))
         val innsender = stringOrNull("innsender")?.let { UtbetalingDto.Innsender.fromString(it) }
-
         return UtbetalingDto(
             id = id,
             fristForGodkjenning = localDateTime("frist_for_godkjenning"),
@@ -387,5 +332,56 @@ class UtbetalingQueries(private val session: Session) {
             innsender = innsender,
             createdAt = localDateTime("created_at"),
         )
+    }
+
+    private fun getBeregning(id: UUID, prismodell: Prismodell): UtbetalingBeregning {
+        return when (prismodell) {
+            Prismodell.FORHANDSGODKJENT -> getBeregningForhandsgodkjent(id)
+            Prismodell.FRI -> getBeregningFri(id)
+        }
+    }
+
+    private fun getBeregningForhandsgodkjent(id: UUID): UtbetalingBeregning {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from view_utbetaling_beregning_forhandsgodkjent
+            where utbetaling_id = ?::uuid
+        """.trimIndent()
+
+        return session.requireSingle(queryOf(query, id)) { row ->
+            UtbetalingBeregningForhandsgodkjent(
+                input = UtbetalingBeregningForhandsgodkjent.Input(
+                    periode = Periode(row.localDate("periode_start"), row.localDate("periode_slutt")),
+                    sats = row.int("sats"),
+                    stengt = Json.decodeFromString(row.string("stengt_json")),
+                    deltakelser = Json.decodeFromString(row.string("perioder_json")),
+                ),
+                output = UtbetalingBeregningForhandsgodkjent.Output(
+                    belop = row.int("belop"),
+                    deltakelser = Json.decodeFromString(row.string("manedsverk_json")),
+                ),
+            )
+        }
+    }
+
+    private fun getBeregningFri(id: UUID): UtbetalingBeregning {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from utbetaling_beregning_fri
+            where utbetaling_id = ?::uuid
+        """.trimIndent()
+
+        return session.requireSingle(queryOf(query, id)) {
+            UtbetalingBeregningFri(
+                input = UtbetalingBeregningFri.Input(
+                    belop = it.int("belop"),
+                ),
+                output = UtbetalingBeregningFri.Output(
+                    belop = it.int("belop"),
+                ),
+            )
+        }
     }
 }
