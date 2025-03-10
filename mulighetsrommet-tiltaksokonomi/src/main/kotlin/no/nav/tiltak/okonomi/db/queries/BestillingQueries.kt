@@ -2,13 +2,13 @@ package no.nav.tiltak.okonomi.db.queries
 
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.database.datatypes.periode
+import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.okonomi.OkonomiPart
-import no.nav.tiltak.okonomi.db.periode
-import no.nav.tiltak.okonomi.db.toDaterange
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.BestillingStatusType
 import org.intellij.lang.annotations.Language

@@ -22,10 +22,6 @@ data class Periode(
         }
     }
 
-    override fun compareTo(other: Periode): Int {
-        return compareValuesBy(this, other, Periode::start, Periode::slutt)
-    }
-
     companion object {
         /**
          * Oppretter en [Periode] hvis startdatoen er før sluttdatoen, ellers null.
@@ -56,6 +52,10 @@ data class Periode(
         fun fromInclusiveDates(inclusiveStart: LocalDate, inclusiveEnd: LocalDate): Periode {
             return Periode(inclusiveStart, inclusiveEnd.plusDays(1))
         }
+    }
+
+    override fun compareTo(other: Periode): Int {
+        return compareValuesBy(this, other, Periode::start, Periode::slutt)
     }
 
     operator fun contains(date: LocalDate): Boolean {

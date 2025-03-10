@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -35,7 +36,7 @@ class TilsagnQueries(private val session: Session) {
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
-                daterange(:periode_start, :periode_slutt),
+                :periode::daterange,
                 :lopenummer,
                 :bestillingsnummer,
                 :kostnadssted,
@@ -57,8 +58,7 @@ class TilsagnQueries(private val session: Session) {
         val params = mapOf(
             "id" to dbo.id,
             "gjennomforing_id" to dbo.gjennomforingId,
-            "periode_start" to dbo.periode.start,
-            "periode_slutt" to dbo.periode.slutt,
+            "periode" to dbo.periode.toDaterange(),
             "lopenummer" to dbo.lopenummer,
             "bestillingsnummer" to dbo.bestillingsnummer,
             "kostnadssted" to dbo.kostnadssted,

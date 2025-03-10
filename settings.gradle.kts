@@ -5,6 +5,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(
     "common:brreg",
     "common:database",
+    "common:database-helpers",
     "common:domain",
     "common:kafka",
     "common:ktor",

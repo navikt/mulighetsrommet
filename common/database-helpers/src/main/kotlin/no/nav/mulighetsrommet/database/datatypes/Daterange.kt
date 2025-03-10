@@ -1,4 +1,4 @@
-package no.nav.tiltak.okonomi.db
+package no.nav.mulighetsrommet.database.datatypes
 
 import kotliquery.Row
 import no.nav.mulighetsrommet.model.Periode
