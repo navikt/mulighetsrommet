@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.createUuidArray
+import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -466,11 +467,12 @@ class GjennomforingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             insert into gjennomforing_stengt_hos_arrangor (gjennomforing_id, periode, beskrivelse)
-            values (:gjennomforing_id::uuid, daterange(:periode_start, :periode_slutt), :beskrivelse)
+            values (:gjennomforing_id::uuid, :periode::daterange, :beskrivelse)
         """.trimIndent()
 
         val params = mapOf(
             "gjennomforing_id" to id,
+            "periode" to periode.toDaterange(),
             "periode_start" to periode.start,
             "periode_slutt" to periode.slutt,
             "beskrivelse" to beskrivelse,
