@@ -9,6 +9,7 @@ import {
   Kurstype,
   LastNedAvtalerSomExcelData,
   LastNedGjennomforingerSomExcelData,
+  Periode,
   TilsagnAvvisningAarsak,
   TilsagnTilAnnulleringAarsak,
   TilsagnType,
@@ -31,16 +32,53 @@ export function capitalizeEveryWord(text: string = "", ignoreWords: string[] = [
     ?.join(" ");
 }
 
+export function compareByKey<T extends Record<string, any>>(a: T, b: T, orderBy: keyof T): number {
+  const aValue = a[orderBy];
+  const bValue = b[orderBy];
+
+  if (aValue == null && bValue == null) {
+    return 0;
+  } else if (aValue == null) {
+    return 1;
+  } else if (bValue == null) {
+    return -1;
+  }
+
+  if (typeof aValue === "number" && typeof bValue === "number") {
+    return bValue - aValue;
+  }
+
+  if (bValue < aValue) {
+    return -1;
+  } else if (bValue > aValue) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+export function formaterPeriode(periode: Periode) {
+  const start = formaterDato(periode.start);
+  const slutt = formaterDato(subtractDays(new Date(periode.slutt), 1));
+  return `${start} - ${slutt}`;
+}
+
+export function formaterPeriodeStart(periode: Periode) {
+  return formaterDato(periode.start);
+}
+
+export function formaterPeriodeSlutt(periode: Periode) {
+  return formaterDato(subtractDays(new Date(periode.slutt), 1));
+}
+
 export function formaterDato(dato: string | Date | undefined | null): string {
   if (!dato) return "";
 
-  const result = new Date(dato).toLocaleString("no-NO", {
+  return new Date(dato).toLocaleString("no-NO", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   });
-
-  return result;
 }
 
 export function formaterDatoTid(dato: string | Date, fallback = ""): string {
@@ -105,10 +143,6 @@ export function avtaletypeTilTekst(
     case Avtaletype.OFFENTLIG_OFFENTLIG:
       return "Offentlig-offentlig samarbeid";
   }
-}
-
-export function valueOrDefault<T, X>(value: T | undefined, defaultValue: X): T | X {
-  return value !== undefined ? value : defaultValue;
 }
 
 export function validEmail(email: string | undefined): boolean {

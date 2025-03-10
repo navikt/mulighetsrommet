@@ -64,8 +64,7 @@ class TilsagnQueriesTest : FunSpec({
                         navn = AFT1.navn,
                         tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
                     )
-                    it.periodeStart shouldBe LocalDate.of(2023, 1, 1)
-                    it.periodeSlutt shouldBe LocalDate.of(2023, 1, 31)
+                    it.periode shouldBe Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 2, 1))
                     it.kostnadssted shouldBe Gjovik
                     it.lopenummer shouldBe 1
                     it.bestillingsnummer shouldBe "1"
@@ -207,8 +206,7 @@ class TilsagnQueriesTest : FunSpec({
                     tiltakstype = ArrangorflateTilsagn.Tiltakstype(
                         navn = TiltakstypeFixtures.AFT.navn,
                     ),
-                    periodeStart = periodeMedTilsagn.start,
-                    periodeSlutt = periodeMedTilsagn.getLastInclusiveDate(),
+                    periode = periodeMedTilsagn,
                     arrangor = ArrangorflateTilsagn.Arrangor(
                         navn = ArrangorFixtures.underenhet1.navn,
                         id = ArrangorFixtures.underenhet1.id,

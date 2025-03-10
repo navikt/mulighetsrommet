@@ -1,6 +1,6 @@
 import { ArrangorflateTilsagn, TilsagnType } from "@mr/api-client-v2";
 import { Alert, Table } from "@navikt/ds-react";
-import { formaterDato, useOrgnrFromUrl } from "~/utils";
+import { formaterPeriode, useOrgnrFromUrl } from "~/utils";
 import { internalNavigation } from "../../internal-navigation";
 import { LinkWithTabState } from "../LinkWithTabState";
 import { TilsagnStatusTag } from "./TilsagnStatusTag";
@@ -41,9 +41,7 @@ export function TilsagnTable({ tilsagn }: Props) {
                   <Table.DataCell>{tilsagn.tiltakstype.navn}</Table.DataCell>
                   <Table.DataCell>{tilsagn.gjennomforing.navn}</Table.DataCell>
                   <Table.DataCell>{formaterTilsagnType(tilsagn.type)}</Table.DataCell>
-                  <Table.DataCell>
-                    {`${formaterDato(tilsagn.periodeStart)} - ${formaterDato(tilsagn.periodeSlutt)}`}
-                  </Table.DataCell>
+                  <Table.DataCell>{formaterPeriode(tilsagn.periode)}</Table.DataCell>
                   <Table.DataCell>
                     <TilsagnStatusTag data={tilsagn.status} />
                   </Table.DataCell>

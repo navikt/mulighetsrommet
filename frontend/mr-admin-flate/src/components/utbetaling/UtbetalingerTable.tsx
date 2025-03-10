@@ -1,4 +1,4 @@
-import { formaterDato } from "@/utils/Utils";
+import { compareByKey, formaterPeriodeSlutt, formaterPeriodeStart } from "@/utils/Utils";
 import { AdminUtbetalingStatus, UtbetalingKompakt } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { SortState, Table } from "@navikt/ds-react";
@@ -6,6 +6,7 @@ import { TableColumnHeader } from "@navikt/ds-react/Table";
 import { useState } from "react";
 import { Link, useParams } from "react-router";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
+import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 
 interface Props {
   utbetalinger: UtbetalingKompakt[];
@@ -15,8 +16,9 @@ interface ScopedSortState extends SortState {
   orderBy: keyof UtbetalingKompakt;
 }
 
-interface TabellData extends UtbetalingKompakt {
-  periode: Date;
+interface UtbetalingTabellData extends UtbetalingKompakt {
+  periodeStart: string;
+  periodeSlutt: string;
   belop: number;
   status: AdminUtbetalingStatus;
 }
@@ -40,45 +42,22 @@ export function UtbetalingerTable({ utbetalinger }: Props) {
     );
   };
 
-  function comparator<T>(a: T, b: T, orderBy: keyof T): number {
-    const aValue = a[orderBy];
-    const bValue = b[orderBy];
-
-    if (bValue == null) {
-      return -1;
-    }
-
-    if (aValue instanceof Date && bValue instanceof Date) {
-      return bValue.getTime() - aValue.getTime();
-    }
-
-    if (typeof aValue === "number" && typeof bValue === "number") {
-      return bValue - aValue;
-    }
-
-    if (bValue < aValue) {
-      return -1;
-    }
-    if (bValue > aValue) {
-      return 1;
-    }
-    return 0;
-  }
-
-  const sortedData: TabellData[] = [...utbetalinger]
+  const sortedData: UtbetalingTabellData[] = [...utbetalinger]
     .map((utbetaling) => ({
       ...utbetaling,
-      periode: new Date(utbetaling.beregning.periodeStart),
+      periodeStart: utbetaling.periode.start,
+      periodeSlutt: utbetaling.periode.slutt,
       belop: utbetaling.beregning.belop,
       status: utbetaling.status,
     }))
-    .sort((a, b) => {
+    .toSorted((a, b) => {
       if (sort) {
         return sort.direction === "ascending"
-          ? comparator(b, a, sort.orderBy)
-          : comparator(a, b, sort.orderBy);
+          ? compareByKey(b, a, sort.orderBy)
+          : compareByKey(a, b, sort.orderBy);
+      } else {
+        return 0;
       }
-      return 1;
     });
 
   return (
@@ -88,11 +67,14 @@ export function UtbetalingerTable({ utbetalinger }: Props) {
     >
       <Table.Header>
         <Table.Row>
-          <TableColumnHeader sortKey="periode" sortable>
-            Periode
+          <TableColumnHeader sortKey="periodeStart" sortable>
+            {utbetalingTekster.periode.start.label}
+          </TableColumnHeader>
+          <TableColumnHeader sortKey="periodeSlutt" sortable>
+            {utbetalingTekster.periode.slutt.label}
           </TableColumnHeader>
           <TableColumnHeader sortKey="belop" sortable align="right">
-            Beløp
+            {utbetalingTekster.beregning.belop.label}
           </TableColumnHeader>
           <TableColumnHeader sortKey="status" sortable align="right">
             Status
@@ -101,10 +83,11 @@ export function UtbetalingerTable({ utbetalinger }: Props) {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {sortedData.map(({ beregning, id, status }) => {
+        {sortedData.map(({ beregning, periode, id, status }) => {
           return (
             <Table.Row key={id}>
-              <Table.DataCell>{`${formaterDato(beregning.periodeStart)}-${formaterDato(beregning.periodeSlutt)}`}</Table.DataCell>
+              <Table.DataCell>{formaterPeriodeStart(periode)}</Table.DataCell>
+              <Table.DataCell>{formaterPeriodeSlutt(periode)}</Table.DataCell>
               <Table.DataCell align="right">{formaterNOK(beregning.belop)}</Table.DataCell>
               <Table.DataCell align="right">
                 <UtbetalingStatusTag status={status} />

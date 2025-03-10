@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
-import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.*
@@ -316,7 +315,7 @@ class UtbetalingService(
             log.debug("Avbryter automatisk utbetaling. Ikke nok penger. UtbetalingId: {}", utbetalingId)
             return false
         }
-        val frigjorTilsagn = tilsagn.periodeSlutt in utbetaling.periode
+        val frigjorTilsagn = tilsagn.periode.slutt in utbetaling.periode
         val delutbetalingId = UUID.randomUUID()
         upsertDelutbetaling(
             utbetaling,
@@ -346,8 +345,8 @@ class UtbetalingService(
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
             "Tilsagn er ikke godkjent id=${tilsagn.id} status=${tilsagn.status}"
         }
-        val tilsagnPeriode = Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt)
-        val periode = requireNotNull(utbetaling.periode.intersect(tilsagnPeriode)) {
+
+        val periode = requireNotNull(utbetaling.periode.intersect(tilsagn.periode)) {
             "Utbetalingsperiode og tilsagnsperiode overlapper ikke"
         }
 

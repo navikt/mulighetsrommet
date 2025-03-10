@@ -2,6 +2,7 @@ import { addYear } from "@/utils/Utils";
 import { HGrid } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
+import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 
 interface Props {
   startDato: string;
@@ -13,7 +14,7 @@ export function VelgPeriode(props: Props) {
   return (
     <HGrid columns={2}>
       <ControlledDateInput
-        label="Dato fra"
+        label={tilsagnTekster.periode.start.label}
         fromDate={new Date(props.startDato)}
         toDate={addYear(new Date(), 50)}
         format="iso-string"
@@ -22,7 +23,7 @@ export function VelgPeriode(props: Props) {
         control={control}
       />
       <ControlledDateInput
-        label="Dato til"
+        label={tilsagnTekster.periode.slutt.label}
         fromDate={new Date(props.startDato)}
         toDate={addYear(new Date(), 50)}
         format="iso-string"

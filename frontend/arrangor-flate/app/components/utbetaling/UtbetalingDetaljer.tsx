@@ -3,7 +3,7 @@ import { Separator } from "~/components/Separator";
 import { ArrangorflateTilsagn, ArrFlateUtbetaling } from "@mr/api-client-v2";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { GenerelleDetaljer } from "~/components/utbetaling/GenerelleDetaljer";
-import { formaterDato } from "~/utils";
+import { formaterDato, formaterPeriode } from "~/utils";
 import { Definisjonsliste } from "../Definisjonsliste";
 import { BeregningDetaljer } from "./BeregningDetaljer";
 
@@ -38,7 +38,7 @@ export function UtbetalingDetaljer({ utbetaling, tilsagn }: Props) {
         definitions={[
           {
             key: "Utbetalingsperiode",
-            value: `${formaterDato(utbetaling.periodeStart)} - ${formaterDato(utbetaling.periodeSlutt)}`,
+            value: formaterPeriode(utbetaling.periode),
           },
           { key: "Frist for innsending", value: formaterDato(utbetaling.fristForGodkjenning) },
         ]}
