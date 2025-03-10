@@ -249,21 +249,6 @@ val ApplicationConfigDev = AppConfig(
         enable = true,
     ),
     okonomi = OkonomiConfig(
-        minimumTilsagnPeriodeStart = mapOf(
-            // Forhåndsgodkjente tiltak
-            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to LocalDate.of(2023, 1, 1),
-            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to LocalDate.of(2023, 1, 1),
-
-            // Anskaffede tiltak
-            Tiltakskode.AVKLARING to LocalDate.of(2024, 1, 1),
-            Tiltakskode.OPPFOLGING to LocalDate.of(2024, 1, 1),
-            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to LocalDate.of(2024, 1, 1),
-            Tiltakskode.ARBEIDSRETTET_REHABILITERING to LocalDate.of(2024, 1, 1),
-
-            // Kurs-tiltak er foreløpig ikke støttet i dev
-            // Tiltakskode.JOBBKLUBB
-            // Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING
-            // Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING
-        ),
+        minimumTilsagnPeriodeStart = Tiltakskode.entries.associateWith { LocalDate.of(2025, 1, 1) },
     ),
 )
