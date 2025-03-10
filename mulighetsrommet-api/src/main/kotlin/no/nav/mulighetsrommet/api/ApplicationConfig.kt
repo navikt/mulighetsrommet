@@ -25,11 +25,6 @@ import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import java.util.*
 
-data class Config(
-    val server: ServerConfig,
-    val app: AppConfig,
-)
-
 data class AppConfig(
     val server: ServerConfig = ServerConfig(),
     val database: DatabaseConfig,
