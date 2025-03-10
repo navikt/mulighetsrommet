@@ -1,60 +1,25 @@
 import { UtbetalingService } from "@mr/api-client-v2";
-import { QueryClient, queryOptions } from "@tanstack/react-query";
-import { LoaderFunctionArgs } from "react-router";
-import { ansattQuery } from "../../../api/ansatt/ansattQuery";
-import { gjennomforingQuery } from "../gjennomforingLoaders";
 
-const utbetalingQuery = (utbetalingId: string) =>
-  queryOptions({
-    queryKey: ["utbetaling", utbetalingId],
-    queryFn: () => UtbetalingService.getUtbetaling({ path: { id: utbetalingId } }),
-  });
+export const utbetalingQuery = (utbetalingId?: string) => ({
+  queryKey: ["utbetaling", utbetalingId],
+  queryFn: () => UtbetalingService.getUtbetaling({ path: { id: utbetalingId! } }),
+  enabled: !!utbetalingId,
+});
 
-const delutbetalingerQuery = (utbetalingId: string) =>
-  queryOptions({
-    queryKey: ["utbetaling", utbetalingId, "delutbetalinger"],
-    queryFn: () => UtbetalingService.getDelutbetalinger({ path: { id: utbetalingId } }),
-  });
+export const delutbetalingerQuery = (utbetalingId?: string) => ({
+  queryKey: ["utbetaling", utbetalingId, "delutbetalinger"],
+  queryFn: () => UtbetalingService.getDelutbetalinger({ path: { id: utbetalingId! } }),
+  enabled: !!utbetalingId,
+});
 
-const tilsagnTilUtbetalingQuery = (utbetalingId: string) =>
-  queryOptions({
-    queryKey: ["utbetaling", utbetalingId, "tilsagn"],
-    queryFn: () => UtbetalingService.getTilsagnTilUtbetaling({ path: { id: utbetalingId } }),
-  });
+export const tilsagnTilUtbetalingQuery = (utbetalingId?: string) => ({
+  queryKey: ["utbetaling", utbetalingId, "tilsagn"],
+  queryFn: () => UtbetalingService.getTilsagnTilUtbetaling({ path: { id: utbetalingId! } }),
+  enabled: !!utbetalingId,
+});
 
-const utbetalingHistorikkQuery = (utbetalingId: string) =>
-  queryOptions({
-    queryKey: ["utbetaling", utbetalingId, "historikk"],
-    queryFn: () => UtbetalingService.getUtbetalingEndringshistorikk({ path: { id: utbetalingId } }),
-  });
-
-export const utbetalingPageLoader =
-  (queryClient: QueryClient) =>
-  async ({ params }: LoaderFunctionArgs) => {
-    const { gjennomforingId, utbetalingId } = params;
-
-    if (!gjennomforingId) {
-      throw new Error("gjennomforingId is missing");
-    }
-    if (!utbetalingId) {
-      throw new Error("utbetalingId is missing");
-    }
-
-    const [
-      ansatt,
-      gjennomforing,
-      { data: utbetaling },
-      { data: delutbetalinger },
-      { data: tilsagn },
-      { data: historikk },
-    ] = await Promise.all([
-      queryClient.ensureQueryData(ansattQuery),
-      queryClient.ensureQueryData(gjennomforingQuery(gjennomforingId)),
-      queryClient.ensureQueryData(utbetalingQuery(utbetalingId)),
-      queryClient.ensureQueryData(delutbetalingerQuery(utbetalingId)),
-      queryClient.ensureQueryData(tilsagnTilUtbetalingQuery(utbetalingId)),
-      queryClient.ensureQueryData(utbetalingHistorikkQuery(utbetalingId)),
-    ]);
-
-    return { ansatt, gjennomforing, utbetaling, delutbetalinger, tilsagn, historikk };
-  };
+export const utbetalingHistorikkQuery = (utbetalingId?: string) => ({
+  queryKey: ["utbetaling", utbetalingId, "historikk"],
+  queryFn: () => UtbetalingService.getUtbetalingEndringshistorikk({ path: { id: utbetalingId! } }),
+  enabled: !!utbetalingId,
+});

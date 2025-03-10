@@ -1,9 +1,9 @@
 import { QueryKeys } from "@/api/QueryKeys";
 import { AnsattService } from "@mr/api-client-v2";
-import { useApiQuery } from "@mr/frontend-common";
+import { useApiSuspenseQuery } from "@mr/frontend-common";
 
 export function useHentAnsatt() {
-  return useApiQuery({
+  return useApiSuspenseQuery({
     queryKey: QueryKeys.ansatt(),
     queryFn: () => AnsattService.hentInfoOmAnsatt(),
   });

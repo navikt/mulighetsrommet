@@ -1,42 +1,18 @@
-import { AnsattService, TilsagnService } from "@mr/api-client-v2";
-import { LoaderFunctionArgs } from "react-router";
+import { TilsagnService } from "@mr/api-client-v2";
 
-import { QueryClient, queryOptions } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import { QueryKeys } from "../../../../api/QueryKeys";
-import { gjennomforingQuery } from "../../gjennomforingLoaders";
 
-const tilsagnQuery = (tilsagnId: string) =>
+export const tilsagnQuery = (tilsagnId?: string) =>
   queryOptions({
     queryKey: QueryKeys.getTilsagn(tilsagnId),
-    queryFn: () => TilsagnService.getTilsagn({ path: { id: tilsagnId } }),
+    queryFn: () => TilsagnService.getTilsagn({ path: { id: tilsagnId! } }),
+    enabled: !!tilsagnId,
   });
 
-const tilsagnHistorikkQuery = (tilsagnId: string) =>
+export const tilsagnHistorikkQuery = (tilsagnId?: string) =>
   queryOptions({
     queryKey: ["tilsagn", tilsagnId, "historikk"],
-    queryFn: () => TilsagnService.getTilsagnEndringshistorikk({ path: { id: tilsagnId } }),
+    queryFn: () => TilsagnService.getTilsagnEndringshistorikk({ path: { id: tilsagnId! } }),
+    enabled: !!tilsagnId,
   });
-
-export const tilsagnDetaljerLoader =
-  (queryClient: QueryClient) =>
-  async ({ params }: LoaderFunctionArgs) => {
-    const { gjennomforingId, tilsagnId } = params;
-
-    if (!gjennomforingId) {
-      throw new Error("gjennomforingId is missing");
-    }
-
-    if (!tilsagnId) {
-      throw new Error("tilsagnId is missing");
-    }
-
-    const [{ data: ansatt }, gjennomforing, { data: tilsagn }, { data: historikk }] =
-      await Promise.all([
-        AnsattService.hentInfoOmAnsatt(),
-        queryClient.ensureQueryData(gjennomforingQuery(gjennomforingId)),
-        queryClient.ensureQueryData(tilsagnQuery(tilsagnId)),
-        queryClient.ensureQueryData(tilsagnHistorikkQuery(tilsagnId)),
-      ]);
-
-    return { ansatt, gjennomforing, tilsagn, historikk };
-  };
