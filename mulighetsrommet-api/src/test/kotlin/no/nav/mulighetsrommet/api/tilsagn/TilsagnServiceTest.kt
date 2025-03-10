@@ -8,7 +8,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -305,10 +304,11 @@ class TilsagnServiceTest : FunSpec({
                 ),
             ).shouldBeRight()
             dto.status shouldBe TilsagnStatus.TIL_ANNULLERING
-            dto.annullering shouldNotBe null
-            dto.annullering!!.behandletAv shouldBe NavAnsattFixture.ansatt1.navIdent
-            dto.annullering!!.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
-            dto.annullering!!.forklaring shouldBe "Velg et annet beløp"
+            dto.annullering.shouldNotBeNull().should {
+                it.behandletAv shouldBe NavAnsattFixture.ansatt1.navIdent
+                it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
+                it.forklaring shouldBe "Velg et annet beløp"
+            }
         }
 
         test("godkjenn annullering av tilsagn") {
@@ -322,7 +322,6 @@ class TilsagnServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createTilsagnService()
-            val dto1 = database.run { queries.tilsagn.get(Tilsagn1.id) }
 
             val dto = service.beslutt(
                 Tilsagn1.id,
@@ -330,12 +329,13 @@ class TilsagnServiceTest : FunSpec({
                 NavAnsattFixture.ansatt2.navIdent,
             ).shouldBeRight()
             dto.status shouldBe TilsagnStatus.ANNULLERT
-            dto.annullering shouldNotBe null
-            dto.annullering!!.behandletAv shouldBe NavAnsattFixture.ansatt1.navIdent
-            dto.annullering!!.besluttetAv shouldBe NavAnsattFixture.ansatt2.navIdent
-            dto.annullering!!.besluttelse shouldBe Besluttelse.GODKJENT
-            dto.annullering!!.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
-            dto.annullering!!.forklaring shouldBe "Velg et annet beløp"
+            dto.annullering.shouldNotBeNull().should {
+                it.behandletAv shouldBe NavAnsattFixture.ansatt1.navIdent
+                it.besluttetAv shouldBe NavAnsattFixture.ansatt2.navIdent
+                it.besluttelse shouldBe Besluttelse.GODKJENT
+                it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
+                it.forklaring shouldBe "Velg et annet beløp"
+            }
         }
 
         test("annullering av tilsagn trigger melding til økonomi") {
