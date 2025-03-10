@@ -37,7 +37,7 @@ class TilsagnService(
 
         val beregningInput = request.beregning
 
-        validateGjennomforingBeregningInput(gjennomforing, beregningInput)
+        validateTilsagnBeregningInput(gjennomforing, beregningInput)
             .flatMap { beregnTilsagn(beregningInput) }
             .map { beregning ->
                 val lopenummer = previous?.lopenummer
@@ -254,7 +254,7 @@ class TilsagnService(
         queries.endringshistorikk.getEndringshistorikk(DocumentClass.TILSAGN, id)
     }
 
-    private fun validateGjennomforingBeregningInput(
+    private fun validateTilsagnBeregningInput(
         gjennomforing: GjennomforingDto,
         input: TilsagnBeregningInput,
     ): Either<List<FieldError>, TilsagnBeregningInput> {

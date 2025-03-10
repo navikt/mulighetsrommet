@@ -77,7 +77,7 @@ fun createTestApplicationConfig() = AppConfig(
     pdfgen = HttpClientConfig("pdfgen"),
     norg2 = HttpClientConfig("norg2"),
     utdanning = HttpClientConfig("utdanning.no"),
-    okonomi = OkonomiConfig(minTilsagnCreationDate = mapOf())
+    okonomi = OkonomiConfig(mapOf())
 )
 
 private fun createTaskConfig() = TaskConfig(
