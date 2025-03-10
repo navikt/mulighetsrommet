@@ -19,9 +19,11 @@ import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.mulighetsrommet.utils.toUUID
+import java.time.LocalDate
 
 val ApplicationConfigDev = AppConfig(
     database = DatabaseConfig(
@@ -245,5 +247,23 @@ val ApplicationConfigDev = AppConfig(
         token = System.getenv("SLACK_TOKEN"),
         channel = "#team-valp-monitorering-dev",
         enable = true,
+    ),
+    okonomi = OkonomiConfig(
+        minimumTilsagnPeriodeStart = mapOf(
+            // Forhåndsgodkjente tiltak
+            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to LocalDate.of(2023, 1, 1),
+            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to LocalDate.of(2023, 1, 1),
+
+            // Anskaffede tiltak
+            Tiltakskode.AVKLARING to LocalDate.of(2024, 1, 1),
+            Tiltakskode.OPPFOLGING to LocalDate.of(2024, 1, 1),
+            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to LocalDate.of(2024, 1, 1),
+            Tiltakskode.ARBEIDSRETTET_REHABILITERING to LocalDate.of(2024, 1, 1),
+
+            // Kurs-tiltak er foreløpig ikke støttet i dev
+            // Tiltakskode.JOBBKLUBB
+            // Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING
+            // Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING
+        ),
     ),
 )

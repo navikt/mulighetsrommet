@@ -21,8 +21,10 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
+import java.time.LocalDate
 import java.util.*
 
 data class AppConfig(
@@ -53,6 +55,11 @@ data class AppConfig(
     val utdanning: HttpClientConfig,
     val altinn: AuthenticatedHttpClientConfig,
     val dokark: AuthenticatedHttpClientConfig,
+    val okonomi: OkonomiConfig,
+)
+
+data class OkonomiConfig(
+    val minimumTilsagnPeriodeStart: Map<Tiltakskode, LocalDate>,
 )
 
 data class AuthConfig(

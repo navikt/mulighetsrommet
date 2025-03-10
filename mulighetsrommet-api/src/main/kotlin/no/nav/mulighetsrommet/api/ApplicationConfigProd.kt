@@ -19,9 +19,11 @@ import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.mulighetsrommet.utils.toUUID
+import java.time.LocalDate
 
 val ApplicationConfigProd = AppConfig(
     database = DatabaseConfig(
@@ -254,5 +256,12 @@ val ApplicationConfigProd = AppConfig(
         token = System.getenv("SLACK_TOKEN"),
         channel = "#team-valp-monitoring",
         enable = true,
+    ),
+    okonomi = OkonomiConfig(
+        minimumTilsagnPeriodeStart = mapOf(
+            // Forhåndsgodkjente tiltak
+            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to LocalDate.of(2025, 7, 1),
+            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to LocalDate.of(2025, 7, 1),
+        ),
     ),
 )
