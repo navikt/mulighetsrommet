@@ -13,9 +13,11 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn1
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.setTilsagnStatus
@@ -25,6 +27,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Tiltakskode
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.*
@@ -36,12 +39,21 @@ class TilsagnServiceTest : FunSpec({
         database.truncateAll()
     }
 
+    val minimumTilsagnPeriodeStart = LocalDate.of(2023, 1, 1)
+
     fun createTilsagnService(
         okonomi: OkonomiBestillingService = mockk(relaxed = true),
-    ) = TilsagnService(
-        db = database.db,
-        okonomi = okonomi,
-    )
+    ): TilsagnService {
+        return TilsagnService(
+            db = database.db,
+            config = OkonomiConfig(
+                minimumTilsagnPeriodeStart = mapOf(
+                    Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to minimumTilsagnPeriodeStart,
+                ),
+            ),
+            okonomi = okonomi,
+        )
+    }
 
     context("opprett tilsagn") {
         val service = createTilsagnService()
@@ -64,14 +76,53 @@ class TilsagnServiceTest : FunSpec({
             ).initialize(database.db)
 
             val request = tilsagn.copy(
-                periodeStart = LocalDate.of(2022, 12, 1),
-                periodeSlutt = LocalDate.of(2023, 1, 1),
+                periodeStart = LocalDate.of(2023, 1, 1),
+                periodeSlutt = LocalDate.of(2024, 1, 31),
             )
 
             service.upsert(request, NavAnsattFixture.ansatt1.navIdent).shouldBeLeft() shouldBe listOf(
                 FieldError(
                     pointer = "/periodeSlutt",
                     detail = "Tilsagnsperioden kan ikke vare utover årsskiftet",
+                ),
+            )
+        }
+
+        test("minimum dato for tilsagn må være satt for at tilsagn skal opprettes") {
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(AvtaleFixtures.VTA),
+                gjennomforinger = listOf(VTA1),
+            ).initialize(database.db)
+
+            val request = tilsagn.copy(
+                gjennomforingId = VTA1.id,
+            )
+
+            service.upsert(request, NavAnsattFixture.ansatt1.navIdent).shouldBeLeft() shouldBe listOf(
+                FieldError(
+                    pointer = "/periodeStart",
+                    detail = "Tilsagn for tiltakstype Varig tilrettelagt arbeid i skjermet virksomhet er ikke støttet enda",
+                ),
+            )
+        }
+
+        test("tilsagnet kan ikke starte før konfigurert minimum dato for tilsagn") {
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+            ).initialize(database.db)
+
+            val request = tilsagn.copy(
+                periodeStart = LocalDate.of(2022, 12, 1),
+                periodeSlutt = LocalDate.of(2023, 1, 31),
+            )
+
+            service.upsert(request, NavAnsattFixture.ansatt1.navIdent).shouldBeLeft() shouldBe listOf(
+                FieldError(
+                    pointer = "/periodeStart",
+                    detail = "Minimum startdato for tilsagn til Arbeidsforberedende trening (AFT) er 01.01.2023",
                 ),
             )
         }
