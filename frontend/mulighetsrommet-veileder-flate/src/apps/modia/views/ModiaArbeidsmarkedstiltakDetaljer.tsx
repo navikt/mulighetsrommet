@@ -10,9 +10,11 @@ import { OpprettAvtaleJoyride } from "@/components/joyride/OpprettAvtaleJoyride"
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
-import { PORTEN_URL_FOR_TILBAKEMELDING } from "@/constants";
+import {
+  PORTEN_URL_FOR_TILBAKEMELDING,
+  TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL,
+} from "@/constants";
 import { paginationAtom } from "@/core/atoms";
-import { isProduction } from "@/environment";
 import { ViewTiltakDetaljer } from "@/layouts/ViewTiltakDetaljer";
 import {
   Bruker,
@@ -38,6 +40,8 @@ import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import { PameldingKometApnerSnart } from "../pamelding/PameldingKometApnerSnart";
 import { ArbeidsmarkedstiltakErrorBoundary } from "@/ErrorBoundary";
+
+const TEAM_TILTAK_OPPRETT_AVTALE_URL = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL}/opprett-avtale`;
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -97,8 +101,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
             {kanOppretteAvtaleForTiltak && (
               <Button
                 onClick={() => {
-                  const url = lenkeTilOpprettAvtale();
-                  window.open(url, "_blank");
+                  window.open(TEAM_TILTAK_OPPRETT_AVTALE_URL, "_blank");
                 }}
                 variant="primary"
                 aria-label="Opprett avtale"
@@ -190,13 +193,6 @@ function isIndividueltTiltak(tiltakstype: VeilederflateTiltakstype): boolean {
     tiltakstype.arenakode !== undefined &&
     whiteListOpprettAvtaleKnapp.includes(tiltakstype.arenakode)
   );
-}
-
-function lenkeTilOpprettAvtale(): string {
-  const baseUrl = isProduction
-    ? "https://tiltaksgjennomforing.intern.nav.no"
-    : "https://tiltaksgjennomforing.intern.dev.nav.no";
-  return `${baseUrl}/tiltaksgjennomforing/opprett-avtale`;
 }
 
 function harBrukerRettPaaValgtTiltak(

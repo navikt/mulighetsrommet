@@ -15,7 +15,7 @@ object TilsagnValidator {
         next: TilsagnDbo,
         previous: TilsagnDto?,
     ): Either<List<FieldError>, TilsagnDbo> = either {
-        if (previous != null && previous.status !is TilsagnDto.TilsagnStatus.Returnert) {
+        if (previous != null && previous.status != TilsagnStatus.RETURNERT) {
             return FieldError
                 .of(TilsagnDto::id, "Tilsagnet kan ikke endres.")
                 .nel()
@@ -23,7 +23,7 @@ object TilsagnValidator {
         }
 
         val errors = buildList {
-            if (next.periode.start.year != next.periode.getLastDate().year) {
+            if (next.periode.start.year != next.periode.getLastInclusiveDate().year) {
                 add(
                     FieldError.of(
                         TilsagnRequest::periodeSlutt,

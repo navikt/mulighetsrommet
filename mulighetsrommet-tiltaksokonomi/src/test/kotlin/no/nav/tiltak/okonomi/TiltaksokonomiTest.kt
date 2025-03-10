@@ -9,22 +9,30 @@ import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.MockEngineBuilder
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.*
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.api.*
+import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.model.BestillingStatusType
 import no.nav.tiltak.okonomi.model.FakturaStatusType
+import no.nav.tiltak.okonomi.model.OebsKontering
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 
 class TiltaksokonomiTest : FunSpec({
+    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+
     val oauth = MockOAuth2Server()
 
     beforeSpec {
         oauth.start()
+
+        val db = OkonomiDatabase(database.db)
+        initializeData(db)
     }
 
     afterSpec {
@@ -44,7 +52,6 @@ class TiltaksokonomiTest : FunSpec({
                 }
 
                 client.post(Bestilling()).status shouldBe HttpStatusCode.Unauthorized
-                client.post(Bestilling.Id.Status(Bestilling.Id(id = "A-1"))).status shouldBe HttpStatusCode.Unauthorized
                 client.get(Bestilling.Id(id = "A-1")).status shouldBe HttpStatusCode.Unauthorized
             }
         }
@@ -68,7 +75,7 @@ class TiltaksokonomiTest : FunSpec({
             }
         }
 
-        test("behandle og annuller bestilling") {
+        test("behandle bestilling") {
             val mockEngine = createMockEngine {
                 mockBrregHovedenhet()
 
@@ -90,16 +97,17 @@ class TiltaksokonomiTest : FunSpec({
                     contentType(ContentType.Application.Json)
                     setBody(
                         OpprettBestilling(
+                            bestillingsnummer = bestillingsnummer,
+                            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
                             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
                             arrangor = OpprettBestilling.Arrangor(
                                 hovedenhet = Organisasjonsnummer("123456789"),
                                 underenhet = Organisasjonsnummer("234567891"),
                             ),
-                            bestillingsnummer = bestillingsnummer,
                             avtalenummer = "2025/1234",
                             belop = 1000,
-                            opprettetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-                            opprettetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+                            behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+                            behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
                             besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
                             besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
                             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
@@ -116,25 +124,7 @@ class TiltaksokonomiTest : FunSpec({
                     it.status shouldBe HttpStatusCode.OK
                     it.body<BestillingStatus>() shouldBe BestillingStatus(
                         bestillingsnummer = bestillingsnummer,
-                        status = BestillingStatusType.AKTIV,
-                    )
-                }
-
-                client.post(Bestilling.Id.Status(Bestilling.Id(id = bestillingsnummer))) {
-                    bearerAuth(oauth.issueToken().serialize())
-                    contentType(ContentType.Application.Json)
-                    setBody(SetBestillingStatus(status = BestillingStatusType.ANNULLERT))
-                }.also {
-                    it.status shouldBe HttpStatusCode.OK
-                }
-
-                client.get(Bestilling.Id(id = bestillingsnummer)) {
-                    bearerAuth(oauth.issueToken().serialize())
-                }.also {
-                    it.status shouldBe HttpStatusCode.OK
-                    it.body<BestillingStatus>() shouldBe BestillingStatus(
-                        bestillingsnummer = bestillingsnummer,
-                        status = BestillingStatusType.ANNULLERT,
+                        status = BestillingStatusType.BESTILT,
                     )
                 }
             }
@@ -182,16 +172,17 @@ class TiltaksokonomiTest : FunSpec({
                     contentType(ContentType.Application.Json)
                     setBody(
                         OpprettBestilling(
+                            bestillingsnummer = bestillingsnummer,
+                            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
                             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
                             arrangor = OpprettBestilling.Arrangor(
                                 hovedenhet = Organisasjonsnummer("123456789"),
                                 underenhet = Organisasjonsnummer("234567891"),
                             ),
-                            bestillingsnummer = bestillingsnummer,
                             avtalenummer = null,
                             belop = 1000,
-                            opprettetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-                            opprettetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+                            behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+                            behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
                             besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
                             besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
                             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
@@ -215,10 +206,11 @@ class TiltaksokonomiTest : FunSpec({
                                 kontonummer = Kontonummer("12345678901"),
                                 kid = null,
                             ),
+                            frigjorBestilling = false,
                             belop = 1000,
                             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-                            opprettetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-                            opprettetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+                            behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+                            behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
                             besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
                             besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
                         ),
@@ -241,6 +233,18 @@ class TiltaksokonomiTest : FunSpec({
     }
 })
 
+private fun initializeData(db: OkonomiDatabase) = db.session {
+    queries.kontering.insertKontering(
+        OebsKontering(
+            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+            tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+            periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2099, 1, 1)),
+            statligRegnskapskonto = "12345678901",
+            statligArtskonto = "23456789012",
+        ),
+    )
+}
+
 private fun MockEngineBuilder.mockBrregHovedenhet() {
     get("https://data.brreg.no/enhetsregisteret/api/enheter/123456789") {
         @Language("json")
@@ -252,7 +256,7 @@ private fun MockEngineBuilder.mockBrregHovedenhet() {
                     "kode": "AS",
                     "beskrivelse": "Aksjeselskap"
                 },
-                "postadresse": {
+                "forretningsadresse": {
                     "land": "Norge",
                     "landkode": "NO",
                     "postnummer": "0170",

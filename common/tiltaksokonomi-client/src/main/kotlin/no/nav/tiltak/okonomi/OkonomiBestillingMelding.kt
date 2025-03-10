@@ -17,7 +17,9 @@ sealed class OkonomiBestillingMelding {
 
     @Serializable
     @SerialName("ANNULLERING")
-    data object Annullering : OkonomiBestillingMelding()
+    data class Annullering(
+        val payload: AnnullerBestilling,
+    ) : OkonomiBestillingMelding()
 
     @Serializable
     @SerialName("FAKTURA")
@@ -28,16 +30,17 @@ sealed class OkonomiBestillingMelding {
 
 @Serializable
 data class OpprettBestilling(
+    val bestillingsnummer: String,
+    val tilskuddstype: Tilskuddstype,
     val tiltakskode: Tiltakskode,
     val arrangor: Arrangor,
     val kostnadssted: NavEnhetNummer,
-    val bestillingsnummer: String,
     val avtalenummer: String?,
     val belop: Int,
     val periode: Periode,
-    val opprettetAv: OkonomiPart,
+    val behandletAv: OkonomiPart,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val opprettetTidspunkt: LocalDateTime,
+    val behandletTidspunkt: LocalDateTime,
     val besluttetAv: OkonomiPart,
     @Serializable(with = LocalDateTimeSerializer::class)
     val besluttetTidspunkt: LocalDateTime,
@@ -49,16 +52,33 @@ data class OpprettBestilling(
     )
 }
 
+enum class Tilskuddstype {
+    TILTAK_DRIFTSTILSKUDD,
+    TILTAK_INVESTERINGER,
+}
+
+@Serializable
+data class AnnullerBestilling(
+    val bestillingsnummer: String,
+    val behandletAv: OkonomiPart,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val behandletTidspunkt: LocalDateTime,
+    val besluttetAv: OkonomiPart,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val besluttetTidspunkt: LocalDateTime,
+)
+
 @Serializable
 data class OpprettFaktura(
     val fakturanummer: String,
     val bestillingsnummer: String,
     val betalingsinformasjon: Betalingsinformasjon,
+    val frigjorBestilling: Boolean,
     val belop: Int,
     val periode: Periode,
-    val opprettetAv: OkonomiPart,
+    val behandletAv: OkonomiPart,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val opprettetTidspunkt: LocalDateTime,
+    val behandletTidspunkt: LocalDateTime,
     val besluttetAv: OkonomiPart,
     @Serializable(with = LocalDateTimeSerializer::class)
     val besluttetTidspunkt: LocalDateTime,

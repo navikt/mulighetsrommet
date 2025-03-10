@@ -7,8 +7,8 @@ import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 
@@ -49,7 +49,7 @@ class UpdateApentForPamelding(
         val ids = session.list(queryOf(query, startDato)) { it.uuid("id") }
 
         ids.forEach { id ->
-            gjennomforingService.setApentForPamelding(id, apentForPamelding = false, EndretAv.System)
+            gjennomforingService.setApentForPamelding(id, apentForPamelding = false, Tiltaksadministrasjon)
         }
     }
 }

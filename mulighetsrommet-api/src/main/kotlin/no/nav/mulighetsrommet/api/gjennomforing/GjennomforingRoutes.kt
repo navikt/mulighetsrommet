@@ -14,19 +14,18 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.FrikobleKontaktpersonRequest
-import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.responses.*
+import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskoder.isForhaandsgodkjentTiltak
 import no.nav.mulighetsrommet.serializers.AvbruttAarsakSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -122,7 +121,7 @@ fun Route.gjennomforingRoutes() {
                     )
                 }
 
-                gjennomforinger.setAvsluttet(id, LocalDateTime.now(), aarsak, EndretAv.NavAnsatt(navIdent))
+                gjennomforinger.setAvsluttet(id, LocalDateTime.now(), aarsak, navIdent)
 
                 call.respond(HttpStatusCode.OK)
             }
@@ -139,7 +138,7 @@ fun Route.gjennomforingRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
                 val request = call.receive<SetApentForPameldingRequest>()
-                gjennomforinger.setApentForPamelding(id, request.apentForPamelding, EndretAv.NavAnsatt(navIdent))
+                gjennomforinger.setApentForPamelding(id, request.apentForPamelding, navIdent)
                 call.respond(HttpStatusCode.OK)
             }
 
@@ -166,7 +165,7 @@ fun Route.gjennomforingRoutes() {
 
                 val result = request.validate()
                     .flatMap { (periode, beskrivelse) ->
-                        gjennomforinger.setStengtHosArrangor(id, periode, beskrivelse, EndretAv.NavAnsatt(navIdent))
+                        gjennomforinger.setStengtHosArrangor(id, periode, beskrivelse, navIdent)
                     }
                     .mapLeft { ValidationError(errors = it) }
 
@@ -178,7 +177,7 @@ fun Route.gjennomforingRoutes() {
                 val periodeId: Int by call.pathParameters
                 val navIdent = getNavIdent()
 
-                gjennomforinger.deleteStengtHosArrangor(id, periodeId, EndretAv.NavAnsatt(navIdent))
+                gjennomforinger.deleteStengtHosArrangor(id, periodeId, navIdent)
 
                 call.respond(HttpStatusCode.OK)
             }
@@ -213,7 +212,10 @@ fun Route.gjennomforingRoutes() {
 
         get("mine") {
             val pagination = getPaginationParams()
-            val filter = getAdminTiltaksgjennomforingsFilter().copy(administratorNavIdent = getNavIdent())
+            val filter = getAdminTiltaksgjennomforingsFilter().copy(
+                administratorNavIdent = getNavIdent(),
+                koordinatorNavIdent = getNavIdent(),
+            )
 
             call.respond(gjennomforinger.getAll(pagination, filter))
         }
@@ -307,6 +309,7 @@ data class AdminTiltaksgjennomforingFilter(
     val arrangorIds: List<UUID> = emptyList(),
     val administratorNavIdent: NavIdent? = null,
     val publisert: Boolean? = null,
+    val koordinatorNavIdent: NavIdent? = null,
 )
 
 fun RoutingContext.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomforingFilter {
@@ -329,7 +332,6 @@ fun RoutingContext.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomfor
         sortering = sortering,
         avtaleId = avtaleId,
         arrangorIds = arrangorIds,
-        administratorNavIdent = null,
         publisert = publisert,
     )
 }

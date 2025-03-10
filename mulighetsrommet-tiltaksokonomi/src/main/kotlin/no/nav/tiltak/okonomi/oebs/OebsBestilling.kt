@@ -139,14 +139,14 @@ data class OebsBestillingMelding(
         val organisasjonsNavn: String,
 
         /**
-         * Postadresse til hovedenheten til bedriften som det skal utbetales til.
+         * Adresse til hovedenheten til bedriften som det skal utbetales til.
          *
          * OeBS benytter dette til å opprette eller oppdatere bedriften internt.
          * Merk at forskjellige produsenter av bestillinger til OeBS kan overskrive denne informasjonen.
          *
          * TODO: Fjern om OeBS får implementert denne funksjonaliteten selv.
          */
-        val postAdresse: List<PostAdresse>,
+        val adresse: List<Adresse>,
 
         /**
          * Organisasjonsnummer for bedriften som det skal utbetales til.
@@ -155,7 +155,7 @@ data class OebsBestillingMelding(
         val bedriftsNummer: String,
     ) {
         @Serializable
-        data class PostAdresse(
+        data class Adresse(
             val gateNavn: String,
             val by: String,
             val postNummer: String,
@@ -183,16 +183,14 @@ data class OebsBestillingMelding(
 
         /**
          * Pris per enhet. Total pris for en linje er [antall] * [pris].
-         *
-         * Alltid satt til 1 for tiltaksøkonomien.
          */
-        val pris: Int = 1,
+        val pris: Int,
 
         /**
          * Hvilken måned gjelder dette for?
-         * 1 = januar, 2 = februar, ..., 12 = desember
+         * "01" = januar, "02" = februar, ..., "12" = desember
          */
-        val periode: Int,
+        val periode: String,
 
         /**
          * Alltid i samme måned som periode.
@@ -226,7 +224,18 @@ data class OebsAnnulleringMelding(
     val bestillingsNummer: String,
 
     /**
-     * Alltid [OebsBestillingType.ANNULLER]for annullering av bestillinger (tilsagn).
+     * Tidspunkt da bestillingen (tilsagnet) ble godkjent i en totrinnskontroll.
+     */
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val opprettelsesTidspunkt: LocalDateTime,
+
+    /**
+     * Indikerer hvilket fagsystem som er kilden til bestillingen.
+     */
+    val kilde: OebsKilde,
+
+    /**
+     * Alltid [OebsBestillingType.ANNULLER] for annullering av bestillinger (tilsagn).
      */
     val bestillingsType: OebsBestillingType,
 

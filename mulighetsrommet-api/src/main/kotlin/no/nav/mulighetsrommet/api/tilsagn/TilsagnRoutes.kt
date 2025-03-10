@@ -71,7 +71,7 @@ fun Route.tilsagnRoutes() {
                 TilsagnType.TILSAGN -> {
                     val sisteTilsagn = db.session {
                         queries.tilsagn
-                            .getAll(type = TilsagnType.TILSAGN, gjennomforingId = request.gjennomforingId)
+                            .getAll(typer = listOf(TilsagnType.TILSAGN), gjennomforingId = request.gjennomforingId)
                             .firstOrNull()
                     }
 
@@ -148,7 +148,7 @@ fun Route.tilsagnRoutes() {
         val satser = ForhandsgodkjenteSatser.satser(tiltakstype).map {
             AvtaltSats(
                 periodeStart = it.periode.start,
-                periodeSlutt = it.periode.getLastDate(),
+                periodeSlutt = it.periode.getLastInclusiveDate(),
                 pris = it.belop,
                 valuta = "NOK",
             )

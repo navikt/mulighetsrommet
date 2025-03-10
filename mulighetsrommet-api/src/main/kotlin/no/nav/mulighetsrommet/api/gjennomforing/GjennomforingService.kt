@@ -10,7 +10,6 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
-import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
@@ -24,11 +23,7 @@ import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDato
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.query
-import no.nav.mulighetsrommet.model.AvbruttAarsak
-import no.nav.mulighetsrommet.model.GjennomforingStatus
-import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
@@ -72,7 +67,7 @@ class GjennomforingService(
             } else {
                 "Redigerte gjennomføring"
             }
-            logEndring(operation, dto, EndretAv.NavAnsatt(navIdent))
+            logEndring(operation, dto, navIdent)
 
             gjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
 
@@ -98,6 +93,7 @@ class GjennomforingService(
             avtaleId = filter.avtaleId,
             arrangorIds = filter.arrangorIds,
             administratorNavIdent = filter.administratorNavIdent,
+            koordinatorNavIdent = filter.koordinatorNavIdent,
             publisert = filter.publisert,
             sluttDatoGreaterThanOrEqualTo = TiltaksgjennomforingSluttDatoCutoffDate,
         ).let { (totalCount, data) ->
@@ -132,7 +128,7 @@ class GjennomforingService(
         } else {
             "Tiltak avpublisert"
         }
-        logEndring(operation, dto, EndretAv.NavAnsatt(navIdent))
+        logEndring(operation, dto, navIdent)
     }
 
     fun setTilgjengeligForArrangorDato(
@@ -154,7 +150,7 @@ class GjennomforingService(
                 )
                 val dto = getOrError(id)
                 val operation = "Endret dato for tilgang til Deltakeroversikten"
-                logEndring(operation, dto, EndretAv.NavAnsatt(navIdent))
+                logEndring(operation, dto, navIdent)
                 gjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
             }
     }
@@ -162,14 +158,14 @@ class GjennomforingService(
     fun setAvtale(id: UUID, avtaleId: UUID?, navIdent: NavIdent): Unit = db.transaction {
         queries.gjennomforing.setAvtaleId(id, avtaleId)
         val dto = getOrError(id)
-        logEndring("Endret avtale", dto, EndretAv.NavAnsatt(navIdent))
+        logEndring("Endret avtale", dto, navIdent)
     }
 
     fun setAvsluttet(
         id: UUID,
         avsluttetTidspunkt: LocalDateTime,
         avsluttetAarsak: AvbruttAarsak?,
-        endretAv: EndretAv,
+        endretAv: Agent,
     ): Unit = db.transaction {
         queries.gjennomforing.setAvsluttet(id, avsluttetTidspunkt, avsluttetAarsak)
 
@@ -187,7 +183,7 @@ class GjennomforingService(
         gjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
     }
 
-    fun setApentForPamelding(id: UUID, apentForPamelding: Boolean, bruker: EndretAv): Unit = db.transaction {
+    fun setApentForPamelding(id: UUID, apentForPamelding: Boolean, agent: Agent): Unit = db.transaction {
         queries.gjennomforing.setApentForPamelding(id, apentForPamelding)
 
         val dto = getOrError(id)
@@ -196,7 +192,7 @@ class GjennomforingService(
         } else {
             "Stengte for påmelding"
         }
-        logEndring(operation, dto, bruker)
+        logEndring(operation, dto, agent)
 
         gjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
     }
@@ -205,7 +201,7 @@ class GjennomforingService(
         id: UUID,
         periode: Periode,
         beskrivelse: String,
-        bruker: EndretAv,
+        navIdent: NavIdent,
     ): Either<NonEmptyList<FieldError>, GjennomforingDto> = db.transaction {
         return query {
             queries.gjennomforing.setStengtHosArrangor(id, periode, beskrivelse)
@@ -224,19 +220,19 @@ class GjennomforingService(
                 "Registrerte stengt hos arrangør i perioden",
                 periode.start.formaterDatoTilEuropeiskDatoformat(),
                 "-",
-                periode.getLastDate().formaterDatoTilEuropeiskDatoformat(),
+                periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat(),
             ).joinToString(separator = " ")
-            logEndring(operation, dto, bruker)
+            logEndring(operation, dto, navIdent)
             dto
         }
     }
 
-    fun deleteStengtHosArrangor(id: UUID, periodeId: Int, bruker: EndretAv) = db.transaction {
+    fun deleteStengtHosArrangor(id: UUID, periodeId: Int, navIdent: NavIdent) = db.transaction {
         queries.gjennomforing.deleteStengtHosArrangor(periodeId)
 
         val dto = getOrError(id)
         val operation = "Fjernet periode med stengt hos arrangør"
-        logEndring(operation, dto, bruker)
+        logEndring(operation, dto, navIdent)
     }
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
@@ -257,7 +253,7 @@ class GjennomforingService(
         logEndring(
             "Kontaktperson ble fjernet fra gjennomføringen via arrangørsidene",
             gjennomforing,
-            EndretAv.NavAnsatt(navIdent),
+            navIdent,
         )
     }
 
@@ -288,13 +284,14 @@ class GjennomforingService(
     private fun QueryContext.logEndring(
         operation: String,
         dto: GjennomforingDto,
-        endretAv: EndretAv,
+        endretAv: Agent,
     ) {
         queries.endringshistorikk.logEndring(
             DocumentClass.GJENNOMFORING,
             operation,
             endretAv,
             dto.id,
+            LocalDateTime.now(),
         ) {
             Json.encodeToJsonElement(dto)
         }

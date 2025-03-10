@@ -2,20 +2,18 @@ import { oppgaverFilterAtom } from "@/api/atoms";
 import { useOppgaver } from "@/api/oppgaver/useOppgaver";
 import { EmptyState } from "@/components/notifikasjoner/EmptyState";
 import { Oppgave } from "@/components/oppgaver/Oppgave";
-import { oppgaverLoader } from "@/pages/arbeidsbenk/oppgaver/oppgaverLoader";
 import { GetOppgaverResponse } from "@mr/api-client-v2";
 import { useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { Select } from "@navikt/ds-react";
 import { useAtom } from "jotai/index";
-import { Suspense, useState } from "react";
-import { useLoaderData } from "react-router";
+import { useState } from "react";
+import { useRegioner } from "../../../api/enhet/useRegioner";
+import { useTiltakstyper } from "../../../api/tiltakstyper/useTiltakstyper";
 import { OppgaverFilter } from "../../../components/filter/OppgaverFilter";
 import { OppgaveFilterTags } from "../../../components/filter/OppgaverFilterTags";
-import { NullstillKnappForOppgaver } from "./NullstillKnappForOppgaver";
 import { ContentBox } from "../../../layouts/ContentBox";
-import { LoaderData } from "@/types/loader";
-import { Laster } from "../../../components/laster/Laster";
+import { NullstillKnappForOppgaver } from "./NullstillKnappForOppgaver";
 type OppgaverSorting = "nyeste" | "eldste";
 
 function sort(oppgaver: GetOppgaverResponse, sorting: OppgaverSorting) {
@@ -46,9 +44,14 @@ export function OppgaverPage() {
   const [sorting, setSorting] = useState<OppgaverSorting>("nyeste");
   useTitle("Oppgaver");
   const [filter] = useAtom(oppgaverFilterAtom);
-  const { tiltakstyper, regioner } = useLoaderData<LoaderData<typeof oppgaverLoader>>();
+  const { data: tiltakstyper } = useTiltakstyper();
+  const { data: regioner } = useRegioner();
   const oppgaver = useOppgaver(filter);
   const sortedOppgaver = sort(oppgaver.data || [], sorting);
+
+  if (!tiltakstyper?.data || !regioner) {
+    return <div>Laster...</div>;
+  }
 
   return (
     <ContentBox>
@@ -56,7 +59,7 @@ export function OppgaverPage() {
         filter={
           <OppgaverFilter
             filterAtom={oppgaverFilterAtom}
-            tiltakstyper={tiltakstyper}
+            tiltakstyper={tiltakstyper.data}
             regioner={regioner}
           />
         }
@@ -84,21 +87,19 @@ export function OppgaverPage() {
               </div>
             </div>
             <div className="grid grid-cols-1 gap-2 mt-4">
-              <Suspense fallback={<Laster tekst={"Laster oppgaver"} />}>
-                {sortedOppgaver.map((o) => {
-                  // @TODO: Should maybe have something like tiltakstypeName come from the backend instead of doing manual mapping
-                  return (
-                    <Oppgave
-                      key={o.id}
-                      tiltakstype={tiltakstyper.find((t) => t.tiltakskode === o.tiltakstype)!}
-                      oppgave={o}
-                    />
-                  );
-                })}
-                {sortedOppgaver.length === 0 && (
-                  <EmptyState tittel={"Du har ingen nye oppgaver"} beskrivelse={""} />
-                )}
-              </Suspense>
+              {sortedOppgaver.map((o) => {
+                // @TODO: Should maybe have something like tiltakstypeName come from the backend instead of doing manual mapping
+                return (
+                  <Oppgave
+                    key={o.id}
+                    tiltakstype={tiltakstyper.data.find((t) => t.tiltakskode === o.tiltakstype)!}
+                    oppgave={o}
+                  />
+                );
+              })}
+              {sortedOppgaver.length === 0 && (
+                <EmptyState tittel={"Du har ingen nye oppgaver"} beskrivelse={""} />
+              )}
             </div>
           </div>
         }

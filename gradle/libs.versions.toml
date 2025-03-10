@@ -1,13 +1,12 @@
 [versions]
-common-java-modules = "3.2025.01.14_14.19-79b3041cae56"
-flyway = "11.3.3"
-hoplite = "2.9.0"
+common-java-modules = "3.2025.03.07_13.21-bb112c97720d"
+flyway = "11.3.4"
 koin = "4.1.0-Beta5"
 kotest = "5.9.1"
 kotest-testcontainers = "2.0.2"
 kotlin = "2.1.10"
-ktor = "3.1.0"
-logback = "1.5.16"
+ktor = "3.1.1"
+logback = "1.5.17"
 metrics = "4.2.30"
 arrow = "2.0.1"
 
@@ -15,9 +14,9 @@ arrow = "2.0.1"
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-ktlint = "org.jlleitschuh.gradle.ktlint:12.1.2"
+ktlint = "org.jlleitschuh.gradle.ktlint:12.2.0"
 shadow = "com.github.johnrengelman.shadow:8.1.1"
-openapi-generator = "org.openapi.generator:7.11.0"
+openapi-generator = "org.openapi.generator:7.12.0"
 
 [bundles]
 logging = [
@@ -42,12 +41,9 @@ flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
 google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.23.1"
-google-cloud-storage = "com.google.cloud:google-cloud-storage:2.48.2"
+google-cloud-storage = "com.google.cloud:google-cloud-storage:2.49.0"
 
 hikaricp = "com.zaxxer:HikariCP:6.2.1"
-
-hoplite-core = { module = "com.sksamuel.hoplite:hoplite-core", version.ref = "hoplite" }
-hoplite-yaml = { module = "com.sksamuel.hoplite:hoplite-yaml", version.ref = "hoplite" }
 
 koin-ktor = { module = "io.insert-koin:koin-ktor3", version.ref = "koin" }
 koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j", version.ref = "koin" }
@@ -102,17 +98,17 @@ metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", 
 
 micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.14.4"
 
-mockk = "io.mockk:mockk:1.13.16"
+mockk = "io.mockk:mockk:1.13.17"
 
 nav-common-log = { module = "no.nav.common:log", version.ref = "common-java-modules" }
 nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "common-java-modules" }
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
 nav-common-tokenClient = { module = "no.nav.common:token-client", version.ref = "common-java-modules" }
 nav-common-client = { module = "no.nav.common:client", version.ref = "common-java-modules" }
-nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2025.02.18_14.13-ac4265f31ef3"
+nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2025.03.03_11.15-706bb97e7558"
 nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.1.10"
 
-opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.47.0"
+opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.48.0"
 
 postgresql = "org.postgresql:postgresql:42.7.5"
 
@@ -122,9 +118,9 @@ shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:6.3.0"
 
 slack-client = "com.slack.api:slack-api-client:1.45.3"
 
-slf4j = "org.slf4j:slf4j-api:2.0.16"
+slf4j = "org.slf4j:slf4j-api:2.0.17"
 
 apache-poi = "org.apache.poi:poi:5.4.0"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.4.0"
 
-unleash = "io.getunleash:unleash-client-java:10.0.1"
+unleash = "io.getunleash:unleash-client-java:10.1.0"

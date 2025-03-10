@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.toArenaAvtaleDbo
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
-import no.nav.mulighetsrommet.api.endringshistorikk.EndretAv
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.sanity.SanityService
@@ -17,9 +16,12 @@ import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.brreg.BrregError
+import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskoder
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 import java.util.*
 
 class ArenaAdapterService(
@@ -139,8 +141,9 @@ class ArenaAdapterService(
         queries.endringshistorikk.logEndring(
             DocumentClass.AVTALE,
             "Endret i Arena",
-            EndretAv.Arena,
+            Arena,
             dto.id,
+            LocalDateTime.now(),
         ) { Json.encodeToJsonElement(dto) }
     }
 
@@ -148,8 +151,9 @@ class ArenaAdapterService(
         queries.endringshistorikk.logEndring(
             DocumentClass.GJENNOMFORING,
             "Endret i Arena",
-            EndretAv.Arena,
+            Arena,
             dto.id,
+            LocalDateTime.now(),
         ) { Json.encodeToJsonElement(dto) }
     }
 
@@ -157,8 +161,9 @@ class ArenaAdapterService(
         queries.endringshistorikk.logEndring(
             DocumentClass.GJENNOMFORING,
             "Oppdatert med tiltaksnummer fra Arena",
-            EndretAv.System,
+            Tiltaksadministrasjon,
             dto.id,
+            LocalDateTime.now(),
         ) { Json.encodeToJsonElement(dto) }
     }
 }

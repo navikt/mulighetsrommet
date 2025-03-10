@@ -1,9 +1,12 @@
-import { TilsagnStatusTilAnnullering } from "@mr/api-client-v2";
+import { TilsagnTilAnnulleringAarsak, Totrinnskontroll } from "@mr/api-client-v2";
 import { Alert, Heading } from "@navikt/ds-react";
 import { formaterDato, tilsagnAarsakTilTekst } from "../../../utils/Utils";
 
-export function TilAnnulleringAlert({ status }: { status: TilsagnStatusTilAnnullering }) {
-  const aarsaker = status?.aarsaker?.map((aarsak) => tilsagnAarsakTilTekst(aarsak)) || [];
+export function TilAnnulleringAlert({ annullering }: { annullering: Totrinnskontroll }) {
+  const aarsaker =
+    annullering.aarsaker?.map((aarsak) =>
+      tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
+    ) || [];
 
   return (
     <Alert variant="warning" size="small" style={{ marginTop: "1rem" }}>
@@ -11,14 +14,14 @@ export function TilAnnulleringAlert({ status }: { status: TilsagnStatusTilAnnull
         Tilsagnet annulleres
       </Heading>
       <p>
-        {status.endretAvNavn} {status.endretAv} sendte tilsagnet til annullering den{" "}
-        {formaterDato(status.endretTidspunkt)} med følgende{" "}
+        {annullering.behandletAv} sendte tilsagnet til annullering den{" "}
+        {formaterDato(annullering.behandletTidspunkt)} med følgende{" "}
         {aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
         <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker))}</b>
-        {status?.forklaring ? (
+        {annullering.forklaring ? (
           <>
             {" "}
-            med forklaringen: <b>"{status?.forklaring}"</b>
+            med forklaringen: <b>"{annullering.forklaring}"</b>
           </>
         ) : null}
         .
@@ -29,23 +32,22 @@ export function TilAnnulleringAlert({ status }: { status: TilsagnStatusTilAnnull
 
 interface Props {
   header: string;
-  aarsaker: string[];
-  tidspunkt: string;
+  aarsaker?: string[];
+  tidspunkt?: string;
   forklaring?: string;
-  navIdent: string;
-  navn: string;
+  navIdent?: string;
 }
 
-export function AvvistAlert({ aarsaker, forklaring, navn, navIdent, tidspunkt, header }: Props) {
+export function AvvistAlert({ aarsaker, forklaring, navIdent, tidspunkt, header }: Props) {
   return (
     <Alert variant="warning" size="small" style={{ marginTop: "1rem" }}>
       <Heading size="xsmall" level="3">
         {header}
       </Heading>
       <p>
-        {navn} {navIdent} avviste den {formaterDato(tidspunkt)} med følgende{" "}
-        {aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
-        <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker))}</b>
+        {navIdent} avviste den {formaterDato(tidspunkt)} med følgende{" "}
+        {aarsaker && aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
+        <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker ?? []))}</b>
         {forklaring ? (
           <>
             {" "}

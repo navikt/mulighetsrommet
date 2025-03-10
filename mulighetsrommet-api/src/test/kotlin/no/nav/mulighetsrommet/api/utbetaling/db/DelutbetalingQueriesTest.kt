@@ -1,17 +1,23 @@
 package no.nav.mulighetsrommet.api.utbetaling.db
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.setDelutbetalingStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import java.sql.SQLException
 import java.time.LocalDateTime
 import java.util.*
 
@@ -33,13 +39,15 @@ class DelutbetalingQueriesTest : FunSpec({
             val queries = DelutbetalingQueries(session)
 
             val delutbetaling = DelutbetalingDbo(
+                id = UUID.randomUUID(),
                 tilsagnId = TilsagnFixtures.Tilsagn1.id,
                 utbetalingId = UtbetalingFixtures.utbetaling1.id,
                 belop = 100,
+                frigjorTilsagn = false,
                 periode = UtbetalingFixtures.utbetaling1.periode,
                 lopenummer = 1,
                 fakturanummer = "1",
-                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
+                behandletAv = NavAnsattFixture.ansatt1.navIdent,
             )
             queries.upsert(delutbetaling)
 
@@ -49,7 +57,7 @@ class DelutbetalingQueriesTest : FunSpec({
                 it.utbetalingId shouldBe UtbetalingFixtures.utbetaling1.id
                 it.belop shouldBe 100
                 it.periode shouldBe UtbetalingFixtures.utbetaling1.periode
-                it.opprettetAv shouldBe NavAnsattFixture.ansatt1.navIdent
+                it.opprettelse.behandletAv shouldBe NavAnsattFixture.ansatt1.navIdent
                 it.lopenummer shouldBe 1
                 it.fakturanummer shouldBe "1"
             }
@@ -63,24 +71,18 @@ class DelutbetalingQueriesTest : FunSpec({
             val queries = DelutbetalingQueries(session)
 
             val delutbetaling = DelutbetalingDbo(
+                id = UUID.randomUUID(),
                 tilsagnId = TilsagnFixtures.Tilsagn1.id,
                 utbetalingId = UtbetalingFixtures.utbetaling1.id,
                 belop = 100,
+                frigjorTilsagn = false,
                 periode = UtbetalingFixtures.utbetaling1.periode,
                 lopenummer = 1,
                 fakturanummer = "1",
-                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
+                behandletAv = NavAnsattFixture.ansatt1.navIdent,
             )
             queries.upsert(delutbetaling)
-            queries.beslutt(
-                utbetalingId = UtbetalingFixtures.utbetaling1.id,
-                tilsagnId = TilsagnFixtures.Tilsagn1.id,
-                navIdent = NavIdent("Z123456"),
-                tidspunkt = LocalDateTime.now(),
-                besluttelse = Besluttelse.GODKJENT,
-                aarsaker = null,
-                forklaring = null,
-            )
+            QueryContext(session).setDelutbetalingStatus(delutbetaling, UtbetalingFixtures.DelutbetalingStatus.GODKJENT)
 
             queries.getSkalSendesTilOkonomi(TilsagnFixtures.Tilsagn1.id) shouldHaveSize 1
             queries.setSendtTilOkonomi(UtbetalingFixtures.utbetaling1.id, TilsagnFixtures.Tilsagn1.id, LocalDateTime.now())
@@ -88,56 +90,41 @@ class DelutbetalingQueriesTest : FunSpec({
         }
     }
 
-    test("sendt til okonomi sorterer etter besluttet tidspunkt") {
+    test("totrinnskontroll kan inn besluttes to ganger") {
         database.runAndRollback { session ->
-            domain.setup(session)
-
-            val queries = DelutbetalingQueries(session)
-
-            val delutbetaling1 = DelutbetalingDbo(
-                tilsagnId = TilsagnFixtures.Tilsagn1.id,
-                utbetalingId = UtbetalingFixtures.utbetaling1.id,
-                belop = 100,
-                periode = UtbetalingFixtures.utbetaling1.periode,
-                lopenummer = 1,
-                fakturanummer = "1",
-                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
+            val queries = TotrinnskontrollQueries(session)
+            val id = UUID.randomUUID()
+            val entityId = UUID.randomUUID()
+            queries.upsert(
+                Totrinnskontroll(
+                    id = id,
+                    entityId = entityId,
+                    behandletAv = Tiltaksadministrasjon,
+                    aarsaker = emptyList(),
+                    forklaring = null,
+                    type = Totrinnskontroll.Type.OPPRETT,
+                    behandletTidspunkt = LocalDateTime.now(),
+                    besluttelse = Besluttelse.GODKJENT,
+                    besluttetAv = Tiltaksadministrasjon,
+                    besluttetTidspunkt = LocalDateTime.now(),
+                ),
             )
-            val delutbetaling2 = DelutbetalingDbo(
-                tilsagnId = TilsagnFixtures.Tilsagn1.id,
-                utbetalingId = UtbetalingFixtures.utbetaling2.id,
-                belop = 100,
-                periode = UtbetalingFixtures.utbetaling2.periode,
-                lopenummer = 2,
-                fakturanummer = "2",
-                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
-            )
-            // Oppretter 1 først, men godkjenner 2 først
-            queries.upsert(delutbetaling1)
-            queries.upsert(delutbetaling2)
-            queries.beslutt(
-                UtbetalingFixtures.utbetaling2.id,
-                TilsagnFixtures.Tilsagn1.id,
-                NavIdent("Z123456"),
-                tidspunkt = LocalDateTime.of(2025, 1, 1, 10, 0, 0),
-                besluttelse = Besluttelse.GODKJENT,
-                aarsaker = null,
-                forklaring = null,
-            )
-            queries.beslutt(
-                UtbetalingFixtures.utbetaling1.id,
-                TilsagnFixtures.Tilsagn1.id,
-                NavIdent("Z123456"),
-                tidspunkt = LocalDateTime.of(2025, 1, 1, 11, 0, 0),
-                besluttelse = Besluttelse.GODKJENT,
-                aarsaker = null,
-                forklaring = null,
-            )
-
-            val skalSendes = queries.getSkalSendesTilOkonomi(TilsagnFixtures.Tilsagn1.id)
-            skalSendes shouldHaveSize 2
-            skalSendes[0].utbetalingId shouldBe UtbetalingFixtures.utbetaling2.id
-            skalSendes[1].utbetalingId shouldBe UtbetalingFixtures.utbetaling1.id
+            shouldThrow<SQLException> {
+                queries.upsert(
+                    Totrinnskontroll(
+                        id = id,
+                        entityId = entityId,
+                        behandletAv = Tiltaksadministrasjon,
+                        aarsaker = emptyList(),
+                        forklaring = null,
+                        type = Totrinnskontroll.Type.OPPRETT,
+                        behandletTidspunkt = LocalDateTime.now(),
+                        besluttelse = Besluttelse.GODKJENT,
+                        besluttetAv = Tiltaksadministrasjon,
+                        besluttetTidspunkt = LocalDateTime.now(),
+                    ),
+                )
+            }
         }
     }
 })

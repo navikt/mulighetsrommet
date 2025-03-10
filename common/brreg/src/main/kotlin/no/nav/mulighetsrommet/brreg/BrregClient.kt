@@ -42,7 +42,7 @@ class BrregClient(
             { error ->
                 if (error == BrregError.NotFound) {
                     // Ingen treff på hovedenhet, vi sjekker underenheter også
-                    log.debug("Fant ingen treff på orgnr: '$orgnr'. Sjekker underenheter....")
+                    log.debug("Fant ingen treff på orgnr: '${orgnr.value}'. Sjekker underenheter....")
                     getUnderenhet(orgnr)
                 } else {
                     error.left()
@@ -72,7 +72,8 @@ class BrregClient(
                         organisasjonsnummer = it.organisasjonsnummer,
                         organisasjonsform = it.organisasjonsform.kode,
                         navn = it.navn,
-                        postadresse = it.postadresse?.toBrregPostAdresse(),
+                        postadresse = it.postadresse?.toBrregAdresse(),
+                        forretningsadresse = it.forretningsadresse?.toBrregAdresse(),
                     )
                 } ?: emptyList()
             }
@@ -113,7 +114,8 @@ class BrregClient(
                 organisasjonsnummer = enhet.organisasjonsnummer,
                 organisasjonsform = enhet.organisasjonsform.kode,
                 navn = enhet.navn,
-                postadresse = enhet.postadresse?.toBrregPostAdresse(),
+                postadresse = enhet.postadresse?.toBrregAdresse(),
+                forretningsadresse = enhet.forretningsadresse?.toBrregAdresse(),
             )
         }
     }

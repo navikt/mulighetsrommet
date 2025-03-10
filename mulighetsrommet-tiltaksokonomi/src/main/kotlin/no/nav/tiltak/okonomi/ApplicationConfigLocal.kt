@@ -1,12 +1,15 @@
 package no.nav.tiltak.okonomi
 
 import io.ktor.client.engine.mock.*
+import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
+import no.nav.mulighetsrommet.tokenprovider.createMockRSAKey
+import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.intellij.lang.annotations.Language
 
 val mockClientEngine = createMockEngine {
@@ -53,14 +56,19 @@ val ApplicationConfigLocal = AppConfig(
             jwksUri = "http://localhost:8081/azure/jwks",
             audience = "mr-tiltaksokonomi",
             tokenEndpointUrl = "http://localhost:8081/azure/token",
+            privateJwk = createMockRSAKey("azure"),
         ),
     ),
     clients = ClientConfig(
         oebsTiltakApi = AuthenticatedHttpClientConfig(url = "http://oebs-tiltak-api", scope = "default"),
     ),
     kafka = KafkaConfig(
-        brokerUrl = "localhost:29092",
-        defaultConsumerGroupId = "tiltaksokonomi.v1",
+        consumerPropertiesPreset = KafkaPropertiesBuilder.consumerBuilder()
+            .withBaseProperties()
+            .withConsumerGroupId("tiltaksokonomi.v1")
+            .withBrokerUrl("localhost:29092")
+            .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
+            .build(),
         clients = KafkaClients(
             okonomiBestillingConsumer = KafkaTopicConsumer.Config(
                 id = "bestilling",

@@ -121,7 +121,7 @@ export function TilsagnTabell({ tilsagn }: Props) {
               <Table.DataCell align="right">{getAntallPlasser(tilsagn)}</Table.DataCell>
               <Table.DataCell align="right">{formaterNOK(beregning.output.belop)}</Table.DataCell>
               <Table.DataCell align="right">
-                <TilsagnTag status={tilsagn.status} />
+                <TilsagnTag status={tilsagn.status} annullering={tilsagn.annullering} />
               </Table.DataCell>
               <Table.DataCell>
                 <Link to={`/gjennomforinger/${gjennomforingId}/tilsagn/${id}`}>Detaljer</Link>

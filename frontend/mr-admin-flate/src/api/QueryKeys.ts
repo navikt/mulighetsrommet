@@ -23,7 +23,7 @@ export const QueryKeys = {
   ansatt: () => ["ansatt"] as const,
   avtaler: (mine?: boolean, avtaleFilter?: Pick<GetAvtalerData, "query">) =>
     ["avtaler", mine, avtaleFilter] as const,
-  avtale: (id: string) => ["avtale", id],
+  avtale: (id?: string) => ["avtale", id] as const,
   avtaleHistorikk: (id?: string) => ["avtale", id, "historikk"] as const,
   enheter: (filter?: Pick<GetEnheterData, "query">) => ["enheter", filter],
   kostnadssted: (regioner?: string[]) => ["kostnadssted", regioner],
@@ -43,7 +43,7 @@ export const QueryKeys = {
   navRegioner: () => ["navRegioner"],
   personopplysninger: () => ["personopplysninger"],
   opprettTilsagn: () => ["opprett-tilsagn"],
-  getTilsagnForGjennomforing: (gjennomforingId: string) => ["tilsagn", gjennomforingId],
+  getTilsagnForGjennomforing: (gjennomforingId?: string) => ["tilsagn", gjennomforingId],
   getTilsagn: (id?: string) => ["tilsagn", id],
   besluttTilsagn: () => ["beslutt-tilsagn"],
   besluttTilsagnUtbetaling: () => ["beslutt-tilsagn-utbetaling"],
@@ -52,7 +52,7 @@ export const QueryKeys = {
   avtalteSatser: (avtaleId: string) => ["satser", avtaleId],
   utdanninger: () => ["utdanninger"],
   lagredeFilter: (dokumenttype: LagretDokumenttype) => ["lagredeFilter", dokumenttype],
-  utbetalingerByGjennomforing: (gjennomforingId: string) => [
+  utbetalingerByGjennomforing: (gjennomforingId?: string) => [
     "utbetaling-for-gjennomforing",
     gjennomforingId,
   ],

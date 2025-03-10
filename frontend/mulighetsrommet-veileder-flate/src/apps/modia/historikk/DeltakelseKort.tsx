@@ -15,12 +15,10 @@ import {
   TagProps,
   VStack,
 } from "@navikt/ds-react";
-import classNames from "classnames";
 import { formaterDato } from "@/utils/Utils";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
-import styles from "./DeltakelseKort.module.scss";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
-import { TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL } from "@/constants";
+import { TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL } from "@/constants";
 import { Link } from "react-router";
 
 interface Props {
@@ -34,10 +32,13 @@ export function DeltakelseKort({ deltakelse, aktiv }: Props) {
       background="bg-default"
       borderRadius="medium"
       padding="5"
-      className={classNames(styles.panel, {
-        [styles.utkast]: isUtkast(deltakelse.status.type),
-        [styles.kladd]: isKladd(deltakelse.status.type),
-      })}
+      className={
+        isUtkast(deltakelse.status.type)
+          ? "border-2 border-dashed border-border-info"
+          : isKladd(deltakelse.status.type)
+            ? "border-2 border-dashed border-border-warning"
+            : ""
+      }
     >
       <HGrid columns="1fr 20%" align="center">
         <Innhold deltakelse={deltakelse} />
@@ -64,7 +65,7 @@ function Knapper({ deltakelse, aktiv }: Props) {
           {aktiv && (
             <Link
               to={`/arbeidsmarkedstiltak/tiltak/${deltakelse.gjennomforingId}`}
-              className={styles.tertiary_link}
+              className="text-center no-underline text-[16px] hover:underline"
             >
               Gå til tiltak
             </Link>
@@ -73,7 +74,7 @@ function Knapper({ deltakelse, aktiv }: Props) {
       );
     }
     case "TEAM_TILTAK": {
-      const link = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL}/gjennomforing/avtale/${deltakelse.id}?part=VEILEDER`;
+      const link = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL}/avtale/${deltakelse.id}?part=VEILEDER`;
       return (
         <Lenkeknapp variant="secondary" to={link} size="small">
           Gå til avtale
@@ -140,9 +141,9 @@ interface StatusProps {
 }
 
 function Status({ status, visningstekst }: StatusProps) {
-  const { variant, className } = resolveStatusStyle(status);
+  const { variant, style } = resolveStatusStyle(status);
   return (
-    <Tag size="small" variant={variant} className={className}>
+    <Tag size="small" variant={variant} style={style}>
       {visningstekst}
     </Tag>
   );
@@ -152,14 +153,19 @@ function resolveStatusStyle(
   status: ArenaDeltakerStatus | GruppetiltakDeltakerStatus | ArbeidsgiverAvtaleStatus,
 ): {
   variant: TagProps["variant"];
-  className?: string;
+  style?: any;
 } {
   switch (status) {
     case GruppetiltakDeltakerStatus.DELTAR:
     case ArenaDeltakerStatus.GJENNOMFORES:
     case ArbeidsgiverAvtaleStatus.GJENNOMFORES:
-      return { variant: "success", className: styles.deltarStatus };
-
+      return {
+        variant: "success",
+        style: {
+          backgroundColor: "var(--a-surface-default)",
+          border: "1px solid var(--a-border-default)",
+        },
+      };
     case GruppetiltakDeltakerStatus.PABEGYNT_REGISTRERING:
     case GruppetiltakDeltakerStatus.KLADD:
     case ArbeidsgiverAvtaleStatus.PAABEGYNT:

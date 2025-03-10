@@ -70,6 +70,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             registrertTidspunkt = amtDeltaker1.registrertDato,
             endretTidspunkt = amtDeltaker1.endretDato,
             deltakelsesprosent = amtDeltaker1.prosentStilling?.toDouble(),
+            deltakelsesmengder = emptyList(),
             status = amtDeltaker1.status,
         )
         val deltaker2Dbo = deltaker1Dbo.copy(
@@ -258,6 +259,7 @@ private fun createAmtDeltakerV1Dto(
     endretDato = opprettetDato,
     dagerPerUke = 2.5f,
     prosentStilling = null,
+    deltakelsesmengder = listOf(),
 )
 
 fun DeltakerDbo.toDto() = DeltakerDto(

@@ -1954,6 +1954,23 @@ paths:
               schema:
                 $ref: "#/components/schemas/UtbetalingKompakt"
 
+  /api/v1/intern/utbetaling/{id}/delutbetalinger:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Utbetaling
+      operationId: getDelutbetalinger
+      responses:
+        200:
+          description: Delutbetalinger
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DelutbetalingDto"
+
   /api/v1/intern/utbetaling/{id}/historikk:
     get:
       tags:
@@ -1992,18 +2009,18 @@ paths:
                 items:
                   $ref: "#/components/schemas/TilsagnDto"
 
-  /api/v1/intern/utbetaling/{id}/delutbetaling:
+  /api/v1/intern/delutbetalinger:
     parameters:
       - $ref: "#/components/parameters/ID"
     put:
       tags:
         - Utbetaling
-      operationId: upsertDelutbetaling
+      operationId: opprettDelutbetalinger
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/DelutbetalingRequest"
+              $ref: "#/components/schemas/OpprettDelutbetalingerRequest"
       responses:
         200:
           description: OK
@@ -2014,7 +2031,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ValidationError"
 
-  /api/v1/intern/utbetaling/{id}/delutbetaling/beslutt:
+  /api/v1/intern/delutbetalinger/{id}/beslutt:
     parameters:
       - $ref: "#/components/parameters/ID"
     post:
@@ -2304,7 +2321,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ArrFlateUtbetaling"
 
-  /api/v1/intern/arrangorflate/utbetaling/{id}/godkjenn-utbetaling:
+  /api/v1/intern/arrangorflate/utbetaling/{id}/godkjenn:
     post:
       parameters:
         - $ref: "#/components/parameters/ID"
@@ -2826,25 +2843,25 @@ components:
         websaknummer:
           type: [string, "null"]
         arrangor:
-            anyOf:
-              - type: "null"
-              - type: object
-                properties:
-                  hovedenhet:
+          anyOf:
+            - type: "null"
+            - type: object
+              properties:
+                hovedenhet:
+                  type: string
+                underenheter:
+                  type: array
+                  items:
                     type: string
-                  underenheter:
-                    type: array
-                    items:
-                      type: string
-                  kontaktpersoner:
-                    type: array
-                    items:
-                      type: string
-                      format: UUID
-                required:
-                  - hovedenhet
-                  - underenheter
-                  - kontaktpersoner
+                kontaktpersoner:
+                  type: array
+                  items:
+                    type: string
+                    format: UUID
+              required:
+                - hovedenhet
+                - underenheter
+                - kontaktpersoner
         startDato:
           type: string
           format: date
@@ -2866,7 +2883,7 @@ components:
         beskrivelse:
           type: [string, "null"]
         faneinnhold:
-           anyOf:
+          anyOf:
             - type: "null"
             - $ref: "#/components/schemas/FaneinnholdRequest"
         personopplysninger:
@@ -2880,11 +2897,11 @@ components:
             - type: "null"
             - $ref: "#/components/schemas/AmoKategorisering"
         opsjonsmodellData:
-           anyOf:
+          anyOf:
             - type: "null"
             - $ref: "#/components/schemas/OpsjonsmodellData"
         utdanningslop:
-           anyOf:
+          anyOf:
             - type: "null"
             - $ref: "#/components/schemas/UtdanningslopDbo"
         prismodell:
@@ -2986,6 +3003,7 @@ components:
         - AKTIV
         - AVSLUTTET
         - AVBRUTT
+        - UTKAST
 
     NotificationStatus:
       type: string
@@ -3112,7 +3130,7 @@ components:
         deltidsprosent:
           type: number
         estimertVentetid:
-           anyOf:
+          anyOf:
             - type: ["null"]
             - $ref: "#/components/schemas/EstimertVentetid"
         tilgjengeligForArrangorFraOgMedDato:
@@ -4429,7 +4447,7 @@ components:
           type: string
           format: date-time
         oppgaveIcon:
-           $ref: "#/components/schemas/OppgaveIcon"
+          $ref: "#/components/schemas/OppgaveIcon"
       required:
         - type
         - title
@@ -4443,7 +4461,6 @@ components:
       enum:
         - TILSAGN
         - UTBETALING
-
 
     AvbrytGjennomforingAarsak:
       type: string
@@ -5361,11 +5378,16 @@ components:
             - navn
             - overordnetEnhet
         status:
-          $ref: "#/components/schemas/TilsagnStatusDto"
+          $ref: "#/components/schemas/TilsagnStatus"
         type:
           $ref: "#/components/schemas/TilsagnType"
+        opprettelse:
+          $ref: "#/components/schemas/Totrinnskontroll"
+        annullering:
+          $ref: "#/components/schemas/Totrinnskontroll"
       required:
         - id
+        - opprettelse
         - gjennomforingId
         - periodeStart
         - periodeSlutt
@@ -5385,127 +5407,6 @@ components:
         - RETURNERT
         - TIL_ANNULLERING
         - ANNULLERT
-
-    TilsagnStatusDto:
-      oneOf:
-        - $ref: "#/components/schemas/TilsagnStatusTilGodkjenning"
-        - $ref: "#/components/schemas/TilsagnStatusGodkjent"
-        - $ref: "#/components/schemas/TilsagnStatusReturnert"
-        - $ref: "#/components/schemas/TilsagnStatusTilAnnullering"
-        - $ref: "#/components/schemas/TilsagnStatusAnnullert"
-
-    TilsagnStatusTilGodkjenning:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-            - "TIL_GODKJENNING"
-        endretAv:
-          type: string
-        endretTidspunkt:
-          type: string
-          format: date-time
-      required:
-        - endretAv
-        - endretTidspunkt
-        - type
-
-    TilsagnStatusGodkjent:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-            - "GODKJENT"
-      required:
-        - type
-
-    TilsagnStatusReturnert:
-      type: object
-      properties:
-        endretAv:
-          type: string
-        type:
-          type: string
-          enum:
-            - "RETURNERT"
-        returnertAv:
-          type: string
-        returnertAvNavn:
-          type: string
-        aarsaker:
-          type: array
-          items:
-            $ref: "#/components/schemas/TilsagnAvvisningAarsak"
-        forklaring:
-          type: string
-        endretTidspunkt:
-          type: string
-          format: date-time
-      required:
-        - returnertAv
-        - returnertAvNavn
-        - aarsaker
-        - endretTidspunkt
-        - endretAv
-        - type
-
-    TilsagnStatusTilAnnullering:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-            - "TIL_ANNULLERING"
-        endretAv:
-          type: string
-        endretAvNavn:
-          type: string
-        endretTidspunkt:
-          type: string
-          format: date-time
-        aarsaker:
-          type: array
-          items:
-            $ref: "#/components/schemas/TilsagnTilAnnulleringAarsak"
-        forklaring:
-          type: string
-      required:
-        - endretAv
-        - endretAvNavn
-        - endretTidspunkt
-        - aarsaker
-        - forklaring
-        - type
-
-    TilsagnStatusAnnullert:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-            - "ANNULLERT"
-        endretAv:
-          type: string
-        godkjentAv:
-          type: string
-        endretTidspunkt:
-          type: string
-          format: date-time
-        aarsaker:
-          type: array
-          items:
-            $ref: "#/components/schemas/TilsagnTilAnnulleringAarsak"
-        forklaring:
-          type: string
-      required:
-        - type
-        - endretAv
-        - godkjentAv
-        - endretTidspunkt
-        - aarsaker
-        - forklaring
 
     Besluttelse:
       type: string
@@ -5696,12 +5597,11 @@ components:
         - UTBETALT
         - VENTER_PA_ENDRING
 
-    UtbetalingStatus:
+    AdminUtbetalingStatus:
       type: string
       enum:
-        - KLAR_FOR_GODKJENNING
-        - INNSENDT_AV_ARRANGOR
-        - INNSENDT_AV_NAV
+        - VENTER_PA_ARRANGOR
+        - BEHANDLES_AV_NAV
         - UTBETALT
 
     UtbetalingKompakt:
@@ -5711,13 +5611,9 @@ components:
           type: string
           format: uuid
         status:
-          $ref: "#/components/schemas/UtbetalingStatus"
+          $ref: "#/components/schemas/AdminUtbetalingStatus"
         beregning:
           $ref: "#/components/schemas/UtbetalingKompaktBeregning"
-        delutbetalinger:
-          type: array
-          items:
-            $ref: "#/components/schemas/DelutbetalingDto"
         godkjentAvArrangorTidspunkt:
           type: string
           format: date-time
@@ -5726,7 +5622,7 @@ components:
           format: date-time
         betalingsinformasjon:
           $ref: "#/components/schemas/Betalingsinformasjon"
-      required: [id, status, beregning, delutbetalinger, createdAt]
+      required: [id, status, beregning, createdAt]
 
     ArrFlateUtbetalingKompakt:
       type: object
@@ -6142,6 +6038,9 @@ components:
       properties:
         type:
           const: DELUTBETALING_OVERFORT_TIL_UTBETALING
+        id:
+          type: string
+          format: uuid
         tilsagnId:
           type: string
           format: uuid
@@ -6150,17 +6049,20 @@ components:
           format: uuid
         belop:
           type: number
-        opprettetAv:
-          type: string
-        besluttetAv:
-          type: string
-      required: [type, tilsagnId, utbetalingId, belop, opprettetAv, besluttetAv]
+        frigjorTilsagn:
+          type: boolean
+        opprettelse:
+          $ref: "#/components/schemas/Totrinnskontroll"
+      required: [id, type, tilsagnId, utbetalingId, belop, frigjorTilsagn, opprettelse]
 
     DelutbetalingUtbetalt:
       type: object
       properties:
         type:
           const: DELUTBETALING_UTBETALT
+        id:
+          type: string
+          format: uuid
         tilsagnId:
           type: string
           format: uuid
@@ -6169,17 +6071,20 @@ components:
           format: uuid
         belop:
           type: number
-        opprettetAv:
-          type: string
-        besluttetAv:
-          type: string
-      required: [type, tilsagnId, utbetalingId, belop, opprettetAv, besluttetAv]
+        frigjorTilsagn:
+          type: boolean
+        opprettelse:
+          $ref: "#/components/schemas/Totrinnskontroll"
+      required: [id, type, tilsagnId, utbetalingId, belop, frigjorTilsagn, opprettelse]
 
     DelutbetalingTilGodkjenning:
       type: object
       properties:
         type:
           const: DELUTBETALING_TIL_GODKJENNING
+        id:
+          type: string
+          format: uuid
         tilsagnId:
           type: string
           format: uuid
@@ -6188,15 +6093,20 @@ components:
           format: uuid
         belop:
           type: number
-        opprettetAv:
-          type: string
-      required: [type, tilsagnId, utbetalingId, belop, opprettetAv]
+        frigjorTilsagn:
+          type: boolean
+        opprettelse:
+          $ref: "#/components/schemas/Totrinnskontroll"
+      required: [id, type, tilsagnId, utbetalingId, belop, frigjorTilsagn, opprettelse]
 
     DelutbetalingAvvist:
       type: object
       properties:
         type:
           const: DELUTBETALING_AVVIST
+        id:
+          type: string
+          format: uuid
         tilsagnId:
           type: string
           format: uuid
@@ -6205,30 +6115,38 @@ components:
           format: uuid
         belop:
           type: number
-        opprettetAv:
-          type: string
-        besluttetAv:
-          type: string
-        besluttetTidspunkt:
-          type: string
-          format: date-time
-        aarsaker:
-          type: array
-          items:
-            type: string
-        forklaring:
-          type: string
-      required: [type, tilsagnId, utbetalingId, belop, opprettetAv, besluttetAv, aarsaker, forklaring, besluttetTidspunkt]
+        frigjorTilsagn:
+          type: boolean
+        opprettelse:
+          $ref: "#/components/schemas/Totrinnskontroll"
+      required: [id, type, tilsagnId, utbetalingId, belop, frigjorTilsagn, opprettelse]
 
     DelutbetalingRequest:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
         tilsagnId:
           type: string
           format: uuid
         belop:
           type: number
-      required: [tilsagnId, belop]
+        frigjorTilsagn:
+          type: boolean
+      required: [id, tilsagnId, belop]
+
+    OpprettDelutbetalingerRequest:
+      type: object
+      properties:
+        utbetalingId:
+          type: string
+          format: uuid
+        delutbetalinger:
+          type: array
+          items:
+            $ref: "#/components/schemas/DelutbetalingRequest"
+      required: [delutbetalinger, utbetalingId]
 
     OpprettManuellUtbetalingRequest:
       type: object
@@ -6274,10 +6192,7 @@ components:
       properties:
         besluttelse:
           $ref: "#/components/schemas/Besluttelse"
-        tilsagnId:
-          type: string
-          format: uuid
-      required: [besluttelse, tilsagnId]
+      required: [besluttelse]
 
     AvvistDelutbetalingRequest:
       type: object
@@ -6290,7 +6205,25 @@ components:
             type: string
         forklaring:
           type: [string, "null"]
-        tilsagnId:
+      required: [besluttelse, aarsaker, forklaring]
+
+    Totrinnskontroll:
+      type: object
+      properties:
+        behandletAv:
           type: string
-          format: uuid
-      required: [besluttelse, aarsaker, forklaring, tilsagnId]
+        behandletTidspunkt:
+          type: string
+          format: date-time
+        aarsaker:
+          type: array
+          items:
+            type: string
+        forklaring:
+          type: string
+        besluttetAv:
+          type: string
+        besluttetTidspunkt:
+          type: string
+          format: date-time
+      required: [behandletAv, behandletTidspunkt]

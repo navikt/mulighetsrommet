@@ -1,21 +1,34 @@
 import { Header } from "@/components/detaljside/Header";
-import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
-import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { defaultGjennomforingData } from "@/components/gjennomforing/GjennomforingFormConst";
 import { GjennomforingFormContainer } from "@/components/gjennomforing/GjennomforingFormContainer";
 import { ErrorMeldinger } from "@/components/gjennomforing/GjennomforingFormErrors";
+import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
+import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
+import { ContentBox } from "@/layouts/ContentBox";
 import { avtaleHarRegioner, inneholderUrl } from "@/utils/Utils";
 import { GjennomforingStatusMedAarsakTag } from "@mr/frontend-common";
 import { Alert, Box, Heading } from "@navikt/ds-react";
-import { useLoaderData, useLocation, useNavigate } from "react-router";
-import { gjennomforingFormLoader } from "./gjennomforingLoaders";
-import { ContentBox } from "@/layouts/ContentBox";
-import { LoaderData } from "../../types/loader";
+import { useQueryClient } from "@tanstack/react-query";
+import { useLocation, useNavigate, useParams } from "react-router";
+import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { usePotentialAvtale } from "../../api/avtaler/useAvtale";
+import { useAdminGjennomforingById } from "../../api/gjennomforing/useAdminGjennomforingById";
+import { QueryKeys } from "../../api/QueryKeys";
+
+function useGjennomforingFormData() {
+  const { gjennomforingId } = useParams();
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
+  const { data: avtale } = usePotentialAvtale(gjennomforing?.avtaleId);
+  const { data: ansatt } = useHentAnsatt();
+
+  return { gjennomforing, avtale, ansatt };
+}
+
 export function GjennomforingFormPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { gjennomforing, avtale, ansatt } =
-    useLoaderData<LoaderData<typeof gjennomforingFormLoader>>();
+  const { gjennomforing, avtale, ansatt } = useGjennomforingFormData();
+  const queryClient = useQueryClient();
 
   const redigeringsModus = gjennomforing && inneholderUrl(gjennomforing?.id);
 
@@ -24,6 +37,10 @@ export function GjennomforingFormPage() {
   };
 
   const isError = !avtale || !avtaleHarRegioner(avtale);
+
+  if (!avtale) {
+    return null;
+  }
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     {
@@ -59,7 +76,13 @@ export function GjennomforingFormPage() {
               onClose={() => {
                 navigerTilbake();
               }}
-              onSuccess={(id) => navigate(`/gjennomforinger/${id}`)}
+              onSuccess={async (id) => {
+                await queryClient.invalidateQueries({
+                  queryKey: QueryKeys.gjennomforing(id),
+                  type: "all",
+                });
+                navigate(`/gjennomforinger/${id}`);
+              }}
               avtale={avtale}
               gjennomforing={gjennomforing}
               defaultValues={defaultGjennomforingData(

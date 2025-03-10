@@ -13,17 +13,13 @@ import kotlinx.serialization.Serializable
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.model.BestillingStatusType
-import no.nav.tiltak.okonomi.oebs.OebsService
+import no.nav.tiltak.okonomi.service.OkonomiService
 
 @Resource("$API_BASE_PATH/bestilling")
 class Bestilling {
 
     @Resource("{id}")
-    class Id(val parent: Bestilling = Bestilling(), val id: String) {
-
-        @Resource("status")
-        class Status(val parent: Id)
-    }
+    class Id(val parent: Bestilling = Bestilling(), val id: String)
 }
 
 @Serializable
@@ -39,12 +35,12 @@ data class SetBestillingStatus(
 
 fun Routing.bestillingRoutes(
     db: OkonomiDatabase,
-    oebs: OebsService,
+    okonomi: OkonomiService,
 ) = authenticate {
     post<Bestilling> {
         val bestilling = call.receive<OpprettBestilling>()
 
-        oebs.opprettBestilling(bestilling)
+        okonomi.opprettBestilling(bestilling)
             .onLeft {
                 application.log.warn("Feil ved opprettelse av bestilling", it)
                 call.respond(HttpStatusCode.InternalServerError)
@@ -54,26 +50,9 @@ fun Routing.bestillingRoutes(
             }
     }
 
-    post<Bestilling.Id.Status> { bestilling ->
-        val body = call.receive<SetBestillingStatus>()
-
-        when (body.status) {
-            BestillingStatusType.ANNULLERT -> oebs.annullerBestilling(bestilling.parent.id)
-                .onLeft {
-                    application.log.warn("Feil ved annullering", it)
-                    call.respond(HttpStatusCode.InternalServerError)
-                }
-                .onRight {
-                    call.respond(HttpStatusCode.OK)
-                }
-
-            else -> call.respond(HttpStatusCode.NotImplemented)
-        }
-    }
-
     get<Bestilling.Id> { bestilling ->
         val status = db.session {
-            queries.bestilling.getBestilling(bestilling.id)?.let {
+            queries.bestilling.getByBestillingsnummer(bestilling.id)?.let {
                 BestillingStatus(
                     bestillingsnummer = it.bestillingsnummer,
                     status = it.status,

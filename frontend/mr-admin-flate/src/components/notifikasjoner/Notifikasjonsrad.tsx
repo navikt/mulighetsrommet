@@ -1,10 +1,9 @@
+import { NotificationType, UserNotification } from "@mr/api-client-v2";
 import { Alert, BodyLong, BodyShort, Heading, Link, Tag, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
-import { NotificationType, UserNotification } from "@mr/api-client-v2";
 import { ReactNode, useState } from "react";
 import { formaterDatoTid } from "../../utils/Utils";
 import { CheckmarkButton } from "./CheckmarkButton";
-import { useRevalidator } from "react-router";
 
 interface NotifikasjonssradProps {
   notifikasjon: UserNotification;
@@ -30,9 +29,7 @@ function tag(type: NotificationType, lest: boolean): ReactNode {
 
 export function Notifikasjonssrad({ notifikasjon, lest }: NotifikasjonssradProps) {
   const { title, description, createdAt, type, metadata } = notifikasjon;
-  const revalidator = useRevalidator();
 
-  const [read, setRead] = useState<boolean>(lest);
   const [error, setError] = useState("");
 
   return (
@@ -51,7 +48,7 @@ export function Notifikasjonssrad({ notifikasjon, lest }: NotifikasjonssradProps
           level="2"
           size="small"
           title={title}
-          className={classNames("overflow-hidden overflow-wrap-normal", { "line-through": read })}
+          className={classNames("overflow-hidden overflow-wrap-normal", { "line-through": lest })}
         >
           {title}
         </Heading>
@@ -67,15 +64,7 @@ export function Notifikasjonssrad({ notifikasjon, lest }: NotifikasjonssradProps
           {formaterDatoTid(createdAt)}
         </BodyShort>
         <VStack className="flex flex-row">
-          <CheckmarkButton
-            id={notifikasjon.id}
-            read={read}
-            setRead={(value) => {
-              setRead(value);
-              revalidator.revalidate();
-            }}
-            setError={setError}
-          />
+          <CheckmarkButton id={notifikasjon.id} read={lest} setError={setError} />
           {error && (
             <Alert inline variant="error" size="small">
               {error}

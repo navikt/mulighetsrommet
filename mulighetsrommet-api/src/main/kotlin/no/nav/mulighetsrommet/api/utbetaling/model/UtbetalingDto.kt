@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import no.nav.tiltak.okonomi.OkonomiPart.NavAnsatt
 import java.time.LocalDateTime
 import java.util.*
 
@@ -18,7 +17,6 @@ data class UtbetalingDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val innsender: Innsender?,
-    val status: UtbetalingStatus,
     @Serializable(with = LocalDateTimeSerializer::class)
     val fristForGodkjenning: LocalDateTime,
     val tiltakstype: Tiltakstype,
@@ -32,7 +30,6 @@ data class UtbetalingDto(
     val godkjentAvArrangorTidspunkt: LocalDateTime?,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
-    val delutbetalinger: List<DelutbetalingDto>,
 ) {
     @Serializable
     data class Gjennomforing(

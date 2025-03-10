@@ -3,6 +3,7 @@ package no.nav.tiltak.okonomi.model
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OkonomiSystem
@@ -19,16 +20,44 @@ class FakturaTest : FunSpec({
                 kontonummer = Kontonummer("12345678901"),
                 kid = null,
             ),
+            frigjorBestilling = false,
             belop = 1000,
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-            opprettetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-            opprettetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
-            besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-            besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+            behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+            behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+            besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
+            besluttetTidspunkt = LocalDate.of(2025, 2, 1).atStartOfDay(),
         )
 
+        test("felter utledes fra OpprettFaktura") {
+            val bestillingslinjer = listOf(
+                Bestilling.Linje(
+                    linjenummer = 1,
+                    periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
+                    belop = 526,
+                ),
+            )
+
+            val faktura = Faktura.fromOpprettFaktura(
+                opprettFaktura,
+                bestillingslinjer,
+            )
+
+            faktura.bestillingsnummer shouldBe "2025/1"
+            faktura.fakturanummer shouldBe "2025/1/1"
+            faktura.kontonummer shouldBe Kontonummer("12345678901")
+            faktura.kid shouldBe null
+            faktura.belop shouldBe 1000
+            faktura.periode shouldBe Periode.forMonthOf(LocalDate.of(2025, 1, 1))
+            faktura.status shouldBe FakturaStatusType.UTBETALT
+            faktura.behandletAv shouldBe OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON)
+            faktura.behandletTidspunkt shouldBe LocalDate.of(2025, 1, 1).atStartOfDay()
+            faktura.besluttetAv shouldBe OkonomiPart.NavAnsatt(NavIdent("Z123456"))
+            faktura.besluttetTidspunkt shouldBe LocalDate.of(2025, 2, 1).atStartOfDay()
+        }
+
         test("utleder fakturalinje basert på fakturaens periode og bestillingens linjer") {
-            val bestillingslinjger = listOf(
+            val bestillingslinjer = listOf(
                 Bestilling.Linje(
                     linjenummer = 1,
                     periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
@@ -43,7 +72,7 @@ class FakturaTest : FunSpec({
 
             val faktura1 = Faktura.fromOpprettFaktura(
                 opprettFaktura.copy(periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1))),
-                bestillingslinjger,
+                bestillingslinjer,
             )
             faktura1.linjer shouldBe listOf(
                 Faktura.Linje(
@@ -55,7 +84,7 @@ class FakturaTest : FunSpec({
 
             val faktura2 = Faktura.fromOpprettFaktura(
                 opprettFaktura.copy(periode = Periode(LocalDate.of(2025, 2, 1), LocalDate.of(2025, 3, 1))),
-                bestillingslinjger,
+                bestillingslinjer,
             )
             faktura2.linjer shouldBe listOf(
                 Faktura.Linje(
@@ -67,7 +96,7 @@ class FakturaTest : FunSpec({
 
             val faktura3 = Faktura.fromOpprettFaktura(
                 opprettFaktura.copy(periode = Periode(LocalDate.of(2025, 1, 15), LocalDate.of(2025, 2, 15))),
-                bestillingslinjger,
+                bestillingslinjer,
             )
             faktura3.linjer shouldBe listOf(
                 Faktura.Linje(

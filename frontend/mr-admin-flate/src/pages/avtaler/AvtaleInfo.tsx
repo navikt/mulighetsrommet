@@ -7,21 +7,23 @@ import { AvtalePrisOgFaktureringDetaljer } from "@/pages/avtaler/AvtalePrisOgFak
 import { Toggles } from "@mr/api-client-v2";
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { useLoaderData } from "react-router";
+import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { useAvtale } from "../../api/avtaler/useAvtale";
+import { useGetAvtaleIdFromUrlOrThrow } from "../../hooks/useGetAvtaleIdFromUrl";
 import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
-import { avtaleLoader } from "./avtaleLoader";
 import { AvtalePersonvern } from "./AvtalePersonvern";
-import { LoaderData } from "../../types/loader";
 
 export function AvtaleInfo() {
-  const { avtale, ansatt } = useLoaderData<LoaderData<typeof avtaleLoader>>();
+  const avtaleId = useGetAvtaleIdFromUrlOrThrow();
+  const { data: ansatt } = useHentAnsatt();
+  const { data: avtale } = useAvtale(avtaleId);
 
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 
   const { data: enableOkonomi } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
-    [avtale.tiltakstype.tiltakskode],
+    avtale?.tiltakstype.tiltakskode ? [avtale.tiltakstype.tiltakskode] : [],
   );
 
   return (
@@ -57,19 +59,19 @@ export function AvtaleInfo() {
           </Tabs.List>
           <Tabs.Panel value="detaljer">
             <InlineErrorBoundary>
-              <AvtaleDetaljer />
+              <AvtaleDetaljer avtale={avtale} />
             </InlineErrorBoundary>
           </Tabs.Panel>
           {enableOkonomi && (
             <Tabs.Panel value="pris-og-fakturering">
               <InlineErrorBoundary>
-                <AvtalePrisOgFaktureringDetaljer />
+                <AvtalePrisOgFaktureringDetaljer avtale={avtale} />
               </InlineErrorBoundary>
             </Tabs.Panel>
           )}
           <Tabs.Panel value="personvern">
             <InlineErrorBoundary>
-              <AvtalePersonvern />
+              <AvtalePersonvern avtale={avtale} />
             </InlineErrorBoundary>
           </Tabs.Panel>
           <Tabs.Panel value="redaksjonelt-innhold">

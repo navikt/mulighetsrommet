@@ -13,7 +13,7 @@ import java.util.*
 data class ArrFlateUtbetalingKompakt(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val status: ArrFlateUtbetaling.Status,
+    val status: ArrFlateUtbetalingStatus,
     @Serializable(with = LocalDateTimeSerializer::class)
     val fristForGodkjenning: LocalDateTime,
     val tiltakstype: UtbetalingDto.Tiltakstype,
@@ -26,15 +26,15 @@ data class ArrFlateUtbetalingKompakt(
     val belop: Int,
 ) {
     companion object {
-        fun fromUtbetalingDto(utbetaling: UtbetalingDto) = ArrFlateUtbetalingKompakt(
+        fun fromUtbetalingDto(utbetaling: UtbetalingDto, status: ArrFlateUtbetalingStatus) = ArrFlateUtbetalingKompakt(
             id = utbetaling.id,
-            status = ArrFlateUtbetaling.Status.fromUtbetalingStatus(utbetaling.status),
+            status = status,
             fristForGodkjenning = utbetaling.fristForGodkjenning,
             tiltakstype = utbetaling.tiltakstype,
             gjennomforing = utbetaling.gjennomforing,
             arrangor = utbetaling.arrangor,
             periodeStart = utbetaling.periode.start,
-            periodeSlutt = utbetaling.periode.getLastDate(),
+            periodeSlutt = utbetaling.periode.getLastInclusiveDate(),
             belop = utbetaling.beregning.output.belop,
         )
     }

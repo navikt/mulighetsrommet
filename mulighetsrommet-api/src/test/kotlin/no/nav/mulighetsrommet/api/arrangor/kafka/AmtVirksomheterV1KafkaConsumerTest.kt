@@ -51,6 +51,7 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
             organisasjonsform = "AS",
             navn = amtVirksomhet.navn,
             postadresse = null,
+            forretningsadresse = null,
         )
 
         val brregClient: BrregClient = mockk()

@@ -1,31 +1,31 @@
-import { Accordion, Search, Switch } from "@navikt/ds-react";
-import { useAtom, WritableAtom } from "jotai";
-import { ArrangorTil, NavEnhet } from "@mr/api-client-v2";
-import { useEffect } from "react";
+import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import {
   gjennomforingFilterAccordionAtom,
   GjennomforingFilter as GjennomforingFilterProps,
 } from "@/api/atoms";
-import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
+import { useRegioner } from "@/api/enhet/useRegioner";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
-import { useArrangorer } from "@/api/arrangor/useArrangorer";
+import { logEvent } from "@/logging/amplitude";
 import { addOrRemove } from "@/utils/Utils";
 import {
   arrangorOptions,
   TILTAKSGJENNOMFORING_STATUS_OPTIONS,
   tiltakstypeOptions,
 } from "@/utils/filterUtils";
+import { ArrangorTil, AvtaleDto, NavEnhet } from "@mr/api-client-v2";
 import { FilterAccordionHeader, FilterSkeleton, NavEnhetFilter } from "@mr/frontend-common";
-import { useRegioner } from "@/api/enhet/useRegioner";
+import { Accordion, Search, Switch } from "@navikt/ds-react";
+import { useAtom, WritableAtom } from "jotai";
+import { useEffect } from "react";
 import { CheckboxList } from "./CheckboxList";
-import { logEvent } from "@/logging/amplitude";
 
 type Filters = "tiltakstype";
 
 interface Props {
   filterAtom: WritableAtom<GjennomforingFilterProps, [newValue: GjennomforingFilterProps], void>;
   skjulFilter?: Record<Filters, boolean>;
+  avtale?: AvtaleDto;
 }
 
 function loggBrukAvFilter(filter: string, value: any) {
@@ -38,10 +38,9 @@ function loggBrukAvFilter(filter: string, value: any) {
   });
 }
 
-export function GjennomforingFilter({ filterAtom, skjulFilter }: Props) {
+export function GjennomforingFilter({ filterAtom, skjulFilter, avtale }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const [accordionsOpen, setAccordionsOpen] = useAtom(gjennomforingFilterAccordionAtom);
-  const { data: avtale } = useAvtale();
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
   const { data: regioner, isLoading: isLoadingRegioner } = useRegioner();
   const { data: arrangorer, isLoading: isLoadingArrangorer } = useArrangorer(

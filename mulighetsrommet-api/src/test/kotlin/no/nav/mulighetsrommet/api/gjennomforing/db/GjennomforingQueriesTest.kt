@@ -34,9 +34,6 @@ import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -648,7 +645,7 @@ class GjennomforingQueriesTest : FunSpec({
             }
         }
 
-        test("administrator") {
+        test("administrator og koordinator filtrering") {
             database.runAndRollback { session ->
                 val domain = MulighetsrommetTestDomain(
                     avtaler = listOf(AvtaleFixtures.oppfolging),
@@ -669,10 +666,10 @@ class GjennomforingQueriesTest : FunSpec({
 
                 val queries = GjennomforingQueries(session)
 
-                queries.getAll(administratorNavIdent = NavAnsattFixture.ansatt1.navIdent)
+                queries.getAll(administratorNavIdent = NavAnsattFixture.ansatt1.navIdent, koordinatorNavIdent = NavAnsattFixture.ansatt1.navIdent)
                     .totalCount shouldBe 2
 
-                queries.getAll(administratorNavIdent = NavAnsattFixture.ansatt2.navIdent)
+                queries.getAll(administratorNavIdent = NavAnsattFixture.ansatt2.navIdent, koordinatorNavIdent = NavAnsattFixture.ansatt2.navIdent)
                     .should {
                         it.totalCount shouldBe 1
                         it.items shouldContainExactlyIds listOf(domain.gjennomforinger[1].id)

@@ -1,30 +1,30 @@
-import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
-import { GjennomforingFilter } from "@/components/filter/GjennomforingFilter";
 import {
   gjennomforingerForAvtaleFilterAtomFamily,
   gjennomforingfilterAtom,
   GjennomforingFilterSchema,
 } from "@/api/atoms";
-import { GjennomforingFiltertags } from "@/components/filter/GjennomforingFiltertags";
-import { GjennomforingFilterButtons } from "@/components/filter/GjennomforingFilterButtons";
-import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
-import { useState } from "react";
-import { useAvtale } from "@/api/avtaler/useAvtale";
-import { NullstillKnappForGjennomforinger } from "@/pages/gjennomforing/NullstillKnappForGjennomforinger";
-import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { LagredeFilterOversikt, useOpenFilterWhenThreshold } from "@mr/frontend-common";
-import { LagretDokumenttype } from "@mr/api-client-v2";
-import { useAtom } from "jotai/index";
-import { GjennomforingTable } from "@/components/gjennomforing/GjennomforingTable";
-import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
 import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
+import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
+import { GjennomforingFilter } from "@/components/filter/GjennomforingFilter";
+import { GjennomforingFilterButtons } from "@/components/filter/GjennomforingFilterButtons";
+import { GjennomforingFiltertags } from "@/components/filter/GjennomforingFiltertags";
+import { GjennomforingTable } from "@/components/gjennomforing/GjennomforingTable";
+import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
+import { NullstillKnappForGjennomforinger } from "@/pages/gjennomforing/NullstillKnappForGjennomforinger";
+import { LagretDokumenttype } from "@mr/api-client-v2";
+import { LagredeFilterOversikt, useOpenFilterWhenThreshold } from "@mr/frontend-common";
+import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
+import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { useAtom } from "jotai/index";
+import { useState } from "react";
+import { useAvtale } from "../../api/avtaler/useAvtale";
 
 export function GjennomforingerForAvtalePage() {
-  const id = useGetAvtaleIdFromUrlOrThrow();
+  const avtaleId = useGetAvtaleIdFromUrlOrThrow();
+  const { data: avtale } = useAvtale(avtaleId);
 
-  const filterAtomGjennomforinger = gjennomforingerForAvtaleFilterAtomFamily(id);
+  const filterAtomGjennomforinger = gjennomforingerForAvtaleFilterAtomFamily(avtaleId);
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
-  const { data: avtale } = useAvtale();
   const [tagsHeight, setTagsHeight] = useState(0);
   const [filter, setFilter] = useAtom(gjennomforingfilterAtom);
   const { data: lagredeFilter = [] } = useLagredeFilter(LagretDokumenttype.GJENNOMFORING);
@@ -39,6 +39,7 @@ export function GjennomforingerForAvtalePage() {
             skjulFilter={{
               tiltakstype: true,
             }}
+            avtale={avtale}
           />
         }
         lagredeFilter={
@@ -59,7 +60,7 @@ export function GjennomforingerForAvtalePage() {
             setTagsHeight={setTagsHeight}
           />
         }
-        buttons={<GjennomforingFilterButtons />}
+        buttons={<GjennomforingFilterButtons avtale={avtale} />}
         table={
           <GjennomforingTable
             skjulKolonner={{

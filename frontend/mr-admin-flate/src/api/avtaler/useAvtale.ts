@@ -1,17 +1,22 @@
-import { useApiQuery } from "@mr/frontend-common";
-import { useGetAvtaleIdFromUrl } from "@/hooks/useGetAvtaleIdFromUrl";
 import { QueryKeys } from "@/api/QueryKeys";
 import { AvtalerService } from "@mr/api-client-v2";
+import { useApiQuery, useApiSuspenseQuery } from "@mr/frontend-common";
 
-export function useAvtale(overstyrAvtaleId?: string) {
-  const avtaleIdFromUrl = useGetAvtaleIdFromUrl();
-  const avtaleId = overstyrAvtaleId ?? avtaleIdFromUrl;
-
-  const query = useApiQuery({
-    queryKey: QueryKeys.avtale(avtaleId!),
-    queryFn: () => AvtalerService.getAvtale({ path: { id: avtaleId! } }),
-    enabled: !!avtaleId,
+export function useAvtale(id: string) {
+  return useApiSuspenseQuery({
+    queryKey: QueryKeys.avtale(id),
+    queryFn: async () => {
+      return AvtalerService.getAvtale({ path: { id } });
+    },
   });
+}
 
-  return { ...query, isLoading: !!avtaleId && query.isLoading };
+export function usePotentialAvtale(id?: string) {
+  return useApiQuery({
+    queryKey: QueryKeys.avtale(id),
+    queryFn: async () => {
+      return AvtalerService.getAvtale({ path: { id: id! } });
+    },
+    enabled: !!id,
+  });
 }

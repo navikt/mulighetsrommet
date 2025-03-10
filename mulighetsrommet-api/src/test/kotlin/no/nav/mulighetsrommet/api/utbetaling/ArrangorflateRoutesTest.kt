@@ -64,12 +64,14 @@ class ArrangorflateRoutesTest : FunSpec({
         registrertTidspunkt = GjennomforingFixtures.AFT1.startDato.atStartOfDay(),
         endretTidspunkt = LocalDateTime.now(),
         deltakelsesprosent = 100.0,
+        deltakelsesmengder = listOf(),
         status = DeltakerStatus(
             type = DeltakerStatus.Type.DELTAR,
             aarsak = null,
             opprettetDato = LocalDateTime.now(),
         ),
     )
+
     val utbetaling = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
@@ -78,6 +80,7 @@ class ArrangorflateRoutesTest : FunSpec({
             input = UtbetalingBeregningAft.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
                 sats = 20205,
+                stengt = setOf(),
                 deltakelser = setOf(
                     DeltakelsePerioder(
                         deltakelseId = deltaker.id,
@@ -249,7 +252,7 @@ class ArrangorflateRoutesTest : FunSpec({
                     json()
                 }
             }
-            val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn-utbetaling") {
+            val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(
@@ -273,7 +276,7 @@ class ArrangorflateRoutesTest : FunSpec({
                     json()
                 }
             }
-            val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn-utbetaling") {
+            val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(
@@ -304,7 +307,7 @@ class ArrangorflateRoutesTest : FunSpec({
                     json()
                 }
             }
-            var response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn-utbetaling") {
+            var response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(
@@ -319,7 +322,7 @@ class ArrangorflateRoutesTest : FunSpec({
             }
             response.status shouldBe HttpStatusCode.OK
 
-            response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn-utbetaling") {
+            response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(
@@ -351,7 +354,7 @@ class ArrangorflateRoutesTest : FunSpec({
                     json()
                 }
             }
-            val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn-utbetaling") {
+            val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(
@@ -389,7 +392,7 @@ class ArrangorflateRoutesTest : FunSpec({
                     json()
                 }
             }
-            val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn-utbetaling") {
+            val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(

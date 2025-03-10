@@ -85,7 +85,6 @@ class UtbetalingQueries(private val session: Session) {
                 sats = excluded.sats,
                 belop = excluded.belop
         """.trimIndent()
-
         val params = mapOf(
             "utbetaling_id" to id,
             "periode_start" to beregning.input.periode.start,
@@ -94,6 +93,29 @@ class UtbetalingQueries(private val session: Session) {
             "belop" to beregning.output.belop,
         )
         execute(queryOf(query, params))
+
+        @Language("PostgreSQL")
+        val deleteStengtHosArrangorQuery = """
+            delete
+            from utbetaling_stengt_hos_arrangor
+            where utbetaling_id = ?::uuid
+        """.trimIndent()
+        execute(queryOf(deleteStengtHosArrangorQuery, id))
+
+        @Language("PostgreSQL")
+        val insertStengtHosArrangorQuery = """
+            insert into utbetaling_stengt_hos_arrangor (utbetaling_id, periode, beskrivelse)
+            values (:utbetaling_id::uuid, daterange(:start, :slutt), :beskrivelse)
+        """.trimIndent()
+        val stengt = beregning.input.stengt.map { stengt ->
+            mapOf(
+                "utbetaling_id" to id,
+                "start" to stengt.start,
+                "slutt" to stengt.slutt,
+                "beskrivelse" to stengt.beskrivelse,
+            )
+        }
+        batchPreparedNamedStatement(insertStengtHosArrangorQuery, stengt)
 
         @Language("PostgreSQL")
         val deletePerioderQuery = """
@@ -108,7 +130,6 @@ class UtbetalingQueries(private val session: Session) {
             insert into utbetaling_deltakelse_periode (utbetaling_id, deltakelse_id, periode, deltakelsesprosent)
             values (:utbetaling_id, :deltakelse_id, daterange(:start, :slutt), :deltakelsesprosent)
         """.trimIndent()
-
         val perioder = beregning.input.deltakelser.flatMap { deltakelse ->
             deltakelse.perioder.map { periode ->
                 mapOf(
@@ -175,7 +196,7 @@ class UtbetalingQueries(private val session: Session) {
         execute(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt)))
     }
 
-    fun setBetalingsInformasjon(id: UUID, kontonummer: Kontonummer, kid: Kid?) = with(session) {
+    fun setBetalingsinformasjon(id: UUID, kontonummer: Kontonummer, kid: Kid?) = with(session) {
         @Language("PostgreSQL")
         val query = """
             update utbetaling
@@ -282,6 +303,7 @@ class UtbetalingQueries(private val session: Session) {
                 input = UtbetalingBeregningAft.Input(
                     periode = Periode(it.localDate("beregning_periode_start"), it.localDate("beregning_periode_slutt")),
                     sats = it.int("sats"),
+                    stengt = it.string("stengt_json").let { Json.decodeFromString(it) },
                     deltakelser = it.stringOrNull("perioder_json")?.let { Json.decodeFromString(it) } ?: setOf(),
                 ),
                 output = UtbetalingBeregningAft.Output(
@@ -332,9 +354,7 @@ class UtbetalingQueries(private val session: Session) {
         val beregningsmodell = Beregningsmodell.valueOf(string("beregningsmodell"))
         val beregning = getBeregning(uuid("id"), beregningsmodell)
         val id = uuid("id")
-        val delutbetalinger = DelutbetalingQueries(session).getByUtbetalingId(id)
         val innsender = stringOrNull("innsender")?.let { UtbetalingDto.Innsender.fromString(it) }
-        val status = utbetalingStatus(delutbetalinger, innsender)
 
         return UtbetalingDto(
             id = id,
@@ -366,23 +386,6 @@ class UtbetalingQueries(private val session: Session) {
             ),
             innsender = innsender,
             createdAt = localDateTime("created_at"),
-            delutbetalinger = delutbetalinger,
-            status = status,
         )
-    }
-}
-
-fun utbetalingStatus(
-    delutbetaling: List<DelutbetalingDto>,
-    innsender: UtbetalingDto.Innsender?,
-): UtbetalingStatus {
-    if (delutbetaling.isNotEmpty() && delutbetaling.all { it is DelutbetalingDto.DelutbetalingUtbetalt }) {
-        return UtbetalingStatus.UTBETALT
-    }
-
-    return when (innsender) {
-        is UtbetalingDto.Innsender.ArrangorAnsatt -> UtbetalingStatus.INNSENDT_AV_ARRANGOR
-        is UtbetalingDto.Innsender.NavAnsatt -> UtbetalingStatus.INNSENDT_AV_NAV
-        null -> UtbetalingStatus.KLAR_FOR_GODKJENNING
     }
 }

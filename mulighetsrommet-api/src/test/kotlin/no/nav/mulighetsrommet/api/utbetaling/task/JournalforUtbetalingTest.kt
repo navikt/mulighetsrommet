@@ -10,6 +10,8 @@ import io.ktor.http.*
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
@@ -45,6 +47,7 @@ class JournalforUtbetalingTest : FunSpec({
             input = UtbetalingBeregningAft.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
                 sats = 20205,
+                stengt = setOf(),
                 deltakelser = emptySet(),
             ),
             output = UtbetalingBeregningAft.Output(
@@ -91,12 +94,18 @@ class JournalforUtbetalingTest : FunSpec({
     )
     val tilsagnService: TilsagnService = mockk()
     val dokarkClient: DokarkClient = mockk()
+    val arrangorFlateSerivce = { db: ApiDatabase ->
+        ArrangorFlateService(
+            pdl = HentAdressebeskyttetPersonBolkPdlQuery(pdl),
+            db = db,
+        )
+    }
 
     fun createTask() = JournalforUtbetaling(
         db = database.db,
         tilsagnService = tilsagnService,
         dokarkClient = dokarkClient,
-        pdl = HentAdressebeskyttetPersonBolkPdlQuery(pdl),
+        arrangorFlateService = arrangorFlateSerivce(database.db),
         pdf = pdf,
     )
 

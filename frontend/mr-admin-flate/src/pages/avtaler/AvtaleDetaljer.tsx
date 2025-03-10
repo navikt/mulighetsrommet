@@ -1,35 +1,27 @@
-import { useAvtale } from "@/api/avtaler/useAvtale";
 import { getDisplayName } from "@/api/enhet/helpers";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
 import { OpsjonerRegistrert } from "@/components/avtaler/opsjoner/OpsjonerRegistrert";
 import { opsjonsmodellTilTekst } from "@/components/avtaler/opsjoner/opsjonsmodeller";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
-import { Laster } from "@/components/laster/Laster";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { avtaletypeTilTekst, formaterDato } from "@/utils/Utils";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
-import { Avtaletype, NavEnhet } from "@mr/api-client-v2";
+import { AvtaleDto, Avtaletype, NavEnhet } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
 import { Fragment } from "react";
 import { Link } from "react-router";
 
-export function AvtaleDetaljer() {
-  const { data: avtale, isPending, error } = useAvtale();
+interface Props {
+  avtale: AvtaleDto;
+}
 
-  if (isPending || !avtale) {
-    return <Laster tekst="Laster avtale..." />;
-  }
-
-  if (error) {
-    return <Alert variant="error">Klarte ikke hente avtaleinformasjon</Alert>;
-  }
-
+export function AvtaleDetaljer({ avtale }: Props) {
   function sorterPaRegionsnavn(a: { region: NavEnhet }, b: { region: NavEnhet }) {
     return a.region.navn.localeCompare(b.region.navn);
   }

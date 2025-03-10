@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api
 
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
-import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
@@ -32,6 +31,7 @@ data class Config(
 )
 
 data class AppConfig(
+    val server: ServerConfig = ServerConfig(),
     val database: DatabaseConfig,
     val flyway: FlywayMigrationManager.MigrationConfig,
     val kafka: KafkaConfig,
@@ -56,7 +56,7 @@ data class AppConfig(
     val pdl: AuthenticatedHttpClientConfig,
     val engine: HttpClientEngine = CIO.create(),
     val utdanning: HttpClientConfig,
-    val altinn: AltinnClient.Config,
+    val altinn: AuthenticatedHttpClientConfig,
     val dokark: AuthenticatedHttpClientConfig,
 )
 
@@ -73,9 +73,8 @@ data class AdGruppeNavAnsattRolleMapping(
 )
 
 data class KafkaConfig(
-    val brokerUrl: String? = null,
-    val producerId: String,
-    val defaultConsumerGroupId: String,
+    val producerProperties: Properties,
+    val consumerPreset: Properties,
     val producers: KafkaProducers,
     val consumers: KafkaConsumers,
     val clients: KafkaClients,
@@ -97,6 +96,7 @@ data class KafkaConsumers(
     val amtDeltakerV1: KafkaTopicConsumer.Config,
     val amtVirksomheterV1: KafkaTopicConsumer.Config,
     val amtArrangorMeldingV1: KafkaTopicConsumer.Config,
+    val amtKoordinatorMeldingV1: KafkaTopicConsumer.Config,
 )
 
 data class AuthProvider(
@@ -104,6 +104,7 @@ data class AuthProvider(
     val jwksUri: String,
     val audience: String,
     val tokenEndpointUrl: String,
+    val privateJwk: String,
 )
 
 data class AuthenticatedHttpClientConfig(
