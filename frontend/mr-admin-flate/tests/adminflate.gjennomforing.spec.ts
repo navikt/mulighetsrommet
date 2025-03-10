@@ -9,7 +9,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 const fyllInnGjennomforing = async (page: Page) => {
-  await page.locator("text=Opprett ny tiltaksgjennomføring").click();
+  await page.locator("text=Opprett ny gjennomføring").click();
   await locateAndFillInput(page, "antallPlasser", "20");
 
   await page.click("input#navRegion");
