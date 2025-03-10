@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling2
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
+import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
@@ -46,10 +47,12 @@ class UtbetalingServiceTest : FunSpec({
 
     fun createUtbetalingService(
         okonomi: OkonomiBestillingService = mockk(relaxed = true),
+        tilsagnService: TilsagnService = mockk(relaxed = true),
         journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true),
     ) = UtbetalingService(
         db = database.db,
         okonomi = okonomi,
+        tilsagnService = tilsagnService,
         journalforUtbetaling = journalforUtbetaling,
     )
 

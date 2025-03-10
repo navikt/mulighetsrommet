@@ -31,6 +31,7 @@ class TilsagnQueries(private val session: Session) {
                 kostnadssted,
                 arrangor_id,
                 beregning,
+                status,
                 type
             ) values (
                 :id::uuid,
@@ -41,6 +42,7 @@ class TilsagnQueries(private val session: Session) {
                 :kostnadssted,
                 :arrangor_id::uuid,
                 :beregning::jsonb,
+                :status,
                 :type::tilsagn_type
             )
             on conflict (id) do update set
@@ -51,6 +53,7 @@ class TilsagnQueries(private val session: Session) {
                 kostnadssted            = excluded.kostnadssted,
                 arrangor_id             = excluded.arrangor_id,
                 beregning               = excluded.beregning,
+                status                  = excluded.status,
                 type                    = excluded.type
         """.trimIndent()
 
@@ -60,6 +63,7 @@ class TilsagnQueries(private val session: Session) {
             "periode_start" to dbo.periode.start,
             "periode_slutt" to dbo.periode.slutt,
             "lopenummer" to dbo.lopenummer,
+            "status" to TilsagnStatus.TIL_GODKJENNING.name,
             "bestillingsnummer" to dbo.bestillingsnummer,
             "kostnadssted" to dbo.kostnadssted,
             "arrangor_id" to dbo.arrangorId,
@@ -190,10 +194,20 @@ class TilsagnQueries(private val session: Session) {
         session.execute(queryOf(query, id))
     }
 
+    fun setStatus(id: UUID, status: TilsagnStatus) {
+        @Language("PostgreSQL")
+        val query = """
+            update tilsagn set status = :status where id = :id::uuid
+        """.trimIndent()
+
+        session.execute(queryOf(query, mapOf("id" to id, "status" to status.name)))
+    }
+
     private fun Row.toTilsagnDto(): TilsagnDto {
         val id = uuid("id")
         val opprettelse = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.OPPRETT)
         val annullering = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.ANNULLER)
+        val frigjoring = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.FRIGJOR)
         requireNotNull(opprettelse)
 
         return TilsagnDto(
@@ -225,14 +239,16 @@ class TilsagnQueries(private val session: Session) {
             status = TilsagnStatus.valueOf(string("status")),
             opprettelse = opprettelse,
             annullering = annullering,
+            frigjoring = frigjoring,
         )
     }
 
     private fun Row.toArrangorflateTilsagn(): ArrangorflateTilsagn {
         val id = uuid("id")
-        val aarsaker = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.ANNULLER)
-            ?.aarsaker
-            ?.map { TilsagnStatusAarsak.valueOf(it) } ?: emptyList()
+
+        val opprettelse = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.OPPRETT)
+        val annullering = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.ANNULLER)
+        requireNotNull(opprettelse)
 
         return ArrangorflateTilsagn(
             id = uuid("id"),
@@ -253,7 +269,7 @@ class TilsagnQueries(private val session: Session) {
             beregning = Json.decodeFromString<TilsagnBeregning>(string("beregning")),
             status = ArrangorflateTilsagn.StatusOgAarsaker(
                 status = TilsagnStatus.valueOf(string("status")),
-                aarsaker = aarsaker,
+                aarsaker = annullering?.aarsaker?.map { TilsagnStatusAarsak.valueOf(it) } ?: emptyList(),
             ),
         )
     }

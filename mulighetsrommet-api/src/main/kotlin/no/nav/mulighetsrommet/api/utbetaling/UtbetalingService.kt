@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
+import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
@@ -33,6 +34,7 @@ import java.util.*
 class UtbetalingService(
     private val db: ApiDatabase,
     private val okonomi: OkonomiBestillingService,
+    private val tilsagnService: TilsagnService,
     private val journalforUtbetaling: JournalforUtbetaling,
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass.simpleName)
@@ -384,6 +386,9 @@ class UtbetalingService(
                 forklaring = null,
             ),
         )
+        if (delutbetaling.frigjorTilsagn) {
+            tilsagnService.frigjorAutomatisk(delutbetaling.tilsagnId)
+        }
         okonomi.scheduleBehandleGodkjenteUtbetalinger(delutbetaling.tilsagnId, session)
         logEndring(
             "Utbetaling godkjent",
@@ -423,9 +428,9 @@ class UtbetalingService(
 
     private fun resolveStengtHosArrangor(
         periode: Periode,
-        stengt: List<GjennomforingDto.StengtPeriode>,
+        stengtPerioder: List<GjennomforingDto.StengtPeriode>,
     ): Set<StengtPeriode> {
-        return stengt
+        return stengtPerioder
             .mapNotNull { stengt ->
                 Periode(stengt.start, stengt.slutt.plusDays(1)).intersect(periode)?.let {
                     StengtPeriode(it.start, it.slutt, stengt.beskrivelse)
