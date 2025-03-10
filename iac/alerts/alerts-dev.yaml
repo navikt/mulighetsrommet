@@ -28,7 +28,7 @@ spec:
             severity: critical
         - alert: "Applikasjon starter ikke"
           expr: kube_deployment_status_replicas_unavailable{namespace="team-mulighetsrommet"} > 0
-          for: 5m
+          for: 7m
           annotations:
             consequence: Minst én pod er utilgjengelig og nye kodeendringer har sannsynligvis ikke blitt produksjonssatt.
             action: "`kubectl describe pod -l app={{ $labels.deployment }} -n {{ $labels.namespace }}` for events, og `kubectl logs -l app={{ $labels.deployment }} -n {{ $labels.namespace }}` for logger"
