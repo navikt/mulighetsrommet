@@ -22,6 +22,7 @@ enum class OppgaveType(val rolle: NavAnsattRolle) {
         val TilsagnOppgaver = listOf(
             TILSAGN_TIL_GODKJENNING,
             TILSAGN_TIL_ANNULLERING,
+            TILSAGN_TIL_FRIGJORING,
             TILSAGN_RETURNERT,
         )
         val DelutbetalingOppgaver = listOf(

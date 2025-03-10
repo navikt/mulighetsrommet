@@ -2180,6 +2180,26 @@ paths:
               schema:
                 type: string
 
+  /api/v1/intern/tilsagn/{id}/til-frigjoring:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    post:
+      tags:
+        - Tilsagn
+      operationId: tilFrigjoring
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TilsagnTilAnnulleringRequest"
+      responses:
+        200:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+
   /api/v1/intern/tilsagn/{id}/beslutt:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -3016,6 +3036,7 @@ components:
       enum:
         - TILSAGN_TIL_GODKJENNING
         - TILSAGN_TIL_ANNULLERING
+        - TILSAGN_TIL_FRIGJORING
         - TILSAGN_RETURNERT
         - UTBETALING_TIL_BEHANDLING
         - UTBETALING_TIL_GODKJENNING
@@ -5385,6 +5406,8 @@ components:
           $ref: "#/components/schemas/Totrinnskontroll"
         annullering:
           $ref: "#/components/schemas/Totrinnskontroll"
+        frigjoring:
+          $ref: "#/components/schemas/Totrinnskontroll"
       required:
         - id
         - opprettelse
@@ -5406,6 +5429,8 @@ components:
         - GODKJENT
         - RETURNERT
         - TIL_ANNULLERING
+        - TIL_FRIGJORING
+        - FRIGJORT
         - ANNULLERT
 
     Besluttelse:

@@ -62,6 +62,23 @@ object TilsagnFixtures {
         type = TilsagnType.TILSAGN,
     )
 
+    val Tilsagn4 = TilsagnDbo(
+        id = UUID.randomUUID(),
+        gjennomforingId = GjennomforingFixtures.AFT1.id,
+        periode = Periode.forMonthOf(LocalDate.of(2025, 3, 1)),
+        lopenummer = 4,
+        bestillingsnummer = "A-2025/1-4",
+        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
+        beregning = TilsagnBeregningFri(
+            input = TilsagnBeregningFri.Input(2500),
+            output = TilsagnBeregningFri.Output(2500),
+        ),
+        arrangorId = ArrangorFixtures.underenhet1.id,
+        behandletAv = NavIdent("Z123456"),
+        behandletTidspunkt = LocalDateTime.now(),
+        type = TilsagnType.TILSAGN,
+    )
+
     fun QueryContext.setTilsagnStatus(tilsagnDbo: TilsagnDbo, status: TilsagnStatus) {
         val dto = queries.tilsagn.get(tilsagnDbo.id)
             ?: throw IllegalStateException("Tilsagnet må være gitt til domain først")

@@ -42,7 +42,7 @@ class TilsagnQueries(private val session: Session) {
                 :kostnadssted,
                 :arrangor_id::uuid,
                 :beregning::jsonb,
-                :status,
+                :status::tilsagn_status,
                 :type::tilsagn_type
             )
             on conflict (id) do update set
@@ -197,7 +197,7 @@ class TilsagnQueries(private val session: Session) {
     fun setStatus(id: UUID, status: TilsagnStatus) {
         @Language("PostgreSQL")
         val query = """
-            update tilsagn set status = :status where id = :id::uuid
+            update tilsagn set status = :status::tilsagn_status where id = :id::uuid
         """.trimIndent()
 
         session.execute(queryOf(query, mapOf("id" to id, "status" to status.name)))

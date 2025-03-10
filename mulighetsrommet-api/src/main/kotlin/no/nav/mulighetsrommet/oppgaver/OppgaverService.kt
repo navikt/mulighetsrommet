@@ -60,6 +60,7 @@ class OppgaverService(val db: ApiDatabase) {
                     statuser = listOf(
                         TilsagnStatus.TIL_GODKJENNING,
                         TilsagnStatus.TIL_ANNULLERING,
+                        TilsagnStatus.TIL_FRIGJORING,
                         TilsagnStatus.RETURNERT,
                     ),
                 )
@@ -186,7 +187,7 @@ class OppgaverService(val db: ApiDatabase) {
             requireNotNull(frigjoring)
             Oppgave(
                 id = UUID.randomUUID(),
-                type = OppgaveType.TILSAGN_TIL_ANNULLERING,
+                type = OppgaveType.TILSAGN_TIL_FRIGJORING,
                 title = "Tilsagn til frigjøring",
                 description = "Tilsagnet for ${gjennomforing.navn} er sendt til frigjøring",
                 tiltakstype = gjennomforing.tiltakskode,
