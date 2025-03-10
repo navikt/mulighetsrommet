@@ -10,6 +10,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
@@ -86,7 +87,7 @@ fun Route.tilsagnRoutes() {
                             .firstOrNull()
                     }
 
-                    resolveTilsagnDefaults(prismodell, gjennomforing, sisteTilsagn)
+                    resolveTilsagnDefaults(service.config, prismodell, gjennomforing, sisteTilsagn)
                 }
 
                 TilsagnType.EKSTRATILSAGN ->
@@ -257,12 +258,14 @@ data class AvtaltSats(
 )
 
 private fun resolveTilsagnDefaults(
+    config: OkonomiConfig,
     prismodell: Prismodell,
     gjennomforing: GjennomforingDto,
     tilsagn: TilsagnDto?,
 ) = when (prismodell) {
     Prismodell.FORHANDSGODKJENT -> {
         val periodeStart = listOfNotNull(
+            config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
             gjennomforing.startDato,
             tilsagn?.periodeSlutt?.plusDays(1),
         ).max()
@@ -300,6 +303,7 @@ private fun resolveTilsagnDefaults(
     else -> {
         val firstDayOfCurrentMonth = LocalDate.now().withDayOfMonth(1)
         val periodeStart = listOfNotNull(
+            config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
             gjennomforing.startDato,
             tilsagn?.periodeSlutt?.plusDays(1),
             firstDayOfCurrentMonth,

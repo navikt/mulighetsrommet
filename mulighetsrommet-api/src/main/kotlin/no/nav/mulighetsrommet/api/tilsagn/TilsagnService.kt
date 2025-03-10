@@ -25,7 +25,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class TilsagnService(
-    private val config: OkonomiConfig,
+    val config: OkonomiConfig,
     private val db: ApiDatabase,
     private val okonomi: OkonomiBestillingService,
 ) {
