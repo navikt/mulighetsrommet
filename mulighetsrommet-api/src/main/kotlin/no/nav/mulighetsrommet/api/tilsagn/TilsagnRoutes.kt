@@ -276,7 +276,9 @@ private fun resolveTilsagnDefaults(
             gjennomforing.sluttDato,
             forhandsgodkjentTilsagnPeriodeSlutt,
             lastDayOfYear,
-        ).min()
+        )
+            .filter { it > periodeStart }
+            .min()
 
         val periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt)
         val beregning = ForhandsgodkjenteSatser.findSats(gjennomforing.tiltakstype.tiltakskode, periode)
