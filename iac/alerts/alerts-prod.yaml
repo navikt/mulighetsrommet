@@ -27,7 +27,7 @@ spec:
             namespace: team-mulighetsrommet
             severity: critical
         - alert: "Applikasjon starter ikke"
-          expr: kube_deployment_status_replicas_unavailable{namespace="team-mulighetsrommet"} > 0
+          expr: increase(kube_pod_container_status_restarts_total{namespace="team-mulighetsrommet"}[5m]) > 0
           for: 5m
           annotations:
             consequence: Minst én pod er utilgjengelig og nye kodeendringer har sannsynligvis ikke blitt produksjonssatt.

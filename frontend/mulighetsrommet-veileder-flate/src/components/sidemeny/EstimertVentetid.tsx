@@ -1,7 +1,6 @@
 import { TimerPauseFillIcon } from "@navikt/aksel-icons";
 import { BodyShort } from "@navikt/ds-react";
 import { EstimertVentetid as EstimertVentetidType, EstimertVentetidEnhet } from "@mr/api-client-v2";
-import styles from "./EstimertVentetid.module.scss";
 
 interface Props {
   estimertVentetid: EstimertVentetidType;
@@ -9,11 +8,11 @@ interface Props {
 
 export function EstimertVentetid({ estimertVentetid }: Props) {
   return (
-    <BodyShort className={styles.container}>
+    <BodyShort className="flex items-center gap-2">
       <TimerPauseFillIcon
-        className={styles.ikon}
+        className="text-orange-300"
         aria-label="Stoppeklokkeikon for å indikere estimert ventetid for tiltaket"
-      />{" "}
+      />
       Estimert ventetid for tiltaket:{" "}
       {formatertVentetid(estimertVentetid.verdi, estimertVentetid.enhet)}
     </BodyShort>

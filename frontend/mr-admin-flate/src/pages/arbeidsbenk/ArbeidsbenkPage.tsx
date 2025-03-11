@@ -1,19 +1,25 @@
+import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
+import { Tiltakskode, Toggles } from "@mr/api-client-v2";
 import { useTitle } from "@mr/frontend-common";
 import { BellDotFillIcon } from "@navikt/aksel-icons";
 import { Tabs } from "@navikt/ds-react";
-import { Outlet, useLoaderData, useLocation, useNavigate } from "react-router";
-import { arbeidsbenkLoader } from "@/pages/arbeidsbenk/arbeidsbenkLoader";
-import { ContentBox } from "@/layouts/ContentBox";
-import { LoaderData } from "@/types/loader";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Outlet, useLocation, useNavigate } from "react-router";
+import { useFeatureToggle } from "../../api/features/useFeatureToggle";
+import { ulesteNotifikasjonerQuery } from "./notifikasjoner/notifikasjonerQueries";
 
 export function ArbeidsbenkPage() {
+  useTitle("Arbeidsbenk");
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { antallNotifikasjoner, enableArbeidsbenk } =
-    useLoaderData<LoaderData<typeof arbeidsbenkLoader>>();
 
-  useTitle("Arbeidsbenk");
+  const { data: enableArbeidsbenk } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_OKONOMI,
+    [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING],
+  );
+  const { data: ulesteNotifikasjoner } = useSuspenseQuery({ ...ulesteNotifikasjonerQuery });
+  const antallNotifikasjoner = ulesteNotifikasjoner.data.pagination.totalCount;
 
   return (
     <main>

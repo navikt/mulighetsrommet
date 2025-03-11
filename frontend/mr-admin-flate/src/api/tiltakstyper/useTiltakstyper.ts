@@ -1,8 +1,8 @@
-import { useApiQuery } from "@mr/frontend-common";
-import { PAGE_SIZE } from "@/constants";
-import { TiltakstypeFilter } from "../atoms";
 import { QueryKeys } from "@/api/QueryKeys";
+import { PAGE_SIZE } from "@/constants";
 import { TiltakstyperService } from "@mr/api-client-v2";
+import { useApiSuspenseQuery } from "@mr/frontend-common";
+import { TiltakstypeFilter } from "../atoms";
 
 export function useTiltakstyper(filter: TiltakstypeFilter = {}, page: number = 1) {
   const queryFilter = {
@@ -13,7 +13,7 @@ export function useTiltakstyper(filter: TiltakstypeFilter = {}, page: number = 1
     },
   };
 
-  return useApiQuery({
+  return useApiSuspenseQuery({
     queryKey: QueryKeys.tiltakstyper(queryFilter),
     queryFn: () => TiltakstyperService.getTiltakstyper(queryFilter),
   });

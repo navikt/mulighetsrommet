@@ -5680,7 +5680,7 @@ components:
       type: object
       properties:
         type:
-          const: AFT
+          const: FORHANDSGODKJENT
         id:
           type: string
           format: uuid

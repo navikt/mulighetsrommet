@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.utbetaling.HentAdressebeskyttetPersonBolkPdlQu
 import no.nav.mulighetsrommet.api.utbetaling.HentPersonBolkResponse
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerDto
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAft
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -60,7 +60,7 @@ class ArrangorFlateService(
     suspend fun toArrFlateUtbetaling(utbetaling: UtbetalingDto): ArrFlateUtbetaling = db.session {
         val status = getArrFlateUtbetalingStatus(utbetaling)
         return when (val beregning = utbetaling.beregning) {
-            is UtbetalingBeregningAft -> {
+            is UtbetalingBeregningForhandsgodkjent -> {
                 val deltakere = queries.deltaker.getAll(gjennomforingId = utbetaling.gjennomforing.id)
 
                 val deltakereById = deltakere.associateBy { it.id }
@@ -194,12 +194,12 @@ class ArrangorFlateService(
 fun DeltakerForslag.relevantForDeltakelse(
     utbetaling: UtbetalingDto,
 ): Boolean = when (utbetaling.beregning) {
-    is UtbetalingBeregningAft -> this.relevantForDeltakelse(utbetaling.beregning)
+    is UtbetalingBeregningForhandsgodkjent -> this.relevantForDeltakelse(utbetaling.beregning)
     is UtbetalingBeregningFri -> false
 }
 
 fun DeltakerForslag.relevantForDeltakelse(
-    beregning: UtbetalingBeregningAft,
+    beregning: UtbetalingBeregningForhandsgodkjent,
 ): Boolean {
     val deltakelser = beregning.input.deltakelser
         .find { it.deltakelseId == this.deltakerId }

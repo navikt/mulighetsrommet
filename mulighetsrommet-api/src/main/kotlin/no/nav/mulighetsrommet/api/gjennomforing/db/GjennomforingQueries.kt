@@ -366,28 +366,6 @@ class GjennomforingQueries(private val session: Session) {
             .runWithSession(this)
     }
 
-    fun getGjennomforesInPeriodeUtenUtbetaling(periode: Periode): List<GjennomforingDto> = with(session) {
-        @Language("PostgreSQL")
-        val query = """
-            select * from gjennomforing_admin_dto_view
-            where
-                (start_dato <= :periode_slutt) and
-                (slutt_dato >= :periode_start or slutt_dato is null) and
-                (avsluttet_tidspunkt > :periode_start or avsluttet_tidspunkt is null) and
-                not exists (
-                    select 1
-                    from utbetaling
-                        join utbetaling_beregning_aft ON utbetaling.id = utbetaling_beregning_aft.utbetaling_id
-                    where utbetaling.gjennomforing_id = gjennomforing_admin_dto_view.id
-                    and utbetaling_beregning_aft.periode && daterange(:periode_start, :periode_slutt)
-                );
-        """.trimIndent()
-
-        val params = mapOf("periode_start" to periode.start, "periode_slutt" to periode.slutt)
-
-        return list(queryOf(query, params)) { it.toTiltaksgjennomforingDto() }
-    }
-
     fun delete(id: UUID): Int = with(session) {
         @Language("PostgreSQL")
         val query = """

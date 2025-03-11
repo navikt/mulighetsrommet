@@ -15,6 +15,7 @@ export interface MultiSelectProps<T> {
   onInputChange?: (value: string) => void;
   error: boolean;
   velgAlle?: boolean;
+  inputId?: string;
 }
 
 export function MultiSelect<T>(
@@ -33,6 +34,7 @@ export function MultiSelect<T>(
     readOnly,
     size,
     velgAlle = false,
+    inputId,
   } = props;
 
   const customStyles = (isError: boolean) => ({
@@ -81,6 +83,7 @@ export function MultiSelect<T>(
 
   return (
     <ReactSelect
+      inputId={inputId}
       placeholder={placeholder}
       ref={childRef}
       isMulti

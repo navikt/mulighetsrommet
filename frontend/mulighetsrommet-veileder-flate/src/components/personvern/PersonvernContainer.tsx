@@ -13,7 +13,6 @@ import { ModalBody, ModalHeader } from "@navikt/ds-react/Modal";
 import { PersonopplysningData, VeilederflateTiltakGruppe } from "@mr/api-client-v2";
 import { useState } from "react";
 import { PersonvernIkon } from "@/ikoner/PersonvernIkon";
-import styles from "./PersonvernContainer.module.scss";
 
 interface Props {
   tiltak: VeilederflateTiltakGruppe;
@@ -39,7 +38,7 @@ export function PersonvernContainer({ tiltak }: Props) {
             variant="tertiary"
             size="small"
             onClick={() => setModalOpen(true)}
-            className={styles.button_as_link}
+            className="text-left p-0 m-0 underline [&_.navds-label]:font-normal"
           >
             Se hvilke personopplysninger du kan dele med tiltaksarrangøren for dette tiltaket
           </Button>
@@ -60,20 +59,20 @@ export function PersonvernContainer({ tiltak }: Props) {
           </VStack>
         </ModalHeader>
         <ModalBody>
-          <BodyLong spacing className={styles.lesebredde}>
+          <BodyLong spacing className="max-w-[75ch]">
             Nav har avtalt med tiltaksarrangøren at følgende opplysninger kan behandles om deltakere
             i tiltaket. Dersom du mener det er behov for å utveksle andre typer opplysninger om
             deltaker, må du ta kontakt med avtaleeier i tiltaksenheten/fylket.
           </BodyLong>
-          <BodyLong spacing className={styles.lesebredde}>
+          <BodyLong spacing className="max-w-[75ch]">
             Det skal ikke deles flere personopplysninger enn det som står på denne listen. Selv om
             personopplysningene står på listen, må du gjøre en konkret vurdering i hvert enkelt
             tilfelle om det er nødvendig å dele opplysningene. Husk prinsippet om dataminimering, og
             at vi ikke skal sende flere opplysninger enn det som er nødvendig.
           </BodyLong>
-          <BodyLong as="div" spacing className={styles.lesebredde}>
-            <div className={styles.flex}>
-              <p style={{ margin: 0 }}>
+          <BodyLong as="div" spacing className="max-w-[75ch]">
+            <div className="flex items-baseline gap-2">
+              <p className="m-0">
                 Personopplysninger om deltakers nærstående skal i utgangspunktet ikke behandles. I
                 enkelte tilfeller kan det likevel være nødvendig å behandle indirekte opplysninger
                 om deltakers nærstående, fordi det kan ha betydning for tiltaket.
@@ -113,9 +112,9 @@ function ListeOverPersonopplysninger({
   return (
     <List title={title} size="small">
       {personopplysninger.map((personopplysning) => (
-        <List.Item key={personopplysning.personopplysning} className={styles.lesebredde}>
+        <List.Item key={personopplysning.personopplysning} className="max-w-[75ch]">
           <HStack align={"end"} gap="1">
-            <div className={styles.flex}>
+            <div className="flex items-baseline gap-2">
               {personopplysning.tittel}{" "}
               {personopplysning.hjelpetekst ? (
                 <HelpText>{personopplysning.hjelpetekst}</HelpText>

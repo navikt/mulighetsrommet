@@ -87,4 +87,59 @@ class PeriodeTest : FunSpec({
         val period3 = Periode(LocalDate.of(2021, 2, 1), LocalDate.of(2021, 2, 15))
         period1.intersect(period3) shouldBe null
     }
+
+    test("should subtract periods correctly in various cases") {
+        fun period(start: String, end: String) = Periode(LocalDate.parse(start), LocalDate.parse(end))
+
+        // Case 1: No overlap
+        period("2024-03-01", "2024-03-31").subtractPeriods(
+            listOf(period("2024-02-01", "2024-02-28")),
+        ) shouldBe listOf(period("2024-03-01", "2024-03-31"))
+
+        // Case 4: Exclusion overlaps at start
+        period("2024-03-01", "2024-03-31").subtractPeriods(
+            listOf(period("2024-03-01", "2024-03-05")),
+        ) shouldBe listOf(period("2024-03-05", "2024-03-31"))
+
+        // Case 5: Exclusion overlaps at end
+        period("2024-03-01", "2024-03-31").subtractPeriods(
+            listOf(period("2024-03-25", "2024-03-31")),
+        ) shouldBe listOf(period("2024-03-01", "2024-03-25"))
+
+        // Case 6: Exclusion fully inside
+        period("2024-03-01", "2024-03-31").subtractPeriods(
+            listOf(period("2024-03-10", "2024-03-20")),
+        ) shouldBe listOf(
+            period("2024-03-01", "2024-03-10"),
+            period("2024-03-20", "2024-03-31"),
+        )
+
+        // Case 7: Multiple exclusions
+        period("2024-03-01", "2024-03-31").subtractPeriods(
+            listOf(
+                period("2024-03-05", "2024-03-10"),
+                period("2024-03-15", "2024-03-20"),
+            ),
+        ) shouldBe listOf(
+            period("2024-03-01", "2024-03-05"),
+            period("2024-03-10", "2024-03-15"),
+            period("2024-03-20", "2024-03-31"),
+        )
+
+        // Case 8: Exclusion exactly matches full period
+        period("2024-03-01", "2024-03-31").subtractPeriods(
+            listOf(period("2024-03-01", "2024-03-31")),
+        ) shouldBe emptyList()
+
+        // Case 9: Adjacent exclusions
+        period("2024-03-01", "2024-03-31").subtractPeriods(
+            listOf(
+                period("2024-03-05", "2024-03-10"),
+                period("2024-03-10", "2024-03-15"),
+            ),
+        ) shouldBe listOf(
+            period("2024-03-01", "2024-03-05"),
+            period("2024-03-15", "2024-03-31"),
+        )
+    }
 })

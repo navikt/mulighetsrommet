@@ -1,8 +1,8 @@
 import { useFindForhandsgodkjentSats } from "@/api/tilsagn/useFindForhandsgodkjentSats";
 import { TilsagnBeregningPreview } from "@/components/tilsagn/prismodell/TilsagnBeregningPreview";
-import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
 import { TilsagnForm } from "@/components/tilsagn/prismodell/TilsagnForm";
-import { TilsagnBeregningForhandsgodkjent, GjennomforingDto } from "@mr/api-client-v2";
+import { InferredTilsagn } from "@/components/tilsagn/prismodell/TilsagnSchema";
+import { GjennomforingDto, TilsagnBeregningForhandsgodkjent } from "@mr/api-client-v2";
 import { HGrid, TextField } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
@@ -39,6 +39,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
   const periodeSlutt = watch("periodeSlutt");
 
   const sats = useFindForhandsgodkjentSats(gjennomforing.tiltakstype.tiltakskode, periodeStart);
+
   useEffect(() => {
     // FIXME: Satt til 0 for at validering og beregning ikke skal stoppe opp. Kan det gjøres på en bedre måte?
     const pris = sats?.pris ?? 0;

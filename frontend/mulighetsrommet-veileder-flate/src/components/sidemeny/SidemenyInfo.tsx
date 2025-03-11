@@ -7,7 +7,6 @@ import {
 import { formaterDato, utledLopenummerFraTiltaksnummer } from "@/utils/Utils";
 import Kopiknapp from "../kopiknapp/Kopiknapp";
 import Regelverksinfo from "./Regelverksinfo";
-import styles from "./SidemenyInfo.module.scss";
 import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 
 interface Props {
@@ -26,13 +25,13 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
   const arrangor = "arrangor" in tiltak ? tiltak.arrangor : null;
 
   return (
-    <Box padding="5" background="bg-subtle" className={styles.panel} id="sidemeny">
+    <Box padding="5" background="bg-subtle" className="max-w-[380px]" id="sidemeny">
       {tiltaksnummer && (
-        <div className={styles.rad}>
-          <BodyShort size="small" className={styles.tittel}>
+        <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
+          <BodyShort size="small" className="font-bold text-left">
             Tiltaksnummer
           </BodyShort>
-          <div className={styles.tiltaksnummer}>
+          <div className="flex items-start justify-end gap-1">
             <BodyShort size="small">{utledLopenummerFraTiltaksnummer(tiltaksnummer)}</BodyShort>
             <Kopiknapp
               kopitekst={utledLopenummerFraTiltaksnummer(tiltaksnummer)}
@@ -43,32 +42,32 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
       )}
 
       {stedForGjennomforing && (
-        <div className={styles.rad}>
-          <BodyShort size="small" className={styles.tittel}>
+        <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
+          <BodyShort size="small" className="font-bold text-left">
             Sted for gjennomføring
           </BodyShort>
           <BodyShort size="small">{stedForGjennomforing}</BodyShort>
         </div>
       )}
 
-      <div className={styles.rad}>
-        <BodyShort size="small" className={styles.tittel}>
+      <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
+        <BodyShort size="small" className="font-bold text-left">
           Tiltakstype
         </BodyShort>
         <BodyShort size="small">{tiltakstype.navn} </BodyShort>
       </div>
 
       {arrangor && (
-        <div className={styles.rad}>
-          <BodyShort size="small" className={styles.tittel}>
+        <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
+          <BodyShort size="small" className="font-bold text-left">
             Arrangør
           </BodyShort>
           <BodyShort size="small">{arrangor.selskapsnavn}</BodyShort>
         </div>
       )}
 
-      <div className={styles.rad}>
-        <BodyShort title="Minimum krav innsatsgruppe" size="small" className={styles.tittel}>
+      <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
+        <BodyShort title="Minimum krav innsatsgruppe" size="small" className="font-bold text-left">
           <abbr title="Minimum">Min</abbr>. innsatsgruppe
         </BodyShort>
         <BodyShort size="small">{minimumInnsatsgruppe.tittel}</BodyShort>
@@ -77,27 +76,29 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
       <TiltakVarighetInfo tiltak={tiltak} />
 
       {tiltakstype.regelverkLenker && (
-        <div className={styles.rad}>
-          <BodyShort size="small" className={styles.tittel}>
+        <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
+          <BodyShort size="small" className="font-bold text-left">
             Regelverk og rutiner
           </BodyShort>
-          <Regelverksinfo
-            regelverkLenker={[
-              ...tiltakstype.regelverkLenker,
-              {
-                _id: "klage",
-                regelverkLenkeNavn: "Avslag og klage",
-                regelverkUrl:
-                  "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Klage-p%C3%A5-arbeidsmarkedstiltak.aspx",
-              },
-              {
-                _id: "vurdering",
-                regelverkLenkeNavn: "Tiltak hos familie/nærstående",
-                regelverkUrl:
-                  "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Rutine.aspx",
-              },
-            ]}
-          />
+          <div className="space-y-4 last:mb-0">
+            <Regelverksinfo
+              regelverkLenker={[
+                ...tiltakstype.regelverkLenker,
+                {
+                  _id: "klage",
+                  regelverkLenkeNavn: "Avslag og klage",
+                  regelverkUrl:
+                    "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Klage-p%C3%A5-arbeidsmarkedstiltak.aspx",
+                },
+                {
+                  _id: "vurdering",
+                  regelverkLenkeNavn: "Tiltak hos familie/nærstående",
+                  regelverkUrl:
+                    "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Rutine.aspx",
+                },
+              ]}
+            />
+          </div>
         </div>
       )}
     </Box>
@@ -122,8 +123,8 @@ function TiltakVarighetInfo({ tiltak }: { tiltak: VeilederflateTiltak }) {
           };
 
   return (
-    <div className={styles.rad}>
-      <BodyShort size="small" className={styles.tittel}>
+    <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
+      <BodyShort size="small" className="font-bold text-left">
         {tittel}
       </BodyShort>
       <BodyShort size="small">{innhold}</BodyShort>

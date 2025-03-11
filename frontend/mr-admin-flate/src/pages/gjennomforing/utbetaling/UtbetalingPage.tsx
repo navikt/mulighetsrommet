@@ -1,3 +1,4 @@
+import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
 import { Header } from "@/components/detaljside/Header";
 import { Metadata, MetadataHorisontal, Separator } from "@/components/detaljside/Metadata";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
@@ -7,7 +8,6 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { DelutbetalingRow } from "@/components/utbetaling/DelutbetalingRow";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { LoaderData } from "@/types/loader";
 import { formaterDato } from "@/utils/Utils";
 import {
   FieldError,
@@ -30,17 +30,45 @@ import {
   Table,
   VStack,
 } from "@navikt/ds-react";
-import { useState } from "react";
-import { useLoaderData, useNavigate, useRevalidator } from "react-router";
-import { utbetalingPageLoader } from "./utbetalingPageLoader";
 import { useQueryClient } from "@tanstack/react-query";
-import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
+import { useState } from "react";
+import { useNavigate, useParams, useRevalidator } from "react-router";
 import { OpprettDelutbetalingRow } from "@/components/utbetaling/OpprettDelutbetalingRow";
 import { v4 as uuidv4 } from "uuid";
+import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
+import {
+  delutbetalingerQuery,
+  tilsagnTilUtbetalingQuery,
+  utbetalingHistorikkQuery,
+  utbetalingQuery,
+} from "./utbetalingPageLoader";
+
+import { useApiSuspenseQuery } from "@mr/frontend-common";
+import { useAdminGjennomforingById } from "../../../api/gjennomforing/useAdminGjennomforingById";
+function useUtbetalingPageData() {
+  const { gjennomforingId, utbetalingId } = useParams();
+
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
+  const { data: ansatt } = useHentAnsatt();
+  const { data: historikk } = useApiSuspenseQuery(utbetalingHistorikkQuery(utbetalingId));
+  const { data: utbetaling } = useApiSuspenseQuery(utbetalingQuery(utbetalingId));
+  const { data: delutbetalinger } = useApiSuspenseQuery(delutbetalingerQuery(utbetalingId));
+  const { data: tilsagn } = useApiSuspenseQuery(tilsagnTilUtbetalingQuery(utbetalingId));
+
+  return {
+    gjennomforing,
+    ansatt,
+    historikk,
+    utbetaling,
+    delutbetalinger,
+    tilsagn,
+  };
+}
 
 export function UtbetalingPage() {
-  const { gjennomforing, historikk, utbetaling, delutbetalinger, tilsagn, ansatt } =
-    useLoaderData<LoaderData<typeof utbetalingPageLoader>>();
+  const { gjennomforingId } = useParams();
+  const { gjennomforing, ansatt, historikk, utbetaling, delutbetalinger, tilsagn } =
+    useUtbetalingPageData();
 
   const [delutbetalingPerTilsagn, setDelutbetalingPerTilsagn] =
     useState<{ id?: string; tilsagnId: string; belop: number; frigjorTilsagn: boolean }[]>(
@@ -64,11 +92,11 @@ export function UtbetalingPage() {
     { tittel: "Gjennomføringer", lenke: `/gjennomforinger` },
     {
       tittel: "Gjennomføring",
-      lenke: `/gjennomforinger/${gjennomforing.id}`,
+      lenke: `/gjennomforinger/${gjennomforingId}`,
     },
     {
       tittel: "Utbetalinger",
-      lenke: `/gjennomforinger/${gjennomforing.id}/utbetalinger`,
+      lenke: `/gjennomforinger/${gjennomforingId}/utbetalinger`,
     },
     { tittel: "Utbetaling" },
   ];

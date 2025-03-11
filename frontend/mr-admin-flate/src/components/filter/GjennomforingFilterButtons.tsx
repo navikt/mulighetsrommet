@@ -1,15 +1,17 @@
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
-import { Tiltakskode } from "@mr/api-client-v2";
+import { AvtaleDto, Tiltakskode } from "@mr/api-client-v2";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { Button } from "@navikt/ds-react";
 import { useSetAtom } from "jotai";
 import { useState } from "react";
-import { useAvtale } from "../../api/avtaler/useAvtale";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 
-export function GjennomforingFilterButtons() {
-  const { data: avtale } = useAvtale();
+interface Props {
+  avtale?: AvtaleDto;
+}
+
+export function GjennomforingFilterButtons({ avtale }: Props) {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const setGjennomforingFane = useSetAtom(gjennomforingDetaljerTabAtom);
 
@@ -49,7 +51,7 @@ export function GjennomforingFilterButtons() {
               dataTestid="opprett-ny-tiltaksgjenomforing_knapp"
               onClick={() => setGjennomforingFane("detaljer")}
             >
-              Opprett ny tiltaksgjennomføring
+              Opprett ny gjennomføring
             </Lenkeknapp>
             {avtaleErAftEllerVta && (
               <>

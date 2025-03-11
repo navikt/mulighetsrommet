@@ -10,6 +10,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
@@ -18,6 +19,8 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Prismodell
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -65,17 +68,26 @@ fun Route.tilsagnRoutes() {
 
         post("/defaults") {
             val request = call.receive<TilsagnDefaultsRequest>()
-            val gjennomforing = gjennomforinger.get(request.gjennomforingId) ?: return@post call.respond(HttpStatusCode.NotFound)
+
+            val gjennomforing = gjennomforinger.get(request.gjennomforingId)
+                ?: return@post call.respond(HttpStatusCode.NotFound)
 
             val defaults = when (request.type) {
                 TilsagnType.TILSAGN -> {
+                    val prismodell = gjennomforing.avtaleId
+                        ?.let { db.session { queries.avtale.get(it)?.prismodell } }
+                        ?: throw StatusException(
+                            HttpStatusCode.BadRequest,
+                            "Tilsagn kan ikke opprettes uten at avtalen har en prismodell",
+                        )
+
                     val sisteTilsagn = db.session {
                         queries.tilsagn
                             .getAll(typer = listOf(TilsagnType.TILSAGN), gjennomforingId = request.gjennomforingId)
                             .firstOrNull()
                     }
 
-                    resolveTilsagnDefaults(gjennomforing, sisteTilsagn)
+                    resolveTilsagnDefaults(service.config, prismodell, gjennomforing, sisteTilsagn)
                 }
 
                 TilsagnType.EKSTRATILSAGN ->
@@ -246,11 +258,14 @@ data class AvtaltSats(
 )
 
 private fun resolveTilsagnDefaults(
+    config: OkonomiConfig,
+    prismodell: Prismodell,
     gjennomforing: GjennomforingDto,
     tilsagn: TilsagnDto?,
-) = when (gjennomforing.tiltakstype.tiltakskode) {
-    Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET -> {
+) = when (prismodell) {
+    Prismodell.FORHANDSGODKJENT -> {
         val periodeStart = listOfNotNull(
+            config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
             gjennomforing.startDato,
             tilsagn?.periodeSlutt?.plusDays(1),
         ).max()
@@ -261,9 +276,12 @@ private fun resolveTilsagnDefaults(
             gjennomforing.sluttDato,
             forhandsgodkjentTilsagnPeriodeSlutt,
             lastDayOfYear,
-        ).min()
+        )
+            .filter { it > periodeStart }
+            .min()
 
-        val beregning = ForhandsgodkjenteSatser.findSats(gjennomforing.tiltakstype.tiltakskode, periodeStart)
+        val periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt)
+        val beregning = ForhandsgodkjenteSatser.findSats(gjennomforing.tiltakstype.tiltakskode, periode)
             ?.let { sats ->
                 TilsagnBeregningForhandsgodkjent.Input(
                     periodeStart = periodeStart,
@@ -287,6 +305,7 @@ private fun resolveTilsagnDefaults(
     else -> {
         val firstDayOfCurrentMonth = LocalDate.now().withDayOfMonth(1)
         val periodeStart = listOfNotNull(
+            config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
             gjennomforing.startDato,
             tilsagn?.periodeSlutt?.plusDays(1),
             firstDayOfCurrentMonth,

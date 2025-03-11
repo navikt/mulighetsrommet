@@ -30,215 +30,188 @@ class UtbetalingQueriesTest : FunSpec({
         gjennomforinger = listOf(AFT1),
     )
 
-    context("CRUD") {
-        val deltakelse1Id = UUID.randomUUID()
-        val deltakelse2Id = UUID.randomUUID()
-        val beregning = UtbetalingBeregningAft(
-            input = UtbetalingBeregningAft.Input(
-                sats = 20_205,
-                periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
-                stengt = setOf(StengtPeriode(LocalDate.of(2023, 1, 10), LocalDate.of(2023, 1, 20), "Ferie")),
-                deltakelser = setOf(
-                    DeltakelsePerioder(
-                        deltakelseId = deltakelse1Id,
-                        perioder = listOf(
-                            DeltakelsePeriode(
-                                start = LocalDate.of(2023, 1, 1),
-                                slutt = LocalDate.of(2023, 1, 10),
-                                deltakelsesprosent = 100.0,
-                            ),
-                            DeltakelsePeriode(
-                                start = LocalDate.of(2023, 1, 10),
-                                slutt = LocalDate.of(2023, 1, 20),
-                                deltakelsesprosent = 50.0,
-                            ),
-                            DeltakelsePeriode(
-                                start = LocalDate.of(2023, 1, 20),
-                                slutt = LocalDate.of(2023, 2, 1),
-                                deltakelsesprosent = 50.0,
-                            ),
-                        ),
-                    ),
-                    DeltakelsePerioder(
-                        deltakelseId = deltakelse2Id,
-                        perioder = listOf(
-                            DeltakelsePeriode(
-                                start = LocalDate.of(2023, 1, 1),
-                                slutt = LocalDate.of(2023, 2, 1),
-                                deltakelsesprosent = 100.0,
-                            ),
-                        ),
-                    ),
-                ),
-            ),
-            output = UtbetalingBeregningAft.Output(
-                belop = 100_000,
-                deltakelser = setOf(
-                    DeltakelseManedsverk(deltakelse1Id, 1.0),
-                    DeltakelseManedsverk(deltakelse2Id, 1.0),
-                ),
-            ),
-        )
+    val periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1))
 
-        test("upsert and get aft beregning") {
+    val beregning = UtbetalingBeregningFri(
+        input = UtbetalingBeregningFri.Input(belop = 137_077),
+        output = UtbetalingBeregningFri.Output(belop = 137_077),
+    )
+
+    val utbetaling = UtbetalingDbo(
+        id = UUID.randomUUID(),
+        gjennomforingId = AFT1.id,
+        fristForGodkjenning = LocalDate.of(2024, 10, 1).atStartOfDay(),
+        beregning = beregning,
+        kontonummer = Kontonummer("11111111111"),
+        kid = Kid("12345"),
+        periode = periode,
+        innsender = UtbetalingDto.Innsender.NavAnsatt(NavIdent("Z123456")),
+    )
+
+    test("upsert and get utbetaling med fri beregning") {
+        database.runAndRollback { session ->
+            domain.setup(session)
+
+            val queries = UtbetalingQueries(session)
+
+            queries.upsert(utbetaling)
+
+            queries.get(utbetaling.id).shouldNotBeNull().should {
+                it.id shouldBe utbetaling.id
+                it.fristForGodkjenning shouldBe LocalDate.of(2024, 10, 1).atStartOfDay()
+                it.tiltakstype shouldBe UtbetalingDto.Tiltakstype(
+                    navn = TiltakstypeFixtures.AFT.navn,
+                    tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
+                )
+                it.gjennomforing shouldBe UtbetalingDto.Gjennomforing(
+                    id = AFT1.id,
+                    navn = AFT1.navn,
+                )
+                it.arrangor shouldBe UtbetalingDto.Arrangor(
+                    navn = ArrangorFixtures.underenhet1.navn,
+                    id = ArrangorFixtures.underenhet1.id,
+                    organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+                    slettet = ArrangorFixtures.underenhet1.slettetDato != null,
+                )
+                it.beregning shouldBe beregning
+                it.betalingsinformasjon shouldBe UtbetalingDto.Betalingsinformasjon(
+                    kontonummer = Kontonummer("11111111111"),
+                    kid = Kid("12345"),
+                )
+                it.journalpostId shouldBe null
+                it.periode shouldBe periode
+                it.godkjentAvArrangorTidspunkt shouldBe null
+                it.innsender shouldBe UtbetalingDto.Innsender.NavAnsatt(NavIdent("Z123456"))
+            }
+        }
+    }
+
+    test("set godkjent av arrangør") {
+        database.runAndRollback { session ->
+            domain.setup(session)
+
+            val queries = UtbetalingQueries(session)
+
+            queries.upsert(utbetaling.copy(innsender = null))
+
+            queries.get(utbetaling.id)
+                .shouldNotBeNull().innsender shouldBe null
+
+            queries.setGodkjentAvArrangor(utbetaling.id, LocalDateTime.now())
+
+            queries.get(utbetaling.id)
+                .shouldNotBeNull().innsender shouldBe UtbetalingDto.Innsender.ArrangorAnsatt
+        }
+    }
+
+    test("set journalpost id") {
+        database.runAndRollback { session ->
+            domain.setup(session)
+
+            val queries = UtbetalingQueries(session)
+
+            queries.upsert(utbetaling)
+
+            queries.setJournalpostId(utbetaling.id, "123")
+
+            queries.get(utbetaling.id).shouldNotBeNull().journalpostId shouldBe "123"
+        }
+    }
+
+    context("utbetaling med forhåndsgodkjent beregning") {
+        test("upsert and get forhåndsgodkjent beregning") {
             database.runAndRollback { session ->
                 domain.setup(session)
 
                 val queries = UtbetalingQueries(session)
 
-                val frist = LocalDate.of(2024, 10, 1).atStartOfDay()
-                val utbetaling = UtbetalingDbo(
-                    id = UUID.randomUUID(),
-                    gjennomforingId = AFT1.id,
-                    fristForGodkjenning = frist,
-                    beregning = beregning,
-                    kontonummer = Kontonummer("11111111111"),
-                    kid = Kid("12345"),
-                    periode = beregning.input.periode,
-                    innsender = null,
+                val deltakelse1Id = UUID.randomUUID()
+                val deltakelse2Id = UUID.randomUUID()
+                val beregningForhandsgodkjent = UtbetalingBeregningForhandsgodkjent(
+                    input = UtbetalingBeregningForhandsgodkjent.Input(
+                        sats = 20_205,
+                        periode = periode,
+                        stengt = setOf(StengtPeriode(LocalDate.of(2023, 1, 10), LocalDate.of(2023, 1, 20), "Ferie")),
+                        deltakelser = setOf(
+                            DeltakelsePerioder(
+                                deltakelseId = deltakelse1Id,
+                                perioder = listOf(
+                                    DeltakelsePeriode(
+                                        start = LocalDate.of(2023, 1, 1),
+                                        slutt = LocalDate.of(2023, 1, 10),
+                                        deltakelsesprosent = 100.0,
+                                    ),
+                                    DeltakelsePeriode(
+                                        start = LocalDate.of(2023, 1, 10),
+                                        slutt = LocalDate.of(2023, 1, 20),
+                                        deltakelsesprosent = 50.0,
+                                    ),
+                                    DeltakelsePeriode(
+                                        start = LocalDate.of(2023, 1, 20),
+                                        slutt = LocalDate.of(2023, 2, 1),
+                                        deltakelsesprosent = 50.0,
+                                    ),
+                                ),
+                            ),
+                            DeltakelsePerioder(
+                                deltakelseId = deltakelse2Id,
+                                perioder = listOf(
+                                    DeltakelsePeriode(
+                                        start = LocalDate.of(2023, 1, 1),
+                                        slutt = LocalDate.of(2023, 2, 1),
+                                        deltakelsesprosent = 100.0,
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                    output = UtbetalingBeregningForhandsgodkjent.Output(
+                        belop = 100_000,
+                        deltakelser = setOf(
+                            DeltakelseManedsverk(deltakelse1Id, 1.0),
+                            DeltakelseManedsverk(deltakelse2Id, 1.0),
+                        ),
+                    ),
+                )
+                val tubetalingForhandsgodkjent = utbetaling.copy(
+                    beregning = beregningForhandsgodkjent,
                 )
 
-                queries.upsert(utbetaling)
+                queries.upsert(tubetalingForhandsgodkjent)
 
-                queries.get(utbetaling.id)!! should {
-                    it.id shouldBe utbetaling.id
-                    it.innsender shouldBe null
-                    it.fristForGodkjenning shouldBe frist
-                    it.tiltakstype shouldBe UtbetalingDto.Tiltakstype(
-                        navn = TiltakstypeFixtures.AFT.navn,
-                        tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
-                    )
-                    it.gjennomforing shouldBe UtbetalingDto.Gjennomforing(
-                        id = AFT1.id,
-                        navn = AFT1.navn,
-                    )
-                    it.arrangor shouldBe UtbetalingDto.Arrangor(
-                        navn = ArrangorFixtures.underenhet1.navn,
-                        id = ArrangorFixtures.underenhet1.id,
-                        organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
-                        slettet = ArrangorFixtures.underenhet1.slettetDato != null,
-                    )
-                    it.beregning shouldBe beregning
-                    it.betalingsinformasjon shouldBe UtbetalingDto.Betalingsinformasjon(
-                        kontonummer = Kontonummer("11111111111"),
-                        kid = Kid("12345"),
-                    )
-                    it.journalpostId shouldBe null
-                    it.periode shouldBe beregning.input.periode
-                    it.godkjentAvArrangorTidspunkt shouldBe null
+                queries.get(tubetalingForhandsgodkjent.id).shouldNotBeNull().should {
+                    it.beregning shouldBe beregningForhandsgodkjent
                 }
             }
         }
 
-        test("upsert and get fri beregning") {
+        test("tillater ikke lagring av overlappende deltakelsesperioder") {
             database.runAndRollback { session ->
                 domain.setup(session)
 
                 val queries = UtbetalingQueries(session)
 
-                val frist = LocalDate.of(2024, 10, 1).atStartOfDay()
-                val friberegning = UtbetalingBeregningFri(
-                    input = UtbetalingBeregningFri.Input(belop = 137_077),
-                    output = UtbetalingBeregningFri.Output(belop = 137_077),
-                )
-                val utbetaling = UtbetalingDbo(
-                    id = UUID.randomUUID(),
-                    gjennomforingId = AFT1.id,
-                    fristForGodkjenning = frist,
-                    beregning = friberegning,
-                    kontonummer = Kontonummer("11111111111"),
-                    kid = Kid("12345"),
-                    periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 5, 5)),
-                    innsender = UtbetalingDto.Innsender.NavAnsatt(NavIdent("Z123456")),
-                )
-
-                queries.upsert(utbetaling)
-                queries.get(utbetaling.id).shouldNotBeNull() should {
-                    it.id shouldBe utbetaling.id
-                    it.beregning shouldBe friberegning
-                    it.innsender shouldBe UtbetalingDto.Innsender.NavAnsatt(NavIdent("Z123456"))
-                }
-            }
-        }
-
-        test("godkjenn utbetaling") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
-                val queries = UtbetalingQueries(session)
-
-                val utbetaling = UtbetalingDbo(
-                    id = UUID.randomUUID(),
-                    gjennomforingId = AFT1.id,
-                    fristForGodkjenning = LocalDate.of(2024, 10, 1).atStartOfDay(),
-                    beregning = beregning,
-                    kontonummer = null,
-                    kid = null,
-                    periode = beregning.input.periode,
-                    innsender = null,
-                )
-
-                queries.upsert(utbetaling)
-
-                queries.get(utbetaling.id)
-                    .shouldNotBeNull().innsender shouldBe null
-
-                queries.setGodkjentAvArrangor(utbetaling.id, LocalDateTime.now())
-
-                queries.get(utbetaling.id)
-                    .shouldNotBeNull().innsender shouldBe UtbetalingDto.Innsender.ArrangorAnsatt
-            }
-        }
-
-        test("set journalpost id") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
-                val queries = UtbetalingQueries(session)
-
-                val utbetaling = UtbetalingDbo(
-                    id = UUID.randomUUID(),
-                    gjennomforingId = AFT1.id,
-                    fristForGodkjenning = LocalDate.of(2024, 10, 1).atStartOfDay(),
-                    beregning = beregning,
-                    kontonummer = null,
-                    kid = null,
-                    periode = beregning.input.periode,
-                    innsender = null,
-                )
-                queries.upsert(utbetaling)
-
-                queries.setJournalpostId(utbetaling.id, "123")
-            }
-        }
-
-        test("tillater ikke lagring av overlappende perioder") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
-                val queries = UtbetalingQueries(session)
-
-                val periode = DeltakelsePeriode(
+                val deltakelsePeriode = DeltakelsePeriode(
                     start = LocalDate.of(2023, 1, 1),
                     slutt = LocalDate.of(2023, 1, 2),
                     deltakelsesprosent = 100.0,
                 )
                 val deltakelse = DeltakelsePerioder(
                     deltakelseId = UUID.randomUUID(),
-                    perioder = listOf(periode, periode),
+                    perioder = listOf(deltakelsePeriode, deltakelsePeriode),
                 )
-                val utbetaling = UtbetalingDbo(
+                val utbetalingForhandsgodkjent = UtbetalingDbo(
                     id = UUID.randomUUID(),
                     gjennomforingId = AFT1.id,
                     fristForGodkjenning = LocalDate.of(2024, 10, 1).atStartOfDay(),
-                    beregning = UtbetalingBeregningAft(
-                        input = UtbetalingBeregningAft.Input(
+                    beregning = UtbetalingBeregningForhandsgodkjent(
+                        input = UtbetalingBeregningForhandsgodkjent.Input(
                             periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
                             sats = 20_205,
                             stengt = setOf(),
                             deltakelser = setOf(deltakelse),
                         ),
-                        output = UtbetalingBeregningAft.Output(
+                        output = UtbetalingBeregningForhandsgodkjent.Output(
                             belop = 0,
                             deltakelser = setOf(),
                         ),
@@ -250,7 +223,7 @@ class UtbetalingQueriesTest : FunSpec({
                 )
 
                 assertThrows<SQLException> {
-                    queries.upsert(utbetaling)
+                    queries.upsert(utbetalingForhandsgodkjent)
                 }
             }
         }

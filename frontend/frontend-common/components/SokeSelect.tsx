@@ -31,6 +31,7 @@ export interface SelectProps<T> {
   value: SelectOption<T> | null;
   error?: { message?: string };
   helpText?: React.ReactNode;
+  id?: string;
 }
 
 export function SokeSelect<T>(props: SelectProps<T> & { childRef?: Ref<Select<SelectOption<T>>> }) {
@@ -51,6 +52,7 @@ export function SokeSelect<T>(props: SelectProps<T> & { childRef?: Ref<Select<Se
     value,
     helpText,
     childRef,
+    id,
   } = props;
 
   return (
@@ -100,6 +102,7 @@ export function SokeSelect<T>(props: SelectProps<T> & { childRef?: Ref<Select<Se
       )}
 
       <ReactSelect
+        id={id}
         placeholder={placeholder}
         isDisabled={readOnly}
         isClearable={!!onClearValue}

@@ -76,7 +76,7 @@ class AvtaleQueries(private val session: Session) {
                 :personvern_bekreftet,
                 :opsjonsmodell::opsjonsmodell,
                 :opsjonCustomOpsjonsmodellNavn,
-                :prismodell::avtale_prismodell
+                :prismodell::prismodell
             ) on conflict (id) do update set
                 navn                        = excluded.navn,
                 tiltakstype_id              = excluded.tiltakstype_id,

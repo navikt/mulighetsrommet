@@ -1,3 +1,5 @@
+-- ${flyway:timestamp}
+
 drop view if exists veilederflate_tiltak_view;
 
 create view veilederflate_tiltak_view as

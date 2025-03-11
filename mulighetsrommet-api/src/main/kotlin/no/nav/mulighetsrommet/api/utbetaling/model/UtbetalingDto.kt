@@ -7,11 +7,6 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDateTime
 import java.util.*
 
-enum class Beregningsmodell {
-    FORHANDSGODKJENT,
-    FRI,
-}
-
 @Serializable
 data class UtbetalingDto(
     @Serializable(with = UUIDSerializer::class)

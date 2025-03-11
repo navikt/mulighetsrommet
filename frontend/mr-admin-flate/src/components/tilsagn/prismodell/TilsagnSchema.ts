@@ -5,12 +5,10 @@ import { tekster } from "@/components/tilsagn/prismodell/Tekster";
 const TilsagnBeregningSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("FORHANDSGODKJENT"),
-    sats: z
-      .number({
-        invalid_type_error: "Sats mangler",
-        required_error: "Sats er påkrevd",
-      })
-      .positive({ message: "Sats må være positivt" }),
+    sats: z.number({
+      invalid_type_error: "Sats mangler",
+      required_error: "Sats er påkrevd",
+    }),
     periodeStart: z
       .string({ required_error: tekster.manglerStartdato })
       .min(10, tekster.manglerStartdato),

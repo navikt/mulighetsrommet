@@ -8,9 +8,8 @@ import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 import java.util.*
 
-class UtbetalingBeregningAftTest : FunSpec({
-
-    context("AFT utbetaling beregning") {
+class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
+    context("forhåndsgodkjent utbetaling beregning") {
         test("beløp beregnes fra månedsverk til deltakere og sats") {
             val periodeStart = LocalDate.of(2023, 6, 1)
             val periodeMidt = LocalDate.of(2023, 6, 16)
@@ -29,7 +28,7 @@ class UtbetalingBeregningAftTest : FunSpec({
                             ),
                         ),
                     ),
-                    UtbetalingBeregningAft.Output(
+                    UtbetalingBeregningForhandsgodkjent.Output(
                         belop = 100,
                         deltakelser = setOf(
                             DeltakelseManedsverk(deltakerId1, 1.0),
@@ -45,7 +44,7 @@ class UtbetalingBeregningAftTest : FunSpec({
                             ),
                         ),
                     ),
-                    UtbetalingBeregningAft.Output(
+                    UtbetalingBeregningForhandsgodkjent.Output(
                         belop = 100,
                         deltakelser = setOf(
                             DeltakelseManedsverk(deltakerId1, 1.0),
@@ -61,7 +60,7 @@ class UtbetalingBeregningAftTest : FunSpec({
                             ),
                         ),
                     ),
-                    UtbetalingBeregningAft.Output(
+                    UtbetalingBeregningForhandsgodkjent.Output(
                         belop = 25,
                         deltakelser = setOf(
                             DeltakelseManedsverk(deltakerId1, 0.25),
@@ -78,7 +77,7 @@ class UtbetalingBeregningAftTest : FunSpec({
                             ),
                         ),
                     ),
-                    UtbetalingBeregningAft.Output(
+                    UtbetalingBeregningForhandsgodkjent.Output(
                         belop = 75,
                         deltakelser = setOf(
                             DeltakelseManedsverk(deltakerId1, 0.75),
@@ -100,7 +99,7 @@ class UtbetalingBeregningAftTest : FunSpec({
                             ),
                         ),
                     ),
-                    UtbetalingBeregningAft.Output(
+                    UtbetalingBeregningForhandsgodkjent.Output(
                         belop = 150,
                         deltakelser = setOf(
                             DeltakelseManedsverk(deltakerId1, 1.0),
@@ -124,7 +123,7 @@ class UtbetalingBeregningAftTest : FunSpec({
                             ),
                         ),
                     ),
-                    UtbetalingBeregningAft.Output(
+                    UtbetalingBeregningForhandsgodkjent.Output(
                         belop = 100,
                         deltakelser = setOf(
                             DeltakelseManedsverk(deltakerId1, 0.75),
@@ -134,9 +133,9 @@ class UtbetalingBeregningAftTest : FunSpec({
                 ),
             ) { deltakelser, expectedBeregning ->
                 val periode = Periode(periodeStart, periodeSlutt)
-                val input = UtbetalingBeregningAft.Input(periode, 100, setOf(), deltakelser)
+                val input = UtbetalingBeregningForhandsgodkjent.Input(periode, 100, setOf(), deltakelser)
 
-                val beregning = UtbetalingBeregningAft.beregn(input)
+                val beregning = UtbetalingBeregningForhandsgodkjent.beregn(input)
 
                 beregning.output shouldBe expectedBeregning
             }
@@ -161,7 +160,7 @@ class UtbetalingBeregningAftTest : FunSpec({
                             ),
                         ),
                     ),
-                    UtbetalingBeregningAft.Output(
+                    UtbetalingBeregningForhandsgodkjent.Output(
                         belop = 50,
                         deltakelser = setOf(
                             DeltakelseManedsverk(deltakerId1, 0.5),
@@ -178,7 +177,7 @@ class UtbetalingBeregningAftTest : FunSpec({
                             ),
                         ),
                     ),
-                    UtbetalingBeregningAft.Output(
+                    UtbetalingBeregningForhandsgodkjent.Output(
                         belop = 50,
                         deltakelser = setOf(
                             DeltakelseManedsverk(deltakerId1, 0.5),
@@ -202,7 +201,7 @@ class UtbetalingBeregningAftTest : FunSpec({
                             ),
                         ),
                     ),
-                    UtbetalingBeregningAft.Output(
+                    UtbetalingBeregningForhandsgodkjent.Output(
                         belop = 50,
                         deltakelser = setOf(
                             DeltakelseManedsverk(deltakerId1, 0.375),
@@ -212,9 +211,9 @@ class UtbetalingBeregningAftTest : FunSpec({
                 ),
             ) { stengt, deltakelser, expectedBeregning ->
                 val periode = Periode(periodeStart, periodeSlutt)
-                val input = UtbetalingBeregningAft.Input(periode, 100, stengt, deltakelser)
+                val input = UtbetalingBeregningForhandsgodkjent.Input(periode, 100, stengt, deltakelser)
 
-                val beregning = UtbetalingBeregningAft.beregn(input)
+                val beregning = UtbetalingBeregningForhandsgodkjent.beregn(input)
 
                 beregning.output shouldBe expectedBeregning
             }
@@ -228,7 +227,7 @@ class UtbetalingBeregningAftTest : FunSpec({
             val deltakerId1 = UUID.randomUUID()
             val deltakerId2 = UUID.randomUUID()
 
-            val input = UtbetalingBeregningAft.Input(
+            val input = UtbetalingBeregningForhandsgodkjent.Input(
                 periode = Periode(periodeStart, periodeSlutt),
                 sats = 100,
                 stengt = setOf(StengtPeriode(periodeStart.plusWeeks(1), periodeMidt.plusWeeks(1), "Stengt")),
@@ -249,13 +248,42 @@ class UtbetalingBeregningAftTest : FunSpec({
                 ),
             )
 
-            val beregning = UtbetalingBeregningAft.beregn(input)
+            val beregning = UtbetalingBeregningForhandsgodkjent.beregn(input)
 
-            beregning.output shouldBe UtbetalingBeregningAft.Output(
+            beregning.output shouldBe UtbetalingBeregningForhandsgodkjent.Output(
                 belop = 50,
                 deltakelser = setOf(
                     DeltakelseManedsverk(deltakerId1, 0.38333),
                     DeltakelseManedsverk(deltakerId2, 0.11667),
+                ),
+            )
+        }
+
+        test("flere stengt hos arrangør perioder i én deltakelses periode") {
+            val deltakerId1 = UUID.randomUUID()
+
+            // 1 pluss 14 = 15 dager stengt = 50 %
+            val stengt = setOf(
+                StengtPeriode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 4, 2), "Stengt"),
+                StengtPeriode(LocalDate.of(2023, 4, 5), LocalDate.of(2023, 4, 19), "Stengt"),
+            )
+            val deltakelser = setOf(
+                DeltakelsePerioder(
+                    deltakelseId = deltakerId1,
+                    perioder = listOf(
+                        DeltakelsePeriode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 5, 1), 100.0),
+                    ),
+                ),
+            )
+            val periode = Periode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 5, 1))
+            val input = UtbetalingBeregningForhandsgodkjent.Input(periode, 100, stengt, deltakelser)
+
+            val beregning = UtbetalingBeregningForhandsgodkjent.beregn(input)
+
+            beregning.output shouldBe UtbetalingBeregningForhandsgodkjent.Output(
+                belop = 50,
+                deltakelser = setOf(
+                    DeltakelseManedsverk(deltakerId1, 0.5),
                 ),
             )
         }

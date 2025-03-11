@@ -1,5 +1,5 @@
 [versions]
-common-java-modules = "3.2025.03.03_16.01-8b9a25e24284"
+common-java-modules = "3.2025.03.07_13.21-bb112c97720d"
 flyway = "11.3.4"
 koin = "4.1.0-Beta5"
 kotest = "5.9.1"
@@ -105,10 +105,10 @@ nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "commo
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
 nav-common-tokenClient = { module = "no.nav.common:token-client", version.ref = "common-java-modules" }
 nav-common-client = { module = "no.nav.common:client", version.ref = "common-java-modules" }
-nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2025.02.18_14.13-ac4265f31ef3"
+nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2025.03.03_11.15-706bb97e7558"
 nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.1.10"
 
-opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.47.0"
+opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.48.0"
 
 postgresql = "org.postgresql:postgresql:42.7.5"
 
@@ -123,4 +123,4 @@ slf4j = "org.slf4j:slf4j-api:2.0.17"
 apache-poi = "org.apache.poi:poi:5.4.0"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.4.0"
 
-unleash = "io.getunleash:unleash-client-java:10.0.2"
+unleash = "io.getunleash:unleash-client-java:10.1.0"

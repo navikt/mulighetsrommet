@@ -361,7 +361,7 @@ private fun services(appConfig: AppConfig) = module {
     single { GjennomforingValidator(get()) }
     single { OpsjonLoggService(get()) }
     single { LagretFilterService(get()) }
-    single { TilsagnService(get(), get()) }
+    single { TilsagnService(appConfig.okonomi, get(), get()) }
     single { AltinnRettigheterService(get(), get()) }
     single { OppgaverService(get()) }
     single { OkonomiBestillingService(appConfig.kafka.clients.okonomiBestilling, get(), get()) }
