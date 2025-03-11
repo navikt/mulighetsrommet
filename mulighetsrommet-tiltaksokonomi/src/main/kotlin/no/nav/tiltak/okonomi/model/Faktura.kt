@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 data class Faktura(
     val bestillingsnummer: String,
     val fakturanummer: String,
-    val kontonummer: Kontonummer,
+    val kontonummer: Kontonummer?,
     val kid: Kid?,
     val belop: Int,
     val periode: Periode,

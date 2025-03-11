@@ -355,7 +355,7 @@ class UtbetalingService(
             behandletAv = behandletAv,
             frigjorTilsagn = frigjorTilsagn,
             lopenummer = lopenummer,
-            fakturanummer = "${tilsagn.bestillingsnummer}-$lopenummer",
+            fakturanummer = fakturanummer(tilsagn.bestillingsnummer, lopenummer),
         )
 
         queries.delutbetaling.upsert(dbo)
@@ -494,6 +494,8 @@ class UtbetalingService(
         return requireNotNull(queries.utbetaling.get(id)) { "Utbetaling med id=$id finnes ikke" }
     }
 }
+
+fun fakturanummer(bestillingsnummer: String, lopenummer: Int): String = "$bestillingsnummer-$lopenummer"
 
 private fun isRelevantForUtbetalingsperide(
     deltaker: DeltakerDto,

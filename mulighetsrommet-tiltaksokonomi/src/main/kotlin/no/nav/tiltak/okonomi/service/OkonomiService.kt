@@ -8,9 +8,8 @@ import no.nav.mulighetsrommet.brreg.BrregAdresse
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
-import no.nav.tiltak.okonomi.AnnullerBestilling
-import no.nav.tiltak.okonomi.OpprettBestilling
-import no.nav.tiltak.okonomi.OpprettFaktura
+import no.nav.tiltak.okonomi.*
+import no.nav.tiltak.okonomi.OpprettFaktura.Betalingsinformasjon
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.BestillingStatusType
@@ -158,6 +157,27 @@ class OkonomiService(
                 faktura
             }
     }
+
+    suspend fun opprettFrigjorFaktura(
+        opprettFrigjorFaktura: OpprettFrigjorFaktura,
+    ): Either<OpprettFakturaError, Faktura> = db.session {
+        val bestilling = queries.bestilling.getByBestillingsnummer(opprettFrigjorFaktura.bestillingsnummer)
+            ?: return OpprettFakturaError("Bestilling ${opprettFrigjorFaktura.bestillingsnummer} finnes ikke").left()
+
+        val opprettFaktura = OpprettFaktura(
+            fakturanummer = opprettFrigjorFaktura.fakturanummer,
+            bestillingsnummer = opprettFrigjorFaktura.bestillingsnummer,
+            betalingsinformasjon = Betalingsinformasjon(null, null),
+            frigjorBestilling = true,
+            belop = 0,
+            periode = bestilling.periode,
+            behandletAv = opprettFrigjorFaktura.behandletAv,
+            behandletTidspunkt = opprettFrigjorFaktura.behandletTidspunkt,
+            besluttetAv = opprettFrigjorFaktura.besluttetAv,
+            besluttetTidspunkt = opprettFrigjorFaktura.besluttetTidspunkt,
+        )
+        return opprettFaktura(opprettFaktura)
+    }
 }
 
 private fun getLeverandorAdresse(leverandor: BrregHovedenhetDto): Either<OpprettBestillingError, List<OebsBestillingMelding.Selger.Adresse>> {
@@ -258,7 +278,7 @@ private fun toOebsFakturaMelding(
         bdmGodkjenner = faktura.besluttetAv.part,
         fakturaDato = faktura.besluttetTidspunkt.toLocalDate(),
         betalingsKanal = OebsBetalingskanal.BBAN,
-        bankKontoNummer = faktura.kontonummer.value,
+        bankKontoNummer = faktura.kontonummer?.value,
         kidNummer = faktura.kid?.value,
         bankNavn = null,
         bankLandKode = null,

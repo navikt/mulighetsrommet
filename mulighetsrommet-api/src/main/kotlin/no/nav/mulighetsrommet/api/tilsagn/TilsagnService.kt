@@ -273,8 +273,7 @@ class TilsagnService(
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.FRIGJORT)
 
         if (sendNullMeldingTilOkonomi) {
-            Unit
-            // okonomi.scheduleBehandleFrigjortTilsagn(tilsagn.id, session)
+            okonomi.scheduleBehandleFrigjortTilsagn(tilsagn.id, session)
         }
 
         val dto = getOrError(tilsagn.id)

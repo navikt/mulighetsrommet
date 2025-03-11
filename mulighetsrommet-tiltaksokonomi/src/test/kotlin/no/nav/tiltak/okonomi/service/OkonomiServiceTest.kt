@@ -276,7 +276,7 @@ class OkonomiServiceTest : FunSpec({
             }
         }
 
-        test("frigjør bestilling setter siste fakturalinje i fakturaen til oebs og oppdaterer bestillingstatus") {
+        test("frigjør bestilling = true setter siste fakturalinje i fakturaen til oebs og oppdaterer bestillingstatus") {
             val mockEngine = createMockEngine {
                 post("/api/v1/refusjonskrav") {
                     val melding = it.decodeRequestBody<OebsFakturaMelding>()
@@ -293,6 +293,39 @@ class OkonomiServiceTest : FunSpec({
             )
             service.opprettFaktura(opprettFaktura).shouldBeRight().should {
                 it.fakturanummer shouldBe "F-3"
+                it.status shouldBe FakturaStatusType.UTBETALT
+            }
+
+            db.session {
+                val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
+                bestilling.shouldNotBeNull().status shouldBe BestillingStatusType.OPPGJORT
+            }
+        }
+    }
+
+    context("frigjor faktura") {
+        val bestillingsnummer = "B-2"
+
+        db.session {
+            val bestilling = Bestilling.fromOpprettBestilling(createOpprettBestilling(bestillingsnummer))
+            queries.bestilling.insertBestilling(bestilling)
+        }
+
+        test("frigjør faktura fungerer likt som faktura med frigjor = true") {
+            val mockEngine = createMockEngine {
+                post("/api/v1/refusjonskrav") {
+                    val melding = it.decodeRequestBody<OebsFakturaMelding>()
+
+                    melding.fakturaLinjer.last().erSisteFaktura shouldBe true
+
+                    respondOk()
+                }
+            }
+            val service = OkonomiService(db, oebsClient(mockEngine), brreg)
+
+            val opprettFrigjorFaktura = createOpprettFrigjorFaktura(bestillingsnummer, "F-4")
+            service.opprettFrigjorFaktura(opprettFrigjorFaktura).shouldBeRight().should {
+                it.fakturanummer shouldBe "F-4"
                 it.status shouldBe FakturaStatusType.UTBETALT
             }
 
@@ -368,6 +401,15 @@ private fun createOpprettFaktura(bestillingsnummer: String, fakturanummer: Strin
     frigjorBestilling = false,
     belop = 1000,
     periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+    behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+    behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+    besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+    besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+)
+
+private fun createOpprettFrigjorFaktura(bestillingsnummer: String, fakturanummer: String) = OpprettFrigjorFaktura(
+    fakturanummer = fakturanummer,
+    bestillingsnummer = bestillingsnummer,
     behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
     behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
     besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),

@@ -9,6 +9,7 @@ import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.utbetaling.fakturanummer
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -40,6 +41,7 @@ class OkonomiBestillingService(
         enum class Type {
             BEHANDLE_GODKJENT_TILSAGN,
             BEHANDLE_ANNULLERT_TILSAGN,
+            BEHANDLE_FRIGJORT_TILSAGN,
             BEHANDLE_GODKJENT_UTBETALINGER,
         }
     }
@@ -54,6 +56,8 @@ class OkonomiBestillingService(
 
                 ScheduledOkonomiTask.Type.BEHANDLE_ANNULLERT_TILSAGN -> behandleAnnullertTilsagn(tilsagnId)
 
+                ScheduledOkonomiTask.Type.BEHANDLE_FRIGJORT_TILSAGN -> behandleFrigjortTilsagn(tilsagnId)
+
                 ScheduledOkonomiTask.Type.BEHANDLE_GODKJENT_UTBETALINGER -> {
                     behandleGodkjentUtbetalinger(tilsagnId)
                 }
@@ -67,6 +71,11 @@ class OkonomiBestillingService(
 
     fun scheduleBehandleAnnullertTilsagn(tilsagnId: UUID, session: Session) {
         val task = ScheduledOkonomiTask(ScheduledOkonomiTask.Type.BEHANDLE_ANNULLERT_TILSAGN, tilsagnId)
+        schedule(task, session)
+    }
+
+    fun scheduleBehandleFrigjortTilsagn(tilsagnId: UUID, session: Session) {
+        val task = ScheduledOkonomiTask(ScheduledOkonomiTask.Type.BEHANDLE_FRIGJORT_TILSAGN, tilsagnId)
         schedule(task, session)
     }
 
@@ -156,6 +165,33 @@ class OkonomiBestillingService(
         )
 
         publish(tilsagn.bestillingsnummer, OkonomiBestillingMelding.Annullering(annullering))
+    }
+
+    private fun behandleFrigjortTilsagn(tilsagnId: UUID): Unit = db.session {
+        val tilsagn = requireNotNull(queries.tilsagn.get(tilsagnId)) {
+            "Tilsagn med id=$tilsagnId finnes ikke"
+        }
+        require(tilsagn.status == TilsagnStatus.FRIGJORT) {
+            "Tilsagn er ikke annullert id=$tilsagnId status=${tilsagn.status}"
+        }
+        requireNotNull(tilsagn.frigjoring) {
+            "Tilsagn id=$tilsagnId mangler frigjøring"
+        }
+        require(tilsagn.frigjoring.besluttetAv != null && tilsagn.frigjoring.besluttetTidspunkt != null) {
+            "Tilsagn id=$tilsagnId må være besluttet frigjort for å sende null melding til økonomi"
+        }
+
+        val lopenummer = queries.delutbetaling.getNextLopenummerByTilsagn(tilsagn.id)
+        val faktura = OpprettFrigjorFaktura(
+            fakturanummer = fakturanummer(tilsagn.bestillingsnummer, lopenummer),
+            bestillingsnummer = tilsagn.bestillingsnummer,
+            behandletAv = tilsagn.frigjoring.behandletAv.toOkonomiPart(),
+            behandletTidspunkt = tilsagn.frigjoring.behandletTidspunkt,
+            besluttetAv = tilsagn.frigjoring.besluttetAv.toOkonomiPart(),
+            besluttetTidspunkt = tilsagn.frigjoring.besluttetTidspunkt,
+        )
+
+        publish(tilsagn.bestillingsnummer, OkonomiBestillingMelding.FrigjorFaktura(faktura))
     }
 
     fun behandleGodkjentUtbetalinger(tilsagnId: UUID) {

@@ -52,6 +52,11 @@ class OkonomiBestillingConsumer(
                 logger.info("Oppretter faktura for bestilling=$bestillingsnummer")
                 okonomi.opprettFaktura(melding.payload)
             }
+
+            is OkonomiBestillingMelding.FrigjorFaktura -> {
+                logger.info("Oppretter frigjør faktura for bestilling=$bestillingsnummer")
+                okonomi.opprettFrigjorFaktura(melding.payload)
+            }
         }
 
         result.onRight {
