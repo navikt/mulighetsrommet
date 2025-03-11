@@ -1,4 +1,3 @@
-import "@navikt/ds-css";
 import { Navigate, Route, Routes } from "react-router";
 import { AppContainer } from "@/layouts/AppContainer";
 import { ArbeidsmarkedstiltakHeader } from "@/components/ArbeidsmarkedstiltakHeader";

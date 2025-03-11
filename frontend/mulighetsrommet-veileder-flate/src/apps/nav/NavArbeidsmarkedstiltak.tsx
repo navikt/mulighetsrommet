@@ -1,7 +1,6 @@
 import { ArbeidsmarkedstiltakHeader } from "@/components/ArbeidsmarkedstiltakHeader";
 import { AppContainer } from "@/layouts/AppContainer";
 import { MenuGridIcon } from "@navikt/aksel-icons";
-import "@navikt/ds-css";
 import { Dropdown, InternalHeader, Spacer } from "@navikt/ds-react";
 import { Navigate, Route, Routes } from "react-router";
 import { OmArbeidsmarkedstiltak } from "./OmArbeidsmarkedstiltak";
