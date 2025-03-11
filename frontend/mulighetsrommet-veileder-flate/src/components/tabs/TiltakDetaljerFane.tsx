@@ -2,7 +2,6 @@ import { PortableTextTypedObject } from "@mr/api-client-v2";
 import { LokalInformasjonContainer } from "@mr/frontend-common";
 import { Alert, BodyLong, Heading } from "@navikt/ds-react";
 import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
-import styles from "./TiltakDetaljerFane.module.scss";
 import { TiltakDetaljerFaneContainer } from "./TiltakDetaljerFaneContainer";
 
 interface DetaljerFaneProps {
@@ -20,11 +19,11 @@ export function TiltakDetaljerFane({
 }: DetaljerFaneProps) {
   return (
     <TiltakDetaljerFaneContainer
-      className={styles.faneinnhold_container}
+      className="flex flex-col gap-2"
       harInnhold={!!gjennomforingAlert || !!tiltakstypeAlert || !!gjennomforing || !!tiltakstype}
     >
       {tiltakstypeAlert && (
-        <Alert variant="info" style={{ whiteSpace: "pre-wrap" }}>
+        <Alert variant="info" className="whitespace-pre-wrap">
           {tiltakstypeAlert}
         </Alert>
       )}
@@ -37,7 +36,7 @@ export function TiltakDetaljerFane({
             Lokal informasjon
           </Heading>
           {gjennomforingAlert && (
-            <Alert variant="info" style={{ whiteSpace: "pre-wrap", margin: "1rem 0" }}>
+            <Alert variant="info" className="my-4 whitespace-pre-wrap">
               {gjennomforingAlert}
             </Alert>
           )}

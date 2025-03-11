@@ -22,6 +22,7 @@ export interface ControlledSelectProps<T> {
   onClearValue?: () => void;
   description?: string;
   helpText?: React.ReactNode;
+  id?: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -39,6 +40,7 @@ function ControlledSokeSelect<T>(props: ControlledSelectProps<T>, _: ForwardedRe
     size,
     helpText,
     onClearValue,
+    id,
     ...rest
   } = props;
 
@@ -49,6 +51,7 @@ function ControlledSokeSelect<T>(props: ControlledSelectProps<T>, _: ForwardedRe
         const selectedOption = options.find((option) => shallowEquals(option.value, value));
         return (
           <SokeSelect<T>
+            id={id}
             helpText={helpText}
             hideLabel={hideLabel}
             description={description}
