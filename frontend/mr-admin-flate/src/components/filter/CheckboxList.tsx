@@ -14,7 +14,7 @@ export function CheckboxList<T>(props: CheckboxListProps<T>) {
   const [search, setSearch] = useState<string>("");
 
   return (
-    <div className="max-w-[calc(var(--filter-width)_-_35px)] ml-[-2rem] m-h-[400px] overflow-y-auto pl-[0.1rem]">
+    <div className="max-w-[calc(var(--filter-width)_-_35px)] m-h-[400px] overflow-y-auto pl-[0.1rem]">
       {searchable && (
         <Search
           label=""

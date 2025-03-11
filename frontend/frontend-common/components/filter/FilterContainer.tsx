@@ -18,7 +18,6 @@ export function FilterContainer({ title, children, onClose }: Props) {
           <XMarkIcon aria-label="Kryss for å lukke filter" />
         </Button>
       </HStack>
-
       {children}
     </>
   );
