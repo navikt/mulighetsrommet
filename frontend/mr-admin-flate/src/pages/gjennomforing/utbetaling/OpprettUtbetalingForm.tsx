@@ -12,7 +12,9 @@ import { TwoColumnGrid } from "../../../layouts/TwoColumGrid";
 import { addYear } from "../../../utils/Utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { useManuellUtbetaling } from "@/api/utbetaling/useOpprettManuellUtbetaling";
+import { useCreateManuellUtbdetaling } from "@/api/utbetaling/useOpprettManuellUtbetaling";
+import { useNavigate } from "react-router";
+import { useRef } from "react";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -64,10 +66,12 @@ export function OpprettUtbetalingForm({ gjennomforing }: Props) {
   const form = useForm<InferredOpprettUtbetalingFormSchema>({
     resolver: zodResolver(Schema),
   });
+  const navigate = useNavigate();
+  const utbetalingId = useRef(window.crypto.randomUUID());
 
   const { register, formState, handleSubmit, setError, control } = form;
 
-  const mutation = useManuellUtbetaling(window.crypto.randomUUID());
+  const mutation = useCreateManuellUtbdetaling(utbetalingId.current);
 
   function postData(data: InferredOpprettUtbetalingFormSchema) {
     mutation.mutate(
@@ -75,6 +79,7 @@ export function OpprettUtbetalingForm({ gjennomforing }: Props) {
       {
         onSuccess: () => {
           form.reset();
+          navigate(`/gjennomforinger/${gjennomforing.id}/utbetalinger/${utbetalingId.current}`);
         },
         onError: (error: ProblemDetail) => {
           if (isValidationError(error)) {

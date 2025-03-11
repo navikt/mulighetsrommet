@@ -5,7 +5,7 @@ import {
 } from "@mr/api-client-v2";
 import { useMutation } from "@tanstack/react-query";
 
-export function useManuellUtbetaling(utbetalingId: string) {
+export function useCreateManuellUtbdetaling(utbetalingId: string) {
   return useMutation<unknown, ProblemDetail, OpprettManuellUtbetalingRequest>({
     mutationFn: (body) =>
       UtbetalingService.opprettManuellUtbetaling({
