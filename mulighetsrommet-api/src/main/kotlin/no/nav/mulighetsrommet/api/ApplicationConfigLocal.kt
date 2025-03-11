@@ -18,12 +18,14 @@ import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.createMockRSAKey
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.mulighetsrommet.utils.toUUID
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.StringSerializer
+import java.time.LocalDate
 
 val ApplicationConfigLocal = AppConfig(
     database = DatabaseConfig(
@@ -261,5 +263,8 @@ val ApplicationConfigLocal = AppConfig(
             disabled = true,
             cronPattern = "0 0 5 7 * *",
         ),
+    ),
+    okonomi = OkonomiConfig(
+        minimumTilsagnPeriodeStart = Tiltakskode.entries.associateWith { LocalDate.of(2025, 1, 1) },
     ),
 )
