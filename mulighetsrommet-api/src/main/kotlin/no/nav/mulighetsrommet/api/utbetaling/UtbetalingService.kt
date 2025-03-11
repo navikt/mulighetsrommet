@@ -340,6 +340,9 @@ class UtbetalingService(
         frigjorTilsagn: Boolean,
         behandletAv: Agent,
     ) {
+        require(tilsagn.status == TilsagnStatus.GODKJENT) {
+            "Tilsagn er ikke godkjent id=${tilsagn.id} status=${tilsagn.status}"
+        }
         val tilsagnPeriode = Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt)
         val periode = requireNotNull(utbetaling.periode.intersect(tilsagnPeriode)) {
             "Utbetalingsperiode og tilsagnsperiode overlapper ikke"
@@ -370,6 +373,10 @@ class UtbetalingService(
         delutbetaling: DelutbetalingDto,
         besluttetAv: Agent,
     ) {
+        val tilsagn = requireNotNull(queries.tilsagn.get(delutbetaling.tilsagnId))
+        require(tilsagn.status == TilsagnStatus.GODKJENT) {
+            "Tilsagn er ikke godkjent id=${delutbetaling.tilsagnId} status=${tilsagn.status}"
+        }
         require(besluttetAv !is NavIdent || besluttetAv != delutbetaling.opprettelse.behandletAv) {
             "Kan ikke beslutte egen utbetaling"
         }
@@ -386,10 +393,11 @@ class UtbetalingService(
                 forklaring = null,
             ),
         )
+        okonomi.scheduleBehandleGodkjenteUtbetalinger(delutbetaling.tilsagnId, session)
+        // TODO: Sørg for at denne meldingen til tiltaksokonomi sendes etter den over
         if (delutbetaling.frigjorTilsagn) {
             tilsagnService.frigjorAutomatisk(delutbetaling.tilsagnId)
         }
-        okonomi.scheduleBehandleGodkjenteUtbetalinger(delutbetaling.tilsagnId, session)
         logEndring(
             "Utbetaling godkjent",
             getOrError(delutbetaling.utbetalingId),

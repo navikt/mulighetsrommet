@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
@@ -540,6 +541,33 @@ class TilsagnServiceTest : FunSpec({
             val dto = service.getAll()[0]
             dto.status shouldBe TilsagnStatus.FRIGJORT
             dto.frigjoring shouldNotBe null
+            dto.frigjoring!!.behandletAv shouldBe NavAnsattFixture.ansatt1.navIdent
+            dto.frigjoring!!.besluttetAv shouldBe NavAnsattFixture.ansatt2.navIdent
+            dto.frigjoring!!.besluttelse shouldBe Besluttelse.GODKJENT
+        }
+
+        test("frigjør tilsagn automatisk") {
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+            ).initialize(database.db)
+
+            val service = createTilsagnService()
+            service.beslutt(
+                id = Tilsagn1.id,
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+            ).shouldBeRight()
+
+            service.frigjorAutomatisk(id = Tilsagn1.id)
+            val dto = service.getAll()[0]
+            dto.status shouldBe TilsagnStatus.FRIGJORT
+            dto.frigjoring shouldNotBe null
+            dto.frigjoring!!.behandletAv shouldBe Tiltaksadministrasjon
+            dto.frigjoring!!.besluttetAv shouldBe Tiltaksadministrasjon
+            dto.frigjoring!!.besluttelse shouldBe Besluttelse.GODKJENT
         }
     }
 })

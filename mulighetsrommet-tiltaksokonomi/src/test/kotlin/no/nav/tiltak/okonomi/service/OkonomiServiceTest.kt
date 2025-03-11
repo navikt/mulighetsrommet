@@ -288,10 +288,8 @@ class OkonomiServiceTest : FunSpec({
             }
             val service = OkonomiService(db, oebsClient(mockEngine), brreg)
 
-            val opprettFaktura = createOpprettFaktura(bestillingsnummer, "F-3").copy(
-                frigjorBestilling = true,
-            )
-            service.opprettFaktura(opprettFaktura).shouldBeRight().should {
+            val opprettFaktura = createOpprettFaktura(bestillingsnummer, "F-3")
+            service.opprettFaktura(opprettFaktura, erSisteFaktura = true).shouldBeRight().should {
                 it.fakturanummer shouldBe "F-3"
                 it.status shouldBe FakturaStatusType.UTBETALT
             }
@@ -323,9 +321,9 @@ class OkonomiServiceTest : FunSpec({
             }
             val service = OkonomiService(db, oebsClient(mockEngine), brreg)
 
-            val opprettFrigjorFaktura = createOpprettFrigjorFaktura(bestillingsnummer, "F-4")
-            service.opprettFrigjorFaktura(opprettFrigjorFaktura).shouldBeRight().should {
-                it.fakturanummer shouldBe "F-4"
+            val opprettFrigjorFaktura = createFrigjorBestilling(bestillingsnummer)
+            service.frigjorBestilling(opprettFrigjorFaktura).shouldBeRight().should {
+                it.fakturanummer shouldBe "B-2-X"
                 it.status shouldBe FakturaStatusType.UTBETALT
             }
 
@@ -398,7 +396,6 @@ private fun createOpprettFaktura(bestillingsnummer: String, fakturanummer: Strin
         kontonummer = Kontonummer("12345678901"),
         kid = null,
     ),
-    frigjorBestilling = false,
     belop = 1000,
     periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
     behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
@@ -407,8 +404,7 @@ private fun createOpprettFaktura(bestillingsnummer: String, fakturanummer: Strin
     besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
 )
 
-private fun createOpprettFrigjorFaktura(bestillingsnummer: String, fakturanummer: String) = OpprettFrigjorFaktura(
-    fakturanummer = fakturanummer,
+private fun createFrigjorBestilling(bestillingsnummer: String) = FrigjorBestilling(
     bestillingsnummer = bestillingsnummer,
     behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
     behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),

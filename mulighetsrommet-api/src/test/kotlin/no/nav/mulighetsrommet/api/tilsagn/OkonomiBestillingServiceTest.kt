@@ -197,6 +197,7 @@ class OkonomiBestillingServiceTest : FunSpec({
                 delutbetalinger = listOf(delutbetaling1, delutbetaling2),
             ) {
                 setDelutbetalingStatus(delutbetaling1, UtbetalingFixtures.DelutbetalingStatus.GODKJENT)
+                setTilsagnStatus(tilsagn, TilsagnStatus.GODKJENT)
             }
                 .initialize(database.db)
             database.run {
@@ -239,6 +240,7 @@ class OkonomiBestillingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1, utbetaling2),
                 delutbetalinger = listOf(delutbetaling1, delutbetaling2),
             ) {
+                setTilsagnStatus(tilsagn, TilsagnStatus.GODKJENT)
                 setDelutbetalingStatus(
                     delutbetaling1,
                     UtbetalingFixtures.DelutbetalingStatus.GODKJENT,

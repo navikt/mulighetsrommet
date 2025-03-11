@@ -6,11 +6,13 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.ints.exactly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
+import io.mockk.verify
 import no.nav.mulighetsrommet.api.arrangorflate.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
@@ -526,7 +528,9 @@ class UtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
                 utbetalinger = listOf(utbetaling1),
-            ).initialize(database.db)
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
 
             val service = createUtbetalingService()
 
@@ -567,7 +571,9 @@ class UtbetalingServiceTest : FunSpec({
                 tilsagn = listOf(Tilsagn1),
                 utbetalinger = listOf(utbetaling1),
                 delutbetalinger = listOf(delutbetaling1),
-            ).initialize(database.db)
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
 
             val service = createUtbetalingService()
 
@@ -595,6 +601,7 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1),
                 delutbetalinger = listOf(delutbetaling1),
             ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
                 setDelutbetalingStatus(
                     delutbetaling1,
                     UtbetalingFixtures.DelutbetalingStatus.RETURNERT,
@@ -637,7 +644,9 @@ class UtbetalingServiceTest : FunSpec({
                         ),
                     ),
                 ),
-            ).initialize(database.db)
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
 
             val service = createUtbetalingService()
 
@@ -683,7 +692,10 @@ class UtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(tilsagn1, tilsagn2),
                 utbetalinger = listOf(utbetaling),
-            ).initialize(database.db)
+            ) {
+                setTilsagnStatus(tilsagn1, TilsagnStatus.GODKJENT)
+                setTilsagnStatus(tilsagn2, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
             val service = createUtbetalingService()
 
             service.opprettDelutbetalinger(
@@ -745,7 +757,10 @@ class UtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(tilsagn1, tilsagn2),
                 utbetalinger = listOf(utbetaling1, utbetaling2),
-            ).initialize(database.db)
+            ) {
+                setTilsagnStatus(tilsagn1, TilsagnStatus.GODKJENT)
+                setTilsagnStatus(tilsagn2, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
 
             val service = createUtbetalingService()
 
@@ -984,15 +999,21 @@ class UtbetalingServiceTest : FunSpec({
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
             }.initialize(database.db)
 
-            val service = createUtbetalingService()
+            val tilsagnService: TilsagnService = mockk(relaxed = true)
+            val service = createUtbetalingService(tilsagnService = tilsagnService)
 
             service.godkjentAvArrangor(utbetaling1Id, godkjennUtbetaling)
             val delutbetaling1 = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling1Id) }
             delutbetaling1[0].frigjorTilsagn shouldBe false
+            delutbetaling1[0].shouldBeTypeOf<DelutbetalingDto.DelutbetalingOverfortTilUtbetaling>()
 
             service.godkjentAvArrangor(utbetaling2.id, godkjennUtbetaling)
             val delutbetaling2 = database.run { queries.delutbetaling.getByUtbetalingId(utbetaling2.id) }
             delutbetaling2[0].frigjorTilsagn shouldBe true
+            delutbetaling2[0].shouldBeTypeOf<DelutbetalingDto.DelutbetalingOverfortTilUtbetaling>()
+            verify(exactly = 1) {
+                tilsagnService.frigjorAutomatisk(Tilsagn1.id)
+            }
         }
     }
 })

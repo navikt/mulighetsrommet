@@ -172,7 +172,7 @@ class OkonomiBestillingService(
             "Tilsagn med id=$tilsagnId finnes ikke"
         }
         require(tilsagn.status == TilsagnStatus.FRIGJORT) {
-            "Tilsagn er ikke annullert id=$tilsagnId status=${tilsagn.status}"
+            "Tilsagn er ikke frigjort id=$tilsagnId status=${tilsagn.status}"
         }
         requireNotNull(tilsagn.frigjoring) {
             "Tilsagn id=$tilsagnId mangler frigjøring"
@@ -181,9 +181,7 @@ class OkonomiBestillingService(
             "Tilsagn id=$tilsagnId må være besluttet frigjort for å sende null melding til økonomi"
         }
 
-        val lopenummer = queries.delutbetaling.getNextLopenummerByTilsagn(tilsagn.id)
-        val faktura = OpprettFrigjorFaktura(
-            fakturanummer = fakturanummer(tilsagn.bestillingsnummer, lopenummer),
+        val faktura = FrigjorBestilling(
             bestillingsnummer = tilsagn.bestillingsnummer,
             behandletAv = tilsagn.frigjoring.behandletAv.toOkonomiPart(),
             behandletTidspunkt = tilsagn.frigjoring.behandletTidspunkt,
@@ -191,10 +189,17 @@ class OkonomiBestillingService(
             besluttetTidspunkt = tilsagn.frigjoring.besluttetTidspunkt,
         )
 
-        publish(tilsagn.bestillingsnummer, OkonomiBestillingMelding.FrigjorFaktura(faktura))
+        publish(tilsagn.bestillingsnummer, OkonomiBestillingMelding.Frigjoring(faktura))
     }
 
     fun behandleGodkjentUtbetalinger(tilsagnId: UUID) {
+        val tilsagn = requireNotNull(db.session { queries.tilsagn.get(tilsagnId) }) {
+            "Tilsagn med id=$tilsagnId finnes ikke"
+        }
+        require(tilsagn.status == TilsagnStatus.GODKJENT) {
+            "Tilsagn er ikke godkjent id=$tilsagnId status=${tilsagn.status}"
+        }
+
         val delutbetalinger = db.session { queries.delutbetaling.getSkalSendesTilOkonomi(tilsagnId) }
             .filterIsInstance<DelutbetalingDto.DelutbetalingOverfortTilUtbetaling>()
             .sortedBy { it.opprettelse.besluttetTidspunkt }
@@ -208,9 +213,6 @@ class OkonomiBestillingService(
                 val kontonummer = requireNotNull(utbetaling.betalingsinformasjon.kontonummer) {
                     "Kontonummer mangler for utbetaling med id=${utbetaling.id}"
                 }
-                val tilsagn = requireNotNull(db.session { queries.tilsagn.get(delutbetaling.tilsagnId) }) {
-                    "Tilsagn med id=${delutbetaling.tilsagnId} finnes ikke"
-                }
                 requireNotNull(delutbetaling.opprettelse.besluttetTidspunkt)
                 requireNotNull(delutbetaling.opprettelse.besluttetAv)
 
@@ -221,7 +223,6 @@ class OkonomiBestillingService(
                         kontonummer = kontonummer,
                         kid = utbetaling.betalingsinformasjon.kid,
                     ),
-                    frigjorBestilling = delutbetaling.frigjorTilsagn,
                     belop = delutbetaling.belop,
                     periode = delutbetaling.periode,
                     behandletAv = delutbetaling.opprettelse.behandletAv.toOkonomiPart(),

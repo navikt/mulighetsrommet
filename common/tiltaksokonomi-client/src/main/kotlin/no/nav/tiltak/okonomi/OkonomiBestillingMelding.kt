@@ -27,9 +27,9 @@ sealed class OkonomiBestillingMelding {
     ) : OkonomiBestillingMelding()
 
     @Serializable
-    @SerialName("FRIGJOR_FAKTURA")
-    data class FrigjorFaktura(
-        val payload: OpprettFrigjorFaktura,
+    @SerialName("FRIGJORING")
+    data class Frigjoring(
+        val payload: FrigjorBestilling,
     ) : OkonomiBestillingMelding()
 }
 
@@ -74,11 +74,21 @@ data class AnnullerBestilling(
 )
 
 @Serializable
+data class FrigjorBestilling(
+    val bestillingsnummer: String,
+    val behandletAv: OkonomiPart,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val behandletTidspunkt: LocalDateTime,
+    val besluttetAv: OkonomiPart,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val besluttetTidspunkt: LocalDateTime,
+)
+
+@Serializable
 data class OpprettFaktura(
     val fakturanummer: String,
     val bestillingsnummer: String,
     val betalingsinformasjon: Betalingsinformasjon,
-    val frigjorBestilling: Boolean,
     val belop: Int,
     val periode: Periode,
     val behandletAv: OkonomiPart,
@@ -94,18 +104,6 @@ data class OpprettFaktura(
         val kid: Kid?,
     )
 }
-
-@Serializable
-data class OpprettFrigjorFaktura(
-    val fakturanummer: String,
-    val bestillingsnummer: String,
-    val behandletAv: OkonomiPart,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val behandletTidspunkt: LocalDateTime,
-    val besluttetAv: OkonomiPart,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val besluttetTidspunkt: LocalDateTime,
-)
 
 @Serializable
 sealed class OkonomiPart(val part: String) {
