@@ -5,7 +5,6 @@ import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
 import { filterAccordionAtom } from "@/core/atoms";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { addOrRemove } from "@/utils/Utils";
-import "./Filtermeny.module.scss";
 import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 import { FilterAccordionHeader } from "@mr/frontend-common";
 
@@ -68,7 +67,7 @@ function InnsatsgruppeAccordion({ value, onChange, options }: InnsatsgruppeAccor
           }
         />
       </Accordion.Header>
-      <Accordion.Content className="ml-[-2rem]" data-testid="filter_accordioncontent_innsatsgruppe">
+      <Accordion.Content data-testid="filter_accordioncontent_innsatsgruppe">
         {options.length !== 0 && (
           <RadioGroup
             legend=""
