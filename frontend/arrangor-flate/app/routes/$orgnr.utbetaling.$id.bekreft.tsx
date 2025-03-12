@@ -80,6 +80,11 @@ export const action: ActionFunction = async ({ request }) => {
     };
   }
 
+  const validationErrors = validateBetalingsinformasjon(kontonummer.toString(), kid);
+  if (validationErrors) {
+    return validationErrors;
+  }
+
   try {
     await ArrangorflateService.godkjennUtbetaling({
       path: { id: utbetalingId },
@@ -102,6 +107,25 @@ export const action: ActionFunction = async ({ request }) => {
     `${internalNavigation(orgnr).kvittering(utbetalingId)}?forside-tab=${currentTab}`,
   );
 };
+
+function validateBetalingsinformasjon(kontonummer: string, kid?: string) {
+  const errors = [];
+  const KONTONUMMER_REGEX = /^\d{11}$/;
+  const KID_REGEX = /^\d{0,25}$/;
+
+  if (!KONTONUMMER_REGEX.test(kontonummer)) {
+    errors.push({ pointer: "/kontonummer", detail: "Kontonummer må være 11 siffer" });
+  }
+
+  if (kid && !KID_REGEX.test(kid)) {
+    errors.push({
+      pointer: "/kid",
+      detail: "KID-nummer kan kun inneholde tall og være maks 25 siffer",
+    });
+  }
+
+  return errors.length > 0 ? { errors } : null;
+}
 
 export default function BekreftUtbetaling() {
   const { utbetaling, tilsagn } = useLoaderData<BekreftUtbetalingData>();
@@ -142,6 +166,7 @@ export default function BekreftUtbetaling() {
                   hideLabel
                   size="small"
                   name="kid"
+                  error={data?.errors?.find((error) => error.pointer === "/kid")?.detail}
                   className="border border-[#0214317D] rounded-md"
                   defaultValue={utbetaling.betalingsinformasjon?.kid}
                   maxLength={25}
