@@ -1,4 +1,3 @@
-import { useCreateManuellUtbdetaling } from "@/api/utbetaling/useOpprettManuellUtbetaling";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   GjennomforingDto,
@@ -16,6 +15,7 @@ import { GjennomforingDetaljerMini } from "../../../components/gjennomforing/Gje
 import { ControlledDateInput } from "../../../components/skjema/ControlledDateInput";
 import { FormGroup } from "../../../components/skjema/FormGroup";
 import { addYear } from "../../../utils/Utils";
+import { useCreateManuellUtbetaling } from "../../../api/utbetaling/useCreateOpprettManuellUtbetaling";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -72,7 +72,7 @@ export function OpprettUtbetalingForm({ gjennomforing }: Props) {
 
   const { register, formState, handleSubmit, setError, control } = form;
 
-  const mutation = useCreateManuellUtbdetaling(utbetalingId.current);
+  const mutation = useCreateManuellUtbetaling(utbetalingId.current);
 
   function postData(data: InferredOpprettUtbetalingFormSchema) {
     mutation.mutate(
