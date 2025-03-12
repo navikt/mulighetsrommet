@@ -1,23 +1,21 @@
+import { useCreateManuellUtbdetaling } from "@/api/utbetaling/useOpprettManuellUtbetaling";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   GjennomforingDto,
   OpprettManuellUtbetalingRequest,
   ProblemDetail,
 } from "@mr/api-client-v2";
+import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Button, Heading, HStack, Textarea, TextField, VStack } from "@navikt/ds-react";
+import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
 import z from "zod";
+import { Separator } from "../../../components/detaljside/Metadata";
+import { GjennomforingDetaljerMini } from "../../../components/gjennomforing/GjennomforingDetaljerMini";
 import { ControlledDateInput } from "../../../components/skjema/ControlledDateInput";
 import { FormGroup } from "../../../components/skjema/FormGroup";
-import { TwoColumnGrid } from "../../../layouts/TwoColumGrid";
 import { addYear } from "../../../utils/Utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { useCreateManuellUtbdetaling } from "@/api/utbetaling/useOpprettManuellUtbetaling";
-import { useNavigate } from "react-router";
-import { useRef } from "react";
-import { Separator } from "../../../components/detaljside/Metadata";
-import { GjennomforingFormDetaljer } from "../../../components/gjennomforing/GjennomforingFormDetaljer";
-import { GjennomforingDetaljerMini } from "../../../components/gjennomforing/GjennomforingDetaljerMini";
 
 interface Props {
   gjennomforing: GjennomforingDto;
