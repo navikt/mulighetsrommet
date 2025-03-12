@@ -1,23 +1,23 @@
-import { formaterDato, tilsagnTypeToString } from "@/utils/Utils";
-import {
-  UtbetalingKompakt,
-  TilsagnDto,
-  DelutbetalingDto,
-  ProblemDetail,
-  Besluttelse,
-  BesluttDelutbetalingRequest,
-  NavAnsatt,
-  NavAnsattRolle,
-} from "@mr/api-client-v2";
-import { Alert, BodyShort, Button, Checkbox, HStack, Table, TextField } from "@navikt/ds-react";
-import { useState } from "react";
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
 import { AvvistAlert } from "@/pages/gjennomforing/tilsagn/AarsakerAlert";
+import { formaterDato, tilsagnTypeToString } from "@/utils/Utils";
+import {
+  BesluttDelutbetalingRequest,
+  Besluttelse,
+  DelutbetalingDto,
+  NavAnsatt,
+  NavAnsattRolle,
+  ProblemDetail,
+  TilsagnDto,
+  UtbetalingKompakt,
+} from "@mr/api-client-v2";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { Alert, BodyShort, Button, Checkbox, HStack, Table, TextField } from "@navikt/ds-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { Metadata } from "../detaljside/Metadata";
 import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { DelutbetalingTag } from "./DelutbetalingTag";
-import { Metadata } from "../detaljside/Metadata";
-import { useRevalidator } from "react-router";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
 
 interface Props {
   utbetaling: UtbetalingKompakt;
@@ -44,8 +44,8 @@ export function DelutbetalingRow({
   const [open, setOpen] = useState<boolean>(false);
   const [error, setError] = useState<string | undefined>(undefined);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
+  const queryClient = useQueryClient();
 
-  const revalidator = useRevalidator();
   const besluttMutation = useBesluttDelutbetaling(delutbetaling?.id ?? "");
 
   const kanBeslutte =
@@ -65,7 +65,7 @@ export function DelutbetalingRow({
   function beslutt(body: BesluttDelutbetalingRequest) {
     besluttMutation.mutate(body, {
       onSuccess: () => {
-        revalidator.revalidate();
+        queryClient.invalidateQueries({ queryKey: ["utbetaling"] });
       },
       onError: (error: ProblemDetail) => {
         throw error;
