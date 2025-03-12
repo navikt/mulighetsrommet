@@ -114,8 +114,8 @@ class UtbetalingQueries(private val session: Session) {
         val stengt = beregning.input.stengt.map { stengt ->
             mapOf(
                 "utbetaling_id" to id,
-                "start" to stengt.start,
-                "slutt" to stengt.slutt,
+                "start" to stengt.periode.start,
+                "slutt" to stengt.periode.slutt,
                 "beskrivelse" to stengt.beskrivelse,
             )
         }
@@ -139,8 +139,8 @@ class UtbetalingQueries(private val session: Session) {
                 mapOf(
                     "utbetaling_id" to id,
                     "deltakelse_id" to deltakelse.deltakelseId,
-                    "start" to periode.start,
-                    "slutt" to periode.slutt,
+                    "start" to periode.periode.start,
+                    "slutt" to periode.periode.slutt,
                     "deltakelsesprosent" to periode.deltakelsesprosent,
                 )
             }

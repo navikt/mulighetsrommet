@@ -108,8 +108,7 @@ class UtbetalingServiceTest : FunSpec({
                         deltakelseId = domain.deltakere[0].id,
                         perioder = listOf(
                             DeltakelsePeriode(
-                                start = LocalDate.of(2024, 1, 1),
-                                slutt = LocalDate.of(2024, 2, 1),
+                                periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 2, 1)),
                                 deltakelsesprosent = 100.0,
                             ),
                         ),
@@ -230,8 +229,7 @@ class UtbetalingServiceTest : FunSpec({
                         deltakelseId = domain.deltakere[0].id,
                         perioder = listOf(
                             DeltakelsePeriode(
-                                start = LocalDate.of(2024, 1, 1),
-                                slutt = LocalDate.of(2024, 2, 1),
+                                periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 2, 1)),
                                 deltakelsesprosent = 100.0,
                             ),
                         ),
@@ -240,8 +238,7 @@ class UtbetalingServiceTest : FunSpec({
                         deltakelseId = domain.deltakere[1].id,
                         perioder = listOf(
                             DeltakelsePeriode(
-                                start = LocalDate.of(2024, 1, 1),
-                                slutt = LocalDate.of(2024, 1, 16),
+                                periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 16)),
                                 deltakelsesprosent = 40.0,
                             ),
                         ),
@@ -250,8 +247,7 @@ class UtbetalingServiceTest : FunSpec({
                         deltakelseId = domain.deltakere[2].id,
                         perioder = listOf(
                             DeltakelsePeriode(
-                                start = LocalDate.of(2024, 1, 1),
-                                slutt = LocalDate.of(2024, 2, 1),
+                                periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 2, 1)),
                                 deltakelsesprosent = 50.0,
                             ),
                         ),
@@ -260,18 +256,15 @@ class UtbetalingServiceTest : FunSpec({
                         deltakelseId = domain.deltakere[5].id,
                         perioder = listOf(
                             DeltakelsePeriode(
-                                start = LocalDate.of(2024, 1, 1),
-                                slutt = LocalDate.of(2024, 1, 10),
+                                periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 10)),
                                 deltakelsesprosent = 20.0,
                             ),
                             DeltakelsePeriode(
-                                start = LocalDate.of(2024, 1, 10),
-                                slutt = LocalDate.of(2024, 1, 20),
+                                periode = Periode(LocalDate.of(2024, 1, 10), LocalDate.of(2024, 1, 20)),
                                 deltakelsesprosent = 15.0,
                             ),
                             DeltakelsePeriode(
-                                start = LocalDate.of(2024, 1, 20),
-                                slutt = LocalDate.of(2024, 2, 1),
+                                periode = Periode(LocalDate.of(2024, 1, 20), LocalDate.of(2024, 2, 1)),
                                 deltakelsesprosent = 10.0,
                             ),
                         ),
@@ -326,8 +319,8 @@ class UtbetalingServiceTest : FunSpec({
 
             utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningForhandsgodkjent.Input>().should {
                 it.stengt shouldBe setOf(
-                    StengtPeriode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 10), "Ferie 1"),
-                    StengtPeriode(LocalDate.of(2024, 1, 20), LocalDate.of(2024, 2, 1), "Ferie 2"),
+                    StengtPeriode(Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 10)), "Ferie 1"),
+                    StengtPeriode(Periode(LocalDate.of(2024, 1, 20), LocalDate.of(2024, 2, 1)), "Ferie 2"),
                 )
             }
         }

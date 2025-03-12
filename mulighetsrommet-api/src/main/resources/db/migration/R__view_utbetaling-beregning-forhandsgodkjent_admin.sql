@@ -5,8 +5,10 @@ drop view if exists view_utbetaling_beregning_forhandsgodkjent;
 create view view_utbetaling_beregning_forhandsgodkjent as
 with stengt_periode as (select utbetaling_id,
                                jsonb_agg(jsonb_build_object(
-                                       'start', lower(periode),
-                                       'slutt', upper(periode),
+                                       'periode', jsonb_build_object(
+                                           'start', lower(periode),
+                                           'slutt', upper(periode)
+                                        ),
                                        'beskrivelse', beskrivelse
                                          )) as stengt
                         from utbetaling_stengt_hos_arrangor
@@ -14,8 +16,10 @@ with stengt_periode as (select utbetaling_id,
      deltakelse_periode as (select utbetaling_id,
                                    deltakelse_id,
                                    jsonb_agg(jsonb_build_object(
-                                           'start', lower(periode),
-                                           'slutt', upper(periode),
+                                           'periode', jsonb_build_object(
+                                               'start', lower(periode),
+                                               'slutt', upper(periode)
+                                            ),
                                            'deltakelsesprosent', deltakelsesprosent
                                              )) as perioder
                             from utbetaling_deltakelse_periode

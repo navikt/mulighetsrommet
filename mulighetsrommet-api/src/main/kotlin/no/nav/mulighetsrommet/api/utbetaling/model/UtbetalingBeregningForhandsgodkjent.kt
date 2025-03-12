@@ -2,11 +2,9 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.time.LocalDate
 import java.util.*
 
 /**
@@ -43,11 +41,9 @@ data class UtbetalingBeregningForhandsgodkjent(
         fun beregn(input: Input): UtbetalingBeregningForhandsgodkjent {
             val totalDuration = input.periode.getDurationInDays().toBigDecimal()
 
-            val stengtHosArrangor = input.stengt.map { Periode(it.start, it.slutt) }
-
             val manedsverk = input.deltakelser
                 .map { deltakelse ->
-                    calculateManedsverk(deltakelse, stengtHosArrangor, totalDuration)
+                    calculateManedsverk(deltakelse, input.stengt.map { it.periode }, totalDuration)
                 }
                 .toSet()
 
@@ -74,9 +70,9 @@ data class UtbetalingBeregningForhandsgodkjent(
         ): DeltakelseManedsverk {
             val manedsverk = deltakelse.perioder
                 .flatMap { deltakelsePeriode ->
-                    Periode(deltakelsePeriode.start, deltakelsePeriode.slutt)
+                    deltakelsePeriode.periode
                         .subtractPeriods(stengtHosArrangor)
-                        .map { DeltakelsePeriode(it.start, it.slutt, deltakelsePeriode.deltakelsesprosent) }
+                        .map { DeltakelsePeriode(periode = it, deltakelsePeriode.deltakelsesprosent) }
                 }
                 .map { deltakelsePeriode ->
                     calculateManedsverkFraction(deltakelsePeriode, totalDuration)
@@ -92,7 +88,7 @@ data class UtbetalingBeregningForhandsgodkjent(
             deltakelsePeriode: DeltakelsePeriode,
             totalDuration: BigDecimal,
         ): BigDecimal {
-            val overlapDuration = Periode(deltakelsePeriode.start, deltakelsePeriode.slutt)
+            val overlapDuration = deltakelsePeriode.periode
                 .getDurationInDays()
                 .toBigDecimal()
 
@@ -113,10 +109,7 @@ data class UtbetalingBeregningForhandsgodkjent(
 
 @Serializable
 data class StengtPeriode(
-    @Serializable(with = LocalDateSerializer::class)
-    val start: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
-    val slutt: LocalDate,
+    val periode: Periode,
     val beskrivelse: String,
 )
 
@@ -129,10 +122,7 @@ data class DeltakelsePerioder(
 
 @Serializable
 data class DeltakelsePeriode(
-    @Serializable(with = LocalDateSerializer::class)
-    val start: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
-    val slutt: LocalDate,
+    val periode: Periode,
     val deltakelsesprosent: Double,
 )
 
