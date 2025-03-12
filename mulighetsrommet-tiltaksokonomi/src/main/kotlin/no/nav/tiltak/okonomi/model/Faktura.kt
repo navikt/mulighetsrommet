@@ -3,9 +3,11 @@ package no.nav.tiltak.okonomi.model
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.tiltak.okonomi.FrigjorBestilling
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.helpers.divideBelopByMonthsInPeriode
+import no.nav.tiltak.okonomi.service.frigjorFakturanummer
 import java.time.LocalDateTime
 
 data class Faktura(
@@ -55,6 +57,33 @@ data class Faktura(
                         belop = belop,
                     )
                 },
+            )
+        }
+
+        fun fromFrigjorBestilling(
+            frigjorBestilling: FrigjorBestilling,
+            bestilling: Bestilling,
+        ): Faktura {
+            val sisteBestillingLinje = bestilling.linjer.last()
+            return Faktura(
+                bestillingsnummer = bestilling.bestillingsnummer,
+                fakturanummer = frigjorFakturanummer(bestilling.bestillingsnummer),
+                kontonummer = null,
+                kid = null,
+                belop = 0,
+                periode = sisteBestillingLinje.periode,
+                status = FakturaStatusType.UTBETALT,
+                behandletAv = frigjorBestilling.behandletAv,
+                behandletTidspunkt = frigjorBestilling.behandletTidspunkt,
+                besluttetAv = frigjorBestilling.besluttetAv,
+                besluttetTidspunkt = frigjorBestilling.besluttetTidspunkt,
+                linjer = listOf(
+                    Linje(
+                        linjenummer = sisteBestillingLinje.linjenummer,
+                        periode = sisteBestillingLinje.periode,
+                        belop = 0,
+                    ),
+                ),
             )
         }
     }

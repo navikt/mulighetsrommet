@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.tiltak.okonomi.*
-import no.nav.tiltak.okonomi.OpprettFaktura.Betalingsinformasjon
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.BestillingStatusType
@@ -24,6 +23,8 @@ class OpprettBestillingError(message: String, cause: Throwable? = null) : Except
 class AnnullerBestillingError(message: String, cause: Throwable? = null) : Exception(message, cause)
 
 class OpprettFakturaError(message: String, cause: Throwable? = null) : Exception(message, cause)
+
+class FrigjorBestillingError(message: String, cause: Throwable? = null) : Exception(message, cause)
 
 class OkonomiService(
     private val db: OkonomiDatabase,
@@ -101,7 +102,7 @@ class OkonomiService(
         if (bestilling.status == BestillingStatusType.ANNULLERT) {
             log.info("Bestilling $bestillingsnummer er allerede annullert")
             return bestilling.right()
-        } else if (bestilling.status == BestillingStatusType.OPPGJORT) {
+        } else if (bestilling.status == BestillingStatusType.FRIGJORT) {
             return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi den er oppgjort").left()
         } else if (queries.faktura.getByBestillingsnummer(bestillingsnummer).isNotEmpty()) {
             return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi det finnes fakturaer for bestillingen").left()
@@ -130,18 +131,17 @@ class OkonomiService(
 
     suspend fun opprettFaktura(
         opprettFaktura: OpprettFaktura,
-        erSisteFaktura: Boolean = false,
     ): Either<OpprettFakturaError, Faktura> = db.session {
         val bestilling = queries.bestilling.getByBestillingsnummer(opprettFaktura.bestillingsnummer)
             ?: return OpprettFakturaError("Bestilling ${opprettFaktura.bestillingsnummer} finnes ikke").left()
 
-        if (bestilling.status in listOf(BestillingStatusType.ANNULLERT, BestillingStatusType.OPPGJORT)) {
+        if (bestilling.status in listOf(BestillingStatusType.ANNULLERT, BestillingStatusType.FRIGJORT)) {
             return OpprettFakturaError("Faktura ${opprettFaktura.fakturanummer} kan ikke opprettes fordi bestilling ${opprettFaktura.bestillingsnummer} har status ${bestilling.status}").left()
         }
 
         val faktura = Faktura.fromOpprettFaktura(opprettFaktura, bestilling.linjer)
 
-        val melding = toOebsFakturaMelding(bestilling, faktura, erSisteFaktura)
+        val melding = toOebsFakturaMelding(bestilling, faktura, erSisteFaktura = false)
         return oebs.sendFaktura(melding)
             .mapLeft {
                 OpprettFakturaError("Klarte ikke sende faktura ${faktura.fakturanummer} til oebs", it)
@@ -150,11 +150,6 @@ class OkonomiService(
                 log.info("Lagrer faktura ${faktura.fakturanummer}")
                 queries.faktura.insertFaktura(faktura)
 
-                if (erSisteFaktura) {
-                    log.info("Setter bestilling ${bestilling.bestillingsnummer} til oppgjort")
-                    queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.OPPGJORT)
-                }
-
                 faktura
             }
     }
@@ -162,25 +157,40 @@ class OkonomiService(
     /* Siden OeBS ikke har noen frigjørings funksjonalitet er dette implementert som en faktura med erSisteFaktura = true */
     suspend fun frigjorBestilling(
         frigjorBestilling: FrigjorBestilling,
-    ): Either<OpprettFakturaError, Faktura> = db.session {
+    ): Either<FrigjorBestillingError, Faktura> = db.session {
         val bestilling = queries.bestilling.getByBestillingsnummer(frigjorBestilling.bestillingsnummer)
-            ?: return OpprettFakturaError("Bestilling ${frigjorBestilling.bestillingsnummer} finnes ikke").left()
+            ?: return FrigjorBestillingError("Bestilling ${frigjorBestilling.bestillingsnummer} finnes ikke").left()
 
-        val fakturanummer = "${bestilling.bestillingsnummer}-X"
-        val opprettFaktura = OpprettFaktura(
-            fakturanummer = fakturanummer,
-            bestillingsnummer = frigjorBestilling.bestillingsnummer,
-            betalingsinformasjon = Betalingsinformasjon(null, null),
-            belop = 0,
-            periode = bestilling.periode,
-            behandletAv = frigjorBestilling.behandletAv,
-            behandletTidspunkt = frigjorBestilling.behandletTidspunkt,
-            besluttetAv = frigjorBestilling.besluttetAv,
-            besluttetTidspunkt = frigjorBestilling.besluttetTidspunkt,
-        )
-        return opprettFaktura(opprettFaktura, erSisteFaktura = true)
+        queries.faktura.getByFakturanummer(frigjorFakturanummer(bestilling.bestillingsnummer))?.let {
+            log.info("Bestilling ${bestilling.bestillingsnummer} er allerede frigjort")
+            return it.right()
+        }
+
+        // TODO: Fjern bestilt status når bestillinger blir satt som aktive
+        if (bestilling.status !in listOf(BestillingStatusType.AKTIV, BestillingStatusType.BESTILT)) {
+            return FrigjorBestillingError("Bestilling ${bestilling.bestillingsnummer} kan ikke frigjøres fordi den har status ${bestilling.status}").left()
+        }
+
+        val faktura = Faktura.fromFrigjorBestilling(frigjorBestilling, bestilling)
+
+        val melding = toOebsFakturaMelding(bestilling, faktura, erSisteFaktura = true)
+        return oebs.sendFaktura(melding)
+            .mapLeft {
+                FrigjorBestillingError("Klarte ikke sende faktura ${faktura.fakturanummer} til oebs", it)
+            }
+            .map {
+                log.info("Lagrer frigjøringsfaktura ${faktura.fakturanummer}")
+                queries.faktura.insertFaktura(faktura)
+
+                log.info("Setter bestilling ${bestilling.bestillingsnummer} til frigjort")
+                queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.FRIGJORT)
+
+                faktura
+            }
     }
 }
+
+fun frigjorFakturanummer(bestillingsnummer: String): String = "$bestillingsnummer-X"
 
 private fun getLeverandorAdresse(leverandor: BrregHovedenhetDto): Either<OpprettBestillingError, List<OebsBestillingMelding.Selger.Adresse>> {
     val adresse = leverandor.forretningsadresse?.let { toOebsAdresse(it) }.let { listOfNotNull(it) }

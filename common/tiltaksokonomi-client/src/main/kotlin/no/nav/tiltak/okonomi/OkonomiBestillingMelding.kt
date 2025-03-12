@@ -100,7 +100,7 @@ data class OpprettFaktura(
 ) {
     @Serializable
     data class Betalingsinformasjon(
-        val kontonummer: Kontonummer?,
+        val kontonummer: Kontonummer,
         val kid: Kid?,
     )
 }

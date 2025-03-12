@@ -8,8 +8,10 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.mock.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import no.nav.mulighetsrommet.brreg.BrregAdresse
 import no.nav.mulighetsrommet.brreg.BrregClient
@@ -17,12 +19,10 @@ import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
-import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.*
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.model.*
-import no.nav.tiltak.okonomi.oebs.OebsFakturaMelding
 import no.nav.tiltak.okonomi.oebs.OebsTiltakApiClient
 import java.time.LocalDate
 
@@ -135,7 +135,7 @@ class OkonomiServiceTest : FunSpec({
             val opprettBestilling = createOpprettBestilling(bestillingsnummer)
             db.session {
                 val bestilling = Bestilling.fromOpprettBestilling(opprettBestilling).copy(
-                    status = BestillingStatusType.OPPGJORT,
+                    status = BestillingStatusType.FRIGJORT,
                 )
                 queries.bestilling.insertBestilling(bestilling)
             }
@@ -144,7 +144,7 @@ class OkonomiServiceTest : FunSpec({
 
             service.opprettBestilling(opprettBestilling).shouldBeRight().should {
                 it.bestillingsnummer shouldBe bestillingsnummer
-                it.status shouldBe BestillingStatusType.OPPGJORT
+                it.status shouldBe BestillingStatusType.FRIGJORT
             }
         }
     }
@@ -164,7 +164,7 @@ class OkonomiServiceTest : FunSpec({
 
             db.session {
                 val bestilling = Bestilling.fromOpprettBestilling(createOpprettBestilling(bestillingsnummer)).copy(
-                    status = BestillingStatusType.OPPGJORT,
+                    status = BestillingStatusType.FRIGJORT,
                 )
                 queries.bestilling.insertBestilling(bestilling)
             }
@@ -275,30 +275,6 @@ class OkonomiServiceTest : FunSpec({
                 it.status shouldBe FakturaStatusType.UTBETALT
             }
         }
-
-        test("frigjør bestilling = true setter siste fakturalinje i fakturaen til oebs og oppdaterer bestillingstatus") {
-            val mockEngine = createMockEngine {
-                post("/api/v1/refusjonskrav") {
-                    val melding = it.decodeRequestBody<OebsFakturaMelding>()
-
-                    melding.fakturaLinjer.last().erSisteFaktura shouldBe true
-
-                    respondOk()
-                }
-            }
-            val service = OkonomiService(db, oebsClient(mockEngine), brreg)
-
-            val opprettFaktura = createOpprettFaktura(bestillingsnummer, "F-3")
-            service.opprettFaktura(opprettFaktura, erSisteFaktura = true).shouldBeRight().should {
-                it.fakturanummer shouldBe "F-3"
-                it.status shouldBe FakturaStatusType.UTBETALT
-            }
-
-            db.session {
-                val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
-                bestilling.shouldNotBeNull().status shouldBe BestillingStatusType.OPPGJORT
-            }
-        }
     }
 
     context("frigjor faktura") {
@@ -309,27 +285,29 @@ class OkonomiServiceTest : FunSpec({
             queries.bestilling.insertBestilling(bestilling)
         }
 
-        test("frigjør faktura fungerer likt som faktura med frigjor = true") {
-            val mockEngine = createMockEngine {
-                post("/api/v1/refusjonskrav") {
-                    val melding = it.decodeRequestBody<OebsFakturaMelding>()
+        test("frigjør faktura lager en faktura be erSisteLinje = true og setter bestillingen til FRIGJORT") {
+            val oebsClient: OebsTiltakApiClient = mockk()
+            val oebsResponse: HttpResponse = mockk()
+            coEvery { oebsClient.sendFaktura(any()) } returns oebsResponse.right()
+            val service = OkonomiService(db, oebsClient, brreg)
 
-                    melding.fakturaLinjer.last().erSisteFaktura shouldBe true
-
-                    respondOk()
-                }
-            }
-            val service = OkonomiService(db, oebsClient(mockEngine), brreg)
-
-            val opprettFrigjorFaktura = createFrigjorBestilling(bestillingsnummer)
-            service.frigjorBestilling(opprettFrigjorFaktura).shouldBeRight().should {
+            val frigjorBestilling = createFrigjorBestilling(bestillingsnummer)
+            service.frigjorBestilling(frigjorBestilling).shouldBeRight().should {
                 it.fakturanummer shouldBe "B-2-X"
                 it.status shouldBe FakturaStatusType.UTBETALT
             }
 
+            coVerify(exactly = 1) {
+                oebsClient.sendFaktura(
+                    match {
+                        it.fakturaLinjer.last().erSisteFaktura shouldBe true
+                    },
+                )
+            }
+
             db.session {
                 val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
-                bestilling.shouldNotBeNull().status shouldBe BestillingStatusType.OPPGJORT
+                bestilling.shouldNotBeNull().status shouldBe BestillingStatusType.FRIGJORT
             }
         }
     }
