@@ -59,6 +59,7 @@ class JournalforUtbetalingTest : FunSpec({
         kid = null,
         periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
         innsender = UtbetalingDto.Innsender.ArrangorAnsatt,
+        beskrivelse = null,
     )
 
     val domain = MulighetsrommetTestDomain(

@@ -5622,6 +5622,9 @@ components:
           format: date-time
         betalingsinformasjon:
           $ref: "#/components/schemas/Betalingsinformasjon"
+        beskrivelse:
+          type: string
+          nullable: true
       required: [id, status, beregning, createdAt]
 
     ArrFlateUtbetalingKompakt:

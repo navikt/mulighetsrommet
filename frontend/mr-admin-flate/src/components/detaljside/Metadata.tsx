@@ -1,6 +1,6 @@
-import { ReactNode } from "react";
+import { Box, HGrid } from "@navikt/ds-react";
 import classNames from "classnames";
-import { Box, HStack } from "@navikt/ds-react";
+import { ReactNode } from "react";
 
 export interface MetadataProps {
   header: string | ReactNode;
@@ -28,13 +28,13 @@ export function Separator({ style, classname }: { style?: any; classname?: strin
 
 export function MetadataHorisontal({ header, verdi }: MetadataProps) {
   return (
-    <HStack gap="12">
+    <HGrid columns="0.2fr 1fr" gap="2" align="start">
       <Box minWidth="220px">
         <dt>{header}:</dt>
       </Box>
       <Box>
-        <dd className="font-bold">{verdi ?? "-"}</dd>
+        <dd className="font-bold text-wrap whitespace-break-spaces">{verdi ?? "-"}</dd>
       </Box>
-    </HStack>
+    </HGrid>
   );
 }

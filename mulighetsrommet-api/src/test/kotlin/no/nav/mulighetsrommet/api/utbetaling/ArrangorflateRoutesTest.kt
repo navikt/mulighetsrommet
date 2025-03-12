@@ -108,6 +108,7 @@ class ArrangorflateRoutesTest : FunSpec({
         kid = null,
         periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
         innsender = null,
+        beskrivelse = null,
     )
 
     val domain = MulighetsrommetTestDomain(

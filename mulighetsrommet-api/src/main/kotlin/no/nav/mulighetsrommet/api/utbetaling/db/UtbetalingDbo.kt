@@ -17,4 +17,5 @@ data class UtbetalingDbo(
     val kontonummer: Kontonummer?,
     val kid: Kid?,
     val periode: Periode,
+    val beskrivelse: String?,
 )
