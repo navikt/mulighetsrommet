@@ -5266,6 +5266,19 @@ components:
               - id
               - status
 
+    Periode:
+      type: object
+      properties:
+        start:
+          type: string
+          format: date
+        slutt:
+          type: string
+          format: date
+      required:
+        - start
+        - slutt
+
     TilsagnDefaultsRequest:
       type: object
       properties:
@@ -5369,12 +5382,8 @@ components:
         id:
           type: string
           format: uuid
-        periodeStart:
-          type: string
-          format: date
-        periodeSlutt:
-          type: string
-          format: date
+        periode:
+          $ref: "#/components/schemas/Periode"
         kostnadssted:
           $ref: "#/components/schemas/NavEnhet"
         beregning:
@@ -5412,8 +5421,7 @@ components:
         - id
         - opprettelse
         - gjennomforingId
-        - periodeStart
-        - periodeSlutt
+        - periode
         - kostnadssted
         - beregning
         - belop
@@ -5637,6 +5645,8 @@ components:
           format: uuid
         status:
           $ref: "#/components/schemas/AdminUtbetalingStatus"
+        periode:
+          $ref: "#/components/schemas/Periode"
         beregning:
           $ref: "#/components/schemas/UtbetalingKompaktBeregning"
         godkjentAvArrangorTidspunkt:
@@ -5650,7 +5660,12 @@ components:
         beskrivelse:
           type: string
           nullable: true
-      required: [id, status, beregning, createdAt]
+      required:
+        - id
+        - status
+        - periode
+        - beregning
+        - createdAt
 
     ArrFlateUtbetalingKompakt:
       type: object
@@ -5669,12 +5684,8 @@ components:
           $ref: "#/components/schemas/UtbetalingGjennomforing"
         arrangor:
           $ref: "#/components/schemas/UtbetalingArrangor"
-        periodeStart:
-          type: string
-          format: date
-        periodeSlutt:
-          type: string
-          format: date
+        periode:
+          $ref: "#/components/schemas/Periode"
         belop:
           type: number
       required:
@@ -5684,24 +5695,15 @@ components:
         - tiltakstype
         - gjennomforing
         - arrangor
-        - periodeStart
-        - periodeSlutt
+        - periode
         - belop
 
     UtbetalingKompaktBeregning:
       type: object
       properties:
-        periodeStart:
-          type: string
-          format: date-time
-        periodeSlutt:
-          type: string
-          format: date-time
         belop:
           type: integer
       required:
-        - periodeStart
-        - periodeSlutt
         - belop
 
     ArrFlateUtbetaling:
@@ -5727,12 +5729,8 @@ components:
           $ref: "#/components/schemas/ArrFlateBeregning"
         betalingsinformasjon:
           $ref: "#/components/schemas/Betalingsinformasjon"
-        periodeStart:
-          type: string
-          format: date-time
-        periodeSlutt:
-          type: string
-          format: date-time
+        periode:
+          $ref: "#/components/schemas/Periode"
       required:
         - type
         - id
@@ -5743,8 +5741,7 @@ components:
         - arrangor
         - beregning
         - betalingsinformasjon
-        - periodeStart
-        - periodeSlutt
+        - periode
 
     UtbetalingTiltakstype:
       type: object
@@ -5961,12 +5958,8 @@ components:
             - navn
         type:
           $ref: "#/components/schemas/TilsagnType"
-        periodeStart:
-          type: string
-          format: date
-        periodeSlutt:
-          type: string
-          format: date
+        periode:
+          $ref: "#/components/schemas/Periode"
         status:
           $ref: "#/components/schemas/TilsagnStatusOgAarsaker"
         arrangor:
@@ -5986,8 +5979,7 @@ components:
         beregning:
           $ref: "#/components/schemas/TilsagnBeregning"
       required:
-        - periodeStart
-        - periodeSlutt
+        - periode
         - type
         - status
         - gjennomforing

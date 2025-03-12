@@ -4,10 +4,9 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import java.time.LocalDate
 import java.util.*
 
 @Serializable
@@ -15,10 +14,7 @@ data class TilsagnDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val type: TilsagnType,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeStart: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeSlutt: LocalDate,
+    val periode: Periode,
     val kostnadssted: NavEnhetDbo,
     val beregning: TilsagnBeregning,
     val lopenummer: Int,

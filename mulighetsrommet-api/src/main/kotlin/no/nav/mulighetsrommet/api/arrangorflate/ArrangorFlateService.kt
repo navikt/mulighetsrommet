@@ -103,8 +103,7 @@ class ArrangorFlateService(
                     tiltakstype = utbetaling.tiltakstype,
                     gjennomforing = utbetaling.gjennomforing,
                     arrangor = utbetaling.arrangor,
-                    periodeStart = utbetaling.periode.start,
-                    periodeSlutt = utbetaling.periode.getLastInclusiveDate(),
+                    periode = utbetaling.periode,
                     beregning = Beregning.Forhandsgodkjent(
                         antallManedsverk = antallManedsverk,
                         belop = beregning.output.belop,
@@ -122,8 +121,7 @@ class ArrangorFlateService(
                 tiltakstype = utbetaling.tiltakstype,
                 gjennomforing = utbetaling.gjennomforing,
                 arrangor = utbetaling.arrangor,
-                periodeStart = utbetaling.periode.start,
-                periodeSlutt = utbetaling.periode.getLastInclusiveDate(),
+                periode = utbetaling.periode,
                 beregning = Beregning.Fri(
                     belop = beregning.output.belop,
                     digest = beregning.getDigest(),

@@ -1,6 +1,6 @@
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
 import { AvvistAlert } from "@/pages/gjennomforing/tilsagn/AarsakerAlert";
-import { formaterDato, tilsagnTypeToString } from "@/utils/Utils";
+import { formaterPeriodeSlutt, formaterPeriodeStart, tilsagnTypeToString } from "@/utils/Utils";
 import {
   BesluttDelutbetalingRequest,
   Besluttelse,
@@ -195,8 +195,8 @@ export function DelutbetalingRow({
       key={tilsagn.id}
       content={content()}
     >
-      <Table.DataCell className={cellClass}>{formaterDato(tilsagn.periodeStart)}</Table.DataCell>
-      <Table.DataCell className={cellClass}>{formaterDato(tilsagn.periodeSlutt)}</Table.DataCell>
+      <Table.DataCell className={cellClass}>{formaterPeriodeStart(tilsagn.periode)}</Table.DataCell>
+      <Table.DataCell className={cellClass}>{formaterPeriodeSlutt(tilsagn.periode)}</Table.DataCell>
       <Table.DataCell className={cellClass}>{tilsagnTypeToString(tilsagn.type)}</Table.DataCell>
       <Table.DataCell className={cellClass}>{tilsagn.kostnadssted.navn}</Table.DataCell>
       <Table.DataCell className={cellClass}>

@@ -27,8 +27,10 @@ export const mockTilsagn: TilsagnDto[] = [
       type: NavEnhetType.TILTAK,
     },
     lopenummer: 1,
-    periodeStart: "2024-01-05",
-    periodeSlutt: "2024-01-06",
+    periode: {
+      start: "2024-01-05",
+      slutt: "2024-01-06",
+    },
     status: TilsagnStatus.TIL_GODKJENNING,
     opprettelse: {
       behandletAv: "B123456",
@@ -52,8 +54,10 @@ export const mockTilsagn: TilsagnDto[] = [
       type: NavEnhetType.TILTAK,
     },
     lopenummer: 1,
-    periodeStart: "2024-01-03",
-    periodeSlutt: "2024-01-04",
+    periode: {
+      start: "2024-01-03",
+      slutt: "2024-01-04",
+    },
     status: TilsagnStatus.TIL_ANNULLERING,
     opprettelse: {
       behandletAv: "B123456",
@@ -88,8 +92,10 @@ export const mockTilsagn: TilsagnDto[] = [
       type: NavEnhetType.TILTAK,
     },
     lopenummer: 4,
-    periodeStart: "2024-01-01",
-    periodeSlutt: "2024-01-02",
+    periode: {
+      start: "2024-01-01",
+      slutt: "2024-01-02",
+    },
     status: TilsagnStatus.GODKJENT,
     opprettelse: {
       behandletAv: "B123456",
@@ -115,8 +121,10 @@ export const mockTilsagn: TilsagnDto[] = [
       type: NavEnhetType.TILTAK,
     },
     lopenummer: 4,
-    periodeStart: "2024-01-01",
-    periodeSlutt: "2024-01-02",
+    periode: {
+      start: "2024-01-01",
+      slutt: "2024-01-02",
+    },
     status: TilsagnStatus.ANNULLERT,
     opprettelse: {
       behandletAv: "B123456",
@@ -153,8 +161,10 @@ export const mockTilsagn: TilsagnDto[] = [
       type: NavEnhetType.TILTAK,
     },
     lopenummer: 4,
-    periodeStart: "2024-01-01",
-    periodeSlutt: "2024-01-02",
+    periode: {
+      start: "2024-01-01",
+      slutt: "2024-01-02",
+    },
     status: TilsagnStatus.RETURNERT,
     opprettelse: {
       behandletAv: "B123456",

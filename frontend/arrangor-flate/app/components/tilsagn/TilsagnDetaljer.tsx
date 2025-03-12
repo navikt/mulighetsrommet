@@ -1,6 +1,6 @@
 import { ArrangorflateTilsagn } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { formaterDato } from "~/utils";
+import { formaterPeriode } from "~/utils";
 import { Definisjonsliste, Definition } from "../Definisjonsliste";
 
 interface Props {
@@ -11,7 +11,7 @@ export function TilsagnDetaljer({ tilsagn }: Props) {
   const tilsagnDetaljer: Definition[] = [
     {
       key: "Tilsagnsperiode",
-      value: `${formaterDato(tilsagn.periodeStart)} - ${formaterDato(tilsagn.periodeSlutt)}`,
+      value: formaterPeriode(tilsagn.periode),
     },
   ];
 
