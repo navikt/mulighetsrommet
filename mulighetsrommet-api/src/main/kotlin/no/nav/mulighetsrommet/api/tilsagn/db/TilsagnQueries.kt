@@ -115,7 +115,7 @@ class TilsagnQueries(private val session: Session) {
         typer: List<TilsagnType>? = null,
         gjennomforingId: UUID? = null,
         statuser: List<TilsagnStatus>? = null,
-        periode: Periode? = null,
+        periodeIntersectsWith: Periode? = null,
     ): List<TilsagnDto> {
         @Language("PostgreSQL")
         val query = """
@@ -125,7 +125,7 @@ class TilsagnQueries(private val session: Session) {
               (:typer::tilsagn_type[] is null or type = any(:typer::tilsagn_type[]))
               and (:gjennomforing_id::uuid is null or gjennomforing_id = :gjennomforing_id::uuid)
               and (:statuser::tilsagn_status[] is null or status::tilsagn_status = any(:statuser))
-              and (:periode::daterange is null or periode @> :periode::daterange)
+              and (:periode::daterange is null or periode && :periode::daterange)
             order by lopenummer desc
         """.trimIndent()
 
@@ -133,7 +133,7 @@ class TilsagnQueries(private val session: Session) {
             "typer" to typer?.map { it.name }?.let { session.createArrayOf("tilsagn_type", it) },
             "gjennomforing_id" to gjennomforingId,
             "statuser" to statuser?.let { session.createArrayOf("tilsagn_status", statuser) },
-            "periode" to periode?.toDaterange(),
+            "periode" to periodeIntersectsWith?.toDaterange(),
         )
 
         return session.list(queryOf(query, params)) { it.toTilsagnDto() }
@@ -153,20 +153,20 @@ class TilsagnQueries(private val session: Session) {
 
     fun getArrangorflateTilsagnTilUtbetaling(
         gjennomforingId: UUID,
-        periode: Periode,
+        periodeIntersectsWith: Periode,
     ): List<ArrangorflateTilsagn> {
         @Language("PostgreSQL")
         val query = """
             select * from tilsagn_arrangorflate_view
             where gjennomforing_id = :gjennomforing_id::uuid
-              and (periode @> :periode::daterange)
+              and (periode && :periode::daterange)
               and status in ('GODKJENT', 'TIL_ANNULLERING', 'ANNULLERT')
               and type in ('EKSTRATILSAGN', 'TILSAGN')
         """.trimIndent()
 
         val params = mapOf(
             "gjennomforing_id" to gjennomforingId,
-            "periode" to periode.toDaterange(),
+            "periode" to periodeIntersectsWith.toDaterange(),
         )
 
         return session.list(queryOf(query, params)) { it.toArrangorflateTilsagn() }

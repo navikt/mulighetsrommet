@@ -299,7 +299,7 @@ class UtbetalingService(
             gjennomforingId = utbetaling.gjennomforing.id,
             statuser = listOf(TilsagnStatus.GODKJENT),
             typer = listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN),
-            periode = utbetaling.periode,
+            periodeIntersectsWith = utbetaling.periode,
         )
         if (relevanteTilsagn.size != 1) {
             log.debug(
@@ -315,15 +315,15 @@ class UtbetalingService(
             log.debug("Avbryter automatisk utbetaling. Ikke nok penger. UtbetalingId: {}", utbetalingId)
             return false
         }
-        val frigjorTilsagn = tilsagn.periode.slutt in utbetaling.periode
+        val frigjorTilsagn = tilsagn.periode.getLastInclusiveDate() in utbetaling.periode
         val delutbetalingId = UUID.randomUUID()
         upsertDelutbetaling(
-            utbetaling,
-            tilsagn,
-            delutbetalingId,
+            utbetaling = utbetaling,
+            tilsagn = tilsagn,
+            id = delutbetalingId,
             belop = utbetaling.beregning.output.belop,
             frigjorTilsagn = frigjorTilsagn,
-            Tiltaksadministrasjon,
+            behandletAv = Tiltaksadministrasjon,
         )
         val delutbetaling = requireNotNull(queries.delutbetaling.get(delutbetalingId))
         godkjennDelutbetaling(
@@ -525,7 +525,7 @@ private fun isRelevantForUtbetalingsperide(
         "Deltaker må ha en startdato når status er ${deltaker.status.type} og den er relevant for utbetaling"
     }
     val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode)
-    return Periode.of(startDato, sluttDatoInPeriode)?.overlaps(periode) ?: false
+    return Periode.of(startDato, sluttDatoInPeriode)?.intersects(periode) ?: false
 }
 
 private fun getSluttDatoInPeriode(deltaker: DeltakerDto, periode: Periode): LocalDate {

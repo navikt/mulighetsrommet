@@ -66,7 +66,7 @@ fun Route.utbetalingRoutes() {
             val tilsagn = db.session {
                 queries.tilsagn.getAll(
                     gjennomforingId = utbetaling.gjennomforing.id,
-                    periode = utbetaling.periode,
+                    periodeIntersectsWith = utbetaling.periode,
                     typer = listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN),
                 )
             }
