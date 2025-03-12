@@ -58,9 +58,7 @@ export function compareByKey<T extends Record<string, any>>(a: T, b: T, orderBy:
 }
 
 export function formaterPeriode(periode: Periode) {
-  const start = formaterDato(periode.start);
-  const slutt = formaterDato(subtractDays(new Date(periode.slutt), 1));
-  return `${start} - ${slutt}`;
+  return `${formaterPeriodeStart(periode)} - ${formaterPeriodeSlutt(periode)}`;
 }
 
 export function formaterPeriodeStart(periode: Periode) {
