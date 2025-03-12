@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.RelevanteForslag
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
-import java.util.*
 
 object UtbetalingValidator {
     fun validate(belop: Int, tilsagn: TilsagnDto, maxBelop: Int): Either<List<FieldError>, Unit> = either {

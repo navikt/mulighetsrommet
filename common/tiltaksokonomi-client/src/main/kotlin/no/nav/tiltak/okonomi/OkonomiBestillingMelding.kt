@@ -8,7 +8,6 @@ import java.time.LocalDateTime
 
 @Serializable
 sealed class OkonomiBestillingMelding {
-
     @Serializable
     @SerialName("BESTILLING")
     data class Bestilling(
@@ -25,6 +24,12 @@ sealed class OkonomiBestillingMelding {
     @SerialName("FAKTURA")
     data class Faktura(
         val payload: OpprettFaktura,
+    ) : OkonomiBestillingMelding()
+
+    @Serializable
+    @SerialName("FRIGJORING")
+    data class Frigjoring(
+        val payload: FrigjorBestilling,
     ) : OkonomiBestillingMelding()
 }
 
@@ -69,11 +74,21 @@ data class AnnullerBestilling(
 )
 
 @Serializable
+data class FrigjorBestilling(
+    val bestillingsnummer: String,
+    val behandletAv: OkonomiPart,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val behandletTidspunkt: LocalDateTime,
+    val besluttetAv: OkonomiPart,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val besluttetTidspunkt: LocalDateTime,
+)
+
+@Serializable
 data class OpprettFaktura(
     val fakturanummer: String,
     val bestillingsnummer: String,
     val betalingsinformasjon: Betalingsinformasjon,
-    val frigjorBestilling: Boolean,
     val belop: Int,
     val periode: Periode,
     val behandletAv: OkonomiPart,

@@ -47,7 +47,7 @@ class FakturaQueries(private val session: Session) {
         val params = mapOf(
             "fakturanummer" to faktura.fakturanummer,
             "bestillingsnummer" to faktura.bestillingsnummer,
-            "kontonummer" to faktura.kontonummer.value,
+            "kontonummer" to faktura.kontonummer?.value,
             "kid" to faktura.kid?.value,
             "belop" to faktura.belop,
             "periode" to faktura.periode.toDaterange(),
@@ -115,7 +115,7 @@ class FakturaQueries(private val session: Session) {
             Faktura(
                 bestillingsnummer = faktura.string("bestillingsnummer"),
                 fakturanummer = faktura.string("fakturanummer"),
-                kontonummer = Kontonummer(faktura.string("kontonummer")),
+                kontonummer = faktura.stringOrNull("kontonummer")?.let { Kontonummer(it) },
                 kid = faktura.stringOrNull("kid")?.let { kid -> Kid(kid) },
                 belop = faktura.int("belop"),
                 periode = faktura.periode("periode"),

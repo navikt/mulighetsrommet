@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.OkonomiBestillingService
+import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
@@ -33,6 +34,7 @@ import java.util.*
 class UtbetalingService(
     private val db: ApiDatabase,
     private val okonomi: OkonomiBestillingService,
+    private val tilsagnService: TilsagnService,
     private val journalforUtbetaling: JournalforUtbetaling,
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass.simpleName)
@@ -340,6 +342,9 @@ class UtbetalingService(
         frigjorTilsagn: Boolean,
         behandletAv: Agent,
     ) {
+        require(tilsagn.status == TilsagnStatus.GODKJENT) {
+            "Tilsagn er ikke godkjent id=${tilsagn.id} status=${tilsagn.status}"
+        }
         val tilsagnPeriode = Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt)
         val periode = requireNotNull(utbetaling.periode.intersect(tilsagnPeriode)) {
             "Utbetalingsperiode og tilsagnsperiode overlapper ikke"
@@ -355,7 +360,7 @@ class UtbetalingService(
             behandletAv = behandletAv,
             frigjorTilsagn = frigjorTilsagn,
             lopenummer = lopenummer,
-            fakturanummer = "${tilsagn.bestillingsnummer}-$lopenummer",
+            fakturanummer = fakturanummer(tilsagn.bestillingsnummer, lopenummer),
         )
 
         queries.delutbetaling.upsert(dbo)
@@ -370,6 +375,10 @@ class UtbetalingService(
         delutbetaling: DelutbetalingDto,
         besluttetAv: Agent,
     ) {
+        val tilsagn = requireNotNull(queries.tilsagn.get(delutbetaling.tilsagnId))
+        require(tilsagn.status == TilsagnStatus.GODKJENT) {
+            "Tilsagn er ikke godkjent id=${delutbetaling.tilsagnId} status=${tilsagn.status}"
+        }
         require(besluttetAv !is NavIdent || besluttetAv != delutbetaling.opprettelse.behandletAv) {
             "Kan ikke beslutte egen utbetaling"
         }
@@ -387,6 +396,10 @@ class UtbetalingService(
             ),
         )
         okonomi.scheduleBehandleGodkjenteUtbetalinger(delutbetaling.tilsagnId, session)
+        // TODO: Sørg for at denne meldingen til tiltaksokonomi sendes etter den over
+        if (delutbetaling.frigjorTilsagn) {
+            tilsagnService.frigjorAutomatisk(delutbetaling.tilsagnId)
+        }
         logEndring(
             "Utbetaling godkjent",
             getOrError(delutbetaling.utbetalingId),
@@ -425,9 +438,9 @@ class UtbetalingService(
 
     private fun resolveStengtHosArrangor(
         periode: Periode,
-        stengt: List<GjennomforingDto.StengtPeriode>,
+        stengtPerioder: List<GjennomforingDto.StengtPeriode>,
     ): Set<StengtPeriode> {
-        return stengt
+        return stengtPerioder
             .mapNotNull { stengt ->
                 Periode(stengt.start, stengt.slutt.plusDays(1)).intersect(periode)?.let {
                     StengtPeriode(it.start, it.slutt, stengt.beskrivelse)
@@ -491,6 +504,8 @@ class UtbetalingService(
         return requireNotNull(queries.utbetaling.get(id)) { "Utbetaling med id=$id finnes ikke" }
     }
 }
+
+fun fakturanummer(bestillingsnummer: String, lopenummer: Int): String = "$bestillingsnummer-$lopenummer"
 
 private fun isRelevantForUtbetalingsperide(
     deltaker: DeltakerDto,

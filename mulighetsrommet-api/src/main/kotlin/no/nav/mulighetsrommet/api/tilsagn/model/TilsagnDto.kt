@@ -28,6 +28,7 @@ data class TilsagnDto(
     val status: TilsagnStatus,
     val opprettelse: Totrinnskontroll,
     val annullering: Totrinnskontroll?,
+    val frigjoring: Totrinnskontroll?,
 ) {
     @Serializable
     data class Arrangor(

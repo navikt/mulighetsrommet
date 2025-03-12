@@ -66,9 +66,9 @@ data class OebsFakturaMelding(
     val valutaKode: String,
 
     /**
-     * Kontonummer det skal utbetales til.
+     * Kontonummer det skal utbetales til, null hvis frigjor melding
      */
-    val bankKontoNummer: String,
+    val bankKontoNummer: String?,
 
     /**
      * [OebsBetalingskanal.BBAN] for utbetaling til norske banker, [OebsBetalingskanal.IBAN] ellers.
