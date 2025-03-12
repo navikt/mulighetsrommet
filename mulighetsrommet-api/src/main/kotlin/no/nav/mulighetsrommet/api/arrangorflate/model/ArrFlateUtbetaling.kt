@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -44,10 +45,7 @@ data class ArrFlateUtbetaling(
     val arrangor: UtbetalingDto.Arrangor,
     val beregning: Beregning,
     val betalingsinformasjon: UtbetalingDto.Betalingsinformasjon,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeStart: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeSlutt: LocalDate,
+    val periode: Periode,
 )
 
 @Serializable

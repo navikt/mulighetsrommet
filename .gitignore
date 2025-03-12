@@ -6,6 +6,8 @@
 # IDE's
 .vscode
 .idea
+.cursor
+.cursor/rules
 
 .kotlin
 # Backend specific mumbojumbo
@@ -16,6 +18,7 @@ bash.exe.stackdump
 build
 **/.DS_Store
 **/bin
+tmp
 
 # Gradle
 !gradle-wrapper.jar
@@ -39,5 +42,3 @@ docker-compose.override.yml
 # For å unngå genererte test-pdf'er
 *.pdf
 
-.cursor
-.cursor/rules

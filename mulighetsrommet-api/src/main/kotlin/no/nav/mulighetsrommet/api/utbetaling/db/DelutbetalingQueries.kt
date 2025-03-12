@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.database.createTextArray
+import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.periode
 import no.nav.mulighetsrommet.database.withTransaction
@@ -35,7 +36,7 @@ class DelutbetalingQueries(private val session: Session) {
                 :utbetaling_id::uuid,
                 :belop,
                 :frigjor_tilsagn::boolean,
-                daterange(:periode_start, :periode_slutt),
+                :periode::daterange,
                 :lopenummer,
                 :fakturanummer
             ) on conflict (utbetaling_id, tilsagn_id) do update set
@@ -52,8 +53,7 @@ class DelutbetalingQueries(private val session: Session) {
             "utbetaling_id" to delutbetaling.utbetalingId,
             "belop" to delutbetaling.belop,
             "frigjor_tilsagn" to delutbetaling.frigjorTilsagn,
-            "periode_start" to delutbetaling.periode.start,
-            "periode_slutt" to delutbetaling.periode.slutt,
+            "periode" to delutbetaling.periode.toDaterange(),
             "lopenummer" to delutbetaling.lopenummer,
             "fakturanummer" to delutbetaling.fakturanummer,
         )

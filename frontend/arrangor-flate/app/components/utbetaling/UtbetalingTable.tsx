@@ -1,7 +1,7 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, Table, Tag } from "@navikt/ds-react";
 import React, { ReactNode } from "react";
-import { formaterDato, useOrgnrFromUrl } from "~/utils";
+import { formaterDato, formaterPeriode, useOrgnrFromUrl } from "~/utils";
 import { internalNavigation } from "~/internal-navigation";
 import { LinkWithTabState } from "../LinkWithTabState";
 import { ArrFlateUtbetalingKompakt, ArrFlateUtbetalingStatus } from "@mr/api-client-v2";
@@ -38,23 +38,14 @@ export function UtbetalingTable({ utbetalinger }: Props) {
       </Table.Header>
       <Table.Body>
         {utbetalinger.map(
-          ({
-            id,
-            status,
-            fristForGodkjenning,
-            belop,
-            periodeStart,
-            periodeSlutt,
-            gjennomforing,
-            tiltakstype,
-          }) => {
+          ({ id, status, fristForGodkjenning, belop, periode, gjennomforing, tiltakstype }) => {
             return (
               <React.Fragment key={id}>
                 <Table.Row>
                   <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
                   <Table.DataCell>{gjennomforing.navn}</Table.DataCell>
                   <Table.DataCell colSpan={3} className="w-80">
-                    {`${formaterDato(periodeStart)} - ${formaterDato(periodeSlutt)}`}
+                    {formaterPeriode(periode)}
                   </Table.DataCell>
                   <Table.DataCell className="min-w-44">{formaterNOK(belop)}</Table.DataCell>
                   <Table.DataCell>{formaterDato(fristForGodkjenning)}</Table.DataCell>

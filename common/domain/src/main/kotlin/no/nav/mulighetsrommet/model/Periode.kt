@@ -22,10 +22,6 @@ data class Periode(
         }
     }
 
-    override fun compareTo(other: Periode): Int {
-        return compareValuesBy(this, other, Periode::start, Periode::slutt)
-    }
-
     companion object {
         /**
          * Oppretter en [Periode] hvis startdatoen er før sluttdatoen, ellers null.
@@ -58,6 +54,10 @@ data class Periode(
         }
     }
 
+    override fun compareTo(other: Periode): Int {
+        return compareValuesBy(this, other, Periode::start, Periode::slutt)
+    }
+
     operator fun contains(date: LocalDate): Boolean {
         return date == start || date.isAfter(start) && date.isBefore(slutt)
     }
@@ -74,7 +74,7 @@ data class Periode(
         return slutt.minusDays(1)
     }
 
-    fun overlaps(periode: Periode): Boolean {
+    fun intersects(periode: Periode): Boolean {
         val start = maxOf(start, periode.start)
         val slutt = minOf(slutt, periode.slutt)
         return start < slutt

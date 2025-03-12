@@ -121,7 +121,7 @@ class OppgaverService(val db: ApiDatabase) {
         kostnadssteder.isEmpty() -> true
         else -> {
             queries.tilsagn
-                .getAll(gjennomforingId = utbetaling.gjennomforing.id, periode = utbetaling.periode)
+                .getAll(gjennomforingId = utbetaling.gjennomforing.id, periodeIntersectsWith = utbetaling.periode)
                 .let { tilsagn -> tilsagn.isEmpty() || tilsagn.any { it.kostnadssted.enhetsnummer in kostnadssteder } }
         }
     }

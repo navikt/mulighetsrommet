@@ -1,6 +1,6 @@
 import { TilsagnTag } from "@/pages/gjennomforing/tilsagn/TilsagnTag";
 import { isTilsagnForhandsgodkjent } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
-import { formaterDato } from "@/utils/Utils";
+import { compareByKey, formaterPeriodeSlutt, formaterPeriodeStart } from "@/utils/Utils";
 import { TilsagnDto } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { SortState, Table } from "@navikt/ds-react";
@@ -8,10 +8,13 @@ import { TableColumnHeader } from "@navikt/ds-react/Table";
 import { useState } from "react";
 import { Link, useParams } from "react-router";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
+import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 
-interface TabellData extends TilsagnDto {
-  antallPlasser: number | null;
+interface TilsagnTabellData extends TilsagnDto {
+  periodeStart: string;
+  periodeSlutt: string;
   navnForKostnadssted: string;
+  antallPlasser: number | null;
   belop: number;
 }
 
@@ -20,7 +23,7 @@ interface Props {
 }
 
 interface ScopedSortState extends SortState {
-  orderBy: keyof TilsagnDto;
+  orderBy: keyof TilsagnTabellData;
 }
 
 export function TilsagnTabell({ tilsagn }: Props) {
@@ -42,40 +45,25 @@ export function TilsagnTabell({ tilsagn }: Props) {
     );
   };
 
-  function comparator<T>(a: T, b: T, orderBy: keyof T): number {
-    const aValue = a[orderBy];
-    const bValue = b[orderBy];
-    if (bValue == null) {
-      return -1;
-    }
-
-    if (typeof aValue === "number" && typeof bValue === "number") {
-      return bValue - aValue;
-    }
-
-    if (bValue < aValue) {
-      return -1;
-    }
-    if (bValue > aValue) {
-      return 1;
-    }
-    return 0;
-  }
-
-  const sortedData: TabellData[] = [...tilsagn]
+  const sortedData: TilsagnTabellData[] = [...tilsagn]
     .map((tilsagn) => ({
       ...tilsagn,
-      antallPlasser: getAntallPlasser(tilsagn),
+      periodeStart: tilsagn.periode.start,
+      periodeSlutt: tilsagn.periode.slutt,
+      type: tilsagn.type,
       navnForKostnadssted: tilsagn.kostnadssted.navn,
+      antallPlasser: getAntallPlasser(tilsagn),
       belop: tilsagn.beregning.output.belop,
+      status: tilsagn.status,
     }))
-    .sort((a, b) => {
+    .toSorted((a, b) => {
       if (sort) {
         return sort.direction === "ascending"
-          ? comparator(b, a, sort.orderBy)
-          : comparator(a, b, sort.orderBy);
+          ? compareByKey(b, a, sort.orderBy)
+          : compareByKey(a, b, sort.orderBy);
+      } else {
+        return 0;
       }
-      return 1;
     });
 
   return (
@@ -86,36 +74,36 @@ export function TilsagnTabell({ tilsagn }: Props) {
       <Table.Header>
         <Table.Row>
           <TableColumnHeader sortKey="periodeStart" sortable>
-            Periodestart
+            {tilsagnTekster.periode.start.label}
           </TableColumnHeader>
           <TableColumnHeader sortKey="periodeSlutt" sortable>
-            Periodeslutt
+            {tilsagnTekster.periode.slutt.label}
           </TableColumnHeader>
           <TableColumnHeader sortKey="type" sortable>
-            Tilsagnstype
+            {tilsagnTekster.type.label}
           </TableColumnHeader>
           <TableColumnHeader sortKey="navnForKostnadssted" sortable>
-            Kostnadssted
+            {tilsagnTekster.kostnadssted.label}
           </TableColumnHeader>
           <TableColumnHeader sortKey="antallPlasser" sortable align="right">
-            Antall plasser
+            {tilsagnTekster.antallPlasser.label}
           </TableColumnHeader>
           <TableColumnHeader sortKey="belop" sortable align="right">
-            Beløp
+            {tilsagnTekster.beregning.belop.label}
           </TableColumnHeader>
-          <TableColumnHeader sortKey={"status"} sortable align="right">
-            Status
+          <TableColumnHeader sortKey="status" sortable align="right">
+            {tilsagnTekster.status.label}
           </TableColumnHeader>
           <TableColumnHeader></TableColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>
         {sortedData.map((tilsagn) => {
-          const { periodeStart, periodeSlutt, kostnadssted, beregning, id } = tilsagn;
+          const { periode, kostnadssted, beregning, id } = tilsagn;
           return (
             <Table.Row key={id}>
-              <Table.DataCell>{formaterDato(periodeStart)}</Table.DataCell>
-              <Table.DataCell>{formaterDato(periodeSlutt)}</Table.DataCell>
+              <Table.DataCell>{formaterPeriodeStart(periode)}</Table.DataCell>
+              <Table.DataCell>{formaterPeriodeSlutt(periode)}</Table.DataCell>
               <Table.DataCell>{avtaletekster.tilsagn.type(tilsagn.type)}</Table.DataCell>
               <Table.DataCell>{kostnadssted.navn}</Table.DataCell>
               <Table.DataCell align="right">{getAntallPlasser(tilsagn)}</Table.DataCell>

@@ -2,9 +2,8 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import java.time.LocalDate
 import java.util.*
 
 @Serializable
@@ -14,10 +13,7 @@ data class ArrangorflateTilsagn(
     val gjennomforing: Gjennomforing,
     val tiltakstype: Tiltakstype,
     val type: TilsagnType,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeStart: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeSlutt: LocalDate,
+    val periode: Periode,
     val beregning: TilsagnBeregning,
     val arrangor: Arrangor,
     val status: StatusOgAarsaker,
