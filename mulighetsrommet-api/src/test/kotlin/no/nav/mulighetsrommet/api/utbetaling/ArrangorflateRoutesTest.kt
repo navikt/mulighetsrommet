@@ -86,8 +86,7 @@ class ArrangorflateRoutesTest : FunSpec({
                         deltakelseId = deltaker.id,
                         perioder = listOf(
                             DeltakelsePeriode(
-                                start = LocalDate.of(2024, 8, 1),
-                                slutt = LocalDate.of(2024, 8, 31),
+                                periode = Periode(LocalDate.of(2024, 8, 1), LocalDate.of(2024, 8, 31)),
                                 deltakelsesprosent = 100.0,
                             ),
                         ),

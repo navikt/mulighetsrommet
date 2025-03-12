@@ -442,8 +442,8 @@ class UtbetalingService(
     ): Set<StengtPeriode> {
         return stengtPerioder
             .mapNotNull { stengt ->
-                Periode(stengt.start, stengt.slutt.plusDays(1)).intersect(periode)?.let {
-                    StengtPeriode(it.start, it.slutt, stengt.beskrivelse)
+                Periode.fromInclusiveDates(stengt.start, stengt.slutt).intersect(periode)?.let {
+                    StengtPeriode(Periode(it.start, it.slutt), stengt.beskrivelse)
                 }
             }
             .toSet()
@@ -468,8 +468,7 @@ class UtbetalingService(
 
                     Periode.of(mengde.gyldigFra, gyldigTil)?.intersect(periode)?.let { overlappingPeriode ->
                         DeltakelsePeriode(
-                            start = overlappingPeriode.start,
-                            slutt = overlappingPeriode.slutt,
+                            periode = overlappingPeriode,
                             deltakelsesprosent = mengde.deltakelsesprosent,
                         )
                     }

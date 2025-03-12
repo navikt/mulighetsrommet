@@ -133,24 +133,21 @@ class UtbetalingQueriesTest : FunSpec({
                     input = UtbetalingBeregningForhandsgodkjent.Input(
                         sats = 20_205,
                         periode = periode,
-                        stengt = setOf(StengtPeriode(LocalDate.of(2023, 1, 10), LocalDate.of(2023, 1, 20), "Ferie")),
+                        stengt = setOf(StengtPeriode(Periode(LocalDate.of(2023, 1, 10), LocalDate.of(2023, 1, 20)), "Ferie")),
                         deltakelser = setOf(
                             DeltakelsePerioder(
                                 deltakelseId = deltakelse1Id,
                                 perioder = listOf(
                                     DeltakelsePeriode(
-                                        start = LocalDate.of(2023, 1, 1),
-                                        slutt = LocalDate.of(2023, 1, 10),
+                                        periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 1, 10)),
                                         deltakelsesprosent = 100.0,
                                     ),
                                     DeltakelsePeriode(
-                                        start = LocalDate.of(2023, 1, 10),
-                                        slutt = LocalDate.of(2023, 1, 20),
+                                        periode = Periode(LocalDate.of(2023, 1, 10), LocalDate.of(2023, 1, 20)),
                                         deltakelsesprosent = 50.0,
                                     ),
                                     DeltakelsePeriode(
-                                        start = LocalDate.of(2023, 1, 20),
-                                        slutt = LocalDate.of(2023, 2, 1),
+                                        periode = Periode(LocalDate.of(2023, 1, 20), LocalDate.of(2023, 2, 1)),
                                         deltakelsesprosent = 50.0,
                                     ),
                                 ),
@@ -159,8 +156,7 @@ class UtbetalingQueriesTest : FunSpec({
                                 deltakelseId = deltakelse2Id,
                                 perioder = listOf(
                                     DeltakelsePeriode(
-                                        start = LocalDate.of(2023, 1, 1),
-                                        slutt = LocalDate.of(2023, 2, 1),
+                                        periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 2, 1)),
                                         deltakelsesprosent = 100.0,
                                     ),
                                 ),
@@ -194,8 +190,7 @@ class UtbetalingQueriesTest : FunSpec({
                 val queries = UtbetalingQueries(session)
 
                 val deltakelsePeriode = DeltakelsePeriode(
-                    start = LocalDate.of(2023, 1, 1),
-                    slutt = LocalDate.of(2023, 1, 2),
+                    periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 1, 2)),
                     deltakelsesprosent = 100.0,
                 )
                 val deltakelse = DeltakelsePerioder(
