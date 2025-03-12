@@ -59,7 +59,7 @@ export function DelutbetalingRow({ tilsagn, delutbetaling, ansatt }: Props) {
       );
     else if (godkjentUtbetaling)
       return (
-        <HStack>
+        <HStack gap="4">
           <Metadata
             horizontal
             header="Behandlet av"

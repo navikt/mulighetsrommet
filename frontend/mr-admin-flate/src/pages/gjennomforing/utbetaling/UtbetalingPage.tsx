@@ -22,6 +22,7 @@ import { BankNoteIcon, PencilFillIcon, PiggybankIcon } from "@navikt/aksel-icons
 import {
   ActionMenu,
   Alert,
+  BodyShort,
   Box,
   Button,
   CopyButton,
@@ -70,10 +71,18 @@ export function UtbetalingPage() {
   const { gjennomforing, ansatt, historikk, utbetaling, delutbetalinger, tilsagn } =
     useUtbetalingPageData();
 
-  const [delutbetalingPerTilsagn, setDelutbetalingPerTilsagn] =
-    useState<{ id?: string; tilsagnId: string; belop: number; frigjorTilsagn: boolean }[]>(
-      delutbetalinger,
-    );
+  const [delutbetalingPerTilsagn, setDelutbetalingPerTilsagn] = useState<
+    { id?: string; tilsagnId: string; belop: number; frigjorTilsagn: boolean }[]
+  >(
+    delutbetalinger.map((d) => {
+      return {
+        id: d.id,
+        tilsagnId: d.tilsagnId,
+        belop: d.belop,
+        frigjorTilsagn: d.frigjorTilsagn,
+      };
+    }),
+  );
 
   const [endreUtbetaling, setEndreUtbetaling] = useState<boolean>(delutbetalinger.length === 0);
   const [error, setError] = useState<string | undefined>(undefined);
@@ -128,15 +137,15 @@ export function UtbetalingPage() {
         `&kostnadssted=${defaultTilsagn?.kostnadssted.enhetsnummer}`,
     );
   }
-
   function sendTilGodkjenning() {
+    const delutbetalingerr = delutbetalingPerTilsagn.map((d) => {
+      return { ...d, id: d.id ?? uuidv4() };
+    });
     if (utbetalesTotal <= 0) setError("Samlet beløp må være positivt");
     else {
       const body: OpprettDelutbetalingerRequest = {
         utbetalingId: utbetaling.id,
-        delutbetalinger: delutbetalingPerTilsagn.map((d) => {
-          return { ...d, id: d.id ?? uuidv4() };
-        }),
+        delutbetalinger: delutbetalingerr,
       };
 
       opprettMutation.mutate(body, {
@@ -254,6 +263,7 @@ export function UtbetalingPage() {
                           return (
                             <OpprettDelutbetalingRow
                               key={t.id}
+                              id={delutbetaling?.id}
                               tilsagn={t}
                               kanRedigere={kanRedigeres}
                               onDelutbetalingChange={(delutbetaling) =>
@@ -281,23 +291,25 @@ export function UtbetalingPage() {
                       })}
                       <Table.Row>
                         <Table.DataCell
-                          colSpan={5}
                           className="font-bold"
+                          colSpan={5}
                         >{`Beløp arrangør har sendt inn ${formaterNOK(utbetaling.beregning.belop)}`}</Table.DataCell>
-                        <Table.DataCell className="font-bold" colSpan={2}>
+                        <Table.DataCell colSpan={2} className="font-bold">
                           {formaterNOK(totalGjenstaendeBelop)}
                         </Table.DataCell>
                         <Table.DataCell className="font-bold">
                           {formaterNOK(utbetalesTotal)}
                         </Table.DataCell>
-                        <Table.DataCell colSpan={2} className="font-bold">
+                        <Table.DataCell colSpan={2}>
                           <HStack align="center">
                             <CopyButton
                               variant="action"
                               copyText={differanse.toString()}
                               size="small"
                             />
-                            {`Differanse ${formaterNOK(differanse)}`}
+                            <BodyShort weight="semibold">
+                              {`Differanse ${formaterNOK(differanse)}`}
+                            </BodyShort>
                           </HStack>
                         </Table.DataCell>
                       </Table.Row>

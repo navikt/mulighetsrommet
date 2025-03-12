@@ -8,15 +8,22 @@ import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { TilsagnStatusTag } from "./TilsagnTag";
 
 interface Props {
+  id?: string;
   tilsagn: TilsagnDto;
   belop: number;
   frigjorTilsagn: boolean;
   opprettelse?: Totrinnskontroll;
   kanRedigere: boolean;
-  onDelutbetalingChange: (d: { tilsagnId: string; belop: number; frigjorTilsagn: boolean }) => void;
+  onDelutbetalingChange: (d: {
+    id?: string;
+    tilsagnId: string;
+    belop: number;
+    frigjorTilsagn: boolean;
+  }) => void;
 }
 
 export function OpprettDelutbetalingRow({
+  id,
   tilsagn,
   belop,
   frigjorTilsagn,
@@ -33,6 +40,7 @@ export function OpprettDelutbetalingRow({
 
   function handleOnChange(belop: number, frigjorTilsagn: boolean) {
     onDelutbetalingChange({
+      id: id,
       tilsagnId: tilsagn.id,
       belop: belop,
       frigjorTilsagn: frigjorTilsagn,
@@ -87,9 +95,8 @@ export function OpprettDelutbetalingRow({
         </Checkbox>
       </Table.DataCell>
       <Table.DataCell className={error && "align-top"}>
-        {godkjentTilsagn ? (
+        {godkjentTilsagn && kanRedigere ? (
           <TextField
-            readOnly={!kanRedigere}
             size="small"
             error={error}
             label="Utbetales"
@@ -111,7 +118,7 @@ export function OpprettDelutbetalingRow({
             value={endretBelop}
           />
         ) : (
-          "-"
+          (belop ?? "-")
         )}
       </Table.DataCell>
       <Table.DataCell className={error && "align-top pt-2"} colSpan={2}>
