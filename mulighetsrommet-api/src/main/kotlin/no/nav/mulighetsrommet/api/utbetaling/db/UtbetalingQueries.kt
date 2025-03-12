@@ -24,7 +24,8 @@ class UtbetalingQueries(private val session: Session) {
                 kid,
                 periode,
                 prismodell,
-                innsender
+                innsender,
+                beskrivelse
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
@@ -33,7 +34,8 @@ class UtbetalingQueries(private val session: Session) {
                 :kid,
                 daterange(:periode_start, :periode_slutt),
                 :prismodell::prismodell,
-                :innsender
+                :innsender,
+                :beskrivelse
             ) on conflict (id) do update set
                 gjennomforing_id = excluded.gjennomforing_id,
                 frist_for_godkjenning = excluded.frist_for_godkjenning,
@@ -41,7 +43,8 @@ class UtbetalingQueries(private val session: Session) {
                 kid = excluded.kid,
                 periode = excluded.periode,
                 prismodell = excluded.prismodell,
-                innsender = excluded.innsender
+                innsender = excluded.innsender,
+                beskrivelse = excluded.beskrivelse
         """.trimIndent()
 
         val params = mapOf(
@@ -57,6 +60,7 @@ class UtbetalingQueries(private val session: Session) {
                 is UtbetalingBeregningFri -> Prismodell.FRI.name
             },
             "innsender" to dbo.innsender?.value,
+            "beskrivelse" to dbo.beskrivelse,
         )
 
         execute(queryOf(utbetalingQuery, params))
@@ -331,6 +335,7 @@ class UtbetalingQueries(private val session: Session) {
             ),
             innsender = innsender,
             createdAt = localDateTime("created_at"),
+            beskrivelse = stringOrNull("beskrivelse"),
         )
     }
 

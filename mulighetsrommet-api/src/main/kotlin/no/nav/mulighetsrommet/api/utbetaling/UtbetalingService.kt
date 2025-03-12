@@ -122,6 +122,7 @@ class UtbetalingService(
             kid = forrigeKrav?.betalingsinformasjon?.kid,
             periode = periode,
             innsender = null,
+            beskrivelse = null,
         )
     }
 
@@ -165,6 +166,7 @@ class UtbetalingService(
                         request.periode.slutt,
                     ),
                     innsender = UtbetalingDto.Innsender.NavAnsatt(navIdent),
+                    beskrivelse = request.beskrivelse,
                 ),
             )
             val dto = getOrError(utbetalingId)
