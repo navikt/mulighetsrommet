@@ -249,6 +249,6 @@ val ApplicationConfigDev = AppConfig(
         enable = true,
     ),
     okonomi = OkonomiConfig(
-        minimumTilsagnPeriodeStart = Tiltakskode.entries.associateWith { LocalDate.of(2025, 1, 1) },
+        minimumTilsagnPeriodeStart = Tiltakskode.entries.associateWith { LocalDate.of(2023, 1, 1) },
     ),
 )
