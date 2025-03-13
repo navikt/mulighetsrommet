@@ -34,7 +34,8 @@ class TilsagnQueries(private val session: Session) {
                 arrangor_id,
                 beregning,
                 status,
-                type
+                type,
+                belop_gjenstaende
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
@@ -45,7 +46,8 @@ class TilsagnQueries(private val session: Session) {
                 :arrangor_id::uuid,
                 :beregning::jsonb,
                 :status::tilsagn_status,
-                :type::tilsagn_type
+                :type::tilsagn_type,
+                :belop_gjenstaende
             )
             on conflict (id) do update set
                 gjennomforing_id        = excluded.gjennomforing_id,
@@ -56,7 +58,8 @@ class TilsagnQueries(private val session: Session) {
                 arrangor_id             = excluded.arrangor_id,
                 beregning               = excluded.beregning,
                 status                  = excluded.status,
-                type                    = excluded.type
+                type                    = excluded.type,
+                belop_gjenstaende       = excluded.belop_gjenstaende
         """.trimIndent()
 
         val params = mapOf(
@@ -70,6 +73,7 @@ class TilsagnQueries(private val session: Session) {
             "arrangor_id" to dbo.arrangorId,
             "beregning" to Json.encodeToString<TilsagnBeregning>(dbo.beregning),
             "type" to dbo.type.name,
+            "belop_gjenstaende" to dbo.beregning.output.belop,
         )
 
         execute(queryOf(query, params))
@@ -88,6 +92,22 @@ class TilsagnQueries(private val session: Session) {
                 besluttetTidspunkt = null,
             ),
         )
+    }
+
+    fun setGjenstaendeBelop(id: UUID, belop: Int) = with(session) {
+        @Language("PostgreSQL")
+        val query = """
+            update tilsagn set
+                belop_gjenstaende = :belop
+            where id = :id::uuid
+        """.trimIndent()
+
+        val params = mapOf(
+            "id" to id,
+            "belop" to belop,
+        )
+
+        execute(queryOf(query, params))
     }
 
     fun getNextLopenummeByGjennomforing(gjennomforingId: UUID): Int {
@@ -216,6 +236,7 @@ class TilsagnQueries(private val session: Session) {
                 tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
                 navn = string("gjennomforing_navn"),
             ),
+            belopGjenstaende = int("belop_gjenstaende"),
             periode = periode("periode"),
             lopenummer = int("lopenummer"),
             bestillingsnummer = string("bestillingsnummer"),
@@ -252,6 +273,7 @@ class TilsagnQueries(private val session: Session) {
             gjennomforing = ArrangorflateTilsagn.Gjennomforing(
                 navn = string("gjennomforing_navn"),
             ),
+            gjenstaendeBelop = int("belop_gjenstaende"),
             tiltakstype = ArrangorflateTilsagn.Tiltakstype(
                 navn = string("tiltakstype_navn"),
             ),

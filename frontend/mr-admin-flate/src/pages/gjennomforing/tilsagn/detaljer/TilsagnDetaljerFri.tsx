@@ -57,6 +57,10 @@ export function TilsagnDetaljerFri({ tilsagn }: Props) {
               header={tilsagnTekster.beregning.belop.label}
               verdi={formaterNOK(tilsagn.beregning.output.belop)}
             />
+            <Metadata
+              header={tilsagnTekster.belopGjenstaende.label}
+              verdi={formaterNOK(tilsagn.belopGjenstaende)}
+            />
           </Bolk>
         </VStack>
       </TwoColumnGrid>

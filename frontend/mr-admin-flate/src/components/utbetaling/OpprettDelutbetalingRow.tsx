@@ -78,9 +78,7 @@ export function OpprettDelutbetalingRow({
       <Table.DataCell className={cellClass}>{formaterPeriodeSlutt(tilsagn.periode)}</Table.DataCell>
       <Table.DataCell className={cellClass}>{tilsagnTypeToString(tilsagn.type)}</Table.DataCell>
       <Table.DataCell className={cellClass}>{tilsagn.kostnadssted.navn}</Table.DataCell>
-      <Table.DataCell className={cellClass}>
-        {formaterNOK(tilsagn.beregning.output.belop)}
-      </Table.DataCell>
+      <Table.DataCell className={cellClass}>{formaterNOK(tilsagn.belopGjenstaende)}</Table.DataCell>
       <Table.DataCell className={cellClass}>
         <Checkbox
           hideLabel

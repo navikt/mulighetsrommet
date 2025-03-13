@@ -6,7 +6,6 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.ints.exactly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -864,6 +863,9 @@ class UtbetalingServiceTest : FunSpec({
                 it.opprettelse.behandletAv shouldBe Tiltaksadministrasjon
                 it.opprettelse.besluttetAv shouldBe Tiltaksadministrasjon
             }
+            database.run { queries.tilsagn.get(Tilsagn1.id) } should {
+                it!!.belopGjenstaende shouldBe (Tilsagn1.beregning.output.belop - 1000)
+            }
         }
 
         test("ingen automatisk utbetaling hvis tilsagn ikke er godkjent") {
@@ -979,6 +981,10 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(
                     utbetaling1Forhandsgodkjent.copy(
                         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                        beregning = getForhandsgodkjentBeregning(
+                            periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                            belop = 100,
+                        ),
                     ),
                     utbetaling2.copy(
                         periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),

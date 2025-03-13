@@ -117,7 +117,7 @@ export function UtbetalingPage() {
 
   const totalGjenstaendeBelop = tilsagn
     .filter((tilsagn) => tilsagn.status === TilsagnStatus.GODKJENT)
-    .reduce((acc, t) => acc + t.beregning.output.belop, 0);
+    .reduce((acc, t) => acc + t.belopGjenstaende, 0);
 
   const differanse = utbetaling.beregning.belop - utbetalesTotal;
 
