@@ -4,7 +4,7 @@ drop view if exists tilsagn_arrangorflate_view;
 alter table tilsagn add column gjenstaende_belop int;
 
 update tilsagn set gjenstaende_belop =
-    (tilsagn.beregning->>'belop')::int
+    (tilsagn.beregning->'output'->>'belop')::int
     - coalesce((
         select sum(d.belop) from delutbetaling d
         where d.tilsagn_id = tilsagn.id

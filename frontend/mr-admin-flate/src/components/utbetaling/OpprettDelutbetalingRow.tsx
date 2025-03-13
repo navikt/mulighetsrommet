@@ -79,7 +79,7 @@ export function OpprettDelutbetalingRow({
       <Table.DataCell className={cellClass}>{tilsagnTypeToString(tilsagn.type)}</Table.DataCell>
       <Table.DataCell className={cellClass}>{tilsagn.kostnadssted.navn}</Table.DataCell>
       <Table.DataCell className={cellClass}>
-        {formaterNOK(tilsagn.beregning.output.belop)}
+        {formaterNOK(tilsagn.gjenstaendeBelop)}
       </Table.DataCell>
       <Table.DataCell className={cellClass}>
         <Checkbox
