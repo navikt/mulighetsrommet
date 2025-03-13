@@ -1011,7 +1011,7 @@ class UtbetalingServiceTest : FunSpec({
             delutbetaling2[0].frigjorTilsagn shouldBe true
             delutbetaling2[0].shouldBeTypeOf<DelutbetalingDto.DelutbetalingOverfortTilUtbetaling>()
             verify(exactly = 1) {
-                tilsagnService.frigjorAutomatisk(Tilsagn1.id)
+                tilsagnService.frigjorAutomatisk(Tilsagn1.id, any())
             }
         }
     }

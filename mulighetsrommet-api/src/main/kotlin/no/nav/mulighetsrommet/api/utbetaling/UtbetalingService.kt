@@ -397,7 +397,7 @@ class UtbetalingService(
         queries.tilsagn.setGjenstaendeBelop(tilsagn.id, tilsagn.belopGjenstaende - delutbetaling.belop)
         okonomi.scheduleBehandleGodkjenteUtbetalinger(delutbetaling.tilsagnId, session)
         if (delutbetaling.frigjorTilsagn) {
-            tilsagnService.frigjorAutomatisk(delutbetaling.tilsagnId)
+            tilsagnService.frigjorAutomatisk(delutbetaling.tilsagnId, this)
         }
         logEndring(
             "Utbetaling godkjent",
