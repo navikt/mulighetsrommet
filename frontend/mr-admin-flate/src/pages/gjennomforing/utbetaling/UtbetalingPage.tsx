@@ -10,6 +10,7 @@ import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { formaterDato, formaterPeriode } from "@/utils/Utils";
 import {
+  DelutbetalingRequest,
   FieldError,
   NavAnsattRolle,
   OpprettDelutbetalingerRequest,
@@ -74,23 +75,21 @@ export function UtbetalingPage() {
     useUtbetalingPageData();
 
   const [delutbetalingPerTilsagn, setDelutbetalingPerTilsagn] = useState<
-    { id?: string; tilsagnId: string; belop: number; frigjorTilsagn: boolean }[]
+    { id?: string; tilsagnId: string; belop: number; frigjorTilsagn: boolean; type?: string }[]
   >(
-    delutbetalinger
-      .filter((d) => d.type === "DELUTBETALING_AVVIST")
-      .map((d) => {
-        return {
-          id: d.id,
-          tilsagnId: d.tilsagnId,
-          belop: d.belop,
-          frigjorTilsagn: d.frigjorTilsagn,
-        };
-      }),
+    delutbetalinger.map((d) => {
+      return {
+        id: d.id,
+        tilsagnId: d.tilsagnId,
+        belop: d.belop,
+        frigjorTilsagn: d.frigjorTilsagn,
+        type: d.type,
+      };
+    }),
   );
 
   const [endreUtbetaling, setEndreUtbetaling] = useState<boolean>(delutbetalinger.length === 0);
   const [error, setError] = useState<string | undefined>(undefined);
-
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
@@ -141,14 +140,20 @@ export function UtbetalingPage() {
     );
   }
   function sendTilGodkjenning() {
-    const delutbetalingerr = delutbetalingPerTilsagn.map((d) => {
-      return { ...d, id: d.id ?? uuidv4() };
-    });
+    const delutbetalingReq: DelutbetalingRequest[] = delutbetalingPerTilsagn
+      .filter((d) => d.type === "DELUTBETALING_AVVIST" || d.type === undefined)
+      .map((d) => {
+        return {
+          ...d,
+          id: d.id ?? uuidv4(),
+        };
+      });
+
     if (utbetalesTotal <= 0) setError("Samlet beløp må være positivt");
     else {
       const body: OpprettDelutbetalingerRequest = {
         utbetalingId: utbetaling.id,
-        delutbetalinger: delutbetalingerr,
+        delutbetalinger: delutbetalingReq,
       };
 
       opprettMutation.mutate(body, {
@@ -273,6 +278,7 @@ export function UtbetalingPage() {
                               key={t.id}
                               id={delutbetaling?.id}
                               tilsagn={t}
+                              type={delutbetaling?.type}
                               kanRedigere={kanRedigeres}
                               onDelutbetalingChange={(delutbetaling) =>
                                 setDelutbetalingPerTilsagn([
@@ -308,7 +314,7 @@ export function UtbetalingPage() {
                         <Table.DataCell className="font-bold">
                           {formaterNOK(utbetalesTotal)}
                         </Table.DataCell>
-                        <Table.DataCell className="font-bold">
+                        <Table.DataCell colSpan={2} className="font-bold">
                           <HStack align="center" className="w-80">
                             <CopyButton
                               variant="action"

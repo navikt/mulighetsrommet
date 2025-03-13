@@ -13,12 +13,14 @@ interface Props {
   belop: number;
   frigjorTilsagn: boolean;
   opprettelse?: Totrinnskontroll;
+  type?: string;
   kanRedigere: boolean;
   onDelutbetalingChange: (d: {
     id?: string;
     tilsagnId: string;
     belop: number;
     frigjorTilsagn: boolean;
+    type?: string;
   }) => void;
 }
 
@@ -27,6 +29,7 @@ export function OpprettDelutbetalingRow({
   tilsagn,
   belop,
   frigjorTilsagn,
+  type,
   opprettelse,
   kanRedigere,
   onDelutbetalingChange,
@@ -44,6 +47,7 @@ export function OpprettDelutbetalingRow({
       tilsagnId: tilsagn.id,
       belop: belop,
       frigjorTilsagn: frigjorTilsagn,
+      type: type,
     });
   }
   const cellClass = error && "align-top";
