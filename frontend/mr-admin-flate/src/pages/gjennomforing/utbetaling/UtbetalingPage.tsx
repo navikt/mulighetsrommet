@@ -14,7 +14,6 @@ import {
   NavAnsattRolle,
   OpprettDelutbetalingerRequest,
   Prismodell,
-  TilsagnDefaultsRequest,
   TilsagnStatus,
   TilsagnType,
 } from "@mr/api-client-v2";
@@ -23,6 +22,7 @@ import { BankNoteIcon, PencilFillIcon, PiggybankIcon } from "@navikt/aksel-icons
 import {
   ActionMenu,
   Alert,
+  BodyShort,
   Box,
   Button,
   CopyButton,
@@ -34,6 +34,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
+import { OpprettDelutbetalingRow } from "@/components/utbetaling/OpprettDelutbetalingRow";
 import { v4 as uuidv4 } from "uuid";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
 import {
@@ -72,36 +73,32 @@ export function UtbetalingPage() {
   const { gjennomforing, ansatt, historikk, utbetaling, delutbetalinger, tilsagn } =
     useUtbetalingPageData();
 
-  const [belopPerTilsagn, setBelopPerTilsagn] = useState<Map<string, number>>(
-    new Map(
-      tilsagn
-        .filter((tilsagn) => tilsagn.status === TilsagnStatus.GODKJENT)
-        .map((t) => [t.id, delutbetalinger?.find((d) => d.tilsagnId === t.id)?.belop ?? 0]),
-    ),
+  const [delutbetalingPerTilsagn, setDelutbetalingPerTilsagn] = useState<
+    { id?: string; tilsagnId: string; belop: number; frigjorTilsagn: boolean }[]
+  >(
+    delutbetalinger
+      .filter((d) => d.type === "DELUTBETALING_AVVIST")
+      .map((d) => {
+        return {
+          id: d.id,
+          tilsagnId: d.tilsagnId,
+          belop: d.belop,
+          frigjorTilsagn: d.frigjorTilsagn,
+        };
+      }),
   );
 
-  const [frigjorTilsagn, setFrigjorTilsagn] = useState<Map<string, boolean>>(
-    new Map(
-      tilsagn.map((t) => [
-        t.id,
-        delutbetalinger?.find((d) => d.tilsagnId === t.id)?.frigjorTilsagn ?? false,
-      ]),
-    ),
-  );
-
-  const skriveTilgang = ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV);
-  const avvistUtbetaling = delutbetalinger.find((d) => d.type === "DELUTBETALING_AVVIST");
-  const [endreUtbetaling, setEndreUtbetaling] = useState<boolean>(!avvistUtbetaling);
+  const [endreUtbetaling, setEndreUtbetaling] = useState<boolean>(delutbetalinger.length === 0);
   const [error, setError] = useState<string | undefined>(undefined);
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
 
-  const kanRedigeres =
-    skriveTilgang &&
-    tilsagn.some((t) => t.status === TilsagnStatus.GODKJENT) &&
-    (delutbetalinger.length != tilsagn.length || (endreUtbetaling && avvistUtbetaling));
+  const skriveTilgang = ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV);
+  const avvistUtbetaling = delutbetalinger.find((d) => d.type === "DELUTBETALING_AVVIST");
+  const kanRedigeres: boolean =
+    skriveTilgang && tilsagn.some((t) => t.status === TilsagnStatus.GODKJENT) && endreUtbetaling;
 
   const brodsmuler: Brodsmule[] = [
     { tittel: "Gjennomføringer", lenke: `/gjennomforinger` },
@@ -116,80 +113,48 @@ export function UtbetalingPage() {
     { tittel: "Utbetaling" },
   ];
 
-  function utbetalesTotal(): number {
-    return [...belopPerTilsagn.values()].reduce((acc, val) => acc + val, 0);
-  }
+  const utbetalesTotal = delutbetalingPerTilsagn.reduce((acc, d) => acc + d.belop, 0);
 
-  function totalGjenstaendeBelop(): number {
-    return tilsagn
-      .map((tilsagn) =>
-        tilsagn.status === TilsagnStatus.GODKJENT ? tilsagn.beregning.output.belop : 0,
-      )
-      .reduce((acc, val) => acc + val, 0);
-  }
+  const totalGjenstaendeBelop = tilsagn
+    .filter((tilsagn) => tilsagn.status === TilsagnStatus.GODKJENT)
+    .reduce((acc, t) => acc + t.beregning.output.belop, 0);
 
-  function differanse(): number {
-    return utbetaling.beregning.belop - utbetalesTotal();
-  }
+  const differanse = utbetaling.beregning.belop - utbetalesTotal;
 
-  function ekstraTilsagnDefaults(): TilsagnDefaultsRequest {
+  function ekstraTilsagnDefaults() {
     const defaultTilsagn = tilsagn.length === 1 ? tilsagn[0] : undefined;
     const defaultBelop =
       tilsagn.length === 0
         ? utbetaling.beregning.belop
         : defaultTilsagn
-          ? utbetaling.beregning.belop - (belopPerTilsagn.get(defaultTilsagn.id) ?? 0)
+          ? utbetaling.beregning.belop -
+            (delutbetalingPerTilsagn.find((d) => d.tilsagnId === defaultTilsagn.id)?.belop ?? 0)
           : 0;
-    return {
-      gjennomforingId: gjennomforingId!,
-      type: TilsagnType.EKSTRATILSAGN,
-      prismodell: Prismodell.FRI,
-      belop: defaultBelop,
-      periodeStart: utbetaling.periode.start,
-      periodeSlutt: utbetaling.periode.slutt,
-      kostnadssted: defaultTilsagn?.kostnadssted.enhetsnummer,
-    };
-  }
-
-  function opprettTilsagn(defaults: TilsagnDefaultsRequest) {
-    navigate(
-      `/gjennomforinger/${defaults.gjennomforingId}/tilsagn/opprett-tilsagn` +
-        `?type=${defaults.type}` +
-        `&prismodell=${defaults.prismodell}` +
-        `&belop=${defaults.belop}` +
-        `&periodeStart=${defaults.periodeStart}` +
-        `&periodeSlutt=${defaults.periodeSlutt}` +
-        `&kostnadssted=${defaults.kostnadssted}`,
+    return navigate(
+      `/gjennomforinger/${gjennomforing.id}/tilsagn/opprett-tilsagn` +
+        `?type=${TilsagnType.EKSTRATILSAGN}` +
+        `&prismodell=${Prismodell.FRI}` +
+        `&belop=${defaultBelop}` +
+        `&periodeStart=${utbetaling.periode.start}` +
+        `&periodeSlutt=${utbetaling.periode.slutt}` +
+        `&kostnadssted=${defaultTilsagn?.kostnadssted.enhetsnummer}`,
     );
   }
-
   function sendTilGodkjenning() {
-    if (utbetalesTotal() <= 0) setError("Samlet beløp må være positivt");
-    else if (utbetalesTotal() > utbetaling.beregning.belop)
-      setError("Kan ikke betale ut mer enn det er krav på");
+    const delutbetalingerr = delutbetalingPerTilsagn.map((d) => {
+      return { ...d, id: d.id ?? uuidv4() };
+    });
+    if (utbetalesTotal <= 0) setError("Samlet beløp må være positivt");
     else {
       const body: OpprettDelutbetalingerRequest = {
         utbetalingId: utbetaling.id,
-        delutbetalinger: [
-          ...tilsagn
-            .filter(
-              (t) =>
-                !delutbetalinger.find(
-                  (d) => d.tilsagnId === t.id && d.type !== "DELUTBETALING_AVVIST",
-                ) && belopPerTilsagn.get(t.id),
-            )
-            .map((tilsagn) => ({
-              id: delutbetalinger?.find((d) => d.tilsagnId === tilsagn.id)?.id ?? uuidv4(),
-              tilsagnId: tilsagn.id,
-              belop: belopPerTilsagn.get(tilsagn.id) ?? 0,
-              frigjorTilsagn: frigjorTilsagn.get(tilsagn.id) ?? false,
-            })),
-        ],
+        delutbetalinger: delutbetalingerr,
       };
 
       opprettMutation.mutate(body, {
         onSuccess: async () => {
           setError(undefined);
+          setEndreUtbetaling(false);
           await queryClient.invalidateQueries({
             queryKey: ["utbetaling", utbetaling.id],
             refetchType: "all",
@@ -254,38 +219,31 @@ export function UtbetalingPage() {
                 <Separator />
                 <HStack justify="space-between">
                   <Heading size="medium">Tilsagn</Heading>
-                  {skriveTilgang &&
-                    (avvistUtbetaling ? (
-                      <ActionMenu>
-                        <ActionMenu.Trigger>
-                          <Button variant="primary" size="small">
-                            Handlinger
-                          </Button>
-                        </ActionMenu.Trigger>
-                        <ActionMenu.Content>
-                          <ActionMenu.Item
-                            icon={<PiggybankIcon />}
-                            onSelect={() => opprettTilsagn(ekstraTilsagnDefaults())}
-                          >
-                            Opprett tilsagn
-                          </ActionMenu.Item>
+                  {skriveTilgang && (
+                    <ActionMenu>
+                      <ActionMenu.Trigger>
+                        <Button variant="primary" size="small">
+                          Handlinger
+                        </Button>
+                      </ActionMenu.Trigger>
+                      <ActionMenu.Content>
+                        <ActionMenu.Item
+                          icon={<PiggybankIcon />}
+                          onSelect={() => ekstraTilsagnDefaults()}
+                        >
+                          Opprett tilsagn
+                        </ActionMenu.Item>
+                        {avvistUtbetaling && (
                           <ActionMenu.Item
                             icon={<PencilFillIcon />}
                             onSelect={() => setEndreUtbetaling(true)}
                           >
                             Endre utbetaling
                           </ActionMenu.Item>
-                        </ActionMenu.Content>
-                      </ActionMenu>
-                    ) : (
-                      <Button
-                        size="small"
-                        type="button"
-                        onClick={() => opprettTilsagn(ekstraTilsagnDefaults())}
-                      >
-                        Opprett ekstratilsagn
-                      </Button>
-                    ))}
+                        )}
+                      </ActionMenu.Content>
+                    </ActionMenu>
+                  )}
                 </HStack>
                 {tilsagn.length < 1 ? (
                   <Alert variant="info">Tilsagn mangler</Alert>
@@ -307,50 +265,59 @@ export function UtbetalingPage() {
                     </Table.Header>
                     <Table.Body>
                       {tilsagn.map((t) => {
-                        return (
-                          <DelutbetalingRow
-                            key={t.id}
-                            utbetaling={utbetaling}
-                            tilsagn={t}
-                            delutbetaling={delutbetalinger.find((d) => d.tilsagnId === t.id)}
-                            ansatt={ansatt}
-                            endreUtbetaling={endreUtbetaling}
-                            onBelopChange={(belop) =>
-                              setBelopPerTilsagn((prevMap) => {
-                                const newMap = new Map(prevMap);
-                                newMap.set(t.id, belop);
-                                return newMap;
-                              })
-                            }
-                            onFrigjorTilsagnChange={(frigjorTilsagn) =>
-                              setFrigjorTilsagn((prevMap) => {
-                                const newMap = new Map(prevMap);
-                                newMap.set(t.id, frigjorTilsagn);
-                                return newMap;
-                              })
-                            }
-                          />
-                        );
+                        const delutbetaling = delutbetalinger.find((d) => d.tilsagnId == t.id);
+
+                        if (!delutbetaling || delutbetaling.type === "DELUTBETALING_AVVIST") {
+                          return (
+                            <OpprettDelutbetalingRow
+                              key={t.id}
+                              id={delutbetaling?.id}
+                              tilsagn={t}
+                              kanRedigere={kanRedigeres}
+                              onDelutbetalingChange={(delutbetaling) =>
+                                setDelutbetalingPerTilsagn([
+                                  ...delutbetalingPerTilsagn.filter(
+                                    (d) => d.tilsagnId !== delutbetaling.tilsagnId,
+                                  ),
+                                  delutbetaling,
+                                ])
+                              }
+                              opprettelse={delutbetaling?.opprettelse}
+                              belop={delutbetaling?.belop ?? 0}
+                              frigjorTilsagn={delutbetaling?.frigjorTilsagn ?? false}
+                            />
+                          );
+                        } else
+                          return (
+                            <DelutbetalingRow
+                              key={t.id}
+                              tilsagn={t}
+                              delutbetaling={delutbetaling}
+                              ansatt={ansatt}
+                            />
+                          );
                       })}
                       <Table.Row>
                         <Table.DataCell
-                          colSpan={5}
                           className="font-bold"
+                          colSpan={5}
                         >{`Beløp arrangør har sendt inn ${formaterNOK(utbetaling.beregning.belop)}`}</Table.DataCell>
-                        <Table.DataCell className="font-bold" colSpan={2}>
-                          {formaterNOK(totalGjenstaendeBelop())}
+                        <Table.DataCell colSpan={2} className="font-bold">
+                          {formaterNOK(totalGjenstaendeBelop)}
                         </Table.DataCell>
                         <Table.DataCell className="font-bold">
-                          {formaterNOK(utbetalesTotal())}
+                          {formaterNOK(utbetalesTotal)}
                         </Table.DataCell>
                         <Table.DataCell className="font-bold">
                           <HStack align="center" className="w-80">
                             <CopyButton
                               variant="action"
-                              copyText={differanse().toString()}
+                              copyText={differanse.toString()}
                               size="small"
                             />
-                            {`Differanse ${formaterNOK(differanse())}`}
+                            <BodyShort weight="semibold">
+                              {`Differanse ${formaterNOK(differanse)}`}
+                            </BodyShort>
                           </HStack>
                         </Table.DataCell>
                       </Table.Row>
