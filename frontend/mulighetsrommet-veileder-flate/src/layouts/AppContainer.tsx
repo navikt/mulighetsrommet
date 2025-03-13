@@ -1,8 +1,8 @@
-import styles from "./AppContainer.module.scss";
 import React, { ReactNode } from "react";
 import { ErrorFallback } from "@/utils/ErrorFallback";
 import { ErrorBoundary } from "react-error-boundary";
 import { TiltakLoader } from "@/components/TiltakLoader";
+import styles from "./AppContainer.module.scss";
 
 interface Props {
   header?: ReactNode;

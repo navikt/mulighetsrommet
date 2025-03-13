@@ -8,7 +8,6 @@ import {
 } from "@mr/api-client-v2";
 import { Alert, BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
-import styles from "./PameldingForGruppetiltak.module.scss";
 import { useFeatureToggle } from "@/api/feature-toggles";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { useDeltakelse } from "@/api/queries/useDeltakelse";
@@ -48,7 +47,7 @@ export function PameldingForGruppetiltak({
             <BodyShort>
               <Button
                 role="link"
-                className={styles.knapp_som_lenke}
+                className="border-none text-black underline bg-transparent p-0 m-0 hover:bg-transparent hover:no-underline"
                 size="xsmall"
                 onClick={vedtakRoute.navigate}
               >

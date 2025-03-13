@@ -1,14 +1,17 @@
-import { DelutbetalingDto } from "@mr/api-client-v2";
 import { Tag } from "@navikt/ds-react";
 
 interface Props {
-  delutbetaling: DelutbetalingDto;
+  type:
+    | "DELUTBETALING_UTBETALT"
+    | "DELUTBETALING_OVERFORT_TIL_UTBETALING"
+    | "DELUTBETALING_TIL_GODKJENNING"
+    | "DELUTBETALING_AVVIST";
 }
 
-export function DelutbetalingTag({ delutbetaling }: Props) {
+export function DelutbetalingTag({ type }: Props) {
   const baseTagClasses = "min-w-[140px] text-center whitespace-nowrap";
 
-  switch (delutbetaling.type) {
+  switch (type) {
     case "DELUTBETALING_UTBETALT":
       return (
         <Tag size="small" variant="success" className={baseTagClasses}>
