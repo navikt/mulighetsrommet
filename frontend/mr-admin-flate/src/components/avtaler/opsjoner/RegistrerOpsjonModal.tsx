@@ -1,18 +1,17 @@
+import { useRegistrerOpsjon } from "@/api/avtaler/useRegistrerOpsjon";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert, BodyLong, BodyShort, Button, Modal, VStack } from "@navikt/ds-react";
 import { AvtaleDto, OpsjonLoggRequest, OpsjonStatus } from "@mr/api-client-v2";
+import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
+import { Alert, BodyLong, BodyShort, Button, Modal, VStack } from "@navikt/ds-react";
 import { RefObject } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { useRegistrerOpsjon } from "@/api/avtaler/useRegistrerOpsjon";
-import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { OpsjonerRegistrert } from "./OpsjonerRegistrert";
+import { RegistrerOpsjonForm } from "./RegistrerOpsjonForm";
 import {
   InferredRegistrerOpsjonSchema,
   Opsjonsvalg,
   RegistrerOpsjonSchema,
 } from "./RegistrerOpsjonSchema";
-import { RegistrerOpsjonForm } from "./RegistrerOpsjonForm";
-import { useRevalidator } from "react-router";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
@@ -21,7 +20,6 @@ interface Props {
 
 export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
   const mutation = useRegistrerOpsjon();
-  const revalidator = useRevalidator();
   const form = useForm<InferredRegistrerOpsjonSchema>({
     resolver: zodResolver(RegistrerOpsjonSchema),
     defaultValues: {},
@@ -59,7 +57,6 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
     reset();
     mutation.reset();
     modalRef?.current?.close();
-    revalidator.revalidate();
   }
 
   function sluttDatoErLikEllerPassererMaksVarighet(): boolean {

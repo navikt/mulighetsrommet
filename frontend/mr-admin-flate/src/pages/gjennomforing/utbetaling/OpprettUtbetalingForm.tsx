@@ -36,7 +36,7 @@ const Schema = z
       .max(300),
     kontonummer: z
       .string({ required_error: "Du må skrive inn kontonummer" })
-      .length(11, { message: "Kontonummer består av 11 siffer" }),
+      .regex(/^\d{11}$/, { message: "Kontonummer består av 11 siffer" }),
     kidNummer: z.string().optional(),
     belop: z
       .string({ required_error: "Du må skrive inn et beløp" })

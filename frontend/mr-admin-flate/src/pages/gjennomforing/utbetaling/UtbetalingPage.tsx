@@ -94,7 +94,6 @@ export function UtbetalingPage() {
   const [endreUtbetaling, setEndreUtbetaling] = useState<boolean>(!avvistUtbetaling);
   const [error, setError] = useState<string | undefined>(undefined);
 
-  const revalidator = useRevalidator();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
@@ -195,7 +194,6 @@ export function UtbetalingPage() {
             queryKey: ["utbetaling", utbetaling.id],
             refetchType: "all",
           });
-          revalidator.revalidate();
         },
         onError: (error) => {
           if (isValidationError(error)) {
