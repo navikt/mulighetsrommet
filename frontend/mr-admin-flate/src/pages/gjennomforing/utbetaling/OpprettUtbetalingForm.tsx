@@ -10,12 +10,12 @@ import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import z from "zod";
+import { useCreateManuellUtbetaling } from "../../../api/utbetaling/useCreateOpprettManuellUtbetaling";
 import { Separator } from "../../../components/detaljside/Metadata";
 import { GjennomforingDetaljerMini } from "../../../components/gjennomforing/GjennomforingDetaljerMini";
 import { ControlledDateInput } from "../../../components/skjema/ControlledDateInput";
 import { FormGroup } from "../../../components/skjema/FormGroup";
 import { addYear } from "../../../utils/Utils";
-import { useCreateManuellUtbetaling } from "../../../api/utbetaling/useCreateOpprettManuellUtbetaling";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -37,7 +37,10 @@ const Schema = z
     kontonummer: z
       .string({ required_error: "Du må skrive inn kontonummer" })
       .regex(/^\d{11}$/, { message: "Kontonummer består av 11 siffer" }),
-    kidNummer: z.string().optional(),
+    kidNummer: z
+      .string()
+      .regex(/^\d{2,25}$/, { message: "KID-nummer må være mellom 2 og 25 siffer" })
+      .optional(),
     belop: z
       .string({ required_error: "Du må skrive inn et beløp" })
       .min(1, { message: "Du må skrive inn et beløp" }),

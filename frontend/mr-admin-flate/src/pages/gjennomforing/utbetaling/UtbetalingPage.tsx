@@ -33,7 +33,7 @@ import {
 } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { useNavigate, useParams, useRevalidator } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { v4 as uuidv4 } from "uuid";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
 import {
@@ -43,9 +43,9 @@ import {
   utbetalingQuery,
 } from "./utbetalingPageLoader";
 
+import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { useAdminGjennomforingById } from "../../../api/gjennomforing/useAdminGjennomforingById";
-import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
