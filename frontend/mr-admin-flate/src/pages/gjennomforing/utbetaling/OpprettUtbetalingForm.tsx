@@ -171,7 +171,7 @@ export function OpprettUtbetalingForm({ gjennomforing }: Props) {
                   Avbryt
                 </Button>
                 <Button size="small" type="submit">
-                  Opprett og gå til kostnadsfordeling
+                  Opprett
                 </Button>
               </HStack>
             </FormGroup>
