@@ -345,8 +345,8 @@ export function UtbetalingPage() {
                         <Table.DataCell className="font-bold">
                           {formaterNOK(utbetalesTotal())}
                         </Table.DataCell>
-                        <Table.DataCell colSpan={2} className="font-bold">
-                          <HStack align="center">
+                        <Table.DataCell className="font-bold">
+                          <HStack align="center" className="w-80">
                             <CopyButton
                               variant="action"
                               copyText={differanse().toString()}
@@ -371,7 +371,7 @@ export function UtbetalingPage() {
                   <Metadata
                     horizontal
                     header="KID"
-                    verdi={utbetaling.betalingsinformasjon?.kid ?? "N/A"}
+                    verdi={utbetaling.betalingsinformasjon?.kid || "-"}
                   />
                 </VStack>
               </VStack>
