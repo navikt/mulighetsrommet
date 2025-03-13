@@ -124,7 +124,7 @@ export function UtbetalingPage() {
   function totalGjenstaendeBelop(): number {
     return tilsagn
       .map((tilsagn) =>
-        tilsagn.status === TilsagnStatus.GODKJENT ? tilsagn.beregning.output.belop : 0,
+        tilsagn.status === TilsagnStatus.GODKJENT ? tilsagn.gjenstaendeBelop : 0,
       )
       .reduce((acc, val) => acc + val, 0);
   }

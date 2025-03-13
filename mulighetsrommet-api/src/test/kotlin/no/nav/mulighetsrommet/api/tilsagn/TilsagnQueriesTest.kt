@@ -200,6 +200,7 @@ class TilsagnQueriesTest : FunSpec({
 
                 queries.getArrangorflateTilsagn(tilsagn.id) shouldBe ArrangorflateTilsagn(
                     id = tilsagn.id,
+                    gjenstaendeBelop = tilsagn.beregning.output.belop,
                     gjennomforing = ArrangorflateTilsagn.Gjennomforing(
                         navn = AFT1.navn,
                     ),

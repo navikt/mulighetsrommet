@@ -21,8 +21,7 @@ object UtbetalingValidator {
                     ),
                 )
             }
-            // TODO: Bruk gjenstående beløp
-            if (belop > tilsagn.beregning.output.belop) {
+            if (belop > tilsagn.gjenstaendeBelop) {
                 add(
                     FieldError.of(
                         DelutbetalingRequest::belop,

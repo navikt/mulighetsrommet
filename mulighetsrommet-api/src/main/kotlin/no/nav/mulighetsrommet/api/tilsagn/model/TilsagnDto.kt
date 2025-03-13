@@ -15,6 +15,7 @@ data class TilsagnDto(
     val id: UUID,
     val type: TilsagnType,
     val periode: Periode,
+    val gjenstaendeBelop: Int,
     val kostnadssted: NavEnhetDbo,
     val beregning: TilsagnBeregning,
     val lopenummer: Int,
