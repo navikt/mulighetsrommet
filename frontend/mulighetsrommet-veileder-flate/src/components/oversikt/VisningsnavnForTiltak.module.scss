@@ -1,0 +1,14 @@
+.container {
+  :first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #0067c5;
+  }
+}
+
+.no_link {
+  :first-child {
+    color: black;
+  }
+}
