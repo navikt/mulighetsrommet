@@ -111,7 +111,7 @@ export const action: ActionFunction = async ({ request }) => {
 function validateBetalingsinformasjon(kontonummer: string, kid?: string) {
   const errors = [];
   const KONTONUMMER_REGEX = /^\d{11}$/;
-  const KID_REGEX = /^\d{0,25}$/;
+  const KID_REGEX = /^\d{2,25}$/;
 
   if (!KONTONUMMER_REGEX.test(kontonummer)) {
     errors.push({ pointer: "/kontonummer", detail: "Kontonummer må være 11 siffer" });
