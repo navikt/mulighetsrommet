@@ -229,6 +229,7 @@ class OkonomiBestillingService(
                     behandletTidspunkt = delutbetaling.opprettelse.behandletTidspunkt,
                     besluttetAv = delutbetaling.opprettelse.besluttetAv.toOkonomiPart(),
                     besluttetTidspunkt = delutbetaling.opprettelse.besluttetTidspunkt,
+                    frigjorBestilling = delutbetaling.frigjorTilsagn,
                 )
 
                 val message = OkonomiBestillingMelding.Faktura(faktura)

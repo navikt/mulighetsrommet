@@ -141,7 +141,7 @@ class OkonomiService(
 
         val faktura = Faktura.fromOpprettFaktura(opprettFaktura, bestilling.linjer)
 
-        val melding = toOebsFakturaMelding(bestilling, faktura, erSisteFaktura = false)
+        val melding = toOebsFakturaMelding(bestilling, faktura, erSisteFaktura = opprettFaktura.frigjorBestilling)
         return oebs.sendFaktura(melding)
             .mapLeft {
                 OpprettFakturaError("Klarte ikke sende faktura ${faktura.fakturanummer} til oebs", it)
@@ -149,6 +149,11 @@ class OkonomiService(
             .map {
                 log.info("Lagrer faktura ${faktura.fakturanummer}")
                 queries.faktura.insertFaktura(faktura)
+
+                if (opprettFaktura.frigjorBestilling) {
+                    log.info("Setter bestilling ${bestilling.bestillingsnummer} til frigjort")
+                    queries.bestilling.setStatus(bestilling.bestillingsnummer, BestillingStatusType.FRIGJORT)
+                }
 
                 faktura
             }

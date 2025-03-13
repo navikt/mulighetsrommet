@@ -97,6 +97,7 @@ data class OpprettFaktura(
     val besluttetAv: OkonomiPart,
     @Serializable(with = LocalDateTimeSerializer::class)
     val besluttetTidspunkt: LocalDateTime,
+    val frigjorBestilling: Boolean,
 ) {
     @Serializable
     data class Betalingsinformasjon(
