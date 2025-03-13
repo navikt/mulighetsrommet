@@ -4,7 +4,6 @@ import { GjennomforingDto } from "@mr/api-client-v2";
 import { Alert, Button, Modal, Switch } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { RefObject } from "react";
-import { useRevalidator } from "react-router";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
@@ -13,7 +12,6 @@ interface Props {
 
 export function SetApentForPameldingModal({ modalRef, gjennomforing }: Props) {
   const { mutate } = useSetApentForPamelding(gjennomforing.id);
-  const revalidator = useRevalidator();
   const queryClient = useQueryClient();
 
   return (
@@ -44,7 +42,6 @@ export function SetApentForPameldingModal({ modalRef, gjennomforing }: Props) {
                     queryKey: QueryKeys.gjennomforing(gjennomforing.id),
                     refetchType: "all",
                   });
-                  revalidator.revalidate();
                 },
               })
             }

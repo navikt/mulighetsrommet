@@ -33,7 +33,7 @@ import {
 } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { useNavigate, useParams, useRevalidator } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { v4 as uuidv4 } from "uuid";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
 import {
@@ -43,9 +43,9 @@ import {
   utbetalingQuery,
 } from "./utbetalingPageLoader";
 
+import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { useAdminGjennomforingById } from "../../../api/gjennomforing/useAdminGjennomforingById";
-import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
@@ -94,7 +94,6 @@ export function UtbetalingPage() {
   const [endreUtbetaling, setEndreUtbetaling] = useState<boolean>(!avvistUtbetaling);
   const [error, setError] = useState<string | undefined>(undefined);
 
-  const revalidator = useRevalidator();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
@@ -195,7 +194,6 @@ export function UtbetalingPage() {
             queryKey: ["utbetaling", utbetaling.id],
             refetchType: "all",
           });
-          revalidator.revalidate();
         },
         onError: (error) => {
           if (isValidationError(error)) {
