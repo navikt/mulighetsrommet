@@ -46,6 +46,7 @@ class UtbetalingQueriesTest : FunSpec({
         kid = Kid("12345"),
         periode = periode,
         innsender = UtbetalingDto.Innsender.NavAnsatt(NavIdent("Z123456")),
+        beskrivelse = "En beskrivelse",
     )
 
     test("upsert and get utbetaling med fri beregning") {
@@ -82,6 +83,7 @@ class UtbetalingQueriesTest : FunSpec({
                 it.periode shouldBe periode
                 it.godkjentAvArrangorTidspunkt shouldBe null
                 it.innsender shouldBe UtbetalingDto.Innsender.NavAnsatt(NavIdent("Z123456"))
+                it.beskrivelse shouldBe "En beskrivelse"
             }
         }
     }
@@ -220,6 +222,7 @@ class UtbetalingQueriesTest : FunSpec({
                     kid = null,
                     periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
                     innsender = null,
+                    beskrivelse = null,
                 )
 
                 assertThrows<SQLException> {

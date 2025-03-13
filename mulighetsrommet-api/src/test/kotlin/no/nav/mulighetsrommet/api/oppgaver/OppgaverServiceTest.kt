@@ -53,7 +53,7 @@ class OppgaverServiceTest : FunSpec({
             oppgaver.size shouldBe 1
         }
 
-        test("Skal bare returnere oppgaver for tilsagn til godkjenning og annullering når ansatt har korrekt rolle") {
+        test("Skal bare returnere oppgaver for tilsagn til godkjenning og annullering og frigjøring når ansatt har korrekt rolle") {
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -62,10 +62,12 @@ class OppgaverServiceTest : FunSpec({
                     TilsagnFixtures.Tilsagn1,
                     TilsagnFixtures.Tilsagn2,
                     TilsagnFixtures.Tilsagn3,
+                    TilsagnFixtures.Tilsagn4,
                 ),
             ) {
                 setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.TIL_ANNULLERING)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.ANNULLERT)
+                setTilsagnStatus(TilsagnFixtures.Tilsagn4, TilsagnStatus.TIL_FRIGJORING)
             }.initialize(database.db)
 
             val service = OppgaverService(database.db)
@@ -74,7 +76,7 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = emptyList(),
                 kostnadssteder = emptyList(),
                 roller = setOf(NavAnsattRolle.OKONOMI_BESLUTTER),
-            ).size shouldBe 2
+            ).size shouldBe 3
         }
 
         test("Skal bare returnere oppgaver som er returnert til ansatte uten beslutterrolle") {

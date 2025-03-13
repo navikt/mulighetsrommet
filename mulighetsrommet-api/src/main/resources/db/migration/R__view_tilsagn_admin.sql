@@ -12,11 +12,7 @@ select
     tilsagn.lopenummer,
     tilsagn.bestillingsnummer,
     tilsagn.kostnadssted,
-    tilsagn_status(
-        opprettelse.besluttelse,
-        annullering.behandlet_av,
-        annullering.besluttelse
-    ) as status,
+    tilsagn.status,
     tilsagn.type,
     nav_enhet.navn                                                            as kostnadssted_navn,
     nav_enhet.overordnet_enhet                                                as kostnadssted_overordnet_enhet,
@@ -33,21 +29,4 @@ from tilsagn
     inner join nav_enhet on nav_enhet.enhetsnummer = tilsagn.kostnadssted
     inner join arrangor on arrangor.id = tilsagn.arrangor_id
     inner join gjennomforing on gjennomforing.id = tilsagn.gjennomforing_id
-    inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
-    left join lateral (
-        select *
-        from totrinnskontroll
-        where totrinnskontroll.entity_id = tilsagn.id
-          and totrinnskontroll.type = 'OPPRETT'
-        order by totrinnskontroll.behandlet_tidspunkt desc
-        limit 1
-    ) as opprettelse on true
-    left join lateral (
-        select *
-        from totrinnskontroll
-        where totrinnskontroll.entity_id = tilsagn.id
-          and totrinnskontroll.type = 'ANNULLER'
-        order by totrinnskontroll.behandlet_tidspunkt desc
-        limit 1
-    ) as annullering on true;
-
+    inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id;

@@ -9,6 +9,7 @@ import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.utbetaling.fakturanummer
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -40,6 +41,7 @@ class OkonomiBestillingService(
         enum class Type {
             BEHANDLE_GODKJENT_TILSAGN,
             BEHANDLE_ANNULLERT_TILSAGN,
+            BEHANDLE_FRIGJORT_TILSAGN,
             BEHANDLE_GODKJENT_UTBETALINGER,
         }
     }
@@ -54,6 +56,8 @@ class OkonomiBestillingService(
 
                 ScheduledOkonomiTask.Type.BEHANDLE_ANNULLERT_TILSAGN -> behandleAnnullertTilsagn(tilsagnId)
 
+                ScheduledOkonomiTask.Type.BEHANDLE_FRIGJORT_TILSAGN -> behandleFrigjortTilsagn(tilsagnId)
+
                 ScheduledOkonomiTask.Type.BEHANDLE_GODKJENT_UTBETALINGER -> {
                     behandleGodkjentUtbetalinger(tilsagnId)
                 }
@@ -67,6 +71,11 @@ class OkonomiBestillingService(
 
     fun scheduleBehandleAnnullertTilsagn(tilsagnId: UUID, session: Session) {
         val task = ScheduledOkonomiTask(ScheduledOkonomiTask.Type.BEHANDLE_ANNULLERT_TILSAGN, tilsagnId)
+        schedule(task, session)
+    }
+
+    fun scheduleBehandleFrigjortTilsagn(tilsagnId: UUID, session: Session) {
+        val task = ScheduledOkonomiTask(ScheduledOkonomiTask.Type.BEHANDLE_FRIGJORT_TILSAGN, tilsagnId)
         schedule(task, session)
     }
 
@@ -158,7 +167,39 @@ class OkonomiBestillingService(
         publish(tilsagn.bestillingsnummer, OkonomiBestillingMelding.Annullering(annullering))
     }
 
+    private fun behandleFrigjortTilsagn(tilsagnId: UUID): Unit = db.session {
+        val tilsagn = requireNotNull(queries.tilsagn.get(tilsagnId)) {
+            "Tilsagn med id=$tilsagnId finnes ikke"
+        }
+        require(tilsagn.status == TilsagnStatus.FRIGJORT) {
+            "Tilsagn er ikke frigjort id=$tilsagnId status=${tilsagn.status}"
+        }
+        requireNotNull(tilsagn.frigjoring) {
+            "Tilsagn id=$tilsagnId mangler frigjøring"
+        }
+        require(tilsagn.frigjoring.besluttetAv != null && tilsagn.frigjoring.besluttetTidspunkt != null) {
+            "Tilsagn id=$tilsagnId må være besluttet frigjort for å sende null melding til økonomi"
+        }
+
+        val faktura = FrigjorBestilling(
+            bestillingsnummer = tilsagn.bestillingsnummer,
+            behandletAv = tilsagn.frigjoring.behandletAv.toOkonomiPart(),
+            behandletTidspunkt = tilsagn.frigjoring.behandletTidspunkt,
+            besluttetAv = tilsagn.frigjoring.besluttetAv.toOkonomiPart(),
+            besluttetTidspunkt = tilsagn.frigjoring.besluttetTidspunkt,
+        )
+
+        publish(tilsagn.bestillingsnummer, OkonomiBestillingMelding.Frigjoring(faktura))
+    }
+
     fun behandleGodkjentUtbetalinger(tilsagnId: UUID) {
+        val tilsagn = requireNotNull(db.session { queries.tilsagn.get(tilsagnId) }) {
+            "Tilsagn med id=$tilsagnId finnes ikke"
+        }
+        require(tilsagn.status == TilsagnStatus.GODKJENT) {
+            "Tilsagn er ikke godkjent id=$tilsagnId status=${tilsagn.status}"
+        }
+
         val delutbetalinger = db.session { queries.delutbetaling.getSkalSendesTilOkonomi(tilsagnId) }
             .filterIsInstance<DelutbetalingDto.DelutbetalingOverfortTilUtbetaling>()
             .sortedBy { it.opprettelse.besluttetTidspunkt }
@@ -172,9 +213,6 @@ class OkonomiBestillingService(
                 val kontonummer = requireNotNull(utbetaling.betalingsinformasjon.kontonummer) {
                     "Kontonummer mangler for utbetaling med id=${utbetaling.id}"
                 }
-                val tilsagn = requireNotNull(db.session { queries.tilsagn.get(delutbetaling.tilsagnId) }) {
-                    "Tilsagn med id=${delutbetaling.tilsagnId} finnes ikke"
-                }
                 requireNotNull(delutbetaling.opprettelse.besluttetTidspunkt)
                 requireNotNull(delutbetaling.opprettelse.besluttetAv)
 
@@ -185,7 +223,6 @@ class OkonomiBestillingService(
                         kontonummer = kontonummer,
                         kid = utbetaling.betalingsinformasjon.kid,
                     ),
-                    frigjorBestilling = delutbetaling.frigjorTilsagn,
                     belop = delutbetaling.belop,
                     periode = delutbetaling.periode,
                     behandletAv = delutbetaling.opprettelse.behandletAv.toOkonomiPart(),

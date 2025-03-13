@@ -133,7 +133,18 @@ fun Route.tilsagnRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
 
-                call.respondWithStatusResponse(service.tilAnnullering(id, navIdent, request))
+                service.tilAnnulleringRequest(id, navIdent, request)
+                call.respond(HttpStatusCode.OK)
+            }
+
+            post("/{id}/til-frigjoring") {
+                val request = call.receive<TilAnnulleringRequest>()
+                val id = call.parameters.getOrFail<UUID>("id")
+                val navIdent = getNavIdent()
+
+                service.tilFrigjoringRequest(id, navIdent, request)
+
+                call.respond(HttpStatusCode.OK)
             }
 
             delete("/{id}") {

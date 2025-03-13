@@ -72,5 +72,5 @@ enum class BestillingStatusType {
     BESTILT,
     AKTIV,
     ANNULLERT,
-    OPPGJORT,
+    FRIGJORT,
 }

@@ -1,18 +1,21 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   GjennomforingDto,
   OpprettManuellUtbetalingRequest,
   ProblemDetail,
 } from "@mr/api-client-v2";
+import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Button, Heading, HStack, Textarea, TextField, VStack } from "@navikt/ds-react";
+import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
 import z from "zod";
+import { Separator } from "../../../components/detaljside/Metadata";
+import { GjennomforingDetaljerMini } from "../../../components/gjennomforing/GjennomforingDetaljerMini";
 import { ControlledDateInput } from "../../../components/skjema/ControlledDateInput";
 import { FormGroup } from "../../../components/skjema/FormGroup";
-import { TwoColumnGrid } from "../../../layouts/TwoColumGrid";
 import { addYear } from "../../../utils/Utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { useManuellUtbetaling } from "@/api/utbetaling/useOpprettManuellUtbetaling";
+import { useCreateManuellUtbetaling } from "../../../api/utbetaling/useCreateOpprettManuellUtbetaling";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -64,10 +67,12 @@ export function OpprettUtbetalingForm({ gjennomforing }: Props) {
   const form = useForm<InferredOpprettUtbetalingFormSchema>({
     resolver: zodResolver(Schema),
   });
+  const navigate = useNavigate();
+  const utbetalingId = useRef(window.crypto.randomUUID());
 
   const { register, formState, handleSubmit, setError, control } = form;
 
-  const mutation = useManuellUtbetaling(window.crypto.randomUUID());
+  const mutation = useCreateManuellUtbetaling(utbetalingId.current);
 
   function postData(data: InferredOpprettUtbetalingFormSchema) {
     mutation.mutate(
@@ -75,6 +80,7 @@ export function OpprettUtbetalingForm({ gjennomforing }: Props) {
       {
         onSuccess: () => {
           form.reset();
+          navigate(`/gjennomforinger/${gjennomforing.id}/utbetalinger/${utbetalingId.current}`);
         },
         onError: (error: ProblemDetail) => {
           if (isValidationError(error)) {
@@ -93,69 +99,85 @@ export function OpprettUtbetalingForm({ gjennomforing }: Props) {
 
   const errors = formState.errors;
   return (
-    <FormProvider {...form}>
-      <form onSubmit={handleSubmit(postData)}>
-        <FormGroup>
-          <Heading size="medium" level="2">
-            Utbetalingsinformasjon
-          </Heading>
-          <HStack gap="20">
-            <ControlledDateInput
-              size="small"
-              label="Periodestart"
-              fromDate={new Date(gjennomforing.startDato)}
-              toDate={addYear(new Date(), 5)}
-              format="iso-string"
-              {...register("periode.start")}
-              control={control}
-            />
-            <ControlledDateInput
-              size="small"
-              label="Periodeslutt"
-              fromDate={new Date(gjennomforing.startDato)}
-              toDate={addYear(new Date(), 5)}
-              format="iso-string"
-              {...register("periode.slutt")}
-              control={control}
-            />
-          </HStack>
-          <TwoColumnGrid>
-            <VStack gap="5">
-              <Textarea
-                size="small"
-                label="Beskrivelse"
-                {...register("beskrivelse")}
-                error={errors.beskrivelse?.message}
-                resize
-              />
-              <TextField
-                size="small"
-                label="Kontonummer"
-                {...register("kontonummer")}
-                minLength={11}
-                maxLength={11}
-                error={errors.kontonummer?.message}
-              />
-              <TextField size="small" label="Valgfritt KID-nummer" {...register("kidNummer")} />
-              <TextField
-                size="small"
-                label="Beløp (NOK)"
-                type="number"
-                {...register("belop")}
-                error={errors.belop?.message}
-              />
-              <p>
-                <b>Tilgjengelig på tilsagn:</b> TODO
-              </p>
-              <HStack align={"start"} justify={"end"}>
+    <>
+      <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
+      <div className="w-1/2">
+        <FormProvider {...form}>
+          <form onSubmit={handleSubmit(postData)}>
+            <FormGroup>
+              <Heading size="medium" level="2">
+                Utbetalingsinformasjon
+              </Heading>
+              <HStack gap="20">
+                <ControlledDateInput
+                  size="small"
+                  label="Periodestart"
+                  fromDate={new Date(gjennomforing.startDato)}
+                  toDate={addYear(new Date(), 5)}
+                  format="iso-string"
+                  {...register("periode.start")}
+                  control={control}
+                />
+                <ControlledDateInput
+                  size="small"
+                  label="Periodeslutt"
+                  fromDate={new Date(gjennomforing.startDato)}
+                  toDate={addYear(new Date(), 5)}
+                  format="iso-string"
+                  {...register("periode.slutt")}
+                  control={control}
+                />
+              </HStack>
+              <VStack align={"start"}>
+                <TextField
+                  size="small"
+                  label="Beløp (NOK)"
+                  type="number"
+                  {...register("belop")}
+                  error={errors.belop?.message}
+                />
+              </VStack>
+              <HStack>
+                <Textarea
+                  size="small"
+                  label="Begrunnelse for utbetaling"
+                  {...register("beskrivelse")}
+                  error={errors.beskrivelse?.message}
+                  resize
+                  cols={93}
+                />
+              </HStack>
+              <Separator />
+              <Heading size="small" level="2">
+                Betalingsinformasjon
+              </Heading>
+              <VStack gap="5" align={"start"}>
+                <TextField
+                  size="small"
+                  label="Kontonummer"
+                  {...register("kontonummer")}
+                  minLength={11}
+                  maxLength={11}
+                  error={errors.kontonummer?.message}
+                />
+                <TextField size="small" label="Valgfritt KID-nummer" {...register("kidNummer")} />
+              </VStack>
+              <HStack align={"start"} justify={"end"} gap="2">
+                <Button
+                  size="small"
+                  variant="tertiary"
+                  onClick={() => navigate(`/gjennomforinger/${gjennomforing.id}/utbetalinger`)}
+                >
+                  Avbryt
+                </Button>
                 <Button size="small" type="submit">
-                  Opprett utbetaling
+                  Opprett og gå til kostnadsfordeling
                 </Button>
               </HStack>
-            </VStack>
-          </TwoColumnGrid>
-        </FormGroup>
-      </form>
-    </FormProvider>
+            </FormGroup>
+          </form>
+        </FormProvider>
+      </div>
+    </>
   );
 }

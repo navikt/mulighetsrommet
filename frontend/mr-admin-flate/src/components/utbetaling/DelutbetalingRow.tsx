@@ -1,21 +1,24 @@
+import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
+import { AvvistAlert } from "@/pages/gjennomforing/tilsagn/AarsakerAlert";
 import { formaterDato, tilsagnTypeToString } from "@/utils/Utils";
 import {
   TilsagnDto,
-  DelutbetalingDto,
-  ProblemDetail,
-  Besluttelse,
   BesluttDelutbetalingRequest,
+  Besluttelse,
+  DelutbetalingDto,
   NavAnsatt,
   NavAnsattRolle,
+  ProblemDetail,
+  TilsagnDto,
+  UtbetalingKompakt,
 } from "@mr/api-client-v2";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, Checkbox, HStack, Table } from "@navikt/ds-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
+import { Metadata } from "../detaljside/Metadata";
 import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { DelutbetalingTag } from "./DelutbetalingTag";
-import { Metadata } from "../detaljside/Metadata";
-import { useRevalidator } from "react-router";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
 
 interface Props {
   tilsagn: TilsagnDto;
@@ -25,8 +28,8 @@ interface Props {
 
 export function DelutbetalingRow({ tilsagn, delutbetaling, ansatt }: Props) {
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
+  const queryClient = useQueryClient();
 
-  const revalidator = useRevalidator();
   const besluttMutation = useBesluttDelutbetaling(delutbetaling.id);
 
   const kanBeslutte =
@@ -41,7 +44,7 @@ export function DelutbetalingRow({ tilsagn, delutbetaling, ansatt }: Props) {
   function beslutt(body: BesluttDelutbetalingRequest) {
     besluttMutation.mutate(body, {
       onSuccess: () => {
-        revalidator.revalidate();
+        queryClient.invalidateQueries({ queryKey: ["utbetaling"] });
       },
       onError: (error: ProblemDetail) => {
         throw error;

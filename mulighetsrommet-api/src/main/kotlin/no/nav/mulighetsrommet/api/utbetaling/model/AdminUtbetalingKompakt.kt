@@ -19,6 +19,7 @@ data class AdminUtbetalingKompakt(
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
     val betalingsinformasjon: UtbetalingDto.Betalingsinformasjon,
+    val beskrivelse: String?,
 ) {
     @Serializable
     data class Beregning(
@@ -41,6 +42,7 @@ data class AdminUtbetalingKompakt(
             godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
             betalingsinformasjon = utbetaling.betalingsinformasjon,
             createdAt = utbetaling.createdAt,
+            beskrivelse = utbetaling.beskrivelse,
         )
     }
 }

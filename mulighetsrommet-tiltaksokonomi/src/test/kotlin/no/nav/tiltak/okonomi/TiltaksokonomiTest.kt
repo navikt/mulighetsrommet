@@ -206,7 +206,6 @@ class TiltaksokonomiTest : FunSpec({
                                 kontonummer = Kontonummer("12345678901"),
                                 kid = null,
                             ),
-                            frigjorBestilling = false,
                             belop = 1000,
                             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                             behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),

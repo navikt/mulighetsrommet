@@ -25,6 +25,7 @@ object UtbetalingFixtures {
         kontonummer = Kontonummer("11111111111"),
         kid = null,
         innsender = null,
+        beskrivelse = null,
     )
 
     val utbetaling2 = UtbetalingDbo(
@@ -39,6 +40,7 @@ object UtbetalingFixtures {
         kontonummer = Kontonummer("11111111111"),
         kid = null,
         innsender = null,
+        beskrivelse = null,
     )
 
     val utbetaling3 = UtbetalingDbo(
@@ -53,6 +55,7 @@ object UtbetalingFixtures {
         kontonummer = Kontonummer("11111111111"),
         kid = null,
         innsender = null,
+        beskrivelse = null,
     )
 
     val delutbetaling1 = DelutbetalingDbo(
@@ -102,6 +105,7 @@ object UtbetalingFixtures {
                         besluttetTidspunkt = besluttetTidspunkt,
                     ),
                 )
+
             DelutbetalingStatus.RETURNERT ->
                 queries.totrinnskontroll.upsert(
                     dto.opprettelse.copy(

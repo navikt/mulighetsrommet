@@ -207,6 +207,12 @@ export function UtbetalingPage() {
                     header="Beløp arrangør har sendt inn"
                     verdi={formaterNOK(utbetaling.beregning.belop)}
                   />
+                  {utbetaling.beskrivelse && (
+                    <MetadataHorisontal
+                      header="Begrunnelse for utbetaling"
+                      verdi={utbetaling.beskrivelse}
+                    />
+                  )}
                 </VStack>
                 <Separator />
                 <HStack justify="space-between">

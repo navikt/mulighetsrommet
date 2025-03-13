@@ -65,6 +65,26 @@ export function TilsagnTag(props: Props) {
         </Tag>
       );
     }
+    case TilsagnStatus.TIL_FRIGJORING:
+      return (
+        <Tag
+          size="small"
+          variant="neutral"
+          className={`${baseTagClasses} bg-white border-[color:var(--a-text-danger)]`}
+        >
+          Til frigjøring
+        </Tag>
+      );
+    case TilsagnStatus.FRIGJORT:
+      return (
+        <Tag
+          size="small"
+          variant="neutral"
+          className={`${baseTagClasses} bg-white border-[color:var(--a-text-danger)]`}
+        >
+          Frigjort
+        </Tag>
+      );
   }
 }
 

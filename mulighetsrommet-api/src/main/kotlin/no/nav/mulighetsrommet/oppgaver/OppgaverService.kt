@@ -60,6 +60,7 @@ class OppgaverService(val db: ApiDatabase) {
                     statuser = listOf(
                         TilsagnStatus.TIL_GODKJENNING,
                         TilsagnStatus.TIL_ANNULLERING,
+                        TilsagnStatus.TIL_FRIGJORING,
                         TilsagnStatus.RETURNERT,
                     ),
                 )
@@ -182,7 +183,24 @@ class OppgaverService(val db: ApiDatabase) {
             )
         }
 
-        TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT -> null
+        TilsagnStatus.TIL_FRIGJORING -> {
+            requireNotNull(frigjoring)
+            Oppgave(
+                id = UUID.randomUUID(),
+                type = OppgaveType.TILSAGN_TIL_FRIGJORING,
+                title = "Tilsagn til frigjøring",
+                description = "Tilsagnet for ${gjennomforing.navn} er sendt til frigjøring",
+                tiltakstype = gjennomforing.tiltakskode,
+                link = OppgaveLink(
+                    linkText = "Se tilsagn",
+                    link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
+                ),
+                createdAt = frigjoring.behandletTidspunkt,
+                oppgaveIcon = OppgaveIcon.TILSAGN,
+            )
+        }
+
+        TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.FRIGJORT -> null
     }
 
     private fun DelutbetalingDto.toOppgave(

@@ -3,11 +3,13 @@ package no.nav.mulighetsrommet.api.tilsagn
 import arrow.core.left
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -26,6 +28,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
@@ -280,14 +283,16 @@ class TilsagnServiceTest : FunSpec({
 
             val service = createTilsagnService()
 
-            service.tilAnnullering(
-                id = Tilsagn1.id,
-                navIdent = NavAnsattFixture.ansatt2.navIdent,
-                annullering = TilAnnulleringRequest(
-                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                    forklaring = "Velg et annet beløp",
-                ),
-            ) shouldBeLeft BadRequest("Kan bare annullere godkjente tilsagn")
+            shouldThrow<IllegalArgumentException> {
+                service.tilAnnulleringRequest(
+                    id = Tilsagn1.id,
+                    navIdent = NavAnsattFixture.ansatt2.navIdent,
+                    request = TilAnnulleringRequest(
+                        aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                        forklaring = "Velg et annet beløp",
+                    ),
+                )
+            }.message shouldBe "Kan bare annullere godkjente tilsagn"
 
             service.beslutt(
                 id = Tilsagn1.id,
@@ -295,14 +300,14 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = NavAnsattFixture.ansatt2.navIdent,
             ).shouldBeRight()
 
-            val dto = service.tilAnnullering(
+            val dto = service.tilAnnulleringRequest(
                 id = Tilsagn1.id,
                 navIdent = NavAnsattFixture.ansatt1.navIdent,
-                annullering = TilAnnulleringRequest(
+                request = TilAnnulleringRequest(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = "Velg et annet beløp",
                 ),
-            ).shouldBeRight()
+            )
             dto.status shouldBe TilsagnStatus.TIL_ANNULLERING
             dto.annullering.shouldNotBeNull().should {
                 it.behandletAv shouldBe NavAnsattFixture.ansatt1.navIdent
@@ -500,6 +505,69 @@ class TilsagnServiceTest : FunSpec({
             database.run {
                 session.list(queryOf(query)) { it.localDateTime("behandlet_tidspunkt") to it.string("behandlet_av") }
             } shouldHaveSize 3
+        }
+
+        test("frigjør tilsagn") {
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+            ).initialize(database.db)
+
+            val service = createTilsagnService()
+
+            service.beslutt(
+                id = Tilsagn1.id,
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+            ).shouldBeRight()
+
+            service.tilFrigjoringRequest(
+                id = Tilsagn1.id,
+                navIdent = NavAnsattFixture.ansatt1.navIdent,
+                request = TilAnnulleringRequest(
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
+            )
+            service.getAll()[0].status shouldBe TilsagnStatus.TIL_FRIGJORING
+
+            service.beslutt(
+                id = Tilsagn1.id,
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+            ).shouldBeRight()
+            val dto = service.getAll()[0]
+            dto.status shouldBe TilsagnStatus.FRIGJORT
+            dto.frigjoring shouldNotBe null
+            dto.frigjoring!!.behandletAv shouldBe NavAnsattFixture.ansatt1.navIdent
+            dto.frigjoring!!.besluttetAv shouldBe NavAnsattFixture.ansatt2.navIdent
+            dto.frigjoring!!.besluttelse shouldBe Besluttelse.GODKJENT
+        }
+
+        test("frigjør tilsagn automatisk") {
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+            ).initialize(database.db)
+
+            val service = createTilsagnService()
+            service.beslutt(
+                id = Tilsagn1.id,
+                navIdent = NavAnsattFixture.ansatt2.navIdent,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+            ).shouldBeRight()
+
+            service.frigjorAutomatisk(id = Tilsagn1.id)
+            val dto = service.getAll()[0]
+            dto.status shouldBe TilsagnStatus.FRIGJORT
+            dto.frigjoring shouldNotBe null
+            dto.frigjoring!!.behandletAv shouldBe Tiltaksadministrasjon
+            dto.frigjoring!!.besluttetAv shouldBe Tiltaksadministrasjon
+            dto.frigjoring!!.besluttelse shouldBe Besluttelse.GODKJENT
         }
     }
 })

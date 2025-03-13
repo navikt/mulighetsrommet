@@ -25,6 +25,7 @@ data class UtbetalingDto(
     val godkjentAvArrangorTidspunkt: LocalDateTime?,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
+    val beskrivelse: String?,
 ) {
     @Serializable
     data class Gjennomforing(
