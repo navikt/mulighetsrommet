@@ -16,4 +16,7 @@ export const utbetalingHandlers = [
   http.get<PathParams, TilsagnDto[], TilsagnDto[]>("*/api/v1/intern/utbetaling/:id/tilsagn", () => {
     return HttpResponse.json(mockTilsagn);
   }),
+  http.post<PathParams>("*/api/v1/intern/utbetaling/:id/opprett-utbetaling", () => {
+    return HttpResponse.json("ok");
+  }),
 ];
