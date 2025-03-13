@@ -1,15 +1,14 @@
-import { GjennomforingDto, ProblemDetail, SetStengtHosArrangorRequest } from "@mr/api-client-v2";
-import { Alert, Button, HGrid, TextField, VStack } from "@navikt/ds-react";
-import { FormProvider, useForm } from "react-hook-form";
-import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
-import { addYear } from "@/utils/Utils";
 import { useSetStengtHosArrangor } from "@/api/gjennomforing/useSetStengtHosArrangor";
-import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { useRevalidator } from "react-router";
-import { FloppydiskIcon } from "@navikt/aksel-icons";
-import { FormGroup } from "@/components/skjema/FormGroup";
-import { useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
+import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
+import { FormGroup } from "@/components/skjema/FormGroup";
+import { addYear } from "@/utils/Utils";
+import { GjennomforingDto, ProblemDetail, SetStengtHosArrangorRequest } from "@mr/api-client-v2";
+import { isValidationError, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { FloppydiskIcon } from "@navikt/aksel-icons";
+import { Alert, Button, HGrid, TextField, VStack } from "@navikt/ds-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { FormProvider, useForm } from "react-hook-form";
 
 interface RegistrerStengtHosArrangorFormProps {
   gjennomforing: GjennomforingDto;
@@ -19,7 +18,6 @@ export function RegistrerStengtHosArrangorForm({
   gjennomforing,
 }: RegistrerStengtHosArrangorFormProps) {
   const setStengtHosArrangor = useSetStengtHosArrangor(gjennomforing.id);
-  const revalidator = useRevalidator();
   const queryClient = useQueryClient();
 
   const form = useForm<SetStengtHosArrangorRequest>({});
@@ -40,7 +38,6 @@ export function RegistrerStengtHosArrangorForm({
             queryKey: QueryKeys.gjennomforing(gjennomforing.id),
             refetchType: "all",
           });
-          revalidator.revalidate();
         },
         onError: (error: ProblemDetail) => {
           if (isValidationError(error)) {

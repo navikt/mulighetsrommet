@@ -1,9 +1,8 @@
-import { Alert, BodyShort, Button, Heading, HStack, Table, VStack } from "@navikt/ds-react";
-import { AvtaleDto, OpsjonLoggRegistrert, OpsjonStatus } from "@mr/api-client-v2";
 import { useSlettOpsjon } from "@/api/avtaler/useSlettOpsjon";
 import { formaterDato } from "@/utils/Utils";
-import { useRevalidator } from "react-router";
+import { AvtaleDto, OpsjonLoggRegistrert, OpsjonStatus } from "@mr/api-client-v2";
 import { TrashIcon } from "@navikt/aksel-icons";
+import { Alert, BodyShort, Button, Heading, HStack, Table, VStack } from "@navikt/ds-react";
 
 interface Props {
   avtale: AvtaleDto;
@@ -12,7 +11,6 @@ interface Props {
 
 export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
   const logg = avtale.opsjonerRegistrert;
-  const revalidator = useRevalidator();
   const mutation = useSlettOpsjon();
 
   function kanSletteOpsjon(opsjon: OpsjonLoggRegistrert): boolean {
@@ -27,7 +25,6 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
       {
         onSuccess: async () => {
           mutation.reset();
-          await revalidator.revalidate();
         },
       },
     );

@@ -1,11 +1,10 @@
-import { GjennomforingDto } from "@mr/api-client-v2";
-import { Alert, Button, Heading, HStack, Table, VStack } from "@navikt/ds-react";
-import { formaterDato } from "@/utils/Utils";
-import { useRevalidator } from "react-router";
 import { useDeleteStengtHosArrangor } from "@/api/gjennomforing/useDeleteStengtHosArrangor";
-import { TrashIcon } from "@navikt/aksel-icons";
-import { useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
+import { formaterDato } from "@/utils/Utils";
+import { GjennomforingDto } from "@mr/api-client-v2";
+import { TrashIcon } from "@navikt/aksel-icons";
+import { Alert, Button, Heading, HStack, Table, VStack } from "@navikt/ds-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface StengtHosArrangorTableProps {
   gjennomforing: GjennomforingDto;
@@ -14,7 +13,6 @@ interface StengtHosArrangorTableProps {
 
 export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArrangorTableProps) {
   const deleteStengtHosArrangor = useDeleteStengtHosArrangor(gjennomforing.id);
-  const revalidator = useRevalidator();
   const queryClient = useQueryClient();
 
   if (gjennomforing.stengt.length === 0) return null;
@@ -55,7 +53,6 @@ export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArr
                               queryKey: QueryKeys.gjennomforing(gjennomforing.id),
                               refetchType: "all",
                             });
-                            revalidator.revalidate();
                           },
                         });
                       }}

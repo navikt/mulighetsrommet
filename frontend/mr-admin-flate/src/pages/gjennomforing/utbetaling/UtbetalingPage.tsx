@@ -33,7 +33,7 @@ import {
 } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { useNavigate, useParams, useRevalidator } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { OpprettDelutbetalingRow } from "@/components/utbetaling/OpprettDelutbetalingRow";
 import { v4 as uuidv4 } from "uuid";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
@@ -44,9 +44,9 @@ import {
   utbetalingQuery,
 } from "./utbetalingPageLoader";
 
+import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { useAdminGjennomforingById } from "../../../api/gjennomforing/useAdminGjennomforingById";
-import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
@@ -91,7 +91,6 @@ export function UtbetalingPage() {
   const [endreUtbetaling, setEndreUtbetaling] = useState<boolean>(delutbetalinger.length === 0);
   const [error, setError] = useState<string | undefined>(undefined);
 
-  const revalidator = useRevalidator();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
@@ -160,7 +159,6 @@ export function UtbetalingPage() {
             queryKey: ["utbetaling", utbetaling.id],
             refetchType: "all",
           });
-          revalidator.revalidate();
         },
         onError: (error) => {
           if (isValidationError(error)) {
@@ -310,8 +308,8 @@ export function UtbetalingPage() {
                         <Table.DataCell className="font-bold">
                           {formaterNOK(utbetalesTotal)}
                         </Table.DataCell>
-                        <Table.DataCell colSpan={2}>
-                          <HStack align="center">
+                        <Table.DataCell className="font-bold">
+                          <HStack align="center" className="w-80">
                             <CopyButton
                               variant="action"
                               copyText={differanse.toString()}
@@ -338,7 +336,7 @@ export function UtbetalingPage() {
                   <Metadata
                     horizontal
                     header="KID"
-                    verdi={utbetaling.betalingsinformasjon?.kid ?? "N/A"}
+                    verdi={utbetaling.betalingsinformasjon?.kid || "-"}
                   />
                 </VStack>
               </VStack>
