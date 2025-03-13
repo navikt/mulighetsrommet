@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api.tilsagn.db
 
-import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
+import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
@@ -16,12 +16,13 @@ import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Prismodell
 import no.nav.mulighetsrommet.model.Tiltakskode
 import org.intellij.lang.annotations.Language
 import java.util.*
 
 class TilsagnQueries(private val session: Session) {
-    fun upsert(dbo: TilsagnDbo) = withTransaction(session) {
+    fun upsert(dbo: TilsagnDbo): Unit = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
             insert into tilsagn (
@@ -32,10 +33,11 @@ class TilsagnQueries(private val session: Session) {
                 bestillingsnummer,
                 kostnadssted,
                 arrangor_id,
-                beregning,
                 status,
                 type,
-                belop_gjenstaende
+                belop_gjenstaende,
+                belop_beregnet,
+                prismodell
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
@@ -44,10 +46,11 @@ class TilsagnQueries(private val session: Session) {
                 :bestillingsnummer,
                 :kostnadssted,
                 :arrangor_id::uuid,
-                :beregning::jsonb,
                 :status::tilsagn_status,
                 :type::tilsagn_type,
-                :belop_gjenstaende
+                :belop_gjenstaende,
+                :belop_beregnet,
+                :prismodell::prismodell
             )
             on conflict (id) do update set
                 gjennomforing_id        = excluded.gjennomforing_id,
@@ -56,10 +59,11 @@ class TilsagnQueries(private val session: Session) {
                 bestillingsnummer       = excluded.bestillingsnummer,
                 kostnadssted            = excluded.kostnadssted,
                 arrangor_id             = excluded.arrangor_id,
-                beregning               = excluded.beregning,
                 status                  = excluded.status,
                 type                    = excluded.type,
-                belop_gjenstaende       = excluded.belop_gjenstaende
+                belop_gjenstaende       = excluded.belop_gjenstaende,
+                belop_beregnet          = excluded.belop_beregnet,
+                prismodell              = excluded.prismodell
         """.trimIndent()
 
         val params = mapOf(
@@ -71,12 +75,32 @@ class TilsagnQueries(private val session: Session) {
             "bestillingsnummer" to dbo.bestillingsnummer,
             "kostnadssted" to dbo.kostnadssted,
             "arrangor_id" to dbo.arrangorId,
-            "beregning" to Json.encodeToString<TilsagnBeregning>(dbo.beregning),
             "type" to dbo.type.name,
             "belop_gjenstaende" to dbo.beregning.output.belop,
+            "belop_beregnet" to dbo.beregning.output.belop,
+            "prismodell" to when (dbo.beregning) {
+                is TilsagnBeregningForhandsgodkjent -> Prismodell.FORHANDSGODKJENT
+                is TilsagnBeregningFri -> Prismodell.FRI
+            }.name,
         )
 
         execute(queryOf(query, params))
+
+        when (dbo.beregning) {
+            is TilsagnBeregningForhandsgodkjent -> {
+                check(
+                    dbo.periode == Periode.fromInclusiveDates(
+                        dbo.beregning.input.periodeStart,
+                        dbo.beregning.input.periodeSlutt,
+                    ),
+                ) {
+                    "Tilsagnsperiode og beregningsperiode må være lik"
+                }
+                upsertTilsagnBeregningForhandsgodkjent(dbo.id, dbo.beregning)
+            }
+
+            is TilsagnBeregningFri -> {}
+        }
 
         TotrinnskontrollQueries(this).upsert(
             Totrinnskontroll(
@@ -92,6 +116,35 @@ class TilsagnQueries(private val session: Session) {
                 besluttetTidspunkt = null,
             ),
         )
+    }
+
+    private fun TransactionalSession.upsertTilsagnBeregningForhandsgodkjent(
+        id: UUID,
+        beregning: TilsagnBeregningForhandsgodkjent,
+    ) {
+        @Language("PostgreSQL")
+        val query = """
+            insert into tilsagn_forhandsgodkjent_beregning (
+                tilsagn_id,
+                sats,
+                antall_plasser
+            ) values (
+                :tilsagn_id::uuid,
+                :sats,
+                :antall_plasser
+            )
+            on conflict (tilsagn_id) do update set
+                sats = excluded.sats,
+                antall_plasser = excluded.antall_plasser
+        """.trimIndent()
+
+        val params = mapOf(
+            "tilsagn_id" to id,
+            "sats" to beregning.input.sats,
+            "antall_plasser" to beregning.input.antallPlasser,
+        )
+
+        execute(queryOf(query, params))
     }
 
     fun setGjenstaendeBelop(id: UUID, belop: Int) = with(session) {
@@ -177,7 +230,8 @@ class TilsagnQueries(private val session: Session) {
     ): List<ArrangorflateTilsagn> {
         @Language("PostgreSQL")
         val query = """
-            select * from tilsagn_arrangorflate_view
+            select *
+            from tilsagn_arrangorflate_view
             where gjennomforing_id = :gjennomforing_id::uuid
               and (periode && :periode::daterange)
               and status in ('GODKJENT', 'TIL_ANNULLERING', 'ANNULLERT')
@@ -195,7 +249,8 @@ class TilsagnQueries(private val session: Session) {
     fun getArrangorflateTilsagn(id: UUID): ArrangorflateTilsagn? {
         @Language("PostgreSQL")
         val query = """
-            select * from tilsagn_arrangorflate_view
+            select *
+            from tilsagn_arrangorflate_view
             where id = ?::uuid
             and status in ('GODKJENT', 'TIL_ANNULLERING', 'ANNULLERT')
         """.trimIndent()
@@ -223,6 +278,9 @@ class TilsagnQueries(private val session: Session) {
 
     private fun Row.toTilsagnDto(): TilsagnDto {
         val id = uuid("id")
+
+        val beregning = getBeregning(id, Prismodell.valueOf(string("prismodell")))
+
         val opprettelse = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.OPPRETT)
         val annullering = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.ANNULLER)
         val frigjoring = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.FRIGJOR)
@@ -253,7 +311,7 @@ class TilsagnQueries(private val session: Session) {
                 navn = string("arrangor_navn"),
                 slettet = boolean("arrangor_slettet"),
             ),
-            beregning = Json.decodeFromString<TilsagnBeregning>(string("beregning")),
+            beregning = beregning,
             status = TilsagnStatus.valueOf(string("status")),
             opprettelse = opprettelse,
             annullering = annullering,
@@ -263,6 +321,8 @@ class TilsagnQueries(private val session: Session) {
 
     private fun Row.toArrangorflateTilsagn(): ArrangorflateTilsagn {
         val id = uuid("id")
+
+        val beregning = getBeregning(id, Prismodell.valueOf(string("prismodell")))
 
         val opprettelse = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.OPPRETT)
         val annullering = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.ANNULLER)
@@ -284,11 +344,62 @@ class TilsagnQueries(private val session: Session) {
                 organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
                 navn = string("arrangor_navn"),
             ),
-            beregning = Json.decodeFromString<TilsagnBeregning>(string("beregning")),
+            beregning = beregning,
             status = ArrangorflateTilsagn.StatusOgAarsaker(
                 status = TilsagnStatus.valueOf(string("status")),
                 aarsaker = annullering?.aarsaker?.map { TilsagnStatusAarsak.valueOf(it) } ?: emptyList(),
             ),
         )
+    }
+
+    private fun getBeregning(id: UUID, prismodell: Prismodell): TilsagnBeregning {
+        return when (prismodell) {
+            Prismodell.FORHANDSGODKJENT -> getBeregningForhandsgodkjent(id)
+            Prismodell.FRI -> getBeregningFri(id)
+        }
+    }
+
+    private fun getBeregningForhandsgodkjent(id: UUID): TilsagnBeregningForhandsgodkjent {
+        @Language("PostgreSQL")
+        val query = """
+            select tilsagn.periode, tilsagn.beregnet_belop, bergning.sats, beregning.antall_plasser
+            from tilsagn join tilsagn_forhandsgodkjent_beregning beregning on tilsagn.id = beregning.tilsagn_id
+            where tilsagn.id = ?::uuid
+        """.trimIndent()
+
+        return session.requireSingle(queryOf(query, id)) { row ->
+            val periode = row.periode("periode")
+            TilsagnBeregningForhandsgodkjent(
+                input = TilsagnBeregningForhandsgodkjent.Input(
+                    periodeStart = periode.start,
+                    periodeSlutt = periode.getLastInclusiveDate(),
+                    sats = row.int("sats"),
+                    antallPlasser = row.int("antall_plasser"),
+                ),
+                output = TilsagnBeregningForhandsgodkjent.Output(
+                    belop = row.int("beregnet_belop"),
+                ),
+            )
+        }
+    }
+
+    private fun getBeregningFri(id: UUID): TilsagnBeregningFri {
+        @Language("PostgreSQL")
+        val query = """
+            select belop_beregnet
+            from tilsagn
+            where id = ?::uuid
+        """.trimIndent()
+
+        return session.requireSingle(queryOf(query, id)) {
+            TilsagnBeregningFri(
+                input = TilsagnBeregningFri.Input(
+                    belop = it.int("belop_beregnet"),
+                ),
+                output = TilsagnBeregningFri.Output(
+                    belop = it.int("belop_beregnet"),
+                ),
+            )
+        }
     }
 }
