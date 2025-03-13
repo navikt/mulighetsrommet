@@ -36,11 +36,8 @@ const Schema = z
       .max(300),
     kontonummer: z
       .string({ required_error: "Du må skrive inn kontonummer" })
-      .regex(/^\d{11}$/, { message: "Kontonummer består av 11 siffer" }),
-    kidNummer: z
-      .string()
-      .regex(/^\d{2,25}$/, { message: "KID-nummer må være mellom 2 og 25 siffer" })
-      .optional(),
+      .regex(/^\d{11}$/, { message: "Kontonummer må være 11 siffer" }),
+    kidNummer: z.string().optional(),
     belop: z
       .string({ required_error: "Du må skrive inn et beløp" })
       .min(1, { message: "Du må skrive inn et beløp" }),
@@ -62,6 +59,17 @@ const Schema = z
       message: "Du må sette sluttdato for perioden",
       path: ["periode.slutt"],
     },
+  )
+  .refine(
+    (data) => {
+      const KID_REGEX = /^\d{2,25}$/;
+      if (!data.kidNummer) {
+        return true;
+      } else {
+        return data.kidNummer && KID_REGEX.test(data.kidNummer);
+      }
+    },
+    { message: "KID-nummer må være mellom 2 og 25 siffer", path: ["kidNummer"] },
   );
 
 type InferredOpprettUtbetalingFormSchema = z.infer<typeof Schema>;
@@ -163,7 +171,12 @@ export function OpprettUtbetalingForm({ gjennomforing }: Props) {
                   maxLength={11}
                   error={errors.kontonummer?.message}
                 />
-                <TextField size="small" label="Valgfritt KID-nummer" {...register("kidNummer")} />
+                <TextField
+                  size="small"
+                  label="Valgfritt KID-nummer"
+                  {...register("kidNummer")}
+                  error={errors.kidNummer?.message}
+                />
               </VStack>
               <HStack align={"start"} justify={"end"} gap="2">
                 <Button
