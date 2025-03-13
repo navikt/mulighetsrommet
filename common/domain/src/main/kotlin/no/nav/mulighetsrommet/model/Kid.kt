@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.model
 
 import kotlinx.serialization.Serializable
 
-private val KID_REGEX = "^\\d{0,25}$".toRegex()
+private val KID_REGEX = "^\\d{2,25}$".toRegex()
 
 @Serializable
 @JvmInline
