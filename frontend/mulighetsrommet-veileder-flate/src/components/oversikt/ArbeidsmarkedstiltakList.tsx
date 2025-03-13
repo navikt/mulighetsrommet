@@ -8,7 +8,6 @@ import { DelMedBruker, GjennomforingOppstartstype, VeilederflateTiltak } from "@
 import { ReactNode, useEffect } from "react";
 import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
 import { ArbeidsmarkedstiltakListItem } from "./ArbeidsmarkedstiltakListItem";
-import styles from "./ArbeidsmarkedstiltakList.module.scss";
 import { sorteringAtom } from "../sorteringmeny/sorteringAtom";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
@@ -64,7 +63,7 @@ export function ArbeidsmarkedstiltakList({
         {varsler}
         {gjennomforingerForSide.length > 0 ? (
           <ToolbarMeny>
-            <div className={styles.visningsmeny}>
+            <div className="flex gap-8 items-center">
               <AntallTiltakSummary
                 totaltAntallTiltak={tiltak.length}
                 antallTiltak={gjennomforingerForSide.length}
@@ -101,10 +100,7 @@ export function ArbeidsmarkedstiltakList({
       </ToolbarContainer>
       {feilmelding}
       <ul
-        className={classnames(
-          styles.gjennomforinger,
-          filterOpen && styles.gjennomforinger_filter_open,
-        )}
+        className={classnames("m-0 mb-4 flex flex-col gap-3 p-0", filterOpen && "xl:pl-2 pl-4")}
         data-testid="oversikt_gjennomforinger"
       >
         {gjennomforingerForSide.map((gjennomforing, index) => {
@@ -123,12 +119,7 @@ export function ArbeidsmarkedstiltakList({
         })}
       </ul>
       {gjennomforingerForSide.length > 0 ? (
-        <div
-          className={classnames(
-            styles.under_oversikt,
-            filterOpen && styles.under_oversikt_filter_open,
-          )}
-        >
+        <div className={classnames("flex justify-start mt-4 mb-8", filterOpen && "pl-4")}>
           <AntallTiltakSummary
             totaltAntallTiltak={tiltak.length}
             antallTiltak={gjennomforingerForSide.length}
