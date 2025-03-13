@@ -136,8 +136,8 @@ export function UtbetalingPage() {
         `?type=${TilsagnType.EKSTRATILSAGN}` +
         `&prismodell=${Prismodell.FRI}` +
         `&belop=${defaultBelop}` +
-        `&periodeStart=${utbetaling.beregning.periode.start}` +
-        `&periodeSlutt=${utbetaling.beregning.periode.slutt}` +
+        `&periodeStart=${utbetaling.periode.start}` +
+        `&periodeSlutt=${utbetaling.periode.slutt}` +
         `&kostnadssted=${defaultTilsagn?.kostnadssted.enhetsnummer}`,
     );
   }
