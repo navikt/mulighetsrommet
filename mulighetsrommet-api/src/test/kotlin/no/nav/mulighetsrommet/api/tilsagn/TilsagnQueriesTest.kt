@@ -91,6 +91,29 @@ class TilsagnQueriesTest : FunSpec({
             }
         }
 
+        test("upsert forhåndsgodkjent beregning") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = TilsagnQueries(session)
+
+                val beregning = TilsagnBeregningForhandsgodkjent(
+                    input = TilsagnBeregningForhandsgodkjent.Input(
+                        periodeStart = tilsagn.periode.start,
+                        periodeSlutt = tilsagn.periode.getLastInclusiveDate(),
+                        antallPlasser = 10,
+                        sats = 100,
+                    ),
+                    output = TilsagnBeregningForhandsgodkjent.Output(1000),
+                )
+                queries.upsert(tilsagn.copy(beregning = beregning))
+
+                queries.get(tilsagn.id).shouldNotBeNull().should {
+                    it.beregning shouldBe beregning
+                }
+            }
+        }
+
         test("løpenummer er unikt per gjennomføring") {
             val aft2 = AFT1.copy(id = UUID.randomUUID())
 
