@@ -30,7 +30,7 @@ export function TilsagnStatusTag({ status }: Props) {
     case TilsagnStatus.ANNULLERT:
       return (
         <Tag size="small" variant="error" className={baseTagClasses}>
-          Tilsagn annulert
+          Tilsagn annullert
         </Tag>
       );
   }

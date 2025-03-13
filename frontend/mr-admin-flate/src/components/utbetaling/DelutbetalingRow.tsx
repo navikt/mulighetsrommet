@@ -1,8 +1,6 @@
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
-import { AvvistAlert } from "@/pages/gjennomforing/tilsagn/AarsakerAlert";
 import { formaterDato, tilsagnTypeToString } from "@/utils/Utils";
 import {
-  TilsagnDto,
   BesluttDelutbetalingRequest,
   Besluttelse,
   DelutbetalingDto,
@@ -10,7 +8,6 @@ import {
   NavAnsattRolle,
   ProblemDetail,
   TilsagnDto,
-  UtbetalingKompakt,
 } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, Checkbox, HStack, Table } from "@navikt/ds-react";

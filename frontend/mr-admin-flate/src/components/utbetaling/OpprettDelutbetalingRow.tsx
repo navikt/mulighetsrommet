@@ -49,7 +49,7 @@ export function OpprettDelutbetalingRow({
   const cellClass = error && "align-top";
   return (
     <Table.ExpandableRow
-      defaultOpen={opprettelse && true}
+      defaultOpen={!!opprettelse}
       onOpenChange={() => setOpenRow(!openRow)}
       open={openRow}
       expansionDisabled={!frigjorTilsagn}
@@ -67,7 +67,7 @@ export function OpprettDelutbetalingRow({
           )}
           {frigjorTilsagn && (
             <Alert variant="warning">
-              Når denne utbetalingen godkjennes vil det ikke lengre være mulig å sende inn nye
+              Når denne utbetalingen godkjennes vil det ikke lenger være mulig å sende inn nye
               utbetalinger fra dette tilsagnet
             </Alert>
           )}
@@ -108,8 +108,6 @@ export function OpprettDelutbetalingRow({
               const num = Number(e.target.value);
               if (isNaN(num)) {
                 setError("Må være et tall");
-              } else if (num > 2_147_483_647) {
-                setError("Beløp er for høyt");
               } else {
                 setEndretBelop(num);
                 handleOnChange(num, frigjorTilsagn);

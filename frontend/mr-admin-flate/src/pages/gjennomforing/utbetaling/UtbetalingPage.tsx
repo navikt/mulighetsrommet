@@ -74,14 +74,16 @@ export function UtbetalingPage() {
   const [delutbetalingPerTilsagn, setDelutbetalingPerTilsagn] = useState<
     { id?: string; tilsagnId: string; belop: number; frigjorTilsagn: boolean }[]
   >(
-    delutbetalinger.map((d) => {
-      return {
-        id: d.id,
-        tilsagnId: d.tilsagnId,
-        belop: d.belop,
-        frigjorTilsagn: d.frigjorTilsagn,
-      };
-    }),
+    delutbetalinger
+      .filter((d) => d.type === "DELUTBETALING_AVVIST")
+      .map((d) => {
+        return {
+          id: d.id,
+          tilsagnId: d.tilsagnId,
+          belop: d.belop,
+          frigjorTilsagn: d.frigjorTilsagn,
+        };
+      }),
   );
 
   const [endreUtbetaling, setEndreUtbetaling] = useState<boolean>(delutbetalinger.length === 0);
