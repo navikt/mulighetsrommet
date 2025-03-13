@@ -5,6 +5,8 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.database.datatypes.periode
+import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.*
@@ -32,7 +34,7 @@ class UtbetalingQueries(private val session: Session) {
                 :frist_for_godkjenning,
                 :kontonummer,
                 :kid,
-                daterange(:periode_start, :periode_slutt),
+                :periode::daterange,
                 :prismodell::prismodell,
                 :innsender,
                 :beskrivelse
@@ -53,8 +55,7 @@ class UtbetalingQueries(private val session: Session) {
             "frist_for_godkjenning" to dbo.fristForGodkjenning,
             "kontonummer" to dbo.kontonummer?.value,
             "kid" to dbo.kid?.value,
-            "periode_start" to dbo.periode.start,
-            "periode_slutt" to dbo.periode.slutt,
+            "periode" to dbo.periode.toDaterange(),
             "prismodell" to when (dbo.beregning) {
                 is UtbetalingBeregningForhandsgodkjent -> Prismodell.FORHANDSGODKJENT.name
                 is UtbetalingBeregningFri -> Prismodell.FRI.name
@@ -109,13 +110,12 @@ class UtbetalingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val insertStengtHosArrangorQuery = """
             insert into utbetaling_stengt_hos_arrangor (utbetaling_id, periode, beskrivelse)
-            values (:utbetaling_id::uuid, daterange(:start, :slutt), :beskrivelse)
+            values (:utbetaling_id::uuid, :periode::daterange, :beskrivelse)
         """.trimIndent()
         val stengt = beregning.input.stengt.map { stengt ->
             mapOf(
                 "utbetaling_id" to id,
-                "start" to stengt.start,
-                "slutt" to stengt.slutt,
+                "periode" to stengt.periode.toDaterange(),
                 "beskrivelse" to stengt.beskrivelse,
             )
         }
@@ -132,15 +132,14 @@ class UtbetalingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val insertPeriodeQuery = """
             insert into utbetaling_deltakelse_periode (utbetaling_id, deltakelse_id, periode, deltakelsesprosent)
-            values (:utbetaling_id, :deltakelse_id, daterange(:start, :slutt), :deltakelsesprosent)
+            values (:utbetaling_id, :deltakelse_id, :periode::daterange, :deltakelsesprosent)
         """.trimIndent()
         val perioder = beregning.input.deltakelser.flatMap { deltakelse ->
             deltakelse.perioder.map { periode ->
                 mapOf(
                     "utbetaling_id" to id,
                     "deltakelse_id" to deltakelse.deltakelseId,
-                    "start" to periode.start,
-                    "slutt" to periode.slutt,
+                    "periode" to periode.periode.toDaterange(),
                     "deltakelsesprosent" to periode.deltakelsesprosent,
                 )
             }
@@ -329,10 +328,7 @@ class UtbetalingQueries(private val session: Session) {
                 kid = stringOrNull("kid")?.let { Kid(it) },
             ),
             journalpostId = stringOrNull("journalpost_id"),
-            periode = Periode(
-                start = localDate("periode_start"),
-                slutt = localDate("periode_slutt"),
-            ),
+            periode = periode("periode"),
             innsender = innsender,
             createdAt = localDateTime("created_at"),
             beskrivelse = stringOrNull("beskrivelse"),
@@ -357,7 +353,7 @@ class UtbetalingQueries(private val session: Session) {
         return session.requireSingle(queryOf(query, id)) { row ->
             UtbetalingBeregningForhandsgodkjent(
                 input = UtbetalingBeregningForhandsgodkjent.Input(
-                    periode = Periode(row.localDate("periode_start"), row.localDate("periode_slutt")),
+                    periode = row.periode("periode"),
                     sats = row.int("sats"),
                     stengt = Json.decodeFromString(row.string("stengt_json")),
                     deltakelser = Json.decodeFromString(row.string("perioder_json")),

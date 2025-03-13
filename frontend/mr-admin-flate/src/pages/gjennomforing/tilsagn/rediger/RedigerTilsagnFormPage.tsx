@@ -56,8 +56,8 @@ export function RedigerTilsagnFormPage() {
   const defaults: TilsagnRequest = {
     id: tilsagn.id,
     type: tilsagn.type,
-    periodeStart: tilsagn.periodeStart,
-    periodeSlutt: tilsagn.periodeSlutt,
+    periodeStart: tilsagn.periode.start,
+    periodeSlutt: tilsagn.periode.slutt,
     kostnadssted: tilsagn.kostnadssted.enhetsnummer,
     beregning: tilsagn.beregning.input,
     gjennomforingId: gjennomforingId!,

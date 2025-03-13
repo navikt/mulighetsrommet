@@ -8,7 +8,7 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { DelutbetalingRow } from "@/components/utbetaling/DelutbetalingRow";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { formaterDato } from "@/utils/Utils";
+import { formaterDato, formaterPeriode } from "@/utils/Utils";
 import {
   FieldError,
   NavAnsattRolle,
@@ -46,6 +46,8 @@ import {
 
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { useAdminGjennomforingById } from "../../../api/gjennomforing/useAdminGjennomforingById";
+import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
+
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
 
@@ -134,8 +136,8 @@ export function UtbetalingPage() {
         `?type=${TilsagnType.EKSTRATILSAGN}` +
         `&prismodell=${Prismodell.FRI}` +
         `&belop=${defaultBelop}` +
-        `&periodeStart=${utbetaling.beregning.periodeStart}` +
-        `&periodeSlutt=${utbetaling.beregning.periodeSlutt}` +
+        `&periodeStart=${utbetaling.beregning.periode.start}` +
+        `&periodeSlutt=${utbetaling.beregning.periode.slutt}` +
         `&kostnadssted=${defaultTilsagn?.kostnadssted.enhetsnummer}`,
     );
   }
@@ -197,7 +199,7 @@ export function UtbetalingPage() {
                 <VStack gap="2">
                   <MetadataHorisontal
                     header="Utbetalingsperiode"
-                    verdi={`${formaterDato(utbetaling.beregning.periodeStart)} - ${formaterDato(utbetaling.beregning.periodeSlutt)}`}
+                    verdi={formaterPeriode(utbetaling.periode)}
                   />
                   <MetadataHorisontal
                     header="Innsendt"
@@ -206,7 +208,7 @@ export function UtbetalingPage() {
                     )}
                   />
                   <MetadataHorisontal
-                    header="Beløp arrangør har sendt inn"
+                    header={utbetalingTekster.beregning.belop.label}
                     verdi={formaterNOK(utbetaling.beregning.belop)}
                   />
                   {utbetaling.beskrivelse && (

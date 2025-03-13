@@ -70,8 +70,10 @@ const mockUtbetalinger: ArrFlateUtbetalingKompakt[] = [
       navn: "Fretex",
       slettet: false,
     },
-    periodeStart: "2024-06-01",
-    periodeSlutt: "2024-06-30",
+    periode: {
+      start: "2024-06-01",
+      slutt: "2024-06-30",
+    },
     belop: 308530,
   },
   {
@@ -91,8 +93,10 @@ const mockUtbetalinger: ArrFlateUtbetalingKompakt[] = [
       navn: "Fretex",
       slettet: false,
     },
-    periodeStart: "2024-06-01",
-    periodeSlutt: "2024-06-30",
+    periode: {
+      start: "2024-06-01",
+      slutt: "2024-06-30",
+    },
     belop: 85000,
   },
   {
@@ -113,8 +117,10 @@ const mockUtbetalinger: ArrFlateUtbetalingKompakt[] = [
       navn: "Fretex",
       slettet: false,
     },
-    periodeStart: "2024-06-01",
-    periodeSlutt: "2024-06-30",
+    periode: {
+      start: "2024-06-01",
+      slutt: "2024-06-30",
+    },
     belop: 85000,
   },
   {
@@ -135,8 +141,10 @@ const mockUtbetalinger: ArrFlateUtbetalingKompakt[] = [
       navn: "Fretex",
       slettet: false,
     },
-    periodeStart: "2024-06-01",
-    periodeSlutt: "2024-06-30",
+    periode: {
+      start: "2024-06-01",
+      slutt: "2024-06-30",
+    },
 
     belop: 85000,
   },
@@ -165,8 +173,10 @@ const mockKrav: ArrFlateUtbetaling[] = [
       navn: "Fretex",
       slettet: false,
     },
-    periodeStart: "2024-06-01",
-    periodeSlutt: "2024-06-30",
+    periode: {
+      start: "2024-06-01",
+      slutt: "2024-06-30",
+    },
     beregning: {
       antallManedsverk: 17.5,
       belop: 308530,
@@ -197,8 +207,10 @@ const mockKrav: ArrFlateUtbetaling[] = [
       navn: "Fretex",
       slettet: false,
     },
-    periodeStart: "2024-06-01",
-    periodeSlutt: "2024-06-30",
+    periode: {
+      start: "2024-06-01",
+      slutt: "2024-06-30",
+    },
     beregning: {
       antallManedsverk: 4,
       belop: 85000,
@@ -229,8 +241,10 @@ const mockKrav: ArrFlateUtbetaling[] = [
       navn: "Fretex",
       slettet: false,
     },
-    periodeStart: "2024-06-01",
-    periodeSlutt: "2024-06-30",
+    periode: {
+      start: "2024-06-01",
+      slutt: "2024-06-30",
+    },
     beregning: {
       antallManedsverk: 4,
       belop: 85000,
@@ -261,8 +275,10 @@ const mockKrav: ArrFlateUtbetaling[] = [
       navn: "Fretex",
       slettet: false,
     },
-    periodeStart: "2024-06-01",
-    periodeSlutt: "2024-06-30",
+    periode: {
+      start: "2024-06-01",
+      slutt: "2024-06-30",
+    },
     beregning: {
       deltakelser: [
         {
@@ -304,8 +320,10 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
-    periodeStart: "2024-06-01",
-    periodeSlutt: "2024-12-31",
+    periode: {
+      start: "2024-06-01",
+      slutt: "2024-12-31",
+    },
     status: { status: TilsagnStatus.GODKJENT },
     arrangor: {
       id: uuid(),
@@ -336,8 +354,10 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
-    periodeStart: "2024-08-01",
-    periodeSlutt: "2024-08-31",
+    periode: {
+      start: "2024-08-01",
+      slutt: "2024-08-31",
+    },
     status: { status: TilsagnStatus.GODKJENT },
     arrangor: {
       id: uuid(),
@@ -368,8 +388,10 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
-    periodeStart: "2024-08-01",
-    periodeSlutt: "2024-08-31",
+    periode: {
+      start: "2024-08-01",
+      slutt: "2024-08-31",
+    },
     status: { status: TilsagnStatus.GODKJENT },
     arrangor: {
       id: uuid(),

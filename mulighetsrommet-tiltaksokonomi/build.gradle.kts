@@ -19,6 +19,7 @@ dependencies {
     implementation(projects.common.domain)
     implementation(projects.common.brreg)
     implementation(projects.common.database)
+    implementation(projects.common.databaseHelpers)
     implementation(projects.common.slack)
     implementation(projects.common.kafka)
     implementation(projects.common.tokenProvider)

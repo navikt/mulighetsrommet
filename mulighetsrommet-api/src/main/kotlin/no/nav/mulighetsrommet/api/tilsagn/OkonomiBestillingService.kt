@@ -132,7 +132,7 @@ class OkonomiBestillingService(
             // TODO: hvilket avtalenummer?
             avtalenummer = avtale.avtalenummer,
             belop = tilsagn.beregning.output.belop,
-            periode = Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt),
+            periode = tilsagn.periode,
             behandletAv = tilsagn.opprettelse.behandletAv.toOkonomiPart(),
             behandletTidspunkt = tilsagn.opprettelse.behandletTidspunkt,
             besluttetAv = tilsagn.opprettelse.besluttetAv.toOkonomiPart(),

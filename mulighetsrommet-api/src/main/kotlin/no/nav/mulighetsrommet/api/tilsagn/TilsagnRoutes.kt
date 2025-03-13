@@ -278,7 +278,7 @@ private fun resolveTilsagnDefaults(
         val periodeStart = listOfNotNull(
             config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
             gjennomforing.startDato,
-            tilsagn?.periodeSlutt?.plusDays(1),
+            tilsagn?.periode?.slutt,
         ).max()
 
         val forhandsgodkjentTilsagnPeriodeSlutt = periodeStart.plusMonths(6).minusDays(1)
@@ -318,7 +318,7 @@ private fun resolveTilsagnDefaults(
         val periodeStart = listOfNotNull(
             config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
             gjennomforing.startDato,
-            tilsagn?.periodeSlutt?.plusDays(1),
+            tilsagn?.periode?.slutt,
             firstDayOfCurrentMonth,
         ).max()
 

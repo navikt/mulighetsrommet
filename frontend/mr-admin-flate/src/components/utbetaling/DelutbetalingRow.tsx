@@ -1,5 +1,5 @@
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
-import { formaterDato, tilsagnTypeToString } from "@/utils/Utils";
+import { formaterPeriodeSlutt, formaterPeriodeStart, tilsagnTypeToString } from "@/utils/Utils";
 import {
   BesluttDelutbetalingRequest,
   Besluttelse,
@@ -81,8 +81,8 @@ export function DelutbetalingRow({ tilsagn, delutbetaling, ansatt }: Props) {
       key={tilsagn.id}
       content={content()}
     >
-      <Table.DataCell>{formaterDato(tilsagn.periodeStart)}</Table.DataCell>
-      <Table.DataCell>{formaterDato(tilsagn.periodeSlutt)}</Table.DataCell>
+      <Table.DataCell>{formaterPeriodeStart(tilsagn.periodeStart)}</Table.DataCell>
+      <Table.DataCell>{formaterPeriodeSlutt(tilsagn.periodeSlutt)}</Table.DataCell>
       <Table.DataCell>{tilsagnTypeToString(tilsagn.type)}</Table.DataCell>
       <Table.DataCell>{tilsagn.kostnadssted.navn}</Table.DataCell>
       <Table.DataCell>{formaterNOK(tilsagn.beregning.output.belop)}</Table.DataCell>

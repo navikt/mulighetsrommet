@@ -16,9 +16,12 @@ import io.mockk.verify
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn1
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.setTilsagnStatus
@@ -28,6 +31,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import org.intellij.lang.annotations.Language
@@ -139,8 +143,7 @@ class TilsagnServiceTest : FunSpec({
             service.upsert(tilsagn, NavAnsattFixture.ansatt1.navIdent).shouldBeRight()
 
             service.getAll().shouldHaveSize(1).first().should {
-                it.periodeStart shouldBe LocalDate.of(2023, 1, 1)
-                it.periodeSlutt shouldBe LocalDate.of(2023, 1, 31)
+                it.periode shouldBe Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 2, 1))
             }
         }
 
@@ -214,7 +217,7 @@ class TilsagnServiceTest : FunSpec({
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                tilsagn = listOf(Tilsagn1),
             ).initialize(database.db)
             val service = createTilsagnService()
 
@@ -230,7 +233,7 @@ class TilsagnServiceTest : FunSpec({
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                tilsagn = listOf(Tilsagn1),
             ).initialize(database.db)
 
             val service = createTilsagnService()
@@ -253,7 +256,7 @@ class TilsagnServiceTest : FunSpec({
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                tilsagn = listOf(Tilsagn1),
             ).initialize(database.db)
 
             val okonomi = mockk<OkonomiBestillingService>()
@@ -278,7 +281,7 @@ class TilsagnServiceTest : FunSpec({
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                tilsagn = listOf(Tilsagn1),
             ).initialize(database.db)
 
             val service = createTilsagnService()
@@ -393,7 +396,7 @@ class TilsagnServiceTest : FunSpec({
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                tilsagn = listOf(Tilsagn1),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
             }.initialize(database.db)

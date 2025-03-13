@@ -1,6 +1,6 @@
 import z from "zod";
 import { TilsagnType } from "@mr/api-client-v2";
-import { tekster } from "@/components/tilsagn/prismodell/Tekster";
+import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 
 const TilsagnBeregningSchema = z.discriminatedUnion("type", [
   z.object({
@@ -10,11 +10,11 @@ const TilsagnBeregningSchema = z.discriminatedUnion("type", [
       required_error: "Sats er påkrevd",
     }),
     periodeStart: z
-      .string({ required_error: tekster.manglerStartdato })
-      .min(10, tekster.manglerStartdato),
+      .string({ required_error: tilsagnTekster.manglerStartdato })
+      .min(10, tilsagnTekster.manglerStartdato),
     periodeSlutt: z
-      .string({ required_error: tekster.manglerSluttdato })
-      .min(10, tekster.manglerSluttdato),
+      .string({ required_error: tilsagnTekster.manglerSluttdato })
+      .min(10, tilsagnTekster.manglerSluttdato),
     antallPlasser: z
       .number({
         invalid_type_error: "Antall plasser mangler",
@@ -38,17 +38,17 @@ export const TilsagnSchema = z.object({
   gjennomforingId: z.string(),
   type: z.nativeEnum(TilsagnType),
   periodeStart: z
-    .string({ required_error: tekster.manglerStartdato })
-    .min(10, tekster.manglerStartdato),
+    .string({ required_error: tilsagnTekster.manglerStartdato })
+    .min(10, tilsagnTekster.manglerStartdato),
   periodeSlutt: z
-    .string({ required_error: tekster.manglerSluttdato })
-    .min(10, tekster.manglerSluttdato),
+    .string({ required_error: tilsagnTekster.manglerSluttdato })
+    .min(10, tilsagnTekster.manglerSluttdato),
   kostnadssted: z
     .string({
-      invalid_type_error: tekster.manglerKostnadssted,
-      required_error: tekster.manglerKostnadssted,
+      invalid_type_error: tilsagnTekster.manglerKostnadssted,
+      required_error: tilsagnTekster.manglerKostnadssted,
     })
-    .length(4, tekster.manglerKostnadssted),
+    .length(4, tilsagnTekster.manglerKostnadssted),
   beregning: TilsagnBeregningSchema,
 });
 

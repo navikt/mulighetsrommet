@@ -80,8 +80,8 @@ class ArrangorFlateService(
                         id = id,
                         startDato = deltaker.startDato,
                         sluttDato = deltaker.startDato,
-                        forstePeriodeStartDato = forstePeriode.start,
-                        sistePeriodeSluttDato = sistePeriode.slutt.minusDays(1),
+                        forstePeriodeStartDato = forstePeriode.periode.start,
+                        sistePeriodeSluttDato = sistePeriode.periode.getLastInclusiveDate(),
                         sistePeriodeDeltakelsesprosent = sistePeriode.deltakelsesprosent,
                         manedsverk = manedsverk,
                         person = person,
@@ -103,8 +103,7 @@ class ArrangorFlateService(
                     tiltakstype = utbetaling.tiltakstype,
                     gjennomforing = utbetaling.gjennomforing,
                     arrangor = utbetaling.arrangor,
-                    periodeStart = utbetaling.periode.start,
-                    periodeSlutt = utbetaling.periode.getLastInclusiveDate(),
+                    periode = utbetaling.periode,
                     beregning = Beregning.Forhandsgodkjent(
                         antallManedsverk = antallManedsverk,
                         belop = beregning.output.belop,
@@ -122,8 +121,7 @@ class ArrangorFlateService(
                 tiltakstype = utbetaling.tiltakstype,
                 gjennomforing = utbetaling.gjennomforing,
                 arrangor = utbetaling.arrangor,
-                periodeStart = utbetaling.periode.start,
-                periodeSlutt = utbetaling.periode.getLastInclusiveDate(),
+                periode = utbetaling.periode,
                 beregning = Beregning.Fri(
                     belop = beregning.output.belop,
                     digest = beregning.getDigest(),
@@ -206,8 +204,8 @@ fun DeltakerForslag.relevantForDeltakelse(
         ?: return false
 
     val periode = beregning.input.periode
-    val sisteSluttDato = deltakelser.perioder.maxOf { it.slutt }
-    val forsteStartDato = deltakelser.perioder.minOf { it.start }
+    val sisteSluttDato = deltakelser.perioder.maxOf { it.periode.getLastInclusiveDate() }
+    val forsteStartDato = deltakelser.perioder.minOf { it.periode.start }
 
     return when (this.endring) {
         is Melding.Forslag.Endring.AvsluttDeltakelse -> {

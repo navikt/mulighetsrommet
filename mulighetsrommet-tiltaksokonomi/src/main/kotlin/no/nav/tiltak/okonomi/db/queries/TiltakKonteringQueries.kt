@@ -2,11 +2,11 @@ package no.nav.tiltak.okonomi.db.queries
 
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.database.datatypes.periode
+import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.okonomi.Tilskuddstype
-import no.nav.tiltak.okonomi.db.periode
-import no.nav.tiltak.okonomi.db.toDaterange
 import no.nav.tiltak.okonomi.model.OebsKontering
 import org.intellij.lang.annotations.Language
 

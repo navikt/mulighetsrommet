@@ -24,7 +24,7 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                         DeltakelsePerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
-                                DeltakelsePeriode(periodeStart, periodeSlutt, 100.0),
+                                DeltakelsePeriode(Periode(periodeStart, periodeSlutt), 100.0),
                             ),
                         ),
                     ),
@@ -40,7 +40,7 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                         DeltakelsePerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
-                                DeltakelsePeriode(periodeStart, periodeSlutt, 50.0),
+                                DeltakelsePeriode(Periode(periodeStart, periodeSlutt), 50.0),
                             ),
                         ),
                     ),
@@ -56,7 +56,7 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                         DeltakelsePerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
-                                DeltakelsePeriode(periodeStart, periodeMidt, 40.0),
+                                DeltakelsePeriode(Periode(periodeStart, periodeMidt), 40.0),
                             ),
                         ),
                     ),
@@ -72,8 +72,8 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                         DeltakelsePerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
-                                DeltakelsePeriode(periodeStart, periodeMidt, 49.0),
-                                DeltakelsePeriode(periodeMidt, periodeSlutt, 50.0),
+                                DeltakelsePeriode(Periode(periodeStart, periodeMidt), 49.0),
+                                DeltakelsePeriode(Periode(periodeMidt, periodeSlutt), 50.0),
                             ),
                         ),
                     ),
@@ -89,13 +89,13 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                         DeltakelsePerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
-                                DeltakelsePeriode(periodeStart, periodeSlutt, 100.0),
+                                DeltakelsePeriode(Periode(periodeStart, periodeSlutt), 100.0),
                             ),
                         ),
                         DeltakelsePerioder(
                             deltakelseId = deltakerId2,
                             perioder = listOf(
-                                DeltakelsePeriode(periodeStart, periodeSlutt, 49.0),
+                                DeltakelsePeriode(Periode(periodeStart, periodeSlutt), 49.0),
                             ),
                         ),
                     ),
@@ -112,14 +112,14 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                         DeltakelsePerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
-                                DeltakelsePeriode(periodeStart, periodeMidt, 49.0),
-                                DeltakelsePeriode(periodeMidt, periodeSlutt, 50.0),
+                                DeltakelsePeriode(Periode(periodeStart, periodeMidt), 49.0),
+                                DeltakelsePeriode(Periode(periodeMidt, periodeSlutt), 50.0),
                             ),
                         ),
                         DeltakelsePerioder(
                             deltakelseId = deltakerId2,
                             perioder = listOf(
-                                DeltakelsePeriode(periodeStart, periodeMidt, 49.0),
+                                DeltakelsePeriode(Periode(periodeStart, periodeMidt), 49.0),
                             ),
                         ),
                     ),
@@ -151,12 +151,12 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
 
             forAll(
                 row(
-                    setOf(StengtPeriode(periodeStart, periodeMidt, "Stengt")),
+                    setOf(StengtPeriode(Periode(periodeStart, periodeMidt), "Stengt")),
                     setOf(
                         DeltakelsePerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
-                                DeltakelsePeriode(periodeStart, periodeSlutt, 100.0),
+                                DeltakelsePeriode(Periode(periodeStart, periodeSlutt), 100.0),
                             ),
                         ),
                     ),
@@ -168,12 +168,12 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                     ),
                 ),
                 row(
-                    setOf(StengtPeriode(periodeStart.plusWeeks(1), periodeMidt.plusWeeks(1), "Stengt")),
+                    setOf(StengtPeriode(Periode(periodeStart.plusWeeks(1), periodeMidt.plusWeeks(1)), "Stengt")),
                     setOf(
                         DeltakelsePerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
-                                DeltakelsePeriode(periodeStart, periodeSlutt, 100.0),
+                                DeltakelsePeriode(Periode(periodeStart, periodeSlutt), 100.0),
                             ),
                         ),
                     ),
@@ -185,19 +185,19 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
                     ),
                 ),
                 row(
-                    setOf(StengtPeriode(periodeStart.plusWeeks(1), periodeMidt.plusWeeks(1), "Stengt")),
+                    setOf(StengtPeriode(Periode(periodeStart.plusWeeks(1), periodeMidt.plusWeeks(1)), "Stengt")),
                     setOf(
                         DeltakelsePerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
-                                DeltakelsePeriode(periodeStart, periodeMidt, 49.0),
-                                DeltakelsePeriode(periodeMidt, periodeSlutt, 50.0),
+                                DeltakelsePeriode(Periode(periodeStart, periodeMidt), 49.0),
+                                DeltakelsePeriode(Periode(periodeMidt, periodeSlutt), 50.0),
                             ),
                         ),
                         DeltakelsePerioder(
                             deltakelseId = deltakerId2,
                             perioder = listOf(
-                                DeltakelsePeriode(periodeStart, periodeMidt, 49.0),
+                                DeltakelsePeriode(Periode(periodeStart, periodeMidt), 49.0),
                             ),
                         ),
                     ),
@@ -230,19 +230,19 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
             val input = UtbetalingBeregningForhandsgodkjent.Input(
                 periode = Periode(periodeStart, periodeSlutt),
                 sats = 100,
-                stengt = setOf(StengtPeriode(periodeStart.plusWeeks(1), periodeMidt.plusWeeks(1), "Stengt")),
+                stengt = setOf(StengtPeriode(Periode(periodeStart.plusWeeks(1), periodeMidt.plusWeeks(1)), "Stengt")),
                 deltakelser = setOf(
                     DeltakelsePerioder(
                         deltakelseId = deltakerId1,
                         perioder = listOf(
-                            DeltakelsePeriode(periodeStart, periodeMidt, 49.0),
-                            DeltakelsePeriode(periodeMidt, periodeSlutt, 50.0),
+                            DeltakelsePeriode(Periode(periodeStart, periodeMidt), 49.0),
+                            DeltakelsePeriode(Periode(periodeMidt, periodeSlutt), 50.0),
                         ),
                     ),
                     DeltakelsePerioder(
                         deltakelseId = deltakerId2,
                         perioder = listOf(
-                            DeltakelsePeriode(periodeStart, periodeMidt, 49.0),
+                            DeltakelsePeriode(Periode(periodeStart, periodeMidt), 49.0),
                         ),
                     ),
                 ),
@@ -264,14 +264,14 @@ class UtbetalingBeregningForhandsgodkjentTest : FunSpec({
 
             // 1 pluss 14 = 15 dager stengt = 50 %
             val stengt = setOf(
-                StengtPeriode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 4, 2), "Stengt"),
-                StengtPeriode(LocalDate.of(2023, 4, 5), LocalDate.of(2023, 4, 19), "Stengt"),
+                StengtPeriode(Periode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 4, 2)), "Stengt"),
+                StengtPeriode(Periode(LocalDate.of(2023, 4, 5), LocalDate.of(2023, 4, 19)), "Stengt"),
             )
             val deltakelser = setOf(
                 DeltakelsePerioder(
                     deltakelseId = deltakerId1,
                     perioder = listOf(
-                        DeltakelsePeriode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 5, 1), 100.0),
+                        DeltakelsePeriode(Periode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 5, 1)), 100.0),
                     ),
                 ),
             )

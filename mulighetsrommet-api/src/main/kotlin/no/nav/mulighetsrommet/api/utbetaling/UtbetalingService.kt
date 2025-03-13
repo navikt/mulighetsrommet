@@ -299,7 +299,7 @@ class UtbetalingService(
             gjennomforingId = utbetaling.gjennomforing.id,
             statuser = listOf(TilsagnStatus.GODKJENT),
             typer = listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN),
-            periode = utbetaling.periode,
+            periodeIntersectsWith = utbetaling.periode,
         )
         if (relevanteTilsagn.size != 1) {
             log.debug(
@@ -315,15 +315,15 @@ class UtbetalingService(
             log.debug("Avbryter automatisk utbetaling. Ikke nok penger. UtbetalingId: {}", utbetalingId)
             return false
         }
-        val frigjorTilsagn = tilsagn.periodeSlutt in utbetaling.periode
+        val frigjorTilsagn = tilsagn.periode.getLastInclusiveDate() in utbetaling.periode
         val delutbetalingId = UUID.randomUUID()
         upsertDelutbetaling(
-            utbetaling,
-            tilsagn,
-            delutbetalingId,
+            utbetaling = utbetaling,
+            tilsagn = tilsagn,
+            id = delutbetalingId,
             belop = utbetaling.beregning.output.belop,
             frigjorTilsagn = frigjorTilsagn,
-            Tiltaksadministrasjon,
+            behandletAv = Tiltaksadministrasjon,
         )
         val delutbetaling = requireNotNull(queries.delutbetaling.get(delutbetalingId))
         godkjennDelutbetaling(
@@ -345,8 +345,8 @@ class UtbetalingService(
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
             "Tilsagn er ikke godkjent id=${tilsagn.id} status=${tilsagn.status}"
         }
-        val tilsagnPeriode = Periode.fromInclusiveDates(tilsagn.periodeStart, tilsagn.periodeSlutt)
-        val periode = requireNotNull(utbetaling.periode.intersect(tilsagnPeriode)) {
+
+        val periode = requireNotNull(utbetaling.periode.intersect(tilsagn.periode)) {
             "Utbetalingsperiode og tilsagnsperiode overlapper ikke"
         }
 
@@ -442,8 +442,8 @@ class UtbetalingService(
     ): Set<StengtPeriode> {
         return stengtPerioder
             .mapNotNull { stengt ->
-                Periode(stengt.start, stengt.slutt.plusDays(1)).intersect(periode)?.let {
-                    StengtPeriode(it.start, it.slutt, stengt.beskrivelse)
+                Periode.fromInclusiveDates(stengt.start, stengt.slutt).intersect(periode)?.let {
+                    StengtPeriode(Periode(it.start, it.slutt), stengt.beskrivelse)
                 }
             }
             .toSet()
@@ -468,8 +468,7 @@ class UtbetalingService(
 
                     Periode.of(mengde.gyldigFra, gyldigTil)?.intersect(periode)?.let { overlappingPeriode ->
                         DeltakelsePeriode(
-                            start = overlappingPeriode.start,
-                            slutt = overlappingPeriode.slutt,
+                            periode = overlappingPeriode,
                             deltakelsesprosent = mengde.deltakelsesprosent,
                         )
                     }
@@ -525,7 +524,7 @@ private fun isRelevantForUtbetalingsperide(
         "Deltaker må ha en startdato når status er ${deltaker.status.type} og den er relevant for utbetaling"
     }
     val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode)
-    return Periode.of(startDato, sluttDatoInPeriode)?.overlaps(periode) ?: false
+    return Periode.of(startDato, sluttDatoInPeriode)?.intersects(periode) ?: false
 }
 
 private fun getSluttDatoInPeriode(deltaker: DeltakerDto, periode: Periode): LocalDate {

@@ -10,6 +10,8 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.database.datatypes.periode
+import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -36,7 +38,7 @@ class TilsagnQueries(private val session: Session) {
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
-                daterange(:periode_start, :periode_slutt),
+                :periode::daterange,
                 :lopenummer,
                 :bestillingsnummer,
                 :kostnadssted,
@@ -60,8 +62,7 @@ class TilsagnQueries(private val session: Session) {
         val params = mapOf(
             "id" to dbo.id,
             "gjennomforing_id" to dbo.gjennomforingId,
-            "periode_start" to dbo.periode.start,
-            "periode_slutt" to dbo.periode.slutt,
+            "periode" to dbo.periode.toDaterange(),
             "lopenummer" to dbo.lopenummer,
             "status" to TilsagnStatus.TIL_GODKJENNING.name,
             "bestillingsnummer" to dbo.bestillingsnummer,
@@ -114,7 +115,7 @@ class TilsagnQueries(private val session: Session) {
         typer: List<TilsagnType>? = null,
         gjennomforingId: UUID? = null,
         statuser: List<TilsagnStatus>? = null,
-        periode: Periode? = null,
+        periodeIntersectsWith: Periode? = null,
     ): List<TilsagnDto> {
         @Language("PostgreSQL")
         val query = """
@@ -124,8 +125,7 @@ class TilsagnQueries(private val session: Session) {
               (:typer::tilsagn_type[] is null or type = any(:typer::tilsagn_type[]))
               and (:gjennomforing_id::uuid is null or gjennomforing_id = :gjennomforing_id::uuid)
               and (:statuser::tilsagn_status[] is null or status::tilsagn_status = any(:statuser))
-              and (:periode_slutt::date is null or periode_start <= :periode_slutt::date)
-              and (:periode_start::date is null or periode_slutt >= :periode_start::date)
+              and (:periode::daterange is null or periode && :periode::daterange)
             order by lopenummer desc
         """.trimIndent()
 
@@ -133,8 +133,7 @@ class TilsagnQueries(private val session: Session) {
             "typer" to typer?.map { it.name }?.let { session.createArrayOf("tilsagn_type", it) },
             "gjennomforing_id" to gjennomforingId,
             "statuser" to statuser?.let { session.createArrayOf("tilsagn_status", statuser) },
-            "periode_start" to periode?.start,
-            "periode_slutt" to periode?.getLastInclusiveDate(),
+            "periode" to periodeIntersectsWith?.toDaterange(),
         )
 
         return session.list(queryOf(query, params)) { it.toTilsagnDto() }
@@ -143,7 +142,8 @@ class TilsagnQueries(private val session: Session) {
     fun getAllArrangorflateTilsagn(organisasjonsnummer: Organisasjonsnummer): List<ArrangorflateTilsagn> {
         @Language("PostgreSQL")
         val query = """
-            select * from tilsagn_arrangorflate_view
+            select *
+            from tilsagn_arrangorflate_view
             where arrangor_organisasjonsnummer = ?
             and status in ('GODKJENT', 'TIL_ANNULLERING', 'ANNULLERT')
         """.trimIndent()
@@ -153,22 +153,20 @@ class TilsagnQueries(private val session: Session) {
 
     fun getArrangorflateTilsagnTilUtbetaling(
         gjennomforingId: UUID,
-        periode: Periode,
+        periodeIntersectsWith: Periode,
     ): List<ArrangorflateTilsagn> {
         @Language("PostgreSQL")
         val query = """
             select * from tilsagn_arrangorflate_view
             where gjennomforing_id = :gjennomforing_id::uuid
-              and (periode_start <= :periode_slutt::date)
-              and (periode_slutt >= :periode_start::date)
+              and (periode && :periode::daterange)
               and status in ('GODKJENT', 'TIL_ANNULLERING', 'ANNULLERT')
               and type in ('EKSTRATILSAGN', 'TILSAGN')
         """.trimIndent()
 
         val params = mapOf(
             "gjennomforing_id" to gjennomforingId,
-            "periode_start" to periode.start,
-            "periode_slutt" to periode.getLastInclusiveDate(),
+            "periode" to periodeIntersectsWith.toDaterange(),
         )
 
         return session.list(queryOf(query, params)) { it.toArrangorflateTilsagn() }
@@ -218,8 +216,7 @@ class TilsagnQueries(private val session: Session) {
                 tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
                 navn = string("gjennomforing_navn"),
             ),
-            periodeSlutt = localDate("periode_slutt"),
-            periodeStart = localDate("periode_start"),
+            periode = periode("periode"),
             lopenummer = int("lopenummer"),
             bestillingsnummer = string("bestillingsnummer"),
             kostnadssted = NavEnhetDbo(
@@ -259,8 +256,7 @@ class TilsagnQueries(private val session: Session) {
                 navn = string("tiltakstype_navn"),
             ),
             type = TilsagnType.valueOf(string("type")),
-            periodeSlutt = localDate("periode_slutt"),
-            periodeStart = localDate("periode_start"),
+            periode = periode("periode"),
             arrangor = ArrangorflateTilsagn.Arrangor(
                 id = uuid("arrangor_id"),
                 organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),

@@ -6,8 +6,7 @@ create view tilsagn_admin_dto_view as
 select
     tilsagn.id,
     tilsagn.gjennomforing_id,
-    lower(tilsagn.periode)                                                    as periode_start,
-    date(upper(tilsagn.periode) - interval '1 day')                           as periode_slutt,
+    tilsagn.periode,
     tilsagn.beregning,
     tilsagn.lopenummer,
     tilsagn.bestillingsnummer,
