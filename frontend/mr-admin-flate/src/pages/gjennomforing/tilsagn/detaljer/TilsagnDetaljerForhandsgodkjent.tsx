@@ -68,8 +68,8 @@ export function TilsagnDetaljerForhandsgodkjent({ tilsagn }: Props) {
               verdi={formaterNOK(tilsagn.beregning.output.belop)}
             />
             <Metadata
-              header={tilsagnTekster.gjenstaendeBelop.label}
-              verdi={formaterNOK(tilsagn.gjenstaendeBelop)}
+              header={tilsagnTekster.belopGjenstaende.label}
+              verdi={formaterNOK(tilsagn.belopGjenstaende)}
             />
           </Bolk>
         </VStack>

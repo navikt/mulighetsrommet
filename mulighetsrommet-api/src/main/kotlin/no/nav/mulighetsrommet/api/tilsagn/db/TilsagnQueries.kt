@@ -35,7 +35,7 @@ class TilsagnQueries(private val session: Session) {
                 beregning,
                 status,
                 type,
-                gjenstaende_belop
+                belop_gjenstaende
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
@@ -47,7 +47,7 @@ class TilsagnQueries(private val session: Session) {
                 :beregning::jsonb,
                 :status::tilsagn_status,
                 :type::tilsagn_type,
-                :gjenstaende_belop
+                :belop_gjenstaende
             )
             on conflict (id) do update set
                 gjennomforing_id        = excluded.gjennomforing_id,
@@ -59,7 +59,7 @@ class TilsagnQueries(private val session: Session) {
                 beregning               = excluded.beregning,
                 status                  = excluded.status,
                 type                    = excluded.type,
-                gjenstaende_belop       = excluded.gjenstaende_belop
+                belop_gjenstaende       = excluded.belop_gjenstaende
         """.trimIndent()
 
         val params = mapOf(
@@ -73,7 +73,7 @@ class TilsagnQueries(private val session: Session) {
             "arrangor_id" to dbo.arrangorId,
             "beregning" to Json.encodeToString<TilsagnBeregning>(dbo.beregning),
             "type" to dbo.type.name,
-            "gjenstaende_belop" to dbo.beregning.output.belop,
+            "belop_gjenstaende" to dbo.beregning.output.belop,
         )
 
         execute(queryOf(query, params))
@@ -94,11 +94,11 @@ class TilsagnQueries(private val session: Session) {
         )
     }
 
-    fun updateGjenstaendeBelop(id: UUID, belop: Int) = with(session) {
+    fun setGjenstaendeBelop(id: UUID, belop: Int) = with(session) {
         @Language("PostgreSQL")
         val query = """
             update tilsagn set
-                gjenstaende_belop = gjenstaende_belop - :belop
+                belop_gjenstaende = :belop
             where id = :id::uuid
         """.trimIndent()
 
@@ -236,7 +236,7 @@ class TilsagnQueries(private val session: Session) {
                 tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
                 navn = string("gjennomforing_navn"),
             ),
-            gjenstaendeBelop = int("gjenstaende_belop"),
+            belopGjenstaende = int("belop_gjenstaende"),
             periode = periode("periode"),
             lopenummer = int("lopenummer"),
             bestillingsnummer = string("bestillingsnummer"),
@@ -273,7 +273,7 @@ class TilsagnQueries(private val session: Session) {
             gjennomforing = ArrangorflateTilsagn.Gjennomforing(
                 navn = string("gjennomforing_navn"),
             ),
-            gjenstaendeBelop = int("gjenstaende_belop"),
+            gjenstaendeBelop = int("belop_gjenstaende"),
             tiltakstype = ArrangorflateTilsagn.Tiltakstype(
                 navn = string("tiltakstype_navn"),
             ),

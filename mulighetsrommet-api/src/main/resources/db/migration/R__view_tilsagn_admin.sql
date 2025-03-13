@@ -6,7 +6,7 @@ create view tilsagn_admin_dto_view as
 select
     tilsagn.id,
     tilsagn.gjennomforing_id,
-    tilsagn.gjenstaende_belop,
+    tilsagn.belop_gjenstaende,
     tilsagn.periode,
     tilsagn.beregning,
     tilsagn.lopenummer,

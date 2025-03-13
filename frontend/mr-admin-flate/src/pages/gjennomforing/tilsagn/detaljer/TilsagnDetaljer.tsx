@@ -194,10 +194,9 @@ export function TilsagnDetaljer() {
                       </ActionMenu.Item>
                     </>
                   )}
-                  {tilsagn.data.status === TilsagnStatus.GODKJENT && (
-                    tilsagn.data.gjenstaendeBelop === tilsagn.data.beregning.output.belop
-                      ? (
-                        <>
+                  {tilsagn.data.status === TilsagnStatus.GODKJENT &&
+                    (tilsagn.data.belopGjenstaende === tilsagn.data.beregning.output.belop ? (
+                      <>
                         <ActionMenu.Item
                           variant="danger"
                           onSelect={() => setTilAnnulleringModalOpen(true)}
@@ -206,18 +205,17 @@ export function TilsagnDetaljer() {
                           Annuller tilsagn
                         </ActionMenu.Item>
                       </>
-                    ):(
-                    <>
-                      <ActionMenu.Item
-                        variant="danger"
-                        onSelect={() => setTilFrigjoringModalOpen(true)}
-                        icon={<EraserIcon />}
-                      >
-                        Frigjør tilsagn
-                      </ActionMenu.Item>
-                    </>
-                  )
-                  )}
+                    ) : (
+                      <>
+                        <ActionMenu.Item
+                          variant="danger"
+                          onSelect={() => setTilFrigjoringModalOpen(true)}
+                          icon={<EraserIcon />}
+                        >
+                          Frigjør tilsagn
+                        </ActionMenu.Item>
+                      </>
+                    ))}
                 </ActionMenu.Content>
               </ActionMenu>
             ) : null}

@@ -310,7 +310,7 @@ class UtbetalingService(
             return false
         }
         val tilsagn = relevanteTilsagn[0]
-        if (tilsagn.gjenstaendeBelop < utbetaling.beregning.output.belop) {
+        if (tilsagn.belopGjenstaende < utbetaling.beregning.output.belop) {
             log.debug("Avbryter automatisk utbetaling. Ikke nok penger. UtbetalingId: {}", utbetalingId)
             return false
         }
@@ -394,7 +394,7 @@ class UtbetalingService(
                 forklaring = null,
             ),
         )
-        queries.tilsagn.updateGjenstaendeBelop(tilsagn.id, delutbetaling.belop)
+        queries.tilsagn.setGjenstaendeBelop(tilsagn.id, tilsagn.belopGjenstaende - delutbetaling.belop)
         okonomi.scheduleBehandleGodkjenteUtbetalinger(delutbetaling.tilsagnId, session)
         // TODO: Sørg for at denne meldingen til tiltaksokonomi sendes etter den over
         if (delutbetaling.frigjorTilsagn) {

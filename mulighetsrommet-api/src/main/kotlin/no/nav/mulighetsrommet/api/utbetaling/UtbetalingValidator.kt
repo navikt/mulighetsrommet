@@ -21,7 +21,7 @@ object UtbetalingValidator {
                     ),
                 )
             }
-            if (belop > tilsagn.gjenstaendeBelop) {
+            if (belop > tilsagn.belopGjenstaende) {
                 add(
                     FieldError.of(
                         DelutbetalingRequest::belop,

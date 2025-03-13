@@ -1,5 +1,5 @@
 export const tilsagnTekster = {
-  gjenstaendeBelop: {
+  belopGjenstaende: {
     label: "Gjenstående beløp",
   },
   periode: {

@@ -5382,7 +5382,7 @@ components:
         id:
           type: string
           format: uuid
-        gjenstaendeBelop:
+        belopGjenstaende:
           type: integer
         periode:
           $ref: "#/components/schemas/Periode"
@@ -5431,7 +5431,7 @@ components:
         - lopenummer
         - status
         - type
-        - gjenstaendeBelop
+        - belopGjenstaende
 
     TilsagnStatus:
       type: string

@@ -85,7 +85,7 @@ export function DelutbetalingRow({ tilsagn, delutbetaling, ansatt }: Props) {
       <Table.DataCell>{formaterPeriodeSlutt(tilsagn.periode)}</Table.DataCell>
       <Table.DataCell>{tilsagnTypeToString(tilsagn.type)}</Table.DataCell>
       <Table.DataCell>{tilsagn.kostnadssted.navn}</Table.DataCell>
-      <Table.DataCell>{formaterNOK(tilsagn.gjenstaendeBelop)}</Table.DataCell>
+      <Table.DataCell>{formaterNOK(tilsagn.belopGjenstaende)}</Table.DataCell>
       <Table.DataCell>
         <Checkbox hideLabel readOnly={true} checked={delutbetaling.frigjorTilsagn}>
           Gjør opp tilsagn

@@ -1,9 +1,9 @@
 drop view if exists tilsagn_admin_dto_view;
 drop view if exists tilsagn_arrangorflate_view;
 
-alter table tilsagn add column gjenstaende_belop int;
+alter table tilsagn add column belop_gjenstaende int;
 
-update tilsagn set gjenstaende_belop =
+update tilsagn set belop_gjenstaende =
     (tilsagn.beregning->'output'->>'belop')::int
     - coalesce((
         select sum(d.belop) from delutbetaling d
@@ -11,4 +11,4 @@ update tilsagn set gjenstaende_belop =
         and d.sendt_til_okonomi_tidspunkt is not null
     ), 0);
 
-alter table tilsagn alter column gjenstaende_belop set not null;
+alter table tilsagn alter column belop_gjenstaende set not null;
