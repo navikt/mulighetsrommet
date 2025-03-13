@@ -81,8 +81,8 @@ export function DelutbetalingRow({ tilsagn, delutbetaling, ansatt }: Props) {
       key={tilsagn.id}
       content={content()}
     >
-      <Table.DataCell>{formaterPeriodeStart(tilsagn.periodeStart)}</Table.DataCell>
-      <Table.DataCell>{formaterPeriodeSlutt(tilsagn.periodeSlutt)}</Table.DataCell>
+      <Table.DataCell>{formaterPeriodeStart(tilsagn.periode)}</Table.DataCell>
+      <Table.DataCell>{formaterPeriodeSlutt(tilsagn.periode)}</Table.DataCell>
       <Table.DataCell>{tilsagnTypeToString(tilsagn.type)}</Table.DataCell>
       <Table.DataCell>{tilsagn.kostnadssted.navn}</Table.DataCell>
       <Table.DataCell>{formaterNOK(tilsagn.beregning.output.belop)}</Table.DataCell>

@@ -1,4 +1,4 @@
-import { formaterDato, tilsagnTypeToString } from "@/utils/Utils";
+import { formaterPeriodeSlutt, formaterPeriodeStart, tilsagnTypeToString } from "@/utils/Utils";
 import { TilsagnDto, TilsagnStatus, Totrinnskontroll } from "@mr/api-client-v2";
 import { Alert, Checkbox, Table, TextField } from "@navikt/ds-react";
 import { useState } from "react";
@@ -74,8 +74,8 @@ export function OpprettDelutbetalingRow({
         </>
       }
     >
-      <Table.DataCell className={cellClass}>{formaterDato(tilsagn.periodeStart)}</Table.DataCell>
-      <Table.DataCell className={cellClass}>{formaterDato(tilsagn.periodeSlutt)}</Table.DataCell>
+      <Table.DataCell className={cellClass}>{formaterPeriodeStart(tilsagn.periode)}</Table.DataCell>
+      <Table.DataCell className={cellClass}>{formaterPeriodeSlutt(tilsagn.periode)}</Table.DataCell>
       <Table.DataCell className={cellClass}>{tilsagnTypeToString(tilsagn.type)}</Table.DataCell>
       <Table.DataCell className={cellClass}>{tilsagn.kostnadssted.navn}</Table.DataCell>
       <Table.DataCell className={cellClass}>
@@ -84,7 +84,7 @@ export function OpprettDelutbetalingRow({
       <Table.DataCell className={cellClass}>
         <Checkbox
           hideLabel
-          readOnly={!kanRedigere}
+          readOnly={!kanRedigere || !godkjentTilsagn}
           checked={endretFrigjorTilsagn}
           onChange={(e) => {
             setEndretFrigjorTilsagn(e.target.checked);
