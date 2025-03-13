@@ -142,7 +142,14 @@ class TilsagnService(
 
             TilsagnStatus.TIL_FRIGJORING -> {
                 when (besluttelse.besluttelse) {
-                    Besluttelse.GODKJENT -> frigjorTilsagn(tilsagn, navIdent, sendMeldingTilOkonomi = true).right()
+                    Besluttelse.GODKJENT ->
+                        frigjorTilsagn(tilsagn, navIdent)
+                            .right()
+                            .also {
+                                // Ved manuell frigjøring må vi sende melding til OeBS, det trenger vi ikke
+                                // når vi frigør på en delutbetaling.
+                                okonomi.scheduleBehandleFrigjortTilsagn(tilsagn.id, session)
+                            }
                     Besluttelse.AVVIST -> avvisFrigjoring(tilsagn, navIdent).right()
                 }
             }
@@ -280,7 +287,6 @@ class TilsagnService(
     private fun QueryContext.frigjorTilsagn(
         tilsagn: TilsagnDto,
         besluttetAv: Agent,
-        sendMeldingTilOkonomi: Boolean,
     ): TilsagnDto {
         require(tilsagn.status == TilsagnStatus.TIL_FRIGJORING)
         requireNotNull(tilsagn.frigjoring)
@@ -297,10 +303,6 @@ class TilsagnService(
             ),
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.FRIGJORT)
-
-        if (sendMeldingTilOkonomi) {
-            okonomi.scheduleBehandleFrigjortTilsagn(tilsagn.id, session)
-        }
 
         val dto = getOrError(tilsagn.id)
         logEndring("Tilsagn frigjort", dto, besluttetAv)
@@ -334,7 +336,7 @@ class TilsagnService(
 
         tilsagn = setTilFrigjoring(tilsagn, Tiltaksadministrasjon, emptyList(), null)
 
-        frigjorTilsagn(tilsagn, Tiltaksadministrasjon, sendMeldingTilOkonomi = false)
+        frigjorTilsagn(tilsagn, Tiltaksadministrasjon)
     }
 
     private fun QueryContext.setTilAnnullering(
