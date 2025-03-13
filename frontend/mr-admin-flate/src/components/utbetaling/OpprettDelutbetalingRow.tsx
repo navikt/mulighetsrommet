@@ -67,8 +67,8 @@ export function OpprettDelutbetalingRow({
           )}
           {frigjorTilsagn && (
             <Alert variant="warning">
-              Når denne utbetalingen godkjennes vil det ikke lenger være mulig å sende inn nye
-              utbetalinger fra dette tilsagnet
+              Når denne utbetalingen godkjennes av beslutter vil det ikke lenger være mulig å gjøre
+              flere utbetalinger fra tilsagnet
             </Alert>
           )}
         </>
