@@ -396,7 +396,6 @@ class UtbetalingService(
         )
         queries.tilsagn.setGjenstaendeBelop(tilsagn.id, tilsagn.belopGjenstaende - delutbetaling.belop)
         okonomi.scheduleBehandleGodkjenteUtbetalinger(delutbetaling.tilsagnId, session)
-        // TODO: Sørg for at denne meldingen til tiltaksokonomi sendes etter den over
         if (delutbetaling.frigjorTilsagn) {
             tilsagnService.frigjorAutomatisk(delutbetaling.tilsagnId)
         }

@@ -19,10 +19,12 @@ import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
+import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.*
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.model.*
+import no.nav.tiltak.okonomi.oebs.OebsFakturaMelding
 import no.nav.tiltak.okonomi.oebs.OebsTiltakApiClient
 import java.time.LocalDate
 
@@ -278,11 +280,39 @@ class OkonomiServiceTest : FunSpec({
     }
 
     context("frigjor faktura") {
-        val bestillingsnummer = "B-2"
+        val bestillingsnummer1 = "B-2"
+        val bestillingsnummer2 = "B-3"
 
         db.session {
-            val bestilling = Bestilling.fromOpprettBestilling(createOpprettBestilling(bestillingsnummer))
-            queries.bestilling.insertBestilling(bestilling)
+            val bestilling1 = Bestilling.fromOpprettBestilling(createOpprettBestilling(bestillingsnummer1))
+            val bestilling2 = Bestilling.fromOpprettBestilling(createOpprettBestilling(bestillingsnummer2))
+            queries.bestilling.insertBestilling(bestilling1)
+            queries.bestilling.insertBestilling(bestilling2)
+        }
+
+        test("frigjør bestilling = true setter siste fakturalinje i fakturaen til oebs og oppdaterer bestillingstatus") {
+            val mockEngine = createMockEngine {
+                post("/api/v1/refusjonskrav") {
+                    val melding = it.decodeRequestBody<OebsFakturaMelding>()
+
+                    melding.fakturaLinjer.last().erSisteFaktura shouldBe true
+
+                    respondOk()
+                }
+            }
+            val service = OkonomiService(db, oebsClient(mockEngine), brreg)
+
+            val opprettFaktura = createOpprettFaktura(bestillingsnummer1, "F-3")
+                .copy(frigjorBestilling = true)
+            service.opprettFaktura(opprettFaktura).shouldBeRight().should {
+                it.fakturanummer shouldBe "F-3"
+                it.status shouldBe FakturaStatusType.UTBETALT
+            }
+
+            db.session {
+                val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer1)
+                bestilling.shouldNotBeNull().status shouldBe BestillingStatusType.FRIGJORT
+            }
         }
 
         test("frigjør faktura lager en faktura be erSisteLinje = true og setter bestillingen til FRIGJORT") {
@@ -291,9 +321,9 @@ class OkonomiServiceTest : FunSpec({
             coEvery { oebsClient.sendFaktura(any()) } returns oebsResponse.right()
             val service = OkonomiService(db, oebsClient, brreg)
 
-            val frigjorBestilling = createFrigjorBestilling(bestillingsnummer)
+            val frigjorBestilling = createFrigjorBestilling(bestillingsnummer2)
             service.frigjorBestilling(frigjorBestilling).shouldBeRight().should {
-                it.fakturanummer shouldBe "B-2-X"
+                it.fakturanummer shouldBe "B-3-X"
                 it.status shouldBe FakturaStatusType.UTBETALT
             }
 
@@ -306,7 +336,7 @@ class OkonomiServiceTest : FunSpec({
             }
 
             db.session {
-                val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
+                val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer2)
                 bestilling.shouldNotBeNull().status shouldBe BestillingStatusType.FRIGJORT
             }
         }
@@ -380,6 +410,7 @@ private fun createOpprettFaktura(bestillingsnummer: String, fakturanummer: Strin
     behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
     besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
     besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+    frigjorBestilling = false,
 )
 
 private fun createFrigjorBestilling(bestillingsnummer: String) = FrigjorBestilling(

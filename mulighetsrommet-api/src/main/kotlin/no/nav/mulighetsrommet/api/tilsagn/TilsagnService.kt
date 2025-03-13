@@ -142,7 +142,14 @@ class TilsagnService(
 
             TilsagnStatus.TIL_FRIGJORING -> {
                 when (besluttelse.besluttelse) {
-                    Besluttelse.GODKJENT -> frigjorTilsagn(tilsagn, navIdent).right()
+                    Besluttelse.GODKJENT ->
+                        frigjorTilsagn(tilsagn, navIdent)
+                            .right()
+                            .also {
+                                // Ved manuell frigjøring må vi sende melding til OeBS, det trenger vi ikke
+                                // når vi frigør på en delutbetaling.
+                                okonomi.scheduleBehandleFrigjortTilsagn(tilsagn.id, session)
+                            }
                     Besluttelse.AVVIST -> avvisFrigjoring(tilsagn, navIdent).right()
                 }
             }
@@ -277,7 +284,10 @@ class TilsagnService(
         return dto
     }
 
-    private fun QueryContext.frigjorTilsagn(tilsagn: TilsagnDto, besluttetAv: Agent): TilsagnDto {
+    private fun QueryContext.frigjorTilsagn(
+        tilsagn: TilsagnDto,
+        besluttetAv: Agent,
+    ): TilsagnDto {
         require(tilsagn.status == TilsagnStatus.TIL_FRIGJORING)
         requireNotNull(tilsagn.frigjoring)
 
@@ -293,8 +303,6 @@ class TilsagnService(
             ),
         )
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.FRIGJORT)
-
-        okonomi.scheduleBehandleFrigjortTilsagn(tilsagn.id, session)
 
         val dto = getOrError(tilsagn.id)
         logEndring("Tilsagn frigjort", dto, besluttetAv)
@@ -323,29 +331,12 @@ class TilsagnService(
         return dto
     }
 
-    fun frigjorAutomatisk(id: UUID) {
-        println("Start frigjorAutomatisk") // Debugging log
-        try {
-            println("Start frigjorAutomatisk") // Debugging log
-            db.transaction {
-                try {
-                    var tilsagn = requireNotNull(queries.tilsagn.get(id))
-                    println("After get(id)") // If this doesn't print, the get() is failing
+    fun frigjorAutomatisk(id: UUID) = db.transaction {
+        var tilsagn = requireNotNull(queries.tilsagn.get(id))
 
-                    tilsagn = setTilFrigjoring(tilsagn, Tiltaksadministrasjon, emptyList(), null)
-                    println("After setTilFrigjoring")
+        tilsagn = setTilFrigjoring(tilsagn, Tiltaksadministrasjon, emptyList(), null)
 
-                    frigjorTilsagn(tilsagn, Tiltaksadministrasjon)
-                    println("After frigjorTilsagn")
-                } catch (e: Exception) {
-                    println("Exception in frigjorAutomatisk: ${e.message}") // Log the error
-                    throw e // Rethrow to see if an outer handler catches it
-                }
-            }
-        } catch (e: Exception) {
-            println("Exception in frigjorAutomatisk: ${e.message}") // Log the error
-            throw e // Rethrow to see if an outer handler catches it
-        }
+        frigjorTilsagn(tilsagn, Tiltaksadministrasjon)
     }
 
     private fun QueryContext.setTilAnnullering(
