@@ -362,7 +362,7 @@ class TilsagnQueries(private val session: Session) {
     private fun getBeregningForhandsgodkjent(id: UUID): TilsagnBeregningForhandsgodkjent {
         @Language("PostgreSQL")
         val query = """
-            select tilsagn.periode, tilsagn.belop_beregnet, bergning.sats, beregning.antall_plasser
+            select tilsagn.periode, tilsagn.belop_beregnet, beregning.sats, beregning.antall_plasser
             from tilsagn join tilsagn_forhandsgodkjent_beregning beregning on tilsagn.id = beregning.tilsagn_id
             where tilsagn.id = ?::uuid
         """.trimIndent()
