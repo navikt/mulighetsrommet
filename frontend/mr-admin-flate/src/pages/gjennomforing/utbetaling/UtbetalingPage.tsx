@@ -307,7 +307,7 @@ export function UtbetalingPage() {
                         <Table.DataCell
                           className="font-bold"
                           colSpan={5}
-                        >{`Beløp arrangør har sendt inn ${formaterNOK(utbetaling.beregning.belop)}`}</Table.DataCell>
+                        >{`${utbetalingTekster.beregning.belop.label}: ${formaterNOK(utbetaling.beregning.belop)}`}</Table.DataCell>
                         <Table.DataCell colSpan={2} className="font-bold">
                           {formaterNOK(totalGjenstaendeBelop)}
                         </Table.DataCell>
@@ -346,20 +346,22 @@ export function UtbetalingPage() {
                   />
                 </VStack>
               </VStack>
-              <Separator />
               {kanRedigeres && (
-                <VStack align="end" gap="4">
-                  <HStack>
-                    <Button size="small" type="button" onClick={() => sendTilGodkjenning()}>
-                      Send til godkjenning
-                    </Button>
-                  </HStack>
-                  {error && (
-                    <Alert variant="error" size="small">
-                      {error}
-                    </Alert>
-                  )}
-                </VStack>
+                <>
+                  <Separator />
+                  <VStack align="end" gap="4">
+                    <HStack>
+                      <Button size="small" type="button" onClick={() => sendTilGodkjenning()}>
+                        Send til godkjenning
+                      </Button>
+                    </HStack>
+                    {error && (
+                      <Alert variant="error" size="small">
+                        {error}
+                      </Alert>
+                    )}
+                  </VStack>
+                </>
               )}
             </Box>
           </VStack>
