@@ -26,6 +26,7 @@ export function GjennomforingerPage() {
 
   return (
     <>
+      <title>Gjennomføringer</title>
       <HeaderBanner heading="Oversikt over gjennomføringer" ikon={<GjennomforingIkon />} />
       <ContentBox>
         <FilterAndTableLayout
