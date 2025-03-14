@@ -6,7 +6,7 @@ import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl
 import { ContentBox } from "@/layouts/ContentBox";
 import { Alert, Heading, Tabs } from "@navikt/ds-react";
 import { Link, Outlet, useLocation, useMatch, useParams } from "react-router";
-import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
+import { useTiltakstypeById } from "@/api/tiltakstyper/useTiltakstypeById";
 
 export function DetaljerTiltakstypePage() {
   const { pathname } = useLocation();
@@ -14,11 +14,11 @@ export function DetaljerTiltakstypePage() {
   const { tiltakstypeId } = useParams();
   const { data: tiltakstype } = useTiltakstypeById();
 
-  const match = useMatch("/tiltakstyper/:tiltakstypeId/avtaler");
+  const matchAvtaler = useMatch("/tiltakstyper/:tiltakstypeId/avtaler");
   const brodsmuler: (Brodsmule | undefined)[] = [
     { tittel: "Tiltakstyper", lenke: "/tiltakstyper" },
-    { tittel: "Tiltakstype", lenke: match ? undefined : `/tiltakstyper/${tiltakstypeId}` },
-    match ? { tittel: "Avtaler" } : undefined,
+    { tittel: "Tiltakstype", lenke: matchAvtaler ? `/tiltakstyper/${tiltakstypeId}` : undefined },
+    matchAvtaler ? { tittel: "Avtaler" } : undefined,
   ];
 
   if (!tiltakstype) {
@@ -34,7 +34,7 @@ export function DetaljerTiltakstypePage() {
 
   return (
     <main>
-      <title>{`Tiltakstyper ${tiltakstype?.navn ? `- ${tiltakstype.navn}` : ""}`}</title>
+      <title>{`Tiltakstype | ${tiltakstype.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <TiltakstypeIkon />

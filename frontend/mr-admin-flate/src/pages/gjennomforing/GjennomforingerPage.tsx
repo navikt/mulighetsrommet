@@ -25,7 +25,7 @@ export function GjennomforingerPage() {
   const deleteFilterMutation = useSlettFilter(LagretDokumenttype.GJENNOMFORING);
 
   return (
-    <>
+    <main>
       <title>Gjennomføringer</title>
       <HeaderBanner heading="Oversikt over gjennomføringer" ikon={<GjennomforingIkon />} />
       <ContentBox>
@@ -67,6 +67,6 @@ export function GjennomforingerPage() {
         />
       </ContentBox>
       <TilToppenKnapp />
-    </>
+    </main>
   );
 }

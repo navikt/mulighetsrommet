@@ -16,9 +16,9 @@ export function ArrangorerPage() {
   const [tagsHeight, setTagsHeight] = useState(0);
 
   return (
-    <>
-      <HeaderBanner heading="Arrangører" ikon={<ArrangorIkon />} />
+    <main>
       <title>Arrangører</title>
+      <HeaderBanner heading="Arrangører" ikon={<ArrangorIkon />} />
       <ReloadAppErrorBoundary>
         <ContentBox>
           <FilterAndTableLayout
@@ -46,6 +46,6 @@ export function ArrangorerPage() {
           />
         </ContentBox>
       </ReloadAppErrorBoundary>
-    </>
+    </main>
   );
 }

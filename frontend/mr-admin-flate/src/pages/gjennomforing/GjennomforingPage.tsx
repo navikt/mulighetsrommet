@@ -16,7 +16,8 @@ import { Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import React from "react";
 import { Outlet, useLocation, useParams } from "react-router";
-import { useAdminGjennomforingById } from "../../api/gjennomforing/useAdminGjennomforingById";
+import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
+
 type GjennomforingTab = "tilsagn" | "deltakerliste" | "utbetalinger" | "gjennomforing";
 
 export function GjennomforingPage() {
@@ -67,7 +68,8 @@ export function GjennomforingPage() {
   ];
 
   return (
-    <>
+    <main>
+      <title>{`Gjennomføring | ${gjennomforing.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <div
@@ -146,6 +148,6 @@ export function GjennomforingPage() {
           </ContentBox>
         </React.Suspense>
       </Tabs>
-    </>
+    </main>
   );
 }

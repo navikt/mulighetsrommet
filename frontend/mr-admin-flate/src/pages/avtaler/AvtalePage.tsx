@@ -8,9 +8,9 @@ import { ContentBox } from "@/layouts/ContentBox";
 import { Heading, Tabs, VStack } from "@navikt/ds-react";
 import React from "react";
 import { Outlet, useLocation, useMatch } from "react-router";
-import { useAvtale } from "../../api/avtaler/useAvtale";
-import { Laster } from "../../components/laster/Laster";
-import { useGetAvtaleIdFromUrlOrThrow } from "../../hooks/useGetAvtaleIdFromUrl";
+import { useAvtale } from "@/api/avtaler/useAvtale";
+import { Laster } from "@/components/laster/Laster";
+import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/avtaler/:avtaleId/gjennomforinger");
@@ -38,8 +38,8 @@ export function AvtalePage() {
   };
 
   return (
-    <>
-      <title>{`Avtale ${avtale?.navn ? `- ${avtale.navn}` : ""}`}</title>
+    <main>
+      <title>{`Avtale | ${avtale.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <div className="flex justify-start gap-6 items-center flex-wrap">
@@ -77,6 +77,6 @@ export function AvtalePage() {
           </ContentBox>
         </React.Suspense>
       </Tabs>
-    </>
+    </main>
   );
 }
