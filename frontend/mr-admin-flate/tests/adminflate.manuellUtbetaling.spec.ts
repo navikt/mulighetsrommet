@@ -25,7 +25,7 @@ test.describe("Manuell utbetaling", () => {
     await expect(page.getByText("Du må sette startdato for perioden")).toBeVisible();
     await expect(page.getByText("Du må sette sluttdato for perioden")).toBeVisible();
     await expect(page.getByText("Du må skrive inn et beløp")).toBeVisible();
-    await expect(page.getByText("Du må skrive inn en beskrivelse")).toBeVisible();
+    await expect(page.getByText("Begrunnelsen er for kort (minimum 10 tegn)")).toBeVisible();
     await expect(page.getByText("Kontonummer må være 11 siffer")).toBeVisible();
   });
 

@@ -21,6 +21,9 @@ interface Props {
   gjennomforing: GjennomforingDto;
 }
 
+const MIN_BEGRUNNELSE_LENGDE = 10;
+const MAKS_BEGRUNNELSE_LENGDE = 300;
+
 const Schema = z
   .object({
     periode: z.object(
@@ -31,9 +34,13 @@ const Schema = z
       { required_error: "Du må sette start- og sluttperiode" },
     ),
     beskrivelse: z
-      .string({ required_error: "Du må skrive inn en beskrivelse" })
-      .min(10, { message: "Du må skrive inn en beskrivelse" })
-      .max(300),
+      .string({ required_error: "Du må oppgi en begrunnelse for utbetalingen" })
+      .min(MIN_BEGRUNNELSE_LENGDE, {
+        message: `Begrunnelsen er for kort (minimum ${MIN_BEGRUNNELSE_LENGDE} tegn).`,
+      })
+      .max(MAKS_BEGRUNNELSE_LENGDE, {
+        message: `Begrunnelsen er for lang (maks ${MAKS_BEGRUNNELSE_LENGDE} tegn).`,
+      }),
     kontonummer: z
       .string({ required_error: "Du må skrive inn kontonummer" })
       .regex(/^\d{11}$/, { message: "Kontonummer må være 11 siffer" }),
@@ -160,6 +167,7 @@ export function OpprettUtbetalingForm({ gjennomforing }: Props) {
                   error={errors.beskrivelse?.message}
                   resize
                   cols={93}
+                  maxLength={300}
                 />
               </HStack>
               <Separator />
