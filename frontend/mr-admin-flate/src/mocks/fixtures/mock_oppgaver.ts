@@ -5,7 +5,10 @@ export const mockOppgaver: Oppgave[] = [
     type: OppgaveType.TILSAGN_TIL_ANNULLERING,
     title: "Tilsagn til beslutning",
     description: "Tilsagn opprettet av Benny Beslutter er klar og venter annullering",
-    tiltakstype: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+    tiltakstype: {
+      tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+      navn: "Arbeidsforberedende trening",
+    },
     link: {
       linkText: "Gå til tilsagnet",
       link: "https://nav.no/",
@@ -17,7 +20,10 @@ export const mockOppgaver: Oppgave[] = [
     type: OppgaveType.TILSAGN_TIL_GODKJENNING,
     title: "Send tilsagn til beslutning",
     description: "Tilsagn opprettet av Benny Beslutter er klar og venter beslutning",
-    tiltakstype: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+    tiltakstype: {
+      tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+      navn: "Arbeidsforberedende trening",
+    },
     link: {
       linkText: "Gå til tilsagnet",
       link: "https://nav.no/",
@@ -29,7 +35,10 @@ export const mockOppgaver: Oppgave[] = [
     type: OppgaveType.TILSAGN_TIL_GODKJENNING,
     title: "Send tilsagn til beslutning",
     description: "Tilsagn opprettet av Benny Beslutter er klar og venter beslutning",
-    tiltakstype: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+    tiltakstype: {
+      tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+      navn: "Arbeidsforberedende trening",
+    },
     link: {
       linkText: "Gå til tilsagnet",
       link: "https://nav.no/",
@@ -41,7 +50,10 @@ export const mockOppgaver: Oppgave[] = [
     type: OppgaveType.UTBETALING_TIL_GODKJENNING,
     title: "Utbetaling til godkjenning",
     description: `Utbetaling for <gjennomføringsnavn> er sendt til godkjenning`,
-    tiltakstype: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+    tiltakstype: {
+      tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+      navn: "Arbeidsforberedende trening",
+    },
     link: {
       linkText: "Se utbetaling",
       link: "https://nav.no/",

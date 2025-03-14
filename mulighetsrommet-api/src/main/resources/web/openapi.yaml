@@ -4453,7 +4453,7 @@ components:
         description:
           type: string
         tiltakstype:
-          $ref: "#/components/schemas/Tiltakskode"
+          $ref: "#/components/schemas/OppgaveTiltakstype"
         link:
           type: object
           properties:
@@ -4482,6 +4482,17 @@ components:
       enum:
         - TILSAGN
         - UTBETALING
+
+    OppgaveTiltakstype:
+      type: object
+      properties:
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+        navn:
+          type: string
+      required:
+        - tiltakskode
+        - navn
 
     AvbrytGjennomforingAarsak:
       type: string
@@ -5978,6 +5989,8 @@ components:
             - navn
         beregning:
           $ref: "#/components/schemas/TilsagnBeregning"
+        gjenstaendeBelop:
+          type: integer
       required:
         - periode
         - type
@@ -5987,6 +6000,7 @@ components:
         - arrangor
         - beregning
         - id
+        - gjenstaendeBelop
 
     Betalingsinformasjon:
       type: object

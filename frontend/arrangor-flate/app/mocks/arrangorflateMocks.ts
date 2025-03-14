@@ -346,6 +346,7 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
         belop: 195700,
       },
     },
+    gjenstaendeBelop: 100000,
     gjennomforing: {
       navn: "Amo tiltak Halden",
     },
@@ -382,6 +383,7 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
         belop: 50000,
       },
     },
+    gjenstaendeBelop: 50000,
     gjennomforing: {
       navn: "Amo tiltak Halden",
     },
@@ -418,6 +420,7 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
         belop: 50000,
       },
     },
+    gjenstaendeBelop: 50000,
     gjennomforing: {
       navn: "Amo tiltak Halden",
     },

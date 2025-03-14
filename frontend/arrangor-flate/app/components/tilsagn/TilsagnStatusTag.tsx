@@ -43,7 +43,7 @@ function skalViseHelptext(beskrivelse: string, aarsaker: TilsagnTilAnnulleringAa
           {beskrivelse}{" "}
           <List>
             {aarsaker.map(aarsakTilTekst).map((aarsak) => (
-              <List.Item>{aarsak}</List.Item>
+              <List.Item key={aarsak}>{aarsak}</List.Item>
             ))}
           </List>
         </span>

@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.periode
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.oppgaver.OppgaveTiltakstype
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*
@@ -184,7 +185,8 @@ class DelutbetalingQueries(private val session: Session) {
                 delutbetaling.fakturanummer,
                 tilsagn.gjennomforing_id,
                 gjennomforing.navn,
-                tiltakstype.tiltakskode
+                tiltakstype.tiltakskode,
+                tiltakstype.navn as tiltakstype_navn
             from delutbetaling
                 inner join tilsagn on tilsagn.id = delutbetaling.tilsagn_id
                 inner join gjennomforing on gjennomforing.id = tilsagn.gjennomforing_id
@@ -204,7 +206,10 @@ class DelutbetalingQueries(private val session: Session) {
                 delutbetaling = it.toDelutbetalingDto(),
                 gjennomforingId = it.uuid("gjennomforing_id"),
                 gjennomforingsnavn = it.string("navn"),
-                tiltakskode = Tiltakskode.valueOf(it.string("tiltakskode")),
+                tiltakstype = OppgaveTiltakstype(
+                    tiltakskode = Tiltakskode.valueOf(it.string("tiltakskode")),
+                    navn = it.string("tiltakstype_navn"),
+                ),
             )
         }
     }
@@ -226,6 +231,7 @@ class DelutbetalingQueries(private val session: Session) {
                 lopenummer = int("lopenummer"),
                 fakturanummer = string("fakturanummer"),
             )
+
             else -> {
                 requireNotNull(opprettelse.besluttelse)
                 when (opprettelse.besluttelse) {
@@ -242,6 +248,7 @@ class DelutbetalingQueries(private val session: Session) {
                             fakturanummer = string("fakturanummer"),
                         )
                     }
+
                     Besluttelse.AVVIST -> {
                         DelutbetalingDto.DelutbetalingAvvist(
                             id = uuid("id"),

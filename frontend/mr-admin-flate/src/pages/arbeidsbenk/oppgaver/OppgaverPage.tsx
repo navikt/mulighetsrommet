@@ -8,12 +8,13 @@ import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTa
 import { Select } from "@navikt/ds-react";
 import { useAtom } from "jotai/index";
 import { useState } from "react";
-import { useRegioner } from "../../../api/enhet/useRegioner";
-import { useTiltakstyper } from "../../../api/tiltakstyper/useTiltakstyper";
-import { OppgaverFilter } from "../../../components/filter/OppgaverFilter";
-import { OppgaveFilterTags } from "../../../components/filter/OppgaverFilterTags";
-import { ContentBox } from "../../../layouts/ContentBox";
+import { useRegioner } from "@/api/enhet/useRegioner";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
+import { OppgaverFilter } from "@/components/filter/OppgaverFilter";
+import { OppgaveFilterTags } from "@/components/filter/OppgaverFilterTags";
+import { ContentBox } from "@/layouts/ContentBox";
 import { NullstillKnappForOppgaver } from "./NullstillKnappForOppgaver";
+
 type OppgaverSorting = "nyeste" | "eldste";
 
 function sort(oppgaver: GetOppgaverResponse, sorting: OppgaverSorting) {
@@ -39,8 +40,7 @@ function sort(oppgaver: GetOppgaverResponse, sorting: OppgaverSorting) {
 
 export function OppgaverPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, setTagsHeight] = useState(0);
+  const [, setTagsHeight] = useState(0);
   const [sorting, setSorting] = useState<OppgaverSorting>("nyeste");
   const [filter] = useAtom(oppgaverFilterAtom);
   const { data: tiltakstyper } = useTiltakstyper();
@@ -48,7 +48,7 @@ export function OppgaverPage() {
   const oppgaver = useOppgaver(filter);
   const sortedOppgaver = sort(oppgaver.data || [], sorting);
 
-  if (!tiltakstyper?.data || !regioner) {
+  if (!regioner) {
     return <div>Laster...</div>;
   }
 
@@ -87,14 +87,7 @@ export function OppgaverPage() {
             </div>
             <div className="grid grid-cols-1 gap-2 mt-4">
               {sortedOppgaver.map((o) => {
-                // @TODO: Should maybe have something like tiltakstypeName come from the backend instead of doing manual mapping
-                return (
-                  <Oppgave
-                    key={o.id}
-                    tiltakstype={tiltakstyper.data.find((t) => t.tiltakskode === o.tiltakstype)!}
-                    oppgave={o}
-                  />
-                );
+                return <Oppgave key={o.id} oppgave={o} />;
               })}
               {sortedOppgaver.length === 0 && (
                 <EmptyState tittel={"Du har ingen nye oppgaver"} beskrivelse={""} />

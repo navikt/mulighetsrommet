@@ -1,21 +1,20 @@
 import { Heading, Link } from "@navikt/ds-react";
-import { type Oppgave, OppgaveIcon, OppgaveType, TiltakstypeDto } from "@mr/api-client-v2";
+import { type Oppgave, OppgaveIcon, OppgaveType } from "@mr/api-client-v2";
 import { formaterDato } from "@/utils/Utils";
-import { PiggybankIcon, BankNoteIcon } from "@navikt/aksel-icons";
+import { BankNoteIcon, PiggybankIcon } from "@navikt/aksel-icons";
 
 interface OppgaveProps {
   oppgave: Oppgave;
-  tiltakstype: TiltakstypeDto;
 }
 
-export function Oppgave({ oppgave, tiltakstype }: OppgaveProps) {
+export function Oppgave({ oppgave }: OppgaveProps) {
   const { title, description, link, createdAt, oppgaveIcon } = oppgave;
 
   return (
     <>
       <div className="bg-white p-4" data-testid="oppgaver">
         <div className="flex justify-between items-center">
-          <span>{tiltakstype.navn}</span>
+          <span>{oppgave.tiltakstype.navn}</span>
           <OppgaveStatus status={oppgave.type} />
         </div>
         <div>
