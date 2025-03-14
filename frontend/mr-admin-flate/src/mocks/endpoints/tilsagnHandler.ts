@@ -1,8 +1,12 @@
 import {
   GetForhandsgodkjenteSatserResponse,
+  TilsagnAvvisningAarsak,
   TilsagnDefaults,
+  TilsagnDetaljerDto,
   TilsagnDto,
   TilsagnRequest,
+  TilsagnStatus,
+  TilsagnTilAnnulleringAarsak,
 } from "@mr/api-client-v2";
 import { http, HttpResponse, PathParams } from "msw";
 import { mockTilsagn } from "../fixtures/mock_tilsagn";
@@ -27,13 +31,17 @@ export const tilsagnHandlers = [
   http.get<PathParams, any, TilsagnDefaults>("*/api/v1/intern/tilsagn/defaults", async () => {
     return HttpResponse.json({});
   }),
-  http.get<PathParams, any, TilsagnDto>(
+  http.get<PathParams, any, TilsagnDetaljerDto>(
     "*/api/v1/intern/tilsagn/:tilsagnId",
     async ({ params }) => {
       const { tilsagnId } = params;
 
       const tilsagn = mockTilsagn.find((t) => t.id === tilsagnId);
-      return HttpResponse.json(tilsagn);
+      if (!tilsagn) {
+        return HttpResponse.json(undefined, { status: 404 });
+      }
+
+      return HttpResponse.json(toTilsagnDetaljerDto(tilsagn));
     },
   ),
 
@@ -65,3 +73,114 @@ export const tilsagnHandlers = [
     return HttpResponse.text("Ok");
   }),
 ];
+
+function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
+  switch (tilsagn.status) {
+    case TilsagnStatus.TIL_GODKJENNING:
+      return {
+        tilsagn,
+        opprettelse: {
+          behandletAv: "B123456",
+          behandletTidspunkt: "2024-01-01T22:00:00",
+        },
+      };
+
+    case TilsagnStatus.GODKJENT:
+      return {
+        tilsagn,
+        opprettelse: {
+          behandletAv: "B123456",
+          behandletTidspunkt: "2024-01-01T22:00:00",
+          besluttetAv: "F123456",
+          besluttetTidspunkt: "2024-01-01T22:00:00",
+        },
+      };
+
+    case TilsagnStatus.RETURNERT:
+      return {
+        tilsagn,
+        opprettelse: {
+          behandletAv: "B123456",
+          behandletTidspunkt: "2024-01-09",
+          besluttetAv: "N12345",
+          besluttetTidspunkt: "2024-01-10",
+          aarsaker: [TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER, TilsagnAvvisningAarsak.FEIL_ANNET],
+          forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
+        },
+      };
+
+    case TilsagnStatus.TIL_ANNULLERING:
+      return {
+        tilsagn,
+        opprettelse: {
+          behandletAv: "B123456",
+          behandletTidspunkt: "2024-01-01T22:00:00",
+          besluttetAv: "F123456",
+          besluttetTidspunkt: "2024-01-01T22:00:00",
+        },
+        annullering: {
+          behandletAv: "B123456",
+          behandletTidspunkt: "2024-01-01T22:00:00",
+          aarsaker: [
+            TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
+            TilsagnTilAnnulleringAarsak.FEIL_ANNET,
+          ],
+          forklaring: "Du må fikse det",
+        },
+      };
+
+    case TilsagnStatus.ANNULLERT:
+      return {
+        tilsagn,
+        opprettelse: {
+          behandletAv: "B123456",
+          behandletTidspunkt: "2024-01-01T22:00:00",
+          besluttetAv: "F123456",
+          besluttetTidspunkt: "2024-01-01T22:00:00",
+        },
+        annullering: {
+          behandletAv: "B123456",
+          behandletTidspunkt: "2024-01-01T22:00:00",
+          aarsaker: [
+            TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
+            TilsagnTilAnnulleringAarsak.FEIL_ANNET,
+          ],
+          forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
+          besluttetAv: "F123456",
+          besluttetTidspunkt: "2024-01-01T22:00:00",
+        },
+      };
+
+    case TilsagnStatus.TIL_FRIGJORING:
+      return {
+        tilsagn,
+        opprettelse: {
+          behandletAv: "B123456",
+          behandletTidspunkt: "2024-01-01T22:00:00",
+          besluttetAv: "F123456",
+          besluttetTidspunkt: "2024-01-01T22:00:00",
+        },
+        frigjoring: {
+          behandletAv: "B123456",
+          behandletTidspunkt: "2024-01-01T22:00:00",
+        },
+      };
+
+    case TilsagnStatus.FRIGJORT:
+      return {
+        tilsagn,
+        opprettelse: {
+          behandletAv: "B123456",
+          behandletTidspunkt: "2024-01-01T22:00:00",
+          besluttetAv: "F123456",
+          besluttetTidspunkt: "2024-01-01T22:00:00",
+        },
+        frigjoring: {
+          behandletAv: "B123456",
+          behandletTidspunkt: "2024-01-01T22:00:00",
+          besluttetAv: "F123456",
+          besluttetTidspunkt: "2024-01-01T22:00:00",
+        },
+      };
+  }
+}

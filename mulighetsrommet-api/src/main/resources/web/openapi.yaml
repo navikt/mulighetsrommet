@@ -2130,7 +2130,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TilsagnDto"
+                $ref: "#/components/schemas/TilsagnDetaljerDto"
     delete:
       tags:
         - Tilsagn
@@ -5424,12 +5424,6 @@ components:
           $ref: "#/components/schemas/TilsagnStatus"
         type:
           $ref: "#/components/schemas/TilsagnType"
-        opprettelse:
-          $ref: "#/components/schemas/Totrinnskontroll"
-        annullering:
-          $ref: "#/components/schemas/Totrinnskontroll"
-        frigjoring:
-          $ref: "#/components/schemas/Totrinnskontroll"
       required:
         - id
         - opprettelse
@@ -5443,6 +5437,21 @@ components:
         - status
         - type
         - belopGjenstaende
+
+    TilsagnDetaljerDto:
+      type: object
+      properties:
+        tilsagn:
+          $ref: "#/components/schemas/TilsagnDto"
+        opprettelse:
+          $ref: "#/components/schemas/Totrinnskontroll"
+        annullering:
+          $ref: "#/components/schemas/Totrinnskontroll"
+        frigjoring:
+          $ref: "#/components/schemas/Totrinnskontroll"
+      required:
+        - tilsagn
+        - opprettelse
 
     TilsagnStatus:
       type: string
