@@ -2,19 +2,15 @@ package no.nav.mulighetsrommet.api.tilsagn
 
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
-import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
-import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
 import no.nav.mulighetsrommet.api.tilsagn.model.*
@@ -59,10 +55,13 @@ class TilsagnQueriesTest : FunSpec({
 
                 queries.get(tilsagn.id).shouldNotBeNull() should {
                     it.id shouldBe tilsagn.id
+                    it.tiltakstype shouldBe TilsagnDto.Tiltakstype(
+                        tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
+                        navn = TiltakstypeFixtures.AFT.navn,
+                    )
                     it.gjennomforing shouldBe TilsagnDto.Gjennomforing(
                         id = AFT1.id,
                         navn = AFT1.navn,
-                        tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
                     )
                     it.periode shouldBe Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 2, 1))
                     it.kostnadssted shouldBe Gjovik
@@ -199,75 +198,6 @@ class TilsagnQueriesTest : FunSpec({
 
                 queries.getAll(typer = listOf(TilsagnType.TILSAGN)).shouldHaveSize(1)
                 queries.getAll(typer = listOf(TilsagnType.EKSTRATILSAGN)).shouldHaveSize(0)
-            }
-        }
-    }
-
-    context("tilsagn for arrangører") {
-        val periodeMedTilsagn = Periode.forMonthOf(LocalDate.of(2023, 1, 1))
-        val periodeUtenTilsagn = Periode.forMonthOf(LocalDate.of(2023, 2, 1))
-
-        test("blir tilgjengelig for arrangør når tilsagnet er godkjent") {
-
-            database.runAndRollback { session ->
-                domain.setup(session)
-
-                val queries = TilsagnQueries(session)
-                queries.upsert(tilsagn)
-
-                queries.getArrangorflateTilsagn(tilsagn.id).shouldBeNull()
-                queries.getAllArrangorflateTilsagn(ArrangorFixtures.underenhet1.organisasjonsnummer).shouldBeEmpty()
-
-                QueryContext(session).setTilsagnStatus(tilsagn, TilsagnStatus.GODKJENT)
-
-                queries.getArrangorflateTilsagn(tilsagn.id) shouldBe ArrangorflateTilsagn(
-                    id = tilsagn.id,
-                    gjenstaendeBelop = tilsagn.beregning.output.belop,
-                    gjennomforing = ArrangorflateTilsagn.Gjennomforing(
-                        navn = AFT1.navn,
-                    ),
-                    tiltakstype = ArrangorflateTilsagn.Tiltakstype(
-                        navn = TiltakstypeFixtures.AFT.navn,
-                    ),
-                    periode = periodeMedTilsagn,
-                    arrangor = ArrangorflateTilsagn.Arrangor(
-                        navn = ArrangorFixtures.underenhet1.navn,
-                        id = ArrangorFixtures.underenhet1.id,
-                        organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
-                    ),
-                    beregning = TilsagnBeregningFri(
-                        TilsagnBeregningFri.Input(123),
-                        TilsagnBeregningFri.Output(123),
-                    ),
-                    status = ArrangorflateTilsagn.StatusOgAarsaker(
-                        status = TilsagnStatus.GODKJENT,
-                        aarsaker = emptyList(),
-                    ),
-                    type = TilsagnType.TILSAGN,
-                )
-
-                queries.getAllArrangorflateTilsagn(ArrangorFixtures.underenhet1.organisasjonsnummer).shouldHaveSize(1)
-            }
-        }
-
-        test("henter relevante tilsagn basert på periode") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
-                val queries = TilsagnQueries(session)
-                queries.upsert(tilsagn)
-
-                queries.getArrangorflateTilsagnTilUtbetaling(tilsagn.gjennomforingId, periodeMedTilsagn)
-                    .shouldBeEmpty()
-                queries.getArrangorflateTilsagnTilUtbetaling(tilsagn.gjennomforingId, periodeUtenTilsagn)
-                    .shouldBeEmpty()
-
-                QueryContext(session).setTilsagnStatus(tilsagn, TilsagnStatus.GODKJENT)
-
-                queries.getArrangorflateTilsagnTilUtbetaling(tilsagn.gjennomforingId, periodeMedTilsagn)
-                    .shouldHaveSize(1)
-                queries.getArrangorflateTilsagnTilUtbetaling(tilsagn.gjennomforingId, periodeUtenTilsagn)
-                    .shouldBeEmpty()
             }
         }
     }

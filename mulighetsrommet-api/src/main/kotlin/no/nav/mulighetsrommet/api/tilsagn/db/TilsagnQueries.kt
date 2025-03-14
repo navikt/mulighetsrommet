@@ -182,6 +182,7 @@ class TilsagnQueries(private val session: Session) {
     fun getAll(
         typer: List<TilsagnType>? = null,
         gjennomforingId: UUID? = null,
+        arrangor: Organisasjonsnummer? = null,
         statuser: List<TilsagnStatus>? = null,
         periodeIntersectsWith: Periode? = null,
     ): List<TilsagnDto> {
@@ -192,6 +193,7 @@ class TilsagnQueries(private val session: Session) {
             where
               (:typer::tilsagn_type[] is null or type = any(:typer::tilsagn_type[]))
               and (:gjennomforing_id::uuid is null or gjennomforing_id = :gjennomforing_id::uuid)
+              and (:arrangor::text is null or arrangor_organisasjonsnummer = :arrangor::text)
               and (:statuser::tilsagn_status[] is null or status::tilsagn_status = any(:statuser))
               and (:periode::daterange is null or periode && :periode::daterange)
             order by lopenummer desc
@@ -200,57 +202,12 @@ class TilsagnQueries(private val session: Session) {
         val params = mapOf(
             "typer" to typer?.map { it.name }?.let { session.createArrayOf("tilsagn_type", it) },
             "gjennomforing_id" to gjennomforingId,
+            "arrangor" to arrangor?.value,
             "statuser" to statuser?.let { session.createArrayOf("tilsagn_status", statuser) },
             "periode" to periodeIntersectsWith?.toDaterange(),
         )
 
         return session.list(queryOf(query, params)) { it.toTilsagnDto() }
-    }
-
-    fun getAllArrangorflateTilsagn(organisasjonsnummer: Organisasjonsnummer): List<ArrangorflateTilsagn> {
-        @Language("PostgreSQL")
-        val query = """
-            select *
-            from tilsagn_arrangorflate_view
-            where arrangor_organisasjonsnummer = ?
-            and status in ('GODKJENT', 'TIL_ANNULLERING', 'ANNULLERT')
-        """.trimIndent()
-
-        return session.list(queryOf(query, organisasjonsnummer.value)) { it.toArrangorflateTilsagn() }
-    }
-
-    fun getArrangorflateTilsagnTilUtbetaling(
-        gjennomforingId: UUID,
-        periodeIntersectsWith: Periode,
-    ): List<ArrangorflateTilsagn> {
-        @Language("PostgreSQL")
-        val query = """
-            select *
-            from tilsagn_arrangorflate_view
-            where gjennomforing_id = :gjennomforing_id::uuid
-              and (periode && :periode::daterange)
-              and status in ('GODKJENT', 'TIL_ANNULLERING', 'ANNULLERT')
-              and type in ('EKSTRATILSAGN', 'TILSAGN')
-        """.trimIndent()
-
-        val params = mapOf(
-            "gjennomforing_id" to gjennomforingId,
-            "periode" to periodeIntersectsWith.toDaterange(),
-        )
-
-        return session.list(queryOf(query, params)) { it.toArrangorflateTilsagn() }
-    }
-
-    fun getArrangorflateTilsagn(id: UUID): ArrangorflateTilsagn? {
-        @Language("PostgreSQL")
-        val query = """
-            select *
-            from tilsagn_arrangorflate_view
-            where id = ?::uuid
-            and status in ('GODKJENT', 'TIL_ANNULLERING', 'ANNULLERT')
-        """.trimIndent()
-
-        return session.single(queryOf(query, id)) { it.toArrangorflateTilsagn() }
     }
 
     fun delete(id: UUID) {
@@ -284,9 +241,12 @@ class TilsagnQueries(private val session: Session) {
         return TilsagnDto(
             id = uuid("id"),
             type = TilsagnType.valueOf(string("type")),
+            tiltakstype = TilsagnDto.Tiltakstype(
+                tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
+                navn = string("tiltakstype_navn"),
+            ),
             gjennomforing = TilsagnDto.Gjennomforing(
                 id = uuid("gjennomforing_id"),
-                tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
                 navn = string("gjennomforing_navn"),
             ),
             belopGjenstaende = int("belop_gjenstaende"),
@@ -311,39 +271,6 @@ class TilsagnQueries(private val session: Session) {
             opprettelse = opprettelse,
             annullering = annullering,
             frigjoring = frigjoring,
-        )
-    }
-
-    private fun Row.toArrangorflateTilsagn(): ArrangorflateTilsagn {
-        val id = uuid("id")
-
-        val beregning = getBeregning(id, Prismodell.valueOf(string("prismodell")))
-
-        val opprettelse = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.OPPRETT)
-        val annullering = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.ANNULLER)
-        requireNotNull(opprettelse)
-
-        return ArrangorflateTilsagn(
-            id = uuid("id"),
-            gjennomforing = ArrangorflateTilsagn.Gjennomforing(
-                navn = string("gjennomforing_navn"),
-            ),
-            gjenstaendeBelop = int("belop_gjenstaende"),
-            tiltakstype = ArrangorflateTilsagn.Tiltakstype(
-                navn = string("tiltakstype_navn"),
-            ),
-            type = TilsagnType.valueOf(string("type")),
-            periode = periode("periode"),
-            arrangor = ArrangorflateTilsagn.Arrangor(
-                id = uuid("arrangor_id"),
-                organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
-                navn = string("arrangor_navn"),
-            ),
-            beregning = beregning,
-            status = ArrangorflateTilsagn.StatusOgAarsaker(
-                status = TilsagnStatus.valueOf(string("status")),
-                aarsaker = annullering?.aarsaker?.map { TilsagnStatusAarsak.valueOf(it) } ?: emptyList(),
-            ),
         )
     }
 

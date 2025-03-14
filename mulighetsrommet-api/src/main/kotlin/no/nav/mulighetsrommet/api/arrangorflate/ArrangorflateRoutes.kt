@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -27,7 +26,6 @@ import org.koin.ktor.ext.inject
 import java.util.*
 
 fun Route.arrangorflateRoutes() {
-    val tilsagnService: TilsagnService by inject()
     val arrangorService: ArrangorService by inject()
     val utbetalingService: UtbetalingService by inject()
     val pdfClient: PdfGenClient by inject()
@@ -128,7 +126,7 @@ fun Route.arrangorflateRoutes() {
                     ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
                 requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
-                val tilsagn = tilsagnService.getArrangorflateTilsagnTilUtbetaling(
+                val tilsagn = arrangorFlateService.getArrangorflateTilsagnTilUtbetaling(
                     gjennomforingId = utbetaling.gjennomforing.id,
                     periode = utbetaling.periode,
                 )
@@ -150,7 +148,7 @@ fun Route.arrangorflateRoutes() {
                     ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
                 requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
-                val tilsagn = tilsagnService.getArrangorflateTilsagnTilUtbetaling(
+                val tilsagn = arrangorFlateService.getArrangorflateTilsagnTilUtbetaling(
                     gjennomforingId = utbetaling.gjennomforing.id,
                     periode = utbetaling.periode,
                 )

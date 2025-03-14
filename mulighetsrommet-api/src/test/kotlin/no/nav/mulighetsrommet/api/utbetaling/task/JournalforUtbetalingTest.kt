@@ -8,7 +8,6 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
@@ -18,7 +17,6 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
-import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.utbetaling.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
@@ -93,7 +91,6 @@ class JournalforUtbetalingTest : FunSpec({
         },
         baseUrl = "http://pdfgen",
     )
-    val tilsagnService: TilsagnService = mockk()
     val dokarkClient: DokarkClient = mockk()
     val arrangorFlateSerivce = { db: ApiDatabase ->
         ArrangorFlateService(
@@ -104,7 +101,6 @@ class JournalforUtbetalingTest : FunSpec({
 
     fun createTask() = JournalforUtbetaling(
         db = database.db,
-        tilsagnService = tilsagnService,
         dokarkClient = dokarkClient,
         arrangorFlateService = arrangorFlateSerivce(database.db),
         pdf = pdf,
@@ -125,7 +121,6 @@ class JournalforUtbetalingTest : FunSpec({
             queries.utbetaling.setGodkjentAvArrangor(utbetaling.id, LocalDateTime.now())
         }
 
-        every { tilsagnService.getArrangorflateTilsagnTilUtbetaling(any(), any()) } returns emptyList()
         coEvery { dokarkClient.opprettJournalpost(any(), any()) } returns DokarkResponse(
             journalpostId = "123",
             journalstatus = "ok",

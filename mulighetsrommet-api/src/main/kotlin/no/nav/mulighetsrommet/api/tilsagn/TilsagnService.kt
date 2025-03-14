@@ -386,13 +386,6 @@ class TilsagnService(
         queries.tilsagn.getAll()
     }
 
-    fun getArrangorflateTilsagnTilUtbetaling(
-        gjennomforingId: UUID,
-        periode: Periode,
-    ): List<ArrangorflateTilsagn> = db.session {
-        return queries.tilsagn.getArrangorflateTilsagnTilUtbetaling(gjennomforingId, periode)
-    }
-
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
         queries.endringshistorikk.getEndringshistorikk(DocumentClass.TILSAGN, id)
     }

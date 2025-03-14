@@ -20,13 +20,27 @@ data class TilsagnDto(
     val beregning: TilsagnBeregning,
     val lopenummer: Int,
     val bestillingsnummer: String,
-    val arrangor: Arrangor,
+    val tiltakstype: Tiltakstype,
     val gjennomforing: Gjennomforing,
+    val arrangor: Arrangor,
     val status: TilsagnStatus,
     val opprettelse: Totrinnskontroll,
     val annullering: Totrinnskontroll?,
     val frigjoring: Totrinnskontroll?,
 ) {
+    @Serializable
+    data class Tiltakstype(
+        val tiltakskode: Tiltakskode,
+        val navn: String,
+    )
+
+    @Serializable
+    data class Gjennomforing(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
+        val navn: String,
+    )
+
     @Serializable
     data class Arrangor(
         @Serializable(with = UUIDSerializer::class)
@@ -34,13 +48,5 @@ data class TilsagnDto(
         val organisasjonsnummer: Organisasjonsnummer,
         val navn: String,
         val slettet: Boolean,
-    )
-
-    @Serializable
-    data class Gjennomforing(
-        @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
-        val tiltakskode: Tiltakskode,
-        val navn: String,
     )
 }

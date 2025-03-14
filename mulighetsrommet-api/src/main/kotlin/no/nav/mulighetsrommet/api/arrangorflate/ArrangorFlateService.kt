@@ -9,7 +9,8 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.model.*
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
-import no.nav.mulighetsrommet.api.tilsagn.model.ArrangorflateTilsagn
+import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.HentPersonBolkResponse
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
@@ -20,9 +21,21 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
+
+private val TILSAGN_TYPE_RELEVANT_FOR_UTBETALING = listOf(
+    TilsagnType.TILSAGN,
+    TilsagnType.EKSTRATILSAGN,
+)
+
+private val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
+    TilsagnStatus.GODKJENT,
+    TilsagnStatus.TIL_ANNULLERING,
+    TilsagnStatus.ANNULLERT,
+)
 
 class ArrangorFlateService(
     val pdl: HentAdressebeskyttetPersonBolkPdlQuery,
@@ -40,11 +53,32 @@ class ArrangorFlateService(
     }
 
     fun getTilsagn(id: UUID): ArrangorflateTilsagn? = db.session {
-        return queries.tilsagn.getArrangorflateTilsagn(id)
+        queries.tilsagn.get(id)
+            ?.takeIf { it.status in TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR }
+            ?.let { toArrangorflateTilsagn(it) }
     }
 
     fun getTilsagnByOrgnr(orgnr: Organisasjonsnummer): List<ArrangorflateTilsagn> = db.session {
-        return queries.tilsagn.getAllArrangorflateTilsagn(orgnr)
+        queries.tilsagn
+            .getAll(
+                arrangor = orgnr,
+                statuser = TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR,
+            )
+            .map { toArrangorflateTilsagn(it) }
+    }
+
+    fun getArrangorflateTilsagnTilUtbetaling(
+        gjennomforingId: UUID,
+        periode: Periode,
+    ): List<ArrangorflateTilsagn> = db.session {
+        queries.tilsagn
+            .getAll(
+                gjennomforingId = gjennomforingId,
+                periodeIntersectsWith = periode,
+                typer = TILSAGN_TYPE_RELEVANT_FOR_UTBETALING,
+                statuser = TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR,
+            )
+            .map { toArrangorflateTilsagn(it) }
     }
 
     fun getRelevanteForslag(utbetaling: UtbetalingDto): List<RelevanteForslag> = db.session {
@@ -192,7 +226,7 @@ class ArrangorFlateService(
 fun DeltakerForslag.relevantForDeltakelse(
     utbetaling: UtbetalingDto,
 ): Boolean = when (utbetaling.beregning) {
-    is UtbetalingBeregningForhandsgodkjent -> this.relevantForDeltakelse(utbetaling.beregning)
+    is UtbetalingBeregningForhandsgodkjent -> relevantForDeltakelse(utbetaling.beregning)
     is UtbetalingBeregningFri -> false
 }
 
@@ -209,17 +243,17 @@ fun DeltakerForslag.relevantForDeltakelse(
 
     return when (this.endring) {
         is Melding.Forslag.Endring.AvsluttDeltakelse -> {
-            val sluttDato = this.endring.sluttdato
+            val sluttDato = endring.sluttdato
 
-            this.endring.harDeltatt == false || (sluttDato != null && sluttDato.isBefore(sisteSluttDato))
+            endring.harDeltatt == false || (sluttDato != null && sluttDato.isBefore(sisteSluttDato))
         }
 
         is Melding.Forslag.Endring.Deltakelsesmengde -> {
-            this.endring.gyldigFra?.isBefore(sisteSluttDato) ?: true
+            endring.gyldigFra?.isBefore(sisteSluttDato) ?: true
         }
 
         is Melding.Forslag.Endring.ForlengDeltakelse -> {
-            this.endring.sluttdato.isAfter(sisteSluttDato) && this.endring.sluttdato.isBefore(periode.slutt)
+            endring.sluttdato.isAfter(sisteSluttDato) && endring.sluttdato.isBefore(periode.slutt)
         }
 
         is Melding.Forslag.Endring.IkkeAktuell -> {
@@ -231,13 +265,41 @@ fun DeltakerForslag.relevantForDeltakelse(
         }
 
         is Melding.Forslag.Endring.Sluttdato -> {
-            this.endring.sluttdato.isBefore(sisteSluttDato)
+            endring.sluttdato.isBefore(sisteSluttDato)
         }
 
         is Melding.Forslag.Endring.Startdato -> {
-            this.endring.startdato.isAfter(forsteStartDato)
+            endring.startdato.isAfter(forsteStartDato)
         }
 
         Melding.Forslag.Endring.FjernOppstartsdato -> true
     }
+}
+
+private fun QueryContext.toArrangorflateTilsagn(
+    tilsagn: TilsagnDto,
+): ArrangorflateTilsagn {
+    val annullering = queries.totrinnskontroll.get(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
+    return ArrangorflateTilsagn(
+        id = tilsagn.id,
+        gjennomforing = ArrangorflateTilsagn.Gjennomforing(
+            navn = tilsagn.gjennomforing.navn,
+        ),
+        gjenstaendeBelop = tilsagn.belopGjenstaende,
+        tiltakstype = ArrangorflateTilsagn.Tiltakstype(
+            navn = tilsagn.tiltakstype.navn,
+        ),
+        type = tilsagn.type,
+        periode = tilsagn.periode,
+        beregning = tilsagn.beregning,
+        arrangor = ArrangorflateTilsagn.Arrangor(
+            id = tilsagn.arrangor.id,
+            navn = tilsagn.arrangor.navn,
+            organisasjonsnummer = tilsagn.arrangor.organisasjonsnummer,
+        ),
+        status = ArrangorflateTilsagn.StatusOgAarsaker(
+            status = tilsagn.status,
+            aarsaker = annullering?.aarsaker?.map { TilsagnStatusAarsak.valueOf(it) } ?: listOf(),
+        ),
+    )
 }
