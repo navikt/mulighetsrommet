@@ -3,15 +3,14 @@ import { TiltakstypeTabell } from "@/components/tabell/TiltakstypeTabell";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
-import { useTitle } from "@mr/frontend-common";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { Skeleton } from "@navikt/ds-react";
 import { Suspense } from "react";
 
 export function TiltakstyperPage() {
-  useTitle("Tiltakstyper");
   return (
     <>
+      <title>Tiltakstyper</title>
       <HeaderBanner heading="Oversikt over tiltakstyper" ikon={<TiltakstypeIkon />} />
       <ContentBox>
         <ReloadAppErrorBoundary>

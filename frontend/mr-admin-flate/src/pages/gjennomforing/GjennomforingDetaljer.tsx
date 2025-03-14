@@ -4,6 +4,7 @@ import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKat
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
 import { NokkeltallDeltakere } from "@/components/gjennomforing/NokkeltallDeltakere";
+import { StengtHosArrangorTable } from "@/components/gjennomforing/stengt/StengtHosArrangorTable";
 import { TiltakTilgjengeligForArrangor } from "@/components/gjennomforing/TilgjengeligTiltakForArrangor";
 import { Laster } from "@/components/laster/Laster";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
@@ -13,13 +14,11 @@ import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktp
 import { Kontaktperson } from "@/pages/gjennomforing/Kontaktperson";
 import { formaterDato, formatertVentetid } from "@/utils/Utils";
 import { AvtaleDto, GjennomforingDto, GjennomforingOppstartstype } from "@mr/api-client-v2";
-import { useTitle } from "@mr/frontend-common";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 import { BodyShort, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
 import { Link } from "react-router";
-import { StengtHosArrangorTable } from "@/components/gjennomforing/stengt/StengtHosArrangorTable";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -27,8 +26,6 @@ interface Props {
 }
 
 export function GjennomforingDetaljer({ gjennomforing, avtale }: Props) {
-  useTitle(`Gjennomføring ${gjennomforing.navn ? `- ${gjennomforing.navn}` : null}`);
-
   const navnPaaNavEnheterForKontaktperson = (enheterForKontaktperson: string[]): string => {
     return (
       gjennomforing?.navEnheter

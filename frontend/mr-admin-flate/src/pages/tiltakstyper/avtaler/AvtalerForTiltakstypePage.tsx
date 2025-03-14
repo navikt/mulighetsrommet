@@ -1,23 +1,21 @@
-import { LagredeFilterOversikt, useTitle, useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { AvtaleFilterSchema, getAvtalerForTiltakstypeFilterAtom } from "@/api/atoms";
+import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
+import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
+import { AvtaleFilter } from "@/components/filter/AvtaleFilter";
+import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
+import { AvtaleFiltertags } from "@/components/filter/AvtaleFiltertags";
 import { AvtaleTabell } from "@/components/tabell/AvtaleTabell";
 import { useGetTiltakstypeIdFromUrlOrThrow } from "@/hooks/useGetTiltakstypeIdFromUrl";
-import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
-import { AvtaleFiltertags } from "@/components/filter/AvtaleFiltertags";
-import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
-import { AvtaleFilter } from "@/components/filter/AvtaleFilter";
-import { useState } from "react";
+import { ContentBox } from "@/layouts/ContentBox";
 import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
+import { LagretDokumenttype } from "@mr/api-client-v2";
+import { LagredeFilterOversikt, useOpenFilterWhenThreshold } from "@mr/frontend-common";
+import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useAtom } from "jotai/index";
-import { LagretDokumenttype } from "@mr/api-client-v2";
-import { ContentBox } from "@/layouts/ContentBox";
-import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
-import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
+import { useState } from "react";
 
 export function AvtalerForTiltakstypePage() {
-  useTitle("Tiltakstyper - Avtaler");
-
   const tiltakstypeId = useGetTiltakstypeIdFromUrlOrThrow();
   const filterAtom = getAvtalerForTiltakstypeFilterAtom(tiltakstypeId);
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
@@ -29,6 +27,7 @@ export function AvtalerForTiltakstypePage() {
   return (
     <>
       <ContentBox>
+        <title>Tiltakstyper - Avtaler</title>
         <FilterAndTableLayout
           filter={
             <AvtaleFilter

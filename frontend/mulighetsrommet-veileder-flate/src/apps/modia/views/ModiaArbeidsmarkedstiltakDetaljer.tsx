@@ -1,20 +1,29 @@
+import {
+  isTiltakAktivt,
+  isTiltakGruppe,
+  useModiaArbeidsmarkedstiltakById,
+} from "@/api/queries/useArbeidsmarkedstiltakById";
 import { useRegioner } from "@/api/queries/useRegioner";
 import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { useBrukerdata } from "@/apps/modia/hooks/useBrukerdata";
 import { useDelMedBrukerStatus } from "@/apps/modia/hooks/useDelMedbrukerStatus";
-import { useVeilederdata } from "@/apps/modia/hooks/useVeilederdata";
 import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
+import { useVeilederdata } from "@/apps/modia/hooks/useVeilederdata";
 import { BrukerKvalifisererIkkeVarsel } from "@/apps/modia/varsler/BrukerKvalifisererIkkeVarsel";
 import { DetaljerJoyride } from "@/components/joyride/DetaljerJoyride";
 import { OpprettAvtaleJoyride } from "@/components/joyride/OpprettAvtaleJoyride";
+import { PameldingForGruppetiltak } from "@/components/pamelding/PameldingForGruppetiltak";
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
+import { VisibleWhenToggledOn } from "@/components/toggles/VisibleWhenToggledOn";
 import {
   PORTEN_URL_FOR_TILBAKEMELDING,
   TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL,
 } from "@/constants";
 import { paginationAtom } from "@/core/atoms";
+import { ArbeidsmarkedstiltakErrorBoundary } from "@/ErrorBoundary";
+import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
 import { ViewTiltakDetaljer } from "@/layouts/ViewTiltakDetaljer";
 import {
   Bruker,
@@ -25,21 +34,12 @@ import {
   Toggles,
   VeilederflateTiltakstype,
 } from "@mr/api-client-v2";
-import { TilbakemeldingsLenke, useTitle } from "@mr/frontend-common";
+import { TilbakemeldingsLenke } from "@mr/frontend-common";
 import { Chat2Icon } from "@navikt/aksel-icons";
 import { Alert, Button } from "@navikt/ds-react";
 import { useAtomValue } from "jotai";
-import {
-  isTiltakAktivt,
-  isTiltakGruppe,
-  useModiaArbeidsmarkedstiltakById,
-} from "@/api/queries/useArbeidsmarkedstiltakById";
-import { PameldingForGruppetiltak } from "@/components/pamelding/PameldingForGruppetiltak";
-import { VisibleWhenToggledOn } from "@/components/toggles/VisibleWhenToggledOn";
-import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import { PameldingKometApnerSnart } from "../pamelding/PameldingKometApnerSnart";
-import { ArbeidsmarkedstiltakErrorBoundary } from "@/ErrorBoundary";
 
 const TEAM_TILTAK_OPPRETT_AVTALE_URL = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL}/opprett-avtale`;
 
@@ -52,8 +52,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { data: brukerdata } = useBrukerdata();
   const { data: tiltak } = useModiaArbeidsmarkedstiltakById();
   const { data: regioner } = useRegioner();
-
-  useTitle(`Arbeidsmarkedstiltak - Detaljer ${tiltak.tiltakstype.navn}`);
 
   const pagination = useAtomValue(paginationAtom);
 
@@ -74,6 +72,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
 
   return (
     <>
+      <title>{`Arbeidsmarkedstiltak - Detaljer ${tiltak.tiltakstype.navn}`}</title>
       <BrukerKvalifisererIkkeVarsel
         brukerdata={brukerdata}
         brukerHarRettPaaTiltak={brukerHarRettPaaValgtTiltak}

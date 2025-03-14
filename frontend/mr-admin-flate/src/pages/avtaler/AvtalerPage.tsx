@@ -11,14 +11,13 @@ import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
 import { LagretDokumenttype } from "@mr/api-client-v2";
-import { LagredeFilterOversikt, useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
+import { LagredeFilterOversikt, useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useAtom } from "jotai/index";
 import { useState } from "react";
 
 export function AvtalerPage() {
-  useTitle("Avtaler");
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
   const { data: lagredeFilter = [] } = useLagredeFilter(LagretDokumenttype.AVTALE);
@@ -28,6 +27,7 @@ export function AvtalerPage() {
 
   return (
     <>
+      <title>Avtaler</title>
       <HeaderBanner heading="Oversikt over avtaler" harUndermeny ikon={<AvtaleIkon />} />
       <ReloadAppErrorBoundary>
         <ContentBox>

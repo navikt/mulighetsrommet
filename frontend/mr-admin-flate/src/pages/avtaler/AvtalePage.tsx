@@ -5,7 +5,6 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { AvtalestatusTag } from "@/components/statuselementer/AvtalestatusTag";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContentBox } from "@/layouts/ContentBox";
-import { useTitle } from "@mr/frontend-common";
 import { Heading, Tabs, VStack } from "@navikt/ds-react";
 import React from "react";
 import { Outlet, useLocation, useMatch } from "react-router";
@@ -29,7 +28,6 @@ export function AvtalePage() {
   const { data: avtale } = useAvtale(avtaleId);
 
   const brodsmuler = useAvtaleBrodsmuler(avtale?.id);
-  useTitle(`Avtale ${avtale?.navn ? `- ${avtale.navn}` : ""}`);
 
   const currentTab = () => {
     if (pathname.includes("gjennomforinger")) {
@@ -41,6 +39,7 @@ export function AvtalePage() {
 
   return (
     <>
+      <title>{`Avtale ${avtale?.navn ? `- ${avtale.navn}` : ""}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <div className="flex justify-start gap-6 items-center flex-wrap">
