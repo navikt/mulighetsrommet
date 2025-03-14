@@ -1,7 +1,6 @@
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { Tiltakskode, Toggles } from "@mr/api-client-v2";
-import { useTitle } from "@mr/frontend-common";
 import { BellDotFillIcon } from "@navikt/aksel-icons";
 import { Tabs } from "@navikt/ds-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -10,7 +9,6 @@ import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 import { ulesteNotifikasjonerQuery } from "./notifikasjoner/notifikasjonerQueries";
 
 export function ArbeidsbenkPage() {
-  useTitle("Arbeidsbenk");
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
@@ -23,6 +21,7 @@ export function ArbeidsbenkPage() {
 
   return (
     <main>
+      <title>Arbeidsbenk</title>
       <HeaderBanner
         heading="Arbeidsbenk"
         harUndermeny

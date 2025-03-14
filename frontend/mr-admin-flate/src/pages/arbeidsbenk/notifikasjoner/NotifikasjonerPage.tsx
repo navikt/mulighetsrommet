@@ -1,4 +1,3 @@
-import { useTitle } from "@mr/frontend-common";
 import { Tabs } from "@navikt/ds-react";
 import { useQuery } from "@tanstack/react-query";
 import { Outlet, useLocation, useNavigate } from "react-router";
@@ -9,7 +8,6 @@ export function NotifikasjonerPage() {
   const { data: leste } = useQuery({ ...lesteNotifikasjonerQuery });
   const { data: uleste } = useQuery({ ...ulesteNotifikasjonerQuery });
   const navigate = useNavigate();
-  useTitle("Notifikasjoner");
 
   return (
     <main>

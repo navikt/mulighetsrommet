@@ -4,7 +4,6 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TiltakstypestatusTag } from "@/components/statuselementer/TiltakstypestatusTag";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContentBox } from "@/layouts/ContentBox";
-import { useTitle } from "@mr/frontend-common";
 import { Alert, Heading, Tabs } from "@navikt/ds-react";
 import { Link, Outlet, useLocation, useMatch, useParams } from "react-router";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
@@ -14,8 +13,6 @@ export function DetaljerTiltakstypePage() {
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { tiltakstypeId } = useParams();
   const { data: tiltakstype } = useTiltakstypeById();
-
-  useTitle(`Tiltakstyper ${tiltakstype?.navn ? `- ${tiltakstype.navn}` : ""}`);
 
   const match = useMatch("/tiltakstyper/:tiltakstypeId/avtaler");
   const brodsmuler: (Brodsmule | undefined)[] = [
@@ -37,6 +34,7 @@ export function DetaljerTiltakstypePage() {
 
   return (
     <main>
+      <title>{`Tiltakstyper ${tiltakstype?.navn ? `- ${tiltakstype.navn}` : ""}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <TiltakstypeIkon />

@@ -4,21 +4,21 @@ import { ArrangorerFilterTags } from "@/components/filter/ArrangorerFilterTags";
 import { ArrangorIkon } from "@/components/ikoner/ArrangorIkon";
 import { ArrangorerTabell } from "@/components/tabell/ArrangorerTabell";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
+import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
-import { useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
+import { useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { useState } from "react";
 import { NullstillKnappForArrangorer } from "./NullstillKnappForArrangorer";
-import { ContentBox } from "@/layouts/ContentBox";
 
 export function ArrangorerPage() {
-  useTitle("Arrangører");
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
 
   return (
     <>
       <HeaderBanner heading="Arrangører" ikon={<ArrangorIkon />} />
+      <title>Arrangører</title>
       <ReloadAppErrorBoundary>
         <ContentBox>
           <FilterAndTableLayout

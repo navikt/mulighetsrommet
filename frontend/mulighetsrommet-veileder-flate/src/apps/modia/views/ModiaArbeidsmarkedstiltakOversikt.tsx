@@ -11,16 +11,15 @@ import {
   isFilterReady,
   useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { ListSkeleton, useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
+import { ListSkeleton, useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { BodyShort } from "@navikt/ds-react";
 import { useState } from "react";
 import { ModiaOversiktBrukerVarsler } from "../varsler/ModiaOversiktBrukerVarsler";
-import { BodyShort } from "@navikt/ds-react";
 
 export function ModiaArbeidsmarkedstiltakOversikt() {
-  useTitle("Arbeidsmarkedstiltak - Oversikt");
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const { data: alleTiltakDeltMedBruker } = useAlleTiltakDeltMedBruker();
 
@@ -33,6 +32,7 @@ export function ModiaArbeidsmarkedstiltakOversikt() {
 
   return (
     <>
+      <title>Arbeidsmarkedstiltak - Oversikt</title>
       <Tilbakeknapp
         tekst="Gå til oversikt over brukerens tiltak"
         tilbakelenke="/arbeidsmarkedstiltak"

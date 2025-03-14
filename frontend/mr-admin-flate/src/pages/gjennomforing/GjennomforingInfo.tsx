@@ -30,6 +30,7 @@ export function GjennomforingInfo() {
 
   return (
     <div data-testid="gjennomforing_info-container">
+      <title>{`Gjennomføring ${gjennomforing.navn ? `- ${gjennomforing.navn}` : null}`}</title>
       <Tabs defaultValue={activeTab}>
         <Tabs.List className="flex flex-row justify-between">
           <div>

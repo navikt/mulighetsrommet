@@ -3,7 +3,7 @@ import { useOppgaver } from "@/api/oppgaver/useOppgaver";
 import { EmptyState } from "@/components/notifikasjoner/EmptyState";
 import { Oppgave } from "@/components/oppgaver/Oppgave";
 import { GetOppgaverResponse } from "@mr/api-client-v2";
-import { useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
+import { useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { Select } from "@navikt/ds-react";
 import { useAtom } from "jotai/index";
@@ -42,7 +42,6 @@ export function OppgaverPage() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setTagsHeight] = useState(0);
   const [sorting, setSorting] = useState<OppgaverSorting>("nyeste");
-  useTitle("Oppgaver");
   const [filter] = useAtom(oppgaverFilterAtom);
   const { data: tiltakstyper } = useTiltakstyper();
   const { data: regioner } = useRegioner();
