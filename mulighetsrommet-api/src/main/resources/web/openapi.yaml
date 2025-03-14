@@ -6179,7 +6179,7 @@ components:
         kontonummer:
           type: string
         kidNummer:
-          type: string
+          type: [string, "null"]
         belop:
           type: string
       required:
