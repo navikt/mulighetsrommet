@@ -68,7 +68,7 @@ class OppgaverService(val db: ApiDatabase) {
                 .filter { oppgave ->
                     kostnadssteder.isEmpty() || oppgave.kostnadssted.enhetsnummer in kostnadssteder
                 }
-                .filter { tiltakskoder.isEmpty() || it.gjennomforing.tiltakskode in tiltakskoder }
+                .filter { tiltakskoder.isEmpty() || it.tiltakstype.tiltakskode in tiltakskoder }
                 .mapNotNull { it.toOppgave() }
                 .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
                 .filter { it.type.rolle in roller }
@@ -140,7 +140,7 @@ class OppgaverService(val db: ApiDatabase) {
             type = OppgaveType.TILSAGN_TIL_GODKJENNING,
             title = "Tilsagn til godkjenning",
             description = "Tilsagnet for ${gjennomforing.navn} er sendt til godkjenning",
-            tiltakstype = gjennomforing.tiltakskode,
+            tiltakstype = tiltakstype.tiltakskode,
             link = OppgaveLink(
                 linkText = "Se tilsagn",
                 link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
@@ -156,7 +156,7 @@ class OppgaverService(val db: ApiDatabase) {
                 type = OppgaveType.TILSAGN_RETURNERT,
                 title = "Tilsagn returnert",
                 description = "Tilsagnet for ${gjennomforing.navn} ble returnert av beslutter",
-                tiltakstype = gjennomforing.tiltakskode,
+                tiltakstype = tiltakstype.tiltakskode,
                 link = OppgaveLink(
                     linkText = "Se tilsagn",
                     link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
@@ -173,7 +173,7 @@ class OppgaverService(val db: ApiDatabase) {
                 type = OppgaveType.TILSAGN_TIL_ANNULLERING,
                 title = "Tilsagn til annullering",
                 description = "Tilsagnet for ${gjennomforing.navn} er sendt til annullering",
-                tiltakstype = gjennomforing.tiltakskode,
+                tiltakstype = tiltakstype.tiltakskode,
                 link = OppgaveLink(
                     linkText = "Se tilsagn",
                     link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",
@@ -190,7 +190,7 @@ class OppgaverService(val db: ApiDatabase) {
                 type = OppgaveType.TILSAGN_TIL_FRIGJORING,
                 title = "Tilsagn til frigjøring",
                 description = "Tilsagnet for ${gjennomforing.navn} er sendt til frigjøring",
-                tiltakstype = gjennomforing.tiltakskode,
+                tiltakstype = tiltakstype.tiltakskode,
                 link = OppgaveLink(
                     linkText = "Se tilsagn",
                     link = "/gjennomforinger/${gjennomforing.id}/tilsagn/$id",

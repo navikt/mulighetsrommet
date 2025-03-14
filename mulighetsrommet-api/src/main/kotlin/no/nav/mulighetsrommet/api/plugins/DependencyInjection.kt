@@ -375,7 +375,7 @@ private fun tasks(config: TaskConfig) = module {
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get()) }
     single { SynchronizeUtdanninger(config.synchronizeUtdanninger, get(), get()) }
     single { GenerateUtbetaling(config.generateUtbetaling, get()) }
-    single { JournalforUtbetaling(get(), get(), get(), get(), get()) }
+    single { JournalforUtbetaling(get(), get(), get(), get()) }
     single { NotificationTask(get()) }
     single {
         val updateGjennomforingStatus = UpdateGjennomforingStatus(

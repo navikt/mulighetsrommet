@@ -2,15 +2,17 @@ package no.nav.mulighetsrommet.api.utbetaling
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.ktor.client.call.*
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 import kotliquery.Query
 import no.nav.amt.model.EndringAarsak
 import no.nav.amt.model.Melding
@@ -26,6 +28,12 @@ import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.setTilsagnStatus
+import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
+import no.nav.mulighetsrommet.api.tilsagn.model.ArrangorflateTilsagn
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag.Status
@@ -70,6 +78,23 @@ class ArrangorflateRoutesTest : FunSpec({
             aarsak = null,
             opprettetDato = LocalDateTime.now(),
         ),
+    )
+
+    val tilsagn = TilsagnDbo(
+        id = UUID.randomUUID(),
+        gjennomforingId = GjennomforingFixtures.AFT1.id,
+        periode = Periode(LocalDate.of(2024, 6, 1), LocalDate.of(2025, 1, 1)),
+        lopenummer = 1,
+        bestillingsnummer = "A-2025/1-1",
+        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
+        beregning = TilsagnBeregningFri(
+            input = TilsagnBeregningFri.Input(1000),
+            output = TilsagnBeregningFri.Output(1000),
+        ),
+        arrangorId = ArrangorFixtures.underenhet1.id,
+        behandletAv = NavAnsattFixture.ansatt1.navIdent,
+        behandletTidspunkt = LocalDateTime.now(),
+        type = TilsagnType.TILSAGN,
     )
 
     val utbetaling = UtbetalingDbo(
@@ -125,8 +150,12 @@ class ArrangorflateRoutesTest : FunSpec({
         gjennomforinger = listOf(GjennomforingFixtures.AFT1.copy(arrangorId = underenhet.id)),
         deltakere = listOf(deltaker),
         arrangorer = listOf(hovedenhet, underenhet),
+        tilsagn = listOf(tilsagn),
         utbetalinger = listOf(utbetaling),
-    )
+    ) {
+        setTilsagnStatus(tilsagn, TilsagnStatus.GODKJENT)
+    }
+
     val oauth = MockOAuth2Server()
 
     beforeSpec {
@@ -135,6 +164,10 @@ class ArrangorflateRoutesTest : FunSpec({
 
     beforeEach {
         domain.initialize(database.db)
+    }
+
+    afterEach {
+        database.truncateAll()
     }
 
     afterSpec {
@@ -200,25 +233,76 @@ class ArrangorflateRoutesTest : FunSpec({
 
     test("200 OK og tom liste med pid uten tilgang") {
         withTestApplication(appConfig()) {
+            val client = createClient {
+                install(ContentNegotiation) {
+                    json()
+                }
+            }
+
             val response = client.get("/api/v1/intern/arrangorflate/tilgang-arrangor") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922")).serialize())
             }
+
             response.status shouldBe HttpStatusCode.OK
-            Json.decodeFromString<List<ArrangorDto>>(response.bodyAsText()) shouldHaveSize 0
+            response.body<List<ArrangorDto>>().shouldHaveSize(0)
         }
     }
 
     test("200 og arrangor returneres på tilgang endepunkt") {
         withTestApplication(appConfig()) {
+            val client = createClient {
+                install(ContentNegotiation) {
+                    json()
+                }
+            }
+
             val response = client.get("/api/v1/intern/arrangorflate/tilgang-arrangor") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
             }
+
             response.status shouldBe HttpStatusCode.OK
-            val responseBody = response.bodyAsText()
-            val tilganger: List<ArrangorDto> = Json.decodeFromString(responseBody)
-            tilganger shouldHaveSize 1
-            tilganger[0].organisasjonsnummer shouldBe underenhet.organisasjonsnummer
+
+            val tilganger: List<ArrangorDto> = response.body()
+            tilganger.shouldHaveSize(1).first().should {
+                it.organisasjonsnummer shouldBe underenhet.organisasjonsnummer
+            }
+        }
+    }
+
+    val orgnr = underenhet.organisasjonsnummer.value
+
+    test("403 hent tilsagn uten tilgang til bedrift") {
+        withTestApplication(appConfig()) {
+            val response = client.get("/api/v1/intern/arrangorflate/arrangor/$orgnr/tilsagn") {
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922")).serialize())
+                contentType(ContentType.Application.Json)
+            }
+            response.status shouldBe HttpStatusCode.Forbidden
+        }
+    }
+
+    test("200 hent tilsagn med tilgang til bedrift") {
+        withTestApplication(appConfig()) {
+            val client = createClient {
+                install(ContentNegotiation) {
+                    json()
+                }
+            }
+
+            val response = client.get("/api/v1/intern/arrangorflate/arrangor/$orgnr/tilsagn") {
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
+                contentType(ContentType.Application.Json)
+            }
+
+            response.status shouldBe HttpStatusCode.OK
+
+            response.body<List<ArrangorflateTilsagn>>().shouldHaveSize(1).first().should {
+                it.status shouldBe ArrangorflateTilsagn.StatusOgAarsaker(
+                    status = TilsagnStatus.GODKJENT,
+                    aarsaker = listOf(),
+                )
+            }
         }
     }
 
@@ -234,24 +318,33 @@ class ArrangorflateRoutesTest : FunSpec({
 
     test("200 hent utbetaling") {
         withTestApplication(appConfig()) {
+            val client = createClient {
+                install(ContentNegotiation) {
+                    json()
+                }
+            }
+
             val response = client.get("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
             }
+
             response.status shouldBe HttpStatusCode.OK
-            val responseBody = response.bodyAsText()
-            val kravResponse: ArrFlateUtbetaling = Json.decodeFromString(responseBody)
-            kravResponse.id shouldBe utbetaling.id
+
+            response.body<ArrFlateUtbetaling>().should {
+                it.id shouldBe utbetaling.id
+            }
         }
     }
 
-    test("feil sjekksum ved godkjenning av utbetaling gir 400") {
+    test("400 ved feil sjekksum ved godkjenning av utbetaling") {
         withTestApplication(appConfig()) {
             val client = createClient {
                 install(ContentNegotiation) {
                     json()
                 }
             }
+
             val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
@@ -265,10 +358,29 @@ class ArrangorflateRoutesTest : FunSpec({
                     ),
                 )
             }
+
             response.status shouldBe HttpStatusCode.BadRequest
+
+            response.body<JsonElement>() shouldBe Json.parseToJsonElement(
+                """
+                {
+                  "type": "validation-error",
+                  "status": 400,
+                  "title": "Validation error",
+                  "detail": "Unknown Validation Error",
+                  "errors": [
+                    {
+                      "pointer": "/info",
+                      "detail": "Informasjonen i kravet har endret seg. Vennligst se over på nytt."
+                    }
+                  ]
+                }
+                """,
+            )
         }
     }
 
+    // TODO: flytt resten av godkjenning-testene til egen testklasse for ArrangorflateService
     test("riktig sjekksum ved godkjenning av utbetaling gir 200, og spawner journalforing task") {
         withTestApplication(appConfig()) {
             val client = createClient {
@@ -392,6 +504,7 @@ class ArrangorflateRoutesTest : FunSpec({
                     json()
                 }
             }
+
             val response = client.post("/api/v1/intern/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
@@ -405,7 +518,24 @@ class ArrangorflateRoutesTest : FunSpec({
                     ),
                 )
             }
+
             response.status shouldBe HttpStatusCode.BadRequest
+            response.body<JsonElement>() shouldBe Json.parseToJsonElement(
+                """
+                {
+                  "type": "validation-error",
+                  "status": 400,
+                  "title": "Validation error",
+                  "detail": "Unknown Validation Error",
+                  "errors": [
+                    {
+                      "pointer": "/info",
+                      "detail": "Det finnes forslag på deltakere som påvirker utbetalingen. Disse må behandles av Nav før utbetalingen kan sendes inn."
+                    }
+                  ]
+                }
+                """,
+            )
         }
     }
 })

@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.api.clients.dokark.DokarkError
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.dokark.Journalpost
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
-import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
@@ -25,7 +24,6 @@ import java.util.*
 
 class JournalforUtbetaling(
     private val db: ApiDatabase,
-    private val tilsagnService: TilsagnService,
     private val dokarkClient: DokarkClient,
     private val arrangorFlateService: ArrangorFlateService,
     private val pdf: PdfGenClient,
@@ -64,7 +62,7 @@ class JournalforUtbetaling(
         val fagsakId = gjennomforing.tiltaksnummer ?: gjennomforing.lopenummer
 
         val pdf = run {
-            val tilsagn = tilsagnService.getArrangorflateTilsagnTilUtbetaling(
+            val tilsagn = arrangorFlateService.getArrangorflateTilsagnTilUtbetaling(
                 gjennomforingId = utbetaling.gjennomforing.id,
                 periode = utbetaling.periode,
             )
