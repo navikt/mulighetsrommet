@@ -334,8 +334,10 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
       type: "FORHANDSGODKJENT",
       input: {
         type: "FORHANDSGODKJENT",
-        periodeStart: "2024-06-01",
-        periodeSlutt: "2024-12-31",
+        periode: {
+          start: "2024-06-01",
+          slutt: "2024-12-31",
+        },
         antallPlasser: 20,
         sats: 20205,
       },
@@ -368,8 +370,10 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
       type: "FORHANDSGODKJENT",
       input: {
         type: "FORHANDSGODKJENT",
-        periodeStart: "2024-08-01",
-        periodeSlutt: "2024-08-31",
+        periode: {
+          start: "2024-08-01",
+          slutt: "2024-08-31",
+        },
         antallPlasser: 2,
         sats: 20205,
       },
@@ -402,8 +406,10 @@ const mockTilsagn: ArrangorflateTilsagn[] = [
       type: "FORHANDSGODKJENT",
       input: {
         type: "FORHANDSGODKJENT",
-        periodeStart: "2024-08-01",
-        periodeSlutt: "2024-08-31",
+        periode: {
+          start: "2024-08-01",
+          slutt: "2024-08-31",
+        },
         antallPlasser: 2,
         sats: 20205,
       },

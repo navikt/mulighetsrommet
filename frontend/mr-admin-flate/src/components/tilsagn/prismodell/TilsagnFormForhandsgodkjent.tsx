@@ -6,6 +6,7 @@ import { GjennomforingDto, TilsagnBeregningForhandsgodkjent } from "@mr/api-clie
 import { HGrid, TextField } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
+import { addDays, formaterDatoSomYYYYMMDD } from "@/utils/Utils";
 
 type ForhandsgodkjentTilsagn = InferredTilsagn & { beregning: TilsagnBeregningForhandsgodkjent };
 
@@ -47,11 +48,14 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
   }, [sats, setValue]);
 
   useEffect(() => {
-    setValue("beregning.periodeStart", periodeStart);
+    setValue("beregning.periode.start", periodeStart);
   }, [periodeStart, setValue]);
 
   useEffect(() => {
-    setValue("beregning.periodeSlutt", periodeSlutt);
+    const periodeSluttExclusive = periodeSlutt
+      ? formaterDatoSomYYYYMMDD(addDays(periodeSlutt, 1))
+      : periodeSlutt;
+    setValue("beregning.periode.slutt", periodeSluttExclusive);
   }, [periodeSlutt, setValue]);
 
   return (
@@ -79,17 +83,6 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
 
 function BeregningOutputPreview() {
   const { watch } = useFormContext<ForhandsgodkjentTilsagn>();
-
-  const values = watch();
-  return (
-    <TilsagnBeregningPreview
-      input={{
-        type: "FORHANDSGODKJENT",
-        periodeStart: values.periodeStart,
-        periodeSlutt: values.periodeSlutt,
-        sats: values.beregning?.sats,
-        antallPlasser: values.beregning?.antallPlasser,
-      }}
-    />
-  );
+  const values = watch("beregning");
+  return <TilsagnBeregningPreview input={values} />;
 }
