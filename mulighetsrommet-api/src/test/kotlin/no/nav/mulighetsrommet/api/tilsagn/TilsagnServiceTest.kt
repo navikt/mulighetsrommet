@@ -564,7 +564,9 @@ class TilsagnServiceTest : FunSpec({
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
             ).shouldBeRight()
 
-            service.frigjorAutomatisk(id = Tilsagn1.id)
+            database.db.session {
+                service.frigjorAutomatisk(id = Tilsagn1.id, this)
+            }
             val dto = service.getAll()[0]
             dto.status shouldBe TilsagnStatus.FRIGJORT
             dto.frigjoring shouldNotBe null

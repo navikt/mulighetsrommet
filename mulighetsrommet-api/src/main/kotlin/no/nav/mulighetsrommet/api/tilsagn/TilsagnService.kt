@@ -333,12 +333,12 @@ class TilsagnService(
         return dto
     }
 
-    fun frigjorAutomatisk(id: UUID) = db.transaction {
-        var tilsagn = requireNotNull(queries.tilsagn.get(id))
+    fun frigjorAutomatisk(id: UUID, queryContext: QueryContext) {
+        var tilsagn = requireNotNull(queryContext.queries.tilsagn.get(id))
 
-        tilsagn = setTilFrigjoring(tilsagn, Tiltaksadministrasjon, emptyList(), null)
+        tilsagn = queryContext.setTilFrigjoring(tilsagn, Tiltaksadministrasjon, emptyList(), null)
 
-        frigjorTilsagn(tilsagn, Tiltaksadministrasjon)
+        queryContext.frigjorTilsagn(tilsagn, Tiltaksadministrasjon)
     }
 
     private fun QueryContext.setTilAnnullering(
