@@ -295,8 +295,7 @@ private fun resolveTilsagnDefaults(
         val beregning = ForhandsgodkjenteSatser.findSats(gjennomforing.tiltakstype.tiltakskode, periode)
             ?.let { sats ->
                 TilsagnBeregningForhandsgodkjent.Input(
-                    periodeStart = periodeStart,
-                    periodeSlutt = periodeSlutt,
+                    periode = periode,
                     sats = sats,
                     antallPlasser = gjennomforing.antallPlasser,
                 )

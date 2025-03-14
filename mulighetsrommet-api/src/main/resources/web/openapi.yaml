@@ -5542,20 +5542,15 @@ components:
       properties:
         type:
           const: FORHANDSGODKJENT
-        periodeStart:
-          type: string
-          format: date
-        periodeSlutt:
-          type: string
-          format: date
+        periode:
+          $ref: "#/components/schemas/Periode"
         sats:
           type: integer
         antallPlasser:
           type: integer
       required:
         - type
-        - periodeStart
-        - periodeSlutt
+        - periode
         - sats
         - antallPlasser
 

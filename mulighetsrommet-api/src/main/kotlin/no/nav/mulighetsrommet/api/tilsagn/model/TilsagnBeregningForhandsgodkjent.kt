@@ -2,10 +2,9 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.model.Periode
 import java.lang.Math.addExact
 import java.math.RoundingMode
-import java.time.LocalDate
 import kotlin.streams.asSequence
 
 @Serializable
@@ -18,10 +17,7 @@ data class TilsagnBeregningForhandsgodkjent(
     @Serializable
     @SerialName("FORHANDSGODKJENT")
     data class Input(
-        @Serializable(with = LocalDateSerializer::class)
-        val periodeStart: LocalDate,
-        @Serializable(with = LocalDateSerializer::class)
-        val periodeSlutt: LocalDate,
+        val periode: Periode,
         val sats: Int,
         val antallPlasser: Int,
     ) : TilsagnBeregningInput()
@@ -34,9 +30,9 @@ data class TilsagnBeregningForhandsgodkjent(
 
     companion object {
         fun beregn(input: Input): TilsagnBeregningForhandsgodkjent {
-            val (periodeStart, periodeSlutt, sats, antallPlasser) = input
+            val (periode, sats, antallPlasser) = input
 
-            val output = periodeStart.datesUntil(periodeSlutt.plusDays(1))
+            val output = periode.start.datesUntil(periode.slutt)
                 .asSequence()
                 .groupBy { it.month }
                 .map { (_, datesInMonth) ->

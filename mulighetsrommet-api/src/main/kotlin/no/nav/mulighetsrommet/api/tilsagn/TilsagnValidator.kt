@@ -8,6 +8,7 @@ import arrow.core.right
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 
 object TilsagnValidator {
@@ -41,22 +42,22 @@ object TilsagnValidator {
         input: TilsagnBeregningForhandsgodkjent.Input,
     ): Either<List<FieldError>, TilsagnBeregningForhandsgodkjent.Input> = either {
         val errors = buildList {
-            val satsPeriodeStart = ForhandsgodkjenteSatser.findSats(tiltakskode, input.periodeStart)
+            val satsPeriodeStart = ForhandsgodkjenteSatser.findSats(tiltakskode, input.periode.start)
             if (satsPeriodeStart == null) {
                 add(
                     FieldError.of(
                         "Sats mangler for valgt periode",
-                        TilsagnBeregningForhandsgodkjent.Input::periodeStart,
+                        TilsagnRequest::periodeStart,
                     ),
                 )
             }
 
-            val satsPeriodeSlutt = ForhandsgodkjenteSatser.findSats(tiltakskode, input.periodeSlutt)
+            val satsPeriodeSlutt = ForhandsgodkjenteSatser.findSats(tiltakskode, input.periode.getLastInclusiveDate())
             if (satsPeriodeSlutt == null) {
                 add(
                     FieldError.of(
                         "Sats mangler for valgt periode",
-                        TilsagnBeregningForhandsgodkjent.Input::periodeSlutt,
+                        TilsagnRequest::periodeSlutt,
                     ),
                 )
             }
@@ -65,7 +66,7 @@ object TilsagnValidator {
                 add(
                     FieldError.of(
                         "Periode går over flere satser",
-                        TilsagnBeregningForhandsgodkjent.Input::periodeSlutt,
+                        TilsagnRequest::periodeSlutt,
                     ),
                 )
             }
@@ -83,19 +84,12 @@ object TilsagnValidator {
 
     private fun validateAFTTilsagnBeregningInput(input: TilsagnBeregningForhandsgodkjent.Input): Either<List<FieldError>, TilsagnBeregningInput> = either {
         val errors = buildList {
-            if (input.periodeStart.year != input.periodeSlutt.year) {
+            if (input.periode.start.year != input.periode.getLastInclusiveDate().year) {
                 add(
                     FieldError.of(
                         "Tilsagnsperioden kan ikke vare utover årsskiftet",
-                        TilsagnBeregningForhandsgodkjent.Input::periodeSlutt,
-                    ),
-                )
-            }
-            if (input.periodeStart.isAfter(input.periodeSlutt)) {
-                add(
-                    FieldError.of(
-                        "Slutt kan ikke være før start",
-                        TilsagnBeregningForhandsgodkjent.Input::periodeSlutt,
+                        TilsagnBeregningForhandsgodkjent.Input::periode,
+                        Periode::slutt,
                     ),
                 )
             }

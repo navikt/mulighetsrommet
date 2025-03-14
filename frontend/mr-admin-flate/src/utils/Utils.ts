@@ -172,15 +172,15 @@ export function subtractMonths(date: Date, numMonths: number): Date {
   return newDate;
 }
 
-export function addDays(date: Date, numDays: number): Date {
+export function addDays(date: Date | string, numDays: number): Date {
   const newDate = new Date(date);
-  newDate.setDate(date.getDate() + numDays);
+  newDate.setDate(newDate.getDate() + numDays);
   return newDate;
 }
 
-export function subtractDays(date: Date, numDays: number): Date {
+export function subtractDays(date: Date | string, numDays: number): Date {
   const newDate = new Date(date);
-  newDate.setDate(date.getDate() - numDays);
+  newDate.setDate(newDate.getDate() - numDays);
   return newDate;
 }
 

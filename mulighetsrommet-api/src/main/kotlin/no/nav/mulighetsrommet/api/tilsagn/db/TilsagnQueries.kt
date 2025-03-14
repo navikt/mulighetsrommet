@@ -88,12 +88,7 @@ class TilsagnQueries(private val session: Session) {
 
         when (dbo.beregning) {
             is TilsagnBeregningForhandsgodkjent -> {
-                check(
-                    dbo.periode == Periode.fromInclusiveDates(
-                        dbo.beregning.input.periodeStart,
-                        dbo.beregning.input.periodeSlutt,
-                    ),
-                ) {
+                check(dbo.periode == dbo.beregning.input.periode) {
                     "Tilsagnsperiode og beregningsperiode må være lik"
                 }
                 upsertTilsagnBeregningForhandsgodkjent(dbo.id, dbo.beregning)
@@ -368,11 +363,9 @@ class TilsagnQueries(private val session: Session) {
         """.trimIndent()
 
         return session.requireSingle(queryOf(query, id)) { row ->
-            val periode = row.periode("periode")
             TilsagnBeregningForhandsgodkjent(
                 input = TilsagnBeregningForhandsgodkjent.Input(
-                    periodeStart = periode.start,
-                    periodeSlutt = periode.getLastInclusiveDate(),
+                    periode = row.periode("periode"),
                     sats = row.int("sats"),
                     antallPlasser = row.int("antall_plasser"),
                 ),

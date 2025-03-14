@@ -60,13 +60,14 @@ class TilsagnService(
 
         val previous = queries.tilsagn.get(request.id)
 
-        val beregningInput = request.beregning
-
-        validateTilsagnBeregningInput(gjennomforing, beregningInput)
-            .flatMap { beregnTilsagn(beregningInput) }
+        validateTilsagnBeregningInput(gjennomforing, request.beregning)
+            .flatMap { beregnTilsagn(it) }
             .map { beregning ->
                 val lopenummer = previous?.lopenummer
                     ?: queries.tilsagn.getNextLopenummeByGjennomforing(gjennomforing.id)
+
+                val bestillingsnummer = previous?.bestillingsnummer
+                    ?: "A-${gjennomforing.lopenummer}-$lopenummer"
 
                 TilsagnDbo(
                     id = request.id,
@@ -74,7 +75,7 @@ class TilsagnService(
                     type = request.type,
                     periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt),
                     lopenummer = lopenummer,
-                    bestillingsnummer = previous?.bestillingsnummer ?: "A-${gjennomforing.lopenummer}-$lopenummer",
+                    bestillingsnummer = bestillingsnummer,
                     kostnadssted = request.kostnadssted,
                     beregning = beregning,
                     behandletAv = navIdent,
@@ -150,6 +151,7 @@ class TilsagnService(
                                 // når vi frigør på en delutbetaling.
                                 okonomi.scheduleBehandleFrigjortTilsagn(tilsagn.id, session)
                             }
+
                     Besluttelse.AVVIST -> avvisFrigjoring(tilsagn, navIdent).right()
                 }
             }

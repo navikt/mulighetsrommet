@@ -9,12 +9,14 @@ const TilsagnBeregningSchema = z.discriminatedUnion("type", [
       invalid_type_error: "Sats mangler",
       required_error: "Sats er påkrevd",
     }),
-    periodeStart: z
-      .string({ required_error: tilsagnTekster.manglerStartdato })
-      .min(10, tilsagnTekster.manglerStartdato),
-    periodeSlutt: z
-      .string({ required_error: tilsagnTekster.manglerSluttdato })
-      .min(10, tilsagnTekster.manglerSluttdato),
+    periode: z.object({
+      start: z
+        .string({ required_error: tilsagnTekster.manglerStartdato })
+        .min(10, tilsagnTekster.manglerStartdato),
+      slutt: z
+        .string({ required_error: tilsagnTekster.manglerSluttdato })
+        .min(10, tilsagnTekster.manglerSluttdato),
+    }),
     antallPlasser: z
       .number({
         invalid_type_error: "Antall plasser mangler",

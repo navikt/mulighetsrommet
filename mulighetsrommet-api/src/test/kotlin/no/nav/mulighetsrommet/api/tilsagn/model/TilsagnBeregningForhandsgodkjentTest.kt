@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 
 class TilsagnBeregningForhandsgodkjentTest : FunSpec({
@@ -10,10 +11,9 @@ class TilsagnBeregningForhandsgodkjentTest : FunSpec({
     context("forhåndsgodkjent tilsagn beregning") {
         test("en plass en måned = sats") {
             val input = TilsagnBeregningForhandsgodkjent.Input(
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
                 sats = 20205,
                 antallPlasser = 1,
-                periodeStart = LocalDate.of(2024, 1, 1),
-                periodeSlutt = LocalDate.of(2024, 1, 31),
             )
 
             TilsagnBeregningForhandsgodkjent.beregn(input).output.belop shouldBe 20205
@@ -21,10 +21,9 @@ class TilsagnBeregningForhandsgodkjentTest : FunSpec({
 
         test("flere plasser en måned") {
             val input = TilsagnBeregningForhandsgodkjent.Input(
+                periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
                 sats = 20205,
                 antallPlasser = 6,
-                periodeStart = LocalDate.of(2024, 1, 1),
-                periodeSlutt = LocalDate.of(2024, 1, 31),
             )
 
             TilsagnBeregningForhandsgodkjent.beregn(input).output.belop shouldBe 121230
@@ -32,10 +31,9 @@ class TilsagnBeregningForhandsgodkjentTest : FunSpec({
 
         test("en plass halv måned") {
             val input = TilsagnBeregningForhandsgodkjent.Input(
+                periode = Periode.fromInclusiveDates(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 4, 15)),
                 sats = 19500,
                 antallPlasser = 1,
-                periodeStart = LocalDate.of(2023, 4, 1),
-                periodeSlutt = LocalDate.of(2023, 4, 15),
             )
 
             TilsagnBeregningForhandsgodkjent.beregn(input).output.belop shouldBe 9750
@@ -43,10 +41,9 @@ class TilsagnBeregningForhandsgodkjentTest : FunSpec({
 
         test("flere plasser en og en halv måned") {
             val input = TilsagnBeregningForhandsgodkjent.Input(
+                periode = Periode.fromInclusiveDates(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 4, 15)),
                 sats = 20205,
                 antallPlasser = 10,
-                periodeStart = LocalDate.of(2024, 3, 1),
-                periodeSlutt = LocalDate.of(2024, 4, 15),
             )
 
             TilsagnBeregningForhandsgodkjent.beregn(input).output.belop shouldBe 303075
@@ -54,10 +51,9 @@ class TilsagnBeregningForhandsgodkjentTest : FunSpec({
 
         test("ingen plasser") {
             val input = TilsagnBeregningForhandsgodkjent.Input(
+                periode = Periode.fromInclusiveDates(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 4, 15)),
                 sats = 20205,
                 antallPlasser = 0,
-                periodeStart = LocalDate.of(2024, 3, 1),
-                periodeSlutt = LocalDate.of(2024, 4, 15),
             )
 
             TilsagnBeregningForhandsgodkjent.beregn(input).output.belop shouldBe 0
@@ -65,19 +61,17 @@ class TilsagnBeregningForhandsgodkjentTest : FunSpec({
 
         test("skuddår/ikke skuddår") {
             val ikkeSkuddar = TilsagnBeregningForhandsgodkjent.Input(
+                periode = Periode.fromInclusiveDates(LocalDate.of(2023, 2, 1), LocalDate.of(2023, 2, 28)),
                 sats = 19500,
                 antallPlasser = 1,
-                periodeStart = LocalDate.of(2023, 2, 1),
-                periodeSlutt = LocalDate.of(2023, 2, 28),
             )
 
             TilsagnBeregningForhandsgodkjent.beregn(ikkeSkuddar).output.belop shouldBe 19500
 
             val skuddar = TilsagnBeregningForhandsgodkjent.Input(
+                periode = Periode.fromInclusiveDates(LocalDate.of(2024, 2, 1), LocalDate.of(2024, 2, 28)),
                 sats = 20205,
                 antallPlasser = 1,
-                periodeStart = LocalDate.of(2024, 2, 1),
-                periodeSlutt = LocalDate.of(2024, 2, 28),
             )
 
             TilsagnBeregningForhandsgodkjent.beregn(skuddar).output.belop shouldBe 19599
@@ -85,10 +79,9 @@ class TilsagnBeregningForhandsgodkjentTest : FunSpec({
 
         test("én dag") {
             val input = TilsagnBeregningForhandsgodkjent.Input(
+                periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 1, 2)),
                 sats = 20205,
                 antallPlasser = 1,
-                periodeStart = LocalDate.of(2024, 1, 1),
-                periodeSlutt = LocalDate.of(2024, 1, 1),
             )
 
             TilsagnBeregningForhandsgodkjent.beregn(input).output.belop shouldBe 606
@@ -98,10 +91,9 @@ class TilsagnBeregningForhandsgodkjentTest : FunSpec({
             // overflow i en delberegning for én måned
             shouldThrow<ArithmeticException> {
                 val input = TilsagnBeregningForhandsgodkjent.Input(
+                    periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
                     sats = 20205,
                     antallPlasser = Int.MAX_VALUE,
-                    periodeStart = LocalDate.of(2024, 1, 1),
-                    periodeSlutt = LocalDate.of(2024, 1, 31),
                 )
 
                 TilsagnBeregningForhandsgodkjent.beregn(input)
@@ -110,10 +102,9 @@ class TilsagnBeregningForhandsgodkjentTest : FunSpec({
             // overflow på summering av 12 måneder
             shouldThrow<ArithmeticException> {
                 val input = TilsagnBeregningForhandsgodkjent.Input(
+                    periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2025, 1, 1)),
                     sats = 20205,
                     antallPlasser = 9500,
-                    periodeStart = LocalDate.of(2024, 1, 1),
-                    periodeSlutt = LocalDate.of(2024, 12, 31),
                 )
 
                 TilsagnBeregningForhandsgodkjent.beregn(input)
@@ -122,10 +113,9 @@ class TilsagnBeregningForhandsgodkjentTest : FunSpec({
 
         test("reelt eksempel nr 1") {
             val input = TilsagnBeregningForhandsgodkjent.Input(
+                periode = Periode(LocalDate.of(2024, 9, 15), LocalDate.of(2025, 1, 1)),
                 sats = 20205,
                 antallPlasser = 24,
-                periodeStart = LocalDate.of(2024, 9, 15),
-                periodeSlutt = LocalDate.of(2024, 12, 31),
             )
 
             TilsagnBeregningForhandsgodkjent.beregn(input).output.belop shouldBe 1711768

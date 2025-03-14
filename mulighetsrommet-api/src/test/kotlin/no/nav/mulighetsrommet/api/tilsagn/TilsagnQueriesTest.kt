@@ -99,8 +99,7 @@ class TilsagnQueriesTest : FunSpec({
 
                 val beregning = TilsagnBeregningForhandsgodkjent(
                     input = TilsagnBeregningForhandsgodkjent.Input(
-                        periodeStart = tilsagn.periode.start,
-                        periodeSlutt = tilsagn.periode.getLastInclusiveDate(),
+                        periode = tilsagn.periode,
                         antallPlasser = 10,
                         sats = 100,
                     ),
