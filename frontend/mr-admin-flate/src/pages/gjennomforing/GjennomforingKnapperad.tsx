@@ -46,7 +46,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
 
   let gjennomforingPublisert = gjennomforing.publisert;
   if (!publiseringErrored && fetcher.formData) {
-    gjennomforingPublisert = fetcher.formData.get("publisert") === "true" ? true : false;
+    gjennomforingPublisert = fetcher.formData.get("publisert") === "true";
   }
 
   return (

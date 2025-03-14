@@ -6,7 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { RefObject } from "react";
 
 interface Props {
-  modalRef: RefObject<HTMLDialogElement>;
+  modalRef: RefObject<HTMLDialogElement | null>;
   gjennomforing: GjennomforingDto;
 }
 

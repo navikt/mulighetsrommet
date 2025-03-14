@@ -30,7 +30,7 @@ export const AvbrytGjennomforingModalSchema = z
   });
 
 interface Props {
-  modalRef: RefObject<HTMLDialogElement>;
+  modalRef: RefObject<HTMLDialogElement | null>;
   gjennomforing: GjennomforingDto;
 }
 

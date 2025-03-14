@@ -9,7 +9,7 @@ import { navnForAnsvar } from "./ArrangorKontaktpersonUtils";
 
 interface Props {
   arrangorId: string;
-  modalRef: RefObject<HTMLDialogElement>;
+  modalRef: RefObject<HTMLDialogElement | null>;
   onOpprettSuccess: (kontaktperson: ArrangorKontaktperson) => void;
 }
 
