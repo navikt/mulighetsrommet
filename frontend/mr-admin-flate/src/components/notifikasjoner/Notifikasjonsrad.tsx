@@ -3,7 +3,7 @@ import { Alert, BodyLong, BodyShort, Heading, Link, Tag, VStack } from "@navikt/
 import classNames from "classnames";
 import { ReactNode, useState } from "react";
 import { formaterDatoTid } from "../../utils/Utils";
-import { CheckmarkButton } from "./CheckmarkButton";
+import { ReadNotificationButton } from "./ReadNotificationButton";
 
 interface NotifikasjonssradProps {
   notifikasjon: UserNotification;
@@ -59,19 +59,17 @@ export function Notifikasjonssrad({ notifikasjon, lest }: NotifikasjonssradProps
           </BodyShort>
         ) : null}
       </div>
-      <div className="flex items-start gap-1">
+      <VStack className="flex items-end justify-between gap-4">
         <BodyShort size="small" title={createdAt} className="text-subtle text-sm">
           {formaterDatoTid(createdAt)}
         </BodyShort>
-        <VStack className="flex flex-row">
-          <CheckmarkButton id={notifikasjon.id} read={lest} setError={setError} />
-          {error && (
-            <Alert inline variant="error" size="small">
-              {error}
-            </Alert>
-          )}
-        </VStack>
-      </div>
+        <ReadNotificationButton id={notifikasjon.id} read={lest} setError={setError} />
+        {error && (
+          <Alert inline variant="error" size="small">
+            {error}
+          </Alert>
+        )}
+      </VStack>
     </li>
   );
 }
