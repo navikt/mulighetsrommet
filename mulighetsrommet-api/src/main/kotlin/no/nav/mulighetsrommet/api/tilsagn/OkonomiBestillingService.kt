@@ -196,8 +196,8 @@ class OkonomiBestillingService(
         val tilsagn = requireNotNull(db.session { queries.tilsagn.get(tilsagnId) }) {
             "Tilsagn med id=$tilsagnId finnes ikke"
         }
-        require(tilsagn.status == TilsagnStatus.GODKJENT) {
-            "Tilsagn er ikke godkjent id=$tilsagnId status=${tilsagn.status}"
+        require(tilsagn.status in listOf(TilsagnStatus.GODKJENT, TilsagnStatus.FRIGJORT)) {
+            "Tilsagn er ikke i riktig status id=$tilsagnId status=${tilsagn.status}"
         }
 
         val delutbetalinger = db.session { queries.delutbetaling.getSkalSendesTilOkonomi(tilsagnId) }
