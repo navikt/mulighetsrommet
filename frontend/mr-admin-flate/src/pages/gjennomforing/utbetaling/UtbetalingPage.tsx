@@ -6,6 +6,7 @@ import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndrin
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { DelutbetalingRow } from "@/components/utbetaling/DelutbetalingRow";
+import { OpprettDelutbetalingRow } from "@/components/utbetaling/OpprettDelutbetalingRow";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { formaterDato, formaterPeriode } from "@/utils/Utils";
@@ -35,7 +36,6 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { OpprettDelutbetalingRow } from "@/components/utbetaling/OpprettDelutbetalingRow";
 import { v4 as uuidv4 } from "uuid";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
 import {
@@ -209,6 +209,10 @@ export function UtbetalingPage() {
                     verdi={formaterDato(
                       utbetaling.godkjentAvArrangorTidspunkt ?? utbetaling.createdAt,
                     )}
+                  />
+                  <MetadataHorisontal
+                    header="Innsendt av"
+                    verdi={utbetaling.innsendtAv || "Ukjent innsender"}
                   />
                   <MetadataHorisontal
                     header={utbetalingTekster.beregning.belop.label}

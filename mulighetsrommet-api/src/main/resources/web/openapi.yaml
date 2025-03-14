@@ -5658,6 +5658,8 @@ components:
         beskrivelse:
           type: string
           nullable: true
+        innsendtAv:
+          type: string
       required:
         - id
         - status
