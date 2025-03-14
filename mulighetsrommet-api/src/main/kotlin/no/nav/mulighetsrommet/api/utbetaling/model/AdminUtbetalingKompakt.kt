@@ -20,6 +20,7 @@ data class AdminUtbetalingKompakt(
     val createdAt: LocalDateTime,
     val betalingsinformasjon: UtbetalingDto.Betalingsinformasjon,
     val beskrivelse: String?,
+    val innsendtAv: String?,
 ) {
     @Serializable
     data class Beregning(
@@ -38,6 +39,15 @@ data class AdminUtbetalingKompakt(
             beregning = Beregning(
                 belop = utbetaling.beregning.output.belop,
             ),
+            innsendtAv = formaterInnsendtAv(utbetaling.innsender)
         )
+
+        private fun formaterInnsendtAv(innsender: UtbetalingDto.Innsender?): String? {
+            return when(innsender) {
+                is UtbetalingDto.Innsender.ArrangorAnsatt -> "Arrangør"
+                is UtbetalingDto.Innsender.NavAnsatt -> innsender.navIdent.value
+                else -> null
+            }
+        }
     }
 }
