@@ -39,11 +39,11 @@ data class AdminUtbetalingKompakt(
             beregning = Beregning(
                 belop = utbetaling.beregning.output.belop,
             ),
-            innsendtAv = formaterInnsendtAv(utbetaling.innsender)
+            innsendtAv = formaterInnsendtAv(utbetaling.innsender),
         )
 
         private fun formaterInnsendtAv(innsender: UtbetalingDto.Innsender?): String? {
-            return when(innsender) {
+            return when (innsender) {
                 is UtbetalingDto.Innsender.ArrangorAnsatt -> "Arrangør"
                 is UtbetalingDto.Innsender.NavAnsatt -> innsender.navIdent.value
                 else -> null
