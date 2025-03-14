@@ -26,7 +26,7 @@ export function AvtalerPage() {
   const [filter, setFilter] = useAtom(avtaleFilterAtom);
 
   return (
-    <>
+    <main>
       <title>Avtaler</title>
       <HeaderBanner heading="Oversikt over avtaler" harUndermeny ikon={<AvtaleIkon />} />
       <ReloadAppErrorBoundary>
@@ -66,6 +66,6 @@ export function AvtalerPage() {
         </ContentBox>
       </ReloadAppErrorBoundary>
       <TilToppenKnapp />
-    </>
+    </main>
   );
 }

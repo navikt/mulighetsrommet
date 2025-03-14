@@ -9,7 +9,7 @@ import { Suspense } from "react";
 
 export function TiltakstyperPage() {
   return (
-    <>
+    <main>
       <title>Tiltakstyper</title>
       <HeaderBanner heading="Oversikt over tiltakstyper" ikon={<TiltakstypeIkon />} />
       <ContentBox>
@@ -20,6 +20,6 @@ export function TiltakstyperPage() {
         </ReloadAppErrorBoundary>
       </ContentBox>
       <TilToppenKnapp />
-    </>
+    </main>
   );
 }

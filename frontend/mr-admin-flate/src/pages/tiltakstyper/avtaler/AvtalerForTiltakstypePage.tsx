@@ -27,7 +27,6 @@ export function AvtalerForTiltakstypePage() {
   return (
     <>
       <ContentBox>
-        <title>Tiltakstyper - Avtaler</title>
         <FilterAndTableLayout
           filter={
             <AvtaleFilter
