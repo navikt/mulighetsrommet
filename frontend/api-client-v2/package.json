@@ -15,6 +15,6 @@
     "typescript": "5.8.2"
   },
   "dependencies": {
-    "@hey-api/client-fetch": "^0.8.3"
+    "@hey-api/client-fetch": "0.8.3"
   }
 }
