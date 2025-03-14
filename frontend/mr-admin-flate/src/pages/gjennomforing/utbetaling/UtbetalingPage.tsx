@@ -205,7 +205,7 @@ export function UtbetalingPage() {
                     verdi={formaterPeriode(utbetaling.periode)}
                   />
                   <MetadataHorisontal
-                    header="Innsendt"
+                    header="Dato innsendt"
                     verdi={formaterDato(
                       utbetaling.godkjentAvArrangorTidspunkt ?? utbetaling.createdAt,
                     )}
