@@ -33,10 +33,10 @@ class OppgaverServiceTest : FunSpec({
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(
-                    TilsagnFixtures.Tilsagn1,
-                ),
-            )
+                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+            ) {
+                setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.TIL_GODKJENNING)
+            }
 
             domain.initialize(database.db)
 
@@ -65,6 +65,7 @@ class OppgaverServiceTest : FunSpec({
                     TilsagnFixtures.Tilsagn4,
                 ),
             ) {
+                setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.TIL_GODKJENNING)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.TIL_ANNULLERING)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.ANNULLERT)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn4, TilsagnStatus.TIL_FRIGJORING)
@@ -90,6 +91,8 @@ class OppgaverServiceTest : FunSpec({
                     TilsagnFixtures.Tilsagn3,
                 ),
             ) {
+                setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.TIL_GODKJENNING)
+                setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.TIL_GODKJENNING)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.RETURNERT)
             }.initialize(database.db)
 
@@ -113,7 +116,11 @@ class OppgaverServiceTest : FunSpec({
                     TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.Gjovik.enhetsnummer),
                     TilsagnFixtures.Tilsagn3.copy(kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer),
                 ),
-            ).initialize(database.db)
+            ) {
+                setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.TIL_GODKJENNING)
+                setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.TIL_GODKJENNING)
+                setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.TIL_GODKJENNING)
+            }.initialize(database.db)
 
             val service = OppgaverService(database.db)
 
@@ -136,7 +143,11 @@ class OppgaverServiceTest : FunSpec({
                     TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.Gjovik.enhetsnummer),
                     TilsagnFixtures.Tilsagn3.copy(kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer),
                 ),
-            ).initialize(database.db)
+            ) {
+                setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.TIL_GODKJENNING)
+                setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.TIL_GODKJENNING)
+                setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.TIL_GODKJENNING)
+            }.initialize(database.db)
 
             val service = OppgaverService(database.db)
 

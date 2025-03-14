@@ -8,8 +8,6 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.*
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
@@ -96,21 +94,6 @@ class TilsagnQueries(private val session: Session) {
 
             is TilsagnBeregningFri -> {}
         }
-
-        TotrinnskontrollQueries(this).upsert(
-            Totrinnskontroll(
-                id = UUID.randomUUID(),
-                entityId = dbo.id,
-                behandletAv = dbo.behandletAv,
-                aarsaker = emptyList(),
-                forklaring = null,
-                type = Totrinnskontroll.Type.OPPRETT,
-                behandletTidspunkt = dbo.behandletTidspunkt,
-                besluttelse = null,
-                besluttetAv = null,
-                besluttetTidspunkt = null,
-            ),
-        )
     }
 
     private fun TransactionalSession.upsertTilsagnBeregningForhandsgodkjent(
@@ -233,11 +216,6 @@ class TilsagnQueries(private val session: Session) {
 
         val beregning = getBeregning(id, Prismodell.valueOf(string("prismodell")))
 
-        val opprettelse = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.OPPRETT)
-        val annullering = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.ANNULLER)
-        val frigjoring = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.FRIGJOR)
-        requireNotNull(opprettelse)
-
         return TilsagnDto(
             id = uuid("id"),
             type = TilsagnType.valueOf(string("type")),
@@ -268,9 +246,6 @@ class TilsagnQueries(private val session: Session) {
             ),
             beregning = beregning,
             status = TilsagnStatus.valueOf(string("status")),
-            opprettelse = opprettelse,
-            annullering = annullering,
-            frigjoring = frigjoring,
         )
     }
 

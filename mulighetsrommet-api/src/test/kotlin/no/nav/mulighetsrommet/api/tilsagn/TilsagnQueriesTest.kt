@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class TilsagnQueriesTest : FunSpec({
@@ -39,8 +38,6 @@ class TilsagnQueriesTest : FunSpec({
         kostnadssted = Gjovik.enhetsnummer,
         arrangorId = ArrangorFixtures.underenhet1.id,
         beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
-        behandletAv = NavAnsattFixture.ansatt1.navIdent,
-        behandletTidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
         type = TilsagnType.TILSAGN,
     )
 
@@ -79,9 +76,6 @@ class TilsagnQueriesTest : FunSpec({
                     )
                     it.type shouldBe TilsagnType.TILSAGN
                     it.status shouldBe TilsagnStatus.TIL_GODKJENNING
-                    it.opprettelse.behandletAv shouldBe NavAnsattFixture.ansatt1.navIdent
-                    it.opprettelse.aarsaker shouldBe emptyList()
-                    it.opprettelse.forklaring shouldBe null
                 }
 
                 queries.delete(tilsagn.id)

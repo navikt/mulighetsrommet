@@ -9,7 +9,7 @@ import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.utbetaling.fakturanummer
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -97,7 +97,9 @@ class OkonomiBestillingService(
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
             "Tilsagn er ikke godkjent id=$tilsagnId status=${tilsagn.status}"
         }
-        require(tilsagn.opprettelse.besluttetAv != null && tilsagn.opprettelse.besluttetTidspunkt != null) {
+
+        val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
+        require(opprettelse.besluttetAv != null && opprettelse.besluttetTidspunkt != null) {
             "Tilsagn id=$tilsagnId må være besluttet godkjent for å sendes til økonomi"
         }
 
@@ -133,10 +135,10 @@ class OkonomiBestillingService(
             avtalenummer = avtale.avtalenummer,
             belop = tilsagn.beregning.output.belop,
             periode = tilsagn.periode,
-            behandletAv = tilsagn.opprettelse.behandletAv.toOkonomiPart(),
-            behandletTidspunkt = tilsagn.opprettelse.behandletTidspunkt,
-            besluttetAv = tilsagn.opprettelse.besluttetAv.toOkonomiPart(),
-            besluttetTidspunkt = tilsagn.opprettelse.besluttetTidspunkt,
+            behandletAv = opprettelse.behandletAv.toOkonomiPart(),
+            behandletTidspunkt = opprettelse.behandletTidspunkt,
+            besluttetAv = opprettelse.besluttetAv.toOkonomiPart(),
+            besluttetTidspunkt = opprettelse.besluttetTidspunkt,
         )
 
         publish(bestilling.bestillingsnummer, OkonomiBestillingMelding.Bestilling(bestilling))
@@ -149,22 +151,21 @@ class OkonomiBestillingService(
         require(tilsagn.status == TilsagnStatus.ANNULLERT) {
             "Tilsagn er ikke annullert id=$tilsagnId status=${tilsagn.status}"
         }
-        requireNotNull(tilsagn.annullering) {
-            "Tilsagn id=$tilsagnId mangler annullering"
-        }
-        require(tilsagn.annullering.besluttetAv != null && tilsagn.annullering.besluttetTidspunkt != null) {
+
+        val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
+        require(annullering.besluttetAv != null && annullering.besluttetTidspunkt != null) {
             "Tilsagn id=$tilsagnId må være besluttet annullert for å sendes som annullert til økonomi"
         }
 
-        val annullering = AnnullerBestilling(
+        val annullerBestilling = AnnullerBestilling(
             bestillingsnummer = tilsagn.bestillingsnummer,
-            behandletAv = tilsagn.annullering.behandletAv.toOkonomiPart(),
-            behandletTidspunkt = tilsagn.annullering.behandletTidspunkt,
-            besluttetAv = tilsagn.annullering.besluttetAv.toOkonomiPart(),
-            besluttetTidspunkt = tilsagn.annullering.besluttetTidspunkt,
+            behandletAv = annullering.behandletAv.toOkonomiPart(),
+            behandletTidspunkt = annullering.behandletTidspunkt,
+            besluttetAv = annullering.besluttetAv.toOkonomiPart(),
+            besluttetTidspunkt = annullering.besluttetTidspunkt,
         )
 
-        publish(tilsagn.bestillingsnummer, OkonomiBestillingMelding.Annullering(annullering))
+        publish(tilsagn.bestillingsnummer, OkonomiBestillingMelding.Annullering(annullerBestilling))
     }
 
     private fun behandleFrigjortTilsagn(tilsagnId: UUID): Unit = db.session {
@@ -174,19 +175,18 @@ class OkonomiBestillingService(
         require(tilsagn.status == TilsagnStatus.FRIGJORT) {
             "Tilsagn er ikke frigjort id=$tilsagnId status=${tilsagn.status}"
         }
-        requireNotNull(tilsagn.frigjoring) {
-            "Tilsagn id=$tilsagnId mangler frigjøring"
-        }
-        require(tilsagn.frigjoring.besluttetAv != null && tilsagn.frigjoring.besluttetTidspunkt != null) {
+
+        val frigjoring = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.FRIGJOR)
+        require(frigjoring.besluttetAv != null && frigjoring.besluttetTidspunkt != null) {
             "Tilsagn id=$tilsagnId må være besluttet frigjort for å sende null melding til økonomi"
         }
 
         val faktura = FrigjorBestilling(
             bestillingsnummer = tilsagn.bestillingsnummer,
-            behandletAv = tilsagn.frigjoring.behandletAv.toOkonomiPart(),
-            behandletTidspunkt = tilsagn.frigjoring.behandletTidspunkt,
-            besluttetAv = tilsagn.frigjoring.besluttetAv.toOkonomiPart(),
-            besluttetTidspunkt = tilsagn.frigjoring.besluttetTidspunkt,
+            behandletAv = frigjoring.behandletAv.toOkonomiPart(),
+            behandletTidspunkt = frigjoring.behandletTidspunkt,
+            besluttetAv = frigjoring.besluttetAv.toOkonomiPart(),
+            besluttetTidspunkt = frigjoring.besluttetTidspunkt,
         )
 
         publish(tilsagn.bestillingsnummer, OkonomiBestillingMelding.Frigjoring(faktura))
