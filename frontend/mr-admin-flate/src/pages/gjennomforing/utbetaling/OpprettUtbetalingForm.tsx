@@ -87,7 +87,11 @@ export function OpprettUtbetalingForm({ gjennomforing }: Props) {
 
   function postData(data: InferredOpprettUtbetalingFormSchema) {
     mutation.mutate(
-      { ...data, gjennomforingId: gjennomforing.id },
+      {
+        ...data,
+        kidNummer: data.kidNummer || null,
+        gjennomforingId: gjennomforing.id,
+      },
       {
         onSuccess: () => {
           form.reset();
