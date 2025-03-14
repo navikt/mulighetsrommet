@@ -167,7 +167,8 @@ export function OpprettUtbetalingForm({ gjennomforing }: Props) {
                   error={errors.beskrivelse?.message}
                   resize
                   cols={93}
-                  maxLength={300}
+                  minLength={MIN_BEGRUNNELSE_LENGDE}
+                  maxLength={MAKS_BEGRUNNELSE_LENGDE}
                 />
               </HStack>
               <Separator />
