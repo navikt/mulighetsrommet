@@ -37,7 +37,7 @@ import { useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { AvvistAlert, TilAnnulleringAlert } from "../AarsakerAlert";
+import { AvvistAlert, TilAnnulleringAlert, TilFrigjoringAlert } from "../AarsakerAlert";
 import { TilsagnTag } from "../TilsagnTag";
 import { TilsagnDetaljerForhandsgodkjent } from "./TilsagnDetaljerForhandsgodkjent";
 import { tilsagnHistorikkQuery, tilsagnQuery } from "./tilsagnDetaljerLoader";
@@ -237,6 +237,9 @@ export function TilsagnDetaljer() {
           )}
           {tilsagn.status === TilsagnStatus.TIL_ANNULLERING && annullering && (
             <TilAnnulleringAlert annullering={annullering} />
+          )}
+          {tilsagn.status === TilsagnStatus.TIL_FRIGJORING && frigjoring && (
+            <TilFrigjoringAlert frigjoring={frigjoring} />
           )}
           <Box
             borderWidth="2"

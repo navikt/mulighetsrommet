@@ -30,6 +30,34 @@ export function TilAnnulleringAlert({ annullering }: { annullering: Totrinnskont
   );
 }
 
+export function TilFrigjoringAlert({ frigjoring }: { frigjoring: Totrinnskontroll }) {
+  const aarsaker =
+    frigjoring.aarsaker?.map((aarsak) =>
+      tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
+    ) || [];
+
+  return (
+    <Alert variant="warning" size="small" style={{ marginTop: "1rem" }}>
+      <Heading size="xsmall" level="3">
+        Tilsagnet frigjøres
+      </Heading>
+      <p>
+        {frigjoring.behandletAv} sendte tilsagnet til frigjøring den{" "}
+        {formaterDato(frigjoring.behandletTidspunkt)} med følgende{" "}
+        {aarsaker.length === 1 ? "årsak" : "årsaker"}:{" "}
+        <b>{capitalizeFirstLetter(joinWithCommaAndOg(aarsaker))}</b>
+        {frigjoring.forklaring ? (
+          <>
+            {" "}
+            med forklaringen: <b>"{frigjoring.forklaring}"</b>
+          </>
+        ) : null}
+        .
+      </p>
+    </Alert>
+  );
+}
+
 interface Props {
   header: string;
   aarsaker?: string[];
