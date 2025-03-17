@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-data class UtbetalingDto(
+data class Utbetaling(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val innsender: Innsender?,

@@ -1,5 +1,5 @@
 import { compareByKey, formaterPeriodeSlutt, formaterPeriodeStart } from "@/utils/Utils";
-import { AdminUtbetalingStatus, UtbetalingKompakt } from "@mr/api-client-v2";
+import { UtbetalingDto, AdminUtbetalingStatus } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { SortState, Table } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
@@ -9,14 +9,14 @@ import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 
 interface Props {
-  utbetalinger: UtbetalingKompakt[];
+  utbetalinger: UtbetalingDto[];
 }
 
 interface ScopedSortState extends SortState {
-  orderBy: keyof UtbetalingKompakt;
+  orderBy: keyof UtbetalingDto;
 }
 
-interface UtbetalingTabellData extends UtbetalingKompakt {
+interface UtbetalingTabellData extends UtbetalingDto {
   periodeStart: string;
   periodeSlutt: string;
   belop: number;

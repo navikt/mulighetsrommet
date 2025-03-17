@@ -6,10 +6,9 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
-import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.setTilsagnStatus
-import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.setDelutbetalingStatus
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -33,10 +32,10 @@ class OppgaverServiceTest : FunSpec({
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(
-                    TilsagnFixtures.Tilsagn1,
-                ),
-            )
+                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+            ) {
+                setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.TIL_GODKJENNING)
+            }
 
             domain.initialize(database.db)
 
@@ -65,6 +64,7 @@ class OppgaverServiceTest : FunSpec({
                     TilsagnFixtures.Tilsagn4,
                 ),
             ) {
+                setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.TIL_GODKJENNING)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.TIL_ANNULLERING)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.ANNULLERT)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn4, TilsagnStatus.TIL_FRIGJORING)
@@ -90,6 +90,8 @@ class OppgaverServiceTest : FunSpec({
                     TilsagnFixtures.Tilsagn3,
                 ),
             ) {
+                setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.TIL_GODKJENNING)
+                setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.TIL_GODKJENNING)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.RETURNERT)
             }.initialize(database.db)
 
@@ -113,7 +115,11 @@ class OppgaverServiceTest : FunSpec({
                     TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.Gjovik.enhetsnummer),
                     TilsagnFixtures.Tilsagn3.copy(kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer),
                 ),
-            ).initialize(database.db)
+            ) {
+                setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.TIL_GODKJENNING)
+                setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.TIL_GODKJENNING)
+                setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.TIL_GODKJENNING)
+            }.initialize(database.db)
 
             val service = OppgaverService(database.db)
 
@@ -136,7 +142,11 @@ class OppgaverServiceTest : FunSpec({
                     TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.Gjovik.enhetsnummer),
                     TilsagnFixtures.Tilsagn3.copy(kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer),
                 ),
-            ).initialize(database.db)
+            ) {
+                setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.TIL_GODKJENNING)
+                setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.TIL_GODKJENNING)
+                setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.TIL_GODKJENNING)
+            }.initialize(database.db)
 
             val service = OppgaverService(database.db)
 
@@ -175,10 +185,8 @@ class OppgaverServiceTest : FunSpec({
                     UtbetalingFixtures.delutbetaling2,
                 ),
             ) {
-                setDelutbetalingStatus(
-                    UtbetalingFixtures.delutbetaling2,
-                    UtbetalingFixtures.DelutbetalingStatus.RETURNERT,
-                )
+                setDelutbetalingStatus(UtbetalingFixtures.delutbetaling1, DelutbetalingStatus.TIL_GODKJENNING)
+                setDelutbetalingStatus(UtbetalingFixtures.delutbetaling2, DelutbetalingStatus.RETURNERT)
             }.initialize(database.db)
 
             var oppgaver = service.delutbetalingOppgaver(

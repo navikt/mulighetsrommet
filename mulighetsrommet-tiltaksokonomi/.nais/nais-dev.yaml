@@ -71,4 +71,4 @@ spec:
     outbound:
       external:
         - host: data.brreg.no
-        - host: oebs-valp-api-t1.dev-fss-pub.nais.io
+        - host: oebs-po-ap-api-q1.dev-fss-pub.nais.io

@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class TilsagnQueriesTest : FunSpec({
@@ -39,8 +38,6 @@ class TilsagnQueriesTest : FunSpec({
         kostnadssted = Gjovik.enhetsnummer,
         arrangorId = ArrangorFixtures.underenhet1.id,
         beregning = TilsagnBeregningFri(TilsagnBeregningFri.Input(123), TilsagnBeregningFri.Output(123)),
-        behandletAv = NavAnsattFixture.ansatt1.navIdent,
-        behandletTidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
         type = TilsagnType.TILSAGN,
     )
 
@@ -55,11 +52,11 @@ class TilsagnQueriesTest : FunSpec({
 
                 queries.get(tilsagn.id).shouldNotBeNull() should {
                     it.id shouldBe tilsagn.id
-                    it.tiltakstype shouldBe TilsagnDto.Tiltakstype(
+                    it.tiltakstype shouldBe Tilsagn.Tiltakstype(
                         tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
                         navn = TiltakstypeFixtures.AFT.navn,
                     )
-                    it.gjennomforing shouldBe TilsagnDto.Gjennomforing(
+                    it.gjennomforing shouldBe Tilsagn.Gjennomforing(
                         id = AFT1.id,
                         navn = AFT1.navn,
                     )
@@ -67,7 +64,7 @@ class TilsagnQueriesTest : FunSpec({
                     it.kostnadssted shouldBe Gjovik
                     it.lopenummer shouldBe 1
                     it.bestillingsnummer shouldBe "1"
-                    it.arrangor shouldBe TilsagnDto.Arrangor(
+                    it.arrangor shouldBe Tilsagn.Arrangor(
                         navn = ArrangorFixtures.underenhet1.navn,
                         id = ArrangorFixtures.underenhet1.id,
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
@@ -79,9 +76,6 @@ class TilsagnQueriesTest : FunSpec({
                     )
                     it.type shouldBe TilsagnType.TILSAGN
                     it.status shouldBe TilsagnStatus.TIL_GODKJENNING
-                    it.opprettelse.behandletAv shouldBe NavAnsattFixture.ansatt1.navIdent
-                    it.opprettelse.aarsaker shouldBe emptyList()
-                    it.opprettelse.forklaring shouldBe null
                 }
 
                 queries.delete(tilsagn.id)

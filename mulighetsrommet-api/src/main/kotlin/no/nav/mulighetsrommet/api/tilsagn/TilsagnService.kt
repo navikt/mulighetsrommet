@@ -12,8 +12,12 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
+import no.nav.mulighetsrommet.api.tilsagn.api.BesluttTilsagnRequest
+import no.nav.mulighetsrommet.api.tilsagn.api.TilAnnulleringRequest
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
@@ -32,7 +36,7 @@ class TilsagnService(
     private val db: ApiDatabase,
     private val okonomi: OkonomiBestillingService,
 ) {
-    fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<FieldError>, TilsagnDto> = db.transaction {
+    fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<FieldError>, Tilsagn> = db.transaction {
         val gjennomforing = queries.gjennomforing.get(request.gjennomforingId)
             ?: return FieldError
                 .of("Tiltaksgjennomforingen finnes ikke", TilsagnRequest::gjennomforingId)
@@ -60,6 +64,19 @@ class TilsagnService(
 
         val previous = queries.tilsagn.get(request.id)
 
+        val totrinnskontroll = Totrinnskontroll(
+            id = UUID.randomUUID(),
+            entityId = request.id,
+            behandletAv = navIdent,
+            aarsaker = emptyList(),
+            forklaring = null,
+            type = Totrinnskontroll.Type.OPPRETT,
+            behandletTidspunkt = LocalDateTime.now(),
+            besluttelse = null,
+            besluttetAv = null,
+            besluttetTidspunkt = null,
+        )
+
         validateTilsagnBeregningInput(gjennomforing, request.beregning)
             .flatMap { beregnTilsagn(it) }
             .map { beregning ->
@@ -78,8 +95,6 @@ class TilsagnService(
                     bestillingsnummer = bestillingsnummer,
                     kostnadssted = request.kostnadssted,
                     beregning = beregning,
-                    behandletAv = navIdent,
-                    behandletTidspunkt = LocalDateTime.now(),
                     arrangorId = gjennomforing.arrangor.id,
                 )
             }
@@ -88,6 +103,7 @@ class TilsagnService(
             }
             .map { dbo ->
                 queries.tilsagn.upsert(dbo)
+                queries.totrinnskontroll.upsert(totrinnskontroll)
 
                 val dto = getOrError(dbo.id)
 
@@ -97,15 +113,13 @@ class TilsagnService(
     }
 
     fun tilAnnulleringRequest(id: UUID, navIdent: NavIdent, request: TilAnnulleringRequest) = db.transaction {
-        val tilsagn = db.session { queries.tilsagn.get(id) }
-            ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke tilsagn")
+        val tilsagn = queries.tilsagn.get(id) ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke tilsagn")
 
         setTilAnnullering(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
     }
 
     fun tilFrigjoringRequest(id: UUID, navIdent: NavIdent, request: TilAnnulleringRequest) = db.transaction {
-        val tilsagn = db.session { queries.tilsagn.get(id) }
-            ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke tilsagn")
+        val tilsagn = queries.tilsagn.get(id) ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke tilsagn")
 
         setTilFrigjoring(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
     }
@@ -120,7 +134,7 @@ class TilsagnService(
             }
     }
 
-    fun beslutt(id: UUID, besluttelse: BesluttTilsagnRequest, navIdent: NavIdent): StatusResponse<TilsagnDto> = db.transaction {
+    fun beslutt(id: UUID, besluttelse: BesluttTilsagnRequest, navIdent: NavIdent): StatusResponse<Tilsagn> = db.transaction {
         val tilsagn = queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
 
         return when (tilsagn.status) {
@@ -158,15 +172,16 @@ class TilsagnService(
         }
     }
 
-    private fun godkjennTilsagn(tilsagn: TilsagnDto, besluttetAv: NavIdent): StatusResponse<TilsagnDto> = db.transaction {
+    private fun godkjennTilsagn(tilsagn: Tilsagn, besluttetAv: NavIdent): StatusResponse<Tilsagn> = db.transaction {
         require(tilsagn.status == TilsagnStatus.TIL_GODKJENNING)
 
-        if (besluttetAv == tilsagn.opprettelse.behandletAv) {
+        val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
+        if (besluttetAv == opprettelse.behandletAv) {
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
         queries.totrinnskontroll.upsert(
-            tilsagn.opprettelse.copy(
+            opprettelse.copy(
                 besluttetAv = besluttetAv,
                 besluttetTidspunkt = LocalDateTime.now(),
                 besluttelse = Besluttelse.GODKJENT,
@@ -182,13 +197,14 @@ class TilsagnService(
     }
 
     private fun returnerTilsagn(
-        tilsagn: TilsagnDto,
+        tilsagn: Tilsagn,
         besluttelse: BesluttTilsagnRequest.AvvistTilsagnRequest,
         besluttetAv: NavIdent,
-    ): StatusResponse<TilsagnDto> = db.transaction {
+    ): StatusResponse<Tilsagn> = db.transaction {
         require(tilsagn.status == TilsagnStatus.TIL_GODKJENNING)
 
-        if (besluttetAv == tilsagn.opprettelse.behandletAv) {
+        val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
+        if (besluttetAv == opprettelse.behandletAv) {
             return Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
         if (besluttelse.aarsaker.isEmpty()) {
@@ -196,7 +212,7 @@ class TilsagnService(
         }
 
         queries.totrinnskontroll.upsert(
-            tilsagn.opprettelse.copy(
+            opprettelse.copy(
                 besluttetAv = besluttetAv,
                 besluttetTidspunkt = LocalDateTime.now(),
                 besluttelse = Besluttelse.AVVIST,
@@ -211,15 +227,16 @@ class TilsagnService(
         dto.right()
     }
 
-    private fun QueryContext.annullerTilsagn(tilsagn: TilsagnDto, besluttetAv: NavIdent): TilsagnDto {
+    private fun QueryContext.annullerTilsagn(tilsagn: Tilsagn, besluttetAv: NavIdent): Tilsagn {
         require(tilsagn.status == TilsagnStatus.TIL_ANNULLERING)
-        requireNotNull(tilsagn.annullering)
-        require(besluttetAv != tilsagn.annullering.behandletAv) {
+
+        val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
+        require(besluttetAv != annullering.behandletAv) {
             "Kan ikke beslutte eget tilsagn"
         }
 
         queries.totrinnskontroll.upsert(
-            tilsagn.annullering.copy(
+            annullering.copy(
                 besluttetAv = besluttetAv,
                 besluttetTidspunkt = LocalDateTime.now(),
                 besluttelse = Besluttelse.GODKJENT,
@@ -234,15 +251,16 @@ class TilsagnService(
         return dto
     }
 
-    private fun QueryContext.avvisAnnullering(tilsagn: TilsagnDto, besluttetAv: Agent): TilsagnDto {
+    private fun QueryContext.avvisAnnullering(tilsagn: Tilsagn, besluttetAv: Agent): Tilsagn {
         require(tilsagn.status == TilsagnStatus.TIL_ANNULLERING)
-        requireNotNull(tilsagn.annullering)
-        require(besluttetAv != tilsagn.annullering.behandletAv) {
+
+        val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
+        require(besluttetAv != annullering.behandletAv) {
             "Kan ikke beslutte eget tilsagn"
         }
 
         queries.totrinnskontroll.upsert(
-            tilsagn.annullering.copy(
+            annullering.copy(
                 besluttetAv = besluttetAv,
                 besluttetTidspunkt = LocalDateTime.now(),
                 besluttelse = Besluttelse.AVVIST,
@@ -256,11 +274,11 @@ class TilsagnService(
     }
 
     private fun QueryContext.setTilFrigjoring(
-        tilsagn: TilsagnDto,
+        tilsagn: Tilsagn,
         agent: Agent,
         aarsaker: List<String>,
         forklaring: String?,
-    ): TilsagnDto {
+    ): Tilsagn {
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
             "Kan bare annullere godkjente tilsagn"
         }
@@ -287,18 +305,18 @@ class TilsagnService(
     }
 
     private fun QueryContext.frigjorTilsagn(
-        tilsagn: TilsagnDto,
+        tilsagn: Tilsagn,
         besluttetAv: Agent,
-    ): TilsagnDto {
+    ): Tilsagn {
         require(tilsagn.status == TilsagnStatus.TIL_FRIGJORING)
-        requireNotNull(tilsagn.frigjoring)
 
-        require(besluttetAv !is NavIdent || besluttetAv != tilsagn.frigjoring.behandletAv) {
+        val frigjoring = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.FRIGJOR)
+        require(besluttetAv !is NavIdent || besluttetAv != frigjoring.behandletAv) {
             "Kan ikke beslutte eget tilsagn"
         }
 
         queries.totrinnskontroll.upsert(
-            tilsagn.frigjoring.copy(
+            frigjoring.copy(
                 besluttetAv = besluttetAv,
                 besluttetTidspunkt = LocalDateTime.now(),
                 besluttelse = Besluttelse.GODKJENT,
@@ -311,16 +329,16 @@ class TilsagnService(
         return dto
     }
 
-    private fun avvisFrigjoring(tilsagn: TilsagnDto, besluttetAv: Agent): TilsagnDto = db.transaction {
+    private fun avvisFrigjoring(tilsagn: Tilsagn, besluttetAv: Agent): Tilsagn = db.transaction {
         require(tilsagn.status == TilsagnStatus.TIL_FRIGJORING)
-        requireNotNull(tilsagn.frigjoring)
 
-        require(besluttetAv != tilsagn.frigjoring.behandletAv) {
+        val frigjoring = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.FRIGJOR)
+        require(besluttetAv != frigjoring.behandletAv) {
             "Kan ikke beslutte eget tilsagn"
         }
 
         queries.totrinnskontroll.upsert(
-            tilsagn.frigjoring.copy(
+            frigjoring.copy(
                 besluttetAv = besluttetAv,
                 besluttetTidspunkt = LocalDateTime.now(),
                 besluttelse = Besluttelse.AVVIST,
@@ -333,20 +351,20 @@ class TilsagnService(
         return dto
     }
 
-    fun frigjorAutomatisk(id: UUID, queryContext: QueryContext) {
+    fun frigjorAutomatisk(id: UUID, queryContext: QueryContext): Tilsagn {
         var tilsagn = requireNotNull(queryContext.queries.tilsagn.get(id))
 
         tilsagn = queryContext.setTilFrigjoring(tilsagn, Tiltaksadministrasjon, emptyList(), null)
 
-        queryContext.frigjorTilsagn(tilsagn, Tiltaksadministrasjon)
+        return queryContext.frigjorTilsagn(tilsagn, Tiltaksadministrasjon)
     }
 
     private fun QueryContext.setTilAnnullering(
-        tilsagn: TilsagnDto,
+        tilsagn: Tilsagn,
         behandletAv: Agent,
         aarsaker: List<String>,
         forklaring: String?,
-    ): TilsagnDto {
+    ): Tilsagn {
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
             "Kan bare annullere godkjente tilsagn"
         }
@@ -406,7 +424,7 @@ class TilsagnService(
 
     private fun QueryContext.logEndring(
         operation: String,
-        dto: TilsagnDto,
+        dto: Tilsagn,
         endretAv: Agent,
     ) {
         queries.endringshistorikk.logEndring(
@@ -420,7 +438,7 @@ class TilsagnService(
         }
     }
 
-    private fun QueryContext.getOrError(id: UUID): TilsagnDto {
+    private fun QueryContext.getOrError(id: UUID): Tilsagn {
         return requireNotNull(queries.tilsagn.get(id)) { "Tilsagn med id=$id finnes ikke" }
     }
 }

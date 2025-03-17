@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.tilsagn
+package no.nav.mulighetsrommet.api.tilsagn.api
 
 import io.ktor.http.*
 import io.ktor.server.request.*
@@ -18,7 +18,10 @@ import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Prismodell
@@ -42,7 +45,9 @@ fun Route.tilsagnRoutes() {
                 ?.map { TilsagnStatus.valueOf(it) }
 
             val result = db.session {
-                queries.tilsagn.getAll(gjennomforingId = gjennomforingId, statuser = status)
+                queries.tilsagn
+                    .getAll(gjennomforingId = gjennomforingId, statuser = status)
+                    .map { TilsagnDto.fromTilsagn(it) }
             }
 
             call.respond(result)
@@ -53,7 +58,13 @@ fun Route.tilsagnRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
 
                 val result = db.session {
-                    queries.tilsagn.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
+                    val tilsagn = queries.tilsagn.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
+                    TilsagnDetaljerDto(
+                        tilsagn = TilsagnDto.fromTilsagn(tilsagn),
+                        opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT),
+                        annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.ANNULLER),
+                        frigjoring = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.FRIGJOR),
+                    )
                 }
 
                 call.respond(result)
@@ -272,7 +283,7 @@ private fun resolveTilsagnDefaults(
     config: OkonomiConfig,
     prismodell: Prismodell,
     gjennomforing: GjennomforingDto,
-    tilsagn: TilsagnDto?,
+    tilsagn: Tilsagn?,
 ) = when (prismodell) {
     Prismodell.FORHANDSGODKJENT -> {
         val periodeStart = listOfNotNull(

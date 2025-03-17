@@ -8,8 +8,6 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.*
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
@@ -96,21 +94,6 @@ class TilsagnQueries(private val session: Session) {
 
             is TilsagnBeregningFri -> {}
         }
-
-        TotrinnskontrollQueries(this).upsert(
-            Totrinnskontroll(
-                id = UUID.randomUUID(),
-                entityId = dbo.id,
-                behandletAv = dbo.behandletAv,
-                aarsaker = emptyList(),
-                forklaring = null,
-                type = Totrinnskontroll.Type.OPPRETT,
-                behandletTidspunkt = dbo.behandletTidspunkt,
-                besluttelse = null,
-                besluttetAv = null,
-                besluttetTidspunkt = null,
-            ),
-        )
     }
 
     private fun TransactionalSession.upsertTilsagnBeregningForhandsgodkjent(
@@ -169,7 +152,7 @@ class TilsagnQueries(private val session: Session) {
         return session.requireSingle(queryOf(query, gjennomforingId)) { it.int("lopenummer") }
     }
 
-    fun get(id: UUID): TilsagnDto? {
+    fun get(id: UUID): Tilsagn? {
         @Language("PostgreSQL")
         val query = """
             select * from tilsagn_admin_dto_view
@@ -185,7 +168,7 @@ class TilsagnQueries(private val session: Session) {
         arrangor: Organisasjonsnummer? = null,
         statuser: List<TilsagnStatus>? = null,
         periodeIntersectsWith: Periode? = null,
-    ): List<TilsagnDto> {
+    ): List<Tilsagn> {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -228,24 +211,19 @@ class TilsagnQueries(private val session: Session) {
         session.execute(queryOf(query, mapOf("id" to id, "status" to status.name)))
     }
 
-    private fun Row.toTilsagnDto(): TilsagnDto {
+    private fun Row.toTilsagnDto(): Tilsagn {
         val id = uuid("id")
 
         val beregning = getBeregning(id, Prismodell.valueOf(string("prismodell")))
 
-        val opprettelse = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.OPPRETT)
-        val annullering = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.ANNULLER)
-        val frigjoring = TotrinnskontrollQueries(session).get(id, Totrinnskontroll.Type.FRIGJOR)
-        requireNotNull(opprettelse)
-
-        return TilsagnDto(
+        return Tilsagn(
             id = uuid("id"),
             type = TilsagnType.valueOf(string("type")),
-            tiltakstype = TilsagnDto.Tiltakstype(
+            tiltakstype = Tilsagn.Tiltakstype(
                 tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
                 navn = string("tiltakstype_navn"),
             ),
-            gjennomforing = TilsagnDto.Gjennomforing(
+            gjennomforing = Tilsagn.Gjennomforing(
                 id = uuid("gjennomforing_id"),
                 navn = string("gjennomforing_navn"),
             ),
@@ -260,7 +238,7 @@ class TilsagnQueries(private val session: Session) {
                 overordnetEnhet = stringOrNull("kostnadssted_overordnet_enhet"),
                 status = NavEnhetStatus.valueOf(string("kostnadssted_status")),
             ),
-            arrangor = TilsagnDto.Arrangor(
+            arrangor = Tilsagn.Arrangor(
                 id = uuid("arrangor_id"),
                 organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
                 navn = string("arrangor_navn"),
@@ -268,9 +246,6 @@ class TilsagnQueries(private val session: Session) {
             ),
             beregning = beregning,
             status = TilsagnStatus.valueOf(string("status")),
-            opprettelse = opprettelse,
-            annullering = annullering,
-            frigjoring = frigjoring,
         )
     }
 

@@ -3,11 +3,12 @@ package no.nav.mulighetsrommet.oppgaver
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
+import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingOppgaveData
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
+import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.*
 
@@ -104,7 +105,7 @@ class OppgaverService(val db: ApiDatabase) {
         queries.utbetaling
             .getOppgaveData(tiltakskoder = tiltakskoder.ifEmpty { null })
             .asSequence()
-            .filter { utbetaling -> utbetaling.innsender == UtbetalingDto.Innsender.ArrangorAnsatt }
+            .filter { utbetaling -> utbetaling.innsender == Utbetaling.Innsender.ArrangorAnsatt }
             .filter { utbetaling -> queries.delutbetaling.getByUtbetalingId(utbetaling.id).isEmpty() }
             .filter { utbetaling -> byKostnadssted(utbetaling, kostnadssteder) }
             .map { toOppgave(it) }
@@ -114,7 +115,7 @@ class OppgaverService(val db: ApiDatabase) {
     }
 
     private fun QueryContext.byKostnadssted(
-        utbetaling: UtbetalingDto,
+        utbetaling: Utbetaling,
         kostnadssteder: List<String>,
     ): Boolean = when {
         kostnadssteder.isEmpty() -> true
@@ -133,7 +134,7 @@ class OppgaverService(val db: ApiDatabase) {
             .map { it.enhetsnummer }
     }
 
-    private fun toOppgave(tilsagn: TilsagnDto): Oppgave? {
+    private fun QueryContext.toOppgave(tilsagn: Tilsagn): Oppgave? {
         val tiltakstype = OppgaveTiltakstype(
             tiltakskode = tilsagn.tiltakstype.tiltakskode,
             navn = tilsagn.tiltakstype.navn,
@@ -145,19 +146,23 @@ class OppgaverService(val db: ApiDatabase) {
         )
 
         return when (tilsagn.status) {
-            TilsagnStatus.TIL_GODKJENNING -> Oppgave(
-                id = UUID.randomUUID(),
-                type = OppgaveType.TILSAGN_TIL_GODKJENNING,
-                title = "Tilsagn til godkjenning",
-                description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til godkjenning",
-                tiltakstype = tiltakstype,
-                link = link,
-                createdAt = tilsagn.opprettelse.behandletTidspunkt,
-                oppgaveIcon = OppgaveIcon.TILSAGN,
-            )
+            TilsagnStatus.TIL_GODKJENNING -> {
+                val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
+                Oppgave(
+                    id = UUID.randomUUID(),
+                    type = OppgaveType.TILSAGN_TIL_GODKJENNING,
+                    title = "Tilsagn til godkjenning",
+                    description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til godkjenning",
+                    tiltakstype = tiltakstype,
+                    link = link,
+                    createdAt = opprettelse.behandletTidspunkt,
+                    oppgaveIcon = OppgaveIcon.TILSAGN,
+                )
+            }
 
             TilsagnStatus.RETURNERT -> {
-                requireNotNull(tilsagn.opprettelse.besluttetTidspunkt)
+                val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
+                requireNotNull(opprettelse.besluttetTidspunkt)
                 Oppgave(
                     id = UUID.randomUUID(),
                     type = OppgaveType.TILSAGN_RETURNERT,
@@ -165,13 +170,13 @@ class OppgaverService(val db: ApiDatabase) {
                     description = "Tilsagnet for ${tilsagn.gjennomforing.navn} ble returnert av beslutter",
                     tiltakstype = tiltakstype,
                     link = link,
-                    createdAt = tilsagn.opprettelse.besluttetTidspunkt,
+                    createdAt = opprettelse.besluttetTidspunkt,
                     oppgaveIcon = OppgaveIcon.TILSAGN,
                 )
             }
 
             TilsagnStatus.TIL_ANNULLERING -> {
-                requireNotNull(tilsagn.annullering)
+                val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
                 Oppgave(
                     id = UUID.randomUUID(),
                     type = OppgaveType.TILSAGN_TIL_ANNULLERING,
@@ -179,13 +184,13 @@ class OppgaverService(val db: ApiDatabase) {
                     description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til annullering",
                     tiltakstype = tiltakstype,
                     link = link,
-                    createdAt = tilsagn.annullering.behandletTidspunkt,
+                    createdAt = annullering.behandletTidspunkt,
                     oppgaveIcon = OppgaveIcon.TILSAGN,
                 )
             }
 
             TilsagnStatus.TIL_FRIGJORING -> {
-                requireNotNull(tilsagn.frigjoring)
+                val frigjoring = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.FRIGJOR)
                 Oppgave(
                     id = UUID.randomUUID(),
                     type = OppgaveType.TILSAGN_TIL_FRIGJORING,
@@ -193,7 +198,7 @@ class OppgaverService(val db: ApiDatabase) {
                     description = "Tilsagnet for ${tilsagn.gjennomforing.navn} er sendt til frigjøring",
                     tiltakstype = tiltakstype,
                     link = link,
-                    createdAt = tilsagn.frigjoring.behandletTidspunkt,
+                    createdAt = frigjoring.behandletTidspunkt,
                     oppgaveIcon = OppgaveIcon.TILSAGN,
                 )
             }
@@ -202,46 +207,46 @@ class OppgaverService(val db: ApiDatabase) {
         }
     }
 
-    private fun toOppgave(oppgavedata: DelutbetalingOppgaveData): Oppgave? {
+    private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData): Oppgave? {
         val (delutbetaling, gjennomforingId, gjennomforingsnavn, tiltakstype) = oppgavedata
-        return when (delutbetaling) {
-            is DelutbetalingDto.DelutbetalingTilGodkjenning -> Oppgave(
-                id = UUID.randomUUID(),
-                type = OppgaveType.UTBETALING_TIL_GODKJENNING,
-                title = "Utbetaling til godkjenning",
-                description = "Utbetalingen for $gjennomforingsnavn er sendt til godkjenning",
-                tiltakstype = tiltakstype,
-                link = OppgaveLink(
-                    linkText = "Se utbetaling",
-                    link = "/gjennomforinger/$gjennomforingId/utbetalinger/${delutbetaling.utbetalingId}",
-                ),
-                createdAt = delutbetaling.opprettelse.behandletTidspunkt,
-                oppgaveIcon = OppgaveIcon.UTBETALING,
-            )
+        val link = OppgaveLink(
+            linkText = "Se utbetaling",
+            link = "/gjennomforinger/$gjennomforingId/utbetalinger/${delutbetaling.utbetalingId}",
+        )
+        return when (delutbetaling.status) {
+            DelutbetalingStatus.TIL_GODKJENNING -> {
+                val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
+                Oppgave(
+                    id = UUID.randomUUID(),
+                    type = OppgaveType.UTBETALING_TIL_GODKJENNING,
+                    title = "Utbetaling til godkjenning",
+                    description = "Utbetalingen for $gjennomforingsnavn er sendt til godkjenning",
+                    tiltakstype = tiltakstype,
+                    link = link,
+                    createdAt = opprettelse.behandletTidspunkt,
+                    oppgaveIcon = OppgaveIcon.UTBETALING,
+                )
+            }
 
-            is DelutbetalingDto.DelutbetalingAvvist -> {
+            DelutbetalingStatus.RETURNERT -> {
+                val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
                 Oppgave(
                     id = UUID.randomUUID(),
                     type = OppgaveType.UTBETALING_RETURNERT,
                     title = "Utbetaling returnert",
                     description = "Utbetaling for $gjennomforingsnavn ble returnert av beslutter",
                     tiltakstype = tiltakstype,
-                    link = OppgaveLink(
-                        linkText = "Se utbetaling",
-                        link = "/gjennomforinger/$gjennomforingId/utbetalinger/${delutbetaling.utbetalingId}",
-                    ),
-                    createdAt = requireNotNull(delutbetaling.opprettelse.besluttetTidspunkt),
+                    link = link,
+                    createdAt = requireNotNull(opprettelse.besluttetTidspunkt),
                     oppgaveIcon = OppgaveIcon.UTBETALING,
                 )
             }
 
-            is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling,
-            is DelutbetalingDto.DelutbetalingUtbetalt,
-            -> null
+            else -> null
         }
     }
 
-    private fun toOppgave(utbetaling: UtbetalingDto): Oppgave = Oppgave(
+    private fun toOppgave(utbetaling: Utbetaling): Oppgave = Oppgave(
         id = UUID.randomUUID(),
         type = OppgaveType.UTBETALING_TIL_BEHANDLING,
         title = "Utbetaling klar til behandling",

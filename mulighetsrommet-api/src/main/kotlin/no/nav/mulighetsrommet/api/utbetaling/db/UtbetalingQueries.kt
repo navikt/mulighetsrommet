@@ -229,7 +229,7 @@ class UtbetalingQueries(private val session: Session) {
         execute(queryOf(query, params))
     }
 
-    fun get(id: UUID): UtbetalingDto? = with(session) {
+    fun get(id: UUID): Utbetaling? = with(session) {
         @Language("PostgreSQL")
         val utbetalingQuery = """
             select *
@@ -240,7 +240,7 @@ class UtbetalingQueries(private val session: Session) {
         return single(queryOf(utbetalingQuery, id)) { it.toUtbetalingDto() }
     }
 
-    fun getOppgaveData(tiltakskoder: List<Tiltakskode>?): List<UtbetalingDto> = with(session) {
+    fun getOppgaveData(tiltakskoder: List<Tiltakskode>?): List<Utbetaling> = with(session) {
         @Language("PostgreSQL")
         val utbetalingQuery = """
             select *
@@ -260,7 +260,7 @@ class UtbetalingQueries(private val session: Session) {
 
     fun getByArrangorIds(
         organisasjonsnummer: Organisasjonsnummer,
-    ): List<UtbetalingDto> = with(session) {
+    ): List<Utbetaling> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -272,7 +272,7 @@ class UtbetalingQueries(private val session: Session) {
         return list(queryOf(query, organisasjonsnummer.value)) { it.toUtbetalingDto() }
     }
 
-    fun getByGjennomforing(gjennomforingId: UUID): List<UtbetalingDto> = with(session) {
+    fun getByGjennomforing(gjennomforingId: UUID): List<Utbetaling> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -285,7 +285,7 @@ class UtbetalingQueries(private val session: Session) {
         return list(queryOf(query, params)) { it.toUtbetalingDto() }
     }
 
-    fun getSisteGodkjenteUtbetaling(gjennomforingId: UUID): UtbetalingDto? = with(session) {
+    fun getSisteGodkjenteUtbetaling(gjennomforingId: UUID): Utbetaling? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -300,30 +300,30 @@ class UtbetalingQueries(private val session: Session) {
         }
     }
 
-    private fun Row.toUtbetalingDto(): UtbetalingDto {
+    private fun Row.toUtbetalingDto(): Utbetaling {
         val id = uuid("id")
         val beregning = getBeregning(id, Prismodell.valueOf(string("prismodell")))
-        val innsender = stringOrNull("innsender")?.let { UtbetalingDto.Innsender.fromString(it) }
-        return UtbetalingDto(
+        val innsender = stringOrNull("innsender")?.let { Utbetaling.Innsender.fromString(it) }
+        return Utbetaling(
             id = id,
             fristForGodkjenning = localDateTime("frist_for_godkjenning"),
             godkjentAvArrangorTidspunkt = localDateTimeOrNull("godkjent_av_arrangor_tidspunkt"),
-            gjennomforing = UtbetalingDto.Gjennomforing(
+            gjennomforing = Utbetaling.Gjennomforing(
                 id = uuid("gjennomforing_id"),
                 navn = string("gjennomforing_navn"),
             ),
-            arrangor = UtbetalingDto.Arrangor(
+            arrangor = Utbetaling.Arrangor(
                 id = uuid("arrangor_id"),
                 organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
                 navn = string("arrangor_navn"),
                 slettet = boolean("arrangor_slettet"),
             ),
-            tiltakstype = UtbetalingDto.Tiltakstype(
+            tiltakstype = Utbetaling.Tiltakstype(
                 navn = string("tiltakstype_navn"),
                 tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
             ),
             beregning = beregning,
-            betalingsinformasjon = UtbetalingDto.Betalingsinformasjon(
+            betalingsinformasjon = Utbetaling.Betalingsinformasjon(
                 kontonummer = stringOrNull("kontonummer")?.let { Kontonummer(it) },
                 kid = stringOrNull("kid")?.let { Kid(it) },
             ),

@@ -3,11 +3,12 @@ package no.nav.mulighetsrommet.api.totrinnskontroll.db
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.requireSingle
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.textRepr
+import no.nav.mulighetsrommet.model.toAgent
 import org.intellij.lang.annotations.Language
 import java.util.*
 
@@ -66,12 +67,20 @@ class TotrinnskontrollQueries(private val session: Session) {
         session.requireSingle(queryOf(query, params)) { it.string("id") }
     }
 
+    fun getOrError(entityId: UUID, type: Totrinnskontroll.Type): Totrinnskontroll {
+        return requireNotNull(get(entityId, type)) {
+            "Totrinnskontroll mangler for type $type"
+        }
+    }
+
     fun get(entityId: UUID, type: Totrinnskontroll.Type): Totrinnskontroll? {
         @Language("PostgreSQL")
         val query = """
-            select * from totrinnskontroll
+            select *
+            from totrinnskontroll
             where entity_id = :entity_id::uuid and type = :type::totrinnskontroll_type
-            order by behandlet_tidspunkt desc limit 1
+            order by behandlet_tidspunkt desc
+            limit 1
         """.trimIndent()
 
         val params = mapOf(
@@ -80,6 +89,22 @@ class TotrinnskontrollQueries(private val session: Session) {
         )
 
         return session.single(queryOf(query, params)) { it.toToTrinnskontroll() }
+    }
+
+    fun getAll(entityId: UUID): List<Totrinnskontroll> {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from totrinnskontroll
+            where entity_id = :entity_id::uuid
+            order by behandlet_tidspunkt desc
+        """.trimIndent()
+
+        val params = mapOf(
+            "entity_id" to entityId,
+        )
+
+        return session.list(queryOf(query, params)) { it.toToTrinnskontroll() }
     }
 
     private fun Row.toToTrinnskontroll(): Totrinnskontroll {

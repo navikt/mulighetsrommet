@@ -13,10 +13,9 @@ import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.setTilsagnStatus
-import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.setDelutbetalingStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -196,10 +195,10 @@ class OkonomiBestillingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1, utbetaling2),
                 delutbetalinger = listOf(delutbetaling1, delutbetaling2),
             ) {
-                setDelutbetalingStatus(delutbetaling1, UtbetalingFixtures.DelutbetalingStatus.GODKJENT)
+                setDelutbetalingStatus(delutbetaling1, DelutbetalingStatus.GODKJENT)
                 setTilsagnStatus(tilsagn, TilsagnStatus.GODKJENT)
-            }
-                .initialize(database.db)
+            }.initialize(database.db)
+
             database.run {
                 service.scheduleBehandleGodkjenteUtbetalinger(tilsagn.id, session)
             }
@@ -243,12 +242,12 @@ class OkonomiBestillingServiceTest : FunSpec({
                 setTilsagnStatus(tilsagn, TilsagnStatus.GODKJENT)
                 setDelutbetalingStatus(
                     delutbetaling1,
-                    UtbetalingFixtures.DelutbetalingStatus.GODKJENT,
+                    DelutbetalingStatus.GODKJENT,
                     besluttetTidspunkt = LocalDateTime.of(2025, 1, 1, 10, 0, 0),
                 )
                 setDelutbetalingStatus(
                     delutbetaling2,
-                    UtbetalingFixtures.DelutbetalingStatus.GODKJENT,
+                    DelutbetalingStatus.GODKJENT,
                     besluttetTidspunkt = LocalDateTime.of(2025, 1, 1, 20, 0, 0),
                 )
             }.initialize(database.db)

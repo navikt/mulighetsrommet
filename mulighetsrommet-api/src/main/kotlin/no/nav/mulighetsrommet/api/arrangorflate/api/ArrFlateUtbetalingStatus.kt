@@ -1,8 +1,8 @@
-package no.nav.mulighetsrommet.api.arrangorflate.model
+package no.nav.mulighetsrommet.api.arrangorflate.api
 
-import no.nav.mulighetsrommet.api.arrangorflate.RelevanteForslag
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
+import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 
 enum class ArrFlateUtbetalingStatus {
     KLAR_FOR_GODKJENNING,
@@ -13,11 +13,11 @@ enum class ArrFlateUtbetalingStatus {
 
     companion object {
         fun fromUtbetaling(
-            utbetaling: UtbetalingDto,
-            delutbetalinger: List<DelutbetalingDto>,
+            utbetaling: Utbetaling,
+            delutbetalinger: List<Delutbetaling>,
             relevanteForslag: List<RelevanteForslag>,
         ): ArrFlateUtbetalingStatus {
-            return if (delutbetalinger.isNotEmpty() && delutbetalinger.all { it is DelutbetalingDto.DelutbetalingUtbetalt }) {
+            return if (delutbetalinger.isNotEmpty() && delutbetalinger.all { it.status == DelutbetalingStatus.UTBETALT }) {
                 UTBETALT
             } else if (utbetaling.innsender != null) {
                 BEHANDLES_AV_NAV

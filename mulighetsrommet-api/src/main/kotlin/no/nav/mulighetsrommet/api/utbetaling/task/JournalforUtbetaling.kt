@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.api.clients.dokark.DokarkError
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.dokark.Journalpost
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.tasks.transactionalSchedulerClient
@@ -54,7 +54,7 @@ class JournalforUtbetaling(
         logger.info("Journalfører utbetaling med id: $id")
 
         val utbetaling = requireNotNull(queries.utbetaling.get(id)) { "Fant ikke utbetaling med id=$id" }
-        require(utbetaling.innsender == UtbetalingDto.Innsender.ArrangorAnsatt) { "utbetaling må være godkjent" }
+        require(utbetaling.innsender == Utbetaling.Innsender.ArrangorAnsatt) { "utbetaling må være godkjent" }
 
         val gjennomforing = queries.gjennomforing.get(utbetaling.gjennomforing.id)
         requireNotNull(gjennomforing) { "Fant ikke gjennomforing til utbetaling med id=$id" }
@@ -85,7 +85,7 @@ class JournalforUtbetaling(
 fun utbetalingJournalpost(
     pdf: ByteArray,
     utbetalingId: UUID,
-    arrangor: UtbetalingDto.Arrangor,
+    arrangor: Utbetaling.Arrangor,
     fagsakId: String,
 ): Journalpost = Journalpost(
     tittel = "Utbetaling",

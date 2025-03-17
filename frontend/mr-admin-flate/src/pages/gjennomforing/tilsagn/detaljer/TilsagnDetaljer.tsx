@@ -35,8 +35,8 @@ import { ActionMenu, Alert, BodyShort, Box, Button, Heading, HStack } from "@nav
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-import { useHentAnsatt } from "../../../../api/ansatt/useHentAnsatt";
-import { useAdminGjennomforingById } from "../../../../api/gjennomforing/useAdminGjennomforingById";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { AvvistAlert, TilAnnulleringAlert } from "../AarsakerAlert";
 import { TilsagnTag } from "../TilsagnTag";
 import { TilsagnDetaljerForhandsgodkjent } from "./TilsagnDetaljerForhandsgodkjent";
@@ -47,16 +47,17 @@ function useTilsagnDetaljer() {
   const { gjennomforingId, tilsagnId } = useParams();
 
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
-  const { data: tilsagn } = useSuspenseQuery({ ...tilsagnQuery(tilsagnId) });
+  const { data: tilsagnDetaljer } = useSuspenseQuery({ ...tilsagnQuery(tilsagnId) });
   const { data: ansatt } = useHentAnsatt();
   const { data: historikk } = useSuspenseQuery({ ...tilsagnHistorikkQuery(tilsagnId) });
 
-  return { gjennomforing, tilsagn, ansatt, historikk };
+  return { ansatt, gjennomforing, historikk, ...tilsagnDetaljer.data };
 }
 
 export function TilsagnDetaljer() {
   const { gjennomforingId } = useParams();
-  const { gjennomforing, tilsagn, ansatt, historikk } = useTilsagnDetaljer();
+  const { ansatt, gjennomforing, tilsagn, opprettelse, annullering, frigjoring, historikk } =
+    useTilsagnDetaljer();
 
   const besluttMutation = useBesluttTilsagn();
   const tilAnnulleringMutation = useTilsagnTilAnnullering();
@@ -94,7 +95,7 @@ export function TilsagnDetaljer() {
     if (tilsagn) {
       besluttMutation.mutate(
         {
-          id: tilsagn.data.id,
+          id: tilsagn.id,
           body: {
             ...request,
           },
@@ -110,9 +111,9 @@ export function TilsagnDetaljer() {
     if (tilsagn) {
       tilAnnulleringMutation.mutate(
         {
-          id: tilsagn.data.id,
+          id: tilsagn.id,
           aarsaker: request.aarsaker,
-          forklaring: request.forklaring,
+          forklaring: request.forklaring || null,
         },
         { onSuccess: navigerTilTilsagnTabell },
       );
@@ -123,9 +124,9 @@ export function TilsagnDetaljer() {
     if (tilsagn) {
       tilFrigjoringMutation.mutate(
         {
-          id: tilsagn.data.id,
+          id: tilsagn.id,
           aarsaker: request.aarsaker,
-          forklaring: request.forklaring,
+          forklaring: request.forklaring || null,
         },
         { onSuccess: navigerTilTilsagnTabell },
       );
@@ -134,23 +135,23 @@ export function TilsagnDetaljer() {
 
   function slettTilsagn() {
     if (tilsagn) {
-      slettMutation.mutate({ id: tilsagn.data.id }, { onSuccess: navigerTilTilsagnTabell });
+      slettMutation.mutate({ id: tilsagn.id }, { onSuccess: navigerTilTilsagnTabell });
     }
   }
 
   function visBesluttKnapp(endretAv?: string): boolean {
     return Boolean(
-      (tilsagn?.data.status === TilsagnStatus.TIL_GODKJENNING ||
-        tilsagn?.data.status === TilsagnStatus.TIL_ANNULLERING ||
-        tilsagn?.data.status === TilsagnStatus.TIL_FRIGJORING) &&
+      (tilsagn.status === TilsagnStatus.TIL_GODKJENNING ||
+        tilsagn.status === TilsagnStatus.TIL_ANNULLERING ||
+        tilsagn.status === TilsagnStatus.TIL_FRIGJORING) &&
         ansatt?.navIdent !== endretAv &&
         ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER),
     );
   }
 
   const visHandlingerMeny =
-    tilsagn?.data.status === TilsagnStatus.RETURNERT ||
-    (tilsagn?.data.status === TilsagnStatus.GODKJENT &&
+    tilsagn.status === TilsagnStatus.RETURNERT ||
+    (tilsagn.status === TilsagnStatus.GODKJENT &&
       ansatt?.roller.includes(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV));
 
   return (
@@ -160,7 +161,7 @@ export function TilsagnDetaljer() {
         <PiggybankIcon className="w-10 h-10" />
         <Heading size="large" level="2">
           <HStack gap="2" align={"center"}>
-            Tilsagn for {gjennomforing.navn} <TilsagnTag status={tilsagn.data.status} />
+            Tilsagn for {gjennomforing.navn} <TilsagnTag status={tilsagn.status} />
           </HStack>
         </Heading>
       </Header>
@@ -178,7 +179,7 @@ export function TilsagnDetaljer() {
                   </Button>
                 </ActionMenu.Trigger>
                 <ActionMenu.Content>
-                  {tilsagn.data.status === TilsagnStatus.RETURNERT && (
+                  {tilsagn.status === TilsagnStatus.RETURNERT && (
                     <>
                       <ActionMenu.Item icon={<PencilFillIcon />}>
                         <Link className="no-underline" to="./rediger-tilsagn">
@@ -194,8 +195,8 @@ export function TilsagnDetaljer() {
                       </ActionMenu.Item>
                     </>
                   )}
-                  {tilsagn.data.status === TilsagnStatus.GODKJENT &&
-                    (tilsagn.data.belopGjenstaende === tilsagn.data.beregning.output.belop ? (
+                  {tilsagn.status === TilsagnStatus.GODKJENT &&
+                    (tilsagn.belopGjenstaende === tilsagn.beregning.output.belop ? (
                       <>
                         <ActionMenu.Item
                           variant="danger"
@@ -221,21 +222,21 @@ export function TilsagnDetaljer() {
             ) : null}
           </HStack>
           <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-          {tilsagn.data.status === TilsagnStatus.RETURNERT && (
+          {tilsagn.status === TilsagnStatus.RETURNERT && (
             <AvvistAlert
               header="Tilsagnet ble returnert"
-              tidspunkt={tilsagn.data.opprettelse.besluttetTidspunkt}
+              tidspunkt={opprettelse.besluttetTidspunkt}
               aarsaker={
-                tilsagn.data.opprettelse.aarsaker?.map((aarsak) =>
+                opprettelse.aarsaker?.map((aarsak) =>
                   tilsagnAarsakTilTekst(aarsak as TilsagnAvvisningAarsak),
                 ) ?? []
               }
-              forklaring={tilsagn.data.opprettelse.forklaring}
-              navIdent={tilsagn.data.opprettelse.besluttetAv}
+              forklaring={opprettelse.forklaring}
+              navIdent={opprettelse.besluttetAv}
             />
           )}
-          {tilsagn.data.status === TilsagnStatus.TIL_ANNULLERING && (
-            <TilAnnulleringAlert annullering={tilsagn.data.annullering!} />
+          {tilsagn.status === TilsagnStatus.TIL_ANNULLERING && annullering && (
+            <TilAnnulleringAlert annullering={annullering} />
           )}
           <Box
             borderWidth="2"
@@ -244,10 +245,10 @@ export function TilsagnDetaljer() {
             borderRadius={"medium"}
             padding={"2"}
           >
-            {isTilsagnForhandsgodkjent(tilsagn.data) && (
-              <TilsagnDetaljerForhandsgodkjent tilsagn={tilsagn.data} />
+            {isTilsagnForhandsgodkjent(tilsagn) && (
+              <TilsagnDetaljerForhandsgodkjent tilsagn={tilsagn} />
             )}
-            {isTilsagnFri(tilsagn.data) && <TilsagnDetaljerFri tilsagn={tilsagn.data} />}
+            {isTilsagnFri(tilsagn) && <TilsagnDetaljerFri tilsagn={tilsagn} />}
             <div>
               {besluttMutation.error ? (
                 <BodyShort spacing>
@@ -255,8 +256,8 @@ export function TilsagnDetaljer() {
                 </BodyShort>
               ) : null}
               <HStack gap="2" justify={"end"}>
-                {tilsagn.data.status === TilsagnStatus.TIL_GODKJENNING &&
-                  visBesluttKnapp(tilsagn.data.opprettelse.behandletAv) && (
+                {tilsagn.status === TilsagnStatus.TIL_GODKJENNING &&
+                  visBesluttKnapp(opprettelse.behandletAv) && (
                     <HStack gap="2">
                       <Button
                         variant="secondary"
@@ -275,8 +276,9 @@ export function TilsagnDetaljer() {
                       </Button>
                     </HStack>
                   )}
-                {tilsagn.data.status === TilsagnStatus.TIL_ANNULLERING &&
-                  visBesluttKnapp(tilsagn.data.annullering?.behandletAv) && (
+                {tilsagn.status === TilsagnStatus.TIL_ANNULLERING &&
+                  annullering &&
+                  visBesluttKnapp(annullering.behandletAv) && (
                     <HStack gap="2">
                       <Button
                         variant="secondary"
@@ -302,8 +304,9 @@ export function TilsagnDetaljer() {
                       </Button>
                     </HStack>
                   )}
-                {tilsagn.data.status === TilsagnStatus.TIL_FRIGJORING &&
-                  visBesluttKnapp(tilsagn.data.frigjoring?.behandletAv) && (
+                {tilsagn.status === TilsagnStatus.TIL_FRIGJORING &&
+                  frigjoring &&
+                  visBesluttKnapp(frigjoring.behandletAv) && (
                     <HStack gap="2">
                       <Button
                         variant="secondary"

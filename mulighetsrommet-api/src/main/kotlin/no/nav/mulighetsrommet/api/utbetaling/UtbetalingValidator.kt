@@ -4,14 +4,16 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.right
-import no.nav.mulighetsrommet.api.arrangorflate.GodkjennUtbetaling
-import no.nav.mulighetsrommet.api.arrangorflate.RelevanteForslag
+import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
+import no.nav.mulighetsrommet.api.arrangorflate.api.RelevanteForslag
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
+import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
+import no.nav.mulighetsrommet.api.utbetaling.api.DelutbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 
 object UtbetalingValidator {
-    fun validate(belop: Int, tilsagn: TilsagnDto, maxBelop: Int): Either<List<FieldError>, Unit> = either {
+    fun validate(belop: Int, tilsagn: Tilsagn, maxBelop: Int): Either<List<FieldError>, Unit> = either {
         val errors = buildList {
             if (belop <= 0) {
                 add(
@@ -73,7 +75,7 @@ object UtbetalingValidator {
 
     fun validerGodkjennUtbetaling(
         request: GodkjennUtbetaling,
-        utbetaling: UtbetalingDto,
+        utbetaling: Utbetaling,
         relevanteForslag: List<RelevanteForslag>,
     ): Either<List<FieldError>, GodkjennUtbetaling> {
         if (utbetaling.innsender != null) {

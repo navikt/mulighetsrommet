@@ -6,6 +6,7 @@ import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.model.Periode
@@ -14,11 +15,11 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 object TilsagnValidator {
     fun validate(
         next: TilsagnDbo,
-        previous: TilsagnDto?,
+        previous: Tilsagn?,
     ): Either<List<FieldError>, TilsagnDbo> = either {
         if (previous != null && previous.status != TilsagnStatus.RETURNERT) {
             return FieldError
-                .of(TilsagnDto::id, "Tilsagnet kan ikke endres.")
+                .of(Tilsagn::id, "Tilsagnet kan ikke endres.")
                 .nel()
                 .left()
         }

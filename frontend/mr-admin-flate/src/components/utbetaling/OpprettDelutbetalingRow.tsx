@@ -1,11 +1,17 @@
 import { formaterPeriodeSlutt, formaterPeriodeStart, tilsagnTypeToString } from "@/utils/Utils";
-import { TilsagnDto, TilsagnStatus, Totrinnskontroll } from "@mr/api-client-v2";
+import {
+  TilsagnDto,
+  TilsagnStatus,
+  Totrinnskontroll,
+  DelutbetalingStatus,
+} from "@mr/api-client-v2";
 import { Alert, Checkbox, Table, TextField } from "@navikt/ds-react";
 import { useState } from "react";
 import { AvvistAlert } from "@/pages/gjennomforing/tilsagn/AarsakerAlert";
 import { DelutbetalingTag } from "./DelutbetalingTag";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { TilsagnStatusTag } from "./TilsagnTag";
+import { NyDelutbetaling } from "@/pages/gjennomforing/utbetaling/UtbetalingPage";
 
 interface Props {
   id?: string;
@@ -13,15 +19,9 @@ interface Props {
   belop: number;
   frigjorTilsagn: boolean;
   opprettelse?: Totrinnskontroll;
-  type?: string;
+  status?: DelutbetalingStatus;
   kanRedigere: boolean;
-  onDelutbetalingChange: (d: {
-    id?: string;
-    tilsagnId: string;
-    belop: number;
-    frigjorTilsagn: boolean;
-    type?: string;
-  }) => void;
+  onDelutbetalingChange: (d: NyDelutbetaling) => void;
 }
 
 export function OpprettDelutbetalingRow({
@@ -29,7 +29,7 @@ export function OpprettDelutbetalingRow({
   tilsagn,
   belop,
   frigjorTilsagn,
-  type,
+  status,
   opprettelse,
   kanRedigere,
   onDelutbetalingChange,
@@ -47,9 +47,10 @@ export function OpprettDelutbetalingRow({
       tilsagnId: tilsagn.id,
       belop: belop,
       frigjorTilsagn: frigjorTilsagn,
-      type: type,
+      status: status,
     });
   }
+
   const cellClass = error && "align-top";
   return (
     <Table.ExpandableRow
@@ -124,7 +125,7 @@ export function OpprettDelutbetalingRow({
       <Table.DataCell className={error && "align-top pt-2"} colSpan={2}>
         <>
           {opprettelse ? (
-            <DelutbetalingTag type={"DELUTBETALING_AVVIST"} />
+            <DelutbetalingTag status={DelutbetalingStatus.RETURNERT} />
           ) : (
             <TilsagnStatusTag status={tilsagn.status} />
           )}

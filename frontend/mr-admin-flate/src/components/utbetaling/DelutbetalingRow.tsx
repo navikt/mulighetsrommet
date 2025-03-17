@@ -1,6 +1,8 @@
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
 import { formaterPeriodeSlutt, formaterPeriodeStart, tilsagnTypeToString } from "@/utils/Utils";
 import {
+  DelutbetalingStatus,
+  Totrinnskontroll,
   BesluttDelutbetalingRequest,
   Besluttelse,
   DelutbetalingDto,
@@ -18,30 +20,31 @@ import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { DelutbetalingTag } from "./DelutbetalingTag";
 
 interface Props {
+  ansatt: NavAnsatt;
   tilsagn: TilsagnDto;
   delutbetaling: DelutbetalingDto;
-  ansatt: NavAnsatt;
+  opprettelse: Totrinnskontroll;
 }
 
-export function DelutbetalingRow({ tilsagn, delutbetaling, ansatt }: Props) {
+export function DelutbetalingRow({ ansatt, tilsagn, delutbetaling, opprettelse }: Props) {
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const besluttMutation = useBesluttDelutbetaling(delutbetaling.id);
 
   const kanBeslutte =
-    delutbetaling.opprettelse.behandletAv !== ansatt.navIdent &&
-    ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER) &&
-    delutbetaling.type === "DELUTBETALING_TIL_GODKJENNING";
+    delutbetaling.status === DelutbetalingStatus.TIL_GODKJENNING &&
+    ansatt.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER) &&
+    opprettelse.behandletAv !== ansatt.navIdent;
 
-  const godkjentUtbetaling =
-    delutbetaling.type === "DELUTBETALING_OVERFORT_TIL_UTBETALING" ||
-    delutbetaling.type === "DELUTBETALING_UTBETALT";
+  const godkjentUtbetaling = [DelutbetalingStatus.GODKJENT, DelutbetalingStatus.UTBETALT].includes(
+    delutbetaling.status,
+  );
 
   function beslutt(body: BesluttDelutbetalingRequest) {
     besluttMutation.mutate(body, {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["utbetaling"] });
+        return queryClient.invalidateQueries({ queryKey: ["utbetaling"] });
       },
       onError: (error: ProblemDetail) => {
         throw error;
@@ -50,29 +53,23 @@ export function DelutbetalingRow({ tilsagn, delutbetaling, ansatt }: Props) {
   }
 
   function content() {
-    if (delutbetaling.frigjorTilsagn && !godkjentUtbetaling)
+    if (delutbetaling.frigjorTilsagn && !godkjentUtbetaling) {
       return (
         <Alert variant="warning">
           Når denne utbetalingen godkjennes av beslutter vil det ikke lenger være mulig å gjøre
           flere utbetalinger fra tilsagnet
         </Alert>
       );
-    else if (godkjentUtbetaling)
+    } else if (godkjentUtbetaling) {
       return (
         <HStack gap="4">
-          <Metadata
-            horizontal
-            header="Behandlet av"
-            verdi={delutbetaling.opprettelse.behandletAv}
-          />
-          <Metadata
-            horizontal
-            header="Besluttet av"
-            verdi={delutbetaling.opprettelse.besluttetAv}
-          />
+          <Metadata horizontal header="Behandlet av" verdi={opprettelse.behandletAv} />
+          <Metadata horizontal header="Besluttet av" verdi={opprettelse.besluttetAv} />
         </HStack>
       );
-    else return null;
+    } else {
+      return null;
+    }
   }
 
   return (
@@ -93,7 +90,7 @@ export function DelutbetalingRow({ tilsagn, delutbetaling, ansatt }: Props) {
       </Table.DataCell>
       <Table.DataCell>{formaterNOK(delutbetaling.belop)}</Table.DataCell>
       <Table.DataCell>
-        <DelutbetalingTag type={delutbetaling.type} />
+        <DelutbetalingTag status={delutbetaling.status} />
       </Table.DataCell>
       <Table.DataCell>
         {kanBeslutte && (
