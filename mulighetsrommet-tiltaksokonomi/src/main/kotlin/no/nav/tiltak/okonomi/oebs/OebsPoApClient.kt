@@ -14,11 +14,16 @@ import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
 
-class OebsTiltakApiClient(
+class OebsPoApClient(
     engine: HttpClientEngine = CIO.create(),
     private val baseUrl: String,
     private val tokenProvider: TokenProvider,
 ) {
+    companion object {
+        const val BESTILLING_ENDPOINT = "/api/v1/bestilling"
+        const val FAKTURA_ENDPOINT = "/api/v1/faktura"
+    }
+
     private val log = LoggerFactory.getLogger(javaClass)
 
     private val client = httpJsonClient(engine).config {
@@ -32,15 +37,15 @@ class OebsTiltakApiClient(
     }
 
     suspend fun sendBestilling(bestilling: OebsBestillingMelding): Either<Throwable, HttpResponse> {
-        return request(HttpMethod.Post, "/api/v1/tilsagn", bestilling)
+        return request(HttpMethod.Post, BESTILLING_ENDPOINT, bestilling)
     }
 
     suspend fun sendAnnullering(annullering: OebsAnnulleringMelding): Either<Throwable, HttpResponse> {
-        return request(HttpMethod.Post, "/api/v1/tilsagn", annullering)
+        return request(HttpMethod.Post, BESTILLING_ENDPOINT, annullering)
     }
 
     suspend fun sendFaktura(faktura: OebsFakturaMelding): Either<Throwable, HttpResponse> {
-        return request(HttpMethod.Post, "/api/v1/refusjonskrav", faktura)
+        return request(HttpMethod.Post, FAKTURA_ENDPOINT, faktura)
     }
 
     private suspend inline fun <reified T> request(

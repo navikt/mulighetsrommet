@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.tokenprovider.createMockRSAKey
+import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.intellij.lang.annotations.Language
 
@@ -37,9 +38,9 @@ val mockClientEngine = createMockEngine {
         respondJson(brregResponse)
     }
 
-    post("http://oebs-tiltak-api/api/v1/tilsagn") { respondOk() }
+    post(OebsPoApClient.BESTILLING_ENDPOINT) { respondOk() }
 
-    post("http://oebs-tiltak-api/api/v1/refusjonskrav") { respondOk() }
+    post(OebsPoApClient.FAKTURA_ENDPOINT) { respondOk() }
 }
 
 val ApplicationConfigLocal = AppConfig(
@@ -60,7 +61,7 @@ val ApplicationConfigLocal = AppConfig(
         ),
     ),
     clients = ClientConfig(
-        oebsTiltakApi = AuthenticatedHttpClientConfig(url = "http://oebs-tiltak-api", scope = "default"),
+        oebsPoAp = AuthenticatedHttpClientConfig(url = "http://localhost", scope = "default"),
     ),
     kafka = KafkaConfig(
         consumerPropertiesPreset = KafkaPropertiesBuilder.consumerBuilder()

@@ -28,7 +28,7 @@ data class KafkaClients(
 )
 
 data class ClientConfig(
-    val oebsTiltakApi: AuthenticatedHttpClientConfig,
+    val oebsPoAp: AuthenticatedHttpClientConfig,
 )
 
 data class AuthConfig(
