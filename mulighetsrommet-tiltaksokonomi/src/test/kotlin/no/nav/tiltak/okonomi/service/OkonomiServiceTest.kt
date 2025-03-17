@@ -25,7 +25,7 @@ import no.nav.tiltak.okonomi.*
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.model.*
 import no.nav.tiltak.okonomi.oebs.OebsFakturaMelding
-import no.nav.tiltak.okonomi.oebs.OebsTiltakApiClient
+import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import java.time.LocalDate
 
 class OkonomiServiceTest : FunSpec({
@@ -292,7 +292,7 @@ class OkonomiServiceTest : FunSpec({
 
         test("frigjør bestilling = true setter siste fakturalinje i fakturaen til oebs og oppdaterer bestillingstatus") {
             val mockEngine = createMockEngine {
-                post(OebsTiltakApiClient.FAKTURA_ENDPOINT) {
+                post(OebsPoApClient.FAKTURA_ENDPOINT) {
                     val melding = it.decodeRequestBody<OebsFakturaMelding>()
 
                     melding.fakturaLinjer.last().erSisteFaktura shouldBe true
@@ -316,7 +316,7 @@ class OkonomiServiceTest : FunSpec({
         }
 
         test("frigjør faktura lager en faktura be erSisteLinje = true og setter bestillingen til FRIGJORT") {
-            val oebsClient: OebsTiltakApiClient = mockk()
+            val oebsClient: OebsPoApClient = mockk()
             val oebsResponse: HttpResponse = mockk()
             coEvery { oebsClient.sendFaktura(any()) } returns oebsResponse.right()
             val service = OkonomiService(db, oebsClient, brreg)
@@ -344,19 +344,19 @@ class OkonomiServiceTest : FunSpec({
 })
 
 private fun oebsRespondError() = createMockEngine {
-    post(OebsTiltakApiClient.BESTILLING_ENDPOINT) { respondError(HttpStatusCode.InternalServerError) }
+    post(OebsPoApClient.BESTILLING_ENDPOINT) { respondError(HttpStatusCode.InternalServerError) }
 
-    post(OebsTiltakApiClient.FAKTURA_ENDPOINT) { respondError(HttpStatusCode.InternalServerError) }
+    post(OebsPoApClient.FAKTURA_ENDPOINT) { respondError(HttpStatusCode.InternalServerError) }
 }
 
 private fun oebsRespondOk() = createMockEngine {
-    post(OebsTiltakApiClient.BESTILLING_ENDPOINT) { respondOk() }
+    post(OebsPoApClient.BESTILLING_ENDPOINT) { respondOk() }
 
-    post(OebsTiltakApiClient.FAKTURA_ENDPOINT) { respondOk() }
+    post(OebsPoApClient.FAKTURA_ENDPOINT) { respondOk() }
 }
 
-private fun oebsClient(mockEngine: MockEngine): OebsTiltakApiClient {
-    return OebsTiltakApiClient(mockEngine, "http://localhost") { "token" }
+private fun oebsClient(mockEngine: MockEngine): OebsPoApClient {
+    return OebsPoApClient(mockEngine, "http://localhost") { "token" }
 }
 
 private fun initializeData(db: OkonomiDatabase) = db.session {

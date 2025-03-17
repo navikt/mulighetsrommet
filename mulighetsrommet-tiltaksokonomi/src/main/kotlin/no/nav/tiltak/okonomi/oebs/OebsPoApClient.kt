@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
 
-class OebsTiltakApiClient(
+class OebsPoApClient(
     engine: HttpClientEngine = CIO.create(),
     private val baseUrl: String,
     private val tokenProvider: TokenProvider,

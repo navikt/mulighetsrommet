@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
 import no.nav.tiltak.okonomi.api.configureApi
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.kafka.OkonomiBestillingConsumer
-import no.nav.tiltak.okonomi.oebs.OebsTiltakApiClient
+import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import no.nav.tiltak.okonomi.plugins.configureAuthentication
 import no.nav.tiltak.okonomi.plugins.configureHTTP
 import no.nav.tiltak.okonomi.plugins.configureSerialization
@@ -48,13 +48,13 @@ fun Application.configure(config: AppConfig) {
 
     val cachedTokenProvider = CachedTokenProvider.init(config.auth.azure.audience, config.auth.azure.tokenEndpointUrl, config.auth.azure.privateJwk)
 
-    val oebsClient = OebsTiltakApiClient(
+    val oebs = OebsPoApClient(
         engine = config.httpClientEngine,
-        baseUrl = config.clients.oebsTiltakApi.url,
-        tokenProvider = cachedTokenProvider.withScope(config.clients.oebsTiltakApi.scope),
+        baseUrl = config.clients.oebsPoAp.url,
+        tokenProvider = cachedTokenProvider.withScope(config.clients.oebsPoAp.scope),
     )
     val brreg = BrregClient(config.httpClientEngine)
-    val okonomi = OkonomiService(okonomiDb, oebsClient, brreg)
+    val okonomi = OkonomiService(okonomiDb, oebs, brreg)
     val kafka = configureKafka(config.kafka, db, okonomi)
 
     configureApi(kafka, okonomiDb, okonomi)

@@ -23,7 +23,7 @@ val ApplicationConfigDev = AppConfig(
         ),
     ),
     clients = ClientConfig(
-        oebsTiltakApi = AuthenticatedHttpClientConfig(
+        oebsPoAp = AuthenticatedHttpClientConfig(
             url = "https://oebs-po-ap-api-q1.dev-fss-pub.nais.io",
             scope = "api://dev-fss.team-oebs.oebs-po-ap-api-q1/.default",
         ),

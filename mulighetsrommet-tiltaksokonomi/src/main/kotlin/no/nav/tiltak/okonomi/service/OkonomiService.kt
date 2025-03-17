@@ -28,7 +28,7 @@ class FrigjorBestillingError(message: String, cause: Throwable? = null) : Except
 
 class OkonomiService(
     private val db: OkonomiDatabase,
-    private val oebs: OebsTiltakApiClient,
+    private val oebs: OebsPoApClient,
     private val brreg: BrregClient,
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
