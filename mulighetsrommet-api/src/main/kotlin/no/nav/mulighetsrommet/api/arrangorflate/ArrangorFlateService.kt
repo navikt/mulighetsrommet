@@ -6,7 +6,7 @@ import io.ktor.http.*
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.arrangorflate.model.*
+import no.nav.mulighetsrommet.api.arrangorflate.api.*
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.tilsagn.model.*
@@ -15,9 +15,9 @@ import no.nav.mulighetsrommet.api.utbetaling.HentAdressebeskyttetPersonBolkPdlQu
 import no.nav.mulighetsrommet.api.utbetaling.HentPersonBolkResponse
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerDto
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningForhandsgodkjent
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -41,24 +41,24 @@ class ArrangorFlateService(
     val pdl: HentAdressebeskyttetPersonBolkPdlQuery,
     val db: ApiDatabase,
 ) {
-    fun getUtbetalinger(orgnr: Organisasjonsnummer): List<ArrFlateUtbetalingKompakt> = db.session {
+    fun getUtbetalinger(orgnr: Organisasjonsnummer): List<ArrFlateUtbetalingKompaktDto> = db.session {
         return queries.utbetaling.getByArrangorIds(orgnr).map { utbetaling ->
             val status = getArrFlateUtbetalingStatus(utbetaling)
-            ArrFlateUtbetalingKompakt.fromUtbetalingDto(utbetaling, status)
+            ArrFlateUtbetalingKompaktDto.fromUtbetaling(utbetaling, status)
         }
     }
 
-    fun getUtbetaling(id: UUID): UtbetalingDto? = db.session {
+    fun getUtbetaling(id: UUID): Utbetaling? = db.session {
         return queries.utbetaling.get(id)
     }
 
-    fun getTilsagn(id: UUID): ArrangorflateTilsagn? = db.session {
+    fun getTilsagn(id: UUID): ArrangorflateTilsagnDto? = db.session {
         queries.tilsagn.get(id)
             ?.takeIf { it.status in TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR }
             ?.let { toArrangorflateTilsagn(it) }
     }
 
-    fun getTilsagnByOrgnr(orgnr: Organisasjonsnummer): List<ArrangorflateTilsagn> = db.session {
+    fun getTilsagnByOrgnr(orgnr: Organisasjonsnummer): List<ArrangorflateTilsagnDto> = db.session {
         queries.tilsagn
             .getAll(
                 arrangor = orgnr,
@@ -70,7 +70,7 @@ class ArrangorFlateService(
     fun getArrangorflateTilsagnTilUtbetaling(
         gjennomforingId: UUID,
         periode: Periode,
-    ): List<ArrangorflateTilsagn> = db.session {
+    ): List<ArrangorflateTilsagnDto> = db.session {
         queries.tilsagn
             .getAll(
                 gjennomforingId = gjennomforingId,
@@ -81,7 +81,7 @@ class ArrangorFlateService(
             .map { toArrangorflateTilsagn(it) }
     }
 
-    fun getRelevanteForslag(utbetaling: UtbetalingDto): List<RelevanteForslag> = db.session {
+    fun getRelevanteForslag(utbetaling: Utbetaling): List<RelevanteForslag> = db.session {
         return queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
             .map { (deltakerId, forslag) ->
                 RelevanteForslag(
@@ -91,7 +91,7 @@ class ArrangorFlateService(
             }
     }
 
-    suspend fun toArrFlateUtbetaling(utbetaling: UtbetalingDto): ArrFlateUtbetaling = db.session {
+    suspend fun toArrFlateUtbetaling(utbetaling: Utbetaling): ArrFlateUtbetaling = db.session {
         val status = getArrFlateUtbetalingStatus(utbetaling)
         return when (val beregning = utbetaling.beregning) {
             is UtbetalingBeregningForhandsgodkjent -> {
@@ -165,7 +165,7 @@ class ArrangorFlateService(
         }
     }
 
-    private fun QueryContext.getArrFlateUtbetalingStatus(utbetaling: UtbetalingDto): ArrFlateUtbetalingStatus {
+    private fun QueryContext.getArrFlateUtbetalingStatus(utbetaling: Utbetaling): ArrFlateUtbetalingStatus {
         val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
         val relevanteForslag = getRelevanteForslag(utbetaling)
         return ArrFlateUtbetalingStatus.fromUtbetaling(
@@ -224,7 +224,7 @@ class ArrangorFlateService(
 }
 
 fun DeltakerForslag.relevantForDeltakelse(
-    utbetaling: UtbetalingDto,
+    utbetaling: Utbetaling,
 ): Boolean = when (utbetaling.beregning) {
     is UtbetalingBeregningForhandsgodkjent -> relevantForDeltakelse(utbetaling.beregning)
     is UtbetalingBeregningFri -> false
@@ -277,27 +277,27 @@ fun DeltakerForslag.relevantForDeltakelse(
 }
 
 private fun QueryContext.toArrangorflateTilsagn(
-    tilsagn: TilsagnDto,
-): ArrangorflateTilsagn {
+    tilsagn: Tilsagn,
+): ArrangorflateTilsagnDto {
     val annullering = queries.totrinnskontroll.get(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
-    return ArrangorflateTilsagn(
+    return ArrangorflateTilsagnDto(
         id = tilsagn.id,
-        gjennomforing = ArrangorflateTilsagn.Gjennomforing(
+        gjennomforing = ArrangorflateTilsagnDto.Gjennomforing(
             navn = tilsagn.gjennomforing.navn,
         ),
         gjenstaendeBelop = tilsagn.belopGjenstaende,
-        tiltakstype = ArrangorflateTilsagn.Tiltakstype(
+        tiltakstype = ArrangorflateTilsagnDto.Tiltakstype(
             navn = tilsagn.tiltakstype.navn,
         ),
         type = tilsagn.type,
         periode = tilsagn.periode,
         beregning = tilsagn.beregning,
-        arrangor = ArrangorflateTilsagn.Arrangor(
+        arrangor = ArrangorflateTilsagnDto.Arrangor(
             id = tilsagn.arrangor.id,
             navn = tilsagn.arrangor.navn,
             organisasjonsnummer = tilsagn.arrangor.organisasjonsnummer,
         ),
-        status = ArrangorflateTilsagn.StatusOgAarsaker(
+        status = ArrangorflateTilsagnDto.StatusOgAarsaker(
             status = tilsagn.status,
             aarsaker = annullering?.aarsaker?.map { TilsagnStatusAarsak.valueOf(it) } ?: listOf(),
         ),

@@ -152,7 +152,7 @@ class TilsagnQueries(private val session: Session) {
         return session.requireSingle(queryOf(query, gjennomforingId)) { it.int("lopenummer") }
     }
 
-    fun get(id: UUID): TilsagnDto? {
+    fun get(id: UUID): Tilsagn? {
         @Language("PostgreSQL")
         val query = """
             select * from tilsagn_admin_dto_view
@@ -168,7 +168,7 @@ class TilsagnQueries(private val session: Session) {
         arrangor: Organisasjonsnummer? = null,
         statuser: List<TilsagnStatus>? = null,
         periodeIntersectsWith: Periode? = null,
-    ): List<TilsagnDto> {
+    ): List<Tilsagn> {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -211,19 +211,19 @@ class TilsagnQueries(private val session: Session) {
         session.execute(queryOf(query, mapOf("id" to id, "status" to status.name)))
     }
 
-    private fun Row.toTilsagnDto(): TilsagnDto {
+    private fun Row.toTilsagnDto(): Tilsagn {
         val id = uuid("id")
 
         val beregning = getBeregning(id, Prismodell.valueOf(string("prismodell")))
 
-        return TilsagnDto(
+        return Tilsagn(
             id = uuid("id"),
             type = TilsagnType.valueOf(string("type")),
-            tiltakstype = TilsagnDto.Tiltakstype(
+            tiltakstype = Tilsagn.Tiltakstype(
                 tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
                 navn = string("tiltakstype_navn"),
             ),
-            gjennomforing = TilsagnDto.Gjennomforing(
+            gjennomforing = Tilsagn.Gjennomforing(
                 id = uuid("gjennomforing_id"),
                 navn = string("gjennomforing_navn"),
             ),
@@ -238,7 +238,7 @@ class TilsagnQueries(private val session: Session) {
                 overordnetEnhet = stringOrNull("kostnadssted_overordnet_enhet"),
                 status = NavEnhetStatus.valueOf(string("kostnadssted_status")),
             ),
-            arrangor = TilsagnDto.Arrangor(
+            arrangor = Tilsagn.Arrangor(
                 id = uuid("arrangor_id"),
                 organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
                 navn = string("arrangor_navn"),

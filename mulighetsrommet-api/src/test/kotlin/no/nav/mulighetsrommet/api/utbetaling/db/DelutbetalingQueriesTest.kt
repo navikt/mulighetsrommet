@@ -8,8 +8,8 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener

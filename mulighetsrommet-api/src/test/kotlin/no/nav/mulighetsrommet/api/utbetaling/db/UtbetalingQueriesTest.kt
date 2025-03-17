@@ -45,7 +45,7 @@ class UtbetalingQueriesTest : FunSpec({
         kontonummer = Kontonummer("11111111111"),
         kid = Kid("12345"),
         periode = periode,
-        innsender = UtbetalingDto.Innsender.NavAnsatt(NavIdent("Z123456")),
+        innsender = Utbetaling.Innsender.NavAnsatt(NavIdent("Z123456")),
         beskrivelse = "En beskrivelse",
     )
 
@@ -60,29 +60,29 @@ class UtbetalingQueriesTest : FunSpec({
             queries.get(utbetaling.id).shouldNotBeNull().should {
                 it.id shouldBe utbetaling.id
                 it.fristForGodkjenning shouldBe LocalDate.of(2024, 10, 1).atStartOfDay()
-                it.tiltakstype shouldBe UtbetalingDto.Tiltakstype(
+                it.tiltakstype shouldBe Utbetaling.Tiltakstype(
                     navn = TiltakstypeFixtures.AFT.navn,
                     tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
                 )
-                it.gjennomforing shouldBe UtbetalingDto.Gjennomforing(
+                it.gjennomforing shouldBe Utbetaling.Gjennomforing(
                     id = AFT1.id,
                     navn = AFT1.navn,
                 )
-                it.arrangor shouldBe UtbetalingDto.Arrangor(
+                it.arrangor shouldBe Utbetaling.Arrangor(
                     navn = ArrangorFixtures.underenhet1.navn,
                     id = ArrangorFixtures.underenhet1.id,
                     organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                     slettet = ArrangorFixtures.underenhet1.slettetDato != null,
                 )
                 it.beregning shouldBe beregning
-                it.betalingsinformasjon shouldBe UtbetalingDto.Betalingsinformasjon(
+                it.betalingsinformasjon shouldBe Utbetaling.Betalingsinformasjon(
                     kontonummer = Kontonummer("11111111111"),
                     kid = Kid("12345"),
                 )
                 it.journalpostId shouldBe null
                 it.periode shouldBe periode
                 it.godkjentAvArrangorTidspunkt shouldBe null
-                it.innsender shouldBe UtbetalingDto.Innsender.NavAnsatt(NavIdent("Z123456"))
+                it.innsender shouldBe Utbetaling.Innsender.NavAnsatt(NavIdent("Z123456"))
                 it.beskrivelse shouldBe "En beskrivelse"
             }
         }
@@ -102,7 +102,7 @@ class UtbetalingQueriesTest : FunSpec({
             queries.setGodkjentAvArrangor(utbetaling.id, LocalDateTime.now())
 
             queries.get(utbetaling.id)
-                .shouldNotBeNull().innsender shouldBe UtbetalingDto.Innsender.ArrangorAnsatt
+                .shouldNotBeNull().innsender shouldBe Utbetaling.Innsender.ArrangorAnsatt
         }
     }
 

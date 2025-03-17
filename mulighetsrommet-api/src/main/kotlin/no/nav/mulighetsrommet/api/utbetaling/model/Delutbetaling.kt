@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.*
 
 @Serializable
-data class DelutbetalingDto(
+data class Delutbetaling(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
@@ -20,10 +20,3 @@ data class DelutbetalingDto(
     val lopenummer: Int,
     val fakturanummer: String,
 )
-
-enum class DelutbetalingStatus {
-    TIL_GODKJENNING,
-    GODKJENT,
-    RETURNERT,
-    UTBETALT,
-}

@@ -1,6 +1,6 @@
-import { AdminUtbetalingKompakt, AdminUtbetalingStatus } from "@mr/api-client-v2";
+import { UtbetalingDto, AdminUtbetalingStatus } from "@mr/api-client-v2";
 
-export const mockUtbetalinger: AdminUtbetalingKompakt[] = [
+export const mockUtbetalinger: UtbetalingDto[] = [
   {
     id: "",
     periode: {

@@ -12,8 +12,12 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
+import no.nav.mulighetsrommet.api.tilsagn.api.BesluttTilsagnRequest
+import no.nav.mulighetsrommet.api.tilsagn.api.TilAnnulleringRequest
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
@@ -32,7 +36,7 @@ class TilsagnService(
     private val db: ApiDatabase,
     private val okonomi: OkonomiBestillingService,
 ) {
-    fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<FieldError>, TilsagnDto> = db.transaction {
+    fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<FieldError>, Tilsagn> = db.transaction {
         val gjennomforing = queries.gjennomforing.get(request.gjennomforingId)
             ?: return FieldError
                 .of("Tiltaksgjennomforingen finnes ikke", TilsagnRequest::gjennomforingId)
@@ -130,7 +134,7 @@ class TilsagnService(
             }
     }
 
-    fun beslutt(id: UUID, besluttelse: BesluttTilsagnRequest, navIdent: NavIdent): StatusResponse<TilsagnDto> = db.transaction {
+    fun beslutt(id: UUID, besluttelse: BesluttTilsagnRequest, navIdent: NavIdent): StatusResponse<Tilsagn> = db.transaction {
         val tilsagn = queries.tilsagn.get(id) ?: return NotFound("Fant ikke tilsagn").left()
 
         return when (tilsagn.status) {
@@ -168,7 +172,7 @@ class TilsagnService(
         }
     }
 
-    private fun godkjennTilsagn(tilsagn: TilsagnDto, besluttetAv: NavIdent): StatusResponse<TilsagnDto> = db.transaction {
+    private fun godkjennTilsagn(tilsagn: Tilsagn, besluttetAv: NavIdent): StatusResponse<Tilsagn> = db.transaction {
         require(tilsagn.status == TilsagnStatus.TIL_GODKJENNING)
 
         val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
@@ -193,10 +197,10 @@ class TilsagnService(
     }
 
     private fun returnerTilsagn(
-        tilsagn: TilsagnDto,
+        tilsagn: Tilsagn,
         besluttelse: BesluttTilsagnRequest.AvvistTilsagnRequest,
         besluttetAv: NavIdent,
-    ): StatusResponse<TilsagnDto> = db.transaction {
+    ): StatusResponse<Tilsagn> = db.transaction {
         require(tilsagn.status == TilsagnStatus.TIL_GODKJENNING)
 
         val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
@@ -223,7 +227,7 @@ class TilsagnService(
         dto.right()
     }
 
-    private fun QueryContext.annullerTilsagn(tilsagn: TilsagnDto, besluttetAv: NavIdent): TilsagnDto {
+    private fun QueryContext.annullerTilsagn(tilsagn: Tilsagn, besluttetAv: NavIdent): Tilsagn {
         require(tilsagn.status == TilsagnStatus.TIL_ANNULLERING)
 
         val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
@@ -247,7 +251,7 @@ class TilsagnService(
         return dto
     }
 
-    private fun QueryContext.avvisAnnullering(tilsagn: TilsagnDto, besluttetAv: Agent): TilsagnDto {
+    private fun QueryContext.avvisAnnullering(tilsagn: Tilsagn, besluttetAv: Agent): Tilsagn {
         require(tilsagn.status == TilsagnStatus.TIL_ANNULLERING)
 
         val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
@@ -270,11 +274,11 @@ class TilsagnService(
     }
 
     private fun QueryContext.setTilFrigjoring(
-        tilsagn: TilsagnDto,
+        tilsagn: Tilsagn,
         agent: Agent,
         aarsaker: List<String>,
         forklaring: String?,
-    ): TilsagnDto {
+    ): Tilsagn {
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
             "Kan bare annullere godkjente tilsagn"
         }
@@ -301,9 +305,9 @@ class TilsagnService(
     }
 
     private fun QueryContext.frigjorTilsagn(
-        tilsagn: TilsagnDto,
+        tilsagn: Tilsagn,
         besluttetAv: Agent,
-    ): TilsagnDto {
+    ): Tilsagn {
         require(tilsagn.status == TilsagnStatus.TIL_FRIGJORING)
 
         val frigjoring = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.FRIGJOR)
@@ -325,7 +329,7 @@ class TilsagnService(
         return dto
     }
 
-    private fun avvisFrigjoring(tilsagn: TilsagnDto, besluttetAv: Agent): TilsagnDto = db.transaction {
+    private fun avvisFrigjoring(tilsagn: Tilsagn, besluttetAv: Agent): Tilsagn = db.transaction {
         require(tilsagn.status == TilsagnStatus.TIL_FRIGJORING)
 
         val frigjoring = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.FRIGJOR)
@@ -347,7 +351,7 @@ class TilsagnService(
         return dto
     }
 
-    fun frigjorAutomatisk(id: UUID, queryContext: QueryContext): TilsagnDto {
+    fun frigjorAutomatisk(id: UUID, queryContext: QueryContext): Tilsagn {
         var tilsagn = requireNotNull(queryContext.queries.tilsagn.get(id))
 
         tilsagn = queryContext.setTilFrigjoring(tilsagn, Tiltaksadministrasjon, emptyList(), null)
@@ -356,11 +360,11 @@ class TilsagnService(
     }
 
     private fun QueryContext.setTilAnnullering(
-        tilsagn: TilsagnDto,
+        tilsagn: Tilsagn,
         behandletAv: Agent,
         aarsaker: List<String>,
         forklaring: String?,
-    ): TilsagnDto {
+    ): Tilsagn {
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
             "Kan bare annullere godkjente tilsagn"
         }
@@ -420,7 +424,7 @@ class TilsagnService(
 
     private fun QueryContext.logEndring(
         operation: String,
-        dto: TilsagnDto,
+        dto: Tilsagn,
         endretAv: Agent,
     ) {
         queries.endringshistorikk.logEndring(
@@ -434,7 +438,7 @@ class TilsagnService(
         }
     }
 
-    private fun QueryContext.getOrError(id: UUID): TilsagnDto {
+    private fun QueryContext.getOrError(id: UUID): Tilsagn {
         return requireNotNull(queries.tilsagn.get(id)) { "Tilsagn med id=$id finnes ikke" }
     }
 }

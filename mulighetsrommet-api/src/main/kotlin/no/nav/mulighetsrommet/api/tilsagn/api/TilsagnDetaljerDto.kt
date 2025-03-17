@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.tilsagn.model
+package no.nav.mulighetsrommet.api.tilsagn.api
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
