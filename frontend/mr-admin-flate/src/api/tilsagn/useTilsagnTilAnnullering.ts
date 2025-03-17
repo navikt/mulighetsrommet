@@ -11,7 +11,7 @@ export function useTilsagnTilAnnullering() {
     }: {
       id: string;
       aarsaker: TilsagnTilAnnulleringAarsak[];
-      forklaring: string | undefined;
+      forklaring: string | null;
     }) =>
       TilsagnService.tilAnnullering({
         path: { id },

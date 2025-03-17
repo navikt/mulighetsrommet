@@ -11,7 +11,7 @@ export function useTilsagnTilFrigjoring() {
     }: {
       id: string;
       aarsaker: TilsagnTilAnnulleringAarsak[];
-      forklaring: string | undefined;
+      forklaring: string | null;
     }) =>
       TilsagnService.tilFrigjoring({
         path: { id },

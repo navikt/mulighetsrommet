@@ -5507,7 +5507,7 @@ components:
           items:
             $ref: "#/components/schemas/TilsagnTilAnnulleringAarsak"
         forklaring:
-          type: string
+          type: [string, "null"]
       required:
         - besluttelse
         - aarsaker
