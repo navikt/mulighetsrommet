@@ -7,7 +7,7 @@ interface Props<T> {
   buttonLabel: string;
   aarsaker: { label: string; value: T }[];
   onClose: () => void;
-  onConfirm: (data: { aarsaker: T[]; forklaring?: string }) => void;
+  onConfirm: (data: { aarsaker: T[]; forklaring: string | null }) => void;
 }
 
 interface ValidationErrors {
@@ -43,7 +43,7 @@ export function AarsakerOgForklaringModal<T>(props: Props<T>) {
     } else {
       onConfirm({
         aarsaker: valgteAarsaker,
-        forklaring: forklaring || undefined,
+        forklaring: forklaring || null,
       });
     }
   }

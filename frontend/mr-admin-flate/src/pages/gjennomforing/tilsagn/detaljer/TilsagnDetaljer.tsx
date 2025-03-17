@@ -112,7 +112,7 @@ export function TilsagnDetaljer() {
         {
           id: tilsagn.data.id,
           aarsaker: request.aarsaker,
-          forklaring: request.forklaring,
+          forklaring: request.forklaring || null,
         },
         { onSuccess: navigerTilTilsagnTabell },
       );
@@ -125,7 +125,7 @@ export function TilsagnDetaljer() {
         {
           id: tilsagn.data.id,
           aarsaker: request.aarsaker,
-          forklaring: request.forklaring,
+          forklaring: request.forklaring || null,
         },
         { onSuccess: navigerTilTilsagnTabell },
       );
