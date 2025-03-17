@@ -2,9 +2,7 @@ package no.nav.mulighetsrommet.api.tilsagn.db
 
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Periode
-import java.time.LocalDateTime
 import java.util.*
 
 data class TilsagnDbo(
@@ -17,6 +15,4 @@ data class TilsagnDbo(
     val kostnadssted: String,
     val beregning: TilsagnBeregning,
     val arrangorId: UUID,
-    val behandletAv: Agent,
-    val behandletTidspunkt: LocalDateTime,
 )

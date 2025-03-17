@@ -9,11 +9,9 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
@@ -23,10 +21,9 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
-import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn1
-import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
@@ -34,18 +31,38 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
-import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.*
 
 class TilsagnServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
+    val minimumTilsagnPeriodeStart = LocalDate.of(2025, 1, 1)
+
+    val ansatt1 = NavAnsattFixture.ansatt1.navIdent
+    val ansatt2 = NavAnsattFixture.ansatt2.navIdent
+
+    val request = TilsagnRequest(
+        id = UUID.randomUUID(),
+        gjennomforingId = AFT1.id,
+        type = TilsagnType.TILSAGN,
+        periodeStart = LocalDate.of(2025, 1, 1),
+        periodeSlutt = LocalDate.of(2025, 1, 31),
+        kostnadssted = Gjovik.enhetsnummer,
+        beregning = TilsagnBeregningFri.Input(belop = 1),
+    )
+
+    beforeEach {
+        MulighetsrommetTestDomain(
+            arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+            avtaler = listOf(AvtaleFixtures.AFT),
+            gjennomforinger = listOf(AFT1),
+        ).initialize(database.db)
+    }
+
     afterEach {
         database.truncateAll()
     }
-
-    val minimumTilsagnPeriodeStart = LocalDate.of(2023, 1, 1)
 
     fun createTilsagnService(
         okonomi: OkonomiBestillingService = mockk(relaxed = true),
@@ -62,31 +79,15 @@ class TilsagnServiceTest : FunSpec({
     }
 
     context("opprett tilsagn") {
-        val service = createTilsagnService()
-
-        val tilsagn = TilsagnRequest(
-            id = Tilsagn1.id,
-            gjennomforingId = AFT1.id,
-            type = TilsagnType.TILSAGN,
-            periodeStart = LocalDate.of(2023, 1, 1),
-            periodeSlutt = LocalDate.of(2023, 1, 31),
-            kostnadssted = Gjovik.enhetsnummer,
-            beregning = TilsagnBeregningFri.Input(belop = 0),
-        )
-
         test("tilsagn kan ikke vare over årsskiftet") {
-            MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-            ).initialize(database.db)
+            val service = createTilsagnService()
 
-            val request = tilsagn.copy(
-                periodeStart = LocalDate.of(2023, 1, 1),
-                periodeSlutt = LocalDate.of(2024, 1, 31),
+            val invalidRequest = request.copy(
+                periodeStart = LocalDate.of(2025, 1, 1),
+                periodeSlutt = LocalDate.of(2026, 1, 31),
             )
 
-            service.upsert(request, NavAnsattFixture.ansatt1.navIdent).shouldBeLeft() shouldBe listOf(
+            service.upsert(invalidRequest, ansatt1).shouldBeLeft() shouldBe listOf(
                 FieldError(
                     pointer = "/periodeSlutt",
                     detail = "Tilsagnsperioden kan ikke vare utover årsskiftet",
@@ -95,17 +96,19 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("minimum dato for tilsagn må være satt for at tilsagn skal opprettes") {
+            val service = createTilsagnService()
+
             MulighetsrommetTestDomain(
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.VTA),
                 gjennomforinger = listOf(VTA1),
             ).initialize(database.db)
 
-            val request = tilsagn.copy(
+            val invalidRequest = request.copy(
                 gjennomforingId = VTA1.id,
             )
 
-            service.upsert(request, NavAnsattFixture.ansatt1.navIdent).shouldBeLeft() shouldBe listOf(
+            service.upsert(invalidRequest, ansatt1).shouldBeLeft() shouldBe listOf(
                 FieldError(
                     pointer = "/periodeStart",
                     detail = "Tilsagn for tiltakstype Varig tilrettelagt arbeid i skjermet virksomhet er ikke støttet enda",
@@ -114,40 +117,40 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("tilsagnet kan ikke starte før konfigurert minimum dato for tilsagn") {
-            MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-            ).initialize(database.db)
+            val service = createTilsagnService()
 
-            val request = tilsagn.copy(
-                periodeStart = LocalDate.of(2022, 12, 1),
-                periodeSlutt = LocalDate.of(2023, 1, 31),
+            val invalidRequest = request.copy(
+                periodeStart = LocalDate.of(2024, 12, 1),
+                periodeSlutt = LocalDate.of(2025, 1, 31),
             )
 
-            service.upsert(request, NavAnsattFixture.ansatt1.navIdent).shouldBeLeft() shouldBe listOf(
+            service.upsert(invalidRequest, ansatt1).shouldBeLeft() shouldBe listOf(
                 FieldError(
                     pointer = "/periodeStart",
-                    detail = "Minimum startdato for tilsagn til Arbeidsforberedende trening (AFT) er 01.01.2023",
+                    detail = "Minimum startdato for tilsagn til Arbeidsforberedende trening (AFT) er 01.01.2025",
                 ),
             )
         }
 
-        test("oppretter tilsagn med rikitg periode") {
-            MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-            ).initialize(database.db)
+        test("oppretter tilsagn med riktig periode og totrinnskontroll") {
+            val service = createTilsagnService()
 
-            service.upsert(tilsagn, NavAnsattFixture.ansatt1.navIdent).shouldBeRight()
+            service.upsert(request, ansatt1).shouldBeRight().should {
+                it.status shouldBe TilsagnStatus.TIL_GODKJENNING
+                it.periode shouldBe Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1))
+            }
 
-            service.getAll().shouldHaveSize(1).first().should {
-                it.periode shouldBe Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 2, 1))
+            database.run {
+                queries.totrinnskontroll.getAll(request.id).shouldHaveSize(1).first().should {
+                    it.behandletAv shouldBe ansatt1
+                    it.type shouldBe Totrinnskontroll.Type.OPPRETT
+                }
             }
         }
 
         test("genererer løpenummer og bestillingsnummer") {
+            val service = createTilsagnService()
+
             val domain2 = MulighetsrommetTestDomain(
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1, AFT1.copy(id = UUID.randomUUID())),
@@ -157,23 +160,22 @@ class TilsagnServiceTest : FunSpec({
             val tilsagn3 = UUID.randomUUID()
 
             service.upsert(
-                tilsagn,
-                NavAnsattFixture.ansatt1.navIdent,
+                request,
+                ansatt1,
             ).shouldBeRight()
             service.upsert(
-                tilsagn.copy(id = tilsagn2),
-                NavAnsattFixture.ansatt1.navIdent,
+                request.copy(id = tilsagn2),
+                ansatt1,
             ).shouldBeRight()
             service.upsert(
-                tilsagn.copy(id = tilsagn3, gjennomforingId = domain2.gjennomforinger[1].id),
-                NavAnsattFixture.ansatt1.navIdent,
+                request.copy(id = tilsagn3, gjennomforingId = domain2.gjennomforinger[1].id),
+                ansatt1,
             ).shouldBeRight()
 
             database.run {
                 val aft1 = queries.gjennomforing.get(domain2.gjennomforinger[0].id).shouldNotBeNull()
-                queries.tilsagn.get(tilsagn.id).shouldNotBeNull().should {
+                queries.tilsagn.get(request.id).shouldNotBeNull().should {
                     it.lopenummer shouldBe 1
-                    it.bestillingsnummer shouldBe "A-${aft1.lopenummer}-1"
                 }
 
                 queries.tilsagn.get(tilsagn2).shouldNotBeNull().should {
@@ -188,108 +190,205 @@ class TilsagnServiceTest : FunSpec({
                 }
             }
         }
+    }
 
-        test("overskriver ikke eksisterende løpenummer") {
-            MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-            ).initialize(database.db)
+    context("slett tilsagn") {
+        test("kan ikke slette tilsagn når det er til godkjenning") {
+            val service = createTilsagnService()
 
-            service.upsert(
-                tilsagn,
-                NavAnsattFixture.ansatt1.navIdent,
-            ).shouldBeRight()
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
-            database.run {
-                val aft1 = queries.gjennomforing.get(AFT1.id).shouldNotBeNull()
-                queries.tilsagn.get(tilsagn.id).shouldNotBeNull().should {
-                    it.lopenummer shouldBe 1
-                    it.bestillingsnummer shouldBe "A-${aft1.lopenummer}-1"
-                }
-            }
+            service.slettTilsagn(request.id) shouldBeLeft BadRequest("Kan ikke slette tilsagn som er godkjent")
+        }
+
+        test("kan ikke slette tilsagn når det er godkjent") {
+            val service = createTilsagnService()
+
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
+            service.beslutt(
+                id = request.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = ansatt2,
+            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
+
+            service.slettTilsagn(request.id) shouldBeLeft BadRequest("Kan ikke slette tilsagn som er godkjent")
+        }
+
+        test("kan slette tilsagn når det er returnert") {
+            val service = createTilsagnService()
+
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
+            service.beslutt(
+                request.id,
+                BesluttTilsagnRequest.AvvistTilsagnRequest(
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
+                ansatt2,
+            ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
+
+            service.slettTilsagn(request.id).shouldBeRight()
+
+            service.getAll() shouldHaveSize 0
         }
     }
 
     context("beslutt tilsagn") {
-        test("kan ikke beslutte egne") {
-            MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1),
-            ).initialize(database.db)
+        test("kan ikke beslutte egne opprettelser") {
             val service = createTilsagnService()
 
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
             service.beslutt(
-                id = Tilsagn1.id,
+                id = request.id,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
-                navIdent = NavAnsattFixture.ansatt1.navIdent,
+                navIdent = ansatt1,
             ) shouldBe Forbidden("Kan ikke beslutte eget tilsagn").left()
         }
 
         test("kan ikke beslutte to ganger") {
-            MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1),
-            ).initialize(database.db)
-
             val service = createTilsagnService()
 
-            service.beslutt(
-                id = Tilsagn1.id,
-                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
-                navIdent = NavAnsattFixture.ansatt2.navIdent,
-            ).shouldBeRight()
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.beslutt(
-                id = Tilsagn1.id,
+                id = request.id,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
-                navIdent = NavAnsattFixture.ansatt2.navIdent,
+                navIdent = ansatt2,
+            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
+
+            service.beslutt(
+                id = request.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = ansatt2,
             ) shouldBe BadRequest("Tilsagnet kan ikke besluttes fordi det har status GODKJENT").left()
         }
 
         test("godkjent tilsagn trigger melding til økonomi") {
-            MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1),
-            ).initialize(database.db)
-
             val okonomi = mockk<OkonomiBestillingService>()
             every { okonomi.scheduleBehandleGodkjentTilsagn(any(), any()) } returns Unit
 
             val service = createTilsagnService(okonomi)
+
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
             service.beslutt(
-                id = Tilsagn1.id,
+                id = request.id,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
-                navIdent = NavAnsattFixture.ansatt2.navIdent,
-            ).shouldBeRight()
+                navIdent = ansatt2,
+            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             verify(exactly = 1) {
-                okonomi.scheduleBehandleGodkjentTilsagn(Tilsagn1.id, any())
+                okonomi.scheduleBehandleGodkjentTilsagn(request.id, any())
+            }
+        }
+
+        test("totrinnskontroll blir oppdatert i forbindelse med opprettelse av tilsagn") {
+            val service = createTilsagnService()
+
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
+            database.run {
+                queries.totrinnskontroll.get(request.id, Totrinnskontroll.Type.OPPRETT).shouldNotBeNull().should {
+                    it.behandletAv shouldBe ansatt1
+                    it.besluttetAv shouldBe null
+                    it.besluttelse shouldBe null
+                }
+            }
+
+            service.beslutt(
+                id = request.id,
+                navIdent = ansatt2,
+                besluttelse = BesluttTilsagnRequest.AvvistTilsagnRequest(
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
+            ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
+
+            database.run {
+                queries.totrinnskontroll.get(request.id, Totrinnskontroll.Type.OPPRETT).shouldNotBeNull().should {
+                    it.behandletAv shouldBe ansatt1
+                    it.besluttetAv shouldBe ansatt2
+                    it.besluttelse shouldBe Besluttelse.AVVIST
+                }
+            }
+
+            service.upsert(request, NavIdent("T888888"))
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
+            database.run {
+                queries.totrinnskontroll.get(request.id, Totrinnskontroll.Type.OPPRETT).shouldNotBeNull().should {
+                    it.behandletAv shouldBe NavIdent("T888888")
+                    it.besluttetAv shouldBe null
+                    it.besluttelse shouldBe null
+                }
+            }
+
+            service.beslutt(
+                id = request.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = ansatt2,
+            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
+
+            database.run {
+                queries.totrinnskontroll.get(request.id, Totrinnskontroll.Type.OPPRETT).shouldNotBeNull().should {
+                    it.behandletAv shouldBe NavIdent("T888888")
+                    it.besluttetAv shouldBe ansatt2
+                    it.besluttelse shouldBe Besluttelse.GODKJENT
+                }
+
+                queries.totrinnskontroll.getAll(request.id).shouldHaveSize(2)
+            }
+        }
+
+        test("løpenummer beholdes når tilsagn blir returnert") {
+            val service = createTilsagnService()
+
+            val aft1 = database.run { queries.gjennomforing.get(AFT1.id).shouldNotBeNull() }
+
+            service.upsert(request, ansatt1).shouldBeRight().should {
+                it.status shouldBe TilsagnStatus.TIL_GODKJENNING
+                it.lopenummer shouldBe 1
+                it.bestillingsnummer shouldBe "A-${aft1.lopenummer}-1"
+            }
+
+            service.beslutt(
+                id = request.id,
+                navIdent = ansatt2,
+                besluttelse = BesluttTilsagnRequest.AvvistTilsagnRequest(
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
+            ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
+
+            service.upsert(request, NavIdent("T888888")).shouldBeRight().should {
+                it.status shouldBe TilsagnStatus.TIL_GODKJENNING
+                it.lopenummer shouldBe 1
+                it.bestillingsnummer shouldBe "A-${aft1.lopenummer}-1"
             }
         }
     }
 
     context("annuller tilsagn") {
-        test("tilsagn må være godkjent for å kunne settes til annullering") {
-            MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1),
-            ).initialize(database.db)
-
+        test("totrinnskontroll blir oppdatert ved annullering av tilsagn") {
             val service = createTilsagnService()
+
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             shouldThrow<IllegalArgumentException> {
                 service.tilAnnulleringRequest(
-                    id = Tilsagn1.id,
-                    navIdent = NavAnsattFixture.ansatt2.navIdent,
+                    id = request.id,
+                    navIdent = ansatt2,
                     request = TilAnnulleringRequest(
                         aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                         forklaring = "Velg et annet beløp",
@@ -298,51 +397,44 @@ class TilsagnServiceTest : FunSpec({
             }.message shouldBe "Kan bare annullere godkjente tilsagn"
 
             service.beslutt(
-                id = Tilsagn1.id,
+                id = request.id,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
-                navIdent = NavAnsattFixture.ansatt2.navIdent,
-            ).shouldBeRight()
+                navIdent = ansatt2,
+            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
-            val dto = service.tilAnnulleringRequest(
-                id = Tilsagn1.id,
-                navIdent = NavAnsattFixture.ansatt1.navIdent,
+            service.tilAnnulleringRequest(
+                id = request.id,
+                navIdent = ansatt1,
                 request = TilAnnulleringRequest(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = "Velg et annet beløp",
                 ),
-            )
-            dto.status shouldBe TilsagnStatus.TIL_ANNULLERING
-            dto.annullering.shouldNotBeNull().should {
-                it.behandletAv shouldBe NavAnsattFixture.ansatt1.navIdent
-                it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
-                it.forklaring shouldBe "Velg et annet beløp"
+            ).status shouldBe TilsagnStatus.TIL_ANNULLERING
+
+            database.run {
+                queries.totrinnskontroll.get(request.id, Totrinnskontroll.Type.ANNULLER).shouldNotBeNull().should {
+                    it.behandletAv shouldBe ansatt1
+                    it.besluttetAv shouldBe null
+                    it.besluttelse shouldBe null
+                    it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
+                    it.forklaring shouldBe "Velg et annet beløp"
+                }
             }
-        }
 
-        test("godkjenn annullering av tilsagn") {
-            MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1),
-            ) {
-                setTilsagnStatus(Tilsagn1, TilsagnStatus.TIL_ANNULLERING)
-            }.initialize(database.db)
+            service.beslutt(
+                id = request.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = ansatt2,
+            ).shouldBeRight().status shouldBe TilsagnStatus.ANNULLERT
 
-            val service = createTilsagnService()
-
-            val dto = service.beslutt(
-                Tilsagn1.id,
-                BesluttTilsagnRequest.GodkjentTilsagnRequest,
-                NavAnsattFixture.ansatt2.navIdent,
-            ).shouldBeRight()
-            dto.status shouldBe TilsagnStatus.ANNULLERT
-            dto.annullering.shouldNotBeNull().should {
-                it.behandletAv shouldBe NavAnsattFixture.ansatt1.navIdent
-                it.besluttetAv shouldBe NavAnsattFixture.ansatt2.navIdent
-                it.besluttelse shouldBe Besluttelse.GODKJENT
-                it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
-                it.forklaring shouldBe "Velg et annet beløp"
+            database.run {
+                queries.totrinnskontroll.get(request.id, Totrinnskontroll.Type.ANNULLER).shouldNotBeNull().should {
+                    it.behandletAv shouldBe ansatt1
+                    it.besluttetAv shouldBe ansatt2
+                    it.besluttelse shouldBe Besluttelse.GODKJENT
+                    it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
+                    it.forklaring shouldBe "Velg et annet beløp"
+                }
             }
         }
 
@@ -351,228 +443,110 @@ class TilsagnServiceTest : FunSpec({
             every { okonomi.scheduleBehandleGodkjentTilsagn(any(), any()) } returns Unit
             every { okonomi.scheduleBehandleAnnullertTilsagn(any(), any()) } returns Unit
 
-            MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1),
-            ) {
-                setTilsagnStatus(Tilsagn1, TilsagnStatus.TIL_ANNULLERING)
-            }.initialize(database.db)
-
             val service = createTilsagnService(okonomi)
+
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
             service.beslutt(
-                id = Tilsagn1.id,
+                id = request.id,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
-                navIdent = NavAnsattFixture.ansatt2.navIdent,
-            ).shouldBeRight()
+                navIdent = ansatt2,
+            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             verify(exactly = 1) {
-                okonomi.scheduleBehandleAnnullertTilsagn(Tilsagn1.id, any())
+                okonomi.scheduleBehandleGodkjentTilsagn(request.id, any())
+            }
+
+            service.tilAnnulleringRequest(
+                id = request.id,
+                navIdent = ansatt1,
+                request = TilAnnulleringRequest(
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = "Velg et annet beløp",
+                ),
+            ).status shouldBe TilsagnStatus.TIL_ANNULLERING
+
+            service.beslutt(
+                id = request.id,
+                besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
+                navIdent = ansatt2,
+            ).shouldBeRight().status shouldBe TilsagnStatus.ANNULLERT
+
+            verify(exactly = 1) {
+                okonomi.scheduleBehandleAnnullertTilsagn(request.id, any())
             }
         }
     }
 
-    context("slett tilsagn") {
-        test("kan slette tilsagn når det er avvist") {
-            MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1),
-            ) {
-                setTilsagnStatus(Tilsagn1, TilsagnStatus.RETURNERT)
-            }.initialize(database.db)
-
+    context("frigjør tilsagn") {
+        test("totrinnskontroll kreves for frigjøring av tilsagn") {
             val service = createTilsagnService()
 
-            service.slettTilsagn(Tilsagn1.id).shouldBeRight()
-
-            service.getAll() shouldHaveSize 0
-        }
-
-        test("kan ikke slette tilsagn når det er godkjent") {
-            MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1),
-            ) {
-                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
-
-            val service = createTilsagnService()
-            service.slettTilsagn(Tilsagn1.id) shouldBeLeft BadRequest("Kan ikke slette tilsagn som er godkjent")
-        }
-    }
-
-    context("endre status på tilsagn") {
-        test("send til godkjenning på nytt etter returnert kan endre hvem som har behandlet") {
-            MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1),
-            ).initialize(database.db)
-
-            val service = createTilsagnService()
-            service.getAll()[0].status shouldBe TilsagnStatus.TIL_GODKJENNING
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.beslutt(
-                id = Tilsagn1.id,
-                navIdent = NavAnsattFixture.ansatt2.navIdent,
-                besluttelse = BesluttTilsagnRequest.AvvistTilsagnRequest(
-                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                    forklaring = null,
-                ),
-            ).shouldBeRight()
-            service.getAll()[0].status shouldBe TilsagnStatus.RETURNERT
-
-            service.upsert(
-                TilsagnRequest(
-                    id = Tilsagn1.id,
-                    gjennomforingId = Tilsagn1.gjennomforingId,
-                    type = Tilsagn1.type,
-                    periodeStart = Tilsagn1.periode.start,
-                    periodeSlutt = Tilsagn1.periode.getLastInclusiveDate(),
-                    kostnadssted = Tilsagn1.kostnadssted,
-                    beregning = Tilsagn1.beregning.input,
-                ),
-                navIdent = NavIdent("T888888"),
-            ).shouldBeRight()
-            service.getAll()[0].status shouldBe TilsagnStatus.TIL_GODKJENNING
-
-            service.getAll()[0].opprettelse.behandletAv shouldBe NavIdent("T888888")
-        }
-
-        test("Hver upsert genererer ny rad i totrinnskontroll") {
-            MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1),
-            ).initialize(database.db)
-
-            val service = createTilsagnService()
-
-            service.beslutt(
-                id = Tilsagn1.id,
-                navIdent = NavAnsattFixture.ansatt2.navIdent,
-                besluttelse = BesluttTilsagnRequest.AvvistTilsagnRequest(
-                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                    forklaring = null,
-                ),
-            ).shouldBeRight()
-
-            service.upsert(
-                TilsagnRequest(
-                    id = Tilsagn1.id,
-                    gjennomforingId = Tilsagn1.gjennomforingId,
-                    type = Tilsagn1.type,
-                    periodeStart = Tilsagn1.periode.start,
-                    periodeSlutt = Tilsagn1.periode.getLastInclusiveDate(),
-                    kostnadssted = Tilsagn1.kostnadssted,
-                    beregning = Tilsagn1.beregning.input,
-                ),
-                navIdent = NavIdent("T888888"),
-            ).shouldBeRight()
-
-            service.beslutt(
-                id = Tilsagn1.id,
-                navIdent = NavAnsattFixture.ansatt2.navIdent,
-                besluttelse = BesluttTilsagnRequest.AvvistTilsagnRequest(
-                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                    forklaring = null,
-                ),
-            ).shouldBeRight()
-            service.getAll()[0].status shouldBe TilsagnStatus.RETURNERT
-
-            service.upsert(
-                TilsagnRequest(
-                    id = Tilsagn1.id,
-                    gjennomforingId = Tilsagn1.gjennomforingId,
-                    type = Tilsagn1.type,
-                    periodeStart = Tilsagn1.periode.start,
-                    periodeSlutt = Tilsagn1.periode.getLastInclusiveDate(),
-                    kostnadssted = Tilsagn1.kostnadssted,
-                    beregning = TilsagnBeregningFri.Input(belop = 7),
-                ),
-                navIdent = NavIdent("Z777777"),
-            ).shouldBeRight()
-            service.getAll()[0].opprettelse.behandletAv shouldBe NavIdent("Z777777")
-
-            @Language("PostgreSQL")
-            val query = """
-                select * from totrinnskontroll where entity_id = '${Tilsagn1.id}' and type = 'OPPRETT'
-            """.trimIndent()
-            database.run {
-                session.list(queryOf(query)) { it.localDateTime("behandlet_tidspunkt") to it.string("behandlet_av") }
-            } shouldHaveSize 3
-        }
-
-        test("frigjør tilsagn") {
-            MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1),
-            ).initialize(database.db)
-
-            val service = createTilsagnService()
-
-            service.beslutt(
-                id = Tilsagn1.id,
-                navIdent = NavAnsattFixture.ansatt2.navIdent,
+                id = request.id,
+                navIdent = ansatt2,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
-            ).shouldBeRight()
+            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             service.tilFrigjoringRequest(
-                id = Tilsagn1.id,
-                navIdent = NavAnsattFixture.ansatt1.navIdent,
+                id = request.id,
+                navIdent = ansatt1,
                 request = TilAnnulleringRequest(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
                 ),
-            )
-            service.getAll()[0].status shouldBe TilsagnStatus.TIL_FRIGJORING
+            ).status shouldBe TilsagnStatus.TIL_FRIGJORING
+
+            database.run {
+                queries.totrinnskontroll.get(request.id, Totrinnskontroll.Type.FRIGJOR).shouldNotBeNull().should {
+                    it.behandletAv shouldBe ansatt1
+                    it.besluttetAv shouldBe null
+                    it.besluttelse shouldBe null
+                }
+            }
 
             service.beslutt(
-                id = Tilsagn1.id,
-                navIdent = NavAnsattFixture.ansatt2.navIdent,
+                id = request.id,
+                navIdent = ansatt2,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
-            ).shouldBeRight()
-            val dto = service.getAll()[0]
-            dto.status shouldBe TilsagnStatus.FRIGJORT
-            dto.frigjoring shouldNotBe null
-            dto.frigjoring!!.behandletAv shouldBe NavAnsattFixture.ansatt1.navIdent
-            dto.frigjoring!!.besluttetAv shouldBe NavAnsattFixture.ansatt2.navIdent
-            dto.frigjoring!!.besluttelse shouldBe Besluttelse.GODKJENT
+            ).shouldBeRight().status shouldBe TilsagnStatus.FRIGJORT
+
+            database.run {
+                queries.totrinnskontroll.get(request.id, Totrinnskontroll.Type.FRIGJOR).shouldNotBeNull().should {
+                    it.behandletAv shouldBe ansatt1
+                    it.besluttetAv shouldBe ansatt2
+                    it.besluttelse shouldBe Besluttelse.GODKJENT
+                }
+            }
         }
 
-        test("frigjør tilsagn automatisk") {
-            MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1),
-            ).initialize(database.db)
-
+        test("systemet kan frigjøre tilsagnet uten en ekstra part i totrinnskontroll") {
             val service = createTilsagnService()
+
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
             service.beslutt(
-                id = Tilsagn1.id,
-                navIdent = NavAnsattFixture.ansatt2.navIdent,
+                id = request.id,
+                navIdent = ansatt2,
                 besluttelse = BesluttTilsagnRequest.GodkjentTilsagnRequest,
-            ).shouldBeRight()
+            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             database.db.session {
-                service.frigjorAutomatisk(id = Tilsagn1.id, this)
+                service.frigjorAutomatisk(id = request.id, this)
+            }.status shouldBe TilsagnStatus.FRIGJORT
+
+            database.run {
+                queries.totrinnskontroll.get(request.id, Totrinnskontroll.Type.FRIGJOR).shouldNotBeNull().should {
+                    it.behandletAv shouldBe Tiltaksadministrasjon
+                    it.besluttetAv shouldBe Tiltaksadministrasjon
+                    it.besluttelse shouldBe Besluttelse.GODKJENT
+                }
             }
-            val dto = service.getAll()[0]
-            dto.status shouldBe TilsagnStatus.FRIGJORT
-            dto.frigjoring shouldNotBe null
-            dto.frigjoring!!.behandletAv shouldBe Tiltaksadministrasjon
-            dto.frigjoring!!.besluttetAv shouldBe Tiltaksadministrasjon
-            dto.frigjoring!!.besluttelse shouldBe Besluttelse.GODKJENT
         }
     }
 })

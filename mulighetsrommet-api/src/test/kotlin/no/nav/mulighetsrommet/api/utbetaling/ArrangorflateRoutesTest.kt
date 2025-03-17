@@ -92,8 +92,6 @@ class ArrangorflateRoutesTest : FunSpec({
             output = TilsagnBeregningFri.Output(1000),
         ),
         arrangorId = ArrangorFixtures.underenhet1.id,
-        behandletAv = NavAnsattFixture.ansatt1.navIdent,
-        behandletTidspunkt = LocalDateTime.now(),
         type = TilsagnType.TILSAGN,
     )
 

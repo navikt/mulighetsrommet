@@ -9,35 +9,28 @@ import { TilsagnRequest } from "@mr/api-client-v2";
 import { Alert, Heading, VStack } from "@navikt/ds-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
-import { usePotentialAvtale } from "../../../../api/avtaler/useAvtale";
-import { useAdminGjennomforingById } from "../../../../api/gjennomforing/useAdminGjennomforingById";
+import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
+import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { tilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
 import { godkjenteTilsagnQuery } from "../opprett/opprettTilsagnLoader";
 import { TilsagnTabell } from "../tabell/TilsagnTabell";
-import { Laster } from "../../../../components/laster/Laster";
+import { Laster } from "@/components/laster/Laster";
 
 function useRedigerTilsagnFormData() {
   const { gjennomforingId, tilsagnId } = useParams();
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
   const { data: avtale } = usePotentialAvtale(gjennomforing?.avtaleId);
-  const { data: tilsagnData } = useSuspenseQuery({ ...tilsagnQuery(tilsagnId) });
+  const { data: tilsagnDetaljer } = useSuspenseQuery({ ...tilsagnQuery(tilsagnId) });
   const { data: godkjenteTilsagn } = useSuspenseQuery({
     ...godkjenteTilsagnQuery(gjennomforingId),
   });
 
-  return {
-    avtale,
-    gjennomforing,
-    tilsagnData,
-    godkjenteTilsagn,
-  };
+  return { avtale, gjennomforing, godkjenteTilsagn, tilsagn: tilsagnDetaljer.data.tilsagn };
 }
 
 export function RedigerTilsagnFormPage() {
   const { gjennomforingId } = useParams();
-  const { avtale, gjennomforing, tilsagnData, godkjenteTilsagn } = useRedigerTilsagnFormData();
-
-  const tilsagn = tilsagnData.data;
+  const { avtale, gjennomforing, godkjenteTilsagn, tilsagn } = useRedigerTilsagnFormData();
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     {
@@ -60,7 +53,7 @@ export function RedigerTilsagnFormPage() {
     periodeSlutt: tilsagn.periode.slutt,
     kostnadssted: tilsagn.kostnadssted.enhetsnummer,
     beregning: tilsagn.beregning.input,
-    gjennomforingId: gjennomforingId!,
+    gjennomforingId: gjennomforing.id,
   };
 
   if (!avtale) {

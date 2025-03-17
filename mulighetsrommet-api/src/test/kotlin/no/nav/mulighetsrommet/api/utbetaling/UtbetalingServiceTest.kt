@@ -627,13 +627,7 @@ class UtbetalingServiceTest : FunSpec({
                 tilsagn = listOf(Tilsagn1),
                 utbetalinger = listOf(
                     utbetaling1.copy(
-                        periode = Periode.forMonthOf(
-                            LocalDate.of(
-                                2023,
-                                4,
-                                4,
-                            ),
-                        ),
+                        periode = Periode.forMonthOf(LocalDate.of(2023, 4, 4)),
                     ),
                 ),
             ) {
