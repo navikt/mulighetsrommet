@@ -1,4 +1,4 @@
-import { ArrangorflateTilsagn } from "@mr/api-client-v2";
+import { ArrangorflateTilsagn } from "api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { formaterPeriode } from "~/utils";
 import { Definisjonsliste, Definition } from "../Definisjonsliste";

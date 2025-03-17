@@ -1,6 +1,6 @@
-import { Arrangor, ArrangorflateService } from "@mr/api-client-v2";
+import { Arrangor, ArrangorflateService } from "api-client";
 import { BodyShort, Box, Heading } from "@navikt/ds-react";
-import { LoaderFunction, redirect } from "react-router";
+import { LoaderFunction, useNavigate } from "react-router";
 import {
   isRouteErrorResponse,
   Links,
@@ -13,21 +13,26 @@ import {
   useRouteError,
 } from "react-router";
 import parse from "html-react-parser";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { Header } from "./components/Header";
 import css from "./root.module.css";
 import { Dekoratørfragmenter, hentSsrDekoratør } from "./services/dekoratør/dekorator.server";
 import useInjectDecoratorScript from "./services/dekoratør/useInjectScript";
 import "./tailwind.css";
 import { apiHeaders } from "./auth/auth.server";
+import { problemDetailResponse } from "./utils";
 
 export const meta: MetaFunction = () => [{ title: "Utbetalinger" }];
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const { data: arrangortilganger } =
+  const { data: arrangortilganger, error } =
     await ArrangorflateService.getArrangorerInnloggetBrukerHarTilgangTil({
       headers: await apiHeaders(request),
     });
+
+  if (!arrangortilganger || error) {
+    throw problemDetailResponse(error);
+  }
 
   return {
     dekorator: await hentSsrDekoratør(),
@@ -82,24 +87,29 @@ function Dokument({
 }
 
 export const ErrorBoundary = () => {
+  const navigate = useNavigate();
   const error = useRouteError();
 
-  if (isRouteErrorResponse(error)) {
-    if (error.status === 401) {
-      return redirectTilInnlogging();
+  useEffect(() => {
+    if (isRouteErrorResponse(error)) {
+      if (error.status === 401) {
+        navigate(`/oauth2/login?redirect=${window.location.pathname}`);
+      }
+      if (error.status === 403) {
+        navigate("/ingen-tilgang"); // Use navigate inside useEffect
+      }
     }
-    if (error.status === 403) {
-      return redirect(`ingen-tilgang`);
-    }
+  }, [error, navigate]);
 
+  if (isRouteErrorResponse(error)) {
     return (
       <Dokument arrangorer={[]}>
         <Heading spacing size="large" level="2">
           {error.status}
         </Heading>
         <Box background="bg-default" padding={"10"}>
-          <BodyShort>Det skjedde en uventet feil</BodyShort>
-          <BodyShort>{error.data.message}</BodyShort>
+          <BodyShort>{error.data.title}</BodyShort>
+          <BodyShort>{error.data.detail}</BodyShort>
         </Box>
       </Dokument>
     );
@@ -115,12 +125,6 @@ export const ErrorBoundary = () => {
         </Box>
       </Dokument>
     );
-  }
-};
-
-const redirectTilInnlogging = () => {
-  if (typeof window !== "undefined") {
-    window.location.href = `/oauth2/login?redirect=${window.location.pathname}`;
   }
 };
 

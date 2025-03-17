@@ -1,4 +1,4 @@
-import { ArrFlateUtbetaling } from "@mr/api-client-v2";
+import { ArrFlateUtbetaling } from "api-client";
 import { Definisjonsliste } from "../Definisjonsliste";
 
 interface Props {

@@ -1,11 +1,11 @@
-import { ArrangorflateService, ArrangorflateTilsagn } from "@mr/api-client-v2";
+import { ArrangorflateService, ArrangorflateTilsagn } from "api-client";
 import { LoaderFunction } from "react-router";
 import { useLoaderData } from "react-router";
 import { Definisjonsliste } from "~/components/Definisjonsliste";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { PageHeader } from "../components/PageHeader";
 import { internalNavigation } from "../internal-navigation";
-import { useOrgnrFromUrl } from "../utils";
+import { problemDetailResponse, useOrgnrFromUrl } from "../utils";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnStatusTag } from "~/components/tilsagn/TilsagnStatusTag";
 import { tekster } from "../tekster";
@@ -18,10 +18,14 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   const { id } = params;
   if (!id) throw Error("Mangler id");
 
-  const { data: tilsagn } = await ArrangorflateService.getArrangorflateTilsagn({
+  const { data: tilsagn, error } = await ArrangorflateService.getArrangorflateTilsagn({
     path: { id },
     headers: await apiHeaders(request),
   });
+
+  if (error || !tilsagn) {
+    throw problemDetailResponse(error);
+  }
 
   return { tilsagn };
 };

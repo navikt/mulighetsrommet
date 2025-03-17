@@ -1,5 +1,5 @@
 import { useParams } from "react-router";
-import { Periode } from "@mr/api-client-v2";
+import { Periode, ProblemDetail } from "api-client";
 
 export function formaterPeriode(periode: Periode) {
   const start = formaterDato(periode.start);
@@ -35,4 +35,11 @@ export function subtractDays(date: Date, numDays: number): Date {
   const newDate = new Date(date);
   newDate.setDate(date.getDate() - numDays);
   return newDate;
+}
+
+export function problemDetailResponse(error: ProblemDetail): Response {
+  return new Response(JSON.stringify(error), {
+    status: error.status,
+    headers: { "Content-Type": "application/json" },
+  });
 }

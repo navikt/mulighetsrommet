@@ -2,7 +2,7 @@ import {
   ArrangorflateService,
   ArrFlateUtbetalingKompakt,
   ArrFlateUtbetalingStatus,
-} from "@mr/api-client-v2";
+} from "api-client";
 import { Tabs } from "@navikt/ds-react";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { useLoaderData } from "react-router";
@@ -11,6 +11,7 @@ import { TilsagnTable } from "~/components/tilsagn/TilsagnTable";
 import { PageHeader } from "../components/PageHeader";
 import { useTabState } from "../hooks/useTabState";
 import { apiHeaders } from "~/auth/auth.server";
+import { problemDetailResponse } from "~/utils";
 
 export const meta: MetaFunction = () => {
   return [
@@ -26,14 +27,25 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!orgnr) {
     throw new Error("Mangler orgnr");
   }
-  const { data: utbetalinger } = await ArrangorflateService.getAllUtbetaling({
-    path: { orgnr },
-    headers: await apiHeaders(request),
-  });
-  const { data: tilsagn } = await ArrangorflateService.getAllArrangorflateTilsagn({
-    path: { orgnr },
-    headers: await apiHeaders(request),
-  });
+
+  const [{ data: utbetalinger, error: utbetalingerError }, { data: tilsagn, error: tilsagnError }] =
+    await Promise.all([
+      ArrangorflateService.getAllUtbetaling({
+        path: { orgnr },
+        headers: await apiHeaders(request),
+      }),
+      ArrangorflateService.getAllArrangorflateTilsagn({
+        path: { orgnr },
+        headers: await apiHeaders(request),
+      }),
+    ]);
+
+  if (utbetalingerError || !utbetalinger) {
+    throw problemDetailResponse(utbetalingerError);
+  }
+  if (tilsagnError || !tilsagn) {
+    throw problemDetailResponse(tilsagnError);
+  }
 
   return { utbetalinger, tilsagn };
 }
