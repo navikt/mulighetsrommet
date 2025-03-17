@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
-import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
@@ -10,7 +9,6 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 object TilsagnFixtures {
@@ -73,129 +71,50 @@ object TilsagnFixtures {
         arrangorId = ArrangorFixtures.underenhet1.id,
         type = TilsagnType.TILSAGN,
     )
+}
 
-    fun QueryContext.setTilsagnStatus(
-        tilsagnDbo: TilsagnDbo,
-        status: TilsagnStatus,
-        behandletAv: NavIdent = NavAnsattFixture.ansatt1.navIdent,
-        besluttetAv: NavIdent = NavAnsattFixture.ansatt2.navIdent,
-    ) {
-        val dto = queries.tilsagn.get(tilsagnDbo.id)
-            ?: throw IllegalStateException("Tilsagnet må være gitt til domain først")
-        when (status) {
-            TilsagnStatus.TIL_GODKJENNING -> {
-                queries.totrinnskontroll.upsert(
-                    tilGodkjenning(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv),
-                )
-                queries.tilsagn.setStatus(dto.id, TilsagnStatus.TIL_GODKJENNING)
-            }
+fun QueryContext.setTilsagnStatus(
+    tilsagnDbo: TilsagnDbo,
+    status: TilsagnStatus,
+    behandletAv: NavIdent = NavAnsattFixture.ansatt1.navIdent,
+    besluttetAv: NavIdent = NavAnsattFixture.ansatt2.navIdent,
+) {
+    val dto = queries.tilsagn.get(tilsagnDbo.id)
+        ?: throw IllegalStateException("Tilsagnet må være gitt til domain først")
 
-            TilsagnStatus.GODKJENT -> {
-                queries.totrinnskontroll.upsert(
-                    godkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv),
-                )
-                queries.tilsagn.setStatus(dto.id, TilsagnStatus.GODKJENT)
-            }
+    queries.tilsagn.setStatus(dto.id, status)
 
-            TilsagnStatus.TIL_FRIGJORING -> {
-                queries.totrinnskontroll.upsert(
-                    godkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv),
-                )
-                queries.totrinnskontroll.upsert(
-                    tilGodkjenning(tilsagnDbo.id, Totrinnskontroll.Type.FRIGJOR, behandletAv),
-                )
-                queries.tilsagn.setStatus(dto.id, TilsagnStatus.TIL_FRIGJORING)
-            }
+    when (status) {
+        TilsagnStatus.TIL_GODKJENNING -> {
+            setTilGodkjenning(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv)
+        }
 
-            TilsagnStatus.FRIGJORT -> {
-                queries.totrinnskontroll.upsert(
-                    godkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv),
-                )
-                queries.totrinnskontroll.upsert(
-                    godkjent(tilsagnDbo.id, Totrinnskontroll.Type.FRIGJOR, behandletAv, besluttetAv),
-                )
-                queries.tilsagn.setStatus(dto.id, TilsagnStatus.FRIGJORT)
-            }
+        TilsagnStatus.GODKJENT -> {
+            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv)
+        }
 
-            TilsagnStatus.RETURNERT -> {
-                queries.totrinnskontroll.upsert(
-                    avvist(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv),
-                )
-                queries.tilsagn.setStatus(dto.id, TilsagnStatus.RETURNERT)
-            }
+        TilsagnStatus.TIL_FRIGJORING -> {
+            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv)
+            setTilGodkjenning(tilsagnDbo.id, Totrinnskontroll.Type.FRIGJOR, behandletAv)
+        }
 
-            TilsagnStatus.TIL_ANNULLERING -> {
-                queries.totrinnskontroll.upsert(
-                    godkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv),
-                )
-                queries.totrinnskontroll.upsert(
-                    tilGodkjenning(tilsagnDbo.id, Totrinnskontroll.Type.ANNULLER, behandletAv),
-                )
-                queries.tilsagn.setStatus(dto.id, TilsagnStatus.TIL_ANNULLERING)
-            }
+        TilsagnStatus.FRIGJORT -> {
+            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv)
+            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.FRIGJOR, behandletAv, besluttetAv)
+        }
 
-            TilsagnStatus.ANNULLERT -> {
-                queries.totrinnskontroll.upsert(
-                    godkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv),
-                )
-                queries.totrinnskontroll.upsert(
-                    godkjent(tilsagnDbo.id, Totrinnskontroll.Type.ANNULLER, behandletAv, besluttetAv),
-                )
-                queries.tilsagn.setStatus(dto.id, TilsagnStatus.ANNULLERT)
-            }
+        TilsagnStatus.RETURNERT -> {
+            setAvvist(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv)
+        }
+
+        TilsagnStatus.TIL_ANNULLERING -> {
+            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv)
+            setTilGodkjenning(tilsagnDbo.id, Totrinnskontroll.Type.ANNULLER, behandletAv)
+        }
+
+        TilsagnStatus.ANNULLERT -> {
+            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv)
+            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.ANNULLER, behandletAv, besluttetAv)
         }
     }
-
-    private fun tilGodkjenning(
-        uuid: UUID,
-        type: Totrinnskontroll.Type,
-        behandletAv: NavIdent,
-    ) = Totrinnskontroll(
-        id = UUID.randomUUID(),
-        entityId = uuid,
-        behandletAv = behandletAv,
-        aarsaker = emptyList(),
-        forklaring = null,
-        type = type,
-        behandletTidspunkt = LocalDateTime.now(),
-        besluttelse = null,
-        besluttetAv = null,
-        besluttetTidspunkt = null,
-    )
-
-    private fun godkjent(
-        uuid: UUID,
-        type: Totrinnskontroll.Type,
-        behandletAv: NavIdent,
-        besluttetAv: NavIdent,
-    ) = Totrinnskontroll(
-        id = UUID.randomUUID(),
-        entityId = uuid,
-        behandletAv = behandletAv,
-        aarsaker = emptyList(),
-        forklaring = null,
-        type = type,
-        behandletTidspunkt = LocalDateTime.now(),
-        besluttelse = Besluttelse.GODKJENT,
-        besluttetAv = besluttetAv,
-        besluttetTidspunkt = LocalDateTime.now(),
-    )
-
-    private fun avvist(
-        uuid: UUID,
-        type: Totrinnskontroll.Type,
-        behandletAv: NavIdent,
-        besluttetAv: NavIdent,
-    ) = Totrinnskontroll(
-        id = UUID.randomUUID(),
-        entityId = uuid,
-        behandletAv = behandletAv,
-        aarsaker = listOf("Årsak 1"),
-        forklaring = null,
-        type = type,
-        behandletTidspunkt = LocalDateTime.now(),
-        besluttelse = Besluttelse.AVVIST,
-        besluttetAv = besluttetAv,
-        besluttetTidspunkt = LocalDateTime.now(),
-    )
 }

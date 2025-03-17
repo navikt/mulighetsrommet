@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.model
 
 import no.nav.mulighetsrommet.api.arrangorflate.RelevanteForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
+import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
 
 enum class ArrFlateUtbetalingStatus {
@@ -17,7 +18,7 @@ enum class ArrFlateUtbetalingStatus {
             delutbetalinger: List<DelutbetalingDto>,
             relevanteForslag: List<RelevanteForslag>,
         ): ArrFlateUtbetalingStatus {
-            return if (delutbetalinger.isNotEmpty() && delutbetalinger.all { it is DelutbetalingDto.DelutbetalingUtbetalt }) {
+            return if (delutbetalinger.isNotEmpty() && delutbetalinger.all { it.status == DelutbetalingStatus.UTBETALT }) {
                 UTBETALT
             } else if (utbetaling.innsender != null) {
                 BEHANDLES_AV_NAV

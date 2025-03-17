@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
+import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.transactionalSchedulerClient
@@ -192,29 +192,31 @@ class OkonomiBestillingService(
         publish(tilsagn.bestillingsnummer, OkonomiBestillingMelding.Frigjoring(faktura))
     }
 
-    fun behandleGodkjentUtbetalinger(tilsagnId: UUID) {
-        val tilsagn = requireNotNull(db.session { queries.tilsagn.get(tilsagnId) }) {
+    fun behandleGodkjentUtbetalinger(tilsagnId: UUID): Unit = db.transaction {
+        val tilsagn = requireNotNull(queries.tilsagn.get(tilsagnId)) {
             "Tilsagn med id=$tilsagnId finnes ikke"
         }
         require(tilsagn.status in listOf(TilsagnStatus.GODKJENT, TilsagnStatus.FRIGJORT)) {
             "Tilsagn er ikke i riktig status id=$tilsagnId status=${tilsagn.status}"
         }
 
-        val delutbetalinger = db.session { queries.delutbetaling.getSkalSendesTilOkonomi(tilsagnId) }
-            .filterIsInstance<DelutbetalingDto.DelutbetalingOverfortTilUtbetaling>()
-            .sortedBy { it.opprettelse.besluttetTidspunkt }
-
-        delutbetalinger
-            .forEach { delutbetaling ->
+        queries.delutbetaling.getSkalSendesTilOkonomi(tilsagnId)
+            .filter { it.status == DelutbetalingStatus.GODKJENT }
+            .map {
+                val opprettelse = queries.totrinnskontroll.getOrError(it.id, Totrinnskontroll.Type.OPPRETT)
+                Pair(opprettelse, it)
+            }
+            .sortedBy { (opprettelse) -> opprettelse.besluttetTidspunkt }
+            .forEach { (opprettelse, delutbetaling) ->
                 log.info("Sender delutbetaling med utbetalingId: ${delutbetaling.utbetalingId} tilsagnId: ${delutbetaling.tilsagnId} på kafka")
-                val utbetaling = requireNotNull(db.session { queries.utbetaling.get(delutbetaling.utbetalingId) }) {
+                val utbetaling = requireNotNull(queries.utbetaling.get(delutbetaling.utbetalingId)) {
                     "Utbetaling med id=${delutbetaling.utbetalingId} finnes ikke"
                 }
                 val kontonummer = requireNotNull(utbetaling.betalingsinformasjon.kontonummer) {
                     "Kontonummer mangler for utbetaling med id=${utbetaling.id}"
                 }
-                requireNotNull(delutbetaling.opprettelse.besluttetTidspunkt)
-                requireNotNull(delutbetaling.opprettelse.besluttetAv)
+                requireNotNull(opprettelse.besluttetTidspunkt)
+                requireNotNull(opprettelse.besluttetAv)
 
                 val faktura = OpprettFaktura(
                     fakturanummer = delutbetaling.fakturanummer,
@@ -225,22 +227,20 @@ class OkonomiBestillingService(
                     ),
                     belop = delutbetaling.belop,
                     periode = delutbetaling.periode,
-                    behandletAv = delutbetaling.opprettelse.behandletAv.toOkonomiPart(),
-                    behandletTidspunkt = delutbetaling.opprettelse.behandletTidspunkt,
-                    besluttetAv = delutbetaling.opprettelse.besluttetAv.toOkonomiPart(),
-                    besluttetTidspunkt = delutbetaling.opprettelse.besluttetTidspunkt,
+                    behandletAv = opprettelse.behandletAv.toOkonomiPart(),
+                    behandletTidspunkt = opprettelse.behandletTidspunkt,
+                    besluttetAv = opprettelse.besluttetAv.toOkonomiPart(),
+                    besluttetTidspunkt = opprettelse.besluttetTidspunkt,
                     frigjorBestilling = delutbetaling.frigjorTilsagn,
                 )
 
+                queries.delutbetaling.setSendtTilOkonomi(
+                    delutbetaling.utbetalingId,
+                    delutbetaling.tilsagnId,
+                    LocalDateTime.now(),
+                )
                 val message = OkonomiBestillingMelding.Faktura(faktura)
-                db.transaction {
-                    queries.delutbetaling.setSendtTilOkonomi(
-                        delutbetaling.utbetalingId,
-                        delutbetaling.tilsagnId,
-                        LocalDateTime.now(),
-                    )
-                    publish(faktura.bestillingsnummer, message)
-                }
+                publish(faktura.bestillingsnummer, message)
             }
     }
 

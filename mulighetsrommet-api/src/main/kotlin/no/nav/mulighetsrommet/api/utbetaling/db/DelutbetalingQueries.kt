@@ -3,15 +3,12 @@ package no.nav.mulighetsrommet.api.utbetaling.db
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
+import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.periode
-import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.oppgaver.OppgaveTiltakstype
 import org.intellij.lang.annotations.Language
@@ -19,13 +16,14 @@ import java.time.LocalDateTime
 import java.util.*
 
 class DelutbetalingQueries(private val session: Session) {
-    fun upsert(delutbetaling: DelutbetalingDbo) = withTransaction(session) {
+    fun upsert(delutbetaling: DelutbetalingDbo) {
         @Language("PostgreSQL")
         val query = """
             insert into delutbetaling (
                 id,
                 tilsagn_id,
                 utbetaling_id,
+                status,
                 belop,
                 frigjor_tilsagn,
                 periode,
@@ -35,12 +33,14 @@ class DelutbetalingQueries(private val session: Session) {
                 :id::uuid,
                 :tilsagn_id::uuid,
                 :utbetaling_id::uuid,
+                :status::delutbetaling_status,
                 :belop,
                 :frigjor_tilsagn::boolean,
                 :periode::daterange,
                 :lopenummer,
                 :fakturanummer
             ) on conflict (utbetaling_id, tilsagn_id) do update set
+                status               = excluded.status,
                 belop                = excluded.belop,
                 frigjor_tilsagn      = excluded.frigjor_tilsagn,
                 periode              = delutbetaling.periode,
@@ -52,6 +52,7 @@ class DelutbetalingQueries(private val session: Session) {
             "id" to delutbetaling.id,
             "tilsagn_id" to delutbetaling.tilsagnId,
             "utbetaling_id" to delutbetaling.utbetalingId,
+            "status" to delutbetaling.status.name,
             "belop" to delutbetaling.belop,
             "frigjor_tilsagn" to delutbetaling.frigjorTilsagn,
             "periode" to delutbetaling.periode.toDaterange(),
@@ -59,21 +60,7 @@ class DelutbetalingQueries(private val session: Session) {
             "fakturanummer" to delutbetaling.fakturanummer,
         )
 
-        execute(queryOf(query, params))
-        TotrinnskontrollQueries(this).upsert(
-            Totrinnskontroll(
-                id = UUID.randomUUID(),
-                entityId = delutbetaling.id,
-                behandletAv = delutbetaling.behandletAv,
-                aarsaker = emptyList(),
-                forklaring = null,
-                type = Totrinnskontroll.Type.OPPRETT,
-                behandletTidspunkt = LocalDateTime.now(),
-                besluttelse = null,
-                besluttetAv = null,
-                besluttetTidspunkt = null,
-            ),
-        )
+        session.execute(queryOf(query, params))
     }
 
     fun getNextLopenummerByTilsagn(tilsagnId: UUID): Int {
@@ -91,9 +78,10 @@ class DelutbetalingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select
-                delutbetaling.id,
+                id,
                 tilsagn_id,
                 utbetaling_id,
+                status,
                 belop,
                 frigjor_tilsagn,
                 periode,
@@ -106,6 +94,22 @@ class DelutbetalingQueries(private val session: Session) {
         """.trimIndent()
 
         return session.list(queryOf(query, mapOf("tilsagn_id" to tilsagnId))) { it.toDelutbetalingDto() }
+    }
+
+    fun setStatus(id: UUID, status: DelutbetalingStatus) {
+        @Language("PostgreSQL")
+        val query = """
+            update delutbetaling
+            set status = :status::delutbetaling_status
+            where id = :id::uuid
+        """.trimIndent()
+
+        val params = mapOf(
+            "id" to id,
+            "status" to status.name,
+        )
+
+        session.execute(queryOf(query, params))
     }
 
     fun setSendtTilOkonomi(utbetalingId: UUID, tilsagnId: UUID, tidspunkt: LocalDateTime) {
@@ -127,13 +131,14 @@ class DelutbetalingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun getByUtbetalingId(id: UUID): List<DelutbetalingDto> = with(session) {
+    fun getByUtbetalingId(id: UUID): List<DelutbetalingDto> {
         @Language("PostgreSQL")
         val query = """
             select
                 id,
                 tilsagn_id,
                 utbetaling_id,
+                status,
                 belop,
                 frigjor_tilsagn,
                 periode,
@@ -144,28 +149,27 @@ class DelutbetalingQueries(private val session: Session) {
             order by created_at desc
         """.trimIndent()
 
-        return list(queryOf(query, id)) { it.toDelutbetalingDto() }
+        return session.list(queryOf(query, id)) { it.toDelutbetalingDto() }
     }
 
-    fun get(id: UUID): DelutbetalingDto? = with(session) {
+    fun get(id: UUID): DelutbetalingDto? {
         @Language("PostgreSQL")
         val query = """
             select
                 id,
                 tilsagn_id,
                 utbetaling_id,
+                status,
                 belop,
                 frigjor_tilsagn,
                 periode,
                 lopenummer,
                 fakturanummer
             from delutbetaling
-            where id = :id::uuid
+            where id = ?::uuid
         """.trimIndent()
 
-        val params = mapOf("id" to id)
-
-        return single(queryOf(query, params)) { it.toDelutbetalingDto() }
+        return session.single(queryOf(query, id)) { it.toDelutbetalingDto() }
     }
 
     fun getOppgaveData(
@@ -178,6 +182,7 @@ class DelutbetalingQueries(private val session: Session) {
                 delutbetaling.id,
                 delutbetaling.tilsagn_id,
                 delutbetaling.utbetaling_id,
+                delutbetaling.status,
                 delutbetaling.belop,
                 delutbetaling.frigjor_tilsagn,
                 delutbetaling.periode,
@@ -213,57 +218,16 @@ class DelutbetalingQueries(private val session: Session) {
             )
         }
     }
-
-    private fun Row.toDelutbetalingDto(): DelutbetalingDto {
-        val id = uuid("id")
-        val opprettelse = TotrinnskontrollQueries(session).get(entityId = id, type = Totrinnskontroll.Type.OPPRETT)
-        requireNotNull(opprettelse)
-
-        return when (opprettelse.besluttetAv) {
-            null -> DelutbetalingDto.DelutbetalingTilGodkjenning(
-                id = uuid("id"),
-                tilsagnId = uuid("tilsagn_id"),
-                utbetalingId = uuid("utbetaling_id"),
-                opprettelse = opprettelse,
-                belop = int("belop"),
-                frigjorTilsagn = boolean("frigjor_tilsagn"),
-                periode = periode("periode"),
-                lopenummer = int("lopenummer"),
-                fakturanummer = string("fakturanummer"),
-            )
-
-            else -> {
-                requireNotNull(opprettelse.besluttelse)
-                when (opprettelse.besluttelse) {
-                    Besluttelse.GODKJENT -> {
-                        DelutbetalingDto.DelutbetalingOverfortTilUtbetaling(
-                            id = uuid("id"),
-                            tilsagnId = uuid("tilsagn_id"),
-                            utbetalingId = uuid("utbetaling_id"),
-                            belop = int("belop"),
-                            frigjorTilsagn = boolean("frigjor_tilsagn"),
-                            periode = periode("periode"),
-                            opprettelse = opprettelse,
-                            lopenummer = int("lopenummer"),
-                            fakturanummer = string("fakturanummer"),
-                        )
-                    }
-
-                    Besluttelse.AVVIST -> {
-                        DelutbetalingDto.DelutbetalingAvvist(
-                            id = uuid("id"),
-                            tilsagnId = uuid("tilsagn_id"),
-                            utbetalingId = uuid("utbetaling_id"),
-                            belop = int("belop"),
-                            frigjorTilsagn = boolean("frigjor_tilsagn"),
-                            periode = periode("periode"),
-                            opprettelse = opprettelse,
-                            lopenummer = int("lopenummer"),
-                            fakturanummer = string("fakturanummer"),
-                        )
-                    }
-                }
-            }
-        }
-    }
 }
+
+private fun Row.toDelutbetalingDto() = DelutbetalingDto(
+    id = uuid("id"),
+    tilsagnId = uuid("tilsagn_id"),
+    utbetalingId = uuid("utbetaling_id"),
+    belop = int("belop"),
+    frigjorTilsagn = boolean("frigjor_tilsagn"),
+    periode = periode("periode"),
+    lopenummer = int("lopenummer"),
+    fakturanummer = string("fakturanummer"),
+    status = DelutbetalingStatus.valueOf(string("status")),
+)

@@ -6,10 +6,9 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
-import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.setTilsagnStatus
-import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.setDelutbetalingStatus
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -186,10 +185,8 @@ class OppgaverServiceTest : FunSpec({
                     UtbetalingFixtures.delutbetaling2,
                 ),
             ) {
-                setDelutbetalingStatus(
-                    UtbetalingFixtures.delutbetaling2,
-                    UtbetalingFixtures.DelutbetalingStatus.RETURNERT,
-                )
+                setDelutbetalingStatus(UtbetalingFixtures.delutbetaling1, DelutbetalingStatus.TIL_GODKJENNING)
+                setDelutbetalingStatus(UtbetalingFixtures.delutbetaling2, DelutbetalingStatus.RETURNERT)
             }.initialize(database.db)
 
             var oppgaver = service.delutbetalingOppgaver(

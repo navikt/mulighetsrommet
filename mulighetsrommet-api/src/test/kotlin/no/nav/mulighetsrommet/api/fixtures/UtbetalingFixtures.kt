@@ -2,11 +2,13 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.tilsagn.model.Besluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
+import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -62,58 +64,62 @@ object UtbetalingFixtures {
         id = UUID.randomUUID(),
         tilsagnId = TilsagnFixtures.Tilsagn1.id,
         utbetalingId = utbetaling1.id,
+        status = DelutbetalingStatus.TIL_GODKJENNING,
         belop = 200,
         frigjorTilsagn = false,
         periode = utbetaling1.periode,
         lopenummer = 1,
         fakturanummer = "${TilsagnFixtures.Tilsagn1.bestillingsnummer}/1",
-        behandletAv = NavAnsattFixture.ansatt1.navIdent,
     )
 
     val delutbetaling2 = DelutbetalingDbo(
         id = UUID.randomUUID(),
         tilsagnId = TilsagnFixtures.Tilsagn2.id,
         utbetalingId = utbetaling1.id,
+        status = DelutbetalingStatus.TIL_GODKJENNING,
         belop = 150,
         frigjorTilsagn = false,
         periode = utbetaling1.periode,
         lopenummer = 1,
         fakturanummer = "${TilsagnFixtures.Tilsagn2.bestillingsnummer}/1",
-        behandletAv = NavAnsattFixture.ansatt1.navIdent,
     )
+}
 
-    enum class DelutbetalingStatus {
-        TIL_GODKJENNING,
-        GODKJENT,
-        RETURNERT,
-    }
+fun QueryContext.setDelutbetalingStatus(
+    delutbetalingDbo: DelutbetalingDbo,
+    status: DelutbetalingStatus,
+    behandletAv: NavIdent = NavAnsattFixture.ansatt1.navIdent,
+    besluttetAv: NavIdent = NavAnsattFixture.ansatt2.navIdent,
+    besluttetTidspunkt: LocalDateTime = LocalDateTime.now(),
+) {
+    val dto = queries.delutbetaling.get(delutbetalingDbo.id)
+        ?: throw IllegalStateException("Dbo må være gitt til domain først")
 
-    fun QueryContext.setDelutbetalingStatus(
-        delutbetalingDbo: DelutbetalingDbo,
-        status: DelutbetalingStatus,
-        besluttetTidspunkt: LocalDateTime = LocalDateTime.now(),
-    ) {
-        val dto = queries.delutbetaling.get(delutbetalingDbo.id)
-            ?: throw IllegalStateException("Dbo må være gitt til domain først")
-        when (status) {
-            DelutbetalingStatus.TIL_GODKJENNING -> {}
-            DelutbetalingStatus.GODKJENT ->
-                queries.totrinnskontroll.upsert(
-                    dto.opprettelse.copy(
-                        besluttetAv = NavAnsattFixture.ansatt2.navIdent,
-                        besluttelse = Besluttelse.GODKJENT,
-                        besluttetTidspunkt = besluttetTidspunkt,
-                    ),
-                )
+    queries.delutbetaling.setStatus(dto.id, status)
 
-            DelutbetalingStatus.RETURNERT ->
-                queries.totrinnskontroll.upsert(
-                    dto.opprettelse.copy(
-                        besluttetAv = NavAnsattFixture.ansatt2.navIdent,
-                        besluttelse = Besluttelse.AVVIST,
-                        besluttetTidspunkt = besluttetTidspunkt,
-                    ),
-                )
+    when (status) {
+        DelutbetalingStatus.TIL_GODKJENNING -> {
+            setTilGodkjenning(dto.id, Totrinnskontroll.Type.OPPRETT, behandletAv)
+        }
+
+        DelutbetalingStatus.GODKJENT, DelutbetalingStatus.UTBETALT -> {
+            setGodkjent(
+                dto.id,
+                Totrinnskontroll.Type.OPPRETT,
+                behandletAv,
+                besluttetAv,
+                besluttetTidspunkt = besluttetTidspunkt,
+            )
+        }
+
+        DelutbetalingStatus.RETURNERT -> {
+            setAvvist(
+                dto.id,
+                Totrinnskontroll.Type.OPPRETT,
+                behandletAv,
+                besluttetAv,
+                besluttetTidspunkt = besluttetTidspunkt,
+            )
         }
     }
 }

@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingOppgaveData
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingDto
+import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.*
@@ -207,42 +207,42 @@ class OppgaverService(val db: ApiDatabase) {
         }
     }
 
-    private fun toOppgave(oppgavedata: DelutbetalingOppgaveData): Oppgave? {
+    private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData): Oppgave? {
         val (delutbetaling, gjennomforingId, gjennomforingsnavn, tiltakstype) = oppgavedata
-        return when (delutbetaling) {
-            is DelutbetalingDto.DelutbetalingTilGodkjenning -> Oppgave(
-                id = UUID.randomUUID(),
-                type = OppgaveType.UTBETALING_TIL_GODKJENNING,
-                title = "Utbetaling til godkjenning",
-                description = "Utbetalingen for $gjennomforingsnavn er sendt til godkjenning",
-                tiltakstype = tiltakstype,
-                link = OppgaveLink(
-                    linkText = "Se utbetaling",
-                    link = "/gjennomforinger/$gjennomforingId/utbetalinger/${delutbetaling.utbetalingId}",
-                ),
-                createdAt = delutbetaling.opprettelse.behandletTidspunkt,
-                oppgaveIcon = OppgaveIcon.UTBETALING,
-            )
+        val link = OppgaveLink(
+            linkText = "Se utbetaling",
+            link = "/gjennomforinger/$gjennomforingId/utbetalinger/${delutbetaling.utbetalingId}",
+        )
+        return when (delutbetaling.status) {
+            DelutbetalingStatus.TIL_GODKJENNING -> {
+                val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
+                Oppgave(
+                    id = UUID.randomUUID(),
+                    type = OppgaveType.UTBETALING_TIL_GODKJENNING,
+                    title = "Utbetaling til godkjenning",
+                    description = "Utbetalingen for $gjennomforingsnavn er sendt til godkjenning",
+                    tiltakstype = tiltakstype,
+                    link = link,
+                    createdAt = opprettelse.behandletTidspunkt,
+                    oppgaveIcon = OppgaveIcon.UTBETALING,
+                )
+            }
 
-            is DelutbetalingDto.DelutbetalingAvvist -> {
+            DelutbetalingStatus.RETURNERT -> {
+                val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
                 Oppgave(
                     id = UUID.randomUUID(),
                     type = OppgaveType.UTBETALING_RETURNERT,
                     title = "Utbetaling returnert",
                     description = "Utbetaling for $gjennomforingsnavn ble returnert av beslutter",
                     tiltakstype = tiltakstype,
-                    link = OppgaveLink(
-                        linkText = "Se utbetaling",
-                        link = "/gjennomforinger/$gjennomforingId/utbetalinger/${delutbetaling.utbetalingId}",
-                    ),
-                    createdAt = requireNotNull(delutbetaling.opprettelse.besluttetTidspunkt),
+                    link = link,
+                    createdAt = requireNotNull(opprettelse.besluttetTidspunkt),
                     oppgaveIcon = OppgaveIcon.UTBETALING,
                 )
             }
 
-            is DelutbetalingDto.DelutbetalingOverfortTilUtbetaling,
-            is DelutbetalingDto.DelutbetalingUtbetalt,
-            -> null
+            else -> null
         }
     }
 

@@ -11,7 +11,7 @@ enum class AdminUtbetalingStatus {
             utbetaling: UtbetalingDto,
             delutbetalinger: List<DelutbetalingDto>,
         ): AdminUtbetalingStatus {
-            return if (delutbetalinger.isNotEmpty() && delutbetalinger.all { it is DelutbetalingDto.DelutbetalingUtbetalt }) {
+            return if (delutbetalinger.isNotEmpty() && delutbetalinger.all { it.status == DelutbetalingStatus.UTBETALT }) {
                 UTBETALT
             } else if (utbetaling.innsender != null) {
                 BEHANDLES_AV_NAV
