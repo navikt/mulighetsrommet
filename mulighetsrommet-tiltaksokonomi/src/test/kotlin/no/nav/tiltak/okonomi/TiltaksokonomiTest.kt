@@ -20,6 +20,7 @@ import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.model.BestillingStatusType
 import no.nav.tiltak.okonomi.model.FakturaStatusType
 import no.nav.tiltak.okonomi.model.OebsKontering
+import no.nav.tiltak.okonomi.oebs.OebsTiltakApiClient
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 
@@ -79,7 +80,7 @@ class TiltaksokonomiTest : FunSpec({
             val mockEngine = createMockEngine {
                 mockBrregHovedenhet()
 
-                post("/api/v1/tilsagn") { respondOk() }
+                post(OebsTiltakApiClient.BESTILLING_ENDPOINT) { respondOk() }
             }
 
             withTestApplication(oauth, mockEngine) {
@@ -152,9 +153,9 @@ class TiltaksokonomiTest : FunSpec({
             val mockEngine = createMockEngine {
                 mockBrregHovedenhet()
 
-                post("/api/v1/tilsagn") { respondOk() }
+                post(OebsTiltakApiClient.BESTILLING_ENDPOINT) { respondOk() }
 
-                post("/api/v1/refusjonskrav") { respondOk() }
+                post(OebsTiltakApiClient.FAKTURA_ENDPOINT) { respondOk() }
             }
 
             withTestApplication(oauth, mockEngine) {

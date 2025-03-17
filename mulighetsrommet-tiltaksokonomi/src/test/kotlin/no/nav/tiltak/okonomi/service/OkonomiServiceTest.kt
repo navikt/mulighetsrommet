@@ -292,7 +292,7 @@ class OkonomiServiceTest : FunSpec({
 
         test("frigjør bestilling = true setter siste fakturalinje i fakturaen til oebs og oppdaterer bestillingstatus") {
             val mockEngine = createMockEngine {
-                post("/api/v1/refusjonskrav") {
+                post(OebsTiltakApiClient.FAKTURA_ENDPOINT) {
                     val melding = it.decodeRequestBody<OebsFakturaMelding>()
 
                     melding.fakturaLinjer.last().erSisteFaktura shouldBe true
@@ -344,15 +344,15 @@ class OkonomiServiceTest : FunSpec({
 })
 
 private fun oebsRespondError() = createMockEngine {
-    post("/api/v1/tilsagn") { respondError(HttpStatusCode.InternalServerError) }
+    post(OebsTiltakApiClient.BESTILLING_ENDPOINT) { respondError(HttpStatusCode.InternalServerError) }
 
-    post("/api/v1/refusjonskrav") { respondError(HttpStatusCode.InternalServerError) }
+    post(OebsTiltakApiClient.FAKTURA_ENDPOINT) { respondError(HttpStatusCode.InternalServerError) }
 }
 
 private fun oebsRespondOk() = createMockEngine {
-    post("/api/v1/tilsagn") { respondOk() }
+    post(OebsTiltakApiClient.BESTILLING_ENDPOINT) { respondOk() }
 
-    post("/api/v1/refusjonskrav") { respondOk() }
+    post(OebsTiltakApiClient.FAKTURA_ENDPOINT) { respondOk() }
 }
 
 private fun oebsClient(mockEngine: MockEngine): OebsTiltakApiClient {
