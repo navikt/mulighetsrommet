@@ -1,7 +1,7 @@
-package no.nav.mulighetsrommet.api.arrangorflate.model
+package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -9,20 +9,20 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-data class ArrFlateUtbetalingKompakt(
+data class ArrFlateUtbetalingKompaktDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val status: ArrFlateUtbetalingStatus,
     @Serializable(with = LocalDateTimeSerializer::class)
     val fristForGodkjenning: LocalDateTime,
-    val tiltakstype: UtbetalingDto.Tiltakstype,
-    val gjennomforing: UtbetalingDto.Gjennomforing,
-    val arrangor: UtbetalingDto.Arrangor,
+    val tiltakstype: Utbetaling.Tiltakstype,
+    val gjennomforing: Utbetaling.Gjennomforing,
+    val arrangor: Utbetaling.Arrangor,
     val periode: Periode,
     val belop: Int,
 ) {
     companion object {
-        fun fromUtbetalingDto(utbetaling: UtbetalingDto, status: ArrFlateUtbetalingStatus) = ArrFlateUtbetalingKompakt(
+        fun fromUtbetaling(utbetaling: Utbetaling, status: ArrFlateUtbetalingStatus) = ArrFlateUtbetalingKompaktDto(
             id = utbetaling.id,
             status = status,
             fristForGodkjenning = utbetaling.fristForGodkjenning,

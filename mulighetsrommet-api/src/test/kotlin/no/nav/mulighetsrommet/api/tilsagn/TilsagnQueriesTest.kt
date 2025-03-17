@@ -52,11 +52,11 @@ class TilsagnQueriesTest : FunSpec({
 
                 queries.get(tilsagn.id).shouldNotBeNull() should {
                     it.id shouldBe tilsagn.id
-                    it.tiltakstype shouldBe TilsagnDto.Tiltakstype(
+                    it.tiltakstype shouldBe Tilsagn.Tiltakstype(
                         tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
                         navn = TiltakstypeFixtures.AFT.navn,
                     )
-                    it.gjennomforing shouldBe TilsagnDto.Gjennomforing(
+                    it.gjennomforing shouldBe Tilsagn.Gjennomforing(
                         id = AFT1.id,
                         navn = AFT1.navn,
                     )
@@ -64,7 +64,7 @@ class TilsagnQueriesTest : FunSpec({
                     it.kostnadssted shouldBe Gjovik
                     it.lopenummer shouldBe 1
                     it.bestillingsnummer shouldBe "1"
-                    it.arrangor shouldBe TilsagnDto.Arrangor(
+                    it.arrangor shouldBe Tilsagn.Arrangor(
                         navn = ArrangorFixtures.underenhet1.navn,
                         id = ArrangorFixtures.underenhet1.id,
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,

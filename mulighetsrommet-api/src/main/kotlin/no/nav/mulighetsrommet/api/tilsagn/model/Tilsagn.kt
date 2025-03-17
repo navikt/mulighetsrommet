@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.*
 
 @Serializable
-data class TilsagnDto(
+data class Tilsagn(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val type: TilsagnType,

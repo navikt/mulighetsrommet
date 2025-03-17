@@ -1937,7 +1937,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/AdminUtbetalingKompakt"
+                  $ref: "#/components/schemas/UtbetalingDto"
 
   /api/v1/intern/utbetaling/{id}:
     parameters:
@@ -1952,7 +1952,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AdminUtbetalingDetaljer"
+                $ref: "#/components/schemas/UtbetalingDetaljerDto"
 
   /api/v1/intern/utbetaling/{id}/delutbetalinger:
     parameters:
@@ -5393,50 +5393,26 @@ components:
         id:
           type: string
           format: uuid
-        belopGjenstaende:
-          type: integer
+        type:
+          $ref: "#/components/schemas/TilsagnType"
         periode:
           $ref: "#/components/schemas/Periode"
+        belopGjenstaende:
+          type: integer
         kostnadssted:
           $ref: "#/components/schemas/NavEnhet"
         beregning:
           $ref: "#/components/schemas/TilsagnBeregning"
-        lopenummer:
-          type: integer
-        arrangor:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-            organisasjonsnummer:
-              type: string
-            navn:
-              type: string
-            overordnetEnhet:
-              type: [string, "null"]
-          required:
-            - id
-            - organisasjonsnummer
-            - navn
-            - overordnetEnhet
         status:
           $ref: "#/components/schemas/TilsagnStatus"
-        type:
-          $ref: "#/components/schemas/TilsagnType"
       required:
         - id
-        - opprettelse
-        - gjennomforingId
+        - type
         - periode
+        - belopGjenstaende
         - kostnadssted
         - beregning
-        - belop
-        - arrangor
-        - lopenummer
         - status
-        - type
-        - belopGjenstaende
 
     TilsagnDetaljerDto:
       type: object
@@ -5460,9 +5436,9 @@ components:
         - GODKJENT
         - RETURNERT
         - TIL_ANNULLERING
+        - ANNULLERT
         - TIL_FRIGJORING
         - FRIGJORT
-        - ANNULLERT
 
     Besluttelse:
       type: string
@@ -5655,11 +5631,11 @@ components:
         - BEHANDLES_AV_NAV
         - UTBETALT
 
-    AdminUtbetalingDetaljer:
+    UtbetalingDetaljerDto:
       type: object
       properties:
         utbetaling:
-          $ref: "#/components/schemas/AdminUtbetalingKompakt"
+          $ref: "#/components/schemas/UtbetalingDto"
         delutbetalinger:
           type: array
           items:
@@ -5679,7 +5655,7 @@ components:
         - delutbetaling
         - opprettelse
 
-    AdminUtbetalingKompakt:
+    UtbetalingDto:
       type: object
       properties:
         id:

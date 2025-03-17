@@ -13,7 +13,9 @@ import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
-import no.nav.mulighetsrommet.api.utbetaling.OpprettManuellUtbetalingRequest.Periode
+import no.nav.mulighetsrommet.api.utbetaling.api.BesluttDelutbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.OpprettManuellUtbetalingRequest.Periode
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.security.mock.oauth2.MockOAuth2Server

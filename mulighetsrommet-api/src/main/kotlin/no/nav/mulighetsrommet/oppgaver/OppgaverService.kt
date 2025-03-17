@@ -3,12 +3,12 @@ package no.nav.mulighetsrommet.oppgaver
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattRolle
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDto
+import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingOppgaveData
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingDto
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.*
 
@@ -105,7 +105,7 @@ class OppgaverService(val db: ApiDatabase) {
         queries.utbetaling
             .getOppgaveData(tiltakskoder = tiltakskoder.ifEmpty { null })
             .asSequence()
-            .filter { utbetaling -> utbetaling.innsender == UtbetalingDto.Innsender.ArrangorAnsatt }
+            .filter { utbetaling -> utbetaling.innsender == Utbetaling.Innsender.ArrangorAnsatt }
             .filter { utbetaling -> queries.delutbetaling.getByUtbetalingId(utbetaling.id).isEmpty() }
             .filter { utbetaling -> byKostnadssted(utbetaling, kostnadssteder) }
             .map { toOppgave(it) }
@@ -115,7 +115,7 @@ class OppgaverService(val db: ApiDatabase) {
     }
 
     private fun QueryContext.byKostnadssted(
-        utbetaling: UtbetalingDto,
+        utbetaling: Utbetaling,
         kostnadssteder: List<String>,
     ): Boolean = when {
         kostnadssteder.isEmpty() -> true
@@ -134,7 +134,7 @@ class OppgaverService(val db: ApiDatabase) {
             .map { it.enhetsnummer }
     }
 
-    private fun QueryContext.toOppgave(tilsagn: TilsagnDto): Oppgave? {
+    private fun QueryContext.toOppgave(tilsagn: Tilsagn): Oppgave? {
         val tiltakstype = OppgaveTiltakstype(
             tiltakskode = tilsagn.tiltakstype.tiltakskode,
             navn = tilsagn.tiltakstype.navn,
@@ -246,7 +246,7 @@ class OppgaverService(val db: ApiDatabase) {
         }
     }
 
-    private fun toOppgave(utbetaling: UtbetalingDto): Oppgave = Oppgave(
+    private fun toOppgave(utbetaling: Utbetaling): Oppgave = Oppgave(
         id = UUID.randomUUID(),
         type = OppgaveType.UTBETALING_TIL_BEHANDLING,
         title = "Utbetaling klar til behandling",
