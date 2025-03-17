@@ -1,4 +1,4 @@
-import { FieldError } from "@mr/api-client-v2";
+import { FieldError } from "api-client";
 
 export function getOrThrowError(formData: FormData, property: string) {
   const data = formData.get(property);

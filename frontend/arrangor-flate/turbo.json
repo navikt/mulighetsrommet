@@ -1,7 +1,27 @@
 {
   "extends": ["//"],
   "tasks": {
+    "api-client:build": {
+      "outputs": ["api-client"]
+    },
+    "backend": {
+      "dependsOn": ["api-client:build"],
+      "outputs": []
+    },
+    "dev": {
+      "dependsOn": ["api-client:build"],
+      "outputs": []
+    },
+    "lint:fix": {
+      "dependsOn": ["api-client:build"],
+      "outputs": []
+    },
+    "typecheck": {
+      "dependsOn": ["api-client:build"],
+      "outputs": []
+    },
     "build": {
+      "dependsOn": ["api-client:build"],
       "outputs": ["build"]
     },
     "pack": {

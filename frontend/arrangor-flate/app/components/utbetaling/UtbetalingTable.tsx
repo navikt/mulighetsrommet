@@ -4,7 +4,7 @@ import React, { ReactNode } from "react";
 import { formaterDato, formaterPeriode, useOrgnrFromUrl } from "~/utils";
 import { internalNavigation } from "~/internal-navigation";
 import { LinkWithTabState } from "../LinkWithTabState";
-import { ArrFlateUtbetalingKompakt, ArrFlateUtbetalingStatus } from "@mr/api-client-v2";
+import { ArrFlateUtbetalingKompakt, ArrFlateUtbetalingStatus } from "api-client";
 
 interface Props {
   utbetalinger: ArrFlateUtbetalingKompakt[];

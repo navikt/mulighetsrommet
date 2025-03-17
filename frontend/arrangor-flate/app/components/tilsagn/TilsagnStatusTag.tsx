@@ -1,8 +1,4 @@
-import {
-  TilsagnStatus,
-  TilsagnStatusOgAarsaker,
-  TilsagnTilAnnulleringAarsak,
-} from "@mr/api-client-v2";
+import { TilsagnStatus, TilsagnStatusOgAarsaker, TilsagnTilAnnulleringAarsak } from "api-client";
 import { HelpText, List, Tag } from "@navikt/ds-react";
 
 interface Props {

@@ -2259,6 +2259,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ArrFlateUtbetalingKompakt"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/arrangorflate/arrangor/{orgnr}/tilsagn:
     get:
@@ -2276,6 +2278,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ArrangorflateTilsagn"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/arrangorflate/utbetaling/{id}/tilsagn:
     get:
@@ -2293,6 +2297,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ArrangorflateTilsagn"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/arrangorflate/utbetaling/{id}/relevante-forslag:
     get:
@@ -2310,6 +2316,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/RelevanteForslag"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/arrangorflate/tilsagn/{id}:
     get:
@@ -2325,6 +2333,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ArrangorflateTilsagn"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/arrangorflate/utbetaling/{id}:
     get:
@@ -2340,6 +2350,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ArrFlateUtbetaling"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/arrangorflate/utbetaling/{id}/godkjenn:
     post:
@@ -2363,6 +2375,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationError"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/arrangorflate/utbetaling/{id}/kvittering:
     parameters:
@@ -2379,6 +2393,8 @@ paths:
               schema:
                 type: string
                 format: binary
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/arrangorflate/tilgang-arrangor:
     get:
@@ -2394,6 +2410,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Arrangor"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
 
   /api/v1/intern/utdanninger:
     get:
@@ -2432,6 +2450,13 @@ paths:
                   $ref: "#/components/schemas/Oppgave"
 
 components:
+  responses:
+    ProblemDetail:
+      description: Common error type
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
   securitySchemes:
     bearerAuth:
       type: http
@@ -5667,8 +5692,7 @@ components:
         betalingsinformasjon:
           $ref: "#/components/schemas/Betalingsinformasjon"
         beskrivelse:
-          type: string
-          nullable: true
+          type: [string, "null"]
         innsendtAv:
           type: string
       required:
@@ -6008,7 +6032,8 @@ components:
         kontonummer:
           type: string
         kid:
-          type: string
+          type: [string, "null"]
+      required: [kontonummer, kid]
 
     GodkjennUtbetaling:
       type: object

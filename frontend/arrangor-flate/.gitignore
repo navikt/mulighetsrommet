@@ -1,4 +1,5 @@
 node_modules
+/api-client
 /.cache
 /build
 .env

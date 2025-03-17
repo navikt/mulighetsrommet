@@ -46,8 +46,7 @@ fun Route.arrangorflateRoutes() {
                     arrangorService.getArrangorOrSyncFromBrreg(it).getOrElse {
                         throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
                     }
-                }
-                ?: throw StatusException(HttpStatusCode.Unauthorized, "Mangler altinn tilgang")
+                } ?: throw StatusException(HttpStatusCode.Unauthorized, "Mangler altinn tilgang")
 
             call.respond(arrangorer)
         }

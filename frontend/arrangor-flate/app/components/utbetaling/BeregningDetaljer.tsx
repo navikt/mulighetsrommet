@@ -1,4 +1,4 @@
-import { ArrFlateBeregning } from "@mr/api-client-v2";
+import { ArrFlateBeregning } from "api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Definisjonsliste, Definition } from "../Definisjonsliste";
 

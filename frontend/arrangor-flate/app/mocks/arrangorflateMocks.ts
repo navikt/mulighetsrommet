@@ -7,7 +7,7 @@ import {
   TilsagnType,
   ArrFlateUtbetalingStatus,
   ArrFlateUtbetalingKompakt,
-} from "@mr/api-client-v2";
+} from "api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import { v4 as uuid } from "uuid";
 

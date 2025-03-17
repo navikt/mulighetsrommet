@@ -17,12 +17,13 @@
     "playwright": "playwright test",
     "playwright:debug": "playwright test --debug",
     "playwright:open": "playwright test --ui",
-    "playwright:codegen": "playwright codegen playwright.dev"
+    "playwright:codegen": "playwright codegen playwright.dev",
+    "api-client:build": "openapi-ts --useOptions --input ../../mulighetsrommet-api/src/main/resources/web/openapi.yaml --output ./api-client"
   },
   "dependencies": {
     "@axe-core/playwright": "4.10.1",
-    "@mr/api-client-v2": "workspace:*",
     "@mr/frontend-common": "workspace:*",
+    "@hey-api/client-fetch": "0.8.3",
     "@navikt/aksel-icons": "7.17.1",
     "@navikt/ds-css": "7.17.1",
     "@navikt/ds-react": "7.17.1",
@@ -55,6 +56,7 @@
   "devDependencies": {
     "@playwright/test": "1.51.0",
     "@react-router/dev": "7.3.0",
+    "@hey-api/openapi-ts": "0.64.10",
     "@react-router/fs-routes": "7.3.0",
     "@tailwindcss/typography": "0.5.16",
     "@types/compression": "1.7.5",
