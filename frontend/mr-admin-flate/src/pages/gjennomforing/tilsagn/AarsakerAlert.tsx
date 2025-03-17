@@ -39,7 +39,7 @@ export function TilFrigjoringAlert({ frigjoring }: { frigjoring: Totrinnskontrol
   return (
     <Alert variant="warning" size="small" style={{ marginTop: "1rem" }}>
       <Heading size="xsmall" level="3">
-        Tilsagnet frigjøres
+        Tilsagnet gjøres opp
       </Heading>
       <p>
         {frigjoring.behandletAv} sendte tilsagnet til frigjøring den{" "}
